@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Vanilla-Wallet",
+  "name": "Data-Wallet",
   "description": "Snickerdoodle's Data Wallet",
   "options_page": "options.html",
   "background": { "service_worker": "background.bundle.js" },
