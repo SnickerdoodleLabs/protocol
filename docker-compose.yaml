@@ -1,0 +1,32 @@
+version: "3.4"
+
+services:
+  blockchain:
+    image: hypernetlabs/eth-provider:local
+    ports:
+      - 8545:8545
+    environment:
+      MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
+      CHAIN_ID: "1337"
+
+  user-dashboard:
+    image: hypernetlabs/hypernet-protocol-user-dashboard:local
+    ports: 
+      - 8080:80
+    depends_on:
+      - blockchain
+
+  ipfs:
+    image: ipfs/go-ipfs:release
+    ports:
+      - "4021:4001" # Swarm
+      - "5021:5001" # Api
+      - "8088:8080" # Gateway
+    volumes:
+      - ./.ipfs/ipfs0:/data/ipfs
+      - ./.ipfs/export:/export
+      - ./packages/development/ipfs-provider/start_ipfs:/start_ipfs
+    entrypoint: ["/sbin/tini", "--", "/start_ipfs"]
+    command: ["daemon", "--migrate=true", "--agent-version-suffix=docker"]
+    environment:
+      ACCESS_CONTROL_ALLOW_ORIGIN: "[\"*\"]"

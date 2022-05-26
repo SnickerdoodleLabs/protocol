@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.build.json",
+  "files": [],
+  "references": [
+    {
+      "path": "packages/objects"
+    },
+    // {
+    //   "path": "packages/utils"
+    // },
+    // {
+    //   "path": "packages/browserExtension"
+    // },
+    // {
+    //   "path": "packages/queryEngine"
+    // },
+  ]
+}

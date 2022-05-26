@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "dev": "next dev",
+    "dockerize": "docker build -t cinnamon-local -f Dockerfile",
     "lint": "next lint",
     "my-script": "next dev",
-    "dockerize": "docker build -t cinnamon-local -f Dockerfile"
+    "start": "next start"
   },
   "dependencies": {
     "bootstrap": "^5.1.3",
