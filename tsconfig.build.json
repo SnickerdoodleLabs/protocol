@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "declaration": true,
+    "downlevelIteration": true,
+    "target": "ES2019",
+    "baseUrl": ".",
+    "module": "commonjs",
+    "removeComments": false,
+    "moduleResolution": "node",
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "declarationMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "composite": true,
+    "paths": {
+      "@browser-extension/*": ["./*"],
+      "@objects/*": ["./*"],
+      "@query-engine/*": ["./*"],
+      "@utils/*": ["./*"]
+    }
+  }
+}
