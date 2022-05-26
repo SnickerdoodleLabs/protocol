@@ -1,5 +1,5 @@
 {
-  "name": "vanilla-wallet",
+  "name": "@snickerdoodlelabs/browserextension",
   "version": "0.1",
   "description": "Snickerdoodle's data wallet",
   "license": "MIT",
