@@ -9,6 +9,7 @@ import { useState } from "react";
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false);
   const [signer, setSigner] = useState(undefined);
+  const [accounts, setAccounts] = useState([]);
 
   const [provider, setProvider] = useState();
   const [messages, setMessages] = useState([]);
@@ -80,11 +81,12 @@ export default function Home() {
 
   async function connect() {
     if (typeof window.ethereum != undefined) {
-      await ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
       setIsConnected(true);
       const connectedProvider = new ethers.providers.Web3Provider(
         window.ethereum
       );
+      setAccounts( accounts);
       setProvider(connectedProvider);
 
       setSigner(connectedProvider.getSigner());
@@ -94,6 +96,37 @@ export default function Home() {
     }
   }
 
+  async function  signatureVerification() {
+
+    const msgParams = {
+      domain: {
+        chainId: 1,
+        name: 'Snickerdoodle Consent Contract',
+        verifyingContract: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+        version: '1',
+      },
+
+      message: {
+        contents: 'Hello, from Snickerdoodle',
+      },
+    };
+
+    const from = accounts[0]; 
+    var params = [from, JSON.stringify(msgParams)];
+
+    var message = JSON.stringify({ 'foo': 'bar'})
+    const signature = await signer.signMessage(message);
+    console.log( ' signature ', signature);
+    // ethereum.request(
+    //   {
+    //     method: 'eth_signTypedData_v4',
+    //     params,
+    //     from,
+    //   }
+    // ).then(  (result) => console.log(result))
+  
+     
+  }
   function clearEvents() {
     setMessages([]);
   }
@@ -121,7 +154,7 @@ export default function Home() {
 
         <p>
         This is Test Program to capture Block Chain Events. 
-        Run steps from ' Consent Contract Tasks' located at 
+        Run steps from Consent Contract Tasks located at 
       https://github.com/SnickerdoodleLabs/SDL-CLI
 </p>
         {isConnected ? (
@@ -141,7 +174,15 @@ export default function Home() {
         )}
 
    
-         
+    <button
+          type="button"
+          className="btn btn-primary mx-4"
+          onClick={() => {
+            signatureVerification();
+          }}
+        >
+          Signature Verification
+        </button>
 
         <button
           type="button"
@@ -158,6 +199,7 @@ export default function Home() {
         
         </ul>
       
+          <p> Account is {accounts[0]} </p>
       </main>
       
      

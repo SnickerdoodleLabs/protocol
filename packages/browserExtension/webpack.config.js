@@ -113,7 +113,7 @@ var options = {
   },
   plugins: [
     new NodePolyfillPlugin(),
-    new CleanWebpackPlugin({ verbose: false }),
+    new CleanWebpackPlugin({ verbose: true }),
     new webpack.ProgressPlugin(),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.EnvironmentPlugin(['NODE_ENV']),

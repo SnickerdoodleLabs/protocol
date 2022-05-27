@@ -8,10 +8,8 @@
     "default_popup": "popup.html",
     "default_icon": "icon-34.png"
   },
-  "chrome_url_overrides": {
-    "newtab": "newtab.html"
-  },
-  "permissions": ["notifications"],
+
+  "permissions": ["notifications", "storage", "activeTab", "scripting"],
   "icons": {
     "128": "icon-128.png"
   },
