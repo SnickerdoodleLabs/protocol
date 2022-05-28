@@ -10,10 +10,12 @@ if (typeof window.ethereum !== "undefined") {
   if (window.location.hostname === "www.shrapnel.com") {
     shadowRootElement.querySelector(".riot").style = "display:none";
     shadowRootElement.querySelector(".sharapnel").style = "display:block";
+    shadowRootElement.querySelector(".card").style = "display:block";
   }
   if (window.location.hostname === "staratlas.com") {
     shadowRootElement.querySelector(".riot").style = "display:block";
     shadowRootElement.querySelector(".sharapnel").style = "display:none";
+    shadowRootElement.querySelector(".card").style = "display:block";
   }
   let checkS = sessionStorage.getItem("shrapnel");
   let checkR = sessionStorage.getItem("riot");

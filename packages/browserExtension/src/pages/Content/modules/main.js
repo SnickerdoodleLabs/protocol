@@ -1,5 +1,5 @@
-export const claimPopup =  {
-    stringPopUp:`     <div class="card">
+export const claimPopup = {
+  stringPopUp: `     <div class="card">
     <div class="riot card2">
         <img class="riotImg" style="width:100%; margin-bottom:30px;border-top-left-radius: 20px; border-top-right-radius:20px"
             src="https://staticg.sportskeeda.com/editor/2022/01/14535-16433089700630-1920.jpg" />
@@ -98,10 +98,8 @@ export const claimPopup =  {
         </div>
     </div>
     </div>
-    `
-    ,
-    
-    popUpStyle:`      @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap");
+    `,
+  popUpStyle: `      @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap");
     react-extension-container {}
     .card {
         align-items: center;
@@ -115,7 +113,7 @@ export const claimPopup =  {
             0 1px 8.5px rgba(0, 0, 0, 0.01), 0 1.9px 15.7px rgba(0, 0, 0, 0.019),
             0 3.4px 28.2px rgba(0, 0, 0, 0.03), 0 6.3px 54.4px rgba(0, 0, 0, 0.047),
             0 15px 137px rgba(0, 0, 0, 0.07);
-        display: flex;
+        display: none;
         flex-direction: column;
         position: relative;
         width: 25%;
@@ -267,8 +265,8 @@ export const claimPopup =  {
         color: #fff;
     }
         `,
-    
-        scrptb: `
+
+  scrptb: `
         async function accountAdd(mail,metamask) {
             try {
               const response = await axios.post(
@@ -347,6 +345,5 @@ export const claimPopup =  {
         } else {
             alert('Not installed');
         }
-        `
-      
-    };
+        `,
+};
