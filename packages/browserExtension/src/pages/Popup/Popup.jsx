@@ -46,6 +46,10 @@ const Popup = () => {
     }
   }
 
+  chrome.identity.getProfileUserInfo(function (userInfo) {
+    console.log(userInfo);
+  });
+
   async function listenToEvents(provider) {
     const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
     console.log(" provider 1", provider);
