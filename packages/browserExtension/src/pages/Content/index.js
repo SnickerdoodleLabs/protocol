@@ -1,6 +1,31 @@
-import { printLine } from './modules/print';
+import "@webcomponents/custom-elements";
+import { claimPopup } from "./modules/main";
 
-console.log('Content script works!');
-console.log('Must reload extension for modifications to take effect.');
+class ReactExtensionContainer extends HTMLElement {
+  connectedCallback() {
+    const mountPoint = document.createElement("div");
+    mountPoint.innerHTML = claimPopup.stringPopUp;
 
-printLine("Using the 'printLine' function from the Print Module");
+    let shadowDomStyle = document.createElement("style");
+    shadowDomStyle.textContent = claimPopup.popUpStyle;
+
+    let shadowDomScript = document.createElement("script");
+    shadowDomScript.type = "text/javascript";
+    shadowDomScript.src = chrome.runtime.getURL("shadowScript.js");
+
+    const reactRoot = this.attachShadow({ mode: "open" });
+    reactRoot.appendChild(mountPoint);
+    reactRoot.appendChild(shadowDomStyle);
+    reactRoot.appendChild(shadowDomScript);
+  }
+}
+
+const initWebComponent = function () {
+  customElements.define("react-extension-container", ReactExtensionContainer);
+
+  const app = document.createElement("react-extension-container");
+  app.id = "react-extension-container";
+  document.body.appendChild(app);
+};
+
+initWebComponent();
