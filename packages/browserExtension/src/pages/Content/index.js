@@ -1,31 +1,51 @@
+import React from "react";
+import {render} from "react-dom";
 import "@webcomponents/custom-elements";
-import { claimPopup } from "./modules/main";
+
+import "./content.styles.css";
+import App from "./components";
 
 class ReactExtensionContainer extends HTMLElement {
   connectedCallback() {
-    const mountPoint = document.createElement("div");
-    mountPoint.innerHTML = claimPopup.stringPopUp;
+    const shadowRoot = this.attachShadow({ mode: 'open' });
+    const styleRoot = document.createElement('link');
+    styleRoot.rel =  "stylesheet";
+    styleRoot.href =  chrome.runtime.getURL("content.styles.css");
+    const mountPoint = document.createElement('div');
+    shadowRoot.appendChild(styleRoot);
+    shadowRoot.appendChild(mountPoint);
+    mountPoint.id = "content-container"
 
-    let shadowDomStyle = document.createElement("style");
-    shadowDomStyle.textContent = claimPopup.popUpStyle;
+    render(
+      <App />,
+      mountPoint
+    );
+   // mountPoint.innerHTML = claimPopup.stringPopUp;
 
-    let shadowDomScript = document.createElement("script");
-    shadowDomScript.type = "text/javascript";
-    shadowDomScript.src = chrome.runtime.getURL("shadowScript.js");
+    // let shadowDomStyle = document.createElement("style");
+    // shadowDomStyle.innerHTML = chrome.runtime.getURL("content.style.css");
 
-    const reactRoot = this.attachShadow({ mode: "open" });
-    reactRoot.appendChild(mountPoint);
-    reactRoot.appendChild(shadowDomStyle);
-    reactRoot.appendChild(shadowDomScript);
+    // let shadowDomScript = document.createElement("script");
+    // shadowDomScript.type = "text/javascript";
+    // shadowDomScript.src = chrome.runtime.getURL("shadowScript.js");
+
+    // reactRoot.appendChild(mountPoint);
+    // reactRoot.appendChild(shadowDomStyle);
+    // reactRoot.appendChild(shadowDomStyle);
+    // reactRoot.appendChild(shadowDomScript);
   }
 }
 
 const initWebComponent = function () {
-  customElements.define("react-extension-container", ReactExtensionContainer);
+  customElements.define("snickerdoodle-data-wallet", ReactExtensionContainer);
 
-  const app = document.createElement("react-extension-container");
-  app.id = "react-extension-container";
+  const app = document.createElement("snickerdoodle-data-wallet");
+  app.id = "snickerdoodle-data-wallet";
+//   const appContainer = document.createElement("div");
+//   appContainer.id = "app-container";
+//   app.appendChild(appContainer);
   document.body.appendChild(app);
-};
+
+ };
 
 initWebComponent();

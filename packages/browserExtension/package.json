@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/browserextension",
-  "version": "0.1",
+  "version": "0.0.1",
   "description": "Snickerdoodle's data wallet",
   "license": "MIT",
   "scripts": {
