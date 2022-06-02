@@ -4,6 +4,8 @@ import "@webcomponents/custom-elements";
 
 import "./content.styles.css";
 import App from "./components/App";
+import { StylesProvider, jssPreset } from '@material-ui/styles';
+import { create } from 'jss';
 
 class ReactExtensionContainer extends HTMLElement {
   connectedCallback() {
@@ -16,8 +18,16 @@ class ReactExtensionContainer extends HTMLElement {
     shadowRoot.appendChild(mountPoint);
     mountPoint.id = "content-container"
 
+    const jss = create({
+      ...jssPreset(),
+      insertionPoint: mountPoint
+  });
+
+
     render(
-      <App />,
+      <StylesProvider jss={jss}>
+          <App />
+      </StylesProvider>,
       mountPoint
     );
    // mountPoint.innerHTML = claimPopup.stringPopUp;

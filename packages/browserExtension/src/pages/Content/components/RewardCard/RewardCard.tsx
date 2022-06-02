@@ -1,5 +1,6 @@
 import React from "react";
 import { RewardItem } from "../App/App";
+import {useStyles} from './RevardCard.style';
 
 interface props {
   rewardItem: RewardItem;
@@ -15,6 +16,7 @@ const RewardCard: React.FC<props> = (props) => {
     secondaryButtonText,
     rewardName,
   } = rewardItem;
+  const classes = useStyles();
   return (
     <div className="card">
       <div className="sharapnel card2">
