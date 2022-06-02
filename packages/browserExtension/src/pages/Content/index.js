@@ -3,7 +3,7 @@ import {render} from "react-dom";
 import "@webcomponents/custom-elements";
 
 import "./content.styles.css";
-import App from "./components";
+import App from "./components/App";
 
 class ReactExtensionContainer extends HTMLElement {
   connectedCallback() {
