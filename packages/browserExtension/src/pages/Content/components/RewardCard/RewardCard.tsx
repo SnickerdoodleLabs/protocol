@@ -18,7 +18,7 @@ const RewardCard: React.FC<props> = (props) => {
   } = rewardItem;
   // const classes = useStyles();
   const primaryButtonClicked = () => {
-    document.dispatchEvent(new CustomEvent("requestAccounts"));
+    document.dispatchEvent(new CustomEvent("SD_CONNECT_TO_WALLET_REQUEST"));
   };
   const secondaryButtonClicked = () => {
     chrome.storage.sync.get(["accountAddress"], function (result) {
@@ -26,16 +26,17 @@ const RewardCard: React.FC<props> = (props) => {
     });
   };
 
-  document.addEventListener("accountsReceived", async function (e) {
-    console.log("accountsReceived");
-    // @ts-ignore
-    const accounts = e.detail;
-
-    console.log("accounts received: ", accounts);
-    chrome.storage.sync.set({ accountAddress: accounts }, function () {
-      console.log("Value is set to " + accounts);
-    });
-  });
+  document.addEventListener(
+    "SD_WALLET_CONNECTION_COMPLETED",
+    async function (e) {
+      // @ts-ignore
+      const { accounts, signature } = e.detail;
+      console.log("accounts received: ", accounts);
+      chrome.storage.sync.set({ accountAddress: accounts }, function () {
+        console.log("Value is set to " + accounts);
+      });
+    },
+  );
 
   return (
     <div className="card">
