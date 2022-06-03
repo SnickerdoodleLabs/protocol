@@ -15,6 +15,7 @@ export * from "@objects/SDQLQuery";
 export * from "@objects/SDQLString";
 export * from "@objects/Signature";
 export * from "@objects/UnixTimestamp";
+export * from "@objects/URLString";
 export * from "@objects/UUID";
 
 export * from "@objects/configuration";
