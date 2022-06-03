@@ -1,13 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 snickerdoodle-data-wallet {}
 .card {
     align-items: center;
-    background-color: white;
+    background-color: #FDF3E1;
     position: fixed !important;
     top: 25%;
     left: 37.5%;
     z-index: 9999;
-    border-radius: 20px;
     box-shadow: 0 0.4px 3.6px rgba(0, 0, 0, 0.004),
         0 1px 8.5px rgba(0, 0, 0, 0.01), 0 1.9px 15.7px rgba(0, 0, 0, 0.019),
         0 3.4px 28.2px rgba(0, 0, 0, 0.03), 0 6.3px 54.4px rgba(0, 0, 0, 0.047),

@@ -1,6 +1,7 @@
+import Button from "@material-ui/core/Button";
 import React from "react";
 import { RewardItem } from "../App/App";
-// import { useStyles } from "./RevardCard.style";
+import { useStyles } from "./RevardCard.style";
 
 interface props {
   rewardItem: RewardItem;
@@ -16,7 +17,7 @@ const RewardCard: React.FC<props> = (props) => {
     secondaryButtonText,
     rewardName,
   } = rewardItem;
-  // const classes = useStyles();
+  const classes = useStyles();
   const primaryButtonClicked = () => {
     document.dispatchEvent(new CustomEvent("requestAccounts"));
   };
@@ -40,36 +41,68 @@ const RewardCard: React.FC<props> = (props) => {
   return (
     <div className="card">
       <div className="sharapnel card2">
-        <img
-          className="sharapnelImg"
+        <div
           style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             width: "100%",
-            height: "320px",
-            marginBottom: "30px",
-            borderTopLeftRadius: "20px",
-            borderTopRightRadius: "20px",
+            background: "#F8D798",
+            height: "240px",
+            flexDirection: "column",
           }}
-          src={image}
-        />
-        <div className="text">
-          <div className="title">
-            {title} - {rewardName}
-            <div className="tooltip">
-              <div className="tooltip-spacing">
-                <div className="tooltip-bg1" />
-                <div className="tooltip-bg2" />
-                <div className="tooltip-text">?</div>
-              </div>
-            </div>
+        >
+          <img
+            className="sharapnelImg"
+            style={{
+              width: "204px",
+              height: "auto",
+            }}
+            src={image}
+          />
+          <div
+            style={{
+              borderRadius: "4px",
+              background: "rgba(255, 255, 255, 0.5)",
+              padding: "3px 12px",
+            }}
+          >
+            {rewardName}
           </div>
-          <div className="info">{description}</div>
         </div>
-        <div className="buttons">
-          <div className="button" onClick={secondaryButtonClicked}>
-            {secondaryButtonText}
+
+        <div
+          style={{
+            background: "#FDF3E1",
+            padding: "25px",
+          }}
+        >
+          <div className="text">
+            <div className="title">{title}</div>
+            <div className="info">{description}</div>
           </div>
-          <div className="button button-primary" onClick={primaryButtonClicked}>
-            {primaryButtonText}
+          <div className="buttons">
+            <div
+              className="button"
+              style={{
+                background: "unset",
+                textDecoration: "underline",
+              }}
+              onClick={secondaryButtonClicked}
+            >
+              {secondaryButtonText}
+            </div>
+            <div
+              className="button button-primary"
+              onClick={primaryButtonClicked}
+              style={{
+                background: "#fff",
+                color: "#000",
+                borderRadius: 0,
+              }}
+            >
+              {primaryButtonText}
+            </div>
           </div>
         </div>
       </div>
