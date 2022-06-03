@@ -11,11 +11,14 @@ class ReactExtensionContainer extends HTMLElement {
   connectedCallback() {
     const shadowRoot = this.attachShadow({ mode: 'open' });
     const styleRoot = document.createElement('link');
+    const scriptRoot = document.createElement('script');
+    scriptRoot.src = chrome.runtime.getURL('injectables/walletConnection.js');
     styleRoot.rel =  "stylesheet";
     styleRoot.href =  chrome.runtime.getURL("content.styles.css");
     const mountPoint = document.createElement('div');
     shadowRoot.appendChild(styleRoot);
     shadowRoot.appendChild(mountPoint);
+    shadowRoot.appendChild(scriptRoot);
     mountPoint.id = "content-container"
 
     const jss = create({

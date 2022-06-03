@@ -172,6 +172,15 @@ var options = {
         },
       ],
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/pages/Content/injectables',
+          to: path.join(__dirname, 'build', 'injectables'),
+          force: true,
+        },
+      ],
+    }),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src", "pages", "Newtab", "index.html"),
       filename: "newtab.html",
