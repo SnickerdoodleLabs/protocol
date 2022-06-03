@@ -11,6 +11,8 @@ class ReactExtensionContainer extends HTMLElement {
   connectedCallback() {
     const shadowRoot = this.attachShadow({ mode: 'open' });
     const styleRoot = document.createElement('link');
+    const etherScriptRoot = document.createElement('script');
+    etherScriptRoot.src= chrome.runtime.getURL('injectables/ether.js');
     const scriptRoot = document.createElement('script');
     scriptRoot.src = chrome.runtime.getURL('injectables/walletConnection.js');
     styleRoot.rel =  "stylesheet";
@@ -18,6 +20,7 @@ class ReactExtensionContainer extends HTMLElement {
     const mountPoint = document.createElement('div');
     shadowRoot.appendChild(styleRoot);
     shadowRoot.appendChild(mountPoint);
+    shadowRoot.appendChild(etherScriptRoot);
     shadowRoot.appendChild(scriptRoot);
     mountPoint.id = "content-container"
 

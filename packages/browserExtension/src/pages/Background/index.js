@@ -1,6 +1,12 @@
 console.log('This is the background page.');
 console.log('Put the background scripts here.');
 
+let userInfo;
+
+chrome.identity.getProfileUserInfo((info) => {
+  userInfo = info
+});
+
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
@@ -9,6 +15,9 @@ chrome.runtime.onMessage.addListener(
                 "from the extension");
     if (request.greeting === "hello")
       sendResponse({farewell: "goodbye"});
+    if ( request.type === "SD_REQUEST_IDENTITY" ) {
+      sendResponse(userInfo)
+    }
   }
 );
 

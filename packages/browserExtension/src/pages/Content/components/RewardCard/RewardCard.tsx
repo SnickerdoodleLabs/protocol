@@ -1,5 +1,4 @@
-import Button from "@material-ui/core/Button";
-import React from "react";
+import React, { useEffect } from "react";
 import { RewardItem } from "../App/App";
 import { useStyles } from "./RevardCard.style";
 
@@ -19,7 +18,7 @@ const RewardCard: React.FC<props> = (props) => {
   } = rewardItem;
   const classes = useStyles();
   const primaryButtonClicked = () => {
-    document.dispatchEvent(new CustomEvent("requestAccounts"));
+    document.dispatchEvent(new CustomEvent("SD_CONNECT_TO_WALLET_REQUEST"));
   };
   const secondaryButtonClicked = () => {
     chrome.storage.sync.get(["accountAddress"], function (result) {
@@ -27,16 +26,23 @@ const RewardCard: React.FC<props> = (props) => {
     });
   };
 
-  document.addEventListener("accountsReceived", async function (e) {
-    console.log("accountsReceived");
-    // @ts-ignore
-    const accounts = e.detail;
-
-    console.log("accounts received: ", accounts);
-    chrome.storage.sync.set({ accountAddress: accounts }, function () {
-      console.log("Value is set to " + accounts);
+  useEffect(() => {
+    chrome.runtime.sendMessage({ type: "SD_REQUEST_IDENTITY" }, (response) => {
+      console.log(response);
     });
-  });
+  }, []);
+
+  document.addEventListener(
+    "SD_WALLET_CONNECTION_COMPLETED",
+    async function (e) {
+      // @ts-ignore
+      const { accounts, signature } = e.detail;
+      console.log("accounts received: ", accounts);
+      chrome.storage.sync.set({ accountAddress: accounts }, function () {
+        console.log("Value is set to " + accounts);
+      });
+    },
+  );
 
   return (
     <div className="card">
