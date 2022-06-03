@@ -11,9 +11,12 @@ export * from "@objects/HexString";
 export * from "@objects/IpfsCID";
 export * from "@objects/JsonWebToken";
 export * from "@objects/PublicKey";
+export * from "@objects/SDQLQuery";
+export * from "@objects/SDQLString";
 export * from "@objects/Signature";
 export * from "@objects/UnixTimestamp";
 export * from "@objects/UUID";
 
-export * from "@objects/errors";
 export * from "@objects/configuration";
+export * from "@objects/errors";
+export * from "@objects/interfaces";
