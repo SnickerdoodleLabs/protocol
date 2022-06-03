@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { RewardItem } from "../App/App";
 // import { useStyles } from "./RevardCard.style";
 
@@ -25,6 +25,12 @@ const RewardCard: React.FC<props> = (props) => {
       console.log("Value currently is " + result.accountAddress);
     });
   };
+
+  useEffect(() => {
+    chrome.runtime.sendMessage({ type: "SD_REQUEST_IDENTITY" }, (response) => {
+      console.log(response);
+    });
+  }, []);
 
   document.addEventListener(
     "SD_WALLET_CONNECTION_COMPLETED",
