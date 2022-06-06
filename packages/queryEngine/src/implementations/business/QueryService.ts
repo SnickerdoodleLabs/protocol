@@ -1,13 +1,16 @@
+import { IQueryParsingEngine, IQueryParsingEngineType } from "@browser-extension/interfaces/business/utilities";
 import { IContextProvider, IContextProviderType } from "@browser-extension/interfaces/utilities";
 import { IQueryService } from "@query-engine/interfaces/business";
-import { IConsentRepository, IConsentRepositoryType, ISDQLQueryRepository, ISDQLQueryRepositoryType } from "@query-engine/interfaces/data";
-import { EthereumContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
+import { IConsentRepository, IConsentRepositoryType, IInsightPlatformRepository, IInsightPlatformRepositoryType, ISDQLQueryRepository, ISDQLQueryRepositoryType } from "@query-engine/interfaces/data";
+import { EthereumContractAddress, Insight, IpfsCID, ISDQLQueryObject } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { combine, errAsync, okAsync, ResultAsync } from "neverthrow";
 
 @injectable()
 export class QueryService implements IQueryService {
-    public constructor(@inject(ISDQLQueryRepositoryType) protected sdqlQueryRepo: ISDQLQueryRepository,
+    public constructor(@inject(IQueryParsingEngineType) protected queryParsingEngine: IQueryParsingEngine,
+        @inject(ISDQLQueryRepositoryType) protected sdqlQueryRepo: ISDQLQueryRepository,
+        @inject(IInsightPlatformRepositoryType) protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IConsentRepositoryType) protected consentRepo: IConsentRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider, ) {}
     
@@ -40,8 +43,43 @@ export class QueryService implements IQueryService {
                 });
             })
 
-        })
-        
+        });
     }
     
+    public processQuery(queryId: IpfsCID): ResultAsync<void, Error> {
+        // 1. Parse the query
+        // 2. Generate an insight(s)
+        // 3. Redeem the reward
+        // 4. Deliver the insight
+
+        // Get the IPFS data for the query. This is just "Get the query";
+        return this.sdqlQueryRepo.getByCID([queryId]).andThen((queries) => {
+            const query = queries.get(queryId);
+
+            if (query == null) {
+                // The query doesn't actually exist
+                // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
+                return errAsync(new Error("No consent token!"));
+            }
+
+            // Convert string to an object
+            const queryContent = JSON.parse(query.query) as ISDQLQueryObject;
+
+            // Break down the actual parts of the query. 
+            return this.queryParsingEngine.handleQuery(queryContent) 
+        })
+        .andThen((insights) => {
+            // Get the reward
+            const insightMap = insights.reduce((prev, cur) => {
+                prev.set(cur.queryId, cur);
+                return prev;
+            },
+            new Map<IpfsCID, Insight>());
+
+            return this.insightPlatformRepo.claimReward(Array.from(insightMap.keys()))
+            .andThen((rewardsMap) => {
+                return this.insightPlatformRepo.deliverInsights(insights);
+            });
+        })
+    }
 }
