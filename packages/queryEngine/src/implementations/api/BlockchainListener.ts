@@ -3,14 +3,16 @@ import { combine, ResultAsync } from "neverthrow";
 import { ethers } from "ethers";
 import { IBlockchainListener } from "@query-engine/interfaces/api";
 import { IBlockchainProvider, IBlockchainProviderType, IConfigProvider, IConfigProviderType, IContextProvider, IContextProviderType, ILogUtils, ILogUtilsType } from "@query-engine/interfaces/utilities";
-import { QueryEngineContext } from "@browser-extension/interfaces/objects";
-import { BlockchainUnavailableError, ChainId, EthereumAccountAddress } from "@snickerdoodlelabs/objects";
+import { QueryEngineContext } from "@query-engine/interfaces/objects";
+import { BlockchainUnavailableError, ChainId, EthereumAccountAddress, EthereumContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
+import { IQueryService, IQueryServiceType } from "@query-engine/interfaces/business";
 
 @injectable()
 export class BlockchainListener implements IBlockchainListener {
   protected mainProviderInitialized: boolean = false;
 
   constructor(
+    @inject(IQueryServiceType) protected queryService: IQueryService,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -70,7 +72,17 @@ export class BlockchainListener implements IBlockchainListener {
     });
 
     // *****************************************************************
-    // Here is where we setup listening to 
+    // Here is where we setup listening to events on the Consent Contract
+    // Will look something like this:
+    // Pretend we know the contract address that we are listening for
+    provider.listenForEventOnContract(context.consentContractAddress, "OnDataRequested", (contractAddress: EthereumContractAddress, cid: IpfsCID) => {
+        // This is the method that is called when an event happens on the consent
+        this.queryService.onQueryPosted(contractAddress, cid)
+        // This mapErr is because any returned error would disappear into the ether without it.
+        .mapErr((e) => {
+            this.logUtils.error(e);
+        })
+    })
 
     this.mainProviderInitialized = true;
   }
