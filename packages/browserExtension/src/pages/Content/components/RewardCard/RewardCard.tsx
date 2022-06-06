@@ -10,14 +10,19 @@ import {
 import React, { useEffect, useState } from "react";
 import { RewardItem } from "../App/App";
 import { useGenericModalStyles } from "../Modal/Modal.style";
-import { useStyles } from "./RevardCard.style";
 import CloseIcon from "@material-ui/icons/Close";
+import { APP_STATE } from "../App/App";
+
+import { useStyles } from "./RewardCard.style";
+
 interface props {
   rewardItem: RewardItem;
+  setAppState: Function;
 }
 
 const RewardCard: React.FC<props> = (props) => {
   const { rewardItem } = props;
+  const { setAppState } = props;
   const {
     title,
     image,
@@ -37,6 +42,8 @@ const RewardCard: React.FC<props> = (props) => {
     chrome.storage.sync.get(["accountAddress"], function (result) {
       console.log("Value currently is " + result.accountAddress);
     });
+    // Dismiss the dialog box.
+    setAppState(APP_STATE.DISMISSED);
   };
 
   useEffect(() => {
