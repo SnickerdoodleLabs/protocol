@@ -3,16 +3,16 @@ import RewardCard from "../RewardCard";
 
 enum EAvailableHost {
   SHRAPNEL = "www.shrapnel.com",
-  CRABADA = "idle.crabada.com",
+  CRABADA = "market.crabada.com",
 }
 
-export enum APP_STATE { 
+export enum APP_STATE {
   INIT = 0,
   DISMISSED = 1,
   CONNECT_METAMASK = 2,
   CONNECT_METAMASK_PENDING = 3,
   CONNECT_METAMASK_SUCCESS = 4,
-  FREE_NFT_CLAIMED = 5
+  FREE_NFT_CLAIMED = 5,
 }
 export interface RewardItem {
   host: EAvailableHost;
@@ -49,7 +49,7 @@ export const REWARD_DATA: Array<RewardItem> = [
   },
 ];
 
-// const renderCurrentState() { 
+// const renderCurrentState() {
 // }
 const App = () => {
   //const [dismiss, setDissmiss] = useState<boolean>(false);
@@ -89,19 +89,16 @@ const App = () => {
   if (!rewardToDisplay) {
     return null;
   }
-  return ((() => {
-
-
+  return (() => {
     switch (appState) {
       case APP_STATE.INIT:
-        return <RewardCard rewardItem={rewardToDisplay} setAppState={setAppState}/> 
-      case APP_STATE.DISMISSED: 
-        return <></>
+        return (
+          <RewardCard rewardItem={rewardToDisplay} setAppState={setAppState} />
+        );
+      case APP_STATE.DISMISSED:
+        return <></>;
     }
-   }) () )
-
-
-  
+  })();
 };
 
 export default App;

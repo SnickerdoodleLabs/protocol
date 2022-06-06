@@ -47,6 +47,7 @@ export const useGenericModalStyles = makeStyles((theme) =>
     },
     title: {
       marginBottom: 4,
+      fontFamily: "'Shrikhand' !important",
     },
     primaryButton: {
       textTransform: "unset",
