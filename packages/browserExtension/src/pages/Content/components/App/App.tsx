@@ -47,11 +47,19 @@ const App = () => {
   >();
   const hostname = window.location.hostname;
   useEffect(() => {
+    let timeout: NodeJS.Timeout;
     console.log("hostname: ", hostname);
     const reward = REWARD_DATA.find((i) => i.host === hostname);
     if (reward) {
-      setRewardToDisplay(reward);
+      timeout = setTimeout(() => {
+        setRewardToDisplay(reward);
+      }, 1500);
     }
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
   }, []);
   if (!rewardToDisplay) {
     return null;
