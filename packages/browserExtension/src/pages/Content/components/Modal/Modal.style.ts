@@ -32,9 +32,7 @@ export const useGenericModalStyles = makeStyles((theme) =>
       justifyContent: "center",
     },
     closeButton: {
-      position: "absolute",
-      right: 16,
-      top: 16,
+      //   position: "absolute",
     },
     titleContainer: {
       padding: "26px 40px",
@@ -74,6 +72,10 @@ export const useGenericModalStyles = makeStyles((theme) =>
       padding: "21px 26px 10px 12px",
       background: "unset",
       textDecoration: "underline",
+    },
+    sdLogo: {
+      marginLeft: 12,
+      width: 124,
     },
   }),
 );
