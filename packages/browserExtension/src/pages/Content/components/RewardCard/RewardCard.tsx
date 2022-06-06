@@ -1,13 +1,17 @@
 import React, { useEffect } from "react";
 import { RewardItem } from "../App/App";
-import { useStyles } from "./RevardCard.style";
+import { APP_STATE } from "../App/App";
+
+import { useStyles } from "./RewardCard.style";
 
 interface props {
   rewardItem: RewardItem;
+  setAppState: Function
 }
 
 const RewardCard: React.FC<props> = (props) => {
   const { rewardItem } = props;
+  const {setAppState} = props;
   const {
     title,
     image,
@@ -21,9 +25,9 @@ const RewardCard: React.FC<props> = (props) => {
     document.dispatchEvent(new CustomEvent("SD_CONNECT_TO_WALLET_REQUEST"));
   };
   const secondaryButtonClicked = () => {
-    chrome.storage.sync.get(["accountAddress"], function (result) {
-      console.log("Value currently is " + result.accountAddress);
-    });
+   // Dismiss the dialog box.
+   setAppState(APP_STATE.DISMISSED);
+
   };
 
   useEffect(() => {
@@ -32,17 +36,7 @@ const RewardCard: React.FC<props> = (props) => {
     });
   }, []);
 
-  document.addEventListener(
-    "SD_WALLET_CONNECTION_COMPLETED",
-    async function (e) {
-      // @ts-ignore
-      const { accounts, signature } = e.detail;
-      console.log("accounts received: ", accounts);
-      chrome.storage.sync.set({ accountAddress: accounts }, function () {
-        console.log("Value is set to " + accounts);
-      });
-    },
-  );
+ 
 
   return (
     <div className="card">
