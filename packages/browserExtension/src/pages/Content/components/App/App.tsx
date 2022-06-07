@@ -72,8 +72,10 @@ const App = () => {
   // Event handlers
   const onWalletConnectionCompleted = (e: Event) => {
     // @ts-ignore
-    const { accounts, signature } = e.detail;
+    const { accounts, signature, chainId } = e.detail;
     console.log("accounts received: ", accounts);
+    console.log("signature received: ", signature);
+    console.log("chainId received: ", chainId);
     chrome.storage.sync.set({ accountAddress: accounts }, function () {
       console.log("Value is set to" + accounts);
     });

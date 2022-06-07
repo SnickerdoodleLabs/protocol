@@ -65,3 +65,4 @@ export const rewardItemToClaim02Img = chrome.runtime.getURL(
 export const rewardItemToClaim03Img = chrome.runtime.getURL(
   "assets/img/reward-item-to-claim03.png",
 );
+export const signatureMessage = `Welcome to Snickerdoodle! This transaction proves that you own this wallet so that only you benefit from the data it produces.`;

@@ -2,7 +2,7 @@ import React from "react";
 import { Typography } from "@material-ui/core";
 
 import Modal, { useGenericModalStyles } from "../../Modals/Modal";
-import { EAPP_STATE } from "../../../constants";
+import { EAPP_STATE, signatureMessage } from "../../../constants";
 
 interface IConnectWalletProps {
   changeAppState: (state: EAPP_STATE) => void;
@@ -14,7 +14,11 @@ const ConnectWallet: React.FC<IConnectWalletProps> = ({
   const modalClasses = useGenericModalStyles();
 
   const onPrimaryButtonClick = () => {
-    document.dispatchEvent(new CustomEvent("SD_CONNECT_TO_WALLET_REQUEST"));
+    document.dispatchEvent(
+      new CustomEvent("SD_CONNECT_TO_WALLET_REQUEST", {
+        detail: { signatureMessage },
+      }),
+    );
   };
   const onSecondaryButtonClick = () => {
     changeAppState(EAPP_STATE.DISMISSED);
