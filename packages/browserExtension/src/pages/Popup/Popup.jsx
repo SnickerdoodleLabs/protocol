@@ -10,16 +10,9 @@ import checkIcon from "../../assets/img/icon-128.png";
 import Data from "./components/Data";
 
 const Popup = () => {
-  const [test, setTest] = useState("Personal Info");
   const [obj, setObj] = useState(null);
 
-  chrome.history.search({ text: "", maxResults: 10 }, function (data) {
-    data.forEach(function (page) {});
-  });
-
-  chrome.runtime.sendMessage({ message: "get_access_token", obj: obj });
-  // chrome.runtime.sendMessage({ message: "get_profile" });
-  // chrome.runtime.sendMessage({ message: "get_contacts" });
+  chrome.runtime.sendMessage({ message: "test", obj: obj });
 
   chrome.runtime.onMessage.addListener(function (
     request,
@@ -27,8 +20,10 @@ const Popup = () => {
     sendResponse,
   ) {
     if (request.message === "cardData") {
-      console.log("req", request.userData);
-      setObj(request.userData);
+      if (request.userData) {
+        console.log("req", request.userData);
+        setObj(request.userData);
+      }
     }
   });
 
@@ -79,13 +74,39 @@ const Popup = () => {
                 paddingTop: "10px",
               }}
             >
-              {test}
+              Personal Info
             </h1>
           </Grid>
-          <Data dataType="Image" title="PHOTO" data={obj?.picture} />
-          <Data dataType="Text" title="NAME" data={obj?.name} />
-          <Data dataType="Text" title="BIRTHDAY" data="N/A" />
-          <Data dataType="Text" title="GENDER" data="N/A" />
+          <Data
+            dataType="Image"
+            title="PHOTO"
+            data={
+              obj?.photos
+                ? obj?.photos[0].url
+                : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgUNaoFwOOa3sOnMoc8CVUJ65bhS822etxVQ&usqp=CAU"
+            }
+          />
+          <Data
+            dataType="Text"
+            title="NAME"
+            data={obj?.names ? obj?.names[0].displayName : "Todd Chapman"}
+          />
+          <Data
+            dataType="Text"
+            title="BIRTHDAY"
+            data={
+              obj?.birthdays
+                ? `${obj?.birthdays[0]?.date.month || "04"}/${
+                    obj.birthdays[0]?.date.day || "05"
+                  }/${obj.birthdays[0]?.date.year || "1992"}`
+                : "N/A"
+            }
+          />
+          <Data
+            dataType="Text"
+            title="GENDER"
+            data={obj?.genders ? obj?.genders[0]?.formattedValue : "N/A"}
+          />
         </Grid>
         <Grid
           style={{
@@ -109,9 +130,17 @@ const Popup = () => {
               Contact Info
             </h1>
           </Grid>
-          <Data dataType="Text" title="EMAIL" data={obj?.email} />
+          <Data
+            dataType="Text"
+            title="EMAIL"
+            data={
+              obj?.emailAddresses
+                ? obj?.emailAddresses[0].value
+                : "todd@snickerdoodle.io"
+            }
+          />
           <Data dataType="Text" title="PHONE" data="N/A" />
-          <Data dataType="Text" title="LOCATION" data="N/A" />
+          <Data dataType="Text" title="LOCATION" data="California" />
         </Grid>
         <Grid
           style={{

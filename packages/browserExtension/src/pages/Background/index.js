@@ -6,33 +6,19 @@ let user_signed_in = false;
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   // Google OAuth2 Access Token
-  if (request.message === "get_access_token" && request.obj === null) {
-    chrome.identity.getAuthToken({ interactive: true }, function (auth_token) {
-      let fetch_url = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${auth_token}`;
-      let fetch_options = {
-        headers: {
-          Authorization: `Bearer ${auth_token}`,
-        },
-      };
-      fetch(fetch_url, fetch_options)
-        .then((res) => res.json())
-        .then((res) => {
-          chrome.runtime.sendMessage({ message: "cardData", userData: res });
-        });
-    });
-    sendResponse(true);
-  } else if (request.message === "get_profile") {
+  if (request.message === "test" && request.obj === null) {
+    let current_userID = "me";
     chrome.identity.getProfileUserInfo(
       { accountStatus: "ANY" },
       function (userInfo) {
         console.log(userInfo);
-        current_user = userInfo.id;
+        current_userID = userInfo.id;
       },
     );
-    sendResponse(true);
-  } else if (request.message === "get_contacts") {
     chrome.identity.getAuthToken({ interactive: true }, function (auth_token) {
-      let fetch_url = `https://people.googleapis.com/v1/contactGroups/all?maxMembers=20&key=${API_KEY}`;
+      console.log(auth_token);
+      console.log(current_userID);
+      let fetch_url = `https://people.googleapis.com/v1/people:batchGet?resourceNames=people/${current_userID}&personFields=phoneNumbers,addresses,ageRanges,locations,names,locations,genders,birthdays,emailAddresses,biographies,clientData,locales,metadata,photos,userDefined`;
       let fetch_options = {
         headers: {
           Authorization: `Bearer ${auth_token}`,
@@ -41,22 +27,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       fetch(fetch_url, fetch_options)
         .then((res) => res.json())
         .then((res) => {
-          console.log(res);
-          if (res.memberCount) {
-            const members = res.memberResourceNames;
-            fetch_url = `https://people.googleapis.com/v1/people:batchGet?personFields=addresses,ageRanges,names,locations,genders,birthdays,emailAddresses,biographies&key=${API_KEY}`;
-
-            members.forEach((member) => {
-              fetch_url += `&resourceNames=${encodeURIComponent(member)}`;
-            });
-
-            fetch(fetch_url, fetch_options)
-              .then((res) => res.json())
-              .then((res) => {
-                console.log(res);
-              });
-          }
+          console.log("TestDATA", res.responses[0].person);
+          chrome.runtime.sendMessage({
+            message: "cardData",
+            userData: res.responses[0].person,
+          });
         });
     });
+    sendResponse(true);
   }
 });
