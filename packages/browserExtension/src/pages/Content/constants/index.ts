@@ -27,9 +27,9 @@ export interface IRewardItem {
 export const REWARD_DATA: Array<IRewardItem> = [
   {
     host: EAVAILABLE_HOSTS.CRABADA,
-    title: "Claim your free NFT!",
+    title: "Claim your NFT!",
     description:
-      "Connect your Metamask wallet with our data wallet to gain free probs and NFT’s.",
+      "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
     image: chrome.runtime.getURL("assets/img/crabada-item.png"),
     primaryButtonText: "Claim Reward",
     secondaryButtonText: "Back to Game",
@@ -40,9 +40,9 @@ export const REWARD_DATA: Array<IRewardItem> = [
   },
   {
     host: EAVAILABLE_HOSTS.SHRAPNEL,
-    title: "Claim your free NFT!",
+    title: "Claim your NFT!",
     description:
-      "Connect your Metamask wallet with our data wallet to gain free probs and NFT’s.",
+      "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
     image: chrome.runtime.getURL("assets/img/sharapnel-item.png"),
     primaryButtonText: "Claim Reward",
     secondaryButtonText: "Back to Game",
@@ -65,4 +65,6 @@ export const rewardItemToClaim02Img = chrome.runtime.getURL(
 export const rewardItemToClaim03Img = chrome.runtime.getURL(
   "assets/img/reward-item-to-claim03.png",
 );
-export const signatureMessage = `Welcome to Snickerdoodle! This transaction proves that you own this wallet so that only you benefit from the data it produces.`;
+export const signatureMessage = `Welcome to Snickerdoodle! This transaction proves that you own this wallet so that only you benefit from the data it produces.
+
+Signing this transaction also demonstrates acceptance of the Snickerdoodle Terms of Service: https://snickerdoodlelabs.io/`;

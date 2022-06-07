@@ -51,6 +51,7 @@ export const useGenericModalStyles = makeStyles((theme) =>
     },
     description: {
       marginBottom: 24,
+      fontWeight: 300,
     },
     primaryButton: {
       textTransform: "unset",
