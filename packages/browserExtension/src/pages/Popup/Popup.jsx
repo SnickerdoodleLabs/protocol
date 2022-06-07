@@ -11,7 +11,7 @@ import Data from "./components/Data";
 
 const Popup = () => {
   const [obj, setObj] = useState(null);
-  const [loadCard, setLoadCard] = useState(true);
+  const [loadCard, setLoadCard] = useState(false);
 
   chrome.runtime.sendMessage({ message: "dataRequest", obj: obj });
 
@@ -24,6 +24,7 @@ const Popup = () => {
       if (request.userData) {
         console.log("req", request.userData);
         setObj(request.userData);
+        setLoadCard(true);
       }
     }
   });
@@ -90,7 +91,7 @@ const Popup = () => {
             <Data
               dataType="Text"
               title="NAME"
-              data={obj?.names ? obj?.names[0].displayName : "Todd Chapman"}
+              data={obj?.names ? obj?.names[0].displayName : "N/A"}
             />
             <Data
               dataType="Text"
@@ -140,8 +141,18 @@ const Popup = () => {
                   : "todd@snickerdoodle.io"
               }
             />
-            <Data dataType="Text" title="PHONE" data="N/A" />
-            <Data dataType="Text" title="LOCATION" data="California" />
+            <Data
+              dataType="Text"
+              title="PHONE"
+              data={
+                obj?.phoneNumbers ? obj?.phoneNumbers[0]?.canonicalForm : "N/A"
+              }
+            />
+            <Data
+              dataType="Text"
+              title="LOCATION"
+              data={obj?.locations ? obj?.locations[0]?.value : "N/A"}
+            />
           </Grid>
           <Grid
             style={{
@@ -183,21 +194,7 @@ const Popup = () => {
           </Grid>
         </Grid>
       ) : (
-        <Grid style={{ justifyContent: "center", textAlign: "center" }}>
-          <Button
-            onClick={() => {
-              setLoadCard(true);
-            }}
-            style={{
-              marginTop: "500px",
-              background: "#0D1117",
-              color: "white",
-            }}
-            variant="contained"
-          >
-            Show User Card
-          </Button>
-        </Grid>
+        ""
       )}
     </Grid>
   );
