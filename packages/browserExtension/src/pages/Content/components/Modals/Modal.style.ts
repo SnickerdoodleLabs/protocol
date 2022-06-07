@@ -81,5 +81,13 @@ export const useGenericModalStyles = makeStyles((theme) =>
       marginLeft: 12,
       width: 124,
     },
+    successLogo: {
+      width: 45,
+      height: 45,
+    },
+    successLogoBig: {
+      width: 70,
+      height: 70,
+    },
   }),
 );

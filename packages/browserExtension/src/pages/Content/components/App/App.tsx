@@ -1,102 +1,117 @@
-import React, { useEffect, useState } from "react";
-import RewardCard from "../RewardCard";
+import React, { useEffect, useMemo, useState } from "react";
 
-enum EAvailableHost {
-  SHRAPNEL = "www.shrapnel.com",
-  CRABADA = "market.crabada.com",
-}
+import RewardCard from "../Screens/RewardCard";
+import ConnectWallet from "../Screens/ConnectWallet";
+import ConnectWalletPending from "../Screens/ConnectWalletPending";
+import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
+import NftClaimed from "../Screens/NftClaimed";
 
-export enum APP_STATE {
-  INIT = 0,
-  DISMISSED = 1,
-  CONNECT_METAMASK = 2,
-  CONNECT_METAMASK_PENDING = 3,
-  CONNECT_METAMASK_SUCCESS = 4,
-  FREE_NFT_CLAIMED = 5,
-}
-export interface RewardItem {
-  host: EAvailableHost;
-  title: string;
-  description: string;
-  image: string;
-  primaryButtonText: string;
-  secondaryButtonText: string;
-  rewardName: string;
-}
+import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
 
-export const REWARD_DATA: Array<RewardItem> = [
-  {
-    host: EAvailableHost.CRABADA,
-    title: "Claim your free NFT!",
-    description:
-      "Connect your Metamask wallet with our data wallet to gain free probs and NFT’s.",
-    image: chrome.runtime.getURL("assets/img/crabada-item.png"),
-    primaryButtonText: "Claim Reward",
-    secondaryButtonText: "Back to Game",
-    rewardName: "Crabada 761",
-  },
-  {
-    host: EAvailableHost.SHRAPNEL,
-    title: "Claim your free NFT!",
-    description:
-      "Connect your Metamask wallet with our data wallet to gain free probs and NFT’s.",
-    image: chrome.runtime.getURL("assets/img/sharapnel-item.png"),
-    primaryButtonText: "Claim Reward",
-    secondaryButtonText: "Back to Game",
-    rewardName: "ATG-36 Helmet",
-  },
-];
-
-// const renderCurrentState() {
-// }
 const App = () => {
-  //const [dismiss, setDissmiss] = useState<boolean>(false);
-  const [appState, setAppState] = useState<APP_STATE>(APP_STATE.INIT);
-
-  document.addEventListener(
-    "SD_WALLET_CONNECTION_COMPLETED",
-    async function (e) {
-      // @ts-ignore
-      const { accounts, signature } = e.detail;
-      console.log("accounts received: ", accounts);
-      chrome.storage.sync.set({ accountAddress: accounts }, function () {
-        console.log("Value is set to" + accounts);
-      });
-    },
-  );
-
+  const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
   const [rewardToDisplay, setRewardToDisplay] = useState<
-    RewardItem | undefined
+    IRewardItem | undefined
   >();
-  const hostname = window.location.hostname;
+
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    console.log("hostname: ", hostname);
-    const reward = REWARD_DATA.find((i) => i.host === hostname);
-    if (reward) {
-      timeout = setTimeout(() => {
-        setRewardToDisplay(reward);
-      }, 1500);
-    }
+    initiateRewardItem();
+    addEventListeners();
     return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
+      removeEventListeners();
     };
   }, []);
-  if (!rewardToDisplay) {
-    return null;
-  }
-  return (() => {
-    switch (appState) {
-      case APP_STATE.INIT:
-        return (
-          <RewardCard rewardItem={rewardToDisplay} setAppState={setAppState} />
-        );
-      case APP_STATE.DISMISSED:
-        return <></>;
+
+  useEffect(() => {
+    if (appState === EAPP_STATE.CONNECT_WALLET_SUCCESS) {
+      setTimeout(() => {
+        setAppState(EAPP_STATE.FREE_NFT_CLAIMED);
+      }, 1000);
     }
-  })();
+  }, [appState]);
+
+  const changeAppState = (state: EAPP_STATE) => {
+    setAppState(state);
+  };
+
+  const initiateRewardItem = () => {
+    const hostname = window.location.hostname;
+    const reward = REWARD_DATA.find((i) => i.host === hostname);
+    if (reward) {
+      setRewardToDisplay(reward);
+    }
+  };
+
+  // Event Listeners
+  const addEventListeners = () => {
+    document.addEventListener(
+      "SD_WALLET_CONNECTION_COMPLETED",
+      onWalletConnectionCompleted,
+    );
+
+    document.addEventListener(
+      "SD_WALLET_CONNECTION_PENDING",
+      onWalletConnectionPending,
+    );
+  };
+
+  const removeEventListeners = () => {
+    document.removeEventListener(
+      "SD_WALLET_CONNECTION_COMPLETED",
+      onWalletConnectionCompleted,
+    );
+
+    document.removeEventListener(
+      "SD_WALLET_CONNECTION_PENDING",
+      onWalletConnectionPending,
+    );
+  };
+
+  // Event handlers
+  const onWalletConnectionCompleted = (e: Event) => {
+    // @ts-ignore
+    const { accounts, signature } = e.detail;
+    console.log("accounts received: ", accounts);
+    chrome.storage.sync.set({ accountAddress: accounts }, function () {
+      console.log("Value is set to" + accounts);
+    });
+    setAppState(EAPP_STATE.CONNECT_WALLET_SUCCESS);
+  };
+
+  const onWalletConnectionPending = (e: Event) => {
+    setAppState(EAPP_STATE.CONNECT_WALLET_PENDING);
+  };
+
+  const renderComponent = useMemo(() => {
+    switch (true) {
+      case !rewardToDisplay || appState === EAPP_STATE.DISMISSED:
+        return null;
+      case appState === EAPP_STATE.INIT:
+        return (
+          <RewardCard
+            rewardItem={rewardToDisplay!}
+            changeAppState={changeAppState}
+          />
+        );
+      case appState === EAPP_STATE.CONNECT_WALLET:
+        return <ConnectWallet changeAppState={changeAppState} />;
+      case appState === EAPP_STATE.CONNECT_WALLET_PENDING:
+        return <ConnectWalletPending changeAppState={changeAppState} />;
+      case appState === EAPP_STATE.CONNECT_WALLET_SUCCESS:
+        return <ConnectWalletSuccess changeAppState={changeAppState} />;
+      case appState === EAPP_STATE.FREE_NFT_CLAIMED:
+        return (
+          <NftClaimed
+            rewardItem={rewardToDisplay!}
+            changeAppState={changeAppState}
+          />
+        );
+      default:
+        return null;
+    }
+  }, [rewardToDisplay, appState]);
+
+  return <>{renderComponent}</>;
 };
 
 export default App;

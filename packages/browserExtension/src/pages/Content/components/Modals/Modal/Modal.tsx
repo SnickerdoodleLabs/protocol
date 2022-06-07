@@ -1,157 +1,41 @@
+import React, { FC, ReactNode } from "react";
 import {
   Box,
   Button,
   Dialog,
   DialogContent,
-  DialogTitle,
   IconButton,
-  Typography,
 } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
-import { RewardItem } from "../App/App";
-import { useGenericModalStyles } from "../Modal/Modal.style";
 import CloseIcon from "@material-ui/icons/Close";
-import { APP_STATE } from "../App/App";
 
-import { useStyles } from "./RewardCard.style";
+import { useGenericModalStyles } from "../Modal.style";
 
-interface props {
-  rewardItem: RewardItem;
-  setAppState: Function;
+interface IModalProps {
+  onPrimaryButtonClick?: () => void;
+  onSecondaryButtonClick?: () => void;
+  onCloseButtonClick: () => void;
+  primaryButtonText?: string;
+  secondaryButtonText?: string;
+  topContent: ReactNode;
+  bottomContent: ReactNode;
 }
 
-const RewardCard: React.FC<props> = (props) => {
-  const { rewardItem } = props;
-  const { setAppState } = props;
-  const {
-    title,
-    image,
-    description,
-    primaryButtonText,
-    secondaryButtonText,
-    rewardName,
-  } = rewardItem;
-  const classes = useStyles();
-  const [open, setOpen] = useState(true);
+const Modal: FC<IModalProps> = ({
+  onPrimaryButtonClick,
+  onSecondaryButtonClick,
+  onCloseButtonClick,
+  primaryButtonText,
+  secondaryButtonText = "Dismiss",
+  topContent,
+  bottomContent,
+}: IModalProps) => {
   const modalClasses = useGenericModalStyles();
-  const primaryButtonClicked = () => {
-    document.dispatchEvent(new CustomEvent("SD_CONNECT_TO_WALLET_REQUEST"));
-  };
-  const secondaryButtonClicked = () => {
-    setOpen(false);
-    chrome.storage.sync.get(["accountAddress"], function (result) {
-      console.log("Value currently is " + result.accountAddress);
-    });
-    // Dismiss the dialog box.
-    setAppState(APP_STATE.DISMISSED);
-  };
-
-  useEffect(() => {
-    chrome.runtime.sendMessage({ type: "SD_REQUEST_IDENTITY" }, (response) => {
-      console.log(response);
-    });
-  }, []);
-
-  const closeModal = () => {
-    setOpen(false);
-  };
-
-  document.addEventListener(
-    "SD_WALLET_CONNECTION_COMPLETED",
-    async function (e) {
-      // @ts-ignore
-      const { accounts, signature } = e.detail;
-      console.log("accounts received: ", accounts);
-      console.log("signature received: ", signature);
-      chrome.storage.sync.set({ accountAddress: accounts }, function () {
-        console.log("Value is set to " + accounts);
-      });
-    },
-  );
-
   return (
-    // <div className="card">
-    //   <Box>test</Box>
-    //   <div className="sharapnel card2">
-    //     <div
-    //       style={{
-    //         display: "flex",
-    //         justifyContent: "center",
-    //         alignItems: "center",
-    //         width: "100%",
-    //         background: "#F8D798",
-    //         height: "240px",
-    //         flexDirection: "column",
-    //       }}
-    //     >
-    //       <img
-    //         className="sharapnelImg"
-    //         style={{
-    //           width: "204px",
-    //           height: "auto",
-    //         }}
-    //         src={image}
-    //       />
-    //       <div
-    //         style={{
-    //           borderRadius: "4px",
-    //           background: "rgba(255, 255, 255, 0.5)",
-    //           padding: "3px 12px",
-    //         }}
-    //       >
-    //         {rewardName}
-    //       </div>
-    //     </div>
-
-    //     <div
-    //       style={{
-    //         background: "#FDF3E1",
-    //         padding: "25px",
-    //       }}
-    //     >
-    //       <div className="text">
-    //         <div
-    //           className="title"
-    //           style={{
-    //             fontFamily: `'Shrikhand', cursive"`,
-    //           }}
-    //         >
-    //           {title}
-    //         </div>
-    //         <div className="info">{description}</div>
-    //       </div>
-    //       <div className="buttons">
-    //         <div
-    //           className="button"
-    //           style={{
-    //             background: "unset",
-    //             textDecoration: "underline",
-    //           }}
-    //           onClick={secondaryButtonClicked}
-    //         >
-    //           {secondaryButtonText}
-    //         </div>
-    //         <div
-    //           className="button button-primary"
-    //           onClick={primaryButtonClicked}
-    //           style={{
-    //             background: "#fff",
-    //             color: "#000",
-    //             borderRadius: 0,
-    //           }}
-    //         >
-    //           {primaryButtonText}
-    //         </div>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </div>
-
     <Dialog
       PaperProps={{
         square: true,
       }}
-      open={open}
+      open={true}
       disablePortal
       maxWidth="xs"
       fullWidth
@@ -243,7 +127,7 @@ const RewardCard: React.FC<props> = (props) => {
           disableTouchRipple
           aria-label="close"
           className={modalClasses.closeButton}
-          onClick={closeModal}
+          onClick={onCloseButtonClick}
         >
           <CloseIcon />
         </IconButton>
@@ -260,7 +144,8 @@ const RewardCard: React.FC<props> = (props) => {
           width="100%"
           justifyContent="center"
         >
-          <img className={modalClasses.image} src={image} alt="logo" />
+          {topContent && topContent}
+          {/* <img className={modalClasses.image} src={image} alt="logo" />
           <Box
             padding="3px 12px"
             bgcolor="rgba(255, 255, 255, 0.5)"
@@ -270,7 +155,7 @@ const RewardCard: React.FC<props> = (props) => {
             <Typography variant="body1" align="center">
               {rewardName}
             </Typography>
-          </Box>
+          </Box> */}
         </Box>
         <Box
           bgcolor="#FDF3E1"
@@ -279,54 +164,54 @@ const RewardCard: React.FC<props> = (props) => {
           flexDirection="column"
           padding="36px 48px"
         >
-          <Typography
+          {bottomContent && bottomContent}
+          {/* <Typography
             className={modalClasses.title}
             variant="h4"
             align="center"
           >
             {title}
           </Typography>
-          <Typography
-            className={modalClasses.description}
-            variant="body1"
-            align="center"
-          >
+          <Typography variant="body1" align="center">
             {description}
-          </Typography>
+          </Typography> */}
           <Box display="flex" mt="auto" justifyContent="space-between">
-            <Button
-              variant="text"
-              className={modalClasses.secondaryButton}
-              onClick={secondaryButtonClicked}
-            >
-              {secondaryButtonText}
-            </Button>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={primaryButtonClicked}
-              className={modalClasses.primaryButton}
-            >
-              {primaryButtonText}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 17 16"
-                fill="none"
-                fillRule="evenodd"
-                strokeLinecap="square"
-                strokeWidth={2}
-                stroke="currentColor"
-                aria-hidden="true"
-                className={modalClasses.primaryButtonIcon}
-                {...props}
+            {onSecondaryButtonClick && (
+              <Button
+                variant="text"
+                className={modalClasses.secondaryButton}
+                onClick={onSecondaryButtonClick}
               >
-                <path d="M1.808 14.535 14.535 1.806" className="arrow-body" />
-                <path
-                  d="M3.379 1.1h11M15.241 12.963v-11"
-                  className="arrow-head"
-                />
-              </svg>
-            </Button>
+                {secondaryButtonText}
+              </Button>
+            )}
+            {onPrimaryButtonClick && (
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={onPrimaryButtonClick}
+                className={modalClasses.primaryButton}
+              >
+                {primaryButtonText}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 17 16"
+                  fill="none"
+                  fillRule="evenodd"
+                  strokeLinecap="square"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  aria-hidden="true"
+                  className={modalClasses.primaryButtonIcon}
+                >
+                  <path d="M1.808 14.535 14.535 1.806" className="arrow-body" />
+                  <path
+                    d="M3.379 1.1h11M15.241 12.963v-11"
+                    className="arrow-head"
+                  />
+                </svg>
+              </Button>
+            )}
           </Box>
         </Box>
       </DialogContent>
@@ -334,4 +219,4 @@ const RewardCard: React.FC<props> = (props) => {
   );
 };
 
-export default RewardCard;
+export default Modal;
