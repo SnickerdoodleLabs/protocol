@@ -1,5 +1,5 @@
 let shadowRootElement = document.getElementById(
-  "react-extension-container",
+  "snickerdoodle-data-wallet",
 ).shadowRoot;
 
 let account = [];
