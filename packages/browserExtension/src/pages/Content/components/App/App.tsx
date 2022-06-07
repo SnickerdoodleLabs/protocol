@@ -76,8 +76,27 @@ const App = () => {
     console.log("accounts received: ", accounts);
     console.log("signature received: ", signature);
     console.log("chainId received: ", chainId);
-    chrome.storage.sync.set({ accountAddress: accounts }, function () {
-      console.log("Value is set to" + accounts);
+    chrome.storage.sync.set(
+      {
+        onChainData: {
+          accountAddress: accounts[0],
+          signatureValue: signature,
+          chainId: chainId,
+          timestamp: new Date(),
+        },
+      },
+      function () {
+        console.log("Value is set to" + accounts);
+      },
+    );
+    chrome.runtime.sendMessage({
+      message: "cardData",
+      onChainData: {
+        accountAddress: accounts[0],
+        signatureValue: signature,
+        chainId: chainId,
+        timestamp: new Date(),
+      },
     });
     setAppState(EAPP_STATE.CONNECT_WALLET_SUCCESS);
   };
