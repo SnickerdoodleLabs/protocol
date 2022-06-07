@@ -44,7 +44,7 @@ const NftClaimed: React.FC<INftClaimedProps> = ({
       onSecondaryButtonClick={onSecondaryButtonClick}
       onPrimaryButtonClick={onPrimaryButtonClick}
       primaryButtonText="Done!"
-      secondaryButtonText="Go to Game"
+      secondaryButtonText="Back to Game"
       topContent={
         <>
           <img
