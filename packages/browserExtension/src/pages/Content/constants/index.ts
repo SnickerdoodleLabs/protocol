@@ -46,8 +46,4 @@ export const REWARD_DATA: Array<IRewardItem> = [
   },
 ];
 
-export const signatureMessage = `Welcome to Snickerdoodle!
-Click to sign in and accept the Snickerdoodle
-Terms of Service: https://snickerdoodledatawallet.io
-The request will not trigger a blockchain transaction or cost any gas fees.
-Your authentication status will reset after 24 hours.`;
+export const signatureMessage = `Welcome to Snickerdoodle! This transaction proves that you own this wallet so that only you benefit from the data it produces.`;
