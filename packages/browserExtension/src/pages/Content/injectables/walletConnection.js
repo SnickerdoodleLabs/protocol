@@ -102,6 +102,7 @@ document.addEventListener("SD_CONNECT_TO_WALLET_REQUEST", async (e) => {
     return;
   }
   try {
+    document.dispatchEvent(new CustomEvent("SD_WALLET_CONNECTION_PENDING"));
     const accounts = await getAccounts();
     document.dispatchEvent(new CustomEvent("SD_WALLET_CONNECTED"));
     const signature =await getSignature();
