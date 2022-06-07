@@ -5,9 +5,9 @@
     {
       "path": "packages/objects"
     },
-    // {
-    //   "path": "packages/utils"
-    // },
+    {
+      "path": "packages/queryEngine"
+    },
     // {
     //   "path": "packages/browserExtension"
     // },

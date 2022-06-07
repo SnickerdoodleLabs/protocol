@@ -25,3 +25,12 @@ build/
 out/linecounter.json
 out/linecounter.txt
 *.ipfs
+
+# Yarn 2 recommendations, no PNP: https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
