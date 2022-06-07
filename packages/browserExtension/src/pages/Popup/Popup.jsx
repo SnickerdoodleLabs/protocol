@@ -13,7 +13,6 @@ const Popup = () => {
   const [obj, setObj] = useState(null);
   const [onChainData, setOnChainData] = useState(null);
   const [loadCard, setLoadCard] = useState(false);
-  const hostname = window.location.hostname;
   useEffect(() => {
     chrome.runtime.sendMessage({
       message: "onChainDataRequest",
@@ -37,6 +36,7 @@ const Popup = () => {
       if (request.userData) {
         console.log("req", request.userData);
         setObj(request.userData);
+        setLoadCard(true);
       }
     }
   });
