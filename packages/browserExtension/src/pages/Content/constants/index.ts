@@ -21,6 +21,7 @@ export interface IRewardItem {
   primaryButtonText: string;
   secondaryButtonText: string;
   rewardName: string;
+  nftClaimedImage: string;
 }
 
 export const REWARD_DATA: Array<IRewardItem> = [
@@ -33,6 +34,9 @@ export const REWARD_DATA: Array<IRewardItem> = [
     primaryButtonText: "Claim Reward",
     secondaryButtonText: "Back to Game",
     rewardName: "Crabada 761",
+    nftClaimedImage: chrome.runtime.getURL(
+      "assets/img/crabada-item-claimed.png",
+    ),
   },
   {
     host: EAVAILABLE_HOSTS.SHRAPNEL,
@@ -43,5 +47,21 @@ export const REWARD_DATA: Array<IRewardItem> = [
     primaryButtonText: "Claim Reward",
     secondaryButtonText: "Back to Game",
     rewardName: "ATG-36 Helmet",
+    nftClaimedImage: chrome.runtime.getURL(
+      "assets/img/sharapnel-item-claimed.png",
+    ),
   },
 ];
+
+export const rewardItemQMarkImg = chrome.runtime.getURL(
+  "assets/img/reward-item-qmark.png",
+);
+export const rewardItemToClaim01Img = chrome.runtime.getURL(
+  "assets/img/reward-item-to-claim01.png",
+);
+export const rewardItemToClaim02Img = chrome.runtime.getURL(
+  "assets/img/reward-item-to-claim02.png",
+);
+export const rewardItemToClaim03Img = chrome.runtime.getURL(
+  "assets/img/reward-item-to-claim03.png",
+);
