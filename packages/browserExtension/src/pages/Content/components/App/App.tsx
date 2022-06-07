@@ -38,7 +38,9 @@ const App = () => {
     const hostname = window.location.hostname;
     const reward = REWARD_DATA.find((i) => i.host === hostname);
     if (reward) {
-      setRewardToDisplay(reward);
+      setTimeout(() => {
+        setRewardToDisplay(reward);
+      }, 2000);
     }
   };
 

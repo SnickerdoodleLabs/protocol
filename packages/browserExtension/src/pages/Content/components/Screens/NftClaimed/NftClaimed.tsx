@@ -1,9 +1,16 @@
 import React from "react";
-import { Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 
 import SuccessModal, { useGenericModalStyles } from "../../Modals/SuccessModal";
 
-import { EAPP_STATE, IRewardItem } from "../../../constants";
+import {
+  EAPP_STATE,
+  IRewardItem,
+  rewardItemQMarkImg,
+  rewardItemToClaim01Img,
+  rewardItemToClaim02Img,
+  rewardItemToClaim03Img,
+} from "../../../constants";
 
 interface INftClaimedProps {
   changeAppState: (state: EAPP_STATE) => void;
@@ -15,7 +22,17 @@ const NftClaimed: React.FC<INftClaimedProps> = ({
   rewardItem,
 }: INftClaimedProps) => {
   const modalClasses = useGenericModalStyles();
-  const onPrimaryButtonClick = () => {};
+
+  const imgArr = [
+    rewardItemQMarkImg,
+    rewardItemToClaim01Img,
+    rewardItem.nftClaimedImage,
+    rewardItemToClaim02Img,
+    rewardItemToClaim03Img,
+  ];
+  const onPrimaryButtonClick = () => {
+    changeAppState(EAPP_STATE.DISMISSED);
+  };
 
   const onSecondaryButtonClick = () => {
     changeAppState(EAPP_STATE.DISMISSED);
@@ -26,7 +43,7 @@ const NftClaimed: React.FC<INftClaimedProps> = ({
       onCloseButtonClick={onSecondaryButtonClick}
       onSecondaryButtonClick={onSecondaryButtonClick}
       onPrimaryButtonClick={onPrimaryButtonClick}
-      primaryButtonText="More Offers"
+      primaryButtonText="Done!"
       secondaryButtonText="Go to Game"
       topContent={
         <>
@@ -60,6 +77,11 @@ const NftClaimed: React.FC<INftClaimedProps> = ({
           >
             {rewardItem.rewardName}
           </Typography>
+          <Box display="flex" justifyContent="space-evenly" alignItems="center">
+            {imgArr.map((i) => (
+              <img width={65} src={i} />
+            ))}
+          </Box>
         </>
       }
     />
