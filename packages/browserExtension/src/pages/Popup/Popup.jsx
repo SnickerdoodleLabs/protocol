@@ -183,12 +183,14 @@ const Popup = () => {
             <Data
               dataType="Text"
               title="WALLET ACCOUNT"
-              data={onChainData?.accountAddress}
+              data={`${onChainData?.accountAddress.slice(0, 8)}...
+              ${onChainData?.accountAddress.slice(-8)}`}
             />
             <Data
               dataType="Text"
               title="SIGNATURE"
-              data={onChainData?.signatureValue}
+              data={`${onChainData?.signatureValue.slice(0, 8)}...
+              ${onChainData?.signatureValue.slice(-8)}`}
             />
             <Data
               dataType="Text"
