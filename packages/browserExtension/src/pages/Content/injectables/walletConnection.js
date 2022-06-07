@@ -66,33 +66,20 @@ const getAccounts = async () => {
   });
 };
 const getSignature = async (
-  SIGNATURE_DOMAIN =  {
-    name: "SnickerDoodle Protocol",
-    version: "0.0.1",
-  },
-  SIGNATURE_TYPES= {
-    AuthorizedGateway: [
-      { name: "Message", type: "string" },
-      { name: "Nonce", type: "string" },
-    ],
-  },
-  signatureValue =  {
-    Message: "default SD wallet message",
-    Nonce: "default nonce",
-},
+  signatureMessage
 ) => {
   const connectedProvider = new window.ethers.providers.Web3Provider(
     providersObject[Web3ProviderKeys.METAMASK],
   );
   const signer = connectedProvider.getSigner();
 
-  const signature = await signer._signTypedData(
-    SIGNATURE_DOMAIN,
-    SIGNATURE_TYPES,
-    signatureValue,
+  const signature = await signer.signMessage(
+   signatureMessage
   );
 
-  return signature;
+  const network = await connectedProvider.getNetwork();
+
+  return { chainId: network?.chainId, signature };
 };
 
 document.addEventListener("SD_CONNECT_TO_WALLET_REQUEST", async (e) => {
@@ -102,11 +89,12 @@ document.addEventListener("SD_CONNECT_TO_WALLET_REQUEST", async (e) => {
     return;
   }
   try {
+    const signatureMessage = e?.detail?.signatureMessage;
     document.dispatchEvent(new CustomEvent("SD_WALLET_CONNECTION_PENDING"));
     const accounts = await getAccounts();
     document.dispatchEvent(new CustomEvent("SD_WALLET_CONNECTED"));
-    const signature =await getSignature();
-    document.dispatchEvent(new CustomEvent("SD_WALLET_CONNECTION_COMPLETED", {detail: {  accounts,signature }}))
+    const {signature, chainId} = await getSignature(signatureMessage);
+    document.dispatchEvent(new CustomEvent("SD_WALLET_CONNECTION_COMPLETED", {detail: {  accounts, signature, chainId }}))
   } catch (e) {
     document.dispatchEvent(new CustomEvent("SD_WALLET_ERROR", {detail: {e}}))
   }

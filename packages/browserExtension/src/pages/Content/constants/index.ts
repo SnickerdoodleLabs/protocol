@@ -45,3 +45,5 @@ export const REWARD_DATA: Array<IRewardItem> = [
     rewardName: "ATG-36 Helmet",
   },
 ];
+
+export const signatureMessage = `Welcome to Snickerdoodle! This transaction proves that you own this wallet so that only you benefit from the data it produces.`;
