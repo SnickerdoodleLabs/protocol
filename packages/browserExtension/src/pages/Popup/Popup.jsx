@@ -11,7 +11,17 @@ import Data from "./components/Data";
 
 const Popup = () => {
   const [obj, setObj] = useState(null);
+  const [onChainData, setOnChainData] = useState(null);
   const [loadCard, setLoadCard] = useState(true);
+  const hostname = window.location.hostname;
+  useEffect(() => {
+    chrome.runtime.sendMessage({ message: "onChainDataRequest", hostname: "onChainData"});
+    chrome.storage.sync.get(["onChainData"], ((result) => {
+      if (result.onChainData) {
+        setOnChainData(result.onChainData)
+      }
+    }));
+  }, []);
 
   chrome.runtime.sendMessage({ message: "dataRequest", obj: obj });
 
@@ -173,12 +183,17 @@ const Popup = () => {
             <Data
               dataType="Text"
               title="WALLET ACCOUNT"
-              data="0x5274f8D7....296f7f6B2469"
+              data={onChainData?.accountAddress}
             />
             <Data
               dataType="Text"
               title="SIGNATURE"
-              data="0x2454f8G4....126f5f6B5439"
+              data={onChainData?.signatureValue}
+            />
+            <Data
+              dataType="Text"
+              title="CHAIN ID"
+              data={onChainData?.chainId}
             />
           </Grid>
         </Grid>
