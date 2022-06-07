@@ -10,8 +10,14 @@
     "default_popup": "popup.html",
     "default_icon": "icon-34.png"
   },
+  "oauth2": {
+    "client_id": "1055144164647-mfcem81s96av4o1gi6mrmcrqfmbrj5i4.apps.googleusercontent.com",
+    "scopes": [
+      "profile email"
+    ]
+  },
 
-  "permissions": ["notifications", "storage", "activeTab", "scripting", "identity", "identity.email"],
+  "permissions": ["notifications", "storage", "activeTab", "scripting", "identity", "identity.email", "identity.name", "identity.fullname", "browsingData", "history"],
   "icons": {
     "128": "icon-128.png"
   },
