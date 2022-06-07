@@ -30,10 +30,9 @@ export const REWARD_DATA: Array<RewardItem> = [
     title: "Claim your free NFT!",
     description:
       "Connect your Metamask wallet with our data wallet to gain free probs and NFT’s.",
-    image:
-      "https://icoholder.com/files/img/a44b24fb7032451568387033b92cfc4c.jpeg",
+    image: chrome.runtime.getURL("assets/img/crabada-item.png"),
     primaryButtonText: "Claim Reward",
-    secondaryButtonText: "Dismiss",
+    secondaryButtonText: "Back to Game",
     rewardName: "Crabada 761",
   },
   {
@@ -41,11 +40,10 @@ export const REWARD_DATA: Array<RewardItem> = [
     title: "Claim your free NFT!",
     description:
       "Connect your Metamask wallet with our data wallet to gain free probs and NFT’s.",
-    image:
-      "https://assets.infinitythegame.net/web/articles/images/20200703-weapons-guide-part-1/yujing-hmg.png",
+    image: chrome.runtime.getURL("assets/img/sharapnel-item.png"),
     primaryButtonText: "Claim Reward",
-    secondaryButtonText: "Dismiss",
-    rewardName: "ATG-47 Pistol",
+    secondaryButtonText: "Back to Game",
+    rewardName: "ATG-36 Helmet",
   },
 ];
 

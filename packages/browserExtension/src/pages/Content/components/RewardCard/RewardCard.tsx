@@ -255,6 +255,7 @@ const RewardCard: React.FC<props> = (props) => {
           flexDirection="column"
           bgcolor="#F8D798"
           flex={4}
+          paddingBottom="21px"
           alignItems="center"
           width="100%"
           justifyContent="center"
@@ -285,7 +286,11 @@ const RewardCard: React.FC<props> = (props) => {
           >
             {title}
           </Typography>
-          <Typography variant="body1" align="center">
+          <Typography
+            className={modalClasses.description}
+            variant="body1"
+            align="center"
+          >
             {description}
           </Typography>
           <Box display="flex" mt="auto" justifyContent="space-between">

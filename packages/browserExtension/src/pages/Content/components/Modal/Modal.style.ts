@@ -49,6 +49,9 @@ export const useGenericModalStyles = makeStyles((theme) =>
       marginBottom: 4,
       fontFamily: "'Shrikhand' !important",
     },
+    description: {
+      marginBottom: 24,
+    },
     primaryButton: {
       textTransform: "unset",
       padding: "21px 26px 10px 12px",
