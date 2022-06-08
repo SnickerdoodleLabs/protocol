@@ -12,15 +12,18 @@ import Data from "./components/Data";
 const Popup = () => {
   const [obj, setObj] = useState(null);
   const [onChainData, setOnChainData] = useState(null);
-  const [loadCard, setLoadCard] = useState(true);
-  const hostname = window.location.hostname;
+  const [loadCard, setLoadCard] = useState(false);
+
   useEffect(() => {
-    chrome.runtime.sendMessage({ message: "onChainDataRequest", hostname: "onChainData"});
-    chrome.storage.sync.get(["onChainData"], ((result) => {
+    chrome.runtime.sendMessage({
+      message: "onChainDataRequest",
+      hostname: "onChainData",
+    });
+    chrome.storage.sync.get(["onChainData"], (result) => {
       if (result.onChainData) {
-        setOnChainData(result.onChainData)
+        setOnChainData(result.onChainData);
       }
-    }));
+    });
   }, []);
 
   chrome.runtime.sendMessage({ message: "dataRequest", obj: obj });
@@ -34,6 +37,7 @@ const Popup = () => {
       if (request.userData) {
         console.log("req", request.userData);
         setObj(request.userData);
+        setLoadCard(true);
       }
     }
   });
@@ -92,7 +96,7 @@ const Popup = () => {
               dataType="Image"
               title="PHOTO"
               data={
-                obj?.photos
+                obj?.photos?.[0]?.url
                   ? obj?.photos[0].url
                   : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgUNaoFwOOa3sOnMoc8CVUJ65bhS822etxVQ&usqp=CAU"
               }
@@ -100,13 +104,15 @@ const Popup = () => {
             <Data
               dataType="Text"
               title="NAME"
-              data={obj?.names ? obj?.names[0].displayName : "Todd Chapman"}
+              data={
+                obj?.names?.[0]?.displayName ? obj?.names[0].displayName : "N/A"
+              }
             />
             <Data
               dataType="Text"
               title="BIRTHDAY"
               data={
-                obj?.birthdays
+                obj?.birthdays?.[0]?.date
                   ? `${obj?.birthdays[0]?.date.month || "04"}/${
                       obj.birthdays[0]?.date.day || "05"
                     }/${obj.birthdays[0]?.date.year || "1992"}`
@@ -116,7 +122,11 @@ const Popup = () => {
             <Data
               dataType="Text"
               title="GENDER"
-              data={obj?.genders ? obj?.genders[0]?.formattedValue : "N/A"}
+              data={
+                obj?.genders?.[0]?.formattedValue
+                  ? obj?.genders[0]?.formattedValue
+                  : "N/A"
+              }
             />
           </Grid>
           <Grid
@@ -145,13 +155,27 @@ const Popup = () => {
               dataType="Text"
               title="EMAIL"
               data={
-                obj?.emailAddresses
+                obj?.emailAddresses?.[0]?.value
                   ? obj?.emailAddresses[0].value
                   : "todd@snickerdoodle.io"
               }
             />
-            <Data dataType="Text" title="PHONE" data="N/A" />
-            <Data dataType="Text" title="LOCATION" data="California" />
+            <Data
+              dataType="Text"
+              title="PHONE"
+              data={
+                obj?.phoneNumbers?.[0]?.canonicalForm
+                  ? obj?.phoneNumbers[0]?.canonicalForm
+                  : "N/A"
+              }
+            />
+            <Data
+              dataType="Text"
+              title="LOCATION"
+              data={
+                obj?.locations?.[0]?.value ? obj?.locations[0]?.value : "N/A"
+              }
+            />
           </Grid>
           <Grid
             style={{
@@ -200,21 +224,7 @@ const Popup = () => {
           </Grid>
         </Grid>
       ) : (
-        <Grid style={{ justifyContent: "center", textAlign: "center" }}>
-          <Button
-            onClick={() => {
-              setLoadCard(true);
-            }}
-            style={{
-              marginTop: "500px",
-              background: "#0D1117",
-              color: "white",
-            }}
-            variant="contained"
-          >
-            Show User Card
-          </Button>
-        </Grid>
+        ""
       )}
     </Grid>
   );

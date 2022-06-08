@@ -56,10 +56,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       fetch(fetch_url, fetch_options)
         .then((res) => res.json())
         .then((res) => {
-          console.log("DATA", res.responses[0].person);
+          console.log("DATA", res.responses?.[0]?.person);
           chrome.runtime.sendMessage({
             message: "cardData",
-            userData: res.responses[0].person,
+            userData: res.responses?.[0]?.person,
           });
         });
     });
