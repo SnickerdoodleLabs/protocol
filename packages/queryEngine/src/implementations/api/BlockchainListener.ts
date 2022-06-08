@@ -1,11 +1,31 @@
-import { inject, injectable } from "inversify";
-import { combine, ResultAsync } from "neverthrow";
+import {
+  BlockchainUnavailableError,
+  ChainId,
+  EthereumAccountAddress,
+  EthereumContractAddress,
+  IpfsCID,
+} from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
+import { inject, injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
 import { IBlockchainListener } from "@query-engine/interfaces/api";
-import { IBlockchainProvider, IBlockchainProviderType, IConfigProvider, IConfigProviderType, IContextProvider, IContextProviderType, ILogUtils, ILogUtilsType } from "@query-engine/interfaces/utilities";
+import {
+  IQueryService,
+  IQueryServiceType,
+} from "@query-engine/interfaces/business";
 import { QueryEngineContext } from "@query-engine/interfaces/objects";
-import { IQueryService, IQueryServiceType } from "@query-engine/interfaces/business";
-import { BlockchainUnavailableError, ChainId, EthereumAccountAddress, EthereumContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
+import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+  ILogUtils,
+  ILogUtilsType,
+} from "@query-engine/interfaces/utilities";
 
 // Listen to events on blockchain
 // Listen to events on consent contract
@@ -15,10 +35,9 @@ import { BlockchainUnavailableError, ChainId, EthereumAccountAddress, EthereumCo
 // compiling nodes
 // tsc filename
 
-
 @injectable()
 export class BlockchainListener implements IBlockchainListener {
-  protected mainProviderInitialized: boolean = false;
+  protected mainProviderInitialized = false;
 
   constructor(
     @inject(IQueryServiceType) protected queryService: IQueryService,
@@ -27,10 +46,10 @@ export class BlockchainListener implements IBlockchainListener {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) { }
+  ) {}
 
   public initialize(): ResultAsync<void, BlockchainUnavailableError> {
-    return combine([
+    return ResultUtils.combine([
       this.blockchainProvider.getProvider(),
       this.contextProvider.getContext(),
     ]).map(([provider, context]) => {

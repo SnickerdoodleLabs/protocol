@@ -3704,6 +3704,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@material-ui/core@npm:^4.12.4":
+  version: 4.12.4
+  resolution: "@material-ui/core@npm:4.12.4"
+  dependencies:
+    "@babel/runtime": ^7.4.4
+    "@material-ui/styles": ^4.11.5
+    "@material-ui/system": ^4.12.2
+    "@material-ui/types": 5.1.0
+    "@material-ui/utils": ^4.11.3
+    "@types/react-transition-group": ^4.2.0
+    clsx: ^1.0.4
+    hoist-non-react-statics: ^3.3.2
+    popper.js: 1.16.1-lts
+    prop-types: ^15.7.2
+    react-is: ^16.8.0 || ^17.0.0
+    react-transition-group: ^4.4.0
+  peerDependencies:
+    "@types/react": ^16.8.6 || ^17.0.0
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 96b48deccda87ced841b1db45bed2be6d2b6d1b4eae72cd5c9b931201cb72026330688e0fead54e715bcead40b267ea88bde781c9f1563b1a71a5c51bf187289
+  languageName: node
+  linkType: hard
+
 "@material-ui/icons@npm:4.11.2":
   version: 4.11.2
   resolution: "@material-ui/icons@npm:4.11.2"
@@ -3718,6 +3745,23 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 0cd1d54b25a4237bd0cefd383d287911f721d4c4ac4fd7980370566b9927f3a9725e7a715042f7c65c87fa554173fbef5328de1d08e60eb996038f375ddf583a
+  languageName: node
+  linkType: hard
+
+"@material-ui/icons@npm:^4.11.3":
+  version: 4.11.3
+  resolution: "@material-ui/icons@npm:4.11.3"
+  dependencies:
+    "@babel/runtime": ^7.4.4
+  peerDependencies:
+    "@material-ui/core": ^4.0.0
+    "@types/react": ^16.8.6 || ^17.0.0
+    react: ^16.8.0 || ^17.0.0
+    react-dom: ^16.8.0 || ^17.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: f849a8c4fecddc112cfa94105a2c72e763ff76b9f8da74135b7bbadfd294ed6685897cbea6a2128099be0ce37843784893d8c64da6bde37d020956ab9067206c
   languageName: node
   linkType: hard
 
@@ -3752,7 +3796,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@material-ui/system@npm:^4.12.1":
+"@material-ui/system@npm:^4.12.1, @material-ui/system@npm:^4.12.2":
   version: 4.12.2
   resolution: "@material-ui/system@npm:4.12.2"
   dependencies:
@@ -4363,6 +4407,8 @@ __metadata:
     "@babel/preset-env": ^7.16.11
     "@babel/preset-react": ^7.16.7
     "@hot-loader/react-dom": ^17.0.2
+    "@material-ui/core": ^4.12.4
+    "@material-ui/icons": ^4.11.3
     "@material-ui/styles": ^4.11.5
     "@metamask/detect-provider": ^1.2.0
     "@types/chrome": ^0.0.177
@@ -4427,6 +4473,7 @@ __metadata:
     inversify: ^5.1.1
     ipfs-http-client: ^55.0.0
     neverthrow: ^4.3.1
+    neverthrow-result-utils: ^1.0.2
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
     uuid: ^8.3.0
@@ -9788,6 +9835,13 @@ __metadata:
     pify: ^4.0.1
     rimraf: ^2.6.3
   checksum: 521f7da44bd79da841c06d573923d1f64f423aee8b8219c973478d3150ce1dcc024d03ad605929292adbff56d6448bca60d96dcdd2d8a53b46dbcb27e265c94b
+  languageName: node
+  linkType: hard
+
+"delay@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "delay@npm:5.0.0"
+  checksum: 62f151151ecfde0d9afbb8a6be37a6d103c4cb24f35a20ef3fe56f920b0d0d0bb02bc9c0a3084d0179ef669ca332b91155f2ee4d9854622cd2cdba5fc95285f9
   languageName: node
   linkType: hard
 
@@ -18164,6 +18218,16 @@ __metadata:
   version: 2.6.2
   resolution: "neo-async@npm:2.6.2"
   checksum: deac9f8d00eda7b2e5cd1b2549e26e10a0faa70adaa6fdadca701cc55f49ee9018e427f424bac0c790b7c7e2d3068db97f3093f1093975f2acb8f8818b936ed9
+  languageName: node
+  linkType: hard
+
+"neverthrow-result-utils@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "neverthrow-result-utils@npm:1.0.2"
+  dependencies:
+    delay: ^5.0.0
+    neverthrow: ^4.3.1
+  checksum: 32fc0230caf44af52307c55699f626d1b0582ea7f3279f556d0b31a7bd47bbd596c61885a2f74856c4221674f930d5324f6bd1b8226aad9aa3bacb1624fde857
   languageName: node
   linkType: hard
 

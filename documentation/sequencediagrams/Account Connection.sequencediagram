@@ -1,0 +1,74 @@
+title Account Connection and Login
+
+participant User Account
+participant QueryEngine
+participant Login Registry
+note over Login Registry:The Login Registry is a ERC721 contract on the DoodleChain.\nEach external account (such as 0xDEADBEEF) is issued a token\nin the registry containing the Derivation Mask once the account is connected to the data wallet
+==User wants to connect Account 0xDEADBEEF to [New] Data Wallet with no existing connected accounts.==
+User Account->QueryEngine:getLoginMessage(countryCode)\nThis allows for localization of the login message
+activate QueryEngine
+User Account<-QueryEngine:"Sign in to your Snickerdoodle Data Wallet" (Eng)\n"Melden Sie sich bei Ihrer Snickerdoodle Data Wallet an" (Ger)
+deactivate QueryEngine
+User Account->User Account:Sign message with key for 0xDEADBEEF
+User Account->QueryEngine:login(signature, countryCode)
+activate QueryEngine
+QueryEngine->Login Registry:Does 0xDEADBEEF have an existing token?
+activate Login Registry
+QueryEngine<-Login Registry:No
+deactivate Login Registry
+QueryEngine->QueryEngine:Generate the Derivation Mask\nThis is a hex string that is combined with the signature to\ncreate the source entropy for the Private Key for new Data Wallet \n(the Derived Wallet Key, "DWK"). Store the source entropy in memory.
+QueryEngine->QueryEngine:Derive DWK from entropy
+
+QueryEngine->Login Registry:Create an NFT issued to 0xDEADBEEF with the Derivation Mask
+activate Login Registry
+QueryEngine<-Login Registry:
+deactivate Login Registry
+QueryEngine->QueryEngine:Store 0xDEADBEEF as a Connected Account in the Data Wallet
+note over QueryEngine:At this point in time, QueryEngine has the DWK for the data wallet\nand can now start consenting to businesses and storing things\nsecurely in the wallet.
+User Account<-QueryEngine:Success!
+deactivate QueryEngine
+User Account->QueryEngine:doTheThing()
+
+==Login to Existing Data Wallet==
+User Account->QueryEngine:getLoginMessage(countryCode)
+activate QueryEngine
+User Account<-QueryEngine:"Sign in to your Snickerdoodle Data Wallet"
+deactivate QueryEngine
+User Account->User Account:Sign message with key for 0xDEADBEEF
+User Account->QueryEngine:login(signature, countryCode)
+activate QueryEngine
+QueryEngine->Login Registry:Does 0xDEADBEEF have an existing token?
+activate Login Registry
+QueryEngine<-Login Registry:Derivation Mask
+deactivate Login Registry
+QueryEngine->QueryEngine:Combine Signature with Derivation Mask to create source entropy and derive DWK. Store source entropy in memory
+QueryEngine->QueryEngine:Confirm that 0xDEADBEEF is a connected account in the data wallet\nReject login if it is not.
+note over QueryEngine:At this point in time, QueryEngine has the DWK for the data wallet\nand can now start consenting to businesses and storing things\nsecurely in the wallet.
+User Account<-QueryEngine:Success!
+deactivate QueryEngine
+User Account->QueryEngine:doTheThing()
+
+==Connect a new account 0xFADECAB==
+note over User Account:User must first be logged in with an existing wallet
+User Account->QueryEngine:getLoginMessage(countryCode)
+activate QueryEngine
+User Account<-QueryEngine:"Sign in to your Snickerdoodle Data Wallet"
+deactivate QueryEngine
+User Account->User Account:Sign message with key for 0xFADECAB
+User Account->QueryEngine:connectAccount(signature, countryCode)
+activate QueryEngine
+QueryEngine->Login Registry:Does 0xFADECAB have an existing token?
+activate Login Registry
+QueryEngine<-Login Registry:No
+deactivate Login Registry
+QueryEngine->QueryEngine:Calculate Derivation Mask for 0xFADECAB.\nThis is the value to convert the new Signature to the original Source Entropy.\nThe DWK has already been derived since we are already logged in.
+QueryEngine->Login Registry:Create an NFT issued to 0xFADECAB with the Derivation Mask
+activate Login Registry
+QueryEngine<-Login Registry:
+deactivate Login Registry
+QueryEngine->QueryEngine:Store 0xFADECAB as a Connected Account in the Data Wallet
+activate Login Registry
+QueryEngine<-Login Registry:
+deactivate Login Registry
+User Account<-QueryEngine:Success!
+deactivate QueryEngine
