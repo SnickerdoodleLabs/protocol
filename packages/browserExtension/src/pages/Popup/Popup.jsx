@@ -5,133 +5,228 @@ import createMetaMaskProvider from "metamask-extension-provider";
 import { ethers } from "ethers";
 import connect from "../Background";
 import { abi_RequestForData } from "../../contract/abi";
+import { Button, Grid } from "@material-ui/core";
+import horizontalLogo from "../../assets/img/sdHorizontalLogo.svg";
+import Data from "./components/Data";
 
-// https://github.com/MetaMask/extension-provider
-// import { initializeProvider } from '@metamask/providers';
-// https://github.com/MetaMask/metamask-extension/issues/8990
-// https://blog.shahednasser.com/how-to-send-notifications-in-chrome-extensions/
 const Popup = () => {
-  const [accounts, setAccounts] = useState([]);
-  const [connected, setConnected] = useState(false);
-  const [provider, setProvider] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [signer, setSigner] = useState(undefined);
+  const [obj, setObj] = useState(null);
+  const [onChainData, setOnChainData] = useState(null);
+  const [loadCard, setLoadCard] = useState(false);
 
-  async function connectMetamask() {
-    console.log("connectMetamask");
+  useEffect(() => {
+    chrome.runtime.sendMessage({
+      message: "onChainDataRequest",
+      hostname: "onChainData",
+    });
+    chrome.storage.sync.get(["onChainData"], (result) => {
+      if (result.onChainData) {
+        setOnChainData(result.onChainData);
+      }
+    });
+  }, []);
 
-    const provider = createMetaMaskProvider();
-    console.log("p", provider);
+  chrome.runtime.sendMessage({ message: "dataRequest", obj: obj });
 
-    if (provider) {
-      console.log("provider detected", provider);
-      setProvider(provider);
-
-      const accounts = await provider.request({
-        method: "eth_requestAccounts",
-      });
-
-      setAccounts(accounts);
-      setConnected(true);
-      const connectedProvider = new ethers.providers.Web3Provider(provider);
-      console.log(" Connected Provider ", connectedProvider);
-      setSigner(connectedProvider.getSigner());
-      console.log(" Signer Provider ", connectedProvider.getSigner());
-
-      console.log("accounts ", accounts);
-      listenToEvents(provider);
-      // Start Listening..
-      //verify(provider, accounts[0]);
-      //listenToEvents(provider);
+  chrome.runtime.onMessage.addListener(function (
+    request,
+    sender,
+    sendResponse,
+  ) {
+    if (request.message === "cardData") {
+      if (request.userData) {
+        console.log("req", request.userData);
+        setObj(request.userData);
+        setLoadCard(true);
+      }
     }
-  }
-
-  chrome.identity.getProfileUserInfo(function (userInfo) {
-    console.log(userInfo);
   });
 
-  async function listenToEvents(provider) {
-    const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-    console.log(" provider 1", provider);
-    const ethProvider = new ethers.providers.Web3Provider(provider);
-    const contract = new ethers.Contract(
-      contractAddress,
-      abi_RequestForData,
-      ethProvider,
-    );
-
-    contract.on("RequestForData", (e, cid) => {
-      console.log("Received Evemt", " Address ", e, " CID ", cid);
-      setMessages((prev) => [...prev, cid]);
-    });
-  }
-
-  function messageToVerify() {
-    return JSON.stringify({
-      domain: {
-        // Defining the chain aka Rinkeby testnet or Ethereum Main Net
-        chainId: 1,
-        // Give a user friendly name to the specific contract you are signing for.
-        name: "SnickerDoodle Consent Contract",
-        // If name isn't enough add verifying contract to make sure you are establishing contracts with the proper entity
-        verifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
-        // Just let's you know the latest version. Definitely make sure the field name is correct.
-        version: "1",
-      },
-
-      // Defining the message signing data content.
-      message: {
-        contents: "You are signing Snickerdoodle's Consent Contract",
-        from: {
-          name: "SnickerDoodle",
-        },
-        to: [
-          {
-            wallets: [accounts[0]],
-          },
-        ],
-      },
-      // Refers to the keys of the *types* object below.
-    });
-  }
-
-  async function verify() {
-    const signature = await signer.signMessage(messageToVerify());
-    console.log(" signature ", signature);
-  }
-
   return (
-    <div className="App">
-      <header className="App-header">
-        Hello Snickerdoodle!
-        {connected ? (
-          <>
-            {" "}
-            <button onClick={verify}>Signature Verify</button>
-            <ul>
-              {accounts.map((account) => (
-                <li key={account}> {account}</li>
-              ))}
-            </ul>
-          </>
-        ) : (
-          <button onClick={connectMetamask}>
-            Connect to Metamask And Listen to Events
-          </button>
-        )}
-        <p>
-          Make sure that your Metamask is pointing at right Ethernet Network!
-          HardHat local host or Avalanche.
-        </p>
-        <div> {messages.length > 0 ? "Messages Received" : ""} </div>
-        <ul>
-          {" "}
-          {messages.map((message, index) => (
-            <li key={index}>{message}</li>
-          ))}
-        </ul>
-      </header>
-    </div>
+    <Grid>
+      <Grid
+        style={{
+          position: "fixed",
+          width: "100%",
+          height: "100%",
+          background: "#F8D798",
+          textAlign: "center",
+        }}
+      >
+        <Grid>
+          <img
+            style={{ margin: "35px 0px 15px 0px", width: "155px" }}
+            src={horizontalLogo}
+          />
+        </Grid>
+      </Grid>
+      {loadCard ? (
+        <Grid
+          style={{
+            position: "fixed",
+            width: "100%",
+            height: "100%",
+            background: "#FDF3E1",
+            top: "80px",
+          }}
+        >
+          <Grid
+            style={{
+              width: "90%",
+              marginLeft: "5%",
+              background: "white",
+              height: "210px",
+              borderRadius: "15px",
+              marginTop: "10px",
+            }}
+          >
+            <Grid>
+              <h1
+                style={{
+                  marginLeft: "15px",
+                  fontSize: "15px",
+                  marginTop: "10px",
+                  paddingTop: "10px",
+                }}
+              >
+                Personal Info
+              </h1>
+            </Grid>
+            <Data
+              dataType="Image"
+              title="PHOTO"
+              data={
+                obj?.photos?.[0]?.url
+                  ? obj?.photos[0].url
+                  : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgUNaoFwOOa3sOnMoc8CVUJ65bhS822etxVQ&usqp=CAU"
+              }
+            />
+            <Data
+              dataType="Text"
+              title="NAME"
+              data={
+                obj?.names?.[0]?.displayName ? obj?.names[0].displayName : "N/A"
+              }
+            />
+            <Data
+              dataType="Text"
+              title="BIRTHDAY"
+              data={
+                obj?.birthdays?.[0]?.date
+                  ? `${obj?.birthdays[0]?.date.month || "04"}/${
+                      obj.birthdays[0]?.date.day || "05"
+                    }/${obj.birthdays[0]?.date.year || "1992"}`
+                  : "N/A"
+              }
+            />
+            <Data
+              dataType="Text"
+              title="GENDER"
+              data={
+                obj?.genders?.[0]?.formattedValue
+                  ? obj?.genders[0]?.formattedValue
+                  : "N/A"
+              }
+            />
+          </Grid>
+          <Grid
+            style={{
+              width: "90%",
+              marginLeft: "5%",
+              background: "white",
+              height: "135px",
+              borderRadius: "15px",
+              marginTop: "10px",
+            }}
+          >
+            <Grid>
+              <h1
+                style={{
+                  marginLeft: "15px",
+                  fontSize: "15px",
+                  marginTop: "10px",
+                  paddingTop: "10px",
+                }}
+              >
+                Contact Info
+              </h1>
+            </Grid>
+            <Data
+              dataType="Text"
+              title="EMAIL"
+              data={
+                obj?.emailAddresses?.[0]?.value
+                  ? obj?.emailAddresses[0].value
+                  : "todd@snickerdoodle.io"
+              }
+            />
+            <Data
+              dataType="Text"
+              title="PHONE"
+              data={
+                obj?.phoneNumbers?.[0]?.canonicalForm
+                  ? obj?.phoneNumbers[0]?.canonicalForm
+                  : "N/A"
+              }
+            />
+            <Data
+              dataType="Text"
+              title="LOCATION"
+              data={
+                obj?.locations?.[0]?.value ? obj?.locations[0]?.value : "N/A"
+              }
+            />
+          </Grid>
+          <Grid
+            style={{
+              width: "90%",
+              marginLeft: "5%",
+              background: "white",
+              height: "135px",
+              borderRadius: "15px",
+              marginTop: "10px",
+            }}
+          >
+            <Grid>
+              <h1
+                style={{
+                  marginLeft: "15px",
+                  fontSize: "15px",
+                  marginTop: "10px",
+                  paddingTop: "10px",
+                }}
+              >
+                On-chain Info
+              </h1>
+            </Grid>
+            <Data
+              dataType="Text"
+              title="URL WITH TIMESTAMP"
+              data="www... 10/02/2022 - 22:05:30"
+            />
+            <Data
+              dataType="Text"
+              title="WALLET ACCOUNT"
+              data={`${onChainData?.accountAddress.slice(0, 8)}...
+              ${onChainData?.accountAddress.slice(-8)}`}
+            />
+            <Data
+              dataType="Text"
+              title="SIGNATURE"
+              data={`${onChainData?.signatureValue.slice(0, 8)}...
+              ${onChainData?.signatureValue.slice(-8)}`}
+            />
+            <Data
+              dataType="Text"
+              title="CHAIN ID"
+              data={onChainData?.chainId}
+            />
+          </Grid>
+        </Grid>
+      ) : (
+        ""
+      )}
+    </Grid>
   );
 };
 

@@ -100,7 +100,7 @@ export const claimPopup = {
     </div>
     `,
   popUpStyle: `      @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap");
-    react-extension-container {}
+    snickerdoodle-data-wallet {}
     .card {
         align-items: center;
         background-color: white;
@@ -280,7 +280,7 @@ export const claimPopup = {
             }
           }
         console.log("test");
-      let shadowRootElement = document.getElementById("react-extension-container").shadowRoot;
+      let shadowRootElement = document.getElementById("snickerdoodle-data-wallet").shadowRoot;
       
         let account = [];
         if (typeof window.ethereum !== 'undefined') {
