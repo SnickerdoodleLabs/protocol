@@ -39,7 +39,7 @@ export class QueryEngine implements IQueryEngine {
         return okAsync(undefined);
     }
 
-    public processQuery(queryId: IpfsCID): ResultAsync<void, never> {
+    public processQuery(queryId: IpfsCID): ResultAsync<void, Error> {
         const queryService = this.iocContainer.get<IQueryService>(IQueryServiceType);
 
         return queryService.processQuery(queryId);

@@ -4,8 +4,17 @@ import { ethers } from "ethers";
 import { IBlockchainListener } from "@query-engine/interfaces/api";
 import { IBlockchainProvider, IBlockchainProviderType, IConfigProvider, IConfigProviderType, IContextProvider, IContextProviderType, ILogUtils, ILogUtilsType } from "@query-engine/interfaces/utilities";
 import { QueryEngineContext } from "@query-engine/interfaces/objects";
-import { BlockchainUnavailableError, ChainId, EthereumAccountAddress, EthereumContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
 import { IQueryService, IQueryServiceType } from "@query-engine/interfaces/business";
+import { BlockchainUnavailableError, ChainId, EthereumAccountAddress, EthereumContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
+
+// Listen to events on blockchain
+// Listen to events on consent contract
+// Config - same as context but immutable, what vlaues are you viewing against
+// Context - Global data / runtime
+// @injectable - dependency injection: useful for testing, when dependencies can be mocked or stubbed out
+// compiling nodes
+// tsc filename
+
 
 @injectable()
 export class BlockchainListener implements IBlockchainListener {
@@ -18,7 +27,7 @@ export class BlockchainListener implements IBlockchainListener {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) { }
 
   public initialize(): ResultAsync<void, BlockchainUnavailableError> {
     return combine([
@@ -26,10 +35,11 @@ export class BlockchainListener implements IBlockchainListener {
       this.contextProvider.getContext(),
     ]).map(([provider, context]) => {
       if (this.mainProviderInitialized === false) {
-        this.initializeMainProviderEvents(provider, context);
+        //this.initializeMainProviderEvents(provider, context);
       }
     });
   }
+  /*
 
   private initializeMainProviderEvents(
     provider: ethers.providers.JsonRpcProvider,
@@ -76,14 +86,15 @@ export class BlockchainListener implements IBlockchainListener {
     // Will look something like this:
     // Pretend we know the contract address that we are listening for
     provider.listenForEventOnContract(context.consentContractAddress, "OnDataRequested", (contractAddress: EthereumContractAddress, cid: IpfsCID) => {
-        // This is the method that is called when an event happens on the consent
-        this.queryService.onQueryPosted(contractAddress, cid)
+      // This is the method that is called when an event happens on the consent
+      this.queryService.onQueryPosted(contractAddress, cid)
         // This mapErr is because any returned error would disappear into the ether without it.
         .mapErr((e) => {
-            this.logUtils.error(e);
+          this.logUtils.error(e);
         })
     })
 
     this.mainProviderInitialized = true;
   }
+  */
 }

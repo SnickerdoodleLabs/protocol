@@ -25,7 +25,7 @@ export class ContextProviderMock implements IContextProvider {
     if (context != null) {
       this.context = context;
     } else {
-      this.context = new QueryEngineContext();
+      //this.context = new QueryEngineContext();
     }
   }
 
@@ -36,7 +36,7 @@ export class ContextProviderMock implements IContextProvider {
   public setContextValues = new Array<QueryEngineContext>();
   public setContext(context: QueryEngineContext): ResultAsync<void, never> {
     this.setContextValues.push(context);
-    return okAsync<null, never>(null).map(() => {});
+    return okAsync<null, never>(null).map(() => { });
   }
 
   public assertEventCounts(expectedCounts: IExpectedEventCounts): void {
@@ -50,7 +50,7 @@ export class ContextProviderMock implements IContextProvider {
     expect(this.onControlClaimedActivations.length).toBe(
       counts.onControlClaimed,
     );
-    
+
     // Add a new claim for each event
     expect(this.onControlClaimedActivations.length).toBe(
       counts.onControlClaimed,
