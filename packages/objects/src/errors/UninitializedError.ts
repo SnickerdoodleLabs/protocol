@@ -1,7 +1,7 @@
 import errorCodes from "@objects/errors/errorCodes";
 
-export class RenderError extends Error {
-  protected errorCode: string = errorCodes[RenderError.name];
+export class UninitializedError extends Error {
+  protected errorCode: string = errorCodes[UninitializedError.name];
   constructor(message?: string, public src?: unknown) {
     super(message);
   }
