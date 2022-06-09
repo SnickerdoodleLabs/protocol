@@ -31,25 +31,23 @@
     ]
   },
   "scripts": {
-    "alias": "lerna run alias",
-    "bootstrap": "yarn install && lerna init && yarn clean-docker && docker-compose pull && docker-compose up -d && wait-on -l -d 15000 package.json && docker-compose up -d && yarn verify-backend",
+    "alias": "yarn workspaces foreach -p run alias",
     "build": "yarn clean && yarn compile && yarn postCompile",
     "clean": "npx rimraf ./packages/*/dist ./packages/*/tsconfig.tsbuildinfo",
     "clean-docker": "docker-compose down",
     "clean-node": "npx rimraf node_modules packages/*/node_modules yarn.lock",
     "compile": "tsc --build && yarn alias",
-    "docker-push": "lerna run docker-push",
-    "dockerize": "lerna run dockerize",
+    "docker-push": "yarn workspaces foreach -p run docker-push",
+    "dockerize": "yarn workspaces foreach -p run dockerize",
     "format": "eslint --fix packages/**/*.ts && yarn format:pkg",
     "format:pkg": "format-package -w",
-    "generate-docs": "lerna run generate-docs",
     "lint": "eslint \"packages/*/{src,test}/**/*.{ts,tsx}\" --quiet",
     "lint:fix": "eslint \"packages/*/{src,test}/**/*.{ts,tsx}\" --quiet --fix",
-    "postCompile": "lerna run postCompile",
+    "postCompile": "yarn workspaces foreach -p run postCompile",
     "prepare-for-publish": "cd packages/objects && yarn build && cd ../gateway-connector && yarn build && cd ../utils && yarn build && cd ../hypernet-core && yarn build && cd ../web-ui && yarn build && cd ../web-integration && yarn build && cd ../",
     "setup-windows": "yarn install --global --production windows-build-tools",
     "start": "docker-compose up user-dashboard",
-    "test": "lerna run test"
+    "test": "yarn workspaces foreach -p run test"
   },
   "husky": {
     "hooks": {
@@ -119,7 +117,6 @@
     "image-webpack-loader": "^7.0.1",
     "jest": "^26.4.2",
     "jest-when": "^3.0.1",
-    "lerna": "^3.22.1",
     "lint-staged": ">=10",
     "metro-react-native-babel-preset": "^0.59.0",
     "monaco-editor-webpack-plugin": "2.0.0",
