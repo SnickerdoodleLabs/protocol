@@ -1,8 +1,14 @@
+import {
+  BlockchainUnavailableError,
+  ChainId,
+  EthereumAccountAddress,
+  EthereumContractAddress,
+  IpfsCID,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { BlockchainUnavailableError, ChainId, EthereumAccountAddress, EthereumContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
 
 export interface IBlockchainListener {
-    initialize(): ResultAsync<void, BlockchainUnavailableError>;
+  initialize(): ResultAsync<void, BlockchainUnavailableError>;
 }
 
 export const IBlockchainListenerType = Symbol.for("IBlockchainListener");

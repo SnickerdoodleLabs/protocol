@@ -1,12 +1,8 @@
-import {
-  QueryEngineContext,
-} from "@query-engine/interfaces/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import { Subject } from "rxjs";
 
-import {
-  IContextProvider,
-} from "@query-engine/interfaces/utilities";
+import { QueryEngineContext } from "@query-engine/interfaces/objects";
+import { IContextProvider } from "@query-engine/interfaces/utilities";
 
 export class ContextProviderMock implements IContextProvider {
   public context: QueryEngineContext;
@@ -14,9 +10,7 @@ export class ContextProviderMock implements IContextProvider {
   public onControlClaimed: Subject<number>;
   public onControlClaimedActivations: number[] = [];
 
-  constructor(
-    context: QueryEngineContext | null = null,
-  ) {
+  constructor(context: QueryEngineContext | null = null) {
     this.onControlClaimed = new Subject();
     this.onControlClaimed.subscribe((val) => {
       this.onControlClaimedActivations.push(val);
@@ -36,7 +30,7 @@ export class ContextProviderMock implements IContextProvider {
   public setContextValues = new Array<QueryEngineContext>();
   public setContext(context: QueryEngineContext): ResultAsync<void, never> {
     this.setContextValues.push(context);
-    return okAsync<null, never>(null).map(() => { });
+    return okAsync<null, never>(null).map(() => {});
   }
 
   public assertEventCounts(expectedCounts: IExpectedEventCounts): void {

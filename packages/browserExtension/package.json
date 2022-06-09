@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "build": "node utils/build.js",
-    "start": "node utils/webserver.js",
-    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
+    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
+    "start": "node utils/webserver.js"
   },
   "dependencies": {
     "@hot-loader/react-dom": "^17.0.2",

@@ -39,7 +39,7 @@
     "compile": "tsc --build && yarn alias",
     "docker-push": "yarn workspaces foreach -p run docker-push",
     "dockerize": "yarn workspaces foreach -p run dockerize",
-    "format": "eslint --fix packages/**/*.ts && yarn format:pkg",
+    "format": "eslint --fix \"packages/**/*.ts\" && yarn format:pkg",
     "format:pkg": "format-package -w",
     "lint": "eslint \"packages/*/{src,test}/**/*.{ts,tsx}\" --quiet",
     "lint:fix": "eslint \"packages/*/{src,test}/**/*.{ts,tsx}\" --quiet --fix",
@@ -57,6 +57,7 @@
   "lint-staged": {
     "*.format:pkg": "prettier --write"
   },
+  "packageManager": "yarn@3.2.1",
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/plugin-proposal-decorators": "^7.12.13",
@@ -149,6 +150,5 @@
     "webpack": "^5.19.0",
     "webpack-cli": "^4.4.0",
     "webpack-dev-server": "^3.11.2"
-  },
-  "packageManager": "yarn@3.2.1"
+  }
 }
