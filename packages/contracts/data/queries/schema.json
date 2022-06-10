@@ -1,0 +1,303 @@
+{
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "number",
+            "minimum": 0
+        },
+        "description": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 300
+        },
+        "business": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50
+        },
+        "queries": {
+            "type": "object",
+            "patternProperties": {
+                "^q[0-9]$": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "enum": [
+                                "network",
+                                "age",
+                                "location"
+                            ]
+                        },
+                        "return": {
+                            "type": "string",
+                            "enum": [
+                                "boolean",
+                                "integer"
+                            ]
+                        },
+                        "chain": {
+                            "type": "string",
+                            "enum": [
+                                "ETH",
+                                "AVAX"
+                            ]
+                        },
+                        "contract": {
+                            "type": "object",
+                            "properties": {
+                                "address": {
+                                    "type": "string",
+                                    "pattern": "^0x[a-fA-F0-9]{40}$"
+                                },
+                                "networkid": {
+                                    "type": "string",
+                                    "enum": [
+                                        "1",
+                                        "4",
+                                        "43114",
+                                        "43113"
+                                    ]
+                                },
+                                "function": {
+                                    "type": "string",
+                                    "enum": [
+                                        "Transfer"
+                                    ]
+                                },
+                                "direction": {
+                                    "type": "string",
+                                    "enum": [
+                                        "from",
+                                        "to"
+                                    ]
+                                },
+                                "token": {
+                                    "type": "string",
+                                    "enum": [
+                                        "ERC20",
+                                        "ERC721"
+                                    ]
+                                },
+                                "blockrange": {
+                                    "type": "object",
+                                    "properties": {
+                                        "start": {
+                                            "type": "integer"
+                                        },
+                                        "end": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": [
+                                        "start",
+                                        "end"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "address",
+                                "networkid",
+                                "function",
+                                "direction",
+                                "token",
+                                "blockrange"
+                            ]
+                        },
+                        "conditions": {
+                            "type": "object",
+                            "properties": {
+                                "in": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "ge": {
+                                    "type": "integer"
+                                },
+                                "l": {
+                                    "type": "integer"
+                                },
+                                "le": {
+                                    "type": "integer"
+                                },
+                                "e": {
+                                    "type": "integer"
+                                },
+                                "g": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "return"
+                    ],
+                    "anyOf": [
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "network"
+                                }
+                            },
+                            "required": [
+                                "chain",
+                                "contract"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "return": {
+                                    "const": "boolean"
+                                },
+                                "name": {
+                                    "anyOf": [
+                                        {
+                                            "const": "age"
+                                        },
+                                        {
+                                            "const": "location"
+                                        }
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "conditions"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "anyOf": [
+                                        {
+                                            "const": "age"
+                                        },
+                                        {
+                                            "const": "location"
+                                        }
+                                    ]
+                                },
+                                "return": {
+                                    "const": "integer"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "returns": {
+            "type": "object",
+            "patternProperties": {
+                "^r[0-9]$": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "enum": [
+                                "callback",
+                                "query_response"
+                            ]
+                        },
+                        "message": {
+                            "type": "string"
+                        },
+                        "query": {
+                            "type": "string",
+                            "pattern": "^q[0-9]$"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ],
+                    "anyOf": [
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "callback"
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "query_response"
+                                }
+                            },
+                            "required": [
+                                "query"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "properties": {
+                "url": {
+                    "type": "string",
+                    "pattern": "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$"
+                }
+            },
+            "required": [
+                "url"
+            ]
+        },
+        "compensations": {
+            "type": "object",
+            "patternProperties": {
+                "^c[0-9]$": {
+                    "type": "object",
+                    "properties": {
+                        "description": {
+                            "type": "string",
+                            "minLength": 5,
+                            "maxLength": 300
+                        },
+                        "callback": {
+                            "type": "string",
+                            "pattern": "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$"
+                        }
+                    },
+                    "required": [
+                        "description",
+                        "callback"
+                    ]
+                }
+            }
+        },
+        "logic": {
+            "type": "object",
+            "properties": {
+                "returns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "compensations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "returns",
+                "compensations"
+            ]
+        }
+    },
+    "required": [
+        "version",
+        "description",
+        "business",
+        "queries",
+        "compensations",
+        "returns",
+        "logic"
+    ]
+}
