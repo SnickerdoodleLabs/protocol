@@ -2,7 +2,7 @@ import { IpfsCID, SDQLString } from "@objects/primatives";
 
 // Yes the name is technically redundant
 export class NewSDQLQuery {
-  public constructor(public query: SDQLString) { }
+  public constructor(public query: SDQLString) {}
 }
 
 export class SDQLQuery extends NewSDQLQuery {

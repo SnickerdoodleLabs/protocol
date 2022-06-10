@@ -28,5 +28,5 @@ export class QueryEngineContext {
     public dataWalletKey: EthereumPrivateKey | null,
     public loginInProgress: boolean,
     public publicEvents: PublicEvents,
-  ) { }
+  ) {}
 }

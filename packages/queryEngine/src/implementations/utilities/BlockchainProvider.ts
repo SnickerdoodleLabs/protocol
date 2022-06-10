@@ -20,7 +20,7 @@ export class BlockchainProvider implements IBlockchainProvider {
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) { }
+  ) {}
   public getDataWalletSigner(): ResultAsync<
     JsonRpcSigner,
     BlockchainProviderError | UninitializedError
