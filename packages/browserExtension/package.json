@@ -14,6 +14,7 @@
     "@material-ui/icons": "^4.11.3",
     "@material-ui/styles": "^4.11.5",
     "@metamask/detect-provider": "^1.2.0",
+    "@snickerdoodlelabs/query-engine": "workspace:^",
     "@webcomponents/custom-elements": "^1.5.0",
     "ethers": "^5.6.6",
     "jss": "^10.9.0",

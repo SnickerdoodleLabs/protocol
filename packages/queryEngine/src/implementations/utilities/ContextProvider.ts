@@ -1,20 +1,24 @@
-import { EthereumAccountAddress, SDQLQuery } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { Subject } from "rxjs";
 
-import { QueryEngineContext } from "@query-engine/interfaces/objects";
+import {
+  PublicEvents,
+  QueryEngineContext,
+} from "@query-engine/interfaces/objects";
 import { IContextProvider } from "@query-engine/interfaces/utilities";
 
 @injectable()
 export class ContextProvider implements IContextProvider {
   protected context: QueryEngineContext;
-  //protected sdqlqueries: SDQLQuery;
-  //protected queries:
 
   public constructor() {
-    //Subject<SDQLQuery> sampled = new Subject<SDQLQuery>();
-    this.context = new QueryEngineContext(null, new Subject<SDQLQuery>());
+    this.context = new QueryEngineContext(
+      null, // dataWalletAddress
+      null, // sourceEntropy
+      null, // dataWalletKey
+      false, // loginInProgress
+      new PublicEvents(), // publicEvents
+    );
   }
 
   public getContext(): ResultAsync<QueryEngineContext, never> {

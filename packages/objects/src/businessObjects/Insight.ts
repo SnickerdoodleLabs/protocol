@@ -1,5 +1,4 @@
-import { IpfsCID } from "@objects/IpfsCID";
-import { URLString } from "@objects/URLString";
+import { IpfsCID, URLString } from "@objects/primatives";
 
 export class Insight {
   public constructor(

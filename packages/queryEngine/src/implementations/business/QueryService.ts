@@ -1,12 +1,13 @@
 import {
+  ConsentError,
   EthereumContractAddress,
   Insight,
   IpfsCID,
   ISDQLQueryObject,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { NoEmitOnErrorsPlugin } from "webpack";
 
 import {
   IQueryParsingEngine,
@@ -69,13 +70,15 @@ export class QueryService implements IQueryService {
 
           // We have a consent token!
           return this.contextProvider.getContext().map((context) => {
-            context.onQueryPosted.next(query);
+            context.publicEvents.onQueryPosted.next(query);
           });
         });
     });
   }
 
-  public processQuery(queryId: IpfsCID): ResultAsync<void, Error> {
+  public processQuery(
+    queryId: IpfsCID,
+  ): ResultAsync<void, UninitializedError | ConsentError> {
     // 1. Parse the query
     // 2. Generate an insight(s)
     // 3. Redeem the reward
@@ -91,7 +94,7 @@ export class QueryService implements IQueryService {
           // The query doesn't actually exist
           // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
           // Andrew - commented out Error, Error and never do not correlate with entire system
-          return errAsync(new Error("No consent token!"));
+          return errAsync(new ConsentError("No consent token!"));
         }
 
         // Convert string to an object

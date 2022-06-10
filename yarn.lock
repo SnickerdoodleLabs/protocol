@@ -3430,6 +3430,7 @@ __metadata:
     "@material-ui/icons": ^4.11.3
     "@material-ui/styles": ^4.11.5
     "@metamask/detect-provider": ^1.2.0
+    "@snickerdoodlelabs/query-engine": "workspace:^"
     "@types/chrome": ^0.0.177
     "@types/react": ^17.0.39
     "@types/react-dom": ^17.0.11
@@ -3483,7 +3484,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/query-engine@workspace:packages/queryEngine":
+"@snickerdoodlelabs/query-engine@workspace:^, @snickerdoodlelabs/query-engine@workspace:packages/queryEngine":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/query-engine@workspace:packages/queryEngine"
   dependencies:

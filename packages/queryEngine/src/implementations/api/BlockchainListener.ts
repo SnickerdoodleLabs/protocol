@@ -1,5 +1,5 @@
 import {
-  BlockchainUnavailableError,
+  BlockchainProviderError,
   ChainId,
   EthereumAccountAddress,
   EthereumContractAddress,
@@ -48,7 +48,7 @@ export class BlockchainListener implements IBlockchainListener {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  public initialize(): ResultAsync<void, BlockchainUnavailableError> {
+  public initialize(): ResultAsync<void, BlockchainProviderError> {
     return ResultUtils.combine([
       this.blockchainProvider.getProvider(),
       this.contextProvider.getContext(),

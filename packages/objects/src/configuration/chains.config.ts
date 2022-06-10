@@ -1,6 +1,5 @@
-import { ChainId } from "@objects/ChainId";
-import { ChainInformation } from "@objects/ChainInformation";
-import { EthereumContractAddress } from "@objects/EthereumContractAddress";
+import { ChainInformation } from "@objects/businessObjects";
+import { ChainId, EthereumContractAddress } from "@objects/primatives";
 
 export const chainConfig = new Map<ChainId, ChainInformation>([
   [

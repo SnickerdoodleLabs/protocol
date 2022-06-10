@@ -1,8 +1,10 @@
-import { ISDQLQueryObject } from "@snickerdoodlelabs/objects";
+import { Insight, ISDQLQueryObject } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
-export class QueryParsingEngine {
-  public handleQuery(obj: ISDQLQueryObject): ResultAsync<void, never> {
-    return okAsync(undefined);
+import { IQueryParsingEngine } from "@query-engine/interfaces/business/utilities";
+
+export class QueryParsingEngine implements IQueryParsingEngine {
+  public handleQuery(obj: ISDQLQueryObject): ResultAsync<Insight[], never> {
+    return okAsync([]);
   }
 }

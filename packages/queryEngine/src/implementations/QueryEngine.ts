@@ -4,16 +4,34 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 
-import { IpfsCID, IQueryEngine, SDQLQuery } from "@snickerdoodlelabs/objects";
+import {
+  BlockchainProviderError,
+  ConsentError,
+  CountryCode,
+  EthereumAccountAddress,
+  InvalidSignatureError,
+  IpfsCID,
+  IQueryEngine,
+  IQueryEngineEvents,
+  LanguageCode,
+  Signature,
+  UninitializedError,
+  UnsupportedLanguageError,
+} from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { Observable, Subject } from "rxjs";
 
 import { queryEngineModule } from "@query-engine/implementations/QueryEngineModule";
 import {
+  IAccountService,
+  IAccountServiceType,
   IQueryService,
   IQueryServiceType,
 } from "@query-engine/interfaces/business";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@query-engine/interfaces/utilities";
 
 export class QueryEngine implements IQueryEngine {
   protected iocContainer: Container;
@@ -23,32 +41,67 @@ export class QueryEngine implements IQueryEngine {
 
     // Elaborate syntax to demonstrate that we can use multiple modules
     this.iocContainer.load(...[queryEngineModule]);
-
-    // Initialize your events. I use RXJS Subjects here for reasons,
-    // mainly in that RXJS is a fantastic library and you can do a
-    // ton of things once you have things defined as event streams.
-    // We'll make a "Context" object that actually contains the events,
-    // and is behind a ContextProvider.
-    this.onQueryPosted = new Subject();
   }
 
-  public initialize(): ResultAsync<void, never> {
-    // This is the place to do all of your asynchronous initialization stuff.
-    // You can't do that in the constructor.
+  public getEvents(): ResultAsync<IQueryEngineEvents, never> {
+    const contextProvider =
+      this.iocContainer.get<IContextProvider>(IContextProviderType);
 
-    return okAsync(undefined);
+    return contextProvider.getContext().map((context) => {
+      return context.publicEvents;
+    });
+  }
+
+  public getLoginMessage(
+    languageCode: LanguageCode,
+  ): ResultAsync<string, UnsupportedLanguageError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    return accountService.getLoginMessage(languageCode);
+  }
+
+  public login(
+    accountAddress: EthereumAccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+  ): ResultAsync<
+    void,
+    BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
+  > {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    return accountService.login(accountAddress, signature, languageCode);
+  }
+
+  public addAccount(
+    accountAddress: EthereumAccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | InvalidSignatureError
+    | UninitializedError
+    | UnsupportedLanguageError
+  > {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    return accountService.addAccount(accountAddress, signature, languageCode);
   }
 
   public addData(): ResultAsync<void, never> {
     return okAsync(undefined);
   }
 
-  public processQuery(queryId: IpfsCID): ResultAsync<void, Error> {
+  public processQuery(
+    queryId: IpfsCID,
+  ): ResultAsync<void, UninitializedError | ConsentError> {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
     return queryService.processQuery(queryId);
   }
-
-  public onQueryPosted: Observable<SDQLQuery>;
 }

@@ -46,7 +46,7 @@
     "postCompile": "yarn workspaces foreach -p run postCompile",
     "prepare-for-publish": "cd packages/objects && yarn build && cd ../gateway-connector && yarn build && cd ../utils && yarn build && cd ../hypernet-core && yarn build && cd ../web-ui && yarn build && cd ../web-integration && yarn build && cd ../",
     "setup-windows": "yarn install --global --production windows-build-tools",
-    "start": "docker-compose up user-dashboard",
+    "start": "docker-compose up && cd packages/browserPlugin && yarn start",
     "test": "yarn workspaces foreach -p run test"
   },
   "husky": {

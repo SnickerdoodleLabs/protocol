@@ -1,4 +1,9 @@
-import { EthereumContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
+import {
+  ConsentError,
+  EthereumContractAddress,
+  IpfsCID,
+  UninitializedError,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryService {
@@ -6,7 +11,9 @@ export interface IQueryService {
     contractAddress: EthereumContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<void, never>;
-  processQuery(queryId: IpfsCID): ResultAsync<void, Error>;
+  processQuery(
+    queryId: IpfsCID,
+  ): ResultAsync<void, UninitializedError | ConsentError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

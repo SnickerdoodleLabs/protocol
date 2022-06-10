@@ -1,5 +1,4 @@
-import { ChainId } from "@objects/ChainId";
-import { EthereumContractAddress } from "@objects/EthereumContractAddress";
+import { ChainId, EthereumContractAddress } from "@objects/primatives";
 
 export class ChainInformation {
   constructor(

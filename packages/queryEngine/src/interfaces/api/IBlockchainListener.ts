@@ -1,5 +1,5 @@
 import {
-  BlockchainUnavailableError,
+  BlockchainProviderError,
   ChainId,
   EthereumAccountAddress,
   EthereumContractAddress,
@@ -8,7 +8,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IBlockchainListener {
-  initialize(): ResultAsync<void, BlockchainUnavailableError>;
+  initialize(): ResultAsync<void, BlockchainProviderError>;
 }
 
 export const IBlockchainListenerType = Symbol.for("IBlockchainListener");

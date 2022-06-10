@@ -1,7 +1,8 @@
 import { JsonRpcSigner, JsonRpcProvider } from "@ethersproject/providers";
 import {
   ChainId,
-  BlockchainUnavailableError,
+  BlockchainProviderError,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -19,15 +20,17 @@ export class BlockchainProvider implements IBlockchainProvider {
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
-  public getSigner(
-    chainId: ChainId,
-  ): ResultAsync<JsonRpcSigner, BlockchainUnavailableError> {
+  ) { }
+  public getDataWalletSigner(): ResultAsync<
+    JsonRpcSigner,
+    BlockchainProviderError | UninitializedError
+  > {
     throw new Error("Method not implemented.");
   }
+
   public getProvider(
     chainId?: ChainId,
-  ): ResultAsync<JsonRpcProvider, BlockchainUnavailableError> {
+  ): ResultAsync<JsonRpcProvider, BlockchainProviderError> {
     throw new Error("Method not implemented.");
   }
 }

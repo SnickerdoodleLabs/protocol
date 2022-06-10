@@ -1,6 +1,7 @@
 import { ContainerModule, interfaces } from "inversify";
 
 import { BlockchainListener } from "@query-engine/implementations/api";
+import { AccountService } from "@query-engine/implementations/business/AccountService";
 import { InsightPlatformRepository } from "@query-engine/implementations/data/InsightPlatformRepository";
 import {
   ConfigProvider,
@@ -10,6 +11,10 @@ import {
   IBlockchainListener,
   IBlockchainListenerType,
 } from "@query-engine/interfaces/api";
+import {
+  IAccountService,
+  IAccountServiceType,
+} from "@query-engine/interfaces/business";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
@@ -30,6 +35,10 @@ export const queryEngineModule = new ContainerModule(
   ) => {
     bind<IBlockchainListener>(IBlockchainListenerType)
       .to(BlockchainListener)
+      .inSingletonScope();
+
+    bind<IAccountService>(IAccountServiceType)
+      .to(AccountService)
       .inSingletonScope();
 
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
