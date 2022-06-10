@@ -3721,7 +3721,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@material-ui/styles@npm:^4.11.4":
+"@material-ui/styles@npm:^4.11.4, @material-ui/styles@npm:^4.11.5":
   version: 4.11.5
   resolution: "@material-ui/styles@npm:4.11.5"
   dependencies:
@@ -4363,10 +4363,12 @@ __metadata:
     "@babel/preset-env": ^7.16.11
     "@babel/preset-react": ^7.16.7
     "@hot-loader/react-dom": ^17.0.2
+    "@material-ui/styles": ^4.11.5
     "@metamask/detect-provider": ^1.2.0
     "@types/chrome": ^0.0.177
     "@types/react": ^17.0.39
     "@types/react-dom": ^17.0.11
+    "@webcomponents/custom-elements": ^1.5.0
     babel-eslint: ^10.1.0
     babel-loader: ^8.2.3
     babel-preset-react-app: ^10.0.1
@@ -4385,6 +4387,7 @@ __metadata:
     fs-extra: ^10.0.0
     html-loader: ^3.1.0
     html-webpack-plugin: ^5.5.0
+    jss: ^10.9.0
     metamask-extension-provider: ^3.0.0
     node-polyfill-webpack-plugin: ^1.1.4
     node-sass: ^6.0.1
@@ -5649,6 +5652,13 @@ __metadata:
     "@webassemblyjs/ast": 1.11.1
     "@xtuc/long": 4.2.2
   checksum: f15ae4c2441b979a3b4fce78f3d83472fb22350c6dc3fd34bfe7c3da108e0b2360718734d961bba20e7716cb8578e964b870da55b035e209e50ec9db0378a3f7
+  languageName: node
+  linkType: hard
+
+"@webcomponents/custom-elements@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "@webcomponents/custom-elements@npm:1.5.0"
+  checksum: 4074162555c68f1c53fc10f0914e8485dbf0fb14cc8c8f2d3be0e05ae357c10c382decd22ebf6bb2dea3a09e4b6637a7163a91afa851e1e9a943ac78b30c00f7
   languageName: node
   linkType: hard
 
@@ -16364,7 +16374,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jss@npm:10.9.0, jss@npm:^10.5.1":
+"jss@npm:10.9.0, jss@npm:^10.5.1, jss@npm:^10.9.0":
   version: 10.9.0
   resolution: "jss@npm:10.9.0"
   dependencies:

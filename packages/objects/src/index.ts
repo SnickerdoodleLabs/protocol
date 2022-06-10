@@ -8,13 +8,16 @@ export * from "@objects/EmailAddressString";
 export * from "@objects/EthereumAccountAddress";
 export * from "@objects/EthereumContractAddress";
 export * from "@objects/HexString";
+export * from "@objects/Insight";
 export * from "@objects/IpfsCID";
 export * from "@objects/JsonWebToken";
 export * from "@objects/PublicKey";
+export * from "@objects/Reward";
 export * from "@objects/SDQLQuery";
 export * from "@objects/SDQLString";
 export * from "@objects/Signature";
 export * from "@objects/UnixTimestamp";
+export * from "@objects/URLString";
 export * from "@objects/UUID";
 
 export * from "@objects/configuration";

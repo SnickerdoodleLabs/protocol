@@ -23,10 +23,21 @@
     "jsx": "react",
     "composite": true,
     "paths": {
-      "@browser-extension/*": ["./*"],
-      "@objects/*": ["./*"],
-      "@query-engine/*": ["./*"],
-      "@utils/*": ["./*"]
+      "@browser-extension/*": [
+        "./*"
+      ],
+      "@objects/*": [
+        "./*"
+      ],
+      "@query-engine/*": [
+        "./*"
+      ],
+      "@query-engine-tests/*": [
+        "../test/*"
+      ],
+      "@utils/*": [
+        "./*"
+      ]
     }
   }
 }
