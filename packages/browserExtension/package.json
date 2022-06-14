@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "build": "node utils/build.js",
-    "start": "node utils/webserver.js",
-    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
+    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
+    "start": "node utils/webserver.js"
   },
   "dependencies": {
     "@hot-loader/react-dom": "^17.0.2",
@@ -14,6 +14,7 @@
     "@material-ui/icons": "^4.11.3",
     "@material-ui/styles": "^4.11.5",
     "@metamask/detect-provider": "^1.2.0",
+    "@snickerdoodlelabs/core": "workspace:^",
     "@webcomponents/custom-elements": "^1.5.0",
     "ethers": "^5.6.6",
     "jss": "^10.9.0",

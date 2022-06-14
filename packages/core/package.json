@@ -1,0 +1,49 @@
+{
+  "name": "@snickerdoodlelabs/core",
+  "version": "0.0.1",
+  "description": "Snickerdoodle Labs Core. Core encapslates the data wallet and query processor functions of the Protocol",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/core#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle Labs",
+    "SDQL"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "scripts": {
+    "alias": "tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "tsc --build && cd ../.. && yarn alias",
+    "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
+    "prepare": "yarn build",
+    "test": "yarn build && yarn test:ci",
+    "test-integration": "cucumber-js --require-module ts-node/register --require-module tsconfig-paths/register --require 'test/integration/**/*.ts' test/integration/features/**/*.feature",
+    "test:ci": "jest --runInBand --coverage --passWithNoTests",
+    "test:watch": "jest --watch --color --detectOpenHandles"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/objects": ">=0.0.1",
+    "ethers": "^5.4.7",
+    "inversify": "^5.1.1",
+    "ipfs-http-client": "^55.0.0",
+    "neverthrow": "^4.3.1",
+    "neverthrow-result-utils": "^1.0.2",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.5",
+    "uuid": "^8.3.0"
+  }
+}

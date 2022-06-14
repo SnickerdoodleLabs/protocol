@@ -1,0 +1,44 @@
+title Basic Snickerdoodle Protocol
+
+participant Business
+participant User
+participant Insight Platform
+participant Consent Contract
+participant IPFS
+participant DoodleChain
+participant DoodleDAO
+
+Business->DoodleChain:create ConsentContract\npays DoodleDao
+
+Consent Contract<-DoodleChain:create Business Consent Contract
+note over Business:Advertise for users
+User->Consent Contract:optIn()
+activate Consent Contract
+Consent Contract->Consent Contract:Issue Consent Token
+deactivateafter Consent Contract
+note over Business:Want to get information
+Business->IPFS:Post SDQL Query
+activate IPFS
+Business<-IPFS:CID
+deactivateafter IPFS
+Business->Consent Contract:requestForData(CID)
+activate Consent Contract
+Consent Contract->DoodleDAO:Pay the man
+User<-Consent Contract:Emit Event with CID
+deactivateafter Consent Contract
+activate User
+User->IPFS:Get SDQL with CID
+User<-IPFS:SDQL content
+User->Consent Contract:Check if you are opted in officially
+User->User:Request consent from User via Form Factor
+User->User:Process query against data in DW
+User->Insight Platform:getReward(CID)\nProvide signature and verification.\nDetails TBD
+activate Insight Platform
+User<-Insight Platform:Reward\nProbably a signed lazy transaction
+deactivate Insight Platform
+User->Insight Platform:Return Insight
+activate Insight Platform
+deactivateafter User
+Insight Platform->Insight Platform:Aggregate Insights
+Business<-Insight Platform:Aggregated Insights\nDashboard, graphs, numbers
+deactivate Insight Platform
