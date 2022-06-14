@@ -1,6 +1,7 @@
 export * from "@objects/BigNumberString";
 export * from "@objects/ChainId";
 export * from "@objects/ChainInformation";
+export * from "@objects/ConsentName";
 export * from "@objects/CountryCode";
 export * from "@objects/CryptoTokenSymbol";
 export * from "@objects/CurrencyAlphabeticCode";
@@ -11,6 +12,8 @@ export * from "@objects/HexString";
 export * from "@objects/Insight";
 export * from "@objects/IpfsCID";
 export * from "@objects/JsonWebToken";
+export * from "@objects/OptInTokenId";
+export * from "@objects/OptInTokenUri";
 export * from "@objects/PublicKey";
 export * from "@objects/Reward";
 export * from "@objects/SDQLQuery";

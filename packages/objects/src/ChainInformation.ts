@@ -7,6 +7,7 @@ export class ChainInformation {
     public chainId: ChainId,
     public hasGovernance: boolean,
     public isDev: boolean,
-    public interestingContractAddress: EthereumContractAddress,
+    public consentFactoryContractAddress: EthereumContractAddress,
+    public consentContractAddress: EthereumContractAddress,
   ) {}
 }
