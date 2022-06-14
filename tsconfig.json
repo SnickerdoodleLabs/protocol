@@ -8,6 +8,9 @@
     {
       "path": "packages/queryEngine"
     },
+    {
+      "path": "packages/contracts-sdk"
+    }
     // {
     //   "path": "packages/browserExtension"
     // },
