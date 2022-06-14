@@ -3430,7 +3430,7 @@ __metadata:
     "@material-ui/icons": ^4.11.3
     "@material-ui/styles": ^4.11.5
     "@metamask/detect-provider": ^1.2.0
-    "@snickerdoodlelabs/query-engine": "workspace:^"
+    "@snickerdoodlelabs/core": "workspace:^"
     "@types/chrome": ^0.0.177
     "@types/react": ^17.0.39
     "@types/react-dom": ^17.0.11
@@ -3474,19 +3474,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/objects@>=0.0.1, @snickerdoodlelabs/objects@workspace:packages/objects":
+"@snickerdoodlelabs/core@workspace:^, @snickerdoodlelabs/core@workspace:packages/core":
   version: 0.0.0-use.local
-  resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
-  dependencies:
-    neverthrow: ^4.3.1
-    rxjs: ^7.5.5
-    ts-brand: ^0.0.2
-  languageName: unknown
-  linkType: soft
-
-"@snickerdoodlelabs/query-engine@workspace:^, @snickerdoodlelabs/query-engine@workspace:packages/queryEngine":
-  version: 0.0.0-use.local
-  resolution: "@snickerdoodlelabs/query-engine@workspace:packages/queryEngine"
+  resolution: "@snickerdoodlelabs/core@workspace:packages/core"
   dependencies:
     "@snickerdoodlelabs/objects": ">=0.0.1"
     ethers: ^5.4.7
@@ -3497,6 +3487,16 @@ __metadata:
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
     uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
+"@snickerdoodlelabs/objects@>=0.0.1, @snickerdoodlelabs/objects@workspace:packages/objects":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
+  dependencies:
+    neverthrow: ^4.3.1
+    rxjs: ^7.5.5
+    ts-brand: ^0.0.2
   languageName: unknown
   linkType: soft
 
