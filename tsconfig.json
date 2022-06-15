@@ -6,16 +6,13 @@
       "path": "packages/objects"
     },
     {
-      "path": "packages/queryEngine"
+      "path": "packages/core"
     },
     {
       "path": "packages/contracts-sdk"
     }
     // {
     //   "path": "packages/browserExtension"
-    // },
-    // {
-    //   "path": "packages/queryEngine"
     // },
   ]
 }
