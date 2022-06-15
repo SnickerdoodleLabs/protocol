@@ -1,16 +1,16 @@
 import { okAsync, ResultAsync } from "neverthrow";
 import { Subject } from "rxjs";
 
-import { QueryEngineContext } from "@core/interfaces/objects";
+import { CoreContext } from "@core/interfaces/objects";
 import { IContextProvider } from "@core/interfaces/utilities";
 
 export class ContextProviderMock implements IContextProvider {
-  public context: QueryEngineContext;
+  public context: CoreContext;
 
   public onControlClaimed: Subject<number>;
   public onControlClaimedActivations: number[] = [];
 
-  constructor(context: QueryEngineContext | null = null) {
+  constructor(context: CoreContext | null = null) {
     this.onControlClaimed = new Subject();
     this.onControlClaimed.subscribe((val) => {
       this.onControlClaimedActivations.push(val);
@@ -19,16 +19,16 @@ export class ContextProviderMock implements IContextProvider {
     if (context != null) {
       this.context = context;
     } else {
-      //this.context = new QueryEngineContext();
+      //this.context = new CoreContext();
     }
   }
 
-  public getContext(): ResultAsync<QueryEngineContext, never> {
+  public getContext(): ResultAsync<CoreContext, never> {
     return okAsync(this.context);
   }
 
-  public setContextValues = new Array<QueryEngineContext>();
-  public setContext(context: QueryEngineContext): ResultAsync<void, never> {
+  public setContextValues = new Array<CoreContext>();
+  public setContext(context: CoreContext): ResultAsync<void, never> {
     this.setContextValues.push(context);
     return okAsync<null, never>(null).map(() => { });
   }

@@ -7,13 +7,15 @@
 import {
   BlockchainProviderError,
   ConsentError,
-  CountryCode,
   EthereumAccountAddress,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
   InvalidSignatureError,
   IpfsCID,
-  IQueryEngine,
   IQueryEngineEvents,
+  ISnickerdoodleCore,
   LanguageCode,
+  PersistenceError,
   Signature,
   UninitializedError,
   UnsupportedLanguageError,
@@ -21,7 +23,8 @@ import {
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { queryEngineModule } from "@core/implementations/QueryEngineModule";
+import { DefaultDataWalletPersistence } from "@core/implementations/data";
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import {
   IAccountService,
   IAccountServiceType,
@@ -33,14 +36,27 @@ import {
   IContextProviderType,
 } from "@core/interfaces/utilities";
 
-export class QueryEngine implements IQueryEngine {
+export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
 
-  public constructor() {
+  public constructor(persistence?: IDataWalletPersistence) {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
-    this.iocContainer.load(...[queryEngineModule]);
+    this.iocContainer.load(...[snickerdoodleCoreModule]);
+
+    // If persistence is provided, we need to hook it up. If it is not, we will use the default
+    // persistence.
+    if (persistence != null) {
+      this.iocContainer
+        .bind(IDataWalletPersistenceType)
+        .toConstantValue(persistence);
+    } else {
+      this.iocContainer
+        .bind(IDataWalletPersistenceType)
+        .to(DefaultDataWalletPersistence)
+        .inSingletonScope();
+    }
   }
 
   public getEvents(): ResultAsync<IQueryEngineEvents, never> {
@@ -52,27 +68,30 @@ export class QueryEngine implements IQueryEngine {
     });
   }
 
-  public getLoginMessage(
+  public getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, UnsupportedLanguageError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-    return accountService.getLoginMessage(languageCode);
+    return accountService.getUnlockMessage(languageCode);
   }
 
-  public login(
+  public unlock(
     accountAddress: EthereumAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
+    | BlockchainProviderError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | PersistenceError
   > {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-    return accountService.login(accountAddress, signature, languageCode);
+    return accountService.unlock(accountAddress, signature, languageCode);
   }
 
   public addAccount(
@@ -85,6 +104,7 @@ export class QueryEngine implements IQueryEngine {
     | InvalidSignatureError
     | UninitializedError
     | UnsupportedLanguageError
+    | PersistenceError
   > {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
