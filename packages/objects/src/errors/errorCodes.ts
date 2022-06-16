@@ -7,6 +7,7 @@ const errorCodes = {
   UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
   ConsentFactoryContractError: "CONSENT_FACTORY_CONTRACT_ERROR",
   ConsentContractError: "CONSENT_CONTRACT_ERROR",
+  ProviderRpcError: "PROVIDER_RPC_ERROR",
 };
 
 export default errorCodes;

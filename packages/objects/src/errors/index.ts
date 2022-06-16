@@ -6,3 +6,4 @@ export * from "@objects/errors/ConsentError";
 export * from "@objects/errors/InvalidSignatureError";
 export * from "@objects/errors/UninitializedError";
 export * from "@objects/errors/UnsupportedLanguageError";
+export * from "@objects/errors/ProviderRpcError";
