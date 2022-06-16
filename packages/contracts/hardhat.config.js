@@ -4,15 +4,15 @@ require("@openzeppelin/hardhat-upgrades");
 require("hardhat-gas-reporter");
 require("hardhat-tracer");
 require("ethers");
-require('solidity-coverage');
+require("solidity-coverage");
 //require('hardhat-docgen');
-require('solidity-docgen');
+require("solidity-docgen");
 require("./tasks/general.js");
 require("./tasks/ipfs.js");
 require("./tasks/queries.js");
 require("./tasks/consent.js");
 
-require('dotenv').config();
+require("dotenv").config();
 
 // Remote RPC URL
 const urlOverride = process.env.ETH_PROVIDER_URL;
@@ -26,7 +26,7 @@ const mnemonic =
 const key = process.env.ETH_PRIVATE_KEY;
 
 // if no private key is found in .env, use the public known mnemonic
-const accounts = key ? [key] : { mnemonic }
+const accounts = key ? [key] : { mnemonic };
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -58,59 +58,68 @@ module.exports = {
     hardhat: {
       mining: {
         auto: true,
-        interval: 5000
+        interval: 5000,
       },
     },
     dev: {
       accounts: accounts,
       chainId: 31337,
-      url: "http://127.0.0.1:8569"
+      url: "http://127.0.0.1:8569",
+      gas: 6000000,
+      gasPrice: 8000000000,
     },
-    mainnet: { // ethereum mainnet
+    mainnet: {
+      // ethereum mainnet
       accounts: accounts,
       chainId: 1,
-      url: urlOverride || "http://127.0.0.1:8549"
+      url: urlOverride || "http://127.0.0.1:8549",
     },
-    rinkeby: { // ethereum testnet
+    rinkeby: {
+      // ethereum testnet
       accounts: accounts,
       chainId: 4,
-      url: urlOverride || "http://127.0.0.1:8549"
+      url: urlOverride || "http://127.0.0.1:8549",
     },
-    mumbai: { // polygon testnet
+    mumbai: {
+      // polygon testnet
       accounts: accounts,
       chainId: 80001,
       url: urlOverride || "http://127.0.0.1:8549",
       gas: 6000000,
-      gasPrice: 8000000000
+      gasPrice: 8000000000,
     },
-    polygon: { // polygon mainnet
+    polygon: {
+      // polygon mainnet
       accounts: accounts,
       chainId: 137,
-      url: urlOverride || "http://127.0.0.1:8549"
+      url: urlOverride || "http://127.0.0.1:8549",
     },
-    fuji: { // avalanche testnet
+    fuji: {
+      // avalanche testnet
       accounts: accounts,
       chainId: 43113,
-      url: urlOverride || 'https://api.avax-test.network/ext/bc/C/rpc',
+      url: urlOverride || "https://api.avax-test.network/ext/bc/C/rpc",
     },
-    avalanche: { // avalanche mainnet
+    avalanche: {
+      // avalanche mainnet
       accounts: accounts,
       chainId: 43114,
-      url: urlOverride || "http://127.0.0.1:8549"
+      url: urlOverride || "http://127.0.0.1:8549",
     },
-    fantom: { // fantom mainnet
+    fantom: {
+      // fantom mainnet
       accounts: accounts,
       chainId: 250,
-      url: urlOverride || "http://127.0.0.1:8549"
+      url: urlOverride || "http://127.0.0.1:8549",
     },
   },
   gasReporter: {
     enabled: true,
   },
   docgen: {
-    path: './docs',
+    path: "./docs",
     clear: true,
     runOnCompile: true,
-    pages: 'files'
+    pages: "files",
   },
 };

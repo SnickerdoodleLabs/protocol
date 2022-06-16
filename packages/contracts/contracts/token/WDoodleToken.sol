@@ -8,9 +8,10 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 /// @title Wrapped Doodle Token 
 /// @author Sean Sing
 /// @notice Wrapped Doodle ERC-20 token contract
-/// @dev Contract was generated using OpenZepplin Wizard with the 'Votes' feature 
+/// @dev The baseline contract was generated using OpenZepplin(OZ)'s Contracts Wizard with the 'Votes' extension
+/// @dev Two additional functions created are to 'despoitAndWrap' and 'unwrapAndWithdraw' between the DOODLE and WDOODLE 
 /// @dev Purpose is to provide ERC-20 compatability to the native Doodle Token
-/// @dev Token is intended to have a total cap supply so _mint() is called and transfered to the SDL foundationfoundation/DAO/treasury address
+/// @dev Token is intended to have a total cap supply and hence _mint() is called and transfered to the Snickerdoodle distribution address
 
 contract WDoodleToken is ERC20, ERC20Permit, ERC20Votes {
 
@@ -28,10 +29,8 @@ contract WDoodleToken is ERC20, ERC20Permit, ERC20Votes {
     ///@param amount Amount to unwrap and withdraw in unit of wei
     function unwrapAndWithdraw(uint256 amount) public virtual {
 
-        // check if user has sufficient wrapped token balance
-        require(balanceOf(msg.sender) >= amount, "WDoodleToken: Insufficient balance for transfer");
-
         // burn first to avoid reentrancy (checks-effects-interactions pattern)
+        // _burn also reverts if user's balance is insufficient
         _burn(_msgSender(), amount);
 
         // transfer the native token amount back to the user via call as recomended after Istanbul hard-fork

@@ -10,20 +10,29 @@ import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "./Consent.sol";
 
+/// @title Consent Factory
+/// @author Sean Sing
+/// @notice Snickerdoodle Protocol's Consent Factory Contract 
+/// @dev This contract deploys new BeaconProxy instances that all point to the latest Consent implementation contract via the UpgradeableBeacon 
+/// @dev The baseline contract was generated using OpenZepplin's (OZ) Contract Wizard with added features 
+/// @dev The contract adopts OZ's proxy upgrade pattern and is compatible with OZ's meta-transaction library  
+
 contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC2771ContextUpgradeable {
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     /// Mapping of addresses to an array of its deployed beacon proxy addresses
     mapping(address => address[]) public addressToConsentBP;
+
+    /// @dev Mapping of contract name to its address
+    mapping(string => address) public contractNameToAddress;
 
     /// Address of the upgradeable beacon
     address public beaconAddress; 
 
     /* EVENTS */ 
 
-    /// Emitted when a Consent contract's Beacon Proxy is deployed
+    /// @notice Emitted when a Consent contract's Beacon Proxy is deployed
     /// @param owner Indexed address of the owner of the deployex Consent contract Beacon Proxy 
     /// @param consentAddress Indexed address of the deployed Consent contract Beacon Proxy
     event ConsentDeployed(address indexed owner, address indexed consentAddress);
@@ -36,7 +45,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         _disableInitializers();
     }
 
-    /// Initializes the contract
+    /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
     function initialize() initializer public  {
         __Pausable_init();
@@ -44,53 +53,34 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
-        _grantRole(ADMIN_ROLE, msg.sender);
 
     }
 
     /* CORE FUNCTIONS */
 
-    /// Deploys the UpgradableBeacon that all the Beacon Proxies point to
-    /// @dev The UpgradableBeacon points to the latest Consent implementation contract  
-    /// @dev Can only be called by address that has the ADMIN_ROLE
-    /// @param consentContractAddress Address of the latest implementation verion of the Consent contract
-    function deployBeacon(address consentContractAddress) public onlyRole(ADMIN_ROLE) {
-        UpgradeableBeacon beacon = new UpgradeableBeacon(consentContractAddress); 
-        
-        beaconAddress = address(beacon);
-    }
-
-    /// Creates a new Beacon Proxy contract pointing to the UpgradableBeacon 
+    /// @notice Creates a new Beacon Proxy contract pointing to the UpgradableBeacon 
     /// @dev This Beacon Proxy points to the UpgradableBeacon with the latest Consent implementation contract
     /// @param owner Address of the owner of the Consent contract instance  
     /// @param baseURI Base uri for the for the Consent contract instance  
-    function createConsent(address owner, string memory baseURI) public {
+    /// @param name Name of the Consent Contract   
+    function createConsent(address owner, string memory baseURI, string memory name) public {
+
+        // check if name already has a deployed address
+        require(contractNameToAddress[name] == address(0), "CF: Name already used");
 
         BeaconProxy beaconProxy = new BeaconProxy(beaconAddress, 
-        abi.encodeWithSelector(Consent(address(0)).initialize.selector, owner, baseURI));
-        
-        addressToConsentBP[owner].push(address(beaconProxy));
+        abi.encodeWithSelector(Consent(address(0)).initialize.selector, owner, baseURI, name));
+
+        contractNameToAddress[name] = address(beaconProxy);
 
         emit ConsentDeployed(owner, address(beaconProxy));
     }
 
-    /* GETTERS */
-
-    /// Get the Beacon Proxy addresses of an owner address 
-    /// @dev First checks if address has previously deployed Consent Beacon Proxies 
-    /// @dev If user has deployed before, returns an array of the deployed addresses
-    /// @param owner Address of owner that deployed Beacon Proxy Consent contracts  
-    /// @return arrayOfBP Array of address of Beacon Proxies deployed
-    function getConsentBP(address owner) public view returns(address[] memory arrayOfBP) {
-        require(addressToConsentBP[owner].length > 0, "ConsentFactory : User has not deployed Consents");
-        return addressToConsentBP[owner];
-    }
-
     /* SETTERS */
 
-    /// Sets the UpgradeableBeacon address for the factory 
+    /// @notice Sets the UpgradeableBeacon address for the factory 
     /// @param beaconAddress_ Address of the UpgradeableBeacon contract  
-    function setBeaconAddress(address beaconAddress_) public onlyRole(ADMIN_ROLE) {
+    function setBeaconAddress(address beaconAddress_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         beaconAddress = beaconAddress_;
     }
 
