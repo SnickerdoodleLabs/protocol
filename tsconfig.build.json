@@ -29,10 +29,10 @@
       "@objects/*": [
         "./*"
       ],
-      "@query-engine/*": [
+      "@core/*": [
         "./*"
       ],
-      "@query-engine-tests/*": [
+      "@core-tests/*": [
         "../test/*"
       ],
       "@utils/*": [

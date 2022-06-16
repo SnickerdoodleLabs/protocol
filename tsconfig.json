@@ -6,13 +6,10 @@
       "path": "packages/objects"
     },
     {
-      "path": "packages/queryEngine"
+      "path": "packages/core"
     },
     // {
     //   "path": "packages/browserExtension"
-    // },
-    // {
-    //   "path": "packages/queryEngine"
     // },
   ]
 }
