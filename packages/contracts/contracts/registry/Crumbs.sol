@@ -108,6 +108,22 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
         baseURI = newURI;
     }
 
+    /* OVERRIDES */
+
+    /// @dev Override to add require statement to make tokens Consent token non-transferrable
+    function _beforeTokenTransfer(address from, address to, uint256 crumbId)
+        internal
+        override
+    {
+        // delete crumb is of sender
+        delete addressToCrumbId[from];
+
+        // update crumb id to the receiver
+        addressToCrumbId[to] = crumbId;
+
+        super._beforeTokenTransfer(from, to, crumbId);
+    }
+
     // The following functions are overrides required by Solidity.
 
     function _burn(uint256 tokenId)

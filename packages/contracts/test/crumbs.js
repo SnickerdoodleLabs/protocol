@@ -65,7 +65,27 @@ describe("Crumbs", () => {
       ).to.revertedWith("ERC721: token already minted");
     });
 
-    it("Does not allow an address to create a crumb if it already has a crumb mapped to it.", async function () {
+    it("Does not allow an address to create another crumb if it already has a crumb mapped to it.", async function () {
+      // accounts 1 creates a crumb
+      await crumbs
+        .connect(accounts[1])
+        .createCrumb(
+          1,
+          "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        );
+
+      // accounts 1 tries to create another crumb
+      await expect(
+        crumbs
+          .connect(accounts[1])
+          .createCrumb(
+            2,
+            "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+          ),
+      ).to.revertedWith("Crumb: Address already has a crumb");
+    });
+
+    it("Once transfered, the crumb id gets remapped to the new owner and original owner can create another crumb.", async function () {
       // accounts 1 creates a crumb
       await crumbs
         .connect(accounts[1])
@@ -80,14 +100,20 @@ describe("Crumbs", () => {
         .transferFrom(accounts[1].address, accounts[2].address, 1);
 
       // accounts 1 tries to create another crumb
-      await expect(
-        crumbs
-          .connect(accounts[1])
-          .createCrumb(
-            2,
-            "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
-          ),
-      ).to.revertedWith("Crumb: Address already has a crumb");
+      const crumbId = await crumbs
+        .connect(accounts[1])
+        .addressToCrumbId(accounts[2].address);
+
+      // check if second address maps to the transfered crumb id
+      expect(crumbId).to.eq(1);
+
+      // accounts 1 can create a new crumb after transfering
+      await crumbs
+        .connect(accounts[1])
+        .createCrumb(
+          2,
+          "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        );
     });
   });
 
