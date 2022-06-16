@@ -8,21 +8,29 @@ import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesU
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
-// proposalId : When a proposal is made, a proposalId is generated from hashing the proposal's parameters from the inherited propose() from the Governor contract. 
-// votingPeriod, votingDelay and proposalThreshold : Inherited from GovernorSettings, has setVotingDelay(), setVotingPeriod() and setProposalThreshold() respectively.
+/// @title Consent 
+/// @author Sean Sing
+/// @notice Snickerdoodle Protocol's DAO Contract 
+/// @dev Snickerdoodle (SDL) adopts OpenZeppelin's (OZ) Governor Library
+/// @dev The contract was produced using OZ's Contracts Wizard with the Timelock extension
+/// @dev The contract adopts OZ's proxy upgrade pattern  
+/// @dev Quick references: 
+/// @dev - proposalId : When a proposal is made, a proposalId is generated from hashing the proposal's parameters from the inherited propose() from the Governor contract. 
+/// @dev - votingPeriod, votingDelay and proposalThreshold are inherited from GovernorSettings and have respective setters
 
 contract SnickerdoodleGovernor is Initializable, GovernorUpgradeable, GovernorSettingsUpgradeable, GovernorCountingSimpleUpgradeable, GovernorVotesUpgradeable, GovernorVotesQuorumFractionUpgradeable, GovernorTimelockControlUpgradeable {
-    
-    using Counters for Counters.Counter;
-    
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(IVotesUpgradeable _token, TimelockControllerUpgradeable _timelock) {
         initialize(_token, _timelock);
         _disableInitializers();
     }
-
+    
+    /// @notice Initializes the contract
+    /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
+    /// @param _token Address ERC20Votes token contract
+    /// @param _timelock Address of the Timelock contract 
     function initialize(IVotesUpgradeable _token, TimelockControllerUpgradeable _timelock)
         initializer public
     {
@@ -38,8 +46,8 @@ contract SnickerdoodleGovernor is Initializable, GovernorUpgradeable, GovernorSe
 
     // The following functions are overrides required by Solidity.
 
-    ///@notice Getter function that returns the the number of blocks that must be mined after a proposal is created before it is active.
-    ///@dev The voting delay is stored as number of blocks (1 block ~= 13 seconds)
+    /// @notice Getter function that returns the the number of blocks that must be mined after a proposal is created before it is active.
+    /// @dev The voting delay is stored as number of blocks (1 block ~= 13 seconds)
     function votingDelay()
         public
         view
@@ -49,8 +57,8 @@ contract SnickerdoodleGovernor is Initializable, GovernorUpgradeable, GovernorSe
         return super.votingDelay();
     }
 
-    ///@notice Getter function that returns the number of blocks that a proposal stays active for after its activation. 
-    ///@dev The voting period is stored as number of blocks (1 block ~= 13 seconds)
+    /// @notice Getter function that returns the number of blocks that a proposal stays active for after its activation. 
+    /// @dev The voting period is stored as number of blocks (1 block ~= 13 seconds)
     function votingPeriod()
         public
         view
@@ -60,7 +68,8 @@ contract SnickerdoodleGovernor is Initializable, GovernorUpgradeable, GovernorSe
         return super.votingPeriod();
     }
 
-    ///@notice Getter that returns the number of votes at a given block number
+    /// @notice Getter that returns the number of votes at a given block number
+    /// @param blockNumber Block number to check quorum against (a snapshot)
     function quorum(uint256 blockNumber)
         public
         view
@@ -70,8 +79,9 @@ contract SnickerdoodleGovernor is Initializable, GovernorUpgradeable, GovernorSe
         return super.quorum(blockNumber);
     }
 
-    ///@notice Getter that returns the state of a proposal id
-    ///@dev See {IGovernor-state} for list of ProposalState enums
+    /// @notice Getter that returns the state of a proposal id
+    /// @dev See {IGovernor-state} for list of ProposalState enums
+    /// @param proposalId Id of the proposal 
     function state(uint256 proposalId)
         public
         view
@@ -90,7 +100,7 @@ contract SnickerdoodleGovernor is Initializable, GovernorUpgradeable, GovernorSe
     }
 
     ///@notice Getter function that returns the minimum amount of tokens an accounts must have to create a proposal
-    ///@dev Token amounts are in wei (18 decimals).
+    ///@dev Token amounts are in wei (18 decimals)
     function proposalThreshold()
         public
         view

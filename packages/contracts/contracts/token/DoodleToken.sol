@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 /// @title Doodle Token 
 /// @author Sean Sing
 /// @notice Doodle ERC-20 token contract
-/// @dev Contract was generated using OpenZeppling Wizard with the 'Votes' feature 
-/// @dev Token is intended to have a total cap supply so _mint() is called and transfered to the SDL foundationfoundation/DAO/treasury address
+/// @dev Contract was generated using OpenZepplin(OZ)'s Contracts Wizard with the 'Votes' extension 
+/// @dev Token is intended to have a total cap supply and hence _mint() is called and transfered to the Snickerdoodle distribution address
 
 contract DoodleToken is ERC20, ERC20Permit, ERC20Votes {
 

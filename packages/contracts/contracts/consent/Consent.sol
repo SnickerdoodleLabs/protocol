@@ -9,36 +9,42 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/metatx/MinimalForwarderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
+/// @title Consent 
+/// @author Sean Sing
+/// @notice Snickerdoodle Protocol's Consent Contract 
+/// @dev This contract mints and burns non-transferable ERC721 consent tokens for users who opt in or out of sharing their data
+/// @dev The contract's owners or addresses that have the right role granted can initiaite a request for data
+/// @dev The baseline contract was generated using OpenZepplin's (OZ) Contracts Wizard and customized thereafter 
+/// @dev ERC2771ContextUpgradeable's features were directly embeded into the contract (see isTrustedForwarder for details)
+/// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
+/// @dev It is also compatible with OZ's meta-transaction library
+
 contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable {
 
-    // Role bytes
+    /// @dev Role bytes
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    bytes32 public constant REQUESTER_ROLE = keccak256("REQUESTER_ROLE");
     
-    ///@dev Base uri for logo of Consent tokens
+    /// @dev Base uri for logo of Consent tokens
     string public baseURI;
 
-    ///@dev Total supply of Consent tokens
+    /// @dev Total supply of Consent tokens
     uint256 public totalSupply;
     
-    ///@dev Flag of whether open opt in is disabled or not
+    /// @dev Flag of whether open opt in is disabled or not
     bool public openOptInDisabled;
 
-    ///@dev Trusted forwarder address for metxa-transactions 
+    /// @dev Trusted forwarder address for meta-transactions 
     address public trustedForwarder;
-
-    ///@dev Contract's owner
-    address public owner;
 
     /* EVENTS */ 
 
-    /// Emitted when a request for data is made
+    /// @notice Emitted when a request for data is made
     /// @dev The SDQL services listens for this event
     /// @param requester Indexed address of data requester
     /// @param ipfsCID The IPFS CID pointing to an SDQL instruction 
-    event RequestForData(address indexed requester, string ipfsCID);
+    event RequestForData(address indexed requester, string indexed ipfsCID);
 
     /* MODIFIERS */
 
@@ -48,11 +54,13 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         _;
     }
 
-    /// Initializes the contract
+    /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
+    /// @param consentOwner Address of the owner of this contract
     /// @param baseURI_ The base uri 
-    function initialize(address consentOwner, string memory baseURI_) initializer public {
-        __ERC721_init("SDLCONSENT", "SDLC");
+    /// @param name Name of the Consent Contract  
+    function initialize(address consentOwner, string memory baseURI_, string memory name) initializer public {
+        __ERC721_init(name, "CONSENT");
         __ERC721URIStorage_init();
         __Pausable_init();
         __AccessControl_init();
@@ -60,21 +68,18 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         _grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
         _grantRole(PAUSER_ROLE, consentOwner);
-        _grantRole(MINTER_ROLE, consentOwner);
         _grantRole(SIGNER_ROLE, consentOwner);
-        _grantRole(ADMIN_ROLE, consentOwner);
-        
-        owner = consentOwner;
+        _grantRole(REQUESTER_ROLE, consentOwner);
 
         // required role grant to allow calling setBaseUri on initialization
         // as msg.sender is the Consent's BeaconProxy contract
-        _grantRole(MINTER_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         setBaseURI(baseURI_);
     }
 
     /* CORE FUNCTIONS */
 
-    /// Allows any user to opt in to sharing their data
+    /// @notice Allows any user to opt in to sharing their data
     /// @dev Mints user a Consent token
     /// @param tokenId User's Consent token id to mint against
     /// @param agreementURI User's Consent token uri containing agreement flags
@@ -91,7 +96,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         totalSupply++;
     }
 
-    /// Allows specific users to opt in to sharing their data
+    /// @notice Allows specific users to opt in to sharing their data
     /// @dev For restricted opt ins, the owner will first sign a digital signature on-chain
     /// @dev The function is called with the signed signature
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
@@ -122,7 +127,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         totalSupply++;
     }
 
-    /// Allows users to opt out of sharing their data
+    /// @notice Allows users to opt out of sharing their data
     /// @dev burns the user's consent token
     /// @param tokenId Token id of token being burnt
     function optOut(uint256 tokenId) public {
@@ -131,9 +136,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         burn(tokenId);
     }
 
-    /// Facilitates entity's request for data
+    /// @notice Facilitates entity's request for data
     /// @param ipfsCID IPFS CID containing SDQL Query Instructions
-    function requestForData(string memory ipfsCID) external onlyRole(MINTER_ROLE) {
+    function requestForData(string memory ipfsCID) external onlyRole(REQUESTER_ROLE) {
         /// TODO implement fee structure 
         emit RequestForData(_msgSender(), ipfsCID);
     }
@@ -142,42 +147,42 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /* GETTERS */
 
-    /// Gets the Consent tokens base URI
+    /// @notice Gets the Consent tokens base URI
     function _baseURI() internal view virtual override returns (string memory baseURI_)  {
         return baseURI;
     }
 
     /* SETTERS */
 
-    /// Sets the Consent tokens base URI
+    /// @notice Sets the Consent tokens base URI
     /// @param newURI New base uri
-    function setBaseURI(string memory newURI) public onlyRole(MINTER_ROLE) {
+    function setBaseURI(string memory newURI) public onlyRole(DEFAULT_ADMIN_ROLE) {
         baseURI = newURI;
     }
 
-    /// Allows address with PAUSER_ROLE to pause the contract
+    /// @notice Allows address with PAUSER_ROLE to pause the contract
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
-    /// Allows address with PAUSER_ROLE to unpause the contract
+    /// @notice Allows address with PAUSER_ROLE to unpause the contract
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
-    /// Allows address with PAUSER_ROLE to disable open opt ins
+    /// @notice Allows address with PAUSER_ROLE to disable open opt ins
     function disableOpenOptIn() public onlyRole(PAUSER_ROLE) {
         openOptInDisabled = true;
     }
 
-    /// Allows address with PAUSER_ROLE to enable open opt ins
+    /// @notice Allows address with PAUSER_ROLE to enable open opt ins
     function enableOpenOptIn() public onlyRole(PAUSER_ROLE) {
         openOptInDisabled = false;
     }
 
     /* INTERNAL FUNCTIONS */ 
 
-    /// Verify that a signature is valid
+    /// @notice Verify that a signature is valid
     /// @param user Address of the user calling the function
     /// @param nonce Salt for hash security
     /// @param agreementURI User's Consent token uri containing agreement flags
@@ -215,9 +220,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /* SETTER */
 
-    /// Set the trusted forwarder address 
+    /// @notice Set the trusted forwarder address 
     /// @param trustedForwarder_ Address of the trusted forwarder 
-    function setTrustedForwarder(address trustedForwarder_) public onlyRole(ADMIN_ROLE) {
+    function setTrustedForwarder(address trustedForwarder_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         trustedForwarder = trustedForwarder_;
     }
 
