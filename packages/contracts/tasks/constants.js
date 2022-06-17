@@ -101,9 +101,9 @@ const consentContract = function () {
 const crumbsContract = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
+    return "0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
+    return "0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6";
   } else if (hre.hardhatArguments.network == "mumbai") {
     return "";
   } else if (hre.hardhatArguments.network == "polygon") {

@@ -114,14 +114,15 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
     function _beforeTokenTransfer(address from, address to, uint256 crumbId)
         internal
         override
-    {
-        // delete crumb is of sender
+    {   
+        // carry out checks before transfer
+        super._beforeTokenTransfer(from, to, crumbId);
+
+        // if checks pass, delete crumb id of sender
         delete addressToCrumbId[from];
 
         // update crumb id to the receiver
         addressToCrumbId[to] = crumbId;
-
-        super._beforeTokenTransfer(from, to, crumbId);
     }
 
     // The following functions are overrides required by Solidity.

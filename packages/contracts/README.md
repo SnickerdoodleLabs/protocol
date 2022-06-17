@@ -367,13 +367,26 @@ AccessControl: account 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc is missing rol
 We can create crumbs:
 
 ```
-npx hardhat createCrumb --crumbid 1 --mask 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --owneraddressindex 0
+npx hardhat createCrumb --crumbid 1 --mask 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --owneraddressindex 0 --network dev
+
+/*
+
+Success! Crumb id 1 created for address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266.
+
+*/
+
 ```
 
 And burn crumbs:
 
 ```
-npx hardhat burnCrumb --crumbid 1 --owneraddressindex 0
+npx hardhat burnCrumb --crumbid 1 --owneraddressindex 0 --network dev
+
+/*
+
+Success! Crumb id 1 burnt from address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266.
+
+*/
 ```
 
 ## Docker

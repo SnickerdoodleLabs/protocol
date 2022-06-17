@@ -1,9 +1,5 @@
 const { CR, crumbsContract, consentFactory } = require("./constants.js");
 
-/// TODD HELPP
-/// sample CLI command to test this:
-/// npx hardhat createCrumb --crumbid 1 --mask 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --owneraddressindex 0
-
 task("createCrumb", "Creates a crumb")
   .addParam("crumbid", "Desired crumb Id")
   .addParam("mask", "String of private key mask")
@@ -23,21 +19,19 @@ task("createCrumb", "Creates a crumb")
       signingAccount,
     );
 
-    console.log("ere", await crumbsContract());
-    console.log("ere", await consentFactory());
-    console.log("ere", signingAccount.address);
-
     await crumbsContractHandle
       .connect(signingAccount)
-      .createCrumb(taskArgs.crumbId, taskArgs.mask);
+      .createCrumb(taskArgs.crumbid, taskArgs.mask);
 
+    console.log("");
     console.log(
       "Success! Crumb id " +
         taskArgs.crumbid +
-        "created for address " +
+        " created for address " +
         signingAccount.address +
         ".",
     );
+    console.log("");
   });
 
 task("burnCrumb", "Burns a crumb")
@@ -59,11 +53,14 @@ task("burnCrumb", "Burns a crumb")
     );
 
     await crumbsContractHandle.connect(signingAccount).burn(taskArgs.crumbid);
+
+    console.log("");
     console.log(
       "Success! Crumb id " +
         taskArgs.crumbid +
-        "burnt from address " +
+        " burnt from address " +
         signingAccount.address +
         ".",
     );
+    console.log("");
   });

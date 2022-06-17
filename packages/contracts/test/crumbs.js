@@ -85,7 +85,7 @@ describe("Crumbs", () => {
       ).to.revertedWith("Crumb: Address already has a crumb");
     });
 
-    it("Once transfered, the crumb id gets remapped to the new owner and original owner can create another crumb.", async function () {
+    it("Once transferred, the crumb id gets remapped to the new owner and original owner can create another crumb.", async function () {
       // accounts 1 creates a crumb
       await crumbs
         .connect(accounts[1])
@@ -114,6 +114,62 @@ describe("Crumbs", () => {
           2,
           "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
         );
+    });
+  });
+
+  describe("transferFrom", function () {
+    it("Scenario 1: Someone else tries to transfer of owner's tokens, transaction reverts and the crumb id is still in original state.", async function () {
+      // accounts 1 creates a crumb
+      await crumbs
+        .connect(accounts[1])
+        .createCrumb(
+          1,
+          "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        );
+
+      // account 2 tries to transfer away account 1's token, fails
+      await expect(
+        crumbs
+          .connect(accounts[2])
+          .transferFrom(accounts[1].address, accounts[2].address, 1),
+      ).to.revertedWith("ERC721: transfer caller is not owner nor approved");
+
+      // check if account 1 still owns crumb id 1
+      const crumbId = await crumbs.addressToCrumbId(accounts[1].address);
+      expect(crumbId).to.eq(1);
+    });
+
+    it("Scenario 2: Owner tries to transfer of other's tokens, transaction reverts and the crumb id is still in original state.", async function () {
+      // accounts 1 creates a crumb
+      await crumbs
+        .connect(accounts[1])
+        .createCrumb(
+          1,
+          "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        );
+
+      // accounts 1 creates a crumb
+      await crumbs
+        .connect(accounts[2])
+        .createCrumb(
+          2,
+          "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff81",
+        );
+
+      // account 1 tries to transfer accounts 2's token to himself, fails
+      await expect(
+        crumbs
+          .connect(accounts[1])
+          .transferFrom(accounts[2].address, accounts[1].address, 2),
+      ).to.revertedWith("ERC721: transfer caller is not owner nor approved");
+
+      // check if account 1 still owns crumb id 1
+      const crumbId1 = await crumbs.addressToCrumbId(accounts[1].address);
+      expect(crumbId1).to.eq(1);
+
+      // check if account 2 still owns crumb id 2
+      const crumbId2 = await crumbs.addressToCrumbId(accounts[2].address);
+      expect(crumbId2).to.eq(2);
     });
   });
 
