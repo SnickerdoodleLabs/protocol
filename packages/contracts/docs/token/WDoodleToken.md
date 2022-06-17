@@ -2,9 +2,10 @@
 
 Wrapped Doodle ERC-20 token contract
 
-_Contract was generated using OpenZepplin Wizard with the 'Votes' feature 
-Purpose is to provide ERC-20 compatability to the native Doodle Token
-Token is intended to have a total cap supply so _mint() is called and transfered to the SDL foundationfoundation/DAO/treasury address_
+_The baseline contract was generated using OpenZeppelin(OZ)'s Contracts Wizard with the 'Votes' extension
+Two additional functions created are to 'depositAndWrap' and 'unwrapAndWithdraw' between the DOODLE and WDOODLE 
+Purpose is to provide ERC-20 compatibility to the native Doodle Token
+Token is intended to have a total cap supply and hence _mint() is called and transferred to the Snickerdoodle distribution address_
 
 ### constructor
 

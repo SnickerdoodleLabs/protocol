@@ -15,8 +15,8 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 /// @dev A crumb is an ERC721 NFT that holds the masks of a user's private key as part of their token uri
 /// @dev Any user can create and the store masks for their private keys 
 /// @dev The ERC721's tokenId is labelled crumbId in this contract
-/// @dev The baseline contract was generated using OpenZepplin's (OZ) Contracts Wizard and customized thereafter 
-/// @dev ERC2771ContextUpgradeable's features were directly embeded into the contract (see isTrustedForwarder for details)
+/// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter 
+/// @dev ERC2771ContextUpgradeable's features were directly embedded into the contract (see isTrustedForwarder for details)
 /// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
 /// @dev It is also compatible with OZ's meta-transaction library
 
@@ -42,7 +42,7 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
     /// @param crumbId Indexed crumb id
     event CrumbBurnt(address indexed owner, uint256 indexed crumbId);
 
-    /// @dev Initializes the contract with the base URI, then disables any initializers as recomended by OpenZeppelin
+    /// @dev Initializes the contract with the base URI, then disables any initializers as recommended by OpenZeppelin
     constructor(address trustedForwarder, string memory baseURInew) ERC2771ContextUpgradeable(trustedForwarder) {
         initialize(baseURInew);
         _disableInitializers();
@@ -83,7 +83,7 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
     /// @notice Burns user's crumb 
     /// @param crumbId Id of the crumb token
     function burnCrumb(uint256 crumbId) public {
-        // check is caller is the owner of the crumId and burns if true
+        // check is caller is the owner of the crumbId and burns if true
         burn(crumbId);
         // remove the crum id from the mapping
         delete addressToCrumbId[_msgSender()];

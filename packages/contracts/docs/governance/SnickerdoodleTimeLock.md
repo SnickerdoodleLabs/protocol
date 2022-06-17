@@ -1,5 +1,10 @@
 # SnickerdoodleTimelock
 
+Snickerdoodle Protocol's DAO Timelock Contract
+
+_Snickerdoodle (SDL) adopts OpenZeppelin's (OZ) Governor Library
+The contract adopts OZ's proxy upgrade pattern_
+
 ### constructor
 
 ```solidity
@@ -11,6 +16,10 @@ constructor(uint256 minDelay, address[] proposers, address[] executors) public
 ```solidity
 function initialize(uint256 minDelay, address[] proposers, address[] executors) public
 ```
+
+Initializes the contract
+
+_Uses the initializer modifier to to ensure the contract is only initialized once_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |

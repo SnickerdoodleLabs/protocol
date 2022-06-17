@@ -14,8 +14,8 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 /// @notice Snickerdoodle Protocol's ConsentV2 Contract 
 /// @dev PLACEHOLDER contract, currently only used for unit testing upgradeability of Consent
 /// @dev This contract mints and burns consent tokens for users who opt in or out of sharing their data
-/// @dev The ontract's owners or addresses that have the right role granted can initiaite a request for data
-/// @dev Consent's baseline contract was generated using OpenZepplin (OZ) Wizard and customized thereafter  
+/// @dev The contract's owners or addresses that have the right role granted can initiate a request for data
+/// @dev Consent's baseline contract was generated using OpenZeppelin (OZ) Wizard and customized thereafter  
 /// @dev Consent adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
 
 contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable {

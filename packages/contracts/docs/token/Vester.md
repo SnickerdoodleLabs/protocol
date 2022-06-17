@@ -1,6 +1,6 @@
 # Vester
 
-Use this contract with OpenZepplin ERC-20 contracts that are used for voting
+Use this contract with OpenZeppelin ERC-20 contracts that are used for voting
 
 _Minimalist implementation of a ERC-20 token vesting contract 
 
@@ -87,7 +87,7 @@ _Constructor definition_
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| token_ | address | address of the ERC-20 token implementing Hypernetoken |
+| token_ | address | address of the ERC-20 token implementing Doodle Token |
 | recipient_ | address | address of the beneficiary account |
 | vestingAmount_ | uint256 | total amount of h_ due to recipient_ |
 | vestingBegin_ | uint256 | timestamp to use for the starting point of vesting period |
@@ -134,7 +134,7 @@ _The function allows for beneficiaries to have voting rights before they take po
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| delegate_ | address | address to recieve the voting rights, does not necessarly have to be the beneficiary |
+| delegate_ | address | address to recieve the voting rights, does not necessarily have to be the beneficiary |
 
 ### claim
 

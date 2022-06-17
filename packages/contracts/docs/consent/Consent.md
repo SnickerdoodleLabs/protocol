@@ -1,16 +1,21 @@
 # Consent
 
+Snickerdoodle Protocol's Consent Contract
+
+_This contract mints and burns non-transferable ERC721 consent tokens for users who opt in or out of sharing their data
+The contract's owners or addresses that have the right role granted can initiate a request for data
+The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter 
+ERC2771ContextUpgradeable's features were directly embedded into the contract (see isTrustedForwarder for details)
+The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
+It is also compatible with OZ's meta-transaction library_
+
 ### PAUSER_ROLE
 
 ```solidity
 bytes32 PAUSER_ROLE
 ```
 
-### MINTER_ROLE
-
-```solidity
-bytes32 MINTER_ROLE
-```
+_Role bytes_
 
 ### SIGNER_ROLE
 
@@ -18,10 +23,10 @@ bytes32 MINTER_ROLE
 bytes32 SIGNER_ROLE
 ```
 
-### ADMIN_ROLE
+### REQUESTER_ROLE
 
 ```solidity
-bytes32 ADMIN_ROLE
+bytes32 REQUESTER_ROLE
 ```
 
 ### baseURI
@@ -30,7 +35,7 @@ bytes32 ADMIN_ROLE
 string baseURI
 ```
 
-Base uri for logo of Consent tokens
+_Base uri for logo of Consent tokens_
 
 ### totalSupply
 
@@ -38,7 +43,7 @@ Base uri for logo of Consent tokens
 uint256 totalSupply
 ```
 
-Total supply of Consent tokens
+_Total supply of Consent tokens_
 
 ### openOptInDisabled
 
@@ -46,7 +51,7 @@ Total supply of Consent tokens
 bool openOptInDisabled
 ```
 
-Flag of whether open opt in is disabled or not
+_Flag of whether open opt in is disabled or not_
 
 ### trustedForwarder
 
@@ -54,7 +59,7 @@ Flag of whether open opt in is disabled or not
 address trustedForwarder
 ```
 
-Trusted forwarder address for metxa-transactions
+_Trusted forwarder address for meta-transactions_
 
 ### RequestForData
 
@@ -82,7 +87,7 @@ Checks if open opt in is current disabled
 ### initialize
 
 ```solidity
-function initialize(string baseURI_) public
+function initialize(address consentOwner, string baseURI_, string name) public
 ```
 
 Initializes the contract
@@ -91,7 +96,9 @@ _Uses the initializer modifier to to ensure the contract is only initialized onc
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| consentOwner | address | Address of the owner of this contract |
 | baseURI_ | string | The base uri |
+| name | string | Name of the Consent Contract |
 
 ### optIn
 
@@ -153,13 +160,17 @@ Facilitates entity's request for data
 | ---- | ---- | ----------- |
 | ipfsCID | string | IPFS CID containing SDQL Query Instructions |
 
-### _baseURI
+### setTrustedForwarder
 
 ```solidity
-function _baseURI() internal view virtual returns (string baseURI_)
+function setTrustedForwarder(address trustedForwarder_) public
 ```
 
-Gets the Consent tokens base URI
+Set the trusted forwarder address
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| trustedForwarder_ | address | Address of the trusted forwarder |
 
 ### setBaseURI
 
@@ -205,6 +216,24 @@ function enableOpenOptIn() public
 
 Allows address with PAUSER_ROLE to enable open opt ins
 
+### isTrustedForwarder
+
+```solidity
+function isTrustedForwarder(address forwarder) public pure virtual returns (bool)
+```
+
+_Inherited from ERC2771ContextUpgradeable to embed its features directly in this contract 
+This is a workaround as ERC2771ContextUpgradeable does not have an _init() function
+Allows the factory to deploy a BeaconProxy that initiates a Consent contract without a constructor_
+
+### _baseURI
+
+```solidity
+function _baseURI() internal view virtual returns (string baseURI_)
+```
+
+Gets the Consent tokens base URI
+
 ### _isValidSignature
 
 ```solidity
@@ -223,28 +252,6 @@ Verify that a signature is valid
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | bool | Boolean of whether signature is valid |
-
-### isTrustedForwarder
-
-```solidity
-function isTrustedForwarder(address forwarder) public pure virtual returns (bool)
-```
-
-_Inherited from ERC2771ContextUpgradeable to embed its features directly in this contract 
-This is a workaround as ERC2771ContextUpgradeable does not have an _init() function
-Allows the factory to deploy a BeaconProxy that initiates a Consent contract without a constructor_
-
-### setTrustedForwarder
-
-```solidity
-function setTrustedForwarder(address trustedForwarder_) public
-```
-
-Set the trusted forwarder address
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| trustedForwarder_ | address | Address of the trusted forwarder |
 
 ### _beforeTokenTransfer
 

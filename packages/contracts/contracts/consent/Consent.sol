@@ -13,9 +13,9 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 /// @author Sean Sing
 /// @notice Snickerdoodle Protocol's Consent Contract 
 /// @dev This contract mints and burns non-transferable ERC721 consent tokens for users who opt in or out of sharing their data
-/// @dev The contract's owners or addresses that have the right role granted can initiaite a request for data
-/// @dev The baseline contract was generated using OpenZepplin's (OZ) Contracts Wizard and customized thereafter 
-/// @dev ERC2771ContextUpgradeable's features were directly embeded into the contract (see isTrustedForwarder for details)
+/// @dev The contract's owners or addresses that have the right role granted can initiate a request for data
+/// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter 
+/// @dev ERC2771ContextUpgradeable's features were directly embedded into the contract (see isTrustedForwarder for details)
 /// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
 /// @dev It is also compatible with OZ's meta-transaction library
 

@@ -1,5 +1,14 @@
 # SnickerdoodleGovernor
 
+Snickerdoodle Protocol's DAO Contract
+
+_Snickerdoodle (SDL) adopts OpenZeppelin's (OZ) Governor Library
+The contract was produced using OZ's Contracts Wizard with the Timelock extension
+The contract adopts OZ's proxy upgrade pattern  
+Quick references: 
+- proposalId : When a proposal is made, a proposalId is generated from hashing the proposal's parameters from the inherited propose() from the Governor contract. 
+- votingPeriod, votingDelay and proposalThreshold are inherited from GovernorSettings and have respective setters_
+
 ### constructor
 
 ```solidity
@@ -11,6 +20,15 @@ constructor(contract IVotesUpgradeable _token, contract TimelockControllerUpgrad
 ```solidity
 function initialize(contract IVotesUpgradeable _token, contract TimelockControllerUpgradeable _timelock) public
 ```
+
+Initializes the contract
+
+_Uses the initializer modifier to to ensure the contract is only initialized once_
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _token | contract IVotesUpgradeable | Address ERC20Votes token contract |
+| _timelock | contract TimelockControllerUpgradeable | Address of the Timelock contract |
 
 ### votingDelay
 
@@ -40,6 +58,10 @@ function quorum(uint256 blockNumber) public view returns (uint256)
 
 Getter that returns the number of votes at a given block number
 
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| blockNumber | uint256 | Block number to check quorum against (a snapshot) |
+
 ### state
 
 ```solidity
@@ -49,6 +71,10 @@ function state(uint256 proposalId) public view returns (enum IGovernorUpgradeabl
 Getter that returns the state of a proposal id
 
 _See {IGovernor-state} for list of ProposalState enums_
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| proposalId | uint256 | Id of the proposal |
 
 ### propose
 
@@ -64,7 +90,7 @@ function proposalThreshold() public view returns (uint256)
 
 Getter function that returns the minimum amount of tokens an accounts must have to create a proposal
 
-_Token amounts are in wei (18 decimals)._
+_Token amounts are in wei (18 decimals)_
 
 ### _execute
 
