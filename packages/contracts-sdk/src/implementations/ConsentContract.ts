@@ -1,19 +1,22 @@
-import { ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
+import { ethers, EventFilter, Event } from "ethers";
+import { okAsync, ResultAsync } from "neverthrow";
 import {
   ConsentContractError,
   EthereumAccountAddress,
   EthereumContractAddress,
   IpfsCID,
-  OptInTokenId,
-  OptInTokenUri,
+  TokenUri,
   Signature,
+  TokenIdNumber,
+  ConsentToken,
 } from "@snickerdoodlelabs/objects";
 
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
 
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { BigNumber } from "ethers";
+import { ResultUtils } from "neverthrow-result-utils";
 
 export class ConsentContract implements IConsentContract {
   protected contract: ethers.Contract;
@@ -32,8 +35,8 @@ export class ConsentContract implements IConsentContract {
   }
 
   public optIn(
-    tokenId: OptInTokenId,
-    agreementURI: OptInTokenUri,
+    tokenId: TokenIdNumber,
+    agreementURI: TokenUri,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
@@ -49,8 +52,8 @@ export class ConsentContract implements IConsentContract {
   }
 
   public restrictedOptIn(
-    tokenId: OptInTokenId,
-    agreementURI: OptInTokenUri,
+    tokenId: TokenIdNumber,
+    agreementURI: TokenUri,
     nonce: number,
     signature: Signature,
     contractOverrides?: ContractOverrides,
@@ -93,4 +96,90 @@ export class ConsentContract implements IConsentContract {
       },
     );
   }
+
+  public balanceOf(
+    address: EthereumAccountAddress,
+  ): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract?.balanceOf(address) as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError("Unable to call balanceOf()", e);
+      },
+    ).map((numberOfTokens) => numberOfTokens.toNumber());
+  }
+
+  public tokenURI(
+    tokenId: TokenIdNumber,
+  ): ResultAsync<TokenUri, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract?.tokenURI(tokenId) as Promise<TokenUri>,
+      (e) => {
+        return new ConsentContractError("Unable to call tokenURI()", e);
+      },
+    );
+  }
+
+  public queryFilter(
+    eventFilter: EventFilter,
+  ): ResultAsync<Event[], ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract?.queryFilter(eventFilter) as Promise<Event[]>,
+      (e) => {
+        return new ConsentContractError("Unable to call queryFilter()", e);
+      },
+    );
+  }
+
+  public getConsentTokensOfAddress(
+    ownerAddress: EthereumAccountAddress,
+  ): ResultAsync<ConsentToken[], ConsentContractError> {
+    return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
+      if (numberOfTokens === 0) {
+        return okAsync([]);
+      }
+
+      return this.filters
+        .Transfer(null, ownerAddress)
+        .andThen((eventFilter) => {
+          return this.queryFilter(eventFilter);
+        })
+        .andThen((logsEvents) => {
+          return ResultUtils.combine(
+            logsEvents.map((logEvent) => {
+              return this.tokenURI(logEvent.args?.tokenId).andThen(
+                (tokenUri) => {
+                  return okAsync(
+                    new ConsentToken(
+                      ownerAddress,
+                      TokenIdNumber(logEvent.args?.tokenId?.toNumber()),
+                      tokenUri,
+                    ),
+                  );
+                },
+              );
+            }),
+          );
+        });
+    });
+  }
+
+  public filters = {
+    Transfer: (
+      fromAddress: EthereumAccountAddress | null,
+      toAddress: EthereumAccountAddress | null,
+    ): ResultAsync<EventFilter, ConsentContractError> => {
+      return ResultAsync.fromPromise(
+        this.contract?.filters.Transfer(
+          fromAddress,
+          toAddress,
+        ) as Promise<EventFilter>,
+        (e) => {
+          return new ConsentContractError(
+            "Unable to call filters.Transfer()",
+            e,
+          );
+        },
+      );
+    },
+  };
 }

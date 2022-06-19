@@ -17,6 +17,8 @@ export * from "@objects/primatives/PublicKey";
 export * from "@objects/primatives/SDQLString";
 export * from "@objects/primatives/Signature";
 export * from "@objects/primatives/TokenId";
+export * from "@objects/primatives/TokenIdNumber";
+export * from "@objects/primatives/TokenUri";
 export * from "@objects/primatives/UnixTimestamp";
 export * from "@objects/primatives/URLString";
 export * from "@objects/primatives/UUID";

@@ -1,5 +1,6 @@
 export * from "@objects/businessObjects/ChainInformation";
 export * from "@objects/businessObjects/ClickData";
+export * from "@objects/businessObjects/ConsentToken";
 export * from "@objects/businessObjects/Insight";
 export * from "@objects/businessObjects/Reward";
 export * from "@objects/businessObjects/SDQLQuery";

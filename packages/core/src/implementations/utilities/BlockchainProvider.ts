@@ -40,4 +40,10 @@ export class BlockchainProvider implements IBlockchainProvider {
   > {
     throw new Error("Method not implemented.");
   }
+
+  public getDefaultProvider(
+    chainId?: ChainId,
+  ): ResultAsync<JsonRpcProvider, BlockchainProviderError> {
+    throw new Error("Method not implemented.");
+  }
 }

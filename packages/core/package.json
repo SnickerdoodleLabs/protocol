@@ -36,6 +36,7 @@
   },
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@snickerdoodlelabs/contracts-sdk": ">=0.0.1",
     "@snickerdoodlelabs/objects": ">=0.0.1",
     "ethers": "^5.4.7",
     "inversify": "^5.1.1",

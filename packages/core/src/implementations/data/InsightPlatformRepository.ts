@@ -7,12 +7,13 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities";
+import { BusinessConsentContract } from "@core/interfaces/objects";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
     @inject(IConfigProviderType) public configProvider: IConfigProvider,
-  ) { }
+  ) {}
 
   public claimReward(
     insights: Insight[],
@@ -21,6 +22,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   }
 
   public deliverInsights(insights: Insight[]): ResultAsync<void, never> {
+    throw new Error("undefined");
+  }
+
+  public getBusinessConsentContracts(): ResultAsync<
+    BusinessConsentContract[],
+    never
+  > {
     throw new Error("undefined");
   }
 }
