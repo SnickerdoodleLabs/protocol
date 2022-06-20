@@ -1,0 +1,46 @@
+{
+  "name": "@snickerdoodlelabs/contracts-sdk",
+  "version": "0.0.1",
+  "description": "SDK for snickerdoodlelabs contracts wrappers",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/objects#readme",
+  "author": "Muhammed Altinci <muhammed@snickerdoodlelabs.io>",
+  "keywords": [
+    "Blockchain",
+    "Snickerdoodle",
+    "Web3"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo",
+    "!test",
+    "!src",
+    "!tsconfig.json"
+  ],
+  "scripts": {
+    "alias": "tsc-alias",
+    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "tsc --build && cd ../.. && yarn alias",
+    "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
+    "test": "echo \"No tests specified yet\" && exit 0"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "neverthrow": "^4.3.1",
+    "rxjs": "^7.5.5",
+    "ts-brand": "^0.0.2"
+  }
+}

@@ -23,21 +23,11 @@
     "jsx": "react",
     "composite": true,
     "paths": {
-      "@browser-extension/*": [
-        "./*"
-      ],
-      "@objects/*": [
-        "./*"
-      ],
-      "@core/*": [
-        "./*"
-      ],
-      "@core-tests/*": [
-        "../test/*"
-      ],
-      "@utils/*": [
-        "./*"
-      ]
+      "@browser-extension/*": ["./*"],
+      "@objects/*": ["./*"],
+      "@core/*": ["./*"],
+      "@core-tests/*": ["../test/*"],
+      "@contracts-sdk/*": ["./*"]
     }
   }
 }
