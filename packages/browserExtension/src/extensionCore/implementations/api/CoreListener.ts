@@ -1,32 +1,30 @@
-import {
-  IQueryEngine,
-  IQueryEngineEvents,
-} from "@snickerdoodlelabs/objects";
+import { IQueryEngine, IQueryEngineEvents } from "@snickerdoodlelabs/objects";
 
 import { ICoreListener } from "@interfaces/api";
 import { okAsync, ResultAsync } from "neverthrow";
 
 export class CoreListener implements ICoreListener {
   constructor(protected core: IQueryEngine) {}
+
   public initialize(): ResultAsync<void, never> {
     this.core.getEvents().map((events: IQueryEngineEvents) => {
-      events.onInitialized.subscribe(this.onInitialized);
-      events.onAccountAdded.subscribe(this.onAccountAdded);
-      events.onQueryPosted.subscribe(this.onInitialized);
+      events.onInitialized.subscribe(this.onInitialized.bind(this));
+      events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
+      events.onQueryPosted.subscribe(this.onInitialized.bind(this));
     });
     return okAsync(undefined);
   }
-  public onInitialized(dataWalletAddress) {
+  private onInitialized(dataWalletAddress) {
     console.log("onInitialized", dataWalletAddress);
     return okAsync(undefined);
   }
 
-  public onAccountAdded(account) {
+  private onAccountAdded(account) {
     console.log("onAccountAdded", account);
     return okAsync(undefined);
   }
 
-  public onQueryPosted(query) {
+  private onQueryPosted(query) {
     console.log("onQueryPosted", query);
     return okAsync(undefined);
   }

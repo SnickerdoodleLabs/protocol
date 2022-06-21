@@ -88,6 +88,7 @@ export class ExtensionCore implements IExtensionCore {
       this.rpcMiddlewareFactory,
     );
     this.clientEventListener = new ClientEventsListener(this.contextProvider);
+    this.clientEventListener.initialize();
     this.portConnectionUtils = new PortConnectionUtils(this.contextProvider);
 
     this.portConnectionRepository = new PortConnectionRepository(
@@ -103,6 +104,7 @@ export class ExtensionCore implements IExtensionCore {
       this.contextProvider,
       this.portConnectionService,
     );
+    this.portConnectionListenner.initialize();
 
     this.configProvider = new ConfigProvider();
   }

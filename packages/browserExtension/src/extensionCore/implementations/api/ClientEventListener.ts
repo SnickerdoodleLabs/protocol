@@ -5,14 +5,19 @@ import {
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
+import { okAsync, ResultAsync } from "neverthrow";
 
 export class ClientEventsListener implements IClientEventListener {
-  constructor(protected contextProvider: IContextProvider) {
+  constructor(protected contextProvider: IContextProvider) {}
+
+  public initialize(): ResultAsync<void, never> {
     this.contextProvider.getClientEvents().map((clientEvents) => {
       clientEvents.onLoginRequest.subscribe(this.onLoginRequest.bind(this));
     });
+    return okAsync(undefined);
   }
-  public onLoginRequest(param: {
+
+  private onLoginRequest(param: {
     params: {
       accountAddress: EthereumAccountAddress;
       signature: Signature;
@@ -24,12 +29,4 @@ export class ClientEventsListener implements IClientEventListener {
     console.log("requested getted with params", param);
     param.onResult("fake result");
   }
-}
-
-interface a {
-  a: string
-}
-
-interface b {
-  b: string
 }
