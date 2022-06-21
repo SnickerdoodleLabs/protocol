@@ -10,6 +10,7 @@ import {
 
 import Modal, { useGenericModalStyles } from "../../Modals/Modal";
 import { EAPP_STATE, signatureMessage } from "../../../constants";
+import Browser from 'webextension-polyfill';
 
 interface IConnectWalletProps {
   changeAppState: (state: EAPP_STATE) => void;
@@ -51,7 +52,7 @@ const ConnectWallet: React.FC<IConnectWalletProps> = ({
         <>
           <img
             className={modalClasses.image}
-            src={chrome.runtime.getURL("assets/img/wallet.png")}
+            src={Browser.runtime.getURL("assets/img/wallet.png")}
             alt="logo"
           />
         </>

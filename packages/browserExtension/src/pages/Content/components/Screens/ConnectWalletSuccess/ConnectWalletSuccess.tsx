@@ -3,6 +3,8 @@ import { Box, Typography } from "@material-ui/core";
 
 import Modal, { useGenericModalStyles } from "../../Modals/Modal";
 import { EAPP_STATE } from "../../../constants";
+import Browser from "webextension-polyfill";
+
 
 interface IConnectWalletSuccessProps {
   changeAppState: (state: EAPP_STATE) => void;
@@ -21,7 +23,7 @@ const ConnectWalletSuccess: React.FC<IConnectWalletSuccessProps> = ({
       topContent={
         <img
           className={modalClasses.image}
-          src={chrome.runtime.getURL("assets/img/metamask.png")}
+          src={Browser.runtime.getURL("assets/img/metamask.png")}
           alt="logo"
         />
       }
@@ -37,7 +39,7 @@ const ConnectWalletSuccess: React.FC<IConnectWalletSuccessProps> = ({
           <Box width="100%" display="flex" justifyContent="center">
             <img
               className={modalClasses.successLogo}
-              src={chrome.runtime.getURL("assets/img/success.png")}
+              src={Browser.runtime.getURL("assets/img/success.png")}
               alt="logo"
             />
           </Box>

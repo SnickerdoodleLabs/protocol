@@ -5,8 +5,11 @@ var webpack = require("webpack"),
   CopyWebpackPlugin = require("copy-webpack-plugin"),
   HtmlWebpackPlugin = require("html-webpack-plugin"),
   TerserPlugin = require("terser-webpack-plugin");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+
 var { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+const configFilePath = require.resolve("./tsconfig.json");
 
 const ASSET_PATH = process.env.ASSET_PATH || "/";
 
@@ -40,10 +43,9 @@ var options = {
     newtab: path.join(__dirname, "src", "pages", "Newtab", "index.jsx"),
     options: path.join(__dirname, "src", "pages", "Options", "index.jsx"),
     popup: path.join(__dirname, "src", "pages", "Popup", "index.jsx"),
-    background: path.join(__dirname, "src", "pages", "Background", "index.js"),
+    background: path.join(__dirname, "src", "extensionCore", "index.ts"),
     contentScript: path.join(__dirname, "src", "pages", "Content", "index.js"),
     devtools: path.join(__dirname, "src", "pages", "Devtools", "index.js"),
-    panel: path.join(__dirname, "src", "pages", "Panel", "index.jsx"),
   },
   chromeExtensionBoilerplate: {
     notHotReload: ["background", "contentScript", "devtools"],
@@ -89,7 +91,17 @@ var options = {
         loader: "html-loader",
         exclude: /node_modules/,
       },
-      { test: /\.(ts|tsx)$/, loader: "ts-loader", exclude: /node_modules/ },
+      {
+        test: /\.(ts|tsx)$/, loader: "ts-loader", exclude: /node_modules/, options: {
+          projectReferences: true,
+          configFile: configFilePath,
+          compilerOptions: {
+            // build still catches these. avoid them during bunding time for a nicer dev experience.
+            noUnusedLocals: false,
+            noUnusedParameters: false,
+          },
+        },
+      },
       {
         test: /\.(js|jsx)$/,
         use: [
@@ -106,10 +118,10 @@ var options = {
   },
   resolve: {
     alias: alias,
-
+    plugins: [new TsconfigPathsPlugin({ configFile: configFilePath })],
     extensions: fileExtensions
       .map((extension) => "." + extension)
-      .concat([".js", ".jsx", ".ts", ".tsx", ".css"]),
+      .concat([".js", ".jsx", ".ts", ".tsx", ".css", "html"]),
   },
   plugins: [
     new NodePolyfillPlugin(),
@@ -213,13 +225,7 @@ var options = {
       filename: "devtools.html",
       chunks: ["devtools"],
       cache: false,
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "pages", "Panel", "index.html"),
-      filename: "panel.html",
-      chunks: ["panel"],
-      cache: false,
-    }),
+    })
   ],
   infrastructureLogging: {
     level: "info",

@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "es5",
+      "es6",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "baseUrl": "./src/",
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noEmit": false,
+    "jsx": "react",
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "paths": {
+      "@interfaces/*": [
+        "./extensionCore/interfaces/",
+        "./extensionCore/interfaces/*"
+      ],
+      "@implementations/*": [
+        "./extensionCore/implementations/",
+        "./extensionCore/implementations/*"
+      ],
+      "@constants/*": [
+        "./constants/*"
+      ]
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import Browser from "webextension-polyfill";
 enum EAVAILABLE_HOSTS {
   SHRAPNEL = "www.shrapnel.com",
   CRABADA = "market.crabada.com",
@@ -30,11 +31,11 @@ export const REWARD_DATA: Array<IRewardItem> = [
     title: "Claim your NFT!",
     description:
       "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
-    image: chrome.runtime.getURL("assets/img/crabada-item.png"),
+    image: Browser.runtime.getURL("assets/img/crabada-item.png"),
     primaryButtonText: "Claim Reward",
     secondaryButtonText: "Back to Game",
     rewardName: "Crabada 761",
-    nftClaimedImage: chrome.runtime.getURL(
+    nftClaimedImage: Browser.runtime.getURL(
       "assets/img/crabada-item-claimed.png",
     ),
   },
@@ -43,26 +44,26 @@ export const REWARD_DATA: Array<IRewardItem> = [
     title: "Claim your NFT!",
     description:
       "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
-    image: chrome.runtime.getURL("assets/img/sharapnel-item.png"),
+    image: Browser.runtime.getURL("assets/img/sharapnel-item.png"),
     primaryButtonText: "Claim Reward",
     secondaryButtonText: "Back to Game",
     rewardName: "ATG-36 Helmet",
-    nftClaimedImage: chrome.runtime.getURL(
+    nftClaimedImage: Browser.runtime.getURL(
       "assets/img/sharapnel-item-claimed.png",
     ),
   },
 ];
 
-export const rewardItemQMarkImg = chrome.runtime.getURL(
+export const rewardItemQMarkImg = Browser.runtime.getURL(
   "assets/img/reward-item-qmark.png",
 );
-export const rewardItemToClaim01Img = chrome.runtime.getURL(
+export const rewardItemToClaim01Img = Browser.runtime.getURL(
   "assets/img/reward-item-to-claim01.png",
 );
-export const rewardItemToClaim02Img = chrome.runtime.getURL(
+export const rewardItemToClaim02Img = Browser.runtime.getURL(
   "assets/img/reward-item-to-claim02.png",
 );
-export const rewardItemToClaim03Img = chrome.runtime.getURL(
+export const rewardItemToClaim03Img = Browser.runtime.getURL(
   "assets/img/reward-item-to-claim03.png",
 );
 export const signatureMessage = `Welcome to Snickerdoodle! This transaction proves that you own this wallet so that only you benefit from the data it produces.

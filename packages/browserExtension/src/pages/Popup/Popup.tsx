@@ -6,8 +6,14 @@ import { ethers } from "ethers";
 import connect from "../Background";
 import { abi_RequestForData } from "../../contract/abi";
 import { Button, Grid } from "@material-ui/core";
-import horizontalLogo from "../../assets/img/sdHorizontalLogo.svg";
+// import horizontalLogo from "../../assets/img/sdHorizontalLogo.svg";
 import Data from "./components/Data";
+import Browser from "webextension-polyfill";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import PortStream from "extension-port-stream";
+import pump from "pump";
+import { LanguageCode } from "@snickerdoodlelabs/objects";
 
 const Popup = () => {
   const [obj, setObj] = useState(null);
@@ -15,36 +21,65 @@ const Popup = () => {
   const [loadCard, setLoadCard] = useState(false);
 
   useEffect(() => {
-    chrome.runtime.sendMessage({
-      message: "onChainDataRequest",
-      hostname: "onChainData",
-    });
-    chrome.storage.sync.get(["onChainData"], (result) => {
-      if (result.onChainData) {
-        setOnChainData(result.onChainData);
-      }
-    });
+    const port = Browser.runtime.connect({ name: "SD_NOTIFICATION" });
+    const portStream = new PortStream(port);
+
+    const middlewareStream = createStreamMiddleware();
+    const rpcEngine = new JsonRpcEngine();
+    rpcEngine.push(middlewareStream.middleware);
+    pump(middlewareStream.stream, portStream, middlewareStream.stream);
+
+      rpcEngine.handle(
+        {
+          id: 21,
+          jsonrpc: "2.0",
+          method: "login",
+
+          params: {a:"fds"}
+
+
+         
+        },
+       async (err: any, response: any) => {
+          console.log(response);
+        },
+      )
+
+    
+      middlewareStream.events.on("notification", console.log )
+    // console.log(instance)
+    // chrome.runtime.sendMessage({
+    //   message: "onChainDataRequest",
+    //   hostname: "onChainData",
+    // });
+    // chrome.storage.sync.get(["onChainData"], (result) => {
+    //   if (result.onChainData) {
+    //     setOnChainData(result.onChainData);
+    //   }
+    // });
   }, []);
 
-  chrome.runtime.sendMessage({ message: "dataRequest", obj: obj });
 
-  chrome.runtime.onMessage.addListener(function (
-    request,
-    sender,
-    sendResponse,
-  ) {
-    if (request.message === "cardData") {
-      if (request.userData) {
-        console.log("req", request.userData);
-        setObj(request.userData);
-        setLoadCard(true);
-      }
-    }
-  });
+  // chrome.runtime.sendMessage({ message: "dataRequest", obj: obj });
+
+  // chrome.runtime.onMessage.addListener(function (
+  //   request,
+  //   sender,
+  //   sendResponse,
+  // ) {
+  //   if (request.message === "cardData") {
+  //     if (request.userData) {
+  //       console.log("req", request.userData);
+  //       setObj(request.userData);
+  //       setLoadCard(true);
+  //     }
+  //   }
+  // });
 
   return (
     <Grid>
-      <Grid
+      test ekranı
+      {/* <Grid
         style={{
           position: "fixed",
           width: "100%",
@@ -225,7 +260,7 @@ const Popup = () => {
         </Grid>
       ) : (
         ""
-      )}
+      )} */}
     </Grid>
   );
 };

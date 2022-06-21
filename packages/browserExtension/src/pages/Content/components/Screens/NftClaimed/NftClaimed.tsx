@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Typography } from "@material-ui/core";
 
 import SuccessModal, { useGenericModalStyles } from "../../Modals/SuccessModal";
+import Browser from 'webextension-polyfill'
 
 import {
   EAPP_STATE,
@@ -49,7 +50,7 @@ const NftClaimed: React.FC<INftClaimedProps> = ({
         <>
           <img
             className={modalClasses.successLogoBig}
-            src={chrome.runtime.getURL("assets/img/success.png")}
+            src={Browser.runtime.getURL("assets/img/success.png")}
             alt="logo"
           />
         </>

@@ -5,6 +5,7 @@ import ConnectWallet from "../Screens/ConnectWallet";
 import ConnectWalletPending from "../Screens/ConnectWalletPending";
 import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
 import NftClaimed from "../Screens/NftClaimed";
+import browser from 'webextension-polyfill';
 
 import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
 
@@ -76,7 +77,7 @@ const App = () => {
     console.log("accounts received: ", accounts);
     console.log("signature received: ", signature);
     console.log("chainId received: ", chainId);
-    chrome.storage.sync.set(
+    browser.storage.sync.set(
       {
         onChainData: {
           accountAddress: accounts[0],
@@ -85,11 +86,11 @@ const App = () => {
           timestamp: new Date(),
         },
       },
-      function () {
-        console.log("Value is set to" + accounts);
-      },
+      // function () {
+      //   console.log("Value is set to" + accounts);
+      // },
     );
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
       message: "cardData",
       onChainData: {
         accountAddress: accounts[0],
