@@ -10,7 +10,7 @@ export class CoreListener implements ICoreListener {
     this.core.getEvents().map((events: IQueryEngineEvents) => {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
-      events.onQueryPosted.subscribe(this.onInitialized.bind(this));
+      events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
     });
     return okAsync(undefined);
   }

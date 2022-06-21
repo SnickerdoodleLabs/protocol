@@ -25,15 +25,16 @@
     "noImplicitReturns": true,
     "paths": {
       "@interfaces/*": [
-        "./extensionCore/interfaces/",
         "./extensionCore/interfaces/*"
       ],
       "@implementations/*": [
-        "./extensionCore/implementations/",
         "./extensionCore/implementations/*"
       ],
       "@constants/*": [
         "./constants/*"
+      ],
+      "@shared/*": [
+        "./shared/*"
       ]
     }
   }
