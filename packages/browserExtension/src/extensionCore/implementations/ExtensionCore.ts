@@ -11,8 +11,14 @@ import {
 } from "@implementations/utilities";
 
 // Utils / Factory
-import { IInternalRpcMiddlewareFactory } from "@interfaces/utilities/factory";
-import { InternalRpcMiddlewareFactory } from "@implementations/utilities/factory";
+import {
+  IInternalRpcMiddlewareFactory,
+  IRpcEngineFactory,
+} from "@interfaces/utilities/factory";
+import {
+  InternalRpcMiddlewareFactory,
+  RpcEngineFactory,
+} from "@implementations/utilities/factory";
 
 // Business
 import { PortConnectionService } from "@implementations/business";
@@ -57,7 +63,9 @@ export class ExtensionCore implements IExtensionCore {
   protected configProvider: IConfigProvider;
   protected contextProvider: IContextProvider;
   protected portConnectionUtils: IPortConnectionUtils;
+  // Factory
   protected rpcMiddlewareFactory: IInternalRpcMiddlewareFactory;
+  protected rpcEngineFactory: IRpcEngineFactory;
 
   // API
   protected clientEventListener: IClientEventListener;
@@ -75,12 +83,16 @@ export class ExtensionCore implements IExtensionCore {
     this.rpcMiddlewareFactory = new InternalRpcMiddlewareFactory(
       this.contextProvider,
     );
+    this.rpcEngineFactory = new RpcEngineFactory(
+      this.contextProvider,
+      this.rpcMiddlewareFactory,
+    );
     this.clientEventListener = new ClientEventsListener(this.contextProvider);
     this.portConnectionUtils = new PortConnectionUtils(this.contextProvider);
 
     this.portConnectionRepository = new PortConnectionRepository(
       this.contextProvider,
-      this.rpcMiddlewareFactory,
+      this.rpcEngineFactory,
     );
 
     this.portConnectionService = new PortConnectionService(
