@@ -14,6 +14,7 @@ export * from "@objects/primatives/IpfsCID";
 export * from "@objects/primatives/JsonWebToken";
 export * from "@objects/primatives/LanguageCode";
 export * from "@objects/primatives/PublicKey";
+export * from "@objects/primatives/ProviderUrl";
 export * from "@objects/primatives/SDQLString";
 export * from "@objects/primatives/Signature";
 export * from "@objects/primatives/TokenId";

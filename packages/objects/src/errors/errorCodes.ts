@@ -10,6 +10,7 @@ const errorCodes = {
   ConsentFactoryContractError: "CONSENT_FACTORY_CONTRACT_ERROR",
   ConsentContractError: "CONSENT_CONTRACT_ERROR",
   ProviderRpcError: "PROVIDER_RPC_ERROR",
+  InvalidParametersError: "INVALID_PARAMETERS_ERROR",
 };
 
 export default errorCodes;
