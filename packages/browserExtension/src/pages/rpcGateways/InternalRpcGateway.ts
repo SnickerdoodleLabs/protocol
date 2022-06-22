@@ -1,9 +1,9 @@
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 import {
-  AddAccountParams,
-  GetLoginMessageParams,
-  LoginParams,
+  IAddAccountParams,
+  IGetLoginMessageParams,
+  ILoginParams,
 } from "@shared/objects/EventParams";
 import { EInternalActions } from "@shared/constants/actions";
 import {
@@ -26,10 +26,11 @@ export class InternalRpcGateway {
     languageCode: LanguageCode,
   ) {
     return ResultAsync.fromSafePromise(
-      this._handler(
-        EInternalActions.LOGIN,
-        new LoginParams(accountAddress, signature, languageCode),
-      ),
+      this._handler(EInternalActions.LOGIN, {
+        accountAddress,
+        signature,
+        languageCode,
+      } as ILoginParams),
     );
   }
 
@@ -39,19 +40,19 @@ export class InternalRpcGateway {
     languageCode: LanguageCode,
   ) {
     return ResultAsync.fromSafePromise(
-      this._handler(
-        EInternalActions.ADD_ACCOUNT,
-        new AddAccountParams(accountAddress, signature, languageCode),
-      ),
+      this._handler(EInternalActions.ADD_ACCOUNT, {
+        accountAddress,
+        signature,
+        languageCode,
+      } as IAddAccountParams),
     );
   }
 
-  public getSignature(languageCode: LanguageCode) {
+  public getLoginMessage(languageCode: LanguageCode) {
     return ResultAsync.fromSafePromise(
-      this._handler(
-        EInternalActions.GET_LOGIN_MESSAGE,
-        new GetLoginMessageParams(languageCode),
-      ),
+      this._handler(EInternalActions.GET_LOGIN_MESSAGE, {
+        languageCode,
+      } as IGetLoginMessageParams),
     );
   }
 }

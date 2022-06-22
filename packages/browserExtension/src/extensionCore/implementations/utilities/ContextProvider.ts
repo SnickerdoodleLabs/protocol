@@ -19,31 +19,7 @@ export class ContextProvider implements IContextProvider {
 
     this.portEvents = new PortEvents(new Subject<Runtime.Port>());
 
-    this.clientEvents = new ClientEvents(
-      new Subject<{
-        params: {
-          accountAddress: EthereumAccountAddress;
-          signature: Signature;
-          languageCode: LanguageCode;
-        };
-        onError: (error: any) => void;
-        onResult: (result: any) => void;
-      }>(),
-      new Subject<{
-        params: { languageCode: LanguageCode };
-        onError: (error: any) => void;
-        onResult: (result: any) => void;
-      }>(),
-      new Subject<{
-        params: {
-          accountAddress: EthereumAccountAddress;
-          signature: Signature;
-          languageCode: LanguageCode;
-        };
-        onError: (error: any) => void;
-        onResult: (result: any) => void;
-      }>(),
-    );
+    this.clientEvents = new ClientEvents();
   }
 
   public getPortEvents(): ResultAsync<PortEvents, never> {

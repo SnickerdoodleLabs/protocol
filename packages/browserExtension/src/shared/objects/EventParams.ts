@@ -4,22 +4,18 @@ import {
   Signature,
 } from "@snickerdoodlelabs/objects";
 
-export class LoginParams {
-  constructor(
-    public accountAddress: EthereumAccountAddress,
-    public signature: Signature,
-    public languageCode: LanguageCode,
-  ) {}
+export interface ILoginParams {
+  accountAddress: EthereumAccountAddress;
+  signature: Signature;
+  languageCode: LanguageCode;
 }
 
-export class AddAccountParams {
-  constructor(
-    public accountAddress: EthereumAccountAddress,
-    public signature: Signature,
-    public languageCode: LanguageCode,
-  ) {}
+export interface IAddAccountParams {
+  accountAddress: EthereumAccountAddress;
+  signature: Signature;
+  languageCode: LanguageCode;
 }
 
-export class GetLoginMessageParams {
-  constructor(public languageCode: LanguageCode) {}
+export interface IGetLoginMessageParams {
+  languageCode: LanguageCode;
 }

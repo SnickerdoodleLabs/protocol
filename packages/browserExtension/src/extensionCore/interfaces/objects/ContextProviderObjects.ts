@@ -1,10 +1,13 @@
 import {
   EthereumAccountAddress,
-  LanguageCode,
-  Signature,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 import { Runtime } from "webextension-polyfill";
+import {
+  ILoginParams,
+  IGetLoginMessageParams,
+  IAddAccountParams,
+} from "@shared/objects/EventParams";
 
 export class AccountContext {
   constructor(
@@ -13,6 +16,7 @@ export class AccountContext {
   ) {}
 }
 
+// TODO remove unused
 export class PortEvents {
   constructor(
     public onPortConnectionRequested: Subject<Runtime.Port>,
@@ -22,31 +26,31 @@ export class PortEvents {
   ) {}
 }
 
+export interface IResolvers {
+  resolveError: (error: any) => void;
+  resolveResult: (result: any) => void;
+}
+
+export interface ILogin {
+  params: ILoginParams;
+  resolvers: IResolvers;
+}
+
+export interface IGetLoginMessage {
+  params: IGetLoginMessageParams;
+  resolvers: IResolvers;
+}
+
+export interface IAddAccount {
+  params: IAddAccountParams;
+  resolvers: IResolvers;
+}
+
 export class ClientEvents {
   constructor(
-    public onLoginRequest: Subject<{
-      params: {
-        accountAddress: EthereumAccountAddress;
-        signature: Signature;
-        languageCode: LanguageCode;
-      };
-      onError: (error: any) => void;
-      onResult: (result: any) => void;
-    }>,
-    public onLoginMessageRequest: Subject<{
-      params: { languageCode: LanguageCode };
-      onError: (error: any) => void;
-      onResult: (result: any) => void;
-    }>,
-    public addAccountRequest: Subject<{
-      params: {
-        accountAddress: EthereumAccountAddress;
-        signature: Signature;
-        languageCode: LanguageCode;
-      };
-      onError: (error: any) => void;
-      onResult: (result: any) => void;
-    }>,
+    public onLoginRequest = new Subject<ILogin>(),
+    public onLoginMessageRequest = new Subject<IGetLoginMessage>(),
+    public onAddAccountRequest = new Subject<IAddAccount>(),
   ) {}
 }
 

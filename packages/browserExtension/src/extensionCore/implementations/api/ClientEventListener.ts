@@ -1,11 +1,7 @@
 import { IClientEventListener } from "@interfaces/api/IClientEventListener";
+import { IAddAccount, IGetLoginMessage, ILogin } from "@interfaces/objects";
 import { IContextProvider } from "@interfaces/utilities";
-import {
-  EthereumAccountAddress,
-  LanguageCode,
-  Signature,
-} from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ok, okAsync, ResultAsync } from "neverthrow";
 
 export class ClientEventsListener implements IClientEventListener {
   constructor(protected contextProvider: IContextProvider) {}
@@ -13,20 +9,29 @@ export class ClientEventsListener implements IClientEventListener {
   public initialize(): ResultAsync<void, never> {
     this.contextProvider.getClientEvents().map((clientEvents) => {
       clientEvents.onLoginRequest.subscribe(this.onLoginRequest.bind(this));
+      clientEvents.onAddAccountRequest.subscribe(
+        this.onAddAccountRequest.bind(this),
+      );
+      clientEvents.onLoginMessageRequest.subscribe(
+        this.onLoginMessageRequest.bind(this),
+      );
+      return ok(undefined);
     });
     return okAsync(undefined);
   }
 
-  private onLoginRequest(param: {
-    params: {
-      accountAddress: EthereumAccountAddress;
-      signature: Signature;
-      languageCode: LanguageCode;
-    };
-    onError: (error: any) => void;
-    onResult: (result: any) => void;
-  }) {
-    console.log("requested getted with params", param);
-    param.onResult("fake result");
+  private onAddAccountRequest(args: IAddAccount) {
+    console.log("requested with params", args.params);
+    args.resolvers.resolveResult("fake result");
+  }
+
+  private onLoginRequest(args: ILogin) {
+    console.log("requested with params", args.params);
+    args.resolvers.resolveResult("fake result");
+  }
+
+  private onLoginMessageRequest(args: IGetLoginMessage) {
+    console.log("requested with params", args.params);
+    args.resolvers.resolveResult("fake result");
   }
 }
