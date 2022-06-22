@@ -1,1 +1,1 @@
-export * from "@core/implementations/QueryEngine";
+export * from "@core/implementations/SnickerdoodleCore";

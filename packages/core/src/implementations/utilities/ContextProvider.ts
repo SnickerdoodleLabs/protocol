@@ -3,29 +3,29 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import {
   PublicEvents,
-  QueryEngineContext,
+  CoreContext,
 } from "@core/interfaces/objects";
 import { IContextProvider } from "@core/interfaces/utilities";
 
 @injectable()
 export class ContextProvider implements IContextProvider {
-  protected context: QueryEngineContext;
+  protected context: CoreContext;
 
   public constructor() {
-    this.context = new QueryEngineContext(
+    this.context = new CoreContext(
       null, // dataWalletAddress
       null, // sourceEntropy
       null, // dataWalletKey
-      false, // loginInProgress
+      false, // unlockInProgress
       new PublicEvents(), // publicEvents
     );
   }
 
-  public getContext(): ResultAsync<QueryEngineContext, never> {
+  public getContext(): ResultAsync<CoreContext, never> {
     return okAsync(this.context);
   }
 
-  public setContext(context: QueryEngineContext): ResultAsync<void, never> {
+  public setContext(context: CoreContext): ResultAsync<void, never> {
     this.context = context;
     return okAsync(undefined);
   }

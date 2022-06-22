@@ -18,7 +18,7 @@ var ContextProviderMock = /** @class */ (function () {
             this.context = context;
         }
         else {
-            this.context = new objects_1.QueryEngineContext();
+            this.context = new objects_1.CoreContext();
         }
     }
     ContextProviderMock.prototype.getContext = function () {

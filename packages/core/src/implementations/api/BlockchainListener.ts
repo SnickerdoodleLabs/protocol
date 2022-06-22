@@ -2,20 +2,17 @@ import {
   BlockchainProviderError,
   ChainId,
   EthereumAccountAddress,
-  EthereumContractAddress,
-  IpfsCID,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBlockchainListener } from "@core/interfaces/api";
-import {
-  IQueryService,
-  IQueryServiceType,
-} from "@core/interfaces/business";
-import { QueryEngineContext } from "@core/interfaces/objects";
+import { IQueryService, IQueryServiceType } from "@core/interfaces/business";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -41,28 +38,60 @@ export class BlockchainListener implements IBlockchainListener {
 
   constructor(
     @inject(IQueryServiceType) protected queryService: IQueryService,
+    @inject(IDataWalletPersistenceType)
+    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) { }
+  ) {}
 
-  public initialize(): ResultAsync<void, BlockchainProviderError> {
+  public initialize(): ResultAsync<
+    void,
+    BlockchainProviderError | PersistenceError
+  > {
+    /**
+     * The BlockchainListener needs to actually listen to ALL the chains we are monitoring;
+     * this means we need to get ALL the providers and hook up listeners for all the accounts
+     * in the wallet
+     */
     return ResultUtils.combine([
-      this.blockchainProvider.getProvider(),
+      this.blockchainProvider.getAllProviders(),
       this.contextProvider.getContext(),
-    ]).map(([provider, context]) => {
-      if (this.mainProviderInitialized === false) {
-        //this.initializeMainProviderEvents(provider, context);
-      }
-    });
+      this.dataWalletPersistence.getAccounts(),
+    ])
+      .andThen(([providerMap, _context, accounts]) => {
+        // Now we have the providers, loop over them
+        return ResultUtils.combine(
+          Array.from(providerMap.entries()).map(([chainId, provider]) => {
+            return this.monitorChain(chainId, provider, accounts);
+          }),
+        );
+      })
+      .map(() => {});
+  }
+
+  protected monitorChain(
+    chainId: ChainId,
+    provider: ethers.providers.JsonRpcProvider,
+    accounts: EthereumAccountAddress[],
+  ): ResultAsync<void, BlockchainProviderError> {
+    // For each provider, hook up listeners or whatever, that will monitor for activity
+    // on the chain for each address.
+    return ResultUtils.combine(
+      accounts.map((account) => {
+        // Hook up the listeners for this account
+        // TODO
+        return okAsync(undefined);
+      }),
+    ).map(() => {});
   }
   /*
 
   private initializeMainProviderEvents(
     provider: ethers.providers.JsonRpcProvider,
-    context: QueryEngineContext,
+    context: CoreContext,
   ) {
     // These are events that actually occur on the ETH provider object
     // itself, it is not an on-chain event.

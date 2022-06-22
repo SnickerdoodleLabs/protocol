@@ -3,6 +3,7 @@ import {
   EthereumAccountAddress,
   InvalidSignatureError,
   LanguageCode,
+  PersistenceError,
   Signature,
   UninitializedError,
   UnsupportedLanguageError,
@@ -10,17 +11,20 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IAccountService {
-  getLoginMessage(
+  getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, UnsupportedLanguageError>;
 
-  login(
+  unlock(
     accountAddress: EthereumAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
+    | BlockchainProviderError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | PersistenceError
   >;
 
   addAccount(
@@ -33,6 +37,7 @@ export interface IAccountService {
     | InvalidSignatureError
     | UninitializedError
     | UnsupportedLanguageError
+    | PersistenceError
   >;
 }
 

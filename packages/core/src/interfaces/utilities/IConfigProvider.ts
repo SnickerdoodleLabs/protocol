@@ -1,9 +1,9 @@
 import { ResultAsync } from "neverthrow";
 
-import { QueryEngineConfig } from "@core/interfaces/objects";
+import { CoreConfig } from "@core/interfaces/objects";
 
 export interface IConfigProvider {
-  getConfig(): ResultAsync<QueryEngineConfig, never>;
+  getConfig(): ResultAsync<CoreConfig, never>;
 }
 
 export const IConfigProviderType = Symbol.for("IConfigProvider");
