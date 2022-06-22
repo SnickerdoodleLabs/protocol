@@ -1,8 +1,7 @@
 import { IContextProvider } from "@interfaces/utilities";
 import { IInternalRpcMiddlewareFactory } from "@interfaces/utilities/factory";
 import { createAsyncMiddleware } from "json-rpc-engine";
-import {} from "@constants/actionTypes";
-
+import { EInternalActions } from "@shared/constants/actions";
 export class InternalRpcMiddlewareFactory
   implements IInternalRpcMiddlewareFactory
 {
@@ -30,13 +29,13 @@ export class InternalRpcMiddlewareFactory
     return createAsyncMiddleware(async (req, res, next) => {
     
       switch (req.method) {
-        case "login":
+        case EInternalActions.LOGIN:
           await this.promisify(req, res, events.onLoginRequest);
           break;
-        case "getSignatureMessage":
+        case EInternalActions.GET_LOGIN_MESSAGE:
           await this.promisify(req, res, events.onLoginMessageRequest);
           break;
-        case "addAccount":
+        case EInternalActions.ADD_ACCOUNT:
           await this.promisify(req, res, events.onAccountAdded);
           break;
         default:

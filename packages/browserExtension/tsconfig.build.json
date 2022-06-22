@@ -35,6 +35,18 @@
       ],
       "@shared/*": [
         "./shared/*"
+      ],
+      "@rpcGateways": [
+        "./pages/rpcGateways"
+      ],
+      "@rpcGateways/*": [
+        "./pages/rpcGateways/*"
+      ],
+      "@utils": [
+        "./pages/utils"
+      ],
+      "@utils/*": [
+        "./pages/utils/*"
       ]
     }
   }

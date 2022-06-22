@@ -13,7 +13,13 @@ import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import PortStream from "extension-port-stream";
 import pump from "pump";
-import { LanguageCode } from "@snickerdoodlelabs/objects";
+import {
+  EthereumAccountAddress,
+  LanguageCode,
+  Signature,
+} from "@snickerdoodlelabs/objects";
+import { createBackgroundConnectors } from "@utils";
+import { InternalRpcGateway } from "@rpcGateways";
 
 const Popup = () => {
   const [obj, setObj] = useState(null);
@@ -22,31 +28,26 @@ const Popup = () => {
 
   useEffect(() => {
     const port = Browser.runtime.connect({ name: "SD_NOTIFICATION" });
-    const portStream = new PortStream(port);
 
-    const middlewareStream = createStreamMiddleware();
-    const rpcEngine = new JsonRpcEngine();
-    rpcEngine.push(middlewareStream.middleware);
-    pump(middlewareStream.stream, portStream, middlewareStream.stream);
+    let rpcEngine;
+    let streamMiddleware;
 
-      rpcEngine.handle(
-        {
-          id: 21,
-          jsonrpc: "2.0",
-          method: "login",
+    const backgroundConnectors = createBackgroundConnectors(port);
+    if (backgroundConnectors.isOk()) {
+      rpcEngine = backgroundConnectors.value.rpcEngine;
+      streamMiddleware = backgroundConnectors.value.streamMiddleware;
+    }
+    // create gateway
+    const rpcGateway = new InternalRpcGateway(rpcEngine);
+    // test gateway
+    rpcGateway.login(
+      "" as EthereumAccountAddress,
+      "" as Signature,
+      "" as LanguageCode,
+    );
+    // use to get updates
+    streamMiddleware.events.on("notification", console.log);
 
-          params: {a:"fds"}
-
-
-         
-        },
-       async (err: any, response: any) => {
-          console.log(response);
-        },
-      )
-
-    
-      middlewareStream.events.on("notification", console.log )
     // console.log(instance)
     // chrome.runtime.sendMessage({
     //   message: "onChainDataRequest",
@@ -58,7 +59,6 @@ const Popup = () => {
     //   }
     // });
   }, []);
-
 
   // chrome.runtime.sendMessage({ message: "dataRequest", obj: obj });
 
