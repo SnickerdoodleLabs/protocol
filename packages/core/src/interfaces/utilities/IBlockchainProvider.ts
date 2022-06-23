@@ -18,6 +18,14 @@ export interface IBlockchainProvider {
   getProvider(
     chainId?: ChainId,
   ): ResultAsync<ethers.providers.JsonRpcProvider, BlockchainProviderError>;
+
+  /**
+   * Returns a map of providers for all the chains we support to their chain ID.
+   */
+  getAllProviders(): ResultAsync<
+    Map<ChainId, ethers.providers.JsonRpcProvider>,
+    BlockchainProviderError
+  >;
 }
 
 export const IBlockchainProviderType = Symbol.for("IBlockchainProvider");

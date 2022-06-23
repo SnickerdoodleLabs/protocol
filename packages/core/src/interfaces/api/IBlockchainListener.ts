@@ -1,14 +1,11 @@
 import {
   BlockchainProviderError,
-  ChainId,
-  EthereumAccountAddress,
-  EthereumContractAddress,
-  IpfsCID,
+  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IBlockchainListener {
-  initialize(): ResultAsync<void, BlockchainProviderError>;
+  initialize(): ResultAsync<void, BlockchainProviderError | PersistenceError>;
 }
 
 export const IBlockchainListenerType = Symbol.for("IBlockchainListener");

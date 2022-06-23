@@ -20,7 +20,7 @@ export class BlockchainProvider implements IBlockchainProvider {
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) { }
+  ) {}
   public getDataWalletSigner(): ResultAsync<
     JsonRpcSigner,
     BlockchainProviderError | UninitializedError
@@ -31,6 +31,13 @@ export class BlockchainProvider implements IBlockchainProvider {
   public getProvider(
     chainId?: ChainId,
   ): ResultAsync<JsonRpcProvider, BlockchainProviderError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getAllProviders(): ResultAsync<
+    Map<ChainId, JsonRpcProvider>,
+    BlockchainProviderError
+  > {
     throw new Error("Method not implemented.");
   }
 }

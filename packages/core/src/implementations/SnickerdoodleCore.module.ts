@@ -26,7 +26,7 @@ import {
   IContextProviderType,
 } from "@core/interfaces/utilities";
 
-export const queryEngineModule = new ContainerModule(
+export const snickerdoodleCoreModule = new ContainerModule(
   (
     bind: interfaces.Bind,
     _unbind: interfaces.Unbind,

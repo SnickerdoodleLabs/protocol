@@ -4,8 +4,11 @@ import {
   DataWalletAddress,
   DerivationMask,
   EthereumAccountAddress,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
   InvalidSignatureError,
   LanguageCode,
+  PersistenceError,
   Signature,
   UninitializedError,
   UnsupportedLanguageError,
@@ -19,10 +22,7 @@ import {
   ILoginRegistryRepository,
   ILoginRegistryRepositoryType,
 } from "@core/interfaces/data";
-import {
-  EthereumAccount,
-  QueryEngineContext,
-} from "@core/interfaces/objects";
+import { EthereumAccount, CoreContext } from "@core/interfaces/objects";
 import {
   IContextProvider,
   IContextProviderType,
@@ -35,12 +35,14 @@ export class AccountService implements IAccountService {
   public constructor(
     @inject(ILoginRegistryRepositoryType)
     protected loginRegistryRepo: ILoginRegistryRepository,
+    @inject(IDataWalletPersistenceType)
+    protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IDerivationMaskUtilsType)
     protected derivationMaskUtils: IDerivationMaskUtils,
-  ) { }
+  ) {}
 
-  public getLoginMessage(
+  public getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, UnsupportedLanguageError> {
     switch (languageCode) {
@@ -56,34 +58,41 @@ export class AccountService implements IAccountService {
     }
   }
 
-  public login(
+  public unlock(
     accountAddress: EthereumAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
+    | BlockchainProviderError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | PersistenceError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.loginRegistryRepo.getDerivationMask(accountAddress, languageCode),
     ]).andThen(([context, derivationMask]) => {
-      // You can't login if we're already logged in!
-      if (context.dataWalletAddress != null || context.loginInProgress) {
+      // You can't unlock if we're already unlocked!
+      if (context.dataWalletAddress != null || context.unlockInProgress) {
         // TODO: Need to consider the error type here, I'm getting lazy
         return errAsync(new InvalidSignatureError());
       }
 
       // Need to update the context
-      context.loginInProgress = true;
+      context.unlockInProgress = true;
       return this.contextProvider
         .setContext(context)
         .andThen(() => {
           if (derivationMask == null) {
-            // We're trying to login for the first time!
-            return this.firstLogin(accountAddress, signature, languageCode);
+            // We're trying to unlock for the first time!
+            return this.createDataWallet(
+              accountAddress,
+              signature,
+              languageCode,
+            );
           }
-          return this.subsequentLogin(derivationMask, signature);
+          return this.unlockExistingWallet(derivationMask, signature);
         })
         .andThen(({ account, entropy }) => {
           // The account address in account is just a generic EthereumAccountAddress,
@@ -92,9 +101,13 @@ export class AccountService implements IAccountService {
           context.dataWalletAddress = DataWalletAddress(account.accountAddress);
           context.dataWalletKey = account.privateKey;
           context.sourceEntropy = entropy;
-          context.loginInProgress = false;
+          context.unlockInProgress = false;
 
-          return this.contextProvider.setContext(context);
+          // We can update the context and provide the key to the persistence in one step
+          return ResultUtils.combine([
+            this.dataWalletPersistence.unlock(account.privateKey),
+            this.contextProvider.setContext(context),
+          ]);
         })
         .andThen(() => {
           // Need to emit some events
@@ -107,7 +120,7 @@ export class AccountService implements IAccountService {
     });
   }
 
-  protected firstLogin(
+  protected createDataWallet(
     accountAddress: EthereumAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
@@ -147,7 +160,7 @@ export class AccountService implements IAccountService {
       });
   }
 
-  protected subsequentLogin(
+  protected unlockExistingWallet(
     derivationMask: DerivationMask,
     signature: Signature,
   ): ResultAsync<
@@ -172,10 +185,7 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
-    | InvalidSignatureError
-    | UninitializedError
-    | UnsupportedLanguageError
+    BlockchainProviderError | UninitializedError | PersistenceError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -209,10 +219,9 @@ export class AccountService implements IAccountService {
             derivationMask,
           );
         })
-        .andThen((_tokenId) => {
+        .andThen((tokenId) => {
           // Add the account to the data wallet
-          // TODO
-          return okAsync(undefined);
+          return this.dataWalletPersistence.addAccount(accountAddress);
         })
         .map(() => {
           // Notify the outside world of what we did
@@ -223,5 +232,5 @@ export class AccountService implements IAccountService {
 }
 
 class AccountEntropyPair {
-  public constructor(public account: EthereumAccount, public entropy: string) { }
+  public constructor(public account: EthereumAccount, public entropy: string) {}
 }
