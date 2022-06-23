@@ -1,13 +1,10 @@
 import { Config } from "@interfaces/objects";
 import { IConfigProvider } from "@interfaces/utilities/IConfigProvider";
 
-export class ConfigProvider implements IConfigProvider{
+export class ConfigProvider implements IConfigProvider {
+  constructor() {}
 
-    constructor(){
-
-    }
-
-    getConfig(): Config {
-        return {} as Config;
-    }
+  getConfig(): Config {
+    return {} as Config;
+  }
 }

@@ -20,14 +20,23 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { createBackgroundConnectors } from "@utils";
 import { InternalRpcGateway } from "@rpcGateways";
+import { EPortNames } from "@shared/constants/ports";
 
 const Popup = () => {
-  const [obj, setObj] = useState(null);
-  const [onChainData, setOnChainData] = useState(null);
+  const [portName, setPortName] = useState<EPortNames | null>(null);
+  const [message, setMessage] = useState(null);
   const [loadCard, setLoadCard] = useState(false);
 
   useEffect(() => {
-    const port = Browser.runtime.connect({ name: "SD_NOTIFICATION" });
+    const portName = !window.location.hash
+      ? EPortNames.SD_POPUP
+      : window.location.hash.includes("notification")
+      ? EPortNames.SD_NOTIFICATION
+      : EPortNames.SD_FULL_SCREEN;
+    setPortName(portName);
+    const port = Browser.runtime.connect({
+      name: portName,
+    });
 
     let rpcEngine;
     let streamMiddleware;
@@ -46,7 +55,7 @@ const Popup = () => {
       "" as LanguageCode,
     );
     // use to get updates
-    streamMiddleware.events.on("notification", console.log);
+    streamMiddleware.events.on("notification", (not) => setMessage(not.data));
 
     // console.log(instance)
     // chrome.runtime.sendMessage({
@@ -78,7 +87,7 @@ const Popup = () => {
 
   return (
     <Grid>
-      test ekranı
+      {portName} - {message}
       {/* <Grid
         style={{
           position: "fixed",

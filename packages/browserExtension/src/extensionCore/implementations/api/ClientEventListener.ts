@@ -7,16 +7,15 @@ export class ClientEventsListener implements IClientEventListener {
   constructor(protected contextProvider: IContextProvider) {}
 
   public initialize(): ResultAsync<void, never> {
-    this.contextProvider.getClientEvents().map((clientEvents) => {
-      clientEvents.onLoginRequest.subscribe(this.onLoginRequest.bind(this));
-      clientEvents.onAddAccountRequest.subscribe(
-        this.onAddAccountRequest.bind(this),
-      );
-      clientEvents.onLoginMessageRequest.subscribe(
-        this.onLoginMessageRequest.bind(this),
-      );
-      return ok(undefined);
-    });
+    const clientEvents = this.contextProvider.getClientEvents();
+    clientEvents.onLoginRequest.subscribe(this.onLoginRequest.bind(this));
+    clientEvents.onAddAccountRequest.subscribe(
+      this.onAddAccountRequest.bind(this),
+    );
+    clientEvents.onLoginMessageRequest.subscribe(
+      this.onLoginMessageRequest.bind(this),
+    );
+
     return okAsync(undefined);
   }
 

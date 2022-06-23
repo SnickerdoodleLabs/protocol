@@ -12,10 +12,12 @@ import {
 
 // Utils / Factory
 import {
+  IExternalRpcMiddlewareFactory,
   IInternalRpcMiddlewareFactory,
   IRpcEngineFactory,
 } from "@interfaces/utilities/factory";
 import {
+  ExternalRpcMiddlewareFactory,
   InternalRpcMiddlewareFactory,
   RpcEngineFactory,
 } from "@implementations/utilities/factory";
@@ -40,16 +42,13 @@ import {
   PortConnectionListener,
 } from "@implementations/api";
 
-// objects
-import { IExtensionCore } from "@interfaces/objects";
-
 // core package
 import { QueryEngine } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
 import { IQueryEngine } from "@snickerdoodlelabs/objects";
 
-export class ExtensionCore implements IExtensionCore {
+export class ExtensionCore {
   // snickerdooldle Core
   protected core: IQueryEngine;
 
@@ -64,7 +63,8 @@ export class ExtensionCore implements IExtensionCore {
   protected contextProvider: IContextProvider;
   protected portConnectionUtils: IPortConnectionUtils;
   // Factory
-  protected rpcMiddlewareFactory: IInternalRpcMiddlewareFactory;
+  protected externalRpcMiddlewareFactory : IExternalRpcMiddlewareFactory;
+  protected internalRpcMiddlewareFactory: IInternalRpcMiddlewareFactory;
   protected rpcEngineFactory: IRpcEngineFactory;
 
   // API
@@ -80,12 +80,17 @@ export class ExtensionCore implements IExtensionCore {
 
     this.contextProvider = new ContextProvider();
 
-    this.rpcMiddlewareFactory = new InternalRpcMiddlewareFactory(
+    this.internalRpcMiddlewareFactory = new InternalRpcMiddlewareFactory(
+      this.contextProvider,
+    );
+
+    this.externalRpcMiddlewareFactory = new ExternalRpcMiddlewareFactory(
       this.contextProvider,
     );
     this.rpcEngineFactory = new RpcEngineFactory(
       this.contextProvider,
-      this.rpcMiddlewareFactory,
+      this.internalRpcMiddlewareFactory,
+      this.externalRpcMiddlewareFactory,
     );
     this.clientEventListener = new ClientEventsListener(this.contextProvider);
     this.clientEventListener.initialize();

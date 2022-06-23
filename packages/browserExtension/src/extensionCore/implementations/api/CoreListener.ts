@@ -1,7 +1,6 @@
 import { IQueryEngine, IQueryEngineEvents } from "@snickerdoodlelabs/objects";
-
 import { ICoreListener } from "@interfaces/api";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ok, okAsync, ResultAsync } from "neverthrow";
 
 export class CoreListener implements ICoreListener {
   constructor(protected core: IQueryEngine) {}
@@ -11,6 +10,7 @@ export class CoreListener implements ICoreListener {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
+      return ok(undefined)
     });
     return okAsync(undefined);
   }

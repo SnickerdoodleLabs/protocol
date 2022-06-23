@@ -8,12 +8,12 @@ export class PortConnectionListener implements IPortConnectionListener {
     protected portConnectionService: IPortConnectionService,
   ) {}
 
-  public initialize(): ResultAsync<void, never> {
-    this.contextProvider.getPortEvents().map((portEvents) => {
-      portEvents.onPortConnectionRequested.subscribe(
-        this.handlePortConnectionRequest.bind(this),
-      );
-    });
+  public initialize() {
+    const portEvents = this.contextProvider.getPortEvents();
+    portEvents.onPortConnectionRequested.subscribe(
+      this.handlePortConnectionRequest.bind(this),
+    );
+
     return okAsync(undefined);
   }
 

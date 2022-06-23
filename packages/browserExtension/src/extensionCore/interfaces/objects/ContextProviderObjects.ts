@@ -1,6 +1,4 @@
-import {
-  EthereumAccountAddress,
-} from "@snickerdoodlelabs/objects";
+import { EthereumAccountAddress } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 import { Runtime } from "webextension-polyfill";
 import {
@@ -9,17 +7,10 @@ import {
   IAddAccountParams,
 } from "@shared/objects/EventParams";
 
-export class AccountContext {
-  constructor(
-    public account: EthereumAccountAddress | null,
-    public initialized: boolean,
-  ) {}
-}
-
 // TODO remove unused
 export class PortEvents {
   constructor(
-    public onPortConnectionRequested: Subject<Runtime.Port>,
+    public onPortConnectionRequested: Subject<Runtime.Port> = new Subject<Runtime.Port>(),
     public onPortConnectionRejected?: Subject<any>,
     public onPortConnectionEstablished?: Subject<any>,
     public onPortConnectionDetached?: Subject<any>,

@@ -1,10 +1,14 @@
 import { Runtime } from "webextension-polyfill";
-import { okAsync } from "neverthrow";
+import { errAsync, okAsync } from "neverthrow";
 import { IPortConnectionRepository } from "@interfaces/data";
 import { IContextProvider } from "@interfaces/utilities";
-
-import { EPortNames, INTERNAL_PORTS } from "@constants/port";
 import { IRpcEngineFactory } from "@interfaces/utilities/factory";
+import {
+  EConnectionModes,
+  EPortNames,
+  INTERNAL_PORTS,
+} from "@shared/constants/ports";
+import { URLString } from "@snickerdoodlelabs/objects";
 
 export class PortConnectionRepository implements IPortConnectionRepository {
   constructor(
@@ -18,17 +22,29 @@ export class PortConnectionRepository implements IPortConnectionRepository {
     const isInternal = INTERNAL_PORTS.includes(processName as EPortNames);
     if (isInternal) {
       this._setupInternalConnection(remotePort);
+    } else if (remotePort.sender?.tab && remotePort.sender.url) {
+      this._setupExternalConnection(remotePort);
+    } else {
+      errAsync(undefined);
     }
     return okAsync(undefined);
   }
 
   private _setupInternalConnection(remotePort: Runtime.Port) {
-    const engine = this.rpcEngineFactory.createRrpcEngine(remotePort);
-    if (engine.isOk()) {
-      // TODO add engine to context
-      // update ui controller context
-    }
+    this.rpcEngineFactory.createRrpcEngine(
+      remotePort,
+      remotePort.name as EPortNames,
+      EConnectionModes.SD_INTERNAL,
+    );
   }
 
-  private _setupExternalConnection(remotePort: Runtime.Port) {}
+  private _setupExternalConnection(remotePort: Runtime.Port) {
+    const url = new URL(remotePort!.sender!.url!);
+    const { origin } = url;
+    this.rpcEngineFactory.createRrpcEngine(
+      remotePort,
+      origin as URLString,
+      EConnectionModes.EXTERNAL,
+    );
+  }
 }
