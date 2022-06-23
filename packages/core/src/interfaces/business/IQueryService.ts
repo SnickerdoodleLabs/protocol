@@ -2,6 +2,7 @@ import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
+  ConsentError,
   ConsentContractRepositoryError,
   EthereumContractAddress,
   IpfsCID,
@@ -20,10 +21,11 @@ export interface IQueryService {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | ConsentError
   >;
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentContractError>;
+  ): ResultAsync<void, UninitializedError | ConsentError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

@@ -15,14 +15,19 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       "Local Development Chain",
       ChainId(1337),
       true,
-      EthereumContractAddress("todo"),
       [ProviderUrl("http://localhost:8545")],
+      4000,
+      EthereumContractAddress("todo"),
     ),
   ],
   [
     ChainId(1338),
-    new ChainInformation("Local Development Chain", ChainId(1337), true, [
-      ProviderUrl("http://localhost:8545"),
-    ]),
+    new ChainInformation(
+      "Local Development Chain",
+      ChainId(1337),
+      true,
+      [ProviderUrl("http://localhost:8545")],
+      4000,
+    ),
   ],
 ]);

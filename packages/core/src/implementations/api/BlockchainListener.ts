@@ -5,13 +5,14 @@ import {
   ChainId,
   ConsentContractError,
   ConsentContractRepositoryError,
+  ConsentError,
   EthereumAccountAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   PersistenceError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -35,8 +36,7 @@ import {
 
 @injectable()
 export class BlockchainListener implements IBlockchainListener {
-  protected averageBlockMiningTime = 4000;
-  protected latestKnownBlockNumber: BlockNumber = BlockNumber(-1);
+  protected chainLatestKnownBlockNumber: Map<ChainId, BlockNumber> = new Map();
   protected mainProviderInitialized = false;
 
   constructor(
@@ -62,37 +62,50 @@ export class BlockchainListener implements IBlockchainListener {
      * in the wallet
      */
 
-    setInterval(() => {
-      this.controlChainBlockMined();
-    }, this.averageBlockMiningTime);
-
     return ResultUtils.combine([
       this.blockchainProvider.getAllProviders(),
       this.contextProvider.getContext(),
       this.dataWalletPersistence.getAccounts(),
+      this.configProvider.getConfig(),
     ])
-      .andThen(([providerMap, _context, accounts]) => {
+      .andThen(([providerMap, _context, accounts, config]) => {
         // Now we have the providers, loop over them
-        return ResultUtils.combine([
-          ...Array.from(providerMap.entries()).map(([chainId, provider]) => {
-            return this.monitorChain(chainId, provider, accounts);
+        return ResultUtils.combine(
+          Array.from(providerMap.entries()).map(([chainId, provider]) => {
+            const chain = config.chainInformation.get(chainId);
+
+            setInterval(() => {
+              this.chainBlockMined(chainId, provider, accounts);
+            }, chain?.averageBlockMiningTime);
+
+            return okAsync(undefined);
           }),
-        ]);
+        );
       })
       .map(() => {});
   }
 
-  protected controlChainBlockMined(): ResultAsync<
-    void,
-    BlockchainProviderError | UninitializedError
-  > {
-    return this.blockchainProvider.getLatestBlock().andThen((currentBlock) => {
+  protected chainBlockMined(
+    chainId: ChainId,
+    provider: JsonRpcProvider,
+    accounts: EthereumAccountAddress[],
+  ): ResultAsync<void, BlockchainProviderError | UninitializedError> {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.blockchainProvider.getLatestBlock(chainId),
+    ]).andThen(([config, currentBlock]) => {
       const currentBlockNumber = BlockNumber(currentBlock.number);
+      const latestKnownBlockNumber =
+        this.chainLatestKnownBlockNumber.get(chainId) || BlockNumber(-1);
 
-      if (this.latestKnownBlockNumber < currentBlockNumber) {
-        this.latestKnownBlockNumber = currentBlockNumber;
+      if (latestKnownBlockNumber < currentBlockNumber) {
+        this.chainLatestKnownBlockNumber.set(chainId, currentBlockNumber);
 
-        this.listenForConsentContractsEvents(currentBlockNumber);
+        const isControlChain = chainId === config.controlChainId;
+        if (isControlChain) {
+          this.listenForConsentContractsEvents(currentBlockNumber);
+        }
+        this.monitorChain(currentBlockNumber, chainId, provider, accounts);
       }
 
       return okAsync(undefined);
@@ -108,6 +121,7 @@ export class BlockchainListener implements IBlockchainListener {
     | UninitializedError
     | AjaxError
     | ConsentContractError
+    | ConsentError
   > {
     return this.consentContractRepository
       .getConsentContracts()
@@ -132,7 +146,7 @@ export class BlockchainListener implements IBlockchainListener {
                       requestForDataObject.requestedCID,
                     );
                   }),
-                ).map(() => {});
+                );
               });
           }),
         ).map(() => {});
@@ -140,8 +154,9 @@ export class BlockchainListener implements IBlockchainListener {
   }
 
   protected monitorChain(
+    blockNumber: BlockNumber,
     chainId: ChainId,
-    provider: ethers.providers.JsonRpcProvider,
+    provider: JsonRpcProvider,
     accounts: EthereumAccountAddress[],
   ): ResultAsync<void, BlockchainProviderError> {
     // For each provider, hook up listeners or whatever, that will monitor for activity
