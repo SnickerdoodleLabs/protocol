@@ -6,7 +6,7 @@
 
 import {
   BlockchainProviderError,
-  ConsentError,
+  ConsentContractError,
   EthereumAccountAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
@@ -118,7 +118,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError> {
+  ): ResultAsync<void, UninitializedError | ConsentContractError> {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 

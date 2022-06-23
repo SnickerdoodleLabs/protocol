@@ -1,4 +1,9 @@
-import { Insight, IpfsCID, Reward } from "@snickerdoodlelabs/objects";
+import {
+  AjaxError,
+  Insight,
+  IpfsCID,
+  Reward,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -27,7 +32,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
   public getBusinessConsentContracts(): ResultAsync<
     BusinessConsentContract[],
-    never
+    AjaxError
   > {
     throw new Error("undefined");
   }

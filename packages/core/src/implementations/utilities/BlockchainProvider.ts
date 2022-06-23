@@ -2,7 +2,6 @@ import {
   JsonRpcSigner,
   JsonRpcProvider,
   FallbackProvider,
-  Provider,
 } from "@ethersproject/providers";
 import {
   ChainId,
@@ -10,7 +9,7 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import {
   IBlockchainProvider,
@@ -19,85 +18,137 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@core/interfaces/utilities";
+import { ethers } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class BlockchainProvider implements IBlockchainProvider {
-  protected providersResult: Map<ChainId, ResultAsync<Provider, never>> =
-    new Map();
+  protected providers: Map<ChainId, JsonRpcProvider> = new Map();
+  protected providersInitializationPromise: ResultAsync<
+    void,
+    UninitializedError
+  > | null;
 
-  protected defaultProvider: Provider | null = null;
-  protected defaultSigner: JsonRpcSigner | null = null;
+  protected controlProvider: JsonRpcProvider | null = null;
+  protected controlSigner: JsonRpcSigner | null = null;
 
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) {
+    this.providersInitializationPromise = null;
+  }
 
-  public initialize(): ResultAsync<void, never> {
-    return this.configProvider.getConfig().andThen((config) => {
-      for (const [
-        chainId,
-        chainInformation,
-      ] of config.chainInformation.entries()) {
-        const providers = chainInformation.providerUrls.map((providerUrl) => {
+  public initialize(): ResultAsync<void, UninitializedError> {
+    if (this.providersInitializationPromise != null) {
+      return this.providersInitializationPromise;
+    }
+
+    this.providersInitializationPromise = this.configProvider
+      .getConfig()
+      .map((config) => {
+        for (const [
+          chainId,
+          chainInformation,
+        ] of config.chainInformation.entries()) {
+          /* const providers = chainInformation.providerUrls.map((providerUrl) => {
           return new JsonRpcProvider(providerUrl, chainId);
         });
 
-        const fallbackProvider = new FallbackProvider(providers, chainId);
-        this.providersResult.set(chainId, okAsync(fallbackProvider));
-      }
+        const fallbackProvider = new FallbackProvider(providers, chainId); */
+          this.providers.set(
+            chainId,
+            new JsonRpcProvider(chainInformation.providerUrls[0], chainId),
+          );
+        }
+      });
 
-      return okAsync(undefined);
-    });
+    return this.providersInitializationPromise;
   }
 
-  public getDefaultSigner(): ResultAsync<
+  public getControlSigner(): ResultAsync<
     JsonRpcSigner,
     BlockchainProviderError | UninitializedError
   > {
     throw new Error("Method not implemented.");
   }
 
-  public getDefaultProvider(): ResultAsync<Provider, never> {
-    return this.configProvider.getConfig().andThen((config) => {
-      const defaultProvider = this.providersResult.get(config.controlChainId);
+  public getControlProvider(): ResultAsync<
+    JsonRpcProvider,
+    BlockchainProviderError | UninitializedError
+  > {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.waitForProvidersPromise(),
+    ]).andThen(([config]) => {
+      const controlProvider = this.providers.get(config.controlChainId);
 
-      if (defaultProvider == null) {
-        throw new Error("Must call BlockchainProvider.initialize() first.");
+      if (controlProvider == null) {
+        return errAsync(
+          new BlockchainProviderError(
+            config.controlChainId,
+            `Couldn not find a provider for chainId ${config.controlChainId}`,
+          ),
+        );
       }
 
-      return defaultProvider;
+      return okAsync(controlProvider);
     });
   }
 
-  public getAllProviders(): ResultAsync<Map<ChainId, Provider>, never> {
-    const providersMap: Map<ChainId, Provider> = new Map();
-
-    return ResultUtils.combine(
-      [...this.providersResult.values()].map((providerResult, index) => {
-        return providerResult.andThen((provider) => {
-          const chainIds = [...this.providersResult.keys()];
-          providersMap.set(chainIds[index], provider);
-          return okAsync(provider);
-        });
-      }),
-    ).andThen(() => {
-      return okAsync(providersMap);
+  public getAllProviders(): ResultAsync<
+    Map<ChainId, JsonRpcProvider>,
+    UninitializedError
+  > {
+    return this.waitForProvidersPromise().map(() => {
+      return this.providers;
     });
   }
 
-  public getProvider(chainId?: ChainId): ResultAsync<Provider, never> {
-    return this.configProvider.getConfig().andThen((config) => {
-      const provider = this.providersResult.get(
-        chainId || config.controlChainId,
-      );
+  public getProvider(
+    chainId?: ChainId,
+  ): ResultAsync<
+    JsonRpcProvider,
+    BlockchainProviderError | UninitializedError
+  > {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.waitForProvidersPromise(),
+    ]).andThen(([config]) => {
+      const requestedChainId = chainId || config.controlChainId;
+      const provider = this.providers.get(requestedChainId);
 
       if (provider == null) {
-        throw new Error("Must call BlockchainProvider.initialize() first.");
+        return errAsync(
+          new BlockchainProviderError(
+            requestedChainId,
+            `Couldn not find a provider for chainId ${requestedChainId}`,
+          ),
+        );
       }
 
-      return provider;
+      return okAsync(provider);
     });
+  }
+
+  public getLatestBlock(
+    chainId?: ChainId,
+  ): ResultAsync<
+    ethers.providers.Block,
+    BlockchainProviderError | UninitializedError
+  > {
+    return this.getProvider(chainId).map(async (provider) => {
+      return await provider.getBlock("latest");
+    });
+  }
+
+  protected waitForProvidersPromise(): ResultAsync<void, UninitializedError> {
+    if (this.providersInitializationPromise == null) {
+      return errAsync(
+        new UninitializedError("Blockchain providers are not initialized yet"),
+      );
+    }
+
+    return this.providersInitializationPromise;
   }
 }

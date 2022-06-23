@@ -1,5 +1,5 @@
 import { ethers, EventFilter, Event } from "ethers";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ok, okAsync, ResultAsync } from "neverthrow";
 import {
   ConsentContractError,
   EthereumAccountAddress,
@@ -9,6 +9,8 @@ import {
   Signature,
   TokenIdNumber,
   ConsentToken,
+  RequestForData,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
@@ -32,6 +34,10 @@ export class ConsentContract implements IConsentContract {
       ContractsAbis.ConsentAbi.abi,
       providerOrSigner,
     );
+  }
+
+  public getContractAddress(): EthereumContractAddress {
+    return EthereumContractAddress(this.contract?.address || "");
   }
 
   public optIn(
@@ -121,9 +127,13 @@ export class ConsentContract implements IConsentContract {
 
   public queryFilter(
     eventFilter: EventFilter,
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
   ): ResultAsync<Event[], ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract?.queryFilter(eventFilter) as Promise<Event[]>,
+      this.contract?.queryFilter(eventFilter, fromBlock, toBlock) as Promise<
+        Event[]
+      >,
       (e) => {
         return new ConsentContractError("Unable to call queryFilter()", e);
       },
@@ -163,6 +173,32 @@ export class ConsentContract implements IConsentContract {
     });
   }
 
+  public getRequestForDataListByRequesterAddress(
+    requesterAddress: EthereumAccountAddress,
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
+  ): ResultAsync<RequestForData[], ConsentContractError> {
+    return this.filters
+      .RequestForData(requesterAddress)
+      .andThen((eventFilter) => {
+        return this.queryFilter(eventFilter, fromBlock, toBlock);
+      })
+      .andThen((logsEvents) => {
+        return ResultUtils.combine(
+          logsEvents.map((logEvent) => {
+            return okAsync(
+              new RequestForData(
+                this.getContractAddress(),
+                logEvent.args?.requester,
+                logEvent.args?.ipfsCID,
+                BlockNumber(logEvent.blockNumber),
+              ),
+            );
+          }),
+        );
+      });
+  }
+
   public filters = {
     Transfer: (
       fromAddress: EthereumAccountAddress | null,
@@ -176,6 +212,21 @@ export class ConsentContract implements IConsentContract {
         (e) => {
           return new ConsentContractError(
             "Unable to call filters.Transfer()",
+            e,
+          );
+        },
+      );
+    },
+    RequestForData: (
+      ownerAddress: EthereumAccountAddress,
+    ): ResultAsync<EventFilter, ConsentContractError> => {
+      return ResultAsync.fromPromise(
+        this.contract?.filters.RequestForData(
+          ownerAddress,
+        ) as Promise<EventFilter>,
+        (e) => {
+          return new ConsentContractError(
+            "Unable to call filters.RequestForData()",
             e,
           );
         },

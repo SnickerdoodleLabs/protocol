@@ -1,5 +1,8 @@
 import {
-  ConsentError,
+  AjaxError,
+  BlockchainProviderError,
+  ConsentContractError,
+  ConsentContractRepositoryError,
   EthereumContractAddress,
   IpfsCID,
   UninitializedError,
@@ -8,12 +11,19 @@ import { ResultAsync } from "neverthrow";
 
 export interface IQueryService {
   onQueryPosted(
-    contractAddress: EthereumContractAddress,
+    consentContractAddress: EthereumContractAddress,
     queryId: IpfsCID,
-  ): ResultAsync<void, never>;
+  ): ResultAsync<
+    void,
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  >;
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError>;
+  ): ResultAsync<void, UninitializedError | ConsentContractError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

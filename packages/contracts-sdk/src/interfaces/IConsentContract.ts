@@ -7,6 +7,8 @@ import {
   TokenUri,
   Signature,
   ConsentToken,
+  RequestForData,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
@@ -72,6 +74,8 @@ export interface IConsentContract {
    */
   queryFilter(
     eventFilter: EventFilter,
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
   ): ResultAsync<Event[], ConsentContractError>;
 
   /**
@@ -82,6 +86,18 @@ export interface IConsentContract {
     ownerAddress: EthereumAccountAddress,
   ): ResultAsync<ConsentToken[], ConsentContractError>;
 
+  /**
+   * Returns a list of RequestForData events between two block numbers
+   * @param requesterAddress owner address of the request
+   * @param fromBlock from block number
+   * @param toBlock to block number
+   */
+  getRequestForDataListByRequesterAddress(
+    requesterAddress: EthereumAccountAddress,
+    fromBlock?: BlockNumber,
+    toBlock?: BlockNumber,
+  ): ResultAsync<RequestForData[], ConsentContractError>;
+
   filters: IConentContractFilters;
 }
 
@@ -89,6 +105,10 @@ interface IConentContractFilters {
   Transfer(
     fromAddress: EthereumAccountAddress | null,
     toAddress: EthereumAccountAddress | null,
+  ): ResultAsync<EventFilter, ConsentContractError>;
+
+  RequestForData(
+    ownerAddress: EthereumAccountAddress,
   ): ResultAsync<EventFilter, ConsentContractError>;
 }
 

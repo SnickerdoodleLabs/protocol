@@ -31,11 +31,13 @@ export class ConsentContractFactory implements IConsentContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return this.blockchainProvider
-      .getDataWalletSigner()
-      .andThen((signer) => {
+      .getControlProvider()
+      .andThen((provider) => {
         return ResultUtils.combine(
           consentContractAddresses.map((consentContractAddress) => {
-            return okAsync(new ConsentContract(signer, consentContractAddress));
+            return okAsync(
+              new ConsentContract(provider, consentContractAddress),
+            );
           }),
         );
       })

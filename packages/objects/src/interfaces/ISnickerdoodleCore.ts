@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { SDQLQuery } from "@objects/businessObjects";
 import {
   BlockchainProviderError,
-  ConsentError,
+  ConsentContractError,
   InvalidSignatureError,
   PersistenceError,
   UninitializedError,
@@ -82,7 +82,7 @@ export interface ISnickerdoodleCore {
   // re-checked, of course (trust nobody!).
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError>;
+  ): ResultAsync<void, UninitializedError | ConsentContractError>;
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
 }

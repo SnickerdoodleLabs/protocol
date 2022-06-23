@@ -1,3 +1,4 @@
+export * from "@objects/primatives/BlockNumber";
 export * from "@objects/primatives/BigNumberString";
 export * from "@objects/primatives/ChainId";
 export * from "@objects/primatives/CountryCode";

@@ -1,7 +1,6 @@
 const errorCodes = {
   AjaxError: "ERR_AJAX",
   BlockchainProviderError: "ERR_BLOCKCHAIN_PROVIDER",
-  ConsentError: "ERR_NO_CONSENT_GIVEN",
   DataWalletLockedError: "ERR_DATA_WALLET_LOCKED",
   InvalidSignatureError: "ERR_INVALID_SIGNATURE",
   PersistenceError: "ERR_PERSISTENCE",
@@ -11,6 +10,7 @@ const errorCodes = {
   ConsentContractError: "CONSENT_CONTRACT_ERROR",
   ProviderRpcError: "PROVIDER_RPC_ERROR",
   InvalidParametersError: "INVALID_PARAMETERS_ERROR",
+  ConsentContractRepositoryError: "CONSENT_CONTRACT_REPOSITORY_ERROR",
 };
 
 export default errorCodes;

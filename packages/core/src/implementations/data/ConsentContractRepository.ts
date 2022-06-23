@@ -5,10 +5,12 @@ import {
   UninitializedError,
   ConsentToken,
   ConsentContractError,
+  AjaxError,
+  ConsentContractRepositoryError,
 } from "@snickerdoodlelabs/objects";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import {
   IBlockchainProvider,
@@ -33,6 +35,11 @@ export class ConsentContractRepository implements IConsentContractRepository {
   protected consentContracts: Map<EthereumContractAddress, IConsentContract> =
     new Map();
 
+  protected consentContractsPromise: ResultAsync<
+    void,
+    BlockchainProviderError | UninitializedError | AjaxError
+  > | null;
+
   public constructor(
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
@@ -42,13 +49,19 @@ export class ConsentContractRepository implements IConsentContractRepository {
     @inject(IConsentContractFactoryType)
     protected consentContractFactory: IConsentContractFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) {}
+  ) {
+    this.consentContractsPromise = null;
+  }
 
   public initializeConsentContracts(): ResultAsync<
     void,
-    BlockchainProviderError | UninitializedError
+    BlockchainProviderError | UninitializedError | AjaxError
   > {
-    return this.insightPlatformRepo
+    if (this.consentContractsPromise != null) {
+      return this.consentContractsPromise;
+    }
+
+    this.consentContractsPromise = this.insightPlatformRepo
       .getBusinessConsentContracts()
       .andThen((businessConsentContracts) => {
         return this.consentContractFactory
@@ -67,38 +80,89 @@ export class ConsentContractRepository implements IConsentContractRepository {
             });
           });
       });
+
+    return this.consentContractsPromise;
   }
 
   public getConsentTokens(
     consentContractAddress: EthereumContractAddress,
     ownerAddress: EthereumAccountAddress,
-  ): ResultAsync<ConsentToken[], ConsentContractError> {
-    const consentContract = this.consentContracts.get(consentContractAddress);
-
-    if (consentContract == null) {
-      this.logUtils.warning(
-        `Consent contract not found, address: ${consentContractAddress}`,
-      );
-      return okAsync([]);
-    }
-    return consentContract.getConsentTokensOfAddress(ownerAddress);
+  ): ResultAsync<
+    ConsentToken[],
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  > {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (consentContract) => {
+        return consentContract.getConsentTokensOfAddress(ownerAddress);
+      },
+    );
   }
 
   public isAddressOptedIn(
     consentContractAddress: EthereumContractAddress,
     address: EthereumAccountAddress,
-  ): ResultAsync<boolean, ConsentContractError> {
-    const consentContract = this.consentContracts.get(consentContractAddress);
+  ): ResultAsync<
+    boolean,
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  > {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (consentContract) => {
+        return consentContract.balanceOf(address).map((numberOfTokens) => {
+          return numberOfTokens > 0;
+        });
+      },
+    );
+  }
 
-    if (consentContract == null) {
-      this.logUtils.warning(
-        `Consent contract not found, address: ${consentContractAddress}`,
-      );
-      return okAsync(false);
+  public getConsentContracts(): ResultAsync<
+    Map<EthereumContractAddress, IConsentContract>,
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  > {
+    if (this.consentContractsPromise == null) {
+      return errAsync(new UninitializedError());
     }
 
-    return consentContract.balanceOf(address).map((numberOfTokens) => {
-      return numberOfTokens > 0;
+    return this.consentContractsPromise.andThen(() => {
+      return okAsync(this.consentContracts);
+    });
+  }
+
+  protected getConsentContract(
+    consentContractAddress: EthereumContractAddress,
+  ): ResultAsync<
+    IConsentContract,
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  > {
+    if (this.consentContractsPromise == null) {
+      return errAsync(new UninitializedError());
+    }
+
+    return this.consentContractsPromise.andThen(() => {
+      const consentContract = this.consentContracts.get(consentContractAddress);
+
+      if (consentContract == null) {
+        return errAsync(
+          new ConsentContractRepositoryError(
+            `Consent contract not found, address: ${consentContractAddress}`,
+          ),
+        );
+      }
+
+      return okAsync(consentContract);
     });
   }
 }

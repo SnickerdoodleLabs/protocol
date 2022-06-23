@@ -1,10 +1,15 @@
 import {
+  AjaxError,
   BlockchainProviderError,
+  BlockNumber,
   ChainId,
+  ConsentContractError,
+  ConsentContractRepositoryError,
   EthereumAccountAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   PersistenceError,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -23,23 +28,23 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@core/interfaces/utilities";
-
-// Listen to events on blockchain
-// Listen to events on consent contract
-// Config - same as context but immutable, what vlaues are you viewing against
-// Context - Global data / runtime
-// @injectable - dependency injection: useful for testing, when dependencies can be mocked or stubbed out
-// compiling nodes
-// tsc filename
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+} from "@core/interfaces/data";
 
 @injectable()
 export class BlockchainListener implements IBlockchainListener {
+  protected averageBlockMiningTime = 4000;
+  protected latestKnownBlockNumber: BlockNumber = BlockNumber(-1);
   protected mainProviderInitialized = false;
 
   constructor(
     @inject(IQueryServiceType) protected queryService: IQueryService,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(IConsentContractRepositoryType)
+    protected consentContractRepository: IConsentContractRepository,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -49,13 +54,18 @@ export class BlockchainListener implements IBlockchainListener {
 
   public initialize(): ResultAsync<
     void,
-    BlockchainProviderError | PersistenceError
+    BlockchainProviderError | PersistenceError | UninitializedError
   > {
     /**
      * The BlockchainListener needs to actually listen to ALL the chains we are monitoring;
      * this means we need to get ALL the providers and hook up listeners for all the accounts
      * in the wallet
      */
+
+    setInterval(() => {
+      this.controlChainBlockMined();
+    }, this.averageBlockMiningTime);
+
     return ResultUtils.combine([
       this.blockchainProvider.getAllProviders(),
       this.contextProvider.getContext(),
@@ -63,13 +73,70 @@ export class BlockchainListener implements IBlockchainListener {
     ])
       .andThen(([providerMap, _context, accounts]) => {
         // Now we have the providers, loop over them
-        return ResultUtils.combine(
-          Array.from(providerMap.entries()).map(([chainId, provider]) => {
+        return ResultUtils.combine([
+          ...Array.from(providerMap.entries()).map(([chainId, provider]) => {
             return this.monitorChain(chainId, provider, accounts);
           }),
-        );
+        ]);
       })
       .map(() => {});
+  }
+
+  protected controlChainBlockMined(): ResultAsync<
+    void,
+    BlockchainProviderError | UninitializedError
+  > {
+    return this.blockchainProvider.getLatestBlock().andThen((currentBlock) => {
+      const currentBlockNumber = BlockNumber(currentBlock.number);
+
+      if (this.latestKnownBlockNumber < currentBlockNumber) {
+        this.latestKnownBlockNumber = currentBlockNumber;
+
+        this.listenForConsentContractsEvents(currentBlockNumber);
+      }
+
+      return okAsync(undefined);
+    });
+  }
+
+  protected listenForConsentContractsEvents(
+    blockNumber: BlockNumber,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+  > {
+    return this.consentContractRepository
+      .getConsentContracts()
+      .andThen((consentContractsMap) => {
+        return ResultUtils.combine(
+          Array.from(consentContractsMap.values()).map((consentContract) => {
+            // Only consent owners can request data
+            return consentContract
+              .getConsentOwner()
+              .andThen((consentOwner) => {
+                return consentContract.getRequestForDataListByRequesterAddress(
+                  consentOwner,
+                  blockNumber,
+                  blockNumber,
+                );
+              })
+              .andThen((requestForDataObjects) => {
+                return ResultUtils.combine(
+                  requestForDataObjects.map((requestForDataObject) => {
+                    return this.queryService.onQueryPosted(
+                      requestForDataObject.consentContractAddress,
+                      requestForDataObject.requestedCID,
+                    );
+                  }),
+                ).map(() => {});
+              });
+          }),
+        ).map(() => {});
+      });
   }
 
   protected monitorChain(
