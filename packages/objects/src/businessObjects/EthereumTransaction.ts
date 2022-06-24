@@ -6,6 +6,7 @@ import { ChainId, EthereumAccountAddress } from "@objects/primatives";
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to
  * import and depend on Ethers directly, but odds are any project that is using @snickerdoodlelabs/objects
  * is also importing Ethers.
+ * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
 export class EthereumTransaction implements Transaction {
   public constructor(
