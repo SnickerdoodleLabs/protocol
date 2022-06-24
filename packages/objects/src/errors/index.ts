@@ -1,6 +1,7 @@
 export * from "@objects/errors/AjaxError";
 export * from "@objects/errors/ConsentFactoryContractError";
 export * from "@objects/errors/ConsentContractError";
+export * from "@objects/errors/ConsentError";
 export * from "@objects/errors/ConsentContractRepositoryError";
 export * from "@objects/errors/BlockchainProviderError";
 export * from "@objects/errors/DataWalletLockedError";

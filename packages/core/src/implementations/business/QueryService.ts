@@ -3,6 +3,7 @@ import {
   BlockchainProviderError,
   ConsentContractError,
   ConsentContractRepositoryError,
+  ConsentError,
   EthereumAccountAddress,
   EthereumContractAddress,
   Insight,
@@ -56,6 +57,7 @@ export class QueryService implements IQueryService {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | ConsentError
   > {
     // Get the IPFS data for the query. This is just "Get the query";
     return ResultUtils.combine([
@@ -70,36 +72,36 @@ export class QueryService implements IQueryService {
         return okAsync(undefined);
       }
 
-      if (context.dataWalletAddress == null) {
-        throw new Error("No control address provided!");
+      if (context.dataWalletAddress != null) {
+        // We have the query, next step is check if you actually have a consent token for this business
+        return this.consentContractRepository
+          .isAddressOptedIn(
+            consentContractAddress,
+            EthereumAccountAddress(context.dataWalletAddress),
+          )
+          .andThen((addressOptedIn) => {
+            if (addressOptedIn == false) {
+              // No consent given!
+              return errAsync(
+                new ConsentError(
+                  `No consent token for address ${context.dataWalletAddress}!`,
+                ),
+              );
+            }
+            // We have a consent token!
+            context.publicEvents.onQueryPosted.next(query);
+
+            return okAsync(undefined);
+          });
       }
 
-      // We have the query, next step is check if you actually have a consent token for this business
-      return this.consentContractRepository
-        .isAddressOptedIn(
-          consentContractAddress,
-          EthereumAccountAddress(context.dataWalletAddress),
-        )
-        .andThen((addressOptedIn) => {
-          if (addressOptedIn == false) {
-            // No consent given!
-            return errAsync(
-              new ConsentContractError(
-                `No consent token for address ${context.dataWalletAddress}!`,
-              ),
-            );
-          }
-          // We have a consent token!
-          context.publicEvents.onQueryPosted.next(query);
-
-          return okAsync(undefined);
-        });
+      return okAsync(undefined);
     });
   }
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentContractError> {
+  ): ResultAsync<void, UninitializedError | ConsentError> {
     // 1. Parse the query
     // 2. Generate an insight(s)
     // 3. Redeem the reward
@@ -115,7 +117,7 @@ export class QueryService implements IQueryService {
           // The query doesn't actually exist
           // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
           // Andrew - commented out Error, Error and never do not correlate with entire system
-          return errAsync(new ConsentContractError("No consent token!"));
+          return errAsync(new ConsentError("No consent token!"));
         }
 
         // Convert string to an object
