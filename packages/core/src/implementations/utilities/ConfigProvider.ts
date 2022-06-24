@@ -1,9 +1,14 @@
-import { ChainId, URLString } from "@snickerdoodlelabs/objects";
+import {
+  chainConfig,
+  ChainId,
+  ControlChainInformation,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { CoreConfig } from "@core/interfaces/objects";
-import { IConfigProvider } from "@core/interfaces/utilities";
+import { IConfigProvider, ILogUtils } from "@core/interfaces/utilities";
 
 declare const __CONTROL_CHAIN_ID__: number | undefined;
 
@@ -11,12 +16,31 @@ declare const __CONTROL_CHAIN_ID__: number | undefined;
 export class ConfigProvider implements IConfigProvider {
   protected config: CoreConfig;
 
-  public constructor() {
+  public constructor(
+    protected logUtils: ILogUtils,
+    config?: Partial<CoreConfig>,
+  ) {
+    const controlChainId =
+      config?.controlChainId || __CONTROL_CHAIN_ID__ || 1337;
+    const controlChainInformation = chainConfig.get(ChainId(controlChainId));
+
+    if (controlChainInformation == null) {
+      throw new Error(
+        `Invalid configuration! No ChainInformation exists for control chain ${controlChainId}`,
+      );
+    }
+
+    if (!(controlChainInformation instanceof ControlChainInformation)) {
+      throw new Error(
+        `Invalid configuration! Control chain ${controlChainInformation} is not a ControlChainInformation`,
+      );
+    }
+
     this.config = new CoreConfig(
-      __CONTROL_CHAIN_ID__ != null
-        ? ChainId(__CONTROL_CHAIN_ID__)
-        : ChainId(1337),
-      URLString(""),
+      ChainId(controlChainId),
+      config?.providerAddress || URLString(""),
+      config?.chainInformation || chainConfig,
+      config?.controlChainInformation || controlChainInformation,
     );
   }
 

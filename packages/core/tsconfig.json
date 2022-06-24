@@ -9,6 +9,9 @@
     {
       "path": "../objects"
     },
+    {
+      "path": "../contracts-sdk"
+    }
   ],
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules"]

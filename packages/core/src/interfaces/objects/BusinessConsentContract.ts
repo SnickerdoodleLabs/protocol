@@ -1,9 +1,8 @@
 import { EthereumContractAddress } from "@snickerdoodlelabs/objects";
 
-export class ConsentToken {
+export class BusinessConsentContract {
   public constructor(
     public contractAddress: EthereumContractAddress,
-    public tokenId: number,
-    public content: string,
+    public consentName: string,
   ) {}
 }
