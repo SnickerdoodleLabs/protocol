@@ -1,8 +1,12 @@
 import { ContainerModule, interfaces } from "inversify";
 
 import { BlockchainListener } from "@core/implementations/api";
-import { AccountService } from "@core/implementations/business/AccountService";
-import { InsightPlatformRepository } from "@core/implementations/data/InsightPlatformRepository";
+import {
+  AccountService,
+  CohortService,
+  QueryService,
+} from "@core/implementations/business";
+import { InsightPlatformRepository } from "@core/implementations/data";
 import {
   ConfigProvider,
   ContextProvider,
@@ -14,6 +18,10 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  ICohortService,
+  ICohortServiceType,
+  IQueryService,
+  IQueryServiceType,
 } from "@core/interfaces/business";
 import {
   IInsightPlatformRepository,
@@ -40,6 +48,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
       .inSingletonScope();
+    bind<ICohortService>(ICohortServiceType)
+      .to(CohortService)
+      .inSingletonScope();
+    bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
 
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)

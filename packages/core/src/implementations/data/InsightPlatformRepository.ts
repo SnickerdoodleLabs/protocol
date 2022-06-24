@@ -3,16 +3,20 @@ import {
   Insight,
   IpfsCID,
   Reward,
+  CohortInvitation,
+  EthereumContractAddress,
+  Signature,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IInsightPlatformRepository } from "@core/interfaces/data";
+import { BusinessConsentContract } from "@core/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities";
-import { BusinessConsentContract } from "@core/interfaces/objects";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -35,6 +39,19 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     AjaxError
   > {
     throw new Error("undefined");
+  }
+
+  public acceptInvitation(
+    invitation: CohortInvitation,
+    signature: Signature,
+  ): ResultAsync<TokenId, never> {
+    throw new Error("Method not implemented.");
+  }
+
+  public leaveCohort(
+    consentContractAddress: EthereumContractAddress,
+  ): ResultAsync<void, never> {
+    throw new Error("Method not implemented.");
   }
 }
 

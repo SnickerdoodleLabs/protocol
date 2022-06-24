@@ -1,3 +1,4 @@
+import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
   EthereumAccountAddress,
@@ -8,10 +9,15 @@ import {
   AjaxError,
   ConsentContractRepositoryError,
 } from "@snickerdoodlelabs/objects";
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
+import {
+  IConsentContractRepository,
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+} from "@core/interfaces/data";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -20,11 +26,6 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@core/interfaces/utilities";
-import { IConsentContractRepository } from "@core/interfaces/data";
-import {
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
-} from "@core/interfaces/data";
 import {
   IConsentContractFactoryType,
   IConsentContractFactory,
@@ -104,7 +105,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
   public isAddressOptedIn(
     consentContractAddress: EthereumContractAddress,
-    address: EthereumAccountAddress,
+    address?: EthereumAccountAddress,
   ): ResultAsync<
     boolean,
     | ConsentContractError
@@ -113,13 +114,27 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | AjaxError
   > {
-    return this.getConsentContract(consentContractAddress).andThen(
-      (consentContract) => {
-        return consentContract.balanceOf(address).map((numberOfTokens) => {
-          return numberOfTokens > 0;
-        });
-      },
-    );
+    return ResultUtils.combine([
+      this.getConsentContract(consentContractAddress),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([consentContract, context]) => {
+        // We will use the data wallet address if another address is not provided
+        if (address == null) {
+          if (context.dataWalletAddress != null) {
+            address = EthereumAccountAddress(context.dataWalletAddress);
+          }
+          return errAsync(
+            new UninitializedError(
+              "No data wallet address provided and core uninitialized in isAddressOptedIn",
+            ),
+          );
+        }
+        return consentContract.balanceOf(address);
+      })
+      .map((numberOfTokens) => {
+        return numberOfTokens > 0;
+      });
   }
 
   public getConsentContracts(): ResultAsync<

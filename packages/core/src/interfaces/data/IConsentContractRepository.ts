@@ -31,7 +31,7 @@ export interface IConsentContractRepository {
 
   isAddressOptedIn(
     consentContractAddress: EthereumContractAddress,
-    address: EthereumAccountAddress,
+    address?: EthereumAccountAddress,
   ): ResultAsync<
     boolean,
     | ConsentContractError

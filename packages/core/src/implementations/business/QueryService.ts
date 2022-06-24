@@ -12,7 +12,8 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { Err, errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IQueryParsingEngine,
@@ -31,7 +32,6 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class QueryService implements IQueryService {

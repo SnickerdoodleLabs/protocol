@@ -1,6 +1,8 @@
 import {
   ClickData,
+  ClickFilter,
   EthereumAccountAddress,
+  EthereumContractAddress,
   EthereumPrivateKey,
   IDataWalletPersistence,
   PersistenceError,
@@ -33,6 +35,33 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getClicks(
+    clickFilter: ClickFilter,
+  ): ResultAsync<ClickData, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public setAge(age: number): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getAge(): ResultAsync<number, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getRejectedCohorts(): ResultAsync<
+    EthereumContractAddress[],
+    PersistenceError
+  > {
+    throw new Error("Method not implemented.");
+  }
+
+  public addRejectedCohorts(
+    consentContractAddresses: EthereumContractAddress[],
+  ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 }

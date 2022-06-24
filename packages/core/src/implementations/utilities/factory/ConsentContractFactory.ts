@@ -2,20 +2,20 @@ import {
   ConsentContract,
   IConsentContract,
 } from "@snickerdoodlelabs/contracts-sdk";
+import {
+  BlockchainProviderError,
+  EthereumContractAddress,
+  UninitializedError,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
 } from "@core/interfaces/utilities";
 import { IConsentContractFactory } from "@core/interfaces/utilities/factory";
-import { ResultUtils } from "neverthrow-result-utils";
-import {
-  BlockchainProviderError,
-  EthereumContractAddress,
-  UninitializedError,
-} from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class ConsentContractFactory implements IConsentContractFactory {
