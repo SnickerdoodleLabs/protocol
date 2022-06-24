@@ -15,3 +15,6 @@ artifacts
 #Personal
 notes
 Qm*
+
+#Sometimes generated when compiling (to investigate)
+.openzeppelin/

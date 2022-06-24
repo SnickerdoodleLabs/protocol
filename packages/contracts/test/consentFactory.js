@@ -1,6 +1,5 @@
 const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
-const { consentFactory } = require("../../../../SDL-Contracts/tasks/constants");
 
 async function getAddress(contract) {
   const txHash = contract.deployTransaction.hash;

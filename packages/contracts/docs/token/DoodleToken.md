@@ -2,8 +2,8 @@
 
 Doodle ERC-20 token contract
 
-_Contract was generated using OpenZeppling Wizard with the 'Votes' feature 
-Token is intended to have a total cap supply so _mint() is called and transfered to the SDL foundationfoundation/DAO/treasury address_
+_Contract was generated using OpenZeppelin(OZ)'s Contracts Wizard with the 'Votes' extension 
+Token is intended to have a total cap supply and hence _mint() is called and transferred to the Snickerdoodle distribution address_
 
 ### constructor
 

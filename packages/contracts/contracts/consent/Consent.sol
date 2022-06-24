@@ -13,9 +13,9 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 /// @author Sean Sing
 /// @notice Snickerdoodle Protocol's Consent Contract 
 /// @dev This contract mints and burns non-transferable ERC721 consent tokens for users who opt in or out of sharing their data
-/// @dev The contract's owners or addresses that have the right role granted can initiaite a request for data
-/// @dev The baseline contract was generated using OpenZepplin's (OZ) Contracts Wizard and customized thereafter 
-/// @dev ERC2771ContextUpgradeable's features were directly embeded into the contract (see isTrustedForwarder for details)
+/// @dev The contract's owners or addresses that have the right role granted can initiate a request for data
+/// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter 
+/// @dev ERC2771ContextUpgradeable's features were directly embedded into the contract (see isTrustedForwarder for details)
 /// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
 /// @dev It is also compatible with OZ's meta-transaction library
 
@@ -145,14 +145,13 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
      
     /// price for data request (calculates based on number of tokens minted (opt-ed in))
 
-    /* GETTERS */
-
-    /// @notice Gets the Consent tokens base URI
-    function _baseURI() internal view virtual override returns (string memory baseURI_)  {
-        return baseURI;
-    }
-
     /* SETTERS */
+
+    /// @notice Set the trusted forwarder address 
+    /// @param trustedForwarder_ Address of the trusted forwarder 
+    function setTrustedForwarder(address trustedForwarder_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        trustedForwarder = trustedForwarder_;
+    }
 
     /// @notice Sets the Consent tokens base URI
     /// @param newURI New base uri
@@ -180,6 +179,22 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         openOptInDisabled = false;
     }
 
+    /* GETTER */ 
+
+    /// @dev Inherited from ERC2771ContextUpgradeable to embed its features directly in this contract 
+    /// @dev This is a workaround as ERC2771ContextUpgradeable does not have an _init() function
+    /// @dev Allows the factory to deploy a BeaconProxy that initiates a Consent contract without a constructor 
+    function isTrustedForwarder(address forwarder) public pure virtual returns (bool) {
+        /// TODO: an arbitrary address is provided for now, to be replaced when Consent implementation contract deployed to live  
+        address tf = 0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199; 
+        return forwarder == tf;
+    }
+
+    /// @notice Gets the Consent tokens base URI
+    function _baseURI() internal view virtual override returns (string memory baseURI_)  {
+        return baseURI;
+    }
+
     /* INTERNAL FUNCTIONS */ 
 
     /// @notice Verify that a signature is valid
@@ -205,25 +220,6 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         // check if the recovered signature has the SIGNER_ROLE
         return hasRole(SIGNER_ROLE, signer);
-    }
-
-    /* GETTER */ 
-
-    /// @dev Inherited from ERC2771ContextUpgradeable to embed its features directly in this contract 
-    /// @dev This is a workaround as ERC2771ContextUpgradeable does not have an _init() function
-    /// @dev Allows the factory to deploy a BeaconProxy that initiates a Consent contract without a constructor 
-    function isTrustedForwarder(address forwarder) public pure virtual returns (bool) {
-        /// TODO: an arbitrary address is provided for now, to be replaced when Consent implementation contract deployed to live  
-        address tf = 0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199; 
-        return forwarder == tf;
-    }
-
-    /* SETTER */
-
-    /// @notice Set the trusted forwarder address 
-    /// @param trustedForwarder_ Address of the trusted forwarder 
-    function setTrustedForwarder(address trustedForwarder_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        trustedForwarder = trustedForwarder_;
     }
 
     /* OVERRIDES */

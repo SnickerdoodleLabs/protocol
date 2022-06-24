@@ -1,15 +1,15 @@
 # ConsentFactory
 
+Snickerdoodle Protocol's Consent Factory Contract
+
+_This contract deploys new BeaconProxy instances that all point to the latest Consent implementation contract via the UpgradeableBeacon 
+The baseline contract was generated using OpenZeppelin's (OZ) Contract Wizard with added features 
+The contract adopts OZ's proxy upgrade pattern and is compatible with OZ's meta-transaction library_
+
 ### PAUSER_ROLE
 
 ```solidity
 bytes32 PAUSER_ROLE
-```
-
-### ADMIN_ROLE
-
-```solidity
-bytes32 ADMIN_ROLE
 ```
 
 ### addressToConsentBP
@@ -19,6 +19,14 @@ mapping(address => address[]) addressToConsentBP
 ```
 
 Mapping of addresses to an array of its deployed beacon proxy addresses
+
+### contractNameToAddress
+
+```solidity
+mapping(string => address) contractNameToAddress
+```
+
+_Mapping of contract name to its address_
 
 ### beaconAddress
 
@@ -31,14 +39,14 @@ Address of the upgradeable beacon
 ### ConsentDeployed
 
 ```solidity
-event ConsentDeployed(address requester, address consentAddress)
+event ConsentDeployed(address owner, address consentAddress)
 ```
 
 Emitted when a Consent contract's Beacon Proxy is deployed
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| requester | address | Indexed address of the requester to deploy a Consent contract |
+| owner | address | Indexed address of the owner of the deployed Consent contract Beacon Proxy |
 | consentAddress | address | Indexed address of the deployed Consent contract Beacon Proxy |
 
 ### constructor
@@ -47,7 +55,7 @@ Emitted when a Consent contract's Beacon Proxy is deployed
 constructor(address trustedForwarder) public
 ```
 
-_Sets the trustedForwarder address, calls the initialize function, then disables any initializers as recomended by OpenZeppelin_
+_Sets the trustedForwarder address, calls the initialize function, then disables any initializers as recommended by OpenZeppelin_
 
 ### initialize
 
@@ -59,25 +67,10 @@ Initializes the contract
 
 _Uses the initializer modifier to to ensure the contract is only initialized once_
 
-### deployBeacon
-
-```solidity
-function deployBeacon(address consentContractAddress) public
-```
-
-Deploys the UpgradableBeacon that all the Beacon Proxies point to
-
-_The UpgradableBeacon points to the latest Consent implementation contract  
-Can only be called by address that has the ADMIN_ROLE_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| consentContractAddress | address | Address of the latest implementation verion of the Consent contract |
-
 ### createConsent
 
 ```solidity
-function createConsent(string baseURI) public
+function createConsent(address owner, string baseURI, string name) public
 ```
 
 Creates a new Beacon Proxy contract pointing to the UpgradableBeacon
@@ -86,26 +79,9 @@ _This Beacon Proxy points to the UpgradableBeacon with the latest Consent implem
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| owner | address | Address of the owner of the Consent contract instance |
 | baseURI | string | Base uri for the for the Consent contract instance |
-
-### getConsentBP
-
-```solidity
-function getConsentBP(address owner) public view returns (address[] arrayOfBP)
-```
-
-Get the Beacon Proxy addresses of an owner address
-
-_First checks if address has previously deployed Consent Beacon Proxies 
-If user has deployed before, returns an array of the deployed addresses_
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| owner | address | Address of owner that deployed Beacon Proxy Consent contracts |
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| arrayOfBP | address[] | Array of address of Beacon Proxies deployed |
+| name | string | Name of the Consent Contract |
 
 ### setBeaconAddress
 

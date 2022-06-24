@@ -1,16 +1,20 @@
 # ConsentV2
 
+Snickerdoodle Protocol's ConsentV2 Contract
+
+_PLACEHOLDER contract, currently only used for unit testing upgradeability of Consent
+This contract mints and burns consent tokens for users who opt in or out of sharing their data
+The contract's owners or addresses that have the right role granted can initiate a request for data
+Consent's baseline contract was generated using OpenZeppelin (OZ) Wizard and customized thereafter  
+Consent adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract_
+
 ### PAUSER_ROLE
 
 ```solidity
 bytes32 PAUSER_ROLE
 ```
 
-### MINTER_ROLE
-
-```solidity
-bytes32 MINTER_ROLE
-```
+_Role bytes_
 
 ### SIGNER_ROLE
 
@@ -18,10 +22,10 @@ bytes32 MINTER_ROLE
 bytes32 SIGNER_ROLE
 ```
 
-### ADMIN_ROLE
+### REQUESTER_ROLE
 
 ```solidity
-bytes32 ADMIN_ROLE
+bytes32 REQUESTER_ROLE
 ```
 
 ### baseURI
@@ -30,7 +34,7 @@ bytes32 ADMIN_ROLE
 string baseURI
 ```
 
-Base uri for logo of Consent tokens
+_Base uri for logo of Consent tokens_
 
 ### totalSupply
 
@@ -38,7 +42,7 @@ Base uri for logo of Consent tokens
 uint256 totalSupply
 ```
 
-Total supply of Consent tokens
+_Total supply of Consent tokens_
 
 ### openOptInDisabled
 
@@ -46,7 +50,7 @@ Total supply of Consent tokens
 bool openOptInDisabled
 ```
 
-Flag of whether open opt in is disabled or not
+_Flag of whether open opt in is disabled or not_
 
 ### trustedForwarder
 
@@ -54,7 +58,7 @@ Flag of whether open opt in is disabled or not
 address trustedForwarder
 ```
 
-Trusted forwarder address for metxa-transactions
+_Trusted forwarder address for meta-transactions_
 
 ### RequestForData
 
@@ -82,7 +86,7 @@ Checks if open opt in is current disabled
 ### initialize
 
 ```solidity
-function initialize(string baseURI_) public
+function initialize(address consentOwner, string baseURI_, string name) public
 ```
 
 Initializes the contract
@@ -91,7 +95,9 @@ _Uses the initializer modifier to to ensure the contract is only initialized onc
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| consentOwner | address | Address of the owner of this contract |
 | baseURI_ | string | The base uri |
+| name | string | Name of the Consent Contract |
 
 ### optIn
 

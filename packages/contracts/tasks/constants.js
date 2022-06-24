@@ -8,16 +8,26 @@ const CC = function () {
   } else {
     return null;
   }
-}
+};
 
 const CCFactory = function () {
-    const artifactPath = "./artifacts/contracts/consent/ConsentFactory.sol/ConsentFactory.json";
-    if (fs.existsSync(artifactPath)) {
-      return require("../" + artifactPath);
-    } else {
-      return null;
-    }
+  const artifactPath =
+    "./artifacts/contracts/consent/ConsentFactory.sol/ConsentFactory.json";
+  if (fs.existsSync(artifactPath)) {
+    return require("../" + artifactPath);
+  } else {
+    return null;
   }
+};
+
+const CR = function () {
+  const artifactPath = "./artifacts/contracts/registry/Crumbs.sol/Crumbs.json";
+  if (fs.existsSync(artifactPath)) {
+    return require("../" + artifactPath);
+  } else {
+    return null;
+  }
+};
 
 const gasSettings = async function (txCount) {
   const hre = require("hardhat");
@@ -27,14 +37,14 @@ const gasSettings = async function (txCount) {
   if (txCount) {
     gs = {
       nonce: txCount,
-      maxFeePerGas: feeData.maxFeePerGas
+      maxFeePerGas: feeData.maxFeePerGas,
     };
   } else {
     gs = {
-      maxFeePerGas: feeData.maxFeePerGas
+      maxFeePerGas: feeData.maxFeePerGas,
     };
   }
-  return gs
+  return gs;
 };
 
 // define some dynamic imports
@@ -45,19 +55,19 @@ const consentFactory = function () {
   } else if (hre.hardhatArguments.network == "hardhat") {
     return "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
   } else if (hre.hardhatArguments.network == "rinkeby") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "mumbai") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "polygon") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "avalanche") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "fantom") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
-    return ""
+    return "";
   } else {
     return "";
   }
@@ -69,34 +79,58 @@ const consentContract = function () {
   if (hre.hardhatArguments.network == "dev") {
     return "0xCafac3dD18aC6c6e92c921884f9E4176737C052c";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0xCafac3dD18aC6c6e92c921884f9E4176737C052c"
+    return "0xCafac3dD18aC6c6e92c921884f9E4176737C052c";
   } else if (hre.hardhatArguments.network == "mumbai") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "polygon") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "avalanche") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "fantom") {
-    return ""
+    return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
-    return ""
+    return "";
   } else {
     return "";
   }
 };
 
-const countryCode = function (){
+// define some dynamic imports
+const crumbsContract = function () {
+  const hre = require("hardhat");
+  if (hre.hardhatArguments.network == "dev") {
+    return "0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6";
+  } else if (hre.hardhatArguments.network == "hardhat") {
+    return "0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6";
+  } else if (hre.hardhatArguments.network == "mumbai") {
+    return "";
+  } else if (hre.hardhatArguments.network == "polygon") {
+    return "";
+  } else if (hre.hardhatArguments.network == "fuji") {
+    return "";
+  } else if (hre.hardhatArguments.network == "avalanche") {
+    return "";
+  } else if (hre.hardhatArguments.network == "fantom") {
+    return "";
+  } else if (hre.hardhatArguments.network == "mainnet") {
+    return "";
+  } else {
+    return "";
+  }
+};
+
+const countryCode = function () {
   var data = fs.readFileSync("./tasks/iso_3166_country_codes.csv", "utf8");
   data = data.split("\r\n");
-  let countryCode={};
-  for (let i=0; i<data.length; i++) { 
+  let countryCode = {};
+  for (let i = 0; i < data.length; i++) {
     const [country, code] = data[i].split(",");
     countryCode[country] = parseInt(code);
   }
-  return countryCode
-}
+  return countryCode;
+};
 
 module.exports = {
   CC,
@@ -104,6 +138,7 @@ module.exports = {
   consentFactory,
   consentContract,
   gasSettings,
-  countryCode
+  countryCode,
+  CR,
+  crumbsContract,
 };
-

@@ -3,6 +3,8 @@ const {
   consentFactory,
   CC,
   CCFactory,
+  CR,
+  crumbsContract,
 } = require("./constants.js");
 
 task("checkBalanceOf", "Check balance of user").setAction(async () => {
@@ -101,7 +103,6 @@ task("checkConsentsDeployedByOwner", "")
       accounts[0],
     );
 
-    console.log(taskArgs.owneraddress);
     // declare the filter parameters of the event of interest
     const logs = await consentFactoryContractHandle.filters.ConsentDeployed(
       taskArgs.owneraddress,

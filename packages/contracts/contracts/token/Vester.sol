@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 /**
  * @title A vesting contract for ERC-20 tokens with a voting extension
  * @author Todd Chapman
- * @notice Use this contract with OpenZepplin ERC-20 contracts that are used for voting
+ * @notice Use this contract with OpenZeppelin ERC-20 contracts that are used for voting
  * @dev Minimalist implementation of a ERC-20 token vesting contract 
  *
  * The base implementation was taken from Uniswap's governance repository:
@@ -50,7 +50,7 @@ contract Vester {
     uint256 public lastUpdate;
 
     /// @dev Constructor definition
-    /// @param token_ address of the ERC-20 token implementing Hypernetoken
+    /// @param token_ address of the ERC-20 token implementing Doodle Token
     /// @param recipient_ address of the beneficiary account
     /// @param vestingAmount_ total amount of h_ due to recipient_
     /// @param vestingBegin_ timestamp to use for the starting point of vesting period
@@ -96,7 +96,7 @@ contract Vester {
 
     /// @notice delegate delegates votes associated with tokens held by this contract to an address specified by the beneficiary
     /// @dev The function allows for beneficiaries to have voting rights before they take possession of their tokens
-    /// @param delegate_ address to recieve the voting rights, does not necessarly have to be the beneficiary
+    /// @param delegate_ address to recieve the voting rights, does not necessarily have to be the beneficiary
     function delegate(address delegate_) public {
         require(msg.sender == recipient, 'Vester::setRecipient: unauthorized');
         IDoodleToken(token).delegate(delegate_);        

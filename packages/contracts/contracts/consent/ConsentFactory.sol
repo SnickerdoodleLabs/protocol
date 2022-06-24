@@ -14,7 +14,7 @@ import "./Consent.sol";
 /// @author Sean Sing
 /// @notice Snickerdoodle Protocol's Consent Factory Contract 
 /// @dev This contract deploys new BeaconProxy instances that all point to the latest Consent implementation contract via the UpgradeableBeacon 
-/// @dev The baseline contract was generated using OpenZepplin's (OZ) Contract Wizard with added features 
+/// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contract Wizard with added features 
 /// @dev The contract adopts OZ's proxy upgrade pattern and is compatible with OZ's meta-transaction library  
 
 contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC2771ContextUpgradeable {
@@ -33,13 +33,13 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /* EVENTS */ 
 
     /// @notice Emitted when a Consent contract's Beacon Proxy is deployed
-    /// @param owner Indexed address of the owner of the deployex Consent contract Beacon Proxy 
+    /// @param owner Indexed address of the owner of the deployed Consent contract Beacon Proxy 
     /// @param consentAddress Indexed address of the deployed Consent contract Beacon Proxy
     event ConsentDeployed(address indexed owner, address indexed consentAddress);
 
     /* MODIFIERS */
 
-    /// @dev Sets the trustedForwarder address, calls the initialize function, then disables any initializers as recomended by OpenZeppelin
+    /// @dev Sets the trustedForwarder address, calls the initialize function, then disables any initializers as recommended by OpenZeppelin
     constructor(address trustedForwarder) ERC2771ContextUpgradeable(trustedForwarder) {
         initialize();
         _disableInitializers();
