@@ -1,6 +1,11 @@
 import { ResultAsync } from "neverthrow";
 
-import { ClickData, ClickFilter } from "@objects/businessObjects";
+import {
+  ClickData,
+  ClickFilter,
+  EthereumTransaction,
+  SiteVisit,
+} from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
 import {
   EthereumAccountAddress,
@@ -63,11 +68,16 @@ export interface IDataWalletPersistence {
   >;
 
   /**
-   * Adds a list of consent contract addresses to the list of cohorts the user has 
+   * Adds a list of consent contract addresses to the list of cohorts the user has
    * positively marked as rejected
    */
   addRejectedCohorts(
     consentContractAddresses: EthereumContractAddress[],
+  ): ResultAsync<void, PersistenceError>;
+
+  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
+  addEthereumTransactions(
+    transactions: EthereumTransaction[],
   ): ResultAsync<void, PersistenceError>;
 }
 

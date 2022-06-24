@@ -4,8 +4,10 @@ import {
   EthereumAccountAddress,
   EthereumContractAddress,
   EthereumPrivateKey,
+  EthereumTransaction,
   IDataWalletPersistence,
   PersistenceError,
+  SiteVisit,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -61,6 +63,18 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
 
   public addRejectedCohorts(
     consentContractAddresses: EthereumContractAddress[],
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public addSiteVisits(
+    siteVisits: SiteVisit[],
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public addEthereumTransactions(
+    transactions: EthereumTransaction[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }

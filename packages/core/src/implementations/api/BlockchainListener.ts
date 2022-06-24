@@ -1,3 +1,4 @@
+import { JsonRpcProvider } from "@ethersproject/providers";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -12,13 +13,21 @@ import {
   PersistenceError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
-import { JsonRpcProvider } from "@ethersproject/providers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBlockchainListener } from "@core/interfaces/api";
-import { IQueryService, IQueryServiceType } from "@core/interfaces/business";
+import {
+  IMonitoringService,
+  IMonitoringServiceType,
+  IQueryService,
+  IQueryServiceType,
+} from "@core/interfaces/business";
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+} from "@core/interfaces/data";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -29,17 +38,23 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@core/interfaces/utilities";
-import {
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-} from "@core/interfaces/data";
 
+/**
+ * This class has 2 main roles, both involving monitoring the blockchain. 1st, it listens specifically to the
+ * Control Chain, to all the consent contracts that this data wallet has opten in to (Joined the Cohort).
+ * It subscribes to and listens to requestForData events on those chains.
+ *
+ * 2nd, it monitors all the linked accounts in this data wallet on all of our supported chains, and looks
+ * for any activity linked to the accounts.
+ */
 @injectable()
 export class BlockchainListener implements IBlockchainListener {
   protected chainLatestKnownBlockNumber: Map<ChainId, BlockNumber> = new Map();
   protected mainProviderInitialized = false;
 
   constructor(
+    @inject(IMonitoringServiceType)
+    protected monitoringService: IMonitoringService,
     @inject(IQueryServiceType) protected queryService: IQueryService,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
@@ -165,6 +180,7 @@ export class BlockchainListener implements IBlockchainListener {
       accounts.map((account) => {
         // Hook up the listeners for this account
         // TODO
+        // return this.monitoringService.transactionDetected(transaction);
         return okAsync(undefined);
       }),
     ).map(() => {});

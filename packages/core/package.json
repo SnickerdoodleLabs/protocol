@@ -38,7 +38,7 @@
   "dependencies": {
     "@snickerdoodlelabs/contracts-sdk": ">=0.0.1",
     "@snickerdoodlelabs/objects": ">=0.0.1",
-    "ethers": "^5.4.7",
+    "ethers": "^5.6.6",
     "inversify": "^5.1.1",
     "ipfs-http-client": "^55.0.0",
     "neverthrow": "^4.3.1",

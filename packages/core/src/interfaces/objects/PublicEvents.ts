@@ -2,6 +2,7 @@ import {
   DataWalletAddress,
   EthereumAccountAddress,
   EthereumContractAddress,
+  EthereumTransaction,
   IQueryEngineEvents,
   SDQLQuery,
 } from "@snickerdoodlelabs/objects";
@@ -13,6 +14,7 @@ export class PublicEvents implements IQueryEngineEvents {
   public onAccountAdded: Subject<EthereumAccountAddress>;
   public onCohortJoined: Subject<EthereumContractAddress>;
   public onCohortLeft: Subject<EthereumContractAddress>;
+  public onTransaction: Subject<EthereumTransaction>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -20,5 +22,6 @@ export class PublicEvents implements IQueryEngineEvents {
     this.onAccountAdded = new Subject();
     this.onCohortJoined = new Subject();
     this.onCohortLeft = new Subject();
+    this.onTransaction = new Subject();
   }
 }
