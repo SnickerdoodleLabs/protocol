@@ -1,12 +1,18 @@
 import {
+  AjaxError,
   BlockchainProviderError,
+  BlockNumber,
   ChainId,
+  ConsentContractError,
+  ConsentContractRepositoryError,
+  ConsentError,
   EthereumAccountAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   PersistenceError,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -23,23 +29,22 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@core/interfaces/utilities";
-
-// Listen to events on blockchain
-// Listen to events on consent contract
-// Config - same as context but immutable, what vlaues are you viewing against
-// Context - Global data / runtime
-// @injectable - dependency injection: useful for testing, when dependencies can be mocked or stubbed out
-// compiling nodes
-// tsc filename
+import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+} from "@core/interfaces/data";
 
 @injectable()
 export class BlockchainListener implements IBlockchainListener {
+  protected chainLatestKnownBlockNumber: Map<ChainId, BlockNumber> = new Map();
   protected mainProviderInitialized = false;
 
   constructor(
     @inject(IQueryServiceType) protected queryService: IQueryService,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
+    @inject(IConsentContractRepositoryType)
+    protected consentContractRepository: IConsentContractRepository,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -49,32 +54,109 @@ export class BlockchainListener implements IBlockchainListener {
 
   public initialize(): ResultAsync<
     void,
-    BlockchainProviderError | PersistenceError
+    BlockchainProviderError | PersistenceError | UninitializedError
   > {
     /**
      * The BlockchainListener needs to actually listen to ALL the chains we are monitoring;
      * this means we need to get ALL the providers and hook up listeners for all the accounts
      * in the wallet
      */
+
     return ResultUtils.combine([
       this.blockchainProvider.getAllProviders(),
       this.contextProvider.getContext(),
       this.dataWalletPersistence.getAccounts(),
+      this.configProvider.getConfig(),
     ])
-      .andThen(([providerMap, _context, accounts]) => {
+      .andThen(([providerMap, _context, accounts, config]) => {
         // Now we have the providers, loop over them
         return ResultUtils.combine(
           Array.from(providerMap.entries()).map(([chainId, provider]) => {
-            return this.monitorChain(chainId, provider, accounts);
+            const chain = config.chainInformation.get(chainId);
+
+            setInterval(() => {
+              this.chainBlockMined(chainId, provider, accounts);
+            }, chain?.averageBlockMiningTime);
+
+            return okAsync(undefined);
           }),
         );
       })
       .map(() => {});
   }
 
-  protected monitorChain(
+  protected chainBlockMined(
     chainId: ChainId,
-    provider: ethers.providers.JsonRpcProvider,
+    provider: JsonRpcProvider,
+    accounts: EthereumAccountAddress[],
+  ): ResultAsync<void, BlockchainProviderError | UninitializedError> {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.blockchainProvider.getLatestBlock(chainId),
+    ]).andThen(([config, currentBlock]) => {
+      const currentBlockNumber = BlockNumber(currentBlock.number);
+      const latestKnownBlockNumber =
+        this.chainLatestKnownBlockNumber.get(chainId) || BlockNumber(-1);
+
+      if (latestKnownBlockNumber < currentBlockNumber) {
+        this.chainLatestKnownBlockNumber.set(chainId, currentBlockNumber);
+
+        const isControlChain = chainId === config.controlChainId;
+        if (isControlChain) {
+          this.listenForConsentContractsEvents(currentBlockNumber);
+        }
+        this.monitorChain(currentBlockNumber, chainId, provider, accounts);
+      }
+
+      return okAsync(undefined);
+    });
+  }
+
+  protected listenForConsentContractsEvents(
+    blockNumber: BlockNumber,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentError
+  > {
+    return this.consentContractRepository
+      .getConsentContracts()
+      .andThen((consentContractsMap) => {
+        return ResultUtils.combine(
+          Array.from(consentContractsMap.values()).map((consentContract) => {
+            // Only consent owners can request data
+            return consentContract
+              .getConsentOwner()
+              .andThen((consentOwner) => {
+                return consentContract.getRequestForDataListByRequesterAddress(
+                  consentOwner,
+                  blockNumber,
+                  blockNumber,
+                );
+              })
+              .andThen((requestForDataObjects) => {
+                return ResultUtils.combine(
+                  requestForDataObjects.map((requestForDataObject) => {
+                    return this.queryService.onQueryPosted(
+                      requestForDataObject.consentContractAddress,
+                      requestForDataObject.requestedCID,
+                    );
+                  }),
+                );
+              });
+          }),
+        ).map(() => {});
+      });
+  }
+
+  protected monitorChain(
+    blockNumber: BlockNumber,
+    chainId: ChainId,
+    provider: JsonRpcProvider,
     accounts: EthereumAccountAddress[],
   ): ResultAsync<void, BlockchainProviderError> {
     // For each provider, hook up listeners or whatever, that will monitor for activity

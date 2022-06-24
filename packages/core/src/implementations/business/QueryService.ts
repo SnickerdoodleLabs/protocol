@@ -1,5 +1,10 @@
 import {
+  AjaxError,
+  BlockchainProviderError,
+  ConsentContractError,
+  ConsentContractRepositoryError,
   ConsentError,
+  EthereumAccountAddress,
   EthereumContractAddress,
   Insight,
   IpfsCID,
@@ -7,7 +12,7 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { Err, errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import {
   IQueryParsingEngine,
@@ -19,13 +24,14 @@ import {
 } from "@browser-extension/interfaces/utilities";
 import { IQueryService } from "@core/interfaces/business";
 import {
-  IConsentRepository,
-  IConsentRepositoryType,
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -36,16 +42,28 @@ export class QueryService implements IQueryService {
     protected sdqlQueryRepo: ISDQLQueryRepository,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
-    @inject(IConsentRepositoryType) protected consentRepo: IConsentRepository,
+    @inject(IConsentContractRepositoryType)
+    protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-  ) { }
+  ) {}
 
   public onQueryPosted(
-    contractAddress: EthereumContractAddress,
+    consentContractAddress: EthereumContractAddress,
     queryId: IpfsCID,
-  ): ResultAsync<void, never> {
+  ): ResultAsync<
+    void,
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | ConsentError
+  > {
     // Get the IPFS data for the query. This is just "Get the query";
-    return this.sdqlQueryRepo.getByCID([queryId]).andThen((queries) => {
+    return ResultUtils.combine([
+      this.sdqlQueryRepo.getByCID([queryId]),
+      this.contextProvider.getContext(),
+    ]).andThen(([queries, context]) => {
       const query = queries.get(queryId);
 
       if (query == null) {
@@ -54,25 +72,30 @@ export class QueryService implements IQueryService {
         return okAsync(undefined);
       }
 
-      // We have the query, next step is check consent
-      return this.consentRepo
-        .getByContractAddress(contractAddress)
-        .andThen((consentTokens) => {
-          // Still have query and now consentTokens
-          // Check if you actually have a consent token for this business
-          const consentToken = consentTokens.get(contractAddress);
-
-          if (consentToken == null) {
-            // No consent given!
-            // Andrew - commented out Error, Error and never do not correlate with entire system
-            // return errAsync(new Error("No consent token!"));
-          }
-
-          // We have a consent token!
-          return this.contextProvider.getContext().map((context) => {
+      if (context.dataWalletAddress != null) {
+        // We have the query, next step is check if you actually have a consent token for this business
+        return this.consentContractRepository
+          .isAddressOptedIn(
+            consentContractAddress,
+            EthereumAccountAddress(context.dataWalletAddress),
+          )
+          .andThen((addressOptedIn) => {
+            if (addressOptedIn == false) {
+              // No consent given!
+              return errAsync(
+                new ConsentError(
+                  `No consent token for address ${context.dataWalletAddress}!`,
+                ),
+              );
+            }
+            // We have a consent token!
             context.publicEvents.onQueryPosted.next(query);
+
+            return okAsync(undefined);
           });
-        });
+      }
+
+      return okAsync(undefined);
     });
   }
 

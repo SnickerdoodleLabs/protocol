@@ -1,0 +1,4 @@
+export * from "@contracts-sdk/implementations/ConsentContract";
+export * from "@contracts-sdk/implementations/ConsentFactoryContract";
+export * from "@contracts-sdk/interfaces/IConsentContract";
+export * from "@contracts-sdk/interfaces/IConsentFactoryContract";
