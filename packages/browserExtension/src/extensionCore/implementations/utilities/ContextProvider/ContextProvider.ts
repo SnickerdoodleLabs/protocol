@@ -1,12 +1,9 @@
 import { IContextProvider } from "@interfaces/utilities";
 import { Runtime } from "webextension-polyfill";
 import { Subject } from "rxjs";
-
-import {  PortEvents, ClientEvents } from "@interfaces/objects";
-
-import { AccountContext} from '@implementations/utilities/ContextProvider/AccountContext';
-import { AppContext} from '@implementations/utilities/ContextProvider/AppContext';
-
+import { PortEvents, ClientEvents } from "@interfaces/objects";
+import { AccountContext } from "@implementations/utilities/ContextProvider/AccountContext";
+import { AppContext } from "@implementations/utilities/ContextProvider/AppContext";
 
 export class ContextProvider implements IContextProvider {
   protected accountContext: AccountContext;
@@ -15,10 +12,9 @@ export class ContextProvider implements IContextProvider {
   protected portEvents: PortEvents;
 
   constructor() {
-    this.accountContext = new AccountContext(()=>{});
-    this.appContext = new AppContext()
-    this.appContext.displayPopupNotification()
-    // this.appContext.displayAppOnBrowser()
+    this.accountContext = new AccountContext(() => {});
+    this.appContext = new AppContext();
+    this.appContext.displayAppOnBrowser("#/welcome/");
     this.portEvents = new PortEvents(new Subject<Runtime.Port>());
     this.clientEvents = new ClientEvents();
   }

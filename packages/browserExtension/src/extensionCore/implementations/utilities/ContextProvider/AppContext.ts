@@ -4,7 +4,7 @@ import {
   openExtensionOnBrowser,
 } from "@shared/utils/extensionDisplayUtils";
 import { v4 } from "uuid";
-import { EPortNames } from "@shared/constants/ports";
+import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
 
 export class AppContext {
   constructor(
@@ -106,7 +106,7 @@ export class AppContext {
     Object.values(this.connections).forEach((conns) => {
       Object.keys(conns).forEach((connId) => {
         conns[connId] &&
-          conns[connId].engine.emit("notification", notification);
+          conns[connId].engine.emit(PORT_NOTIFICATION, notification);
       });
     });
   }

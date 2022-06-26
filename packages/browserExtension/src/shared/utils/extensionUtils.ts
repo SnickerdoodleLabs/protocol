@@ -85,6 +85,20 @@ export const closeCurrentWindow = () => {
   });
 };
 
+export const closeCurrenTab = () =>
+  new Promise((resolve, reject) => {
+    browser.tabs.getCurrent().then((windowDetails) => {
+      if (windowDetails.id) {
+        browser.tabs.remove(windowDetails.id);
+      }
+      const error = checkForError();
+      if (error) {
+        return reject(error);
+      }
+      return resolve(undefined);
+    });
+  });
+
 export const closeWindow = (windowId) => {
   browser.windows.remove(windowId);
 };

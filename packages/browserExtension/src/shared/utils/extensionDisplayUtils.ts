@@ -5,7 +5,6 @@ import {
   getAllWindows,
   openTab,
 } from "shared/utils/extensionUtils";
-import browser, { Tabs, Windows } from "webextension-polyfill";
 
 const NOTIFICATION_HEIGHT = 600;
 const NOTIFICATION_WIDTH = 470;
@@ -51,10 +50,8 @@ export const showNotificationPopup = async (
 };
 
 export const openExtensionOnBrowser = async (path?: string) => {
-  await openWindow({
+  await openTab({
     url: `popup.html${path ?? ""}#fullScreen`,
-    type: "panel",
-    focused: true,
   });
 };
 

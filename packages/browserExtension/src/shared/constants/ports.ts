@@ -15,3 +15,5 @@ export const INTERNAL_PORTS = [
   EPortNames.SD_POPUP,
   EPortNames.SD_NOTIFICATION,
 ];
+
+export const PORT_NOTIFICATION = "notification";

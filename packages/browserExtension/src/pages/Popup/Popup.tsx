@@ -19,13 +19,15 @@ import {
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { createBackgroundConnectors } from "@utils";
-import { InternalRpcGateway } from "@rpcGateways";
-import { EPortNames } from "@shared/constants/ports";
+import { InternalCoreGateway } from "pages/coreGateways";
+import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
+import { closeCurrentWindow, closeCurrenTab } from "@shared/utils/extensionUtils";
 
 const Popup = () => {
   const [portName, setPortName] = useState<EPortNames | null>(null);
   const [message, setMessage] = useState(null);
   const [loadCard, setLoadCard] = useState(false);
+  
 
   useEffect(() => {
     const portName = !window.location.hash
@@ -44,10 +46,10 @@ const Popup = () => {
     const backgroundConnectors = createBackgroundConnectors(port);
     if (backgroundConnectors.isOk()) {
       rpcEngine = backgroundConnectors.value.rpcEngine;
-      streamMiddleware = backgroundConnectors.value.streamMiddleware;
+      streamMiddleware = backgroundConnectors.value.streamMiddleware.events;
     }
     // create gateway
-    const rpcGateway = new InternalRpcGateway(rpcEngine);
+    const rpcGateway = new InternalCoreGateway(rpcEngine);
     // test gateway
     rpcGateway.login(
       "" as EthereumAccountAddress,
@@ -55,7 +57,7 @@ const Popup = () => {
       "" as LanguageCode,
     );
     // use to get updates
-    streamMiddleware.events.on("notification", (not) => setMessage(not.data));
+    streamMiddleware.events.on(PORT_NOTIFICATION, (not) => setMessage(not.data));
 
     // console.log(instance)
     // chrome.runtime.sendMessage({
@@ -88,6 +90,7 @@ const Popup = () => {
   return (
     <Grid>
       {portName} - {message}
+      <Button onClick={closeCurrenTab}>close</Button>
       {/* <Grid
         style={{
           position: "fixed",

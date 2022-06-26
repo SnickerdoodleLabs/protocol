@@ -6,7 +6,7 @@ import PortStream from "extension-port-stream";
 import { err, ok } from "neverthrow";
 
 // TODO add docstring
-export const createRpcEventDispatcherPromise =
+export const createCoreHandler =
   (rpcEngine: JsonRpcEngine) => (method, params) =>
     new Promise((resolve, reject) => {
       let requestObject = { id: Date.now(), jsonrpc: "2.0" as "2.0", method };
