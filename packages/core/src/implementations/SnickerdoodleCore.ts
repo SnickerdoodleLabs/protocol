@@ -5,9 +5,16 @@
  */
 
 import {
+  AjaxError,
   BlockchainProviderError,
+  CohortInvitation,
+  ConsentConditions,
+  ConsentContractError,
+  ConsentContractRepositoryError,
   ConsentError,
+  EInvitationStatus,
   EthereumAccountAddress,
+  EthereumContractAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   InvalidSignatureError,
@@ -28,6 +35,8 @@ import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore
 import {
   IAccountService,
   IAccountServiceType,
+  ICohortService,
+  ICohortServiceType,
   IQueryService,
   IQueryServiceType,
 } from "@core/interfaces/business";
@@ -110,6 +119,68 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
     return accountService.addAccount(accountAddress, signature, languageCode);
+  }
+
+  public checkInvitationStatus(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    EInvitationStatus,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+  > {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.checkInvitationStatus(invitation);
+  }
+
+  public acceptInvitation(
+    invitation: CohortInvitation,
+    consentConditions: ConsentConditions | null,
+  ): ResultAsync<void, UninitializedError | PersistenceError> {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.acceptInvitation(invitation, consentConditions);
+  }
+
+  public rejectInvitation(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+  > {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.rejectInvitation(invitation);
+  }
+
+  public leaveCohort(
+    consentContractAddress: EthereumContractAddress,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | ConsentError
+  > {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.leaveCohort(consentContractAddress);
   }
 
   public addData(): ResultAsync<void, never> {

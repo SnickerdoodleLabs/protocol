@@ -1,9 +1,15 @@
 import { ResultAsync } from "neverthrow";
 
-import { ClickData } from "@objects/businessObjects";
+import {
+  ClickData,
+  ClickFilter,
+  EthereumTransaction,
+  SiteVisit,
+} from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
 import {
   EthereumAccountAddress,
+  EthereumContractAddress,
   EthereumPrivateKey,
 } from "@objects/primatives";
 
@@ -46,6 +52,33 @@ export interface IDataWalletPersistence {
    * presumeably captured by the Form Factor.
    */
   addClick(click: ClickData): ResultAsync<void, PersistenceError>;
+
+  /** This returns you click data that you have stored, according to the filter */
+  getClicks(clickFilter: ClickFilter): ResultAsync<ClickData, PersistenceError>;
+
+  setAge(age: number): ResultAsync<void, PersistenceError>;
+  getAge(): ResultAsync<number, PersistenceError>;
+
+  /**
+   * Returns a list of consent contract addresses that the user has rejected
+   */
+  getRejectedCohorts(): ResultAsync<
+    EthereumContractAddress[],
+    PersistenceError
+  >;
+
+  /**
+   * Adds a list of consent contract addresses to the list of cohorts the user has
+   * positively marked as rejected
+   */
+  addRejectedCohorts(
+    consentContractAddresses: EthereumContractAddress[],
+  ): ResultAsync<void, PersistenceError>;
+
+  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
+  addEthereumTransactions(
+    transactions: EthereumTransaction[],
+  ): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

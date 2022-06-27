@@ -1,9 +1,13 @@
 import {
   ClickData,
+  ClickFilter,
   EthereumAccountAddress,
+  EthereumContractAddress,
   EthereumPrivateKey,
+  EthereumTransaction,
   IDataWalletPersistence,
   PersistenceError,
+  SiteVisit,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -33,6 +37,45 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getClicks(
+    clickFilter: ClickFilter,
+  ): ResultAsync<ClickData, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public setAge(age: number): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getAge(): ResultAsync<number, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getRejectedCohorts(): ResultAsync<
+    EthereumContractAddress[],
+    PersistenceError
+  > {
+    throw new Error("Method not implemented.");
+  }
+
+  public addRejectedCohorts(
+    consentContractAddresses: EthereumContractAddress[],
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public addSiteVisits(
+    siteVisits: SiteVisit[],
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public addEthereumTransactions(
+    transactions: EthereumTransaction[],
+  ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 }

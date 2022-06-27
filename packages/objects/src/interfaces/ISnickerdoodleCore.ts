@@ -1,9 +1,18 @@
 import { ResultAsync } from "neverthrow";
 import { Observable } from "rxjs";
 
-import { SDQLQuery } from "@objects/businessObjects";
+import { EInvitationStatus } from "..";
+
 import {
+  CohortInvitation,
+  ConsentConditions,
+  SDQLQuery,
+} from "@objects/businessObjects";
+import {
+  AjaxError,
   BlockchainProviderError,
+  ConsentContractError,
+  ConsentContractRepositoryError,
   ConsentError,
   InvalidSignatureError,
   PersistenceError,
@@ -13,6 +22,7 @@ import {
 import {
   DataWalletAddress,
   EthereumAccountAddress,
+  EthereumContractAddress,
   IpfsCID,
   LanguageCode,
   Signature,
@@ -73,6 +83,74 @@ export interface ISnickerdoodleCore {
     | UninitializedError
     | UnsupportedLanguageError
     | PersistenceError
+  >;
+
+  /**
+   * This method checks the status of the invitation in relationship to the data wallet.
+   * An invitation may be either "New" (haven't dealt with it one way or the other),
+   * "Rejected" (previously, positively turned down), or "Accepted" (if we are already opted
+   * in to the cohort)
+   * @param invitation
+   */
+  checkInvitationStatus(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    EInvitationStatus,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+  >;
+
+  /**
+   * This method will accept an invitation, even if the user had previously rejected it.
+   * Note that this is different than reject invitation, which will not opt you out of the
+   * cohort
+   * @param invitation The actual invitation to the cohort
+   * @param consentConditions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
+   */
+  acceptInvitation(
+    invitation: CohortInvitation,
+    consentConditions: ConsentConditions | null,
+  ): ResultAsync<void, PersistenceError | UninitializedError>;
+
+  /**
+   * This method will reject an invitation, which simply puts it on a list for future
+   * auto-rejection by the form factor. Calling this will NOT opt the user out of a cohort
+   * they have already opted into. You need to call leaveCohort() instead. It will return
+   * an error if the user has already consented (you did check the status first with checkInvitationStatus(),
+   * right?)
+   */
+  rejectInvitation(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+  >;
+
+  /**
+   * This method will actually burn a user's consent token. This data wallet will no longer
+   * recieve notifications of queries for this cohort.
+   * @param consentContractAddress
+   */
+  leaveCohort(
+    consentContractAddress: EthereumContractAddress,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | ConsentError
   >;
 
   addData(): ResultAsync<void, UninitializedError>;

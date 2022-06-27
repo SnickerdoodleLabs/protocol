@@ -1,0 +1,54 @@
+title Opt In Acceptance Flows
+
+participant Form Factor
+participant SDC
+participant Insight Platform
+participant Doodle Chain
+
+[->Form Factor:Business X Invitation\nCan be from a variety of sources\nIncludes a Token ID, Contract Address, and \noptionally a Business Signature (for pre-approval)
+activate Form Factor
+Form Factor->SDC:getRejectedInvitations()
+activate SDC
+Form Factor<-SDC:rejected consent contract addresses
+deactivateafter SDC
+alt Invitation Previously Rejected
+note over Form Factor:Do nothing- don't bug the user
+
+else Not Rejected
+Form Factor->Form Factor:Display accept/reject dialog
+alt Invitation Rejected
+Form Factor->SDC:rejectInvitation(businessContractAddr)
+activate SDC
+SDC->SDC:Store rejection in Data Wallet
+deactivateafter SDC
+else Invitation Accepted
+Form Factor->SDC:acceptInvitation(businessContractAddr, businessSignature?)
+activate SDC
+SDC->SDC:Sign Transaction with DW Key
+alt Business Pays Gas
+SDC->Insight Platform:POST /business/:contractAddress\nData Wallet Signature, token ID\nOptional: Business Signature
+activate Insight Platform
+Insight Platform->Insight Platform:Verify Signatures And Data
+Insight Platform->Doodle Chain:Execute optIn() using SD's Hot Wallet
+activate Doodle Chain
+note over Doodle Chain:Transaction executed by Hot Wallet\nUses either optIn() or restrictedOptIn() if business signature is supplied.\nToken issued to Data Wallet Address
+Insight Platform<-Doodle Chain:Transaction Receipt
+deactivateafter Doodle Chain
+Insight Platform->Insight Platform:Charge Business' account in Fiat
+SDC<-Insight Platform:Transaction Receipt
+deactivateafter Insight Platform
+
+else User Pays Gas
+SDC->Doodle Chain:Execute optIn() using Control Signer
+activate Doodle Chain
+note over Doodle Chain:Transaction executed by Data Wallet\nData Wallet must have Doodle in it\nUses either optIn() or restrictedOptIn() if business signature is supplied.\nToken issued to Data Wallet Address
+SDC<-Doodle Chain:Transaction Receipt
+deactivateafter Doodle Chain
+end
+SDC->SDC:Store opt-in in Data Wallet
+SDC->SDC:Emit event OnBusinessOptedIn
+Form Factor<-SDC:success
+deactivateafter SDC
+deactivateafter Form Factor
+end
+end
