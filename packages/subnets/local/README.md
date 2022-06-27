@@ -18,8 +18,8 @@ subnet when it is created. This file will create a subnet with the following par
 ## Docker Image
 
 A local Snickerdoodle Subnet can be created by using the pre-built `Snickerdoodlelabs/local-subnet` image. 
-The [entrypoint](/entrypoint.sh) script will create a subnet from the 
-[genesis file](/snickerdoodle_genesis.json), launch five validating nodes, then deploy the protocol 
+The [entrypoint](/packages/subnets/local/entrypoint.sh) script will create a subnet from the 
+[genesis file](/packages/subnets/local/snickerdoodle_genesis.json), launch five validating nodes, then deploy the protocol 
 [contract stack](https://github.com/SnickerdoodleLabs/protocol/tree/develop/packages/contracts) to the 
 network. 
 
