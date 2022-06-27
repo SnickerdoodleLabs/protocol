@@ -18,18 +18,17 @@ import { inject, injectable } from "inversify";
 import { errAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IInsightPlatformRepositoryType } from "../data";
-
+import { ICohortService } from "@core/interfaces/business";
 import {
+  IInsightPlatformRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
   IInsightPlatformRepository,
-} from "@browser-extension/interfaces/data";
+} from "@core/interfaces/data";
 import {
   IContextProvider,
   IContextProviderType,
-} from "@browser-extension/interfaces/utilities";
-import { ICohortService } from "@core/interfaces/business";
+} from "@core/interfaces/utilities";
 
 @injectable()
 export class CohortService implements ICohortService {

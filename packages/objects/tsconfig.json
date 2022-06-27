@@ -6,7 +6,11 @@
     "baseUrl": "./src/",
     "strictFunctionTypes": false
   },
-  "include": ["./src/**/*.ts", "../core/src/interfaces/objects/EthereumTransaction.ts"],
-  "exclude": ["node_modules"],
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
   "references": []
 }
