@@ -12,7 +12,7 @@ import {
   Signature,
 } from "@snickerdoodlelabs/objects";
 
-import { createCoreHandler } from "@utils";
+import { createCoreHandler } from "app/utils";
 
 export class InternalCoreGateway {
   protected _handler;

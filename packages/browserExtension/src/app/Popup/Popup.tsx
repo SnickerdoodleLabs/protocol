@@ -18,8 +18,8 @@ import {
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
-import { createBackgroundConnectors } from "@utils";
-import { InternalCoreGateway } from "pages/coreGateways";
+import { createBackgroundConnectors } from "app/utils";
+import { InternalCoreGateway } from "app/coreGateways";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
 import { closeCurrentWindow, closeCurrenTab } from "@shared/utils/extensionUtils";
 

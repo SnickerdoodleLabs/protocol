@@ -1,6 +1,6 @@
 import { JsonRpcEngine } from "json-rpc-engine";
 
-import { createCoreHandler } from "@utils";
+import { createCoreHandler } from "app/utils";
 
 export class ExternalCoreGateway {
   protected _handler;
