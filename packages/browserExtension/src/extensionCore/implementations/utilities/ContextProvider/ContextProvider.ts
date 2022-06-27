@@ -14,7 +14,6 @@ export class ContextProvider implements IContextProvider {
   constructor() {
     this.accountContext = new AccountContext(() => {});
     this.appContext = new AppContext();
-    this.appContext.displayAppOnBrowser("#/welcome/");
     this.portEvents = new PortEvents(new Subject<Runtime.Port>());
     this.clientEvents = new ClientEvents();
   }

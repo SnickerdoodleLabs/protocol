@@ -1,12 +1,15 @@
 body {
-  width: 450px;
-  height: 600px;
   margin: 0;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
   position: relative;
+}
+
+#app-container {
+  min-width: 450px;
+  min-height: 600px;
 }
 
 code {

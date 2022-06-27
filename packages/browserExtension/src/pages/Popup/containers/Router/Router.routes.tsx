@@ -1,5 +1,6 @@
-import React, { FC } from "react";
+import React from "react";
 import { EPATHS } from "@shared/constants/paths";
+import Login from "../../pages/Login";
 
 interface IRoute {
   path: string;
@@ -33,7 +34,7 @@ export const AuthRequiredRoutes: IRoute[] = [
 export const LoginRoutes: IRoute[] = [
   {
     path: EPATHS.LOGIN,
-    component: <p>Login/Signup Page</p>,
+    component: <Login />,
     name: "Login",
   },
   {

@@ -2,11 +2,11 @@ import React, { FC, useMemo } from "react";
 import { Route, HashRouter, Routes, Navigate } from "react-router-dom";
 import { useAppContext } from "pages/Popup/context";
 import { AuthRequiredRoutes, LoginRoutes } from "./Router.routes";
+import { Box, CircularProgress } from "@material-ui/core";
 
 const Router: FC = () => {
   const { appState } = useAppContext();
-  console.log("appstate", appState);
-  console.log("appstate", !appState);
+
   const routes = useMemo(
     () =>
       (!appState ? LoginRoutes : AuthRequiredRoutes).map((route) => (
@@ -16,14 +16,22 @@ const Router: FC = () => {
   );
 
   return (
-    <HashRouter>
-      <Routes>
-        <>
-          {routes}
-          <Route path="*" element={<Navigate to="/" />} />
-        </>
-      </Routes>
-    </HashRouter>
+    <>
+      {appState ? (
+        <Box display="flex" alignItems="center" justifyContent="center">
+          <CircularProgress />
+        </Box>
+      ) : (
+        <HashRouter>
+          <Routes>
+            <>
+              {routes}
+              <Route path="*" element={<Navigate to="/" />} />
+            </>
+          </Routes>
+        </HashRouter>
+      )}
+    </>
   );
 };
 
