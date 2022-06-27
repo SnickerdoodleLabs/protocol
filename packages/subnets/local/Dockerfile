@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM node:16.15-slim
 
 RUN apt update -y \
   && apt install -y vim \
@@ -16,6 +16,9 @@ ENV PATH="${PATH}:/root/bin"
 
 # copy the genesis file into the working directory
 COPY snickerdoodle_genesis.json .
+
+# create the snickerdoodle subnet configs
+RUN avalanche subnet create snickerdoodle --evm --file /root/snickerdoodle_genesis.json 
 
 # copy the entrypoint script into the working directory
 COPY entrypoint.sh .
