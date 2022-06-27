@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-async function getSignature(address, nonce, agreementURI) {
+async function getSignature(address, tokenId, agreementURI) {
   // Create a wallet to sign the message with
   // use the private key to sign with the same wallet hardhat node provides
   // this private key was obtained through running 'npx hardhat node'
@@ -12,7 +12,7 @@ async function getSignature(address, nonce, agreementURI) {
 
   var msgHash = ethers.utils.solidityKeccak256(
     ["address", "uint256", "string"],
-    [address, nonce, agreementURI],
+    [address, tokenId, agreementURI],
   );
 
   // Sign the string message
@@ -97,7 +97,7 @@ describe("Consent", () => {
       // User 1 can now call restricted opt in if business entity has signed to approve them
       await consent
         .connect(accounts[1])
-        .restrictedOptIn(1, "www.uri.com/1", 1, sig);
+        .restrictedOptIn(1, "www.uri.com/1", sig);
     });
 
     it("Does not allows user who has not been signed for to opt-in", async function () {
@@ -111,9 +111,7 @@ describe("Consent", () => {
 
       // User 10 tries to call restricted opt in using signature the business entity signed for User 1
       await expect(
-        consent
-          .connect(accounts[10])
-          .restrictedOptIn(1, "www.uri.com/1", 1, sig),
+        consent.connect(accounts[10]).restrictedOptIn(1, "www.uri.com/1", sig),
       ).to.revertedWith("Consent: Contract owner did not sign this message");
     });
 
@@ -131,9 +129,7 @@ describe("Consent", () => {
 
       // User 1 can now call restricted opt in if business entity has signed to approve them
       await expect(
-        consent
-          .connect(accounts[1])
-          .restrictedOptIn(1, "www.uri.com/1", 1, sig),
+        consent.connect(accounts[1]).restrictedOptIn(1, "www.uri.com/1", sig),
       ).to.revertedWith("Pausable: paused");
     });
 
@@ -149,13 +145,11 @@ describe("Consent", () => {
       // User 1 can now call restricted opt in if business entity has signed to approve them
       await consent
         .connect(accounts[1])
-        .restrictedOptIn(1, "www.uri.com/1", 1, sig);
+        .restrictedOptIn(1, "www.uri.com/1", sig);
 
       // User 1 tried to call again with the same token id
       await expect(
-        consent
-          .connect(accounts[1])
-          .restrictedOptIn(1, "www.uri.com/1", 1, sig),
+        consent.connect(accounts[1]).restrictedOptIn(1, "www.uri.com/1", sig),
       ).to.revertedWith("ERC721: token already minted");
     });
 
@@ -171,13 +165,11 @@ describe("Consent", () => {
       // User 1 can now call restricted opt in if business entity has signed to approve them
       await consent
         .connect(accounts[1])
-        .restrictedOptIn(1, "www.uri.com/1", 1, sig);
+        .restrictedOptIn(1, "www.uri.com/1", sig);
 
       // User 2 tries to call restricted opt in again with another token Id
       await expect(
-        consent
-          .connect(accounts[1])
-          .restrictedOptIn(1, "www.uri.com/1", 2, sig),
+        consent.connect(accounts[1]).restrictedOptIn(2, "www.uri.com/1", sig),
       ).to.revertedWith("Consent: Contract owner did not sign this message");
     });
   });
@@ -193,7 +185,7 @@ describe("Consent", () => {
       // check token balance of the account has none.
       expect(await consent.balanceOf(accounts[1].address)).to.eq(0);
 
-      // check that total supply is descreased to 0
+      // check that total supply is decreased to 0
       expect(await consent.totalSupply()).to.eq(0);
     });
 

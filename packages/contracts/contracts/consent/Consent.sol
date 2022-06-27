@@ -102,12 +102,10 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against
     /// @param agreementURI User's Consent token uri containing agreement flags
-    /// @param nonce Salt to increase hashed message's security
     /// @param signature Owner's signature to agree with user opt in
     function restrictedOptIn (
         uint256 tokenId, 
         string memory agreementURI,
-        uint256 nonce,
         bytes memory signature
         )
         public
@@ -115,7 +113,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     {
         /// check the signature against the payload
         require(
-            _isValidSignature(_msgSender(), nonce, agreementURI, signature),
+            _isValidSignature(_msgSender(), tokenId, agreementURI, signature),
             "Consent: Contract owner did not sign this message"
         );
 
@@ -199,19 +197,19 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /// @notice Verify that a signature is valid
     /// @param user Address of the user calling the function
-    /// @param nonce Salt for hash security
+    /// @param tokenId Token id to be tied to current user
     /// @param agreementURI User's Consent token uri containing agreement flags
     /// @param signature Signature of approved user's message hash 
     /// @return Boolean of whether signature is valid
     function _isValidSignature(
         address user,
-        uint256 nonce,
+        uint256 tokenId,
         string memory agreementURI,
         bytes memory signature
     ) internal view returns (bool) {
 
         // convert the payload to a 32 byte hash
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, nonce, agreementURI)));
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, tokenId, agreementURI)));
         
         // retrieve the signature's signer 
         address signer = ECDSAUpgradeable.recover(hash, signature);
