@@ -3,4 +3,4 @@
 # Snickerdoodle Protocol Subnets
 
 This package contains subnet configurations for [local](/packages/subnets/local), 
-[testnet](/packages/subnets/testnet), and [mainnet](/packages/subnets/mainnet) developement.
+[testnet](/packages/subnets/fuji), and [mainnet](/packages/subnets/mainnet) developement.
