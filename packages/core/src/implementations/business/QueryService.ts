@@ -18,11 +18,11 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   IQueryParsingEngine,
   IQueryParsingEngineType,
-} from "@browser-extension/interfaces/business/utilities";
+} from "@core/interfaces/business/utilities";
 import {
   IContextProvider,
   IContextProviderType,
-} from "@browser-extension/interfaces/utilities";
+} from "@core/interfaces/utilities";
 import { IQueryService } from "@core/interfaces/business";
 import {
   IConsentContractRepository,
