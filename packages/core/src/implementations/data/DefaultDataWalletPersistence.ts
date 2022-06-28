@@ -157,4 +157,6 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
+
+
 }
