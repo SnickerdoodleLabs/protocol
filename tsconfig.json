@@ -10,7 +10,10 @@
     },
     {
       "path": "packages/contracts-sdk"
-    }
+    },
+    {
+      "path": "packages/utils"
+    },
     // {
     //   "path": "packages/browserExtension"
     // },

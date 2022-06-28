@@ -1,0 +1,42 @@
+{
+  "name": "@snickerdoodlelabs/utils",
+  "version": "0.0.1",
+  "description": "Utilities for general consumption within the Snickerdoodle Protocol",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/utils#readme",
+  "author": "Fatih Toker <fatih@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle",
+    "Core",
+    "Utils"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "scripts": {
+    "alias": "tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "compile": "tsc --build && cd ../.. && yarn alias",
+    "test": "yarn test:ci",
+    "test:ci": "jest --runInBand --coverage --passWithNoTests",
+    "test:watch": "jest --watch --color --detectOpenHandles"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "inversify": "^5.1.1",
+    "moleculer": "^0.14.0",
+    "moleculer-ioc": "^0.0.7",
+    "neverthrow": "^4.2.2"
+  }
+}

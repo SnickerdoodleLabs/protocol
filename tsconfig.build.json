@@ -27,7 +27,8 @@
       "@objects/*": ["./*"],
       "@core/*": ["./*"],
       "@core-tests/*": ["../test/*"],
-      "@contracts-sdk/*": ["./*"]
+      "@contracts-sdk/*": ["./*"],
+      "@utils/*": ["./*"]
     }
   }
 }
