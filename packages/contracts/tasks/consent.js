@@ -137,7 +137,7 @@ task(
     const consentContractHandle = new hre.ethers.Contract(
       taskArgs.consentaddress,
       CC().abi,
-      accounts[1],
+      accounts[3],
     );
 
     // declare the filter parameters of the event of interest
@@ -147,6 +147,7 @@ task(
 
     // generate log with query's results
     const _logs = await consentContractHandle.queryFilter(logs);
+    console.log("_logs: ", _logs);
 
     console.log("");
     console.log("Queried address:", taskArgs.consentaddress);
@@ -242,3 +243,57 @@ task("revokeRole", "Revokes a specific role on the consent contract.")
 
     console.log("");
   });
+
+task("getConsentTokens", "").setAction(async (taskArgs) => {
+  const accounts = await hre.ethers.getSigners();
+
+  const consentContractHandle = new hre.ethers.Contract(
+    consentContract(),
+    CC().abi,
+    accounts[1],
+  );
+
+  const numberOfTokens = await consentContractHandle.balanceOf(
+    accounts[1].address,
+  );
+
+  console.log("Token balance is:", numberOfTokens);
+  console.log("accounts[1].address", accounts[1].address);
+
+  console.log(taskArgs.owneraddress);
+  // declare the filter parameters of the event of interest
+  const logs = await consentContractHandle.filters.Transfer(
+    null,
+    "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  );
+
+  console.log("logs", logs);
+
+  // generate log with query's results
+  const _logs = await consentContractHandle.queryFilter(logs);
+
+  for (let index = 0; index < _logs.length; index++) {
+    const element = _logs[index];
+    console.log("element: ", element);
+    console.log("");
+    console.log("index: ", index);
+    console.log("tokenId: ", element.args.tokenId);
+
+    const tokenURI = await consentContractHandle.tokenURI(element.args.tokenId);
+    console.log("tokenURI: ", index, "   ", tokenURI);
+    console.log("");
+  }
+});
+
+task("optIn", "Opt in a user").setAction(async () => {
+  const accounts = await hre.ethers.getSigners();
+
+  // attach the first signer account to the consent contract handle
+  const consentContractHandle = new hre.ethers.Contract(
+    consentContract(),
+    CC().abi,
+    accounts[0],
+  );
+
+  await consentContractHandle.connect(accounts[1]).optIn(33, "www.uri.com/1");
+});

@@ -1,7 +1,7 @@
 {
-  "name": "@snickerdoodlelabs/objects",
+  "name": "@snickerdoodlelabs/common-utils",
   "version": "0.0.1",
-  "description": "Objects and types shared by the Snickerdoodle Protocol",
+  "description": "Common utils classes used in snickerdoodlelabs projects",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -11,10 +11,11 @@
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
   "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/objects#readme",
-  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "author": "Muhammed Altinci <muhammed@snickerdoodlelabs.io>",
   "keywords": [
-    "Blockchain",
-    "Snickerdoodle"
+    "Encryption",
+    "Snickerdoodle",
+    "Crypto"
   ],
   "main": "dist/index.js",
   "files": [
@@ -38,9 +39,11 @@
   },
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@snickerdoodlelabs/objects": ">=0.0.1",
+    "argon2": "^0.28.4",
     "ethers": "^5.6.6",
+    "inversify": "^5.1.1",
     "neverthrow": "^4.3.1",
-    "rxjs": "^7.5.5",
-    "ts-brand": "^0.0.2"
+    "neverthrow-result-utils": "^1.0.2"
   }
 }

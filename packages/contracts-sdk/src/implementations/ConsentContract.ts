@@ -19,7 +19,9 @@ import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { BigNumber } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
+import { injectable } from "inversify";
 
+@injectable()
 export class ConsentContract implements IConsentContract {
   protected contract: ethers.Contract;
   constructor(
