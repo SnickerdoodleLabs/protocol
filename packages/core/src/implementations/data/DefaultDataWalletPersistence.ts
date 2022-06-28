@@ -158,8 +158,4 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-    throw new Error("Method not implemented.");
-  }
-
-
 }
