@@ -112,7 +112,7 @@ async function deploySnickerdoodleDAO() {
 
   // the SnickerdoodleGovernor contract requires 2 arguments on deployment:
   // the address of the ERC20Votes token
-  // the addres of the Timelock
+  // the address of the Timelock
   governor = await Governor.deploy(doodleTokenAddress, timelockAddress);
   await governor.deployed();
   governorAddress = governor.address;
@@ -128,7 +128,7 @@ async function deployCrumbs() {
 
   // the SnickerdoodleGovernor contract requires 1 argument on deployment:
   // the address of the ERC20Votes token
-  // the addres of the Timelock
+  // the address of the Timelock
   crumbs = await Crumbs.deploy(trustedForwarder.address, "www.crumbs.com/");
   await crumbs.deployed();
   crumbsAddress = crumbs.address;
@@ -136,7 +136,7 @@ async function deployCrumbs() {
   console.log("Crumbs deployed to:", crumbsAddress);
 }
 
-// funciton to set the Upgradeable Beacon address on the Consent Factory contract
+// function to set the Upgradeable Beacon address on the Consent Factory contract
 // Note: the Upgradeable Beacon contract has to be deployed first!
 async function setBeaconAddressOnConsentFactory() {
   console.log("");

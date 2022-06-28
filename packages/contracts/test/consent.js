@@ -1,15 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-async function getSignature(address, tokenId, agreementURI) {
-  // Create a wallet to sign the message with
-  // use the private key to sign with the same wallet hardhat node provides
-  // this private key was obtained through running 'npx hardhat node'
-  let privateKey =
-    "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-  let wallet = new ethers.Wallet(privateKey);
-  //let message = address + nonce + agreementURI;
-
+async function getSignature(owner, address, tokenId, agreementURI) {
   var msgHash = ethers.utils.solidityKeccak256(
     ["address", "uint256", "string"],
     [address, tokenId, agreementURI],
@@ -17,7 +9,7 @@ async function getSignature(address, tokenId, agreementURI) {
 
   // Sign the string message
   // This step represents a business user signing a message for an approved user on their platform
-  let sig = await wallet.signMessage(ethers.utils.arrayify(msgHash));
+  let sig = await owner.signMessage(ethers.utils.arrayify(msgHash));
 
   return sig;
 }
@@ -27,6 +19,7 @@ describe("Consent", () => {
   let Consent;
   let consent;
   let accounts;
+  let owner;
 
   const requesterRoleBytes = ethers.utils.id("REQUESTER_ROLE");
   const pauserRoleBytes = ethers.utils.id("PAUSER_ROLE");
@@ -35,18 +28,26 @@ describe("Consent", () => {
   beforeEach(async () => {
     // get a list of signers the tests can use
     accounts = await hre.ethers.getSigners();
+    owner = accounts[0];
+    trustedForwarder = accounts[19];
+
+    // deploy the Consent factory contract before each test
+    ConsentFactory = await ethers.getContractFactory("ConsentFactory");
+    consentFactory = await ConsentFactory.deploy(trustedForwarder.address);
+    const deployedCF = await consentFactory.deployed();
+    const consentFactoryAddress = deployedCF.address;
 
     // deploy the Consent contract before each test
     Consent = await ethers.getContractFactory("Consent");
-
     consent = await Consent.deploy();
     await consent.deployed();
 
     // initialize the contract
     await consent.initialize(
-      accounts[0].address,
+      owner.address,
       "www.businessuri.com",
       "Business1",
+      consentFactoryAddress,
     );
   });
 
@@ -92,7 +93,12 @@ describe("Consent", () => {
     it("Allows user who as been signed for to opt-in", async function () {
       // Business user signs user 1's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(accounts[1].address, 1, "www.uri.com/1");
+      let sig = await getSignature(
+        owner,
+        accounts[1].address,
+        1,
+        "www.uri.com/1",
+      );
 
       // User 1 can now call restricted opt in if business entity has signed to approve them
       await consent
@@ -104,6 +110,7 @@ describe("Consent", () => {
       // Business user signs user 1's address
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
+        owner,
         accounts[1].address.toLowerCase(),
         1,
         "www.uri.com/1",
@@ -119,6 +126,7 @@ describe("Consent", () => {
       // Business user signs user 1's address
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
+        owner,
         accounts[1].address.toLowerCase(),
         1,
         "www.uri.com/1",
@@ -137,6 +145,7 @@ describe("Consent", () => {
       // Business user signs user 1's address
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
+        owner,
         accounts[1].address.toLowerCase(),
         1,
         "www.uri.com/1",
@@ -157,6 +166,7 @@ describe("Consent", () => {
       // Business user signs user 1's address
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
+        owner,
         accounts[1].address.toLowerCase(),
         1,
         "www.uri.com/1",
@@ -205,7 +215,7 @@ describe("Consent", () => {
       // call opt in with an account that did not deploy the contract
       await expect(consent.requestForData("cid123"))
         .to.emit(consent, "RequestForData")
-        .withArgs(accounts[0].address, "cid123");
+        .withArgs(owner.address, "cid123");
     });
 
     it("Does not allow non-REQUESTER_ROLE addresses to request for data", async function () {

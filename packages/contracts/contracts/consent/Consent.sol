@@ -8,6 +8,8 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Burnab
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/metatx/MinimalForwarderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import "../interfaces/IConsentFactory.sol";
+import "hardhat/console.sol";
 
 /// @title Consent 
 /// @author Sean Sing
@@ -20,6 +22,10 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 /// @dev It is also compatible with OZ's meta-transaction library
 
 contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable {
+
+    /// @dev Interface for ConsentFactory
+    address consentFactoryAddress;
+    IConsentFactory consentFactoryInstance = IConsentFactory(consentFactoryAddress);
 
     /// @dev Role bytes
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -59,7 +65,8 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @param consentOwner Address of the owner of this contract
     /// @param baseURI_ The base uri 
     /// @param name Name of the Consent Contract  
-    function initialize(address consentOwner, string memory baseURI_, string memory name) initializer public {
+    function initialize(address consentOwner, string memory baseURI_, string memory name, address _contractFactoryAddress) initializer public {
+        
         __ERC721_init(name, "CONSENT");
         __ERC721URIStorage_init();
         __Pausable_init();
@@ -71,6 +78,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         _grantRole(SIGNER_ROLE, consentOwner);
         _grantRole(REQUESTER_ROLE, consentOwner);
 
+        // set the consentFactoryAddress
+        consentFactoryAddress = _contractFactoryAddress;
+        
         // required role grant to allow calling setBaseUri on initialization
         // as msg.sender is the Consent's BeaconProxy contract
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -91,6 +101,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// mint the consent token and set its agreement uri
         _safeMint(_msgSender(), tokenId);
         _setTokenURI(tokenId, agreementURI);
+
+        /// add user's consent contract to ConsentFactory
+        consentFactoryInstance.addUserConsents(_msgSender(), address(this));
         
         /// increase total supply count
         totalSupply++;
@@ -121,6 +134,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         _safeMint(_msgSender(), tokenId);
         _setTokenURI(tokenId, agreementURI);
 
+        /// add user's consent contract to ConsentFactory
+        consentFactoryInstance.addUserConsents(_msgSender(), address(this));
+
         /// increase total supply count
         totalSupply++;
     }
@@ -132,6 +148,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// burn checks if msg.sender is owner of tokenId
         /// burn also reduces totalSupply
         burn(tokenId);
+
+        /// remove user's consent contract to ConsentFactory
+        consentFactoryInstance.removeUserConsents(_msgSender(), address(this));
     }
 
     /// @notice Facilitates entity's request for data
@@ -232,6 +251,22 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
+    /// @dev Overload {_grantRole} to add ConsentFactory update
+    function _grantRole(bytes32 role, address account) internal virtual override {
+        super._grantRole(role, account);
+
+        /// update mapping in factory
+        consentFactoryInstance.addUserRole(account, address(this), role);
+    }
+
+    /// @dev Overload {_revokeRole} to add ConsentFactory update 
+    function _revokeRole(bytes32 role, address account) internal virtual override {
+        super._revokeRole(role, account);
+
+        /// update mapping in factory
+        consentFactoryInstance.removeUserRole(account, address(this), role);
+    }
+
     // The following functions are overrides required by Solidity.
 
     function _burn(uint256 tokenId)
@@ -240,6 +275,10 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     {   
         /// decrease total supply count
         totalSupply--;
+
+        /// remove user's consent contract to ConsentFactory
+        consentFactoryInstance.removeUserConsents(_msgSender(), address(this));
+
         super._burn(tokenId);
     }
 
