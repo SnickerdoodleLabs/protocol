@@ -135,6 +135,14 @@ export class ConsentContractRepository implements IConsentContractRepository {
       .map((numberOfTokens) => {
         return numberOfTokens > 0;
       });
+    return this.getConsentContract(consentContractAddress).andThen(
+      (consentContract) => {
+        return consentContract.balanceOf(address).map((numberOfTokens) => {
+          return numberOfTokens > 0;
+        });
+      },
+    );
+
   }
 
 
