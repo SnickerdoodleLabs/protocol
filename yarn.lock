@@ -6798,6 +6798,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"args@npm:^5.0.1":
+  version: 5.0.3
+  resolution: "args@npm:5.0.3"
+  dependencies:
+    camelcase: 5.0.0
+    chalk: 2.4.2
+    leven: 2.1.0
+    mri: 1.1.4
+  checksum: ac39e656090f9364d7a2a42216a572dfe36d3e4d16d87ca4c1c9552a1c325dc222b642124cb96cdeeafb46662922910191f5aa12142cc4ca117b6d85454c8423
+  languageName: node
+  linkType: hard
+
 "aria-query@npm:^4.2.2":
   version: 4.2.2
   resolution: "aria-query@npm:4.2.2"
@@ -9014,6 +9026,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"camelcase@npm:5.0.0":
+  version: 5.0.0
+  resolution: "camelcase@npm:5.0.0"
+  checksum: 8bfe920e0472d79d34f0279da1391f155bcce7fc74c99b49dafae4f787396040a34f4023da837ab0b4372e63224b460f9524b495906863c38876faea9da53705
+  languageName: node
+  linkType: hard
+
 "camelcase@npm:^2.0.0":
   version: 2.1.1
   resolution: "camelcase@npm:2.1.1"
@@ -9142,6 +9161,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chalk@npm:2.4.2, chalk@npm:^2.0.0, chalk@npm:^2.4.1, chalk@npm:^2.4.2":
+  version: 2.4.2
+  resolution: "chalk@npm:2.4.2"
+  dependencies:
+    ansi-styles: ^3.2.1
+    escape-string-regexp: ^1.0.5
+    supports-color: ^5.3.0
+  checksum: ec3661d38fe77f681200f878edbd9448821924e0f93a9cefc0e26a33b145f1027a2084bf19967160d11e1f03bfe4eaffcabf5493b89098b2782c3fe0b03d80c2
+  languageName: node
+  linkType: hard
+
 "chalk@npm:^1.0.0, chalk@npm:^1.1.1, chalk@npm:^1.1.3":
   version: 1.1.3
   resolution: "chalk@npm:1.1.3"
@@ -9152,17 +9182,6 @@ __metadata:
     strip-ansi: ^3.0.0
     supports-color: ^2.0.0
   checksum: 9d2ea6b98fc2b7878829eec223abcf404622db6c48396a9b9257f6d0ead2acf18231ae368d6a664a83f272b0679158da12e97b5229f794939e555cc574478acd
-  languageName: node
-  linkType: hard
-
-"chalk@npm:^2.0.0, chalk@npm:^2.4.1, chalk@npm:^2.4.2":
-  version: 2.4.2
-  resolution: "chalk@npm:2.4.2"
-  dependencies:
-    ansi-styles: ^3.2.1
-    escape-string-regexp: ^1.0.5
-    supports-color: ^5.3.0
-  checksum: ec3661d38fe77f681200f878edbd9448821924e0f93a9cefc0e26a33b145f1027a2084bf19967160d11e1f03bfe4eaffcabf5493b89098b2782c3fe0b03d80c2
   languageName: node
   linkType: hard
 
@@ -13086,6 +13105,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eventemitter2@npm:^6.4.5":
+  version: 6.4.5
+  resolution: "eventemitter2@npm:6.4.5"
+  checksum: 84504f9cf0cc30205cdd46783fe9df3733435e5097f13070b678023110b5ef07847651808ae280cd94c42cd5976880211c7a40321a8ff8fa56f7c5f9c5c11960
+  languageName: node
+  linkType: hard
+
 "eventemitter3@npm:4.0.4":
   version: 4.0.4
   resolution: "eventemitter3@npm:4.0.4"
@@ -13532,6 +13558,13 @@ __metadata:
   version: 1.0.12
   resolution: "fastest-levenshtein@npm:1.0.12"
   checksum: e1a013698dd1d302c7a78150130c7d50bb678c2c2f8839842a796d66cc7cdf50ea6b3d7ca930b0c8e7e8c2cd84fea8ab831023b382f7aab6922c318c1451beab
+  languageName: node
+  linkType: hard
+
+"fastest-validator@npm:^1.12.0":
+  version: 1.12.0
+  resolution: "fastest-validator@npm:1.12.0"
+  checksum: 7efc5534cd8a4f32b8784c5d0054c35b392722a43bba205a30e8021bd9bdd922ccb17ad139dfb5a6f9c4ca5b65137914a94eb2dbf9f1d5634960ef21bd52a94b
   languageName: node
   linkType: hard
 
@@ -18369,6 +18402,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"kleur@npm:^4.1.4":
+  version: 4.1.5
+  resolution: "kleur@npm:4.1.5"
+  checksum: 1dc476e32741acf0b1b5b0627ffd0d722e342c1b0da14de3e8ae97821327ca08f9fb944542fb3c126d90ac5f27f9d804edbe7c585bf7d12ef495d115e0f22c12
+  languageName: node
+  linkType: hard
+
 "klona@npm:^2.0.4":
   version: 2.0.5
   resolution: "klona@npm:2.0.5"
@@ -18650,6 +18690,13 @@ __metadata:
     level-supports: ~1.0.0
     xtend: ~4.0.0
   checksum: 5a09e34c78cd7c23f9f6cb73563f1ebe8121ffc5f9f5f232242529d4fbdd40e8d1ffb337d2defa0b842334e0dbd4028fbfe7a072eebfe2c4d07174f0aa4aabca
+  languageName: node
+  linkType: hard
+
+"leven@npm:2.1.0":
+  version: 2.1.0
+  resolution: "leven@npm:2.1.0"
+  checksum: f7b4a01b15c0ee2f92a04c0367ea025d10992b044df6f0d4ee1a845d4a488b343e99799e2f31212d72a2b1dea67124f57c1bb1b4561540df45190e44b5b8b394
   languageName: node
   linkType: hard
 
@@ -20022,6 +20069,115 @@ __metadata:
   languageName: node
   linkType: hard
 
+"molecular@npm:^0.0.0":
+  version: 0.0.0
+  resolution: "molecular@npm:0.0.0"
+  dependencies:
+    xregexp: ^3.0.0
+  checksum: 8f112396e6e0101fccd51a40d89fb2000d49b46866c91c3309691998ea37da870e648eba1cf315be4c083127c6acbd30c3170a2924b0727576feef88f39a15ed
+  languageName: node
+  linkType: hard
+
+"moleculer-ioc@npm:^0.0.7":
+  version: 0.0.7
+  resolution: "moleculer-ioc@npm:0.0.7"
+  dependencies:
+    inversify: ^5.1.1
+    moleculer: ^0.14.17
+    reflect-metadata: ^0.1.13
+  checksum: 6407dc834ead12567a8dd13eed11f8f07aa21eb883834baadc41b14957b6cf4fcdf3e8ea6518a47517c31fc7b95f76b55563d21103688b0098ade9114a6294ff
+  languageName: node
+  linkType: hard
+
+"moleculer@npm:^0.14.17, moleculer@npm:^0.14.21":
+  version: 0.14.21
+  resolution: "moleculer@npm:0.14.21"
+  dependencies:
+    args: ^5.0.1
+    eventemitter2: ^6.4.5
+    fastest-validator: ^1.12.0
+    glob: ^7.2.0
+    ipaddr.js: ^2.0.1
+    kleur: ^4.1.4
+    lodash: ^4.17.21
+    lru-cache: ^6.0.0
+    node-fetch: ^2.6.7
+    recursive-watch: ^1.1.4
+  peerDependencies:
+    amqplib: ^0.7.0 || ^0.8.0
+    avsc: ^5.0.0
+    bunyan: ^1.0.0
+    cbor-x: ^0.8.3 || ^0.9.0 || ^1.2.0
+    dd-trace: ^0.33.0 || ^0.34.0 || ^0.35.0 || ^0.36.0 || >=1.0.0 <1.6.0
+    debug: ^4.0.0
+    etcd3: ^1.0.0
+    ioredis: ^4.0.0
+    jaeger-client: ^3.0.0
+    kafka-node: ^5.0.0
+    log4js: ^6.0.0
+    mqtt: ^4.0.0
+    msgpack5: ^5.0.0 || ^6.0.0
+    nats: ^1.0.0 || ^2.0.0
+    node-nats-streaming: ^0.0.51 || ^0.2.0 || ^0.3.0
+    notepack.io: ^2.0.0
+    pino: ^6.0.0 || ^7.0.0
+    protobufjs: ^6.0.0
+    redlock: ^4.0.0
+    rhea-promise: ^1.0.0 || ^2.0.0
+    thrift: ^0.12.0 || ^0.16.0
+    winston: ^3.0.0
+  peerDependenciesMeta:
+    amqplib:
+      optional: true
+    avsc:
+      optional: true
+    bunyan:
+      optional: true
+    cbor-x:
+      optional: true
+    dd-trace:
+      optional: true
+    debug:
+      optional: true
+    etcd3:
+      optional: true
+    ioredis:
+      optional: true
+    jaeger-client:
+      optional: true
+    kafka-node:
+      optional: true
+    log4js:
+      optional: true
+    mqtt:
+      optional: true
+    msgpack5:
+      optional: true
+    nats:
+      optional: true
+    node-nats-streaming:
+      optional: true
+    notepack.io:
+      optional: true
+    pino:
+      optional: true
+    protobufjs:
+      optional: true
+    redlock:
+      optional: true
+    rhea-promise:
+      optional: true
+    thrift:
+      optional: true
+    winston:
+      optional: true
+  bin:
+    moleculer-runner: bin/moleculer-runner.js
+    moleculer-runner-esm: bin/moleculer-runner.mjs
+  checksum: f63d7b4d5cd1d4d7ba2e473d79ce59a9f3ac5521e44759c168254cd4500b32170bff59ff00a87d37a20291667c3ffd66f6aa5ffa9050eaf79a5d09dadc81bc8a
+  languageName: node
+  linkType: hard
+
 "monaco-editor-webpack-plugin@npm:2.0.0":
   version: 2.0.0
   resolution: "monaco-editor-webpack-plugin@npm:2.0.0"
@@ -20043,6 +20199,13 @@ __metadata:
   bin:
     mozjpeg: cli.js
   checksum: c2d90f55a0650d008faf45384c33abe3a5b2d7d8bdf9cf7ec0cc43824f45ac49204a0d80943faef1270e3ea5a99ea066ef780bda121a4123606069995b6882bc
+  languageName: node
+  linkType: hard
+
+"mri@npm:1.1.4":
+  version: 1.1.4
+  resolution: "mri@npm:1.1.4"
+  checksum: e65b9aed3b9e423ad4c11f529ab1b9280f65dce8fb476d0da236b5c570ad3322fbbcd2393180855f1474f8b0f982d76ad398766fbd47b8a5ab4069e325d0268e
   languageName: node
   linkType: hard
 
@@ -22920,6 +23083,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"recursive-watch@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "recursive-watch@npm:1.1.4"
+  dependencies:
+    ttl: ^1.3.0
+  bin:
+    recursive-watch: ./bin.js
+  checksum: 0cce9c6413e048c6e0568fff71f3aa7484df76c248347f58456bfc9973b9d27d5b3c3789f886e8251090d921ce104942a2df5eb40494bde86dc6bb41d9f58bfb
+  languageName: node
+  linkType: hard
+
 "redent@npm:^1.0.0":
   version: 1.0.0
   resolution: "redent@npm:1.0.0"
@@ -24457,6 +24631,9 @@ __metadata:
     jest-when: ^3.0.1
     lint-staged: ">=10"
     metro-react-native-babel-preset: ^0.59.0
+    molecular: ^0.0.0
+    moleculer: ^0.14.21
+    moleculer-ioc: ^0.0.7
     monaco-editor-webpack-plugin: 2.0.0
     os-browserify: ^0.3.0
     postcss: ^8.2.4
@@ -26462,6 +26639,13 @@ __metadata:
   peerDependencies:
     typescript: ">=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta"
   checksum: 1843f4c1b2e0f975e08c4c21caa4af4f7f65a12ac1b81b3b8489366826259323feb3fc7a243123453d2d1a02314205a7634e048d4a8009921da19f99755cdc48
+  languageName: node
+  linkType: hard
+
+"ttl@npm:^1.3.0":
+  version: 1.3.1
+  resolution: "ttl@npm:1.3.1"
+  checksum: 97a00686f678e503d9416f44c4effae32f813a1090e433a29095bb1ddf861c1c15f848b0f13f772c2063b0a831e4656510bde0174657e566f644205aff2baf37
   languageName: node
   linkType: hard
 
@@ -28701,6 +28885,13 @@ __metadata:
   version: 1.8.0
   resolution: "xmlhttprequest@npm:1.8.0"
   checksum: c891cf0d7884b4f5cce835aa01f1965727cd352cbd2d7a2e0605bf11ec99ae2198364cca54656ec8b2581a5704dee6c2bf9911922a0ff2a71b613455d32e81b7
+  languageName: node
+  linkType: hard
+
+"xregexp@npm:^3.0.0":
+  version: 3.2.0
+  resolution: "xregexp@npm:3.2.0"
+  checksum: 21bde05dfec7cea64229436c3c20640c68227d023227a08face023d849281b01ddaf327c6bbed1fc35209d7b7556e978f5f17b83915b7171c694c65ea5b7706f
   languageName: node
   linkType: hard
 

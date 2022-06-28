@@ -150,5 +150,10 @@
     "webpack": "^5.19.0",
     "webpack-cli": "^4.4.0",
     "webpack-dev-server": "^3.11.2"
+  },
+  "dependencies": {
+    "molecular": "^0.0.0",
+    "moleculer": "^0.14.21",
+    "moleculer-ioc": "^0.0.7"
   }
 }

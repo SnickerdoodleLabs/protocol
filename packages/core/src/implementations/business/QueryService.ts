@@ -13,7 +13,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IQueryParsingEngine,
@@ -32,6 +31,10 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
+import { ResultUtils } from "neverthrow-result-utils";
+import createClient from "ipfs-http-client";
+
+
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -45,7 +48,7 @@ export class QueryService implements IQueryService {
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-  ) {}
+  ) { }
 
   public onQueryPosted(
     consentContractAddress: EthereumContractAddress,
@@ -60,15 +63,24 @@ export class QueryService implements IQueryService {
     | ConsentError
   > {
     // Get the IPFS data for the query. This is just "Get the query";
+
+    const client = createClient.create({ host: "ipfs" });
+
     return ResultUtils.combine([
-      this.sdqlQueryRepo.getByCID([queryId]),
+      this.sdqlQueryRepo.getByCID(queryId),
       this.contextProvider.getContext(),
     ]).andThen(([queries, context]) => {
       const query = queries.get(queryId);
 
       if (query == null) {
-        // The query doesn't actually exist
         // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
+        // If the client does have the cid key, but no query data yet, then it is not resolved in IPFS yet.
+        // Then we should store this CID and try again later
+        /*
+        if (createClient.has(queryId)) {
+
+        }
+        */
         return okAsync(undefined);
       }
 
@@ -109,7 +121,7 @@ export class QueryService implements IQueryService {
 
     // Get the IPFS data for the query. This is just "Get the query";
     return this.sdqlQueryRepo
-      .getByCID([queryId])
+      .getByCID(queryId)
       .andThen((queries) => {
         const query = queries.get(queryId);
 
