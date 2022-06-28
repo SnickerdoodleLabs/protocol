@@ -120,7 +120,11 @@ export class ConsentContractRepository implements IConsentContractRepository {
         });
       },
     );
+
   }
+
+
+
 
   public getConsentContracts(): ResultAsync<
     Map<EthereumContractAddress, IConsentContract>,
