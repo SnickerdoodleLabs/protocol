@@ -161,6 +161,9 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<void, UninitializedError | ConsentError>;
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
+
+  setAge(age: number): ResultAsync<void, PersistenceError>;
+  getAge(): ResultAsync<number, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

@@ -67,6 +67,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
   }
+  setAge(age: number): ResultAsync<void, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.setAge(age);
+  }
+  getAge(): ResultAsync<number, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getAge();
+  }
 
   public getEvents(): ResultAsync<IQueryEngineEvents, never> {
     const contextProvider =

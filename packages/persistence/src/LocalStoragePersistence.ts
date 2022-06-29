@@ -15,6 +15,8 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
   AGE = "SD_Age",
+  SITE_VISITS = "SD_SiteVisits",
+  TRANSACTIONS = "SD_Transactions",
 }
 
 export const LocalStoragePersistence: IDataWalletPersistence = {
@@ -66,12 +68,20 @@ export const LocalStoragePersistence: IDataWalletPersistence = {
     throw new Error("Method not implemented.");
   },
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    LocalStorageUtils.writeLocalStorage(
+      ELocalStorageKey.SITE_VISITS,
+      siteVisits,
+    );
+    return okAsync(undefined);
   },
   addEthereumTransactions(
     transactions: EthereumTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    LocalStorageUtils.writeLocalStorage(
+      ELocalStorageKey.TRANSACTIONS,
+      transactions,
+    );
+    return okAsync(undefined);
   },
   addAccount(
     accountAddress: EthereumAccountAddress,
