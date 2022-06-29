@@ -28,6 +28,7 @@
       "@core/*": ["./*"],
       "@core-tests/*": ["../test/*"],
       "@contracts-sdk/*": ["./*"],
+      "@persistence/*": ["./*"],
       "@utils/*": ["./*"]
     }
   }

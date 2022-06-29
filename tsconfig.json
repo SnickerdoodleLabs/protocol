@@ -12,6 +12,9 @@
       "path": "packages/contracts-sdk"
     },
     {
+      "path": "packages/persistence"
+    },
+    {
       "path": "packages/utils"
     },
     // {
