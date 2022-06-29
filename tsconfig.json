@@ -10,6 +10,9 @@
     },
     {
       "path": "packages/contracts-sdk"
+    },
+    {
+      "path": "packages/common-utils"
     }
     // {
     //   "path": "packages/browserExtension"

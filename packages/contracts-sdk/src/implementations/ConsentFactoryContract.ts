@@ -10,7 +10,9 @@ import {
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { injectable } from "inversify";
 
+@injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
   protected contract: ethers.Contract;
   constructor(
