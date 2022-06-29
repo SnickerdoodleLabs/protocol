@@ -5,7 +5,7 @@ export class PortConnectionUtils implements IPortConnectionUtils {
   constructor(protected contextProvider: IContextProvider) {
     Browser.runtime.onConnect.addListener(this.onConnect.bind(this));
   }
-  
+
   private onConnect(port: Runtime.Port): ResultAsync<void, never> {
     const portEvents = this.contextProvider.getPortEvents();
     portEvents.onPortConnectionRequested.next(port);

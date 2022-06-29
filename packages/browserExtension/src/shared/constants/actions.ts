@@ -4,3 +4,7 @@ export enum EInternalActions {
   GET_LOGIN_MESSAGE = "GET_LOGIN_MESSAGE",
   ADD_ACCOUNT = "ADD_ACCOUNT",
 }
+
+export enum ExternalActions {
+  GET_STATE = "GET_STATE",
+}

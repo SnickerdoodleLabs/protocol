@@ -4,8 +4,8 @@ export class AccountContext {
   private onInitialized: () => void;
   constructor(
     onInitialized: () => void,
-    public account: EthereumAccountAddress | null = null,
-    public initialized: boolean = false,
+    protected account: EthereumAccountAddress | null = null,
+    protected initialized: boolean = false,
   ) {
     this.onInitialized = onInitialized;
   }
@@ -14,5 +14,9 @@ export class AccountContext {
     this.account = account;
     this.initialized = true;
     this.onInitialized?.();
+  }
+
+  public getAccount() {
+    return this.account;
   }
 }

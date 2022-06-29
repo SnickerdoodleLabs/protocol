@@ -35,6 +35,9 @@ export class InternalRpcMiddlewareFactory
     const clientEvents = this.contextProvider.getClientEvents();
     return createAsyncMiddleware(async (req, res, next) => {
       switch (req.method) {
+        case EInternalActions.GET_STATE:
+          res.result = this.contextProvider.getInternalState();
+          break;
         case EInternalActions.LOGIN:
           await this.promisify(req, res, clientEvents.onLoginRequest);
           break;

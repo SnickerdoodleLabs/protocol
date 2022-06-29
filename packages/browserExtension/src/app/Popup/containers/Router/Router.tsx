@@ -5,19 +5,22 @@ import { AuthRequiredRoutes, LoginRoutes } from "./Router.routes";
 import { Box, CircularProgress } from "@material-ui/core";
 
 const Router: FC = () => {
-  const { appState } = useAppContext();
+  const { appState, initialized } = useAppContext();
 
-  const routes = useMemo(
-    () =>
-      (!appState ? LoginRoutes : AuthRequiredRoutes).map((route) => (
+  const routes = useMemo(() => {
+    if (!initialized || !appState) {
+      return null;
+    }
+    return (appState.walletAccount ? AuthRequiredRoutes : LoginRoutes).map(
+      (route) => (
         <Route key={route.name} path={route.path} element={route.component} />
-      )),
-    [appState],
-  );
+      ),
+    );
+  }, [appState, initialized]);
 
   return (
     <>
-      {appState ? (
+      {!initialized ? (
         <Box display="flex" alignItems="center" justifyContent="center">
           <CircularProgress />
         </Box>

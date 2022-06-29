@@ -13,6 +13,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 
 import { createCoreHandler } from "app/utils";
+import { IInternalState } from "@shared/objects/State";
 
 export class InternalCoreGateway {
   protected _handler;
@@ -20,7 +21,7 @@ export class InternalCoreGateway {
     this._handler = createCoreHandler(this.rpcEngine);
   }
 
-  public getState(): ResultAsync<unknown, unknown> {
+  public getState(): ResultAsync<IInternalState, unknown> {
     return ResultAsync.fromPromise(
       this._handler(EInternalActions.GET_STATE),
       (e) => e,

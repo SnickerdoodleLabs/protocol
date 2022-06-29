@@ -4,6 +4,7 @@ import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
 import Browser from "webextension-polyfill";
 import { createBackgroundConnectors } from "app/utils";
 import { closeCurrenTab } from "@shared/utils/extensionUtils";
+import { IInternalState } from "@shared/objects/State";
 
 const portName = !window.location.hash
   ? EPortNames.SD_POPUP
@@ -28,18 +29,26 @@ interface IAppContext {
   closeCurrentTab: () => void;
   coreGateway: InternalCoreGateway;
   windowType: EPortNames;
-  appState: any;
+  appState: IInternalState | undefined;
+  initialized: boolean;
 }
 
 const AppContext = React.createContext<IAppContext>({} as IAppContext);
 
 export const AppContextProvider: FC = ({ children }) => {
-  const [appState, setAppState] = useState<any>("");
+  const [initialized, setInitialized] = useState<boolean>(false);
+  const [appState, setAppState] = useState<IInternalState>();
   useEffect(() => {
     getInitialState();
     subscribeNotifications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (appState && initialized === false) {
+      setInitialized(true);
+    }
+  }, [appState, initialized]);
 
   const getInitialState = () => {
     coreGateway.getState().map((state) => {
@@ -69,6 +78,7 @@ export const AppContextProvider: FC = ({ children }) => {
         coreGateway,
         windowType: portName,
         appState,
+        initialized,
       }}
     >
       {children}

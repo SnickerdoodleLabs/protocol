@@ -110,4 +110,8 @@ export class AppContext {
       });
     });
   }
+
+  public getPendingActions() {
+    return this.pendingActions;
+  }
 }

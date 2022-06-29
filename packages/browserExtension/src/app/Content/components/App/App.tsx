@@ -10,6 +10,7 @@ import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
 import Browser from "webextension-polyfill";
 import { ExternalCoreGateway } from "app/coreGateways";
 import { createBackgroundConnectors } from "app/utils";
+import { IExternalState } from "@shared/objects/State";
 
 const port = Browser.runtime.connect({ name: "SD_CONTENT_SCRIPT" });
 let coreGateway: ExternalCoreGateway;
@@ -22,12 +23,14 @@ if (connectors.isOk()) {
 }
 
 const App = () => {
+  const [backgroundState, setBackgroundState] = useState<IExternalState>();
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
   const [rewardToDisplay, setRewardToDisplay] = useState<
     IRewardItem | undefined
   >();
 
   useEffect(() => {
+    initiateBackgroundState();
     initiateRewardItem();
     addEventListeners();
     return () => {
@@ -42,6 +45,27 @@ const App = () => {
       }, 1000);
     }
   }, [appState]);
+
+  const initiateBackgroundState = () => {
+    coreGateway.getState().map((state) => {
+      setBackgroundState(state);
+    });
+  };
+  console.log(backgroundState?.scamList);
+  const scamStatus = useMemo(
+    () => backgroundState?.scamList.includes(window.location.origin),
+    [backgroundState],
+  );
+
+  const scamStatusComponent = useMemo(() => {
+    if (scamStatus === false) {
+      return <p>safe</p>;
+    }
+    if (scamStatus) {
+      return <p>scam</p>;
+    }
+    return null;
+  }, [scamStatus]);
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
@@ -147,7 +171,12 @@ const App = () => {
     }
   }, [rewardToDisplay, appState]);
 
-  return <>{renderComponent}</>;
+  return (
+    <>
+      {scamStatusComponent}
+      {renderComponent}
+    </>
+  );
 };
 
 export default App;
