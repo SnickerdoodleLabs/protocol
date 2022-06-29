@@ -10,7 +10,7 @@ import {
 
 import Modal, { useGenericModalStyles } from "../../Modals/Modal";
 import { EAPP_STATE, signatureMessage } from "../../../constants";
-import Browser from 'webextension-polyfill';
+import Browser from "webextension-polyfill";
 
 interface IConnectWalletProps {
   changeAppState: (state: EAPP_STATE) => void;

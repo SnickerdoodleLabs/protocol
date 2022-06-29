@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Greetings from "../../containers/Greetings/Greetings";
 import "./Popup.css";
 import createMetaMaskProvider from "metamask-extension-provider";
 import { ethers } from "ethers";
@@ -21,13 +20,15 @@ import {
 import { createBackgroundConnectors } from "app/utils";
 import { InternalCoreGateway } from "app/coreGateways";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
-import { closeCurrentWindow, closeCurrenTab } from "@shared/utils/extensionUtils";
+import {
+  closeCurrentWindow,
+  closeCurrenTab,
+} from "@shared/utils/extensionUtils";
 
 const Popup = () => {
   const [portName, setPortName] = useState<EPortNames | null>(null);
   const [message, setMessage] = useState(null);
   const [loadCard, setLoadCard] = useState(false);
-  
 
   useEffect(() => {
     const portName = !window.location.hash
@@ -57,7 +58,9 @@ const Popup = () => {
       "" as LanguageCode,
     );
     // use to get updates
-    streamMiddleware.events.on(PORT_NOTIFICATION, (not) => setMessage(not.data));
+    streamMiddleware.events.on(PORT_NOTIFICATION, (not) =>
+      setMessage(not.data),
+    );
 
     // console.log(instance)
     // chrome.runtime.sendMessage({

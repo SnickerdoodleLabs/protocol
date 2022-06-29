@@ -10,7 +10,7 @@ import Browser from "webextension-polyfill";
 class ReactExtensionContainer extends HTMLElement {
   
   connectedCallback() {
-    Browser.runtime.connect({name:"SD_CONTENT_SCRIPT" })
+    
     const shadowRoot = this.attachShadow({ mode: 'open' });
     const styleRoot = document.createElement('link');
     const etherScriptRoot = document.createElement('script');

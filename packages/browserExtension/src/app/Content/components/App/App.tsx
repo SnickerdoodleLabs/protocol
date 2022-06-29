@@ -5,9 +5,21 @@ import ConnectWallet from "../Screens/ConnectWallet";
 import ConnectWalletPending from "../Screens/ConnectWalletPending";
 import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
 import NftClaimed from "../Screens/NftClaimed";
-import browser from 'webextension-polyfill';
-
+import browser from "webextension-polyfill";
 import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
+import Browser from "webextension-polyfill";
+import { ExternalCoreGateway } from "app/coreGateways";
+import { createBackgroundConnectors } from "app/utils";
+
+const port = Browser.runtime.connect({ name: "SD_CONTENT_SCRIPT" });
+let coreGateway: ExternalCoreGateway;
+let notificationEmitter;
+
+const connectors = createBackgroundConnectors(port);
+if (connectors.isOk()) {
+  coreGateway = new ExternalCoreGateway(connectors.value.rpcEngine);
+  notificationEmitter = connectors.value.streamMiddleware.events;
+}
 
 const App = () => {
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
