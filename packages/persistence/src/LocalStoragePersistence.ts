@@ -17,10 +17,11 @@ enum ELocalStorageKey {
   AGE = "SD_Age",
 }
 
-export class LocalStoragePersistence implements IDataWalletPersistence {
+export const LocalStoragePersistence: IDataWalletPersistence = {
   unlock(derivedKey: EthereumPrivateKey): ResultAsync<void, PersistenceError> {
+    return okAsync(undefined);
     throw new Error("Method not implemented.");
-  }
+  },
   getAccounts(): ResultAsync<EthereumAccountAddress[], PersistenceError> {
     const accounts = LocalStorageUtils.readLocalStorage(
       ELocalStorageKey.ACCOUNT,
@@ -31,19 +32,19 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       );
     }
     return okAsync(accounts);
-  }
+  },
   addClick(click: ClickData): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
-  }
+  },
   getClicks(
     clickFilter: ClickFilter,
   ): ResultAsync<ClickData, PersistenceError> {
     throw new Error("Method not implemented.");
-  }
+  },
   setAge(age: number): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.AGE, age);
     return okAsync(undefined);
-  }
+  },
   getAge(): ResultAsync<number, PersistenceError> {
     const age = LocalStorageUtils.readLocalStorage(ELocalStorageKey.AGE);
     if (!age) {
@@ -52,26 +53,26 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       );
     }
     return okAsync(age);
-  }
+  },
   getRejectedCohorts(): ResultAsync<
     EthereumContractAddress[],
     PersistenceError
   > {
     throw new Error("Method not implemented.");
-  }
+  },
   addRejectedCohorts(
     consentContractAddresses: EthereumContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
-  }
+  },
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
-  }
+  },
   addEthereumTransactions(
     transactions: EthereumTransaction[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
-  }
+  },
   addAccount(
     accountAddress: EthereumAccountAddress,
   ): ResultAsync<void, PersistenceError> {
@@ -83,5 +84,5 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       Array.from(new Set([accountAddress, ...(accounts ?? [])])),
     );
     return okAsync(undefined);
-  }
-}
+  },
+};

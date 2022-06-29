@@ -153,8 +153,6 @@ export interface ISnickerdoodleCore {
     | ConsentError
   >;
 
-  addData(): ResultAsync<void, UninitializedError>;
-
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
