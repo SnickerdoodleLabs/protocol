@@ -183,10 +183,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.leaveCohort(consentContractAddress);
   }
 
-  public addData(): ResultAsync<void, never> {
-    return okAsync(undefined);
-  }
-
   public processQuery(
     queryId: IpfsCID,
   ): ResultAsync<void, UninitializedError | ConsentError> {

@@ -6,10 +6,14 @@ import {
   CohortService,
   QueryService,
 } from "@core/implementations/business";
-import { InsightPlatformRepository } from "@core/implementations/data";
+import {
+  InsightPlatformRepository,
+  LoginRegistryRepository,
+} from "@core/implementations/data";
 import {
   ConfigProvider,
   ContextProvider,
+  DerivationMaskUtils,
 } from "@core/implementations/utilities";
 import {
   IBlockchainListener,
@@ -26,12 +30,16 @@ import {
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
+  ILoginRegistryRepository,
+  ILoginRegistryRepositoryType,
 } from "@core/interfaces/data";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
+  IDerivationMaskUtils,
+  IDerivationMaskUtilsType,
 } from "@core/interfaces/utilities";
 
 export const snickerdoodleCoreModule = new ContainerModule(
@@ -55,6 +63,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
+      .inSingletonScope();
+
+    bind<ILoginRegistryRepository>(ILoginRegistryRepositoryType)
+      .to(LoginRegistryRepository)
+      .inSingletonScope();
+
+    bind<IDerivationMaskUtils>(IDerivationMaskUtilsType)
+      .to(DerivationMaskUtils)
       .inSingletonScope();
 
     bind<IConfigProvider>(IConfigProviderType)
