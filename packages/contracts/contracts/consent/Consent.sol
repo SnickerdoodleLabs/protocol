@@ -8,8 +8,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Burnab
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/metatx/MinimalForwarderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import "../interfaces/IConsentFactory.sol";
-import "hardhat/console.sol";
 
 /// @title Consent 
 /// @author Sean Sing
@@ -25,7 +23,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /// @dev Interface for ConsentFactory
     address consentFactoryAddress;
-    IConsentFactory consentFactoryInstance = IConsentFactory(consentFactoryAddress);
+    IConsentFactory consentFactoryInstance;
 
     /// @dev Role bytes
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -49,8 +47,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @notice Emitted when a request for data is made
     /// @dev The SDQL services listens for this event
     /// @param requester Indexed address of data requester
+    /// @param ipfsCIDIndexed The indexed IPFS CID pointing to an SDQL instruction 
     /// @param ipfsCID The IPFS CID pointing to an SDQL instruction 
-    event RequestForData(address indexed requester, string indexed ipfsCID);
+    event RequestForData(address indexed requester, string indexed ipfsCIDIndexed, string ipfsCID);
 
     /* MODIFIERS */
 
@@ -73,17 +72,19 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         __AccessControl_init();
         __ERC721Burnable_init();
 
-        _grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
-        _grantRole(PAUSER_ROLE, consentOwner);
-        _grantRole(SIGNER_ROLE, consentOwner);
-        _grantRole(REQUESTER_ROLE, consentOwner);
-
         // set the consentFactoryAddress
         consentFactoryAddress = _contractFactoryAddress;
-        
+        consentFactoryInstance = IConsentFactory(consentFactoryAddress);
+
+        // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping 
+        super._grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
+        super._grantRole(PAUSER_ROLE, consentOwner);
+        super._grantRole(SIGNER_ROLE, consentOwner);
+        super._grantRole(REQUESTER_ROLE, consentOwner);
+
         // required role grant to allow calling setBaseUri on initialization
         // as msg.sender is the Consent's BeaconProxy contract
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        super._grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         setBaseURI(baseURI_);
     }
 
@@ -98,12 +99,15 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         whenNotPaused
         whenNotDisabled
     {   
+        /// if user has opted in before, revert
+        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+
         /// mint the consent token and set its agreement uri
         _safeMint(_msgSender(), tokenId);
         _setTokenURI(tokenId, agreementURI);
 
         /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender(), address(this));
+        consentFactoryInstance.addUserConsents(_msgSender());
         
         /// increase total supply count
         totalSupply++;
@@ -124,6 +128,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         public
         whenNotPaused
     {
+        /// if user has opted in before, revert
+        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+        
         /// check the signature against the payload
         require(
             _isValidSignature(_msgSender(), tokenId, agreementURI, signature),
@@ -135,7 +142,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         _setTokenURI(tokenId, agreementURI);
 
         /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender(), address(this));
+        consentFactoryInstance.addUserConsents(_msgSender());
 
         /// increase total supply count
         totalSupply++;
@@ -147,19 +154,17 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     function optOut(uint256 tokenId) public {
         /// burn checks if msg.sender is owner of tokenId
         /// burn also reduces totalSupply
+        /// burn also remove user's consent contract to ConsentFactory
         burn(tokenId);
-
-        /// remove user's consent contract to ConsentFactory
-        consentFactoryInstance.removeUserConsents(_msgSender(), address(this));
     }
 
     /// @notice Facilitates entity's request for data
     /// @param ipfsCID IPFS CID containing SDQL Query Instructions
     function requestForData(string memory ipfsCID) external onlyRole(REQUESTER_ROLE) {
         /// TODO implement fee structure 
-        emit RequestForData(_msgSender(), ipfsCID);
+
+        emit RequestForData(_msgSender(), ipfsCID, ipfsCID);
     }
-     
     /// price for data request (calculates based on number of tokens minted (opt-ed in))
 
     /* SETTERS */
@@ -256,7 +261,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         super._grantRole(role, account);
 
         /// update mapping in factory
-        consentFactoryInstance.addUserRole(account, address(this), role);
+        consentFactoryInstance.addUserRole(account, role);
     }
 
     /// @dev Overload {_revokeRole} to add ConsentFactory update 
@@ -264,7 +269,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         super._revokeRole(role, account);
 
         /// update mapping in factory
-        consentFactoryInstance.removeUserRole(account, address(this), role);
+        consentFactoryInstance.removeUserRole(account, role);
     }
 
     // The following functions are overrides required by Solidity.
@@ -277,7 +282,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         totalSupply--;
 
         /// remove user's consent contract to ConsentFactory
-        consentFactoryInstance.removeUserConsents(_msgSender(), address(this));
+        consentFactoryInstance.removeUserConsents(_msgSender());
 
         super._burn(tokenId);
     }
@@ -318,4 +323,15 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
             return super._msgData();
         }
     }
+}
+
+/// @dev a minimal interface for Consent contracts to update the ConsentFactory
+
+interface IConsentFactory {
+
+    function addUserConsents(address user) external;
+    function removeUserConsents(address user) external;
+    function addUserRole(address user, bytes32 role) external;
+    function removeUserRole(address user, bytes32 role) external; 
+    
 }

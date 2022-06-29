@@ -11,14 +11,19 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 
 /// @title Consent 
 /// @author Sean Sing
-/// @notice Snickerdoodle Protocol's ConsentV2 Contract 
-/// @dev PLACEHOLDER contract, currently only used for unit testing upgradeability of Consent
-/// @dev This contract mints and burns consent tokens for users who opt in or out of sharing their data
+/// @notice Snickerdoodle Protocol's Consent Contract 
+/// @dev This contract mints and burns non-transferable ERC721 consent tokens for users who opt in or out of sharing their data
 /// @dev The contract's owners or addresses that have the right role granted can initiate a request for data
-/// @dev Consent's baseline contract was generated using OpenZeppelin (OZ) Wizard and customized thereafter  
-/// @dev Consent adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
+/// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter 
+/// @dev ERC2771ContextUpgradeable's features were directly embedded into the contract (see isTrustedForwarder for details)
+/// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
+/// @dev It is also compatible with OZ's meta-transaction library
 
 contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable {
+
+    /// @dev Interface for ConsentFactory
+    address consentFactoryAddress;
+    IConsentFactory consentFactoryInstance;
 
     /// @dev Role bytes
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -42,8 +47,9 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     /// @notice Emitted when a request for data is made
     /// @dev The SDQL services listens for this event
     /// @param requester Indexed address of data requester
+    /// @param ipfsCIDIndexed The indexed IPFS CID pointing to an SDQL instruction 
     /// @param ipfsCID The IPFS CID pointing to an SDQL instruction 
-    event RequestForData(address indexed requester, string indexed ipfsCID);
+    event RequestForData(address indexed requester, string indexed ipfsCIDIndexed, string ipfsCID);
 
     /* MODIFIERS */
 
@@ -58,21 +64,27 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     /// @param consentOwner Address of the owner of this contract
     /// @param baseURI_ The base uri 
     /// @param name Name of the Consent Contract  
-    function initialize(address consentOwner, string memory baseURI_, string memory name) initializer public {
+    function initialize(address consentOwner, string memory baseURI_, string memory name, address _contractFactoryAddress) initializer public {
+        
         __ERC721_init(name, "CONSENT");
         __ERC721URIStorage_init();
         __Pausable_init();
         __AccessControl_init();
         __ERC721Burnable_init();
 
-        _grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
-        _grantRole(PAUSER_ROLE, consentOwner);
-        _grantRole(SIGNER_ROLE, consentOwner);
-        _grantRole(REQUESTER_ROLE, consentOwner);
+        // set the consentFactoryAddress
+        consentFactoryAddress = _contractFactoryAddress;
+        consentFactoryInstance = IConsentFactory(consentFactoryAddress);
+
+        // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping 
+        super._grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
+        super._grantRole(PAUSER_ROLE, consentOwner);
+        super._grantRole(SIGNER_ROLE, consentOwner);
+        super._grantRole(REQUESTER_ROLE, consentOwner);
 
         // required role grant to allow calling setBaseUri on initialization
         // as msg.sender is the Consent's BeaconProxy contract
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        super._grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         setBaseURI(baseURI_);
     }
 
@@ -90,6 +102,9 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
         /// mint the consent token and set its agreement uri
         _safeMint(_msgSender(), tokenId);
         _setTokenURI(tokenId, agreementURI);
+
+        /// add user's consent contract to ConsentFactory
+        consentFactoryInstance.addUserConsents(_msgSender());
         
         /// increase total supply count
         totalSupply++;
@@ -101,12 +116,10 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against
     /// @param agreementURI User's Consent token uri containing agreement flags
-    /// @param nonce Salt to increase hashed message's security
     /// @param signature Owner's signature to agree with user opt in
     function restrictedOptIn (
         uint256 tokenId, 
         string memory agreementURI,
-        uint256 nonce,
         bytes memory signature
         )
         public
@@ -114,13 +127,16 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     {
         /// check the signature against the payload
         require(
-            _isValidSignature(_msgSender(), nonce, agreementURI, signature),
+            _isValidSignature(_msgSender(), tokenId, agreementURI, signature),
             "Consent: Contract owner did not sign this message"
         );
 
         /// mint the consent token and set its uri
         _safeMint(_msgSender(), tokenId);
         _setTokenURI(tokenId, agreementURI);
+
+        /// add user's consent contract to ConsentFactory
+        consentFactoryInstance.addUserConsents(_msgSender());
 
         /// increase total supply count
         totalSupply++;
@@ -133,25 +149,27 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
         /// burn checks if msg.sender is owner of tokenId
         /// burn also reduces totalSupply
         burn(tokenId);
+
+        /// remove user's consent contract to ConsentFactory
+        consentFactoryInstance.removeUserConsents(_msgSender());
     }
 
     /// @notice Facilitates entity's request for data
     /// @param ipfsCID IPFS CID containing SDQL Query Instructions
     function requestForData(string memory ipfsCID) external onlyRole(REQUESTER_ROLE) {
         /// TODO implement fee structure 
-        emit RequestForData(_msgSender(), ipfsCID);
+
+        emit RequestForData(_msgSender(), ipfsCID, ipfsCID);
     }
-     
     /// price for data request (calculates based on number of tokens minted (opt-ed in))
 
-    /* GETTERS */
-
-    /// @notice Gets the Consent tokens base URI
-    function _baseURI() internal view virtual override returns (string memory baseURI_)  {
-        return baseURI;
-    }
-
     /* SETTERS */
+
+    /// @notice Set the trusted forwarder address 
+    /// @param trustedForwarder_ Address of the trusted forwarder 
+    function setTrustedForwarder(address trustedForwarder_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        trustedForwarder = trustedForwarder_;
+    }
 
     /// @notice Sets the Consent tokens base URI
     /// @param newURI New base uri
@@ -179,33 +197,6 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
         openOptInDisabled = false;
     }
 
-    /* INTERNAL FUNCTIONS */ 
-
-    /// @notice Verify that a signature is valid
-    /// @param user Address of the user calling the function
-    /// @param nonce Salt for hash security
-    /// @param agreementURI User's Consent token uri containing agreement flags
-    /// @param signature Signature of approved user's message hash 
-    /// @return Boolean of whether signature is valid
-    function _isValidSignature(
-        address user,
-        uint256 nonce,
-        string memory agreementURI,
-        bytes memory signature
-    ) internal view returns (bool) {
-
-        // convert the payload to a 32 byte hash
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, nonce, agreementURI)));
-        
-        // retrieve the signature's signer 
-        address signer = ECDSAUpgradeable.recover(hash, signature);
-
-        require(signer != address(0), "Consent: Signer cannot be 0 address.");
-
-        // check if the recovered signature has the SIGNER_ROLE
-        return hasRole(SIGNER_ROLE, signer);
-    }
-
     /* GETTER */ 
 
     /// @dev Inherited from ERC2771ContextUpgradeable to embed its features directly in this contract 
@@ -217,12 +208,36 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
         return forwarder == tf;
     }
 
-    /* SETTER */
+    /// @notice Gets the Consent tokens base URI
+    function _baseURI() internal view virtual override returns (string memory baseURI_)  {
+        return baseURI;
+    }
 
-    /// @notice Set the trusted forwarder address 
-    /// @param trustedForwarder_ Address of the trusted forwarder 
-    function setTrustedForwarder(address trustedForwarder_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        trustedForwarder = trustedForwarder_;
+    /* INTERNAL FUNCTIONS */ 
+
+    /// @notice Verify that a signature is valid
+    /// @param user Address of the user calling the function
+    /// @param tokenId Token id to be tied to current user
+    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @param signature Signature of approved user's message hash 
+    /// @return Boolean of whether signature is valid
+    function _isValidSignature(
+        address user,
+        uint256 tokenId,
+        string memory agreementURI,
+        bytes memory signature
+    ) internal view returns (bool) {
+
+        // convert the payload to a 32 byte hash
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, tokenId, agreementURI)));
+        
+        // retrieve the signature's signer 
+        address signer = ECDSAUpgradeable.recover(hash, signature);
+
+        require(signer != address(0), "Consent: Signer cannot be 0 address.");
+
+        // check if the recovered signature has the SIGNER_ROLE
+        return hasRole(SIGNER_ROLE, signer);
     }
 
     /* OVERRIDES */
@@ -237,6 +252,22 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
+    /// @dev Overload {_grantRole} to add ConsentFactory update
+    function _grantRole(bytes32 role, address account) internal virtual override {
+        super._grantRole(role, account);
+
+        /// update mapping in factory
+        consentFactoryInstance.addUserRole(account, role);
+    }
+
+    /// @dev Overload {_revokeRole} to add ConsentFactory update 
+    function _revokeRole(bytes32 role, address account) internal virtual override {
+        super._revokeRole(role, account);
+
+        /// update mapping in factory
+        consentFactoryInstance.removeUserRole(account, role);
+    }
+
     // The following functions are overrides required by Solidity.
 
     function _burn(uint256 tokenId)
@@ -245,6 +276,10 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     {   
         /// decrease total supply count
         totalSupply--;
+
+        /// remove user's consent contract to ConsentFactory
+        consentFactoryInstance.removeUserConsents(_msgSender());
+
         super._burn(tokenId);
     }
 
@@ -296,4 +331,15 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     function getIsVersion2() public view returns (bool)  {
         return isVersion2;
     }
+}
+
+/// @dev a minimal interface for Consent contracts to update the ConsentFactory
+
+interface IConsentFactory {
+
+    function addUserConsents(address user) external;
+    function removeUserConsents(address user) external;
+    function addUserRole(address user, bytes32 role) external;
+    function removeUserRole(address user, bytes32 role) external; 
+    
 }

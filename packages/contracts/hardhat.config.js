@@ -12,6 +12,7 @@ require("./tasks/ipfs.js");
 require("./tasks/queries.js");
 require("./tasks/consent.js");
 require("./tasks/crumbs.js");
+require("./tasks/utils.js");
 
 require("dotenv").config();
 

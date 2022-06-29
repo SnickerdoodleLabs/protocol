@@ -9,6 +9,7 @@ import "@openzeppelin/contracts-upgradeable/metatx/MinimalForwarderUpgradeable.s
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "./Consent.sol";
+import "hardhat/console.sol";
 
 /// @title Consent Factory
 /// @author Sean Sing
@@ -22,7 +23,10 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     /// Mapping of addresses to an array of its deployed beacon proxy addresses
-    mapping(address => address[]) public addressToConsentBP;
+    mapping(address => address[]) public addressToDeployedConsents;
+
+    /// Mapping of addresses to an array of its deployed beacon proxy addresses
+    mapping(address => mapping(address => uint256)) public addressToDeployedConsentsIndex;
 
     /// @dev Mapping of deployed beacon proxy addresses to track that it is a Consent contract
     mapping(address => bool) public consentAddressCheck;
@@ -34,7 +38,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @dev Mapping of Consent contract address of a specific user's array to its index
     /// @dev Used look up index in the array and check if it exists in the array
     /// @dev User address => Consent address => index within the array
-    mapping(address => mapping(address => uint256)) addressToUserArrayIndex;
+    mapping(address => mapping(address => uint256)) public addressToUserArrayIndex;
 
     /// @dev Mapping of user address to contracts addresses they have specific roles for
     /// @dev User address => role => Consent address array
@@ -55,8 +59,10 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     event ConsentDeployed(address indexed owner, address indexed consentAddress);
 
     /// @dev Sets the trustedForwarder address, calls the initialize function, then disables any initializers as recommended by OpenZeppelin
-    constructor(address trustedForwarder) ERC2771ContextUpgradeable(trustedForwarder) {
-        initialize();
+    /// @param trustedForwarder Address of the trusted forwarder for meta tx
+    /// @dev consentImpAddress address of the Consent contract implementation address for the upgradeable beacon 
+    constructor(address trustedForwarder, address consentImpAddress) ERC2771ContextUpgradeable(trustedForwarder) {
+        initialize(consentImpAddress);
         _disableInitializers();
     }
 
@@ -70,27 +76,20 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         _;
     }
 
-    /// @notice Modified to check the indexes used for querying the array
-    /// @param user Address of user to query   
-    /// @param startingIndex Starting index of query   
-    /// @param endingIndex Ending index of query 
-    modifier checkIndexes(address user, uint256 startingIndex, uint256 endingIndex) {
-        if (endingIndex > addressToUserArray[user].length) {
-            endingIndex = addressToUserArray[user].length;
-        }
-
-        require(endingIndex > startingIndex, "Consent: Ending index must be larger then starting index");
-        _;
-    }
-
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
-    function initialize() initializer public  {
+    /// @param consentImpAddress Uses the initializer modifier to to ensure the contract is only initialized once
+    function initialize(address consentImpAddress) initializer public  {
         __Pausable_init();
         __AccessControl_init();
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
+
+        // deploy the UpgradeableBeacon, transfer its ownership to the user and store its address
+        UpgradeableBeacon _upgradeableBeacon = new UpgradeableBeacon(consentImpAddress);
+        _upgradeableBeacon.transferOwnership(msg.sender);
+        beaconAddress = address(_upgradeableBeacon);
     }
 
     /* CORE FUNCTIONS */
@@ -104,18 +103,34 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     function createConsent(address owner, string memory baseURI, string memory name) public {
 
         BeaconProxy beaconProxy = new BeaconProxy(beaconAddress, 
-        abi.encodeWithSelector(Consent(address(0)).initialize.selector, owner, baseURI, name));
+        abi.encodeWithSelector(Consent(address(0)).initialize.selector, owner, baseURI, name, address(this)));
+
+        address beaconProxyAddress = address(beaconProxy);
 
         // register Consent address into mapping
-        consentAddressCheck[address(beaconProxy)] = true;
+        // so that it can call functions to update relevant mappings in future
+        consentAddressCheck[beaconProxyAddress] = true;
+
+        // add to owner's mapping of deployed Consents;
+        addressToDeployedConsents[owner].push(beaconProxyAddress);
+
+        // add the index within the array
+        addressToDeployedConsentsIndex[owner][beaconProxyAddress] = addressToDeployedConsents[owner].length - 1;
+
+        // add to the role mappings matching roles when initializing Consent contract 
+        // DEFAULT_ADMIN_ROLE is 0x0 by default 
+        addressToUserRolesArray[owner][keccak256("0")].push(beaconProxyAddress);
+        addressToUserRolesArray[owner][keccak256("PAUSER_ROLE")].push(beaconProxyAddress);
+        addressToUserRolesArray[owner][keccak256("SIGNER_ROLE")].push(beaconProxyAddress);
+        addressToUserRolesArray[owner][keccak256("REQUESTER_ROLE")].push(beaconProxyAddress);
 
         // TODO revisit all emits to confirm we are emitting useful info
-        emit ConsentDeployed(owner, address(beaconProxy));
+        emit ConsentDeployed(owner, beaconProxyAddress);
     }
 
     /// @notice Function to add consent addresses that users have opted-in to
     /// @param user Address of the user to update  
-    function addUserConsents(address user) public onlyConsentContract {
+    function addUserConsents(address user) external onlyConsentContract {
         // retrieve the array of address a users has and add the latest
         addressToUserArray[user].push(msg.sender);
 
@@ -126,14 +141,13 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @notice Function to remove consent addresses that users have opted-in to
     /// @dev This allows us to retrieve a list of Consent contract addresses the user has opted-in to
     /// @param user Address of the user to update  
-    function removeUserConsents(address user) public onlyConsentContract {
+    function removeUserConsents(address user) external onlyConsentContract {
         
         // retrieve the user's list of Consents
         address[] memory consentList = addressToUserArray[user];
 
         // get the requesting Consent address's index
         uint256 indexToReplace = addressToUserArrayIndex[user][msg.sender];
-
         // replace the index of interest with the last element in the array
         addressToUserArray[user][indexToReplace] = consentList[consentList.length - 1];
 
@@ -141,22 +155,27 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         addressToUserArrayIndex[user][consentList[consentList.length - 1]] = indexToReplace;
 
         // delete the last element now that is has been moved
-        delete addressToUserArray[user][consentList.length - 1];
+        addressToUserArray[user].pop();
     }
 
     /// @notice Function to add roles a user address has on a specific contract
     /// @dev This allows us to retrieve a list of Consent contract addresses where the user has specific roles
     /// @param user Address of the user to update  
     /// @param role Role of the user in bytes32   
-    function addUserRole(address user, bytes32 role) public onlyConsentContract {
+    function addUserRole(address user, bytes32 role) external onlyConsentContract {
+       
+       // retrieve the array of address a users has and add the latest
        addressToUserRolesArray[user][role].push(msg.sender);
+
+       // store the index of the last pushed element
+       addressToUserRolesArrayIndex[user][role][msg.sender] = addressToUserRolesArray[user][role].length - 1;
     }
 
     /// @notice Function to add roles a user address has on a specific contract
     /// @dev This allows us to retrieve a list of Consent contract addresses where the user has specific roles
     /// @param user Address of the user to update  
     /// @param role Role of the user in bytes32   
-    function removeUserRole(address user, bytes32 role) public onlyConsentContract {
+    function removeUserRole(address user, bytes32 role) external onlyConsentContract {
 
        // retrieve the user's list of Consents based on role
        address[] memory consentList = addressToUserRolesArray[user][role];
@@ -171,18 +190,26 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         addressToUserRolesArrayIndex[user][role][consentList[consentList.length - 1]] = indexToReplace;
 
         // delete the last element now that is has been moved
-        delete addressToUserRolesArray[user][role][consentList.length - 1];
-    }
-     
-    /* SETTERS */
-
-    /// @notice Sets the UpgradeableBeacon address for the factory 
-    /// @param beaconAddress_ Address of the UpgradeableBeacon contract  
-    function setBeaconAddress(address beaconAddress_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        beaconAddress = beaconAddress_;
+        addressToUserRolesArray[user][role].pop();
     }
 
     /* GETTERS */
+
+    /// @notice Return the number Consent addresses that user has deployed
+    /// @param user Address of the user   
+    /// @return count Count of user's current opted-in Consent contracts
+    function getUserDeployedConsentsCount(address user) external view returns(uint256 count) {
+        return addressToDeployedConsents[user].length;
+    }
+
+    /// @notice Return the an array of Consent addresses that user has deployed
+    /// @param user Address of the user  
+    /// @param startingIndex Starting index of query   
+    /// @param endingIndex Ending index of query   
+    function getUserDeployedConsentsByIndex(address user, uint256 startingIndex, uint256 endingIndex) external view returns(address[] memory) {
+        
+        return _queryList(startingIndex, endingIndex, addressToDeployedConsents[user]);
+    }
 
     /// @notice Return the number Consent addresses that user is currently opted-in
     /// @param user Address of the user   
@@ -195,7 +222,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @param user Address of the user  
     /// @param startingIndex Starting index of query   
     /// @param endingIndex Ending index of query   
-    function getUserConsentAddressesByIndex(address user, uint256 startingIndex, uint256 endingIndex) external view checkIndexes(user, startingIndex, endingIndex) returns(address[] memory) {
+    function getUserConsentAddressesByIndex(address user, uint256 startingIndex, uint256 endingIndex) external view returns(address[] memory) {
         
         return _queryList(startingIndex, endingIndex, addressToUserArray[user]);
     }
@@ -213,7 +240,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @param role Bytes32 role  
     /// @param startingIndex Starting index of query   
     /// @param endingIndex Ending index of query   
-    function getUserRoleAddressesCountByIndex(address user, bytes32 role, uint256 startingIndex, uint256 endingIndex) external view checkIndexes(user, startingIndex, endingIndex) returns(address[] memory) {
+    function getUserRoleAddressesCountByIndex(address user, bytes32 role, uint256 startingIndex, uint256 endingIndex) external view returns(address[] memory) {
         
         return _queryList(startingIndex, endingIndex, addressToUserRolesArray[user][role]);
     }
@@ -224,16 +251,27 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @param consentList Array of Consent contract addresses
     /// @return filteredList Array of Consent addresses after queries
     function _queryList(uint256 startingIndex, uint256 endingIndex, address[] memory consentList) internal pure returns(address[] memory filteredList) {
-        
-        address[] memory queriedList;
+
+        require(endingIndex >= startingIndex, "ConsentFactory: Ending index must be larger then starting index");
+
+        // if user does not have any consent addresses, return empty array
+        if(consentList.length == 0) {
+            address[] memory empty;
+            return empty;
+        }
+        // else, make sure that the ending index does not exceed the max length
+        if (endingIndex > consentList.length - 1) {
+            endingIndex = consentList.length - 1;
+        }
+
+        // create a new array with length equal to number being queried
+        address[] memory queriedList = new address[](endingIndex - startingIndex + 1);
         uint256 queriedIndex; 
         
         // push the addresses within the queried list 
-        for(uint256 i = startingIndex; i < consentList.length; i++) {
-            if(startingIndex <= endingIndex) {
-                queriedList[queriedIndex] = consentList[i];
-                queriedIndex++;
-            }
+        for(uint256 i = startingIndex; i <= endingIndex; i++) {
+            queriedList[queriedIndex] = consentList[i];
+            queriedIndex++;
         }
 
         return queriedList;
