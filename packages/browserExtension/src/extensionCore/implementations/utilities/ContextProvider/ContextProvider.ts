@@ -54,6 +54,7 @@ export class ContextProvider implements IContextProvider {
   public getExterenalState(): IExternalState {
     return {
       scamList: this.siteContext.getScamList(),
+      whiteList: this.siteContext.getWhiteList(),
     };
   }
 

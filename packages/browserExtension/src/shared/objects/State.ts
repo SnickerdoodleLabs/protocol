@@ -10,4 +10,5 @@ export interface IInternalState {
 
 export interface IExternalState {
   scamList: string[];
+  whiteList: string[];
 }

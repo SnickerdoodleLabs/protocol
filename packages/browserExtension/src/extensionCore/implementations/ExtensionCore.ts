@@ -43,14 +43,15 @@ import {
 } from "@implementations/api";
 
 // core package
-import { QueryEngine } from "@snickerdoodlelabs/core";
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
-import { IQueryEngine } from "@snickerdoodlelabs/objects";
+import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import Browser from "webextension-polyfill";
 
 export class ExtensionCore {
   // snickerdooldle Core
-  protected core: IQueryEngine;
+  protected core: SnickerdoodleCore;
 
   // Business
   protected portConnectionService: IPortConnectionService;
@@ -63,7 +64,7 @@ export class ExtensionCore {
   protected contextProvider: IContextProvider;
   protected portConnectionUtils: IPortConnectionUtils;
   // Factory
-  protected externalRpcMiddlewareFactory : IExternalRpcMiddlewareFactory;
+  protected externalRpcMiddlewareFactory: IExternalRpcMiddlewareFactory;
   protected internalRpcMiddlewareFactory: IInternalRpcMiddlewareFactory;
   protected rpcEngineFactory: IRpcEngineFactory;
 
@@ -73,7 +74,7 @@ export class ExtensionCore {
   protected portConnectionListenner: IPortConnectionListener;
 
   constructor() {
-    this.core = new QueryEngine();
+    this.core = new SnickerdoodleCore();
 
     this.coreListener = new CoreListener(this.core);
     this.coreListener.initialize();
@@ -112,5 +113,13 @@ export class ExtensionCore {
     this.portConnectionListenner.initialize();
 
     this.configProvider = new ConfigProvider();
+    this.listenExtensionIconClicks();
+  }
+
+  private listenExtensionIconClicks() {
+    // this can check whether onboarding complated or not
+    Browser.action.onClicked.addListener((info, tab) => {
+      Browser.action.setPopup({ popup: "popup.html" });
+    });
   }
 }

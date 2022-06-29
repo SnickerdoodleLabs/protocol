@@ -51,21 +51,26 @@ const App = () => {
       setBackgroundState(state);
     });
   };
-  console.log(backgroundState?.scamList);
-  const scamStatus = useMemo(
+
+  const isScam = useMemo(
     () => backgroundState?.scamList.includes(window.location.origin),
     [backgroundState],
   );
 
-  const scamStatusComponent = useMemo(() => {
-    if (scamStatus === false) {
-      return <p>safe</p>;
-    }
-    if (scamStatus) {
-      return <p>scam</p>;
-    }
-    return null;
-  }, [scamStatus]);
+  const isInWhiteList = useMemo(
+    () => backgroundState?.whiteList.includes(window.location.origin),
+    [backgroundState],
+  );
+
+  const renderScamWarning = useMemo(
+    () => (isScam ? <p>scam</p> : null),
+    [isScam],
+  );
+
+  const renderSafeUrlNotification = useMemo(
+    () => (isInWhiteList ? <p>safe url</p> : null),
+    [isInWhiteList],
+  );
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
@@ -173,7 +178,8 @@ const App = () => {
 
   return (
     <>
-      {scamStatusComponent}
+      {renderSafeUrlNotification}
+      {renderScamWarning}
       {renderComponent}
     </>
   );
