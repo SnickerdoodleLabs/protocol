@@ -3902,6 +3902,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/objects": ">=0.0.1"
     argon2: ^0.28.4
+    axios: ^0.27.2
     ethers: ^5.6.6
     inversify: ^5.1.1
     neverthrow: ^4.3.1

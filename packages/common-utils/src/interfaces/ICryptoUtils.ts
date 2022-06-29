@@ -56,6 +56,11 @@ export interface ICryptoUtils {
     hash: Argon2Hash,
     message: string,
   ): ResultAsync<boolean, never>;
+
+  xmur3(str: string): () => number;
+  sfc32(a: number, b: number, c: number, d: number): () => number;
+  randomInt(randomFunc: () => number, low: number, high: number): number;
+  randomBytes(length: number, seed: string): Uint8Array;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");
