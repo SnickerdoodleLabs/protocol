@@ -7,7 +7,7 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   EInvitationStatus,
-  EthereumContractAddress,
+  EVMContractAddress,
   PersistenceError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -45,7 +45,7 @@ export interface ICohortService {
   >;
 
   leaveCohort(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
     | ConsentContractError

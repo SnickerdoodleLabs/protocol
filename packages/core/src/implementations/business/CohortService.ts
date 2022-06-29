@@ -5,7 +5,7 @@ import {
   PersistenceError,
   ConsentConditions,
   ConsentError,
-  EthereumContractAddress,
+  EVMContractAddress,
   IDataWalletPersistenceType,
   IDataWalletPersistence,
   Signature,
@@ -40,7 +40,7 @@ export class CohortService implements ICohortService {
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-  ) {}
+  ) { }
 
   public checkInvitationStatus(
     invitation: CohortInvitation,
@@ -126,7 +126,7 @@ export class CohortService implements ICohortService {
   }
 
   public leaveCohort(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
     | ConsentContractError

@@ -5,7 +5,7 @@ import { IContextProvider } from "@core/interfaces/utilities";
 import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
 import {
   DataWalletAddress,
-  EthereumAccountAddress,
+  EVMAccountAddress,
   SDQLQuery,
 } from "@snickerdoodlelabs/objects";
 
@@ -16,7 +16,7 @@ export class ContextProviderMock implements IContextProvider {
 
   public onInitializedActivations: DataWalletAddress[] = [];
   public onQueryPostedActivations: SDQLQuery[] = [];
-  public onAccountAddedActivations: EthereumAccountAddress[] = [];
+  public onAccountAddedActivations: EVMAccountAddress[] = [];
 
   constructor(context: CoreContext | null = null) {
     this.publicEvents.onInitialized.subscribe((val) => {
@@ -51,7 +51,7 @@ export class ContextProviderMock implements IContextProvider {
   public setContextValues = new Array<CoreContext>();
   public setContext(context: CoreContext): ResultAsync<void, never> {
     this.setContextValues.push(context);
-    return okAsync<null, never>(null).map(() => {});
+    return okAsync<null, never>(null).map(() => { });
   }
 
   public assertEventCounts(expectedCounts: IExpectedEventCounts): void {

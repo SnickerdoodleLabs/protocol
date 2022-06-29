@@ -4,7 +4,7 @@ import {
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
-  EthereumContractAddress,
+  EVMContractAddress,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -22,10 +22,10 @@ export class ConsentContractFactory implements IConsentContractFactory {
   public constructor(
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
-  ) {}
+  ) { }
 
   public factoryConsentContracts(
-    consentContractAddresses: EthereumContractAddress[],
+    consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<
     IConsentContract[],
     BlockchainProviderError | UninitializedError

@@ -4,13 +4,13 @@ import {
   TypedDataField,
 } from "@ethersproject/abstract-signer";
 import {
-  EthereumAccountAddress,
+  EVMAccountAddress,
   Signature,
   AESEncryptedString,
   AESKey,
   Argon2Hash,
   EncryptedString,
-  EthereumPrivateKey,
+  EVMPrivateKey,
   InitializationVector,
   SHA256Hash,
 } from "@snickerdoodlelabs/objects";
@@ -25,7 +25,7 @@ import { ICryptoUtils } from "@common-utils/interfaces";
 export class CryptoUtils implements ICryptoUtils {
   protected cipherAlgorithm = "aes-256-cbc";
 
-  constructor() {}
+  constructor() { }
 
   public getNonce(nonceSize = 64): ResultAsync<string, never> {
     return okAsync(
@@ -37,23 +37,23 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(AESKey(Crypto.randomBytes(32).toString("base64")));
   }
 
-  public createEthereumPrivateKey(): ResultAsync<EthereumPrivateKey, never> {
-    return okAsync(EthereumPrivateKey(Crypto.randomBytes(32).toString("hex")));
+  public createEthereumPrivateKey(): ResultAsync<EVMPrivateKey, never> {
+    return okAsync(EVMPrivateKey(Crypto.randomBytes(32).toString("hex")));
   }
 
   public getEthereumAccountAddressFromPrivateKey(
-    privateKey: EthereumPrivateKey,
-  ): EthereumAccountAddress {
+    privateKey: EVMPrivateKey,
+  ): EVMAccountAddress {
     const wallet = new ethers.Wallet(privateKey);
 
-    return EthereumAccountAddress(wallet.address);
+    return EVMAccountAddress(wallet.address);
   }
 
   public verifySignature(
     message: string,
     signature: Signature,
-  ): ResultAsync<EthereumAccountAddress, never> {
-    const address = EthereumAccountAddress(
+  ): ResultAsync<EVMAccountAddress, never> {
+    const address = EVMAccountAddress(
       ethers.utils.verifyMessage(message, signature),
     );
 
@@ -65,9 +65,9 @@ export class CryptoUtils implements ICryptoUtils {
     types: Record<string, Array<TypedDataField>>,
     value: Record<string, unknown>,
     signature: Signature,
-  ): ResultAsync<EthereumAccountAddress, never> {
+  ): ResultAsync<EVMAccountAddress, never> {
     return okAsync(
-      EthereumAccountAddress(
+      EVMAccountAddress(
         ethers.utils.verifyTypedData(domain, types, value, signature),
       ),
     );
@@ -123,7 +123,7 @@ export class CryptoUtils implements ICryptoUtils {
 
   public signMessage(
     message: string,
-    privateKey: EthereumPrivateKey,
+    privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never> {
     const wallet = new ethers.Wallet(privateKey);
 

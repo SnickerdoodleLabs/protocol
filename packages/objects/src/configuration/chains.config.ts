@@ -4,7 +4,7 @@ import {
 } from "@objects/businessObjects";
 import {
   ChainId,
-  EthereumContractAddress,
+  EVMContractAddress,
   ProviderUrl,
 } from "@objects/primatives";
 
@@ -17,7 +17,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [ProviderUrl("http://localhost:8545")],
       4000,
-      EthereumContractAddress("todo"),
+      EVMContractAddress("todo"),
     ),
   ],
   [

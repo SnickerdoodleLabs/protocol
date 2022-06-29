@@ -4,7 +4,7 @@ import {
   IpfsCID,
   Reward,
   CohortInvitation,
-  EthereumContractAddress,
+  EVMContractAddress,
   Signature,
   TokenId,
 } from "@snickerdoodlelabs/objects";
@@ -22,7 +22,7 @@ import {
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
     @inject(IConfigProviderType) public configProvider: IConfigProvider,
-  ) {}
+  ) { }
 
   public claimReward(
     insights: Insight[],
@@ -49,7 +49,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   }
 
   public leaveCohort(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, never> {
     throw new Error("Method not implemented.");
   }

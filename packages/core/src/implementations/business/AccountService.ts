@@ -3,7 +3,7 @@ import {
   BlockchainProviderError,
   DataWalletAddress,
   DerivationMask,
-  EthereumAccountAddress,
+  EVMAccountAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   InvalidSignatureError,
@@ -40,7 +40,7 @@ export class AccountService implements IAccountService {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IDerivationMaskUtilsType)
     protected derivationMaskUtils: IDerivationMaskUtils,
-  ) {}
+  ) { }
 
   public getUnlockMessage(
     languageCode: LanguageCode,
@@ -59,7 +59,7 @@ export class AccountService implements IAccountService {
   }
 
   public unlock(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
@@ -95,7 +95,7 @@ export class AccountService implements IAccountService {
           return this.unlockExistingWallet(derivationMask, signature);
         })
         .andThen(({ account, entropy }) => {
-          // The account address in account is just a generic EthereumAccountAddress,
+          // The account address in account is just a generic EVMAccountAddress,
           // we need to cast it to a DataWalletAddress, since in this case, that's
           // what it is.
           context.dataWalletAddress = DataWalletAddress(account.accountAddress);
@@ -121,7 +121,7 @@ export class AccountService implements IAccountService {
   }
 
   protected createDataWallet(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
@@ -143,7 +143,7 @@ export class AccountService implements IAccountService {
                 // We need to store the derivation mask, and the key and data
                 // wallet address in the context
 
-                // The account address in account is just a generic EthereumAccountAddress,
+                // The account address in account is just a generic EVMAccountAddress,
                 // we need to cast it to a DataWalletAddress, since in this case, that's
                 // what it is.
                 return this.loginRegistryRepo
@@ -180,7 +180,7 @@ export class AccountService implements IAccountService {
   }
 
   public addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
@@ -232,5 +232,5 @@ export class AccountService implements IAccountService {
 }
 
 class AccountEntropyPair {
-  public constructor(public account: EthereumAccount, public entropy: string) {}
+  public constructor(public account: EthereumAccount, public entropy: string) { }
 }

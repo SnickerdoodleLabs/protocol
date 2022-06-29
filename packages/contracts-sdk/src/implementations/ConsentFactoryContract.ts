@@ -3,8 +3,8 @@ import { ResultAsync } from "neverthrow";
 import {
   ConsentFactoryContractError,
   ConsentName,
-  EthereumAccountAddress,
-  EthereumContractAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
@@ -20,7 +20,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    consentFactoryAddress: EthereumContractAddress,
+    consentFactoryAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
       consentFactoryAddress,
@@ -30,11 +30,11 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public createConsent(
-    ownerAddress: EthereumAccountAddress,
+    ownerAddress: EVMAccountAddress,
     baseUri: string,
     consentName: ConsentName,
     overrides?: ContractOverrides,
-  ): ResultAsync<EthereumContractAddress, ConsentFactoryContractError> {
+  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.createConsent(
         ownerAddress,
@@ -54,12 +54,12 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   private getConsentBPAddress(
-    owneraddress: EthereumAccountAddress,
-  ): ResultAsync<EthereumContractAddress, ConsentFactoryContractError> {
+    owneraddress: EVMAccountAddress,
+  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getConsentBP(
         owneraddress,
-      ) as Promise<EthereumContractAddress>,
+      ) as Promise<EVMContractAddress>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call getConsentBP()",
@@ -71,8 +71,8 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   // TODO: Replace Promise<any> with correct types returned from ConsentDeployed() and queryFilter()
   public getConsentsDeployedByOwner(
-    ownerAddress: EthereumAccountAddress,
-  ): ResultAsync<EthereumContractAddress[], ConsentFactoryContractError> {
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.filters.ConsentDeployed(ownerAddress) as Promise<any>,
       (e) => {

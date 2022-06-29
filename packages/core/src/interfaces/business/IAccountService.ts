@@ -1,6 +1,6 @@
 import {
   BlockchainProviderError,
-  EthereumAccountAddress,
+  EVMAccountAddress,
   InvalidSignatureError,
   LanguageCode,
   PersistenceError,
@@ -16,7 +16,7 @@ export interface IAccountService {
   ): ResultAsync<string, UnsupportedLanguageError>;
 
   unlock(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
@@ -28,7 +28,7 @@ export interface IAccountService {
   >;
 
   addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<

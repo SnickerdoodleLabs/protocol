@@ -1,11 +1,11 @@
 import {
-  EthereumAccountAddress,
-  EthereumPrivateKey,
+  EVMAccountAddress,
+  EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 
 export class EthereumAccount {
   public constructor(
-    public accountAddress: EthereumAccountAddress,
-    public privateKey: EthereumPrivateKey,
-  ) {}
+    public accountAddress: EVMAccountAddress,
+    public privateKey: EVMPrivateKey,
+  ) { }
 }

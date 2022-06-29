@@ -17,7 +17,7 @@ import {
 } from "@core-tests/mock/mocks";
 import {
   ConsentContractError,
-  EthereumAccountAddress,
+  EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
 
 class QueryServiceMocks {
@@ -27,7 +27,7 @@ class QueryServiceMocks {
   public consentContractRepository = td.object<IConsentContractRepository>();
   public contextProvider = new ContextProviderMock();
 
-  constructor() {}
+  constructor() { }
 
   public runSuccessScenarios() {
     td.when(this.ISDQLQueryRepository.getByCID([queryId])).thenReturn(
@@ -37,7 +37,7 @@ class QueryServiceMocks {
     td.when(
       this.consentContractRepository.isAddressOptedIn(
         consentContractAddress,
-        EthereumAccountAddress(
+        EVMAccountAddress(
           this.contextProvider.context.dataWalletAddress || "",
         ),
       ),
@@ -52,7 +52,7 @@ class QueryServiceMocks {
     td.when(
       this.consentContractRepository.isAddressOptedIn(
         consentContractAddress,
-        EthereumAccountAddress(
+        EVMAccountAddress(
           this.contextProvider.context.dataWalletAddress || "",
         ),
       ),

@@ -1,10 +1,10 @@
 import {
   ClickData,
   ClickFilter,
-  EthereumAccountAddress,
-  EthereumContractAddress,
-  EthereumPrivateKey,
-  EthereumTransaction,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
+  EVMTransaction,
   IDataWalletPersistence,
   PersistenceError,
   SiteVisit,
@@ -18,19 +18,19 @@ import { ResultAsync } from "neverthrow";
  */
 export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   public unlock(
-    derivedKey: EthereumPrivateKey,
+    derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
   public addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
   public getAccounts(): ResultAsync<
-    EthereumAccountAddress[],
+    EVMAccountAddress[],
     PersistenceError
   > {
     throw new Error("Method not implemented.");
@@ -55,14 +55,14 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getRejectedCohorts(): ResultAsync<
-    EthereumContractAddress[],
+    EVMContractAddress[],
     PersistenceError
   > {
     throw new Error("Method not implemented.");
   }
 
   public addRejectedCohorts(
-    consentContractAddresses: EthereumContractAddress[],
+    consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
@@ -74,7 +74,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   public addEthereumTransactions(
-    transactions: EthereumTransaction[],
+    transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }

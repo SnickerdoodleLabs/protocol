@@ -1,6 +1,6 @@
 import { ethers, Transaction } from "ethers";
 
-import { ChainId, EthereumAccountAddress } from "@objects/primatives";
+import { ChainId, EVMAccountAddress } from "@objects/primatives";
 
 /**
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to
@@ -8,7 +8,7 @@ import { ChainId, EthereumAccountAddress } from "@objects/primatives";
  * is also importing Ethers.
  * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
-export class EthereumTransaction implements Transaction {
+export class EVMTransaction implements Transaction {
   public constructor(
     public chainId: ChainId,
     public nonce: number,
@@ -18,8 +18,8 @@ export class EthereumTransaction implements Transaction {
   ) {}
 
   public hash?: string | undefined;
-  public to?: EthereumAccountAddress | undefined;
-  public from?: EthereumAccountAddress | undefined;
+  public to?: EVMAccountAddress | undefined;
+  public from?: EVMAccountAddress | undefined;
   public gasPrice?: ethers.BigNumber | undefined;
   public r?: string | undefined;
   public s?: string | undefined;

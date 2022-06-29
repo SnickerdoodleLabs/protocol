@@ -1,7 +1,7 @@
 import {
   BlockchainProviderError,
   DerivationMask,
-  EthereumAccountAddress,
+  EVMAccountAddress,
   LanguageCode,
   TokenId,
   UnsupportedLanguageError,
@@ -15,12 +15,12 @@ export interface ILoginRegistryRepository {
    * not yet minted
    */
   getDerivationMask(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     languageCode: LanguageCode,
   ): ResultAsync<DerivationMask | null, BlockchainProviderError>;
 
   addDerivationMask(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     languageCode: LanguageCode,
     derivationMask: DerivationMask,
   ): ResultAsync<TokenId, BlockchainProviderError>;

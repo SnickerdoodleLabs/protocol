@@ -4,8 +4,8 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
-  EthereumAccountAddress,
-  EthereumContractAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
   Insight,
   IpfsCID,
   ISDQLQueryObject,
@@ -45,10 +45,10 @@ export class QueryService implements IQueryService {
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-  ) {}
+  ) { }
 
   public onQueryPosted(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
     void,
@@ -77,7 +77,7 @@ export class QueryService implements IQueryService {
         return this.consentContractRepository
           .isAddressOptedIn(
             consentContractAddress,
-            EthereumAccountAddress(context.dataWalletAddress),
+            EVMAccountAddress(context.dataWalletAddress),
           )
           .andThen((addressOptedIn) => {
             if (addressOptedIn == false) {

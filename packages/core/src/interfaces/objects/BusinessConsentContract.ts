@@ -1,8 +1,8 @@
-import { EthereumContractAddress } from "@snickerdoodlelabs/objects";
+import { EVMContractAddress } from "@snickerdoodlelabs/objects";
 
 export class BusinessConsentContract {
   public constructor(
-    public contractAddress: EthereumContractAddress,
+    public contractAddress: EVMContractAddress,
     public consentName: string,
-  ) {}
+  ) { }
 }

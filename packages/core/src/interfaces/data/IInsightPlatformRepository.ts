@@ -4,7 +4,7 @@ import {
   IpfsCID,
   Reward,
   CohortInvitation,
-  EthereumContractAddress,
+  EVMContractAddress,
   Signature,
   TokenId,
 } from "@snickerdoodlelabs/objects";
@@ -27,7 +27,7 @@ export interface IInsightPlatformRepository {
   ): ResultAsync<TokenId, never>;
 
   leaveCohort(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, never>;
 }
 

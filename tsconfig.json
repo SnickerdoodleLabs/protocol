@@ -3,9 +3,6 @@
   "files": [],
   "references": [
     {
-      "path": "packages/objects"
-    },
-    {
       "path": "packages/core"
     },
     {
@@ -13,6 +10,12 @@
     },
     {
       "path": "packages/common-utils"
+    },
+    {
+      "path": "packages/indexers"
+    },
+    {
+      "path": "packages/objects"
     }
     // {
     //   "path": "packages/browserExtension"
