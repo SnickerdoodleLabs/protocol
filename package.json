@@ -8,6 +8,9 @@
     "type": "git",
     "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
   },
+  "resolutions": {
+    "@types/react": "^17.0.38"
+  },
   "bugs": {
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
