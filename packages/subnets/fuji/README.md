@@ -13,6 +13,7 @@ The Fuji genesis file, [`snickerdoodle_genesis.json`](/packages/subnets/fuji/sni
 - [chainId](https://chainlist.org/): `36`
 - Total token amount: `13,500,000,000 DOODLE` 
 - Genesis Airdrop Account: `0x73c6ed3a092be873ae1721bf169cd6b4f4832cb2` (PK is in LastPass)
+- VMID: `sqYBDmwoQ4Pjb2aaTMfS4kLiZ4zpNgQmziEsuTSLbmvW7sNgh` (`subnet-cli create VMID snickerdoodle_fuji`)
 
 
 ## TODO: Steps for Adding a Validator to the Snickerdoodle Fuji Subnet
