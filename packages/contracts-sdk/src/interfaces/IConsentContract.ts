@@ -1,4 +1,3 @@
-import { ResultAsync } from "neverthrow";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -10,9 +9,10 @@ import {
   RequestForData,
   BlockNumber,
 } from "@snickerdoodlelabs/objects";
+import { EventFilter, Event } from "ethers";
+import { ResultAsync } from "neverthrow";
 
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
-import { EventFilter, Event } from "ethers";
 
 export interface IConsentContract {
   /**

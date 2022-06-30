@@ -22,7 +22,7 @@ export class ConsentContractFactory implements IConsentContractFactory {
   public constructor(
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
-  ) { }
+  ) {}
 
   public factoryConsentContracts(
     consentContractAddresses: EVMContractAddress[],

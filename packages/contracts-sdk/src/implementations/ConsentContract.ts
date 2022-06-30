@@ -1,5 +1,3 @@
-import { ethers, EventFilter, Event } from "ethers";
-import { ok, okAsync, ResultAsync } from "neverthrow";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -12,14 +10,14 @@ import {
   RequestForData,
   BlockNumber,
 } from "@snickerdoodlelabs/objects";
-
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { BigNumber } from "ethers";
-import { ResultUtils } from "neverthrow-result-utils";
+import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
+import { ok, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -56,7 +54,7 @@ export class ConsentContract implements IConsentContract {
       (e) => {
         return new ConsentContractError("Unable to call optIn()", e);
       },
-    ).map(() => { });
+    ).map(() => {});
   }
 
   public restrictedOptIn(
@@ -77,7 +75,7 @@ export class ConsentContract implements IConsentContract {
       (e) => {
         return new ConsentContractError("Unable to call restrictedOptIn()", e);
       },
-    ).map(() => { });
+    ).map(() => {});
   }
 
   public requestForData(
@@ -90,7 +88,7 @@ export class ConsentContract implements IConsentContract {
       (e) => {
         return new ConsentContractError("Unable to call requestForData()", e);
       },
-    ).map(() => { });
+    ).map(() => {});
   }
 
   public getConsentOwner(): ResultAsync<

@@ -11,5 +11,5 @@ export class RequestForData {
     public requesterAddress: EVMAccountAddress,
     public requestedCID: IpfsCID,
     public blockNumber: BlockNumber,
-  ) { }
+  ) {}
 }

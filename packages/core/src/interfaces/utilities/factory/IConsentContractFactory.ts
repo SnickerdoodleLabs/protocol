@@ -1,10 +1,10 @@
-import { ResultAsync } from "neverthrow";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
   EVMContractAddress,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 
 export interface IConsentContractFactory {
   factoryConsentContracts(

@@ -1,8 +1,9 @@
+import { Readable } from "stream";
+
 import { AjaxError, JsonWebToken } from "@snickerdoodlelabs/objects";
 import axios, { AxiosResponse } from "axios";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { Readable } from "stream";
 
 import { IAxiosAjaxUtils, IRequestConfig } from "@common-utils/interfaces";
 

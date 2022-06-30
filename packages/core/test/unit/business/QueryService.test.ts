@@ -1,24 +1,25 @@
 import "reflect-metadata";
 import {
-  IConsentContractRepository,
-  IInsightPlatformRepository,
-  ISDQLQueryRepository,
-} from "@core/interfaces/data";
-import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
+  ConsentContractError,
+  EVMAccountAddress,
+} from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
 import td from "testdouble";
-import { ContextProviderMock } from "@core-tests/mock/utilities";
-import { IQueryService } from "@core/interfaces/business";
-import { QueryService } from "@core/implementations/business";
+
 import {
   consentContractAddress,
   queryId,
   SDQuery,
 } from "@core-tests/mock/mocks";
+import { ContextProviderMock } from "@core-tests/mock/utilities";
+import { QueryService } from "@core/implementations/business";
+import { IQueryService } from "@core/interfaces/business";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
 import {
-  ConsentContractError,
-  EVMAccountAddress,
-} from "@snickerdoodlelabs/objects";
+  IConsentContractRepository,
+  IInsightPlatformRepository,
+  ISDQLQueryRepository,
+} from "@core/interfaces/data";
 
 class QueryServiceMocks {
   public queryParsingEngine = td.object<IQueryParsingEngine>();
@@ -27,7 +28,7 @@ class QueryServiceMocks {
   public consentContractRepository = td.object<IConsentContractRepository>();
   public contextProvider = new ContextProviderMock();
 
-  constructor() { }
+  constructor() {}
 
   public runSuccessScenarios() {
     td.when(this.ISDQLQueryRepository.getByCID([queryId])).thenReturn(
@@ -37,9 +38,7 @@ class QueryServiceMocks {
     td.when(
       this.consentContractRepository.isAddressOptedIn(
         consentContractAddress,
-        EVMAccountAddress(
-          this.contextProvider.context.dataWalletAddress || "",
-        ),
+        EVMAccountAddress(this.contextProvider.context.dataWalletAddress || ""),
       ),
     ).thenReturn(okAsync(true));
   }
@@ -52,9 +51,7 @@ class QueryServiceMocks {
     td.when(
       this.consentContractRepository.isAddressOptedIn(
         consentContractAddress,
-        EVMAccountAddress(
-          this.contextProvider.context.dataWalletAddress || "",
-        ),
+        EVMAccountAddress(this.contextProvider.context.dataWalletAddress || ""),
       ),
     ).thenReturn(errAsync(new ConsentContractError()));
   }

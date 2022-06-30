@@ -7,10 +7,8 @@ import { ResultAsync } from "neverthrow";
  * externally via the form factor, such as SiteVisits.
  */
 export interface IMonitoringService {
-    transactionDetected(
-        transaction: EVMTransaction,
-    ): ResultAsync<void, never>;
-    siteVisited(siteVisit: SiteVisit): ResultAsync<void, never>;
+  transactionDetected(transaction: EVMTransaction): ResultAsync<void, never>;
+  siteVisited(siteVisit: SiteVisit): ResultAsync<void, never>;
 }
 
 export const IMonitoringServiceType = Symbol.for("IMonitoringService");

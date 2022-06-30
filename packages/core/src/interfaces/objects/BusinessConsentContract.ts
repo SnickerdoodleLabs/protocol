@@ -4,5 +4,5 @@ export class BusinessConsentContract {
   public constructor(
     public contractAddress: EVMContractAddress,
     public consentName: string,
-  ) { }
+  ) {}
 }

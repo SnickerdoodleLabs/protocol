@@ -1,9 +1,6 @@
 // This is basically global variables
 
-import {
-  DataWalletAddress,
-  EVMPrivateKey,
-} from "@snickerdoodlelabs/objects";
+import { DataWalletAddress, EVMPrivateKey } from "@snickerdoodlelabs/objects";
 
 import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
 
@@ -28,5 +25,5 @@ export class CoreContext {
     public dataWalletKey: EVMPrivateKey | null,
     public unlockInProgress: boolean,
     public publicEvents: PublicEvents,
-  ) { }
+  ) {}
 }

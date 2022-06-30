@@ -11,5 +11,5 @@ export class CohortInvitation {
     public consentContractAddress: EVMContractAddress,
     public tokenId: TokenId,
     public businessSignature: Signature | null,
-  ) { }
+  ) {}
 }

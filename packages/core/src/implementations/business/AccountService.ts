@@ -40,7 +40,7 @@ export class AccountService implements IAccountService {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IDerivationMaskUtilsType)
     protected derivationMaskUtils: IDerivationMaskUtils,
-  ) { }
+  ) {}
 
   public getUnlockMessage(
     languageCode: LanguageCode,
@@ -232,5 +232,5 @@ export class AccountService implements IAccountService {
 }
 
 class AccountEntropyPair {
-  public constructor(public account: EthereumAccount, public entropy: string) { }
+  public constructor(public account: EthereumAccount, public entropy: string) {}
 }

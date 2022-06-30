@@ -9,5 +9,5 @@ export class ConsentToken {
     public ownerAddress: EVMAccountAddress,
     public tokenId: TokenIdNumber,
     public tokenUri: TokenUri,
-  ) { }
+  ) {}
 }

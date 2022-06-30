@@ -1,16 +1,16 @@
-import { ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
 import {
   ConsentFactoryContractError,
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
+import { injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
 
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { injectable } from "inversify";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
@@ -57,9 +57,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     owneraddress: EVMAccountAddress,
   ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
-      this.contract.getConsentBP(
-        owneraddress,
-      ) as Promise<EVMContractAddress>,
+      this.contract.getConsentBP(owneraddress) as Promise<EVMContractAddress>,
       (e) => {
         return new ConsentFactoryContractError(
           "Unable to call getConsentBP()",

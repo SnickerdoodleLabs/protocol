@@ -1,8 +1,4 @@
-import {
-  ChainId,
-  EVMContractAddress,
-  ProviderUrl,
-} from "@objects/primatives";
+import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primatives";
 
 export class ChainInformation {
   constructor(
@@ -11,7 +7,7 @@ export class ChainInformation {
     public isDev: boolean,
     public providerUrls: ProviderUrl[],
     public averageBlockMiningTime: number,
-  ) { }
+  ) {}
 }
 
 export class ControlChainInformation extends ChainInformation {

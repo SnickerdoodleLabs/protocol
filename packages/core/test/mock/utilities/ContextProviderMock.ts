@@ -1,13 +1,13 @@
-import { okAsync, ResultAsync } from "neverthrow";
-
-import { CoreContext, PublicEvents } from "@core/interfaces/objects";
-import { IContextProvider } from "@core/interfaces/utilities";
-import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
 import {
   DataWalletAddress,
   EVMAccountAddress,
   SDQLQuery,
 } from "@snickerdoodlelabs/objects";
+import { okAsync, ResultAsync } from "neverthrow";
+
+import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
+import { CoreContext, PublicEvents } from "@core/interfaces/objects";
+import { IContextProvider } from "@core/interfaces/utilities";
 
 export class ContextProviderMock implements IContextProvider {
   public context: CoreContext;
@@ -51,7 +51,7 @@ export class ContextProviderMock implements IContextProvider {
   public setContextValues = new Array<CoreContext>();
   public setContext(context: CoreContext): ResultAsync<void, never> {
     this.setContextValues.push(context);
-    return okAsync<null, never>(null).map(() => { });
+    return okAsync<null, never>(null).map(() => {});
   }
 
   public assertEventCounts(expectedCounts: IExpectedEventCounts): void {

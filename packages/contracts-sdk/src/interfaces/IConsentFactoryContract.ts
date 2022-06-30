@@ -1,11 +1,11 @@
-import { BigNumber, ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
 import {
   ConsentFactoryContractError,
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber, ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
 
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 

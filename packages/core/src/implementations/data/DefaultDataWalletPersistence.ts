@@ -29,10 +29,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-  public getAccounts(): ResultAsync<
-    EVMAccountAddress[],
-    PersistenceError
-  > {
+  public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
 

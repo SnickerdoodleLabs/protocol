@@ -65,11 +65,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
             "leave",
           ),
         );
-        return this.ajaxUtils.put<boolean>(url, 
-          {dataWallet: dataWalletAddress, 
-            tokenId: invitation.tokenId, 
-            businessSignature: invitation.businessSignature, 
-            signature: signature});
+        return this.ajaxUtils.put<boolean>(url, {
+          dataWallet: dataWalletAddress,
+          tokenId: invitation.tokenId,
+          businessSignature: invitation.businessSignature,
+          signature: signature,
+        });
       })
       .map((response) => {});
   }
@@ -90,7 +91,10 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
             "leave",
           ),
         );
-        return this.ajaxUtils.put<boolean>(url, {dataWallet: dataWalletAddress, signature: signature});
+        return this.ajaxUtils.put<boolean>(url, {
+          dataWallet: dataWalletAddress,
+          signature: signature,
+        });
       })
       .map((response) => {});
   }
