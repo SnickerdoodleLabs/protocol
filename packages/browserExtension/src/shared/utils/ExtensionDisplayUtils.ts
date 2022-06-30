@@ -1,5 +1,5 @@
-import { ExtensionUtils } from "@shared/utils/extensionUtils";
 import { errAsync, okAsync } from "neverthrow";
+import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 
 const NOTIFICATION_HEIGHT = 600;
 const NOTIFICATION_WIDTH = 470;

@@ -1,5 +1,5 @@
 import { JsonRpcEngine } from "json-rpc-engine";
-import { ExtensionDisplayUtils } from "@shared/utils/extensionDisplayUtils";
+import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
 import { v4 } from "uuid";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
 import { okAsync } from "neverthrow";
