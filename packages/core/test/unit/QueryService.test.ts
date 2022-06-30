@@ -10,6 +10,7 @@ Unit Testing for Blockchain Listener - Pull-JSON-from-IPFS and Parse-JSON
   1. IEVMRepository
   2. IEVMService
 */
+import "reflect-metadata";
 import {
     EthereumAccountAddress,
     EthereumContractAddress,
@@ -83,6 +84,6 @@ describe("Query Service tests", () => {
         expect(result).toBeDefined();
         expect(result.isErr()).toBeFalsy();
 
-        mocks.contextProvider.assertEventCounts({onQueryPosted: 1});
-    });      
+        mocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
+    });
 });

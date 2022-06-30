@@ -1,23 +1,18 @@
 import {
-    Insight,
     IpfsCID,
-    Reward,
     SDQLQuery,
     SDQLString,
     IPFSError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { IPFSHTTPClient } from "ipfs-http-client";
-// need version 55 for ipfs-http-client to work
-import { okAsync, ResultAsync, errAsync, fromThrowable } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { ResultAsync } from "neverthrow";
 
 import {
     IIPFSProvider,
     IIPFSProviderType,
 } from "@browser-extension/interfaces/data/IIPFSProvider";
 import { ISDQLQueryRepository } from "@core/interfaces/data";
-import { IPFSFile } from "@core/interfaces/objects/IPFSFile";
 import {
     IConfigProvider,
     IConfigProviderType,

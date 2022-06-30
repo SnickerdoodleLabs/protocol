@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 import { IPFSHTTPClient, create } from "ipfs-http-client";
 import { ResultAsync, fromThrowable } from "neverthrow";
 
-import { IIPFSProvider } from "@browser-extension/interfaces/data/IIPFSProvider";
+import { IIPFSProvider } from "@core/interfaces/data/IIPFSProvider";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -15,7 +15,7 @@ export class IPFSProvider implements IIPFSProvider {
 
   constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-  ) {}
+  ) { }
 
   public getIFPSClient(): ResultAsync<IPFSHTTPClient, IPFSError> {
     if (this.IPFSResult == null) {

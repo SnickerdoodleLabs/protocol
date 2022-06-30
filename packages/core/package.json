@@ -29,9 +29,9 @@
     "compile": "tsc --build && cd ../.. && yarn alias",
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
     "prepare": "yarn build",
-    "test": "yarn build && yarn test:ci",
+    "test": "yarn test:ci",
     "test-integration": "cucumber-js --require-module ts-node/register --require-module tsconfig-paths/register --require 'test/integration/**/*.ts' test/integration/features/**/*.feature",
-    "test:ci": "jest --runInBand --coverage --passWithNoTests",
+    "test:ci": "npx jest --runInBand --coverage --passWithNoTests",
     "test:watch": "jest --watch --color --detectOpenHandles"
   },
   "types": "dist/index.d.ts",

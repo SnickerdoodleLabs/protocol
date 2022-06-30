@@ -1,4 +1,4 @@
-import errorCodes from "@objects/errors/errorCodes";
+import errorCodes from "./errorCodes"; // TS being dumb
 
 export class IPFSError extends Error {
     protected errorCode: string = errorCodes[IPFSError.name];
