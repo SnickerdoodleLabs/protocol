@@ -1,6 +1,6 @@
 import React from "react";
-import { AppContextProvider } from "../../context";
-import { AppContainer } from "../App";
+import { AppContextProvider } from "@app/Popup/context";
+import { AppContainer } from "@app/Popup/containers/App";
 
 const MainContainer: React.FC = () => {
   return (

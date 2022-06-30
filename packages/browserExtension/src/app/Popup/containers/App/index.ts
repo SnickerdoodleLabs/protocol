@@ -1,1 +1,1 @@
-export * from "./App";
+export * from "@app/Popup/containers/App/App";

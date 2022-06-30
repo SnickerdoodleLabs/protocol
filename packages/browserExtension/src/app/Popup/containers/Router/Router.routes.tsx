@@ -1,6 +1,6 @@
 import React from "react";
 import { EPATHS } from "@shared/constants/paths";
-import Login from "../../pages/Login";
+import Login from "@app/Popup/pages/Login";
 
 interface IRoute {
   path: string;

@@ -1,1 +1,1 @@
-export { default } from "./Router";
+export { default } from "@app/Popup/containers/Router/Router";

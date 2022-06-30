@@ -17,8 +17,8 @@ import {
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
-import { createBackgroundConnectors } from "app/utils";
-import { InternalCoreGateway } from "app/coreGateways";
+import { createBackgroundConnectors } from "@app/utils";
+import { InternalCoreGateway } from "@app/coreGateways";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
 
 const Popup = () => {

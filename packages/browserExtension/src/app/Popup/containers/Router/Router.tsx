@@ -1,7 +1,10 @@
 import React, { FC, useMemo } from "react";
 import { Route, HashRouter, Routes, Navigate } from "react-router-dom";
-import { useAppContext } from "app/Popup/context";
-import { AuthRequiredRoutes, LoginRoutes } from "./Router.routes";
+import { useAppContext } from "@app/Popup/context";
+import {
+  AuthRequiredRoutes,
+  LoginRoutes,
+} from "@app/Popup/containers/Router/Router.routes";
 import { Box, CircularProgress } from "@material-ui/core";
 
 const Router: FC = () => {

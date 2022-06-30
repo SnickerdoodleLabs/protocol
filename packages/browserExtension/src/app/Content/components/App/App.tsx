@@ -8,7 +8,7 @@ import NftClaimed from "../Screens/NftClaimed";
 import browser from "webextension-polyfill";
 import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
 import Browser from "webextension-polyfill";
-import { ExternalCoreGateway } from "app/coreGateways";
+import { ExternalCoreGateway } from "@app/coreGateways";
 import { createBackgroundConnectors } from "app/utils";
 import { IExternalState } from "@shared/objects/State";
 

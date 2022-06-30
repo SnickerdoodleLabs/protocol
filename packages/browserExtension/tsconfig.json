@@ -1,5 +1,40 @@
 {
-  "extends": "./tsconfig.build.json",
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "baseUrl": "./src/",
+    "paths": {
+      "@interfaces/*": [
+        "./extensionCore/interfaces/*"
+      ],
+      "@implementations/*": [
+        "./extensionCore/implementations/*"
+      ],
+      "@constants/*": [
+        "./constants/*"
+      ],
+      "@shared/*": [
+        "./shared/*"
+      ],
+      "@app/*": [
+        "./app/*"
+      ],
+      "@rpcGateways": [
+        "./pages/rpcGateways"
+      ],
+      "@rpcGateways/*": [
+        "./pages/rpcGateways/*"
+      ],
+      "@utils": [
+        "./pages/utils"
+      ],
+      "@utils/*": [
+        "./pages/utils/*"
+      ]
+    }
+  },
   "references": [
     {
       "path": "../core"
@@ -8,6 +43,11 @@
       "path": "../objects"
     }
   ],
-  "include": ["src"],
-  "exclude": ["build", "node_modules"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "build",
+    "node_modules"
+  ]
 }

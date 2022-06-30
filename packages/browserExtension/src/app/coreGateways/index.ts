@@ -1,2 +1,2 @@
-export * from "app/coreGateways/InternalCoreGateway";
-export * from "app/coreGateways/ExternalCoreGateway";
+export * from "@app/coreGateways/InternalCoreGateway";
+export * from "@app/coreGateways/ExternalCoreGateway";

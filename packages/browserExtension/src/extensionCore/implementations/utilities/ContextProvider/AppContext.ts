@@ -3,7 +3,6 @@ import { ExtensionDisplayUtils } from "@shared/utils/extensionDisplayUtils";
 import { v4 } from "uuid";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
 import { okAsync } from "neverthrow";
-
 export class AppContext {
   constructor(
     protected lock: boolean = false,

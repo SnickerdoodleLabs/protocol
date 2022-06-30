@@ -1,8 +1,8 @@
-import { InternalCoreGateway } from "app/coreGateways";
+import { InternalCoreGateway } from "@app/coreGateways";
 import React, { FC, useContext, useState, useEffect } from "react";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
 import Browser from "webextension-polyfill";
-import { createBackgroundConnectors } from "app/utils";
+import { createBackgroundConnectors } from "@app/utils";
 import { ExtensionUtils } from "@shared/utils/extensionUtils";
 import { IInternalState } from "@shared/objects/State";
 

@@ -1,1 +1,1 @@
-export { default } from "./Login";
+export { default } from "@app/Popup/pages/Login/Login";

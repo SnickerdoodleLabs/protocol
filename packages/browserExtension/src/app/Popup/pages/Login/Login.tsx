@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { Button } from "@material-ui/core";
-import { useStyles } from "./Login.style";
-import { useAppContext } from "../../context";
+import { useStyles } from "@app/Popup/pages/Login/Login.style";
+import { useAppContext } from "@app/Popup/context";
 
 const Login: FC = () => {
   const classes = useStyles();
