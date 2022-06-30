@@ -1,13 +1,20 @@
 import {
+  Age,
   ClickData,
   ClickFilter,
+  EmailAddressString,
   EthereumAccountAddress,
   EthereumContractAddress,
   EthereumPrivateKey,
   EthereumTransaction,
+  FirstName,
+  Gender,
   IDataWalletPersistence,
+  LastName,
+  Location,
   PersistenceError,
   SiteVisit,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -17,6 +24,45 @@ import { ResultAsync } from "neverthrow";
  * can be accessed anywhere.
  */
 export class DefaultDataWalletPersistence implements IDataWalletPersistence {
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setFirstName(name: FirstName): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getFirstName(): ResultAsync<FirstName, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setLastName(name: LastName): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getLastName(): ResultAsync<LastName, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getGender(): ResultAsync<Gender, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setLocation(location: Location): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getLocation(): ResultAsync<Location, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
   public unlock(
     derivedKey: EthereumPrivateKey,
   ): ResultAsync<void, PersistenceError> {
@@ -46,11 +92,11 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-  public setAge(age: number): ResultAsync<void, PersistenceError> {
+  public setAge(age: Age): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
-  public getAge(): ResultAsync<number, PersistenceError> {
+  public getAge(): ResultAsync<Age, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 

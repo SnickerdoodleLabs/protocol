@@ -20,12 +20,19 @@ import {
   UnsupportedLanguageError,
 } from "@objects/errors";
 import {
+  Age,
   DataWalletAddress,
+  EmailAddressString,
   EthereumAccountAddress,
   EthereumContractAddress,
+  FirstName,
+  Gender,
   IpfsCID,
   LanguageCode,
+  LastName,
   Signature,
+  UnixTimestamp,
+  Location,
 } from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
@@ -162,8 +169,27 @@ export interface ISnickerdoodleCore {
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
 
-  setAge(age: number): ResultAsync<void, PersistenceError>;
-  getAge(): ResultAsync<number, PersistenceError>;
+  /** Google User Information */
+  setAge(age: Age): ResultAsync<void, PersistenceError>;
+  getAge(): ResultAsync<Age, PersistenceError>;
+
+  setFirstName(name: FirstName): ResultAsync<void, PersistenceError>;
+  getFirstName(): ResultAsync<FirstName, PersistenceError>;
+
+  setLastName(name: LastName): ResultAsync<void, PersistenceError>;
+  getLastName(): ResultAsync<LastName, PersistenceError>;
+
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError>;
+
+  setGender(gender: Gender): ResultAsync<void, PersistenceError>;
+  getGender(): ResultAsync<Gender, PersistenceError>;
+
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
+
+  setLocation(location: Location): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<Location, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

@@ -5,6 +5,7 @@
  */
 
 import {
+  Age,
   AjaxError,
   BlockchainProviderError,
   CohortInvitation,
@@ -13,8 +14,11 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   EInvitationStatus,
+  EmailAddressString,
   EthereumAccountAddress,
   EthereumContractAddress,
+  FirstName,
+  Gender,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   InvalidSignatureError,
@@ -22,9 +26,12 @@ import {
   IQueryEngineEvents,
   ISnickerdoodleCore,
   LanguageCode,
+  LastName,
+  Location,
   PersistenceError,
   Signature,
   UninitializedError,
+  UnixTimestamp,
   UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
@@ -47,6 +54,7 @@ import {
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
+  protected _persistence: IDataWalletPersistence;
 
   public constructor(persistence?: IDataWalletPersistence) {
     this.iocContainer = new Container();
@@ -66,18 +74,51 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(DefaultDataWalletPersistence)
         .inSingletonScope();
     }
-  }
-  setAge(age: number): ResultAsync<void, PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+    this._persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.setAge(age);
   }
-  getAge(): ResultAsync<number, PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
-    );
-    return persistence.getAge();
+  setFirstName(name: FirstName): ResultAsync<void, PersistenceError> {
+    return this._persistence.setFirstName(name);
+  }
+  getFirstName(): ResultAsync<FirstName, PersistenceError> {
+    return this._persistence.getFirstName();
+  }
+  setLastName(name: LastName): ResultAsync<void, PersistenceError> {
+    return this._persistence.setLastName(name);
+  }
+  getLastName(): ResultAsync<LastName, PersistenceError> {
+    return this._persistence.getLastName();
+  }
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+    return this._persistence.setBirthday(birthday);
+  }
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+    return this._persistence.getBirthday();
+  }
+  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
+    return this._persistence.setGender(gender);
+  }
+  getGender(): ResultAsync<Gender, PersistenceError> {
+    return this._persistence.getGender();
+  }
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
+    return this._persistence.setEmail(email);
+  }
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+    return this._persistence.getEmail();
+  }
+  setLocation(location: Location): ResultAsync<void, PersistenceError> {
+    return this._persistence.setLocation(location);
+  }
+  getLocation(): ResultAsync<Location, PersistenceError> {
+    return this._persistence.getLocation();
+  }
+  setAge(age: Age): ResultAsync<void, PersistenceError> {
+    return this._persistence.setAge(age);
+  }
+  getAge(): ResultAsync<Age, PersistenceError> {
+    return this._persistence.getAge();
   }
 
   public getEvents(): ResultAsync<IQueryEngineEvents, never> {

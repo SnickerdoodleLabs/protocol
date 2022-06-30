@@ -8,10 +8,17 @@ import {
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
 import {
+  Age,
+  EmailAddressString,
   EthereumAccountAddress,
   EthereumContractAddress,
   EthereumPrivateKey,
-} from "@objects/primatives";
+  FirstName,
+  Gender,
+  LastName,
+  Location,
+  UnixTimestamp,
+} from "@objects/primitives";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -56,8 +63,27 @@ export interface IDataWalletPersistence {
   /** This returns you click data that you have stored, according to the filter */
   getClicks(clickFilter: ClickFilter): ResultAsync<ClickData, PersistenceError>;
 
-  setAge(age: number): ResultAsync<void, PersistenceError>;
-  getAge(): ResultAsync<number, PersistenceError>;
+  /** Google User Information */
+  setAge(age: Age): ResultAsync<void, PersistenceError>;
+  getAge(): ResultAsync<Age, PersistenceError>;
+
+  setFirstName(name: FirstName): ResultAsync<void, PersistenceError>;
+  getFirstName(): ResultAsync<FirstName, PersistenceError>;
+
+  setLastName(name: LastName): ResultAsync<void, PersistenceError>;
+  getLastName(): ResultAsync<LastName, PersistenceError>;
+
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError>;
+
+  setGender(gender: Gender): ResultAsync<void, PersistenceError>;
+  getGender(): ResultAsync<Gender, PersistenceError>;
+
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
+
+  setLocation(location: Location): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<Location, PersistenceError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected
@@ -76,6 +102,8 @@ export interface IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError>;
 
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
+
   addEthereumTransactions(
     transactions: EthereumTransaction[],
   ): ResultAsync<void, PersistenceError>;
