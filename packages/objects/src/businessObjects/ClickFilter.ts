@@ -1,4 +1,4 @@
-import { UnixTimestamp, URLString } from "@objects/primatives";
+import { UnixTimestamp, URLString } from "@objects/primitives";
 
 export class ClickFilter {
   public constructor(

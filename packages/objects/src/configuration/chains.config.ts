@@ -6,7 +6,7 @@ import {
   ChainId,
   EthereumContractAddress,
   ProviderUrl,
-} from "@objects/primatives";
+} from "@objects/primitives";
 
 export const chainConfig = new Map<ChainId, ChainInformation>([
   [

@@ -2,7 +2,7 @@ import {
   EthereumAccountAddress,
   TokenIdNumber,
   TokenUri,
-} from "@objects/primatives";
+} from "@objects/primitives";
 
 export class ConsentToken {
   public constructor(

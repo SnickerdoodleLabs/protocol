@@ -2,7 +2,7 @@ import {
   ChainId,
   EthereumContractAddress,
   ProviderUrl,
-} from "@objects/primatives";
+} from "@objects/primitives";
 
 export class ChainInformation {
   constructor(

@@ -1,4 +1,4 @@
-import { IpfsCID, SDQLString } from "@objects/primatives";
+import { IpfsCID, SDQLString } from "@objects/primitives";
 
 // Yes the name is technically redundant
 export class NewSDQLQuery {

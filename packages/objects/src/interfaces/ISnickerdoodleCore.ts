@@ -26,7 +26,7 @@ import {
   IpfsCID,
   LanguageCode,
   Signature,
-} from "@objects/primatives";
+} from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
