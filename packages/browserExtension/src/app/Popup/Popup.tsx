@@ -20,10 +20,6 @@ import {
 import { createBackgroundConnectors } from "app/utils";
 import { InternalCoreGateway } from "app/coreGateways";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
-import {
-  closeCurrentWindow,
-  closeCurrenTab,
-} from "@shared/utils/extensionUtils";
 
 const Popup = () => {
   const [portName, setPortName] = useState<EPortNames | null>(null);
@@ -93,7 +89,7 @@ const Popup = () => {
   return (
     <Grid>
       {portName} - {message}
-      <Button onClick={closeCurrenTab}>close</Button>
+      {/* <Button onClick={closeCurrenTab}>close</Button> */}
       {/* <Grid
         style={{
           position: "fixed",

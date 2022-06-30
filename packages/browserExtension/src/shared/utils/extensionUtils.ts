@@ -1,167 +1,186 @@
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import browser, { Tabs, Windows } from "webextension-polyfill";
 
-export const checkForError = () => {
-  const { lastError } = browser.runtime;
-  if (!lastError) {
-    return undefined;
-  }
-  // @ts-ignore
-  if (lastError?.stack && lastError.message) {
-    return lastError;
-  }
-  return new Error(lastError.message);
-};
-
-export const reloadPage = () => {
-  browser.runtime.reload();
-};
-
-export const openTab = (options: Tabs.CreateCreatePropertiesType) =>
-  new Promise((resolve, reject) => {
-    browser.tabs.create(options).then((newTab) => {
-      const error = checkForError();
-      if (error) {
-        return reject(error);
-      }
-      return resolve(newTab);
-    });
-  });
-
-export const openWindow: (
-  options: Windows.CreateCreateDataType,
-) => Promise<Windows.Window> = (options: Windows.CreateCreateDataType) =>
-  new Promise((resolve, reject) => {
-    browser.windows.create(options).then((newWindow) => {
-      const error = checkForError();
-      if (error) {
-        return reject(error);
-      }
-      return resolve(newWindow);
-    });
-  });
-
-export const focusWindow = (windowId: number) =>
-  new Promise<void>((resolve, reject) => {
-    browser.windows.update(windowId, { focused: true }).then(() => {
-      const error = checkForError();
-      if (error) {
-        return reject(error);
-      }
-      return resolve();
-    });
-  });
-
-export const updateWindowPosition = (
-  windowId: number,
-  left: number,
-  top: number,
-) =>
-  new Promise<void>((resolve, reject) => {
-    browser.windows.update(windowId, { left, top }).then(() => {
-      const error = checkForError();
-      if (error) {
-        return reject(error);
-      }
-      return resolve();
-    });
-  });
-
-export const getLastFocusedWindow: () => Promise<Windows.Window> = () =>
-  new Promise((resolve, reject) => {
-    browser.windows.getLastFocused().then((windowObject) => {
-      const error = checkForError();
-      if (error) {
-        return reject(error);
-      }
-      return resolve(windowObject);
-    });
-  });
-
-export const closeCurrentWindow = () => {
-  browser.windows.getCurrent().then((windowDetails) => {
-    if (windowDetails.id) {
-      browser.windows.remove(windowDetails.id);
+export class ExtensionUtils {
+  public static checkForError = () => {
+    const { lastError } = browser.runtime;
+    if (!lastError) {
+      return undefined;
     }
-  });
-};
+    // @ts-ignore
+    if (lastError?.stack && lastError.message) {
+      return lastError;
+    }
+    return new Error(lastError.message);
+  };
 
-export const closeCurrenTab = () =>
-  new Promise((resolve, reject) => {
-    browser.tabs.getCurrent().then((windowDetails) => {
-      if (windowDetails.id) {
-        browser.tabs.remove(windowDetails.id);
-      }
-      const error = checkForError();
+  public static reloadPage = () => {
+    browser.runtime.reload();
+  };
+
+  public static openTab = (options: Tabs.CreateCreatePropertiesType) => {
+    return ResultAsync.fromSafePromise(browser.tabs.create(options)).andThen(
+      (newTab) => {
+        const error = ExtensionUtils.checkForError();
+        if (error) {
+          return errAsync(error);
+        }
+        return okAsync(newTab);
+      },
+    );
+  };
+
+  public static openWindow: (
+    options: Windows.CreateCreateDataType,
+  ) => ResultAsync<Windows.Window, unknown> = (
+    options: Windows.CreateCreateDataType,
+  ) => {
+    return ResultAsync.fromSafePromise(browser.windows.create(options)).andThen(
+      (window) => {
+        const error = ExtensionUtils.checkForError();
+        if (error) {
+          return errAsync(error);
+        }
+        return okAsync(window);
+      },
+    );
+  };
+
+  public static focusWindow = (windowId: number) => {
+    return ResultAsync.fromSafePromise(
+      browser.windows.update(windowId, { focused: true }),
+    ).andThen(() => {
+      const error = ExtensionUtils.checkForError();
       if (error) {
-        return reject(error);
+        return errAsync(error);
       }
-      return resolve(undefined);
+      return okAsync(undefined);
     });
-  });
+  };
 
-export const closeWindow = (windowId) => {
-  browser.windows.remove(windowId);
-};
-
-export const getAllWindows: () => Promise<Windows.Window[]> = () =>
-  new Promise((resolve, reject) => {
-    browser.windows.getAll().then((windows) => {
-      const error = checkForError();
+  public static updateWindowPosition = (
+    windowId: number,
+    left: number,
+    top: number,
+  ) => {
+    return ResultAsync.fromSafePromise(
+      browser.windows.update(windowId, { left, top }),
+    ).andThen(() => {
+      const error = ExtensionUtils.checkForError();
       if (error) {
-        return reject(error);
+        return errAsync(error);
       }
-      return resolve(windows);
+      return okAsync(undefined);
     });
-  });
+  };
 
-export const getActiveTabs = () =>
-  new Promise((resolve, reject) => {
-    browser.tabs.query({ active: true }).then((tabs) => {
-      const error = checkForError();
+  public static getLastFocusedWindow = () => {
+    return ResultAsync.fromSafePromise(
+      browser.windows.getLastFocused(),
+    ).andThen((windowObject) => {
+      const error = ExtensionUtils.checkForError();
       if (error) {
-        return reject(error);
+        return errAsync(error);
       }
-      return resolve(tabs);
+      return okAsync(windowObject);
     });
-  });
+  };
 
-export const getCurrentTab = () =>
-  new Promise((resolve, reject) => {
-    browser.tabs.getCurrent().then((tab) => {
-      const err = checkForError();
+  public static closeCurrentWindow = () => {
+    return ResultAsync.fromSafePromise(browser.windows.getCurrent()).andThen(
+      (windowDetails) => {
+        if (windowDetails.id) {
+          browser.windows.remove(windowDetails.id);
+        }
+        return okAsync(undefined);
+      },
+    );
+  };
+
+  public static closeCurrenTab = () => {
+    return ResultAsync.fromSafePromise(browser.tabs.getCurrent()).andThen(
+      (windowDetails) => {
+        if (windowDetails.id) {
+          browser.tabs.remove(windowDetails.id);
+        }
+        const error = ExtensionUtils.checkForError();
+        if (error) {
+          return errAsync(error);
+        }
+        return okAsync(undefined);
+      },
+    );
+  };
+
+  public static closeWindow = (windowId) => {
+    browser.windows.remove(windowId);
+  };
+
+  public static getAllWindows = () => {
+    return ResultAsync.fromSafePromise(browser.windows.getAll()).andThen(
+      (windows) => {
+        const error = ExtensionUtils.checkForError();
+        if (error) {
+          return errAsync(error);
+        }
+        return okAsync(windows);
+      },
+    );
+  };
+
+  public static getActiveTabs = () => {
+    return ResultAsync.fromSafePromise(
+      browser.tabs.query({ active: true }),
+    ).andThen((tabs) => {
+      const error = ExtensionUtils.checkForError();
+      if (error) {
+        return errAsync(error);
+      }
+      return okAsync(tabs);
+    });
+  };
+
+  public static getCurrentTab = () => {
+    return ResultAsync.fromSafePromise(browser.tabs.getCurrent()).andThen(
+      (tab) => {
+        const err = ExtensionUtils.checkForError();
+        if (err) {
+          return errAsync(err);
+        } else {
+          return okAsync(tab);
+        }
+      },
+    );
+  };
+
+  public static switchToTab = (tabId: number | undefined) => {
+    return ResultAsync.fromSafePromise(
+      browser.tabs.update(tabId, { highlighted: true }),
+    ).andThen((tab) => {
+      const err = ExtensionUtils.checkForError();
       if (err) {
-        reject(err);
+        return errAsync(err);
       } else {
-        resolve(tab);
+        return okAsync(tab);
       }
     });
-  });
+  };
 
-export const switchToTab = (tabId: number | undefined) =>
-  new Promise((resolve, reject) => {
-    browser.tabs.update(tabId, { highlighted: true }).then((tab) => {
-      const err = checkForError();
-      if (err) {
-        reject(err);
-      } else {
-        resolve(tab);
-      }
-    });
-  });
+  public static closeTab = (tabId: number | number[]) => {
+    return ResultAsync.fromSafePromise(browser.tabs.remove(tabId)).andThen(
+      () => {
+        const err = ExtensionUtils.checkForError();
+        if (err) {
+          return errAsync(err);
+        } else {
+          return okAsync(undefined);
+        }
+      },
+    );
+  };
 
-export const closeTab = (tabId: number | number[]) =>
-  new Promise<void>((resolve, reject) => {
-    browser.tabs.remove(tabId).then(() => {
-      const err = checkForError();
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
+  public static getManifestVersion = () =>
+    browser.runtime.getManifest().manifest_version;
 
-export const getManifestVersion = () =>
-  browser.runtime.getManifest().manifest_version;
-
-export const isManifest3 = () => getManifestVersion() === 3;
+  public static isManifest3 = () => ExtensionUtils.getManifestVersion() === 3;
+}

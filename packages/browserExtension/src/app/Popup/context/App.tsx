@@ -3,7 +3,7 @@ import React, { FC, useContext, useState, useEffect } from "react";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
 import Browser from "webextension-polyfill";
 import { createBackgroundConnectors } from "app/utils";
-import { closeCurrenTab } from "@shared/utils/extensionUtils";
+import { ExtensionUtils } from "@shared/utils/extensionUtils";
 import { IInternalState } from "@shared/objects/State";
 
 const portName = !window.location.hash
@@ -74,7 +74,9 @@ export const AppContextProvider: FC = ({ children }) => {
     <AppContext.Provider
       value={{
         closeCurrentTab:
-          portName !== EPortNames.SD_POPUP ? closeCurrenTab : () => {},
+          portName !== EPortNames.SD_POPUP
+            ? ExtensionUtils.closeCurrenTab
+            : () => {},
         coreGateway,
         windowType: portName,
         appState,

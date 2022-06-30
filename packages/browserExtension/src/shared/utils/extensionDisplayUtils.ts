@@ -1,65 +1,72 @@
-import {
-  focusWindow,
-  getLastFocusedWindow,
-  openWindow,
-  getAllWindows,
-  openTab,
-} from "shared/utils/extensionUtils";
+import { ExtensionUtils } from "@shared/utils/extensionUtils";
+import { errAsync, okAsync } from "neverthrow";
 
 const NOTIFICATION_HEIGHT = 600;
 const NOTIFICATION_WIDTH = 470;
 
-export const showNotificationPopup = async (
-  notificationId: number | null,
-  path?: string,
-  cb?: () => void,
-) => {
-  const notification = notificationId
-    ? await checkNotification(notificationId)
-    : undefined;
-  if (notification) {
-    // focus existing instance
-    await focusWindow(notification.id!);
-    cb?.();
-    return notification.id!;
-  } else {
+export class ExtensionDisplayUtils {
+  public static showNotificationPopup = (
+    notificationId: number | null,
+    path?: string,
+    cb?: () => void,
+  ) => {
+    if (notificationId) {
+      return ExtensionDisplayUtils.checkNotification(notificationId).andThen(
+        (notification) => {
+          if (notification) {
+            ExtensionUtils.focusWindow(notification.id!);
+            cb?.();
+            return okAsync(notification.id);
+          }
+          return ExtensionDisplayUtils.createPopup(path);
+        },
+      );
+    }
+    return ExtensionDisplayUtils.createPopup(path);
+  };
+
+  public static createPopup = (path?) => {
     let left = 0;
     let top = 0;
-    try {
-      const lastFocused = await getLastFocusedWindow();
-      // Position window through lastFocused window.
-      top = lastFocused.top!;
-      left = lastFocused.left! + (lastFocused.width! - NOTIFICATION_WIDTH);
-    } catch (_) {
-      const { screenX, screenY, outerWidth } = window;
-      top = Math.max(screenY, 0);
-      left = Math.max(screenX + (outerWidth - NOTIFICATION_WIDTH), 0);
-    }
-    // create new notification window
-    const notificationWindow = await openWindow({
-      url: `popup.html${path ?? ""}#notification`,
-      type: "popup",
-      width: NOTIFICATION_WIDTH,
-      height: NOTIFICATION_HEIGHT,
-      left,
-      top,
+    return ExtensionUtils.getLastFocusedWindow().andThen((focusedWindow) => {
+      if (focusedWindow) {
+        top = focusedWindow.top!;
+        left =
+          focusedWindow.left! + (focusedWindow.width! - NOTIFICATION_WIDTH);
+      } else {
+        const { screenX, screenY, outerWidth } = window;
+        top = Math.max(screenY, 0);
+        left = Math.max(screenX + (outerWidth - NOTIFICATION_WIDTH), 0);
+      }
+
+      return ExtensionUtils.openWindow({
+        url: `popup.html${path ?? ""}#notification`,
+        type: "popup",
+        width: NOTIFICATION_WIDTH,
+        height: NOTIFICATION_HEIGHT,
+        left,
+        top,
+      }).andThen((window) => {
+        return okAsync(window.id);
+      });
     });
+  };
 
-    return notificationWindow.id;
-  }
-};
+  public static openExtensionOnBrowser = async (path?: string) => {
+    await ExtensionUtils.openTab({
+      url: `popup.html${path ?? ""}#fullScreen`,
+    });
+  };
 
-export const openExtensionOnBrowser = async (path?: string) => {
-  await openTab({
-    url: `popup.html${path ?? ""}#fullScreen`,
-  });
-};
-
-export const checkNotification = async (notificationId: number) => {
-  const windows = await getAllWindows();
-  return windows
-    ? windows.find((win) => {
-        return win && win.type === "popup" && win.id === notificationId;
-      })
-    : null;
-};
+  public static checkNotification = (notificationId: number) => {
+    return ExtensionUtils.getAllWindows().andThen((windows) => {
+      const window = windows?.find(
+        (win) => win && win.type === "popup" && win.id === notificationId,
+      );
+      if (window) {
+        return okAsync(window);
+      }
+      return errAsync(undefined);
+    });
+  };
+}

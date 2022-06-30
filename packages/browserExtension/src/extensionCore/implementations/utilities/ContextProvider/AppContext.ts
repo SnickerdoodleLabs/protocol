@@ -1,10 +1,8 @@
 import { JsonRpcEngine } from "json-rpc-engine";
-import {
-  showNotificationPopup,
-  openExtensionOnBrowser,
-} from "@shared/utils/extensionDisplayUtils";
+import { ExtensionDisplayUtils } from "@shared/utils/extensionDisplayUtils";
 import { v4 } from "uuid";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
+import { okAsync } from "neverthrow";
 
 export class AppContext {
   constructor(
@@ -44,27 +42,23 @@ export class AppContext {
   }
 
   public async displayPopupNotification(path?: string, cb?: () => void) {
-    try {
-      const notificationWindowId = await showNotificationPopup(
-        this.notificationWindowId,
-        path,
-        cb,
-      );
+    await ExtensionDisplayUtils.showNotificationPopup(
+      this.notificationWindowId,
+      path,
+      cb,
+    ).map((notificationWindowId) => {
       if (
         notificationWindowId &&
         this.notificationWindowId !== notificationWindowId
       ) {
         this.setNotificationOpen(notificationWindowId, path);
       }
-    } catch (_) {
-      this.setNotificationClose();
-    }
+      return okAsync(undefined);
+    });
   }
 
-  public async displayAppOnBrowser(path?: string) {
-    try {
-      await openExtensionOnBrowser(path);
-    } catch (_) {}
+  public displayAppOnBrowser(path?: string) {
+    ExtensionDisplayUtils.openExtensionOnBrowser(path);
   }
 
   public addConnection(origin, tabId, windowId, engine) {
