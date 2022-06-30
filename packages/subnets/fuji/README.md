@@ -7,7 +7,7 @@ This subdirectory contains the genesis file and documentation for the Snickerdoo
 
 ## Fuji Subnet Settings
 
-The Fuji genesis file, [`snickerdoodle_local_genesis.json`](/packages/subnets/fuji/snickerdoodle_local_genesis.json), defines the parameters of the Snickerdoodle Fuji Subnet.
+The Fuji genesis file, [`snickerdoodle_fuji_genesis.json`](/packages/subnets/fuji/snickerdoodle_fuji_genesis.json), defines the parameters of the Snickerdoodle Fuji Subnet.
 
 - Subnet Name: `Snickerdoodle`
 - [chainId](https://chainlist.org/): `36`
