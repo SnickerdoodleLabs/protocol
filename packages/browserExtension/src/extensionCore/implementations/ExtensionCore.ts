@@ -1,11 +1,6 @@
 // Utils
+import { IContextProvider, IPortConnectionUtils } from "@interfaces/utilities";
 import {
-  IConfigProvider,
-  IContextProvider,
-  IPortConnectionUtils,
-} from "@interfaces/utilities";
-import {
-  ConfigProvider,
   ContextProvider,
   PortConnectionUtils,
 } from "@implementations/utilities";
@@ -60,7 +55,6 @@ export class ExtensionCore {
   protected portConnectionRepository: IPortConnectionRepository;
 
   // Utils
-  protected configProvider: IConfigProvider;
   protected contextProvider: IContextProvider;
   protected portConnectionUtils: IPortConnectionUtils;
   // Factory
@@ -112,7 +106,6 @@ export class ExtensionCore {
     );
     this.portConnectionListenner.initialize();
 
-    this.configProvider = new ConfigProvider();
     this.listenExtensionIconClicks();
   }
 
