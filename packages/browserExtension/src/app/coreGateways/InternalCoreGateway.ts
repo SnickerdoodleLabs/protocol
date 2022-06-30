@@ -12,21 +12,17 @@ import {
   Signature,
 } from "@snickerdoodlelabs/objects";
 
-import { createCoreHandler } from "app/utils";
 import { IInternalState } from "@shared/objects/State";
+import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 
 export class InternalCoreGateway {
-  protected _handler;
+  protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
-    this._handler = (method, params) =>
-      ResultAsync.fromPromise(
-        createCoreHandler(this.rpcEngine)(method, params),
-        (e) => e,
-      );
+    this._handler = new CoreHandler(rpcEngine);
   }
 
   public getState(): ResultAsync<IInternalState, unknown> {
-    return this._handler(EInternalActions.GET_STATE);
+    return this._handler.call(EInternalActions.GET_STATE);
   }
 
   public login(
@@ -34,7 +30,7 @@ export class InternalCoreGateway {
     signature: Signature,
     languageCode: LanguageCode,
   ) {
-    return this._handler(EInternalActions.LOGIN, {
+    return this._handler.call(EInternalActions.LOGIN, {
       accountAddress,
       signature,
       languageCode,
@@ -46,7 +42,7 @@ export class InternalCoreGateway {
     signature: Signature,
     languageCode: LanguageCode,
   ) {
-    return this._handler(EInternalActions.ADD_ACCOUNT, {
+    return this._handler.call(EInternalActions.ADD_ACCOUNT, {
       accountAddress,
       signature,
       languageCode,
@@ -54,7 +50,7 @@ export class InternalCoreGateway {
   }
 
   public getLoginMessage(languageCode: LanguageCode) {
-    return this._handler(EInternalActions.GET_LOGIN_MESSAGE, {
+    return this._handler.call(EInternalActions.GET_LOGIN_MESSAGE, {
       languageCode,
     } as IGetLoginMessageParams);
   }
