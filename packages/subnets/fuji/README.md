@@ -12,7 +12,7 @@ The Fuji genesis file, [`snickerdoodle_genesis.json`](/packages/subnets/fuji/sni
 - Subnet Name: `Snickerdoodle`
 - [chainId](https://chainlist.org/): `36`
 - Total token amount: `13,500,000,000 DOODLE` 
-- Genesis Airdrop Account: `TBD` (this is the first test account in Hardhat)
+- Genesis Airdrop Account: `0x73c6ed3a092be873ae1721bf169cd6b4f4832cb2` (PK is in LastPass)
 
 
 ## TODO: Steps for Adding a Validator to the Snickerdoodle Fuji Subnet
@@ -35,7 +35,7 @@ curl -X POST --data '{
 
 ### 2. Generate a Fuji Validator Key
 
-First, make sure you have the [Subnet CLI](https://github.com/ava-labs/subnet-cli) installed:
+First, make sure you have the [Subnet CLI](https://github.com/ava-labs/subnet-cli) installed (this can be on *any* machine):
 
 ```shell
 curl -L https://github.com/ava-labs/subnet-cli/releases/download/v0.0.2/subnet-cli_0.0.2_linux_amd64.tar.gz | tar zx
@@ -47,10 +47,19 @@ Then [generate a private key](https://docs.avax.network/subnets/create-a-fuji-su
 subnet-cli create key
 ```
 
-Import this key into the [Avalanche Web Wallet](https://wallet.avax.network/) to view your balances across X, P, and C Chains. 
-You will need a non-zero balance on the P-Chain to create your subnet. 
+This will generate a file called `subnet-cli.pk`. Import this key into the [Avalanche Web Wallet](https://wallet.avax.network/). Be 
+sure to switch the wallet over to the Fuji testnet. You will need a non-zero balance on the P-Chain to create your subnet. Transfer
+Fuji AVAX into the C-Chain account, click on the `Cross Chain` tab on the left side of the application, and transfer at least 1 AVAX
+from the C Chain into the P Chain account.  
 
 ### 3. Fund your Fuji Validator Account
 
 Use the [public faucet](https://faucet.avax.network/) to fund your validator key you generated in the previous step on the C-Chain. 
-Then bridge your funds from the [C-Chain to the P-Chain](https://docs.avax.network/quickstart/cross-chain-transfers#example-code).
+Next, click on the Cross Chain tab on the left hand side of the Web Wallet application and bridge your funds from the C-Chain to the 
+P-Chain by . 
+
+### 4. Get a EVM Subnet Binary
+
+```shell
+curl -L https://github.com/ava-labs/subnet-evm/releases/download/v0.2.4/subnet-evm_0.2.4_linux_amd64.tar.gz | tar zx
+```

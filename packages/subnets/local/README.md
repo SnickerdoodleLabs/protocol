@@ -7,7 +7,7 @@ network.
 
 ## Subnet Settings
 
-The genesis file, [`snickerdoodle_genesis.json`](/packages/subnets/local/snickerdoodle_genesis.json), defines the parameters of the 
+The genesis file, [`snickerdoodle_local_genesis.json`](/packages/subnets/local/snickerdoodle_local_genesis.json), defines the parameters of the 
 subnet when it is created. This file will create a subnet with the following parameters:
 
 - Subnet Name: `Snickerdoodle`
@@ -19,7 +19,7 @@ subnet when it is created. This file will create a subnet with the following par
 
 A local Snickerdoodle Subnet can be created by using the pre-built `Snickerdoodlelabs/local-subnet` image. 
 The [entrypoint](/packages/subnets/local/entrypoint.sh) script will create a subnet from the 
-[genesis file](/packages/subnets/local/snickerdoodle_genesis.json), launch five validating nodes, then deploy the protocol 
+[genesis file](/packages/subnets/local/snickerdoodle_local_genesis.json), launch five validating nodes, then deploy the protocol 
 [contract stack](https://github.com/SnickerdoodleLabs/protocol/tree/develop/packages/contracts) to the 
 network. 
 
@@ -50,7 +50,7 @@ curl -sSfL https://raw.githubusercontent.com/ava-labs/avalanche-cli/main/scripts
 ### 2. Compile the subnet configuration
 
 ```shell
-./bin/avalanche subnet create snickerdoodle --file ./snickerdoodle_genesis.json --evm
+./bin/avalanche subnet create snickerdoodle --file ./snickerdoodle_local_genesis.json --evm
 ```
 
 ### 3. Start the subnet on a local network

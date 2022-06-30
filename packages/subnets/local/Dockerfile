@@ -15,10 +15,10 @@ RUN curl -sSfL https://raw.githubusercontent.com/ava-labs/avalanche-cli/main/scr
 ENV PATH="${PATH}:/root/bin"
 
 # copy the genesis file into the working directory
-COPY snickerdoodle_genesis.json .
+COPY snickerdoodle_local_genesis.json .
 
 # create the snickerdoodle subnet configs
-RUN avalanche subnet create snickerdoodle --evm --file /root/snickerdoodle_genesis.json 
+RUN avalanche subnet create snickerdoodle --evm --file /root/snickerdoodle_local_genesis.json 
 
 # copy the entrypoint script into the working directory
 COPY entrypoint.sh .
