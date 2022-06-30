@@ -15,6 +15,7 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   InvalidSignatureError,
+  IPFSError,
   PersistenceError,
   UninitializedError,
   UnsupportedLanguageError,
@@ -160,7 +161,7 @@ export interface ISnickerdoodleCore {
   // re-checked, of course (trust nobody!).
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError>;
+  ): ResultAsync<void, UninitializedError | IPFSError | ConsentError>;
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
 }

@@ -1,9 +1,8 @@
-import { BaseError } from "@objects/errors/BaseError";
-import errorCodes from "./errorCodes";
+import errorCodes from "@objects/errors/errorCodes";
 
-export class IPFSError extends BaseError {
+export class IPFSError extends Error {
     protected errorCode: string = errorCodes[IPFSError.name];
-    constructor(msg: string, src: unknown | null) {
-        super(msg, 500, errorCodes[IPFSError.name], src, true);
+    constructor(message?: string, public src?: unknown) {
+        super(message);
     }
 }

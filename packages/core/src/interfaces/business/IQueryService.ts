@@ -7,6 +7,7 @@ import {
   EthereumContractAddress,
   IpfsCID,
   UninitializedError,
+  IPFSError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -16,6 +17,7 @@ export interface IQueryService {
     queryId: IpfsCID,
   ): ResultAsync<
     void,
+    | IPFSError
     | ConsentContractError
     | ConsentContractRepositoryError
     | UninitializedError
@@ -25,7 +27,7 @@ export interface IQueryService {
   >;
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError>;
+  ): ResultAsync<void, IPFSError | UninitializedError | ConsentError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

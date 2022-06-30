@@ -8,21 +8,19 @@ import {
   EthereumContractAddress,
   Insight,
   IpfsCID,
+  IPFSError,
   ISDQLQueryObject,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
+import { IQueryService } from "@core/interfaces/business";
 import {
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities";
-import {
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities";
-import { IQueryService } from "@core/interfaces/business";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -31,10 +29,10 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
-import { ResultUtils } from "neverthrow-result-utils";
-import createClient from "ipfs-http-client";
-
-
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -55,67 +53,63 @@ export class QueryService implements IQueryService {
     queryId: IpfsCID,
   ): ResultAsync<
     void,
+    | IPFSError
     | ConsentContractError
     | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
     | ConsentError
-    | IPFSError | null
   > {
     // Get the IPFS data for the query. This is just "Get the query";
-
-    const client = createClient.create({ host: "ipfs" });
 
     return ResultUtils.combine([
       this.sdqlQueryRepo.getByCID(queryId),
       this.contextProvider.getContext(),
-    ]).andThen(([queries, context]) => {
-      const query = queries.get(queryId);
-
+    ]).andThen(([query, context]) => {
       if (query == null) {
         // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
         // If the client does have the cid key, but no query data yet, then it is not resolved in IPFS yet.
         // Then we should store this CID and try again later
-        /*
-        if (createClient.has(queryId)) {
+        // TODO: This is a temporary return
+        return errAsync(
+          new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
+        );
+      }
 
-        }
-        */
+      if (context.dataWalletAddress == null) {
+        // Need to wait for the wallet to unlock
         return okAsync(undefined);
       }
 
-      if (context.dataWalletAddress != null) {
-        // We have the query, next step is check if you actually have a consent token for this business
-        return this.consentContractRepository
-          .isAddressOptedIn(
-            consentContractAddress,
-            EthereumAccountAddress(context.dataWalletAddress),
-          )
-          .andThen((addressOptedIn) => {
-            if (addressOptedIn == false) {
-              // No consent given!
-              return errAsync(
-                new ConsentError(
-                  `No consent token for address ${context.dataWalletAddress}!`,
-                ),
-              );
-            }
-            // We have a consent token!
-            context.publicEvents.onQueryPosted.next(query);
+      // We have the query, next step is check if you actually have a consent token for this business
+      return this.consentContractRepository
+        .isAddressOptedIn(
+          consentContractAddress,
+          EthereumAccountAddress(context.dataWalletAddress),
+        )
+        .andThen((addressOptedIn) => {
+          if (!addressOptedIn) {
+            // No consent given!
+            return errAsync(
+              new ConsentError(
+                `No consent token for address ${context.dataWalletAddress}!`,
+              ),
+            );
+          }
 
-            return okAsync(undefined);
-          });
-      }
+          // We have a consent token!
+          context.publicEvents.onQueryPosted.next(query);
 
-      return okAsync(undefined);
+          return okAsync(undefined);
+        });
     });
   }
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError> {
-    // 1. Parse the query
+  ): ResultAsync<void, IPFSError | UninitializedError | ConsentError> {
+    // 1. Parse  t he query
     // 2. Generate an insight(s)
     // 3. Redeem the reward
     // 4. Deliver the insight
@@ -123,9 +117,7 @@ export class QueryService implements IQueryService {
     // Get the IPFS data for the query. This is just "Get the query";
     return this.sdqlQueryRepo
       .getByCID(queryId)
-      .andThen((queries) => {
-        const query = queries.get(queryId);
-
+      .andThen((query) => {
         if (query == null) {
           // The query doesn't actually exist
           // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
@@ -139,6 +131,7 @@ export class QueryService implements IQueryService {
         // Break down the actual parts of the query.
         return this.queryParsingEngine.handleQuery(queryContent);
       })
+
       .andThen((insights) => {
         // Get the reward
         const insightMap = insights.reduce((prev, cur) => {

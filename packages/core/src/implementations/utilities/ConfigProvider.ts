@@ -41,6 +41,7 @@ export class ConfigProvider implements IConfigProvider {
       config?.providerAddress || URLString(""),
       config?.chainInformation || chainConfig,
       config?.controlChainInformation || controlChainInformation,
+      URLString("ipfs node address"),
     );
   }
 
