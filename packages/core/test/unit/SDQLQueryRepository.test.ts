@@ -1,22 +1,18 @@
 import "reflect-metadata";
-import { IpfsCID } from "@snickerdoodlelabs/objects";
+import { IpfsCID, IPFSError, SDQLQuery, SDQLString } from "@snickerdoodlelabs/objects";
 import { CID } from "ipfs-http-client";
 import { IPFSHTTPClient } from "ipfs-http-client/types/src/types";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync } from "neverthrow";
 import td from "testdouble";
-import { IPFSError } from "@browser-extension/../../objects/src/errors/IPFSError";
-import { IPFSFile } from "@browser-extension/interfaces/objects/IPFSFile";
-import { ISQLQueryRepository } from "@browser-extension/implementations/data/SDQLQueryRepository";
-import { IIPFSProvider } from "@browser-extension/interfaces/data/IIPFSProvider";
-import { SDQLQueryRepository } from "@browser-extension/implementations/data/SDQLQueryRepository";
-import { ISDQLQueryRepository } from "@browser-extension/interfaces/data";
+import { IIPFSProvider } from "@core/interfaces/data/IIPFSProvider";
+import { SDQLQueryRepository } from "@core/implementations/data/SDQLQueryRepository";
+import { ISDQLQueryRepository } from "@core/interfaces/data";
 
-import { IContextProvider } from "@browser-extension/interfaces/utilities";
-import { IConfigProvider } from "@browser-extension/interfaces/utilities";
-
+import { IContextProvider } from "@core/interfaces/utilities";
+import { IConfigProvider } from "@core/interfaces/utilities";
 
 const textToAdd = "Phoebe";
-const cidString = "QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF";
+const cidString = IpfsCID("QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF");
 
 class SDQLQueryRepositoryMocks {
     public ipfsClient = td.object<IPFSHTTPClient>();
@@ -78,14 +74,14 @@ describe("SDQLQueryRepository tests", () => {
         const mocks = new SDQLQueryRepositoryMocks();
         const repo = mocks.factoryRepository();
         // Act
-        const result = await repo.getByCID(IpfsCID(cidString));
+        const result = await repo.getByCID(cidString);
 
         // Assert
         expect(result).toBeDefined();
         expect(result.isErr()).toBeFalsy();
         const val = result._unsafeUnwrap();
-        expect(val).toBeInstanceOf(IPFSFile);
-        expect(val).toMatchObject({ cid: cidString, content: textToAdd });
+        expect(val).toBeInstanceOf(SDQLQuery);
+        expect(val).toMatchObject(new SDQLQuery(cidString, SDQLString(textToAdd)));
     });
 
     test("getByCID returns an IPFSError on failiue", async () => {
@@ -96,7 +92,7 @@ describe("SDQLQueryRepository tests", () => {
         td.when(mocks.ipfsClient.cat(cidString)).thenReject(err);
 
         // Act
-        const result = await repo.getByCID(IpfsCID(cidString));
+        const result = await repo.getByCID(cidString);
 
         // Assert
         expect(result).toBeDefined();
@@ -114,7 +110,7 @@ describe("SDQLQueryRepository tests", () => {
         const repo = mocks.factoryRepository();
 
         // Act
-        const result = await repo.getByCID(IpfsCID(cidString));
+        const result = await repo.getByCID(cidString);
 
         // Assert
         expect(result).toBeDefined();

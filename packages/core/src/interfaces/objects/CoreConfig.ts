@@ -11,5 +11,6 @@ export class CoreConfig {
     public providerAddress: URLString,
     public chainInformation: Map<ChainId, ChainInformation>,
     public controlChainInformation: ControlChainInformation,
+    public ipfsNodeAddress: URLString,
   ) {}
 }
