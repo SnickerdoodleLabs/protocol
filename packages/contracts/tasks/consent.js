@@ -3,8 +3,6 @@ const {
   consentFactory,
   CC,
   CCFactory,
-  CR,
-  crumbsContract,
 } = require("./constants.js");
 
 task("checkBalanceOf", "Check balance of user").setAction(async () => {
@@ -51,11 +49,11 @@ task(
 
     const deployedBeaconProxyConsentAddress = await consentFactoryContractHandle
       .connect(accounts[0])
-      .contractNameToAddress(taskArgs.name);
+      .getUserDeployedConsentsByIndex(taskArgs.owneraddress, 0, 5);
 
     console.log(
       "Deployed BeaconProxy Consent address :",
-      deployedBeaconProxyConsentAddress,
+      deployedBeaconProxyConsentAddress[0],
     );
     console.log("");
   });
@@ -143,6 +141,45 @@ task(
     // declare the filter parameters of the event of interest
     const logs = await consentContractHandle.filters.RequestForData(
       taskArgs.owneraddress,
+    );
+
+    // generate log with query's results
+    const _logs = await consentContractHandle.queryFilter(logs);
+
+    console.log("");
+    console.log("Queried address:", taskArgs.consentaddress);
+
+    // print each event's arguments
+    _logs.forEach((log, index) => {
+      console.log("");
+      console.log("Request number: ", index + 1);
+      console.log("  Owner address: ", log.args.requester);
+      console.log("  Requested CID:", log.args.ipfsCID);
+    });
+
+    console.log("");
+  });
+
+task(
+  "listRequestedDataByCIDHex",
+  "Returns a list of requested data by an address",
+)
+  .addParam("consentaddress", "Target consent address.")
+  .addParam("cidhex", "Keccak256 hash of IPFS CID")
+  .setAction(async (taskArgs) => {
+    const accounts = await hre.ethers.getSigners();
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      taskArgs.consentaddress,
+      CC().abi,
+      accounts[1],
+    );
+
+    // declare the filter parameters of the event of interest
+    const logs = await consentContractHandle.filters.RequestForData(
+      null,
+      taskArgs.cidhex,
     );
 
     // generate log with query's results

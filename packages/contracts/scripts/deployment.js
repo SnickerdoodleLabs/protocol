@@ -13,8 +13,6 @@ let trustedForwarder;
 let tokenDistributor;
 let consentAddress;
 let consentFactoryAddress;
-let beacon;
-let beaconAddress;
 let Consent;
 let ConsentFactory;
 let consent;
@@ -53,23 +51,14 @@ async function deployConsentFactory() {
 
   // the Consent Factory contract requires one argument on deployment:
   // the address of the trusted forwarder who will pay for the meta tx fees
-  consentFactory = await ConsentFactory.deploy(trustedForwarder.address);
+  consentFactory = await ConsentFactory.deploy(
+    trustedForwarder.address,
+    consentAddress,
+  );
   await consentFactory.deployed();
   consentFactoryAddress = consentFactory.address;
 
   console.log("Consent Factory deployed to:", consentFactoryAddress);
-}
-
-// function to deploy the Upgradeable Beacon contract
-async function deployUpgradeableBeacon() {
-  console.log("");
-  console.log("Deploying UpgradeableBeacon contract...");
-
-  // the UpgradeableBeacon contract requires one argument on deployment:
-  // the implementation contract details
-  beacon = await upgrades.deployBeacon(Consent);
-  beaconAddress = beacon.address;
-  console.log("UpgradeableBeacon deployed to:", beaconAddress);
 }
 
 // function that deploys the Doodle Token
@@ -136,15 +125,6 @@ async function deployCrumbs() {
   console.log("Crumbs deployed to:", crumbsAddress);
 }
 
-// function to set the Upgradeable Beacon address on the Consent Factory contract
-// Note: the Upgradeable Beacon contract has to be deployed first!
-async function setBeaconAddressOnConsentFactory() {
-  console.log("");
-  console.log("Setting beacon's address on Consent Factory...");
-  await consentFactory.connect(owner).setBeaconAddress(beaconAddress);
-  console.log("Beacon address on Consent Factory set to:", beaconAddress);
-}
-
 // function that runs the full deployment of all contracts
 async function fullDeployment() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -157,8 +137,6 @@ async function fullDeployment() {
   await setLocalAccounts();
   await deployConsent();
   await deployConsentFactory();
-  await deployUpgradeableBeacon();
-  await setBeaconAddressOnConsentFactory();
 
   await deployDoodleToken(tokenDistributor.address);
   await deployTimelockController();
