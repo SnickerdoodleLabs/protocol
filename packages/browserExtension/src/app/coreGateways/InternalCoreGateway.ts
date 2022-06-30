@@ -18,14 +18,15 @@ import { IInternalState } from "@shared/objects/State";
 export class InternalCoreGateway {
   protected _handler;
   constructor(protected rpcEngine: JsonRpcEngine) {
-    this._handler = createCoreHandler(this.rpcEngine);
+    this._handler = (method, params) =>
+      ResultAsync.fromPromise(
+        createCoreHandler(this.rpcEngine)(method, params),
+        (e) => e,
+      );
   }
 
   public getState(): ResultAsync<IInternalState, unknown> {
-    return ResultAsync.fromPromise(
-      this._handler(EInternalActions.GET_STATE),
-      (e) => e,
-    );
+    return this._handler(EInternalActions.GET_STATE);
   }
 
   public login(
@@ -33,14 +34,11 @@ export class InternalCoreGateway {
     signature: Signature,
     languageCode: LanguageCode,
   ) {
-    return ResultAsync.fromPromise(
-      this._handler(EInternalActions.LOGIN, {
-        accountAddress,
-        signature,
-        languageCode,
-      } as ILoginParams),
-      (e) => e,
-    );
+    return this._handler(EInternalActions.LOGIN, {
+      accountAddress,
+      signature,
+      languageCode,
+    } as ILoginParams);
   }
 
   public addAccount(
@@ -48,22 +46,16 @@ export class InternalCoreGateway {
     signature: Signature,
     languageCode: LanguageCode,
   ) {
-    return ResultAsync.fromPromise(
-      this._handler(EInternalActions.ADD_ACCOUNT, {
-        accountAddress,
-        signature,
-        languageCode,
-      } as IAddAccountParams),
-      (e) => e,
-    );
+    return this._handler(EInternalActions.ADD_ACCOUNT, {
+      accountAddress,
+      signature,
+      languageCode,
+    } as IAddAccountParams);
   }
 
   public getLoginMessage(languageCode: LanguageCode) {
-    return ResultAsync.fromPromise(
-      this._handler(EInternalActions.GET_LOGIN_MESSAGE, {
-        languageCode,
-      } as IGetLoginMessageParams),
-      (e) => e,
-    );
+    return this._handler(EInternalActions.GET_LOGIN_MESSAGE, {
+      languageCode,
+    } as IGetLoginMessageParams);
   }
 }
