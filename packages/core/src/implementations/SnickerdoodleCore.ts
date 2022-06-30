@@ -29,6 +29,7 @@ import {
   UnsupportedLanguageError,
   IAccountIndexing,
   IAccountIndexingType,
+  IConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -44,6 +45,8 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  IConfigProvider,
+  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
@@ -52,6 +55,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
 
   public constructor(
+    configOverrides?: IConfigOverrides,
     persistence?: IDataWalletPersistence,
     accountIndexer?: IAccountIndexing,
   ) {
@@ -73,6 +77,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
+    // If an Account Indexer is provided, hook it up. If not we'll use the default.
     if (accountIndexer != null) {
       this.iocContainer
         .bind(IAccountIndexingType)
@@ -82,6 +87,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .bind(IAccountIndexingType)
         .to(DefaultAccountIndexers)
         .inSingletonScope();
+    }
+
+    // Setup the config
+    if (configOverrides != null) {
+      const configProvider =
+        this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+
+      configProvider.setConfigOverrides(configOverrides);
     }
   }
 
@@ -158,7 +171,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, UninitializedError | PersistenceError> {
+  ): ResultAsync<void, AjaxError | UninitializedError | PersistenceError> {
     const cohortService =
       this.iocContainer.get<ICohortService>(ICohortServiceType);
 
@@ -206,7 +219,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError> {
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError> {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 

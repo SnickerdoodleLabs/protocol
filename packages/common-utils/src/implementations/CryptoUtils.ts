@@ -1,4 +1,5 @@
 import Crypto from "crypto";
+
 import {
   TypedDataDomain,
   TypedDataField,
@@ -25,7 +26,7 @@ import { ICryptoUtils } from "@common-utils/interfaces";
 export class CryptoUtils implements ICryptoUtils {
   protected cipherAlgorithm = "aes-256-cbc";
 
-  constructor() { }
+  constructor() {}
 
   public getNonce(nonceSize = 64): ResultAsync<string, never> {
     return okAsync(
@@ -129,6 +130,21 @@ export class CryptoUtils implements ICryptoUtils {
 
     return ResultAsync.fromSafePromise<string, never>(
       wallet.signMessage(message),
+    ).map((signature) => {
+      return Signature(signature);
+    });
+  }
+
+  public signTypedData(
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    privateKey: EVMPrivateKey,
+  ): ResultAsync<Signature, never> {
+    const wallet = new ethers.Wallet(privateKey);
+
+    return ResultAsync.fromSafePromise<string, never>(
+      wallet._signTypedData(domain, types, value),
     ).map((signature) => {
       return Signature(signature);
     });

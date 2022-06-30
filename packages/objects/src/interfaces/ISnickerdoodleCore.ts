@@ -114,7 +114,7 @@ export interface ISnickerdoodleCore {
   acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, PersistenceError | UninitializedError>;
+  ): ResultAsync<void, AjaxError | PersistenceError | UninitializedError>;
 
   /**
    * This method will reject an invitation, which simply puts it on a list for future
@@ -160,7 +160,7 @@ export interface ISnickerdoodleCore {
   // re-checked, of course (trust nobody!).
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError>;
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError>;
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
 }

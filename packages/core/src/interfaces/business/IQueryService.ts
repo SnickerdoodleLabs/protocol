@@ -25,7 +25,7 @@ export interface IQueryService {
   >;
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError>;
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

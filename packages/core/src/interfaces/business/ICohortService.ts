@@ -29,7 +29,7 @@ export interface ICohortService {
   acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, PersistenceError | UninitializedError>;
+  ): ResultAsync<void, UninitializedError | PersistenceError | AjaxError>;
 
   rejectInvitation(
     invitation: CohortInvitation,

@@ -3965,6 +3965,7 @@ __metadata:
     neverthrow-result-utils: ^1.0.2
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
+    url-join-ts: ^1.0.5
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -26333,6 +26334,13 @@ __metadata:
   version: 0.1.0
   resolution: "urix@npm:0.1.0"
   checksum: 4c076ecfbf3411e888547fe844e52378ab5ada2d2f27625139011eada79925e77f7fbf0e4016d45e6a9e9adb6b7e64981bd49b22700c7c401c5fc15f423303b3
+  languageName: node
+  linkType: hard
+
+"url-join-ts@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "url-join-ts@npm:1.0.5"
+  checksum: 04ae61b7442d5dd3cc315fc8cd99cd202fe0264b3915ee359a8822c5c3ed584c67c58beb7a00a69d4c9e74804909e69faeb2394ba9d3031b66711e929f317e3a
   languageName: node
   linkType: hard
 

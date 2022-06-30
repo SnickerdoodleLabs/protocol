@@ -50,6 +50,13 @@ export interface ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never>;
 
+  signTypedData(
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    privateKey: EVMPrivateKey,
+  ): ResultAsync<Signature, never>;
+
   hashStringSHA256(message: string): ResultAsync<SHA256Hash, never>;
   hashStringArgon2(message: string): ResultAsync<Argon2Hash, never>;
   verifyHashArgon2(

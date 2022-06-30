@@ -1,3 +1,4 @@
+import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import {
   ChainId,
   ChainInformation,
@@ -11,5 +12,7 @@ export class CoreConfig {
     public providerAddress: URLString,
     public chainInformation: Map<ChainId, ChainInformation>,
     public controlChainInformation: ControlChainInformation,
+    public defaultInsightPlatformBaseUrl: URLString,
+    public snickerdoodleProtocolDomain: TypedDataDomain,
   ) {}
 }

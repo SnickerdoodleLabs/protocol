@@ -15,15 +15,11 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IQueryService } from "@core/interfaces/business";
 import {
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities";
-import {
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities";
-import { IQueryService } from "@core/interfaces/business";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -32,6 +28,10 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -45,7 +45,7 @@ export class QueryService implements IQueryService {
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-  ) { }
+  ) {}
 
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
@@ -101,7 +101,7 @@ export class QueryService implements IQueryService {
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError> {
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError> {
     // 1. Parse the query
     // 2. Generate an insight(s)
     // 3. Redeem the reward
