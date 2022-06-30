@@ -12,7 +12,11 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 /// @author Sean Sing
 /// @notice Snickerdoodle Protocol's Sift Contract
 /// @dev The Sift contract is a simple registry that tracks verified or malicious urls
-/// @dev  
+/// @dev If a url has been verified by the Snickerdoodle team, it is minted with a ERC721 token with a 'VERIFIED' tokenURI
+/// @dev If a url has been identified as malicious, it is minted a 'MALICIOUS' tokenURI
+/// @dev SDL's data wallet browser extension will query the Sift contract with the url that its user is visiting
+/// @dev Each url that enters the registry is mapped to a token id that has the corresponding tokenURI describe above
+/// @dev If the url does not have a tokenId minted against it, the contract returns the 'NOT VERIFIED' status
 
 contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, OwnableUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
@@ -29,19 +33,30 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
         __Ownable_init();
     }
 
-    function verifyURL(string memory url, address owner) public onlyOwner {
+    /// @notice Verifies a url
+    /// @dev Mints an NFT with the 'VERIFIED' tokenURI
+    /// @param url Site URL
+    /// @param owner Address receiving the url's NFT   
+    function verifyURL(string memory url, address owner) external onlyOwner {
 
         // mint token id and append to the token URI "VERIFIED"
-        safeMint(owner, "VERIFIED", url);
+        _safeMintAndRegister(owner, "VERIFIED", url);
     }
 
-    function maliciousURL(string memory url, address owner) public onlyOwner {
+    /// @notice Marks a url as malicious 
+    /// @dev Mints an NFT with the 'MALICIOUS' tokenURI
+    /// @param url Site URL
+    /// @param owner Address receiving the url's NFT  
+    function maliciousURL(string memory url, address owner) external onlyOwner {
 
         // mint token id and append to the token URI "MALICIOUS"
-        safeMint(owner, "MALICIOUS", url);
+        _safeMintAndRegister(owner, "MALICIOUS", url);
     }
 
-    function checkURL(string memory url) public view returns(string memory result) {
+    /// @notice Checks the status of a url 
+    /// @param url Site URL
+    /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
+    function checkURL(string memory url) external view returns(string memory result) {
 
         uint256 tokenId = urlToTokenId[keccak256(abi.encodePacked(url))];
 
@@ -52,15 +67,19 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
         return tokenURI(tokenId);
     }
 
-    function safeMint(address to, string memory uri, string memory url) public onlyOwner {
-
-        // ensure that tokenIds start from 1 so that 0 can be kept as tokens that are not verfied yet
+    /// @notice Internal function to carry out token minting and mapping updates
+    /// @param to Address receiving the token
+    /// @param uri Token uri containing status
+    /// @param url Site URL
+    /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'  
+    function _safeMintAndRegister(address to, string memory uri, string memory url) internal onlyOwner {
+        // ensure that tokenIds start from 1 so that 0 can be kept as tokens that are not verified yet
         uint256 tokenId = _tokenIdCounter.current() + 1;
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
 
-        // add hashed url to token mapping
+        // register hashed url to token mapping
         urlToTokenId[keccak256(abi.encodePacked(url))] = tokenId;
     }
 
