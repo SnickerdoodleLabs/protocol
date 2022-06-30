@@ -7,6 +7,7 @@
     "service_worker": "background.bundle.js"
   },
   "action": {
+    "default_popup": "popup.html",
     "default_icon": "icon-34.png"
   },
   "oauth2": {
@@ -34,7 +35,6 @@
 
   "permissions": [
     "notifications",
-    "tabs",
     "storage",
     "activeTab",
     "scripting",
