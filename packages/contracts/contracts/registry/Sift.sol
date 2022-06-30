@@ -71,7 +71,6 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @param to Address receiving the token
     /// @param uri Token uri containing status
     /// @param url Site URL
-    /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'  
     function _safeMintAndRegister(address to, string memory uri, string memory url) internal onlyOwner {
         // ensure that tokenIds start from 1 so that 0 can be kept as tokens that are not verified yet
         uint256 tokenId = _tokenIdCounter.current() + 1;
