@@ -46,7 +46,7 @@ import Browser from "webextension-polyfill";
 
 export class ExtensionCore {
   // snickerdooldle Core
-  protected core: SnickerdoodleCore;
+  protected core: ISnickerdoodleCore;
 
   // Business
   protected portConnectionService: IPortConnectionService;
