@@ -37,8 +37,6 @@
     "@snickerdoodlelabs/objects": ">=0.0.1",
     "@snickerdoodlelabs/utils": ">=0.0.1",
     "inversify": "^5.1.1",
-    "moleculer": "^0.14.0",
-    "moleculer-ioc": "^0.0.7",
     "neverthrow": "^4.2.2"
   }
 }

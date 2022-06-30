@@ -4,7 +4,6 @@
 		"outDir": "./dist",
 		"rootDir": "./src",
 		"baseUrl": "./src/",
-		"strict": false
 	},
 	"references": [
 		{
