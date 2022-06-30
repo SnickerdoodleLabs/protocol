@@ -61,6 +61,7 @@ export class QueryService implements IQueryService {
     | BlockchainProviderError
     | AjaxError
     | ConsentError
+    | IPFSError | null
   > {
     // Get the IPFS data for the query. This is just "Get the query";
 
