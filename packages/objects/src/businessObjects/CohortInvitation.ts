@@ -1,12 +1,14 @@
 import {
-  EthereumContractAddress,
+  DomainName,
+  EVMContractAddress,
   Signature,
   TokenId,
 } from "@objects/primatives";
 
 export class CohortInvitation {
   public constructor(
-    public consentContractAddress: EthereumContractAddress,
+    public domain: DomainName,
+    public consentContractAddress: EVMContractAddress,
     public tokenId: TokenId,
     public businessSignature: Signature | null,
   ) {}

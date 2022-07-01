@@ -7,7 +7,7 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
-  EthereumAccountAddress,
+  EVMAccountAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   PersistenceError,
@@ -103,7 +103,7 @@ export class BlockchainListener implements IBlockchainListener {
   protected chainBlockMined(
     chainId: ChainId,
     provider: JsonRpcProvider,
-    accounts: EthereumAccountAddress[],
+    accounts: EVMAccountAddress[],
   ): ResultAsync<void, BlockchainProviderError | UninitializedError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
@@ -172,7 +172,7 @@ export class BlockchainListener implements IBlockchainListener {
     blockNumber: BlockNumber,
     chainId: ChainId,
     provider: JsonRpcProvider,
-    accounts: EthereumAccountAddress[],
+    accounts: EVMAccountAddress[],
   ): ResultAsync<void, BlockchainProviderError> {
     // For each provider, hook up listeners or whatever, that will monitor for activity
     // on the chain for each address.
@@ -194,7 +194,7 @@ export class BlockchainListener implements IBlockchainListener {
     // These are events that actually occur on the ETH provider object
     // itself, it is not an on-chain event.
     // Subscribe to accounts change
-    provider.on("accountsChanged", (accounts: EthereumAccountAddress[]) => {
+    provider.on("accountsChanged", (accounts: EVMAccountAddress[]) => {
       this.logUtils.debug(
         `Accounts changed to ${accounts}. Need to refresh iframe and the UI`,
       );
@@ -231,7 +231,7 @@ export class BlockchainListener implements IBlockchainListener {
     // Here is where we setup listening to events on the Consent Contract
     // Will look something like this:
     // Pretend we know the contract address that we are listening for
-    provider.listenForEventOnContract(context.consentContractAddress, "OnDataRequested", (contractAddress: EthereumContractAddress, cid: IpfsCID) => {
+    provider.listenForEventOnContract(context.consentContractAddress, "OnDataRequested", (contractAddress: EVMContractAddress, cid: IpfsCID) => {
       // This is the method that is called when an event happens on the consent
       this.queryService.onQueryPosted(contractAddress, cid)
         // This mapErr is because any returned error would disappear into the ether without it.

@@ -4,8 +4,10 @@ import {
   FallbackProvider,
 } from "@ethersproject/providers";
 import { ChainId, BlockchainProviderError } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IBlockchainProvider,
@@ -14,8 +16,6 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@core/interfaces/utilities";
-import { ethers } from "ethers";
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class BlockchainProvider implements IBlockchainProvider {

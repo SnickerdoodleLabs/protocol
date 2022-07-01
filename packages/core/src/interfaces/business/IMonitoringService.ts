@@ -1,4 +1,4 @@
-import { SiteVisit, EthereumTransaction } from "@snickerdoodlelabs/objects";
+import { SiteVisit, EVMTransaction } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -7,9 +7,7 @@ import { ResultAsync } from "neverthrow";
  * externally via the form factor, such as SiteVisits.
  */
 export interface IMonitoringService {
-  transactionDetected(
-    transaction: EthereumTransaction,
-  ): ResultAsync<void, never>;
+  transactionDetected(transaction: EVMTransaction): ResultAsync<void, never>;
   siteVisited(siteVisit: SiteVisit): ResultAsync<void, never>;
 }
 

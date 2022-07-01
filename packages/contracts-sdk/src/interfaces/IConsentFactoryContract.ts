@@ -1,25 +1,25 @@
-import { BigNumber, ethers } from "ethers";
-import { ResultAsync } from "neverthrow";
 import {
   ConsentFactoryContractError,
   ConsentName,
-  EthereumAccountAddress,
-  EthereumContractAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber, ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
 
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 export interface IConsentFactoryContract {
   createConsent(
-    ownerAddress: EthereumAccountAddress,
+    ownerAddress: EVMAccountAddress,
     baseUri: string,
     consentName: ConsentName,
     overrides?: ContractOverrides,
-  ): ResultAsync<EthereumContractAddress, ConsentFactoryContractError>;
+  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError>;
 
   getConsentsDeployedByOwner(
-    ownerAddress: EthereumAccountAddress,
-  ): ResultAsync<EthereumContractAddress[], ConsentFactoryContractError>;
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
 }
 
 export const IConsentFactoryContractType = Symbol.for(

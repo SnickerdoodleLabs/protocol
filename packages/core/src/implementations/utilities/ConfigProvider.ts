@@ -1,7 +1,9 @@
+import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import {
   chainConfig,
   ChainId,
   ControlChainInformation,
+  IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
@@ -10,19 +12,13 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { CoreConfig } from "@core/interfaces/objects";
 import { IConfigProvider, ILogUtils } from "@core/interfaces/utilities";
 
-declare const __CONTROL_CHAIN_ID__: number | undefined;
-
 @injectable()
 export class ConfigProvider implements IConfigProvider {
   protected config: CoreConfig;
 
-  public constructor(
-    protected logUtils: ILogUtils,
-    config?: Partial<CoreConfig>,
-  ) {
-    const controlChainId =
-      config?.controlChainId || __CONTROL_CHAIN_ID__ || 1337;
-    const controlChainInformation = chainConfig.get(ChainId(controlChainId));
+  public constructor(protected logUtils: ILogUtils) {
+    const controlChainId = ChainId(1337);
+    const controlChainInformation = chainConfig.get(controlChainId);
 
     if (controlChainInformation == null) {
       throw new Error(
@@ -37,14 +33,23 @@ export class ConfigProvider implements IConfigProvider {
     }
 
     this.config = new CoreConfig(
-      ChainId(controlChainId),
-      config?.providerAddress || URLString(""),
-      config?.chainInformation || chainConfig,
-      config?.controlChainInformation || controlChainInformation,
+      controlChainId,
+      URLString(""),
+      chainConfig,
+      controlChainInformation,
+      URLString("http://insight-platform"),
+      {
+        name: "Snickerdoodle Protocol",
+        version: "1",
+      } as TypedDataDomain,
     );
   }
 
   public getConfig(): ResultAsync<CoreConfig, never> {
     return okAsync(this.config);
+  }
+
+  public setConfigOverrides(overrides: IConfigOverrides): void {
+    this.config = { ...this.config, ...overrides };
   }
 }

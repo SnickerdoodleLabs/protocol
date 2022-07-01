@@ -1,7 +1,8 @@
+import { Readable } from "stream";
+
 import { AjaxError, JsonWebToken } from "@snickerdoodlelabs/objects";
 import { AxiosRequestConfig } from "axios";
 import { ResultAsync } from "neverthrow";
-import { Readable } from "stream";
 
 /**
  * AjaxUtils are just a wrapper around Axios for purposes of testing.

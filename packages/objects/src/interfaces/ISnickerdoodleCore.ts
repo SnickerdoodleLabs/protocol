@@ -21,8 +21,8 @@ import {
 } from "@objects/errors";
 import {
   DataWalletAddress,
-  EthereumAccountAddress,
-  EthereumContractAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
   IpfsCID,
   LanguageCode,
   Signature,
@@ -51,7 +51,7 @@ export interface ISnickerdoodleCore {
    * @param countryCode
    */
   unlock(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
@@ -73,7 +73,7 @@ export interface ISnickerdoodleCore {
    * @param countryCode
    */
   addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
@@ -114,7 +114,7 @@ export interface ISnickerdoodleCore {
   acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, PersistenceError | UninitializedError>;
+  ): ResultAsync<void, AjaxError | PersistenceError | UninitializedError>;
 
   /**
    * This method will reject an invitation, which simply puts it on a list for future
@@ -142,7 +142,7 @@ export interface ISnickerdoodleCore {
    * @param consentContractAddress
    */
   leaveCohort(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -160,7 +160,7 @@ export interface ISnickerdoodleCore {
   // re-checked, of course (trust nobody!).
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError>;
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError>;
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
 }
@@ -170,5 +170,5 @@ export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
 export interface IQueryEngineEvents {
   onInitialized: Observable<DataWalletAddress>;
   onQueryPosted: Observable<SDQLQuery>;
-  onAccountAdded: Observable<EthereumAccountAddress>;
+  onAccountAdded: Observable<EVMAccountAddress>;
 }

@@ -4,6 +4,7 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 
+import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -13,8 +14,8 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   EInvitationStatus,
-  EthereumAccountAddress,
-  EthereumContractAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   InvalidSignatureError,
@@ -26,6 +27,9 @@ import {
   Signature,
   UninitializedError,
   UnsupportedLanguageError,
+  IAccountIndexing,
+  IAccountIndexingType,
+  IConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -41,6 +45,8 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  IConfigProvider,
+  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
@@ -48,7 +54,11 @@ import {
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
 
-  public constructor(persistence?: IDataWalletPersistence) {
+  public constructor(
+    configOverrides?: IConfigOverrides,
+    persistence?: IDataWalletPersistence,
+    accountIndexer?: IAccountIndexing,
+  ) {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
@@ -65,6 +75,26 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .bind(IDataWalletPersistenceType)
         .to(DefaultDataWalletPersistence)
         .inSingletonScope();
+    }
+
+    // If an Account Indexer is provided, hook it up. If not we'll use the default.
+    if (accountIndexer != null) {
+      this.iocContainer
+        .bind(IAccountIndexingType)
+        .toConstantValue(accountIndexer);
+    } else {
+      this.iocContainer
+        .bind(IAccountIndexingType)
+        .to(DefaultAccountIndexers)
+        .inSingletonScope();
+    }
+
+    // Setup the config
+    if (configOverrides != null) {
+      const configProvider =
+        this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+
+      configProvider.setConfigOverrides(configOverrides);
     }
   }
 
@@ -87,7 +117,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public unlock(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
@@ -104,7 +134,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
@@ -141,7 +171,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, UninitializedError | PersistenceError> {
+  ): ResultAsync<void, AjaxError | UninitializedError | PersistenceError> {
     const cohortService =
       this.iocContainer.get<ICohortService>(ICohortServiceType);
 
@@ -167,7 +197,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public leaveCohort(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -189,7 +219,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError> {
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError> {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 

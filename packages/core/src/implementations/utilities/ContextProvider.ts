@@ -1,10 +1,7 @@
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import {
-  PublicEvents,
-  CoreContext,
-} from "@core/interfaces/objects";
+import { PublicEvents, CoreContext } from "@core/interfaces/objects";
 import { IContextProvider } from "@core/interfaces/utilities";
 
 @injectable()
