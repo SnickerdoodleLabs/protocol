@@ -11,7 +11,7 @@ import { ResultAsync } from "neverthrow";
 import {
     IIPFSProvider,
     IIPFSProviderType,
-} from "@browser-extension/interfaces/data/IIPFSProvider";
+} from "@core/interfaces/data";
 import { ISDQLQueryRepository } from "@core/interfaces/data";
 import {
     IConfigProvider,
