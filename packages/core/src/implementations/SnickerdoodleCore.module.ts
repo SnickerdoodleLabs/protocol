@@ -1,3 +1,8 @@
+import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import { ContainerModule, interfaces } from "inversify";
 
 import { BlockchainListener } from "@core/implementations/api";
@@ -13,7 +18,7 @@ import {
 import {
   ConfigProvider,
   ContextProvider,
-  DerivationMaskUtils,
+  DataWalletUtils,
 } from "@core/implementations/utilities";
 import {
   IBlockchainListener,
@@ -38,8 +43,8 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-  IDerivationMaskUtils,
-  IDerivationMaskUtilsType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
 } from "@core/interfaces/utilities";
 
 export const snickerdoodleCoreModule = new ContainerModule(
@@ -64,21 +69,19 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
       .inSingletonScope();
-
     bind<ILoginRegistryRepository>(ILoginRegistryRepositoryType)
       .to(LoginRegistryRepository)
-      .inSingletonScope();
-
-    bind<IDerivationMaskUtils>(IDerivationMaskUtilsType)
-      .to(DerivationMaskUtils)
       .inSingletonScope();
 
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
-
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
+    bind<IDataWalletUtils>(IDataWalletUtilsType)
+      .to(DataWalletUtils)
+      .inSingletonScope();
+    bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
   },
 );

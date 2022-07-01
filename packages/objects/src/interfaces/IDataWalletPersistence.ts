@@ -3,16 +3,16 @@ import { ResultAsync } from "neverthrow";
 import {
   ClickData,
   ClickFilter,
-  EthereumTransaction,
+  EVMTransaction,
   SiteVisit,
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
 import {
   Age,
   EmailAddressString,
-  EthereumAccountAddress,
-  EthereumContractAddress,
-  EthereumPrivateKey,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
   FirstName,
   Gender,
   LastName,
@@ -38,7 +38,7 @@ export interface IDataWalletPersistence {
    * and using "return this.unlocked.andThen()" at the beginning of the other methods.
    * @param derivedKey
    */
-  unlock(derivedKey: EthereumPrivateKey): ResultAsync<void, PersistenceError>;
+  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
 
   /**
    * This method adds an ethereum account to the data wallet. Only these accounts may unlock the
@@ -46,13 +46,13 @@ export interface IDataWalletPersistence {
    * @param accountAddress
    */
   addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError>;
 
   /**
    * This method returns all the Ethereum accounts that are registered in the data wallet.
    */
-  getAccounts(): ResultAsync<EthereumAccountAddress[], PersistenceError>;
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
 
   /**
    * This is an example method for adding data to the wallet. In this case, it would be a "click",
@@ -88,24 +88,21 @@ export interface IDataWalletPersistence {
   /**
    * Returns a list of consent contract addresses that the user has rejected
    */
-  getRejectedCohorts(): ResultAsync<
-    EthereumContractAddress[],
-    PersistenceError
-  >;
+  getRejectedCohorts(): ResultAsync<EVMContractAddress[], PersistenceError>;
 
   /**
    * Adds a list of consent contract addresses to the list of cohorts the user has
    * positively marked as rejected
    */
   addRejectedCohorts(
-    consentContractAddresses: EthereumContractAddress[],
+    consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError>;
 
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
   addEthereumTransactions(
-    transactions: EthereumTransaction[],
+    transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
 }
 

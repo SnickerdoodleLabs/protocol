@@ -1,3 +1,12 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   CohortInvitation,
   EInvitationStatus,
@@ -5,7 +14,7 @@ import {
   PersistenceError,
   ConsentConditions,
   ConsentError,
-  EthereumContractAddress,
+  EVMContractAddress,
   IDataWalletPersistenceType,
   IDataWalletPersistence,
   Signature,
@@ -26,6 +35,8 @@ import {
   IInsightPlatformRepository,
 } from "@core/interfaces/data";
 import {
+  IConfigProvider,
+  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
@@ -39,7 +50,9 @@ export class CohortService implements ICohortService {
     protected consentRepo: IConsentContractRepository,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
   public checkInvitationStatus(
@@ -78,20 +91,26 @@ export class CohortService implements ICohortService {
   public acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, UninitializedError | PersistenceError> {
+  ): ResultAsync<void, UninitializedError | PersistenceError | AjaxError> {
     // TODO: Need to sign the invitation with our data wallet!
     //context.dataWalletKey
     const signature = Signature("TODO, this should sign the invitation!");
 
     // Not already opted in. We are only supporting a lazy opt-in process, whereby the business pays the gas
-    return ResultUtils.combine([
-      this.insightPlatformRepo.acceptInvitation(invitation, signature),
-      this.contextProvider.getContext(),
-    ]).map(([tokenId, context]) => {
-      // Notify the world that we've opted in to the cohort
-      context.publicEvents.onCohortJoined.next(
-        invitation.consentContractAddress,
-      );
+    return this.contextProvider.getContext().andThen((context) => {
+      if (context.dataWalletAddress == null) {
+        return errAsync(
+          new UninitializedError("Data wallet has not been unlocked yet!"),
+        );
+      }
+      return this.insightPlatformRepo
+        .acceptInvitation(context.dataWalletAddress, invitation, signature)
+        .map(() => {
+          // Notify the world that we've opted in to the cohort
+          context.publicEvents.onCohortJoined.next(
+            invitation.consentContractAddress,
+          );
+        });
     });
   }
 
@@ -126,7 +145,7 @@ export class CohortService implements ICohortService {
   }
 
   public leaveCohort(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
     | ConsentContractError
@@ -136,24 +155,51 @@ export class CohortService implements ICohortService {
     | AjaxError
     | ConsentError
   > {
-    return this.consentRepo
-      .isAddressOptedIn(consentContractAddress)
-      .andThen((optedIn) => {
-        if (!optedIn) {
-          return errAsync(
-            new ConsentError(
-              `Cannot opt out of cohort ${consentContractAddress}, as you are a member`,
-            ),
-          );
-        }
+    return ResultUtils.combine([
+      this.consentRepo.isAddressOptedIn(consentContractAddress),
+      this.contextProvider.getContext(),
+      this.configProvider.getConfig(),
+    ]).andThen(([optedIn, context, config]) => {
+      if (!optedIn) {
+        return errAsync(
+          new ConsentError(
+            `Cannot opt out of cohort ${consentContractAddress}, as you are a member`,
+          ),
+        );
+      }
 
-        return this.insightPlatformRepo.leaveCohort(consentContractAddress);
-      })
-      .andThen(() => {
-        return this.contextProvider.getContext();
-      })
-      .map((context) => {
-        context.publicEvents.onCohortLeft.next(consentContractAddress);
-      });
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError("Data wallet has not been unlocked yet!"),
+        );
+      }
+
+      // Need to sign the request to leave
+      const value = {
+        consentContractAddress: consentContractAddress,
+      } as Record<string, unknown>;
+
+      const types: Record<string, TypedDataField[]> = {
+        LeaveCohort: [{ name: "consentContractAddress", type: "string" }],
+      };
+
+      return this.cryptoUtils
+        .signTypedData(
+          config.snickerdoodleProtocolDomain,
+          types,
+          value,
+          context.dataWalletKey,
+        )
+        .andThen((signature) => {
+          return this.insightPlatformRepo.leaveCohort(
+            context.dataWalletAddress!,
+            consentContractAddress,
+            signature,
+          );
+        })
+        .map(() => {
+          context.publicEvents.onCohortLeft.next(consentContractAddress);
+        });
+    });
   }
 }

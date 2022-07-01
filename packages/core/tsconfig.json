@@ -7,10 +7,16 @@
   },
   "references": [
     {
-      "path": "../objects"
+      "path": "../common-utils"
     },
     {
       "path": "../contracts-sdk"
+    },
+    {
+      "path": "../indexers"
+    },
+    {
+      "path": "../objects"
     }
   ],
   "include": ["./src/**/*.ts"],

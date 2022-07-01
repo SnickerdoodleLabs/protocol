@@ -4,7 +4,7 @@ import {
   ConsentContractError,
   ConsentError,
   ConsentContractRepositoryError,
-  EthereumContractAddress,
+  EVMContractAddress,
   IpfsCID,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -12,7 +12,7 @@ import { ResultAsync } from "neverthrow";
 
 export interface IQueryService {
   onQueryPosted(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
     void,
@@ -25,7 +25,7 @@ export interface IQueryService {
   >;
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError>;
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

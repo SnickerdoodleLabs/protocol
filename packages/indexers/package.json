@@ -1,0 +1,45 @@
+{
+  "name": "@snickerdoodlelabs/indexers",
+  "version": "0.0.1",
+  "description": "Account indexer implementations compatible with Snickerdoodle Core",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/indexers#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle Labs",
+    "SDQL"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "scripts": {
+    "alias": "tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "tsc --build && cd ../.. && yarn alias",
+    "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
+    "prepare": "yarn build",
+    "test": "yarn build && yarn test:ci",
+    "test:ci": "jest --runInBand --coverage --passWithNoTests",
+    "test:watch": "jest --watch --color --detectOpenHandles"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/objects": ">=0.0.1",
+    "ethers": "^5.6.6",
+    "inversify": "^5.1.1",
+    "neverthrow": "^4.3.1",
+    "neverthrow-result-utils": "^1.0.2",
+    "reflect-metadata": "^0.1.13"
+  }
+}

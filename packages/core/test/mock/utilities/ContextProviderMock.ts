@@ -1,13 +1,13 @@
-import { okAsync, ResultAsync } from "neverthrow";
-
-import { CoreContext, PublicEvents } from "@core/interfaces/objects";
-import { IContextProvider } from "@core/interfaces/utilities";
-import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
 import {
   DataWalletAddress,
-  EthereumAccountAddress,
+  EVMAccountAddress,
   SDQLQuery,
 } from "@snickerdoodlelabs/objects";
+import { okAsync, ResultAsync } from "neverthrow";
+
+import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
+import { CoreContext, PublicEvents } from "@core/interfaces/objects";
+import { IContextProvider } from "@core/interfaces/utilities";
 
 export class ContextProviderMock implements IContextProvider {
   public context: CoreContext;
@@ -16,7 +16,7 @@ export class ContextProviderMock implements IContextProvider {
 
   public onInitializedActivations: DataWalletAddress[] = [];
   public onQueryPostedActivations: SDQLQuery[] = [];
-  public onAccountAddedActivations: EthereumAccountAddress[] = [];
+  public onAccountAddedActivations: EVMAccountAddress[] = [];
 
   constructor(context: CoreContext | null = null) {
     this.publicEvents.onInitialized.subscribe((val) => {

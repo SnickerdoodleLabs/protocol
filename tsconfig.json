@@ -3,13 +3,19 @@
   "files": [],
   "references": [
     {
-      "path": "packages/objects"
+      "path": "packages/common-utils"
+    },
+    {
+      "path": "packages/contracts-sdk"
     },
     {
       "path": "packages/core"
     },
     {
-      "path": "packages/contracts-sdk"
+      "path": "packages/indexers"
+    },
+    {
+      "path": "packages/objects"
     },
     {
       "path": "packages/persistence"

@@ -1,14 +1,14 @@
 import {
   BlockNumber,
-  EthereumAccountAddress,
-  EthereumContractAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
   IpfsCID,
 } from "@objects/primitives";
 
 export class RequestForData {
   public constructor(
-    public consentContractAddress: EthereumContractAddress,
-    public requesterAddress: EthereumAccountAddress,
+    public consentContractAddress: EVMContractAddress,
+    public requesterAddress: EVMAccountAddress,
     public requestedCID: IpfsCID,
     public blockNumber: BlockNumber,
   ) {}

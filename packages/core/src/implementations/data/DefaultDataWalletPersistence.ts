@@ -3,12 +3,12 @@ import {
   ClickData,
   ClickFilter,
   EmailAddressString,
-  EthereumAccountAddress,
-  EthereumContractAddress,
-  EthereumPrivateKey,
-  EthereumTransaction,
   FirstName,
   Gender,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
+  EVMTransaction,
   IDataWalletPersistence,
   LastName,
   Location,
@@ -16,6 +16,7 @@ import {
   SiteVisit,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
+import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -23,6 +24,7 @@ import { ResultAsync } from "neverthrow";
  * I think we can use Ceramic and/or bare IPFS to do this, so that the wallet data
  * can be accessed anywhere.
  */
+@injectable()
 export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     throw new Error("Method not implemented.");
@@ -64,21 +66,18 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
   public unlock(
-    derivedKey: EthereumPrivateKey,
+    derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
   public addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
-  public getAccounts(): ResultAsync<
-    EthereumAccountAddress[],
-    PersistenceError
-  > {
+  public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
@@ -101,14 +100,14 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getRejectedCohorts(): ResultAsync<
-    EthereumContractAddress[],
+    EVMContractAddress[],
     PersistenceError
   > {
     throw new Error("Method not implemented.");
   }
 
   public addRejectedCohorts(
-    consentContractAddresses: EthereumContractAddress[],
+    consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
@@ -120,7 +119,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   public addEthereumTransactions(
-    transactions: EthereumTransaction[],
+    transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }

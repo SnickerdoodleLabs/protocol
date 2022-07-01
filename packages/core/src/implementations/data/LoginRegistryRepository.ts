@@ -4,6 +4,8 @@ import {
   DerivationMask,
   BlockchainProviderError,
   TokenId,
+  EVMAccountAddress,
+  AESEncryptedString,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -12,17 +14,18 @@ import { ILoginRegistryRepository } from "@core/interfaces/data";
 
 @injectable()
 export class LoginRegistryRepository implements ILoginRegistryRepository {
-  getDerivationMask(
-    accountAddress: EthereumAccountAddress,
+  public getCrumb(
+    accountAddress: EVMAccountAddress,
     languageCode: LanguageCode,
-  ): ResultAsync<DerivationMask | null, BlockchainProviderError> {
-    return okAsync(null);
+  ): ResultAsync<AESEncryptedString | null, BlockchainProviderError> {
+    throw new Error("Method not implemented.");
   }
-  addDerivationMask(
-    accountAddress: EthereumAccountAddress,
+
+  public addCrumb(
+    accountAddress: EVMAccountAddress,
     languageCode: LanguageCode,
-    derivationMask: DerivationMask,
+    encryptedDataWalletKey: AESEncryptedString,
   ): ResultAsync<TokenId, BlockchainProviderError> {
-    return okAsync(TokenId(BigInt(4)));
+    throw new Error("Method not implemented.");
   }
 }

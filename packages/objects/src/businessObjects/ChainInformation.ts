@@ -1,9 +1,4 @@
-import {
-  ChainId,
-  EthereumContractAddress,
-  ProviderUrl,
-} from "@objects/primitives";
-
+import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 export class ChainInformation {
   constructor(
     public name: string,
@@ -21,7 +16,7 @@ export class ControlChainInformation extends ChainInformation {
     public isDev: boolean,
     public providerUrls: ProviderUrl[],
     public averageBlockMiningTime: number,
-    public consentFactoryContractAddress: EthereumContractAddress,
+    public consentFactoryContractAddress: EVMContractAddress,
   ) {
     super(name, chainId, isDev, providerUrls, averageBlockMiningTime);
   }

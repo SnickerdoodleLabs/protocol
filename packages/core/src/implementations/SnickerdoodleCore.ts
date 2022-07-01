@@ -4,6 +4,7 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 
+import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
@@ -15,10 +16,10 @@ import {
   ConsentError,
   EInvitationStatus,
   EmailAddressString,
-  EthereumAccountAddress,
-  EthereumContractAddress,
   FirstName,
   Gender,
+  EVMAccountAddress,
+  EVMContractAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   InvalidSignatureError,
@@ -33,6 +34,9 @@ import {
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
+  IAccountIndexing,
+  IAccountIndexingType,
+  IConfigOverrides,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -48,6 +52,8 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  IConfigProvider,
+  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
@@ -56,7 +62,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
   protected _persistence: IDataWalletPersistence;
 
-  public constructor(persistence?: IDataWalletPersistence) {
+  public constructor(
+    configOverrides?: IConfigOverrides,
+    persistence?: IDataWalletPersistence,
+    accountIndexer?: IAccountIndexing,
+  ) {
     this.iocContainer = new Container();
 
     // Elaborate syntax to demonstrate that we can use multiple modules
@@ -77,7 +87,152 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     this._persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
+
+    // If an Account Indexer is provided, hook it up. If not we'll use the default.
+    if (accountIndexer != null) {
+      this.iocContainer
+        .bind(IAccountIndexingType)
+        .toConstantValue(accountIndexer);
+    } else {
+      this.iocContainer
+        .bind(IAccountIndexingType)
+        .to(DefaultAccountIndexers)
+        .inSingletonScope();
+    }
+
+    // Setup the config
+    if (configOverrides != null) {
+      const configProvider =
+        this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+
+      configProvider.setConfigOverrides(configOverrides);
+    }
   }
+
+  public getEvents(): ResultAsync<IQueryEngineEvents, never> {
+    const contextProvider =
+      this.iocContainer.get<IContextProvider>(IContextProviderType);
+
+    return contextProvider.getContext().map((context) => {
+      return context.publicEvents;
+    });
+  }
+
+  public getUnlockMessage(
+    languageCode: LanguageCode,
+  ): ResultAsync<string, UnsupportedLanguageError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    return accountService.getUnlockMessage(languageCode);
+  }
+
+  public unlock(
+    accountAddress: EVMAccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | PersistenceError
+  > {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    return accountService.unlock(accountAddress, signature, languageCode);
+  }
+
+  public addAccount(
+    accountAddress: EVMAccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | InvalidSignatureError
+    | UninitializedError
+    | UnsupportedLanguageError
+    | PersistenceError
+  > {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    return accountService.addAccount(accountAddress, signature, languageCode);
+  }
+
+  public checkInvitationStatus(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    EInvitationStatus,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+  > {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.checkInvitationStatus(invitation);
+  }
+
+  public acceptInvitation(
+    invitation: CohortInvitation,
+    consentConditions: ConsentConditions | null,
+  ): ResultAsync<void, AjaxError | UninitializedError | PersistenceError> {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.acceptInvitation(invitation, consentConditions);
+  }
+
+  public rejectInvitation(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+  > {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.rejectInvitation(invitation);
+  }
+
+  public leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | ConsentError
+  > {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.leaveCohort(consentContractAddress);
+  }
+
+  public processQuery(
+    queryId: IpfsCID,
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError> {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.processQuery(queryId);
+  }
+
   setFirstName(name: FirstName): ResultAsync<void, PersistenceError> {
     return this._persistence.setFirstName(name);
   }
@@ -119,129 +274,5 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
   getAge(): ResultAsync<Age, PersistenceError> {
     return this._persistence.getAge();
-  }
-
-  public getEvents(): ResultAsync<IQueryEngineEvents, never> {
-    const contextProvider =
-      this.iocContainer.get<IContextProvider>(IContextProviderType);
-
-    return contextProvider.getContext().map((context) => {
-      return context.publicEvents;
-    });
-  }
-
-  public getUnlockMessage(
-    languageCode: LanguageCode,
-  ): ResultAsync<string, UnsupportedLanguageError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    return accountService.getUnlockMessage(languageCode);
-  }
-
-  public unlock(
-    accountAddress: EthereumAccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
-    | PersistenceError
-  > {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    return accountService.unlock(accountAddress, signature, languageCode);
-  }
-
-  public addAccount(
-    accountAddress: EthereumAccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | InvalidSignatureError
-    | UninitializedError
-    | UnsupportedLanguageError
-    | PersistenceError
-  > {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-    return accountService.addAccount(accountAddress, signature, languageCode);
-  }
-
-  public checkInvitationStatus(
-    invitation: CohortInvitation,
-  ): ResultAsync<
-    EInvitationStatus,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-  > {
-    const cohortService =
-      this.iocContainer.get<ICohortService>(ICohortServiceType);
-
-    return cohortService.checkInvitationStatus(invitation);
-  }
-
-  public acceptInvitation(
-    invitation: CohortInvitation,
-    consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, UninitializedError | PersistenceError> {
-    const cohortService =
-      this.iocContainer.get<ICohortService>(ICohortServiceType);
-
-    return cohortService.acceptInvitation(invitation, consentConditions);
-  }
-
-  public rejectInvitation(
-    invitation: CohortInvitation,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | ConsentError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-  > {
-    const cohortService =
-      this.iocContainer.get<ICohortService>(ICohortServiceType);
-
-    return cohortService.rejectInvitation(invitation);
-  }
-
-  public leaveCohort(
-    consentContractAddress: EthereumContractAddress,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | ConsentError
-  > {
-    const cohortService =
-      this.iocContainer.get<ICohortService>(ICohortServiceType);
-
-    return cohortService.leaveCohort(consentContractAddress);
-  }
-
-  public processQuery(
-    queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError> {
-    const queryService =
-      this.iocContainer.get<IQueryService>(IQueryServiceType);
-
-    return queryService.processQuery(queryId);
   }
 }

@@ -1,10 +1,10 @@
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
-  EthereumContractAddress,
+  EVMContractAddress,
   UninitializedError,
   ConsentToken,
-  EthereumAccountAddress,
+  EVMAccountAddress,
   ConsentContractError,
   AjaxError,
   ConsentContractRepositoryError,
@@ -18,8 +18,8 @@ export interface IConsentContractRepository {
   >;
 
   getConsentTokens(
-    consentContractAddress: EthereumContractAddress,
-    ownerAddress: EthereumAccountAddress,
+    consentContractAddress: EVMContractAddress,
+    ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     ConsentToken[],
     | ConsentContractError
@@ -30,8 +30,8 @@ export interface IConsentContractRepository {
   >;
 
   isAddressOptedIn(
-    consentContractAddress: EthereumContractAddress,
-    address?: EthereumAccountAddress,
+    consentContractAddress: EVMContractAddress,
+    address?: EVMAccountAddress,
   ): ResultAsync<
     boolean,
     | ConsentContractError
@@ -42,7 +42,7 @@ export interface IConsentContractRepository {
   >;
 
   getConsentContracts(): ResultAsync<
-    Map<EthereumContractAddress, IConsentContract>,
+    Map<EVMContractAddress, IConsentContract>,
     | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError

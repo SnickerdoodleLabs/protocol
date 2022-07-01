@@ -1,4 +1,3 @@
-export * from "@objects/ConsentName";
 export * from "@objects/businessObjects";
 export * from "@objects/configuration";
 export * from "@objects/enum";

@@ -1,9 +1,7 @@
-import { ethers, EventFilter, Event } from "ethers";
-import { ok, okAsync, ResultAsync } from "neverthrow";
 import {
   ConsentContractError,
-  EthereumAccountAddress,
-  EthereumContractAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
   IpfsCID,
   TokenUri,
   Signature,
@@ -12,14 +10,16 @@ import {
   RequestForData,
   BlockNumber,
 } from "@snickerdoodlelabs/objects";
-
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { BigNumber } from "ethers";
+import { ethers, EventFilter, Event, BigNumber } from "ethers";
+import { injectable } from "inversify";
+import { ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+
+@injectable()
 export class ConsentContract implements IConsentContract {
   protected contract: ethers.Contract;
   constructor(
@@ -27,7 +27,7 @@ export class ConsentContract implements IConsentContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    consentAddress: EthereumContractAddress,
+    consentAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
       consentAddress,
@@ -36,8 +36,8 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
-  public getContractAddress(): EthereumContractAddress {
-    return EthereumContractAddress(this.contract?.address || "");
+  public getContractAddress(): EVMContractAddress {
+    return EVMContractAddress(this.contract?.address || "");
   }
 
   public optIn(
@@ -92,11 +92,11 @@ export class ConsentContract implements IConsentContract {
   }
 
   public getConsentOwner(): ResultAsync<
-    EthereumAccountAddress,
+    EVMAccountAddress,
     ConsentContractError
   > {
     return ResultAsync.fromPromise(
-      this.contract.owner() as Promise<EthereumAccountAddress>,
+      this.contract.owner() as Promise<EVMAccountAddress>,
       (e) => {
         return new ConsentContractError("Unable to call getConsentOwner()", e);
       },
@@ -104,7 +104,7 @@ export class ConsentContract implements IConsentContract {
   }
 
   public balanceOf(
-    address: EthereumAccountAddress,
+    address: EVMAccountAddress,
   ): ResultAsync<number, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract?.balanceOf(address) as Promise<BigNumber>,
@@ -141,7 +141,7 @@ export class ConsentContract implements IConsentContract {
   }
 
   public getConsentTokensOfAddress(
-    ownerAddress: EthereumAccountAddress,
+    ownerAddress: EVMAccountAddress,
   ): ResultAsync<ConsentToken[], ConsentContractError> {
     return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
       if (numberOfTokens === 0) {
@@ -174,7 +174,7 @@ export class ConsentContract implements IConsentContract {
   }
 
   public getRequestForDataListByRequesterAddress(
-    requesterAddress: EthereumAccountAddress,
+    requesterAddress: EVMAccountAddress,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError> {
@@ -201,8 +201,8 @@ export class ConsentContract implements IConsentContract {
 
   public filters = {
     Transfer: (
-      fromAddress: EthereumAccountAddress | null,
-      toAddress: EthereumAccountAddress | null,
+      fromAddress: EVMAccountAddress | null,
+      toAddress: EVMAccountAddress | null,
     ): ResultAsync<EventFilter, ConsentContractError> => {
       return ResultAsync.fromPromise(
         this.contract?.filters.Transfer(
@@ -218,7 +218,7 @@ export class ConsentContract implements IConsentContract {
       );
     },
     RequestForData: (
-      ownerAddress: EthereumAccountAddress,
+      ownerAddress: EVMAccountAddress,
     ): ResultAsync<EventFilter, ConsentContractError> => {
       return ResultAsync.fromPromise(
         this.contract?.filters.RequestForData(
