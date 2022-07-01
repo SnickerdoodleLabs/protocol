@@ -1,20 +1,53 @@
 {
+  "extends": "../../tsconfig.build.json",
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": false,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "noEmit": false,
-    "jsx": "react"
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "baseUrl": "./src/",
+    "paths": {
+      "@interfaces/*": [
+        "./extensionCore/interfaces/*"
+      ],
+      "@implementations/*": [
+        "./extensionCore/implementations/*"
+      ],
+      "@constants/*": [
+        "./constants/*"
+      ],
+      "@shared/*": [
+        "./shared/*"
+      ],
+      "@app/*": [
+        "./app/*"
+      ],
+      "@rpcGateways": [
+        "./pages/rpcGateways"
+      ],
+      "@rpcGateways/*": [
+        "./pages/rpcGateways/*"
+      ],
+      "@utils": [
+        "./pages/utils"
+      ],
+      "@utils/*": [
+        "./pages/utils/*"
+      ]
+    }
   },
-  "include": ["src"],
-  "exclude": ["build", "node_modules"]
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../objects"
+    }
+  ],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "build",
+    "node_modules"
+  ]
 }
