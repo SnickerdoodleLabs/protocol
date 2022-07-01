@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
+  Age,
   BlockchainProviderError,
   EVMAccountAddress,
   EVMPrivateKey,
@@ -10,12 +11,13 @@ import {
   PersistenceError,
   UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
+import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
 
 // https://github.com/SBoudrias/Inquirer.js
 
-const core = new SnickerdoodleCore();
+const core = new SnickerdoodleCore(undefined, LocalStoragePersistence);
 const cryptoUtils = new CryptoUtils();
 const languageCode = LanguageCode("en");
 const accountPrivateKey = EVMPrivateKey(
@@ -54,6 +56,10 @@ function mainPrompt(): ResultAsync<void, Error> {
         choices: [
           { name: "Unlock", value: "unlock", short: "u" },
           new inquirer.Separator(),
+          { name: "Set Age", value: "setAge", short: "s" },
+          new inquirer.Separator(),
+          { name: "Get Age", value: "getAge", short: "g" },
+          new inquirer.Separator(),
           { name: "Exit", value: "exit", short: "e" },
         ],
       },
@@ -72,6 +78,11 @@ function mainPrompt(): ResultAsync<void, Error> {
       case "unlock":
         console.log(`Unlocked!`);
         return unlockCore(accountAddress, accountPrivateKey);
+      case "setAge":
+        console.log("Age is set to 15");
+        return core.setAge(Age(15));
+      case "getAge":
+        return core.getAge().map(console.log);
     }
     return okAsync(undefined);
   });

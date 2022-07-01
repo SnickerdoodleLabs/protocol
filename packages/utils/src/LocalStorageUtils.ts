@@ -2,31 +2,35 @@ interface Dictionary<T> {
   [key: string]: T;
 }
 export class LocalStorageUtils {
-  static localStorage =
-    window.localStorage && window.localStorage.removeItem
-      ? window.localStorage
-      : (function () {
-          let store = {};
-          return {
-            getItem: function (key) {
-              return store[key] || null;
-            },
-            setItem: function (key, value) {
-              store[key] = value.toString();
-            },
-            clear: function () {
-              store = {};
-            },
-            removeItem: function (key) {
-              store = Object.keys(store)
-                .filter((k) => key !== k)
-                .reduce((accumulator, currentItem) => {
-                  accumulator[currentItem] = store[currentItem];
-                  return accumulator;
-                }, {});
-            },
-          };
-        })();
+  static localStorage = (function () {
+    if (
+      typeof window !== "undefined" &&
+      window.localStorage &&
+      window.localStorage.removeItem
+    ) {
+      return window.localStorage;
+    }
+    let store = {};
+    return {
+      getItem: function (key) {
+        return store[key] || null;
+      },
+      setItem: function (key, value) {
+        store[key] = value.toString();
+      },
+      clear: function () {
+        store = {};
+      },
+      removeItem: function (key) {
+        store = Object.keys(store)
+          .filter((k) => key !== k)
+          .reduce((accumulator, currentItem) => {
+            accumulator[currentItem] = store[currentItem];
+            return accumulator;
+          }, {});
+      },
+    };
+  })();
   static removeLocalStorage(key: string | string[]): string | string[] {
     const keys = Array.isArray(key) ? key : [key];
     keys.forEach((k) => this.localStorage.removeItem(k));

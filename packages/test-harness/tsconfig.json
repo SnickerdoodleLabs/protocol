@@ -7,7 +7,7 @@
     "module": "ESNext",
     "target": "ESNext",
     "lib": [
-      "ES2022"
+      "ESNext"
     ]
   },
   "include": [
