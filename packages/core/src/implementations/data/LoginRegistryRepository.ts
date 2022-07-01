@@ -1,7 +1,5 @@
 import {
-  EthereumAccountAddress,
   LanguageCode,
-  DerivationMask,
   BlockchainProviderError,
   TokenId,
   EVMAccountAddress,
