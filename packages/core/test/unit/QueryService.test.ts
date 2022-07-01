@@ -12,8 +12,8 @@ Unit Testing for Blockchain Listener - Pull-JSON-from-IPFS and Parse-JSON
 */
 import "reflect-metadata";
 import {
-    EthereumAccountAddress,
-    EthereumContractAddress,
+    EVMAccountAddress,
+    EVMContractAddress,
     IpfsCID,
     SDQLQuery,
     SDQLString,
@@ -32,7 +32,7 @@ import { IQueryService } from "@core/interfaces/business";
 import { okAsync } from "neverthrow";
 import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
 
-const consentContractAddress = EthereumContractAddress("Phoebe");
+const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
 const queryContent = SDQLString("Hello world!");
 const sdqlQuery = new SDQLQuery(queryId, queryContent);
@@ -56,7 +56,7 @@ class QueryServiceMocks {
         td.when(this.consentContractRepo
             .isAddressOptedIn(
                 consentContractAddress,
-                EthereumAccountAddress(dataWalletAddress),
+                EVMAccountAddress(dataWalletAddress),
             )).thenReturn(okAsync(true));
     }
 

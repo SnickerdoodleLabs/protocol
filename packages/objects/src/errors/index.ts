@@ -1,3 +1,4 @@
+export * from "@objects/errors/AccountIndexingError";
 export * from "@objects/errors/AjaxError";
 export * from "@objects/errors/ConsentFactoryContractError";
 export * from "@objects/errors/ConsentContractError";

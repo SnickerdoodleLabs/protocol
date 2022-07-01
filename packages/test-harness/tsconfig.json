@@ -1,0 +1,34 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./src/",
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": [
+      "ES2022"
+    ]
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "references": [
+    {
+      "path": "../common-utils"
+    },
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../objects"
+    }
+  ],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": true
+  }
+}

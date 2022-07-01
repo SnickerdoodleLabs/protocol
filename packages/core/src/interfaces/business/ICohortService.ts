@@ -7,7 +7,7 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   EInvitationStatus,
-  EthereumContractAddress,
+  EVMContractAddress,
   PersistenceError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -29,7 +29,7 @@ export interface ICohortService {
   acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, PersistenceError | UninitializedError>;
+  ): ResultAsync<void, UninitializedError | PersistenceError | AjaxError>;
 
   rejectInvitation(
     invitation: CohortInvitation,
@@ -45,7 +45,7 @@ export interface ICohortService {
   >;
 
   leaveCohort(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
     | ConsentContractError

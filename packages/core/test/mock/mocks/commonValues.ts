@@ -1,7 +1,7 @@
 import {
   DataWalletAddress,
-  EthereumContractAddress,
-  EthereumPrivateKey,
+  EVMContractAddress,
+  EVMPrivateKey,
   IpfsCID,
   SDQLQuery,
   SDQLString,
@@ -9,9 +9,9 @@ import {
 
 export const dataWalletAddress = DataWalletAddress("dataWalletAddress");
 
-export const dataWalletKey = EthereumPrivateKey("dataWalletKey");
+export const dataWalletKey = EVMPrivateKey("dataWalletKey");
 
-export const consentContractAddress = EthereumContractAddress(
+export const consentContractAddress = EVMContractAddress(
   "consentContractAddress",
 );
 

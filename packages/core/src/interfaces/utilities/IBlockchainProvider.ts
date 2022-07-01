@@ -1,5 +1,5 @@
-import { BlockchainProviderError, ChainId } from "@snickerdoodlelabs/objects";
 import { JsonRpcSigner, JsonRpcProvider } from "@ethersproject/providers";
+import { BlockchainProviderError, ChainId } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 

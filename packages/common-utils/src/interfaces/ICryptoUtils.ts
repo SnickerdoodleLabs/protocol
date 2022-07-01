@@ -6,9 +6,9 @@ import {
   AESEncryptedString,
   AESKey,
   Argon2Hash,
-  EthereumPrivateKey,
+  EVMPrivateKey,
   SHA256Hash,
-  EthereumAccountAddress,
+  EVMAccountAddress,
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -17,21 +17,21 @@ export interface ICryptoUtils {
   getNonce(nonceSize?: number): ResultAsync<string, never>;
 
   createAESKey(): ResultAsync<AESKey, never>;
-  createEthereumPrivateKey(): ResultAsync<EthereumPrivateKey, never>;
+  createEthereumPrivateKey(): ResultAsync<EVMPrivateKey, never>;
   getEthereumAccountAddressFromPrivateKey(
-    privateKey: EthereumPrivateKey,
-  ): EthereumAccountAddress;
+    privateKey: EVMPrivateKey,
+  ): EVMAccountAddress;
 
   verifySignature(
     message: string,
     signature: Signature,
-  ): ResultAsync<EthereumAccountAddress, never>;
+  ): ResultAsync<EVMAccountAddress, never>;
   verifyTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
     value: Record<string, unknown>,
     signature: Signature,
-  ): ResultAsync<EthereumAccountAddress, never>;
+  ): ResultAsync<EVMAccountAddress, never>;
 
   encryptString(
     secret: string,
@@ -47,7 +47,14 @@ export interface ICryptoUtils {
 
   signMessage(
     message: string,
-    privateKey: EthereumPrivateKey,
+    privateKey: EVMPrivateKey,
+  ): ResultAsync<Signature, never>;
+
+  signTypedData(
+    domain: TypedDataDomain,
+    types: Record<string, Array<TypedDataField>>,
+    value: Record<string, unknown>,
+    privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never>;
 
   hashStringSHA256(message: string): ResultAsync<SHA256Hash, never>;
