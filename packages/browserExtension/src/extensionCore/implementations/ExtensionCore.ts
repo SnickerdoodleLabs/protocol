@@ -1,9 +1,6 @@
 // Utils
-import { IContextProvider, IPortConnectionUtils } from "@interfaces/utilities";
-import {
-  ContextProvider,
-  PortConnectionUtils,
-} from "@implementations/utilities";
+import { IContextProvider } from "@interfaces/utilities";
+import { ContextProvider } from "@implementations/utilities";
 
 // Utils / Factory
 import {
@@ -56,7 +53,7 @@ export class ExtensionCore {
 
   // Utils
   protected contextProvider: IContextProvider;
-  protected portConnectionUtils: IPortConnectionUtils;
+
   // Factory
   protected externalRpcMiddlewareFactory: IExternalRpcMiddlewareFactory;
   protected internalRpcMiddlewareFactory: IInternalRpcMiddlewareFactory;
@@ -65,7 +62,7 @@ export class ExtensionCore {
   // API
   protected clientEventListener: IClientEventListener;
   protected coreListener: ICoreListener;
-  protected portConnectionListenner: IPortConnectionListener;
+  protected portConnectionListener: IPortConnectionListener;
 
   constructor() {
     this.core = new SnickerdoodleCore();
@@ -89,7 +86,6 @@ export class ExtensionCore {
     );
     this.clientEventListener = new ClientEventsListener(this.contextProvider);
     this.clientEventListener.initialize();
-    this.portConnectionUtils = new PortConnectionUtils(this.contextProvider);
 
     this.portConnectionRepository = new PortConnectionRepository(
       this.contextProvider,
@@ -100,11 +96,10 @@ export class ExtensionCore {
       this.portConnectionRepository,
     );
 
-    this.portConnectionListenner = new PortConnectionListener(
-      this.contextProvider,
+    this.portConnectionListener = new PortConnectionListener(
       this.portConnectionService,
     );
-    this.portConnectionListenner.initialize();
+    this.portConnectionListener.initialize();
 
     this.listenExtensionIconClicks();
   }

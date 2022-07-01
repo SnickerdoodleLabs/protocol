@@ -1,2 +1,1 @@
-export * from '@interfaces/objects/Config';
-export * from '@interfaces/objects/ContextProviderObjects';
+export * from "@interfaces/objects/ContextProviderObjects";

@@ -1,21 +1,10 @@
-import { EthereumAccountAddress } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
-import { Runtime } from "webextension-polyfill";
+
 import {
   ILoginParams,
   IGetLoginMessageParams,
   IAddAccountParams,
 } from "@shared/objects/EventParams";
-
-// TODO remove unused
-export class PortEvents {
-  constructor(
-    public onPortConnectionRequested: Subject<Runtime.Port> = new Subject<Runtime.Port>(),
-    public onPortConnectionRejected?: Subject<any>,
-    public onPortConnectionEstablished?: Subject<any>,
-    public onPortConnectionDetached?: Subject<any>,
-  ) {}
-}
 
 export interface IResolvers {
   resolveError: (error: any) => void;
