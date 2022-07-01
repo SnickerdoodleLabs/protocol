@@ -8,7 +8,6 @@ export * from "@objects/primatives/CountryCode";
 export * from "@objects/primatives/CryptoTokenSymbol";
 export * from "@objects/primatives/CurrencyAlphabeticCode";
 export * from "@objects/primatives/DataWalletAddress";
-export * from "@objects/primatives/DerivationMask";
 export * from "@objects/primatives/DomainName";
 export * from "@objects/primatives/EmailAddressString";
 export * from "@objects/primatives/EncryptedString";

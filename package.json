@@ -74,6 +74,7 @@
     "@types/chrome": "^0.0.177",
     "@types/cors": "^2.8.10",
     "@types/express": "^4.17.11",
+    "@types/inquirer": "^8.2.1",
     "@types/jest": "^25.2.3",
     "@types/pino": "^6.3.2",
     "@types/postmate": "^1.5.1",
