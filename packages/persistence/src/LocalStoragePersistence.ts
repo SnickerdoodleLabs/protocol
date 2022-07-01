@@ -3,10 +3,6 @@ import {
   ClickData,
   ClickFilter,
   EmailAddressString,
-  EthereumAccountAddress,
-  EthereumContractAddress,
-  EthereumPrivateKey,
-  EthereumTransaction,
   FirstName,
   Gender,
   IDataWalletPersistence,
@@ -15,6 +11,10 @@ import {
   SiteVisit,
   UnixTimestamp,
   Location,
+  EVMPrivateKey,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMTransaction,
 } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -45,11 +45,11 @@ function checkAndRetrieveValue<T>(
 }
 
 export const LocalStoragePersistence: IDataWalletPersistence = {
-  unlock(derivedKey: EthereumPrivateKey): ResultAsync<void, PersistenceError> {
+  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError> {
     return okAsync(undefined);
     throw new Error("Method not implemented.");
   },
-  getAccounts(): ResultAsync<EthereumAccountAddress[], PersistenceError> {
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
     return checkAndRetrieveValue(ELocalStorageKey.ACCOUNT);
   },
   addClick(click: ClickData): ResultAsync<void, PersistenceError> {
@@ -60,14 +60,11 @@ export const LocalStoragePersistence: IDataWalletPersistence = {
   ): ResultAsync<ClickData, PersistenceError> {
     throw new Error("Method not implemented.");
   },
-  getRejectedCohorts(): ResultAsync<
-    EthereumContractAddress[],
-    PersistenceError
-  > {
+  getRejectedCohorts(): ResultAsync<EVMContractAddress[], PersistenceError> {
     throw new Error("Method not implemented.");
   },
   addRejectedCohorts(
-    consentContractAddresses: EthereumContractAddress[],
+    consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   },
@@ -85,7 +82,7 @@ export const LocalStoragePersistence: IDataWalletPersistence = {
     return checkAndRetrieveValue(ELocalStorageKey.SITE_VISITS);
   },
   addEthereumTransactions(
-    transactions: EthereumTransaction[],
+    transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
     const savedTransactions = LocalStorageUtils.readLocalStorage(
       ELocalStorageKey.TRANSACTIONS,
@@ -97,7 +94,7 @@ export const LocalStoragePersistence: IDataWalletPersistence = {
     return okAsync(undefined);
   },
   addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
     const accounts = LocalStorageUtils.readLocalStorage(
       ELocalStorageKey.ACCOUNT,
