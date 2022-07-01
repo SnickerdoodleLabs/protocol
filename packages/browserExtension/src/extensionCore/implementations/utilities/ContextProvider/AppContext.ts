@@ -3,6 +3,7 @@ import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
 import { v4 } from "uuid";
 import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
 import { okAsync } from "neverthrow";
+import { URLString } from "@snickerdoodlelabs/objects";
 export class AppContext {
   constructor(
     protected lock: boolean = false,
@@ -14,8 +15,8 @@ export class AppContext {
       [origin: string]: {
         [id: string]: {
           engine: JsonRpcEngine;
-          tabId: number;
-          windowId: number;
+          tabId: number | undefined;
+          windowId: number | undefined;
         };
       };
     } = {},
@@ -60,7 +61,12 @@ export class AppContext {
     ExtensionDisplayUtils.openExtensionOnBrowser(path);
   }
 
-  public addConnection(origin, tabId, windowId, engine) {
+  public addConnection(
+    origin: EPortNames | URLString,
+    tabId: number | undefined,
+    windowId: number | undefined,
+    engine: JsonRpcEngine,
+  ) {
     if (origin === EPortNames.SD_POPUP) {
       this.isPopupOpen = true;
     }
@@ -76,7 +82,7 @@ export class AppContext {
     return id;
   }
 
-  public removeConnection(origin, id) {
+  public removeConnection(origin: EPortNames | URLString, id: string) {
     if (origin === EPortNames.SD_NOTIFICATION) {
       this.setNotificationClose();
     }

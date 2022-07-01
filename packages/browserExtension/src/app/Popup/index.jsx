@@ -1,9 +1,8 @@
 import React from 'react';
 import { render } from 'react-dom';
 
-import Popup from './Popup';
-import './index.css';
-import App from './containers/MainContainer';
+import '@app/Popup/index.css';
+import App from '@app/Popup/containers/MainContainer';
 
 render(<App />, window.document.querySelector('#app-container'));
 
