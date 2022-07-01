@@ -9,6 +9,7 @@ import {
   PersistenceError,
   SiteVisit,
 } from "@snickerdoodlelabs/objects";
+import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -16,6 +17,7 @@ import { ResultAsync } from "neverthrow";
  * I think we can use Ceramic and/or bare IPFS to do this, so that the wallet data
  * can be accessed anywhere.
  */
+@injectable()
 export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   public unlock(
     derivedKey: EVMPrivateKey,

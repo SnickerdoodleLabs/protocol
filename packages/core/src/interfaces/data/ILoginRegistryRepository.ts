@@ -1,28 +1,26 @@
 import {
+  AESEncryptedString,
   BlockchainProviderError,
-  DerivationMask,
   EVMAccountAddress,
   LanguageCode,
   TokenId,
-  UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export interface ILoginRegistryRepository {
-  /** getDerivationMask() returns the derivation mask stored on the DoodleChain
+  /** getCrumb() returns the encrypted private key for the data wallet stored on the DoodleChain
    * if it exists for the account address and language, or null if the token is
    * not yet minted
    */
-  getDerivationMask(
+  getCrumb(
     accountAddress: EVMAccountAddress,
     languageCode: LanguageCode,
-  ): ResultAsync<DerivationMask | null, BlockchainProviderError>;
+  ): ResultAsync<AESEncryptedString | null, BlockchainProviderError>;
 
-  addDerivationMask(
+  addCrumb(
     accountAddress: EVMAccountAddress,
     languageCode: LanguageCode,
-    derivationMask: DerivationMask,
+    encryptedDataWalletKey: AESEncryptedString,
   ): ResultAsync<TokenId, BlockchainProviderError>;
 }
 
