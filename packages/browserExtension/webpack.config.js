@@ -6,7 +6,7 @@ var webpack = require("webpack"),
   HtmlWebpackPlugin = require("html-webpack-plugin"),
   TerserPlugin = require("terser-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-
+const argon2 = require("argon2");
 var { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const configFilePath = require.resolve("./tsconfig.json");
@@ -38,6 +38,9 @@ if (fileSystem.existsSync(secretsPath)) {
 }
 
 var options = {
+  externals: {
+    argon2: argon2,
+  },
   mode: process.env.NODE_ENV || "development",
   entry: {
     newtab: path.join(__dirname, "src", "app", "Newtab", "index.jsx"),

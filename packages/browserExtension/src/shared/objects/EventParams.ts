@@ -1,17 +1,17 @@
 import {
-  EthereumAccountAddress,
+  EVMAccountAddress,
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
 
 export interface ILoginParams {
-  accountAddress: EthereumAccountAddress;
+  accountAddress: EVMAccountAddress;
   signature: Signature;
   languageCode: LanguageCode;
 }
 
 export interface IAddAccountParams {
-  accountAddress: EthereumAccountAddress;
+  accountAddress: EVMAccountAddress;
   signature: Signature;
   languageCode: LanguageCode;
 }

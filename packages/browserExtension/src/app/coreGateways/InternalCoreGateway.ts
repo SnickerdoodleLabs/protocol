@@ -7,7 +7,7 @@ import {
 } from "@shared/objects/EventParams";
 import { EInternalActions } from "@shared/constants/actions";
 import {
-  EthereumAccountAddress,
+  EVMAccountAddress,
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
@@ -26,7 +26,7 @@ export class InternalCoreGateway {
   }
 
   public login(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ) {
@@ -38,7 +38,7 @@ export class InternalCoreGateway {
   }
 
   public addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ) {

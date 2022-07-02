@@ -1,8 +1,8 @@
-import { EthereumAccountAddress } from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 
 export interface IInternalState {
-  walletAccount: EthereumAccountAddress | null;
-  userConnectedAccounts: EthereumAccountAddress[];
+  walletAccount: EVMAccountAddress | null;
+  userConnectedAccounts: EVMAccountAddress[];
   pendingActions: any[];
   name: string | null;
   email: string | null;
