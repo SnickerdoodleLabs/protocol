@@ -1,8 +1,8 @@
-import { EthereumAccountAddress } from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 
 export class UserContext {
   constructor(
-    protected accounts: EthereumAccountAddress[] = [],
+    protected accounts: EVMAccountAddress[] = [],
     protected name: string | null = null,
     protected email: string | null = null,
   ) {}
@@ -11,7 +11,7 @@ export class UserContext {
     return this.accounts;
   }
 
-  public setAccount(accounts: EthereumAccountAddress[]) {
+  public setAccount(accounts: EVMAccountAddress[]) {
     return (this.accounts = accounts);
   }
 

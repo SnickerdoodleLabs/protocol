@@ -13,7 +13,7 @@ import { JsonRpcEngine } from "json-rpc-engine";
 import PortStream from "extension-port-stream";
 import pump from "pump";
 import {
-  EthereumAccountAddress,
+  EVMAccountAddress,
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
@@ -49,7 +49,7 @@ const Popup = () => {
     const rpcGateway = new InternalCoreGateway(rpcEngine);
     // test gateway
     rpcGateway.login(
-      "" as EthereumAccountAddress,
+      "" as EVMAccountAddress,
       "" as Signature,
       "" as LanguageCode,
     );

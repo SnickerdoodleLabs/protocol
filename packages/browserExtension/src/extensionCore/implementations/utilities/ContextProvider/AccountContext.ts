@@ -1,16 +1,16 @@
-import { EthereumAccountAddress } from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 
 export class AccountContext {
   private onInitialized: () => void;
   constructor(
     onInitialized: () => void,
-    protected account: EthereumAccountAddress | null = null,
+    protected account: EVMAccountAddress | null = null,
     protected initialized: boolean = false,
   ) {
     this.onInitialized = onInitialized;
   }
 
-  public initialize(account: EthereumAccountAddress) {
+  public initialize(account: EVMAccountAddress) {
     this.account = account;
     this.initialized = true;
     this.onInitialized?.();
