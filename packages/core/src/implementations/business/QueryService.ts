@@ -8,6 +8,7 @@ import {
   EVMContractAddress,
   Insight,
   IpfsCID,
+  IPFSError,
   ISDQLQueryObject,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -45,13 +46,14 @@ export class QueryService implements IQueryService {
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-  ) {}
+  ) { }
 
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
     void,
+    | IPFSError
     | ConsentContractError
     | ConsentContractRepositoryError
     | UninitializedError
@@ -60,48 +62,53 @@ export class QueryService implements IQueryService {
     | ConsentError
   > {
     // Get the IPFS data for the query. This is just "Get the query";
-    return ResultUtils.combine([
-      this.sdqlQueryRepo.getByCID([queryId]),
-      this.contextProvider.getContext(),
-    ]).andThen(([queries, context]) => {
-      const query = queries.get(queryId);
 
+    return ResultUtils.combine([
+      this.sdqlQueryRepo.getByCID(queryId),
+      this.contextProvider.getContext(),
+    ]).andThen(([query, context]) => {
       if (query == null) {
-        // The query doesn't actually exist
         // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
+        // If the client does have the cid key, but no query data yet, then it is not resolved in IPFS yet.
+        // Then we should store this CID and try again later
+        // TODO: This is a temporary return
+        return errAsync(
+          new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
+        );
+      }
+
+      if (context.dataWalletAddress == null) {
+        // Need to wait for the wallet to unlock
         return okAsync(undefined);
       }
 
-      if (context.dataWalletAddress != null) {
-        // We have the query, next step is check if you actually have a consent token for this business
-        return this.consentContractRepository
-          .isAddressOptedIn(
-            consentContractAddress,
-            EVMAccountAddress(context.dataWalletAddress),
-          )
-          .andThen((addressOptedIn) => {
-            if (addressOptedIn == false) {
-              // No consent given!
-              return errAsync(
-                new ConsentError(
-                  `No consent token for address ${context.dataWalletAddress}!`,
-                ),
-              );
-            }
-            // We have a consent token!
-            context.publicEvents.onQueryPosted.next(query);
+      // We have the query, next step is check if you actually have a consent token for this business
+      return this.consentContractRepository
+        .isAddressOptedIn(
+          consentContractAddress,
+          EVMAccountAddress(context.dataWalletAddress),
+        )
+        .andThen((addressOptedIn) => {
+          if (!addressOptedIn) {
+            // No consent given!
+            return errAsync(
+              new ConsentError(
+                `No consent token for address ${context.dataWalletAddress}!`,
+              ),
+            );
+          }
 
-            return okAsync(undefined);
-          });
-      }
+          // We have a consent token!
+          context.publicEvents.onQueryPosted.next(query);
 
-      return okAsync(undefined);
+          return okAsync(undefined);
+        });
     });
   }
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError> {
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError> {
     // 1. Parse the query
     // 2. Generate an insight(s)
     // 3. Redeem the reward
@@ -109,10 +116,8 @@ export class QueryService implements IQueryService {
 
     // Get the IPFS data for the query. This is just "Get the query";
     return this.sdqlQueryRepo
-      .getByCID([queryId])
-      .andThen((queries) => {
-        const query = queries.get(queryId);
-
+      .getByCID(queryId)
+      .andThen((query) => {
         if (query == null) {
           // The query doesn't actually exist
           // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
@@ -126,6 +131,7 @@ export class QueryService implements IQueryService {
         // Break down the actual parts of the query.
         return this.queryParsingEngine.handleQuery(queryContent);
       })
+
       .andThen((insights) => {
         // Get the reward
         const insightMap = insights.reduce((prev, cur) => {

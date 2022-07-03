@@ -51,7 +51,7 @@ export class ContextProviderMock implements IContextProvider {
   public setContextValues = new Array<CoreContext>();
   public setContext(context: CoreContext): ResultAsync<void, never> {
     this.setContextValues.push(context);
-    return okAsync<null, never>(null).map(() => {});
+    return okAsync<null, never>(null).map(() => { });
   }
 
   public assertEventCounts(expectedCounts: IExpectedEventCounts): void {

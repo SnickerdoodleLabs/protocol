@@ -7,6 +7,7 @@ import {
   EVMContractAddress,
   IpfsCID,
   UninitializedError,
+  IPFSError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -16,6 +17,7 @@ export interface IQueryService {
     queryId: IpfsCID,
   ): ResultAsync<
     void,
+    | IPFSError
     | ConsentContractError
     | ConsentContractRepositoryError
     | UninitializedError
@@ -25,7 +27,7 @@ export interface IQueryService {
   >;
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError>;
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");
