@@ -558,16 +558,12 @@ describe("ConsentFactory", () => {
           20,
         );
 
-      console.log(deployedConsentAddressArrayOri);
-
       deployedConsentAddressArray =
         await consentFactory.getUserDeployedConsentsByIndex(
           user2.address,
           2,
           7,
         );
-
-      console.log(deployedConsentAddressArray);
 
       expect(deployedConsentAddressArray.length).to.eq(6);
     });

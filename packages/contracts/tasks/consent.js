@@ -185,6 +185,8 @@ task(
     // generate log with query's results
     const _logs = await consentContractHandle.queryFilter(logs);
 
+    console.log(_logs);
+
     console.log("");
     console.log("Queried address:", taskArgs.consentaddress);
 
