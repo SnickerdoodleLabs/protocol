@@ -17,7 +17,8 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 // https://github.com/SBoudrias/Inquirer.js
 
-const core = new SnickerdoodleCore(undefined, LocalStoragePersistence);
+const persistence = new LocalStoragePersistence();
+const core = new SnickerdoodleCore(undefined, persistence);
 const cryptoUtils = new CryptoUtils();
 const languageCode = LanguageCode("en");
 const accountPrivateKey = EVMPrivateKey(

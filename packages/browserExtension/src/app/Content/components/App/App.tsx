@@ -118,7 +118,8 @@ const App = () => {
   const onWalletConnectionCompleted = async (e: Event) => {
     // @ts-ignore
     const { accounts, signature, chainId } = e.detail;
-    let core = new SnickerdoodleCore(undefined, LocalStoragePersistence);
+    const persistence = new LocalStoragePersistence();
+    let core = new SnickerdoodleCore(undefined, persistence);
     await core.unlock(accounts[0], signature, LanguageCode("en"));
     core.addAccount(accounts[0], signature, LanguageCode("en"));
     console.log("accounts received: ", accounts);
