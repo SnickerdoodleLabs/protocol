@@ -41,7 +41,7 @@ function checkAndRetrieveValue<T>(
       new PersistenceError(`Key ${key} is not found in Local Storage!`),
     );
   }
-  return okAsync(value);
+  return okAsync(value as T);
 }
 
 export const LocalStoragePersistence: IDataWalletPersistence = {
