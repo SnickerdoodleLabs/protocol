@@ -6,6 +6,8 @@ import {
   IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
+
+
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -37,6 +39,7 @@ export class ConfigProvider implements IConfigProvider {
       URLString(""),
       chainConfig,
       controlChainInformation,
+      URLString("ipfs node address"),
       URLString("http://insight-platform"),
       {
         name: "Snickerdoodle Protocol",

@@ -10,6 +10,7 @@ const argon2 = require("argon2");
 var { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const configFilePath = require.resolve("./tsconfig.json");
+const argon2 = require("argon2");
 
 const ASSET_PATH = process.env.ASSET_PATH || "/";
 
@@ -95,7 +96,10 @@ var options = {
         exclude: /node_modules/,
       },
       {
-        test: /\.(ts|tsx)$/, loader: "ts-loader", exclude: /node_modules/, options: {
+        test: /\.(ts|tsx)$/,
+        loader: "ts-loader",
+        exclude: /node_modules/,
+        options: {
           projectReferences: true,
           configFile: configFilePath,
           compilerOptions: {
@@ -190,8 +194,8 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/app/Content/injectables',
-          to: path.join(__dirname, 'build', 'injectables'),
+          from: "src/app/Content/injectables",
+          to: path.join(__dirname, "build", "injectables"),
           force: true,
         },
       ],
@@ -199,8 +203,8 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/assets',
-          to: path.join(__dirname, 'build', 'assets'),
+          from: "src/assets",
+          to: path.join(__dirname, "build", "assets"),
           force: true,
         },
       ],
@@ -228,7 +232,7 @@ var options = {
       filename: "devtools.html",
       chunks: ["devtools"],
       cache: false,
-    })
+    }),
   ],
   infrastructureLogging: {
     level: "info",

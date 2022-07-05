@@ -24,6 +24,7 @@ import {
   IDataWalletPersistenceType,
   InvalidSignatureError,
   IpfsCID,
+  IPFSError,
   IQueryEngineEvents,
   ISnickerdoodleCore,
   LanguageCode,
@@ -226,7 +227,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError> {
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError> {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 

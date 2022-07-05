@@ -26,62 +26,88 @@ import { ResultAsync } from "neverthrow";
  */
 @injectable()
 export class DefaultDataWalletPersistence implements IDataWalletPersistence {
-  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setFirstName(name: FirstName): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getFirstName(): ResultAsync<FirstName, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setLastName(name: LastName): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getLastName(): ResultAsync<LastName, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getGender(): ResultAsync<Gender, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setLocation(location: Location): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getLocation(): ResultAsync<Location, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
+  protected walletUnlockSuccessful = false;
+  protected unlocked;
+
+  /**
+   * This method is called on the IDataWalletPersistence after the data wallet's derived
+   * key is determined. All other methods should not return UNTIL after unlock is complete.
+   * This means that if I call addAccount() before unlock(), addAccount() should not resolve,
+   * indefinately. Once unlock() is complete, the outstanding call to addAccount() can continue.
+   * This is trivially implemented internally by maintaining a consistent unlocked ResultAsync,
+   * and using "return this.unlocked.andThen()" at the beginning of the other methods.
+   * @param derivedKey
+   */
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
+    /* call to ipfs */
+    /* if true, then unlocked is successful */
+    this.walletUnlockSuccessful = true;
+
+    /*  now have a consistent unlocked resultasync  */
+
     throw new Error("Method not implemented.");
   }
 
+  /**
+   * This method adds an ethereum account to the data wallet. Only these accounts may unlock the
+   * wallet.
+   * @param accountAddress
+   */
   public addAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
+    if ((this.walletUnlockSuccessful = false)) {
+      //return new ResultAsync(undefined);
+    }
+
+    return this.unlocked.andThen(([accountAddress]) => {
+      /*
+            const currentBlockNumber = BlockNumber(currentBlock.number);
+            const latestKnownBlockNumber =
+              this.chainLatestKnownBlockNumber.get(chainId) || BlockNumber(-1);
+      
+            if (latestKnownBlockNumber < currentBlockNumber) {
+              this.chainLatestKnownBlockNumber.set(chainId, currentBlockNumber);
+      
+              const isControlChain = chainId === config.controlChainId;
+              if (isControlChain) {
+                this.listenForConsentContractsEvents(currentBlockNumber);
+              }
+              this.monitorChain(currentBlockNumber, chainId, provider, accounts);
+            }
+      */
+      //return okAsync(undefined);
+    });
+
     throw new Error("Method not implemented.");
   }
 
+  /**
+   * This method returns all the Ethereum accounts that are registered in the data wallet.
+   */
   public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
+    if ((this.walletUnlockSuccessful = false)) {
+      //return new ResultAsync(undefined);
+    }
+
+    return this.unlocked.andThen();
+
     throw new Error("Method not implemented.");
   }
 
+  /**
+   * This is an example method for adding data to the wallet. In this case, it would be a "click",
+   * presumeably captured by the Form Factor.
+   */
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
+    if ((this.walletUnlockSuccessful = false)) {
+      //return new ResultAsync(undefined);
+    }
+
+    return this.unlocked.andThen();
+
     throw new Error("Method not implemented.");
   }
 
@@ -121,6 +147,46 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   public addEthereumTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setFirstName(name: FirstName): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getFirstName(): ResultAsync<FirstName, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setLastName(name: LastName): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getLastName(): ResultAsync<LastName, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getGender(): ResultAsync<Gender, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setLocation(location: Location): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getLocation(): ResultAsync<Location, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 }

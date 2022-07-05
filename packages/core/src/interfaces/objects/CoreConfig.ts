@@ -12,7 +12,8 @@ export class CoreConfig {
     public providerAddress: URLString,
     public chainInformation: Map<ChainId, ChainInformation>,
     public controlChainInformation: ControlChainInformation,
+    public ipfsNodeAddress: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public snickerdoodleProtocolDomain: TypedDataDomain,
-  ) {}
+  ) { }
 }
