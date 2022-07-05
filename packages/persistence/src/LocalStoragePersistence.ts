@@ -3,10 +3,10 @@ import {
   ClickData,
   ClickFilter,
   EmailAddressString,
-  FirstName,
+  GivenName,
   Gender,
   IDataWalletPersistence,
-  LastName,
+  FamilyName,
   PersistenceError,
   SiteVisit,
   UnixTimestamp,
@@ -24,8 +24,8 @@ enum ELocalStorageKey {
   AGE = "SD_Age",
   SITE_VISITS = "SD_SiteVisits",
   TRANSACTIONS = "SD_Transactions",
-  FIRST_NAME = "SD_FirstName",
-  LAST_NAME = "SD_LastName",
+  FIRST_NAME = "SD_GivenName",
+  LAST_NAME = "SD_FamilyName",
   BIRTHDAY = "SD_Birthday",
   GENDER = "SD_Gender",
   EMAIL = "SD_Email",
@@ -111,18 +111,18 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   getAge(): ResultAsync<Age, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.AGE);
   }
-  setFirstName(name: FirstName): ResultAsync<void, PersistenceError> {
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.FIRST_NAME, name);
     return okAsync(undefined);
   }
-  getFirstName(): ResultAsync<FirstName, PersistenceError> {
+  getGivenName(): ResultAsync<GivenName, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.FIRST_NAME);
   }
-  setLastName(name: LastName): ResultAsync<void, PersistenceError> {
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.FIRST_NAME, name);
     return okAsync(undefined);
   }
-  getLastName(): ResultAsync<LastName, PersistenceError> {
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.LAST_NAME);
   }
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {

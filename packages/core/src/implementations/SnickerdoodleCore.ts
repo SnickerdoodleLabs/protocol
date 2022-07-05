@@ -16,7 +16,7 @@ import {
   ConsentError,
   EInvitationStatus,
   EmailAddressString,
-  FirstName,
+  GivenName,
   Gender,
   EVMAccountAddress,
   EVMContractAddress,
@@ -28,7 +28,7 @@ import {
   IQueryEngineEvents,
   ISnickerdoodleCore,
   LanguageCode,
-  LastName,
+  FamilyName,
   Location,
   PersistenceError,
   Signature,
@@ -227,24 +227,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError> {
+  ): ResultAsync<
+    void,
+    AjaxError | UninitializedError | ConsentError | IPFSError
+  > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
     return queryService.processQuery(queryId);
   }
 
-  setFirstName(name: FirstName): ResultAsync<void, PersistenceError> {
-    return this._persistence.setFirstName(name);
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
+    return this._persistence.setGivenName(name);
   }
-  getFirstName(): ResultAsync<FirstName, PersistenceError> {
-    return this._persistence.getFirstName();
+  getGivenName(): ResultAsync<GivenName, PersistenceError> {
+    return this._persistence.getGivenName();
   }
-  setLastName(name: LastName): ResultAsync<void, PersistenceError> {
-    return this._persistence.setLastName(name);
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
+    return this._persistence.setFamilyName(name);
   }
-  getLastName(): ResultAsync<LastName, PersistenceError> {
-    return this._persistence.getLastName();
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
+    return this._persistence.getFamilyName();
   }
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
     return this._persistence.setBirthday(birthday);

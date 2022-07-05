@@ -24,13 +24,13 @@ import {
   Age,
   DataWalletAddress,
   EmailAddressString,
-  FirstName,
+  GivenName,
   Gender,
   EVMAccountAddress,
   EVMContractAddress,
   IpfsCID,
   LanguageCode,
-  LastName,
+  FamilyName,
   Signature,
   UnixTimestamp,
   Location,
@@ -166,7 +166,10 @@ export interface ISnickerdoodleCore {
   // re-checked, of course (trust nobody!).
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError>;
+  ): ResultAsync<
+    void,
+    AjaxError | UninitializedError | ConsentError | IPFSError
+  >;
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
 
@@ -174,11 +177,11 @@ export interface ISnickerdoodleCore {
   setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age, PersistenceError>;
 
-  setFirstName(name: FirstName): ResultAsync<void, PersistenceError>;
-  getFirstName(): ResultAsync<FirstName, PersistenceError>;
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
+  getGivenName(): ResultAsync<GivenName, PersistenceError>;
 
-  setLastName(name: LastName): ResultAsync<void, PersistenceError>;
-  getLastName(): ResultAsync<LastName, PersistenceError>;
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError>;
 
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
   getBirthday(): ResultAsync<UnixTimestamp, PersistenceError>;

@@ -3,14 +3,14 @@ import {
   ClickData,
   ClickFilter,
   EmailAddressString,
-  FirstName,
+  GivenName,
   Gender,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   EVMTransaction,
   IDataWalletPersistence,
-  LastName,
+  FamilyName,
   Location,
   PersistenceError,
   SiteVisit,
@@ -153,16 +153,16 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  setFirstName(name: FirstName): ResultAsync<void, PersistenceError> {
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getFirstName(): ResultAsync<FirstName, PersistenceError> {
+  getGivenName(): ResultAsync<GivenName, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  setLastName(name: LastName): ResultAsync<void, PersistenceError> {
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getLastName(): ResultAsync<LastName, PersistenceError> {
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
     throw new Error("Method not implemented.");
   }
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {

@@ -13,9 +13,9 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
-  FirstName,
+  GivenName,
   Gender,
-  LastName,
+  FamilyName,
   Location,
   UnixTimestamp,
 } from "@objects/primitives";
@@ -67,11 +67,11 @@ export interface IDataWalletPersistence {
   setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age, PersistenceError>;
 
-  setFirstName(name: FirstName): ResultAsync<void, PersistenceError>;
-  getFirstName(): ResultAsync<FirstName, PersistenceError>;
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
+  getGivenName(): ResultAsync<GivenName, PersistenceError>;
 
-  setLastName(name: LastName): ResultAsync<void, PersistenceError>;
-  getLastName(): ResultAsync<LastName, PersistenceError>;
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError>;
 
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
   getBirthday(): ResultAsync<UnixTimestamp, PersistenceError>;
