@@ -58,7 +58,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
-    if ((this.walletUnlockSuccessful = false)) {
+    if (!this.walletUnlockSuccessful) {
       //return new ResultAsync(undefined);
     }
 
@@ -88,7 +88,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
    * This method returns all the Ethereum accounts that are registered in the data wallet.
    */
   public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
-    if ((this.walletUnlockSuccessful = false)) {
+    if (!this.walletUnlockSuccessful) {
       //return new ResultAsync(undefined);
     }
 
@@ -102,7 +102,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
    * presumeably captured by the Form Factor.
    */
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
-    if ((this.walletUnlockSuccessful = false)) {
+    if (!this.walletUnlockSuccessful) {
       //return new ResultAsync(undefined);
     }
 
