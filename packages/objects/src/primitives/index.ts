@@ -23,7 +23,6 @@ export * from "@objects/primitives/IpfsCID";
 export * from "@objects/primitives/JsonWebToken";
 export * from "@objects/primitives/LanguageCode";
 export * from "@objects/primitives/FamilyName";
-export * from "@objects/primitives/Location";
 export * from "@objects/primitives/ProviderUrl";
 export * from "@objects/primitives/PublicKey";
 export * from "@objects/primitives/SDQLString";

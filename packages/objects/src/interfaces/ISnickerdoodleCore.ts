@@ -33,7 +33,7 @@ import {
   FamilyName,
   Signature,
   UnixTimestamp,
-  Location,
+  CountryCode,
 } from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
@@ -192,8 +192,8 @@ export interface ISnickerdoodleCore {
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
   getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
 
-  setLocation(location: Location): ResultAsync<void, PersistenceError>;
-  getLocation(): ResultAsync<Location, PersistenceError>;
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<CountryCode, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

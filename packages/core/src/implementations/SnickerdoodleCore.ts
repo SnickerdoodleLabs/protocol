@@ -29,7 +29,7 @@ import {
   ISnickerdoodleCore,
   LanguageCode,
   FamilyName,
-  Location,
+  CountryCode,
   PersistenceError,
   Signature,
   UninitializedError,
@@ -267,10 +267,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
     return this._persistence.getEmail();
   }
-  setLocation(location: Location): ResultAsync<void, PersistenceError> {
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
     return this._persistence.setLocation(location);
   }
-  getLocation(): ResultAsync<Location, PersistenceError> {
+  getLocation(): ResultAsync<CountryCode, PersistenceError> {
     return this._persistence.getLocation();
   }
   setAge(age: Age): ResultAsync<void, PersistenceError> {
