@@ -25,6 +25,9 @@
     },
     {
       "path": "../objects"
+    },
+    {
+      "path": "../persistence"
     }
   ],
   "ts-node": {

@@ -9,6 +9,7 @@ import { BlockchainListener } from "@core/implementations/api";
 import {
   AccountService,
   CohortService,
+  ProfileService,
   QueryService,
 } from "@core/implementations/business";
 import {
@@ -29,6 +30,8 @@ import {
   IAccountServiceType,
   ICohortService,
   ICohortServiceType,
+  IProfileService,
+  IProfileServiceType,
   IQueryService,
   IQueryServiceType,
 } from "@core/interfaces/business";
@@ -63,6 +66,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICohortService>(ICohortServiceType)
       .to(CohortService)
+      .inSingletonScope();
+    bind<IProfileService>(IProfileServiceType)
+      .to(ProfileService)
       .inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
 

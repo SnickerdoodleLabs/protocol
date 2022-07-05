@@ -51,6 +51,8 @@ import {
   ICohortServiceType,
   IQueryService,
   IQueryServiceType,
+  IProfileService,
+  IProfileServiceType,
 } from "@core/interfaces/business";
 import {
   IConfigProvider,
@@ -61,7 +63,7 @@ import {
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
-  protected _persistence: IDataWalletPersistence;
+  protected profileService: IProfileService;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -85,9 +87,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(DefaultDataWalletPersistence)
         .inSingletonScope();
     }
-    this._persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
-    );
+    this.profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
 
     // If an Account Indexer is provided, hook it up. If not we'll use the default.
     if (accountIndexer != null) {
@@ -238,45 +239,45 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
-    return this._persistence.setGivenName(name);
+    return this.profileService.setGivenName(name);
   }
   getGivenName(): ResultAsync<GivenName, PersistenceError> {
-    return this._persistence.getGivenName();
+    return this.profileService.getGivenName();
   }
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    return this._persistence.setFamilyName(name);
+    return this.profileService.setFamilyName(name);
   }
   getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
-    return this._persistence.getFamilyName();
+    return this.profileService.getFamilyName();
   }
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
-    return this._persistence.setBirthday(birthday);
+    return this.profileService.setBirthday(birthday);
   }
   getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
-    return this._persistence.getBirthday();
+    return this.profileService.getBirthday();
   }
   setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    return this._persistence.setGender(gender);
+    return this.profileService.setGender(gender);
   }
   getGender(): ResultAsync<Gender, PersistenceError> {
-    return this._persistence.getGender();
+    return this.profileService.getGender();
   }
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
-    return this._persistence.setEmail(email);
+    return this.profileService.setEmail(email);
   }
   getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
-    return this._persistence.getEmail();
+    return this.profileService.getEmail();
   }
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
-    return this._persistence.setLocation(location);
+    return this.profileService.setLocation(location);
   }
   getLocation(): ResultAsync<CountryCode, PersistenceError> {
-    return this._persistence.getLocation();
+    return this.profileService.getLocation();
   }
   setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this._persistence.setAge(age);
+    return this.profileService.setAge(age);
   }
   getAge(): ResultAsync<Age, PersistenceError> {
-    return this._persistence.getAge();
+    return this.profileService.getAge();
   }
 }

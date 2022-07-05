@@ -41,6 +41,9 @@
     },
     {
       "path": "../objects"
+    },
+    {
+      "path": "../persistence"
     }
   ],
   "include": [
