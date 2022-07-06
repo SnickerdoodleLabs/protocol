@@ -2,7 +2,7 @@ import {
   ChainInformation,
   ControlChainInformation,
 } from "@objects/businessObjects";
-import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primatives";
+import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 
 export const chainConfig = new Map<ChainId, ChainInformation>([
   [

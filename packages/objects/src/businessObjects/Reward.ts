@@ -1,4 +1,4 @@
-import { IpfsCID } from "@objects/primatives";
+import { IpfsCID } from "@objects/primitives";
 
 export class Reward {
   public constructor(public queryId: IpfsCID) {}

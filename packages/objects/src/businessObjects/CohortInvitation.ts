@@ -3,7 +3,7 @@ import {
   EVMContractAddress,
   Signature,
   TokenId,
-} from "@objects/primatives";
+} from "@objects/primitives";
 
 export class CohortInvitation {
   public constructor(

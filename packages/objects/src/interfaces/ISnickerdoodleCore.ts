@@ -21,13 +21,20 @@ import {
   UnsupportedLanguageError,
 } from "@objects/errors";
 import {
+  Age,
   DataWalletAddress,
+  EmailAddressString,
+  GivenName,
+  Gender,
   EVMAccountAddress,
   EVMContractAddress,
   IpfsCID,
   LanguageCode,
+  FamilyName,
   Signature,
-} from "@objects/primatives";
+  UnixTimestamp,
+  CountryCode,
+} from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -154,16 +161,39 @@ export interface ISnickerdoodleCore {
     | ConsentError
   >;
 
-  addData(): ResultAsync<void, UninitializedError>;
-
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError>;
+  ): ResultAsync<
+    void,
+    AjaxError | UninitializedError | ConsentError | IPFSError
+  >;
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
+
+  /** Google User Information */
+  setAge(age: Age): ResultAsync<void, PersistenceError>;
+  getAge(): ResultAsync<Age, PersistenceError>;
+
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
+  getGivenName(): ResultAsync<GivenName, PersistenceError>;
+
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError>;
+
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError>;
+
+  setGender(gender: Gender): ResultAsync<void, PersistenceError>;
+  getGender(): ResultAsync<Gender, PersistenceError>;
+
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
+
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<CountryCode, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

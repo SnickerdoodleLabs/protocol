@@ -1,6 +1,6 @@
 import { ethers, Transaction } from "ethers";
 
-import { ChainId, EVMAccountAddress } from "@objects/primatives";
+import { ChainId, EVMAccountAddress } from "@objects/primitives";
 
 /**
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to

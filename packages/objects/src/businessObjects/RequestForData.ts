@@ -3,7 +3,7 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   IpfsCID,
-} from "@objects/primatives";
+} from "@objects/primitives";
 
 export class RequestForData {
   public constructor(

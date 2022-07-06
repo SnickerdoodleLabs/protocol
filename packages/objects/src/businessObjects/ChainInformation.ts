@@ -1,5 +1,4 @@
-import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primatives";
-
+import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 export class ChainInformation {
   constructor(
     public name: string,

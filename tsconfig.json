@@ -3,20 +3,26 @@
   "files": [],
   "references": [
     {
-      "path": "packages/core"
+      "path": "packages/common-utils"
     },
     {
       "path": "packages/contracts-sdk"
     },
     {
-      "path": "packages/common-utils"
+      "path": "packages/core"
     },
     {
       "path": "packages/indexers"
     },
     {
       "path": "packages/objects"
-    }
+    },
+    {
+      "path": "packages/persistence"
+    },
+    {
+      "path": "packages/utils"
+    },
     // {
     //   "path": "packages/browserExtension"
     // },

@@ -2,7 +2,7 @@ import { ResultAsync } from "neverthrow";
 
 import { AccountIndexingError } from "@core/errors";
 import { EVMTransaction } from "@objects/businessObjects";
-import { BlockNumber, EVMAccountAddress } from "@objects/primatives";
+import { BlockNumber, EVMAccountAddress } from "@objects/primitives";
 
 export interface IAvalancheEVMTransactionRepository {
   getEthereumTransactions(

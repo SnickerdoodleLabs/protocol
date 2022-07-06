@@ -1,4 +1,4 @@
-import { EncryptedString, InitializationVector } from "@objects/primatives";
+import { EncryptedString, InitializationVector } from "@objects/primitives";
 
 export class AESEncryptedString {
   public constructor(

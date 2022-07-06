@@ -1,12 +1,12 @@
 import {
-  EVMAccountAddress,
   LanguageCode,
   BlockchainProviderError,
   TokenId,
+  EVMAccountAddress,
   AESEncryptedString,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { ILoginRegistryRepository } from "@core/interfaces/data";
 
