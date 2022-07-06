@@ -1,13 +1,20 @@
 import {
+  Age,
   ClickData,
   ClickFilter,
+  EmailAddressString,
+  GivenName,
+  Gender,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   EVMTransaction,
   IDataWalletPersistence,
+  FamilyName,
+  CountryCode,
   PersistenceError,
   SiteVisit,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -19,7 +26,6 @@ import { ResultAsync } from "neverthrow";
  */
 @injectable()
 export class DefaultDataWalletPersistence implements IDataWalletPersistence {
-
   protected walletUnlockSuccessful = false;
   protected unlocked;
 
@@ -35,8 +41,6 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
-
-
     /* call to ipfs */
     /* if true, then unlocked is successful */
     this.walletUnlockSuccessful = true;
@@ -46,7 +50,6 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-
   /**
    * This method adds an ethereum account to the data wallet. Only these accounts may unlock the
    * wallet.
@@ -55,14 +58,11 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
-
-    if (this.walletUnlockSuccessful = false) {
+    if (!this.walletUnlockSuccessful) {
       //return new ResultAsync(undefined);
     }
 
     return this.unlocked.andThen(([accountAddress]) => {
-
-
       /*
             const currentBlockNumber = BlockNumber(currentBlock.number);
             const latestKnownBlockNumber =
@@ -87,17 +87,12 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   /**
    * This method returns all the Ethereum accounts that are registered in the data wallet.
    */
-  public getAccounts(): ResultAsync<
-    EVMAccountAddress[],
-    PersistenceError
-  > {
-
-    if (this.walletUnlockSuccessful = false) {
+  public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
+    if (!this.walletUnlockSuccessful) {
       //return new ResultAsync(undefined);
     }
 
     return this.unlocked.andThen();
-
 
     throw new Error("Method not implemented.");
   }
@@ -107,16 +102,11 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
    * presumeably captured by the Form Factor.
    */
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
-
-    if (this.walletUnlockSuccessful = false) {
+    if (!this.walletUnlockSuccessful) {
       //return new ResultAsync(undefined);
     }
 
-
-
     return this.unlocked.andThen();
-
-
 
     throw new Error("Method not implemented.");
   }
@@ -127,11 +117,11 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-  public setAge(age: number): ResultAsync<void, PersistenceError> {
+  public setAge(age: Age): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
-  public getAge(): ResultAsync<number, PersistenceError> {
+  public getAge(): ResultAsync<Age, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
@@ -160,4 +150,43 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getGivenName(): ResultAsync<GivenName, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getGender(): ResultAsync<Gender, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  getLocation(): ResultAsync<CountryCode, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
 }

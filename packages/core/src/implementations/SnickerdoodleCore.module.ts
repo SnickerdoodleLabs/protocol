@@ -1,9 +1,15 @@
+import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import { ContainerModule, interfaces } from "inversify";
 
 import { BlockchainListener } from "@core/implementations/api";
 import {
   AccountService,
   CohortService,
+  ProfileService,
   QueryService,
 } from "@core/implementations/business";
 import {
@@ -24,6 +30,8 @@ import {
   IAccountServiceType,
   ICohortService,
   ICohortServiceType,
+  IProfileService,
+  IProfileServiceType,
   IQueryService,
   IQueryServiceType,
 } from "@core/interfaces/business";
@@ -41,7 +49,6 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities";
-import { CryptoUtils, ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -59,6 +66,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICohortService>(ICohortServiceType)
       .to(CohortService)
+      .inSingletonScope();
+    bind<IProfileService>(IProfileServiceType)
+      .to(ProfileService)
       .inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
 
@@ -78,8 +88,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDataWalletUtils>(IDataWalletUtilsType)
       .to(DataWalletUtils)
       .inSingletonScope();
-    bind<ICryptoUtils>(ICryptoUtilsType)
-      .to(CryptoUtils)
-      .inSingletonScope();
+    bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
   },
 );

@@ -1,5 +1,5 @@
 import errorCodes from "@objects/errors/errorCodes";
-import { LanguageCode } from "@objects/primatives";
+import { LanguageCode } from "@objects/primitives";
 
 export class UnsupportedLanguageError extends Error {
   protected errorCode: string = errorCodes[UnsupportedLanguageError.name];

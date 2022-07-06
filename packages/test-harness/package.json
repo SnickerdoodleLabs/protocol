@@ -35,6 +35,7 @@
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/core": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/persistence": "workspace:^",
     "inquirer": "^9.0.0",
     "neverthrow": "^4.3.1",
     "reflect-metadata": "^0.1.13"

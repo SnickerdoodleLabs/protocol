@@ -6,6 +6,7 @@
 import { QueryFormatError } from "@snickerdoodlelabs/objects";
 import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
 import {
+  Age,
   AjaxError,
   BlockchainProviderError,
   CohortInvitation,
@@ -14,6 +15,9 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   EInvitationStatus,
+  EmailAddressString,
+  GivenName,
+  Gender,
   EVMAccountAddress,
   EVMContractAddress,
   IDataWalletPersistence,
@@ -24,9 +28,12 @@ import {
   IQueryEngineEvents,
   ISnickerdoodleCore,
   LanguageCode,
+  FamilyName,
+  CountryCode,
   PersistenceError,
   Signature,
   UninitializedError,
+  UnixTimestamp,
   UnsupportedLanguageError,
   IAccountIndexing,
   IAccountIndexingType,
@@ -44,6 +51,8 @@ import {
   ICohortServiceType,
   IQueryService,
   IQueryServiceType,
+  IProfileService,
+  IProfileServiceType,
 } from "@core/interfaces/business";
 import {
   IConfigProvider,
@@ -54,6 +63,7 @@ import {
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
+  protected profileService: IProfileService;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -77,6 +87,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(DefaultDataWalletPersistence)
         .inSingletonScope();
     }
+    this.profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
 
     // If an Account Indexer is provided, hook it up. If not we'll use the default.
     if (accountIndexer != null) {
@@ -214,10 +226,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.leaveCohort(consentContractAddress);
   }
 
-  public addData(): ResultAsync<void, never> {
-    return okAsync(undefined);
-  }
-
   public processQuery(
     queryId: IpfsCID,
   ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError> {
@@ -225,5 +233,48 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
     return queryService.processQuery(queryId);
+  }
+
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
+    return this.profileService.setGivenName(name);
+  }
+  getGivenName(): ResultAsync<GivenName, PersistenceError> {
+    return this.profileService.getGivenName();
+  }
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
+    return this.profileService.setFamilyName(name);
+  }
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
+    return this.profileService.getFamilyName();
+  }
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+    return this.profileService.setBirthday(birthday);
+  }
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+    return this.profileService.getBirthday();
+  }
+  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
+    return this.profileService.setGender(gender);
+  }
+  getGender(): ResultAsync<Gender, PersistenceError> {
+    return this.profileService.getGender();
+  }
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
+    return this.profileService.setEmail(email);
+  }
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+    return this.profileService.getEmail();
+  }
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
+    return this.profileService.setLocation(location);
+  }
+  getLocation(): ResultAsync<CountryCode, PersistenceError> {
+    return this.profileService.getLocation();
+  }
+  setAge(age: Age): ResultAsync<void, PersistenceError> {
+    return this.profileService.setAge(age);
+  }
+  getAge(): ResultAsync<Age, PersistenceError> {
+    return this.profileService.getAge();
   }
 }

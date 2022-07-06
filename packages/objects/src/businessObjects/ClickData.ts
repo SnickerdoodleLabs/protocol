@@ -1,4 +1,4 @@
-import { UnixTimestamp, URLString } from "@objects/primatives";
+import { UnixTimestamp, URLString } from "@objects/primitives";
 
 /**
  * I honestly don't know what we need to collect for clicks. I'm not a data guy. Presumeably,
