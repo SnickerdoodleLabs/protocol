@@ -1,5 +1,4 @@
 import {
-  Button,
   Checkbox,
   Grid,
   Slide,
@@ -10,7 +9,6 @@ import {
 import Browser from "webextension-polyfill";
 import React, { FC, useEffect } from "react";
 import { useStyles } from "./SafeUrlNotification.style";
-import { styled } from "@material-ui/styles";
 
 export interface State extends SnackbarOrigin {
   open: boolean;

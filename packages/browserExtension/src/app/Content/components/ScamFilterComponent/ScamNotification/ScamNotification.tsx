@@ -1,17 +1,8 @@
-import {
-  Button,
-  Checkbox,
-  Grid,
-  Snackbar,
-  SnackbarOrigin,
-  Typography,
-} from "@material-ui/core";
+import { Button, Grid, Typography } from "@material-ui/core";
 import Browser from "webextension-polyfill";
-import React, { FC, useEffect } from "react";
+import React, { FC } from "react";
 import { useStyles } from "./ScamNotification.style";
-import { styled } from "@material-ui/styles";
 import { IScamNotification } from "./ScamNotification.interface";
-import { useAppContext } from "app/Popup/context";
 
 const ScamNotification: FC<IScamNotification> = ({ safeURL }) => {
   const [dangerousOpen, setDangerousOpen] = React.useState(true);
