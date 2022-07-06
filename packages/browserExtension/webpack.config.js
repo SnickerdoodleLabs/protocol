@@ -13,6 +13,8 @@ const argon2 = require("argon2");
 
 const ASSET_PATH = process.env.ASSET_PATH || "/";
 
+process.env.ONBOARDING_URL = "https://localhost:9005/";
+
 var alias = {
   "react-dom": "@hot-loader/react-dom",
 };

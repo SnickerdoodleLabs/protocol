@@ -29,6 +29,9 @@
       "@core/*": [
         "./packages/core/src/*"
       ],
+      "@extension-onboarding/*": [
+        "./*"
+      ],
       "@core-tests/*": [
         "./packages/core/test/*"
       ],

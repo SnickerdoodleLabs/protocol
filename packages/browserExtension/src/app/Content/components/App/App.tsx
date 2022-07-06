@@ -11,9 +11,7 @@ import Browser from "webextension-polyfill";
 import { ExternalCoreGateway } from "@app/coreGateways";
 import { createBackgroundConnectors } from "app/utils";
 import { IExternalState } from "@shared/objects/State";
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
-import { LanguageCode } from "@snickerdoodlelabs/objects";
+import Onboarding from "@app/Content/components/App/components/Onboarding";
 
 const port = Browser.runtime.connect({ name: "SD_CONTENT_SCRIPT" });
 let coreGateway: ExternalCoreGateway;
@@ -118,13 +116,6 @@ const App = () => {
   const onWalletConnectionCompleted = async (e: Event) => {
     // @ts-ignore
     const { accounts, signature, chainId } = e.detail;
-    const persistence = new LocalStoragePersistence();
-    let core = new SnickerdoodleCore(undefined, persistence);
-    await core.unlock(accounts[0], signature, LanguageCode("en"));
-    core.addAccount(accounts[0], signature, LanguageCode("en"));
-    console.log("accounts received: ", accounts);
-    console.log("signature received: ", signature);
-    console.log("chainId received: ", chainId);
     browser.storage.sync.set(
       {
         onChainData: {
@@ -185,6 +176,7 @@ const App = () => {
 
   return (
     <>
+      <Onboarding />
       {renderSafeUrlNotification}
       {renderScamWarning}
       {renderComponent}
