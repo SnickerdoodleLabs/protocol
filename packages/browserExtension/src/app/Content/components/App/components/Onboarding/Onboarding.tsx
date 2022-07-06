@@ -9,7 +9,7 @@ const Onboarding = () => {
 
   document.addEventListener("SD_ONBOARDING_SPA_CONNECTED", () => {});
 
-  document.addEventListener("SD_SPA_ACCOUNT_CONNECTED", (event) => {
+  document.addEventListener("SD_ONBOARDING_ACCOUNT_ADDED", (event) => {
     // @ts-ignore
     console.log("Content Script", event.detail);
   });

@@ -7,7 +7,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 
 export interface IWalletProvider {
+  isInstalled: boolean;
   connect(): ResultAsync<EVMAccountAddress, unknown>;
-  getSignature(): ResultAsync<Signature, unknown>;
+  getSignature(message: string): ResultAsync<Signature, unknown>;
   getChainInfo(): ResultAsync<ChainInformation, unknown>;
 }

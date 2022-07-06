@@ -1,12 +1,14 @@
 import { Button, LinearProgress } from "@material-ui/core";
 import React, { FC, useEffect, useState } from "react";
 import {
-  MetamaskWalletProvider,
-  WalletConnectProvider,
-} from "@extension-onboarding/services/providers/connectors";
+  getProviderList,
+  IProvider,
+} from "@extension-onboarding/services/providers";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 
 const App: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [providerList, setProviderList] = useState<IProvider[]>([]);
   useEffect(() => {
     document.addEventListener(
       "SD_WALLET_EXTENSION_CONNECTED",
@@ -25,7 +27,32 @@ const App: FC = () => {
   }, [isLoading]);
 
   const onWalletConnected = () => {
-    setIsLoading(false);
+    // Phantom wallet can not initiate window phantom object at time
+    setTimeout(() => {
+      const providerList = getProviderList();
+      setProviderList(providerList);
+      setIsLoading(false);
+    }, 500);
+  };
+
+  const onClickConnect = (providerObj: IProvider) => {
+    if (!providerObj.provider.isInstalled) {
+      return window.open(providerObj.installationUrl, "_blank");
+    }
+
+    return providerObj.provider.connect().andThen((account) => {
+      return providerObj.provider.getSignature("abc").map((signature) => {
+        console.log(signature);
+        document.dispatchEvent(
+          new CustomEvent("SD_ONBOARDING_ACCOUNT_ADDED", {
+            detail: {
+              account,
+              signature,
+            },
+          }),
+        );
+      });
+    });
   };
 
   return (
@@ -34,32 +61,16 @@ const App: FC = () => {
         <LinearProgress />
       ) : (
         <>
-          <Button
-            onClick={async () => {
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              const provider = new WalletConnectProvider();
-              const result = await provider.connect();
-              let _account;
-              if (result.isOk()) {
-                console.log(result);
-                result.map((account) => {
-                  _account = account;
-                });
-              }
-              provider
-                .getSignature()
-                .map((signature) => console.log(signature));
-              // document.dispatchEvent(
-              //   new CustomEvent("SD_SPA_ACCOUNT_CONNECTED", {
-              //     detail: { _account, connector: "metamask" },
-              //   }),
-              // );
-            }}
-          >
-            Connect Metamask
-          </Button>
-          <p>connected</p>
+          {providerList.map((providerObj) => {
+            return (
+              <React.Fragment key={providerObj.name}>
+                <Button onClick={() => onClickConnect(providerObj)}>
+                  <img src={providerObj.icon} />
+                  {providerObj.name}
+                </Button>
+              </React.Fragment>
+            );
+          })}
         </>
       )}
     </>

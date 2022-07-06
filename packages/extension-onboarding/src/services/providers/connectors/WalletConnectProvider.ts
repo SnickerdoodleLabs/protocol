@@ -10,7 +10,11 @@ import { ethers } from "ethers";
 import { Web3Provider } from "@ethersproject/providers";
 
 export class WalletConnectProvider implements IWalletProvider {
-  protected _provider: Web3Provider | null = null;
+  protected _web3Provider: Web3Provider | null = null;
+
+  get isInstalled(): boolean {
+    return true;
+  }
   connect(): ResultAsync<EVMAccountAddress, unknown> {
     let bridge = "https://bridge.walletconnect.org";
     let qrcode = true;
@@ -27,10 +31,10 @@ export class WalletConnectProvider implements IWalletProvider {
       chainId,
       qrcodeModalOptions,
     });
-    this._provider = new ethers.providers.Web3Provider(provider);
     return ResultAsync.fromPromise(provider.enable(), (e) =>
       console.log(e),
     ).andThen((accounts) => {
+      this._web3Provider = new ethers.providers.Web3Provider(provider);
       const account = accounts[0];
       return okAsync(EVMAccountAddress(account));
     });
@@ -38,12 +42,12 @@ export class WalletConnectProvider implements IWalletProvider {
   getChainInfo(): ResultAsync<ChainInformation, unknown> {
     throw new Error("");
   }
-  getSignature(): ResultAsync<Signature, unknown> {
-    if (!this._provider) {
+  getSignature(message: string): ResultAsync<Signature, unknown> {
+    if (!this._web3Provider) {
       return errAsync("Should call connect() first.");
     }
-    const signer = this._provider.getSigner();
-    return ResultAsync.fromPromise(signer.signMessage("okan kalp fati"), (e) =>
+    const signer = this._web3Provider.getSigner();
+    return ResultAsync.fromPromise(signer.signMessage(message), (e) =>
       console.log(e),
     ).map((signature) => Signature(signature));
   }
