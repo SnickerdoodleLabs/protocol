@@ -8,6 +8,7 @@ import {
   IpfsCID,
   UninitializedError,
   IPFSError,
+  QueryFormatError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -27,7 +28,7 @@ export interface IQueryService {
   >;
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError>;
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError>;
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

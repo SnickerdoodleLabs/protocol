@@ -3,7 +3,7 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-
+import { QueryFormatError } from "@snickerdoodlelabs/objects";
 import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
 import {
   AjaxError,
@@ -220,7 +220,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError> {
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError> {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 

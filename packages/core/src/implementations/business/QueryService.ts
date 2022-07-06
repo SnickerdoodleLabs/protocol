@@ -10,6 +10,7 @@ import {
   IpfsCID,
   IPFSError,
   ISDQLQueryObject,
+  QueryFormatError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -108,7 +109,7 @@ export class QueryService implements IQueryService {
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError> {
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError> {
     // 1. Parse the query
     // 2. Generate an insight(s)
     // 3. Redeem the reward
@@ -129,7 +130,7 @@ export class QueryService implements IQueryService {
         const queryContent = JSON.parse(query.query) as ISDQLQueryObject;
 
         // Break down the actual parts of the query.
-        return this.queryParsingEngine.handleQuery(queryContent);
+        return this.queryParsingEngine.handleQuery(queryContent, queryId);
       })
 
       .andThen((insights) => {

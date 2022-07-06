@@ -28,6 +28,7 @@ import {
   LanguageCode,
   Signature,
 } from "@objects/primatives";
+import { QueryFormatError } from "@objects/errors";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -161,7 +162,7 @@ export interface ISnickerdoodleCore {
   // re-checked, of course (trust nobody!).
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError>;
+  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError>;
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
 }
