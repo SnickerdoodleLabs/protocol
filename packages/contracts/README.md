@@ -1,3 +1,5 @@
+![Snickerdoodle](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
+
 # Snickerdoodle Protocol Contracts and CLI Tool
 
 This package contains two sections at the moment:
