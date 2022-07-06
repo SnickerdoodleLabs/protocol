@@ -36,7 +36,6 @@ export class WalletConnectProvider implements IWalletProvider {
     return ResultAsync.fromPromise(provider.enable(), (e) =>
       console.log(e),
     ).andThen((accounts) => {
-      console.log(provider.walletMeta);
       this._web3Provider = new ethers.providers.Web3Provider(provider);
       const account = accounts[0];
       return okAsync(EVMAccountAddress(account));
