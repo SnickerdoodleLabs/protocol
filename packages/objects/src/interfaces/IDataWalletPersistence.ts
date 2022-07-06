@@ -10,6 +10,7 @@ import { PersistenceError } from "@objects/errors";
 import {
   Age,
   EmailAddressString,
+  ChainId,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
@@ -101,7 +102,11 @@ export interface IDataWalletPersistence {
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
-  addEthereumTransactions(
+  getLatestTransactionForAccount(
+    chainId: ChainId,
+    address: EVMAccountAddress,
+  ): ResultAsync<EVMAccountAddress, PersistenceError>;
+  addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
 }

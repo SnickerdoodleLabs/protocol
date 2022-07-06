@@ -1,15 +1,15 @@
 import { ResultAsync } from "neverthrow";
 
-import { AccountIndexingError } from "@core/errors";
+import { AccountIndexingError, AjaxError } from "@core/errors";
 import { EVMTransaction } from "@objects/businessObjects";
 import { BlockNumber, EVMAccountAddress } from "@objects/primitives";
 
 export interface IAvalancheEVMTransactionRepository {
-  getEthereumTransactions(
+  getEVMTransactions(
     accountAddress: EVMAccountAddress,
-    firstBlock: BlockNumber,
-    lastBlock?: BlockNumber,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError>;
+    startTime: Date,
+    endTime?: Date,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError>;
 }
 
 export const IAvalancheEVMTransactionRepositoryType = Symbol.for(

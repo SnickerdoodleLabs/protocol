@@ -4,10 +4,9 @@ import {
   IEthereumEVMTransactionRepository,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
-import { EtherscanAvalancheEVMTransactionRepository } from "@indexers/EtherscanAvalancheEVMTransactionRepository";
-import { EtherscanEthereumEVMTransactionRepository } from "@indexers/EtherscanEthereumEVMTransactionRepository";
+import { CovalentEthereumEVMTransactionRepository } from "@browser-extension/CovalentEthereumEVMTransactionRepository";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
@@ -15,8 +14,8 @@ export class DefaultAccountIndexers implements IAccountIndexing {
   protected ethereum: IEthereumEVMTransactionRepository;
 
   public constructor() {
-    this.avalanche = new EtherscanAvalancheEVMTransactionRepository();
-    this.ethereum = new EtherscanEthereumEVMTransactionRepository();
+    this.avalanche = new CovalentAvalancheEVMTransactionRepository();
+    this.ethereum = new CovalentAvalancheEVMTransactionRepository(); // as long as chainId is 43114, this will scrape c chain events
   }
 
   public getAvalancheEVMTransactionRepository(): ResultAsync<

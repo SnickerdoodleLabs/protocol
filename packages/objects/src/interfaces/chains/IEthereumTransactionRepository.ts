@@ -1,15 +1,15 @@
 import { ResultAsync } from "neverthrow";
 
 import { EVMTransaction } from "@core/businessObjects";
-import { AccountIndexingError } from "@objects/errors";
+import { AccountIndexingError, AjaxError } from "@objects/errors";
 import { BlockNumber, EVMAccountAddress } from "@objects/primitives";
 
 export interface IEthereumEVMTransactionRepository {
   getEVMTransactions(
     accountAddress: EVMAccountAddress,
-    firstBlock: BlockNumber,
-    lastBlock?: BlockNumber,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError>;
+    startTime: Date,
+    endTime?: Date,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError>;
 }
 
 export const IEthereumEVMTransactionRepositoryType = Symbol.for(
