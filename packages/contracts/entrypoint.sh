@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ $NETWORK == "SUBNET"]
+if [ $NETWORK == "subnet" ]
 then
   # if we're running a local subnet, use the avalanche subnet tool
   avalanche subnet deploy snickerdoodle -l 
