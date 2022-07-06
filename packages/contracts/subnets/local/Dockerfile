@@ -2,9 +2,8 @@ FROM node:16.15-slim
 
 RUN apt update -y \
   && apt install -y vim \
-                    tmux \
-                    curl \
-                    git
+  tmux \
+  curl 
 
 WORKDIR /root
 
