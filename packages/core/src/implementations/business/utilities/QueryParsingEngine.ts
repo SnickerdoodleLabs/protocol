@@ -41,10 +41,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return errAsync(new QueryFormatError());
     }
 
-    // First two needed to create an insight
-    const queryId = cid;
-    const url = (obj.returns.url) as URLString;
-
     //let key: keyof typeof obj.returns;
     let queriesPrefix = "q", returnedPrefix = "r", compensationsPrefix = "c";
     let queriesIndex, returnedIndex, compensationsIndex;
@@ -57,21 +53,17 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       let return_data = obj.returns[returnedIndex];
       let comp_data = obj.compensations[compensationsIndex];
 
-      const insight = new Insight(
-        queryId,
-        url,
+      this.insightsMap.push(new Insight(
+        cid,
+        (obj.returns.url) as URLString,
         JSON.stringify(
           {
             "query": query_data,
             "return": return_data,
             "compensation": comp_data
           })
-      );
-
-      this.insightsMap.push(insight);
+      ));
     }
-
-    //console.log("ENDING HANDLE QUERY OBJECT");
 
     return okAsync(this.insightsMap);
   }
