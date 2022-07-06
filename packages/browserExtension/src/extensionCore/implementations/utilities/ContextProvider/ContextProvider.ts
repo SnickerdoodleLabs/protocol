@@ -47,6 +47,7 @@ export class ContextProvider implements IContextProvider {
     return {
       scamList: this.siteContext.getScamList(),
       whiteList: this.siteContext.getWhiteList(),
+      yellowList: this.siteContext.getYellowList(),
     };
   }
 

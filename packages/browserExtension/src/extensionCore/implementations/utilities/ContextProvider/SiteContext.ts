@@ -1,15 +1,23 @@
+import { IScamList } from "@shared/objects/State";
+
 export class SiteContext {
   // dummy
   constructor(
-    protected scamList: string[] = ["https://www.facebook.com"],
-    protected whiteList: string[] = [],
+    protected scamList: IScamList[] = [
+      {
+        safeURL: "https://www.shrapnel.com",
+        scamURL: "https://sketchy.snickerdoodle.dev",
+      },
+    ],
+    protected whiteList: string[] = ["https://www.shrapnel.com"],
+    protected yellowList: string[] = [],
   ) {}
 
   public getScamList() {
     return this.scamList;
   }
 
-  public setScamList(scamList: string[]) {
+  public setScamList(scamList: IScamList[]) {
     this.scamList = scamList;
   }
 
@@ -19,5 +27,13 @@ export class SiteContext {
 
   public setWhiteList(whiteList: string[]) {
     this.whiteList = whiteList;
+  }
+
+  public getYellowList() {
+    return this.yellowList;
+  }
+
+  public setYellowList(yellowList: string[]) {
+    this.yellowList = yellowList;
   }
 }

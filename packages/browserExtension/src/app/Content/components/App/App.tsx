@@ -14,6 +14,7 @@ import { IExternalState } from "@shared/objects/State";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { LanguageCode } from "@snickerdoodlelabs/objects";
+import ScamFilterComponent from "../ScamFilterComponent";
 
 const port = Browser.runtime.connect({ name: "SD_CONTENT_SCRIPT" });
 let coreGateway: ExternalCoreGateway;
@@ -54,26 +55,6 @@ const App = () => {
       setBackgroundState(state);
     });
   };
-
-  const isScam = useMemo(
-    () => backgroundState?.scamList.includes(window.location.origin),
-    [backgroundState],
-  );
-
-  const isInWhiteList = useMemo(
-    () => backgroundState?.whiteList.includes(window.location.origin),
-    [backgroundState],
-  );
-
-  const renderScamWarning = useMemo(
-    () => (isScam ? <p>scam</p> : null),
-    [isScam],
-  );
-
-  const renderSafeUrlNotification = useMemo(
-    () => (isInWhiteList ? <p>safe url</p> : null),
-    [isInWhiteList],
-  );
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
@@ -185,8 +166,7 @@ const App = () => {
 
   return (
     <>
-      {renderSafeUrlNotification}
-      {renderScamWarning}
+      <ScamFilterComponent backgroundState={backgroundState} />
       {renderComponent}
     </>
   );

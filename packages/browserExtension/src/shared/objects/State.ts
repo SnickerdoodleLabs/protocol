@@ -8,7 +8,12 @@ export interface IInternalState {
   email: string | null;
 }
 
+export interface IScamList {
+  safeURL: string;
+  scamURL: string;
+}
 export interface IExternalState {
-  scamList: string[];
+  scamList: IScamList[];
   whiteList: string[];
+  yellowList: string[];
 }
