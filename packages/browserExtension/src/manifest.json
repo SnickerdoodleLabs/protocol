@@ -10,20 +10,17 @@
     "default_icon": "icon-34.png"
   },
   "oauth2": {
-    "client_id": "1055144164647-mfcem81s96av4o1gi6mrmcrqfmbrj5i4.apps.googleusercontent.com",
+    "client_id": "1055144164647-bhaj96b8tl6i1ab5i74vuj93umu5f5lj.apps.googleusercontent.com",
     "scopes": [
       "profile email",
       "https://www.googleapis.com/auth/contacts",
       "https://www.googleapis.com/auth/contacts.readonly",
       "https://www.googleapis.com/auth/directory.readonly",
-      "https://www.googleapis.com/auth/profile.agerange.read",
       "https://www.googleapis.com/auth/profile.emails.read",
-      "https://www.googleapis.com/auth/profile.language.read",
       "https://www.googleapis.com/auth/user.addresses.read",
       "https://www.googleapis.com/auth/user.birthday.read",
       "https://www.googleapis.com/auth/user.emails.read",
       "https://www.googleapis.com/auth/user.gender.read",
-      "https://www.googleapis.com/auth/user.organization.read",
       "https://www.googleapis.com/auth/user.phonenumbers.read",
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile"
@@ -34,10 +31,7 @@
 
   "permissions": [
     "notifications",
-    "tabs",
     "storage",
-    "activeTab",
-    "scripting",
     "identity",
     "identity.email"
   ],
@@ -56,6 +50,7 @@
       "content.styles.css",
       "icon-128.png",
       "icon-34.png",
+      "personIcon.png",
       "shadowScript.js",
       "injectables/*",
       "assets/*"

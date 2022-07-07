@@ -51,7 +51,7 @@ const GoogleCard: FC = () => {
 
           <img
             className={classes.cardDataPhoto}
-            src={obj?.photos ? obj?.photos[0].url : "N/A"}
+            src={obj?.photos ? obj?.photos[0].url : Browser.runtime.getURL("assets/img/personIcon.png")}
           />
         </Grid>
 
