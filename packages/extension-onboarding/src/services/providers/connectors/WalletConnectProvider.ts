@@ -4,7 +4,7 @@ import {
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
-import { IWalletProvider } from "../interfaces";
+import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
 import WalletConnect from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
 import { Web3Provider } from "@ethersproject/providers";
@@ -16,6 +16,7 @@ export class WalletConnectProvider implements IWalletProvider {
     return true;
   }
   connect(): ResultAsync<EVMAccountAddress, unknown> {
+    localStorage.removeItem("walletconnect");
     let bridge = "https://bridge.walletconnect.org";
     let qrcode = true;
     let infuraId = "72827ccd538446f2a20e35a632664c52";
@@ -34,6 +35,7 @@ export class WalletConnectProvider implements IWalletProvider {
     return ResultAsync.fromPromise(provider.enable(), (e) =>
       console.log(e),
     ).andThen((accounts) => {
+      console.log(provider.walletMeta);
       this._web3Provider = new ethers.providers.Web3Provider(provider);
       const account = accounts[0];
       return okAsync(EVMAccountAddress(account));
@@ -47,8 +49,9 @@ export class WalletConnectProvider implements IWalletProvider {
       return errAsync("Should call connect() first.");
     }
     const signer = this._web3Provider.getSigner();
-    return ResultAsync.fromPromise(signer.signMessage(message), (e) =>
-      console.log(e),
+    return ResultAsync.fromPromise(
+      signer.signMessage(new TextEncoder().encode(message)),
+      (e) => console.log(e),
     ).map((signature) => Signature(signature));
   }
 }

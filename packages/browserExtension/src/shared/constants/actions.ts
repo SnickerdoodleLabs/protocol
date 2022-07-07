@@ -5,6 +5,7 @@ export enum EInternalActions {
   ADD_ACCOUNT = "ADD_ACCOUNT",
 }
 
-export enum ExternalActions {
+export enum EExternalActions {
   GET_STATE = "GET_STATE",
+  ADD_ACCOUNT = "ADD_ACCOUNT",
 }

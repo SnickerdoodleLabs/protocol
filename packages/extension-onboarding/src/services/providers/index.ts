@@ -15,27 +15,6 @@ export interface IProvider {
   installationUrl: string;
 }
 
-// const providerList: IProvider[] = [
-//   {
-//     provider: new MetamaskWalletProvider(),
-//     icon: MetamaskIcon,
-//     name: "MetaMask",
-//     installationUrl: "https://metamask.io/",
-//   },
-//   {
-//     provider: new PhantomWalletProvider(),
-//     icon: PhantomIcon,
-//     name: "Phantom",
-//     installationUrl: "https://phantom.app/download",
-//   },
-//   {
-//     provider: new WalletConnectProvider(),
-//     icon: WalleConnectIcon,
-//     name: "Wallet Connect",
-//     installationUrl: "",
-//   },
-// ];
-
 export const getProviderList = (): IProvider[] => {
   return [
     {

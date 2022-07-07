@@ -54,12 +54,12 @@ const App = () => {
   };
 
   const isScam = useMemo(
-    () => backgroundState?.scamList.includes(window.location.origin),
+    () => backgroundState?.scamList?.includes(window.location.origin),
     [backgroundState],
   );
 
   const isInWhiteList = useMemo(
-    () => backgroundState?.whiteList.includes(window.location.origin),
+    () => backgroundState?.whiteList?.includes(window.location.origin),
     [backgroundState],
   );
 
@@ -176,7 +176,7 @@ const App = () => {
 
   return (
     <>
-      <Onboarding />
+      <Onboarding coreGateway={coreGateway} />
       {renderSafeUrlNotification}
       {renderScamWarning}
       {renderComponent}

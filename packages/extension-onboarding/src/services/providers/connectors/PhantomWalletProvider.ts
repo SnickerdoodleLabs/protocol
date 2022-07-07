@@ -13,10 +13,18 @@ type DisplayEncoding = "utf8" | "hex";
 interface ConnectOpts {
   onlyIfTrusted: boolean;
 }
+type PhantomRequestMethod =
+  | "connect"
+  | "disconnect"
+  | "signAndSendTransaction"
+  | "signTransaction"
+  | "signAllTransactions"
+  | "signMessage";
 
 interface PhantomProvider {
   publicKey: PublicKey | null;
   isConnected: boolean | null;
+  request: (method: PhantomRequestMethod, params: any) => Promise<unknown>;
   connect: (opts?: Partial<ConnectOpts>) => Promise<{ publicKey: PublicKey }>;
   signMessage: (
     message: Uint8Array | string,
@@ -32,7 +40,6 @@ export class PhantomWalletProvider implements IWalletProvider {
     this._provider = window?.solana?.isPhantom && window.solana;
   }
   get isInstalled(): boolean {
-    console.log(this._provider);
     return !!this._provider;
   }
   connect(): ResultAsync<EVMAccountAddress, unknown> {
@@ -53,13 +60,17 @@ export class PhantomWalletProvider implements IWalletProvider {
     }
     const encodedMessage = new TextEncoder().encode(message);
     return ResultAsync.fromPromise(
-      this._provider.signMessage(encodedMessage, "utf8"),
+      // @ts-ignore
+      this._provider.request({
+        method: "signMessage",
+        params: {
+          message: encodedMessage,
+          display: "utf8",
+        },
+      }) as Promise<{ publicKey: EVMAccountAddress; signature: Signature }>,
       (e) => errAsync(new Error("User cancelled")),
-    ).andThen((signature) => {
-      console.log(signature);
-      // TODO decoded signature seems corrupted. research more about it.
-      const decodedSignature = new TextDecoder().decode(signature.signature);
-      return okAsync(Signature(decodedSignature));
+    ).andThen((signatureResult) => {
+      return okAsync(Signature(signatureResult.signature));
     });
   }
   getChainInfo(): ResultAsync<ChainInformation, unknown> {

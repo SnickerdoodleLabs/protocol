@@ -4,7 +4,6 @@ import {
   getProviderList,
   IProvider,
 } from "@extension-onboarding/services/providers";
-import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 
 const App: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -42,7 +41,6 @@ const App: FC = () => {
 
     return providerObj.provider.connect().andThen((account) => {
       return providerObj.provider.getSignature("abc").map((signature) => {
-        console.log(signature);
         document.dispatchEvent(
           new CustomEvent("SD_ONBOARDING_ACCOUNT_ADDED", {
             detail: {
