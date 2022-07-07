@@ -2,4 +2,4 @@
 
 ## Snickerdoodle Protocol
 * [Introduction](README.md)
-  
+* [Contracts](/packages/contracts/README.md)
