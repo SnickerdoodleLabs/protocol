@@ -95,14 +95,11 @@ const App = () => {
     );
   };
 
-  // Event handlers
-  const onWalletConnectionCompleted = async (e: Event) => {
+  // TODO ENES This is the old version needs to update with newest one.
+  const onWalletConnectionCompleted = (e: Event) => {
+    browser.storage.local.set({ onchain: "test" });
     // @ts-ignore
     const { accounts, signature, chainId } = e.detail;
-    const persistence = new LocalStoragePersistence();
-    let core = new SnickerdoodleCore(undefined, persistence);
-    await core.unlock(accounts[0], signature, LanguageCode("en"));
-    core.addAccount(accounts[0], signature, LanguageCode("en"));
     console.log("accounts received: ", accounts);
     console.log("signature received: ", signature);
     console.log("chainId received: ", chainId);
@@ -112,7 +109,7 @@ const App = () => {
           accountAddress: accounts[0],
           signatureValue: signature,
           chainId: chainId,
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
         },
       },
       // function () {

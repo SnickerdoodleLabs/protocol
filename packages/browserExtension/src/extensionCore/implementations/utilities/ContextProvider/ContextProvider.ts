@@ -5,6 +5,7 @@ import { AppContext } from "@implementations/utilities/ContextProvider/AppContex
 import { UserContext } from "@implementations/utilities/ContextProvider/UserContext";
 import { SiteContext } from "@implementations/utilities/ContextProvider/SiteContext";
 import { IInternalState, IExternalState } from "@shared/objects/State";
+import { GoogleContext } from "./GoogleContext";
 
 export class ContextProvider implements IContextProvider {
   protected accountContext: AccountContext;
@@ -12,6 +13,7 @@ export class ContextProvider implements IContextProvider {
   protected clientEvents: ClientEvents;
   protected userContext: UserContext;
   protected siteContext: SiteContext;
+  protected googleContext: GoogleContext;
 
   constructor() {
     this.accountContext = new AccountContext(() => {});
@@ -19,6 +21,7 @@ export class ContextProvider implements IContextProvider {
     this.clientEvents = new ClientEvents();
     this.userContext = new UserContext();
     this.siteContext = new SiteContext();
+    this.googleContext = new GoogleContext();
   }
 
   public getAccountContext() {
@@ -40,6 +43,7 @@ export class ContextProvider implements IContextProvider {
       pendingActions: this.appContext.getPendingActions(),
       name: this.userContext.getName(),
       email: this.userContext.getEmail(),
+      googleData: this.googleContext.getGoogleData(),
     };
   }
 

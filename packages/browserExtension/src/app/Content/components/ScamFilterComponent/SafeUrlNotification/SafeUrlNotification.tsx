@@ -72,7 +72,14 @@ const SafeUrlNotification: FC = () => {
           <Typography className={classes.title} variant="h3" component="h4">
             Verified URL
           </Typography>
-          <Typography className={classes.learnMore} variant="h3" component="h4">
+          <Typography
+            onClick={() => {
+              window.location.href = "https://www.snickerdoodle.com/";
+            }}
+            className={classes.learnMore}
+            variant="h3"
+            component="h4"
+          >
             Learn More
           </Typography>
           <Typography className={classes.dontShow}>

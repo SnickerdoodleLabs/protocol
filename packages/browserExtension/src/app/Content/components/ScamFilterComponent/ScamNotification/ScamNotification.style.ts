@@ -34,6 +34,7 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 400,
     color: "#fff",
     paddingTop: "32px",
+    cursor: "pointer",
   },
   text3: {
     fontSize: "14px",

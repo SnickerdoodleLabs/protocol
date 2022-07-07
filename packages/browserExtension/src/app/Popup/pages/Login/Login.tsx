@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Button } from "@material-ui/core";
 import { useStyles } from "@app/Popup/pages/Login/Login.style";
 import { useAppContext } from "@app/Popup/context";
+import GoogleCard from "../GoogleCard/GoogleCard";
 
 const Login: FC = () => {
   const classes = useStyles();
@@ -11,7 +12,7 @@ const Login: FC = () => {
     console.log("login trigger");
   };
 
-  return <Button onClick={handleLogin}>Test</Button>;
+  return <GoogleCard />;
 };
 
 export default Login;

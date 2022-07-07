@@ -87,7 +87,13 @@ const ScamNotification: FC<IScamNotification> = ({ safeURL }) => {
                   </Typography>
                 </Grid>
                 <Grid className={classes.learnMoreContainer}>
-                  <Typography className={classes.text3} variant="h4">
+                  <Typography
+                    onClick={() => {
+                      window.location.href = "https://www.snickerdoodle.com/";
+                    }}
+                    className={classes.text3}
+                    variant="h4"
+                  >
                     Learn More
                   </Typography>
                 </Grid>

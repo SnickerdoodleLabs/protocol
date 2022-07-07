@@ -41,6 +41,7 @@ export const useStyles = makeStyles((theme) => ({
     color: "#797979",
     letterSpacing: "0.56px",
     textDecoration: "underline",
+    cursor: "pointer",
   },
   dontShow: {
     fontSize: "10px",

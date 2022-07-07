@@ -8,8 +8,44 @@ export class SiteContext {
         safeURL: "https://www.shrapnel.com",
         scamURL: "https://sketchy.snickerdoodle.dev",
       },
+      {
+        safeURL: "https://traderjoexyz.com",
+        scamURL: "https://traderjoe.com",
+      },
+      {
+        safeURL: "https://pancakeswap.finance",
+        scamURL: "https://pancake.finance",
+      },
+      {
+        safeURL: "https://crabada.com",
+        scamURL: "https://cradaba.com",
+      },
+      {
+        safeURL: "https://pangolin.exchange",
+        scamURL: "https://pangolin.xyz",
+      },
+      {
+        safeURL: "https://uniswap.org",
+        scamURL: "https://xn--unswap-xva.app",
+      },
+      {
+        safeURL: "https://uniswap.org",
+        scamURL: "https://uniswap.app",
+      },
     ],
-    protected whiteList: string[] = ["https://www.shrapnel.com"],
+    protected whiteList: string[] = [
+      "https://www.shrapnel.com",
+      "https://traderjoexyz.com",
+      "https://uniswap.org",
+      "https://pangolin.exchange",
+      "https://crabada.com",
+      "https://pancake.finance",
+      "https://www.traderjoexyz.com",
+      "https://www.uniswap.org",
+      "https://www.pangolin.exchange",
+      "https://www.crabada.com",
+      "https://www.pancake.finance",
+    ],
     protected yellowList: string[] = [],
   ) {}
 

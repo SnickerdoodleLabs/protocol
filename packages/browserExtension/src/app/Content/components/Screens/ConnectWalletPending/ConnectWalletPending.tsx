@@ -20,7 +20,7 @@ const ConnectWalletPending: React.FC<IConnectWalletPendingProps> = ({
         <>
           <img
             className={modalClasses.image}
-            // src={chrome.runtime.getURL("assets/img/metamask.png")}
+            src={chrome.runtime.getURL("assets/img/metamask.png")}
             alt="logo"
           />
         </>

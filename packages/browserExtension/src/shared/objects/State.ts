@@ -6,6 +6,7 @@ export interface IInternalState {
   pendingActions: any[];
   name: string | null;
   email: string | null;
+  googleData: any;
 }
 
 export interface IScamList {
