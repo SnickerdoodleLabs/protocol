@@ -4,7 +4,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": "./src/",
-    "module": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "target": "ESNext",
     "lib": [
       "ESNext"
@@ -32,6 +33,6 @@
   ],
   "ts-node": {
     "esm": true,
-    "experimentalSpecifierResolution": true
+    "experimentalSpecifierResolution": "node"
   }
 }

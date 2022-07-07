@@ -2813,9 +2813,9 @@ __metadata:
   linkType: hard
 
 "@jridgewell/resolve-uri@npm:^3.0.3":
-  version: 3.0.8
-  resolution: "@jridgewell/resolve-uri@npm:3.0.8"
-  checksum: 28d739f49b4a52a95843b15669dcb2daaab48f0eaef8f457b9aacd0bdebeb60468d0684f73244f613b786e9d871c25abdbe6f55991bba36814cdadc399dbb3a8
+  version: 3.1.0
+  resolution: "@jridgewell/resolve-uri@npm:3.1.0"
+  checksum: b5ceaaf9a110fcb2780d1d8f8d4a0bfd216702f31c988d8042e5f8fbe353c55d9b0f55a1733afdc64806f8e79c485d2464680ac48a0d9fcadb9548ee6b81d267
   languageName: node
   linkType: hard
 
@@ -3907,11 +3907,12 @@ __metadata:
     "@snickerdoodlelabs/persistence": "workspace:^"
     inquirer: ^9.0.0
     neverthrow: ^4.3.1
+    neverthrow-result-utils: ^1.0.2
     reflect-metadata: ^0.1.13
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/core@workspace:^, @snickerdoodlelabs/core@workspace:packages/core":
+"@snickerdoodlelabs/core@>=0.0.1, @snickerdoodlelabs/core@workspace:^, @snickerdoodlelabs/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/core@workspace:packages/core"
   dependencies:
@@ -10141,7 +10142,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-format@npm:^4.0.10":
+"date-format@npm:^4.0.10, date-format@npm:^4.0.11":
   version: 4.0.11
   resolution: "date-format@npm:4.0.11"
   checksum: 9e1265a557dc44a55d003a2bcb89012c605641f0bab26a0276eef308a4d491da9cae7001839b5d080a2e6ffadace49e8d8c62072164880cba721ec6d0a48c56d
@@ -12873,7 +12874,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express@npm:^4.14.0, express@npm:^4.17.3":
+"express@npm:^4.14.0, express@npm:^4.17.3, express@npm:^4.18.1":
   version: 4.18.1
   resolution: "express@npm:4.18.1"
   dependencies:
@@ -17858,12 +17859,12 @@ __metadata:
   linkType: hard
 
 "jsx-ast-utils@npm:^2.4.1 || ^3.0.0, jsx-ast-utils@npm:^3.3.1":
-  version: 3.3.1
-  resolution: "jsx-ast-utils@npm:3.3.1"
+  version: 3.3.2
+  resolution: "jsx-ast-utils@npm:3.3.2"
   dependencies:
     array-includes: ^3.1.5
     object.assign: ^4.1.2
-  checksum: 1d4b32fd24bbba561d5ca5c8d6ea095be646f83fc357d6f0cd2752f97f3ba0e0ffabc2f54b37a9d98258fc8ec0e1286cb7723cc1c9dc7af402d74fff72ae0a2b
+  checksum: 61d4596d44480afc03ae0a7ebb272aa6603dc4c3645805dea0fc8d9f0693542cd0959f3ba7c0c9b16c13dd5a900c7c4310108bada273132a8355efe3fed22064
   languageName: node
   linkType: hard
 
@@ -18522,15 +18523,15 @@ __metadata:
   linkType: hard
 
 "log4js@npm:^6.3.0":
-  version: 6.5.2
-  resolution: "log4js@npm:6.5.2"
+  version: 6.6.0
+  resolution: "log4js@npm:6.6.0"
   dependencies:
-    date-format: ^4.0.10
+    date-format: ^4.0.11
     debug: ^4.3.4
     flatted: ^3.2.5
     rfdc: ^1.3.0
     streamroller: ^3.1.1
-  checksum: ab9a13dc5c6b607c20c22e074aa6b5206cf1a90f0fad3a65151b24e0fd2b9f5434e1f262e41fc057c6befb608b24dc3c578704fe6d376bdd827ef21cd2f85292
+  checksum: b21704c677b557f1c14fda4e398cecba7975b1041d8247c293aa7b7a2ea3588894e87bcc93fc9bd85ce9b4a1b30021b3fb867f2e0060eec6760253a5faecc164
   languageName: node
   linkType: hard
 
@@ -22256,13 +22257,6 @@ __metadata:
   version: 4.0.4
   resolution: "quick-format-unescaped@npm:4.0.4"
   checksum: 7bc32b99354a1aa46c089d2a82b63489961002bb1d654cee3e6d2d8778197b68c2d854fd23d8422436ee1fdfd0abaddc4d4da120afe700ade68bd357815b26fd
-  languageName: node
-  linkType: hard
-
-"quick-lru@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "quick-lru@npm:4.0.1"
-  checksum: bea46e1abfaa07023e047d3cf1716a06172c4947886c053ede5c50321893711577cb6119360f810cc3ffcd70c4d7db4069c3cee876b358ceff8596e062bd1154
   languageName: node
   linkType: hard
 

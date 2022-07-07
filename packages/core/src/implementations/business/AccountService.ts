@@ -6,6 +6,7 @@ import {
 import {
   AESEncryptedString,
   BlockchainProviderError,
+  ConsentContractError,
   DataWalletAddress,
   EVMAccountAddress,
   EVMPrivateKey,
@@ -69,10 +70,12 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
     | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | UnsupportedLanguageError
+    | InvalidSignatureError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -130,7 +133,7 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     EthereumAccount,
-    BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
+    BlockchainProviderError | UninitializedError | ConsentContractError
   > {
     return ResultUtils.combine([
       this.dataWalletUtils.createDataWalletKey(),
@@ -142,8 +145,8 @@ export class AccountService implements IAccountService {
         .andThen((encryptedDataWallet) => {
           return this.loginRegistryRepo.addCrumb(
             accountAddress,
-            languageCode,
             encryptedDataWallet,
+            languageCode,
           );
         })
         .map(() => {
@@ -187,7 +190,10 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    BlockchainProviderError | UninitializedError | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | PersistenceError
+    | ConsentContractError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -225,8 +231,8 @@ export class AccountService implements IAccountService {
         .andThen((encryptedDataWalletKey) => {
           return this.loginRegistryRepo.addCrumb(
             accountAddress,
-            languageCode,
             encryptedDataWalletKey,
+            languageCode,
           );
         })
         .andThen(() => {

@@ -14,6 +14,7 @@ import {
   EVMPrivateKey,
   InitializationVector,
   SHA256Hash,
+  HexString,
 } from "@snickerdoodlelabs/objects";
 import argon2 from "argon2";
 import { ethers } from "ethers";
@@ -32,6 +33,24 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(
       Crypto.randomBytes(nonceSize).toString("base64").slice(0, nonceSize),
     );
+  }
+
+  public deriveAESKeyFromSignature(
+    signature: Signature,
+    salt: HexString,
+  ): ResultAsync<AESKey, never> {
+    // A signature is a hex string, with 65 bytes. We should convert it to a buffer
+    const sourceEntropy = Buffer.from(signature, "hex");
+    const saltBuffer = Buffer.from(salt, "hex");
+    const keyBuffer = Crypto.pbkdf2Sync(
+      sourceEntropy,
+      saltBuffer,
+      100,
+      32,
+      "sha256",
+    );
+
+    return okAsync(AESKey(keyBuffer.toString("base64")));
   }
 
   public createAESKey(): ResultAsync<AESKey, never> {

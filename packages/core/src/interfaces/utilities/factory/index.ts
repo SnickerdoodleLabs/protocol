@@ -1,1 +1,1 @@
-export * from "@core/interfaces/utilities/factory/IConsentContractFactory";
+export * from "@core/interfaces/utilities/factory/IContractFactory";

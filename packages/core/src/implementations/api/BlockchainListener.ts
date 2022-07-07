@@ -1,4 +1,5 @@
 import { JsonRpcProvider } from "@ethersproject/providers";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -36,8 +37,6 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-  ILogUtils,
-  ILogUtilsType,
 } from "@core/interfaces/utilities";
 
 /**

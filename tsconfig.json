@@ -21,6 +21,9 @@
       "path": "packages/persistence"
     },
     {
+      "path": "packages/test-harness"
+    },
+    {
       "path": "packages/utils"
     },
     // {

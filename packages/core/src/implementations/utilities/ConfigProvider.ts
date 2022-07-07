@@ -1,4 +1,7 @@
+import { CoreConfig } from "@core/interfaces/objects";
+import { IConfigProvider } from "@core/interfaces/utilities";
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   chainConfig,
   ChainId,
@@ -6,20 +9,15 @@ import {
   IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
-
-
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-
-import { CoreConfig } from "@core/interfaces/objects";
-import { IConfigProvider, ILogUtils } from "@core/interfaces/utilities";
 
 @injectable()
 export class ConfigProvider implements IConfigProvider {
   protected config: CoreConfig;
 
-  public constructor(protected logUtils: ILogUtils) {
-    const controlChainId = ChainId(1337);
+  public constructor(@inject(ILogUtilsType) protected logUtils: ILogUtils) {
+    const controlChainId = ChainId(31337);
     const controlChainInformation = chainConfig.get(controlChainId);
 
     if (controlChainInformation == null) {
