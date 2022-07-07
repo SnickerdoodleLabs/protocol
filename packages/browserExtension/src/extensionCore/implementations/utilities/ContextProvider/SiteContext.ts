@@ -10,7 +10,7 @@ export class SiteContext {
       },
       {
         safeURL: "https://traderjoexyz.com",
-        scamURL: "https://traderjoe.com",
+        scamURL: "https://www.traderjoe.com",
       },
       {
         safeURL: "https://pancakeswap.finance",
@@ -39,12 +39,14 @@ export class SiteContext {
       "https://uniswap.org",
       "https://pangolin.exchange",
       "https://crabada.com",
+      "https://market.crabada.com",
       "https://pancake.finance",
       "https://www.traderjoexyz.com",
       "https://www.uniswap.org",
       "https://www.pangolin.exchange",
       "https://www.crabada.com",
       "https://www.pancake.finance",
+      "https://www.market.crabada.com",
     ],
     protected yellowList: string[] = [],
   ) {}
