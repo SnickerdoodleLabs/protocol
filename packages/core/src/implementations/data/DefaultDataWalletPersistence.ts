@@ -17,7 +17,37 @@ import {
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { Container } from "inversify";
+import { IConfigProvider } from "@browser-extension/interfaces/utilities";
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
+import { IConfigOverrides } from "@snickerdoodlelabs/objects";
+import { IAccountService } from "@browser-extension/interfaces/business";
+import { ProfileService } from "../business/ProfileService";
+import { AccountService } from "../business";
+import { IAccountServiceType } from "@browser-extension/interfaces/business";
+import { IConfigProviderType } from "@browser-extension/interfaces/utilities";
+import { IProfileService } from "@browser-extension/interfaces/business";
+import { IProfileServiceType } from "@browser-extension/interfaces/business";
+import { IAccountIndexingType } from "@snickerdoodlelabs/objects";
+import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
+import { IAccountIndexing } from "@snickerdoodlelabs/objects";
+import { IDataWalletPersistenceType } from "@snickerdoodlelabs/objects";
+
+
+enum ELocalStorageKey {
+  ACCOUNT = "SD_Accounts",
+  AGE = "SD_Age",
+  SITE_VISITS = "SD_SiteVisits",
+  TRANSACTIONS = "SD_Transactions",
+  FIRST_NAME = "SD_GivenName",
+  LAST_NAME = "SD_FamilyName",
+  BIRTHDAY = "SD_Birthday",
+  GENDER = "SD_Gender",
+  EMAIL = "SD_Email",
+  LOCATION = "SD_Location",
+}
 
 /**
  * This class is where we should implement the cloud-based data wallet persistence.
@@ -28,6 +58,69 @@ import { ResultAsync } from "neverthrow";
 export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   protected walletUnlockSuccessful = false;
   protected unlocked;
+  protected iocContainer: Container = new Container();
+  protected profileService: IProfileService;
+
+  /* Obsolete - used in local storage*/
+  private _checkAndRetrieveValue<T>(
+    key: ELocalStorageKey,
+  ): ResultAsync<T, PersistenceError> {
+    const value = LocalStorageUtils.readLocalStorage(ELocalStorageKey.AGE);
+    if (!value) {
+      return errAsync(
+        new PersistenceError(`Key ${key} is not found in Local Storage!`),
+      );
+    }
+    return okAsync(value as T);
+  }
+
+
+  public constructor(
+    configOverrides?: IConfigOverrides,
+    persistence?: IDataWalletPersistence,
+    accountIndexer?: IAccountIndexing,
+  ) {
+    this.iocContainer = new Container();
+
+    // Elaborate syntax to demonstrate that we can use multiple modules
+    this.iocContainer.load(...[snickerdoodleCoreModule]);
+
+    // If persistence is provided, we need to hook it up. If it is not, we will use the default
+    // persistence.
+    if (persistence != null) {
+      this.iocContainer
+        .bind(IDataWalletPersistenceType)
+        .toConstantValue(persistence);
+    } else {
+      this.iocContainer
+        .bind(IDataWalletPersistenceType)
+        .to(DefaultDataWalletPersistence)
+        .inSingletonScope();
+    }
+    this.profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+
+    // If an Account Indexer is provided, hook it up. If not we'll use the default.
+    if (accountIndexer != null) {
+      this.iocContainer
+        .bind(IAccountIndexingType)
+        .toConstantValue(accountIndexer);
+    } else {
+      this.iocContainer
+        .bind(IAccountIndexingType)
+        .to(DefaultAccountIndexers)
+        .inSingletonScope();
+    }
+
+    // Setup the config
+    if (configOverrides != null) {
+      const configProvider =
+        this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+
+      configProvider.setConfigOverrides(configOverrides);
+    }
+  }
+
 
   /**
    * This method is called on the IDataWalletPersistence after the data wallet's derived
@@ -41,13 +134,71 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
-    /* call to ipfs */
     /* if true, then unlocked is successful */
-    this.walletUnlockSuccessful = true;
 
+    /*
+    if (this.walletUnlockSuccessful == false) {
+      throw new Error("Method not implemented.");
+    }
+    */
     /*  now have a consistent unlocked resultasync  */
 
-    throw new Error("Method not implemented.");
+    /*
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.unlock(accountAddress, signature, languageCode);
+    */
+    return okAsync(undefined);
+  }
+
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.LOCATION, location);
+    return okAsync(undefined);
+  }
+  getLocation(): ResultAsync<CountryCode, PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION);
+  }
+  setAge(age: Age): ResultAsync<void, PersistenceError> {
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.AGE, age);
+    return okAsync(undefined);
+  }
+  getAge(): ResultAsync<Age, PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.AGE);
+  }
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.FIRST_NAME, name);
+    return okAsync(undefined);
+  }
+  getGivenName(): ResultAsync<GivenName, PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.FIRST_NAME);
+  }
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.FIRST_NAME, name);
+    return okAsync(undefined);
+  }
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.LAST_NAME);
+  }
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.BIRTHDAY, birthday);
+    return okAsync(undefined);
+  }
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.BIRTHDAY);
+  }
+  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.GENDER, gender);
+    return okAsync(undefined);
+  }
+  getGender(): ResultAsync<Gender, PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.GENDER);
+  }
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.EMAIL, email);
+    return okAsync(undefined);
+  }
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.EMAIL);
   }
 
   /**
@@ -58,43 +209,14 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
-    if (!this.walletUnlockSuccessful) {
-      //return new ResultAsync(undefined);
-    }
-
-    return this.unlocked.andThen(([accountAddress]) => {
-      /*
-            const currentBlockNumber = BlockNumber(currentBlock.number);
-            const latestKnownBlockNumber =
-              this.chainLatestKnownBlockNumber.get(chainId) || BlockNumber(-1);
-      
-            if (latestKnownBlockNumber < currentBlockNumber) {
-              this.chainLatestKnownBlockNumber.set(chainId, currentBlockNumber);
-      
-              const isControlChain = chainId === config.controlChainId;
-              if (isControlChain) {
-                this.listenForConsentContractsEvents(currentBlockNumber);
-              }
-              this.monitorChain(currentBlockNumber, chainId, provider, accounts);
-            }
-      */
-      //return okAsync(undefined);
-    });
-
-    throw new Error("Method not implemented.");
-  }
-
-  /**
-   * This method returns all the Ethereum accounts that are registered in the data wallet.
-   */
-  public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
-    if (!this.walletUnlockSuccessful) {
-      //return new ResultAsync(undefined);
-    }
-
-    return this.unlocked.andThen();
-
-    throw new Error("Method not implemented.");
+    const accounts = LocalStorageUtils.readLocalStorage(
+      ELocalStorageKey.ACCOUNT,
+    );
+    LocalStorageUtils.writeLocalStorage(
+      ELocalStorageKey.ACCOUNT,
+      Array.from(new Set([accountAddress, ...(accounts ?? [])])),
+    );
+    return okAsync(undefined);
   }
 
   /**
@@ -102,12 +224,6 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
    * presumeably captured by the Form Factor.
    */
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
-    if (!this.walletUnlockSuccessful) {
-      //return new ResultAsync(undefined);
-    }
-
-    return this.unlocked.andThen();
-
     throw new Error("Method not implemented.");
   }
 
@@ -117,13 +233,11 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-  public setAge(age: Age): ResultAsync<void, PersistenceError> {
+  public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
-  public getAge(): ResultAsync<Age, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
+
 
   public getRejectedCohorts(): ResultAsync<
     EVMContractAddress[],
@@ -153,40 +267,9 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getGivenName(): ResultAsync<GivenName, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getGender(): ResultAsync<Gender, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-  getLocation(): ResultAsync<CountryCode, PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
+
+
+
+
+
 }

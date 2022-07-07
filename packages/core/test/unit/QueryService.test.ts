@@ -570,6 +570,52 @@ describe("Query Service tests", () => {
                 console.log(queryContent.returns.url);
         */
         // Act
+
+        console.log(queryContent.logic.returns);
+        console.log(queryContent.logic.returns[0]);
+
+        let splitInput = queryContent.logic.returns[0].split('then'); //this will output ["1234", "56789"]
+        console.log(splitInput)
+        console.log(splitInput[0])
+        console.log(splitInput[1])
+
+
+        splitInput = queryContent.logic.returns[0].split('then'); //this will output ["1234", "56789"]
+        let queries = splitInput[0];
+
+        queries = queries.replace('if', '');
+        console.log(queries);
+        queries = queries.replace('(', '');
+        console.log(queries);
+        queries = queries.replace(')', '');
+        console.log(queries);
+
+        let splitQueries = queries.split('and');
+        console.log(splitQueries);
+
+        splitQueries.forEach(element => {
+            console.log(element.split('$')[1]);
+            console.log(queryContent.queries[element.split('$')[1]]);
+        });
+
+
+        console.log(queryContent.queries["q3"]["conditions"]["in"]);
+
+
+        /*
+        queries = splitInput[1];
+        queries = queries.replace('if', '');
+        console.log(queries);
+        queries = queries.replace('(', '');
+        console.log(queries);
+        queries = queries.replace(')', '');
+        console.log(queries);
+        */
+
+
+
+
+
         const queryResult = await ServiceMocks.queryParsingEngine.handleQuery(queryContent2, queryId);
 
         // Assert

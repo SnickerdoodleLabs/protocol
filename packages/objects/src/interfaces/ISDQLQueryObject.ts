@@ -21,9 +21,19 @@ export interface ISDQLQueryObject {
 }
 
 export interface ISDQLClause {
+  "q1": Object;
+  "q2": Object;
+  "q3": Object;
   "r1": Object;
   "r2": Object;
   "r3": Object;
+  "c1": Object;
+  "c2": Object;
+  "c3": Object;
+  "returns": Array<string>;
+  "compensations": Array<string>;
+
+
   "url": string;
 
   // queries
