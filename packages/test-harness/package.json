@@ -36,6 +36,7 @@
     "@snickerdoodlelabs/core": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/persistence": "workspace:^",
+    "@snickerdoodlelabs/signature-verification": "workspace:^",
     "express": "^4.18.1",
     "inquirer": "^9.0.0",
     "neverthrow": "^4.3.1",

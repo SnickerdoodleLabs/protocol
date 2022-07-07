@@ -1,4 +1,5 @@
 import {
+  AjaxError,
   BlockchainProviderError,
   ConsentContractError,
   EVMAccountAddress,
@@ -28,6 +29,7 @@ export interface IAccountService {
     | ConsentContractError
     | UnsupportedLanguageError
     | InvalidSignatureError
+    | AjaxError
   >;
 
   addAccount(
@@ -40,6 +42,7 @@ export interface IAccountService {
     | UninitializedError
     | PersistenceError
     | ConsentContractError
+    | AjaxError
   >;
 }
 

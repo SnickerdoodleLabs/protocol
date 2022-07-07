@@ -40,6 +40,6 @@ export class CrumbsContract implements ICrumbsContract {
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<TokenUri | null, ConsentContractError> {
-    throw new Error("Method not implemented.");
+    return okAsync(null);
   }
 }

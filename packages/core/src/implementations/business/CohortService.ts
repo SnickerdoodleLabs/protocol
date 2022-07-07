@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
+import { TypedDataField } from "@ethersproject/abstract-signer";
 import {
   ICryptoUtils,
   ICryptoUtilsType,

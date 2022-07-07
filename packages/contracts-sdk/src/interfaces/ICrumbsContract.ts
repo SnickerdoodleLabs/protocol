@@ -24,11 +24,6 @@ export interface ICrumbsContract {
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<TokenUri | null, ConsentContractError>;
-
-  getCrumb(
-    accountAddress: EVMAccountAddress,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<TokenUri | null, ConsentContractError>;
 }
 
 export const ICrumbsContractType = Symbol.for("ICrumbsContract");

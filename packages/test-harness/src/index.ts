@@ -3,6 +3,7 @@ import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   Age,
+  AjaxError,
   BlockchainProviderError,
   ConsentContractError,
   EVMAccountAddress,
@@ -57,7 +58,7 @@ await core.getEvents().map(async (events) => {
   });
 
   // Main event prompt. Core is up and running
-  while (1) {
+  while (true) {
     await mainPrompt();
   }
 });
@@ -70,16 +71,15 @@ function mainPrompt(): ResultAsync<void, Error> {
         name: "main",
         message: "Please select a course of action:",
         choices: [
-          { name: "Nothing", value: "nothing", short: "n" },
+          { name: "Nothing", value: "nothing" },
           new inquirer.Separator(),
-          { name: "Core", value: "core", short: "c" },
+          { name: "Core", value: "core" },
           {
             name: "Insight Platform Simulator",
             value: "simulator",
-            short: "s",
           },
           new inquirer.Separator(),
-          { name: "Exit", value: "exit", short: "e" },
+          { name: "Exit", value: "exit" },
         ],
       },
     ]),
@@ -93,6 +93,7 @@ function mainPrompt(): ResultAsync<void, Error> {
   ).andThen((answers) => {
     switch (answers.main) {
       case "nothing":
+        console.log("Doing nothing for 1 second");
         return ResultUtils.delay(1000);
       case "exit":
         process.exit(0);
@@ -113,13 +114,13 @@ function corePrompt(): ResultAsync<void, Error> {
         name: "core",
         message: "Please select a course of action:",
         choices: [
-          { name: "Unlock", value: "unlock", short: "u" },
-          { name: "Add Account", value: "addAccount", short: "a" },
+          { name: "Unlock", value: "unlock" },
+          { name: "Add Account", value: "addAccount" },
           new inquirer.Separator(),
-          { name: "Set Age", value: "setAge", short: "s" },
-          { name: "Get Age", value: "getAge", short: "g" },
+          { name: "Set Age", value: "setAge" },
+          { name: "Get Age", value: "getAge" },
           new inquirer.Separator(),
-          { name: "Cancel", value: "cancel", short: "c" },
+          { name: "Cancel", value: "cancel" },
         ],
       },
     ]),
@@ -131,7 +132,7 @@ function corePrompt(): ResultAsync<void, Error> {
       return e as Error;
     },
   ).andThen((answers) => {
-    switch (answers.main) {
+    switch (answers.core) {
       case "unlock":
         return unlockCore(accountAddress, accountPrivateKey);
       case "addAccount":
@@ -168,7 +169,7 @@ function simulatorPrompt(): ResultAsync<void, Error> {
       return e as Error;
     },
   ).andThen((answers) => {
-    switch (answers.main) {
+    switch (answers.simulator) {
       case "post":
         return simulator.postQuery();
     }
@@ -187,6 +188,7 @@ function unlockCore(
   | ConsentContractError
   | PersistenceError
   | InvalidSignatureError
+  | AjaxError
 > {
   // Need to get the unlock message first
   return core
@@ -214,6 +216,7 @@ function addAccount(
   | ConsentContractError
   | PersistenceError
   | InvalidSignatureError
+  | AjaxError
 > {
   // Need to get the unlock message first
   return core

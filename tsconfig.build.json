@@ -45,6 +45,9 @@
         "./*"
       ],
       "@persistence/*": ["./*"],
+      "@signatureVerification/*": [
+        "./*"
+      ],
       "@test-harness/*": [
         "./*"
       ],

@@ -7,6 +7,7 @@ import {
   IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -40,10 +41,7 @@ export class ConfigProvider implements IConfigProvider {
       controlChainInformation,
       URLString("ipfs node address"),
       URLString("http://insight-platform"),
-      {
-        name: "Snickerdoodle Protocol",
-        version: "1",
-      } as TypedDataDomain,
+      snickerdoodleSigningDomain,
     );
   }
 

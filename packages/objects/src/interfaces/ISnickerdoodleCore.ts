@@ -70,6 +70,7 @@ export interface ISnickerdoodleCore {
     | UnsupportedLanguageError
     | PersistenceError
     | InvalidSignatureError
+    | AjaxError
   >;
 
   /**
@@ -92,6 +93,7 @@ export interface ISnickerdoodleCore {
     | PersistenceError
     | UninitializedError
     | ConsentContractError
+    | AjaxError
   >;
 
   /**
