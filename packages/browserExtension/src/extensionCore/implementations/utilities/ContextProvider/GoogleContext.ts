@@ -14,7 +14,8 @@ export class GoogleContext {
 
   public setGoogleData() {
     const that = this;
-    chrome.identity.getProfileUserInfo((info) => {
+    chrome.identity.getProfileUserInfo( {accountStatus:'ANY'},(info) => {
+      console.log("info3",info)
       let id = info?.id;
       chrome.identity.getAuthToken(
         { interactive: true },
