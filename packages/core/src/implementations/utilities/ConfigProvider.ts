@@ -1,5 +1,3 @@
-import { CoreConfig } from "@core/interfaces/objects";
-import { IConfigProvider } from "@core/interfaces/utilities";
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
@@ -11,6 +9,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { CoreConfig } from "@core/interfaces/objects";
+import { IConfigProvider } from "@core/interfaces/utilities";
 
 @injectable()
 export class ConfigProvider implements IConfigProvider {

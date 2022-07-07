@@ -1,3 +1,13 @@
+import {
+  CryptoUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
+  LogUtils,
+} from "@snickerdoodlelabs/common-utils";
+import { ContainerModule, interfaces } from "inversify";
+
 import { BlockchainListener } from "@core/implementations/api";
 import {
   AccountService,
@@ -42,15 +52,6 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities";
-import {
-  CryptoUtils,
-  ICryptoUtils,
-  ICryptoUtilsType,
-  ILogUtils,
-  ILogUtilsType,
-  LogUtils,
-} from "@snickerdoodlelabs/common-utils";
-import { ContainerModule, interfaces } from "inversify";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (

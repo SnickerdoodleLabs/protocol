@@ -1,12 +1,3 @@
-import { ILoginRegistryRepository } from "@core/interfaces/data";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-} from "@core/interfaces/utilities";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory";
 import { ICrumbsContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   LanguageCode,
@@ -21,6 +12,16 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { ILoginRegistryRepository } from "@core/interfaces/data";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@core/interfaces/utilities";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory";
 
 @injectable()
 export class LoginRegistryRepository implements ILoginRegistryRepository {

@@ -6,7 +6,7 @@ export class ChainInformation {
     public isDev: boolean,
     public providerUrls: ProviderUrl[],
     public averageBlockMiningTime: number,
-  ) { }
+  ) {}
 }
 
 export class ControlChainInformation extends ChainInformation {
