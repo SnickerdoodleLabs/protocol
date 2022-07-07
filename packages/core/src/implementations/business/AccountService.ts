@@ -5,6 +5,7 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import {
   AESEncryptedString,
+  AjaxError,
   BlockchainProviderError,
   ConsentContractError,
   DataWalletAddress,
@@ -76,6 +77,7 @@ export class AccountService implements IAccountService {
     | ConsentContractError
     | UnsupportedLanguageError
     | InvalidSignatureError
+    | AjaxError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -133,7 +135,10 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     EthereumAccount,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | AjaxError
   > {
     return ResultUtils.combine([
       this.dataWalletUtils.createDataWalletKey(),
@@ -143,10 +148,17 @@ export class AccountService implements IAccountService {
       return this.cryptoUtils
         .encryptString(dataWalletKey, encryptionKey)
         .andThen((encryptedDataWallet) => {
+          const dataWalletAddress = DataWalletAddress(
+            this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              dataWalletKey,
+            ),
+          );
           return this.loginRegistryRepo.addCrumb(
+            dataWalletAddress,
             accountAddress,
             encryptedDataWallet,
             languageCode,
+            dataWalletKey,
           );
         })
         .map(() => {
@@ -194,6 +206,7 @@ export class AccountService implements IAccountService {
     | UninitializedError
     | PersistenceError
     | ConsentContractError
+    | AjaxError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -230,9 +243,11 @@ export class AccountService implements IAccountService {
         })
         .andThen((encryptedDataWalletKey) => {
           return this.loginRegistryRepo.addCrumb(
+            context.dataWalletAddress!,
             accountAddress,
             encryptedDataWalletKey,
             languageCode,
+            context.dataWalletKey!,
           );
         })
         .andThen(() => {

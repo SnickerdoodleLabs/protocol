@@ -8,7 +8,8 @@ import {
   IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { injectable, inject } from "inversify";
+import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { CoreConfig } from "@core/interfaces/objects";
@@ -42,12 +43,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       controlChainInformation,
       URLString("ipfs node address"),
       URLString("http://insight-platform"),
-      {
-        name: "Snickerdoodle Protocol",
-        version: "1",
-      } as TypedDataDomain,
-      5000, // polling interval
-      "covalent api key",
+      snickerdoodleSigningDomain,
     );
   }
 

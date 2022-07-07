@@ -21,6 +21,9 @@
       "path": "packages/persistence"
     },
     {
+      "path": "packages/signatureVerification"
+    },
+    {
       "path": "packages/test-harness"
     },
     {

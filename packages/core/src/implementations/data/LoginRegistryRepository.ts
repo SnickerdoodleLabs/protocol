@@ -1,3 +1,9 @@
+import {
+  IAjaxUtilsType,
+  IAxiosAjaxUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import { ICrumbsContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   LanguageCode,
@@ -9,15 +15,20 @@ import {
   CrumbsContractError,
   EncryptedString,
   InitializationVector,
-  ConsentContractError,
+  EVMPrivateKey,
+  AjaxError,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
+import { addCrumbTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { urlJoin } from "url-join-ts";
 
 import { ILoginRegistryRepository } from "@core/interfaces/data";
 import {
   IConfigProvider,
   IConfigProviderType,
+  IContextProviderType,
 } from "@core/interfaces/utilities";
 import {
   IContractFactory,
@@ -34,6 +45,8 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
   public constructor(
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
+    @inject(IAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
@@ -95,49 +108,47 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
    * @returns
    */
   public addCrumb(
+    dataWalletAddress: DataWalletAddress,
     accountAddress: EVMAccountAddress,
     encryptedDataWalletKey: AESEncryptedString,
     languageCode: LanguageCode,
-  ): ResultAsync<
-    TokenId,
-    BlockchainProviderError | UninitializedError | ConsentContractError
-  > {
-    // First, get the existing crumb
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<TokenId, AjaxError> {
+    // We don't even need to check the existing crumb. We're going to make a request to the insight platform
+    // to add a crumb for us. What we need to do is generate a request and sign it.
+    return this.configProvider.getConfig().andThen((config) => {
+      const value = {
+        accountAddress: accountAddress,
+        data: encryptedDataWalletKey.data,
+        initializationVector: encryptedDataWalletKey.initializationVector,
+        languageCode: languageCode,
+      } as Record<string, unknown>;
 
-    return errAsync(new UninitializedError());
-    /*
-    return this.getCrumbsContract()
-      .andThen((contract) => {
-        return contract.getCrumb(accountAddress);
-      })
-      .andThen((tokenUri) => {
-        // If there is no tokenUri, we are the first; if there is one, we need to add the new language code to it
-        if (tokenUri == null) {
-          // No existing crumb at all
-          // Create the crumb content
-          const crumbContent = JSON.stringify({
-            [languageCode]: {
-              d: encryptedDataWalletKey.data,
-              iv: encryptedDataWalletKey.initializationVector,
-            },
-          } as CrumbContent);
+      return this.cryptoUtils
+        .signTypedData(
+          config.snickerdoodleProtocolDomain,
+          addCrumbTypes,
+          value,
+          dataWalletKey,
+        )
+        .andThen((signature) => {
+          const url = new URL(
+            urlJoin(
+              config.defaultInsightPlatformBaseUrl,
+              "crumb",
+              encodeURIComponent(accountAddress),
+            ),
+          );
 
-          // TODO
-          // Send the crumb to the Insight Platform to be created
-          return okAsync(TokenId(BigInt(0)));
-        }
-
-        // There is an existing crumb, update it
-        const content = JSON.parse(tokenUri) as CrumbContent;
-        content[languageCode] = {
-          d: encryptedDataWalletKey.data,
-          iv: encryptedDataWalletKey.initializationVector,
-        };
-
-        // TODO: Send the crumb to the insight platform to be created
-        return okAsync(TokenId(BigInt(0)));
-      });
-      */
+          return this.ajaxUtils.post<TokenId>(url, {
+            dataWallet: dataWalletAddress,
+            data: encryptedDataWalletKey.data,
+            initializationVector: encryptedDataWalletKey.initializationVector,
+            languageCode: languageCode,
+            signature: signature,
+          });
+        });
+    });
   }
 
   protected getCrumbsContract(): ResultAsync<
