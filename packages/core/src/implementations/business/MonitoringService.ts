@@ -16,7 +16,6 @@ import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { CoreConfig } from "@browser-extension/interfaces/objects";
 import { IMonitoringService } from "@core/interfaces/business";
 import {
   IContextProvider,
@@ -31,6 +30,7 @@ const AVALANCHE_CHAIN_ID: ChainId = 43114;
 @injectable()
 export class MonitoringService implements IMonitoringService {
   public constructor(
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
@@ -60,12 +60,12 @@ export class MonitoringService implements IMonitoringService {
         })
         .andThen((tipTransactions) => {
           return tipTransactions.map((tx) => {
-            if (tx.chainId == ETHEREUM_CHAIN_ID) {
+            if (tx.chainId == config.ethChainId) {
               return okAsync(
                 ethRepo.getEVMTransactions(accountAddresses, tx.timestamp),
               );
             }
-            if (tx.chainId == AVALANCHE_CHAIN_ID) {
+            if (tx.chainId == config.avaxChainId) {
               return okAsync(
                 avalancheRepo.getEVMTransactions(
                   accountAddresses,

@@ -1,6 +1,7 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IDataWalletPersistenceType,
@@ -15,15 +16,17 @@ import {
   UnixTimestamp,
   BigNumberString,
   IAvalancheEVMTransactionRepository,
+  EVMEvent,
 } from "@snickerdoodlelabs/objects";
-import { EVMEvent } from "@snickerdoodlelabs/objects/src/businessObjects/EVMEvent";
 import { inject, injectable } from "inversify";
 import { err, okAsync, ResultAsync } from "neverthrow";
+
+import { IIndexerConfig } from "./IIndexerConfig";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "./IIndexerConfigProvider";
+} from "@indexers/IIndexerConfigProvider";
 
 interface ICovalentEthereumTransactionResponse {
   data: {
@@ -102,11 +105,11 @@ export class CovalentEthereumEVMTransactionRepository
     IAvalancheEVMTransactionRepository
 {
   public constructor(
-    @inject(IIndexerConfigProviderType)
-    protected configProvider: IIndexerConfigProvider,
+    protected config: IIndexerConfig,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    protected chainId: ChainId,
   ) {}
 
   public getEVMTransactions(
@@ -179,40 +182,38 @@ export class CovalentEthereumEVMTransactionRepository
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
-  ): ResultAsync<any, never> {
-    return this.configProvider.getConfig().map((config) => {
-      let primer: string = JSON.stringify({
+  ): ResultAsync<IRequestConfig, never> {
+    let primer: string = JSON.stringify({
+      block_signed_at: {
+        $gt: startTime.toString(),
+      },
+    });
+
+    if (endTime !== undefined) {
+      primer = JSON.stringify({
         block_signed_at: {
-          $gt: startTime.toString(),
+          $and: [
+            {
+              block_signed_at: {
+                $gt: startTime.toString(),
+              },
+            },
+            {
+              block_signed_at: {
+                $lte: endTime.toString(),
+              },
+            },
+          ],
         },
       });
+    }
 
-      if (endTime !== undefined) {
-        primer = JSON.stringify({
-          block_signed_at: {
-            $and: [
-              {
-                block_signed_at: {
-                  $gt: startTime.toString(),
-                },
-              },
-              {
-                block_signed_at: {
-                  $lte: endTime.toString(),
-                },
-              },
-            ],
-          },
-        });
-      }
+    const result: IRequestConfig = {
+      method: "get",
+      url: `https://api.covalenthq.com/v1/${this.chainId}/address/${accountAddress}/transactions_v2/?key=${this.config.apiKey}&match=${primer}`,
+      headers: {},
+    };
 
-      const result = {
-        method: "get",
-        url: `https://api.covalenthq.com/v1/${config.chainId}/address/${accountAddress}/transactions_v2/?key=${config.apiKey}&match=${primer}`,
-        headers: {},
-      };
-
-      return result;
-    });
+    return result;
   }
 }
