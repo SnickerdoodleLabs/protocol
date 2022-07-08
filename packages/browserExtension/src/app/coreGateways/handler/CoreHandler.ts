@@ -11,7 +11,7 @@ export default class CoreHandler {
         this.rpcEngine.handle(requestObject, async (error, result) => {
           if (error) {
             // @ts-ignore - no type support provided
-            return reject(error?.data?.originlError ?? new Error());
+            return reject(error ?? new Error());
           }
           // @ts-ignore - no type support provided
           return resolve(result.result);

@@ -48,11 +48,11 @@ const Popup = () => {
     // create gateway
     const rpcGateway = new InternalCoreGateway(rpcEngine);
     // test gateway
-    rpcGateway.login(
-      "" as EVMAccountAddress,
-      "" as Signature,
-      "" as LanguageCode,
-    );
+    // rpcGateway.login(
+    //   "" as EVMAccountAddress,
+    //   "" as Signature,
+    //   "" as LanguageCode,
+    // );
     // use to get updates
     streamMiddleware.events.on(PORT_NOTIFICATION, (not) =>
       setMessage(not.data),

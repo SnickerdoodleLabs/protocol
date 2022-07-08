@@ -8,7 +8,11 @@ import {
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
-import { IAddAccountParams } from "@shared/objects/EventParams";
+import {
+  IAddAccountParams,
+  IGetUnlockMessageParams,
+  IUnlockParams,
+} from "@shared/objects/EventParams";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;
@@ -29,5 +33,23 @@ export class ExternalCoreGateway {
       signature,
       languageCode,
     } as IAddAccountParams);
+  }
+  public unlock(
+    accountAddress: EVMAccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+  ) {
+    return this._handler.call(EExternalActions.UNLOCK, {
+      accountAddress,
+      signature,
+      languageCode,
+    } as IUnlockParams);
+  }
+  public getUnlockMessage(
+    languageCode: LanguageCode,
+  ): ResultAsync<string, unknown> {
+    return this._handler.call(EExternalActions.GET_UNLOCK_MESSAGE, {
+      languageCode,
+    } as IGetUnlockMessageParams);
   }
 }

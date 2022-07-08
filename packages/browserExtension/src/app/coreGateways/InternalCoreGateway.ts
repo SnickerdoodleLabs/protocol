@@ -2,8 +2,8 @@ import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 import {
   IAddAccountParams,
-  IGetLoginMessageParams,
-  ILoginParams,
+  IUnlockParams,
+  IGetUnlockMessageParams,
 } from "@shared/objects/EventParams";
 import { EInternalActions } from "@shared/constants/actions";
 import {
@@ -25,16 +25,16 @@ export class InternalCoreGateway {
     return this._handler.call(EInternalActions.GET_STATE);
   }
 
-  public login(
+  public unlock(
     accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ) {
-    return this._handler.call(EInternalActions.LOGIN, {
+    return this._handler.call(EInternalActions.UNLOCK, {
       accountAddress,
       signature,
       languageCode,
-    } as ILoginParams);
+    } as IUnlockParams);
   }
 
   public addAccount(
@@ -49,9 +49,11 @@ export class InternalCoreGateway {
     } as IAddAccountParams);
   }
 
-  public getLoginMessage(languageCode: LanguageCode) {
-    return this._handler.call(EInternalActions.GET_LOGIN_MESSAGE, {
+  public getUnlockMessage(
+    languageCode: LanguageCode,
+  ): ResultAsync<string, unknown> {
+    return this._handler.call(EInternalActions.GET_UNLOCK_MESSAGE, {
       languageCode,
-    } as IGetLoginMessageParams);
+    } as IGetUnlockMessageParams);
   }
 }

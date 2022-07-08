@@ -1,36 +1,58 @@
 import { IClientEventListener } from "@interfaces/api/IClientEventListener";
-import { IAddAccount, IGetLoginMessage, ILogin } from "@interfaces/objects";
+import { IAccountService } from "@interfaces/business";
+import { IAddAccount, IGetUnlockMessage, IUnlock } from "@interfaces/objects";
 import { IContextProvider } from "@interfaces/utilities";
-import { ok, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 export class ClientEventsListener implements IClientEventListener {
-  constructor(protected contextProvider: IContextProvider) {}
+  constructor(
+    protected contextProvider: IContextProvider,
+    protected accountService: IAccountService,
+  ) {}
 
   public initialize(): ResultAsync<void, never> {
     const clientEvents = this.contextProvider.getClientEvents();
-    clientEvents.onLoginRequest.subscribe(this.onLoginRequest.bind(this));
+    clientEvents.onUnlockRequest.subscribe(this.onUnlockRequest.bind(this));
     clientEvents.onAddAccountRequest.subscribe(
       this.onAddAccountRequest.bind(this),
     );
-    clientEvents.onLoginMessageRequest.subscribe(
-      this.onLoginMessageRequest.bind(this),
+    clientEvents.onUnlockMessageRequest.subscribe(
+      this.onUnlockMessageRequest.bind(this),
     );
 
     return okAsync(undefined);
   }
 
   private onAddAccountRequest(args: IAddAccount) {
-    console.log("requested with params", args.params);
-    args.resolvers.resolveResult("fake result");
+    const {
+      params: { accountAddress, signature, languageCode },
+      resolvers: { resolveError, resolveResult },
+    } = args;
+    this.accountService
+      .addAccount(accountAddress, signature, languageCode)
+      .mapErr((e) => resolveError(e))
+      .map(() => resolveResult());
   }
 
-  private onLoginRequest(args: ILogin) {
-    console.log("requested with params", args.params);
-    args.resolvers.resolveResult("fake result");
+  private onUnlockRequest(args: IUnlock) {
+    const {
+      params: { accountAddress, signature, languageCode },
+      resolvers: { resolveError, resolveResult },
+    } = args;
+    this.accountService
+      .addAccount(accountAddress, signature, languageCode)
+      .mapErr((e) => resolveError(e))
+      .map(() => resolveResult());
   }
 
-  private onLoginMessageRequest(args: IGetLoginMessage) {
-    console.log("requested with params", args.params);
-    args.resolvers.resolveResult("fake result");
+  private onUnlockMessageRequest(args: IGetUnlockMessage) {
+    const {
+      params: { languageCode },
+      resolvers: { resolveError, resolveResult },
+    } = args;
+    this.accountService
+      .getUnlockMessage(languageCode)
+      .mapErr((e) => resolveError(e))
+      .map((message) => resolveResult(message));
   }
 }

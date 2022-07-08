@@ -15,12 +15,21 @@ import {
 } from "@implementations/utilities/factory";
 
 // Business
-import { PortConnectionService } from "@implementations/business";
-import { IPortConnectionService } from "@interfaces/business";
+import {
+  PortConnectionService,
+  AccountService,
+} from "@implementations/business";
+import { IAccountService, IPortConnectionService } from "@interfaces/business";
 
 // Repository
-import { PortConnectionRepository } from "@implementations/data";
-import { IPortConnectionRepository } from "@interfaces/data";
+import {
+  PortConnectionRepository,
+  AccountRepository,
+} from "@implementations/data";
+import {
+  IAccountRepository,
+  IPortConnectionRepository,
+} from "@interfaces/data";
 
 // API
 import {
@@ -46,9 +55,11 @@ export class ExtensionCore {
   protected core: ISnickerdoodleCore;
 
   // Business
+  protected accountService: IAccountService;
   protected portConnectionService: IPortConnectionService;
 
   // Data
+  protected accountRepository: IAccountRepository;
   protected portConnectionRepository: IPortConnectionRepository;
 
   // Utils
@@ -84,8 +95,9 @@ export class ExtensionCore {
       this.internalRpcMiddlewareFactory,
       this.externalRpcMiddlewareFactory,
     );
-    this.clientEventListener = new ClientEventsListener(this.contextProvider);
-    this.clientEventListener.initialize();
+
+    this.accountRepository = new AccountRepository(this.core);
+    this.accountService = new AccountService(this.accountRepository);
 
     this.portConnectionRepository = new PortConnectionRepository(
       this.contextProvider,
@@ -95,6 +107,11 @@ export class ExtensionCore {
     this.portConnectionService = new PortConnectionService(
       this.portConnectionRepository,
     );
+    this.clientEventListener = new ClientEventsListener(
+      this.contextProvider,
+      this.accountService,
+    );
+    this.clientEventListener.initialize();
 
     this.portConnectionListener = new PortConnectionListener(
       this.portConnectionService,

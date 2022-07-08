@@ -39,6 +39,12 @@ export class ExternalRpcMiddlewareFactory
         case EExternalActions.ADD_ACCOUNT:
           await this.promisify(req, res, clientEvents.onAddAccountRequest);
           break;
+        case EExternalActions.GET_UNLOCK_MESSAGE:
+          await this.promisify(req, res, clientEvents.onUnlockMessageRequest);
+          break;
+        case EExternalActions.UNLOCK:
+          await this.promisify(req, res, clientEvents.onUnlockRequest);
+          break;
         default:
           await next();
       }

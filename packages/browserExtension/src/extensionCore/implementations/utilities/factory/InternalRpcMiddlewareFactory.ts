@@ -38,11 +38,11 @@ export class InternalRpcMiddlewareFactory
         case EInternalActions.GET_STATE:
           res.result = this.contextProvider.getInternalState();
           break;
-        case EInternalActions.LOGIN:
-          await this.promisify(req, res, clientEvents.onLoginRequest);
+        case EInternalActions.UNLOCK:
+          await this.promisify(req, res, clientEvents.onUnlockRequest);
           break;
-        case EInternalActions.GET_LOGIN_MESSAGE:
-          await this.promisify(req, res, clientEvents.onLoginMessageRequest);
+        case EInternalActions.GET_UNLOCK_MESSAGE:
+          await this.promisify(req, res, clientEvents.onUnlockMessageRequest);
           break;
         case EInternalActions.ADD_ACCOUNT:
           await this.promisify(req, res, clientEvents.onAddAccountRequest);

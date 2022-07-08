@@ -4,7 +4,7 @@ import {
   Signature,
 } from "@snickerdoodlelabs/objects";
 
-export interface ILoginParams {
+export interface IUnlockParams {
   accountAddress: EVMAccountAddress;
   signature: Signature;
   languageCode: LanguageCode;
@@ -16,6 +16,6 @@ export interface IAddAccountParams {
   languageCode: LanguageCode;
 }
 
-export interface IGetLoginMessageParams {
+export interface IGetUnlockMessageParams {
   languageCode: LanguageCode;
 }
