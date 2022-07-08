@@ -6,6 +6,7 @@ const errorCodes = {
   ConsentContractError: "CONSENT_CONTRACT_ERROR",
   ConsentError: "ERR_NO_CONSENT_GIVEN",
   ConsentFactoryContractError: "CONSENT_FACTORY_CONTRACT_ERROR",
+  CrumbsContractError: "CRUMBS_CONTRACT_ERROR",
   DatabaseError: "ERR_DATABASE",
   DataWalletLockedError: "ERR_DATA_WALLET_LOCKED",
   InvalidParametersError: "INVALID_PARAMETERS_ERROR",

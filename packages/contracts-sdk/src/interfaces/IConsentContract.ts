@@ -98,10 +98,10 @@ export interface IConsentContract {
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
-  filters: IConentContractFilters;
+  filters: IConsentContractFilters;
 }
 
-interface IConentContractFilters {
+interface IConsentContractFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,

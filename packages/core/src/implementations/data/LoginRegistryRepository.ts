@@ -6,7 +6,7 @@ import {
   EVMAccountAddress,
   AESEncryptedString,
   UninitializedError,
-  ConsentContractError,
+  CrumbsContractError,
   EncryptedString,
   InitializationVector,
 } from "@snickerdoodlelabs/objects";
@@ -41,13 +41,26 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
     languageCode: LanguageCode,
   ): ResultAsync<
     AESEncryptedString | null,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    BlockchainProviderError | UninitializedError | CrumbsContractError
   > {
     return this.getCrumbsContract()
       .andThen((contract) => {
-        return contract.getCrumb(accountAddress);
+        // Retrieve the crumb id or token id mapped to the address
+        // returns 0 if non existent
+        return contract.addressToCrumbId(accountAddress), contract;
       })
-      .map((tokenUri) => {
+      .andThen((tokenId, contract) => {
+        // Retrieve the token id's token uri and return it
+        // Query reverts with 'ERC721Metadata: URI query for nonexistent token' error if token does not exist
+        return contract.tokenURI(tokenId);
+      })
+      .map((rawTokenUri) => {
+        // Token uri will be prefixed with the base uri
+        // currently it is www.crumbs.com/ on the deployment scripts
+        // alternatively we can also fetch the latest base uri directly from the contract
+
+        let tokenUri = rawTokenUri.replace("www.crumbs.com/", "");
+
         // If there is no crumb, there's no data
         if (tokenUri == null) {
           return null;
@@ -63,7 +76,7 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
           return null;
         }
 
-        // We have a crumb for this langauge code (the key derived from the signature will be able to decrypt this)
+        // We have a crumb for this language code (the key derived from the signature will be able to decrypt this)
         return new AESEncryptedString(languageCrumb.d, languageCrumb.iv);
       });
   }
@@ -82,7 +95,7 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
     languageCode: LanguageCode,
   ): ResultAsync<
     TokenId,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    BlockchainProviderError | UninitializedError | CrumbsContractError
   > {
     // First, get the existing crumb
     return this.getCrumbsContract()
