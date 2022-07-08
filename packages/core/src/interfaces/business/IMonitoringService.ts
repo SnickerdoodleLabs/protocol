@@ -1,4 +1,10 @@
-import { SiteVisit, EVMTransaction } from "@snickerdoodlelabs/objects";
+import {
+  SiteVisit,
+  EVMTransaction,
+  PersistenceError,
+  AccountIndexingError,
+  AjaxError,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 /**
@@ -7,7 +13,10 @@ import { ResultAsync } from "neverthrow";
  * externally via the form factor, such as SiteVisits.
  */
 export interface IMonitoringService {
-  transactionDetected(transaction: EVMTransaction): ResultAsync<void, never>;
+  pollTransactions(): ResultAsync<
+    void,
+    PersistenceError | AccountIndexingError | AjaxError
+  >;
   siteVisited(siteVisit: SiteVisit): ResultAsync<void, never>;
 }
 

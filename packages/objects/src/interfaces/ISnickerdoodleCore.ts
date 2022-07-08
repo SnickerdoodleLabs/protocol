@@ -14,6 +14,7 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  CrumbsContractError,
   InvalidSignatureError,
   IPFSError,
   PersistenceError,
@@ -64,13 +65,14 @@ export interface ISnickerdoodleCore {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
+    | UnsupportedLanguageError
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | UnsupportedLanguageError
     | PersistenceError
     | InvalidSignatureError
     | AjaxError
+    | CrumbsContractError
   >;
 
   /**
@@ -90,10 +92,10 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<
     void,
     | BlockchainProviderError
-    | PersistenceError
     | UninitializedError
-    | ConsentContractError
+    | PersistenceError
     | AjaxError
+    | CrumbsContractError
   >;
 
   /**

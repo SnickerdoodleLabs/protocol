@@ -6,6 +6,7 @@ import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
+  CrumbsContractError,
   EVMAccountAddress,
   EVMPrivateKey,
   IConfigOverrides,
@@ -180,13 +181,14 @@ function unlockCore(
   privateKey: EVMPrivateKey,
 ): ResultAsync<
   void,
+  | PersistenceError
   | UnsupportedLanguageError
   | BlockchainProviderError
   | UninitializedError
   | ConsentContractError
-  | PersistenceError
   | InvalidSignatureError
   | AjaxError
+  | CrumbsContractError
 > {
   // Need to get the unlock message first
   return core
@@ -208,13 +210,14 @@ function addAccount(
   privateKey: EVMPrivateKey,
 ): ResultAsync<
   void,
+  | PersistenceError
   | UnsupportedLanguageError
   | BlockchainProviderError
   | UninitializedError
   | ConsentContractError
-  | PersistenceError
   | InvalidSignatureError
   | AjaxError
+  | CrumbsContractError
 > {
   // Need to get the unlock message first
   return core

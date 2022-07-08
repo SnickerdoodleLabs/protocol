@@ -1,7 +1,7 @@
 import {
   AxiosAjaxUtils,
   CryptoUtils,
-  IAjaxUtilsType,
+  IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
   ICryptoUtils,
   ICryptoUtilsType,
@@ -108,7 +108,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
-    bind<IAxiosAjaxUtils>(IAjaxUtilsType).to(AxiosAjaxUtils).inSingletonScope();
+    bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType).to(AxiosAjaxUtils).inSingletonScope();
 
     // Utilites/factor
     bind<IContractFactory>(IContractFactoryType)

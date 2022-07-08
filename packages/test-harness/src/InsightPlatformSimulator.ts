@@ -107,7 +107,13 @@ export class InsightPlatformSimulator {
           console.log("Verified signature!");
 
           // Add the crumb to the contract
-          return this.crumbsContract.getCrumb(accountAddress);
+          return this.crumbsContract.addressToCrumbId(accountAddress);
+        })
+        .andThen((tokenId) => {
+          if (tokenId == null) {
+            return errAsync(new Error(`tokenId is null`));
+          }
+          return this.crumbsContract.tokenURI(tokenId);
         })
         .andThen((tokenUri) => {
           console.log("Got token uri from crumb", tokenUri);

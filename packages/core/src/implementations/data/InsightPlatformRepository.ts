@@ -1,5 +1,5 @@
 import {
-  IAjaxUtilsType,
+  IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
@@ -28,7 +28,7 @@ import {
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
-    @inject(IAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IConfigProviderType) public configProvider: IConfigProvider,
   ) {}
 

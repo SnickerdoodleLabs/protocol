@@ -8,6 +8,7 @@ import {
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
+  CrumbsContractError,
   DataWalletAddress,
   EVMAccountAddress,
   EVMPrivateKey,
@@ -72,13 +73,14 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    | PersistenceError
     | BlockchainProviderError
     | UninitializedError
-    | ConsentContractError
+    | CrumbsContractError
+    | PersistenceError
     | UnsupportedLanguageError
     | InvalidSignatureError
     | AjaxError
+    | ConsentContractError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -206,7 +208,7 @@ export class AccountService implements IAccountService {
     | BlockchainProviderError
     | UninitializedError
     | PersistenceError
-    | ConsentContractError
+    | CrumbsContractError
     | AjaxError
   > {
     return ResultUtils.combine([

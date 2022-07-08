@@ -1,5 +1,6 @@
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { IIndexerConfigProvider } from "@snickerdoodlelabs/indexers";
 import {
   chainConfig,
   ChainId,
@@ -15,7 +16,7 @@ import { CoreConfig } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
 
 @injectable()
-export class ConfigProvider implements IConfigProvider {
+export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
   protected config: CoreConfig;
 
   public constructor(@inject(ILogUtilsType) protected logUtils: ILogUtils) {
@@ -36,12 +37,15 @@ export class ConfigProvider implements IConfigProvider {
 
     this.config = new CoreConfig(
       controlChainId,
+      [], //TODO: supported chains
       URLString(""),
       chainConfig,
       controlChainInformation,
       URLString("ipfs node address"),
       URLString("http://insight-platform"),
       snickerdoodleSigningDomain,
+      5000, // polling interval
+      "covalent api key",
     );
   }
 
