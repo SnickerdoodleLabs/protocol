@@ -23,18 +23,19 @@ import { Container } from "inversify";
 import { IConfigProvider } from "@browser-extension/interfaces/utilities";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import { IConfigOverrides } from "@snickerdoodlelabs/objects";
-import { IAccountService } from "@browser-extension/interfaces/business";
-import { ProfileService } from "../business/ProfileService";
-import { AccountService } from "../business";
-import { IAccountServiceType } from "@browser-extension/interfaces/business";
 import { IConfigProviderType } from "@browser-extension/interfaces/utilities";
-import { IProfileService } from "@browser-extension/interfaces/business";
-import { IProfileServiceType } from "@browser-extension/interfaces/business";
+import {
+  IProfileService,
+  IProfileServiceType,
+} from "@core/interfaces/business";
+
+
 import { IAccountIndexingType } from "@snickerdoodlelabs/objects";
 import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
 import { IAccountIndexing } from "@snickerdoodlelabs/objects";
 import { IDataWalletPersistenceType } from "@snickerdoodlelabs/objects";
-
+import { BlockNumber } from "@snickerdoodlelabs/objects";
+import { AccountIndexingError } from "@snickerdoodlelabs/objects";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -62,6 +63,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   protected profileService: IProfileService;
 
   /* Obsolete - used in local storage*/
+  
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
   ): ResultAsync<T, PersistenceError> {
@@ -73,6 +75,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     }
     return okAsync(value as T);
   }
+  
 
 
   public constructor(
@@ -268,6 +271,29 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
+
+  getLatestTransactionForAccount(
+    chainId: ChainId,
+    address: EVMAccountAddress,
+  ): ResultAsync<EVMTransaction | null, PersistenceError>{
+    throw new Error("Method not implemented.");
+  }
+
+  addEVMTransactions(
+    transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError>{
+    throw new Error("Method not implemented.");
+
+  }
+
+  getEVMTransactions(
+    accountAddress: EVMAccountAddress,
+    firstBlock: BlockNumber,
+    lastBlock?: BlockNumber | undefined,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError>{
+    throw new Error("Method not implemented.");
+
+  }
 
 
 

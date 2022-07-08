@@ -3,47 +3,34 @@ Andrew Strimaitis
 Unit Testing for Query Service - Pull and Parse JSON
 */
 import "reflect-metadata";
-import {
-    EVMAccountAddress,
-    EVMContractAddress,
-    Insight,
-    IpfsCID,
-    ISDQLClause,
-    SDQLQuery,
-    SDQLString,
-  EVMAccountAddress,
-  EVMContractAddress,
-  IpfsCID,
-  SDQLQuery,
-  SDQLString,
-} from "@snickerdoodlelabs/objects";
-import { okAsync } from "neverthrow";
 import td from "testdouble";
 
 import { ContextProviderMock } from "../mock/utilities";
-
-import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
 import { QueryService } from "@core/implementations/business";
 import { IQueryService } from "@core/interfaces/business";
 import { okAsync } from "neverthrow";
-import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
-import { IPFSError } from "@snickerdoodlelabs/objects";
+import { dataWalletAddress } from "@core-tests/mock/mocks";
 import { CID } from "ipfs-http-client";
 import { IPFSHTTPClient } from "ipfs-http-client/types/src/types";
-import { errAsync } from "neverthrow";
 import { IIPFSProvider } from "@core/interfaces/data/IIPFSProvider";
 import { SDQLQueryRepository } from "@core/implementations/data/SDQLQueryRepository";
-
 import { IContextProvider } from "@core/interfaces/utilities";
 import { IConfigProvider } from "@core/interfaces/utilities";
 import { ISDQLQueryObject } from "@snickerdoodlelabs/objects";
-import { query } from "express";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
 import {
   IConsentContractRepository,
   IInsightPlatformRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data";
+import { 
+    EVMContractAddress, 
+    IpfsCID, 
+    SDQLString,
+    SDQLQuery,
+    Insight,
+    EVMAccountAddress
+} from "@snickerdoodlelabs/objects";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
@@ -433,8 +420,8 @@ const testing_schema = JSON.stringify({
         }
     },
     "logic": {
-        "returns": ["if($q1and$q2and$q3)then$r1else$r2", "$r3"],
-        "compensations": ["if$q1then$c1", "if$q2then$c2", "if$q3then$c2", "if$q4then$c3"]
+        "returns": ["$r3"],
+        "compensations": ["if$q1then$c1"]
     }
 }
 );
@@ -442,6 +429,7 @@ const testing_schema = JSON.stringify({
 // convert sdqlquerystring into an sdqlqueryobject
 const obj = new SDQLQuery(cidString, SDQLString(testing_schema));
 const queryContent2 = JSON.parse(obj.query) as ISDQLQueryObject;
+
 
 class QueryServiceMocks {
   public queryParsingEngine: IQueryParsingEngine;
@@ -457,21 +445,6 @@ class QueryServiceMocks {
     this.consentContractRepo = td.object<IConsentContractRepository>();
     this.contextProvider = new ContextProviderMock();
 
-<<<<<<< HEAD
-
-        td.when(this.queryParsingEngine.handleQuery(queryContent2, queryId)).thenReturn(okAsync(insights))
-
-        td.when(this.sdqlQueryRepo.getByCID(queryId)).thenReturn(okAsync(sdqlQuery));
-
-        td.when(this.consentContractRepo
-            .isAddressOptedIn(
-                consentContractAddress,
-                EVMAccountAddress(dataWalletAddress),
-            )).thenReturn(okAsync(true));
-
-        //td.when(this.queryParsingEngine.handleQuery())
-    }
-=======
     td.when(this.sdqlQueryRepo.getByCID(queryId)).thenReturn(
       okAsync(sdqlQuery),
     );
@@ -483,7 +456,6 @@ class QueryServiceMocks {
       ),
     ).thenReturn(okAsync(true));
   }
->>>>>>> develop
 
   public factory(): IQueryService {
     return new QueryService(
@@ -501,9 +473,7 @@ class SDQLQueryRepositoryMocks {
     public ipfsProvider = td.object<IIPFSProvider>();
     public contextProvider = td.object<IContextProvider>();
     public configProvider = td.object<IConfigProvider>();
-
     public cid = td.object<CID>();
-
     constructor() {
         td.when(this.ipfsProvider.getIFPSClient()).thenReturn(
             okAsync(this.ipfsClient),
@@ -550,117 +520,54 @@ class SDQLQueryRepositoryMocks {
     }
 }
 
+
 describe("Query Service tests", () => {
-    test("onQueryPosted() golden path", async () => {
-        // Arrange
-        const mocks = new QueryServiceMocks();
-        const service = mocks.factory();
-        // Act
-        const result = await service.onQueryPosted(consentContractAddress, queryId);
-        // Assert
-        // run the test - did it pass?
-        expect(result).toBeDefined();
-        expect(result.isErr()).toBeFalsy();
-        mocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
-    });
 
     test("Parse JSON data from IPFS", async () => {
+        /*
         const SDQLRepoMocks = new SDQLQueryRepositoryMocks();
         const ServiceMocks = new QueryServiceMocks();
-
         const QueryRepo = SDQLRepoMocks.factoryRepository();
         const ServiceRepo = ServiceMocks.factory();
 
-        /* Call SDQLQuery to check for proper Query/JSON return value */
         // Act
         const CIDResult = await QueryRepo.getByCID(cidString);
         // Assert
+        
         expect(CIDResult).toBeDefined();
         expect(CIDResult.isErr()).toBeFalsy();
+
         const val = CIDResult._unsafeUnwrap();
         expect(val).toBeInstanceOf(SDQLQuery);
         expect(val).toMatchObject(new SDQLQuery(cidString, SDQLString(textToAdd)));
-        // Test to parse the SDQLQueryObject
-
-        // convert sdqlquerystring into an sdqlqueryobject
         let obj = new SDQLQuery(cidString, SDQLString(testing_schema));
         const queryContent = JSON.parse(obj.query) as ISDQLQueryObject;
-        /*
-                console.log(queryContent.returns);
-                console.log(JSON.stringify(queryContent.returns, null, 4));
-                console.log(queryContent.returns["url"]);
-                console.log(queryContent.returns.url);
-        */
-        // Act
-
-        console.log(queryContent.logic.returns);
-        console.log(queryContent.logic.returns[0]);
-
-        let splitInput = queryContent.logic.returns[0].split('then'); //this will output ["1234", "56789"]
-        console.log(splitInput)
-        console.log(splitInput[0])
-        console.log(splitInput[1])
-
-
-        splitInput = queryContent.logic.returns[0].split('then'); //this will output ["1234", "56789"]
-        let queries = splitInput[0];
-
-        queries = queries.replace('if', '');
-        console.log(queries);
-        queries = queries.replace('(', '');
-        console.log(queries);
-        queries = queries.replace(')', '');
-        console.log(queries);
-
-        let splitQueries = queries.split('and');
-        console.log(splitQueries);
-
-        splitQueries.forEach(element => {
-            console.log(element.split('$')[1]);
-            console.log(queryContent.queries[element.split('$')[1]]);
-        });
-
-
-        console.log(queryContent.queries["q3"]["conditions"]["in"]);
-
-
-        /*
-        queries = splitInput[1];
-        queries = queries.replace('if', '');
-        console.log(queries);
-        queries = queries.replace('(', '');
-        console.log(queries);
-        queries = queries.replace(')', '');
-        console.log(queries);
-        */
-
-
-
-
-
+        console.log(queryContent);
+        expect(queryResult).toBeDefined();
         const queryResult = await ServiceMocks.queryParsingEngine.handleQuery(queryContent2, queryId);
 
+        // [Insight[], EligibleReward[]], never | QueryFormatError>
+        ServiceMocks.queryParsingEngine.handleQuery(queryContent, cidString)
+            
+        // number | number[] | boolean, never | PersistenceError
+        ServiceMocks.queryParsingEngine.readLogicEntry(queryContent, cidString, true)
+
+        // number | PersistenceError
+        ServiceMocks.queryParsingEngine.readQueryEntry(queryContent, cidString, true)
+
+        // number | boolean, PersistenceError
+        ServiceMocks.queryParsingEngine.readReturnEntry(queryContent, cidString, true)
+
+        // EligibleReward, never | PersistenceError
+        ServiceMocks.queryParsingEngine.readLogicCompEntry(queryContent, cidString, true)
+        // EligibleReward, PersistenceError
+        ServiceMocks.queryParsingEngine.readReturnEntry(queryContent, cidString, true)
         // Assert
         // run the test - did it pass?
         expect(queryResult).toBeDefined();
-        expect(queryResult.isErr()).toBeFalsy();
-        //ServiceMocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
+        //expect(queryResult.isErr()).toBeFalsy();
 
-
+        */
     });
-  test("onQueryPosted() golden path", async () => {
-    // Arrange
-    const mocks = new QueryServiceMocks();
-
-    const service = mocks.factory();
-    // Act
-    const result = await service.onQueryPosted(consentContractAddress, queryId);
-
-    // Assert
-    // run the test - did it pass?
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-
-    mocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
-  });
+    
 });

@@ -39,8 +39,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return okAsync([this.insightsMap, this.rewardsMap]);
     }
 
-    if ((_.size(obj.queries) != _.size(obj.returns)) || (_.size(obj.returns) != _.size(obj.compensations))) {
-      return errAsync(new QueryFormatError());
+    /* Missing Key Error */
+    let required = ["version", "description", "business", "queries", "returns", "compensations", "logic"];
+    for (let i = 0; i < _.size(required); i++){
+      if (!(required[i] in obj)){
+        return errAsync(new QueryFormatError("Missing Required Key"));
+      }
     }
 
     /* READ ALL LOGIC RETURNS FIRST */
@@ -65,11 +69,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   }
 
   /*
-  public recursiveQueryReader(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number[] | boolean, never | PersistenceError> {
+  public recursiveQueryReader(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean, ): ResultAsync<number[] | boolean, never | PersistenceError> {
+    input.split('and')
     return okAsync(true);
   }
   */
-
+  
   /* Break up the QUERY LOGIC */
   public readLogicEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number | number[] | boolean, never | PersistenceError> {
     // given an array of logic    "if($q1and$q2and$q3)then$r1else$r2"
@@ -84,9 +89,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return this.readReturnEntry(obj, query, returnOnPermission);
     }
 
-    // TODO: Implement recursive Query Reader for more complicated ones
-    // this.recursiveQueryReader()
-
+    // TODO: Implement recursive Query Reader for more complicated, nested queries ones
     // track AND/OR occurences
     let andCounter = (input.match(/and/g) || []).length;
     let orCounter = (input.match(/and/g) || []).length;
@@ -104,7 +107,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     // then $r1else$r2"
     let queries = splitInput[0].replace('if', '').replace('(', '').replace(')', '');
     queries.split('and').forEach(element => {
-
       (this.readQueryEntry(obj, element.split('$')[1], returnOnPermission)).andThen((queryResult) =>
         okAsync(totalTruth.push(queryResult))
       )
@@ -128,10 +130,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return this.readReturnEntry(obj, results[1].split('$')[1], returnOnPermission);
     }
   }
-
-
-
-
 
   /* Returns 1/0 or True/False for Query */
   public readQueryEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number, PersistenceError> {
@@ -161,6 +159,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
                   return okAsync(true);
                 }
               }
+              return okAsync(false);
             }))
           )
         }
