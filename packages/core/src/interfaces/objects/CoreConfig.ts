@@ -10,8 +10,7 @@ import {
 export class CoreConfig implements IIndexerConfig {
   public constructor(
     public controlChainId: ChainId,
-    public ethChainId: ChainId,
-    public avaxChainId: ChainId,
+    public supportedChains: ChainId[],
     public providerAddress: URLString,
     public chainInformation: Map<ChainId, ChainInformation>,
     public controlChainInformation: ControlChainInformation,

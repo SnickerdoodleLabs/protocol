@@ -1,3 +1,3 @@
 export interface IIndexerConfig {
-  covalentAPIKey: string;
+  covalentApiKey: string;
 }

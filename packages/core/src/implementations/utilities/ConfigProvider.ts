@@ -8,7 +8,7 @@ import {
   IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { CoreConfig } from "@core/interfaces/objects";
@@ -36,6 +36,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
 
     this.config = new CoreConfig(
       controlChainId,
+      [], //TODO: supported chains
       URLString(""),
       chainConfig,
       controlChainInformation,
@@ -45,6 +46,8 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
         name: "Snickerdoodle Protocol",
         version: "1",
       } as TypedDataDomain,
+      5000, // polling interval
+      "covalent api key",
     );
   }
 

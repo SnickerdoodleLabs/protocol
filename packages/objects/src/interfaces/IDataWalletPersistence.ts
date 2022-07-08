@@ -105,7 +105,7 @@ export interface IDataWalletPersistence {
   getLatestTransactionForAccount(
     chainId: ChainId,
     address: EVMAccountAddress,
-  ): ResultAsync<EVMAccountAddress, PersistenceError>;
+  ): ResultAsync<EVMTransaction | null, PersistenceError>;
   addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;

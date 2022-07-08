@@ -7,10 +7,14 @@ import {
   IDataWalletPersistenceType,
   EVMAccountAddress,
   ChainId,
-  IAvalancheEVMTransactionRepository,
-  IAvalancheEVMTransactionRepositoryType,
-  IEthereumTransactionRepository,
-  IEthereumTransactionRepositoryType,
+  IEVMTransactionRepository,
+  IEVMTransactionRepositoryType,
+  AccountIndexingError,
+  EVMTransaction,
+  EIndexer,
+  UnixTimestamp,
+  AjaxError,
+  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -24,13 +28,9 @@ import {
   IContextProviderType,
 } from "@core/interfaces/utilities";
 
-const ETHEREUM_CHAIN_ID: ChainId = 1;
-const AVALANCHE_CHAIN_ID: ChainId = 43114;
-
 @injectable()
 export class MonitoringService implements IMonitoringService {
   public constructor(
-    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
@@ -39,50 +39,82 @@ export class MonitoringService implements IMonitoringService {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  public pollTransactions(): ResultAsync<void, never> {
+  public pollTransactions(): ResultAsync<
+    void,
+    PersistenceError | AccountIndexingError | AjaxError
+  > {
     // Grab the linked accounts and the config
-    ResultUtils.combine([
+    return ResultUtils.combine([
       this.persistence.getAccounts(),
       this.configProvider.getConfig(),
-      this.accountIndexing.getEthereumEVMTransactionRepository(),
-      this.accountIndexing.getAvalancheEVMTransactionRepository(),
-    ]).andThen(([accountAddresses, config, ethRepo, avalancheRepo]) => {
-      // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
-      // config.chainInformation is the list of supported chains,
-      accountAddresses
-        .map((accountAddress) => {
-          Array.from(config.chainInformation.keys()).map((chainId) =>
-            this.persistence.getLatestTransactionForAccount(
-              chainId,
-              accountAddress,
-            ),
-          );
-        })
-        .andThen((tipTransactions) => {
-          return tipTransactions.map((tx) => {
-            if (tx.chainId == config.ethChainId) {
-              return ethRepo.getEVMTransactions(accountAddresses, tx.timestamp);
-            }
-            if (tx.chainId == config.avaxChainId) {
-              return avalancheRepo.getEVMTransactions(
-                accountAddresses,
-                tx.timestamp,
-              );
-            }
+    ])
+      .andThen(([accountAddresses, config]) => {
+        // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
+        // config.chainInformation is the list of supported chains,
+        return ResultUtils.combine(
+          accountAddresses.map((accountAddress) => {
+            return ResultUtils.combine(
+              config.supportedChains.map((chainId) => {
+                return this.persistence
+                  .getLatestTransactionForAccount(chainId, accountAddress)
+                  .andThen((tx) => {
+                    // TODO: Determine cold start timestamp
+                    let startTime = UnixTimestamp(0);
+                    if (tx != null && tx.timestamp != null) {
+                      startTime = tx.timestamp;
+                    }
 
-            this.logUtils.error(
-              `No available indexer repository for chain ${tx.chainId}`,
+                    return this.getLatestTransactions(
+                      accountAddress,
+                      startTime,
+                      chainId,
+                    );
+                  });
+              }),
             );
-            return [];
-          });
-        })
-        .map((transactions) => {
-          return this.persistence.addEVMTransactions(transactions);
-        });
-    });
+          }),
+        );
+      })
+      .andThen((transactionsArr) => {
+        const transactions = transactionsArr.flat(2);
+        return this.persistence.addEVMTransactions(transactions);
+      });
   }
 
   public siteVisited(SiteVisit: SiteVisit): ResultAsync<void, never> {
     throw new Error("Method not implemented.");
+  }
+
+  protected getLatestTransactions(
+    accountAddress: EVMAccountAddress,
+    timestamp: UnixTimestamp,
+    chainId: ChainId,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.accountIndexing.getEVMTransactionRepository(),
+    ]).andThen(([config, evmRepo]) => {
+      // Get the chain info for the transaction
+      const chainInfo = config.chainInformation.get(chainId);
+
+      if (chainInfo == null) {
+        this.logUtils.error(`No available chain info for chain ${chainId}`);
+        return okAsync([]);
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getEVMTransactions(
+            chainId,
+            accountAddress,
+            new Date(timestamp),
+          );
+        default:
+          this.logUtils.error(
+            `No available indexer repository for chain ${chainId}`,
+          );
+          return okAsync([]);
+      }
+    });
   }
 }

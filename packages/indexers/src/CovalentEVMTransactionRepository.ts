@@ -11,11 +11,10 @@ import {
   BlockNumber,
   EVMAccountAddress,
   EVMTransaction,
-  IEthereumEVMTransactionRepository,
+  IEVMTransactionRepository,
   ChainId,
   UnixTimestamp,
   BigNumberString,
-  IAvalancheEVMTransactionRepository,
   EVMEvent,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -28,7 +27,7 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider";
 
-interface ICovalentEthereumTransactionResponse {
+interface ICovalentEVMTransactionResponse {
   data: {
     address: string;
     updated_at: string;
@@ -99,86 +98,88 @@ interface ICovalentEthereumTransactionResponse {
 }
 
 @injectable()
-export class CovalentEthereumEVMTransactionRepository
-  implements
-    IEthereumEVMTransactionRepository,
-    IAvalancheEVMTransactionRepository
+export class CovalentEVMTransactionRepository
+  implements IEVMTransactionRepository
 {
   public constructor(
-    protected config: IIndexerConfig,
+    @inject(IIndexerConfigProviderType)
+    protected configProvider: IIndexerConfigProvider,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    protected chainId: ChainId,
   ) {}
 
   public getEVMTransactions(
+    chainId: ChainId,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
-    return this.generateQueryConfig(accountAddress, startTime, endTime).andThen(
-      (queryConfig) => {
-        return this.ajaxUtils
-          .get<ICovalentEthereumTransactionResponse>(
-            queryConfig.url,
-            queryConfig,
-          )
-          .andThen((queryResult: ICovalentEthereumTransactionResponse) => {
-            const chainId = ChainId(queryResult.data.chain_id);
-            const transactions = queryResult.data.items.map((tx) => {
-              const busObj = new EVMTransaction(
-                chainId,
-                tx.tx_hash,
-                UnixTimestamp(
-                  Math.floor(Date.parse(tx.block_signed_at) / 1000),
-                ),
-                tx.block_height,
-                tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,
-                tx.from_address != null
-                  ? EVMAccountAddress(tx.from_address)
-                  : null,
-                tx.value != null ? BigNumberString(tx.value.toString()) : null,
-                tx.gas_price != null
-                  ? BigNumberString(tx.gas_price.toString())
-                  : null,
-                tx.gas_offered != null
-                  ? BigNumberString(tx.gas_offered.toString())
-                  : null,
-                tx.fees_paid != null
-                  ? BigNumberString(tx.fees_paid.toString())
-                  : null,
-                null,
-              );
+    return this.generateQueryConfig(
+      chainId,
+      accountAddress,
+      startTime,
+      endTime,
+    ).andThen((queryConfig) => {
+      return this.ajaxUtils
+        .get<ICovalentEVMTransactionResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(queryConfig.url!),
+          queryConfig,
+        )
+        .map((queryResult: ICovalentEVMTransactionResponse) => {
+          const chainId = ChainId(queryResult.data.chain_id);
+          const transactions = queryResult.data.items.map((tx) => {
+            const busObj = new EVMTransaction(
+              chainId,
+              tx.tx_hash,
+              UnixTimestamp(Math.floor(Date.parse(tx.block_signed_at) / 1000)),
+              tx.block_height,
+              tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,
+              tx.from_address != null
+                ? EVMAccountAddress(tx.from_address)
+                : null,
+              tx.value != null ? BigNumberString(tx.value.toString()) : null,
+              tx.gas_price != null
+                ? BigNumberString(tx.gas_price.toString())
+                : null,
+              tx.gas_offered != null
+                ? BigNumberString(tx.gas_offered.toString())
+                : null,
+              tx.fees_paid != null
+                ? BigNumberString(tx.fees_paid.toString())
+                : null,
+              null,
+            );
 
-              if (tx.log_events != null) {
-                busObj.events = tx.log_events.map((event) => {
-                  return new EVMEvent(
-                    event.tx_hash,
-                    event.raw_log_data,
-                    event.raw_log_topics,
-                    event.sender_contract_decimals,
-                    event.sender_name,
-                    event.sender_contract_ticker_symbol,
-                    event.sender_address,
-                    event.sender_address_label,
-                    event.sender_logo_url,
-                    event.raw_log_data,
-                    event.decoded,
-                  );
-                });
-              }
+            if (tx.log_events != null) {
+              busObj.events = tx.log_events.map((event) => {
+                return new EVMEvent(
+                  event.tx_hash,
+                  event.raw_log_data,
+                  event.raw_log_topics,
+                  event.sender_contract_decimals,
+                  event.sender_name,
+                  event.sender_contract_ticker_symbol,
+                  event.sender_address,
+                  event.sender_address_label,
+                  event.sender_logo_url,
+                  event.raw_log_data,
+                  event.decoded,
+                );
+              });
+            }
 
-              return busObj;
-            });
-
-            return okAsync(transactions);
+            return busObj;
           });
-      },
-    );
+
+          return transactions;
+        });
+    });
   }
 
   private generateQueryConfig(
+    chainId: ChainId,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
@@ -208,12 +209,15 @@ export class CovalentEthereumEVMTransactionRepository
       });
     }
 
-    const result: IRequestConfig = {
-      method: "get",
-      url: `https://api.covalenthq.com/v1/${this.chainId}/address/${accountAddress}/transactions_v2/?key=${this.config.apiKey}&match=${primer}`,
-      headers: {},
-    };
-
-    return result;
+    return this.configProvider.getConfig().map((config) => {
+      const result: IRequestConfig = {
+        method: "get",
+        url: `https://api.covalenthq.com/v1/${chainId.toString()}/address/${accountAddress}/transactions_v2/?key=${
+          config.covalentApiKey
+        }&match=${primer}`,
+        headers: {},
+      };
+      return result;
+    });
   }
 }

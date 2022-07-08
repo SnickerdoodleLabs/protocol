@@ -1,4 +1,4 @@
-import { ChainId, EVMAccountAddress } from "@objects/primatives";
+import { ChainId, EVMAccountAddress } from "@objects/primitives";
 
 export class EVMEvent {
   public constructor(

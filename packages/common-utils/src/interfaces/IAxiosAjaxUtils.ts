@@ -37,4 +37,4 @@ export interface IAxiosAjaxUtils {
 
 export interface IRequestConfig extends AxiosRequestConfig {}
 
-export const IAjaxUtilsType = Symbol.for("IAjaxUtils");
+export const IAxiosAjaxUtilsType = Symbol.for("IAxiosAjaxUtils");
