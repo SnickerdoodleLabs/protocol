@@ -25,7 +25,7 @@ import { ethers } from "ethers";
 import express from "express";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
-import { localChainAccounts } from "./LocalChainAccounts.js";
+import { localChainAccounts } from "@test-harness/LocalChainAccounts";
 
 const defaultConsentContractAddress = EVMContractAddress("");
 
