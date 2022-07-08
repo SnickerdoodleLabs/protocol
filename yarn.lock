@@ -3902,10 +3902,12 @@ __metadata:
   resolution: "@snickerdoodlelabs/core-test-harness@workspace:packages/test-harness"
   dependencies:
     "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/contracts-sdk": "workspace:^"
     "@snickerdoodlelabs/core": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/persistence": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
+    ethers: ^5.6.6
     express: ^4.18.1
     inquirer: ^9.0.0
     neverthrow: ^4.3.1

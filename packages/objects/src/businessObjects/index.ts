@@ -6,6 +6,7 @@ export * from "@objects/businessObjects/CohortInvitation";
 export * from "@objects/businessObjects/ConsentConditions";
 export * from "@objects/businessObjects/ConsentToken";
 export * from "@objects/businessObjects/EVMTransaction";
+export * from "@objects/businessObjects/ExternallyOwnedAccount";
 export * from "@objects/businessObjects/Insight";
 export * from "@objects/businessObjects/RequestForData";
 export * from "@objects/businessObjects/Reward";
