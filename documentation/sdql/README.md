@@ -5,6 +5,18 @@ is given in the [sdql.schema.json](/documentation/sdql/sdql.schema.json).
 
 ## Keywords 
 
-SDQL has keywords that define what user attributes the Snickerdoodle Core must process in order to return a result. 
+SDQL defines keywords (and sub-keywords) that instruct the Snickerdoodle Core how it should respond to a [Request for Data](/packages/contracts/README.md) event emmitted from a Consent Contract. 
 
-TODO
+### version
+
+### description
+
+### business
+
+### queries
+
+### returns
+
+### compensations
+
+### logic
