@@ -1,6 +1,11 @@
-import { ethers, Transaction } from "ethers";
+import { EVMEvent } from "./EVMEvent";
 
-import { ChainId, EVMAccountAddress } from "@objects/primitives";
+import {
+  ChainId,
+  EVMAccountAddress,
+  UnixTimestamp,
+  BigNumberString,
+} from "@objects/primitives";
 
 /**
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to
@@ -8,24 +13,18 @@ import { ChainId, EVMAccountAddress } from "@objects/primitives";
  * is also importing Ethers.
  * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
-export class EVMTransaction implements Transaction {
+export class EVMTransaction {
   public constructor(
     public chainId: ChainId,
-    public nonce: number,
-    public gasLimit: ethers.BigNumber,
-    public data: string,
-    public value: ethers.BigNumber,
+    public hash: string,
+    public timestamp: UnixTimestamp | null,
+    public blockHeight: number | null,
+    public to: EVMAccountAddress | null,
+    public from: EVMAccountAddress | null,
+    public value: BigNumberString | null,
+    public gasPrice: BigNumberString | null,
+    public gasOffered: BigNumberString | null,
+    public feesPaid: BigNumberString | null,
+    public events: EVMEvent[] | null,
   ) {}
-
-  public hash?: string | undefined;
-  public to?: EVMAccountAddress | undefined;
-  public from?: EVMAccountAddress | undefined;
-  public gasPrice?: ethers.BigNumber | undefined;
-  public r?: string | undefined;
-  public s?: string | undefined;
-  public v?: number | undefined;
-  public type?: number | null | undefined;
-  public accessList?: ethers.utils.AccessList | undefined;
-  public maxPriorityFeePerGas?: ethers.BigNumber | undefined;
-  public maxFeePerGas?: ethers.BigNumber | undefined;
 }

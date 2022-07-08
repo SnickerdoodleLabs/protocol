@@ -7,6 +7,7 @@ export * from "@objects/businessObjects/ConsentConditions";
 export * from "@objects/businessObjects/ConsentToken";
 export * from "@objects/businessObjects/EligibleReward";
 export * from "@objects/businessObjects/EVMTransaction";
+export * from "@objects/businessObjects/EVMEvent";
 export * from "@objects/businessObjects/Insight";
 export * from "@objects/businessObjects/RequestForData";
 export * from "@objects/businessObjects/Reward";

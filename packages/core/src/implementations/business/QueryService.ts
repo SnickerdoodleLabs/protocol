@@ -47,7 +47,7 @@ export class QueryService implements IQueryService {
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-  ) { }
+  ) {}
 
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,

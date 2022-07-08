@@ -1,4 +1,5 @@
 import { JsonRpcProvider } from "@ethersproject/providers";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -36,8 +37,6 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-  ILogUtils,
-  ILogUtilsType,
 } from "@core/interfaces/utilities";
 
 /**
@@ -66,7 +65,7 @@ export class BlockchainListener implements IBlockchainListener {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
-  ) { }
+  ) {}
 
   public initialize(): ResultAsync<
     void,
@@ -98,7 +97,7 @@ export class BlockchainListener implements IBlockchainListener {
           }),
         );
       })
-      .map(() => { });
+      .map(() => {});
   }
 
   protected chainBlockMined(
@@ -166,7 +165,7 @@ export class BlockchainListener implements IBlockchainListener {
                 );
               });
           }),
-        ).map(() => { });
+        ).map(() => {});
       });
   }
 
@@ -185,7 +184,7 @@ export class BlockchainListener implements IBlockchainListener {
         // return this.monitoringService.transactionDetected(transaction);
         return okAsync(undefined);
       }),
-    ).map(() => { });
+    ).map(() => {});
   }
   /*
 

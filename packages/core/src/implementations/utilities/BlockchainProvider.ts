@@ -3,6 +3,7 @@ import {
   JsonRpcProvider,
   FallbackProvider,
 } from "@ethersproject/providers";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { ChainId, BlockchainProviderError } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -13,8 +14,6 @@ import {
   IBlockchainProvider,
   IConfigProvider,
   IConfigProviderType,
-  ILogUtils,
-  ILogUtilsType,
 } from "@core/interfaces/utilities";
 
 @injectable()

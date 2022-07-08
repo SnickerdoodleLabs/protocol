@@ -129,6 +129,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getUnlockMessage(languageCode);
   }
 
+  /**
+   * Very important method, as it serves two purposes- it initializes the core and effectively logs the user in.
+   * The core doesn't do any query processing until it has been unlocked.
+   * @param accountAddress
+   * @param signature
+   * @param languageCode
+   * @returns
+   */
   public unlock(
     accountAddress: EVMAccountAddress,
     signature: Signature,
@@ -136,10 +144,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   ): ResultAsync<
     void,
     | BlockchainProviderError
-    | InvalidSignatureError
+    | UninitializedError
+    | ConsentContractError
     | UnsupportedLanguageError
     | PersistenceError
+    | InvalidSignatureError
   > {
+    // Get all of our indexers and initialize them
+    // TODO
+
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
@@ -153,10 +166,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   ): ResultAsync<
     void,
     | BlockchainProviderError
-    | InvalidSignatureError
-    | UninitializedError
-    | UnsupportedLanguageError
     | PersistenceError
+    | UninitializedError
+    | ConsentContractError
   > {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);

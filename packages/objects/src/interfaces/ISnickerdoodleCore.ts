@@ -66,9 +66,11 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<
     void,
     | BlockchainProviderError
-    | InvalidSignatureError
+    | UninitializedError
+    | ConsentContractError
     | UnsupportedLanguageError
     | PersistenceError
+    | InvalidSignatureError
   >;
 
   /**
@@ -88,10 +90,9 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<
     void,
     | BlockchainProviderError
-    | InvalidSignatureError
-    | UninitializedError
-    | UnsupportedLanguageError
     | PersistenceError
+    | UninitializedError
+    | ConsentContractError
   >;
 
   /**

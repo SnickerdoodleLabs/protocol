@@ -1,3 +1,4 @@
 export * from "@indexers/DefaultAccountIndexers";
-export * from "@indexers/EtherscanAvalancheEVMTransactionRepository";
-export * from "@indexers/EtherscanEthereumEVMTransactionRepository";
+export * from "@browser-extension/CovalentEVMTransactionRepository";
+export * from "@indexers/IIndexerConfig";
+export * from "@indexers/IIndexerConfigProvider";

@@ -11,16 +11,18 @@ import {
     ISDQLClause,
     SDQLQuery,
     SDQLString,
+  EVMAccountAddress,
+  EVMContractAddress,
+  IpfsCID,
+  SDQLQuery,
+  SDQLString,
 } from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
 import td from "testdouble";
-import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
-import {
-    IConsentContractRepository,
-    IInsightPlatformRepository,
-    ISDQLQueryRepository,
-} from "@core/interfaces/data";
 
 import { ContextProviderMock } from "../mock/utilities";
+
+import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
 import { QueryService } from "@core/implementations/business";
 import { IQueryService } from "@core/interfaces/business";
 import { okAsync } from "neverthrow";
@@ -36,6 +38,12 @@ import { IContextProvider } from "@core/interfaces/utilities";
 import { IConfigProvider } from "@core/interfaces/utilities";
 import { ISDQLQueryObject } from "@snickerdoodlelabs/objects";
 import { query } from "express";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
+import {
+  IConsentContractRepository,
+  IInsightPlatformRepository,
+  ISDQLQueryRepository,
+} from "@core/interfaces/data";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
@@ -436,19 +444,20 @@ const obj = new SDQLQuery(cidString, SDQLString(testing_schema));
 const queryContent2 = JSON.parse(obj.query) as ISDQLQueryObject;
 
 class QueryServiceMocks {
-    public queryParsingEngine: IQueryParsingEngine;
-    public sdqlQueryRepo: ISDQLQueryRepository;
-    public insightPlatformRepo: IInsightPlatformRepository;
-    public consentContractRepo: IConsentContractRepository;
-    public contextProvider: ContextProviderMock;
+  public queryParsingEngine: IQueryParsingEngine;
+  public sdqlQueryRepo: ISDQLQueryRepository;
+  public insightPlatformRepo: IInsightPlatformRepository;
+  public consentContractRepo: IConsentContractRepository;
+  public contextProvider: ContextProviderMock;
 
-    public constructor() {
-        this.queryParsingEngine = td.object<IQueryParsingEngine>();
-        this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
-        this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
-        this.consentContractRepo = td.object<IConsentContractRepository>();
-        this.contextProvider = new ContextProviderMock();
+  public constructor() {
+    this.queryParsingEngine = td.object<IQueryParsingEngine>();
+    this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
+    this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
+    this.consentContractRepo = td.object<IConsentContractRepository>();
+    this.contextProvider = new ContextProviderMock();
 
+<<<<<<< HEAD
 
         td.when(this.queryParsingEngine.handleQuery(queryContent2, queryId)).thenReturn(okAsync(insights))
 
@@ -462,16 +471,29 @@ class QueryServiceMocks {
 
         //td.when(this.queryParsingEngine.handleQuery())
     }
+=======
+    td.when(this.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+      okAsync(sdqlQuery),
+    );
 
-    public factory(): IQueryService {
-        return new QueryService(
-            this.queryParsingEngine,
-            this.sdqlQueryRepo,
-            this.insightPlatformRepo,
-            this.consentContractRepo,
-            this.contextProvider,
-        );
-    }
+    td.when(
+      this.consentContractRepo.isAddressOptedIn(
+        consentContractAddress,
+        EVMAccountAddress(dataWalletAddress),
+      ),
+    ).thenReturn(okAsync(true));
+  }
+>>>>>>> develop
+
+  public factory(): IQueryService {
+    return new QueryService(
+      this.queryParsingEngine,
+      this.sdqlQueryRepo,
+      this.insightPlatformRepo,
+      this.consentContractRepo,
+      this.contextProvider,
+    );
+  }
 }
 
 class SDQLQueryRepositoryMocks {
@@ -626,4 +648,19 @@ describe("Query Service tests", () => {
 
 
     });
+  test("onQueryPosted() golden path", async () => {
+    // Arrange
+    const mocks = new QueryServiceMocks();
+
+    const service = mocks.factory();
+    // Act
+    const result = await service.onQueryPosted(consentContractAddress, queryId);
+
+    // Assert
+    // run the test - did it pass?
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
+  });
 });

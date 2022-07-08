@@ -35,7 +35,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "echo \"No tests specified yet\" && exit 0"
+    "test": "npx jest --runInBand --coverage --passWithNoTests"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
