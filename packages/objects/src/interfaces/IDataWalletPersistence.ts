@@ -19,6 +19,11 @@ import {
   CountryCode,
   UnixTimestamp,
 } from "@objects/primitives";
+import {
+  AccountIndexingError,
+  BlockNumber
+} from "@snickerdoodlelabs/objects";
+
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -104,6 +109,12 @@ export interface IDataWalletPersistence {
   addEthereumTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
+
+  getEVMTransactions(
+    accountAddress: EVMAccountAddress,
+    firstBlock: BlockNumber,
+    lastBlock?: BlockNumber | undefined,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
