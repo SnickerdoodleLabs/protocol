@@ -3,4 +3,9 @@
 ## Snickerdoodle Protocol
 * [Introduction](README.md)
 * [Getting Started](/documentation/GETTINGSTARTED.md)
-* [Contracts](/packages/contracts/README.md)
+
+## Developer Docs
+* [Contracts](/packages/contracts/)
+* [SDQL](/documentation/sdql/)
+* [Core](/packages/core/)
+* [Browser Extension](/packages/browserExtension/)
