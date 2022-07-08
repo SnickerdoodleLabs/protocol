@@ -11,6 +11,7 @@ import {
   DataWalletAddress,
   EVMAccountAddress,
   EVMPrivateKey,
+  ExternallyOwnedAccount,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   InvalidSignatureError,
@@ -29,7 +30,7 @@ import {
   ILoginRegistryRepository,
   ILoginRegistryRepositoryType,
 } from "@core/interfaces/data";
-import { EthereumAccount, CoreContext } from "@core/interfaces/objects";
+import { CoreContext } from "@core/interfaces/objects";
 import {
   IContextProvider,
   IContextProviderType,
@@ -134,7 +135,7 @@ export class AccountService implements IAccountService {
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
-    EthereumAccount,
+    ExternallyOwnedAccount,
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
@@ -162,7 +163,7 @@ export class AccountService implements IAccountService {
           );
         })
         .map(() => {
-          return new EthereumAccount(
+          return new ExternallyOwnedAccount(
             this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
               dataWalletKey,
             ),
@@ -176,7 +177,7 @@ export class AccountService implements IAccountService {
     encryptedDataWalletKey: AESEncryptedString,
     signature: Signature,
   ): ResultAsync<
-    EthereumAccount,
+    ExternallyOwnedAccount,
     BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
   > {
     return this.dataWalletUtils
@@ -189,7 +190,7 @@ export class AccountService implements IAccountService {
       })
       .map((dataWalletKey) => {
         const key = EVMPrivateKey(dataWalletKey);
-        return new EthereumAccount(
+        return new ExternallyOwnedAccount(
           this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(key),
           key,
         );

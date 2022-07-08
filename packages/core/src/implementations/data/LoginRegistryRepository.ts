@@ -18,6 +18,7 @@ import {
   EVMPrivateKey,
   AjaxError,
   DataWalletAddress,
+  ICrumbContent,
 } from "@snickerdoodlelabs/objects";
 import { addCrumbTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
@@ -84,7 +85,7 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
         }
 
         // The tokenUri of the crumb is a JSON text, so let's parse it
-        const content = JSON.parse(tokenUri) as CrumbContent;
+        const content = JSON.parse(tokenUri) as ICrumbContent;
 
         // Check if the crumb includes this language code
         const languageCrumb = content[languageCode];
@@ -161,10 +162,3 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
     return this.crumbsContract;
   }
 }
-
-type CrumbContent = {
-  [languageCode: LanguageCode]: {
-    d: EncryptedString;
-    iv: InitializationVector;
-  };
-};

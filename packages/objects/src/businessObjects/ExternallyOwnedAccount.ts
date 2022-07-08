@@ -1,6 +1,6 @@
-import { EVMAccountAddress, EVMPrivateKey } from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress, EVMPrivateKey } from "@objects/primitives";
 
-export class EthereumAccount {
+export class ExternallyOwnedAccount {
   public constructor(
     public accountAddress: EVMAccountAddress,
     public privateKey: EVMPrivateKey,
