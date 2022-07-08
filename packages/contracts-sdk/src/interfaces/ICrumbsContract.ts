@@ -1,6 +1,5 @@
 import {
   EVMAccountAddress,
-  CrumbId,
   CrumbsContractError,
   TokenId,
   TokenUri,

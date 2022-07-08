@@ -1,4 +1,3 @@
-import { ILogUtils } from "@core/interfaces/utilities";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,

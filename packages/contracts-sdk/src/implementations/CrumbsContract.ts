@@ -1,7 +1,6 @@
 import {
   EVMAccountAddress,
   EVMContractAddress,
-  CrumbId,
   TokenUri,
   TokenId,
   CrumbsContractError,
@@ -31,6 +30,7 @@ export class CrumbsContract implements ICrumbsContract {
       providerOrSigner,
     );
   }
+  
 
   public addressToCrumbId(
     accountAddress: EVMAccountAddress,
