@@ -46,7 +46,7 @@ export class QueryService implements IQueryService {
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-  ) { }
+  ) {}
 
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
@@ -108,7 +108,10 @@ export class QueryService implements IQueryService {
 
   public processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, AjaxError | UninitializedError | ConsentError | IPFSError> {
+  ): ResultAsync<
+    void,
+    AjaxError | UninitializedError | ConsentError | IPFSError
+  > {
     // 1. Parse the query
     // 2. Generate an insight(s)
     // 3. Redeem the reward

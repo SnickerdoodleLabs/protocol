@@ -1,40 +1,12 @@
+import "reflect-metadata";
+import { HexString } from "@snickerdoodlelabs/objects";
 import { ResultUtils } from "neverthrow-result-utils";
-import td from "testdouble";
 
 import { CryptoUtils } from "@common-utils/implementations";
 import { ICryptoUtils } from "@common-utils/interfaces";
 
 class CryptoUtilsMocks {
-  // public customerRepository = td.object<ICustomerRepository>();
-  // public userRepository = td.object<IUserRepository>();
-  // public productUserRepository = td.object<IProductUserRepository>();
-  // public authRepository = td.object<IAuthorizationRepository>();
-  // public cryptoUtils = td.object<ICryptoUtils>();
-  // public token =
-  // 	"eyJhbGciOiJQUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJleHRlcm5hbElkIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.FeX-3ga7cSoHfuwcdneUvB1etMEAeMDYzVEYabZznZNHA14tOnkO1NcrvTpSJewrpnEd8flAHzvjFyNsJjgCBGUldiVt14uhxftdnYpc4RQplENkaqd3rKKZKVzGjwZm6ePLX48zRVYTCfMRt5CmsIAVNhGEGPmKFCvtvdVXTQFuOuTH-jfhROTY8C1qFOFE8gny9P6gkGpRiezZqsztCSAYTdYOFgadMNGhbq8Xcrw2qCRsRc6-5G2ceaI5tnUZVC-IMAmajCs52jw1hl_aeYMXJL5zSofM4-fkRVLUpdioqhF7C-Lt30e3Bkomzzwp-qfw_KUGiUpg3Oy_RhVlwA";
-  // public userContextMock = UserContextMock.factoryUserContext();
-  // public customerId = this.userContextMock.customerId as UUID;
-  // public customerObject: Customer = new Customer(
-  // 	this.customerId,
-  // 	"",
-  // 	"",
-  // 	sampleEmail,
-  // 	"",
-  // 	"",
-  // 	"",
-  // 	"",
-  // 	"",
-  // 	true,
-  // 	null,
-  // 	new Date(),
-  // 	new Date(),
-  // );
-
-  public constructor() {
-    // td.when(
-    // 	this.customerRepository.getByExternalId(["externalId"]),
-    // ).thenReturn(okAsync(new Map([["externalId", this.customerObject]])));
-  }
+  public constructor() {}
 
   public factoryCryptoUtils(): ICryptoUtils {
     return new CryptoUtils();
@@ -57,6 +29,34 @@ describe("CryptoUtils tests", () => {
     expect(Buffer.from(nonce, "base64").toString("base64")).toBe(nonce);
     expect(Buffer.from(nonce, "base64").byteLength).toBe(48);
     expect(nonce.length).toBe(64);
+  });
+
+  test("deriveAESKeyFromSignature returns 32 bytes as 44 characters of base64", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const messageToSign = "Phoebe is cute!";
+
+    // Act
+    const privateKeyResult = await utils.createEthereumPrivateKey();
+    const privateKey = privateKeyResult._unsafeUnwrap();
+    const signatureResult = await utils.signMessage(messageToSign, privateKey);
+    const signature = signatureResult._unsafeUnwrap();
+
+    const result = await utils.deriveAESKeyFromSignature(
+      signature,
+      HexString("0x0123456789abcdf"),
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const key = result._unsafeUnwrap();
+    expect(Buffer.from(key, "base64").toString("base64")).toBe(key);
+    expect(Buffer.from(key, "base64").byteLength).toBe(32);
+    expect(key.length).toBe(44);
+    console.log(key);
   });
 
   test("createAESKey returns 32 bytes as 44 characters of base64", async () => {
@@ -167,7 +167,6 @@ describe("CryptoUtils tests", () => {
 
     expect(encryption.data.length).toBe(64);
     expect(encryption.initializationVector.length).toBe(16);
-    console.log(encryption.initializationVector);
   });
 
   test("signMessage() Closed Loop", async () => {

@@ -1,3 +1,4 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
@@ -23,12 +24,10 @@ import {
   IBlockchainProviderType,
   IContextProvider,
   IContextProviderType,
-  ILogUtils,
-  ILogUtilsType,
 } from "@core/interfaces/utilities";
 import {
-  IConsentContractFactoryType,
-  IConsentContractFactory,
+  IContractFactoryType,
+  IContractFactory,
 } from "@core/interfaces/utilities/factory";
 
 @injectable()
@@ -47,8 +46,8 @@ export class ConsentContractRepository implements IConsentContractRepository {
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IConsentContractFactoryType)
-    protected consentContractFactory: IConsentContractFactory,
+    @inject(IContractFactoryType)
+    protected consentContractFactory: IContractFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.consentContractsPromise = null;
@@ -135,9 +134,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
       .map((numberOfTokens) => {
         return numberOfTokens > 0;
       });
-
   }
-
 
   public getConsentContracts(): ResultAsync<
     Map<EVMContractAddress, IConsentContract>,

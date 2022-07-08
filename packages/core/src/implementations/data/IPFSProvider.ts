@@ -15,7 +15,7 @@ export class IPFSProvider implements IIPFSProvider {
 
   constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-  ) { }
+  ) {}
 
   public getIFPSClient(): ResultAsync<IPFSHTTPClient, IPFSError> {
     if (this.IPFSResult == null) {

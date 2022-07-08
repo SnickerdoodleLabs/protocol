@@ -15,5 +15,5 @@ export class CoreConfig {
     public ipfsNodeAddress: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public snickerdoodleProtocolDomain: TypedDataDomain,
-  ) { }
+  ) {}
 }

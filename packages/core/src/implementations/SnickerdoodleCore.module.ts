@@ -2,6 +2,9 @@ import {
   CryptoUtils,
   ICryptoUtils,
   ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
+  LogUtils,
 } from "@snickerdoodlelabs/common-utils";
 import { ContainerModule, interfaces } from "inversify";
 
@@ -89,5 +92,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(DataWalletUtils)
       .inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
+    bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
   },
 );

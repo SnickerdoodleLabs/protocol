@@ -1,4 +1,7 @@
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
+import {
+  IConsentContract,
+  ICrumbsContract,
+} from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
   EVMContractAddress,
@@ -6,15 +9,18 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface IConsentContractFactory {
+export interface IContractFactory {
   factoryConsentContracts(
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<
     IConsentContract[],
     BlockchainProviderError | UninitializedError
   >;
+
+  factoryCrumbsContract(): ResultAsync<
+    ICrumbsContract,
+    BlockchainProviderError | UninitializedError
+  >;
 }
 
-export const IConsentContractFactoryType = Symbol.for(
-  "IConsentContractFactory",
-);
+export const IContractFactoryType = Symbol.for("IContractFactory");

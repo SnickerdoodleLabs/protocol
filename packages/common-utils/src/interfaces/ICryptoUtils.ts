@@ -10,6 +10,7 @@ import {
   SHA256Hash,
   EVMAccountAddress,
   Signature,
+  HexString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -17,6 +18,11 @@ export interface ICryptoUtils {
   getNonce(nonceSize?: number): ResultAsync<string, never>;
 
   createAESKey(): ResultAsync<AESKey, never>;
+  deriveAESKeyFromSignature(
+    signature: Signature,
+    salt: HexString,
+  ): ResultAsync<AESKey, never>;
+
   createEthereumPrivateKey(): ResultAsync<EVMPrivateKey, never>;
   getEthereumAccountAddressFromPrivateKey(
     privateKey: EVMPrivateKey,
