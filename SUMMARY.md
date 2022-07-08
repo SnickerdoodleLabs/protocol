@@ -9,3 +9,4 @@
 * [SDQL](/documentation/sdql/README.md)
 * [Core](/packages/core/README.md)
 * [Browser Extension](/packages/browserExtension/README.md)
+* [Test Harness](/packages/test-harness/README.md)
