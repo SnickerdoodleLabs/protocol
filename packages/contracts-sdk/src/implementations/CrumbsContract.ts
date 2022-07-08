@@ -1,14 +1,10 @@
 import {
-  ConsentContractError,
   EVMAccountAddress,
   EVMContractAddress,
-  IpfsCID,
+  CrumbId,
   TokenUri,
-  Signature,
-  TokenIdNumber,
-  ConsentToken,
-  RequestForData,
-  BlockNumber,
+  TokenId,
+  CrumbsContractError,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -36,10 +32,65 @@ export class CrumbsContract implements ICrumbsContract {
     );
   }
 
-  public getCrumb(
+  public addressToCrumbId(
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<TokenUri | null, ConsentContractError> {
-    throw new Error("Method not implemented.");
+  ): ResultAsync<TokenId | null, CrumbsContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.addressToCrumbId(
+        accountAddress,
+        contractOverrides,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new CrumbsContractError("Unable to call addressToCrumbId()", e);
+      },
+    ).map(() => {});
+  }
+
+  public tokenURI(
+    tokenId: TokenId,
+    contractOverrides?: ContractOverrides | undefined,
+  ): ResultAsync<TokenUri | null, CrumbsContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.tokenURI(
+        tokenId,
+        contractOverrides,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new CrumbsContractError("Unable to call tokenURI()", e);
+      },
+    ).map(() => {});
+  }
+
+  public createCrumb(
+    crumbId: TokenId,
+    mask: TokenUri,
+    contractOverrides?: ContractOverrides | undefined,
+  ): ResultAsync<void | null, CrumbsContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.createCrumb(
+        crumbId,
+        mask,
+        contractOverrides,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new CrumbsContractError("Unable to call createCrumb()", e);
+      },
+    ).map(() => {});
+  }
+
+  public burnCrumb(
+    crumbId: TokenId,
+    contractOverrides?: ContractOverrides | undefined,
+  ): ResultAsync<void | null, CrumbsContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.burnCrumb(
+        crumbId,
+        contractOverrides,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new CrumbsContractError("Unable to call burnCrumb()", e);
+      },
+    ).map(() => {});
   }
 }
