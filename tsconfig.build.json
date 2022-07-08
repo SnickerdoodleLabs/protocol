@@ -24,34 +24,34 @@
     "composite": true,
     "paths": {
       "@browser-extension/*": [
-        "./*"
+        "./packages/browserExtension/src/*"
       ],
       "@core/*": [
-        "./*"
+        "./packages/core/src/*"
       ],
       "@core-tests/*": [
-        "../test/*"
+        "./packages/core/test/*"
       ],
       "@common-utils/*": [
-        "./*"
+        "./packages/common-utils/src/*"
       ],
       "@contracts-sdk/*": [
-        "./*"
+        "./packages/contracts-sdk/src/*"
       ],
       "@indexers/*": [
-        "./*"
+        "./packages/indexers/src/*"
       ],
       "@objects/*": [
-        "./*"
+        "./packages/objects/src/*"
       ],
-      "@persistence/*": ["./*"],
+      "@persistence/*": ["./packages/persistence/src/*"],
       "@signatureVerification/*": [
-        "./*"
+        "./packages/signatureVerification/src/*"
       ],
       "@test-harness/*": [
-        "./*"
+        "./packages/test-harness/src/*"
       ],
-      "@utils/*": ["./*"]
+      "@utils/*": ["./packages/utils/src/*"]
     }
   }
 }
