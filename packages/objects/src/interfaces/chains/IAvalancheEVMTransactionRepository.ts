@@ -1,7 +1,7 @@
 import { ResultAsync } from "neverthrow";
 
-import { AccountIndexingError } from "@core/errors";
 import { EVMTransaction } from "@objects/businessObjects";
+import { AccountIndexingError } from "@objects/errors";
 import { BlockNumber, EVMAccountAddress } from "@objects/primitives";
 
 export interface IAvalancheEVMTransactionRepository {
