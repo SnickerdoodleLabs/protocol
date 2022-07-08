@@ -20,9 +20,7 @@ import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-// Note: This whole .js extension and issue with @test-harness is because we are using ESM modules
-// instead of the standard CommonJS modules.
-import { InsightPlatformSimulator } from "./InsightPlatformSimulator.js"; // having issues with @test-harness
+import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
 
 // https://github.com/SBoudrias/Inquirer.js
 
@@ -44,7 +42,7 @@ const accountAddress = EVMAccountAddress(
   "0x14791697260E4c9A71f18484C9f997B308e59325",
 );
 
-await core.getEvents().map(async (events) => {
+core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
     console.log(`Added account: ${addedAccount}`);
   });
