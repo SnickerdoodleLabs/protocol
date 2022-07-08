@@ -61,23 +61,19 @@ export class MonitoringService implements IMonitoringService {
         .andThen((tipTransactions) => {
           return tipTransactions.map((tx) => {
             if (tx.chainId == config.ethChainId) {
-              return okAsync(
-                ethRepo.getEVMTransactions(accountAddresses, tx.timestamp),
-              );
+              return ethRepo.getEVMTransactions(accountAddresses, tx.timestamp);
             }
             if (tx.chainId == config.avaxChainId) {
-              return okAsync(
-                avalancheRepo.getEVMTransactions(
-                  accountAddresses,
-                  tx.timestamp,
-                ),
+              return avalancheRepo.getEVMTransactions(
+                accountAddresses,
+                tx.timestamp,
               );
             }
 
             this.logUtils.error(
               `No available indexer repository for chain ${tx.chainId}`,
             );
-            return okAsync([]);
+            return [];
           });
         })
         .map((transactions) => {

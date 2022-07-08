@@ -22,8 +22,8 @@ import { CovalentEthereumEVMTransactionRepository } from "@indexers/CovalentEthe
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
-  protected avalanche: IAvalancheEVMTransactionRepository;
-  protected ethereum: IEthereumEVMTransactionRepository;
+  protected avalanche: IAvalancheEVMTransactionRepository | undefined;
+  protected ethereum: IEthereumEVMTransactionRepository | undefined;
 
   public constructor(
     protected configProvider: IConfigProvider,
@@ -31,33 +31,47 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     protected persistence: IDataWalletPersistence,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {
-    configProvider.getConfig().map((config) => {
-      this.avalanche = new CovalentEthereumEVMTransactionRepository(
-        config,
-        persistence,
-        ajaxUtils,
-        config.ethChainId,
-      );
-      this.ethereum = new CovalentEthereumEVMTransactionRepository(
-        config,
-        persistence,
-        ajaxUtils,
-        config.avaxChainId,
-      ); // as long as chainId is 43114, this will scrape c chain events
-    });
+    this.avalanche = undefined;
+    this.ethereum = undefined;
   }
 
   public getAvalancheEVMTransactionRepository(): ResultAsync<
     IAvalancheEVMTransactionRepository,
     never
   > {
-    throw new Error("Method not implemented.");
+    //unsure about default value here
+    if (this.avalanche !== undefined) {
+      return okAsync(this.avalanche);
+    }
+
+    return this.configProvider.getConfig().andThen((config) => {
+      this.avalanche = new CovalentEthereumEVMTransactionRepository(
+        config,
+        this.persistence,
+        this.ajaxUtils,
+        config.avaxChainId,
+      );
+      return this.avalanche;
+    });
   }
 
   public getEthereumEVMTransactionRepository(): ResultAsync<
     IEthereumEVMTransactionRepository,
     never
   > {
-    throw new Error("Method not implemented.");
+    //unsure about default value here
+    if (this.ethereum !== undefined) {
+      return okAsync(this.ethereum);
+    }
+
+    return this.configProvider.getConfig().andThen((config) => {
+      this.ethereum = new CovalentEthereumEVMTransactionRepository(
+        config,
+        this.persistence,
+        this.ajaxUtils,
+        config.ethChainId,
+      );
+      return this.ethereum;
+    });
   }
 }

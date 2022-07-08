@@ -118,7 +118,7 @@ export class CovalentEthereumEVMTransactionRepository
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return this.generateQueryConfig(accountAddress, startTime, endTime).andThen(
-      (queryConfig: any) => {
+      (queryConfig) => {
         return this.ajaxUtils
           .get<ICovalentEthereumTransactionResponse>(
             queryConfig.url,
