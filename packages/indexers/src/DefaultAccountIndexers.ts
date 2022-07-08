@@ -1,35 +1,46 @@
+import { ILogUtils } from "@core/interfaces/utilities";
+import {
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   IAccountIndexing,
-  IAvalancheEVMTransactionRepository,
-  IEthereumEVMTransactionRepository,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  IEVMTransactionRepository,
 } from "@snickerdoodlelabs/objects";
-import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { injectable, inject } from "inversify";
+import { ResultAsync, okAsync } from "neverthrow";
 
-import { EtherscanAvalancheEVMTransactionRepository } from "@indexers/EtherscanAvalancheEVMTransactionRepository";
-import { EtherscanEthereumEVMTransactionRepository } from "@indexers/EtherscanEthereumEVMTransactionRepository";
+import {
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "./IIndexerConfigProvider";
+
+import { CovalentEVMTransactionRepository } from "@browser-extension/CovalentEVMTransactionRepository";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
-  protected avalanche: IAvalancheEVMTransactionRepository;
-  protected ethereum: IEthereumEVMTransactionRepository;
+  protected evm: IEVMTransactionRepository;
 
-  public constructor() {
-    this.avalanche = new EtherscanAvalancheEVMTransactionRepository();
-    this.ethereum = new EtherscanEthereumEVMTransactionRepository();
+  public constructor(
+    @inject(IIndexerConfigProviderType)
+    protected configProvider: IIndexerConfigProvider,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+  ) {
+    this.evm = new CovalentEVMTransactionRepository(
+      this.configProvider,
+      this.persistence,
+      this.ajaxUtils,
+    );
   }
 
-  public getAvalancheEVMTransactionRepository(): ResultAsync<
-    IAvalancheEVMTransactionRepository,
+  public getEVMTransactionRepository(): ResultAsync<
+    IEVMTransactionRepository,
     never
   > {
-    throw new Error("Method not implemented.");
-  }
-
-  public getEthereumEVMTransactionRepository(): ResultAsync<
-    IEthereumEVMTransactionRepository,
-    never
-  > {
-    throw new Error("Method not implemented.");
+    return okAsync(this.evm);
   }
 }

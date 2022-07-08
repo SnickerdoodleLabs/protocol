@@ -1,19 +1,9 @@
 import { ResultAsync } from "neverthrow";
 
-import {
-  IAvalancheEVMTransactionRepository,
-  IEthereumEVMTransactionRepository,
-} from "@objects/interfaces/chains";
+import { IEVMTransactionRepository } from "@objects/interfaces/chains";
 
 export interface IAccountIndexing {
-  getAvalancheEVMTransactionRepository(): ResultAsync<
-    IAvalancheEVMTransactionRepository,
-    never
-  >;
-  getEthereumEVMTransactionRepository(): ResultAsync<
-    IEthereumEVMTransactionRepository,
-    never
-  >;
+  getEVMTransactionRepository(): ResultAsync<IEVMTransactionRepository, never>;
   //getSolanaRepository(): ResultAsync<ISolanaTransactionRepository, never>;
 }
 
