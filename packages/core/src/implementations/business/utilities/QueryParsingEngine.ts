@@ -1,5 +1,6 @@
 import {
   EligibleReward,
+  EVMTransaction,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   Insight,
@@ -14,10 +15,6 @@ import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
 import { IpfsCID } from "@snickerdoodlelabs/objects";
 import _ from "underscore";
 import { URLString } from "@snickerdoodlelabs/objects";
-import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
-import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
-import { parseTransaction } from "ethers/lib/utils";
-import { listRegisteredBindingsForServiceIdentifier } from "inversify/lib/utils/serialization";
 import { ConsentConditions } from "@snickerdoodlelabs/objects";
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
@@ -35,10 +32,11 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     this.rewardsMap = [];
   }
 
-  public handleQuery(obj: ISDQLQueryObject, cid: IpfsCID): ResultAsync<Insight[] & EligibleReward[], never | QueryFormatError> {
+  public handleQuery(obj: ISDQLQueryObject, cid: IpfsCID): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError> {
 
+    /* Still an empty return */
     if (obj == null) {
-      return okAsync([]);
+      return okAsync([this.insightsMap, this.rewardsMap]);
     }
 
     if ((_.size(obj.queries) != _.size(obj.returns)) || (_.size(obj.returns) != _.size(obj.compensations))) {
@@ -47,35 +45,23 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
     /* READ ALL LOGIC RETURNS FIRST */
     for (let i = 0; i < _.size(obj.logic.returns); i++) {
-      let result = (this.readLogicEntry(obj, obj.logic.returns[i], false));
-      if (typeof result == "undefined") {
-        this.insightsMap.push(new Insight(
-          cid,
-          obj.returns.url as (URLString),
-          [0]
-        ));
-      }
-      else {
-        this.insightsMap.push(new Insight(
-          cid,
-          obj.returns.url as (URLString),
-          result
-        ));
-      }
+      this.readLogicEntry(obj, obj.logic.returns[i], false).andThen(
+        (result) =>
+          okAsync(new Insight(cid, obj.returns.url as (URLString), result))
+      ).andThen((safeInsight) =>
+        okAsync(this.insightsMap.push(safeInsight))
+      )
     }
 
     /* READ ALL COMPENSATION RETURNS */
     for (let i = 0; i < _.size(obj.logic.compensations); i++) {
-      // "if$q1then$c1"
-      let reward = this.readLogicCompEntry(obj, obj.logic.compensations[i], true);
-      if (typeof reward == "undefined") {
-      }
-      else {
-        this.rewardsMap.push(reward);
-      }
+      this.readLogicCompEntry(obj, obj.logic.returns[i], true).andThen(
+        (safeReward) =>
+          okAsync(this.rewardsMap.push(safeReward))
+      )
     }
 
-    return okAsync(this.insightsMap), okAsync(this.rewardsMap);
+    return okAsync([this.insightsMap, this.rewardsMap]);
   }
 
   /*
@@ -118,9 +104,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     // then $r1else$r2"
     let queries = splitInput[0].replace('if', '').replace('(', '').replace(')', '');
     queries.split('and').forEach(element => {
-      returnedNum = this.readQueryEntry(obj, element.split('$')[1], returnOnPermission);
 
-      totalTruth.push(this.readQueryEntry(obj, element.split('$')[1], returnOnPermission));
+      (this.readQueryEntry(obj, element.split('$')[1], returnOnPermission)).andThen((queryResult) =>
+        okAsync(totalTruth.push(queryResult))
+      )
     });
 
     let result = totalTruth.reduce((prev, next) => {
@@ -140,6 +127,124 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     else {
       return this.readReturnEntry(obj, results[1].split('$')[1], returnOnPermission);
     }
+  }
+
+
+
+
+
+  /* Returns 1/0 or True/False for Query */
+  public readQueryEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number, PersistenceError> {
+    let subQuery = obj.queries[input];
+    subQuery = (subQuery) as ISDQLClause;
+    // PART 1: looking for the location of the object
+    switch (subQuery.name) {
+      // NETWORK QUERY
+      case 'network':
+        if (this.consentConditions.checkNetwork() && returnOnPermission) {
+          return okAsync(1);
+        }
+        if (subQuery.includes('contract')) {
+          this.persistenceRepo.getEVMTransactions(
+            subQuery.contract.address,
+            subQuery.contract.blockrange.start,
+            subQuery.contract.blockrange.end
+          ).andThen((EVMTransactions) =>
+            okAsync(EVMTransactions.forEach(element => {
+              if (element.from != "undefined" && subQuery.contract.direction == "from") {
+                if (element.from == subQuery.contract.address) {
+                  return okAsync(true);
+                }
+              }
+              else if (element.to != "undefined" && subQuery.contract.direction == "to") {
+                if (element.to == subQuery.contract.address) {
+                  return okAsync(true);
+                }
+              }
+            }))
+          )
+        }
+        // default, return false
+        return okAsync(0);
+
+      // LOCATION QUERY 
+      case 'location':
+        if (this.consentConditions.checkLocation() && returnOnPermission) {
+          return okAsync(1);
+        }
+        switch (subQuery.return) {
+          case 'boolean':
+            let conditions = subQuery.conditions;
+            if (conditions.includes["in"]) {
+              let CountryCodes = conditions.includes["in"];
+              /*
+                                    CountryCodes.forEach(element => {
+                                      element.andThen(okAsync(element)).andThen(
+                                        if (okAsync(element) == == this.persistenceRepo.getLocation()) {
+                                        return okAsync(true);
+                                      }
+                                      )
+                                  });
+                                  */
+              let x = 0;
+            }
+            return okAsync(1);
+          case 'integer':
+            return this.persistenceRepo.getLocation();
+          default:
+            return okAsync(0);
+
+        }
+      // AGE QUERY
+      case 'age':
+        if (this.consentConditions.checkAge() && returnOnPermission) {
+          return okAsync(1);
+        }
+        switch (subQuery.return) {
+          case 'boolean':
+            if (subQuery.includes["conditions"]) {
+              let conditions = subQuery.conditions;
+              if (conditions.includes["ge"] && conditions.includes["l"]) {
+                if ((this.persistenceRepo.getAge() >= conditions["ge"]) && (this.persistenceRepo.getAge() <= conditions["l"])) {
+                  return okAsync(1);
+                }
+                return okAsync(0);
+              }
+            }
+            // If all else fails
+            return okAsync(0);
+          case 'integer':
+            return this.persistenceRepo.getAge();
+        }
+        return okAsync(0);
+      default:
+        return okAsync(0);
+
+    }
+  }
+
+  /* Returns 1/0 or True/False for Return */
+  public readReturnEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number | boolean, PersistenceError> {
+    let subQuery = obj.returns[input];
+    subQuery = (subQuery) as ISDQLClause;
+    // PART 1: looking for the location of the object
+    switch (subQuery.name) {
+      // LOCATION QUERY 
+      case 'callback':
+        switch (subQuery.message) {
+          case 'qualified':
+            return okAsync(1);
+          case 'not qualified':
+            return okAsync(0);
+          default:
+            return okAsync(false);
+        }
+
+      // NETWORK QUERY
+      case 'query_response':
+        return this.readQueryEntry(obj, subQuery.query, returnOnPermission);
+    }
+    return okAsync(false);
   }
 
 
@@ -177,8 +282,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     // then $r1else$r2"
     let queries = splitInput[0].replace('if', '').replace('(', '').replace(')', '');
     queries.split('and').forEach(element => {
-      returnedNum = this.readQueryEntry(obj, element.split('$')[1], returnOnPermission);
-      totalTruth.push(this.readQueryEntry(obj, element.split('$')[1], returnOnPermission));
+      this.readQueryEntry(obj, element.split('$')[1], returnOnPermission).andThen((returnedNum) =>
+        okAsync(returnedNum)
+      ).andThen((returnedNum) =>
+        okAsync(totalTruth.push(returnedNum)))
     });
 
     let result = totalTruth.reduce((prev, next) => {
@@ -198,123 +305,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     else {
       return this.readCompEntry(obj, results[1].split('$')[1], returnOnPermission);
     }
-  }
-
-
-  /* Returns 1/0 or True/False for Query */
-  public readQueryEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number | boolean, PersistenceError> {
-    let subQuery = obj.queries[input];
-    subQuery = (subQuery) as ISDQLClause;
-    // PART 1: looking for the location of the object
-    switch (subQuery.name) {
-      // LOCATION QUERY 
-      case 'location':
-        if (this.consentConditions.checkLocation() && returnOnPermission) {
-          return okAsync(true);
-        }
-        switch (subQuery.return) {
-          case 'boolean':
-            let conditions = subQuery.conditions;
-            if (conditions.includes["in"]) {
-              let CountryCodes = conditions.includes["in"];
-
-              CountryCodes.forEach(element => {
-                if (element == this.persistenceRepo.getLocation()) {
-                  return okAsync(true);
-                };
-              });
-
-            }
-            return okAsync(false);
-          case 'integer':
-            return this.persistenceRepo.getLocation();
-          default:
-            return okAsync(false);
-        }
-      // NETWORK QUERY
-      case 'network':
-        if (this.consentConditions.checkNetwork() && returnOnPermission) {
-          return okAsync(true);
-        }
-        if (subQuery.includes('contract')) {
-          let EVMTransactions = this.persistenceRepo.getEVMTransactions(
-            subQuery.contract.address,
-            subQuery.contract.blockrange.start,
-            subQuery.contract.blockrange.end
-          );
-
-          EVMTransactions.forEach(element => {
-            if (element.from != "undefined" && subQuery.contract.direction == "from") {
-              if (element.from == subQuery.contract.address) {
-                return okAsync(true);
-              }
-            }
-            else if (element.to != "undefined" && subQuery.contract.direction == "to") {
-              if (element.to == subQuery.contract.address) {
-                return okAsync(true);
-              }
-            }
-          }
-        }
-
-        switch (subQuery.chain) {
-
-          case 'ETH':
-            return okAsync(true);
-          case 'SOL':
-            return okAsync(true);
-          case 'AVA':
-            return okAsync(true);
-        }
-        return okAsync(true);
-
-      // AGE QUERY
-      case 'age':
-        if (this.consentConditions.checkAge() && returnOnPermission) {
-          return okAsync(true);
-        }
-        switch (subQuery.return) {
-          case 'boolean':
-            if (subQuery.includes["conditions"]) {
-              let conditions = subQuery.conditions;
-              if (conditions.includes["ge"] && conditions.includes["l"]) {
-                if ((this.persistenceRepo.getAge() >= conditions["ge"]) && (this.persistenceRepo.getAge() <= conditions["l"])) {
-                  return okAsync(true);
-                }
-                return okAsync(false);
-              }
-            }
-            // If all else fails
-            return okAsync(false);
-          case 'integer':
-            return this.persistenceRepo.getAge();
-        }
-    }
-    return okAsync(false);
-  }
-
-  /* Returns 1/0 or True/False for Return */
-  public readReturnEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number | boolean, PersistenceError> {
-    let subQuery = obj.returns[input];
-    subQuery = (subQuery) as ISDQLClause;
-    // PART 1: looking for the location of the object
-    switch (subQuery.name) {
-      // LOCATION QUERY 
-      case 'callback':
-        switch (subQuery.message) {
-          case 'qualified':
-            return okAsync(1);
-          case 'not qualified':
-            return okAsync(0);
-          default:
-            return okAsync(false);
-        }
-
-      // NETWORK QUERY
-      case 'query_response':
-        return this.readQueryEntry(obj, subQuery.query, returnOnPermission);
-    }
-    return okAsync(false);
   }
 
   /* Returns 1/0 or True/False for Query */

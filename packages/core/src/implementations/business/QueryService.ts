@@ -132,10 +132,14 @@ export class QueryService implements IQueryService {
         // Break down the actual parts of the query.
         return this.queryParsingEngine.handleQuery(queryContent, queryId);
       })
-
-      .andThen((insights) => {
+      .andThen((queryResponses) => {
         // Get the reward
-        const insightMap = insights.reduce((prev, cur) => {
+        // Andrew Strimaitis
+        // queryResponses is Now this:
+        // queryResponses[0] - insights
+        // queryResponses[1] - rewards
+
+        const insightMap = queryResponses[0].reduce((prev, cur) => {
           prev.set(cur.queryId, cur);
           return prev;
         }, new Map<IpfsCID, Insight>());
@@ -145,7 +149,7 @@ export class QueryService implements IQueryService {
         return this.insightPlatformRepo
           .claimReward(Array.from(insightMap.values()))
           .andThen((rewardsMap) => {
-            return this.insightPlatformRepo.deliverInsights(insights);
+            return this.insightPlatformRepo.deliverInsights(queryResponses[0]);
           });
       });
   }

@@ -4,6 +4,6 @@ export class Insight {
   public constructor(
     public queryId: IpfsCID,
     public destinationUrl: URLString,
-    public data: number | string | number[],
+    public data: number[] | number | boolean,
   ) { }
 }

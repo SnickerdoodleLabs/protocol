@@ -19,10 +19,8 @@ import {
   CountryCode,
   UnixTimestamp,
 } from "@objects/primitives";
-import {
-  AccountIndexingError,
-  BlockNumber
-} from "@snickerdoodlelabs/objects";
+import { AccountIndexingError } from "@objects/errors";
+import { BlockNumber } from "@objects/primitives";
 
 
 /**
