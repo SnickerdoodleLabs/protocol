@@ -1,5 +1,6 @@
 import { IAccountService } from "@interfaces/business";
 import { IAccountRepository } from "@interfaces/data";
+import { ExtensionCookieError } from "@shared/objects/errors";
 import {
   BlockchainProviderError,
   EVMAccountAddress,
@@ -21,6 +22,7 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
+    | ExtensionCookieError
     | BlockchainProviderError
     | InvalidSignatureError
     | UninitializedError
@@ -34,15 +36,22 @@ export class AccountService implements IAccountService {
     account: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    calledWithCookie?: boolean,
   ): ResultAsync<
     void,
+    | ExtensionCookieError
     | BlockchainProviderError
     | InvalidSignatureError
     | UninitializedError
     | UnsupportedLanguageError
     | PersistenceError
   > {
-    return this.accountRepository.addAccount(account, signature, languageCode);
+    return this.accountRepository.unlock(
+      account,
+      signature,
+      languageCode,
+      calledWithCookie || false,
+    );
   }
 
   public getUnlockMessage(

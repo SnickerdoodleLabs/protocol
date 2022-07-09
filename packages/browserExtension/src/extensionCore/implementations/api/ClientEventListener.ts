@@ -40,7 +40,7 @@ export class ClientEventsListener implements IClientEventListener {
       resolvers: { resolveError, resolveResult },
     } = args;
     this.accountService
-      .addAccount(accountAddress, signature, languageCode)
+      .unlock(accountAddress, signature, languageCode)
       .mapErr((e) => resolveError(e))
       .map(() => resolveResult());
   }

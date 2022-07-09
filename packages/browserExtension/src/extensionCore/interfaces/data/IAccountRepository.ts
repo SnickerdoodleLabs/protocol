@@ -1,3 +1,4 @@
+import { ExtensionCookieError } from "@shared/objects/errors";
 import {
   BlockchainProviderError,
   EVMAccountAddress,
@@ -18,6 +19,7 @@ export interface IAccountRepository {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
+    | ExtensionCookieError
     | BlockchainProviderError
     | InvalidSignatureError
     | UninitializedError
@@ -28,8 +30,10 @@ export interface IAccountRepository {
     account: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    calledWithCookie: boolean,
   ): ResultAsync<
     void,
+    | ExtensionCookieError
     | BlockchainProviderError
     | InvalidSignatureError
     | UninitializedError

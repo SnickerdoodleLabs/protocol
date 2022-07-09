@@ -1,6 +1,9 @@
 // Utils
-import { IContextProvider } from "@interfaces/utilities";
-import { ContextProvider } from "@implementations/utilities";
+import { IAccountCookieUtils, IContextProvider } from "@interfaces/utilities";
+import {
+  AccountCookieUtils,
+  ContextProvider,
+} from "@implementations/utilities";
 
 // Utils / Factory
 import {
@@ -49,6 +52,8 @@ import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 // snickerdoodleobjects
 import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import Browser from "webextension-polyfill";
+import { okAsync } from "neverthrow";
+import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 
 export class ExtensionCore {
   // snickerdooldle Core
@@ -64,6 +69,7 @@ export class ExtensionCore {
 
   // Utils
   protected contextProvider: IContextProvider;
+  protected accountCookieUtils: IAccountCookieUtils;
 
   // Factory
   protected externalRpcMiddlewareFactory: IExternalRpcMiddlewareFactory;
@@ -96,7 +102,12 @@ export class ExtensionCore {
       this.externalRpcMiddlewareFactory,
     );
 
-    this.accountRepository = new AccountRepository(this.core);
+    this.accountCookieUtils = new AccountCookieUtils();
+
+    this.accountRepository = new AccountRepository(
+      this.core,
+      this.accountCookieUtils,
+    );
     this.accountService = new AccountService(this.accountRepository);
 
     this.portConnectionRepository = new PortConnectionRepository(
@@ -119,6 +130,27 @@ export class ExtensionCore {
     this.portConnectionListener.initialize();
 
     this.listenExtensionIconClicks();
+
+    // TODO enable again once the unlock method on core is complated
+    //this.tryUnlock();
+  }
+
+  private tryUnlock() {
+    this.accountCookieUtils.readAccountInfoFromCookie().andThen((values) => {
+      if (values?.length) {
+        const { accountAddress, signature, languageCode } = values[0];
+        return this.accountService
+          .unlock(accountAddress, signature, languageCode, true)
+          .mapErr((e) => {
+            // TODO add onboarding url - provide config
+            ExtensionUtils.openTab({ url: "https://localhost:9005/" });
+            return okAsync(undefined);
+          });
+      }
+      // TODO add onboarding url - provide config
+      ExtensionUtils.openTab({ url: "https://localhost:9005/" });
+      return okAsync(undefined);
+    });
   }
 
   private listenExtensionIconClicks() {

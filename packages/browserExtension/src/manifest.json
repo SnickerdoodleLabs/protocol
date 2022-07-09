@@ -32,7 +32,12 @@
     ]
   },
 
+  "host_permissions": [
+    "https://snickerdoodlelabs.io/"
+  ],
+
   "permissions": [
+    "cookies",
     "notifications",
     "tabs",
     "storage",
