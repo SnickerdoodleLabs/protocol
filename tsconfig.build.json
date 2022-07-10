@@ -23,11 +23,32 @@
     "jsx": "react",
     "composite": true,
     "paths": {
-      "@browser-extension/*": ["./*"],
-      "@objects/*": ["./*"],
-      "@core/*": ["./*"],
-      "@core-tests/*": ["../test/*"],
-      "@contracts-sdk/*": ["./*"]
+      "@browser-extension/*": [
+        "./*"
+      ],
+      "@core/*": [
+        "./*"
+      ],
+      "@core-tests/*": [
+        "../test/*"
+      ],
+      "@common-utils/*": [
+        "./*"
+      ],
+      "@contracts-sdk/*": [
+        "./*"
+      ],
+      "@indexers/*": [
+        "./*"
+      ],
+      "@objects/*": [
+        "./*"
+      ],
+      "@persistence/*": ["./*"],
+      "@test-harness/*": [
+        "./*"
+      ],
+      "@utils/*": ["./*"]
     }
   }
 }

@@ -1,8 +1,5 @@
-import {
-  ChainId,
-  EthereumContractAddress,
-  ProviderUrl,
-} from "@objects/primatives";
+import { EIndexer } from "@objects/enum";
+import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 
 export class ChainInformation {
   constructor(
@@ -11,6 +8,7 @@ export class ChainInformation {
     public isDev: boolean,
     public providerUrls: ProviderUrl[],
     public averageBlockMiningTime: number,
+    public indexer: EIndexer,
   ) {}
 }
 
@@ -21,8 +19,10 @@ export class ControlChainInformation extends ChainInformation {
     public isDev: boolean,
     public providerUrls: ProviderUrl[],
     public averageBlockMiningTime: number,
-    public consentFactoryContractAddress: EthereumContractAddress,
+    public indexer: EIndexer,
+    public consentFactoryContractAddress: EVMContractAddress,
+    public crumbsContractAddress: EVMContractAddress,
   ) {
-    super(name, chainId, isDev, providerUrls, averageBlockMiningTime);
+    super(name, chainId, isDev, providerUrls, averageBlockMiningTime, indexer);
   }
 }

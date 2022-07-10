@@ -1,11 +1,25 @@
 import { ResultAsync } from "neverthrow";
 
-import { ClickData } from "@objects/businessObjects";
+import {
+  ClickData,
+  ClickFilter,
+  EVMTransaction,
+  SiteVisit,
+} from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
 import {
-  EthereumAccountAddress,
-  EthereumPrivateKey,
-} from "@objects/primatives";
+  Age,
+  EmailAddressString,
+  ChainId,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
+  GivenName,
+  Gender,
+  FamilyName,
+  CountryCode,
+  UnixTimestamp,
+} from "@objects/primitives";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -25,7 +39,7 @@ export interface IDataWalletPersistence {
    * and using "return this.unlocked.andThen()" at the beginning of the other methods.
    * @param derivedKey
    */
-  unlock(derivedKey: EthereumPrivateKey): ResultAsync<void, PersistenceError>;
+  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
 
   /**
    * This method adds an ethereum account to the data wallet. Only these accounts may unlock the
@@ -33,19 +47,68 @@ export interface IDataWalletPersistence {
    * @param accountAddress
    */
   addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError>;
 
   /**
    * This method returns all the Ethereum accounts that are registered in the data wallet.
    */
-  getAccounts(): ResultAsync<EthereumAccountAddress[], PersistenceError>;
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
 
   /**
    * This is an example method for adding data to the wallet. In this case, it would be a "click",
    * presumeably captured by the Form Factor.
    */
   addClick(click: ClickData): ResultAsync<void, PersistenceError>;
+
+  /** This returns you click data that you have stored, according to the filter */
+  getClicks(clickFilter: ClickFilter): ResultAsync<ClickData, PersistenceError>;
+
+  /** Google User Information */
+  setAge(age: Age): ResultAsync<void, PersistenceError>;
+  getAge(): ResultAsync<Age, PersistenceError>;
+
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
+  getGivenName(): ResultAsync<GivenName, PersistenceError>;
+
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError>;
+
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError>;
+
+  setGender(gender: Gender): ResultAsync<void, PersistenceError>;
+  getGender(): ResultAsync<Gender, PersistenceError>;
+
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
+
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<CountryCode, PersistenceError>;
+
+  /**
+   * Returns a list of consent contract addresses that the user has rejected
+   */
+  getRejectedCohorts(): ResultAsync<EVMContractAddress[], PersistenceError>;
+
+  /**
+   * Adds a list of consent contract addresses to the list of cohorts the user has
+   * positively marked as rejected
+   */
+  addRejectedCohorts(
+    consentContractAddresses: EVMContractAddress[],
+  ): ResultAsync<void, PersistenceError>;
+
+  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
+
+  getLatestTransactionForAccount(
+    chainId: ChainId,
+    address: EVMAccountAddress,
+  ): ResultAsync<EVMTransaction | null, PersistenceError>;
+  addEVMTransactions(
+    transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

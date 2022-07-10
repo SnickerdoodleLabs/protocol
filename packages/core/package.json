@@ -29,22 +29,25 @@
     "compile": "tsc --build && cd ../.. && yarn alias",
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
     "prepare": "yarn build",
-    "test": "yarn build && yarn test:ci",
+    "test": "yarn test:ci",
     "test-integration": "cucumber-js --require-module ts-node/register --require-module tsconfig-paths/register --require 'test/integration/**/*.ts' test/integration/features/**/*.feature",
-    "test:ci": "jest --runInBand --coverage --passWithNoTests",
+    "test:ci": "npx jest --runInBand --coverage --passWithNoTests",
     "test:watch": "jest --watch --color --detectOpenHandles"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/contracts-sdk": ">=0.0.1",
-    "@snickerdoodlelabs/objects": ">=0.0.1",
-    "ethers": "^5.4.7",
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/contracts-sdk": "workspace:^",
+    "@snickerdoodlelabs/indexers": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "ethers": "^5.6.6",
     "inversify": "^5.1.1",
     "ipfs-http-client": "^55.0.0",
     "neverthrow": "^4.3.1",
     "neverthrow-result-utils": "^1.0.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
+    "url-join-ts": "^1.0.5",
     "uuid": "^8.3.0"
   }
 }

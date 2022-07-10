@@ -1,28 +1,26 @@
+import { TypedDataDomain } from "@ethersproject/abstract-signer";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { IIndexerConfigProvider } from "@snickerdoodlelabs/indexers";
 import {
   chainConfig,
   ChainId,
   ControlChainInformation,
+  IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { CoreConfig } from "@core/interfaces/objects";
-import { IConfigProvider, ILogUtils } from "@core/interfaces/utilities";
-
-declare const __CONTROL_CHAIN_ID__: number | undefined;
+import { IConfigProvider } from "@core/interfaces/utilities";
 
 @injectable()
-export class ConfigProvider implements IConfigProvider {
+export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
   protected config: CoreConfig;
 
-  public constructor(
-    protected logUtils: ILogUtils,
-    config?: Partial<CoreConfig>,
-  ) {
-    const controlChainId =
-      config?.controlChainId || __CONTROL_CHAIN_ID__ || 1337;
-    const controlChainInformation = chainConfig.get(ChainId(controlChainId));
+  public constructor(@inject(ILogUtilsType) protected logUtils: ILogUtils) {
+    const controlChainId = ChainId(31337);
+    const controlChainInformation = chainConfig.get(controlChainId);
 
     if (controlChainInformation == null) {
       throw new Error(
@@ -37,14 +35,27 @@ export class ConfigProvider implements IConfigProvider {
     }
 
     this.config = new CoreConfig(
-      ChainId(controlChainId),
-      config?.providerAddress || URLString(""),
-      config?.chainInformation || chainConfig,
-      config?.controlChainInformation || controlChainInformation,
+      controlChainId,
+      [], //TODO: supported chains
+      URLString(""),
+      chainConfig,
+      controlChainInformation,
+      URLString("ipfs node address"),
+      URLString("http://insight-platform"),
+      {
+        name: "Snickerdoodle Protocol",
+        version: "1",
+      } as TypedDataDomain,
+      5000, // polling interval
+      "covalent api key",
     );
   }
 
   public getConfig(): ResultAsync<CoreConfig, never> {
     return okAsync(this.config);
+  }
+
+  public setConfigOverrides(overrides: IConfigOverrides): void {
+    this.config = { ...this.config, ...overrides };
   }
 }

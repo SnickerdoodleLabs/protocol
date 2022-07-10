@@ -1,9 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  AESEncryptedString,
   BlockchainProviderError,
+  ConsentContractError,
   DataWalletAddress,
-  DerivationMask,
-  EthereumAccountAddress,
+  EVMAccountAddress,
+  EVMPrivateKey,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   InvalidSignatureError,
@@ -26,8 +32,8 @@ import { EthereumAccount, CoreContext } from "@core/interfaces/objects";
 import {
   IContextProvider,
   IContextProviderType,
-  IDerivationMaskUtils,
-  IDerivationMaskUtilsType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
 } from "@core/interfaces/utilities";
 
 @injectable()
@@ -38,8 +44,8 @@ export class AccountService implements IAccountService {
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IDerivationMaskUtilsType)
-    protected derivationMaskUtils: IDerivationMaskUtils,
+    @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {}
 
   public getUnlockMessage(
@@ -59,20 +65,22 @@ export class AccountService implements IAccountService {
   }
 
   public unlock(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
-    | InvalidSignatureError
-    | UnsupportedLanguageError
     | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | UnsupportedLanguageError
+    | InvalidSignatureError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
-      this.loginRegistryRepo.getDerivationMask(accountAddress, languageCode),
-    ]).andThen(([context, derivationMask]) => {
+      this.loginRegistryRepo.getCrumb(accountAddress, languageCode),
+    ]).andThen(([context, encryptedDataWalletKey]) => {
       // You can't unlock if we're already unlocked!
       if (context.dataWalletAddress != null || context.unlockInProgress) {
         // TODO: Need to consider the error type here, I'm getting lazy
@@ -84,7 +92,7 @@ export class AccountService implements IAccountService {
       return this.contextProvider
         .setContext(context)
         .andThen(() => {
-          if (derivationMask == null) {
+          if (encryptedDataWalletKey == null) {
             // We're trying to unlock for the first time!
             return this.createDataWallet(
               accountAddress,
@@ -92,15 +100,14 @@ export class AccountService implements IAccountService {
               languageCode,
             );
           }
-          return this.unlockExistingWallet(derivationMask, signature);
+          return this.unlockExistingWallet(encryptedDataWalletKey, signature);
         })
-        .andThen(({ account, entropy }) => {
-          // The account address in account is just a generic EthereumAccountAddress,
+        .andThen((account) => {
+          // The account address in account is just a generic EVMAccountAddress,
           // we need to cast it to a DataWalletAddress, since in this case, that's
           // what it is.
           context.dataWalletAddress = DataWalletAddress(account.accountAddress);
           context.dataWalletKey = account.privateKey;
-          context.sourceEntropy = entropy;
           context.unlockInProgress = false;
 
           // We can update the context and provide the key to the persistence in one step
@@ -121,77 +128,82 @@ export class AccountService implements IAccountService {
   }
 
   protected createDataWallet(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
-    AccountEntropyPair,
-    BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
+    EthereumAccount,
+    BlockchainProviderError | UninitializedError | ConsentContractError
   > {
-    return this.derivationMaskUtils
-      .getRandomDerivationMask()
-      .andThen((newDerivationMask) => {
-        // Combine the mask with the signature to get the Source Entropy
-        return this.derivationMaskUtils
-          .calculateSourceEntropy(signature, newDerivationMask)
-          .andThen((sourceEntropy) => {
-            // Get the derived key
-            return this.derivationMaskUtils
-              .getEthereumAccountFromEntropy(sourceEntropy)
-              .andThen((account) => {
-                // The account object has the address and the private key
-                // We need to store the derivation mask, and the key and data
-                // wallet address in the context
-
-                // The account address in account is just a generic EthereumAccountAddress,
-                // we need to cast it to a DataWalletAddress, since in this case, that's
-                // what it is.
-                return this.loginRegistryRepo
-                  .addDerivationMask(
-                    accountAddress,
-                    languageCode,
-                    newDerivationMask,
-                  )
-                  .map(() => {
-                    return new AccountEntropyPair(account, sourceEntropy);
-                  });
-              });
-          });
-      });
+    return ResultUtils.combine([
+      this.dataWalletUtils.createDataWalletKey(),
+      this.dataWalletUtils.deriveEncryptionKeyFromSignature(signature),
+    ]).andThen(([dataWalletKey, encryptionKey]) => {
+      // Encrypt the data wallet key
+      return this.cryptoUtils
+        .encryptString(dataWalletKey, encryptionKey)
+        .andThen((encryptedDataWallet) => {
+          return this.loginRegistryRepo.addCrumb(
+            accountAddress,
+            encryptedDataWallet,
+            languageCode,
+          );
+        })
+        .map(() => {
+          return new EthereumAccount(
+            this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              dataWalletKey,
+            ),
+            dataWalletKey,
+          );
+        });
+    });
   }
 
   protected unlockExistingWallet(
-    derivationMask: DerivationMask,
+    encryptedDataWalletKey: AESEncryptedString,
     signature: Signature,
   ): ResultAsync<
-    AccountEntropyPair,
+    EthereumAccount,
     BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
   > {
-    return this.derivationMaskUtils
-      .calculateSourceEntropy(signature, derivationMask)
-      .andThen((sourceEntropy) => {
-        // Get the derived key
-        return this.derivationMaskUtils
-          .getEthereumAccountFromEntropy(sourceEntropy)
-          .map((account) => {
-            return new AccountEntropyPair(account, sourceEntropy);
-          });
+    return this.dataWalletUtils
+      .deriveEncryptionKeyFromSignature(signature)
+      .andThen((encryptionKey) => {
+        return this.cryptoUtils.decryptAESEncryptedString(
+          encryptedDataWalletKey,
+          encryptionKey,
+        );
+      })
+      .map((dataWalletKey) => {
+        const key = EVMPrivateKey(dataWalletKey);
+        return new EthereumAccount(
+          this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(key),
+          key,
+        );
       });
   }
 
   public addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    BlockchainProviderError | UninitializedError | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | PersistenceError
+    | ConsentContractError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
-      this.loginRegistryRepo.getDerivationMask(accountAddress, languageCode),
-    ]).andThen(([context, existingDerivationMask]) => {
-      if (context.dataWalletAddress == null || context.sourceEntropy == null) {
+      this.loginRegistryRepo.getCrumb(accountAddress, languageCode),
+    ]).andThen(([context, existingCrumb]) => {
+      if (
+        context.dataWalletAddress == null ||
+        context.sourceEntropy == null ||
+        context.dataWalletKey == null
+      ) {
         return errAsync(
           new UninitializedError(
             "Must be logged in first before you can add an additional account",
@@ -199,27 +211,31 @@ export class AccountService implements IAccountService {
         );
       }
 
-      if (existingDerivationMask != null) {
-        // There is already a mask on chain for this account; odds are the
+      if (existingCrumb != null) {
+        // There is already a crumb on chain for this account; odds are the
         // account is already connected. If we want to be cool,
         // we'd double check. For right now, we'll just return, and figure
         // the job is done
         return okAsync(undefined);
       }
 
-      // Calculate the derivation mask that will convert this new signature
-      // to the existing source entropy
-      return this.derivationMaskUtils
-        .calculateDerivationMask(signature, context.sourceEntropy)
-        .andThen((derivationMask) => {
-          // Need to store the new derivation mask
-          return this.loginRegistryRepo.addDerivationMask(
-            accountAddress,
-            languageCode,
-            derivationMask,
+      return this.dataWalletUtils
+        .deriveEncryptionKeyFromSignature(signature)
+        .andThen((encryptionKey) => {
+          // Encrypt the data wallet key with this new encryption key
+          return this.cryptoUtils.encryptString(
+            context.dataWalletKey!,
+            encryptionKey,
           );
         })
-        .andThen((tokenId) => {
+        .andThen((encryptedDataWalletKey) => {
+          return this.loginRegistryRepo.addCrumb(
+            accountAddress,
+            encryptedDataWalletKey,
+            languageCode,
+          );
+        })
+        .andThen(() => {
           // Add the account to the data wallet
           return this.dataWalletPersistence.addAccount(accountAddress);
         })
@@ -229,8 +245,4 @@ export class AccountService implements IAccountService {
         });
     });
   }
-}
-
-class AccountEntropyPair {
-  public constructor(public account: EthereumAccount, public entropy: string) {}
 }

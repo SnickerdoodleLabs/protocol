@@ -3,19 +3,18 @@ import {
   JsonRpcProvider,
   FallbackProvider,
 } from "@ethersproject/providers";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { ChainId, BlockchainProviderError } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IBlockchainProvider,
   IConfigProvider,
   IConfigProviderType,
-  ILogUtils,
-  ILogUtilsType,
 } from "@core/interfaces/utilities";
-import { ethers } from "ethers";
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class BlockchainProvider implements IBlockchainProvider {

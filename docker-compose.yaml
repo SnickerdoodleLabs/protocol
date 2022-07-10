@@ -1,21 +1,21 @@
 version: "3.4"
 
 services:
-  blockchain:
-    image: hypernetlabs/eth-provider:local
+  doodlechain:
+    container_name: doodlechain
     ports:
-      - 8545:8545
-    environment:
-      MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
-      CHAIN_ID: "1337"
+      - '8545:8569'
+    image: 'snickerdoodlelabs/devchain:latest'
 
-  user-dashboard:
-    image: hypernetlabs/hypernet-protocol-user-dashboard:local
-    ports: 
+  extension-onboarding:
+    image: snickerdoodlelabs/extension-onboarding:local
+    ports:
       - 8080:80
-    depends_on:
-      - blockchain
-
+    volumes:
+      - ./packages/extension-onboarding:/app/packages/extension-onboarding
+    networks:
+      - internal
+      
   ipfs:
     image: ipfs/go-ipfs:release
     ports:
@@ -26,7 +26,11 @@ services:
       - ./.ipfs/ipfs0:/data/ipfs
       - ./.ipfs/export:/export
       - ./packages/development/ipfs-provider/start_ipfs:/start_ipfs
-    entrypoint: ["/sbin/tini", "--", "/start_ipfs"]
-    command: ["daemon", "--migrate=true", "--agent-version-suffix=docker"]
     environment:
-      ACCESS_CONTROL_ALLOW_ORIGIN: "[\"*\"]"
+      ACCESS_CONTROL_ALLOW_ORIGIN: '["*"]'
+
+networks:
+  internal:
+
+volumes:
+  data:

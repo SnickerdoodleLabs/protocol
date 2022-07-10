@@ -1,3 +1,5 @@
+![Snickerdoodle](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
+
 # Snickerdoodle Protocol Contracts and CLI Tool
 
 This package contains two sections at the moment:
@@ -405,8 +407,20 @@ Success! Crumb id 1 burnt from address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb9226
 
 A pre-built docker image for local development against the contract stack is available at
 [`snickerdoodlelabs/devchain`](https://hub.docker.com/repository/docker/snickerdoodlelabs/devchain).
-Run locally like this:
+Run a local subnet like this:
 
 ```shell
-docker run -p 8545:8569 --name devchain --rm snickerdoodlelabs/devchain
+docker run -d -p 8569:9650 --name devchain --rm --env NETWORK=subnet snickerdoodlelabs/devchain
+```
+
+Check the status of the subnet like this:
+
+```shell
+docker exec devchain avalanche network status
+```
+
+Run a regular old hardhat node like this:
+
+```shell
+docker run -d -p 8569:8569 --name devchain --rm --env NETWORK=dev snickerdoodlelabs/devchain
 ```

@@ -1,2 +1,10 @@
 node_modules/*
 ethereum-node-data
+docker-compose.yml
+Dockerfile
+test
+.vscode
+.yarn
+.yarnrc.yml
+dist
+    

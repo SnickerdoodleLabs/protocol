@@ -1,7 +1,6 @@
-import { ResultAsync } from "neverthrow";
 import {
   ConsentContractError,
-  EthereumAccountAddress,
+  EVMAccountAddress,
   IpfsCID,
   TokenIdNumber,
   TokenUri,
@@ -10,9 +9,10 @@ import {
   RequestForData,
   BlockNumber,
 } from "@snickerdoodlelabs/objects";
+import { EventFilter, Event } from "ethers";
+import { ResultAsync } from "neverthrow";
 
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
-import { EventFilter, Event } from "ethers";
 
 export interface IConsentContract {
   /**
@@ -52,14 +52,14 @@ export interface IConsentContract {
   /**
    * Returns address of the consent contract owner (admin)
    */
-  getConsentOwner(): ResultAsync<EthereumAccountAddress, ConsentContractError>;
+  getConsentOwner(): ResultAsync<EVMAccountAddress, ConsentContractError>;
 
   /**
    * Returns the number of consent tokens owned by a specific address
    * @param address owner address
    */
   balanceOf(
-    address: EthereumAccountAddress,
+    address: EVMAccountAddress,
   ): ResultAsync<number, ConsentContractError>;
 
   /**
@@ -83,7 +83,7 @@ export interface IConsentContract {
    * @param ownerAddress owner address
    */
   getConsentTokensOfAddress(
-    ownerAddress: EthereumAccountAddress,
+    ownerAddress: EVMAccountAddress,
   ): ResultAsync<ConsentToken[], ConsentContractError>;
 
   /**
@@ -93,22 +93,22 @@ export interface IConsentContract {
    * @param toBlock to block number
    */
   getRequestForDataListByRequesterAddress(
-    requesterAddress: EthereumAccountAddress,
+    requesterAddress: EVMAccountAddress,
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
-  filters: IConentContractFilters;
+  filters: IConsentContractFilters;
 }
 
-interface IConentContractFilters {
+interface IConsentContractFilters {
   Transfer(
-    fromAddress: EthereumAccountAddress | null,
-    toAddress: EthereumAccountAddress | null,
+    fromAddress: EVMAccountAddress | null,
+    toAddress: EVMAccountAddress | null,
   ): ResultAsync<EventFilter, ConsentContractError>;
 
   RequestForData(
-    ownerAddress: EthereumAccountAddress,
+    ownerAddress: EVMAccountAddress,
   ): ResultAsync<EventFilter, ConsentContractError>;
 }
 

@@ -70,6 +70,11 @@ module.exports = {
       gas: 6000000,
       gasPrice: 8000000000,
     },
+    subnet: {
+      accounts: accounts,
+      chainId: 36,
+      url: "http://127.0.0.1:9650/ext/bc/vfbkUAcMTTvygs7WvaoxAuSyRDNHpbFHtyoRvDEaaShRc9oQt/rpc",
+    },
     mainnet: {
       // ethereum mainnet
       accounts: accounts,

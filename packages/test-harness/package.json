@@ -1,0 +1,46 @@
+{
+  "name": "@snickerdoodlelabs/core-test-harness",
+  "version": "0.0.1",
+  "description": "Package that allows running snickerdoodle core in docker container",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/test-harness#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle",
+    "Core",
+    "Test"
+  ],
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "scripts": {
+    "alias": "tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "tsc --build && cd ../.. && yarn alias",
+    "docker-push": "docker push snickerdoodlelabs/protocol-test-harness:local",
+    "dockerize": "docker build -t snickerdoodlelabs/protocol-test-harness:local -f Dockerfile --progress=plain ../..",
+    "start": "yarn compile && npx ts-node -r tsconfig-paths/register src/index.ts"
+  },
+  "dependencies": {
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/core": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/persistence": "workspace:^",
+    "express": "^4.18.1",
+    "inquirer": "^9.0.0",
+    "neverthrow": "^4.3.1",
+    "neverthrow-result-utils": "^1.0.2",
+    "reflect-metadata": "^0.1.13"
+  },
+  "type": "module"
+}

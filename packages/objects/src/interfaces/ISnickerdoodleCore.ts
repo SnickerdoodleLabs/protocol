@@ -1,22 +1,40 @@
 import { ResultAsync } from "neverthrow";
 import { Observable } from "rxjs";
 
-import { SDQLQuery } from "@objects/businessObjects";
+import { EInvitationStatus } from "..";
+
 import {
+  CohortInvitation,
+  ConsentConditions,
+  SDQLQuery,
+} from "@objects/businessObjects";
+import {
+  AjaxError,
   BlockchainProviderError,
+  ConsentContractError,
+  ConsentContractRepositoryError,
   ConsentError,
   InvalidSignatureError,
+  IPFSError,
   PersistenceError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
 import {
+  Age,
   DataWalletAddress,
-  EthereumAccountAddress,
+  EmailAddressString,
+  GivenName,
+  Gender,
+  EVMAccountAddress,
+  EVMContractAddress,
   IpfsCID,
   LanguageCode,
+  FamilyName,
   Signature,
-} from "@objects/primatives";
+  UnixTimestamp,
+  CountryCode,
+} from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -41,15 +59,17 @@ export interface ISnickerdoodleCore {
    * @param countryCode
    */
   unlock(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
     | BlockchainProviderError
-    | InvalidSignatureError
+    | UninitializedError
+    | ConsentContractError
     | UnsupportedLanguageError
     | PersistenceError
+    | InvalidSignatureError
   >;
 
   /**
@@ -63,28 +83,118 @@ export interface ISnickerdoodleCore {
    * @param countryCode
    */
   addAccount(
-    accountAddress: EthereumAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
     | BlockchainProviderError
-    | InvalidSignatureError
-    | UninitializedError
-    | UnsupportedLanguageError
     | PersistenceError
+    | UninitializedError
+    | ConsentContractError
   >;
 
-  addData(): ResultAsync<void, UninitializedError>;
+  /**
+   * This method checks the status of the invitation in relationship to the data wallet.
+   * An invitation may be either "New" (haven't dealt with it one way or the other),
+   * "Rejected" (previously, positively turned down), or "Accepted" (if we are already opted
+   * in to the cohort)
+   * @param invitation
+   */
+  checkInvitationStatus(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    EInvitationStatus,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+  >;
+
+  /**
+   * This method will accept an invitation, even if the user had previously rejected it.
+   * Note that this is different than reject invitation, which will not opt you out of the
+   * cohort
+   * @param invitation The actual invitation to the cohort
+   * @param consentConditions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
+   */
+  acceptInvitation(
+    invitation: CohortInvitation,
+    consentConditions: ConsentConditions | null,
+  ): ResultAsync<void, AjaxError | PersistenceError | UninitializedError>;
+
+  /**
+   * This method will reject an invitation, which simply puts it on a list for future
+   * auto-rejection by the form factor. Calling this will NOT opt the user out of a cohort
+   * they have already opted into. You need to call leaveCohort() instead. It will return
+   * an error if the user has already consented (you did check the status first with checkInvitationStatus(),
+   * right?)
+   */
+  rejectInvitation(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+  >;
+
+  /**
+   * This method will actually burn a user's consent token. This data wallet will no longer
+   * recieve notifications of queries for this cohort.
+   * @param consentContractAddress
+   */
+  leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | ConsentError
+  >;
 
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   processQuery(
     queryId: IpfsCID,
-  ): ResultAsync<void, UninitializedError | ConsentError>;
+  ): ResultAsync<
+    void,
+    AjaxError | UninitializedError | ConsentError | IPFSError
+  >;
 
   getEvents(): ResultAsync<IQueryEngineEvents, never>;
+
+  /** Google User Information */
+  setAge(age: Age): ResultAsync<void, PersistenceError>;
+  getAge(): ResultAsync<Age, PersistenceError>;
+
+  setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
+  getGivenName(): ResultAsync<GivenName, PersistenceError>;
+
+  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
+  getFamilyName(): ResultAsync<FamilyName, PersistenceError>;
+
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
+  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError>;
+
+  setGender(gender: Gender): ResultAsync<void, PersistenceError>;
+  getGender(): ResultAsync<Gender, PersistenceError>;
+
+  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
+  getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
+
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<CountryCode, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
@@ -92,5 +202,5 @@ export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
 export interface IQueryEngineEvents {
   onInitialized: Observable<DataWalletAddress>;
   onQueryPosted: Observable<SDQLQuery>;
-  onAccountAdded: Observable<EthereumAccountAddress>;
+  onAccountAdded: Observable<EVMAccountAddress>;
 }

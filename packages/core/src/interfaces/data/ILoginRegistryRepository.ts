@@ -1,29 +1,35 @@
 import {
+  AESEncryptedString,
   BlockchainProviderError,
-  DerivationMask,
-  EthereumAccountAddress,
+  ConsentContractError,
+  EVMAccountAddress,
   LanguageCode,
   TokenId,
-  UnsupportedLanguageError,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export interface ILoginRegistryRepository {
-  /** getDerivationMask() returns the derivation mask stored on the DoodleChain
-   * if it exists for the account address and language, or null if the token is
+  /** getCrumb() returns the encrypted private key for the data wallet stored on the DoodleChain
+   * if it exists for the account address, or null if the token is
    * not yet minted
    */
-  getDerivationMask(
-    accountAddress: EthereumAccountAddress,
+  getCrumb(
+    accountAddress: EVMAccountAddress,
     languageCode: LanguageCode,
-  ): ResultAsync<DerivationMask | null, BlockchainProviderError>;
+  ): ResultAsync<
+    AESEncryptedString | null,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
 
-  addDerivationMask(
-    accountAddress: EthereumAccountAddress,
+  addCrumb(
+    accountAddress: EVMAccountAddress,
+    encryptedDataWalletKey: AESEncryptedString,
     languageCode: LanguageCode,
-    derivationMask: DerivationMask,
-  ): ResultAsync<TokenId, BlockchainProviderError>;
+  ): ResultAsync<
+    TokenId,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
 }
 
 export const ILoginRegistryRepositoryType = Symbol.for(

@@ -1,38 +1,38 @@
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
-  EthereumAccountAddress,
-  EthereumContractAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
   UninitializedError,
   ConsentToken,
   ConsentContractError,
   AjaxError,
   ConsentContractRepositoryError,
 } from "@snickerdoodlelabs/objects";
-import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
+import {
+  IConsentContractRepository,
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+} from "@core/interfaces/data";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
   IContextProvider,
   IContextProviderType,
-  ILogUtils,
-  ILogUtilsType,
 } from "@core/interfaces/utilities";
-import { IConsentContractRepository } from "@core/interfaces/data";
 import {
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
-} from "@core/interfaces/data";
-import {
-  IConsentContractFactoryType,
-  IConsentContractFactory,
+  IContractFactoryType,
+  IContractFactory,
 } from "@core/interfaces/utilities/factory";
 
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {
-  protected consentContracts: Map<EthereumContractAddress, IConsentContract> =
+  protected consentContracts: Map<EVMContractAddress, IConsentContract> =
     new Map();
 
   protected consentContractsPromise: ResultAsync<
@@ -46,8 +46,8 @@ export class ConsentContractRepository implements IConsentContractRepository {
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IConsentContractFactoryType)
-    protected consentContractFactory: IConsentContractFactory,
+    @inject(IContractFactoryType)
+    protected consentContractFactory: IContractFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.consentContractsPromise = null;
@@ -85,8 +85,8 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public getConsentTokens(
-    consentContractAddress: EthereumContractAddress,
-    ownerAddress: EthereumAccountAddress,
+    consentContractAddress: EVMContractAddress,
+    ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     ConsentToken[],
     | ConsentContractError
@@ -103,8 +103,8 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   public isAddressOptedIn(
-    consentContractAddress: EthereumContractAddress,
-    address: EthereumAccountAddress,
+    consentContractAddress: EVMContractAddress,
+    address?: EVMAccountAddress,
   ): ResultAsync<
     boolean,
     | ConsentContractError
@@ -113,17 +113,31 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | AjaxError
   > {
-    return this.getConsentContract(consentContractAddress).andThen(
-      (consentContract) => {
-        return consentContract.balanceOf(address).map((numberOfTokens) => {
-          return numberOfTokens > 0;
-        });
-      },
-    );
+    return ResultUtils.combine([
+      this.getConsentContract(consentContractAddress),
+      this.contextProvider.getContext(),
+    ])
+      .andThen(([consentContract, context]) => {
+        // We will use the data wallet address if another address is not provided
+        if (address == null) {
+          if (context.dataWalletAddress != null) {
+            address = EVMAccountAddress(context.dataWalletAddress);
+          }
+          return errAsync(
+            new UninitializedError(
+              "No data wallet address provided and core uninitialized in isAddressOptedIn",
+            ),
+          );
+        }
+        return consentContract.balanceOf(address);
+      })
+      .map((numberOfTokens) => {
+        return numberOfTokens > 0;
+      });
   }
 
   public getConsentContracts(): ResultAsync<
-    Map<EthereumContractAddress, IConsentContract>,
+    Map<EVMContractAddress, IConsentContract>,
     | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
@@ -139,7 +153,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
   }
 
   protected getConsentContract(
-    consentContractAddress: EthereumContractAddress,
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     IConsentContract,
     | ConsentContractRepositoryError
