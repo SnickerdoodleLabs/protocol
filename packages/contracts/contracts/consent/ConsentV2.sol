@@ -42,6 +42,9 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     /// @dev Trusted forwarder address for meta-transactions 
     address public trustedForwarder;
 
+    /// @dev Array of trusted domains
+    string[] domains;
+
     /* EVENTS */ 
 
     /// @notice Emitted when a request for data is made
@@ -50,6 +53,14 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     /// @param ipfsCIDIndexed The indexed IPFS CID pointing to an SDQL instruction 
     /// @param ipfsCID The IPFS CID pointing to an SDQL instruction 
     event RequestForData(address indexed requester, string indexed ipfsCIDIndexed, string ipfsCID);
+
+    /// @notice Emitted when a domain is added
+    /// @param domain Domain url added
+    event LogAddDomain(string domain);
+
+    /// @notice Emitted when a domain is removed
+    /// @param domain Domain url removed
+    event LogRemoveDomain(string domain);
 
     /* MODIFIERS */
 
@@ -95,10 +106,13 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     /// @param tokenId User's Consent token id to mint against
     /// @param agreementURI User's Consent token uri containing agreement flags
     function optIn(uint256 tokenId, string memory agreementURI)
-        public
+        external
         whenNotPaused
         whenNotDisabled
     {   
+        /// if user has opted in before, revert
+        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+
         /// mint the consent token and set its agreement uri
         _safeMint(_msgSender(), tokenId);
         _setTokenURI(tokenId, agreementURI);
@@ -122,9 +136,12 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
         string memory agreementURI,
         bytes memory signature
         )
-        public
+        external
         whenNotPaused
     {
+        /// if user has opted in before, revert
+        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+        
         /// check the signature against the payload
         require(
             _isValidSignature(_msgSender(), tokenId, agreementURI, signature),
@@ -145,13 +162,11 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     /// @notice Allows users to opt out of sharing their data
     /// @dev burns the user's consent token
     /// @param tokenId Token id of token being burnt
-    function optOut(uint256 tokenId) public {
+    function optOut(uint256 tokenId) external {
         /// burn checks if msg.sender is owner of tokenId
         /// burn also reduces totalSupply
+        /// burn also remove user's consent contract to ConsentFactory
         burn(tokenId);
-
-        /// remove user's consent contract to ConsentFactory
-        consentFactoryInstance.removeUserConsents(_msgSender());
     }
 
     /// @notice Facilitates entity's request for data
@@ -167,7 +182,7 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
 
     /// @notice Set the trusted forwarder address 
     /// @param trustedForwarder_ Address of the trusted forwarder 
-    function setTrustedForwarder(address trustedForwarder_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setTrustedForwarder(address trustedForwarder_) external onlyRole(DEFAULT_ADMIN_ROLE) {
         trustedForwarder = trustedForwarder_;
     }
 
@@ -175,6 +190,56 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     /// @param newURI New base uri
     function setBaseURI(string memory newURI) public onlyRole(DEFAULT_ADMIN_ROLE) {
         baseURI = newURI;
+    }
+
+    /// @notice Add a domain to the domains array 
+    /// @param domain Domain to add
+    function addDomain(string memory domain) external onlyRole(DEFAULT_ADMIN_ROLE) {     
+
+        string[] memory domainsArr = domains;
+
+        // check if domain already exists in the array
+        for(uint256 i; i < domains.length;) {
+            if(keccak256(abi.encodePacked((domainsArr[i]))) == keccak256(abi.encodePacked((domain)))) {
+                revert("Consent : Domain already added");
+            }
+            unchecked {
+                ++i;
+            }
+        }
+
+        domains.push(domain);
+
+        emit LogAddDomain(domain);
+    }
+
+    /// @notice Removes a domain from the domains array 
+    /// @param domain Domain to remove
+    function removeDomain(string memory domain) external onlyRole(DEFAULT_ADMIN_ROLE) {     
+        
+        string[] memory domainsArr = domains;
+        
+        // A check that is incremented if a requested domain exists
+        uint8 flag; 
+
+        for(uint256 i; i < domains.length;) {
+            if(keccak256(abi.encodePacked((domainsArr[i]))) == keccak256(abi.encodePacked((domain)))) {
+                // replace the index to delete with the last element
+                domains[i] = domains[domains.length - 1];
+                // delete the last element of the array
+                domains.pop();
+                // update to flag to indicate a match was found
+                flag++;
+
+                emit LogRemoveDomain(domain);
+
+                break;
+            }
+            unchecked {
+                ++i;
+            }
+        }
+        require (flag > 0, "Consent : Domain is not in the list");
     }
 
     /// @notice Allows address with PAUSER_ROLE to pause the contract
@@ -211,6 +276,12 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
     /// @notice Gets the Consent tokens base URI
     function _baseURI() internal view virtual override returns (string memory baseURI_)  {
         return baseURI;
+    }
+
+    /// @notice Gets the array of registered domains
+    /// @return domainsArr Array of registered domains
+    function getDomains() external view returns (string[] memory domainsArr)  {     
+        return domains;
     }
 
     /* INTERNAL FUNCTIONS */ 
@@ -318,18 +389,6 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
         } else {
             return super._msgData();
         }
-    }
-
-    /* VERSION 2 FUNCTION */
-
-    bool public isVersion2;
-
-    function setIsVersion2() public {
-        isVersion2 = true;
-    }
-
-    function getIsVersion2() public view returns (bool)  {
-        return isVersion2;
     }
 }
 

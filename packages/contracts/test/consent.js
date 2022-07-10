@@ -493,7 +493,7 @@ describe("Consent", () => {
     });
   });
 
-  describe.only("addDomain, removeDomain, getDomains", function () {
+  describe("addDomain, removeDomain, getDomains", function () {
     it("Returns the array of domains", async function () {
       const domain1 = "www.domain1.com";
       const domain2 = "www.domain2.com";

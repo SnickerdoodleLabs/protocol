@@ -56,7 +56,7 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
       })
       .map((rawTokenUri) => {
         // Token uri will be prefixed with the base uri
-        // currently it is www.crumbs.com/ on the deployment scripts
+        // currently it is www.crumbs.com/ on the deployment scripts in contracts folder
         // alternatively we can also fetch the latest base uri directly from the contract
 
         let tokenUri = rawTokenUri.replace("www.crumbs.com/", "");
