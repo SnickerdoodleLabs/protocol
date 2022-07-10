@@ -492,4 +492,104 @@ describe("Consent", () => {
       expect(await consent.supportsInterface(0x01ffc9a7)).to.eq(true);
     });
   });
+
+  describe.only("addDomain, removeDomain, getDomains", function () {
+    it("Returns the array of domains", async function () {
+      const domain1 = "www.domain1.com";
+      const domain2 = "www.domain2.com";
+      const domain3 = "www.domain3.com";
+
+      // add domains
+      await expect(consent.connect(accounts[1]).addDomain(domain1))
+        .to.emit(consent, "LogAddDomain")
+        .withArgs(domain1);
+      await expect(consent.connect(accounts[1]).addDomain(domain2))
+        .to.emit(consent, "LogAddDomain")
+        .withArgs(domain2);
+      await expect(consent.connect(accounts[1]).addDomain(domain3))
+        .to.emit(consent, "LogAddDomain")
+        .withArgs(domain3);
+
+      const domains = await consent.getDomains();
+
+      expect(domains[0]).to.eq(domain1);
+      expect(domains[1]).to.eq(domain2);
+      expect(domains[2]).to.eq(domain3);
+    });
+
+    it("Returns the correct array of domains after removing 1", async function () {
+      const domain1 = "www.domain1.com";
+      const domain2 = "www.domain2.com";
+      const domain3 = "www.domain3.com";
+
+      // add domains
+      await expect(consent.connect(accounts[1]).addDomain(domain1))
+        .to.emit(consent, "LogAddDomain")
+        .withArgs(domain1);
+      await expect(consent.connect(accounts[1]).addDomain(domain2))
+        .to.emit(consent, "LogAddDomain")
+        .withArgs(domain2);
+      await expect(consent.connect(accounts[1]).addDomain(domain3))
+        .to.emit(consent, "LogAddDomain")
+        .withArgs(domain3);
+
+      await expect(consent.connect(accounts[1]).removeDomain(domain1))
+        .to.emit(consent, "LogRemoveDomain")
+        .withArgs(domain1);
+
+      const domains = await consent.getDomains();
+
+      expect(domains[0]).to.eq(domain3);
+      expect(domains[1]).to.eq(domain2);
+    });
+
+    it("Does not allow address without DEFAULT_ADMIN_ROLE to addDomain", async function () {
+      const domain1 = "www.domain1.com";
+
+      // add domain without role
+      await expect(
+        consent.connect(accounts[0]).addDomain(domain1),
+      ).to.revertedWith(
+        `AccessControl: account ${accounts[0].address.toLowerCase()} is missing role ${defaultAdminRoleBytes}`,
+      );
+    });
+
+    it("Does not allow address without DEFAULT_ADMIN_ROLE to removeDomain", async function () {
+      const domain1 = "www.domain1.com";
+
+      // add domain
+      await expect(consent.connect(accounts[1]).addDomain(domain1))
+        .to.emit(consent, "LogAddDomain")
+        .withArgs(domain1);
+
+      // remove domain without role
+      await expect(
+        consent.connect(accounts[0]).removeDomain(domain1),
+      ).to.revertedWith(
+        `AccessControl: account ${accounts[0].address.toLowerCase()} is missing role ${defaultAdminRoleBytes}`,
+      );
+    });
+
+    it("Reverts if admin tries to remove a domain that does not exist", async function () {
+      const domain2 = "www.domain2.com";
+      // remove domain without role
+      await expect(
+        consent.connect(accounts[1]).removeDomain(domain2),
+      ).to.revertedWith("Consent : Domain is not in the list");
+    });
+
+    it("Reverts if admin tries to add a domain that already exists", async function () {
+      const domain1 = "www.domain1.com";
+
+      // add domain
+      await expect(consent.connect(accounts[1]).addDomain(domain1))
+        .to.emit(consent, "LogAddDomain")
+        .withArgs(domain1);
+
+      // add same domain
+      await expect(
+        consent.connect(accounts[1]).addDomain(domain1),
+      ).to.revertedWith("Consent : Domain already added");
+    });
+  });
 });
