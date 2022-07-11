@@ -3,6 +3,8 @@
 The Snickerdoodle Query Language defines a [json schema](https://json-schema.org/) for communicating with the network of data wallets. The SDQL schema
 is given in [sdql-v0.0.1.schema.json](/documentation/sdql/sdql-v0.0.1.schema.json) and allows for custom logic to be deployed to groups of data wallets that have consented to participate in a given group.
 
+See the [SDQL examples](/documentation/sdql/EXAMPLES.md) page for concrete demonstrations of how to use the keywords described below. 
+
 ## Keywords 
 
 SDQL defines keywords (and sub-keywords) that instruct the Snickerdoodle Core how it should respond to a [Request for Data](/packages/contracts/README.md) event emitted from a Consent Contract. 
