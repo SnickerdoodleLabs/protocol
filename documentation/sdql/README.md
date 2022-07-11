@@ -9,19 +9,19 @@ See the [SDQL examples](/documentation/sdql/EXAMPLES.md) page for concrete demon
 
 SDQL defines keywords (and sub-keywords) that instruct the Snickerdoodle Core how it should respond to a [Request for Data](/packages/contracts/README.md) event emitted from a Consent Contract. 
 
-### version
+### [version](/documentation/sdql/sdql-v0.0.1.schema.json#L4)
 
 The version keyword is reserved for specifying the version of the SDQL schema a query is based on. This keyword has no sub-keywords. 
 
-### description
+### [description]((/documentation/sdql/sdql-v0.0.1.schema.json#L8))
 
 The description keyword is used for specifying text, markdown, or HTML intended to be displayed to the recipient of a query. There are no sub-keywords. 
 
-### business
+### [business](/documentation/sdql/sdql-v0.0.1.schema.json#L13)
 
 This keyword is reserved for indicating what entity is broadcasting a query. It has no sub-keywords. 
 
-### queries
+### [queries](/documentation/sdql/sdql-v0.0.1.schema.json#L18)
 
 The queries keyword is used to indicate that a SDQL file is requesting access to the data wallet [persistence layer](/packages/persistence/README.md). One or more queries must be specified within a *queries* block. These queries can then be referenced by other top-level keywords. A query has the following sub-keywords:
 
@@ -69,7 +69,7 @@ The contract sub-keyword is used in conjunction with the `network` sub-keyword. 
 - `token`: is the contract an `ERC20` or `ERC721` standard
 - `blockrange`: did the account submit a matching transaction between block `start` and block `end`
 
-### returns
+### [returns](/documentation/sdql/sdql-v0.0.1.schema.json#L191)
 
 The *returns* keyword is used to specify one or more candidate return objects that may be delivered to an insight aggregator. A return object has the following sub-keywords:
 
@@ -92,7 +92,7 @@ A reference to a query specified in the `queries` block. Used in conjunction wit
 
 A complete URL specifying the location of the query aggregator associated with this SDQL file. 
 
-### compensations
+### [compensations](/documentation/sdql/sdql-v0.0.1.schema.json#L249)
 
 The *compensations* keyword is used to declare one or more possible digital assets associated with the SDQL file. 
 
@@ -104,7 +104,7 @@ A text, markdown, or html string for displaying to the user information about th
 
 A callback URL for claiming the digital asset. 
 
-### logic
+### [logic](/documentation/sdql/sdql-v0.0.1.schema.json#L272)
 
 The *logic* keyword is used to specify arbitrary logic to apply to components specified in then *queries*, *returns*, and *compensations* blocks. 
 
