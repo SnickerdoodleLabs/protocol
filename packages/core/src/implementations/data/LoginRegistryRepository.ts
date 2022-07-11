@@ -1,3 +1,9 @@
+import {
+  IAxiosAjaxUtilsType,
+  IAxiosAjaxUtils,
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import { ICrumbsContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   LanguageCode,
@@ -7,11 +13,15 @@ import {
   AESEncryptedString,
   UninitializedError,
   CrumbsContractError,
-  EncryptedString,
-  InitializationVector,
+  EVMPrivateKey,
+  AjaxError,
+  DataWalletAddress,
+  ICrumbContent,
 } from "@snickerdoodlelabs/objects";
+import { addCrumbTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { urlJoin } from "url-join-ts";
 
 import { ILoginRegistryRepository } from "@core/interfaces/data";
 import {
@@ -33,6 +43,8 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
   public constructor(
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
@@ -43,42 +55,46 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
     AESEncryptedString | null,
     BlockchainProviderError | UninitializedError | CrumbsContractError
   > {
-    return this.getCrumbsContract()
-      .andThen((contract) => {
-        // Retrieve the crumb id or token id mapped to the address
-        // returns 0 if non existent
-        return contract.addressToCrumbId(accountAddress), contract;
-      })
-      .andThen((tokenId, contract) => {
+    return this.getCrumbsContract().andThen((contract) => {
+      // Retrieve the crumb id or token id mapped to the address
+      // returns 0 if non existent
+      return contract.addressToCrumbId(accountAddress).andThen((tokenId) => {
+        if (tokenId == null) {
+          return okAsync(null);
+        }
         // Retrieve the token id's token uri and return it
         // Query reverts with 'ERC721Metadata: URI query for nonexistent token' error if token does not exist
-        return contract.tokenURI(tokenId);
-      })
-      .map((rawTokenUri) => {
-        // Token uri will be prefixed with the base uri
-        // currently it is www.crumbs.com/ on the deployment scripts
-        // alternatively we can also fetch the latest base uri directly from the contract
+        return contract.tokenURI(tokenId).map((rawTokenUri) => {
+          // If the token does not exist (even though it should!)
+          if (rawTokenUri == null) {
+            return null;
+          }
 
-        let tokenUri = rawTokenUri.replace("www.crumbs.com/", "");
+          // Token uri will be prefixed with the base uri
+          // currently it is www.crumbs.com/ on the deployment scripts
+          // alternatively we can also fetch the latest base uri directly from the contract
+          const tokenUri = rawTokenUri.replace("www.crumbs.com/", "");
 
-        // If there is no crumb, there's no data
-        if (tokenUri == null) {
-          return null;
-        }
+          // If there is no crumb, there's no data
+          if (tokenUri == null) {
+            return null;
+          }
 
-        // The tokenUri of the crumb is a JSON text, so let's parse it
-        const content = JSON.parse(tokenUri) as CrumbContent;
+          // The tokenUri of the crumb is a JSON text, so let's parse it
+          const content = JSON.parse(tokenUri) as ICrumbContent;
 
-        // Check if the crumb includes this language code
-        const languageCrumb = content[languageCode];
+          // Check if the crumb includes this language code
+          const languageCrumb = content[languageCode];
 
-        if (languageCrumb == null) {
-          return null;
-        }
+          if (languageCrumb == null) {
+            return null;
+          }
 
-        // We have a crumb for this language code (the key derived from the signature will be able to decrypt this)
-        return new AESEncryptedString(languageCrumb.d, languageCrumb.iv);
+          // We have a crumb for this language code (the key derived from the signature will be able to decrypt this)
+          return new AESEncryptedString(languageCrumb.d, languageCrumb.iv);
+        });
       });
+    });
   }
 
   /**
@@ -90,45 +106,47 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
    * @returns
    */
   public addCrumb(
+    dataWalletAddress: DataWalletAddress,
     accountAddress: EVMAccountAddress,
     encryptedDataWalletKey: AESEncryptedString,
     languageCode: LanguageCode,
-  ): ResultAsync<
-    TokenId,
-    BlockchainProviderError | UninitializedError | CrumbsContractError
-  > {
-    // First, get the existing crumb
-    return this.getCrumbsContract()
-      .andThen((contract) => {
-        return contract.getCrumb(accountAddress);
-      })
-      .andThen((tokenUri) => {
-        // If there is no tokenUri, we are the first; if there is one, we need to add the new language code to it
-        if (tokenUri == null) {
-          // No existing crumb at all
-          // Create the crumb content
-          const crumbContent = JSON.stringify({
-            [languageCode]: {
-              d: encryptedDataWalletKey.data,
-              iv: encryptedDataWalletKey.initializationVector,
-            },
-          } as CrumbContent);
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<TokenId, AjaxError> {
+    // We don't even need to check the existing crumb. We're going to make a request to the insight platform
+    // to add a crumb for us. What we need to do is generate a request and sign it.
+    return this.configProvider.getConfig().andThen((config) => {
+      const value = {
+        accountAddress: accountAddress,
+        data: encryptedDataWalletKey.data,
+        initializationVector: encryptedDataWalletKey.initializationVector,
+        languageCode: languageCode,
+      } as Record<string, unknown>;
 
-          // TODO
-          // Send the crumb to the Insight Platform to be created
-          return okAsync(TokenId(BigInt(0)));
-        }
+      return this.cryptoUtils
+        .signTypedData(
+          config.snickerdoodleProtocolDomain,
+          addCrumbTypes,
+          value,
+          dataWalletKey,
+        )
+        .andThen((signature) => {
+          const url = new URL(
+            urlJoin(
+              config.defaultInsightPlatformBaseUrl,
+              "crumb",
+              encodeURIComponent(accountAddress),
+            ),
+          );
 
-        // There is an existing crumb, update it
-        const content = JSON.parse(tokenUri) as CrumbContent;
-        content[languageCode] = {
-          d: encryptedDataWalletKey.data,
-          iv: encryptedDataWalletKey.initializationVector,
-        };
-
-        // TODO: Send the crumb to the insight platform to be created
-        return okAsync(TokenId(BigInt(0)));
-      });
+          return this.ajaxUtils.post<TokenId>(url, {
+            dataWallet: dataWalletAddress,
+            data: encryptedDataWalletKey.data,
+            initializationVector: encryptedDataWalletKey.initializationVector,
+            languageCode: languageCode,
+            signature: signature,
+          });
+        });
+    });
   }
 
   protected getCrumbsContract(): ResultAsync<
@@ -141,10 +159,3 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
     return this.crumbsContract;
   }
 }
-
-type CrumbContent = {
-  [languageCode: LanguageCode]: {
-    d: EncryptedString;
-    iv: InitializationVector;
-  };
-};

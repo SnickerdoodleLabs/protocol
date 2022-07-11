@@ -40,6 +40,7 @@
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/indexers": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/signature-verification": "workspace:^",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
     "ipfs-http-client": "^55.0.0",

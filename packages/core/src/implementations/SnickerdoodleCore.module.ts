@@ -1,5 +1,8 @@
 import {
+  AxiosAjaxUtils,
   CryptoUtils,
+  IAxiosAjaxUtilsType,
+  IAxiosAjaxUtils,
   ICryptoUtils,
   ICryptoUtilsType,
   ILogUtils,
@@ -20,10 +23,12 @@ import {
   LoginRegistryRepository,
 } from "@core/implementations/data";
 import {
+  BlockchainProvider,
   ConfigProvider,
   ContextProvider,
   DataWalletUtils,
 } from "@core/implementations/utilities";
+import { ContractFactory } from "@core/implementations/utilities/factory";
 import {
   IBlockchainListener,
   IBlockchainListenerType,
@@ -45,6 +50,8 @@ import {
   ILoginRegistryRepositoryType,
 } from "@core/interfaces/data";
 import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -52,6 +59,10 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -82,6 +93,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(LoginRegistryRepository)
       .inSingletonScope();
 
+    // Utilities
+    bind<IBlockchainProvider>(IBlockchainProviderType)
+      .to(BlockchainProvider)
+      .inSingletonScope();
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
@@ -93,5 +108,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
+    bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType).to(AxiosAjaxUtils).inSingletonScope();
+
+    // Utilites/factor
+    bind<IContractFactory>(IContractFactoryType)
+      .to(ContractFactory)
+      .inSingletonScope();
   },
 );

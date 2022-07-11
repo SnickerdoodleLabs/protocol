@@ -2,6 +2,7 @@ import {
   ChainInformation,
   ControlChainInformation,
 } from "@objects/businessObjects";
+import { EIndexer } from "@objects/enum";
 import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 
 export const chainConfig = new Map<ChainId, ChainInformation>([
@@ -13,6 +14,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [ProviderUrl("http://localhost:8545")],
       4000,
+      EIndexer.EVM,
       EVMContractAddress("todo"),
       EVMContractAddress("todo"),
     ),
@@ -25,6 +27,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [ProviderUrl("http://localhost:8545")],
       4000,
+      EIndexer.EVM,
     ),
   ],
 ]);

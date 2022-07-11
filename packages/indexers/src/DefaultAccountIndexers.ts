@@ -1,4 +1,3 @@
-import { ILogUtils } from "@core/interfaces/utilities";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -12,12 +11,11 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
+import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "./IIndexerConfigProvider";
-
-import { CovalentEVMTransactionRepository } from "@browser-extension/CovalentEVMTransactionRepository";
+} from "@indexers/IIndexerConfigProvider";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {

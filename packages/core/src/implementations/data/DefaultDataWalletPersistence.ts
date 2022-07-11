@@ -15,6 +15,7 @@ import {
   PersistenceError,
   SiteVisit,
   UnixTimestamp,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -150,43 +151,74 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+  public getLatestTransactionForAccount(
+    chainId: ChainId,
+    address: EVMAccountAddress,
+  ): ResultAsync<EVMTransaction | null, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
+
+  public addEVMTransactions(
+    transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getGivenName(): ResultAsync<GivenName, PersistenceError> {
+
+  public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
+
+  public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
+
+  public getGivenName(): ResultAsync<GivenName, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+
+  public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+
+  public getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
+
+  public setBirthday(
+    birthday: UnixTimestamp,
+  ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getGender(): ResultAsync<Gender, PersistenceError> {
+
+  public getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
+
+  public setGender(gender: Gender): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+
+  public getGender(): ResultAsync<Gender, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
+
+  public setEmail(
+    email: EmailAddressString,
+  ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getLocation(): ResultAsync<CountryCode, PersistenceError> {
+
+  public getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public setLocation(
+    location: CountryCode,
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getLocation(): ResultAsync<CountryCode, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 }

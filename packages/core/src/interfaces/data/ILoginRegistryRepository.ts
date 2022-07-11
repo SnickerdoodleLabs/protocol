@@ -1,8 +1,11 @@
 import {
   AESEncryptedString,
+  AjaxError,
   BlockchainProviderError,
-  ConsentContractError,
+  CrumbsContractError,
+  DataWalletAddress,
   EVMAccountAddress,
+  EVMPrivateKey,
   LanguageCode,
   TokenId,
   UninitializedError,
@@ -19,17 +22,16 @@ export interface ILoginRegistryRepository {
     languageCode: LanguageCode,
   ): ResultAsync<
     AESEncryptedString | null,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    BlockchainProviderError | UninitializedError | CrumbsContractError
   >;
 
   addCrumb(
+    dataWalletAddress: DataWalletAddress,
     accountAddress: EVMAccountAddress,
     encryptedDataWalletKey: AESEncryptedString,
     languageCode: LanguageCode,
-  ): ResultAsync<
-    TokenId,
-    BlockchainProviderError | UninitializedError | ConsentContractError
-  >;
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<TokenId, AjaxError>;
 }
 
 export const ILoginRegistryRepositoryType = Symbol.for(

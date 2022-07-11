@@ -2,6 +2,10 @@
   "extends": "./tsconfig.build.json",
   "files": [],
   "references": [
+    // I want to investigate this later
+    // {
+    //   "path": "packages/browserExtension"
+    // },
     {
       "path": "packages/common-utils"
     },
@@ -21,13 +25,13 @@
       "path": "packages/persistence"
     },
     {
+      "path": "packages/signatureVerification"
+    },
+    {
       "path": "packages/test-harness"
     },
     {
       "path": "packages/utils"
-    },
-    // {
-    //   "path": "packages/browserExtension"
-    // },
+    }
   ]
 }

@@ -1,74 +1,72 @@
-title Account Connection and Login
+title Account Connection and Unlock
 
 participant User Account
 participant Snickerdoodle Core
-participant Login Registry
-note over Login Registry:The Login Registry is a ERC721 contract on the DoodleChain.\nEach external account (such as 0xDEADBEEF) is issued a token\nin the registry containing the Derivation Mask once the account is connected to the data wallet
+participant Crumb Registry
+note over Crumb Registry:The Crumb Registry is a ERC721 contract on the DoodleChain.\nEach external account (such as 0xDEADBEEF) is issued a token\nin the registry containing the the AES256 encrypted \nprivate key for their data wallet once the account is connected to the data wallet
 ==User wants to connect Account 0xDEADBEEF to [New] Data Wallet with no existing connected accounts.==
-User Account->Snickerdoodle Core:getUnlockMessage(countryCode)\nThis allows for localization of the unlock message
+User Account->Snickerdoodle Core:getUnlockMessage(languageCode)\nThis allows for localization of the unlock message
 activate Snickerdoodle Core
 User Account<-Snickerdoodle Core:"Sign in to your Snickerdoodle Data Wallet" (Eng)\n"Melden Sie sich bei Ihrer Snickerdoodle Data Wallet an" (Ger)
 deactivate Snickerdoodle Core
 User Account->User Account:Sign message with key for 0xDEADBEEF
-User Account->Snickerdoodle Core:unlock(signature, countryCode)
+User Account->Snickerdoodle Core:unlock(signature, languageCode)
 activate Snickerdoodle Core
-Snickerdoodle Core->Login Registry:Does 0xDEADBEEF have an existing token?
-activate Login Registry
-Snickerdoodle Core<-Login Registry:No
-deactivate Login Registry
-Snickerdoodle Core->Snickerdoodle Core:Generate the Derivation Mask\nThis is a hex string that is combined with the signature to\ncreate the source entropy for the Private Key for new Data Wallet \n(the Derived Wallet Key, "DWK"). Store the source entropy in memory.
-Snickerdoodle Core->Snickerdoodle Core:Derive DWK from entropy
+Snickerdoodle Core->Crumb Registry:Does 0xDEADBEEF have an existing token?
+activate Crumb Registry
+Snickerdoodle Core<-Crumb Registry:No
+deactivate Crumb Registry
+Snickerdoodle Core->Snickerdoodle Core:Generate a new Private Key for the data wallet
 
-Snickerdoodle Core->Login Registry:Create an NFT issued to 0xDEADBEEF with the Derivation Mask
-activate Login Registry
-Snickerdoodle Core<-Login Registry:
-deactivate Login Registry
+Snickerdoodle Core->Snickerdoodle Core:Derive an AES256 key from the signature.\nEncrypt the data wallet key with it
+Snickerdoodle Core->Crumb Registry:Create an NFT issued to 0xDEADBEEF with \nthe AES256 encrypted data wallet key, keyed\nby the language code of the signature
+activate Crumb Registry
+Snickerdoodle Core<-Crumb Registry:
+deactivate Crumb Registry
 Snickerdoodle Core->Snickerdoodle Core:Store 0xDEADBEEF as a Connected Account in the Data Wallet
-note over Snickerdoodle Core:At this point in time, Snickerdoodle Core has the DWK for the data wallet\nand can now start consenting to businesses and storing things\nsecurely in the wallet.
+note over Snickerdoodle Core:At this point in time, Snickerdoodle Core has the private key for the data wallet\nand can now start consenting to businesses and storing things\nsecurely in the wallet.
 User Account<-Snickerdoodle Core:Success!
 deactivate Snickerdoodle Core
 User Account->Snickerdoodle Core:doTheThing()
 
 ==Login to Existing Data Wallet==
-User Account->Snickerdoodle Core:getUnlockMessage(countryCode)
+User Account->Snickerdoodle Core:getUnlockMessage(languageCode)
 activate Snickerdoodle Core
 User Account<-Snickerdoodle Core:"Sign in to your Snickerdoodle Data Wallet"
 deactivate Snickerdoodle Core
 User Account->User Account:Sign message with key for 0xDEADBEEF
-User Account->Snickerdoodle Core:unlock(signature, countryCode)
+User Account->Snickerdoodle Core:unlock(signature, languageCode)
 activate Snickerdoodle Core
-Snickerdoodle Core->Login Registry:Does 0xDEADBEEF have an existing token?
-activate Login Registry
-Snickerdoodle Core<-Login Registry:Derivation Mask
-deactivate Login Registry
-Snickerdoodle Core->Snickerdoodle Core:Combine Signature with Derivation Mask to create source entropy and derive DWK. Store source entropy in memory
+Snickerdoodle Core->Crumb Registry:Does 0xDEADBEEF have an existing token?
+activate Crumb Registry
+Snickerdoodle Core<-Crumb Registry:Crumb\nIncludes data and initialization vector for each language code
+deactivate Crumb Registry
+Snickerdoodle Core->Snickerdoodle Core:Derive the AES256 decryption key from the signature.\nDecrypt the crumb to get the data wallet key
 Snickerdoodle Core->Snickerdoodle Core:Confirm that 0xDEADBEEF is a connected account in the data wallet\nReject unlock if it is not.
-note over Snickerdoodle Core:At this point in time, Snickerdoodle Core has the DWK for the data wallet\nand can now start consenting to businesses and storing things\nsecurely in the wallet.
+note over Snickerdoodle Core:At this point in time, Snickerdoodle Core has the private key for the data wallet\nand can now start consenting to businesses and storing things\nsecurely in the wallet.
 User Account<-Snickerdoodle Core:Success!
 deactivate Snickerdoodle Core
 User Account->Snickerdoodle Core:doTheThing()
 
 ==Connect a new account 0xFADECAB==
 note over User Account:User must first be logged in with an existing wallet
-User Account->Snickerdoodle Core:getUnlockMessage(countryCode)
+User Account->Snickerdoodle Core:getUnlockMessage(languageCode)
 activate Snickerdoodle Core
 User Account<-Snickerdoodle Core:"Sign in to your Snickerdoodle Data Wallet"
 deactivate Snickerdoodle Core
 User Account->User Account:Sign message with key for 0xFADECAB
-User Account->Snickerdoodle Core:connectAccount(signature, countryCode)
+User Account->Snickerdoodle Core:addAccount(signature, languageCode)
 activate Snickerdoodle Core
-Snickerdoodle Core->Login Registry:Does 0xFADECAB have an existing token?
-activate Login Registry
-Snickerdoodle Core<-Login Registry:No
-deactivate Login Registry
-Snickerdoodle Core->Snickerdoodle Core:Calculate Derivation Mask for 0xFADECAB.\nThis is the value to convert the new Signature to the original Source Entropy.\nThe DWK has already been derived since we are already logged in.
-Snickerdoodle Core->Login Registry:Create an NFT issued to 0xFADECAB with the Derivation Mask
-activate Login Registry
-Snickerdoodle Core<-Login Registry:
-deactivate Login Registry
+Snickerdoodle Core->Crumb Registry:Does 0xFADECAB have an existing token?
+activate Crumb Registry
+Snickerdoodle Core<-Crumb Registry:No
+deactivate Crumb Registry
+
+Snickerdoodle Core->Snickerdoodle Core:Derive an AES256 key from the signature.\nEncrypt the existing data wallet key with it
+Snickerdoodle Core->Crumb Registry:Create an NFT issued to 0xFADECAB with \nthe AES256 encrypted data wallet key, keyed\nby the language code of the signature
+activate Crumb Registry
+Snickerdoodle Core<-Crumb Registry:
+deactivate Crumb Registry
 Snickerdoodle Core->Snickerdoodle Core:Store 0xFADECAB as a Connected Account in the Data Wallet
-activate Login Registry
-Snickerdoodle Core<-Login Registry:
-deactivate Login Registry
 User Account<-Snickerdoodle Core:Success!
 deactivate Snickerdoodle Core
