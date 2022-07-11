@@ -9,18 +9,40 @@ import browser from "webextension-polyfill";
 import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
 import Browser from "webextension-polyfill";
 import { ExternalCoreGateway } from "@app/coreGateways";
-import { createBackgroundConnectors } from "app/utils";
 import { IExternalState } from "@shared/objects/State";
-import Onboarding from "@app/Content/components/App/components/Onboarding";
+import pump from "pump";
+import ObjectMultiplex from "obj-multiplex";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
+import Config from "@shared/constants/Config";
+import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
 
 const port = Browser.runtime.connect({ name: "SD_CONTENT_SCRIPT" });
-let coreGateway: ExternalCoreGateway;
-let notificationEmitter;
+const extensionStream = new PortStream(port);
 
-const connectors = createBackgroundConnectors(port);
-if (connectors.isOk()) {
-  coreGateway = new ExternalCoreGateway(connectors.value.rpcEngine);
-  notificationEmitter = connectors.value.streamMiddleware.events;
+const extensionMux = new ObjectMultiplex();
+extensionMux.setMaxListeners(25);
+pump(extensionMux, extensionStream, extensionMux);
+
+const streamMiddleware = createStreamMiddleware();
+
+pump(
+  streamMiddleware.stream,
+  extensionMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
+  streamMiddleware.stream,
+);
+
+const rpcEngine = new JsonRpcEngine();
+rpcEngine.push(streamMiddleware.middleware);
+
+const coreGateway = new ExternalCoreGateway(rpcEngine);
+const notificationEmitter = streamMiddleware.events;
+
+if (new URL(Config.onboardingUrl).origin === window.location.origin) {
+  const injector = new OnboardingProviderInjector(extensionMux);
+  injector.startPipeline();
 }
 
 const App = () => {
@@ -176,7 +198,6 @@ const App = () => {
 
   return (
     <>
-      <Onboarding coreGateway={coreGateway} />
       {renderSafeUrlNotification}
       {renderScamWarning}
       {renderComponent}

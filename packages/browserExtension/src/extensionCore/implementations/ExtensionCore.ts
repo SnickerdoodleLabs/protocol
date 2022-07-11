@@ -54,6 +54,7 @@ import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import Browser from "webextension-polyfill";
 import { okAsync } from "neverthrow";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import Config from "@shared/constants/Config";
 
 export class ExtensionCore {
   // snickerdooldle Core
@@ -130,6 +131,7 @@ export class ExtensionCore {
     this.portConnectionListener.initialize();
 
     this.listenExtensionIconClicks();
+    this.keepAliveServiceWorker();
 
     // TODO enable again once the unlock method on core is complated
     //this.tryUnlock();
@@ -142,13 +144,11 @@ export class ExtensionCore {
         return this.accountService
           .unlock(accountAddress, signature, languageCode, true)
           .mapErr((e) => {
-            // TODO add onboarding url - provide config
-            ExtensionUtils.openTab({ url: "https://localhost:9005/" });
+            ExtensionUtils.openTab({ url: Config.onboardingUrl });
             return okAsync(undefined);
           });
       }
-      // TODO add onboarding url - provide config
-      ExtensionUtils.openTab({ url: "https://localhost:9005/" });
+      ExtensionUtils.openTab({ url: Config.onboardingUrl });
       return okAsync(undefined);
     });
   }
@@ -159,4 +159,6 @@ export class ExtensionCore {
       Browser.action.setPopup({ popup: "popup.html" });
     });
   }
+
+  private keepAliveServiceWorker() {}
 }

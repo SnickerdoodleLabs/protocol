@@ -14,5 +14,5 @@ export const createBackgroundConnectors = (port: Runtime.Port) => {
   pump(streamMiddleware.stream, portStream, streamMiddleware.stream, (e) => {
     err(e);
   });
-  return ok({ rpcEngine, streamMiddleware });
+  return ok({ rpcEngine, streamMiddleware, portStream });
 };

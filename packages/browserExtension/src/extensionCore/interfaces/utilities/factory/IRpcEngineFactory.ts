@@ -9,5 +9,6 @@ export interface IRpcEngineFactory {
     remotePort: Runtime.Port,
     origin: EPortNames | URLString,
     mode: EConnectionModes,
+    stream: any,
   ): Ok<JsonRpcEngine, never>;
 }

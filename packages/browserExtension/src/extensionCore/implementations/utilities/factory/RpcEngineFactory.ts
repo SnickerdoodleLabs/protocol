@@ -5,7 +5,6 @@ import {
   IRpcEngineFactory,
 } from "@interfaces/utilities/factory";
 import { Runtime } from "webextension-polyfill";
-import PortStream from "extension-port-stream";
 import endOfStream from "end-of-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createEngineStream } from "json-rpc-middleware-stream";
@@ -25,9 +24,8 @@ export class RpcEngineFactory implements IRpcEngineFactory {
     remotePort: Runtime.Port,
     origin: EPortNames | URLString,
     mode: EConnectionModes,
+    stream: any,
   ) {
-    // create stream duplex
-    const portStream = new PortStream(remotePort);
     // create rpc handler engine
     const rpcEngine = new JsonRpcEngine();
     // add middleware for handling rpc events
@@ -38,9 +36,9 @@ export class RpcEngineFactory implements IRpcEngineFactory {
       ).createMiddleware(),
     );
     // create rpc stream duplex
-    const providerStream = createEngineStream({ engine: rpcEngine });
-    // pipe portStream to engineStream
-    pump(portStream, providerStream, portStream, (error) => {
+    const engineStream = createEngineStream({ engine: rpcEngine });
+    // pipe incoming stream to engineStream
+    pump(stream, engineStream, stream, (error) => {
       err(error);
     });
 
@@ -52,7 +50,7 @@ export class RpcEngineFactory implements IRpcEngineFactory {
       rpcEngine,
     );
 
-    endOfStream(portStream, () => {
+    endOfStream(stream, () => {
       connectionId && appContext.removeConnection(origin, connectionId);
     });
     return ok(rpcEngine);

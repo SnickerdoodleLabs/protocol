@@ -13,7 +13,7 @@ const argon2 = require("argon2");
 
 const ASSET_PATH = process.env.ASSET_PATH || "/";
 
-process.env.ONBOARDING_URL = "https://localhost:9005/";
+process.env.__ONBOARDING_URL__ = "https://localhost:9005/";
 
 var alias = {
   "react-dom": "@hot-loader/react-dom",
@@ -50,10 +50,15 @@ var options = {
     popup: path.join(__dirname, "src", "app", "Popup", "index.jsx"),
     background: path.join(__dirname, "src", "extensionCore", "index.ts"),
     contentScript: path.join(__dirname, "src", "app", "Content", "index.js"),
+    "injectables/onboarding": path.join(
+      __dirname,
+      "src",
+      "app",
+      "Content",
+      "injectables",
+      "onboarding.ts",
+    ),
     devtools: path.join(__dirname, "src", "app", "Devtools", "index.js"),
-  },
-  chromeExtensionBoilerplate: {
-    notHotReload: ["background", "contentScript", "devtools"],
   },
   output: {
     filename: "[name].bundle.js",
@@ -137,6 +142,9 @@ var options = {
     new webpack.ProgressPlugin(),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.EnvironmentPlugin(["NODE_ENV"]),
+    new webpack.DefinePlugin({
+      __ONBOARDING_URL__: JSON.stringify(process.env.__ONBOARDING_URL__),
+    }),
     new CopyWebpackPlugin({
       patterns: [
         {

@@ -6,11 +6,9 @@ process.env.ASSET_PATH = "/";
 var webpack = require("webpack"),
   config = require("../webpack.config");
 
-delete config.chromeExtensionBoilerplate;
-
 config.mode = "production";
 // @TODO: replace to extension_onboarding url
-process.env.ONBOARDING_URL = "";
+process.env.__ONBOARDING_URL__ = "https://localhost:9005/";
 
 webpack(config, function (err) {
   if (err) throw err;
