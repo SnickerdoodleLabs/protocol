@@ -13,7 +13,7 @@ SDQL defines keywords (and sub-keywords) that instruct the Snickerdoodle Core ho
 
 The version keyword is reserved for specifying the version of the SDQL schema a query is based on. This keyword has no sub-keywords. 
 
-### [description]((/documentation/sdql/sdql-v0.0.1.schema.json#L8))
+### [description](/documentation/sdql/sdql-v0.0.1.schema.json#L8)
 
 The description keyword is used for specifying text, markdown, or HTML intended to be displayed to the recipient of a query. There are no sub-keywords. 
 
