@@ -44,6 +44,8 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       URLString("ipfs node address"),
       URLString("http://insight-platform"),
       snickerdoodleSigningDomain,
+      5000, // polling interval
+      "covalent api key",
     );
   }
 

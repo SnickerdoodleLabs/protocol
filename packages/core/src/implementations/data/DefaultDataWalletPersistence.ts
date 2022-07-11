@@ -15,6 +15,7 @@ import {
   PersistenceError,
   SiteVisit,
   UnixTimestamp,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 
@@ -42,7 +43,6 @@ import { IDataWalletPersistenceType } from "@snickerdoodlelabs/objects";
 import { BlockNumber } from "@snickerdoodlelabs/objects";
 import { AccountIndexingError } from "@snickerdoodlelabs/objects";
 
-import { ChainId } from "@snickerdoodlelabs/objects";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -274,23 +274,21 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
-    throw new Error("Method not implemented.");
-  }
-
-
-  getLatestTransactionForAccount(
+  public getLatestTransactionForAccount(
     chainId: ChainId,
     address: EVMAccountAddress,
-  ): ResultAsync<EVMTransaction | null, PersistenceError>{
+  ): ResultAsync<EVMTransaction | null, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
-  addEVMTransactions(
+  public addEVMTransactions(
     transactions: EVMTransaction[],
-  ): ResultAsync<void, PersistenceError>{
+  ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
+  }
 
+  public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+    throw new Error("Method not implemented.");
   }
 
   getEVMTransactions(
@@ -298,13 +296,9 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     firstBlock: BlockNumber,
     lastBlock?: BlockNumber | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError>{
-
-    let transactions: EVMTransaction[] = [];
+    let transactions : EVMTransaction[] = [];
     return okAsync(transactions);
-
   }
-
-
 
 
 }

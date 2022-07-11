@@ -6,7 +6,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
-
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 export interface ICrumbsContract {
@@ -17,8 +16,9 @@ export interface ICrumbsContract {
    */
   addressToCrumbId(
     accountAddress: EVMAccountAddress,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<TokenUri | null, ConsentContractError>;
+    contractOverrides?: ContractOverrides | null,
+  ): ResultAsync<TokenId | null, CrumbsContractError>;
+  
 }
 
 export const ICrumbsContractType = Symbol.for("ICrumbsContract");

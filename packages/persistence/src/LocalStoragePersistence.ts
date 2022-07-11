@@ -15,6 +15,7 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMTransaction,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -48,30 +49,44 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     }
     return okAsync(value as T);
   }
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError> {
+
+  public unlock(
+    derivedKey: EVMPrivateKey,
+  ): ResultAsync<void, PersistenceError> {
     return okAsync(undefined);
     throw new Error("Method not implemented.");
   }
-  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
+
+  public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.ACCOUNT);
   }
-  addClick(click: ClickData): ResultAsync<void, PersistenceError> {
+
+  public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getClicks(
+
+  public getClicks(
     clickFilter: ClickFilter,
   ): ResultAsync<ClickData, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  getRejectedCohorts(): ResultAsync<EVMContractAddress[], PersistenceError> {
+
+  public getRejectedCohorts(): ResultAsync<
+    EVMContractAddress[],
+    PersistenceError
+  > {
     throw new Error("Method not implemented.");
   }
-  addRejectedCohorts(
+
+  public addRejectedCohorts(
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
-  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError> {
+
+  public addSiteVisits(
+    siteVisits: SiteVisit[],
+  ): ResultAsync<void, PersistenceError> {
     const savedSiteVisits = LocalStorageUtils.readLocalStorage(
       ELocalStorageKey.SITE_VISITS,
     );
@@ -81,10 +96,12 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     ]);
     return okAsync(undefined);
   }
-  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+
+  public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.SITE_VISITS);
   }
-  addEthereumTransactions(
+
+  public addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
     const savedTransactions = LocalStorageUtils.readLocalStorage(
@@ -96,7 +113,15 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     ]);
     return okAsync(undefined);
   }
-  addAccount(
+
+  public getLatestTransactionForAccount(
+    chainId: ChainId,
+    address: EVMAccountAddress,
+  ): ResultAsync<EVMTransaction | null, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public addAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
     const accounts = LocalStorageUtils.readLocalStorage(
@@ -108,53 +133,73 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     );
     return okAsync(undefined);
   }
-  setAge(age: Age): ResultAsync<void, PersistenceError> {
+
+  public setAge(age: Age): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.AGE, age);
     return okAsync(undefined);
   }
-  getAge(): ResultAsync<Age, PersistenceError> {
+
+  public getAge(): ResultAsync<Age, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.AGE);
   }
-  setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
+
+  public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.FIRST_NAME, name);
     return okAsync(undefined);
   }
-  getGivenName(): ResultAsync<GivenName, PersistenceError> {
+
+  public getGivenName(): ResultAsync<GivenName, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.FIRST_NAME);
   }
-  setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
+
+  public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.FIRST_NAME, name);
     return okAsync(undefined);
   }
-  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
+
+  public getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.LAST_NAME);
   }
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+
+  public setBirthday(
+    birthday: UnixTimestamp,
+  ): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.BIRTHDAY, birthday);
     return okAsync(undefined);
   }
-  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+
+  public getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.BIRTHDAY);
   }
-  setGender(gender: Gender): ResultAsync<void, PersistenceError> {
+
+  public setGender(gender: Gender): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.GENDER, gender);
     return okAsync(undefined);
   }
-  getGender(): ResultAsync<Gender, PersistenceError> {
+
+  public getGender(): ResultAsync<Gender, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.GENDER);
   }
-  setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
+
+  public setEmail(
+    email: EmailAddressString,
+  ): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.EMAIL, email);
     return okAsync(undefined);
   }
-  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+
+  public getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.EMAIL);
   }
-  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
+
+  public setLocation(
+    location: CountryCode,
+  ): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.LOCATION, location);
     return okAsync(undefined);
   }
-  getLocation(): ResultAsync<CountryCode, PersistenceError> {
+
+  public getLocation(): ResultAsync<CountryCode, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION);
   }
 /*

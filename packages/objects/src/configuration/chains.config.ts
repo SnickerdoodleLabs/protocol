@@ -1,4 +1,3 @@
-import { EIndexer } from "@browser-extension/enum/EIndexer";
 import {
   ChainInformation,
   ControlChainInformation,
@@ -32,7 +31,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>(
       true,
       [ProviderUrl("http://localhost:8545")],
       4000,
-      EIndexer.Solana
+      EIndexer.EVM,
     ),
   ],
 ]

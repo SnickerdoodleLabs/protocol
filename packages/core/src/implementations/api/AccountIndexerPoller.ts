@@ -1,7 +1,4 @@
-import {
-  IAccountIndexingType,
-  IAccountIndexing,
-} from "@snickerdoodlelabs/objects";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 

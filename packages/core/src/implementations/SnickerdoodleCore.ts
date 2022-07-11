@@ -38,6 +38,7 @@ import {
   IAccountIndexing,
   IAccountIndexingType,
   IConfigOverrides,
+  CrumbsContractError,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -146,13 +147,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
+    | UnsupportedLanguageError
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | UnsupportedLanguageError
     | PersistenceError
     | InvalidSignatureError
     | AjaxError
+    | CrumbsContractError
   > {
     // Get all of our indexers and initialize them
     // TODO
@@ -177,10 +179,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   ): ResultAsync<
     void,
     | BlockchainProviderError
-    | PersistenceError
     | UninitializedError
-    | ConsentContractError
+    | PersistenceError
     | AjaxError
+    | CrumbsContractError
   > {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);

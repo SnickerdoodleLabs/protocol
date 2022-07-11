@@ -2,7 +2,7 @@ import {
   AESEncryptedString,
   AjaxError,
   BlockchainProviderError,
-  ConsentContractError,
+  CrumbsContractError,
   DataWalletAddress,
   EVMAccountAddress,
   EVMPrivateKey,
@@ -22,7 +22,7 @@ export interface ILoginRegistryRepository {
     languageCode: LanguageCode,
   ): ResultAsync<
     AESEncryptedString | null,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    BlockchainProviderError | UninitializedError | CrumbsContractError
   >;
 
   addCrumb(
