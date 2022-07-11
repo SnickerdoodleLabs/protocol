@@ -1,7 +1,7 @@
 # Snickerdoodle Query Language (SDQL)
 
-The Snickerdoodle Query Language defines a schema for communicating with the network of data wallets. The SDQL schema
-is given in the [sdql.schema.json](/documentation/sdql/sdql.schema.json).
+The Snickerdoodle Query Language defines a [json schema](https://json-schema.org/) for communicating with the network of data wallets. The SDQL schema
+is given in [sdql.schema.json](/documentation/sdql/sdql.schema.json) and allows for custom logic to be deployed to groups of data wallets.
 
 ## Keywords 
 
@@ -9,13 +9,82 @@ SDQL defines keywords (and sub-keywords) that instruct the Snickerdoodle Core ho
 
 ### version
 
+The version keyword is reserved for specifying the version of the SDQL schema a query is based on. This keyword has no sub-keywords. 
+
 ### description
+
+The description keyword is used for specifying text, markdown, or HTML intended to be displayed to the recipient of a query. There are no sub-keywords. 
 
 ### business
 
+This keyword is reserved for indicating what entity is broadcasting a query. It has no sub-keywords. 
+
 ### queries
 
+The queries keyword is used to indicate that a SDQL file is requesting access to the data wallet [persistence layer](/packages/persistence/README.md). One or more queries must be specified within a *queries* block. These queries can then be referenced by other top-level keywords. A query has the following sub-keywords:
+
+#### name (required)
+
+The *name* sub-keyword indicates which attribute must be accessed in the DW persistence layer. Supported attributes include:
+
+- `network`: accesses the Web 3.0 data associated with all accounts linked to a DW
+- `age`: access to the age of the DW user
+- `location`: access to location data of the DW user
+
+#### return (required)
+
+The return sub-keyword specifies the object type that will be returned by a query. Supported types include:
+
+- `boolean`: true or false depending on the condition applied to the attribute being accessed
+- `integer`: returns an integer object related to the referenced attribute
+
+#### conditions
+
+Conditions are used in conjunction with the `boolean` return type. A conditions are used to specify the filter to apply to the attribute in order to determine if true or false should be returned. The following conditions are supported:
+
+- `in`: is the attribute in a set of objects
+- `ge`: is the attribute greater or equal than a given object
+- `l`: is the attribute less than an object
+- `le`: is the attribute less than or equal to an object
+- `e`: is the attribute equal to an object
+- `g`: is the attribute greater than an object
+
+#### chain
+
+This sub-keyword is used in conjunction with the `network` attribute type. This sub-keyword allows for the specification of which layer 1 protocols a network query should be run against. The following *chains* are supported:
+
+- `ETH`: the Ethereum network
+- `AVAX`: the Avalanche network
+
+#### contract
+
+The contract sub-keyword is used in conjunction with the `network` sub-keyword. Specifying a contract indicates that the query is interrogating whether any accounts linked to a data wallet have made transactions meeting the following required characteristics:
+
+- `address`: address of the smart contract of interest
+- `networkid`: chain ID that the smart contract is deployed to
+- `function`: function ABI on the target smart contract
+- `direction`: was the user's account in the `to` or `from` field
+- `token`: is the contract an `ERC20` or `ERC721` standard
+- `blockrange`: did the account submit a matching transaction between block `start` and block `end`
+
 ### returns
+
+The *returns* keyword is used to specify one or more candidate return objects that may be delivered to an insight aggregator. A return object has the following sub-keywords:
+
+#### name (required)
+
+What is the type of return:
+
+- `callback`: resolves immediately to a pre-specified `message` delivered to a callback `url`
+-  `query_response`: resolves to the result of the specified query
+
+#### message 
+
+An explicit string message to be returned as a result. Used with the `callback` return type. 
+
+#### query
+
+A reference to a query specified in the `queries` block. Used in conjunction with the `query_response` return type. 
 
 ### compensations
 
