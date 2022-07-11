@@ -15,6 +15,8 @@ export interface ISDQLQueryObject {
 
 interface SDQL_Queries {
     // queries
+
+
     "name": string;
     "return": string;
     "chain": string;
@@ -36,6 +38,8 @@ interface SDQL_Returns {
 }
 interface SDQL_Compensations {
 }
+
+// branded type
 interface SDQL_Logic {
   "returns": Array<string>
   "compensations": Array<string>
