@@ -71,7 +71,7 @@ The contract sub-keyword is used in conjunction with the `network` sub-keyword. 
 
 ### [returns](/documentation/sdql/sdql-v0.0.1.schema.json#L191)
 
-The *returns* keyword is used to specify one or more candidate return objects that may be delivered to an insight aggregator. A return object has the following sub-keywords:
+The [*returns*](/documentation/sdql/README.md#returns) keyword is used to specify one or more candidate return objects that may be delivered to an insight aggregator. A return object has the following sub-keywords:
 
 #### name
 
@@ -86,7 +86,7 @@ An explicit string message to be returned as a result. Used with the `callback` 
 
 #### query
 
-A reference to a query specified in the `queries` block. Used in conjunction with the `query_response` return type. 
+A reference to a query specified in the [*queries*](/documentation/sdql/README.md#queries) block. Used in conjunction with the `query_response` return type. 
 
 #### url (required)
 
@@ -106,12 +106,12 @@ A callback URL for claiming the digital asset.
 
 ### [logic](/documentation/sdql/sdql-v0.0.1.schema.json#L272)
 
-The *logic* keyword is used to specify arbitrary logic to apply to components specified in then *queries*, *returns*, and *compensations* blocks. 
+The *logic* keyword is used to specify arbitrary logic to apply to components specified in then [*queries*](/documentation/sdql/README.md#queries), [*returns*](/documentation/sdql/README.md#returns), and [*compensations*](/documentation/sdql/README.md#compensations) blocks. 
 
 #### returns
 
-A sub-keyword used to specify an array of return expressions. A return expression can return objects declared in the *returns* block given that conditions on objects declared in *queries* are met. 
+A sub-keyword of *logic* used to specify an array of return expressions. A return expression can return objects declared in the [*returns*](/documentation/sdql/README.md#returns) block given that conditions on objects declared in [*queries*](/documentation/sdql/README.md#queries) are met. 
 
 #### compensations
 
-A sub-keyword used to specify an array of compensation expressions. A compensation expression can return objects declared in the *compensations* block given that conditions on  declared in *queries* are met. 
+A sub-keyword of *logic* used to specify an array of compensation expressions. A compensation expression can return objects declared in the [*compensations*](/documentation/sdql/README.md#compensations) block given that conditions on  declared in [*queries*](/documentation/sdql/README.md#queries) are met. 
