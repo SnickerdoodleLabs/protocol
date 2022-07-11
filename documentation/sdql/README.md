@@ -92,6 +92,16 @@ A complete URL specifying the location of the query aggregator associated with t
 
 ### compensations
 
+The *compensations* keyword is used to declare one or more possible digital assets associated with the SDQL file. 
+
+#### description
+
+A text, markdown, or html string for displaying to the user information about the digital asset. 
+
+#### callback
+
+A callback URL for claiming the digital asset. 
+
 ### logic
 
 The *logic* keyword is used to specify arbitrary logic to apply to components specified in then *queries*, *returns*, and *compensations* blocks. 
