@@ -171,7 +171,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     return okAsync(undefined);
   }
   getAge(): ResultAsync<Age, PersistenceError> {
-    return this._checkAndRetrieveValue(ELocalStorageKey.AGE);
+    return okAsync(Age(28));
   }
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.FIRST_NAME, name);
@@ -296,7 +296,9 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     firstBlock: BlockNumber,
     lastBlock?: BlockNumber | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError>{
-    throw new Error("Method not implemented.");
+
+    let transactions: EVMTransaction[] = [];
+    return okAsync(transactions);
 
   }
 

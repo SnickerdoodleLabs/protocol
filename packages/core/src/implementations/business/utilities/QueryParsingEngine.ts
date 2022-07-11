@@ -83,12 +83,76 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return okAsync([this.insightsMap, this.rewardsMap]);
   }
 
-  /*
-  public recursiveQueryReader(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean, ): ResultAsync<number[] | boolean, never | PersistenceError> {
-    input.split('and')
-    return okAsync(true);
+  
+  public recursiveQueryReader(obj: ISDQLQueryObject, if_statement: string, returnOnPermission: boolean, ): ResultAsync<number, never | PersistenceError> {
+    
+    let new_string = '';
+    let innerResult = 0;
+    let recursedQuery;
+    let saved_Statement = if_statement;
+    let queryResult: number;
+    let returnVal: number;
+
+
+    if ((if_statement.includes("(") || if_statement.includes(")"))){
+      console.log("If Statement: ", if_statement);
+      let start = if_statement.indexOf("(");
+      let end = if_statement.lastIndexOf(")");
+      console.log("First Location: ", start);
+      console.log("Second Location: ", end);
+      new_string = if_statement.slice(start + 1, end)
+      console.log("New String: ", new_string)
+      this.recursiveQueryReader(obj, new_string, returnOnPermission).map((recursedQuery) => (innerResult))
+      //innerResult = okAsync(recursedQuery)
+    }
+
+    // innerResult - value of new_string, which is already a part of if_statement
+    console.log("If Statement: ", if_statement)
+    if_statement = if_statement.replace(new_string, '')
+    console.log("If Statement: ", if_statement)
+
+    console.log("Read Q1 Answer!: ", this.readQueryEntry(obj, "q1", false));
+    console.log("Read Q2 Answer!: ", this.readQueryEntry(obj, "q2", false));
+    console.log("Read Q3 Answer!: ", this.readQueryEntry(obj, "q3", false));
+
+    let andCounter = 1;
+    let orCounter = 0;
+    console.log("andCounter: ", andCounter);
+
+    if (if_statement.includes("and") || if_statement.includes("AND")){
+      if_statement.split('and' || 'AND').forEach(element => {
+
+        (this.readQueryEntry(obj, element.split('$')[1], false)).andThen((queryResult) =>
+          okAsync(andCounter = andCounter * queryResult)
+        )        //andCounter = andCounter + returnVal
+
+      });
+    }
+
+    console.log("andCounter: ", andCounter);
+    if (if_statement.includes("or") || if_statement.includes("OR")){
+      if_statement.split('or').forEach(element => {
+        (this.readQueryEntry(obj, element.split('$')[1], false)).andThen((queryResult) =>
+          okAsync(orCounter = orCounter + queryResult)
+        )
+      });
+    }
+    console.log("orCounter: ", orCounter)
+
+
+    /* One query inside AND is false - RETURN FALSE */
+    if (andCounter == 0){
+      return okAsync(0);
+    }
+
+    /* Not a single OR query is true - RETURN FALSE */
+    if ((orCounter > 0)){
+      return okAsync(1);
+    }
+    
+    return okAsync(1);
   }
-  */
+  
   
   /* Break up the QUERY LOGIC */
   public readLogicEntry(obj: ISDQLQueryObject, input: string): ResultAsync<number | number[] | boolean, never | PersistenceError> {
@@ -96,14 +160,13 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     let totalTruth: number[] = [];
     let returnedData: number[] = [];
     let splitInput; let returnedNum: number;
-    let conditionsSatisfied: boolean = false;
+    let conditionsSatisfied: number = 0;
 
     // No If/Then part, just $r1
     if (!input.includes('then') && !input.includes('Then')) {
       let query = input.split('$')[1]; // r2
       return this.readReturnEntry(obj, query, false);
     }
-
     // TODO: Implement recursive Query Reader for more complicated, nested queries ones
     // track AND/OR occurences
     let andCounter = (input.match(/and/g) || []).length;
@@ -115,34 +178,25 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       splitInput = input.split('Then');
     }
 
-    // splitInput[0] if($q1and$q2and$q3)
-    // splitInput[1] $r1else$r2"
-    // if($q1and$q2and$q3) OR $q1and($q2or$q3) // $q1or($q2and$q3)     $q4 or ($q1and($q2or$q3))
-    // recursion with inner brackets
-    // then $r1else$r2"
-    let queries = splitInput[0].replace('if', '').replace('(', '').replace(')', '');
-    queries.split('and').forEach(element => {
-      (this.readQueryEntry(obj, element.split('$')[1], false)).andThen((queryResult) =>
-        okAsync(totalTruth.push(queryResult))
-      )
-    });
+    let if_statement = (splitInput[0].replace('if', '')) as string;
+    let start = if_statement.charAt(0)
+    let end = if_statement.charAt(if_statement.length - 1);
 
-    let result = totalTruth.reduce((prev, next) => {
-      return prev + next;
-    }, 0);
-
-    if (result == andCounter) {
-      conditionsSatisfied = true;
+    if ((start == "(") && (end == ")")){
+      console.log(if_statement);
+      if_statement = if_statement.slice(0, if_statement.length - 1);
+      if_statement = if_statement.slice(1, if_statement.length);
+      console.log(if_statement);
     }
 
+    this.recursiveQueryReader(obj, if_statement, true).map( () => conditionsSatisfied )
+    console.log("ConditionsSatisfied?: ", conditionsSatisfied)
     /* Which result do you choose */
     let results = splitInput[1]; //$r1else$r2"
     results = results.split('else') //$r1 and $r2
 
-    console.log("Queries we satisfied: ", totalTruth)
-    console.log("Did we satisfy query?", conditionsSatisfied);
 
-    if (conditionsSatisfied) {
+    if (conditionsSatisfied == 1) {
       console.log("Our return is: ", results[0].split('$')[1]);
       return this.readReturnEntry(obj, results[0].split('$')[1], false);
     }
@@ -194,7 +248,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           return okAsync(0);
         }
         // default, return false
-        return okAsync(0);
+        return okAsync(1);
 
       // LOCATION QUERY 
       case 'location':
@@ -280,7 +334,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public readLogicCompEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<EligibleReward, never | PersistenceError> {
     // given an array of logic    "if($q1and$q2and$q3)then$r1else$r2"
     let totalTruth: number[] = [];
-    let returnedData: number[] = [];
     let splitInput; let returnedNum: number;
     let conditionsSatisfied: boolean = false;
 
