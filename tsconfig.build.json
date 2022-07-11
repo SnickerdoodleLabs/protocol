@@ -41,6 +41,9 @@
       "@indexers/*": [
         "./packages/indexers/src/*"
       ],
+      "@indexers-test/*": [
+        "./packages/indexers/test/*"
+      ],
       "@objects/*": [
         "./packages/objects/src/*"
       ],

@@ -8,7 +8,6 @@ import {
   IDataWalletPersistence,
   AccountIndexingError,
   AjaxError,
-  BlockNumber,
   EVMAccountAddress,
   EVMTransaction,
   IEVMTransactionRepository,
@@ -18,9 +17,7 @@ import {
   EVMEvent,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { err, okAsync, ResultAsync } from "neverthrow";
-
-import { IIndexerConfig } from "./IIndexerConfig";
+import { ResultAsync } from "neverthrow";
 
 import {
   IIndexerConfigProvider,
