@@ -78,6 +78,7 @@ This example queries transaction history on the Avalanche mainnet for an ERC-20 
 
 This query determines if a US-based user has received and ERC-721 token on the Ethereum mainnet in a certain time-frame. 
 
+```
 {
     "version": 0.1,
     "description": "NFT received on the Ethereum blockchain by US residents",
@@ -135,6 +136,7 @@ This query determines if a US-based user has received and ERC-721 token on the E
         "compensations": ["if$q1then$c1", "if$q2then$c2"]
     }
 }
+```
 
 ## Solana Transfer
 
