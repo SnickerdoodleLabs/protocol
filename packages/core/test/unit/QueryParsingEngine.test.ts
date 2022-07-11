@@ -210,9 +210,6 @@ import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
 import { ConsentConditions } from "@snickerdoodlelabs/objects";
 import { reject } from "postmate";
 
-const insightsMap : Insight[] = [];
-const rewardsMap : EligibleReward[] = [];
-
 // convert sdqlquerystring into an sdqlqueryobject
 
 class QueryParsingEngineMocks {
@@ -267,15 +264,34 @@ describe("Query Parsing Engine tests", () => {
                 okAsync([1])
             )
             td.when(repo.readLogicEntry(obj, obj["logic"]["returns"][1])).thenReturn(
-                okAsync([1])
+                okAsync([0])
             )
+            /*
+            td.when(repo.generateInsight(obj, cidString, 0)).thenReturn(
+                okAsync(new Insight(cidString, obj["returns"]["url"] as URLString, [0]))
+                //return okAsync(new Insight(cid, obj["returns"]["url"] as URLString, data));
+            )
+            td.when(repo.generateInsight(obj, cidString, 1)).thenReturn(
+                okAsync(new Insight(cidString, obj["returns"]["url"] as URLString, [1]))
+                //return okAsync(new Insight(cid, obj["returns"]["url"] as URLString, data));
+            )
+            */
+
     
             
             const queryResult = await repo.handleQuery(obj, cidString);
             console.log(queryResult);
     
             expect(queryResult).toBeDefined();
-            console.log(queryResult);
+            /*
+            expect(queryResult["value"][0]).toEqual(expect.arrayContaining(Insight[2]))
+            expect(queryResult["value"][1]).toEqual(expect.arrayContaining([[EligibleReward], [EligibleReward], [EligibleReward], [EligibleReward]]))
+            */
+
+            //expect(queryResult[1]).toEqual(expect.arrayContaining([[EligibleReward], [EligibleReward], [EligibleReward], [EligibleReward]]))
+            console.log(queryResult["value"][0]);
+            console.log(queryResult["value"][1]);
+
         
         
     });

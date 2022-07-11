@@ -38,11 +38,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
     /* Still an empty return */
     // NEVER Returned
-
-    console.log("Object Logic", obj.logic)
-    console.log("Object Logic", obj.compensations)
-    console.log("Object Logic", obj.queries)
-
+    let result: boolean | number | number[] = 100;
 
     if (obj == null) {
       return okAsync([this.insightsMap, this.rewardsMap]);
@@ -56,68 +52,53 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       }
     }
 
+    let returnVal: number | boolean | number[];
+    console.log("First Logic Value should be: ", (this.readLogicEntry(obj, obj["logic"]["returns"][0]))["_promise"]  );
+    console.log("Second Logic Value should be: ", this.readLogicEntry(obj, obj["logic"]["returns"][1])["_promise"]);
+
+
     /* READ ALL LOGIC RETURNS FIRST */
     for (let i = 0; i < obj["logic"]["returns"].length; i++) {
 
-      console.log(obj["logic"]["returns"][i]);
+      this.readLogicEntry(obj, obj["logic"]["returns"][i]).map((returnVal) => result);
 
-      this.readLogicEntry(obj, obj["logic"]["returns"][i]).andThen(
-        (result) =>
-          okAsync(new Insight(cid, obj["returns"]["url"] as (URLString), result))
-      ).andThen((safeInsight) =>
-        okAsync(this.insightsMap.push(safeInsight))
-      )
+      this.insightsMap.push(new Insight(cid, obj["returns"]["url"] as URLString, result["_promise"]));
     }
-
     
     /* READ ALL COMPENSATION RETURNS */
-
     for (let i = 0; i < obj["logic"]["compensations"].length; i++) {
-      console.log(obj["logic"]["compensations"][i]);
       this.readLogicCompEntry(obj, obj["logic"]["compensations"][i], true).andThen(
         (safeReward) =>
           okAsync(this.rewardsMap.push(safeReward))
       )
     }
-
     return okAsync([this.insightsMap, this.rewardsMap]);
   }
+
 
   
   public recursiveQueryReader(obj: ISDQLQueryObject, if_statement: string, returnOnPermission: boolean, ): ResultAsync<number, never | PersistenceError> {
     
     let new_string = '';
     let innerResult = 0;
-    let recursedQuery;
-    let saved_Statement = if_statement;
-    let queryResult: number;
-    let returnVal: number;
-
+    let andCounter = 1;
+    let orCounter = 0;
 
     if ((if_statement.includes("(") || if_statement.includes(")"))){
-      console.log("If Statement: ", if_statement);
       let start = if_statement.indexOf("(");
       let end = if_statement.lastIndexOf(")");
-      console.log("First Location: ", start);
-      console.log("Second Location: ", end);
       new_string = if_statement.slice(start + 1, end)
-      console.log("New String: ", new_string)
-      this.recursiveQueryReader(obj, new_string, returnOnPermission).map((recursedQuery) => (innerResult))
-      //innerResult = okAsync(recursedQuery)
+      this.recursiveQueryReader(obj, new_string, returnOnPermission).map(() => (innerResult));
+      if (if_statement.includes("and") || if_statement.includes("AND")){
+        andCounter = andCounter * innerResult;
+      }
+      else{
+        orCounter = orCounter + innerResult;
+      }
     }
 
     // innerResult - value of new_string, which is already a part of if_statement
-    console.log("If Statement: ", if_statement)
     if_statement = if_statement.replace(new_string, '')
-    console.log("If Statement: ", if_statement)
-
-    console.log("Read Q1 Answer!: ", this.readQueryEntry(obj, "q1", false));
-    console.log("Read Q2 Answer!: ", this.readQueryEntry(obj, "q2", false));
-    console.log("Read Q3 Answer!: ", this.readQueryEntry(obj, "q3", false));
-
-    let andCounter = 1;
-    let orCounter = 0;
-    console.log("andCounter: ", andCounter);
 
     if (if_statement.includes("and") || if_statement.includes("AND")){
       if_statement.split('and' || 'AND').forEach(element => {
@@ -129,7 +110,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       });
     }
 
-    console.log("andCounter: ", andCounter);
+    //console.log("andCounter: ", andCounter);
     if (if_statement.includes("or") || if_statement.includes("OR")){
       if_statement.split('or').forEach(element => {
         (this.readQueryEntry(obj, element.split('$')[1], false)).andThen((queryResult) =>
@@ -137,7 +118,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         )
       });
     }
-    console.log("orCounter: ", orCounter)
+    //console.log("orCounter: ", orCounter)
 
 
     /* One query inside AND is false - RETURN FALSE */
@@ -164,12 +145,11 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     // No If/Then part, just $r1
     if (!input.includes('then') && !input.includes('Then')) {
       let query = input.split('$')[1]; // r2
+      //console.log("Return an Insight with this data please: ", query)
       return this.readReturnEntry(obj, query, false);
     }
     // TODO: Implement recursive Query Reader for more complicated, nested queries ones
     // track AND/OR occurences
-    let andCounter = (input.match(/and/g) || []).length;
-    let orCounter = (input.match(/and/g) || []).length;
     if (input.includes('then')) {
       splitInput = input.split('then');
       if_statement = splitInput[0];
@@ -184,24 +164,20 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     let end = if_statement.charAt(if_statement.length - 1);
 
     if ((start == "(") && (end == ")")){
-      console.log(if_statement);
       if_statement = if_statement.slice(0, if_statement.length - 1);
       if_statement = if_statement.slice(1, if_statement.length);
-      console.log(if_statement);
     }
 
     this.recursiveQueryReader(obj, if_statement, true).map( () => conditionsSatisfied )
-    console.log("ConditionsSatisfied?: ", conditionsSatisfied)
+    //console.log("ConditionsSatisfied?: ", conditionsSatisfied)
     /* Which result do you choose */
     let results = splitInput[1]; //$r1else$r2"
     results = results.split('else') //$r1 and $r2
 
     if (conditionsSatisfied == 1) {
-      console.log("Our return is: ", results[0].split('$')[1]);
       return this.readReturnEntry(obj, results[0].split('$')[1], false);
     }
     else {
-      console.log("Our return is: ", results[1].split('$')[1]);
       return this.readReturnEntry(obj, results[1].split('$')[1], false);
     }
   }
@@ -237,14 +213,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     let end = if_statement.charAt(if_statement.length - 1);
 
     if ((start == "(") && (end == ")")){
-      console.log(if_statement);
       if_statement = if_statement.slice(0, if_statement.length - 1);
       if_statement = if_statement.slice(1, if_statement.length);
-      console.log(if_statement);
     }
 
     this.recursiveQueryReader(obj, if_statement, true).map( () => conditionsSatisfied )
-    console.log("ConditionsSatisfied?: ", conditionsSatisfied)
+    //console.log("ConditionsSatisfied?: ", conditionsSatisfied)
     /* Which result do you choose */
     let results = (splitInput[1]) as string; //$r1else$r2" // $c2
 
@@ -253,7 +227,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     }
 
     let SplitElse = results.split('else') //$r1 and $r2
-
     if (conditionsSatisfied) {
       return this.readCompEntry(obj, SplitElse[0].split('$')[1], returnOnPermission);
     }
@@ -268,8 +241,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     // let subQuery = obj.queries[input];
 
     let subQuery = obj["queries"][input]
-    console.log("Query: ", input);
-    console.log("Name: ", obj["queries"][input]["name"]);
 
     // PART 1: looking for the location of the object
     switch (subQuery["name"]) {
@@ -377,20 +348,20 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           case 'not qualified':
             return okAsync(0);
           default:
-            return okAsync(false);
+            return okAsync(0);
         }
 
       // NETWORK QUERY
       case 'query_response':
         return this.readQueryEntry(obj, subQuery.query, returnOnPermission);
     }
-    return okAsync(false);
+    return okAsync(0);
   }
 
   /* Returns 1/0 or True/False for Query */
   public readCompEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<EligibleReward, PersistenceError> {
-    let subQuery = obj.compensations[input];
-    subQuery = (subQuery) as ISDQLClause;
-    return okAsync(new EligibleReward(subQuery.description, subQuery.callback));
+    let subQuery = obj["compensations"][input];
+    //subQuery = (subQuery) as ISDQLClause;
+    return okAsync(new EligibleReward(subQuery["description"], subQuery["callback"]));
   }
 }
