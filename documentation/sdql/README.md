@@ -1,11 +1,11 @@
 # Snickerdoodle Query Language (SDQL)
 
 The Snickerdoodle Query Language defines a [json schema](https://json-schema.org/) for communicating with the network of data wallets. The SDQL schema
-is given in [sdql.schema.json](/documentation/sdql/sdql.schema.json) and allows for custom logic to be deployed to groups of data wallets.
+is given in [sdql.schema.json](/documentation/sdql/sdql.schema.json) and allows for custom logic to be deployed to groups of data wallets that have consented to participate in a given group.
 
 ## Keywords 
 
-SDQL defines keywords (and sub-keywords) that instruct the Snickerdoodle Core how it should respond to a [Request for Data](/packages/contracts/README.md) event emmitted from a Consent Contract. 
+SDQL defines keywords (and sub-keywords) that instruct the Snickerdoodle Core how it should respond to a [Request for Data](/packages/contracts/README.md) event emitted from a Consent Contract. 
 
 ### version
 
@@ -71,7 +71,7 @@ The contract sub-keyword is used in conjunction with the `network` sub-keyword. 
 
 The *returns* keyword is used to specify one or more candidate return objects that may be delivered to an insight aggregator. A return object has the following sub-keywords:
 
-#### name (required)
+#### name
 
 What is the type of return:
 
@@ -86,6 +86,20 @@ An explicit string message to be returned as a result. Used with the `callback` 
 
 A reference to a query specified in the `queries` block. Used in conjunction with the `query_response` return type. 
 
+#### url (required)
+
+A complete URL specifying the location of the query aggregator associated with this SDQL file. 
+
 ### compensations
 
 ### logic
+
+The *logic* keyword is used to specify arbitrary logic to apply to components specified in then *queries*, *returns*, and *compensations* blocks. 
+
+#### returns
+
+A sub-keyword used to specify an array of return expressions. A return expression can return objects declared in the *returns* block given that conditions on objects declared in *queries* are met. 
+
+#### compensations
+
+A sub-keyword used to specify an array of compensation expressions. A compensation expression can return objects declared in the *compensations* block given that conditions on  declared in *queries* are met. 
