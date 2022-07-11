@@ -23,7 +23,7 @@ This keyword is reserved for indicating what entity is broadcasting a query. It 
 
 ### [queries](/documentation/sdql/sdql-v0.0.1.schema.json#L18)
 
-The queries keyword is used to indicate that a SDQL file is requesting access to the data wallet [persistence layer](/packages/persistence/README.md). One or more queries must be specified within a *queries* block. These queries can then be referenced by other top-level keywords. A query has the following sub-keywords:
+The *queries* keyword is used to indicate that a SDQL file is requesting access to the data wallet [persistence layer](/packages/persistence/README.md). One or more instances must be specified within a *queries* block. These query instances can then be referenced by other top-level keywords. A query instance has the following sub-keywords:
 
 #### name (required)
 
