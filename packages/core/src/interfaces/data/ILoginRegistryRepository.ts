@@ -11,7 +11,6 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { CrumbsContractError } from "@snickerdoodlelabs/objects";
 
 export interface ILoginRegistryRepository {
   /** getCrumb() returns the encrypted private key for the data wallet stored on the DoodleChain

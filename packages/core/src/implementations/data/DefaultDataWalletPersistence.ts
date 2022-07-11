@@ -23,10 +23,12 @@ import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { Container } from "inversify";
-import { IConfigProvider } from "@browser-extension/interfaces/utilities";
+import { IConfigProvider } from "@core/interfaces/utilities";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import { IConfigOverrides } from "@snickerdoodlelabs/objects";
-import { IConfigProviderType } from "@browser-extension/interfaces/utilities";
+
+import { IConfigProviderType } from "@core/interfaces/utilities";
+
 import {
   IProfileService,
   IProfileServiceType,

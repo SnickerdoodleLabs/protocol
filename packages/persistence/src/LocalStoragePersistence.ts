@@ -16,7 +16,6 @@ import {
   EVMContractAddress,
   EVMTransaction,
 } from "@snickerdoodlelabs/objects";
-import { ChainId } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { BlockNumber } from "@snickerdoodlelabs/objects";
@@ -158,7 +157,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   getLocation(): ResultAsync<CountryCode, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION);
   }
-
+/*
   getLatestTransactionForAccount(chainId: ChainId, address: EVMAccountAddress,
   ): ResultAsync<EVMTransaction | null, PersistenceError>{
     return okAsync(null)
@@ -169,7 +168,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError>{
     return okAsync(undefined);
   }
-
+*/
   getEVMTransactions(
     accountAddress: EVMAccountAddress,
     firstBlock: BlockNumber,
