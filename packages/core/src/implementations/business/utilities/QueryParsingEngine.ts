@@ -156,11 +156,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   
   /* Break up the QUERY LOGIC */
   public readLogicEntry(obj: ISDQLQueryObject, input: string): ResultAsync<number | number[] | boolean, never | PersistenceError> {
-    // given an array of logic    "if($q1and$q2and$q3)then$r1else$r2"
-    let totalTruth: number[] = [];
-    let returnedData: number[] = [];
-    let splitInput; let returnedNum: number;
+    // given an array of logic    "if$q2then$c2"
+    let splitInput; 
     let conditionsSatisfied: number = 0;
+    let if_statement = input;
 
     // No If/Then part, just $r1
     if (!input.includes('then') && !input.includes('Then')) {
@@ -173,12 +172,14 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     let orCounter = (input.match(/and/g) || []).length;
     if (input.includes('then')) {
       splitInput = input.split('then');
+      if_statement = splitInput[0];
     }
     else {
       splitInput = input.split('Then');
+      if_statement = splitInput[0];
     }
 
-    let if_statement = (splitInput[0].replace('if', '')) as string;
+    if_statement = (if_statement.replace('if', '')) as string;
     let start = if_statement.charAt(0)
     let end = if_statement.charAt(if_statement.length - 1);
 
@@ -195,7 +196,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     let results = splitInput[1]; //$r1else$r2"
     results = results.split('else') //$r1 and $r2
 
-
     if (conditionsSatisfied == 1) {
       console.log("Our return is: ", results[0].split('$')[1]);
       return this.readReturnEntry(obj, results[0].split('$')[1], false);
@@ -205,6 +205,63 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return this.readReturnEntry(obj, results[1].split('$')[1], false);
     }
   }
+
+
+  /* Break up the QUERY LOGIC */
+  public readLogicCompEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<EligibleReward, never | PersistenceError> {
+    // given an array of logic    "if$q2then$c2"
+    let splitInput; 
+    let conditionsSatisfied: number = 0;
+    let if_statement = input;
+
+    // No If/Then part, just $r1
+    if (!input.includes('then') && !input.includes('Then')) {
+      let query = input.split('$')[1]; // r2
+      return this.readCompEntry(obj, query, returnOnPermission);
+    }
+
+    // TODO: Implement recursive Query Reader for more complicated ones
+    // this.recursiveQueryReader()
+    // track AND/OR occurences
+    if (input.includes('then')) {
+      splitInput = input.split('then');
+      if_statement = splitInput[0];
+    }
+    else {
+      splitInput = input.split('Then');
+      if_statement = splitInput[0];
+    }
+
+    if_statement = (if_statement.replace('if', '')) as string;
+    let start = if_statement.charAt(0)
+    let end = if_statement.charAt(if_statement.length - 1);
+
+    if ((start == "(") && (end == ")")){
+      console.log(if_statement);
+      if_statement = if_statement.slice(0, if_statement.length - 1);
+      if_statement = if_statement.slice(1, if_statement.length);
+      console.log(if_statement);
+    }
+
+    this.recursiveQueryReader(obj, if_statement, true).map( () => conditionsSatisfied )
+    console.log("ConditionsSatisfied?: ", conditionsSatisfied)
+    /* Which result do you choose */
+    let results = (splitInput[1]) as string; //$r1else$r2" // $c2
+
+    if (!results.includes("else")){
+      return this.readCompEntry(obj, results.split('$')[1], returnOnPermission);
+    }
+
+    let SplitElse = results.split('else') //$r1 and $r2
+
+    if (conditionsSatisfied) {
+      return this.readCompEntry(obj, SplitElse[0].split('$')[1], returnOnPermission);
+    }
+    else {
+      return this.readCompEntry(obj, SplitElse[1].split('$')[1], returnOnPermission);
+    }
+  }
+
 
   /* Returns 1/0 or True/False for Query */
   public readQueryEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number, PersistenceError> {
@@ -330,65 +387,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return okAsync(false);
   }
 
-  /* Break up the QUERY LOGIC */
-  public readLogicCompEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<EligibleReward, never | PersistenceError> {
-    // given an array of logic    "if($q1and$q2and$q3)then$r1else$r2"
-    let totalTruth: number[] = [];
-    let splitInput; let returnedNum: number;
-    let conditionsSatisfied: boolean = false;
-
-    // No If/Then part, just $r1
-    if (!input.includes('then') && !input.includes('Then')) {
-      let query = input.split('$')[1]; // r2
-      return this.readCompEntry(obj, query, returnOnPermission);
-    }
-
-    // TODO: Implement recursive Query Reader for more complicated ones
-    // this.recursiveQueryReader()
-
-    // track AND/OR occurences
-    let andCounter = (input.match(/and/g) || []).length;
-    let orCounter = (input.match(/and/g) || []).length;
-    if (input.includes('then')) {
-      splitInput = input.split('then');
-    }
-    else {
-      splitInput = input.split('Then');
-    }
-
-    let queries = splitInput[0].replace('if', '').replace('(', '').replace(')', '');
-    queries.split('and').forEach(element => {
-      this.readQueryEntry(obj, element.split('$')[1], returnOnPermission).andThen((returnedNum) =>
-        okAsync(returnedNum)
-      ).andThen((returnedNum) =>
-        okAsync(totalTruth.push(returnedNum)))
-    });
-
-    let result = totalTruth.reduce((prev, next) => {
-      return prev + next;
-    }, 0);
-
-    if (result == andCounter) {
-      conditionsSatisfied = true;
-    }
-
-    /* Which result do you choose */
-    let results = splitInput[1]; //$r1else$r2"
-    results = results.split('else') //$r1 and $r2
-    if (conditionsSatisfied) {
-      return this.readCompEntry(obj, results[0].split('$')[1], returnOnPermission);
-    }
-    else {
-      return this.readCompEntry(obj, results[1].split('$')[1], returnOnPermission);
-    }
-  }
-
   /* Returns 1/0 or True/False for Query */
   public readCompEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<EligibleReward, PersistenceError> {
     let subQuery = obj.compensations[input];
     subQuery = (subQuery) as ISDQLClause;
-
-
     return okAsync(new EligibleReward(subQuery.description, subQuery.callback));
   }
 }
