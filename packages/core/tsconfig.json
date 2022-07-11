@@ -17,6 +17,9 @@
     },
     {
       "path": "../objects"
+    },
+    {
+      "path": "../utils"
     }
   ],
   "include": ["./src/**/*.ts"],

@@ -1,5 +1,4 @@
 import {
-  EligibleReward,
   EVMTransaction,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
@@ -9,6 +8,9 @@ import {
   PersistenceError,
   QueryFormatError,
 } from "@snickerdoodlelabs/objects";
+
+import { EligibleReward } from "@snickerdoodlelabs/objects";
+
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
@@ -35,31 +37,44 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public handleQuery(obj: ISDQLQueryObject, cid: IpfsCID): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError> {
 
     /* Still an empty return */
+    // NEVER Returned
+
+    console.log("Object Logic", obj.logic)
+    console.log("Object Logic", obj.compensations)
+    console.log("Object Logic", obj.queries)
+
+
     if (obj == null) {
       return okAsync([this.insightsMap, this.rewardsMap]);
     }
 
     /* Missing Key Error */
     let required = ["version", "description", "business", "queries", "returns", "compensations", "logic"];
-    for (let i = 0; i < _.size(required); i++){
-      if (!(required[i] in obj)){
+    for (let i = 0; i < required.length; i++){
+      if ((obj[required[i]] === undefined)){
         return errAsync(new QueryFormatError("Missing Required Key"));
       }
     }
 
     /* READ ALL LOGIC RETURNS FIRST */
-    for (let i = 0; i < _.size(obj.logic.returns); i++) {
-      this.readLogicEntry(obj, obj.logic.returns[i], false).andThen(
+    for (let i = 0; i < obj["logic"]["returns"].length; i++) {
+
+      console.log(obj["logic"]["returns"][i]);
+
+      this.readLogicEntry(obj, obj["logic"]["returns"][i]).andThen(
         (result) =>
-          okAsync(new Insight(cid, obj.returns.url as (URLString), result))
+          okAsync(new Insight(cid, obj["returns"]["url"] as (URLString), result))
       ).andThen((safeInsight) =>
         okAsync(this.insightsMap.push(safeInsight))
       )
     }
 
+    
     /* READ ALL COMPENSATION RETURNS */
-    for (let i = 0; i < _.size(obj.logic.compensations); i++) {
-      this.readLogicCompEntry(obj, obj.logic.returns[i], true).andThen(
+
+    for (let i = 0; i < obj["logic"]["compensations"].length; i++) {
+      console.log(obj["logic"]["compensations"][i]);
+      this.readLogicCompEntry(obj, obj["logic"]["compensations"][i], true).andThen(
         (safeReward) =>
           okAsync(this.rewardsMap.push(safeReward))
       )
@@ -76,7 +91,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   */
   
   /* Break up the QUERY LOGIC */
-  public readLogicEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number | number[] | boolean, never | PersistenceError> {
+  public readLogicEntry(obj: ISDQLQueryObject, input: string): ResultAsync<number | number[] | boolean, never | PersistenceError> {
     // given an array of logic    "if($q1and$q2and$q3)then$r1else$r2"
     let totalTruth: number[] = [];
     let returnedData: number[] = [];
@@ -86,7 +101,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     // No If/Then part, just $r1
     if (!input.includes('then') && !input.includes('Then')) {
       let query = input.split('$')[1]; // r2
-      return this.readReturnEntry(obj, query, returnOnPermission);
+      return this.readReturnEntry(obj, query, false);
     }
 
     // TODO: Implement recursive Query Reader for more complicated, nested queries ones
@@ -107,7 +122,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     // then $r1else$r2"
     let queries = splitInput[0].replace('if', '').replace('(', '').replace(')', '');
     queries.split('and').forEach(element => {
-      (this.readQueryEntry(obj, element.split('$')[1], returnOnPermission)).andThen((queryResult) =>
+      (this.readQueryEntry(obj, element.split('$')[1], false)).andThen((queryResult) =>
         okAsync(totalTruth.push(queryResult))
       )
     });
@@ -123,45 +138,60 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     /* Which result do you choose */
     let results = splitInput[1]; //$r1else$r2"
     results = results.split('else') //$r1 and $r2
+
+    console.log("Queries we satisfied: ", totalTruth)
+    console.log("Did we satisfy query?", conditionsSatisfied);
+
     if (conditionsSatisfied) {
-      return this.readReturnEntry(obj, results[0].split('$')[1], returnOnPermission);
+      console.log("Our return is: ", results[0].split('$')[1]);
+      return this.readReturnEntry(obj, results[0].split('$')[1], false);
     }
     else {
-      return this.readReturnEntry(obj, results[1].split('$')[1], returnOnPermission);
+      console.log("Our return is: ", results[1].split('$')[1]);
+      return this.readReturnEntry(obj, results[1].split('$')[1], false);
     }
   }
 
   /* Returns 1/0 or True/False for Query */
   public readQueryEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number, PersistenceError> {
-    let subQuery = obj.queries[input];
-    subQuery = (subQuery) as ISDQLClause;
+    // let subQuery = obj.queries[input];
+
+    let subQuery = obj["queries"][input]
+    console.log("Query: ", input);
+    console.log("Name: ", obj["queries"][input]["name"]);
+
     // PART 1: looking for the location of the object
-    switch (subQuery.name) {
+    switch (subQuery["name"]) {
       // NETWORK QUERY
-      case 'network':
+      case "network":
         if (this.consentConditions.checkNetwork() && returnOnPermission) {
           return okAsync(1);
         }
-        if (subQuery.includes('contract')) {
+        if ("contract" in subQuery) {
+          /*
           this.persistenceRepo.getEVMTransactions(
-            subQuery.contract.address,
-            subQuery.contract.blockrange.start,
-            subQuery.contract.blockrange.end
-          ).andThen((EVMTransactions) =>
-            okAsync(EVMTransactions.forEach(element => {
-              if (element.from != "undefined" && subQuery.contract.direction == "from") {
-                if (element.from == subQuery.contract.address) {
-                  return okAsync(true);
+            subQuery["contract"]["address"],
+            subQuery["contract"]["blockrange"]["start"],
+            subQuery["contract"]["blockrange"]["end"]
+          ).andThen((transactionList) =>
+          
+            okAsync(transactionList.forEach  (element => {
+              if (element.from != "undefined" && subQuery["contract"]["direction"] == "from") {
+                if (element.from == subQuery["contract"]["address"]) {
+                  return okAsync(1);
                 }
               }
-              else if (element.to != "undefined" && subQuery.contract.direction == "to") {
-                if (element.to == subQuery.contract.address) {
-                  return okAsync(true);
+              else if (element.to != "undefined" && subQuery["contract"]["direction"] == "to") {
+                if (element.to == subQuery["contract"]["address"]) {
+                  return okAsync(1);
                 }
               }
-              return okAsync(false);
-            }))
+              return okAsync(0);
+            })
+            ) 
           )
+          */
+          return okAsync(0);
         }
         // default, return false
         return okAsync(0);
@@ -171,16 +201,16 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         if (this.consentConditions.checkLocation() && returnOnPermission) {
           return okAsync(1);
         }
-        switch (subQuery.return) {
+        switch (subQuery["return"]) {
           case 'boolean':
-            let conditions = subQuery.conditions;
-            if (conditions.includes["in"]) {
-              let CountryCodes = conditions.includes["in"];
+            let conditions = subQuery["conditions"];
+            if (conditions.hasOwnProperty("in")) {
+              let CountryCodes = conditions["in"];
               /*
                                     CountryCodes.forEach(element => {
                                       element.andThen(okAsync(element)).andThen(
                                         if (okAsync(element) == == this.persistenceRepo.getLocation()) {
-                                        return okAsync(true);
+                                        return okAsync(1);
                                       }
                                       )
                                   });
@@ -199,11 +229,11 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         if (this.consentConditions.checkAge() && returnOnPermission) {
           return okAsync(1);
         }
-        switch (subQuery.return) {
+        switch (subQuery["return"]) {
           case 'boolean':
-            if (subQuery.includes["conditions"]) {
-              let conditions = subQuery.conditions;
-              if (conditions.includes["ge"] && conditions.includes["l"]) {
+            if (subQuery.hasOwnProperty("conditions")) {
+              let conditions = subQuery["conditions"];
+              if (conditions.hasOwnProperty("ge") && conditions.hasOwnProperty("l")) {
                 if ((this.persistenceRepo.getAge() >= conditions["ge"]) && (this.persistenceRepo.getAge() <= conditions["l"])) {
                   return okAsync(1);
                 }
@@ -246,7 +276,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return okAsync(false);
   }
 
-
   /* Break up the QUERY LOGIC */
   public readLogicCompEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<EligibleReward, never | PersistenceError> {
     // given an array of logic    "if($q1and$q2and$q3)then$r1else$r2"
@@ -274,11 +303,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       splitInput = input.split('Then');
     }
 
-    // splitInput[0] if($q1and$q2and$q3)
-    // splitInput[1] $r1else$r2"
-    // if($q1and$q2and$q3) OR $q1and($q2or$q3) // $q1or($q2and$q3)     $q4 or ($q1and($q2or$q3))
-    // recursion with inner brackets
-    // then $r1else$r2"
     let queries = splitInput[0].replace('if', '').replace('(', '').replace(')', '');
     queries.split('and').forEach(element => {
       this.readQueryEntry(obj, element.split('$')[1], returnOnPermission).andThen((returnedNum) =>
@@ -310,6 +334,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public readCompEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<EligibleReward, PersistenceError> {
     let subQuery = obj.compensations[input];
     subQuery = (subQuery) as ISDQLClause;
+
+
     return okAsync(new EligibleReward(subQuery.description, subQuery.callback));
   }
 }

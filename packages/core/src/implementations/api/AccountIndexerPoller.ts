@@ -5,7 +5,10 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { IAccountIndexerPoller } from "@core/interfaces/api";
+//import { IAccountIndexerPoller } from "@core/interfaces/api";
+import { IAccountIndexerPoller } from "@browser-extension/interfaces/api/IAccountIndexerPoller";
+
+
 import {
   IMonitoringServiceType,
   IMonitoringService,
@@ -13,9 +16,9 @@ import {
 import {
   IConfigProvider,
   IConfigProviderType,
-  ILogUtilsType,
-  ILogUtils,
 } from "@core/interfaces/utilities";
+import { ILogUtils } from "@snickerdoodlelabs/common-utils";
+import { ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class AccountIndexerPoller implements IAccountIndexerPoller {

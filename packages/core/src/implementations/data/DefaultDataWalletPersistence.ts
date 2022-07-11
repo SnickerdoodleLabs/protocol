@@ -17,7 +17,10 @@ import {
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
+
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
+
+
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { Container } from "inversify";
 import { IConfigProvider } from "@browser-extension/interfaces/utilities";
@@ -36,6 +39,8 @@ import { IAccountIndexing } from "@snickerdoodlelabs/objects";
 import { IDataWalletPersistenceType } from "@snickerdoodlelabs/objects";
 import { BlockNumber } from "@snickerdoodlelabs/objects";
 import { AccountIndexingError } from "@snickerdoodlelabs/objects";
+
+import { ChainId } from "@snickerdoodlelabs/objects";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",

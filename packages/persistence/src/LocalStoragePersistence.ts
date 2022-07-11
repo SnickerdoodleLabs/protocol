@@ -16,8 +16,13 @@ import {
   EVMContractAddress,
   EVMTransaction,
 } from "@snickerdoodlelabs/objects";
+import { ChainId } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { BlockNumber } from "@snickerdoodlelabs/objects";
+import { AccountIndexingError } from "@snickerdoodlelabs/objects";
+import { NormalModuleReplacementPlugin } from "webpack";
+
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -153,4 +158,25 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   getLocation(): ResultAsync<CountryCode, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION);
   }
+
+  getLatestTransactionForAccount(chainId: ChainId, address: EVMAccountAddress,
+  ): ResultAsync<EVMTransaction | null, PersistenceError>{
+    return okAsync(null)
+  }
+
+  addEVMTransactions(
+    transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError>{
+    return okAsync(undefined);
+  }
+
+  getEVMTransactions(
+    accountAddress: EVMAccountAddress,
+    firstBlock: BlockNumber,
+    lastBlock?: BlockNumber | undefined,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError>{
+    let setEVM: EVMTransaction[] = []
+    return okAsync(setEVM);
+  }
+
 }

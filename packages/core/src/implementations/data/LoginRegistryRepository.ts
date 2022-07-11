@@ -9,9 +9,10 @@ import {
   CrumbsContractError,
   EncryptedString,
   InitializationVector,
+  ConsentContractError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { ILoginRegistryRepository } from "@core/interfaces/data";
 import {
@@ -41,8 +42,11 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
     languageCode: LanguageCode,
   ): ResultAsync<
     AESEncryptedString | null,
-    BlockchainProviderError | UninitializedError | CrumbsContractError
+    BlockchainProviderError | UninitializedError | ConsentContractError
   > {
+
+    return errAsync(new UninitializedError());
+/*
     return this.getCrumbsContract()
       .andThen((contract) => {
         // Retrieve the crumb id or token id mapped to the address
@@ -79,6 +83,7 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
         // We have a crumb for this language code (the key derived from the signature will be able to decrypt this)
         return new AESEncryptedString(languageCrumb.d, languageCrumb.iv);
       });
+      */
   }
 
   /**
@@ -95,9 +100,12 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
     languageCode: LanguageCode,
   ): ResultAsync<
     TokenId,
-    BlockchainProviderError | UninitializedError | CrumbsContractError
+    BlockchainProviderError | UninitializedError | ConsentContractError
   > {
     // First, get the existing crumb
+
+    return errAsync(new UninitializedError());
+    /*
     return this.getCrumbsContract()
       .andThen((contract) => {
         return contract.getCrumb(accountAddress);
@@ -129,6 +137,7 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
         // TODO: Send the crumb to the insight platform to be created
         return okAsync(TokenId(BigInt(0)));
       });
+      */
   }
 
   protected getCrumbsContract(): ResultAsync<

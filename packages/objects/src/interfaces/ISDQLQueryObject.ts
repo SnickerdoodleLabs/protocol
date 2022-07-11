@@ -7,17 +7,38 @@ export interface ISDQLQueryObject {
   "version": string;
   "description": string;
   "business": string;
-  "queries": ISDQLClause;
-  "returns": ISDQLClause;
-  "compensations": ISDQLClause;
-  "logic": ISDQLClause;
+  "queries": SDQL_Queries;
+  "returns": SDQL_Returns;
+  "compensations": SDQL_Compensations;
+  "logic": SDQL_Logic;
+}
 
-  /*
-   "queries": Object;
-   "returns": Object;
-   "compensations": Object;
-   "logic": Object;
-   */
+interface SDQL_Queries {
+    // queries
+    "name": string;
+    "return": string;
+    "chain": string;
+    "contract": Object;
+    "conditions": Object;
+  
+    // returns
+    "message": string;
+    "query": string;
+  
+    // compensations
+    "description": string;
+    "callback": URLString;
+}
+interface SDQL_Compensations {
+}
+interface SDQL_Returns {
+  "url": URLString;
+}
+interface SDQL_Compensations {
+}
+interface SDQL_Logic {
+  "returns": Array<string>
+  "compensations": Array<string>
 }
 
 export interface ISDQLClause {
@@ -32,7 +53,6 @@ export interface ISDQLClause {
   "c3": Object;
   "returns": Array<string>;
   "compensations": Array<string>;
-
 
   "url": string;
 
@@ -50,8 +70,11 @@ export interface ISDQLClause {
   // compensations
   "description": string;
   "callback": URLString;
-
 }
+
+
+
+
 
 /*
   required: Array<String>;

@@ -1,5 +1,8 @@
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
+import { CovalentEVMTransactionRepository } from "@snickerdoodlelabs/indexers";
+
+
 import {
   ChainId,
   ChainInformation,

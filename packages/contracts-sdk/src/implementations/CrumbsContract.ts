@@ -26,9 +26,17 @@ export class CrumbsContract implements ICrumbsContract {
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
+      ContractsAbis.ConsentFactoryAbi.abi,
+      providerOrSigner,
+    );
+
+    /*
+    this.contract = new ethers.Contract(
+      contractAddress,
       ContractsAbis.CrumbsAbi.abi,
       providerOrSigner,
     );
+    */
   }
   
 
@@ -36,6 +44,8 @@ export class CrumbsContract implements ICrumbsContract {
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<TokenId | null, CrumbsContractError> {
+    return okAsync(null);
+    /*
     return ResultAsync.fromPromise(
       this.contract.addressToCrumbId(
         accountAddress,
@@ -45,12 +55,16 @@ export class CrumbsContract implements ICrumbsContract {
         return new CrumbsContractError("Unable to call addressToCrumbId()", e);
       },
     ).map(() => {});
+    */
   }
 
   public tokenURI(
     tokenId: TokenId,
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<TokenUri | null, CrumbsContractError> {
+    return okAsync(null);
+
+    /*
     return ResultAsync.fromPromise(
       this.contract.tokenURI(
         tokenId,
@@ -60,13 +74,17 @@ export class CrumbsContract implements ICrumbsContract {
         return new CrumbsContractError("Unable to call tokenURI()", e);
       },
     ).map(() => {});
+    */
   }
 
   public createCrumb(
     crumbId: TokenId,
     mask: TokenUri,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<void | null, CrumbsContractError> {
+  ): ResultAsync<void, CrumbsContractError> {
+    return okAsync(undefined);
+
+    /*
     return ResultAsync.fromPromise(
       this.contract.createCrumb(
         crumbId,
@@ -77,12 +95,19 @@ export class CrumbsContract implements ICrumbsContract {
         return new CrumbsContractError("Unable to call createCrumb()", e);
       },
     ).map(() => {});
+    */
   }
 
   public burnCrumb(
     crumbId: TokenId,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<void | null, CrumbsContractError> {
+  ): ResultAsync<void, CrumbsContractError> {
+    return okAsync(undefined);
+
+
+
+
+    /*
     return ResultAsync.fromPromise(
       this.contract.burnCrumb(
         crumbId,
@@ -92,5 +117,6 @@ export class CrumbsContract implements ICrumbsContract {
         return new CrumbsContractError("Unable to call burnCrumb()", e);
       },
     ).map(() => {});
+    */
   }
 }

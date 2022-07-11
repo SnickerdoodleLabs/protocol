@@ -7,11 +7,11 @@ import { PersistenceError } from "@snickerdoodlelabs/objects";
 
 export interface IQueryParsingEngine {
   handleQuery(obj: ISDQLQueryObject, cid: IpfsCID): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError>
-  readLogicEntry(obj: ISDQLQueryObject, cid: IpfsCID, returnOnPermission: boolean): ResultAsync<number | number[] | boolean, never | PersistenceError>
-  readQueryEntry(obj: ISDQLQueryObject, cid: IpfsCID, returnOnPermission: boolean): ResultAsync<number, PersistenceError>
-  readReturnEntry(obj: ISDQLQueryObject, cid: IpfsCID, returnOnPermission: boolean): ResultAsync<number | boolean, PersistenceError> 
-  readLogicCompEntry(obj: ISDQLQueryObject, cid: IpfsCID, returnOnPermission: boolean): ResultAsync<EligibleReward, never | PersistenceError>
-  readCompEntry(obj: ISDQLQueryObject, cid: IpfsCID, returnOnPermission: boolean): ResultAsync<EligibleReward, PersistenceError>
+  readLogicEntry(obj: ISDQLQueryObject, input: string): ResultAsync<number | number[] | boolean, never | PersistenceError>
+  readQueryEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number, PersistenceError>
+  readReturnEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number | boolean, PersistenceError> 
+  readLogicCompEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<EligibleReward, never | PersistenceError>
+  readCompEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<EligibleReward, PersistenceError>
 }
 
 export const IQueryParsingEngineType = Symbol.for("IQueryParsingEngine");
