@@ -1,6 +1,6 @@
-# Query execution plan
+# Query Execution Plan
 
-## Data flow
+## Data Flow
 ```mermaid
 
 graph TD;

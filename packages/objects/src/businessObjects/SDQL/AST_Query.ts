@@ -7,7 +7,6 @@ export abstract class AST_Query {
         readonly returnType: SDQL_Return,
     ) {}
     
-    abstract serialize (): JSON;
-    // abstract static deserialize (json: JSON): AST_Query;
+    // abstract serialize (): JSON;
 
 }

@@ -11,8 +11,11 @@ export const SDQL_Return = make<SDQL_Return>();
 // export type SDQL_Chain = Brand<string, "SDQL_Chain">; EVMChainCode
 // export const SDQL_Chain = make<SDQL_Chain>();
 
-export type SDQL_Contract = Brand<Object, "SDQL_Contract">;
-export const SDQL_Contract = make<SDQL_Contract>();
+// export type SDQL_Contract = Brand<Object, "SDQL_Contract">;
+// export const SDQL_Contract = make<SDQL_Contract>();
+
+export type SDQL_OperatorName = Brand<string, "SDQL_OperatorName">;
+export const SDQL_OperatorName = make<SDQL_OperatorName>();
 
 
 export type SDQL_Conditions = Brand<Array<Object>, "SDQL_Conditions">; // not sure if arrays are suppored in make
