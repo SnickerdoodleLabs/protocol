@@ -4,11 +4,11 @@
 
 ## Package Contents
 
-- [contracts](/packages/contracts/contracts/README.md): Subdirectory containing all Snickerdoodle Protocol smart contracts
-- [docs](/packages/contracts/docs/README.md): Auto-generated API documentation of public and external contract methods
-- [scripts](/packages/contracts/scripts/README.md): Hardhat [scripts](https://hardhat.org/guides/scripts.html) for deploying different configurations of the smart contract stack
-- [tasks](/packages/contracts/tasks/README.md): Hardhat [task definitions](https://hardhat.org/guides/create-task.html) for interacting with smart contract deployments
-- [test](/packages/contracts/test/README.md): Hardhat [unit tests](https://hardhat.org/guides/waffle-testing.html) for the Snickerdoodle Protocol smart contract stack
+- [contracts](/packages/contracts/contracts/): Subdirectory containing all Snickerdoodle Protocol smart contracts
+- [docs](/packages/contracts/docs/): Auto-generated API documentation of public and external contract methods
+- [scripts](/packages/contracts/scripts/): Hardhat [scripts](https://hardhat.org/guides/scripts.html) for deploying different configurations of the smart contract stack
+- [tasks](/packages/contracts/tasks/): Hardhat [task definitions](https://hardhat.org/guides/create-task.html) for interacting with smart contract deployments
+- [test](/packages/contracts/test/): Hardhat [unit tests](https://hardhat.org/guides/waffle-testing.html) for the Snickerdoodle Protocol smart contract stack
 - [hardhat.config.js](/packages/contracts/hardhat.config.js): [Configuration file](https://hardhat.org/config/) for the Hardhat development framework
 
 ## Summary
