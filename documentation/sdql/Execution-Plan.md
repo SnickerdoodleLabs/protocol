@@ -24,12 +24,25 @@ flowchart TD;
 ## AST
 
 ### Examples
-**if($q1and$q2and$q3)then$r1else$r2**
+1. **if($q1and$q2and$q3)then$r1else$r2**
 
-<!-- EXPR -> IF COND THEN EXPR ELSE EXPR
+<!-- EXPR -> IF COND THEN TrueExpr ELSE FalseExpr -->
 ```mermaid
 graph TD;
-    IF-->
+    IF-->TrueExpr-->r1;
+    IF-->ConditionExpr;
+    IF-->FalseExpr-->r2;
 
+    ConditionExpr --> Parenthesis1["("];
+    Parenthesis1 --> And1;
+    And1 --> And2;
+    And1 --> BoolExpr3;
+    BoolExpr3 --> q3;
+    And2-->BoolExpr1;
+    And2-->BoolExpr2;
+    BoolExpr1 --> q1;
+    BoolExpr2 --> q2;
 
-``` -->
+```
+
+We traverse the tree in post-order (evaluate children first in any order).
