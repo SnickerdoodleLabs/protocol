@@ -12,7 +12,7 @@ export class ConditionAnd extends Condition {
     }
 
     public result(): boolean{
-        return (this.lval && this.rval);
+        return (this.lval || this.rval);
     }
 
 }
