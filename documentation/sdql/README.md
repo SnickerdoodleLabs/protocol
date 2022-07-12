@@ -112,8 +112,8 @@ The *logic* keyword is used to specify arbitrary logic to apply to components sp
 
 #### returns
 
-A sub-keyword of *logic* used to specify an array of return expressions. A return expression can return objects declared in the [*returns*](/documentation/sdql/README.md#returns) block given that conditions on objects declared in [*queries*](/documentation/sdql/README.md#queries) are met. 
+A sub-keyword of *logic* used to specify an array of return expressions. A return expression can return objects declared in the [*returns*](/documentation/sdql/README.md#returns) block given that conditions on objects declared in [*queries*](/documentation/sdql/README.md#queries) are met. Referenced queries that do not have sufficient permissions to access attributes of the persistence layer return `null`.
 
 #### compensations
 
-A sub-keyword of *logic* used to specify an array of compensation expressions. A compensation expression can return objects declared in the [*compensations*](/documentation/sdql/README.md#compensations) block given that conditions on  declared in [*queries*](/documentation/sdql/README.md#queries) are met. 
+A sub-keyword of *logic* used to specify an array of compensation expressions. A compensation expression can return objects declared in the [*compensations*](/documentation/sdql/README.md#compensations) block given that conditions declared in [*queries*](/documentation/sdql/README.md#queries) are met. Referenced queries that do not have sufficient permissions to access attributes of the persistence layer return `null`.
