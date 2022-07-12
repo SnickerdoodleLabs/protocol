@@ -15,6 +15,7 @@ export class AST {
     returns: AST_Returns | null;
     compensations: Map<SDQL_Name, AST_Compensation>;
     logic: AST_Logic;
+    
 
     constructor(
         readonly version: Version,

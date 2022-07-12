@@ -5,7 +5,7 @@ import { URLString } from "./URLString";
 export type SDQL_Name = Brand<string, "SDQL_Name">;
 export const SDQL_Name = make<SDQL_Name>();
 
-export type SDQL_Return = Brand<string, "SDQL_Return">;
+export type SDQL_Return = Brand<string|boolean|number|Array<any>, "SDQL_Return">;
 export const SDQL_Return = make<SDQL_Return>();
 
 // export type SDQL_Chain = Brand<string, "SDQL_Chain">; EVMChainCode
