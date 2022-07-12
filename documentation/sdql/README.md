@@ -108,12 +108,12 @@ A callback URL for claiming the digital asset.
 
 ### [logic](/documentation/sdql/sdql-v0.0.1.schema.json#L272)
 
-The *logic* keyword is used to specify arbitrary logic to apply to components specified in then [*queries*](/documentation/sdql/README.md#queries), [*returns*](/documentation/sdql/README.md#returns), and [*compensations*](/documentation/sdql/README.md#compensations) blocks. 
+The *logic* keyword is used to specify arbitrary logic to apply to components specified in the [*queries*](/documentation/sdql/README.md#queries), [*returns*](/documentation/sdql/README.md#returns), and [*compensations*](/documentation/sdql/README.md#compensations) blocks. A logic block is only concerned with whether or not a query is executable against the persistence later. A query has sufficient permissions, it will return `true`, if it does not, it will return `false`. 
 
 #### returns
 
-A sub-keyword of *logic* used to specify an array of return expressions. A return expression can return objects declared in the [*returns*](/documentation/sdql/README.md#returns) block given that conditions on objects declared in [*queries*](/documentation/sdql/README.md#queries) are met. Referenced queries that do not have sufficient permissions to access attributes of the persistence layer return `null`.
+A sub-keyword of *logic* used to specify an array of return expressions. A return expression can return objects declared in the [*returns*](/documentation/sdql/README.md#returns) block given that objects declared in [*queries*](/documentation/sdql/README.md#queries) have sufficient permissions to access the requisite attributes of the persistence layer.
 
 #### compensations
 
-A sub-keyword of *logic* used to specify an array of compensation expressions. A compensation expression can return objects declared in the [*compensations*](/documentation/sdql/README.md#compensations) block given that conditions declared in [*queries*](/documentation/sdql/README.md#queries) are met. Referenced queries that do not have sufficient permissions to access attributes of the persistence layer return `null`.
+A sub-keyword of *logic* used to specify an array of compensation expressions. A compensation expression can return objects declared in the [*compensations*](/documentation/sdql/README.md#compensations) block given that objects declared in [*queries*](/documentation/sdql/README.md#queries) have sufficient permissions to access the requisite attributes of the persistence layer.
