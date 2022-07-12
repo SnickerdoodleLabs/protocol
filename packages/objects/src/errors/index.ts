@@ -12,5 +12,6 @@ export * from "@objects/errors/InvalidSignatureError";
 export * from "@objects/errors/IPFSError";
 export * from "@objects/errors/PersistenceError";
 export * from "@objects/errors/ProviderRpcError";
+export * from "@objects/errors/QueryFormatError";
 export * from "@objects/errors/UninitializedError";
 export * from "@objects/errors/UnsupportedLanguageError";

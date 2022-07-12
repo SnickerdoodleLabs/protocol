@@ -5,6 +5,7 @@ export * from "@objects/businessObjects/ClickFilter";
 export * from "@objects/businessObjects/CohortInvitation";
 export * from "@objects/businessObjects/ConsentConditions";
 export * from "@objects/businessObjects/ConsentToken";
+export * from "@objects/businessObjects/EligibleReward";
 export * from "@objects/businessObjects/EVMTransaction";
 export * from "@objects/businessObjects/EVMEvent";
 export * from "@objects/businessObjects/ExternallyOwnedAccount";
