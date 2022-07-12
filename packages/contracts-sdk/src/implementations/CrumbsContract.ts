@@ -26,7 +26,7 @@ export class CrumbsContract implements ICrumbsContract {
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
-      ContractsAbis.ConsentFactoryAbi.abi,
+      ContractsAbis.CrumbsAbi.abi,
       providerOrSigner,
     );
 

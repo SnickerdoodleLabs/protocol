@@ -24,7 +24,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   ) {
     this.contract = new ethers.Contract(
       consentFactoryAddress,
-      ContractsAbis.ConsentFactoryAbi.abi,
+      ContractsAbis.CrumbsAbi.abi,
       providerOrSigner,
     );
   }
