@@ -6,11 +6,10 @@ import {
   IDataWalletPersistence,
   IEVMTransactionRepository,
 } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
+import { okAsync } from "neverthrow";
 import td from "testdouble";
 
-import { exampleCovalentResponse } from "../mock/CovalentResponse";
-
+import { exampleCovalentResponse } from "@indexers-test/mock/CovalentResponse";
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
 import { IIndexerConfig } from "@indexers/IIndexerConfig";
 import { IIndexerConfigProvider } from "@indexers/IIndexerConfigProvider";
@@ -70,6 +69,6 @@ describe("CovalentEVMTransactionRepository tests", () => {
     expect(response).toBeDefined();
     expect(response.isErr()).toBeFalsy();
     const transactions = response._unsafeUnwrap();
-    expect(transactions.length).toBe(2);
+    expect(transactions.length).toBe(16);
   });
 });
