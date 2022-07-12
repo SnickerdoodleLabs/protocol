@@ -6,17 +6,12 @@
 const hre = require("hardhat");
 const { ethers, upgrades } = require("hardhat");
 
-// declare variables and set them as functions are called so that it can be referenced by other functions
+// declare variables that need to be referenced by other functions
 let accounts;
 let owner;
 let trustedForwarder;
 let tokenDistributor;
 let consentAddress;
-let consentFactoryAddress;
-let Consent;
-let ConsentFactory;
-let consent;
-let consentFactory;
 let doodleTokenAddress;
 let timelockAddress;
 
@@ -34,95 +29,148 @@ async function setLocalAccounts() {
 async function deployConsent() {
   console.log("");
   console.log("Deploying Consent implementation contract...");
-  // We get the contract to deploy
-  Consent = await hre.ethers.getContractFactory("Consent");
-  consent = await Consent.deploy();
-  await consent.deployed();
+
+  const Consent = await hre.ethers.getContractFactory("Consent");
+  const consent = await Consent.deploy();
+  const consent_receipt = await consent.deployTransaction.wait();
   consentAddress = consent.address;
 
-  console.log("Consent implementation contract deployed to:", consentAddress);
+  console.log("Consent deployed to:", consent.address);
+  console.log("Consent Gas Fee:", consent_receipt.gasUsed.toString());
 }
 
 // function to deploy the Consent Factory contract
 async function deployConsentFactory() {
   console.log("");
   console.log("Deploying Consent Factory contract...");
-  ConsentFactory = await hre.ethers.getContractFactory("ConsentFactory");
+
+  const ConsentFactory = await hre.ethers.getContractFactory("ConsentFactory");
 
   // the Consent Factory contract requires one argument on deployment:
   // the address of the trusted forwarder who will pay for the meta tx fees
-  consentFactory = await ConsentFactory.deploy(
+  const consentFactory = await ConsentFactory.deploy(
     trustedForwarder.address,
     consentAddress,
   );
-  await consentFactory.deployed();
-  consentFactoryAddress = consentFactory.address;
+  const consentFactory_receipt = await consentFactory.deployTransaction.wait();
 
-  console.log("Consent Factory deployed to:", consentFactoryAddress);
+  console.log("ConsentFactory deployed to:", consentFactory.address);
+  console.log(
+    "ConsentFactory Gas Fee:",
+    consentFactory_receipt.gasUsed.toString(),
+  );
 }
 
 // function that deploys the Doodle Token
 async function deployDoodleToken(distributorAddress) {
   console.log("");
   console.log("Deploying Doodle Token contract...");
-  DoodleToken = await hre.ethers.getContractFactory("DoodleToken");
+
+  const DoodleToken = await hre.ethers.getContractFactory("DoodleToken");
 
   // the DoodleToken contract requires one argument on deployment:
   // the distribution address that will receive the max token supply
-  doodleToken = await DoodleToken.deploy(distributorAddress);
-  await doodleToken.deployed();
+  const doodleToken = await DoodleToken.deploy(distributorAddress);
+  const doodleToken_receipt = await doodleToken.deployTransaction.wait();
   doodleTokenAddress = doodleToken.address;
 
-  console.log("DoodleToken deployed to:", doodleTokenAddress);
+  console.log("DoodleToken deployed to:", doodleToken.address);
+  console.log("DoodleToken Gas Fee:", doodleToken_receipt.gasUsed.toString());
+}
+
+// function that deploys the Doodle Token
+async function deployWDoodleToken(distributorAddress) {
+  console.log("");
+  console.log("Deploying Wrapped Doodle Token contract...");
+
+  const WDoodleToken = await hre.ethers.getContractFactory("WDoodleToken");
+
+  // the WDoodleToken contract requires one argument on deployment:
+  // the distribution address that will receive the max token supply
+  const wDoodleToken = await WDoodleToken.deploy(distributorAddress);
+  const wDoodleToken_receipt = await wDoodleToken.deployTransaction.wait();
+  doodleTokenAddress = wDoodleToken.address;
+
+  console.log("WDoodleToken deployed to:", wDoodleToken.address);
+  console.log("WDoodleToken Gas Fee:", wDoodleToken_receipt.gasUsed.toString());
 }
 
 // function that deploys the Timelock Controller
 async function deployTimelockController() {
   console.log("");
   console.log("Deploying Timelock Controller contract...");
-  Timelock = await hre.ethers.getContractFactory("SnickerdoodleTimelock");
+
+  const Timelock = await hre.ethers.getContractFactory("SnickerdoodleTimelock");
 
   // the SnickerdoodleTimeLock contract requires 3 arguments on deployment:
   // the min Delay in seconds
   // array of addresses of proposers
   // array of addresses of executors
-  timelock = await Timelock.deploy(1000, [], []);
-  await timelock.deployed();
+  const timelock = await Timelock.deploy(1000, [], []);
+  const timelock_receipt = await timelock.deployTransaction.wait();
   timelockAddress = timelock.address;
 
   console.log("SnickerdoodleTimeLock deployed to:", timelockAddress);
+  console.log(
+    "SnickerdoodleTimeLock Gas Fee:",
+    timelock_receipt.gasUsed.toString(),
+  );
 }
 
 // function that deploys the SnickerdoodleGovernor contract (DAO)
 async function deploySnickerdoodleDAO() {
   console.log("");
   console.log("Deploying SnickerdoodleGovernor (DAO) contract...");
-  Governor = await hre.ethers.getContractFactory("SnickerdoodleGovernor");
+
+  const Governor = await hre.ethers.getContractFactory("SnickerdoodleGovernor");
 
   // the SnickerdoodleGovernor contract requires 2 arguments on deployment:
   // the address of the ERC20Votes token
   // the address of the Timelock
-  governor = await Governor.deploy(doodleTokenAddress, timelockAddress);
-  await governor.deployed();
-  governorAddress = governor.address;
+  const governor = await Governor.deploy(doodleTokenAddress, timelockAddress);
+  const governor_receipt = await governor.deployTransaction.wait();
 
-  console.log("SnickerdoodleGovernor deployed to:", governorAddress);
+  console.log("SnickerdoodleGovernor deployed to:", governor.address);
+  console.log(
+    "SnickerdoodleGovernor Gas Fee:",
+    governor_receipt.gasUsed.toString(),
+  );
 }
 
 // function that deploys the SnickerdoodleGovernor contract (DAO)
 async function deployCrumbs() {
   console.log("");
   console.log("Deploying Crumbs contract...");
-  Crumbs = await hre.ethers.getContractFactory("Crumbs");
 
-  // the SnickerdoodleGovernor contract requires 1 argument on deployment:
-  // the address of the ERC20Votes token
-  // the address of the Timelock
-  crumbs = await Crumbs.deploy(trustedForwarder.address, "www.crumbs.com/");
-  await crumbs.deployed();
-  crumbsAddress = crumbs.address;
+  const Crumbs = await hre.ethers.getContractFactory("Crumbs");
 
-  console.log("Crumbs deployed to:", crumbsAddress);
+  // the Crumbs contract requires 2 arguments on deployment:
+  // the address of the trusted forwarder address
+  // the base uri
+  const crumbs = await Crumbs.deploy(
+    trustedForwarder.address,
+    "www.crumbs.com/",
+  );
+  const crumbs_receipt = await crumbs.deployTransaction.wait();
+
+  console.log("Crumbs deployed to:", crumbs.address);
+  console.log("Crumbs Gas Fee:", crumbs_receipt.gasUsed.toString());
+}
+
+// function that deploys the SnickerdoodleGovernor contract (DAO)
+async function deploySift() {
+  console.log("");
+  console.log("Deploying Sift contract...");
+
+  const Sift = await hre.ethers.getContractFactory("Sift");
+
+  // the Sift contract requires 1 argument on deployment:
+  // the base uri
+  const sift = await Sift.deploy("www.sift.com/");
+  const sift_receipt = await sift.deployTransaction.wait();
+
+  console.log("Sift deployed to:", sift.address);
+  console.log("Sift Gas Fee:", sift_receipt.gasUsed.toString());
 }
 
 // function that runs the full deployment of all contracts
@@ -138,11 +186,17 @@ async function fullDeployment() {
   await deployConsent();
   await deployConsentFactory();
 
-  await deployDoodleToken(tokenDistributor.address);
+  // If deploying to subnet, deploy the wrappedDoodleToken instead
+  if (hre.network.name == "subnet") {
+    await deployWDoodleToken(tokenDistributor.address);
+  } else {
+    await deployDoodleToken(tokenDistributor.address);
+  }
   await deployTimelockController();
   await deploySnickerdoodleDAO();
 
   await deployCrumbs();
+  await deploySift();
 
   console.log("");
   console.log("Full deployment successful!");
