@@ -18,6 +18,9 @@
       "@shared/*": [
         "./shared/*"
       ],
+      "@enviroment/*": [
+        "./enviroment/*"
+      ],
       "@app/*": [
         "./app/*"
       ],

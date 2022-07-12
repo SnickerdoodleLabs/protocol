@@ -18,32 +18,40 @@ import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
 import Config from "@shared/constants/Config";
 import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
+import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 
-const port = Browser.runtime.connect({ name: "SD_CONTENT_SCRIPT" });
-const extensionStream = new PortStream(port);
+let coreGateway;
+let notificationEmitter;
 
-const extensionMux = new ObjectMultiplex();
-extensionMux.setMaxListeners(25);
-pump(extensionMux, extensionStream, extensionMux);
+const connect = () => {
+  const port = Browser.runtime.connect({ name: "SD_CONTENT_SCRIPT" });
+  const extensionStream = new PortStream(port);
+  const extensionMux = new ObjectMultiplex();
+  extensionMux.setMaxListeners(25);
+  pump(extensionMux, extensionStream, extensionMux);
+  const streamMiddleware = createStreamMiddleware();
+  pump(
+    streamMiddleware.stream,
+    extensionMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
+    streamMiddleware.stream,
+  );
+  const rpcEngine = new JsonRpcEngine();
+  rpcEngine.push(streamMiddleware.middleware);
 
-const streamMiddleware = createStreamMiddleware();
+  coreGateway = new ExternalCoreGateway(rpcEngine);
+  notificationEmitter = streamMiddleware.events;
 
-pump(
-  streamMiddleware.stream,
-  extensionMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
-  streamMiddleware.stream,
-);
+  if (new URL(Config.onboardingUrl).origin === window.location.origin) {
+    const injector = new OnboardingProviderInjector(extensionMux);
+    injector.startPipeline();
+  }
+  // keep service worker alive
+  if (ExtensionUtils.isManifest3()) {
+    port.onDisconnect.addListener(connect);
+  }
+};
 
-const rpcEngine = new JsonRpcEngine();
-rpcEngine.push(streamMiddleware.middleware);
-
-const coreGateway = new ExternalCoreGateway(rpcEngine);
-const notificationEmitter = streamMiddleware.events;
-
-if (new URL(Config.onboardingUrl).origin === window.location.origin) {
-  const injector = new OnboardingProviderInjector(extensionMux);
-  injector.startPipeline();
-}
+connect();
 
 const App = () => {
   const [backgroundState, setBackgroundState] = useState<IExternalState>();
