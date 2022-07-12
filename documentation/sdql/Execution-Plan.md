@@ -35,7 +35,8 @@ graph TD;
 
     ConditionExpr --> Parenthesis1["("];
     Parenthesis1 --> And1;
-    And1 --> And2;
+    And1 --> BoolExpr4;
+    BoolExpr4 --> And2;
     And1 --> BoolExpr3;
     BoolExpr3 --> q3;
     And2-->BoolExpr1;
