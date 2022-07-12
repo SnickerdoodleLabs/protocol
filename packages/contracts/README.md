@@ -1,43 +1,68 @@
-![Snickerdoodle](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
+![Contracts](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
 
-# Snickerdoodle Protocol Contracts and CLI Tool
+# Snickerdoodle Protocol Contracts Package
 
-This package contains two sections at the moment:
+## Package Contents
 
-1. Snickerdoodle Protocol Contracts - contains the Hardhat project of the latest contracts for of the SDL protocol.
-2. Snickerdoodle Labs CLI - contains commands for for rapid prototyping with SDQL and insight service based on the HardHat framework.
+- [contracts](/packages/contracts/contracts/README.md): Subdirectory containing all Snickerdoodle Protocol smart contracts
+- [docs](/packages/contracts/docs/README.md): Auto-generated API documentation of public and external contract methods
+- [scripts](/packages/contracts/scripts/README.md): Hardhat [scripts](https://hardhat.org/guides/scripts.html) for deploying different configurations of the smart contract stack
+- [tasks](/packages/contracts/tasks/README.md): Hardhat [task definitions](https://hardhat.org/guides/create-task.html) for interacting with smart contract deployments
+- [test](/packages/contracts/test/README.md): Hardhat [unit tests](https://hardhat.org/guides/waffle-testing.html) for the Snickerdoodle Protocol smart contract stack
+- [hardhat.config.js](/packages/contracts/hardhat.config.js): [Configuration file](https://hardhat.org/config/) for the Hardhat development framework
 
-# Snickerdoodle Protocol Contracts
+## Summary
 
-This Hardhat project contains the Snickerdoodle Protocol's contracts, unit tests and deployment script to deploy the contracts.
+The Snickerdoodle Contracts stack consists of the following primary components:
 
-## Installation
+### [consent](/packages/contracts/contracts/consent/README.md)
+
+Contains an upgradable EIP721 compatible NFT implementation and an associated contract factory.
+
+### [token](/packages/contracts/contracts/token/README.md)
+
+Contains an EIP20 compatible token, wrapper token (for subnet deployments), and a vesting contract.
+
+### [registry](/packages/contracts/contracts/registry/README.md)
+
+Contains an EIP721 compatible registry contract for storing Snickerdoodle account recovery details. 
+
+### [governance](/packages/contracts/contracts/governance/README.md)
+
+Contains the implementation of the Snickerdoodle Protocol governance DAO. 
+
+## Deployment Addresses
+
+A list of Snickerdoodle Protocol contract addresses can be found [here](/packages/contracts/DEPLOYMENTS.md). 
+
+## Install Dependencies
 
 Steps to install and run this project this locally:
 
-1. Clone the repo
-
 ```shell
-git clone https://github.com/SnickerdoodleLabs/SDL-Contracts.git
-```
-
-2. Install the npm packages
-
-```shell
-cd SDL-Contracts
+git clone https://github.com/SnickerdoodleLabs/protocol.git
+cd packages/contracts
 npm install
 ```
 
-3. Compile the contracts
+## Compiling Contracts 
 
 ```shell
 npx hardhat compile
 ```
 
-4. Test the contracts
+## Running Tests
+
+Run all tests:
 
 ```shell
 npx hardhat test
+```
+
+Only run tests in a given file:
+
+```shell
+npx hardhat test test/consent.js
 ```
 
 ## Deployment
