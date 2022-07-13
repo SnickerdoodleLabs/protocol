@@ -5,11 +5,14 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import {
   AESEncryptedString,
+  AjaxError,
   BlockchainProviderError,
   ConsentContractError,
+  CrumbsContractError,
   DataWalletAddress,
   EVMAccountAddress,
   EVMPrivateKey,
+  ExternallyOwnedAccount,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   InvalidSignatureError,
@@ -28,7 +31,7 @@ import {
   ILoginRegistryRepository,
   ILoginRegistryRepositoryType,
 } from "@core/interfaces/data";
-import { EthereumAccount, CoreContext } from "@core/interfaces/objects";
+import { CoreContext } from "@core/interfaces/objects";
 import {
   IContextProvider,
   IContextProviderType,
@@ -70,12 +73,14 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    | PersistenceError
     | BlockchainProviderError
     | UninitializedError
-    | ConsentContractError
+    | CrumbsContractError
+    | PersistenceError
     | UnsupportedLanguageError
     | InvalidSignatureError
+    | AjaxError
+    | ConsentContractError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -132,8 +137,11 @@ export class AccountService implements IAccountService {
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<
-    EthereumAccount,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    ExternallyOwnedAccount,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | AjaxError
   > {
     return ResultUtils.combine([
       this.dataWalletUtils.createDataWalletKey(),
@@ -143,14 +151,21 @@ export class AccountService implements IAccountService {
       return this.cryptoUtils
         .encryptString(dataWalletKey, encryptionKey)
         .andThen((encryptedDataWallet) => {
+          const dataWalletAddress = DataWalletAddress(
+            this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              dataWalletKey,
+            ),
+          );
           return this.loginRegistryRepo.addCrumb(
+            dataWalletAddress,
             accountAddress,
             encryptedDataWallet,
             languageCode,
+            dataWalletKey,
           );
         })
         .map(() => {
-          return new EthereumAccount(
+          return new ExternallyOwnedAccount(
             this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
               dataWalletKey,
             ),
@@ -164,7 +179,7 @@ export class AccountService implements IAccountService {
     encryptedDataWalletKey: AESEncryptedString,
     signature: Signature,
   ): ResultAsync<
-    EthereumAccount,
+    ExternallyOwnedAccount,
     BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
   > {
     return this.dataWalletUtils
@@ -177,7 +192,7 @@ export class AccountService implements IAccountService {
       })
       .map((dataWalletKey) => {
         const key = EVMPrivateKey(dataWalletKey);
-        return new EthereumAccount(
+        return new ExternallyOwnedAccount(
           this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(key),
           key,
         );
@@ -193,7 +208,8 @@ export class AccountService implements IAccountService {
     | BlockchainProviderError
     | UninitializedError
     | PersistenceError
-    | ConsentContractError
+    | CrumbsContractError
+    | AjaxError
   > {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -230,9 +246,11 @@ export class AccountService implements IAccountService {
         })
         .andThen((encryptedDataWalletKey) => {
           return this.loginRegistryRepo.addCrumb(
+            context.dataWalletAddress!,
             accountAddress,
             encryptedDataWalletKey,
             languageCode,
+            context.dataWalletKey!,
           );
         })
         .andThen(() => {

@@ -38,9 +38,11 @@ import {
   IAccountIndexing,
   IAccountIndexingType,
   IConfigOverrides,
+  CrumbsContractError,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { DefaultDataWalletPersistence } from "@core/implementations/data";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
@@ -55,6 +57,8 @@ import {
   IProfileServiceType,
 } from "@core/interfaces/business";
 import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -143,20 +147,29 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
+    | UnsupportedLanguageError
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | UnsupportedLanguageError
     | PersistenceError
     | InvalidSignatureError
+    | AjaxError
+    | CrumbsContractError
   > {
     // Get all of our indexers and initialize them
     // TODO
+    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+      IBlockchainProviderType,
+    );
 
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-    return accountService.unlock(accountAddress, signature, languageCode);
+    return ResultUtils.combine([blockchainProvider.initialize()]).andThen(
+      () => {
+        return accountService.unlock(accountAddress, signature, languageCode);
+      },
+    );
   }
 
   public addAccount(
@@ -166,9 +179,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   ): ResultAsync<
     void,
     | BlockchainProviderError
-    | PersistenceError
     | UninitializedError
-    | ConsentContractError
+    | PersistenceError
+    | AjaxError
+    | CrumbsContractError
   > {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);

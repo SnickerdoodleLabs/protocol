@@ -1,6 +1,8 @@
 import {
+  AjaxError,
   BlockchainProviderError,
   ConsentContractError,
+  CrumbsContractError,
   EVMAccountAddress,
   InvalidSignatureError,
   LanguageCode,
@@ -22,12 +24,14 @@ export interface IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    | PersistenceError
     | BlockchainProviderError
     | UninitializedError
-    | ConsentContractError
+    | CrumbsContractError
+    | PersistenceError
     | UnsupportedLanguageError
     | InvalidSignatureError
+    | AjaxError
+    | ConsentContractError
   >;
 
   addAccount(
@@ -39,7 +43,8 @@ export interface IAccountService {
     | BlockchainProviderError
     | UninitializedError
     | PersistenceError
-    | ConsentContractError
+    | CrumbsContractError
+    | AjaxError
   >;
 }
 

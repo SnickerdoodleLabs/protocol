@@ -3,8 +3,10 @@ import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   Age,
+  AjaxError,
   BlockchainProviderError,
   ConsentContractError,
+  CrumbsContractError,
   EVMAccountAddress,
   EVMPrivateKey,
   IConfigOverrides,
@@ -19,9 +21,7 @@ import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-// Note: This whole .js extension and issue with @test-harness is because we are using ESM modules
-// instead of the standard CommonJS modules.
-import { InsightPlatformSimulator } from "./InsightPlatformSimulator.js"; // having issues with @test-harness
+import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
 
 // https://github.com/SBoudrias/Inquirer.js
 
@@ -43,7 +43,7 @@ const accountAddress = EVMAccountAddress(
   "0x14791697260E4c9A71f18484C9f997B308e59325",
 );
 
-await core.getEvents().map(async (events) => {
+core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
     console.log(`Added account: ${addedAccount}`);
   });
@@ -57,7 +57,7 @@ await core.getEvents().map(async (events) => {
   });
 
   // Main event prompt. Core is up and running
-  while (1) {
+  while (true) {
     await mainPrompt();
   }
 });
@@ -70,16 +70,15 @@ function mainPrompt(): ResultAsync<void, Error> {
         name: "main",
         message: "Please select a course of action:",
         choices: [
-          { name: "Nothing", value: "nothing", short: "n" },
+          { name: "Nothing", value: "nothing" },
           new inquirer.Separator(),
-          { name: "Core", value: "core", short: "c" },
+          { name: "Core", value: "core" },
           {
             name: "Insight Platform Simulator",
             value: "simulator",
-            short: "s",
           },
           new inquirer.Separator(),
-          { name: "Exit", value: "exit", short: "e" },
+          { name: "Exit", value: "exit" },
         ],
       },
     ]),
@@ -93,6 +92,7 @@ function mainPrompt(): ResultAsync<void, Error> {
   ).andThen((answers) => {
     switch (answers.main) {
       case "nothing":
+        console.log("Doing nothing for 1 second");
         return ResultUtils.delay(1000);
       case "exit":
         process.exit(0);
@@ -113,13 +113,13 @@ function corePrompt(): ResultAsync<void, Error> {
         name: "core",
         message: "Please select a course of action:",
         choices: [
-          { name: "Unlock", value: "unlock", short: "u" },
-          { name: "Add Account", value: "addAccount", short: "a" },
+          { name: "Unlock", value: "unlock" },
+          { name: "Add Account", value: "addAccount" },
           new inquirer.Separator(),
-          { name: "Set Age", value: "setAge", short: "s" },
-          { name: "Get Age", value: "getAge", short: "g" },
+          { name: "Set Age", value: "setAge" },
+          { name: "Get Age", value: "getAge" },
           new inquirer.Separator(),
-          { name: "Cancel", value: "cancel", short: "c" },
+          { name: "Cancel", value: "cancel" },
         ],
       },
     ]),
@@ -131,7 +131,7 @@ function corePrompt(): ResultAsync<void, Error> {
       return e as Error;
     },
   ).andThen((answers) => {
-    switch (answers.main) {
+    switch (answers.core) {
       case "unlock":
         return unlockCore(accountAddress, accountPrivateKey);
       case "addAccount":
@@ -168,7 +168,7 @@ function simulatorPrompt(): ResultAsync<void, Error> {
       return e as Error;
     },
   ).andThen((answers) => {
-    switch (answers.main) {
+    switch (answers.simulator) {
       case "post":
         return simulator.postQuery();
     }
@@ -181,12 +181,14 @@ function unlockCore(
   privateKey: EVMPrivateKey,
 ): ResultAsync<
   void,
+  | PersistenceError
   | UnsupportedLanguageError
   | BlockchainProviderError
   | UninitializedError
   | ConsentContractError
-  | PersistenceError
   | InvalidSignatureError
+  | AjaxError
+  | CrumbsContractError
 > {
   // Need to get the unlock message first
   return core
@@ -208,12 +210,14 @@ function addAccount(
   privateKey: EVMPrivateKey,
 ): ResultAsync<
   void,
+  | PersistenceError
   | UnsupportedLanguageError
   | BlockchainProviderError
   | UninitializedError
   | ConsentContractError
-  | PersistenceError
   | InvalidSignatureError
+  | AjaxError
+  | CrumbsContractError
 > {
   // Need to get the unlock message first
   return core
@@ -227,5 +231,9 @@ function addAccount(
     })
     .map(() => {
       console.log(`Unlocked!`);
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
     });
 }

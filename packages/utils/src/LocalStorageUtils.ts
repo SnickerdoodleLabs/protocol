@@ -1,13 +1,10 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 interface Dictionary<T> {
   [key: string]: T;
 }
 export class LocalStorageUtils {
   static localStorage = (function () {
-    if (
-      typeof window !== "undefined" &&
-      window.localStorage &&
-      window.localStorage.removeItem
-    ) {
+    if (typeof window !== "undefined" && window.localStorage) {
       return window.localStorage;
     }
     let store = {};
@@ -53,7 +50,7 @@ export class LocalStorageUtils {
       return this._fromPairs(
         key.map((k) => [
           k,
-          localStorage.getItem(k) && JSON.parse(localStorage.getItem(k)),
+          localStorage.getItem(k) && JSON.parse(localStorage.getItem(k)!),
         ]),
       );
     }

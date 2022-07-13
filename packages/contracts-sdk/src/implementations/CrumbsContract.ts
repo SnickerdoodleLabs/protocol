@@ -1,7 +1,6 @@
 import {
   EVMAccountAddress,
   EVMContractAddress,
-  CrumbId,
   TokenUri,
   TokenId,
   CrumbsContractError,
@@ -40,11 +39,11 @@ export class CrumbsContract implements ICrumbsContract {
       this.contract.addressToCrumbId(
         accountAddress,
         contractOverrides,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      ) as Promise<TokenId>,
       (e) => {
         return new CrumbsContractError("Unable to call addressToCrumbId()", e);
       },
-    ).map(() => {});
+    );
   }
 
   public tokenURI(
@@ -52,21 +51,18 @@ export class CrumbsContract implements ICrumbsContract {
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<TokenUri | null, CrumbsContractError> {
     return ResultAsync.fromPromise(
-      this.contract.tokenURI(
-        tokenId,
-        contractOverrides,
-      ) as Promise<ethers.providers.TransactionResponse>,
+      this.contract.tokenURI(tokenId, contractOverrides) as Promise<TokenUri>,
       (e) => {
         return new CrumbsContractError("Unable to call tokenURI()", e);
       },
-    ).map(() => {});
+    );
   }
 
   public createCrumb(
     crumbId: TokenId,
     mask: TokenUri,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<void | null, CrumbsContractError> {
+  ): ResultAsync<void, CrumbsContractError> {
     return ResultAsync.fromPromise(
       this.contract.createCrumb(
         crumbId,
@@ -76,13 +72,15 @@ export class CrumbsContract implements ICrumbsContract {
       (e) => {
         return new CrumbsContractError("Unable to call createCrumb()", e);
       },
-    ).map(() => {});
+    ).map(() => {
+      // TODO: we probably need to do tx.wait() here, or change the return type
+    });
   }
 
   public burnCrumb(
     crumbId: TokenId,
     contractOverrides?: ContractOverrides | undefined,
-  ): ResultAsync<void | null, CrumbsContractError> {
+  ): ResultAsync<void, CrumbsContractError> {
     return ResultAsync.fromPromise(
       this.contract.burnCrumb(
         crumbId,

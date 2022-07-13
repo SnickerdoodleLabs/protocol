@@ -1,6 +1,6 @@
 import { ResultAsync } from "neverthrow";
 
-import { EVMTransaction } from "@core/businessObjects";
+import { EVMTransaction } from "@objects/businessObjects";
 import { AccountIndexingError, AjaxError } from "@objects/errors";
 import { BlockNumber, ChainId, EVMAccountAddress } from "@objects/primitives";
 

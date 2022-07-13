@@ -33,14 +33,16 @@
   },
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/core": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/persistence": "workspace:^",
+    "@snickerdoodlelabs/signature-verification": "workspace:^",
+    "ethers": "^5.6.6",
     "express": "^4.18.1",
-    "inquirer": "^9.0.0",
+    "inquirer": "^8.0.0",
     "neverthrow": "^4.3.1",
     "neverthrow-result-utils": "^1.0.2",
     "reflect-metadata": "^0.1.13"
-  },
-  "type": "module"
+  }
 }
