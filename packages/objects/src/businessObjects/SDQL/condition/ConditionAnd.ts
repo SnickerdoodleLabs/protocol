@@ -4,7 +4,7 @@ import { Condition } from "./Condition";
 export class ConditionAnd extends Condition {
 
     constructor(
-        name: SDQL_OperatorName,
+        name: SDQL_OperatorName, // and
         readonly lval: boolean,
         readonly rval: boolean
     ) {
