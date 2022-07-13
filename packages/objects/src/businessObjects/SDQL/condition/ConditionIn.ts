@@ -1,6 +1,9 @@
-import { SDQL_OperatorName } from "@objects/primitives";
+import { CountryCode, SDQL_OperatorName } from "@objects/primitives";
 import { Condition } from "./Condition";
-import { IDataWalletPersistence } from "@browser-extension/interfaces";
+import { IDataWalletPersistence } from "@objects/interfaces";
+import { PersistenceError } from "@objects/errors";
+import { errAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 export class ConditionIn extends Condition {
 
@@ -13,13 +16,17 @@ export class ConditionIn extends Condition {
         super(name);
     }
 
-    public result(): boolean{
+    public result(): ResultAsync<boolean, PersistenceError>{
+        let repoLoc: CountryCode = CountryCode(1);
+        this.persistenceRepo.getLocation().map( () => (repoLoc))
+        if (repoLoc == null){
+            return errAsync(new PersistenceError("Bad Variable"));
+        }
         for (let i = 0; i < this.vals.length; i++){
-            if (this.vals[i] == this.persistenceRepo.getLocation()) {
-                return (true);
+            if (this.vals[i] == repoLoc) {
+                return okAsync(true);
             } 
-        }                      
-        return (false);
+        }
+        return okAsync(false);
     }
-
 }

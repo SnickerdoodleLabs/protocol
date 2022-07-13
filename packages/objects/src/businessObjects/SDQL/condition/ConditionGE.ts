@@ -1,6 +1,9 @@
-import { SDQL_OperatorName } from "@objects/primitives";
+import { Age, SDQL_OperatorName } from "@objects/primitives";
 import { Condition } from "./Condition";
-import { IDataWalletPersistence } from "@browser-extension/interfaces";
+import { IDataWalletPersistence } from "@objects/interfaces";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { PersistenceError } from "@objects/errors";
+
 
 export class ConditionGE extends Condition {
 
@@ -12,8 +15,14 @@ export class ConditionGE extends Condition {
         super(name);
     }
 
-    public result(): boolean{
-        return (this.persistenceRepo.getAge() >= this.rval);
+    public result(): ResultAsync<boolean, PersistenceError>{
+        let repoAge: Age = Age(100);
+        this.persistenceRepo.getAge().map( () => (repoAge))
+        if (repoAge == null){
+            return errAsync(new PersistenceError("Bad Variable"));
+        }
+        
+        return okAsync(repoAge >= this.rval);
+        //return okAsync(false);
     }
-
 }
