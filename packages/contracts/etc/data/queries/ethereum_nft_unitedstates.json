@@ -1,6 +1,6 @@
 {
     "version": 0.1,
-    "description": "NFT received on the Ethereum blockchain by US residents",
+    "description": "NFT received on the Ethereum blockchain by US residents who visted Facebook and Crabada",
     "business": "Shrapnel",
     "queries": {
         "q1": {
@@ -27,6 +27,17 @@
                     840
                 ]
             }
+        },
+        "q3": {
+            "name": "browsing_history",
+            "return": "boolean",
+            "conditions":
+            {
+                "has":{
+                    "https://www.crabada.com":30,
+                    "https://www.facebook.com":5                
+                }
+            }
         }
     },
     "returns": {
@@ -51,7 +62,7 @@
         }
     },
     "logic":{
-        "returns": ["if($q1and$q2)then$r1else$r2"],
-        "compensations": ["if$q1then$c1", "if$q2then$c2"]
+        "returns": ["if($q1and$q2and$q3)then$r1else$r2"],
+        "compensations": ["if$q1then$c1", "if$q2then$c2", "if$q3then$c2"]
     }
 }
