@@ -25,7 +25,7 @@ export class PortConnectionUtils {
       port.disconnect();
     };
     // @ts-ignore
-    port._timer = setTimeout(forceReconnect, 10000);
+    port._timer = setTimeout(forceReconnect, 180000);
 
     connectionHandler(port);
   }

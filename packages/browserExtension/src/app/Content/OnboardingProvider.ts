@@ -32,6 +32,11 @@ pump(
 const rpcEngine = new JsonRpcEngine();
 rpcEngine.push(streamMiddleware.middleware);
 coreGateway = new ExternalCoreGateway(rpcEngine);
+const clearMux = () => {
+  mux.destroy();
+  document.removeEventListener("extension-stream-channel-closed", clearMux);
+};
+document.addEventListener("extension-stream-channel-closed", clearMux);
 
 export class OnboardingProvider {
   static getState() {

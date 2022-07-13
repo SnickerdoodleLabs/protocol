@@ -16,6 +16,7 @@ import { URLString } from "@snickerdoodlelabs/objects";
 import PortStream from "extension-port-stream";
 import ObjectMultiplex from "obj-multiplex";
 import pump from "pump";
+import endOfStream from "end-of-stream";
 export class PortConnectionRepository implements IPortConnectionRepository {
   constructor(
     protected contextProvider: IContextProvider,
@@ -79,5 +80,8 @@ export class PortConnectionRepository implements IPortConnectionRepository {
         portStreamMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
       );
     }
+    endOfStream(portStream, () => {
+      portStreamMux.destroy();
+    });
   }
 }

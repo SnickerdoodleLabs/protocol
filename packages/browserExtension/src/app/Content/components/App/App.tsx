@@ -19,6 +19,7 @@ import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
 import Config from "@shared/constants/Config";
 import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import endOfStream from "end-of-stream";
 
 let coreGateway;
 let notificationEmitter;
@@ -49,6 +50,9 @@ const connect = () => {
   if (ExtensionUtils.isManifest3()) {
     port.onDisconnect.addListener(connect);
   }
+  endOfStream(extensionStream, () => {
+    extensionMux.destroy();
+  });
 };
 
 connect();

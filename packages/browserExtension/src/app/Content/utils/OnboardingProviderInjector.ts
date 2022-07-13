@@ -31,11 +31,20 @@ export class OnboardingProviderInjector {
       ONBOARDING_PROVIDER_SUBSTREAM,
     );
     pump(pageStreamChannel, extensionStreamChannel, pageStreamChannel);
+    this.extensionMux.on("finish", () => {
+      document.dispatchEvent(
+        new CustomEvent("extension-stream-channel-closed"),
+      );
+      pageMux.destroy();
+    });
   }
   private _inject() {
     try {
       const node = document.head || document.documentElement;
+      const oldProvider = document.getElementById("sdl-wallet");
+      oldProvider?.parentNode?.removeChild?.(oldProvider);
       const script = document.createElement("script");
+      script.setAttribute("id", "sdl-wallet");
       script.setAttribute(
         "src",
         Browser.runtime.getURL("injectables/onboarding.bundle.js"),

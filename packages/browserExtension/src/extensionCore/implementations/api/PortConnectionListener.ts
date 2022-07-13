@@ -15,8 +15,9 @@ export class PortConnectionListener implements IPortConnectionListener {
           port,
           this.handlePortConnectionRequest.bind(this),
         );
+      } else {
+        this.handlePortConnectionRequest(port);
       }
-      this.handlePortConnectionRequest(port);
     });
     return okAsync(undefined);
   }
