@@ -1,4 +1,7 @@
 import { SDQL_Name } from "@objects/primitives";
+import { Command_IF } from "./Command_IF";
+import { AST_Query } from "./AST_Query";
+import { Condition } from "./condition/Condition";
 
 export class AST_Expr {
     /**
@@ -6,10 +9,10 @@ export class AST_Expr {
      * @remarks
      * This is the base class for all the expressions that resolves to a value including queries
      */
-
-     constructor(
+    public value: any;
+    constructor(
         readonly name: SDQL_Name,
-        readonly expr: AST_Expr
+        readonly source: Command_IF | AST_Query | Condition
 
     ) { }
 
