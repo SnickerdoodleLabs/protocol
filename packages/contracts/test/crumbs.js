@@ -104,10 +104,10 @@ describe("Crumbs", () => {
         .connect(accounts[1])
         .addressToCrumbId(accounts[2].address);
 
-      // check if second address maps to the transfered crumb id
+      // check if second address maps to the transferred crumb id
       expect(crumbId).to.eq(1);
 
-      // accounts 1 can create a new crumb after transfering
+      // accounts 1 can create a new crumb after transferring
       await crumbs
         .connect(accounts[1])
         .createCrumb(
@@ -189,7 +189,7 @@ describe("Crumbs", () => {
       // check token balance of the account has none.
       expect(await crumbs.balanceOf(accounts[1].address)).to.eq(0);
 
-      // check that total supply is descreased to 0
+      // check that total supply is decreased to 0
       expect(await crumbs.totalSupply()).to.eq(0);
     });
 
