@@ -10,8 +10,7 @@ export class AST_BoolExpr extends AST_Expr {
         readonly expr: AST_Expr
 
     ) {
-        super(name);
-
+        super(name, expr);
         this.check();
     }
 
@@ -19,4 +18,7 @@ export class AST_BoolExpr extends AST_Expr {
         // TODO:
         throw new TypeError("Expected boolean return type")
     }
+
+    
+
 }
