@@ -119,7 +119,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(AxiosAjaxUtils)
       .inSingletonScope();
 
-    // Utilites/factor
+    // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)
       .to(ContractFactory)
       .inSingletonScope();
