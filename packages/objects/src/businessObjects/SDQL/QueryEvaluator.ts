@@ -2,6 +2,7 @@ import { SDQL_Return } from "@objects/primitives";
 import { AST_NetworkQuery } from "./AST_NetworkQuery";
 import { AST_PropertyQuery } from "./AST_PropertyQuery";
 import { AST_Query } from "./AST_Query";
+import { Condition } from "./condition/Condition";
 import { ConditionAnd } from "./condition/ConditionAnd";
 import { ConditionGE } from "./condition/ConditionGE";
 import { ConditionIn } from "./condition/ConditionIn";
@@ -40,6 +41,7 @@ export class QueryEvaluator {
                     )
                 )
                 */
+            
 
             case "location":
 
@@ -69,5 +71,9 @@ export class QueryEvaluator {
 
         return SDQL_Return(0);
     }
+
+    // private evaluateConditionGE(lval: any, rval: any) {
+    //     return lval == rval
+    // }
 
 }

@@ -3,12 +3,13 @@ import { Condition } from "./Condition";
 import { IDataWalletPersistence } from "@objects/interfaces";
 import { PersistenceError } from "@objects/errors";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { AST_Expr } from "../AST_Expr";
 
 export class ConditionL extends Condition {
 
     constructor(
         name: SDQL_OperatorName,
-        readonly rval: number,
+        readonly rval: number | AST_Expr,
         protected persistenceRepo: IDataWalletPersistence
     ) {
         super(name);

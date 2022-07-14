@@ -6,8 +6,8 @@ export class ConditionAnd extends Condition {
 
     constructor(
         name: SDQL_OperatorName, // and
-        readonly lval: AST_BoolExpr,
-        readonly rval: AST_BoolExpr
+        readonly lval: AST_BoolExpr | boolean,
+        readonly rval: AST_BoolExpr | boolean
     ) {
         super(name);
     }
