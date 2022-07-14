@@ -116,7 +116,6 @@ export interface IConsentContract {
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
   getDomains(): ResultAsync<DomainName[], ConsentContractError>;
-  
   filters: IConsentContractFilters;
 }
 

@@ -38,8 +38,8 @@ import {
   IContextProviderType,
 } from "@core/interfaces/utilities";
 import {
-  IConsentContractFactory,
-  IConsentContractFactoryType,
+  IContractFactory,
+  IContractFactoryType,
 } from "@core/interfaces/utilities/factory";
 
 @injectable()
@@ -54,8 +54,8 @@ export class CohortService implements ICohortService {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-    @inject(IConsentContractFactoryType)
-    protected contractFactory: IConsentContractFactory,
+    @inject(IContractFactoryType)
+    protected contractFactory: IContractFactory,
   ) {}
 
   public checkInvitationStatus(
