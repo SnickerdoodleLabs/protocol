@@ -77,9 +77,9 @@ const consentFactory = function () {
 const consentContract = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0xCafac3dD18aC6c6e92c921884f9E4176737C052c";
+    return "0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0xCafac3dD18aC6c6e92c921884f9E4176737C052c";
+    return "0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e";
   } else if (hre.hardhatArguments.network == "mumbai") {
     return "";
   } else if (hre.hardhatArguments.network == "polygon") {
@@ -101,9 +101,9 @@ const consentContract = function () {
 const crumbsContract = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0x2279b7a0a67db372996a5fab50d91eaa73d2ebe6";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "mumbai") {
     return "";
   } else if (hre.hardhatArguments.network == "polygon") {
