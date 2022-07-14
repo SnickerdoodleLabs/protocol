@@ -47,6 +47,10 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { DefaultDataWalletPersistence } from "@core/implementations/data";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
+} from "@core/interfaces/api";
+import {
   IAccountService,
   IAccountServiceType,
   ICohortService,
@@ -161,15 +165,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
       IBlockchainProviderType,
     );
+    const accountIndexerPoller = this.iocContainer.get<IAccountIndexerPoller>(
+      IAccountIndexerPollerType,
+    );
 
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-    return ResultUtils.combine([blockchainProvider.initialize()]).andThen(
-      () => {
+    // BlockchainProvider needs to be ready to go in order to do the unlock
+    return ResultUtils.combine([blockchainProvider.initialize()])
+      .andThen(() => {
         return accountService.unlock(accountAddress, signature, languageCode);
-      },
-    );
+      })
+      .andThen(() => {
+        return ResultUtils.combine([accountIndexerPoller.initialize()]);
+      })
+      .map(() => {});
   }
 
   public addAccount(
