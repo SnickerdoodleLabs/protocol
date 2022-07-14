@@ -4,9 +4,10 @@ import { IDataWalletPersistence } from "@objects/interfaces";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { PersistenceError } from "@objects/errors";
 import { AST_Expr } from "../AST_Expr";
+import { Condition } from "./Condition";
 
 
-export class ConditionGE extends Operator {
+export class ConditionGE extends Condition {
 
     constructor(
         name: SDQL_OperatorName, // ge - greater and equal then

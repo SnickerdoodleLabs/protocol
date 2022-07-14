@@ -1,7 +1,6 @@
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
 import { AST } from "./AST";
 import { Command_IF } from "./Command_IF";
-import { AST_IFExpr } from "./AST_IFExpr";
 import { AST_Query } from "./AST_Query";
 import { Operator } from "./Operator";
 import { TypeChecker } from "./TypeChecker";
@@ -11,7 +10,8 @@ import { AST_Expr } from "./AST_Expr";
 import { Brand, make } from "ts-brand";
 import { AST_Return } from "./AST_Return";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
-import { ConditionAnd } from "./condition/ConditionAnd";
+// import { ConditionAnd } from "./condition/ConditionAnd";
+import { ConditionAnd, ConditionOr } from "./condition";
 
 // TODO introduce dependency injection
 
@@ -51,6 +51,7 @@ export class AST_Evaluator {
         // console.log(this.evalAnd);
         // console.log(this.evalAny);
         this.operatorMap.set(ConditionAnd, this.evalAnd)
+        this.operatorMap.set(ConditionOr, this.evalOr)
     }
 
     public eval(): SDQL_Return {
@@ -147,30 +148,6 @@ export class AST_Evaluator {
         
         console.log("Evaluating", op);
 
-        // switch(op.constructor) {
-        //     case ConditionAnd:
-        //         console.log("it's an and");
-        //         // const cond = op as ConditionAnd;
-        //         // // return SDQL_Return(true);
-        //         // const left = this.evalAny(cond.lval);
-                
-        //         // if (left == false) {
-        //         //     return left;
-        //         // }
-                
-        //         // const right = this.evalAny(cond.rval);
-
-        //         // if (right == false) {
-        //         //     return right;
-        //         // }
-                
-        //         // console.log(`left is ${left} and right is ${right}`);
-        //         // return left && right;
-                
-
-
-        // }
-
         const evaluator = this.operatorMap.get(op.constructor);
         if (evaluator) {
             return evaluator.apply(this, [op])
@@ -197,8 +174,27 @@ export class AST_Evaluator {
             return right;
         }
         
-        console.log('evalAnd', `left is ${left} and right is ${right}`);
+        // console.log('evalAnd', `left is ${left} and right is ${right}`);
         return left && right;
+    }
+
+    public evalOr(cond: ConditionOr): SDQL_Return {
+
+        const left = this.evalAny(cond.lval);
+        
+        if (left == true) {
+            return left;
+        }
+        
+        const right = this.evalAny(cond.rval);
+
+        if (right == true) {
+            return right;
+        }
+        
+        // console.log('evalAnd', `left is ${left} and right is ${right}`);
+        return SDQL_Return(false);
+        
     }
 
     //#endregion

@@ -1,15 +1,16 @@
 import { SDQL_Name } from "@objects/primitives";
 import { AST_Expr } from "../AST_Expr";
 import { AST_Query } from "../AST_Query";
-import { Operator } from "../Operator";
+import { Condition } from "./Condition";
 
 export class AST_ConditionExpr extends AST_Expr {
     /**
      * Always resolves to a boolean value
+     * We need this abstraction layer because a conditional expression can both be a query or a conditional operator
      */
     constructor(
         readonly name: SDQL_Name,
-        readonly source: Operator | AST_Query
+        readonly source: Condition | AST_Query
 
     ) {
         super(name, source);

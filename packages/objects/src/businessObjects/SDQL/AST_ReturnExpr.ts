@@ -14,13 +14,8 @@ export class AST_ReturnExpr extends AST_Expr {
 
     ) {
         super(name, source);
-        this.check();
     }
 
-    check(): void {
-        // TODO:
-        throw new TypeError("Expected boolean return type")
-    }
 
 
 

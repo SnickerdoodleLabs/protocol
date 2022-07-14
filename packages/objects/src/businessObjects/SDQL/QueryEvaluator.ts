@@ -5,7 +5,7 @@ import { AST_Query } from "./AST_Query";
 import { Operator } from "./Operator";
 import { ConditionAnd } from "./condition/ConditionAnd";
 import { ConditionGE } from "./condition/ConditionGE";
-import { ConditionIn } from "./condition/ConditionIn";
+import ConditionIn from "./condition/ConditionIn";
 import { ConditionL } from "./condition/ConditionL";
 
 export class QueryEvaluator {
