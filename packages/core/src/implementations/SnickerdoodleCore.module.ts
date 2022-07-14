@@ -1,7 +1,13 @@
 import {
+  AxiosAjaxUtils,
   CryptoUtils,
+  IAjaxUtilsType,
+  IAxiosAjaxUtils,
   ICryptoUtils,
   ICryptoUtilsType,
+  LogUtils,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import { ContainerModule, interfaces } from "inversify";
 
@@ -15,12 +21,15 @@ import {
 import {
   InsightPlatformRepository,
   LoginRegistryRepository,
+  ConsentContractRepository,
 } from "@core/implementations/data";
 import {
+  BlockchainProvider,
   ConfigProvider,
   ContextProvider,
   DataWalletUtils,
 } from "@core/implementations/utilities";
+import { ConsentContractFactory } from "@core/implementations/utilities/factory";
 import {
   IBlockchainListener,
   IBlockchainListenerType,
@@ -36,12 +45,16 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
   ILoginRegistryRepository,
   ILoginRegistryRepositoryType,
 } from "@core/interfaces/data";
 import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -49,6 +62,10 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities";
+import {
+  IConsentContractFactory,
+  IConsentContractFactoryType,
+} from "@core/interfaces/utilities/factory";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -79,15 +96,28 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(LoginRegistryRepository)
       .inSingletonScope();
 
+    bind<IConsentContractRepository>(IConsentContractRepositoryType)
+      .to(ConsentContractRepository)
+      .inSingletonScope();
+
+    bind<IConsentContractFactory>(IConsentContractFactoryType)
+      .to(ConsentContractFactory)
+      .inSingletonScope();
+
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
+    bind<IBlockchainProvider>(IBlockchainProviderType)
+      .to(BlockchainProvider)
+      .inSingletonScope();
     bind<IDataWalletUtils>(IDataWalletUtilsType)
       .to(DataWalletUtils)
       .inSingletonScope();
+    bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
+    bind<IAxiosAjaxUtils>(IAjaxUtilsType).to(AxiosAjaxUtils).inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
   },
 );
