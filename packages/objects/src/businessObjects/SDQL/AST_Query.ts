@@ -5,7 +5,7 @@ export abstract class AST_Query {
 
     constructor(
         readonly name: SDQL_Name,
-        readonly returnType: SDQL_Return,
+        readonly returnType: "string" | "boolean" | "integer" | "number" | "list"
     ) {
         // super(name);
     }

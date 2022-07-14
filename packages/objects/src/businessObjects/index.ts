@@ -14,3 +14,4 @@ export * from "@objects/businessObjects/RequestForData";
 export * from "@objects/businessObjects/Reward";
 export * from "@objects/businessObjects/SDQLQuery";
 export * from "@objects/businessObjects/SiteVisit";
+export * from "@objects/businessObjects/SDQL";
