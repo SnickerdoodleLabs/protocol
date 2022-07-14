@@ -11,6 +11,8 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
+import { SimulatorEVMTransactionRepository } from "./SimulatorEVMTransactionRepository";
+
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
 import {
   IIndexerConfigProvider,
@@ -20,6 +22,7 @@ import {
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
   protected evm: IEVMTransactionRepository;
+  protected simulatorRepo: IEVMTransactionRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -33,6 +36,8 @@ export class DefaultAccountIndexers implements IAccountIndexing {
       this.persistence,
       this.ajaxUtils,
     );
+
+    this.simulatorRepo = new SimulatorEVMTransactionRepository();
   }
 
   public getEVMTransactionRepository(): ResultAsync<
@@ -40,5 +45,12 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     never
   > {
     return okAsync(this.evm);
+  }
+
+  public getSimulatorEVMTransactionRepository(): ResultAsync<
+    IEVMTransactionRepository,
+    never
+  > {
+    return okAsync(this.simulatorRepo);
   }
 }

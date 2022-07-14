@@ -7,8 +7,6 @@ import {
   IDataWalletPersistenceType,
   EVMAccountAddress,
   ChainId,
-  IEVMTransactionRepository,
-  IEVMTransactionRepositoryType,
   AccountIndexingError,
   EVMTransaction,
   EIndexer,
@@ -93,7 +91,8 @@ export class MonitoringService implements IMonitoringService {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.accountIndexing.getEVMTransactionRepository(),
-    ]).andThen(([config, evmRepo]) => {
+      this.accountIndexing.getSimulatorEVMTransactionRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo]) => {
       // Get the chain info for the transaction
       const chainInfo = config.chainInformation.get(chainId);
 
@@ -105,6 +104,12 @@ export class MonitoringService implements IMonitoringService {
       switch (chainInfo.indexer) {
         case EIndexer.EVM:
           return evmRepo.getEVMTransactions(
+            chainId,
+            accountAddress,
+            new Date(timestamp),
+          );
+        case EIndexer.Simulator:
+          return simulatorRepo.getEVMTransactions(
             chainId,
             accountAddress,
             new Date(timestamp),

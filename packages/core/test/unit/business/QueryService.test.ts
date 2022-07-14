@@ -1,111 +1,92 @@
+/*
+Andrew Strimaitis
+Unit Testing for Blockchain Listener - Pull-JSON-from-IPFS and Parse-JSON
+
+
+2 classes:
+  1. EVMService
+  2. EVMServiceMocks
+2 interfaces: 
+  1. IEVMRepository
+  2. IEVMService
+*/
 import "reflect-metadata";
-// import {
-//   IConsentContractRepository,
-//   IInsightPlatformRepository,
-//   ISDQLQueryRepository,
-// } from "@core/interfaces/data";
-// import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
-// import { errAsync, okAsync } from "neverthrow";
-// import td from "testdouble";
-// import { ContextProviderMock } from "@core-tests/mock/utilities";
-// import { IQueryService } from "@core/interfaces/business";
-// import { QueryService } from "@core/implementations/business";
-// import {
-//   consentContractAddress,
-//   queryId,
-//   SDQuery,
-// } from "@core-tests/mock/mocks";
-// import {
-//   ConsentContractError,
-//   EthereumAccountAddress,
-// } from "@snickerdoodlelabs/objects";
+import {
+  EVMAccountAddress,
+  EVMContractAddress,
+  IpfsCID,
+  SDQLQuery,
+  SDQLString,
+} from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
+import td from "testdouble";
 
-// class QueryServiceMocks {
-//   public queryParsingEngine = td.object<IQueryParsingEngine>();
-//   public ISDQLQueryRepository = td.object<ISDQLQueryRepository>();
-//   public insightPlatformRepository = td.object<IInsightPlatformRepository>();
-//   public consentContractRepository = td.object<IConsentContractRepository>();
-//   public contextProvider = new ContextProviderMock();
+import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
+import { ContextProviderMock } from "@core-tests/mock/utilities";
+import { QueryService } from "@core/implementations/business";
+import { IQueryService } from "@core/interfaces/business";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
+import {
+  IConsentContractRepository,
+  IInsightPlatformRepository,
+  ISDQLQueryRepository,
+} from "@core/interfaces/data";
 
-//   constructor() {}
+const consentContractAddress = EVMContractAddress("Phoebe");
+const queryId = IpfsCID("Beep");
+const queryContent = SDQLString("Hello world!");
+const sdqlQuery = new SDQLQuery(queryId, queryContent);
 
-//   public runSuccessScenarios() {
-//     td.when(this.ISDQLQueryRepository.getByCID([queryId])).thenReturn(
-//       okAsync(new Map([[queryId, SDQuery]])),
-//     );
+class QueryServiceMocks {
+  public queryParsingEngine: IQueryParsingEngine;
+  public sdqlQueryRepo: ISDQLQueryRepository;
+  public insightPlatformRepo: IInsightPlatformRepository;
+  public consentContractRepo: IConsentContractRepository;
+  public contextProvider: ContextProviderMock;
 
-//     td.when(
-//       this.consentContractRepository.isAddressOptedIn(
-//         consentContractAddress,
-//         EthereumAccountAddress(
-//           this.contextProvider.context.dataWalletAddress || "",
-//         ),
-//       ),
-//     ).thenReturn(okAsync(true));
-//   }
+  public constructor() {
+    this.queryParsingEngine = td.object<IQueryParsingEngine>();
+    this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
+    this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
+    this.consentContractRepo = td.object<IConsentContractRepository>();
+    this.contextProvider = new ContextProviderMock();
 
-//   public runFailureScenarios() {
-//     td.when(this.ISDQLQueryRepository.getByCID([queryId])).thenReturn(
-//       okAsync(new Map([[queryId, SDQuery]])),
-//     );
+    td.when(this.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+      okAsync(sdqlQuery),
+    );
 
-//     td.when(
-//       this.consentContractRepository.isAddressOptedIn(
-//         consentContractAddress,
-//         EthereumAccountAddress(
-//           this.contextProvider.context.dataWalletAddress || "",
-//         ),
-//       ),
-//     ).thenReturn(errAsync(new ConsentContractError()));
-//   }
+    td.when(
+      this.consentContractRepo.isAddressOptedIn(
+        consentContractAddress,
+        EVMAccountAddress(dataWalletAddress),
+      ),
+    ).thenReturn(okAsync(true));
+  }
 
-//   public factoryService(): IQueryService {
-//     //return {} as QueryService;
-//     return new QueryService(
-//       this.queryParsingEngine,
-//       this.ISDQLQueryRepository,
-//       this.insightPlatformRepository,
-//       this.consentContractRepository,
-//       this.contextProvider,
-//     );
-//   }
-// }
+  public factory(): IQueryService {
+    return new QueryService(
+      this.queryParsingEngine,
+      this.sdqlQueryRepo,
+      this.insightPlatformRepo,
+      this.consentContractRepo,
+      this.contextProvider,
+    );
+  }
+}
+describe("Query Service tests", () => {
+  test("onQueryPosted() golden path", async () => {
+    // Arrange
+    const mocks = new QueryServiceMocks();
 
-// describe("QueryService tests", () => {
-//   test("onQueryPosted() should recieve a qurey and return void", async () => {
-//     // Arrange
-//     const mocks = new QueryServiceMocks();
-//     mocks.runSuccessScenarios();
-//     const queryService = mocks.factoryService();
-//     console.log("queryService: ", queryService);
+    const service = mocks.factory();
+    // Act
+    const result = await service.onQueryPosted(consentContractAddress, queryId);
 
-//     // Action
-//     const res = await queryService.onQueryPosted(
-//       consentContractAddress,
-//       queryId,
-//     );
+    // Assert
+    // run the test - did it pass?
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
 
-//     // Assert
-//     expect(res.isErr()).toBeFalsy();
-//     expect(res._unsafeUnwrap()).toStrictEqual(undefined);
-//     mocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
-//   });
-
-//   test("onQueryPosted() should return error", async () => {
-//     // Arrange
-//     const mocks = new QueryServiceMocks();
-//     mocks.runFailureScenarios();
-//     const queryService = mocks.factoryService();
-
-//     // Action
-//     const res = await queryService.onQueryPosted(
-//       consentContractAddress,
-//       queryId,
-//     );
-
-//     // Assert
-//     expect(res.isErr()).toBeTruthy();
-//     expect(res._unsafeUnwrapErr()).toBeInstanceOf(ConsentContractError);
-//     mocks.contextProvider.assertEventCounts({ onQueryPosted: 0 });
-//   });
-// });
+    mocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
+  });
+});
