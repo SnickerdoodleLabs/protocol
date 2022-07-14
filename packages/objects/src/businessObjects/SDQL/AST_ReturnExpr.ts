@@ -2,7 +2,7 @@ import { SDQL_Name } from "@objects/primitives";
 import { AST_Expr } from "./AST_Expr";
 import { AST_Query } from "./AST_Query";
 import { AST_Return } from "./AST_Return";
-import { Condition } from "./condition/Condition";
+import { Operator } from "./Operator";
 
 export class AST_ReturnExpr extends AST_Expr {
     /**

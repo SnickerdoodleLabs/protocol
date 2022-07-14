@@ -1,8 +1,8 @@
 import { SDQL_OperatorName } from "@objects/primitives";
 import { AST_BoolExpr } from "../AST_BoolExpr";
-import { Condition } from "./Condition";
+import { Operator } from "../Operator";
 
-export class ConditionAnd extends Condition {
+export class ConditionAnd extends Operator {
 
     constructor(
         name: SDQL_OperatorName, // and

@@ -3,7 +3,7 @@ import { AST } from "./AST";
 import { Command_IF } from "./Command_IF";
 import { AST_IFExpr } from "./AST_IFExpr";
 import { AST_Query } from "./AST_Query";
-import { Condition } from "./condition/Condition";
+import { Operator } from "./Operator";
 import { TypeChecker } from "./TypeChecker";
 import { AST_ConditionExpr } from "./condition/AST_ConditionExpr";
 import { QueryRepository } from "./QueryRepository";
@@ -11,6 +11,7 @@ import { AST_Expr } from "./AST_Expr";
 import { Brand, make } from "ts-brand";
 import { AST_Return } from "./AST_Return";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
+import { ConditionAnd } from "./condition/ConditionAnd";
 
 // TODO introduce dependency injection
 
@@ -44,7 +45,7 @@ export class AST_Evaluator {
         return SDQL_Return(0);
     }
 
-    public evalExpr(expr: AST_Expr | Command_IF | Condition): SDQL_Return {
+    public evalExpr(expr: AST_Expr | Command_IF | Operator): SDQL_Return {
         /**
          * Based on different types of expressions, 
          * it calls the right function to evaluate one and return the value
@@ -61,9 +62,9 @@ export class AST_Evaluator {
 
             return this.evalConditionExpr(expr as AST_ConditionExpr);
 
-        } else if (TypeChecker.isCondition(expr)) {
+        } else if (TypeChecker.isOperator(expr)) {
 
-            return this.evalCondition(expr as Condition);
+            return this.evalOperator(expr as Operator);
 
         } else if (TypeChecker.isReturnExpr(expr)) {
 
@@ -98,9 +99,9 @@ export class AST_Evaluator {
 
             condResult = this.evalQuery(expr.source as AST_Query);
 
-        } else if (TypeChecker.isCondition(expr.source)) {
+        } else if (TypeChecker.isOperator(expr.source)) {
 
-            condResult = this.evalCondition(expr.source as Condition);
+            condResult = this.evalOperator(expr.source as Operator);
 
         } else {
 
@@ -120,9 +121,20 @@ export class AST_Evaluator {
     }
 
     
-    public evalCondition(cond: Condition): SDQL_Return {
+    public evalOperator(cond: Operator): SDQL_Return {
         
-        return SDQL_Return(0);
+        console.log("Evaluating", cond);
+
+        switch(cond.constructor) {
+            case ConditionAnd:
+                console.log("it's an and");
+                return SDQL_Return(true);
+
+
+        }
+
+        return SDQL_Return(false);
+        
     }
 
     public evalReturn(r: AST_Return): SDQL_Return {

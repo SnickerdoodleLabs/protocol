@@ -1,11 +1,11 @@
 import { Age, SDQL_OperatorName } from "@objects/primitives";
-import { Condition } from "./Condition";
+import { Operator } from "../Operator";
 import { IDataWalletPersistence } from "@objects/interfaces";
 import { PersistenceError } from "@objects/errors";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { AST_Expr } from "../AST_Expr";
 
-export class ConditionL extends Condition {
+export class ConditionL extends Operator {
 
     constructor(
         name: SDQL_OperatorName,

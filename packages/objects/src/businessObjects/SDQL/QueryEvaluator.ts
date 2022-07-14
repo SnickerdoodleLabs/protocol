@@ -2,7 +2,7 @@ import { SDQL_Return } from "@objects/primitives";
 import { AST_NetworkQuery } from "./AST_NetworkQuery";
 import { AST_PropertyQuery } from "./AST_PropertyQuery";
 import { AST_Query } from "./AST_Query";
-import { Condition } from "./condition/Condition";
+import { Operator } from "./Operator";
 import { ConditionAnd } from "./condition/ConditionAnd";
 import { ConditionGE } from "./condition/ConditionGE";
 import { ConditionIn } from "./condition/ConditionIn";
