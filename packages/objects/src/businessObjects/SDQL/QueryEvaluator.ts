@@ -2,7 +2,7 @@ import { SDQL_Return } from "@objects/primitives";
 import { AST_NetworkQuery } from "./AST_NetworkQuery";
 import { AST_PropertyQuery } from "./AST_PropertyQuery";
 import { AST_Query } from "./AST_Query";
-import { Condition } from "./condition/Condition";
+import { Operator } from "./Operator";
 import { ConditionAnd } from "./condition/ConditionAnd";
 import { ConditionGE } from "./condition/ConditionGE";
 import { ConditionIn } from "./condition/ConditionIn";
@@ -12,11 +12,11 @@ export class QueryEvaluator {
 
     public eval(query: AST_Query): any {
         // All the switch statements here
-        switch (query.name){
-            case "network":
+        switch (query.constructor){
+            case AST_NetworkQuery:
                 //return this.evalNetworkQuery(query)
             default:
-                return this.evalPropertyQuery(query)
+                return this.evalPropertyQuery(query as AST_PropertyQuery);
         }
     }
 
@@ -25,7 +25,7 @@ export class QueryEvaluator {
     } 
 
     private evalPropertyQuery(q: AST_PropertyQuery): SDQL_Return { 
-        switch (q.name){
+        switch (q.property){
             case "age":
                 // SDQL_OperatorName
                 // rval

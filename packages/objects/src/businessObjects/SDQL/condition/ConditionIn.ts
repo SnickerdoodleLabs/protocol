@@ -1,5 +1,5 @@
 import { CountryCode, SDQL_OperatorName } from "@objects/primitives";
-import { Condition } from "./Condition";
+import { Operator } from "../Operator";
 import { IDataWalletPersistence } from "@objects/interfaces";
 import { PersistenceError } from "@objects/errors";
 import { errAsync, okAsync } from "neverthrow";
@@ -7,7 +7,7 @@ import { ResultAsync } from "neverthrow";
 import { AST } from "prettier";
 import { AST_Expr } from "../AST_Expr";
 
-export class ConditionIn extends Condition {
+export class ConditionIn extends Operator {
 
     constructor(
         name: SDQL_OperatorName,

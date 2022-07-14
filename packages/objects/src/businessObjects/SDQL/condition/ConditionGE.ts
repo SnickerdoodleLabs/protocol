@@ -1,12 +1,12 @@
 import { Age, SDQL_OperatorName } from "@objects/primitives";
-import { Condition } from "./Condition";
+import { Operator } from "../Operator";
 import { IDataWalletPersistence } from "@objects/interfaces";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { PersistenceError } from "@objects/errors";
 import { AST_Expr } from "../AST_Expr";
 
 
-export class ConditionGE extends Condition {
+export class ConditionGE extends Operator {
 
     constructor(
         name: SDQL_OperatorName, // ge - greater and equal then
