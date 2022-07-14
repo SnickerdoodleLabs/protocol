@@ -1,4 +1,5 @@
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
+import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   chainConfig,
   ChainId,
@@ -6,19 +7,17 @@ import {
   IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
-
-
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { CoreConfig } from "@core/interfaces/objects";
-import { IConfigProvider, ILogUtils } from "@core/interfaces/utilities";
+import { IConfigProvider } from "@core/interfaces/utilities";
 
 @injectable()
 export class ConfigProvider implements IConfigProvider {
   protected config: CoreConfig;
 
-  public constructor(protected logUtils: ILogUtils) {
+  public constructor(@inject(ILogUtilsType) protected logUtils: ILogUtils) {
     const controlChainId = ChainId(1337);
     const controlChainInformation = chainConfig.get(controlChainId);
 
@@ -40,6 +39,8 @@ export class ConfigProvider implements IConfigProvider {
       chainConfig,
       controlChainInformation,
       URLString("ipfs node address"),
+      // uncomment following line to test locally
+      // URLString("http://localhost:3000/v0"),
       URLString("http://insight-platform"),
       {
         name: "Snickerdoodle Protocol",
