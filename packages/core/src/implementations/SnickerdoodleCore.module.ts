@@ -95,14 +95,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ILoginRegistryRepository>(ILoginRegistryRepositoryType)
       .to(LoginRegistryRepository)
       .inSingletonScope();
-
-    // Utilities
-    bind<IBlockchainProvider>(IBlockchainProviderType)
-      .to(BlockchainProvider)
-      .inSingletonScope();
     bind<IConsentContractRepository>(IConsentContractRepositoryType)
       .to(ConsentContractRepository)
       .inSingletonScope();
+
+    // Utilities
 
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
@@ -118,7 +115,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
-    bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
