@@ -21,6 +21,7 @@ import {
 import {
   InsightPlatformRepository,
   LoginRegistryRepository,
+  ConsentContractRepository,
 } from "@core/implementations/data";
 import {
   BlockchainProvider,
@@ -44,6 +45,8 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
   ILoginRegistryRepository,
@@ -97,18 +100,28 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IBlockchainProvider>(IBlockchainProviderType)
       .to(BlockchainProvider)
       .inSingletonScope();
+    bind<IConsentContractRepository>(IConsentContractRepositoryType)
+      .to(ConsentContractRepository)
+      .inSingletonScope();
+
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
+    bind<IBlockchainProvider>(IBlockchainProviderType)
+      .to(BlockchainProvider)
+      .inSingletonScope();
     bind<IDataWalletUtils>(IDataWalletUtilsType)
       .to(DataWalletUtils)
       .inSingletonScope();
+    bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
     bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
-    bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType).to(AxiosAjaxUtils).inSingletonScope();
+    bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
+      .to(AxiosAjaxUtils)
+      .inSingletonScope();
 
     // Utilites/factor
     bind<IContractFactory>(IContractFactoryType)
