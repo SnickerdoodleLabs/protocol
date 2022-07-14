@@ -42,6 +42,8 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       chainConfig,
       controlChainInformation,
       URLString("ipfs node address"),
+      // uncomment following line to test locally
+      // URLString("http://localhost:3000/v0"),
       URLString("http://insight-platform"),
       snickerdoodleSigningDomain,
       5000, // polling interval
