@@ -2,6 +2,7 @@ import { SDQL_Name } from "@objects/primitives";
 import { Command_IF } from "./Command_IF";
 import { AST_Query } from "./AST_Query";
 import { Condition } from "./condition/Condition";
+import { AST_Return } from "./AST_Return";
 
 export class AST_Expr {
     /**
@@ -12,7 +13,7 @@ export class AST_Expr {
     public value: any;
     constructor(
         readonly name: SDQL_Name,
-        readonly source: Command_IF | AST_Query | Condition
+        readonly source: Command_IF | AST_Query | AST_Return | Condition | boolean | number | string
 
     ) { }
 

@@ -9,10 +9,15 @@ export class AST_ConditionExpr extends AST_Expr {
      */
     constructor(
         readonly name: SDQL_Name,
-        readonly source: Condition
+        readonly source: Condition | AST_Query
 
     ) {
         super(name, source);
+        
+    }
+
+    check(): void {
+        // TODO if query, check type
         
     }
 

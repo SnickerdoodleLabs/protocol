@@ -5,9 +5,10 @@ import { Condition } from "./condition/Condition";
 export class AST_PropertyQuery extends AST_Query {
     
     constructor(
-        name: SDQL_Name,
-        returnType: SDQL_Return,
-        conditions: Array<Condition>
+        readonly name: SDQL_Name,
+        readonly returnType: "string" | "boolean" | "integer" | "number" | "list",
+        readonly property: string,
+        readonly conditions: Array<Condition>
 
     ) {
         super(name, returnType);
