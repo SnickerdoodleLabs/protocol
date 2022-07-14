@@ -3,12 +3,21 @@ import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   Age,
+  AjaxError,
   BlockchainProviderError,
+  CohortInvitation,
+  ConsentContractError,
+  ConsentContractRepositoryError,
+  DomainName,
+  EInvitationStatus,
   EVMAccountAddress,
+  EVMContractAddress,
   EVMPrivateKey,
   InvalidSignatureError,
   LanguageCode,
   PersistenceError,
+  TokenId,
+  UninitializedError,
   UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
@@ -26,6 +35,14 @@ const accountPrivateKey = EVMPrivateKey(
 );
 const accountAddress = EVMAccountAddress(
   "0x14791697260E4c9A71f18484C9f997B308e59325",
+);
+const domainName = DomainName("snickerdoodle.dev");
+
+const cohortInvitation = new CohortInvitation(
+  domainName,
+  EVMContractAddress("0x93fb1De05a05350b10F93b07533533709AdB3347"),
+  TokenId(BigInt(123)),
+  null,
 );
 
 await core.getEvents().map(async (events) => {
@@ -61,6 +78,12 @@ function mainPrompt(): ResultAsync<void, Error> {
           new inquirer.Separator(),
           { name: "Get Age", value: "getAge", short: "g" },
           new inquirer.Separator(),
+          {
+            name: "Check Invitation Status",
+            value: "checkInvitationStatus",
+            short: "ci",
+          },
+          new inquirer.Separator(),
           { name: "Exit", value: "exit", short: "e" },
         ],
       },
@@ -79,6 +102,10 @@ function mainPrompt(): ResultAsync<void, Error> {
       case "unlock":
         console.log(`Unlocked!`);
         return unlockCore(accountAddress, accountPrivateKey);
+      case "checkInvitationStatus":
+        return checkInvitationStatus(cohortInvitation).map((status) => {
+          console.log(status);
+        });
       case "setAge":
         console.log("Age is set to 15");
         return core.setAge(Age(15));
@@ -108,5 +135,28 @@ function unlockCore(
     })
     .andThen((signature) => {
       return core.unlock(account, signature, languageCode);
+    });
+}
+
+function checkInvitationStatus(
+  invitation: CohortInvitation,
+): ResultAsync<
+  EInvitationStatus,
+  | BlockchainProviderError
+  | PersistenceError
+  | UninitializedError
+  | AjaxError
+  | ConsentContractError
+  | ConsentContractRepositoryError
+> {
+  // Need to get the unlock message first
+  return core
+    .checkInvitationStatus(invitation)
+    .mapErr((e) => {
+      console.log("error: ", e);
+      return e;
+    })
+    .map((status) => {
+      return status;
     });
 }
