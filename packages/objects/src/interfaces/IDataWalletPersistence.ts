@@ -6,7 +6,10 @@ import {
   EVMTransaction,
   SiteVisit,
 } from "@objects/businessObjects";
-import { PersistenceError } from "@objects/errors";
+import { 
+  PersistenceError,
+  AccountIndexingError,
+  AjaxError  } from "@objects/errors";
 import {
   Age,
   EmailAddressString,
@@ -109,6 +112,14 @@ export interface IDataWalletPersistence {
   addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
+
+  getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError>;
+
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

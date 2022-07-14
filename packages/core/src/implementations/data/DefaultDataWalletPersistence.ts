@@ -19,6 +19,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { AccountIndexingError } from "@snickerdoodlelabs/objects";
+import { AjaxError } from "@snickerdoodlelabs/objects";
+
 
 /**
  * This class is where we should implement the cloud-based data wallet persistence.
@@ -219,6 +222,15 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getLocation(): ResultAsync<CountryCode, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     throw new Error("Method not implemented.");
   }
 }

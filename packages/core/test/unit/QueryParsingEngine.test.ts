@@ -31,7 +31,7 @@ import {
     Insight,
     EVMAccountAddress
 } from "@snickerdoodlelabs/objects";
-import { QueryParsingEngine } from "@browser-extension/implementations/business/utilities";
+import { QueryParsingEngine } from "@core/implementations/business/utilities";
 
 
 const testing_schema = JSON.stringify({
