@@ -4,30 +4,131 @@ import { Command_IF } from "./Command_IF";
 import { AST_IFExpr } from "./AST_IFExpr";
 import { AST_Query } from "./AST_Query";
 import { Condition } from "./condition/Condition";
+import { TypeChecker } from "./TypeChecker";
+import { AST_ConditionExpr } from "./condition/AST_ConditionExpr";
+import { QueryRepository } from "./QueryRepository";
+import { AST_Expr } from "./AST_Expr";
+import { Brand, make } from "ts-brand";
+import { AST_Return } from "./AST_Return";
+import { AST_ReturnExpr } from "./AST_ReturnExpr";
+
+// TODO introduce dependency injection
+
+type mappableType =  Brand<AST_Expr | AST_Query | Command_IF, "mappableType">;
 
 export class AST_Evaluator {
+
+    readonly queryRepository: QueryRepository = new QueryRepository();
+    // readonly exprMap: Map<AST_Expr.name 
+    //                     | typeof AST_Query 
+    //                     | typeof Condition
+    //                     | typeof Command_IF, 
+    //                     Function> = new Map<AST_Expr.name 
+    //                                     | typeof AST_Query 
+    //                                     | typeof Condition
+    //                                     | typeof Command_IF, 
+    //                                     Function>();
+
     constructor(
         readonly cid: IpfsCID,
         readonly ast: AST
-    ) {}
+    ) {
+    //     this.exprMap.set(AST_Query, this.evalQuery);
+    //     this.exprMap.set(Command_IF, this.evalIf);
+    //     this.exprMap.set(AST_ConditionExpr, this.evalConditionExpr);
+    //     this.exprMap.set(Condition, this.evalCondition);
+    }
 
     public eval(): SDQL_Return {
+
+        return SDQL_Return(0);
+    }
+
+    public evalExpr(expr: AST_Expr | Command_IF | Condition): SDQL_Return {
+        /**
+         * Based on different types of expressions, 
+         * it calls the right function to evaluate one and return the value
+         */
+
+        // TODO replace with a map
+        // Clean up parameters
+        
+        if (TypeChecker.isIfCommand(expr)) {
+
+            return this.evalIf(expr as Command_IF);
+
+        } else if (TypeChecker.isConditionExpr(expr)) {
+
+            return this.evalConditionExpr(expr as AST_ConditionExpr);
+
+        } else if (TypeChecker.isCondition(expr)) {
+
+            return this.evalCondition(expr as Condition);
+
+        } else if (TypeChecker.isReturnExpr(expr)) {
+
+            return this.evalReturn((expr as AST_ReturnExpr).source);
+
+        }
+
         return SDQL_Return(0);
     }
 
     public evalIf(eef: Command_IF): SDQL_Return {
         
-        return SDQL_Return(0);
+        // 1. evaluate conditionExpr
+        // 2. if true, evaluate TrueExpr
+        // 3. if false, evaluate FalseExpr
+
+        // 1. 
+        const condResult = this.evalConditionExpr(eef.conditionExpr);
+
+        if (condResult) {
+            return this.evalExpr(eef.trueExpr)
+        } else {
+
+            return this.evalExpr(eef.falseExpr)
+        }
+
+    }
+
+    public evalConditionExpr(expr: AST_ConditionExpr) {
+        let condResult: SDQL_Return | null = null;
+        if (TypeChecker.isQuery(expr.source)) {
+
+            condResult = this.evalQuery(expr.source as AST_Query);
+
+        } else if (TypeChecker.isCondition(expr.source)) {
+
+            condResult = this.evalCondition(expr.source as Condition);
+
+        } else {
+
+            throw new TypeError("If condition has wrong type");
+
+        }
+
+        return condResult
     }
 
     public evalQuery(q: AST_Query): SDQL_Return {
         
-        return SDQL_Return(0);
+        /**
+         * It sends the query to the Query Repository
+         */
+        return this.queryRepository.get(this.cid, q);
     }
 
+    
     public evalCondition(cond: Condition): SDQL_Return {
         
         return SDQL_Return(0);
     }
 
+    public evalReturn(r: AST_Return): SDQL_Return {
+        return SDQL_Return(0);
+    }
+
 }
+
+
