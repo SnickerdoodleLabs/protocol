@@ -41,15 +41,15 @@ export class AST_Evaluator {
     //     this.exprMap.set(Command_IF, this.evalIf);
     //     this.exprMap.set(AST_ConditionExpr, this.evalConditionExpr);
     //     this.exprMap.set(Condition, this.evalCondition);
-        console.log(this);
+        // console.log(this);
     }
 
     postConstructor() {
         /**
          * This function must be called after construction. Otherwise the object will not be initialized correctly.
          */
-        console.log(this.evalAnd);
-        console.log(this.evalAny);
+        // console.log(this.evalAnd);
+        // console.log(this.evalAny);
         this.operatorMap.set(ConditionAnd, this.evalAnd)
     }
 
@@ -173,7 +173,7 @@ export class AST_Evaluator {
 
         const evaluator = this.operatorMap.get(op.constructor);
         if (evaluator) {
-            evaluator.apply(this, [op])
+            return evaluator.apply(this, [op])
         } else {
             throw new Error("No operator evaluator defined for " + op.constructor);
         }
@@ -184,7 +184,7 @@ export class AST_Evaluator {
 
     public evalAnd(cond: ConditionAnd): SDQL_Return {
 
-        console.log(this);
+        // console.log(this);
         const left = this.evalAny(cond.lval);
         
         if (left == false) {
