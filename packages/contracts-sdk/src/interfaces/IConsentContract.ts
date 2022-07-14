@@ -103,11 +103,6 @@ export interface IConsentContract {
   removeDomain(domain: string): ResultAsync<void, ConsentContractError>;
 
   /**
-   * Returns an array of domains added to the contract
-   */
-  getConsentTokensOfAddress(): ResultAsync<string[], ConsentContractError>;
-
-  /**
    * Returns a list of RequestForData events between two block numbers
    * @param requesterAddress owner address of the request
    * @param fromBlock from block number

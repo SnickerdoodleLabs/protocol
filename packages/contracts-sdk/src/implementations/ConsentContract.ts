@@ -198,7 +198,7 @@ export class ConsentContract implements IConsentContract {
   public getDomains(): ResultAsync<string[], ConsentContractError> {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomains() as Promise<ethers.providers.TransactionResponse>,
+      this.contract.getDomains() as Promise<string[]>,
       (e) => {
         return new ConsentContractError("Unable to call requestForData()", e);
       },
