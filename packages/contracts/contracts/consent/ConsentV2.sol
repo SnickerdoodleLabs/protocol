@@ -390,6 +390,18 @@ contract ConsentV2 is Initializable, ERC721URIStorageUpgradeable, PausableUpgrad
             return super._msgData();
         }
     }
+
+     /* VERSION 2 FUNCTION */
+
+    bool public isVersion2;
+
+    function setIsVersion2() public {
+        isVersion2 = true;
+    }
+
+    function getIsVersion2() public view returns (bool)  {
+        return isVersion2;
+    }
 }
 
 /// @dev a minimal interface for Consent contracts to update the ConsentFactory
