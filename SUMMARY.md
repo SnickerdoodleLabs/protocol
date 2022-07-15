@@ -14,6 +14,7 @@
         * [testnet](/packages/contracts/subnets/fuji/README.md)
         * [mainnet](/packages/contracts/subnets/mainnet/README.md)
     * [Scripts](/packages/contracts/scripts/README.md)
+    * [Contract API](/packages/contracts/docs/README.md)
 * [SDQL](/documentation/sdql/README.md)
 * [Core](/packages/core/README.md)
 * [Browser Extension](/packages/browserExtension/README.md)
