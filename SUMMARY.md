@@ -6,6 +6,8 @@
 
 ## Developer Docs
 * [Contracts](/packages/contracts/README.md)
+    * [CLI Tasks](/packages/contracts/tasks/README.md)
+    * [Unit Test](/packages/contracts/test/README.md)
     * [Deployments](/packages/contracts/DEPLOYMENTS.md)
 * [SDQL](/documentation/sdql/README.md)
 * [Core](/packages/core/README.md)
