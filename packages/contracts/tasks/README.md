@@ -2,6 +2,12 @@
 
 This repository uses [Hardhat tasks](https://hardhat.org/hardhat-runner/docs/guides/tasks-and-scripts) as a simple for of a CLI for interacting with contract deployments on local and public networks. Tasks are defined in javascript files in this subdirectory and grouped based on their concerns. In order to register a new task with Hardhat, the file the task is written in must be imported into the [hardhat.config.js](/packages/contracts/hardhat.config.js) at the root of this package. 
 
+Look at available tasks defined by the CLI:
+
+```
+npx hardhat --help
+```
+
 ## Start a Local Hardhat Node
 
 First, start a Hardhat development node to host the contract stack on a local blockchain:
