@@ -8,6 +8,7 @@ import td from "testdouble";
 import { ConditionAnd } from "businessObjects/SDQL/condition/ConditionAnd"
 import { ConditionGE } from "businessObjects/SDQL/condition/ConditionGE"
 import { ConditionL } from "businessObjects/SDQL/condition/ConditionL"
+import { AST_BoolExpr } from "@browser-extension/businessObjects/SDQL/AST_BoolExpr";
 
 // import { QueryEvaluator } from "businessObjects/SDQL";
 
@@ -21,17 +22,10 @@ const conditionsL = [
 ];
 const conditionsGEandL = [
     new ConditionGE(SDQL_OperatorName('ge'), 20),
-    new ConditionL(SDQL_OperatorName('l'), 30),
-    new ConditionAnd(SDQL_OperatorName('and'), 
-    new ConditionGE(SDQL_OperatorName('ge'), 20), 
-    new ConditionL(SDQL_OperatorName('l'), 30))
+    new ConditionL(SDQL_OperatorName('l'), 30)
 ];
 
-const conditionsGEandL = [
-    new ConditionGE(SDQL_OperatorName('ge'), 20),
-    new ConditionAnd(SDQL_OperatorName('and'), 1),
-    new ConditionL(SDQL_OperatorName('l'), 30)
-]
+
 
 
 class QueryEvaluatorMocks {
@@ -56,6 +50,13 @@ describe("QueryEvaluator", () => {
         console.log("hello");
         console.log(propertyQuery);
 
+        //expect(result.isErr()).toBeFalsy();
+        /*
+            mocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
+        */
+        const age = 25;
+        // DO the rest
+
         const mocks = new QueryEvaluatorMocks();
         const service = mocks.factory();
         const result = service.eval(propertyQuery);
@@ -63,21 +64,7 @@ describe("QueryEvaluator", () => {
         console.log(result)
 
         expect(result).toBeDefined();
-        //expect(result.isErr()).toBeFalsy();
-
-
-
-        //  DO the mocks to get age
-        /*
-            // Act
-            // Assert
-            // run the test - did it pass?
-            mocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
-        */
-
-
-        const age = 25;
-        // DO the rest
+        
     })
 
     test("AST_PropertyQuery: when age is < 30, returns true", () => {
@@ -95,6 +82,19 @@ describe("QueryEvaluator", () => {
     })
 
     test("AST_PropertyQuery: when 20 <= age < 30, returns true", () => {
+
+        const conditionsGE = new ConditionGE(SDQL_OperatorName('ge'), 20)
+        const conditionsL = new ConditionL(SDQL_OperatorName('l'), 30)
+
+
+        const conditionsGEandL = [
+            new ConditionAnd(
+                SDQL_OperatorName('and'), 
+                conditionsL.rval as AST_BoolExpr, 
+                conditionsGE.rval as AST_BoolExpr)
+                ,
+        ]
+
         const propertyQuery = new AST_PropertyQuery(
             SDQL_Name("q1"),
             "integer",

@@ -6,8 +6,9 @@ import { errAsync, okAsync } from "neverthrow";
 import { ResultAsync } from "neverthrow";
 import { AST } from "prettier";
 import { AST_Expr } from "../AST_Expr";
+import { Condition } from "./Condition";
 
-export class ConditionIn extends Operator {
+export default class ConditionIn extends Condition {
 
     constructor(
         name: SDQL_OperatorName,

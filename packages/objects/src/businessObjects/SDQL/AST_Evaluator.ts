@@ -1,7 +1,6 @@
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
 import { AST } from "./AST";
 import { Command_IF } from "./Command_IF";
-import { AST_IFExpr } from "./AST_IFExpr";
 import { AST_Query } from "./AST_Query";
 import { Operator } from "./Operator";
 import { TypeChecker } from "./TypeChecker";
@@ -11,7 +10,8 @@ import { AST_Expr } from "./AST_Expr";
 import { Brand, make } from "ts-brand";
 import { AST_Return } from "./AST_Return";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
-import { ConditionAnd } from "./condition/ConditionAnd";
+// import { ConditionAnd } from "./condition/ConditionAnd";
+import { ConditionAnd, ConditionOr } from "./condition";
 
 // TODO introduce dependency injection
 
@@ -30,6 +30,9 @@ export class AST_Evaluator {
     //                                     | typeof Command_IF, 
     //                                     Function>();
 
+    readonly operatorMap = new Map<any, Function>();
+
+
     constructor(
         readonly cid: IpfsCID,
         readonly ast: AST
@@ -38,11 +41,30 @@ export class AST_Evaluator {
     //     this.exprMap.set(Command_IF, this.evalIf);
     //     this.exprMap.set(AST_ConditionExpr, this.evalConditionExpr);
     //     this.exprMap.set(Condition, this.evalCondition);
+        // console.log(this);
+    }
+
+    postConstructor() {
+        /**
+         * This function must be called after construction. Otherwise the object will not be initialized correctly.
+         */
+        // console.log(this.evalAnd);
+        // console.log(this.evalAny);
+        this.operatorMap.set(ConditionAnd, this.evalAnd)
+        this.operatorMap.set(ConditionOr, this.evalOr)
     }
 
     public eval(): SDQL_Return {
 
         return SDQL_Return(0);
+    }
+
+    public evalAny(expr: any): SDQL_Return {
+        if (TypeChecker.isValue(expr)) {
+            return expr;
+        } else {
+            return this.evalExpr(expr)
+        }
     }
 
     public evalExpr(expr: AST_Expr | Command_IF | Operator): SDQL_Return {
@@ -120,25 +142,65 @@ export class AST_Evaluator {
         return this.queryRepository.get(this.cid, q);
     }
 
+    //#region operator evaluation
     
-    public evalOperator(cond: Operator): SDQL_Return {
+    public evalOperator(op: Operator): SDQL_Return {
         
-        console.log("Evaluating", cond);
+        console.log("Evaluating", op);
 
-        switch(cond.constructor) {
-            case ConditionAnd:
-                console.log("it's an and");
-                return SDQL_Return(true);
-
-
+        const evaluator = this.operatorMap.get(op.constructor);
+        if (evaluator) {
+            return evaluator.apply(this, [op])
+        } else {
+            throw new Error("No operator evaluator defined for " + op.constructor);
         }
 
         return SDQL_Return(false);
         
     }
 
+    public evalAnd(cond: ConditionAnd): SDQL_Return {
+
+        // console.log(this);
+        const left = this.evalAny(cond.lval);
+        
+        if (left == false) {
+            return left;
+        }
+        
+        const right = this.evalAny(cond.rval);
+
+        if (right == false) {
+            return right;
+        }
+        
+        // console.log('evalAnd', `left is ${left} and right is ${right}`);
+        return left && right;
+    }
+
+    public evalOr(cond: ConditionOr): SDQL_Return {
+
+        const left = this.evalAny(cond.lval);
+        
+        if (left == true) {
+            return left;
+        }
+        
+        const right = this.evalAny(cond.rval);
+
+        if (right == true) {
+            return right;
+        }
+        
+        // console.log('evalAnd', `left is ${left} and right is ${right}`);
+        return SDQL_Return(false);
+        
+    }
+
+    //#endregion
+
     public evalReturn(r: AST_Return): SDQL_Return {
-        return SDQL_Return(0);
+        return SDQL_Return(r.message);
     }
 
 }

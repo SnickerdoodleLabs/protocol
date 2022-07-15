@@ -38,9 +38,9 @@ export class TypeChecker {
         return (expr instanceof Command_IF);
     }
 
-    static isIfExpr(expr: any): boolean {
-        return (expr instanceof AST_IFExpr);
-    }
+    // static isIfExpr(expr: any): boolean {
+    //     return (expr instanceof AST_IFExpr);
+    // }
 
     static isReturnExpr(expr: any): boolean {
         return (expr instanceof AST_ReturnExpr);
