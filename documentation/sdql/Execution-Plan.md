@@ -26,7 +26,6 @@ flowchart TD;
 ### Examples
 1. **if($q1and$q2and$q3)then$r1else$r2**
 
-<!-- EXPR -> IF COND THEN TrueExpr ELSE FalseExpr -->
 ```mermaid
 graph TD;
     IF-->TrueExpr-->r1;

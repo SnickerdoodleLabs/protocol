@@ -7,6 +7,9 @@ import { ConditionAnd } from "./condition/ConditionAnd";
 import { ConditionGE } from "./condition/ConditionGE";
 import { ConditionIn } from "./condition/ConditionIn";
 import { ConditionL } from "./condition/ConditionL";
+import { ConsentConditions } from "../ConsentConditions";
+import { IDataWalletPersistence } from "@objects/interfaces";
+
 
 export class QueryEvaluator {
 
@@ -27,53 +30,66 @@ export class QueryEvaluator {
     private evalPropertyQuery(q: AST_PropertyQuery): SDQL_Return { 
         switch (q.property){
             case "age":
-                // SDQL_OperatorName
-                // rval
-                // persistenceRepo
-                //let ge_Condition = new ConditionGE().;
-                //let l_Condition = (new ConditionL()).result()
-                /*
-                return SDQL_Return(
-                    in_Condition.result()
-                    new ConditionAnd(
-                        (new ConditionGE()).result(),
-                        (new ConditionL()).result()
-                    )
-                )
-                */
-            
+                switch(q.returnType){
+                    case "boolean":
+                        console.log("Property: Age, Return Type: Boolean");
+                        //age = this.persistenceLayer.getAge()
 
+                        
+
+                        for (let i=0; i < q.conditions.length; i++){
+                            let cond = q.conditions[i];
+                            
+                            if (cond.name == "ge"){
+                                console.log(cond.rval);
+
+                                return SDQL_Return( (cond.rval) <= 25 )
+                            }
+
+                            let name = cond.name;
+                            // ge
+                            console.log("SDQL_Operator Name is: ", cond);
+                        }
+
+                        return SDQL_Return(true);
+                    case "integer": 
+                        console.log("Property: Age, Return Type: Integer");
+                        return SDQL_Return(1);
+                    case "number": 
+                        console.log("Property: Age, Return Type: Number");
+                        return SDQL_Return(1);
+                    case "string": 
+                        console.log("Property: Age, Return Type: String"); 
+                        return SDQL_Return(1);
+                    case "list": 
+                        console.log("Property: Age, Return Type: List"); 
+                        return SDQL_Return(1);
+                    default:
+                        return SDQL_Return(1);
+                }
             case "location":
-
-        }
-/*
-        if (typeof(q.returnType) == typeof(boolean)){
-            if (q.name == "location"){
-                //let in_Condition = new ConditionIn();
-                //return SDQL_Return((new ConditionIn(q.)).result())
+                switch(q.returnType){
+                    case "boolean":
+                        console.log("Property: Location, Return Type: Boolean");
+                        return SDQL_Return(1);
+                    case "integer": 
+                        console.log("Property: Location, Return Type: Integer");
+                        return SDQL_Return(1);
+                    case "number": 
+                        console.log("Property: Location, Return Type: Number");
+                        return SDQL_Return(1);
+                    case "string": 
+                        console.log("Property: Location, Return Type: String"); 
+                        return SDQL_Return(1);
+                    case "list": 
+                        console.log("Property: Location, Return Type: List"); 
+                        return SDQL_Return(1);
+                    default:
+                        return SDQL_Return(1);
+                }
+            default:
+                return SDQL_Return(0);
             }
-            if (q.name == "age"){
-
-            }
-
         }
-        if (typeof(q.returnType) == typeof(integer)){
-            // location
-            // conditions in - returns country code
-
-            // type SDQL_Return = Brand<string|boolean|number|Array<any>, "SDQL_Return">;
-
-            return SDQL_Return(1);
-
-
-        }
-        */
-
-        return SDQL_Return(0);
-    }
-
-    // private evaluateConditionGE(lval: any, rval: any) {
-    //     return lval == rval
-    // }
-
 }
+

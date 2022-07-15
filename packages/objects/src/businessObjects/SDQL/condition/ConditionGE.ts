@@ -5,7 +5,6 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { PersistenceError } from "@objects/errors";
 import { AST_Expr } from "../AST_Expr";
 
-
 export class ConditionGE extends Operator {
 
     constructor(
