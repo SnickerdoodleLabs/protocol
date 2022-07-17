@@ -61,7 +61,7 @@ describe("Conditions", () => {
             SDQL_Return(true)
         );
 
-        console.log("SDQL_Return type", typeof SDQL_Return(true));
+        // console.log("SDQL_Return type", typeof SDQL_Return(true));
 
         const result = astEvaluator.evalOperator(and);
         expect(result).toBe(true);

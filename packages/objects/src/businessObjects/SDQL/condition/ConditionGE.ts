@@ -29,4 +29,9 @@ export class ConditionGE extends Condition {
     //     return okAsync(repoAge >= this.rval);
     //     //return okAsync(false);
     // }
+    check(): boolean {
+        // TODO
+        return true;
+    }
+
 }

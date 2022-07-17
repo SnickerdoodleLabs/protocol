@@ -32,4 +32,9 @@ export class ConditionIn extends Condition {
     //     }
     //     return okAsync(false);
     // }
+    check(): boolean {
+        // TODO
+        return true;
+    }
+
 }

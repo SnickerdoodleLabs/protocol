@@ -146,7 +146,7 @@ export class AST_Evaluator {
     
     public evalOperator(op: Operator): SDQL_Return {
         
-        console.log("Evaluating", op);
+        // console.log("Evaluating", op);
 
         const evaluator = this.operatorMap.get(op.constructor);
         if (evaluator) {
@@ -154,8 +154,6 @@ export class AST_Evaluator {
         } else {
             throw new Error("No operator evaluator defined for " + op.constructor);
         }
-
-        return SDQL_Return(false);
         
     }
 

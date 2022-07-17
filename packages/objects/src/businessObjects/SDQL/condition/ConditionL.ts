@@ -24,4 +24,9 @@ export class ConditionL extends Condition {
     //     }
     //     return okAsync(repoAge < this.rval);
     // }
+    check(): boolean {
+        // TODO
+        return true;
+    }
+
 }

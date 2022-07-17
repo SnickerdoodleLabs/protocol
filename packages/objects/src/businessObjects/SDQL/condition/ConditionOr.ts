@@ -16,5 +16,10 @@ export class ConditionOr extends Condition {
     // public result(): boolean{
     //     return (this.lval || this.rval);
     // }
+    check(): boolean {
+        // TODO
+        return true;
+    }
+
 
 }

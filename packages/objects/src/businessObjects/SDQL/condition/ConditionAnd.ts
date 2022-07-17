@@ -18,4 +18,9 @@ export class ConditionAnd extends Condition {
     //     return (this.lval && this.rval);
     // }
 
+    check(): boolean {
+        // TODO
+        return true;
+    }
+
 }
