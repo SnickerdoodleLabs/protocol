@@ -3,13 +3,14 @@ import { AST_NetworkQuery } from "./AST_NetworkQuery";
 import { AST_PropertyQuery } from "./AST_PropertyQuery";
 import { AST_Query } from "./AST_Query";
 import { Operator } from "./Operator";
-import { ConditionAnd } from "./condition/ConditionAnd";
-import { ConditionGE } from "./condition/ConditionGE";
-import ConditionIn from "./condition/ConditionIn";
-import { ConditionL } from "./condition/ConditionL";
-import { ConsentConditions } from "../ConsentConditions";
-import { IDataWalletPersistence } from "@objects/interfaces";
+// import { ConditionAnd } from "./condition/ConditionAnd";
+// import { ConditionGE } from "./condition/ConditionGE";
+// // import { ConditionIn } from "./condition/ConditionIn";
+// import { ConditionL } from "./condition/ConditionL";
+// import { ConsentConditions } from "../ConsentConditions";
+// import { IDataWalletPersistence } from "@objects/interfaces";
 
+import { ConditionIn } from "./condition";
 
 export class QueryEvaluator {
 

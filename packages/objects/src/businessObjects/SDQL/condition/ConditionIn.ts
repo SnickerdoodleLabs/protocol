@@ -8,7 +8,7 @@ import { AST } from "prettier";
 import { AST_Expr } from "../AST_Expr";
 import { Condition } from "./Condition";
 
-export default class ConditionIn extends Condition {
+export class ConditionIn extends Condition {
 
     constructor(
         name: SDQL_OperatorName,
