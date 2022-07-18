@@ -1,28 +1,30 @@
 import { Grid, makeStyles } from "@material-ui/core";
 import React, { useEffect, useMemo, useState } from "react";
-import ProviderCard from "@extension-onboarding/components/ProviderCard";
-import LinkedAccountBox from "@extension-onboarding/components/LinkedAccountBox";
+
+import AccountsCard from "@extension-onboarding/components/AccountsCard";
+import WalletProviderCardItem from "@extension-onboarding/components/WalletProviderCardItem";
+import { useAppContext } from "@extension-onboarding/Context/App";
 import { ProviderContext } from "@extension-onboarding/Context/ProviderContext";
 import { IProvider } from "@extension-onboarding/services/providers";
-import { useAppContext } from "@extension-onboarding/Context/App";
 
 export default function LinkAccount() {
   const { providerList } = useAppContext();
   const [installedProviders, setInstalledProviders] = useState<IProvider[]>([]);
 
   const installedProvider = useMemo(
-    () =>  providerList?.map((list) => {
-      if (list.provider.isInstalled && list.key != "walletConnect") {
-        setInstalledProviders((old) => [...old, list]);
-      }
-    }),
-    [providerList]
+    () =>
+      providerList?.map((list) => {
+        if (list.provider.isInstalled && list.key != "walletConnect") {
+          setInstalledProviders((old) => [...old, list]);
+        }
+      }),
+    [providerList],
   );
 
   const returnYourWallets = () => {
     return installedProviders.map((provider, index) => (
       <Grid style={{ paddingTop: "15px" }} key={provider.key}>
-        <ProviderCard provider={provider} />
+        <WalletProviderCardItem provider={provider} />
       </Grid>
     ));
   };
@@ -35,7 +37,7 @@ export default function LinkAccount() {
       ) {
         return (
           <Grid style={{ paddingTop: "15px" }} key={provider.key}>
-            <ProviderCard provider={provider} />
+            <WalletProviderCardItem provider={provider} />
           </Grid>
         );
       } else {
@@ -73,7 +75,7 @@ export default function LinkAccount() {
 
       <Grid className={classes.yourLinkedAccountContainer}>
         <p className={classes.yourLinkedAccountText}>Your Linked Account</p>
-        <LinkedAccountBox />
+        <AccountsCard />
       </Grid>
     </Grid>
   );
