@@ -104,14 +104,6 @@ Burns user's crumb
 | ---- | ---- | ----------- |
 | crumbId | uint256 | Id of the crumb token |
 
-### _baseURI
-
-```solidity
-function _baseURI() internal view virtual returns (string baseURI_)
-```
-
-Gets the Crumb tokens base URI
-
 ### setBaseURI
 
 ```solidity
@@ -123,6 +115,14 @@ Sets the Crumb tokens base URI
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | newURI | string | New base uri |
+
+### _baseURI
+
+```solidity
+function _baseURI() internal view virtual returns (string baseURI_)
+```
+
+Override _baseURI to return the Crumb tokens base URI
 
 ### _beforeTokenTransfer
 
