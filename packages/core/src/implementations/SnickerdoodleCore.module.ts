@@ -11,10 +11,14 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { ContainerModule, interfaces } from "inversify";
 
-import { BlockchainListener } from "@core/implementations/api";
+import {
+  AccountIndexerPoller,
+  BlockchainListener,
+} from "@core/implementations/api";
 import {
   AccountService,
   CohortService,
+  MonitoringService,
   ProfileService,
   QueryService,
 } from "@core/implementations/business";
@@ -30,6 +34,8 @@ import {
 } from "@core/implementations/utilities";
 import { ContractFactory } from "@core/implementations/utilities/factory";
 import {
+  IAccountIndexerPoller,
+  IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
 } from "@core/interfaces/api";
@@ -38,6 +44,8 @@ import {
   IAccountServiceType,
   ICohortService,
   ICohortServiceType,
+  IMonitoringService,
+  IMonitoringServiceType,
   IProfileService,
   IProfileServiceType,
   IQueryService,
@@ -63,6 +71,8 @@ import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory";
+import { CovalentEVMTransactionRepository, IIndexerConfigProvider, IIndexerConfigProviderType } from "@snickerdoodlelabs/indexers";
+import { IEVMTransactionRepository, IEVMTransactionRepositoryType } from "@snickerdoodlelabs/objects";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -73,6 +83,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
   ) => {
     bind<IBlockchainListener>(IBlockchainListenerType)
       .to(BlockchainListener)
+      .inSingletonScope();
+    bind<IAccountIndexerPoller>(IAccountIndexerPollerType)
+      .to(AccountIndexerPoller)
       .inSingletonScope();
 
     bind<IAccountService>(IAccountServiceType)
@@ -85,6 +98,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(ProfileService)
       .inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
+    bind<IMonitoringService>(IMonitoringServiceType)
+      .to(MonitoringService)
+      .inSingletonScope();
 
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
@@ -92,12 +108,18 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ILoginRegistryRepository>(ILoginRegistryRepositoryType)
       .to(LoginRegistryRepository)
       .inSingletonScope();
+    bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
+      .to(CovalentEVMTransactionRepository)
+      .inSingletonScope();
 
     // Utilities
     bind<IBlockchainProvider>(IBlockchainProviderType)
       .to(BlockchainProvider)
       .inSingletonScope();
     bind<IConfigProvider>(IConfigProviderType)
+      .to(ConfigProvider)
+      .inSingletonScope();
+    bind<IIndexerConfigProvider>(IIndexerConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
     bind<IContextProvider>(IContextProviderType)

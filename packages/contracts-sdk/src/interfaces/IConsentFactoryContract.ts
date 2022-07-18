@@ -1,7 +1,6 @@
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   ConsentFactoryContractError,
-  ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
   HexString,

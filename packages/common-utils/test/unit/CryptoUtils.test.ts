@@ -251,8 +251,8 @@ describe("CryptoUtils tests", () => {
     expect(result2.isErr()).toBeFalsy();
     const retHash1 = result1._unsafeUnwrap();
     const retHash2 = result2._unsafeUnwrap();
-    expect(retHash1.length).toBe(95);
-    expect(retHash2.length).toBe(95);
+    expect(retHash1.length).toBe(96);
+    expect(retHash2.length).toBe(96);
     expect(retHash2).not.toBe(retHash1);
   });
 

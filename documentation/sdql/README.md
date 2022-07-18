@@ -34,6 +34,7 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `network`: accesses the Web 3.0 data associated with all accounts linked to a DW
 - `age`: access to the age of the DW user
 - `location`: access to location data of the DW user
+- `browsing_history`: access to the browsing history of the DW user
 
 #### return (required)
 
@@ -52,6 +53,8 @@ Conditions are used in conjunction with the `boolean` return type. A conditions 
 - `le`: is the attribute less than or equal to an object
 - `e`: is the attribute equal to an object
 - `g`: is the attribute greater than an object
+- `has`: does the attribute include a set of objects
+
 
 #### chain
 

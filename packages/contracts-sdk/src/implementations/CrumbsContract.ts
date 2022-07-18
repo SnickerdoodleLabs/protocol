@@ -34,6 +34,8 @@ export class CrumbsContract implements ICrumbsContract {
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<TokenId | null, CrumbsContractError> {
+    // Temporary, this code needs to be updated
+    return okAsync(null);
     return ResultAsync.fromPromise(
       this.contract.addressToCrumbId(
         accountAddress,
