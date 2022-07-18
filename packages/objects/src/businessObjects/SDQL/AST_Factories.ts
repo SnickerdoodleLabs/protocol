@@ -1,6 +1,7 @@
 import { IpfsCID } from "@objects/primitives";
 import { AST } from "./AST";
 import { AST_Evaluator } from "./AST_Evaluator";
+import { AST_Logic } from "./AST_Logic";
 
 export class AST_Factories {
 
@@ -11,5 +12,9 @@ export class AST_Factories {
         return astEvaluator;
         
     }
+
+    // static makeAST_Logic(schema: string): AST_Logic {
+        
+    // }
 
 }
