@@ -12,4 +12,5 @@ export abstract class AST_Query {
     
     // abstract serialize (): JSON;
 
+
 }

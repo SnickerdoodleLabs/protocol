@@ -25,7 +25,7 @@ export class AST {
         this.queries = new Map<SDQL_Name, AST_Query>();
         this.returns = null;
         this.compensations = new Map<SDQL_Name, AST_Compensation>();
-        this.logic = new AST_Logic();
+        // this.logic = new AST_Logic();
     }
 
     addQuery(q: AST_Query): void {

@@ -1,6 +1,6 @@
-import { SDQL_Name } from "@objects/primitives";
+import { SDQL_Name, SDQL_OperatorName } from "@objects/primitives";
 import { AST_Query } from "./AST_Query";
-import { Condition } from "./condition";
+import { Condition, ConditionGE, ConditionIn, ConditionL } from "./condition";
 
 export class AST_PropertyQuery extends AST_Query {
 
@@ -17,5 +17,57 @@ export class AST_PropertyQuery extends AST_Query {
 
     ) {
         super(name, returnType);
+    }
+    static fromSchema(name: SDQL_Name, schema: any): AST_PropertyQuery {
+
+        const conditions = AST_PropertyQuery.parseConditions(schema.conditions);
+
+        return new AST_PropertyQuery(
+            name,
+            schema.return,
+            conditions
+        )
+    }
+
+    static parseConditions(schema: any): Array<Condition> {
+
+        let conditions = new Array<Condition>();
+
+        for (let conditionName in schema) {
+            let opName = SDQL_OperatorName(conditionName);
+            let rightOperand = schema[conditionName];
+            switch (conditionName) {
+                case "ge":
+                    conditions.push(
+                        new ConditionGE(
+                            opName,
+                            null,
+                            rightOperand as number
+                        )
+                    )
+                    break;
+                case "l":
+                    conditions.push(
+                        new ConditionL(
+                            opName,
+                            null,
+                            rightOperand as number
+                        )
+                    )
+                    break;
+                case "in":
+                    conditions.push(
+                        new ConditionIn(
+                            opName,
+                            null,
+                            rightOperand as Array<any>
+                        )
+                    )
+                    break;
+            }
+        }
+
+        return conditions;
+
     }
 }

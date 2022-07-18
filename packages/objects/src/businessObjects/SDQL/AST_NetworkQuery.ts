@@ -12,4 +12,19 @@ export class AST_NetworkQuery extends AST_Query{
     ) {
         super(name, returnType);
     }
+
+    
+    static fromSchema(name: SDQL_Name, schema: any): AST_NetworkQuery {
+        
+        // 1. make contract
+        const contract = AST_Contract.fromSchema(schema.contract);
+
+        return new AST_NetworkQuery(
+            name,
+            schema.return,
+            EVMChainCode(schema.chain),
+            contract
+        );
+
+    }
 }
