@@ -178,9 +178,4 @@ export class ExtensionUtils {
       },
     );
   };
-
-  public static getManifestVersion = () =>
-    browser.runtime.getManifest().manifest_version;
-
-  public static isManifest3 = () => ExtensionUtils.getManifestVersion() === 3;
 }

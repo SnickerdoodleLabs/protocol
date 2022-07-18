@@ -14204,6 +14204,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"glob@npm:7.1.1":
+  version: 7.1.1
+  resolution: "glob@npm:7.1.1"
+  dependencies:
+    fs.realpath: ^1.0.0
+    inflight: ^1.0.4
+    inherits: 2
+    minimatch: ^3.0.2
+    once: ^1.3.0
+    path-is-absolute: ^1.0.0
+  checksum: 06962e6126a10939e2611369bf2fb641af6565d4c1125abcb18c86b2fedcd599f32023da2cb95cd71176d4f97fd9fd6ae1517a9112ebc4373fd0fa09888b573e
+  languageName: node
+  linkType: hard
+
 "glob@npm:7.1.2":
   version: 7.1.2
   resolution: "glob@npm:7.1.2"
@@ -19020,6 +19034,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"merge-jsons-webpack-plugin@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "merge-jsons-webpack-plugin@npm:2.0.1"
+  dependencies:
+    glob: 7.1.1
+  checksum: 36044e75ee5095c8cd3ca7053a49e4324f3b2be929a2f94ed5b5ee5a77639374edad411c0ac555059e9fe30e0bcc821c75b32b99924e53e480a21199c13d3466
+  languageName: node
+  linkType: hard
+
 "merge-options@npm:^3.0.4":
   version: 3.0.4
   resolution: "merge-options@npm:3.0.4"
@@ -19332,7 +19355,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:2 || 3, minimatch@npm:^3.0.0, minimatch@npm:^3.0.3, minimatch@npm:^3.0.4, minimatch@npm:^3.1.1, minimatch@npm:^3.1.2":
+"minimatch@npm:2 || 3, minimatch@npm:^3.0.0, minimatch@npm:^3.0.2, minimatch@npm:^3.0.3, minimatch@npm:^3.0.4, minimatch@npm:^3.1.1, minimatch@npm:^3.1.2":
   version: 3.1.2
   resolution: "minimatch@npm:3.1.2"
   dependencies:
@@ -24304,6 +24327,7 @@ __metadata:
     jest: ^26.4.2
     jest-when: ^3.0.1
     lint-staged: ">=10"
+    merge-jsons-webpack-plugin: ^2.0.1
     metro-react-native-babel-preset: ^0.59.0
     monaco-editor-webpack-plugin: 2.0.0
     node-sass: ^6.0.0

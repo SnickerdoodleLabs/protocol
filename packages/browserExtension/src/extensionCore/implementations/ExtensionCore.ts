@@ -54,6 +54,7 @@ import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import Browser from "webextension-polyfill";
 import { okAsync } from "neverthrow";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import { BrowserUtils } from "@enviroment/shared/utils";
 import Config from "@shared/constants/Config";
 
 export class ExtensionCore {
@@ -155,8 +156,8 @@ export class ExtensionCore {
 
   private listenExtensionIconClicks() {
     // this can check whether onboarding complated or not
-    Browser.action.onClicked.addListener((info, tab) => {
-      Browser.action.setPopup({ popup: "popup.html" });
+    BrowserUtils.browserAction.onClicked.addListener((info, tab) => {
+      BrowserUtils.browserAction.setPopup({ popup: "popup.html" });
     });
   }
 

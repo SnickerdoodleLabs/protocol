@@ -1,14 +1,33 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "Data-Wallet",
   "description": "Snickerdoodle's Data Wallet",
   "options_page": "options.html",
   "background": {
-    "service_worker": "background.bundle.js"
+    "scripts": ["background.bundle.js"],
+    "persistent": true
   },
-  "action": {
+  "permissions": [
+    "cookies",
+    "tabs",
+    "storage",
+    "activeTab",
+    "identity",
+    "identity.email",
+    "https://snickerdoodlelabs.io/"
+  ],
+  "browser_action": {
     "default_icon": "icon-34.png"
   },
+  "web_accessible_resources": [
+    "content.styles.css",
+    "icon-128.png",
+    "icon-34.png",
+    "shadowScript.js",
+    "injectables/*",
+    "assets/*",
+    "<all_urls>"
+  ],
   "oauth2": {
     "client_id": "1055144164647-mfcem81s96av4o1gi6mrmcrqfmbrj5i4.apps.googleusercontent.com",
     "scopes": [
@@ -27,44 +46,18 @@
       "https://www.googleapis.com/auth/user.phonenumbers.read",
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile"
-
-
     ]
   },
-
-  "host_permissions": [
-    "https://snickerdoodlelabs.io/"
-  ],
-
-  "permissions": [
-    "cookies",
-    "notifications",
-    "tabs",
-    "storage",
-    "activeTab",
-    "scripting",
-    "identity",
-    "identity.email"
-  ],
   "icons": {
     "128": "icon-128.png"
   },
-  "content_scripts": [{
-    "matches": ["http://*/*", "https://*/*", "<all_urls>"],
-    "js": ["contentScript.bundle.js"],
-    "css": ["content.styles.css"],
-    "run_at": "document_end"
-  }],
-  "devtools_page": "devtools.html",
-  "web_accessible_resources": [{
-    "resources": [
-      "content.styles.css",
-      "icon-128.png",
-      "icon-34.png",
-      "shadowScript.js",
-      "injectables/*",
-      "assets/*"
-    ],
-    "matches": ["<all_urls>"]
-  }]
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+      "js": ["contentScript.bundle.js"],
+      "css": ["content.styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "devtools_page": "devtools.html"
 }

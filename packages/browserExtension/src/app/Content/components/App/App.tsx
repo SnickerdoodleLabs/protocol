@@ -15,17 +15,17 @@ import ObjectMultiplex from "obj-multiplex";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
+import { CONTENT_SCRIPT_SUBSTREAM, EPortNames } from "@shared/constants/ports";
 import Config from "@shared/constants/Config";
 import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
-import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
 
 let coreGateway;
 let notificationEmitter;
 
 const connect = () => {
-  const port = Browser.runtime.connect({ name: "SD_CONTENT_SCRIPT" });
+  const port = Browser.runtime.connect({ name: EPortNames.SD_CONTENT_SCRIPT });
   const extensionStream = new PortStream(port);
   const extensionMux = new ObjectMultiplex();
   extensionMux.setMaxListeners(25);
@@ -47,7 +47,7 @@ const connect = () => {
     injector.startPipeline();
   }
   // keep service worker alive
-  if (ExtensionUtils.isManifest3()) {
+  if (VersionUtils.isManifest3) {
     port.onDisconnect.addListener(connect);
   }
   endOfStream(extensionStream, () => {

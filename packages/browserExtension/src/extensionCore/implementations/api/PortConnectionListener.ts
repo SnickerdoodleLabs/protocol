@@ -1,7 +1,7 @@
 import { PortConnectionUtils } from "@enviroment/manifest3/utils";
 import { IPortConnectionListener } from "@interfaces/api";
 import { IPortConnectionService } from "@interfaces/business";
-import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import { VersionUtils } from "@shared/utils/VersionUtils";
 import { okAsync } from "neverthrow";
 import Browser, { Runtime } from "webextension-polyfill";
 
@@ -10,7 +10,7 @@ export class PortConnectionListener implements IPortConnectionListener {
 
   public initialize() {
     Browser.runtime.onConnect.addListener((port) => {
-      if (ExtensionUtils.isManifest3()) {
+      if (VersionUtils.isManifest3) {
         PortConnectionUtils.autoDisconnectWrapper(
           port,
           this.handlePortConnectionRequest.bind(this),

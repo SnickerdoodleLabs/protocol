@@ -1,12 +1,13 @@
-var webpack = require("webpack"),
-  path = require("path"),
-  fileSystem = require("fs-extra"),
-  env = require("./utils/env"),
-  CopyWebpackPlugin = require("copy-webpack-plugin"),
-  HtmlWebpackPlugin = require("html-webpack-plugin"),
-  TerserPlugin = require("terser-webpack-plugin");
+const webpack = require("webpack");
+const path = require("path");
+const fileSystem = require("fs-extra");
+const env = require("./utils/env");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const MergeJsonsPlugin = require("merge-jsons-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-var { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const configFilePath = require.resolve("./tsconfig.json");
 const argon2 = require("argon2");
@@ -144,25 +145,21 @@ var options = {
     new webpack.EnvironmentPlugin(["NODE_ENV"]),
     new webpack.DefinePlugin({
       __ONBOARDING_URL__: JSON.stringify(process.env.__ONBOARDING_URL__),
+      __MANIFEST_VERSION__: JSON.stringify(
+        process.env.__MANIFEST_VERSION__ || "v3",
+      ),
+      __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
     }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: "src/manifest.json",
-          to: path.join(__dirname, "build"),
-          force: true,
-          transform: function (content, path) {
-            // generates the manifest file using the package.json informations
-            return Buffer.from(
-              JSON.stringify({
-                description: process.env.npm_package_description,
-                version: process.env.npm_package_version,
-                ...JSON.parse(content.toString()),
-              }),
-            );
-          },
-        },
+    new MergeJsonsPlugin({
+      files: [
+        `./src/manifest/${process.env.__MANIFEST_VERSION__ || "v3"}/base.json`,
+        `./src/manifest/${process.env.__MANIFEST_VERSION__ || "v3"}/${
+          process.env.__PLATFORM__ || "chrome"
+        }.json`,
       ],
+      output: {
+        fileName: "./manifest.json",
+      },
     }),
     new CopyWebpackPlugin({
       patterns: [

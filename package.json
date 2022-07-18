@@ -140,6 +140,7 @@
     "jest": "^26.4.2",
     "jest-when": "^3.0.1",
     "lint-staged": ">=10",
+    "merge-jsons-webpack-plugin": "^2.0.1",
     "metro-react-native-babel-preset": "^0.59.0",
     "monaco-editor-webpack-plugin": "2.0.0",
     "node-sass": "^6.0.0",
