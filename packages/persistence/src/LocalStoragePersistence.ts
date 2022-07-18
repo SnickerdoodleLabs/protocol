@@ -16,6 +16,8 @@ import {
   EVMContractAddress,
   EVMTransaction,
   ChainId,
+  AccountIndexingError,
+  AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -197,5 +199,14 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
 
   public getLocation(): ResultAsync<CountryCode, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION);
+  }
+
+  getEVMTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    startTime: Date,
+    endTime?: Date | undefined,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError>{
+    throw new Error("Method not implemented.");
   }
 }
