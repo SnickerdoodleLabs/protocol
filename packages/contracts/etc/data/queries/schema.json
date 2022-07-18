@@ -26,7 +26,8 @@
                             "enum": [
                                 "network",
                                 "age",
-                                "location"
+                                "location",
+                                "browsing_history"
                             ]
                         },
                         "return": {
@@ -127,6 +128,14 @@
                                 },
                                 "g": {
                                     "type": "integer"
+                                },
+                                "has":{
+                                    "type": "object",
+                                    "patternProperties":{
+                                        "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
+                                            "type": "number"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -140,6 +149,9 @@
                             "properties": {
                                 "name": {
                                     "const": "network"
+                                },
+                                "return": {
+                                    "const": "boolean"
                                 }
                             },
                             "required": [
@@ -183,7 +195,20 @@
                                     "const": "integer"
                                 }
                             }
-                        }
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "browsing_history"
+                                },
+                                "return": {
+                                    "const": "boolean"
+                                }
+                            },
+                            "required": [
+                                "conditions"
+                            ]
+                        } 
                     ]
                 }
             }

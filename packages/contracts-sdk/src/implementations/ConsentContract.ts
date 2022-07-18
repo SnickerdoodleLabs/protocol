@@ -173,6 +173,38 @@ export class ConsentContract implements IConsentContract {
     });
   }
 
+  public addDomain(domain: string): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.addDomain(
+        domain,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError("Unable to call requestForData()", e);
+      },
+    ).map(() => {});
+  }
+
+  public removeDomain(domain: string): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.removeDomain(
+        domain,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError("Unable to call requestForData()", e);
+      },
+    ).map(() => {});
+  }
+
+  public getDomains(): ResultAsync<string[], ConsentContractError> {
+    return ResultAsync.fromPromise(
+      // returns array of domains
+      this.contract.getDomains() as Promise<string[]>,
+      (e) => {
+        return new ConsentContractError("Unable to call requestForData()", e);
+      },
+    );
+  }
+
   public getRequestForDataListByRequesterAddress(
     requesterAddress: EVMAccountAddress,
     fromBlock?: BlockNumber,

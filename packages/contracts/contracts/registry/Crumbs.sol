@@ -93,13 +93,6 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
         emit CrumbBurnt(_msgSender(), crumbId);
     }
 
-    /* GETTERS */
-
-    /// @notice Gets the Crumb tokens base URI
-    function _baseURI() internal view virtual override returns (string memory baseURI_)  {
-        return baseURI;
-    }
-
      /* SETTERS */
 
     /// @notice Sets the Crumb tokens base URI
@@ -109,6 +102,11 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
     }
 
     /* OVERRIDES */
+
+    /// @notice Override _baseURI to return the Crumb tokens base URI
+    function _baseURI() internal view virtual override returns (string memory baseURI_)  {
+        return baseURI;
+    }
 
     /// @dev Override to add require statement to make tokens Consent token non-transferrable
     function _beforeTokenTransfer(address from, address to, uint256 crumbId)

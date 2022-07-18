@@ -68,7 +68,11 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@babel/generator@npm:^7.18.6, @babel/generator@npm:^7.18.7, @babel/generator@npm:^7.7.2":
+=======
+"@babel/generator@npm:^7.18.6, @babel/generator@npm:^7.18.7":
+>>>>>>> develop
   version: 7.18.7
   resolution: "@babel/generator@npm:7.18.7"
   dependencies:
@@ -1499,7 +1503,11 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@babel/traverse@npm:^7.1.0, @babel/traverse@npm:^7.13.0, @babel/traverse@npm:^7.18.6, @babel/traverse@npm:^7.18.8, @babel/traverse@npm:^7.4.5, @babel/traverse@npm:^7.7.0, @babel/traverse@npm:^7.7.2":
+=======
+"@babel/traverse@npm:^7.1.0, @babel/traverse@npm:^7.13.0, @babel/traverse@npm:^7.18.6, @babel/traverse@npm:^7.18.8, @babel/traverse@npm:^7.4.5, @babel/traverse@npm:^7.7.0":
+>>>>>>> develop
   version: 7.18.8
   resolution: "@babel/traverse@npm:7.18.8"
   dependencies:
@@ -3477,10 +3485,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "@noble/secp256k1@npm:1.6.3, @noble/secp256k1@npm:~1.6.0":
   version: 1.6.3
   resolution: "@noble/secp256k1@npm:1.6.3"
   checksum: 16eb3242533e645deb64444c771515f66bdc2ee0759894efd42fdeed4ab226ed29827aaaf6caa27d3d95b831452fd4246aa1007cd688aa462ad48fc084ab76e6
+=======
+"@noble/secp256k1@npm:1.6.0":
+  version: 1.6.0
+  resolution: "@noble/secp256k1@npm:1.6.0"
+  checksum: e99df3b776515e6a8b3193870e69ff3a7d22c6a4733245dceb9d1d229d5b0859bd478b7213f31d556ba3745647ec07262d0f9df845d79204b7ce4ae1648b27c7
+>>>>>>> develop
+  languageName: node
+  linkType: hard
+
+"@noble/secp256k1@npm:~1.6.0":
+  version: 1.6.2
+  resolution: "@noble/secp256k1@npm:1.6.2"
+  checksum: 8ce891ad1e888b90e3585c114a8381ab62f8abfd5a2bd3058d1280bbe4244e9a6af190b189cc8e4e83de97680c5ee2fbb207015a7044225ac649000c37a7dbd5
   languageName: node
   linkType: hard
 
@@ -3603,9 +3625,15 @@ __metadata:
   linkType: hard
 
 "@octokit/openapi-types@npm:^12.7.0":
+<<<<<<< HEAD
   version: 12.9.1
   resolution: "@octokit/openapi-types@npm:12.9.1"
   checksum: ccdf371367a8ded622dddb20ee7c06f95b6aba01947cfd21d81c56964d2e0fbfc5e6bef9b35def42c5a52d07ec06001d4f7816b6c56c395cde0f2dfb963fb08e
+=======
+  version: 12.9.0
+  resolution: "@octokit/openapi-types@npm:12.9.0"
+  checksum: 415825161eaa6c5fa7c403facaab98d6442b8bfe4c42347c58afbd61f6936b2080df0e5a21a96cc76990032414e407b38a13ccb62bfbc2a6158c760c170386d1
+>>>>>>> develop
   languageName: node
   linkType: hard
 
@@ -4834,9 +4862,15 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*, @types/node@npm:>=13.7.0":
+<<<<<<< HEAD
   version: 18.0.4
   resolution: "@types/node@npm:18.0.4"
   checksum: 981284fd57941f233f0e77038087c122f56e3c2b4fc4e090dfc7f0a93abfc526d5ccdd59eb3ef551d713245cf3943e37c7b957f12ba699209341a447c39fab59
+=======
+  version: 18.0.3
+  resolution: "@types/node@npm:18.0.3"
+  checksum: 5dec59fbbc1186c808b53df1ca717dad034dbd6a901c75f5b052c845618b531b05f27217122c6254db99529a68618e4cfc534ae3dbf4e88754e9e572df80defa
+>>>>>>> develop
   languageName: node
   linkType: hard
 
@@ -11196,9 +11230,15 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.188":
+<<<<<<< HEAD
   version: 1.4.189
   resolution: "electron-to-chromium@npm:1.4.189"
   checksum: 3971bf78de177d66663076393ceeca761ba72f1b080205202f04868791da613c8312fdb08aeaa855f39a739f67781722903d198a1591b2f02382dc65f289e3d6
+=======
+  version: 1.4.188
+  resolution: "electron-to-chromium@npm:1.4.188"
+  checksum: 7c18659273e51b72dbaba31bb50e160e33dc794907e749e0eb9ba56f954cb9d63c27db5ceebec6c566a3300fdceb2deabd5b528b967de5c1f78382089871ad2f
+>>>>>>> develop
   languageName: node
   linkType: hard
 
@@ -14810,8 +14850,13 @@ __metadata:
   linkType: hard
 
 "hardhat@npm:^2.9.5":
+<<<<<<< HEAD
   version: 2.10.1
   resolution: "hardhat@npm:2.10.1"
+=======
+  version: 2.10.0
+  resolution: "hardhat@npm:2.10.0"
+>>>>>>> develop
   dependencies:
     "@ethereumjs/block": ^3.6.2
     "@ethereumjs/blockchain": ^5.5.2
@@ -14871,7 +14916,11 @@ __metadata:
       optional: true
   bin:
     hardhat: internal/cli/cli.js
+<<<<<<< HEAD
   checksum: ca9060a25fc620f7be412eb49496603dbb311e2eff0a5d689aa632ff7947aa433009fe4155250acb81daaa6557fb075602174e8313460659891233768881f368
+=======
+  checksum: 5e5a006fb7e0fdf3554aec07399cbc676d789c4335b916b76db6ec5b5c355db5984572e0e17fd5120dcf1f79011b10b414d9b8718bcd213139835807c2588a23
+>>>>>>> develop
   languageName: node
   linkType: hard
 
@@ -16932,7 +16981,11 @@ __metadata:
   languageName: node
   linkType: hard
 
+<<<<<<< HEAD
 "istanbul-reports@npm:^3.0.2, istanbul-reports@npm:^3.1.3":
+=======
+"istanbul-reports@npm:^3.0.2":
+>>>>>>> develop
   version: 3.1.5
   resolution: "istanbul-reports@npm:3.1.5"
   dependencies:
@@ -25063,14 +25116,23 @@ __metadata:
   linkType: hard
 
 "solidity-docgen@npm:^0.6.0-beta.16":
+<<<<<<< HEAD
   version: 0.6.0-beta.21
   resolution: "solidity-docgen@npm:0.6.0-beta.21"
+=======
+  version: 0.6.0-beta.20
+  resolution: "solidity-docgen@npm:0.6.0-beta.20"
+>>>>>>> develop
   dependencies:
     handlebars: ^4.7.7
     solidity-ast: ^0.4.31
   peerDependencies:
     hardhat: ^2.8.0
+<<<<<<< HEAD
   checksum: 483116348c3c12e01f2a09b86d080a1b9e162a19a80b8f56c1567d58c57ba635216c3a19ba934348621704ec46cbc4bc95b52f9bea15c021219fa98fd416bfa9
+=======
+  checksum: 4e49df9245a0ad58747e02c6a19cd1783fb45e1cd67c700a45a20a1a73da419674b2dce4feee3687c18d6cb343259fc85b90e00697c8358fcede832b0779a030
+>>>>>>> develop
   languageName: node
   linkType: hard
 

@@ -12,6 +12,7 @@ require("./tasks/ipfs.js");
 require("./tasks/queries.js");
 require("./tasks/consent.js");
 require("./tasks/crumbs.js");
+require("./tasks/utils.js");
 
 require("dotenv").config();
 
@@ -72,7 +73,7 @@ module.exports = {
     subnet: {
       accounts: accounts,
       chainId: 36,
-      url: "http://127.0.0.1:9650/ext/bc/vfbkUAcMTTvygs7WvaoxAuSyRDNHpbFHtyoRvDEaaShRc9oQt/rpc",
+      url: "http://127.0.0.1:9650/ext/bc/5o2XBwQGRWwrnM3KQoXSbpztjJJdnbN73MtD7nHtxFgZ77ict/rpc",
     },
     mainnet: {
       // ethereum mainnet

@@ -1,5 +1,3 @@
-![Snickerdoodle](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
-
 # Avalanche Fuji Subnet
 
 This subdirectory contains the genesis file and documentation for the Snickerdoodle 
