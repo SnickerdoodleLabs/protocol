@@ -1,5 +1,5 @@
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
-import { AST_Query } from "./AST_Query";
+import { AST_Query } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Query";
 import { QueryEvaluator } from "./QueryEvaluator";
 
 export class QueryRepository {

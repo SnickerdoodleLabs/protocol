@@ -1,28 +1,23 @@
 // 1. make a sample AST_PropertyQuery
 
-import { AST_PropertyQuery } from "businessObjects/SDQL/AST_PropertyQuery"
-import { AST_Query } from "@browser-extension/businessObjects/SDQL/AST_Query";
-import { QueryEvaluator } from "businessObjects/SDQL/QueryEvaluator"
-import { SDQL_Name, SDQL_OperatorName, SDQL_Return } from "primitives"
-import td from "testdouble";
-import { ConditionAnd } from "businessObjects/SDQL/condition/ConditionAnd"
-import { ConditionGE } from "businessObjects/SDQL/condition/ConditionGE"
-import { ConditionL } from "businessObjects/SDQL/condition/ConditionL"
-import { AST_BoolExpr } from "@browser-extension/businessObjects/SDQL/AST_BoolExpr";
+// import { QueryEvaluator } from "businessObjects/SDQL/QueryEvaluator";
+
+import { AST_PropertyQuery, AST_BoolExpr, Condition, ConditionGE, ConditionIn, ConditionL, SDQL_OperatorName, SDQL_Name, ConditionAnd} from "@snickerdoodlelabs/objects";
+import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
 
 // import { QueryEvaluator } from "businessObjects/SDQL";
 
 const queryEvaluator = new QueryEvaluator()
 
 const conditionsGE = [
-    new ConditionGE(SDQL_OperatorName('ge'), 20)
+    new ConditionGE(SDQL_OperatorName('ge'), null, 20)
 ];
 const conditionsL = [
-    new ConditionL(SDQL_OperatorName('l'), 30)
+    new ConditionL(SDQL_OperatorName('l'), null, 30)
 ];
 const conditionsGEandL = [
-    new ConditionGE(SDQL_OperatorName('ge'), 20),
-    new ConditionL(SDQL_OperatorName('l'), 30)
+    new ConditionGE(SDQL_OperatorName('ge'), null, 20),
+    new ConditionL(SDQL_OperatorName('l'), null, 30)
 ];
 
 
@@ -83,8 +78,8 @@ describe("QueryEvaluator", () => {
 
     test("AST_PropertyQuery: when 20 <= age < 30, returns true", () => {
 
-        const conditionsGE = new ConditionGE(SDQL_OperatorName('ge'), 20)
-        const conditionsL = new ConditionL(SDQL_OperatorName('l'), 30)
+        const conditionsGE = new ConditionGE(SDQL_OperatorName('ge'), null, 20)
+        const conditionsL = new ConditionL(SDQL_OperatorName('l'), null, 30)
 
 
         const conditionsGEandL = [

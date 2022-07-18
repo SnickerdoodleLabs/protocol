@@ -1,2 +1,6 @@
 export * from "@objects/businessObjects/SDQL/condition"
 export * from "@objects/businessObjects/SDQL/exceptions"
+export * from "@objects/businessObjects/SDQL/AST_Query"
+export * from "@objects/businessObjects/SDQL/AST_NetworkQuery"
+export * from "@objects/businessObjects/SDQL/AST_PropertyQuery"
+export * from "@objects/businessObjects/SDQL/AST_BoolExpr"
