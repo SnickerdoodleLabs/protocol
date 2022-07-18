@@ -5,9 +5,10 @@ export default function SnickerButton({ number, status }: any) {
   const [click, setClick] = useState(false);
 
   useEffect(() => {
-    if (number == status + 1) {
-      console.log(status);
+    if (number <= status + 1) {
       setClick(true);
+    } else {
+      setClick(false);
     }
   }, [status]);
 

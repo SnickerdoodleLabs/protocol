@@ -1,10 +1,17 @@
 import { IProvider } from "@browser-extension/services/providers";
 import { createContext} from "react";
-import { AnySchema } from "yup";
 
-export interface IProviderList{
-    providerList : any,
-    setProviderList : any
+export interface ILinkedAccounts{
+    name: string;
+    key: string;
+    accountAddress: string;
 }
 
-export const ProviderContext = createContext<IProviderList | null>(null);
+export interface IProviderContext{
+    linkedAccounts? : ILinkedAccounts[],
+    setLinkedAccounts? : any,
+    providerList?:IProvider,
+    setProviderList?:any
+}
+
+export const ProviderContext = createContext<IProviderContext | null >(null);

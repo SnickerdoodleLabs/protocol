@@ -7,28 +7,6 @@ import LinkAccount from "./LinkAccount/LinkAccount";
 import { ProviderContext } from "@browser-extension/Context/ProviderContext";
 import { IProvider } from "@browser-extension/services/providers";
 
-const useStyles = makeStyles({
-  primaryButton: {
-    textTransform: "unset",
-    padding: "21px 36px 10px 22px",
-    boxShadow: "8px 8px 0px 0px rgb(0 0 0)",
-    background: "#8079B4",
-    color: "#fff",
-    borderColor: "#000",
-    borderRadius: 0,
-    "&:hover": {
-      backgroundColor: "black",
-      borderColor: "inherit",
-    },
-  },
-  primaryButtonIcon: {
-    position: "absolute",
-    top: 4,
-    right: 4,
-    width: 14,
-  },
-});
-
 export default function Onboarding() {
   const [progressValue, setProgressValue] = useState(0);
 
@@ -109,3 +87,25 @@ export default function Onboarding() {
     </Grid>
   );
 }
+
+const useStyles = makeStyles({
+  primaryButton: {
+    textTransform: "unset",
+    padding: "21px 36px 10px 22px",
+    boxShadow: "8px 8px 0px 0px rgb(0 0 0)",
+    background: "#8079B4",
+    color: "#fff",
+    borderColor: "#000",
+    borderRadius: 0,
+    "&:hover": {
+      backgroundColor: "black",
+      borderColor: "inherit",
+    },
+  },
+  primaryButtonIcon: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    width: 14,
+  },
+});
