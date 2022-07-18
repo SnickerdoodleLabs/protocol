@@ -12,6 +12,6 @@ export const responseTypes: Record<string, TypedDataField[]> = {
     { name: "consentContractId", type: "address" },
     { name: "queryId", type: "string" },
     { name: "dataWallet", type: "address" },
-    { name: "returns", type: "Return" },
+    { name: "returns", type: "Return[]" },
   ],
 };
