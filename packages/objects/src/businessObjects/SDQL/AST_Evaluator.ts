@@ -35,6 +35,7 @@ export class AST_Evaluator {
     //                                     Function>();
 
     readonly operatorMap = new Map<any, Function>();
+    readonly expMap = new Map<any, Function>();
 
 
     constructor(
@@ -57,6 +58,12 @@ export class AST_Evaluator {
         this.operatorMap.set(ConditionIn, this.evalIn)
         this.operatorMap.set(ConditionGE, this.evalGE)
         this.operatorMap.set(ConditionL, this.evalL)
+
+        this.expMap.set(Command_IF, this.evalIf);
+        this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
+        this.expMap.set(AST_ReturnExpr, this.evalReturnExpr); 
+        this.expMap.set(Operator, this.evalOperator);
+        // this.expMap.set(isPrimitiveExpr, this.evalPrimitiveExpr);
     }
 
     public eval(): SDQL_Return {
@@ -78,30 +85,40 @@ export class AST_Evaluator {
          * it calls the right function to evaluate one and return the value
          */
 
-        // TODO replace with a map
-        // Clean up parameters
-        
-        if (TypeChecker.isIfCommand(expr)) {
-
-            return this.evalIf(expr as Command_IF);
-
-        } else if (TypeChecker.isConditionExpr(expr)) {
-
-            return this.evalConditionExpr(expr as AST_ConditionExpr);
-
-        } else if (TypeChecker.isOperator(expr)) {
-
-            return this.evalOperator(expr as Operator);
-
-        } else if (TypeChecker.isReturnExpr(expr)) {
-
-            return this.evalReturn((expr as AST_ReturnExpr).source);
-
-        } else if (TypeChecker.isPrimitiveExpr(expr)) {
+        if (TypeChecker.isPrimitiveExpr(expr)) {
             return ((expr as AST_Expr).source) as SDQL_Return;
+        } else {
+            
+            const evaluator = this.expMap.get(expr.constructor);
+            if (evaluator) {
+                return evaluator.apply(this, [expr])
+            } else {
+                throw new EvalNotImplementedError(typeof expr);
+            }
+        
         }
+        
+        // if (TypeChecker.isIfCommand(expr)) {
 
-        throw new EvalNotImplementedError(typeof expr);
+        //     return this.evalIf(expr as Command_IF);
+
+        // } else if (TypeChecker.isConditionExpr(expr)) {
+
+        //     return this.evalConditionExpr(expr as AST_ConditionExpr);
+
+        // } else if (TypeChecker.isOperator(expr)) {
+
+        //     return this.evalOperator(expr as Operator);
+
+        // } else if (TypeChecker.isReturnExpr(expr)) {
+
+        //     return this.evalReturn((expr as AST_ReturnExpr).source);
+
+        // } else if (TypeChecker.isPrimitiveExpr(expr)) {
+        //     return ((expr as AST_Expr).source) as SDQL_Return;
+        // }
+
+        // throw new EvalNotImplementedError(typeof expr);
     }
 
     public evalIf(eef: Command_IF): SDQL_Return {
@@ -246,8 +263,19 @@ export class AST_Evaluator {
 
     //#endregion
 
+    public evalReturnExpr(expr: AST_ReturnExpr): SDQL_Return {
+
+        return this.evalReturn((expr as AST_ReturnExpr).source);
+
+    }
     public evalReturn(r: AST_Return): SDQL_Return {
         return SDQL_Return(r.message);
+    }
+
+    public evalPrimitiveExpr(expr: AST_Expr): SDQL_Return {
+
+        return ((expr as AST_Expr).source) as SDQL_Return;
+
     }
 
 }
