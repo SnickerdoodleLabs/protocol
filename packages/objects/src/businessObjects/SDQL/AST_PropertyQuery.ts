@@ -25,6 +25,7 @@ export class AST_PropertyQuery extends AST_Query {
         return new AST_PropertyQuery(
             name,
             schema.return,
+            schema.name,
             conditions
         )
     }
@@ -42,7 +43,7 @@ export class AST_PropertyQuery extends AST_Query {
                         new ConditionGE(
                             opName,
                             null,
-                            rightOperand as number
+                            Number(rightOperand)
                         )
                     )
                     break;
@@ -51,7 +52,7 @@ export class AST_PropertyQuery extends AST_Query {
                         new ConditionL(
                             opName,
                             null,
-                            rightOperand as number
+                            Number(rightOperand)
                         )
                     )
                     break;

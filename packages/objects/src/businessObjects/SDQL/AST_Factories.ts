@@ -23,6 +23,7 @@ export class AST_Factories {
 
         const schema = SDQLSchema.fromString(schemaString);
         return new SDQLParser(cid, schema);
+        
     }
 
 }

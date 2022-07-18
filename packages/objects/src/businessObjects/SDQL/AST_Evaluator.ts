@@ -9,7 +9,6 @@ import { AST_Expr } from "./AST_Expr";
 import { Brand, make } from "ts-brand";
 import { AST_Return } from "./AST_Return";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
-// import { ConditionAnd } from "./condition/ConditionAnd";
 import { ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "./condition";
 import { EvalNotImplementedError } from "./exceptions";
 

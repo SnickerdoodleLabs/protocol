@@ -6,7 +6,7 @@ export class AST_Contract {
         
         readonly networkId: ChainId,
         readonly address: EVMContractAddress,
-        readonly _function: EVMContractFunction,
+        readonly func: EVMContractFunction,
         readonly direction: EVMContractDirection,
         readonly token: EVMToken,
         readonly blockrange: EVMBlockRange
@@ -16,20 +16,19 @@ export class AST_Contract {
     
     static fromSchema(schema: any): AST_Contract {
         
+        // console.log("Contract schema", schema);
+
         let direction = EVMContractDirection.To;
         if (schema.direction == "from") {
             direction = EVMContractDirection.From;
         }
         return new AST_Contract(
-            ChainId(schema.chain),
+            ChainId(Number(schema.networkid)),
             EVMContractAddress(schema.address),
             EVMContractFunction(schema.function),
             direction,
             EVMToken(schema.token),
-            new EVMBlockRange(
-                EVMBlockNumber(schema.start),
-                EVMBlockNumber(schema.end)
-            )
+            EVMBlockRange.fromString(schema.blockrange)
 
         );
 
