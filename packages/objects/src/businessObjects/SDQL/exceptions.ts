@@ -24,3 +24,10 @@ export class ListExpectedError extends OperandTypeError {
 export class URLExpectedError extends OperandTypeError {
 
 }
+
+export class EvalNotImplementedError extends Error {
+
+    constructor(name: string) {
+        super(`${name} not implemented`);
+    }
+}

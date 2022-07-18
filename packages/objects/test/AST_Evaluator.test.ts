@@ -72,7 +72,7 @@ describe("Conditions", () => {
 // #endregion
 
 // #region IF Command
-describe("IF Command", () => {
+describe("IF Command: evalIf()", () => {
 
     const r1 = new AST_ReturnExpr(
         SDQL_Name("r1"),

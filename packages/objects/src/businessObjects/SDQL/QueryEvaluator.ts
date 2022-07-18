@@ -10,7 +10,8 @@ import { Operator } from "./Operator";
 // import { ConsentConditions } from "../ConsentConditions";
 // import { IDataWalletPersistence } from "@objects/interfaces";
 
-import { ConditionIn } from "./condition";
+import { Condition, ConditionGE, ConditionIn } from "./condition";
+import { EvalNotImplementedError } from "./exceptions";
 
 export class QueryEvaluator {
 
@@ -24,13 +25,14 @@ export class QueryEvaluator {
         }
     }
 
-    private evalNetworkQuery(q: AST_NetworkQuery): SDQL_Return {
+    public evalNetworkQuery(q: AST_NetworkQuery): SDQL_Return {
         return SDQL_Return(0);
     } 
 
-    private evalPropertyQuery(q: AST_PropertyQuery): SDQL_Return { 
+    public evalPropertyQuery(q: AST_PropertyQuery): SDQL_Return { 
         switch (q.property){
             case "age":
+                const age = 25 // TODO replace with data
                 switch(q.returnType){
                     case "boolean":
                         console.log("Property: Age, Return Type: Boolean");
@@ -38,19 +40,26 @@ export class QueryEvaluator {
 
                         
 
-                        for (let i=0; i < q.conditions.length; i++){
-                            let cond = q.conditions[i];
+                        // for (let i=0; i < q.conditions.length; i++){
+                        //     let cond = q.conditions[i];
                             
-                            if (cond.name == "ge"){
-                                console.log(cond.rval);
+                        //     if (cond.name == "ge"){
+                        //         console.log(cond.rval);
 
-                                return SDQL_Return( (cond.rval) <= 25 )
-                            }
+                        //         return SDQL_Return( (cond.rval) <= 25 )
+                        //     }
 
-                            let name = cond.name;
-                            // ge
-                            console.log("SDQL_Operator Name is: ", cond);
+                        //     let name = cond.name;
+                        //     // ge
+                        //     console.log("SDQL_Operator Name is: ", cond);
+                        // }
+
+                        let result = SDQL_Return(true);
+                        for (let condition of q.conditions) {
+                            result = result && this.evalPropertyConditon(age, condition);
                         }
+
+
 
                         return SDQL_Return(true);
                     case "integer": 
@@ -90,7 +99,25 @@ export class QueryEvaluator {
                 }
             default:
                 return SDQL_Return(0);
-            }
         }
+    }
+
+    public evalPropertyConditon(propertyVal: any, condition: Condition): SDQL_Return {
+
+
+        console.log(`Evaluating property condition ${condition} against ${propertyVal}`);
+        
+        switch(condition.constructor) {
+            case ConditionGE:
+                const rval = (condition as ConditionGE).rval;
+                return SDQL_Return(propertyVal >= rval);
+                break;
+            default:
+                throw new EvalNotImplementedError(condition.constructor.name);
+        }
+
+        return SDQL_Return(0)
+    }
+    
 }
 

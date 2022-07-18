@@ -1,6 +1,6 @@
-import { EVMChainCode, SDQL_Name, SDQL_Return } from "@objects/primitives";
+import { SDQL_Name } from "@objects/primitives";
 import { AST_Query } from "./AST_Query";
-import { Operator } from "./Operator";
+import { Condition } from "./condition";
 
 export class AST_PropertyQuery extends AST_Query {
 
@@ -13,7 +13,7 @@ export class AST_PropertyQuery extends AST_Query {
         readonly name: SDQL_Name,
         readonly returnType: "string" | "boolean" | "integer" | "number" | "list",
         readonly property: string,
-        readonly conditions: Array<Operator>
+        readonly conditions: Array<Condition>
 
     ) {
         super(name, returnType);

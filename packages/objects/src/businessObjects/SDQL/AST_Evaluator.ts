@@ -11,13 +11,16 @@ import { Brand, make } from "ts-brand";
 import { AST_Return } from "./AST_Return";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
 // import { ConditionAnd } from "./condition/ConditionAnd";
-import { ConditionAnd, ConditionOr } from "./condition";
+import { ConditionAnd, ConditionIn, ConditionOr } from "./condition";
 
 // TODO introduce dependency injection
 
 type mappableType =  Brand<AST_Expr | AST_Query | Command_IF, "mappableType">;
 
 export class AST_Evaluator {
+    /**
+     * @remarks This class should not be instantiated directly. Use the AST_Factories instead.
+     */
 
     readonly queryRepository: QueryRepository = new QueryRepository();
     // readonly exprMap: Map<AST_Expr.name 
@@ -177,6 +180,25 @@ export class AST_Evaluator {
     }
 
     public evalOr(cond: ConditionOr): SDQL_Return {
+
+        const left = this.evalAny(cond.lval);
+        
+        if (left == true) {
+            return left;
+        }
+        
+        const right = this.evalAny(cond.rval);
+
+        if (right == true) {
+            return right;
+        }
+        
+        // console.log('evalAnd', `left is ${left} and right is ${right}`);
+        return SDQL_Return(false);
+        
+    }
+
+    public evalIn(cond: ConditionIn): SDQL_Return {
 
         const left = this.evalAny(cond.lval);
         

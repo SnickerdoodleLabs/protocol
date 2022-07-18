@@ -1,10 +1,4 @@
-import { CountryCode, SDQL_OperatorName } from "@objects/primitives";
-import { Operator } from "../Operator";
-import { IDataWalletPersistence } from "@objects/interfaces";
-import { PersistenceError } from "@objects/errors";
-import { errAsync, okAsync } from "neverthrow";
-import { ResultAsync } from "neverthrow";
-import { AST } from "prettier";
+import { SDQL_OperatorName } from "@objects/primitives";
 import { AST_Expr } from "../AST_Expr";
 import { Condition } from "./Condition";
 
@@ -12,8 +6,8 @@ export class ConditionIn extends Condition {
 
     constructor(
         name: SDQL_OperatorName,
-        readonly vals: Array<number> | AST_Expr,
-        protected persistenceRepo: IDataWalletPersistence
+        readonly lval: null | AST_Expr,
+        readonly rvals: Array<number> | AST_Expr
 
     ) {
         super(name);
@@ -26,7 +20,7 @@ export class ConditionIn extends Condition {
     //         return errAsync(new PersistenceError("Bad Variable"));
     //     }
     //     for (let i = 0; i < this.vals.length; i++){
-    //         if (this.vals[i] == repoLoc) {
+    //         if (this.vals[i] == repoLoc) {             
     //             return okAsync(true);
     //         } 
     //     }
