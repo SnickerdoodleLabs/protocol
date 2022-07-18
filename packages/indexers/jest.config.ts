@@ -6,7 +6,7 @@ import { pathsToModuleNameMapper } from "ts-jest/utils";
 import { compilerOptions } from "../../tsconfig.build.json";
 
 const moduleNames = pathsToModuleNameMapper(compilerOptions.paths, {
-  prefix: "<rootDir>/src",
+  prefix: "<rootDir>/../..",
 });
 
 const config: Config.InitialOptions = {

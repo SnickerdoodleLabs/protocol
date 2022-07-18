@@ -229,6 +229,10 @@ function unlockCore(
     })
     .map(() => {
       console.log(`Unlocked!`);
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
     });
 }
 
