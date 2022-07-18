@@ -31,3 +31,21 @@ export class EvalNotImplementedError extends Error {
         super(`${name} not implemented`);
     }
 }
+
+export class EvaluationError extends Error {
+
+}
+
+export class ParserError extends Error {
+    constructor(position:string, message:string) {
+        super(`${position}: {$message}`);
+    }
+}
+
+export class MissingRequiredFieldError extends Error {
+    
+    constructor(name: string) {
+        super(`${name} not implemented`);
+    }
+
+}
