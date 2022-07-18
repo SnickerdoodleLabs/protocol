@@ -5,11 +5,11 @@ import phantomLogo from "@extension-onboarding/assets/icons/phantomSmall.svg";
 import coinbaseLogo from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import walletConnectLogo from "@extension-onboarding/assets/icons/walletConnectSmall.svg";
 import greenTick from "@extension-onboarding/assets/icons/greenTickCircle.svg";
-import { IProvider } from "@browser-extension/services/providers";
+import { IProvider } from "@extension-onboarding/services/providers";
 import {
   ILinkedAccounts,
   ProviderContext,
-} from "@browser-extension/Context/ProviderContext";
+} from "@extension-onboarding/Context/ProviderContext";
 
 export interface ISDLDataWallet {
   // TODO add SDLWallet functions with correct types
@@ -50,9 +50,6 @@ export default function ProviderCard({ provider, install }: any) {
     return providerObj.provider.connect().andThen((account) => {
       return window.sdlDataWallet.getUnlockMessage().andThen((message) => {
         return providerObj.provider.getSignature(message).map((signature) => {
-          console.log("signature", signature);
-          console.log("account", account);
-          console.log("ProviderOBjKey", providerObj.key);
           if (
             !providerContext?.linkedAccounts?.find(
               (linkedAccount) => linkedAccount.accountAddress === account,

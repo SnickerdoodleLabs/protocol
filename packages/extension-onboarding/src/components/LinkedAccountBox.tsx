@@ -2,7 +2,7 @@ import { Button, Grid, makeStyles } from "@material-ui/core";
 import React, { FC, useContext } from "react";
 import notLinked from "@extension-onboarding/assets/icons/notLinked.svg";
 import UnlinkAccount from "./UnlinkAccount";
-import { ProviderContext } from "@browser-extension/Context/ProviderContext";
+import { ProviderContext } from "@extension-onboarding/Context/ProviderContext";
 
 const LinkedAccountBox: FC = () => {
   const providerContext = useContext(ProviderContext);

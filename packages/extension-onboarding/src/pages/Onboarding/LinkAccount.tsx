@@ -1,9 +1,9 @@
 import { Grid, makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import ProviderCard from "@browser-extension/components/ProviderCard";
-import LinkedAccountBox from "@browser-extension/components/LinkedAccountBox";
-import { ProviderContext } from "@browser-extension/Context/ProviderContext";
-import { IProvider } from "@browser-extension/services/providers";
+import ProviderCard from "@extension-onboarding/components/ProviderCard";
+import LinkedAccountBox from "@extension-onboarding/components/LinkedAccountBox";
+import { ProviderContext } from "@extension-onboarding/Context/ProviderContext";
+import { IProvider } from "@extension-onboarding/services/providers";
 
 export default function LinkAccount() {
   // @ts-ignore

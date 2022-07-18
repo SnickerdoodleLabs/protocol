@@ -13,7 +13,7 @@ import {
 import React, { FC, useEffect, useState } from "react";
 import artboard from "@extension-onboarding/assets/icons/artboard.png";
 import googleIcon from "@extension-onboarding/assets/icons/googleIcon.svg";
-import SnickerProgressBar from "@browser-extension/components/SnickerProgressBar";
+import SnickerProgressBar from "@extension-onboarding/components/SnickerProgressBar";
 import { makeStyles } from "@material-ui/styles";
 
 const BuildYourProfile: FC = () => {
