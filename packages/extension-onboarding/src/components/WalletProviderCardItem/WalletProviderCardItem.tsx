@@ -1,13 +1,10 @@
 import { Button, Box, makeStyles } from "@material-ui/core";
 import React, { useContext, useEffect, useMemo, useState, FC } from "react";
-import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
-import phantomLogo from "@extension-onboarding/assets/icons/phantomSmall.svg";
-import coinbaseLogo from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
-import walletConnectLogo from "@extension-onboarding/assets/icons/walletConnectSmall.svg";
-import greenTick from "@extension-onboarding/assets/icons/greenTickCircle.svg";
-import { IProvider } from "@extension-onboarding/services/providers";
+
+import tickIcon from "@extension-onboarding/assets/icons/tick.svg";
+import { useStyles } from "@extension-onboarding/components/WalletProviderCardItem/WalletProviderCardItem.style";
 import { useAppContext } from "@extension-onboarding/Context/App";
-import { useStyles } from "@extension-onboarding/components/WalletProviderCard/WalletProviderCard.style";
+import { IProvider } from "@extension-onboarding/services/providers";
 
 export interface ISDLDataWallet {
   // TODO add SDLWallet functions with correct types
@@ -20,13 +17,13 @@ declare global {
   }
 }
 
-interface IWalletProviderCardProps {
+interface IWalletProviderCardItemProps {
   provider: IProvider;
 }
 
-const WalletProviderCard: FC<IWalletProviderCardProps> = ({
+const WalletProviderCardItem: FC<IWalletProviderCardItemProps> = ({
   provider,
-}: IWalletProviderCardProps) => {
+}: IWalletProviderCardItemProps) => {
   const { linkedAccounts, addAccount } = useAppContext();
 
   const classes = useStyles();
@@ -70,7 +67,7 @@ const WalletProviderCard: FC<IWalletProviderCardProps> = ({
         <Box>
           <img className={classes.providerLogo} src={provider.icon} />
           {!!accountCount && (
-            <img className={classes.greenTick} src={greenTick} />
+            <img className={classes.greenTick} src={tickIcon} />
           )}
         </Box>
         <Box>
@@ -90,7 +87,7 @@ const WalletProviderCard: FC<IWalletProviderCardProps> = ({
             }}
             className={classes.linkAccountButton}
           >
-            {provider.provider.isInstalled ? "Install" : "Link Account"}
+            {!provider.provider.isInstalled ? "Install" : "Link Account"}
           </Button>
         </Box>
       </Box>
@@ -98,4 +95,4 @@ const WalletProviderCard: FC<IWalletProviderCardProps> = ({
   );
 };
 
-export default WalletProviderCard;
+export default WalletProviderCardItem;
