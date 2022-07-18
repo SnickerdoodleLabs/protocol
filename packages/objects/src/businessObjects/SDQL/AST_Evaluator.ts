@@ -5,7 +5,6 @@ import { AST_Query } from "./AST_Query";
 import { Operator } from "./Operator";
 import { TypeChecker } from "./TypeChecker";
 import { AST_ConditionExpr } from "./condition/AST_ConditionExpr";
-import { QueryRepository } from "./QueryRepository";
 import { AST_Expr } from "./AST_Expr";
 import { Brand, make } from "ts-brand";
 import { AST_Return } from "./AST_Return";
