@@ -1,4 +1,4 @@
-import { IProvider } from "@browser-extension/services/providers";
+import { IProvider } from "@extension-onboarding/services/providers";
 import { createContext} from "react";
 
 export interface ILinkedAccounts{
@@ -10,8 +10,7 @@ export interface ILinkedAccounts{
 export interface IProviderContext{
     linkedAccounts? : ILinkedAccounts[],
     setLinkedAccounts? : any,
-    providerList?:IProvider,
-    setProviderList?:any
+    providerList?:IProvider
 }
 
 export const ProviderContext = createContext<IProviderContext | null >(null);

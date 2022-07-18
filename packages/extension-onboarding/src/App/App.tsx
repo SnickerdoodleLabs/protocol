@@ -1,12 +1,10 @@
-import { Button, Grid, LinearProgress } from "@material-ui/core";
 import React, { FC, useEffect, useMemo, useState } from "react";
 import {
   getProviderList,
   IProvider,
 } from "@extension-onboarding/services/providers";
-import BuildYourProfile from "@browser-extension/pages/BuildYourProfile/BuildYourProfile";
-import Onboarding from "@browser-extension/pages/Onboarding";
-import { ProviderContext } from "@browser-extension/Context/ProviderContext";
+import Onboarding from "@extension-onboarding/pages/Onboarding/Onboarding";
+import { ProviderContext } from "@extension-onboarding/Context/ProviderContext";
 
 const App: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -22,7 +20,6 @@ const App: FC = () => {
 
   useEffect(() => {
     if (isLoading === false) {
-      document.dispatchEvent(new CustomEvent("SD_ONBOARDING_SPA_CONNECTED"));
       document.removeEventListener(
         "SD_WALLET_EXTENSION_CONNECTED",
         onWalletConnected,
@@ -34,7 +31,6 @@ const App: FC = () => {
     // Phantom wallet can not initiate window phantom object at time
     setTimeout(() => {
       const providerList = getProviderList();
-      console.log("ProviderList", providerList);
       providerList.map((list) => {
         if (list.provider.isInstalled && list.key != "walletConnect") {
           setInstalledProviders((old) => [...old, list]);
@@ -52,7 +48,6 @@ const App: FC = () => {
     linkedAccounts,
     setLinkedAccounts,
   }));
-
   return (
     // @ts-ignore
     <ProviderContext.Provider value={providerValue}>

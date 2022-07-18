@@ -1,11 +1,11 @@
-import SnickerProgressBar from "@browser-extension/components/SnickerProgressBar";
+import SnickerProgressBar from "@extension-onboarding/components/SnickerProgressBar";
 import { Button, Grid, makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import Logo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import BuildYourProfile from "./BuildYourProfile/BuildYourProfile";
-import LinkAccount from "./LinkAccount/LinkAccount";
-import { ProviderContext } from "@browser-extension/Context/ProviderContext";
-import { IProvider } from "@browser-extension/services/providers";
+import BuildYourProfile from "./BuildYourProfile";
+import LinkAccount from "./LinkAccount";
+import { ProviderContext } from "@extension-onboarding/Context/ProviderContext";
+import { IProvider } from "@extension-onboarding/services/providers";
 
 export default function Onboarding() {
   const [progressValue, setProgressValue] = useState(0);
