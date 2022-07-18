@@ -1,5 +1,3 @@
-![Snickerdoodle](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
-
 # Avalanche Local Subnet
 
 This branch is used for creating a [local subnet](https://docs.avax.network/subnets/create-a-local-subnet) developement 

@@ -32,11 +32,7 @@ Contains an EIP721 compatible registry contract for storing Snickerdoodle accoun
 
 Contains the implementation of the Snickerdoodle Protocol governance DAO. 
 
-## Deployment Addresses
-
-A list of Snickerdoodle Protocol contract addresses can be found [here](/packages/contracts/DEPLOYMENTS.md). 
-
-## Install Dependencies
+### Install Dependencies
 
 Steps to install and run this project this locally:
 
@@ -46,13 +42,17 @@ cd packages/contracts
 npm install
 ```
 
-## Compiling Contracts 
+### Compiling Contracts 
+
+Use Hardhat to compile the protocol contracts like this:
 
 ```shell
 npx hardhat compile
 ```
 
-## Docker
+This command will create a subdirectory called `artifacts` which will contain the contract [ABI](https://docs.soliditylang.org/en/v0.8.13/abi-spec.html) and bytecode for all contracts in the `contracts` subdirectory. 
+
+### Docker
 
 A pre-built docker image for local development against the contract stack is available at
 [`snickerdoodlelabs/devchain`](https://hub.docker.com/repository/docker/snickerdoodlelabs/devchain).
@@ -68,8 +68,21 @@ Check the status of the subnet like this:
 docker exec devchain avalanche network status
 ```
 
-Run a regular old hardhat node like this:
+Run a [Hardhat node](https://hardhat.org/hardhat-network/docs/overview) like this:
 
 ```shell
 docker run -d -p 8569:8569 --name devchain --rm --env NETWORK=dev snickerdoodlelabs/devchain
 ```
+
+Check the status of the Hardhat network like this:
+
+```shell
+docker exec -it devchain /bin/bash
+tmux a -t hardhat
+```
+
+Exit the tmux session running the local testnet by pressing `Cntrl` + `b` `d`h.
+
+## Deployment Addresses
+
+A list of Snickerdoodle Protocol contract addresses can be found [here](/packages/contracts/DEPLOYMENTS.md). 
