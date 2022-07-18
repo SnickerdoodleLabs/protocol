@@ -1,6 +1,6 @@
 # CLI Tasks
 
-This repository uses [Hardhat tasks](https://hardhat.org/hardhat-runner/docs/guides/tasks-and-scripts) as a simple for of a CLI for interacting with contract deployments on local and public networks. Tasks are defined in javascript files in this subdirectory and grouped based on their concerns. In order to register a new task with Hardhat, the file the task is written in must be imported into the [hardhat.config.js](/packages/contracts/hardhat.config.js) at the root of this package. 
+This repository uses [Hardhat tasks](https://hardhat.org/hardhat-runner/docs/guides/tasks-and-scripts) as a simple for of a CLI for interacting with contract deployments on local and public networks. Tasks are defined in javascript files in this subdirectory and grouped based on their concerns. In order to register a new task with Hardhat, the file the task is written in must be imported into the [hardhat.config.js](/packages/contracts/hardhat.config.js) at the root of this package.
 
 Look at available tasks defined by the CLI:
 
@@ -26,28 +26,32 @@ npx hardhat run scripts/deployment.js --network dev
 
 /*
 Deploying Consent implementation contract...
-Consent implementation contract deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+Consent deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+Consent Gas Fee: 3320261
 
 Deploying Consent Factory contract...
-Consent Factory deployed to: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-
-Deploying UpgradeableBeacon contract...
-UpgradeableBeacon deployed to: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
-
-Setting beacon's address on Consent Factory...
-Beacon address on Consent Factory set to: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
+ConsentFactory deployed to: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+ConsentFactory Gas Fee: 3296490
 
 Deploying Doodle Token contract...
-DoodleToken deployed to: 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707
+DoodleToken deployed to: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+DoodleToken Gas Fee: 1769284
 
 Deploying Timelock Controller contract...
-SnickerdoodleTimeLock deployed to: 0x0165878A594ca255338adfa4d48449f69242Eb8F
+SnickerdoodleTimeLock deployed to: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
+SnickerdoodleTimeLock Gas Fee: 2186574
 
 Deploying SnickerdoodleGovernor (DAO) contract...
-SnickerdoodleGovernor deployed to: 0xa513E6E4b8f2a923D98304ec87F64353C4D5C853
+SnickerdoodleGovernor deployed to: 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9
+SnickerdoodleGovernor Gas Fee: 3663079
 
 Deploying Crumbs contract...
-Crumbs deployed to: 0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6
+Crumbs deployed to: 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707
+Crumbs Gas Fee: 2431053
+
+Deploying Sift contract...
+Sift deployed to: 0x0165878A594ca255338adfa4d48449f69242Eb8F
+Sift Gas Fee: 2473661
 
 Full deployment successful!
 */
@@ -59,7 +63,7 @@ Next, you make a request to the factory to create a consent contract. Provide th
 npx hardhat createConsentContract --owneraddress 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --baseuri www.uri.com --name MYCONSENT --network dev
 /*
 Owner of Consent deployed : 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-Deployed BeaconProxy Consent address : 0xCafac3dD18aC6c6e92c921884f9E4176737C052c
+Deployed BeaconProxy Consent address : 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e
 */
 ```
 
@@ -70,7 +74,7 @@ npx hardhat checkConsentsDeployedByOwner --owneraddress 0x70997970C51812dc3A010C
 /*
 Deployment count:  1
   Requester address:  0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-  Address of the deployed Consent's BeaconProxy: 0xCafac3dD18aC6c6e92c921884f9E4176737C052c
+  Address of the deployed Consent's BeaconProxy: 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e
 */
 ```
 
@@ -79,19 +83,19 @@ You can now submit a few `requestForData` transaction in order to generate a few
 the contract. Provide the target consent address, the CID, and the index of the connect wallet that is the owner of the Consent contract (in this example, Hardhat's default test wallet's index 1 is account address 0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
 
 ```
-npx hardhat requestForData --network dev --consentaddress 0xCafac3dD18aC6c6e92c921884f9E4176737C052c --owneraddressindex 1 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq9
+npx hardhat requestForData --network dev --consentaddress 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e --owneraddressindex 1 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq9
 
 /*
 Data request was successful!
 */
 
-npx hardhat requestForData --network dev --consentaddress 0xCafac3dD18aC6c6e92c921884f9E4176737C052c --owneraddressindex 1 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq8
+npx hardhat requestForData --network dev --consentaddress 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e --owneraddressindex 1 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq8
 
 /*
 Data request was successful!
 */
 
-npx hardhat requestForData --network dev --consentaddress 0xCafac3dD18aC6c6e92c921884f9E4176737C052c --owneraddressindex 1 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq7
+npx hardhat requestForData --network dev --consentaddress 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e --owneraddressindex 1 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq7
 
 /*
 Data request was successful!
@@ -101,7 +105,7 @@ Data request was successful!
 Finally, retrieve a list of the requested data through the events emitted by passing in the arguments for the target consent address and the owner's address.
 
 ```
-npx hardhat listRequestedDataByOwner --consentaddress 0xCafac3dD18aC6c6e92c921884f9E4176737C052c --owneraddress 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --network dev
+npx hardhat listRequestedDataByOwner --consentaddress 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e --owneraddress 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 --network dev
 
 /*
 Queried address: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
@@ -129,10 +133,10 @@ Request number:  3
 */
 ```
 
-When an address that does not have the required role on the Consent contract's function tries to excute it, the transaction will revert. In the example below, owner address index 2 (0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc), does not have the REQUESTER_ROLE to request for data. Trying to make a request for data will fail.
+When an address that does not have the required role on the Consent contract's function tries to execute it, the transaction will revert. In the example below, owner address index 2 (0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc), does not have the REQUESTER_ROLE to request for data. Trying to make a request for data will fail.
 
 ```
-npx hardhat requestForData --network dev --consentaddress 0xCafac3dD18aC6c6e92c921884f9E4176737C052c --owneraddressindex 2 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq8
+npx hardhat requestForData --network dev --consentaddress 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e --owneraddressindex 2 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq8
 
 /*
 An unexpected error occurred:
@@ -145,10 +149,10 @@ To solve this, we can grant roles to specific addresses to allow access to certa
 The example below grants 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc the REQUESTER_ROLE.
 
 ```
-npx hardhat grantRole --consentaddress 0xCafac3dD18aC6c6e92c921884f9E4176737C052c --owneraddressindex 1 --address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc --role REQUESTER_ROLE  --network dev
+npx hardhat grantRole --consentaddress 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e --owneraddressindex 1 --address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc --role REQUESTER_ROLE  --network dev
 
 /*
-Consent address: 0xCafac3dD18aC6c6e92c921884f9E4176737C052c
+Consent address: 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e
 
 Address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc has been granted role REQUESTER_ROLE
 */
@@ -158,7 +162,7 @@ Now it would be able to request for data as it was a function only executed by a
 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc in this example is the address of index 2 in Hardhat's default addresses.
 
 ```
-npx hardhat requestForData --network dev --consentaddress 0xCafac3dD18aC6c6e92c921884f9E4176737C052c --owneraddressindex 2 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq8
+npx hardhat requestForData --network dev --consentaddress 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e --owneraddressindex 2 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq8
 
 /*
 Data request was successful!
@@ -168,10 +172,10 @@ Data request was successful!
 Similarly, we can also revoke the role as below.
 
 ```
-npx hardhat revokeRole --consentaddress 0xCafac3dD18aC6c6e92c921884f9E4176737C052c --owneraddressindex 1 --address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc --role REQUESTER_ROLE  --network dev
+npx hardhat revokeRole --consentaddress 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e --owneraddressindex 1 --address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc --role REQUESTER_ROLE  --network dev
 
 /*
-Consent address: 0xCafac3dD18aC6c6e92c921884f9E4176737C052c
+Consent address: 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e
 
 Address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc has been revoked of role REQUESTER_ROLE
 */
@@ -180,7 +184,7 @@ Address 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc has been revoked of role REQU
 Now when an address has been revoked the REQUESTER_ROLE tries to request for data, the transaction reverts with the following error.
 
 ```
-npx hardhat requestForData --network dev --consentaddress 0xCafac3dD18aC6c6e92c921884f9E4176737C052c --owneraddressindex 2 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq8
+npx hardhat requestForData --network dev --consentaddress 0x9f1ac54BEF0DD2f6f3462EA0fa94fC62300d3a8e --owneraddressindex 2 --cid QmdsB4FMQ2jBfrTL2kx6Eaq5Up8rF44h6aqPP9BPpHDAq8
 
 /*
 An unexpected error occurred:
