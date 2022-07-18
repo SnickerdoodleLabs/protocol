@@ -148,16 +148,32 @@ export class ExtensionCore {
             ExtensionUtils.openTab({ url: Config.onboardingUrl });
             return okAsync(undefined);
           });
+      } else {
+        ExtensionUtils.openTab({ url: Config.onboardingUrl });
+        return okAsync(undefined);
       }
-      ExtensionUtils.openTab({ url: Config.onboardingUrl });
-      return okAsync(undefined);
     });
   }
 
   private listenExtensionIconClicks() {
-    // this can check whether onboarding complated or not
     BrowserUtils.browserAction.onClicked.addListener((info, tab) => {
-      BrowserUtils.browserAction.setPopup({ popup: "popup.html" });
+      if (info.windowId) {
+        ExtensionUtils.getAllTabsOnWindow(info.windowId).andThen((tabs) => {
+          const onboardingTab = tabs.find(
+            (tab) =>
+              new URL(tab.url || "").origin ===
+              new URL(Config.onboardingUrl).origin,
+          );
+          if (onboardingTab) {
+            return ExtensionUtils.switchToTab(onboardingTab.id);
+          }
+          return ExtensionUtils.openTab({ url: Config.onboardingUrl });
+        });
+      } else {
+        ExtensionUtils.openTab({ url: Config.onboardingUrl });
+      }
+      // when the below method is called onClick event not gonna fired again this can be called after onboarding is completed
+      // BrowserUtils.browserAction.setPopup({ popup: "popup.html" });
     });
   }
 
