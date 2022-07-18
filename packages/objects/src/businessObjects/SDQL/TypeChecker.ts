@@ -1,5 +1,4 @@
 import { AST_Expr } from "./AST_Expr";
-import { AST_IFExpr } from "./AST_IFExpr";
 import { AST_Query } from "./AST_Query";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
 import { Command } from "./Command";
