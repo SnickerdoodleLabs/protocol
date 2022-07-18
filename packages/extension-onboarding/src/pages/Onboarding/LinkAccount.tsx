@@ -1,14 +1,23 @@
 import { Grid, makeStyles } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ProviderCard from "@extension-onboarding/components/ProviderCard";
 import LinkedAccountBox from "@extension-onboarding/components/LinkedAccountBox";
 import { ProviderContext } from "@extension-onboarding/Context/ProviderContext";
 import { IProvider } from "@extension-onboarding/services/providers";
+import { useAppContext } from "@extension-onboarding/Context/App";
 
 export default function LinkAccount() {
-  // @ts-ignore
-  const { providerList, installedProviders } =
-    React.useContext(ProviderContext);
+  const { providerList } = useAppContext();
+  const [installedProviders, setInstalledProviders] = useState<IProvider[]>([]);
+
+  const installedProvider = useMemo(
+    () =>  providerList?.map((list) => {
+      if (list.provider.isInstalled && list.key != "walletConnect") {
+        setInstalledProviders((old) => [...old, list]);
+      }
+    }),
+    [providerList]
+  );
 
   const returnYourWallets = () => {
     return installedProviders.map((provider, index) => (
@@ -19,14 +28,14 @@ export default function LinkAccount() {
   };
 
   const returnOtherWallets = () => {
-    return providerList.map((provider, index) => {
+    return providerList?.map((provider, index) => {
       if (
         !installedProviders.includes(provider) &&
         provider.key != "walletConnect"
       ) {
         return (
           <Grid style={{ paddingTop: "15px" }} key={provider.key}>
-            <ProviderCard provider={provider} install={true} />
+            <ProviderCard provider={provider} />
           </Grid>
         );
       } else {
@@ -57,7 +66,7 @@ export default function LinkAccount() {
           </p>
 
           <Grid>
-            <ProviderCard provider={{ key: "walletConnect" }} />
+            {/* <ProviderCard provider={{ key: "walletConnect" }} /> */}
           </Grid>
         </Grid>
       </Grid>

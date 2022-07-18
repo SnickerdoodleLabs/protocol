@@ -1,4 +1,4 @@
-import { Button, Grid, makeStyles } from "@material-ui/core";
+import { Button, Box, makeStyles } from "@material-ui/core";
 import React, { useContext, useEffect, useMemo, useState, FC } from "react";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import phantomLogo from "@extension-onboarding/assets/icons/phantomSmall.svg";
@@ -7,6 +7,7 @@ import walletConnectLogo from "@extension-onboarding/assets/icons/walletConnectS
 import greenTick from "@extension-onboarding/assets/icons/greenTickCircle.svg";
 import { IProvider } from "@extension-onboarding/services/providers";
 import { useAppContext } from "@extension-onboarding/Context/App";
+import { useStyles } from "@extension-onboarding/components/WalletProviderCard/WalletProviderCard.style";
 
 export interface ISDLDataWallet {
   // TODO add SDLWallet functions with correct types
@@ -19,13 +20,14 @@ declare global {
   }
 }
 
-interface IProviderCardProps {
-  provider: IProvider
+interface IWalletProviderCardProps {
+  provider: IProvider;
 }
 
-const ProviderCard: FC<IProviderCardProps> =  ({ provider }: IProviderCardProps) => {
+const WalletProviderCard: FC<IWalletProviderCardProps> = ({
+  provider,
+}: IWalletProviderCardProps) => {
   const { linkedAccounts, addAccount } = useAppContext();
-
 
   const classes = useStyles();
 
@@ -48,53 +50,40 @@ const ProviderCard: FC<IProviderCardProps> =  ({ provider }: IProviderCardProps)
               name: provider.name,
             });
           }
-          document.dispatchEvent(
-            new CustomEvent("SD_ONBOARDING_ACCOUNT_ADDED", {
-              detail: {
-                account,
-                signature,
-              },
-            }),
-          );
         });
       });
     });
   };
 
-  const accountCount = useMemo(()=>{
+  const accountCount = useMemo(() => {
     return linkedAccounts.reduce((acc, value) => {
-      if(value.key === provider.key){
-        return acc = acc + 1;
+      if (value.key === provider.key) {
+        return (acc = acc + 1);
       }
       return acc;
-    },0)
-  }, [JSON.stringify(linkedAccounts)])
+    }, 0);
+  }, [JSON.stringify(linkedAccounts)]);
 
   return (
-    <Grid className={classes.accountBoxContainer}>
-      <Grid className={classes.providerContainer}>
-        <Grid>
-          <img
-            className={classes.providerLogo}
-            src={provider.icon}
-          />
+    <Box className={classes.accountBoxContainer}>
+      <Box className={classes.providerContainer}>
+        <Box>
+          <img className={classes.providerLogo} src={provider.icon} />
           {!!accountCount && (
             <img className={classes.greenTick} src={greenTick} />
           )}
-        </Grid>
-        <Grid>
-          <p className={classes.providerText}>
-            {provider.name}
-          </p>
-        </Grid>
+        </Box>
+        <Box>
+          <p className={classes.providerText}>{provider.name}</p>
+        </Box>
 
-        <Grid>
+        <Box>
           <p className={classes.linkedText}>
-            {accountCount ? accountCount: "" }
+            {accountCount ? accountCount : ""}
           </p>
-        </Grid>
+        </Box>
 
-        <Grid className={classes.linkAccountContainer}>
+        <Box className={classes.linkAccountContainer}>
           <Button
             onClick={() => {
               onClickConnect(provider);
@@ -103,59 +92,10 @@ const ProviderCard: FC<IProviderCardProps> =  ({ provider }: IProviderCardProps)
           >
             {provider.provider.isInstalled ? "Install" : "Link Account"}
           </Button>
-        </Grid>
-      </Grid>
-    </Grid>
+        </Box>
+      </Box>
+    </Box>
   );
-}
+};
 
-const useStyles = makeStyles({
-  accountBoxContainer: {
-    width: "680px",
-    height: "80px",
-    border: "1px solid #ECECEC",
-    borderRadius: "12px",
-    position: "relative",
-  },
-  providerContainer: {
-    display: "flex",
-    alignItems: "center",
-  },
-  providerText: {
-    paddingLeft: "24px",
-    paddingTop: "10px",
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 500,
-    fontSize: "20px",
-  },
-  providerLogo: {
-    paddingTop: "15px",
-    paddingLeft: "25px",
-  },
-  linkedText: {
-    paddingLeft: "24px",
-    paddingTop: "10px",
-    fontFamily: "'Space Grotesk', sans-serif",
-    fontWeight: 500,
-    fontSize: "12px",
-    color: "#5D5A74",
-    opacity: "0.6",
-  },
-  linkAccountContainer: {
-    position: "absolute",
-    right: "20px",
-    paddingTop: "10px",
-  },
-  linkAccountButton: {
-    border: "1px solid #B9B6D3",
-    width: "142px",
-    height: "42px",
-    fontFamily: "'Inter'",
-    fontWeight: 500,
-    fontSize: "12px",
-  },
-  greenTick: { marginLeft: "-15px" },
-});
-
-
-export default ProviderCard;
+export default WalletProviderCard;

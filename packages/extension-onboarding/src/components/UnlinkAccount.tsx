@@ -5,9 +5,9 @@ import phantomLogo from "@extension-onboarding/assets/icons/phantomSmall.svg";
 import coinbaseLogo from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import walletConnectLogo from "@extension-onboarding/assets/icons/walletConnectSmall.svg";
 import greenTick from "@extension-onboarding/assets/icons/greenTickCircle.svg";
-import { ProviderContext } from "@extension-onboarding/Context/ProviderContext";
+import { useAppContext } from "@extension-onboarding/Context/App";
 export default function UnlinkAccount({ account }) {
-  const providerContext = useContext(ProviderContext);
+  const { providerList } = useAppContext();
 
   const unlinkAccountHandler = () => {};
 
