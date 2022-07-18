@@ -1,13 +1,18 @@
-import { Button, LinearProgress } from "@material-ui/core";
-import React, { FC, useEffect, useState } from "react";
+import { Button, Grid, LinearProgress } from "@material-ui/core";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import {
   getProviderList,
   IProvider,
 } from "@extension-onboarding/services/providers";
+import BuildYourProfile from "@browser-extension/pages/BuildYourProfile/BuildYourProfile";
+import Onboarding from "@browser-extension/pages/Onboarding";
+import { ProviderContext } from "@browser-extension/Context/ProviderContext";
 
 const App: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [providerList, setProviderList] = useState<IProvider[]>([]);
+  const [installedProviders, setInstalledProviders] = useState<IProvider[]>([]);
+  const [linkedAccounts, setLinkedAccounts] = useState([]);
   useEffect(() => {
     document.addEventListener(
       "SD_WALLET_EXTENSION_CONNECTED",
@@ -29,30 +34,34 @@ const App: FC = () => {
     // Phantom wallet can not initiate window phantom object at time
     setTimeout(() => {
       const providerList = getProviderList();
+      console.log("ProviderList", providerList);
+      providerList.map((list) => {
+        if (list.provider.isInstalled && list.key != "walletConnect") {
+          setInstalledProviders((old) => [...old, list]);
+        }
+      });
       setProviderList(providerList);
       setIsLoading(false);
     }, 500);
   };
 
-  const onClickConnect = (providerObj: IProvider) => {
-    if (!providerObj.provider.isInstalled) {
-      return window.open(providerObj.installationUrl, "_blank");
-    }
+  // @ts-ignore
+  const providerValue = useMemo(() => ({
+    providerList,
+    installedProviders,
+    linkedAccounts,
+    setLinkedAccounts,
+  }));
 
-    return providerObj.provider.connect().andThen((account) => {
-      return providerObj.provider.getSignature("abc").map((signature) => {
-        document.dispatchEvent(
-          new CustomEvent("SD_ONBOARDING_ACCOUNT_ADDED", {
-            detail: {
-              account,
-              signature,
-            },
-          }),
-        );
-      });
-    });
-  };
+  return (
+    // @ts-ignore
+    <ProviderContext.Provider value={providerValue}>
+      <Onboarding />
+    </ProviderContext.Provider>
+  );
 
+  {
+    /*
   return (
     <>
       {isLoading ? (
@@ -73,6 +82,8 @@ const App: FC = () => {
       )}
     </>
   );
+*/
+  }
 };
 
 export default App;
