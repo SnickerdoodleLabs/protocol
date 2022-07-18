@@ -12,6 +12,7 @@ import { AST_Return } from "./AST_Return";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
 // import { ConditionAnd } from "./condition/ConditionAnd";
 import { ConditionAnd, ConditionIn, ConditionOr } from "./condition";
+import { EvalNotImplementedError } from "./exceptions";
 
 // TODO introduce dependency injection
 
@@ -55,6 +56,7 @@ export class AST_Evaluator {
         // console.log(this.evalAny);
         this.operatorMap.set(ConditionAnd, this.evalAnd)
         this.operatorMap.set(ConditionOr, this.evalOr)
+        this.operatorMap.set(ConditionIn, this.evalIn)
     }
 
     public eval(): SDQL_Return {
@@ -95,9 +97,11 @@ export class AST_Evaluator {
 
             return this.evalReturn((expr as AST_ReturnExpr).source);
 
+        } else if (TypeChecker.isPrimitiveExpr(expr)) {
+            return ((expr as AST_Expr).source) as SDQL_Return;
         }
 
-        return SDQL_Return(0);
+        throw new EvalNotImplementedError(typeof expr);
     }
 
     public evalIf(eef: Command_IF): SDQL_Return {
@@ -202,18 +206,13 @@ export class AST_Evaluator {
 
         const left = this.evalAny(cond.lval);
         
-        if (left == true) {
-            return left;
-        }
-        
-        const right = this.evalAny(cond.rval);
+        const right = this.evalAny(cond.rvals) as Array<any>;
 
-        if (right == true) {
-            return right;
-        }
-        
-        // console.log('evalAnd', `left is ${left} and right is ${right}`);
-        return SDQL_Return(false);
+        console.log('left', left);
+        console.log('right', right);
+
+        return SDQL_Return(right.includes(left));
+
         
     }
 

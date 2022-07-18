@@ -1,4 +1,4 @@
-import { SDQL_OperatorName } from "@objects/primitives";
+import { SDQL_OperatorName, URLString } from "@objects/primitives";
 import { AST_Expr } from "../AST_Expr";
 import { Condition } from "./Condition";
 
@@ -7,7 +7,7 @@ export class ConditionIn extends Condition {
     constructor(
         name: SDQL_OperatorName,
         readonly lval: null | AST_Expr,
-        readonly rvals: Array<number> | AST_Expr
+        readonly rvals: Array<number | string | URLString> | AST_Expr
 
     ) {
         super(name);

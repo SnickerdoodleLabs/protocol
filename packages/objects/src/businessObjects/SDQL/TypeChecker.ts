@@ -46,5 +46,16 @@ export class TypeChecker {
         return (expr instanceof AST_ReturnExpr);
     }
 
+    static isPrimitiveExpr(expr: any): boolean { 
+        if (expr instanceof AST_Expr) {
+            const primitives = ["number", "string", "boolean"];
+            if (primitives.includes(typeof expr.source)) {
+                return true;
+            }
+            
+        } 
+        return false;
+    }
+
 
 }

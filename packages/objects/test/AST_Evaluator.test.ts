@@ -1,6 +1,7 @@
-import { ConditionOr } from "businessObjects";
+import { ConditionIn, ConditionOr } from "businessObjects";
 import { AST } from "businessObjects/SDQL/AST";
 import { AST_Evaluator } from "businessObjects/SDQL/AST_Evaluator";
+import { AST_Expr } from "businessObjects/SDQL/AST_Expr";
 import { AST_Factories } from "businessObjects/SDQL/AST_Factories";
 import { AST_Return } from "businessObjects/SDQL/AST_Return";
 import { AST_ReturnExpr } from "businessObjects/SDQL/AST_ReturnExpr";
@@ -65,7 +66,64 @@ describe("Conditions", () => {
 
         const result = astEvaluator.evalOperator(and);
         expect(result).toBe(true);
-    })
+    });
+
+
+    test("1 is in [2, 1, 3]", () => {
+
+        const condIn = new ConditionIn(
+            SDQL_OperatorName("In1"),
+            new AST_Expr(
+                SDQL_Name("number"),
+                1
+            ),
+            [2, 1, 3]
+        );
+        const result = astEvaluator.evalOperator(condIn);
+        expect(result).toBe(true);
+    });
+
+    test("1 not in [2, 3]", () => {
+
+        const condIn = new ConditionIn(
+            SDQL_OperatorName("In1"),
+            new AST_Expr(
+                SDQL_Name("number"),
+                1
+            ),
+            [2, 3]
+        );
+        const result = astEvaluator.evalOperator(condIn);
+        expect(result).toBe(false);
+    });
+
+    test("apple is in ['apple', 'banana', 'orange']", () => {
+
+        const condIn = new ConditionIn(
+            SDQL_OperatorName("In1"),
+            new AST_Expr(
+                SDQL_Name("string"),
+                'apple'
+            ),
+            ['apple', 'banana', 'orange']
+        );
+        const result = astEvaluator.evalOperator(condIn);
+        expect(result).toBe(true);
+    });
+    
+    test("apple not in ['banana', 'orange']", () => {
+
+        const condIn = new ConditionIn(
+            SDQL_OperatorName("In1"),
+            new AST_Expr(
+                SDQL_Name("string"),
+                'apple'
+            ),
+            ['banana', 'orange']
+        );
+        const result = astEvaluator.evalOperator(condIn);
+        expect(result).toBe(false);
+    });
     
 });
 
