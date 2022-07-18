@@ -24,6 +24,7 @@
         * [WDoodleToken.sol](/packages/contracts/docs/token/Vester.md)
         * [Vester](/packages/contracts/docs/token/WDoodleToken.md)
 * [SDQL](/documentation/sdql/README.md)
+    * [SDQL Examples](/documentation/sdql/EXAMPLES.md)
 * [Core](/packages/core/README.md)
 * [Browser Extension](/packages/browserExtension/README.md)
 * [Test Harness](/packages/test-harness/README.md)

@@ -14,7 +14,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [ProviderUrl("http://localhost:8545")],
       4000,
-      EIndexer.EVM,
+      EIndexer.Simulator,
       EVMContractAddress("todo"),
       EVMContractAddress("todo"),
     ),

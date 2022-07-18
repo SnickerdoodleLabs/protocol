@@ -39,6 +39,7 @@ Steps to install and run this project this locally:
 ```shell
 git clone https://github.com/SnickerdoodleLabs/protocol.git
 cd packages/contracts
+
 npm install
 ```
 

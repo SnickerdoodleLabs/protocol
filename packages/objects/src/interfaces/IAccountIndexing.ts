@@ -4,6 +4,10 @@ import { IEVMTransactionRepository } from "@objects/interfaces/chains";
 
 export interface IAccountIndexing {
   getEVMTransactionRepository(): ResultAsync<IEVMTransactionRepository, never>;
+  getSimulatorEVMTransactionRepository(): ResultAsync<
+    IEVMTransactionRepository,
+    never
+  >;
   //getSolanaRepository(): ResultAsync<ISolanaTransactionRepository, never>;
 }
 
