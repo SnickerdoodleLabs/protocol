@@ -2,7 +2,10 @@ import { IAccountService } from "@interfaces/business";
 import { IAccountRepository } from "@interfaces/data";
 import { ExtensionCookieError } from "@shared/objects/errors";
 import {
+  AjaxError,
   BlockchainProviderError,
+  ConsentContractError,
+  CrumbsContractError,
   EVMAccountAddress,
   InvalidSignatureError,
   LanguageCode,
@@ -22,12 +25,12 @@ export class AccountService implements IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    | ExtensionCookieError
     | BlockchainProviderError
-    | InvalidSignatureError
     | UninitializedError
-    | UnsupportedLanguageError
     | PersistenceError
+    | CrumbsContractError
+    | AjaxError
+    | ExtensionCookieError
   > {
     return this.accountRepository.addAccount(account, signature, languageCode);
   }
@@ -39,12 +42,15 @@ export class AccountService implements IAccountService {
     calledWithCookie?: boolean,
   ): ResultAsync<
     void,
-    | ExtensionCookieError
-    | BlockchainProviderError
-    | InvalidSignatureError
-    | UninitializedError
     | UnsupportedLanguageError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
     | PersistenceError
+    | InvalidSignatureError
+    | AjaxError
+    | CrumbsContractError
+    | ExtensionCookieError
   > {
     return this.accountRepository.unlock(
       account,

@@ -2,7 +2,10 @@ import { IAccountRepository } from "@interfaces/data";
 import { IAccountCookieUtils } from "@interfaces/utilities";
 import { ExtensionCookieError } from "@shared/objects/errors";
 import {
+  AjaxError,
   BlockchainProviderError,
+  ConsentContractError,
+  CrumbsContractError,
   EVMAccountAddress,
   InvalidSignatureError,
   ISnickerdoodleCore,
@@ -26,12 +29,12 @@ export class AccountRepository implements IAccountRepository {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    | ExtensionCookieError
     | BlockchainProviderError
-    | InvalidSignatureError
     | UninitializedError
-    | UnsupportedLanguageError
     | PersistenceError
+    | CrumbsContractError
+    | AjaxError
+    | ExtensionCookieError
   > {
     return this.core
       .addAccount(account, signature, languageCode)
@@ -51,12 +54,15 @@ export class AccountRepository implements IAccountRepository {
     calledWithCookie: boolean,
   ): ResultAsync<
     void,
-    | ExtensionCookieError
     | BlockchainProviderError
-    | InvalidSignatureError
     | UninitializedError
-    | UnsupportedLanguageError
+    | CrumbsContractError
     | PersistenceError
+    | UnsupportedLanguageError
+    | InvalidSignatureError
+    | AjaxError
+    | ConsentContractError
+    | ExtensionCookieError
   > {
     return this.core.unlock(account, signature, languageCode).andThen(() => {
       if (calledWithCookie) {

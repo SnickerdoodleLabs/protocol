@@ -1,6 +1,9 @@
 import { ExtensionCookieError } from "@shared/objects/errors";
 import {
+  AjaxError,
   BlockchainProviderError,
+  ConsentContractError,
+  CrumbsContractError,
   EVMAccountAddress,
   InvalidSignatureError,
   LanguageCode,
@@ -19,12 +22,12 @@ export interface IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<
     void,
-    | ExtensionCookieError
     | BlockchainProviderError
-    | InvalidSignatureError
     | UninitializedError
-    | UnsupportedLanguageError
     | PersistenceError
+    | CrumbsContractError
+    | AjaxError
+    | ExtensionCookieError
   >;
   unlock(
     account: EVMAccountAddress,
@@ -33,12 +36,15 @@ export interface IAccountService {
     calledWithCookie?: boolean,
   ): ResultAsync<
     void,
-    | ExtensionCookieError
-    | BlockchainProviderError
-    | InvalidSignatureError
-    | UninitializedError
     | UnsupportedLanguageError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
     | PersistenceError
+    | InvalidSignatureError
+    | AjaxError
+    | CrumbsContractError
+    | ExtensionCookieError
   >;
   getUnlockMessage(
     languageCode: LanguageCode,
