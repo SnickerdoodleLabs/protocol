@@ -2,16 +2,16 @@ import { Button, Grid, makeStyles } from "@material-ui/core";
 import React, { FC, useContext } from "react";
 import notLinked from "@extension-onboarding/assets/icons/notLinked.svg";
 import UnlinkAccount from "./UnlinkAccount";
-import { ProviderContext } from "@extension-onboarding/Context/ProviderContext";
+import { useAppContext } from "@extension-onboarding/Context/App";
 
 const LinkedAccountBox: FC = () => {
-  const providerContext = useContext(ProviderContext);
+  const { linkedAccounts } = useAppContext();
 
   const classes = useStyles();
   return (
     <Grid className={classes.linkedAccountContainer}>
-      {providerContext!.linkedAccounts!.length > 0 ? (
-        providerContext?.linkedAccounts?.map((account) => (
+      {linkedAccounts!.length > 0 ? (
+        linkedAccounts?.map((account) => (
           <UnlinkAccount account={account} key={account.accountAddress} />
         ))
       ) : (
