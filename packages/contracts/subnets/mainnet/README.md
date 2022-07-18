@@ -1,5 +1,3 @@
-![Snickerdoodle](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
-
 # Avalanche Mainnet Subnet
 
 This subdirectory contains the [genesis file](/packates/subnets/mainnet/snickerdoodle_genesis.json) and 
