@@ -8,6 +8,7 @@ import {
   ConsentToken,
   RequestForData,
   BlockNumber,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -114,6 +115,7 @@ export interface IConsentContract {
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
+  getDomains(): ResultAsync<DomainName[], ConsentContractError>;
   filters: IConsentContractFilters;
 }
 

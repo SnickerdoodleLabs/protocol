@@ -9,6 +9,15 @@ import {
   ILogUtilsType,
   LogUtils,
 } from "@snickerdoodlelabs/common-utils";
+import {
+  CovalentEVMTransactionRepository,
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@snickerdoodlelabs/indexers";
+import {
+  IEVMTransactionRepository,
+  IEVMTransactionRepositoryType,
+} from "@snickerdoodlelabs/objects";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -25,6 +34,7 @@ import {
 import {
   InsightPlatformRepository,
   LoginRegistryRepository,
+  ConsentContractRepository,
 } from "@core/implementations/data";
 import {
   BlockchainProvider,
@@ -52,6 +62,8 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
   ILoginRegistryRepository,
@@ -71,8 +83,6 @@ import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory";
-import { CovalentEVMTransactionRepository, IIndexerConfigProvider, IIndexerConfigProviderType } from "@snickerdoodlelabs/indexers";
-import { IEVMTransactionRepository, IEVMTransactionRepositoryType } from "@snickerdoodlelabs/objects";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -108,14 +118,15 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ILoginRegistryRepository>(ILoginRegistryRepositoryType)
       .to(LoginRegistryRepository)
       .inSingletonScope();
+    bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
+      ConsentContractRepository,
+    );
     bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
       .to(CovalentEVMTransactionRepository)
       .inSingletonScope();
 
     // Utilities
-    bind<IBlockchainProvider>(IBlockchainProviderType)
-      .to(BlockchainProvider)
-      .inSingletonScope();
+
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
@@ -125,16 +136,19 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
+    bind<IBlockchainProvider>(IBlockchainProviderType)
+      .to(BlockchainProvider)
+      .inSingletonScope();
     bind<IDataWalletUtils>(IDataWalletUtilsType)
       .to(DataWalletUtils)
       .inSingletonScope();
-    bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ILogUtils>(ILogUtilsType).to(LogUtils).inSingletonScope();
+    bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
 
-    // Utilites/factor
+    // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)
       .to(ContractFactory)
       .inSingletonScope();

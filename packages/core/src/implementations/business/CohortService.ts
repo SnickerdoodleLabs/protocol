@@ -21,7 +21,7 @@ import {
   AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICohortService } from "@core/interfaces/business";
@@ -37,6 +37,10 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory";
 
 @injectable()
 export class CohortService implements ICohortService {
@@ -50,6 +54,8 @@ export class CohortService implements ICohortService {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IContractFactoryType)
+    protected contractFactory: IContractFactory,
   ) {}
 
   public checkInvitationStatus(
@@ -66,22 +72,43 @@ export class CohortService implements ICohortService {
     return ResultUtils.combine([
       this.persistenceRepo.getRejectedCohorts(),
       this.consentRepo.isAddressOptedIn(invitation.consentContractAddress),
-    ]).map(([rejectedConsentContracts, optedIn]) => {
+    ]).andThen(([rejectedConsentContracts, optedIn]) => {
       const rejected = rejectedConsentContracts.includes(
         invitation.consentContractAddress,
       );
 
       // If we are opted in, that wins
       if (optedIn) {
-        return EInvitationStatus.Accepted;
+        return okAsync(EInvitationStatus.Accepted);
       }
 
       // Next winner, the reject list
       if (rejected) {
-        return EInvitationStatus.Rejected;
+        return okAsync(EInvitationStatus.Rejected);
       }
 
-      return EInvitationStatus.New;
+      // Not rejected or already in the cohort, we need to verify the invitation
+      return this.contractFactory
+        .factoryConsentContracts([invitation.consentContractAddress])
+        .andThen((contracts) => {
+          const contract = contracts[0];
+          return ResultUtils.combine([
+            contract.getDomains(),
+            this.insightPlatformRepo.getTXTRecords(invitation.domain),
+          ]);
+        })
+        .map(([domains, domainTXT]) => {
+          // The contract must include the domain
+          if (!domains.includes(invitation.domain)) {
+            return EInvitationStatus.Invalid;
+          }
+
+          if (!domainTXT.includes(invitation.consentContractAddress)) {
+            return EInvitationStatus.Invalid;
+          }
+
+          return EInvitationStatus.New;
+        });
     });
   }
 
