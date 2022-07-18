@@ -1,4 +1,4 @@
-import { ConditionIn, ConditionOr } from "businessObjects";
+import { ConditionGE, ConditionIn, ConditionL, ConditionOr } from "businessObjects";
 import { AST } from "businessObjects/SDQL/AST";
 import { AST_Evaluator } from "businessObjects/SDQL/AST_Evaluator";
 import { AST_Expr } from "businessObjects/SDQL/AST_Expr";
@@ -110,7 +110,7 @@ describe("Conditions", () => {
         const result = astEvaluator.evalOperator(condIn);
         expect(result).toBe(true);
     });
-    
+
     test("apple not in ['banana', 'orange']", () => {
 
         const condIn = new ConditionIn(
@@ -123,6 +123,52 @@ describe("Conditions", () => {
         );
         const result = astEvaluator.evalOperator(condIn);
         expect(result).toBe(false);
+    });
+
+    
+    test("1 < 2", () => {
+
+        const cond = new ConditionL(
+            SDQL_OperatorName("In1"),
+            1,
+            new AST_Expr(
+                SDQL_Name("number"),
+                2
+            )
+            
+        );
+        const result = astEvaluator.evalOperator(cond);
+        expect(result).toBe(true);
+    });
+    
+    test("3 >= 2", () => {
+
+        const cond = new ConditionGE(
+            SDQL_OperatorName("In1"),
+            3,
+            new AST_Expr(
+                SDQL_Name("number"),
+                2
+            )
+            
+        );
+        const result = astEvaluator.evalOperator(cond);
+        expect(result).toBe(true);
+    });
+    
+    test("2 >= 2", () => {
+
+        const cond = new ConditionGE(
+            SDQL_OperatorName("In1"),
+            2,
+            new AST_Expr(
+                SDQL_Name("number"),
+                2
+            )
+            
+        );
+        const result = astEvaluator.evalOperator(cond);
+        expect(result).toBe(true);
     });
     
 });

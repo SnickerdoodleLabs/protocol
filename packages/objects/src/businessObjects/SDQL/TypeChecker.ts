@@ -14,8 +14,9 @@ export class TypeChecker {
          * or can we just check if it's SDQL Return type?
          */
         return !(expr instanceof AST_Expr 
-            || TypeChecker.isOperator(expr) 
-            || TypeChecker.isCommand(expr));
+                || TypeChecker.isOperator(expr) 
+                || TypeChecker.isCommand(expr)
+            );
     }
 
     static isQuery(expr: any): boolean {

@@ -10,7 +10,7 @@ export class ConditionL extends Condition {
 
     constructor(
         name: SDQL_OperatorName,
-        readonly lval: null | AST_Expr,
+        readonly lval: null | number | AST_Expr,
         readonly rval: number | AST_Expr,
         //protected persistenceRepo: IDataWalletPersistence
     ) {

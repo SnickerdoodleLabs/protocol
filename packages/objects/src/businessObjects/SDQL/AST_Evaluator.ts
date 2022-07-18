@@ -11,7 +11,7 @@ import { Brand, make } from "ts-brand";
 import { AST_Return } from "./AST_Return";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
 // import { ConditionAnd } from "./condition/ConditionAnd";
-import { ConditionAnd, ConditionIn, ConditionOr } from "./condition";
+import { ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "./condition";
 import { EvalNotImplementedError } from "./exceptions";
 
 // TODO introduce dependency injection
@@ -52,11 +52,11 @@ export class AST_Evaluator {
         /**
          * This function must be called after construction. Otherwise the object will not be initialized correctly.
          */
-        // console.log(this.evalAnd);
-        // console.log(this.evalAny);
         this.operatorMap.set(ConditionAnd, this.evalAnd)
         this.operatorMap.set(ConditionOr, this.evalOr)
         this.operatorMap.set(ConditionIn, this.evalIn)
+        this.operatorMap.set(ConditionGE, this.evalGE)
+        this.operatorMap.set(ConditionL, this.evalL)
     }
 
     public eval(): SDQL_Return {
@@ -212,6 +212,34 @@ export class AST_Evaluator {
         console.log('right', right);
 
         return SDQL_Return(right.includes(left));
+
+        
+    }
+
+    public evalGE(cond: ConditionGE): SDQL_Return {
+
+        const left = this.evalAny(cond.lval);
+        
+        const right = this.evalAny(cond.rval);
+
+        console.log('left', left);
+        console.log('right', right);
+
+        return SDQL_Return(left >= right);
+
+        
+    }
+
+    public evalL(cond: ConditionGE): SDQL_Return {
+
+        const left = this.evalAny(cond.lval);
+        
+        const right = this.evalAny(cond.rval);
+
+        console.log('left', left);
+        console.log('right', right);
+
+        return SDQL_Return(left < right);
 
         
     }
