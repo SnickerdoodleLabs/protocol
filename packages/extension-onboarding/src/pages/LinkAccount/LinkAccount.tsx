@@ -1,6 +1,6 @@
 import { Grid, makeStyles } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import AccountBox from "@browser-extension/components/AccountBox";
+import ProviderCard from "@browser-extension/components/ProviderCard";
 import LinkedAccountBox from "@browser-extension/components/LinkedAccountBox";
 import { ProviderContext } from "@browser-extension/Context/ProviderContext";
 import { IProvider } from "@browser-extension/services/providers";
@@ -13,7 +13,7 @@ export default function LinkAccount() {
   const returnYourWallets = () => {
     return installedProviders.map((provider, index) => (
       <Grid style={{ paddingTop: "15px" }} key={provider.key}>
-        <AccountBox provider={provider} />
+        <ProviderCard provider={provider} />
       </Grid>
     ));
   };
@@ -26,7 +26,7 @@ export default function LinkAccount() {
       ) {
         return (
           <Grid style={{ paddingTop: "15px" }} key={provider.key}>
-            <AccountBox provider={provider} install={true} />
+            <ProviderCard provider={provider} install={true} />
           </Grid>
         );
       } else {
@@ -57,7 +57,7 @@ export default function LinkAccount() {
           </p>
 
           <Grid>
-            <AccountBox provider={{ key: "walletConnect" }} />
+            <ProviderCard provider={{ key: "walletConnect" }} />
           </Grid>
         </Grid>
       </Grid>

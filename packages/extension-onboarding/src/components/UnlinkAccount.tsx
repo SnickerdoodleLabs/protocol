@@ -1,5 +1,5 @@
 import { Button, Grid, makeStyles } from "@material-ui/core";
-import React from "react";
+import React, { useContext } from "react";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import phantomLogo from "@extension-onboarding/assets/icons/phantomSmall.svg";
 import coinbaseLogo from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
@@ -7,12 +7,7 @@ import walletConnectLogo from "@extension-onboarding/assets/icons/walletConnectS
 import greenTick from "@extension-onboarding/assets/icons/greenTickCircle.svg";
 import { ProviderContext } from "@browser-extension/Context/ProviderContext";
 export default function UnlinkAccount({ account }) {
-  const {
-    // @ts-ignore
-    linkedAccounts,
-    // @ts-ignore
-    setLinkedAccounts,
-  } = React.useContext(ProviderContext);
+  const providerContext = useContext(ProviderContext);
 
   const unlinkAccountHandler = () => {};
 

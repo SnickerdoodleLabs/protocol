@@ -1,37 +1,44 @@
 import { Button, Grid, makeStyles } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import phantomLogo from "@extension-onboarding/assets/icons/phantomSmall.svg";
 import coinbaseLogo from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import walletConnectLogo from "@extension-onboarding/assets/icons/walletConnectSmall.svg";
 import greenTick from "@extension-onboarding/assets/icons/greenTickCircle.svg";
 import { IProvider } from "@browser-extension/services/providers";
-import { ProviderContext } from "@browser-extension/Context/ProviderContext";
-export default function AccountBox({ provider, install }: any) {
-  const {
-    // @ts-ignore
-    providerList,
-    // @ts-ignore
-    installedProviders,
-    // @ts-ignore
-    linkedAccounts,
-    // @ts-ignore
-    setLinkedAccounts,
-  } = React.useContext(ProviderContext);
+import {
+  ILinkedAccounts,
+  ProviderContext,
+} from "@browser-extension/Context/ProviderContext";
 
-  const [connectedAccounts, setConnectedAccounts] = useState([]);
+export interface ISDLDataWallet {
+  // TODO add SDLWallet functions with correct types
+  getUnlockMessage(): any;
+}
+
+declare global {
+  interface Window {
+    sdlDataWallet: ISDLDataWallet;
+  }
+}
+
+export default function ProviderCard({ provider, install }: any) {
+  const providerContext = useContext(ProviderContext);
+
+  const [connectedAccounts, setConnectedAccounts] = useState<ILinkedAccounts[]>(
+    [],
+  );
 
   useEffect(() => {
     setConnectedAccounts([]);
-    if (linkedAccounts.length > 0) {
-      linkedAccounts.map((a) => {
-        if (a.key === provider.key) {
-          // @ts-ignore
-          setConnectedAccounts((old) => [...old, a]);
+    if (providerContext!.linkedAccounts!.length > 0) {
+      providerContext?.linkedAccounts?.map((account) => {
+        if (account.key === provider.key) {
+          setConnectedAccounts((oldAccounts) => [...oldAccounts, account]);
         }
       });
     }
-  }, [linkedAccounts]);
+  }, [providerContext?.linkedAccounts]);
 
   const classes = useStyles();
 
@@ -41,14 +48,17 @@ export default function AccountBox({ provider, install }: any) {
     }
 
     return providerObj.provider.connect().andThen((account) => {
-      // @ts-ignore
       return window.sdlDataWallet.getUnlockMessage().andThen((message) => {
         return providerObj.provider.getSignature(message).map((signature) => {
           console.log("signature", signature);
           console.log("account", account);
           console.log("ProviderOBjKey", providerObj.key);
-          if (!linkedAccounts.find((a) => a.accountAddress === account)) {
-            setLinkedAccounts((old) => [
+          if (
+            !providerContext?.linkedAccounts?.find(
+              (linkedAccount) => linkedAccount.accountAddress === account,
+            )
+          ) {
+            providerContext?.setLinkedAccounts((old) => [
               ...old,
               {
                 key: provider.key,
@@ -75,7 +85,7 @@ export default function AccountBox({ provider, install }: any) {
       <Grid className={classes.providerContainer}>
         <Grid>
           <img
-            style={{ paddingTop: "15px", paddingLeft: "25px" }}
+            className={classes.providerLogo}
             src={providerText[provider.key]?.logo}
           />
           {connectedAccounts.length > 0 ? (
@@ -133,6 +143,10 @@ const useStyles = makeStyles({
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 500,
     fontSize: "20px",
+  },
+  providerLogo: {
+    paddingTop: "15px",
+    paddingLeft: "25px",
   },
   linkedText: {
     paddingLeft: "24px",
