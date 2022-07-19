@@ -35,6 +35,9 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `age`: access to the age of the DW user
 - `location`: access to location data of the DW user
 - `browsing_history`: access to the browsing history of the DW user
+- `gender`: access to the gender of the DW user
+- `url_visited_count`: accesses the number of times urls are visited by DW user
+- `chain_transaction_count`: accesses the number of transactions by the DW user per chain
 
 #### return (required)
 
@@ -42,6 +45,8 @@ The return sub-keyword specifies the object type that will be returned by a quer
 
 - `boolean`: true or false depending on the condition applied to the attribute being accessed
 - `integer`: returns an integer object related to the referenced attribute
+- `enum`: returns an enum related to the referenced attributed. The enum keys are specified under `enum_keys` sub-keyword
+- `object`: returns an object to describe the referenced attributed. The object schema is specified in `object_schema` sub-keyword
 
 #### conditions
 
@@ -73,6 +78,12 @@ The contract sub-keyword is used in conjunction with the `network` sub-keyword. 
 - `direction`: was the user's account in the `to` or `from` field
 - `token`: is the contract an `ERC20` or `ERC721` standard
 - `blockrange`: did the account submit a matching transaction between block `start` and block `end`
+
+#### enum_keys
+The enum_keys sub-keyword is used in conjunction with the `enum` attribute type. Listing the keys that the attribute type supports.
+
+#### object_schema
+The object_schema sub-keyword is used in conjunction with the `object` attribute type. Specifying the schema of the object including the properties and patternProperties (properties with regex formatted keys) that the attribute type supports.
 
 ### [returns](/documentation/sdql/sdql-v0.0.1.schema.json#L191)
 

@@ -9,6 +9,20 @@ ERC2771ContextUpgradeable's features were directly embedded into the contract (s
 The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
 It is also compatible with OZ's meta-transaction library_
 
+### consentFactoryAddress
+
+```solidity
+address consentFactoryAddress
+```
+
+_Interface for ConsentFactory_
+
+### consentFactoryInstance
+
+```solidity
+contract IConsentFactory consentFactoryInstance
+```
+
 ### PAUSER_ROLE
 
 ```solidity
@@ -61,10 +75,18 @@ address trustedForwarder
 
 _Trusted forwarder address for meta-transactions_
 
+### domains
+
+```solidity
+string[] domains
+```
+
+_Array of trusted domains_
+
 ### RequestForData
 
 ```solidity
-event RequestForData(address requester, string ipfsCID)
+event RequestForData(address requester, string ipfsCIDIndexed, string ipfsCID)
 ```
 
 Emitted when a request for data is made
@@ -74,7 +96,32 @@ _The SDQL services listens for this event_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | requester | address | Indexed address of data requester |
+| ipfsCIDIndexed | string | The indexed IPFS CID pointing to an SDQL instruction |
 | ipfsCID | string | The IPFS CID pointing to an SDQL instruction |
+
+### LogAddDomain
+
+```solidity
+event LogAddDomain(string domain)
+```
+
+Emitted when a domain is added
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| domain | string | Domain url added |
+
+### LogRemoveDomain
+
+```solidity
+event LogRemoveDomain(string domain)
+```
+
+Emitted when a domain is removed
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| domain | string | Domain url removed |
 
 ### whenNotDisabled
 
@@ -87,7 +134,7 @@ Checks if open opt in is current disabled
 ### initialize
 
 ```solidity
-function initialize(address consentOwner, string baseURI_, string name) public
+function initialize(address consentOwner, string baseURI_, string name, address _contractFactoryAddress) public
 ```
 
 Initializes the contract
@@ -99,11 +146,12 @@ _Uses the initializer modifier to to ensure the contract is only initialized onc
 | consentOwner | address | Address of the owner of this contract |
 | baseURI_ | string | The base uri |
 | name | string | Name of the Consent Contract |
+| _contractFactoryAddress | address |  |
 
 ### optIn
 
 ```solidity
-function optIn(uint256 tokenId, string agreementURI) public
+function optIn(uint256 tokenId, string agreementURI) external
 ```
 
 Allows any user to opt in to sharing their data
@@ -118,7 +166,7 @@ _Mints user a Consent token_
 ### restrictedOptIn
 
 ```solidity
-function restrictedOptIn(uint256 tokenId, string agreementURI, uint256 nonce, bytes signature) public
+function restrictedOptIn(uint256 tokenId, string agreementURI, bytes signature) external
 ```
 
 Allows specific users to opt in to sharing their data
@@ -131,13 +179,12 @@ If the message signature is valid, the user calling this function is minted a Co
 | ---- | ---- | ----------- |
 | tokenId | uint256 | User's Consent token id to mint against |
 | agreementURI | string | User's Consent token uri containing agreement flags |
-| nonce | uint256 | Salt to increase hashed message's security |
 | signature | bytes | Owner's signature to agree with user opt in |
 
 ### optOut
 
 ```solidity
-function optOut(uint256 tokenId) public
+function optOut(uint256 tokenId) external
 ```
 
 Allows users to opt out of sharing their data
@@ -163,7 +210,7 @@ Facilitates entity's request for data
 ### setTrustedForwarder
 
 ```solidity
-function setTrustedForwarder(address trustedForwarder_) public
+function setTrustedForwarder(address trustedForwarder_) external
 ```
 
 Set the trusted forwarder address
@@ -183,6 +230,30 @@ Sets the Consent tokens base URI
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | newURI | string | New base uri |
+
+### addDomain
+
+```solidity
+function addDomain(string domain) external
+```
+
+Add a domain to the domains array
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| domain | string | Domain to add |
+
+### removeDomain
+
+```solidity
+function removeDomain(string domain) external
+```
+
+Removes a domain from the domains array
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| domain | string | Domain to remove |
 
 ### pause
 
@@ -234,10 +305,22 @@ function _baseURI() internal view virtual returns (string baseURI_)
 
 Gets the Consent tokens base URI
 
+### getDomains
+
+```solidity
+function getDomains() external view returns (string[] domainsArr)
+```
+
+Gets the array of registered domains
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| domainsArr | string[] | Array of registered domains |
+
 ### _isValidSignature
 
 ```solidity
-function _isValidSignature(address user, uint256 nonce, string agreementURI, bytes signature) internal view returns (bool)
+function _isValidSignature(address user, uint256 tokenId, string agreementURI, bytes signature) internal view returns (bool)
 ```
 
 Verify that a signature is valid
@@ -245,7 +328,7 @@ Verify that a signature is valid
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | user | address | Address of the user calling the function |
-| nonce | uint256 | Salt for hash security |
+| tokenId | uint256 | Token id to be tied to current user |
 | agreementURI | string | User's Consent token uri containing agreement flags |
 | signature | bytes | Signature of approved user's message hash |
 
@@ -260,6 +343,22 @@ function _beforeTokenTransfer(address from, address to, uint256 tokenId) interna
 ```
 
 _Override to add require statement to make tokens Consent token non-transferrable_
+
+### _grantRole
+
+```solidity
+function _grantRole(bytes32 role, address account) internal virtual
+```
+
+_Overload {_grantRole} to add ConsentFactory update_
+
+### _revokeRole
+
+```solidity
+function _revokeRole(bytes32 role, address account) internal virtual
+```
+
+_Overload {_revokeRole} to add ConsentFactory update_
 
 ### _burn
 
@@ -289,5 +388,33 @@ function _msgSender() internal view virtual returns (address sender)
 
 ```solidity
 function _msgData() internal view virtual returns (bytes)
+```
+
+## IConsentFactory
+
+_a minimal interface for Consent contracts to update the ConsentFactory_
+
+### addUserConsents
+
+```solidity
+function addUserConsents(address user) external
+```
+
+### removeUserConsents
+
+```solidity
+function removeUserConsents(address user) external
+```
+
+### addUserRole
+
+```solidity
+function addUserRole(address user, bytes32 role) external
+```
+
+### removeUserRole
+
+```solidity
+function removeUserRole(address user, bytes32 role) external
 ```
 

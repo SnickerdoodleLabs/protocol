@@ -5,7 +5,7 @@ import {
 } from "@objects/primitives";
 
 export interface ICrumbContent {
-  [languageCode: LanguageCode]: {
+  [languageCode: string]: {
     d: EncryptedString;
     iv: InitializationVector;
   };
