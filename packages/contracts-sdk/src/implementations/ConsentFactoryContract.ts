@@ -1,5 +1,6 @@
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   ConsentFactoryContractError,
@@ -153,7 +154,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   // Gets the count of Consent addresses user has specific roles for
   public getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: HexString,
+    role: ConsentRoles,
   ): ResultAsync<number, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getUserConsentAddressesCount(
@@ -177,7 +178,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   // eg. If user has [0x123, 0xabc, 0x456] Consent contracts, query with startingIndex 0 and endingIndex 2 to get full list
   public getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: HexString,
+    role: ConsentRoles,
     startingIndex: number,
     endingIndex: number,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {

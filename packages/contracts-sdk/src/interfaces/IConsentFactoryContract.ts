@@ -1,3 +1,4 @@
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   ConsentFactoryContractError,
@@ -67,7 +68,7 @@ export interface IConsentFactoryContract {
    */
   getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
-    role: HexString,
+    role: ConsentRoles,
   ): ResultAsync<number, ConsentFactoryContractError>;
 
   /**
@@ -79,7 +80,7 @@ export interface IConsentFactoryContract {
    */
   getUserRoleAddressesCountByIndex(
     ownerAddress: EVMAccountAddress,
-    role: HexString,
+    role: ConsentRoles,
     startingIndex: number,
     endingIndex: number,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
