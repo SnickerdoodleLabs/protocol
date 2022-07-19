@@ -1,23 +1,31 @@
 import { Button, Grid, makeStyles } from "@material-ui/core";
 import React, { useState } from "react";
 
-import BuildYourProfile from "./BuildYourProfile";
-import LinkAccount from "./LinkAccount";
+import ProfileCreation from "./ProfileCreation";
+import AccountLinking from "./AccountLinking";
 
 import Logo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import SnickerProgressBar from "@extension-onboarding/components/SnickerProgressBar";
+import { useEffect } from "react";
+import { useAppContext } from "@extension-onboarding/Context/App";
+import OnboardingWelcome from "./OnboardingWelcome";
 
 export default function Onboarding() {
+  const {stepperStatus} = useAppContext();
   const [progressValue, setProgressValue] = useState(0);
 
   const returnState = (value) => {
     const stateArray = [
-      <LinkAccount />,
-      <BuildYourProfile />,
+      <OnboardingWelcome />,
+      <AccountLinking />,
+      <ProfileCreation />,
       <h3>STEP 3 </h3>,
     ];
     return stateArray[value];
   };
+  useEffect(()=>{
+setProgressValue(stepperStatus);
+  },[stepperStatus])
   const classes = useStyles();
   return (
     <Grid
@@ -29,7 +37,7 @@ export default function Onboarding() {
       <Grid>
         <img src={Logo} />
       </Grid>
-      <SnickerProgressBar progressStatus={progressValue} />
+      {progressValue === 0 ? "" :  <SnickerProgressBar progressStatus={progressValue} />}
       {returnState(progressValue)}
       <Grid
         style={{
@@ -37,7 +45,8 @@ export default function Onboarding() {
           right: "calc(100vw*150/1440)",
         }}
       >
-        <Grid style={{ display: "flex", alignItems: "center" }}>
+       {/* 
+       <Grid style={{ display: "flex", alignItems: "center" }}>
           {progressValue > 0 ? (
             <h4
               onClick={() => {
@@ -81,7 +90,7 @@ export default function Onboarding() {
           ) : (
             ""
           )}
-        </Grid>
+        </Grid>*/} 
       </Grid>
       <Grid style={{ height: "100px", width: "50px" }}></Grid>
     </Grid>

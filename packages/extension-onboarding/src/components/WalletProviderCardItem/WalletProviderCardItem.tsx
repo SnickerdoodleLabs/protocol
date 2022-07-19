@@ -5,6 +5,9 @@ import tickIcon from "@extension-onboarding/assets/icons/tick.svg";
 import { useStyles } from "@extension-onboarding/components/WalletProviderCardItem/WalletProviderCardItem.style";
 import { useAppContext } from "@extension-onboarding/Context/App";
 import { IProvider } from "@extension-onboarding/services/providers";
+import { useLayoutContext } from "@extension-onboarding/Context/LayoutContext";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { ALERT_MESSAGES } from "@extension-onboarding/constants";
 
 export interface ISDLDataWallet {
   // TODO add SDLWallet functions with correct types
@@ -25,6 +28,7 @@ const WalletProviderCardItem: FC<IWalletProviderCardItemProps> = ({
   provider,
 }: IWalletProviderCardItemProps) => {
   const { linkedAccounts, addAccount } = useAppContext();
+  const { setAlert } = useLayoutContext();
 
   const classes = useStyles();
 
@@ -41,6 +45,10 @@ const WalletProviderCardItem: FC<IWalletProviderCardItemProps> = ({
               (linkedAccount) => linkedAccount.accountAddress === account,
             )
           ) {
+            setAlert({
+              message: ALERT_MESSAGES.ACCOUNT_ADDED,
+              severity: EAlertSeverity.SUCCESS,
+            });
             addAccount({
               key: provider.key,
               accountAddress: account,
@@ -76,7 +84,7 @@ const WalletProviderCardItem: FC<IWalletProviderCardItemProps> = ({
 
         <Box>
           <p className={classes.linkedText}>
-            {accountCount ? accountCount : ""}
+            {accountCount ? accountCount + " accounts linked" : ""}
           </p>
         </Box>
 

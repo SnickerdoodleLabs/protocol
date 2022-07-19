@@ -26,11 +26,18 @@ export const useStyles = makeStyles((theme) => ({
   tickIcon: {
     position: "absolute",
     right: -5,
-    bottom: 8,
+    bottom: 3,
   },
-  linkedText: {
+  accountAddressText: {
     paddingLeft: "24px",
     paddingTop: "10px",
+    fontFamily: "'Space Grotesk', sans-serif",
+    fontWeight: 500,
+    fontSize: "16px",
+    color: "#5D5A74",
+  },
+  chainText: {
+    paddingLeft: "24px",
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 500,
     fontSize: "12px",
@@ -39,7 +46,7 @@ export const useStyles = makeStyles((theme) => ({
   },
   linkAccountContainer: {
     position: "absolute",
-    right: "20px",
+    right: "15px",
     paddingTop: "10px",
   },
   linkAccountButton: {
