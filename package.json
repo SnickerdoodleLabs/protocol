@@ -8,9 +8,6 @@
     "type": "git",
     "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
   },
-  "resolutions": {
-    "@types/react": "^17.0.38"
-  },
   "bugs": {
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
@@ -62,6 +59,9 @@
     "*.format:pkg": "prettier --write"
   },
   "packageManager": "yarn@3.2.1",
+  "resolutions": {
+    "@types/react": "^17.0.38"
+  },
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/plugin-proposal-class-properties": "^7.16.7",

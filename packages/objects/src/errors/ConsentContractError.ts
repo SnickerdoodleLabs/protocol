@@ -3,11 +3,13 @@ import { ProviderRpcError } from "@objects/errors/ProviderRpcError";
 
 export class ConsentContractError extends Error {
   protected errorCode: string = errorCodes[ConsentContractError.name];
-  constructor(message?: string, public src?: ProviderRpcError | unknown) {
+  constructor(
+    message?: string,
+    public reason?: string,
+    public src?: ProviderRpcError | unknown,
+  ) {
     super(
-      `${message} ${
-        (src as any)?.data?.message ? `: ${(src as any)?.data?.message}` : ``
-      }`,
+      `${message} ${(src as any)?.reason ? `: ${(src as any)?.reason}` : ``}`,
     );
   }
 }
