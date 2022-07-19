@@ -4,8 +4,6 @@ import {
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  IDataWalletPersistenceType,
-  IDataWalletPersistence,
   AccountIndexingError,
   AjaxError,
   EVMAccountAddress,
@@ -101,8 +99,6 @@ export class CovalentEVMTransactionRepository
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
-    @inject(IDataWalletPersistenceType)
-    protected persistence: IDataWalletPersistence,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
@@ -183,26 +179,24 @@ export class CovalentEVMTransactionRepository
   ): ResultAsync<IRequestConfig, never> {
     let primer: string = JSON.stringify({
       block_signed_at: {
-        $gt: startTime.toString(),
+        $gt: startTime.toISOString(),
       },
     });
 
     if (endTime !== undefined) {
       primer = JSON.stringify({
-        block_signed_at: {
-          $and: [
-            {
-              block_signed_at: {
-                $gt: startTime.toString(),
-              },
+        $and: [
+          {
+            block_signed_at: {
+              $gt: startTime.toISOString(),
             },
-            {
-              block_signed_at: {
-                $lte: endTime.toString(),
-              },
+          },
+          {
+            block_signed_at: {
+              $lt: endTime.toISOString(),
             },
-          ],
-        },
+          },
+        ],
       });
     }
 
