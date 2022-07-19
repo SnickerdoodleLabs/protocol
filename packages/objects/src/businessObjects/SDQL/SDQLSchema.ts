@@ -18,7 +18,7 @@ export class SDQLSchema {
         
     }
 
-    getReturnSchema(): Object {
+    getReturnSchema(): {"url": string} {
 
         return this.internalObj["returns"];
         

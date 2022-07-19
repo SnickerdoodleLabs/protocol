@@ -1,20 +1,25 @@
-import { IpfsCID, SDQL_Name } from "@objects/primitives";
+import { IpfsCID, SDQL_Name, URLString } from "@objects/primitives";
 import { AST } from "prettier";
 import { AST_NetworkQuery } from "./AST_NetworkQuery";
 import { AST_PropertyQuery } from "./AST_PropertyQuery";
+import { AST_Query } from "./AST_Query";
 import { AST_Return } from "./AST_Return";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
+import { AST_Returns } from "./AST_Returns";
 import { DuplicateIdInSchema, ReturnNotImplementedError } from "./exceptions";
 import { SDQLSchema } from "./SDQLSchema";
 
 export class SDQLParser {
 
     context: Map<string, any> = new Map();
+    queries: Map<SDQL_Name, AST_Query> = new Map();
+    returns: AST_Returns | null;
     
     constructor(
         readonly cid: IpfsCID, 
         readonly schema: SDQLSchema
         ) {
+            this.returns = null;
     }
 
     private saveInContext(name:any, val: any):void {
@@ -28,7 +33,12 @@ export class SDQLParser {
     parse() {
         // const queries = this.parseQueries();
         this.parseQueries();
+
+        this.returns = new AST_Returns(URLString(this.schema.getReturnSchema().url))
         this.parseReturns();
+
+        
+
     }
 
     parseQueries() {
@@ -54,6 +64,7 @@ export class SDQLParser {
 
         for (let query of queries) {
             this.saveInContext(query.name, query);
+            this.queries.set(query.name, query);
         }
 
         // return queries;
@@ -87,7 +98,7 @@ export class SDQLParser {
                 console.log(`${rName} is a message`);
                 let returnExpr = new AST_ReturnExpr(
                     name, 
-                    new AST_Return(name, schema.message)
+                    new AST_Return(schema.name, schema.message)
                 );
 
                 returns.push(returnExpr);
@@ -99,6 +110,7 @@ export class SDQLParser {
 
         for (let r of returns) {
             this.saveInContext(r.name, r);
+            this.returns?.expressions.set(r.name, r);
         }
     }
 
