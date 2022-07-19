@@ -1,21 +1,9 @@
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
-import { AST } from "./AST";
-import { Command_IF } from "./Command_IF";
-import { AST_Query } from "./AST_Query";
-import { Operator } from "./Operator";
-import { TypeChecker } from "./TypeChecker";
-import { AST_ConditionExpr } from "./condition/AST_ConditionExpr";
-import { AST_Expr } from "./AST_Expr";
-import { Brand, make } from "ts-brand";
-import { AST_Return } from "./AST_Return";
-import { AST_ReturnExpr } from "./AST_ReturnExpr";
-// import { ConditionAnd } from "./condition/ConditionAnd";
-import { ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "./condition";
-import { EvalNotImplementedError } from "./exceptions";
+import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr, EvalNotImplementedError, Operator, TypeChecker } from "@objects/businessObjects";
+import { QueryRepository } from "./QueryRepository";
 
 // TODO introduce dependency injection
 
-type mappableType =  Brand<AST_Expr | AST_Query | Command_IF, "mappableType">;
 
 export class AST_Evaluator {
     /**
@@ -264,7 +252,11 @@ export class AST_Evaluator {
 
     public evalReturnExpr(expr: AST_ReturnExpr): SDQL_Return {
 
-        return this.evalReturn((expr as AST_ReturnExpr).source);
+        if (TypeChecker.isQuery(expr.source)) {
+            return this.evalQuery((expr.source) as AST_Query);
+        }
+        
+        return this.evalReturn(((expr as AST_ReturnExpr).source) as AST_Return);
 
     }
     public evalReturn(r: AST_Return): SDQL_Return {

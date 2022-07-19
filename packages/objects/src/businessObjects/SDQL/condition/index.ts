@@ -1,4 +1,5 @@
 export * from "@objects/businessObjects/SDQL/condition/Condition"
+export * from "@objects/businessObjects/SDQL/condition/AST_ConditionExpr"
 export * from "@objects/businessObjects/SDQL/condition/ConditionAnd"
 export * from "@objects/businessObjects/SDQL/condition/ConditionOr"
 export * from "@objects/businessObjects/SDQL/condition/ConditionGE"

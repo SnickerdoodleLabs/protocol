@@ -25,12 +25,6 @@ export class URLExpectedError extends OperandTypeError {
 
 }
 
-export class EvalNotImplementedError extends Error {
-
-    constructor(name: string) {
-        super(`${name} not implemented`);
-    }
-}
 
 export class EvaluationError extends Error {
 
@@ -48,4 +42,24 @@ export class MissingRequiredFieldError extends Error {
         super(`${name} not implemented`);
     }
 
+}
+
+export class DuplicateIdInSchema extends Error {
+    constructor(name: string) {
+        super(`${name} already exists in the parser context`);
+    }
+}
+
+export class EvalNotImplementedError extends Error {
+
+    constructor(name: string) {
+        super(`${name} not implemented`);
+    }
+}
+
+export class ReturnNotImplementedError extends Error {
+
+    constructor(name: string) {
+        super(`Return type for ${name} not implemented`);
+    }
 }
