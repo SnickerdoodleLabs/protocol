@@ -1,3 +1,4 @@
+import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -13,9 +14,11 @@ import {
   UnixTimestamp,
   BigNumberString,
   EVMEvent,
+  IEVMAccountBalanceRepository,
+  IEVMTokenInfo,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import {
   IIndexerConfigProvider,
@@ -92,10 +95,22 @@ interface ICovalentEVMTransactionResponse {
   error_code: number | null;
 }
 
+interface ICovalentEVMBalanceResponse {
+  address: string;
+  updated_at: string;
+  next_update_at: string;
+  quote_currency: string;
+  chain_id: number;
+  items: IEVMTokenInfo[];
+}
+
 @injectable()
 export class CovalentEVMTransactionRepository
-  implements IEVMTransactionRepository
+  implements IEVMTransactionRepository, IEVMAccountBalanceRepository
 {
+  private ENDPOINT_TRANSACTIONS = "transactions_v2";
+  private ENDPOINT_BALANCES = "balances_v2";
+
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -108,75 +123,98 @@ export class CovalentEVMTransactionRepository
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
+    return this.generatePrimer(startTime, endTime).andThen((primer) => {
+      return this.generateQueryConfig(
+        chainId,
+        "transactions_v2",
+        accountAddress,
+        primer,
+      ).andThen((queryConfig) => {
+        return this.ajaxUtils
+          .get<ICovalentEVMTransactionResponse>(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            new URL(queryConfig.url!),
+            queryConfig,
+          )
+          .map((queryResult: ICovalentEVMTransactionResponse) => {
+            const chainId = ChainId(queryResult.data.chain_id);
+            const transactions = queryResult.data.items.map((tx) => {
+              const busObj = new EVMTransaction(
+                chainId,
+                tx.tx_hash,
+                UnixTimestamp(
+                  Math.floor(Date.parse(tx.block_signed_at) / 1000),
+                ),
+                tx.block_height,
+                tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,
+                tx.from_address != null
+                  ? EVMAccountAddress(tx.from_address)
+                  : null,
+                tx.value != null ? BigNumberString(tx.value.toString()) : null,
+                tx.gas_price != null
+                  ? BigNumberString(tx.gas_price.toString())
+                  : null,
+                tx.gas_offered != null
+                  ? BigNumberString(tx.gas_offered.toString())
+                  : null,
+                tx.fees_paid != null
+                  ? BigNumberString(tx.fees_paid.toString())
+                  : null,
+                null,
+              );
+
+              if (tx.log_events != null) {
+                busObj.events = tx.log_events.map((event) => {
+                  return new EVMEvent(
+                    event.tx_hash,
+                    event.raw_log_data,
+                    event.raw_log_topics,
+                    event.sender_contract_decimals,
+                    event.sender_name,
+                    event.sender_contract_ticker_symbol,
+                    event.sender_address,
+                    event.sender_address_label,
+                    event.sender_logo_url,
+                    event.raw_log_data,
+                    event.decoded,
+                  );
+                });
+              }
+
+              return busObj;
+            });
+
+            return transactions;
+          });
+      });
+    });
+  }
+
+  getBalancesForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<IEVMTokenInfo[], AccountBalanceError | AjaxError> {
     return this.generateQueryConfig(
       chainId,
+      this.ENDPOINT_BALANCES,
       accountAddress,
-      startTime,
-      endTime,
-    ).andThen((queryConfig) => {
+    ).andThen((requestConfig) => {
       return this.ajaxUtils
-        .get<ICovalentEVMTransactionResponse>(
+        .get<ICovalentEVMBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(queryConfig.url!),
-          queryConfig,
+          new URL(requestConfig.url!),
+          requestConfig,
         )
-        .map((queryResult: ICovalentEVMTransactionResponse) => {
-          const chainId = ChainId(queryResult.data.chain_id);
-          const transactions = queryResult.data.items.map((tx) => {
-            const busObj = new EVMTransaction(
-              chainId,
-              tx.tx_hash,
-              UnixTimestamp(Math.floor(Date.parse(tx.block_signed_at) / 1000)),
-              tx.block_height,
-              tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,
-              tx.from_address != null
-                ? EVMAccountAddress(tx.from_address)
-                : null,
-              tx.value != null ? BigNumberString(tx.value.toString()) : null,
-              tx.gas_price != null
-                ? BigNumberString(tx.gas_price.toString())
-                : null,
-              tx.gas_offered != null
-                ? BigNumberString(tx.gas_offered.toString())
-                : null,
-              tx.fees_paid != null
-                ? BigNumberString(tx.fees_paid.toString())
-                : null,
-              null,
-            );
-
-            if (tx.log_events != null) {
-              busObj.events = tx.log_events.map((event) => {
-                return new EVMEvent(
-                  event.tx_hash,
-                  event.raw_log_data,
-                  event.raw_log_topics,
-                  event.sender_contract_decimals,
-                  event.sender_name,
-                  event.sender_contract_ticker_symbol,
-                  event.sender_address,
-                  event.sender_address_label,
-                  event.sender_logo_url,
-                  event.raw_log_data,
-                  event.decoded,
-                );
-              });
-            }
-
-            return busObj;
-          });
-
-          return transactions;
+        .map((queryResult) => {
+          return queryResult.items;
         });
     });
   }
 
-  private generateQueryConfig(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
+  private generatePrimer(
     startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<IRequestConfig, never> {
+    endTime?: Date,
+  ): ResultAsync<string, never> {
     let primer: string = JSON.stringify({
       block_signed_at: {
         $gt: startTime.toISOString(),
@@ -200,12 +238,26 @@ export class CovalentEVMTransactionRepository
       });
     }
 
+    return okAsync(primer);
+  }
+
+  private generateQueryConfig(
+    chainId: ChainId,
+    endpoint: string,
+    accountAddress: EVMAccountAddress,
+    primer?: string,
+  ): ResultAsync<IRequestConfig, never> {
     return this.configProvider.getConfig().map((config) => {
+      let url = `https://api.covalenthq.com/v1/${chainId.toString()}/address/${accountAddress}/${endpoint}/?key=${
+        config.covalentApiKey
+      }`;
+      if (primer != undefined) {
+        url += `&match=${primer}`;
+      }
+
       const result: IRequestConfig = {
         method: "get",
-        url: `https://api.covalenthq.com/v1/${chainId.toString()}/address/${accountAddress}/transactions_v2/?key=${
-          config.covalentApiKey
-        }&match=${primer}`,
+        url: url,
         headers: {},
       };
       return result;

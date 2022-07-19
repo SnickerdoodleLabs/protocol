@@ -1,3 +1,4 @@
+import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
 import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   SiteVisit,
@@ -13,6 +14,8 @@ import {
   UnixTimestamp,
   AjaxError,
   PersistenceError,
+  IAccountBalancesType,
+  IAccountBalances,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -30,6 +33,7 @@ import {
 export class MonitoringService implements IMonitoringService {
   public constructor(
     @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
+    @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -77,6 +81,22 @@ export class MonitoringService implements IMonitoringService {
         const transactions = transactionsArr.flat(2);
         return this.persistence.addEVMTransactions(transactions);
       });
+  }
+
+  public pollBalances(): ResultAsync<
+    void,
+    PersistenceError | AccountBalanceError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this.persistence.getAccounts(),
+      this.configProvider.getConfig(),
+    ]).andThen(([accountAddresses, config]) => {
+      return config.supportedChains.map((chainId) => {
+        return accountAddresses.map((accountAddress) => {
+          this.getLatestBalances(chainId, accountAddress)
+        });
+      }
+    });
   }
 
   public siteVisited(SiteVisit: SiteVisit): ResultAsync<void, never> {

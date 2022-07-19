@@ -19,7 +19,9 @@ import {
   FamilyName,
   CountryCode,
   UnixTimestamp,
+  BigNumberString,
 } from "@objects/primitives";
+import { IEVMTokenInfo } from "./chains";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -108,6 +110,18 @@ export interface IDataWalletPersistence {
   ): ResultAsync<EVMTransaction | null, PersistenceError>;
   addEVMTransactions(
     transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError>;
+
+  addEVMAccountBalance(
+    chainId: ChainId,
+    address: EVMAccountAddress,
+    ticker: string,
+    balance: BigNumberString,
+  ): ResultAsync<void, PersistenceError>;
+
+  addTokenInfo(
+    chainId: ChainId,
+    tokenInfo: IEVMTokenInfo,
   ): ResultAsync<void, PersistenceError>;
 }
 

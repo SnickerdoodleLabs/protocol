@@ -18,6 +18,7 @@ export class CoreConfig implements IIndexerConfig {
     public defaultInsightPlatformBaseUrl: URLString,
     public snickerdoodleProtocolDomain: TypedDataDomain,
     public accountIndexingPollingIntervalMS: number,
+    public accountBalancePollingIntervalMS: number,
     public covalentApiKey: string,
   ) {}
 }
