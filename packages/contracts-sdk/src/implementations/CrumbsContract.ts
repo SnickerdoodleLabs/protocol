@@ -34,8 +34,6 @@ export class CrumbsContract implements ICrumbsContract {
     accountAddress: EVMAccountAddress,
     contractOverrides?: ContractOverrides | undefined,
   ): ResultAsync<TokenId | null, CrumbsContractError> {
-    // Temporary, this code needs to be updated
-    return okAsync(null);
     return ResultAsync.fromPromise(
       this.contract.addressToCrumbId(
         accountAddress,
@@ -48,13 +46,13 @@ export class CrumbsContract implements ICrumbsContract {
           e,
         );
       },
-    ).andThen((tokenId) => {
+    ).map((tokenId) => {
       // The contract returns 0 for an address that does not have a Crumb Id
       // Handle by returning null
       if (tokenId == BigInt(0)) {
-        return okAsync(null);
+        return null;
       }
-      return okAsync(tokenId);
+      return tokenId;
     });
   }
 
@@ -62,7 +60,7 @@ export class CrumbsContract implements ICrumbsContract {
     tokenId: TokenId,
   ): ResultAsync<TokenUri | null, CrumbsContractError> {
     return ResultAsync.fromPromise(
-      this.contract?.tokenURI(tokenId) as Promise<TokenUri | null>,
+      this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
       (e) => {
         return new CrumbsContractError(
           "Unable to call tokenURI()",
@@ -98,7 +96,17 @@ export class CrumbsContract implements ICrumbsContract {
           e,
         );
       },
-    ).map(() => {});
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new CrumbsContractError(
+            "Wait for optIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public burnCrumb(
@@ -118,6 +126,16 @@ export class CrumbsContract implements ICrumbsContract {
           e,
         );
       },
-    ).map(() => {});
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new CrumbsContractError(
+            "Wait for optIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 }

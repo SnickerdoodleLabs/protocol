@@ -1,5 +1,6 @@
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   ConsentContractError,
@@ -18,12 +19,6 @@ import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-const pauserRoleBytes = ethers.utils.id("PAUSER_ROLE");
-const signerRoleBytes = ethers.utils.id("REQUESTER_ROLE");
-const requesterRoleBytes = ethers.utils.id("REQUESTER_ROLE");
-const defaultAdminRoleBytes =
-  "0x0000000000000000000000000000000000000000000000000000000000000000"; //bytes for DEFAULT_ADMIN_ROLE on the contract is 0 by default
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -126,7 +121,17 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map(() => {});
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for addDomain() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   // Returns an array of address that has the DEFAULT_ADMIN_ROLE on the Consent contract
@@ -137,7 +142,7 @@ export class ConsentContract implements IConsentContract {
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        defaultAdminRoleBytes,
+        ConsentRoles.DEFAULT_ADMIN_ROLE,
       ) as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
@@ -147,15 +152,31 @@ export class ConsentContract implements IConsentContract {
         );
       },
     ).andThen((memberCount) => {
-      // Declare empty array to store addresses
-      const memberArray: EVMAccountAddress[] = [];
+      // First get an array of index values so that it can be used with ResultUtils.combine
+      const memberIndexArray: number[] = [];
 
-      // Loop through member count, query for the address based on its index and push into array
       for (let i = 0; i < memberCount.toNumber(); i++) {
-        memberArray.push(this.contract.getRoleMember(defaultAdminRoleBytes, i));
+        memberIndexArray.push(i);
       }
-      // Return the full member array
-      return okAsync(memberArray);
+
+      // Map through each index value and get its role member address
+      return ResultUtils.combine(
+        memberIndexArray.map((index) => {
+          return ResultAsync.fromPromise(
+            this.contract.getRoleMember(
+              ConsentRoles.DEFAULT_ADMIN_ROLE,
+              index,
+            ) as Promise<EVMAccountAddress>,
+            (e) => {
+              return new ConsentContractError(
+                "Unable to call getRoleMember()",
+                (e as IBlockchainError).reason,
+                e,
+              );
+            },
+          );
+        }),
+      );
     });
   }
 
@@ -164,7 +185,9 @@ export class ConsentContract implements IConsentContract {
     ConsentContractError
   > {
     return ResultAsync.fromPromise(
-      this.contract.getRoleMemberCount(signerRoleBytes) as Promise<BigNumber>,
+      this.contract.getRoleMemberCount(
+        ConsentRoles.SIGNER_ROLE,
+      ) as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
           "Unable to call getSignerRoleMembers()",
@@ -173,15 +196,31 @@ export class ConsentContract implements IConsentContract {
         );
       },
     ).andThen((memberCount) => {
-      // Declare empty array to store addresses
-      const memberArray: EVMAccountAddress[] = [];
+      // First get an array of index values so that it can be used with ResultUtils.combine
+      const memberIndexArray: number[] = [];
 
-      // Loop through member count, query for the address based on its index and push into array
       for (let i = 0; i < memberCount.toNumber(); i++) {
-        memberArray.push(this.contract.getRoleMember(signerRoleBytes, i));
+        memberIndexArray.push(i);
       }
-      // Return the full member array
-      return okAsync(memberArray);
+
+      // Map through each index value and get its role member address
+      return ResultUtils.combine(
+        memberIndexArray.map((index) => {
+          return ResultAsync.fromPromise(
+            this.contract.getRoleMember(
+              ConsentRoles.PAUSER_ROLE,
+              index,
+            ) as Promise<EVMAccountAddress>,
+            (e) => {
+              return new ConsentContractError(
+                "Unable to call getRoleMember() for SIGNER_ROLE",
+                (e as IBlockchainError).reason,
+                e,
+              );
+            },
+          );
+        }),
+      );
     });
   }
 
@@ -190,7 +229,9 @@ export class ConsentContract implements IConsentContract {
     ConsentContractError
   > {
     return ResultAsync.fromPromise(
-      this.contract.getRoleMemberCount(pauserRoleBytes) as Promise<BigNumber>,
+      this.contract.getRoleMemberCount(
+        ConsentRoles.PAUSER_ROLE,
+      ) as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
           "Unable to call getPauserRoleMembers()",
@@ -199,16 +240,31 @@ export class ConsentContract implements IConsentContract {
         );
       },
     ).andThen((memberCount) => {
-      // Declare empty array to store addresses
-      const memberArray: EVMAccountAddress[] = [];
+      // First get an array of index values so that it can be used with ResultUtils.combine
+      const memberIndexArray: number[] = [];
 
-      // Loop through member count, query for the address based on its index and push into array
       for (let i = 0; i < memberCount.toNumber(); i++) {
-        memberArray.push(this.contract.getRoleMember(pauserRoleBytes, i));
+        memberIndexArray.push(i);
       }
 
-      // Return the full member array
-      return okAsync(memberArray);
+      // Map through each index value and get its role member address
+      return ResultUtils.combine(
+        memberIndexArray.map((index) => {
+          return ResultAsync.fromPromise(
+            this.contract.getRoleMember(
+              ConsentRoles.PAUSER_ROLE,
+              index,
+            ) as Promise<EVMAccountAddress>,
+            (e) => {
+              return new ConsentContractError(
+                "Unable to call getRoleMember() for PAUSER_ROLE",
+                (e as IBlockchainError).reason,
+                e,
+              );
+            },
+          );
+        }),
+      );
     });
   }
 
@@ -218,7 +274,7 @@ export class ConsentContract implements IConsentContract {
   > {
     return ResultAsync.fromPromise(
       this.contract.getRoleMemberCount(
-        requesterRoleBytes,
+        ConsentRoles.REQUESTER_ROLE,
       ) as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
@@ -228,16 +284,31 @@ export class ConsentContract implements IConsentContract {
         );
       },
     ).andThen((memberCount) => {
-      // Declare empty array to store addresses
-      const memberArray: EVMAccountAddress[] = [];
+      // First get an array of index values so that it can be used with ResultUtils.combine
+      const memberIndexArray: number[] = [];
 
-      // Loop through member count, query for the address based on its index and push into array
       for (let i = 0; i < memberCount.toNumber(); i++) {
-        memberArray.push(this.contract.getRoleMember(requesterRoleBytes, i));
+        memberIndexArray.push(i);
       }
 
-      // Return the full member array
-      return okAsync(memberArray);
+      // Map through each index value and get its role member address
+      return ResultUtils.combine(
+        memberIndexArray.map((index) => {
+          return ResultAsync.fromPromise(
+            this.contract.getRoleMember(
+              ConsentRoles.REQUESTER_ROLE,
+              index,
+            ) as Promise<EVMAccountAddress>,
+            (e) => {
+              return new ConsentContractError(
+                "Unable to call getRoleMember() for REQUESTER_ROLE",
+                (e as IBlockchainError).reason,
+                e,
+              );
+            },
+          );
+        }),
+      );
     });
   }
 
@@ -245,7 +316,7 @@ export class ConsentContract implements IConsentContract {
     address: EVMAccountAddress,
   ): ResultAsync<number, ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract?.balanceOf(address) as Promise<BigNumber>,
+      this.contract.balanceOf(address) as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
           "Unable to call balanceOf()",
@@ -318,7 +389,7 @@ export class ConsentContract implements IConsentContract {
                     new ConsentToken(
                       ownerAddress,
                       TokenIdNumber(logEvent.args?.tokenId?.toNumber()),
-                      tokenUri,
+                      tokenUri as TokenUri,
                     ),
                   );
                 },
@@ -390,9 +461,7 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map((result) => {
-      return result;
-    });
+    );
   }
 
   public getRequestForDataListByRequesterAddress(

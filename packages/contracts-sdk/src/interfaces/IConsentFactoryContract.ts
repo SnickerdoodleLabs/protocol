@@ -5,7 +5,6 @@ import {
   EVMContractAddress,
   HexString,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface IConsentFactoryContract {
@@ -23,15 +22,15 @@ export interface IConsentFactoryContract {
 
   /**
    *  Return the number Consent addresses that user has deployed
-   * @param owneraddress Address of the user
+   * @param ownerAddress Address of the user
    */
   getUserDeployedConsentsCount(
-    owneraddress: EVMAccountAddress,
-  ): ResultAsync<BigNumber, ConsentFactoryContractError>;
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<number, ConsentFactoryContractError>;
 
   /**
    *  Return the an array of Consent addresses that user has deployed
-   * @param owneraddress Address of the user
+   * @param ownerAddress Address of the user
    * @param startingIndex Starting array index to query
    * @param endingIndex Ending array index to query
    */
@@ -43,15 +42,15 @@ export interface IConsentFactoryContract {
 
   /**
    *  Return the number Consent addresses that user has opted in
-   * @param owneraddress Address of the user
+   * @param ownerAddress Address of the user
    */
   getUserConsentAddressesCount(
-    owneraddress: EVMAccountAddress,
-  ): ResultAsync<BigNumber, ConsentFactoryContractError>;
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<number, ConsentFactoryContractError>;
 
   /**
    *  Return the an array of Consent addresses that user has opted in
-   * @param owneraddress Address of the user
+   * @param ownerAddress Address of the user
    * @param startingIndex Starting array index to query
    * @param endingIndex Ending array index to query
    */
@@ -63,17 +62,17 @@ export interface IConsentFactoryContract {
 
   /**
    *  Return the number Consent addresses that user has specific roles for
-   * @param owneraddress Address of the user
+   * @param ownerAddress Address of the user
    * @param role The queried role
    */
   getUserRoleAddressesCount(
-    owneraddress: EVMAccountAddress,
+    ownerAddress: EVMAccountAddress,
     role: HexString,
-  ): ResultAsync<BigNumber, ConsentFactoryContractError>;
+  ): ResultAsync<number, ConsentFactoryContractError>;
 
   /**
    *  Return the an array of Consent addresses that user has specific roles for
-   * @param owneraddress Address of the user
+   * @param ownerAddress Address of the user
    * @param role The queried role
    * @param startingIndex Starting array index to query
    * @param endingIndex Ending array index to query
@@ -90,7 +89,3 @@ export interface IConsentFactoryContract {
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>; */
 }
-
-export const IConsentFactoryContractType = Symbol.for(
-  "IConsentFactoryContract",
-);

@@ -64,11 +64,11 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   // Gets the count of user's deployed Consents
   public getUserDeployedConsentsCount(
-    owneraddress: EVMAccountAddress,
-  ): ResultAsync<BigNumber, ConsentFactoryContractError> {
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<number, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getUserDeployedConsentsCount(
-        owneraddress,
+        ownerAddress,
       ) as Promise<BigNumber>,
       (e) => {
         return new ConsentFactoryContractError(
@@ -77,8 +77,8 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    ).andThen((count) => {
-      return okAsync(count);
+    ).map((count) => {
+      return count.toNumber();
     });
   }
 
@@ -91,7 +91,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     endingIndex: number,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
-      this.contract.filters.getUserDeployedConsentsByIndex(
+      this.contract.getUserDeployedConsentsByIndex(
         ownerAddress,
         startingIndex,
         endingIndex,
@@ -103,18 +103,16 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    ).map((result) => {
-      return result;
-    });
+    );
   }
 
   // Gets the count of Consent address user has opted into
   public getUserConsentAddressesCount(
-    owneraddress: EVMAccountAddress,
-  ): ResultAsync<BigNumber, ConsentFactoryContractError> {
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<number, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getUserConsentAddressesCount(
-        owneraddress,
+        ownerAddress,
       ) as Promise<BigNumber>,
       (e) => {
         return new ConsentFactoryContractError(
@@ -123,8 +121,8 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    ).andThen((count) => {
-      return okAsync(count);
+    ).map((count) => {
+      return count.toNumber();
     });
   }
 
@@ -137,7 +135,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     endingIndex: number,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
-      this.contract.filters.getUserConsentAddressesByIndex(
+      this.contract.getUserConsentAddressesByIndex(
         ownerAddress,
         startingIndex,
         endingIndex,
@@ -149,19 +147,17 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    ).map((result) => {
-      return result;
-    });
+    );
   }
 
   // Gets the count of Consent addresses user has specific roles for
   public getUserRoleAddressesCount(
-    owneraddress: EVMAccountAddress,
+    ownerAddress: EVMAccountAddress,
     role: HexString,
-  ): ResultAsync<BigNumber, ConsentFactoryContractError> {
+  ): ResultAsync<number, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.getUserConsentAddressesCount(
-        owneraddress,
+        ownerAddress,
         role,
       ) as Promise<BigNumber>,
       (e) => {
@@ -171,8 +167,8 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    ).andThen((count) => {
-      return okAsync(count);
+    ).map((count) => {
+      return count.toNumber();
     });
   }
 
@@ -186,7 +182,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     endingIndex: number,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
-      this.contract.filters.getUserRoleAddressesCountByIndex(
+      this.contract.getUserRoleAddressesCountByIndex(
         ownerAddress,
         role,
         startingIndex,
@@ -199,9 +195,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    ).map((result) => {
-      return result;
-    });
+    );
   }
 }
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event
