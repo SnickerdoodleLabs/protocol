@@ -26,7 +26,7 @@
     "alias": "tsc-alias",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
-    "compile": "tsc --build && cd ../.. && yarn alias",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
     "prepare": "yarn build",
     "test": "yarn build && yarn test:ci",

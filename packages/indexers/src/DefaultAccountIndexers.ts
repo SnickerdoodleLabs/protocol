@@ -27,13 +27,10 @@ export class DefaultAccountIndexers implements IAccountIndexing {
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
-    @inject(IDataWalletPersistenceType)
-    protected persistence: IDataWalletPersistence,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {
     this.evm = new CovalentEVMTransactionRepository(
       this.configProvider,
-      this.persistence,
       this.ajaxUtils,
     );
 

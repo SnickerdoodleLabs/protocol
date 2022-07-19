@@ -6,6 +6,4 @@ export const snickerdoodleSigningDomain = {
 } as TypedDataDomain;
 
 export * from "@signatureVerification/addCrumbTypes";
-
-// TODO, commented out to compile
-//export * from "@signatureVerification/responseTypes";
+export * from "@signatureVerification/insightDeliveryTypes";
