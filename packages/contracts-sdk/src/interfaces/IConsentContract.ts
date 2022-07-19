@@ -51,6 +51,12 @@ export interface IConsentContract {
    * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
    * Address at index 0 of the returned array is the contract owner
    */
+  getConsentOwner(): ResultAsync<EVMAccountAddress, ConsentContractError>;
+
+  /**
+   * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
+   * Address at index 0 of the returned array is the contract owner
+   */
   getDefaultAdminRoleMembers(): ResultAsync<
     EVMAccountAddress[],
     ConsentContractError

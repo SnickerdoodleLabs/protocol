@@ -134,6 +134,27 @@ export class ConsentContract implements IConsentContract {
       .map(() => {});
   }
 
+  // Returns the address Consent contract contract's owner
+  // Note that the address on index 0 of the DEFAULT_ADMIN_ROLE members is the contract owner
+  public getConsentOwner(): ResultAsync<
+    EVMAccountAddress,
+    ConsentContractError
+  > {
+    return ResultAsync.fromPromise(
+      this.contract.getRoleMember(
+        ConsentRoles.DEFAULT_ADMIN_ROLE,
+        0,
+      ) as Promise<EVMAccountAddress>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call getRoleMember()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
   // Returns an array of address that has the DEFAULT_ADMIN_ROLE on the Consent contract
   // Note that the address on index 0 is the contract owner
   public getDefaultAdminRoleMembers(): ResultAsync<
