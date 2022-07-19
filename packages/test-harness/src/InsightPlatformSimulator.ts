@@ -37,8 +37,8 @@ export class InsightPlatformSimulator {
 
   protected signer: ethers.Wallet;
   protected provider: ethers.providers.JsonRpcProvider;
-  // protected consentContract: ConsentContract;
-  // protected crumbsContract: CrumbsContract;
+  protected consentContract: ConsentContract;
+  protected crumbsContract: CrumbsContract;
 
   public constructor() {
     // Initialize a connection to the local blockchain
@@ -55,14 +55,14 @@ export class InsightPlatformSimulator {
     const doodleChain = chainConfig.get(
       ChainId(31337),
     ) as ControlChainInformation;
-    // this.consentContract = new ConsentContract(
-    //   this.signer,
-    //   defaultConsentContractAddress,
-    // );
-    // this.crumbsContract = new CrumbsContract(
-    //   this.signer,
-    //   doodleChain.crumbsContractAddress,
-    // );
+    this.consentContract = new ConsentContract(
+      this.signer,
+      defaultConsentContractAddress,
+    );
+    this.crumbsContract = new CrumbsContract(
+      this.signer,
+      doodleChain.crumbsContractAddress,
+    );
 
     this.app = express();
 
@@ -107,17 +107,16 @@ export class InsightPlatformSimulator {
 
           console.log("Verified signature!");
 
-          return okAsync(null);
-
           // Add the crumb to the contract
-          // return this.crumbsContract.addressToCrumbId(accountAddress);
+          return this.crumbsContract.addressToCrumbId(accountAddress);
         })
-        // .andThen((tokenId) => {
-        //   if (tokenId == null) {
-        //     return errAsync(new Error(`tokenId is null`));
-        //   }
-        //   return this.crumbsContract.tokenURI(tokenId);
-        // })
+        .andThen((tokenId) => {
+          console.log(`Got TokenId: ${tokenId}`);
+          if (tokenId == null) {
+            return errAsync(new Error(`tokenId is null`));
+          }
+          return this.crumbsContract.tokenURI(tokenId);
+        })
         .andThen((tokenUri) => {
           console.log("Got token uri from crumb", tokenUri);
           // tokenUri is either null or a json blob.

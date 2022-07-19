@@ -43,9 +43,10 @@ paths:
                   type: string
                   format: snickerdoodle-account-address
                 returns:
+                  description: Each logic return is formatted as a string, with JSON data inside it
                   type: array
                   items:
-                    $ref: '#/components/schemas/SubqueryReturn'
+                    type: string
                 signature:
                   type: string
                   format: hex-string
