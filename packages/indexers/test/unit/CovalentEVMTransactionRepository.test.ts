@@ -9,7 +9,8 @@ import {
 import { okAsync } from "neverthrow";
 import td from "testdouble";
 
-import { exampleCovalentResponse } from "@indexers-test/mock/CovalentResponse";
+import * as CovalentAvaxResponse from "@indexers-test/mock/CovalentResponse_AVAX_EndTime";
+import * as CovalentEthResponse from "@indexers-test/mock/CovalentResponse_ETH_NoEnd";
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
 import { IIndexerConfig } from "@indexers/IIndexerConfig";
 import { IIndexerConfigProvider } from "@indexers/IIndexerConfigProvider";
@@ -20,55 +21,76 @@ const startTime = new Date(123456);
 
 class CovalentEVMTransactionRepositoryMocks {
   public configProvider = td.object<IIndexerConfigProvider>();
-  public persistence = td.object<IDataWalletPersistence>();
   public ajaxUtils = td.object<IAxiosAjaxUtils>();
 
   public config: IIndexerConfig = {
     covalentApiKey: "CovalentApiKey",
   };
 
-  // {
-  //   method: "get",
-  //   url: `https://api.covalenthq.com/v1/${chainId.toString()}/address/${accountAddress}/transactions_v2/?key=${
-  //     config.covalentApiKey
-  //   }&match=${primer}`,
-  //   headers: {},
-  // }
-
-  constructor() {
+  constructor(public responseRepo) {
     td.when(this.configProvider.getConfig()).thenReturn(okAsync(this.config));
     td.when(
-      this.ajaxUtils.get(td.matchers.anything(), td.matchers.anything()),
-    ).thenReturn(okAsync(exampleCovalentResponse));
-    // td.when(this.fooRepo.getNumber()).thenReturn(okAsync(1));
+      this.ajaxUtils.get(
+        td.matchers.argThat((url: URL) => {
+          return (
+            responseRepo.getExpectedURL(this.config.covalentApiKey) ==
+            url.toString()
+          );
+        }),
+        td.matchers.anything(),
+      ),
+    ).thenReturn(okAsync(responseRepo.response));
   }
 
   public factoryService(): IEVMTransactionRepository {
     return new CovalentEVMTransactionRepository(
       this.configProvider,
-      this.persistence,
       this.ajaxUtils,
     );
   }
 }
 
 describe("CovalentEVMTransactionRepository tests", () => {
-  test("getEVMTransactions() should succeed", async () => {
+  test("getEVMTransactions() with no end time should succeed", async () => {
     // Arrange
-    const mocks = new CovalentEVMTransactionRepositoryMocks();
+    const mocks = new CovalentEVMTransactionRepositoryMocks(
+      CovalentEthResponse,
+    );
     const repo = mocks.factoryService();
 
     // Act
     const response = await repo.getEVMTransactions(
-      chainId,
-      accountAddress,
-      startTime,
+      CovalentEthResponse.chainId,
+      CovalentEthResponse.accountAddress,
+      CovalentEthResponse.startTime,
     );
 
     // Assert
     expect(response).toBeDefined();
     expect(response.isErr()).toBeFalsy();
     const transactions = response._unsafeUnwrap();
-    expect(transactions.length).toBe(16);
+    expect(transactions.length).toBe(12);
+  });
+
+  test("getEVMTransactions() with end time should succed", async () => {
+    // Arrange
+    const mocks = new CovalentEVMTransactionRepositoryMocks(
+      CovalentAvaxResponse,
+    );
+    const repo = mocks.factoryService();
+
+    // Act
+    const response = await repo.getEVMTransactions(
+      CovalentAvaxResponse.chainId,
+      CovalentAvaxResponse.accountAddress,
+      CovalentAvaxResponse.startTime,
+      CovalentAvaxResponse.endTime,
+    );
+
+    // Assert
+    expect(response).toBeDefined();
+    expect(response.isErr()).toBeFalsy();
+    const transactions = response._unsafeUnwrap();
+    expect(transactions.length).toBe(9);
   });
 });
