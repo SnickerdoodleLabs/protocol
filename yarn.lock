@@ -3976,13 +3976,16 @@ __metadata:
     "@material-ui/lab": 4.0.0-alpha.60
     "@snickerdoodlelabs/objects": "workspace:^"
     "@walletconnect/web3-provider": ^1.6.6
+    clsx: ^1.2.1
     ethers: ^5.6.6
+    gapi-script: ^1.2.0
     neverthrow: ^4.3.1
     notistack: ^2.0.5
     path-browserify: ^1.0.1
     path-to-regexp: ^6.2.0
     react: ^17.0.2
     react-dom: ^17.0.2
+    react-google-login: ^5.2.2
     react-router-dom: ^5.2.0
     url-join-ts: ^1.0.5
     url-loader: ^4.1.1
@@ -9274,7 +9277,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clsx@npm:^1.0.4, clsx@npm:^1.1.0":
+"clsx@npm:^1.0.4, clsx@npm:^1.1.0, clsx@npm:^1.2.1":
   version: 1.2.1
   resolution: "clsx@npm:1.2.1"
   checksum: 30befca8019b2eb7dbad38cff6266cf543091dae2825c856a62a8ccf2c3ab9c2907c4d12b288b73101196767f66812365400a227581484a05f968b0307cfaf12
@@ -14055,6 +14058,13 @@ __metadata:
     web3:
       optional: true
   checksum: 799b275abd09259c88a4e78c335e807d14cc12d3a1ceb9d7cdeef484cf5fab541847edf9cf209f448190199dbd0796393d308d50e6823565154c17dd0c3a4048
+  languageName: node
+  linkType: hard
+
+"gapi-script@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "gapi-script@npm:1.2.0"
+  checksum: f61140855e9a4369de15badb2f4568fdd037d949561de5fd86eca379b89423301bc6062748aba6bd1be68a5329f6239ca9c4b6b5fe454ad6046b6b918979d1ba
   languageName: node
   linkType: hard
 
@@ -22240,7 +22250,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -22672,6 +22682,19 @@ __metadata:
   peerDependencies:
     react: 17.0.2
   checksum: 1c1eaa3bca7c7228d24b70932e3d7c99e70d1d04e13bb0843bbf321582bc25d7961d6b8a6978a58a598af2af496d1cedcfb1bf65f6b0960a0a8161cb8dab743c
+  languageName: node
+  linkType: hard
+
+"react-google-login@npm:^5.2.2":
+  version: 5.2.2
+  resolution: "react-google-login@npm:5.2.2"
+  dependencies:
+    "@types/react": "*"
+    prop-types: ^15.6.0
+  peerDependencies:
+    react: ^16 || ^17
+    react-dom: ^16 || ^17
+  checksum: 29199c7035c3c1070a82241dc4063628d693f35a1736d292e3db736e52da825e8a53f9287b0b12b08a50d676973ce1349a4d8243cd849ca25fed6a4284378880
   languageName: node
   linkType: hard
 

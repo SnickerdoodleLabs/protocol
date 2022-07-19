@@ -8,12 +8,17 @@ import {
   CoinbaseWalletProvider,
 } from "@extension-onboarding/services/providers/connectors";
 import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
+import MetamaskIcon from "@extension-onboarding/assets/icons/metamask.svg";
+import PhantomIcon from "@extension-onboarding/assets/icons/phantom.svg";
+import WalleConnectIcon from "@extension-onboarding/assets/icons/wallet-connect.svg";
+import coinbase from "@extension-onboarding/assets/icons/coinbase.svg";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
 
 export interface IProvider {
   provider: IWalletProvider;
   icon: any;
   name: string;
-  key: string;
+  key: EWalletProviderKeys;
   installationUrl: string;
 }
 
@@ -23,28 +28,28 @@ export const getProviderList = (): IProvider[] => {
       provider: new MetamaskWalletProvider(),
       icon: MetamaskIcon,
       name: "MetaMask",
-      key: "metamask",
+      key:EWalletProviderKeys.METAMASK,
       installationUrl: "https://metamask.io/",
     },
     {
       provider: new PhantomWalletProvider(),
       icon: PhantomIcon,
       name: "Phantom",
-      key: "phantom",
+      key:EWalletProviderKeys.PHANTOM,
       installationUrl: "https://phantom.app/download",
     },
     {
       provider: new WalletConnectProvider(),
       icon: WalleConnectIcon,
       name: "Wallet Connect",
-      key: "walletConnect",
+      key: EWalletProviderKeys.WALLET_CONNECT,
       installationUrl: "",
     },
     {
       provider: new CoinbaseWalletProvider(),
-      icon: WalleConnectIcon,
+      icon: coinbase,
       name: "Coinbase",
-      key: "coinbase",
+      key: EWalletProviderKeys.COINBASE,
       installationUrl: "",
     },
   ];
