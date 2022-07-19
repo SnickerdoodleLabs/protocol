@@ -1,13 +1,12 @@
-// 1. make a sample AST_PropertyQuery
-
-// import { QueryEvaluator } from "businessObjects/SDQL/QueryEvaluator";
-
+import "reflect-metadata";
 import { AST_PropertyQuery, AST_BoolExpr, Condition, ConditionGE, ConditionIn, ConditionL, SDQL_OperatorName, SDQL_Name, ConditionAnd} from "@snickerdoodlelabs/objects";
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
-
+import { LocalStoragePersistence } from "@persistence/LocalStoragePersistence";
+import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
 // import { QueryEvaluator } from "businessObjects/SDQL";
 
-const queryEvaluator = new QueryEvaluator()
+const persistenceLayer = new LocalStoragePersistence();
+const queryEvaluator = new QueryEvaluator(persistenceLayer)
 
 const conditionsGE = [
     new ConditionGE(SDQL_OperatorName('ge'), null, 20)
@@ -29,7 +28,7 @@ class QueryEvaluatorMocks {
     }
   
     public factory() {
-      return new QueryEvaluator();
+      return new QueryEvaluator(persistenceLayer);
     }
   }
 
@@ -45,10 +44,6 @@ describe("QueryEvaluator", () => {
         console.log("hello");
         console.log(propertyQuery);
 
-        //expect(result.isErr()).toBeFalsy();
-        /*
-            mocks.contextProvider.assertEventCounts({ onQueryPosted: 1 });
-        */
         const age = 25;
         // DO the rest
 
@@ -80,8 +75,6 @@ describe("QueryEvaluator", () => {
 
         const conditionsGE = new ConditionGE(SDQL_OperatorName('ge'), null, 20)
         const conditionsL = new ConditionL(SDQL_OperatorName('l'), null, 30)
-
-
         const conditionsGEandL = [
             new ConditionAnd(
                 SDQL_OperatorName('and'), 
@@ -102,9 +95,5 @@ describe("QueryEvaluator", () => {
         const age = 25;
         // DO the rest
     })
-
-
-
-
 
 })

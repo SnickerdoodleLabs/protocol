@@ -18,6 +18,9 @@
       "path": "../objects"
     },
     {
+      "path": "../persistence"
+    },
+    {
       "path": "../signatureVerification"
     }
   ],

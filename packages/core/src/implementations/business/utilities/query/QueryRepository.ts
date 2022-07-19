@@ -1,13 +1,18 @@
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
 import { AST_Query } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Query";
 import { QueryEvaluator } from "./QueryEvaluator";
+import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
+import { DefaultDataWalletPersistence } from "@core/implementations/data";
+import { LocalStoragePersistence } from "@persistence/LocalStoragePersistence";
 
 export class QueryRepository {
 
     queryValuator: QueryEvaluator;
+    dataWalletPersistence: LocalStoragePersistence;
 
     constructor() {
-        this.queryValuator = new QueryEvaluator();
+        this.dataWalletPersistence = new LocalStoragePersistence();
+        this.queryValuator = new QueryEvaluator(this.dataWalletPersistence);
     }
 
     get(cid: IpfsCID, q: AST_Query): SDQL_Return {
