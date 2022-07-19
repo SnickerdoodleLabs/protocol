@@ -1,6 +1,5 @@
 import { Age, CountryCode, SDQL_Return } from "@objects/primitives";
 import { 
-    AST_NetworkQuery,
     AST_PropertyQuery,
     AST_Query,
     IDataWalletPersistence, 
@@ -14,25 +13,23 @@ import {
     ConditionE,   
     IDataWalletPersistenceType
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
+import { AST_NetworkQuery } from "@snickerdoodlelabs/objects";
 
-
+@injectable()
 export class QueryEvaluator {
-
-
     constructor(
         @inject(IDataWalletPersistenceType)
         protected dataWalletPersistence: IDataWalletPersistence
     ) {}
-
-
-
     protected age: Age = Age(0);
     protected location: CountryCode = CountryCode(12345);
     protected result: SDQL_Return = SDQL_Return(true);
 
     public eval(query: AST_Query): any {
         // All the switch statements here
+        console.log("Constructor: ", query.constructor);
+
         switch (query.constructor){
             case AST_NetworkQuery:
                 return this.evalNetworkQuery(query as AST_NetworkQuery)
@@ -47,23 +44,36 @@ export class QueryEvaluator {
         switch (q.property){
             case "age":
                 // const age = 25 // TODO replace with data
-                this.dataWalletPersistence.getAge().map( (age) => this.age = age);
-                switch(q.returnType){
-                    case "boolean":
-                        console.log("Property: Age, Return Type: Boolean");
-                        for (let condition of q.conditions) {
-                            this.result = this.result && this.evalPropertyConditon(this.age, condition);
+                //this.dataWalletPersistence.getAge().map( (age) => this.age = age);
+                this.dataWalletPersistence.getAge().map(
+                    (age) => {
+                        switch(q.returnType){
+                            case "boolean":
+                                console.log("Property: Age, Return Type: Boolean");
+                                console.log("Before conditions: ", this.result);
+                                for (let condition of q.conditions) {
+                                    this.result = this.result && this.evalPropertyConditon(age, condition);
+                                }
+                                console.log("After conditions: ", this.result);
+                                return this.result;
+                            case "integer": 
+                                console.log("Property: Age, Return Type: Integer");
+                                console.log("Returning age: ", age)
+                                this.result = SDQL_Return(age);
+                                return this.result;
+                            case "number": 
+                                console.log("Property: Age, Return Type: Number");
+                                console.log("Returning age: ", age)
+                                this.result = SDQL_Return(age);
+                                return this.result;
+                            default:
+                                return this.result;
                         }
-                        return this.result;
-                    case "integer": 
-                        console.log("Property: Age, Return Type: Integer");
-                        return SDQL_Return(this.age);
-                    case "number": 
-                        console.log("Property: Age, Return Type: Number");
-                        return SDQL_Return(this.age);
-                    default:
-                        return SDQL_Return(false);
-                }
+                        console.log("Tracking the result: ", this.result);
+                    }
+                );
+                console.log("Tracking the result: ", this.result);
+                return this.result;
             case "location":
                 this.dataWalletPersistence.getLocation().map( (location) => this.location = location);
                 switch(q.returnType){
@@ -92,6 +102,9 @@ export class QueryEvaluator {
         switch(condition.constructor) {
             case ConditionGE:
                 let val = (condition as ConditionGE).rval;
+                console.log("PropertyVal is: ", propertyVal);
+                console.log("Val is: ", val);
+                console.log("Return should be: ", propertyVal >= val);
                 return SDQL_Return(propertyVal >= val);
             case ConditionG:
                 val = (condition as ConditionG).rval;
@@ -106,8 +119,11 @@ export class QueryEvaluator {
                 val = (condition as ConditionL).rval;
                 return SDQL_Return(propertyVal < val);
             case ConditionIn:
+                console.log("In Condition IN");
                 let find_val = (condition as ConditionIn).lval;
+                console.log("Looking for: ", find_val);
                 let in_values = (condition as ConditionIn).rvals;
+                console.log("Within: ", in_values);
                 for (let i=0; i < in_values.length; i++){
                     if (find_val == in_values[i]){
                         return SDQL_Return(true);
