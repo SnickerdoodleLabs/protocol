@@ -7,7 +7,7 @@
   "include": [
     "./src/**/*.ts",
     "./src/**/**/*.ts"
-, "../core/src/implementations/business/utilities/query/QueryRepository.ts"  ],
+  ],
   "exclude": [
     "node_modules"
   ],

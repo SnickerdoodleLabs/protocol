@@ -1,9 +1,7 @@
+import { AST, SDQLParser } from "@objects/businessObjects";
+import { SDQLSchema } from "@objects/businessObjects/SDQL/SDQLSchema";
 import { IpfsCID } from "@objects/primitives";
-import { AST } from "./AST";
 import { AST_Evaluator } from "./AST_Evaluator";
-import { AST_Logic } from "./AST_Logic";
-import { SDQLParser } from "./SDQLParser";
-import { SDQLSchema } from "./SDQLSchema";
 
 export class AST_Factories {
 

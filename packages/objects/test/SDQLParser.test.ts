@@ -1,10 +1,13 @@
-import { AST_NetworkQuery, AST_PropertyQuery, ConditionGE } from "businessObjects";
-import { AST_Factories } from "businessObjects/SDQL/AST_Factories";
+import { AST_NetworkQuery, AST_PropertyQuery, ConditionGE, SDQLParser } from "businessObjects";
+import { SDQLSchema } from "businessObjects/SDQL/SDQLSchema";
 import { IpfsCID } from "primitives";
+// import { AST_Factories } from "businessObjects/SDQL/AST_Factories";
 import { avalanceSchemaStr } from "./avalanche.data";
 
 describe("SDQLParser on avalanche", () => {
-    const parser = AST_Factories.makeParser(IpfsCID("test-avalance"), avalanceSchemaStr);
+    
+    const schema = SDQLSchema.fromString(avalanceSchemaStr);
+    const parser = new SDQLParser(IpfsCID("0"), schema);
 
     parser.parse();
 

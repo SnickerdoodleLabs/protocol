@@ -1,14 +1,7 @@
-import { ConditionGE, ConditionIn, ConditionL, ConditionOr } from "businessObjects";
-import { AST } from "businessObjects/SDQL/AST";
-import { AST_Evaluator } from "businessObjects/SDQL/AST_Evaluator";
-import { AST_Expr } from "businessObjects/SDQL/AST_Expr";
-import { AST_Factories } from "businessObjects/SDQL/AST_Factories";
-import { AST_Return } from "businessObjects/SDQL/AST_Return";
-import { AST_ReturnExpr } from "businessObjects/SDQL/AST_ReturnExpr";
-import { Command_IF } from "businessObjects/SDQL/Command_IF";
-import { AST_ConditionExpr } from "businessObjects/SDQL/condition/AST_ConditionExpr";
-import { ConditionAnd } from "businessObjects/SDQL/condition/ConditionAnd";
-import { IpfsCID, SDQL_Name, SDQL_OperatorName, SDQL_Return, Version } from "primitives";
+
+import { AST_Factories } from "@core/implementations/business/utilities";
+import { IpfsCID, SDQL_Name, SDQL_OperatorName, SDQL_Return, Version } from "@objects/primitives";
+import { AST, AST_ConditionExpr, AST_Expr, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "@objects/businessObjects";
 import td from "testdouble";
 
 const ast = new AST(
@@ -213,7 +206,7 @@ describe("IF Command: evalIf()", () => {
         )
 
         const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(r1.source.message)
+        expect(result).toEqual(((r1.source) as AST_Return).message)
     });
     test("false q1 and true q2, return r2", () =>{
 
@@ -235,7 +228,7 @@ describe("IF Command: evalIf()", () => {
         )
 
         const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(r2.source.message)
+        expect(result).toEqual(((r2.source) as AST_Return).message)
     });
     test("true q1 and false q2, return r1", () =>{
 
@@ -257,7 +250,7 @@ describe("IF Command: evalIf()", () => {
         )
 
         const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(r2.source.message)
+        expect(result).toEqual(((r2.source) as AST_Return).message)
     });
     test("false q1 and false q2, return r1", () =>{
 
@@ -279,7 +272,7 @@ describe("IF Command: evalIf()", () => {
         )
 
         const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(r2.source.message)
+        expect(result).toEqual(((r2.source) as AST_Return).message)
     });
 
     test("true q1 or true q2, return r1", () =>{
@@ -302,7 +295,7 @@ describe("IF Command: evalIf()", () => {
         )
 
         const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(r1.source.message)
+        expect(result).toEqual(((r1.source) as AST_Return).message)
     });
 
     test("false q1 or true q2, return r1", () =>{
@@ -325,7 +318,7 @@ describe("IF Command: evalIf()", () => {
         )
 
         const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(r1.source.message)
+        expect(result).toEqual(((r1.source) as AST_Return).message)
     });
 
     test("true q1 or false q2, return r1", () =>{
@@ -348,7 +341,7 @@ describe("IF Command: evalIf()", () => {
         )
 
         const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(r1.source.message)
+        expect(result).toEqual(((r1.source) as AST_Return).message)
     });
 
     test("false q1 or false q2, return r1", () =>{
@@ -371,7 +364,7 @@ describe("IF Command: evalIf()", () => {
         )
 
         const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(r2.source.message)
+        expect(result).toEqual(((r2.source) as AST_Return).message)
     });
 
 });

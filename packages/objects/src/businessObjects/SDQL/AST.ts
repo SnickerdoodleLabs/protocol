@@ -14,7 +14,7 @@ export class AST {
     queries: Map<SDQL_Name, AST_Query>;
     returns: AST_Returns | null;
     compensations: Map<SDQL_Name, AST_Compensation>;
-    logic: AST_Logic;
+    // logic: AST_Logic;
     
 
     constructor(
@@ -28,17 +28,17 @@ export class AST {
         // this.logic = new AST_Logic();
     }
 
-    addQuery(q: AST_Query): void {
-        this.queries.set(q.name, q);
-    }
+    // addQuery(q: AST_Query): void {
+    //     this.queries.set(q.name, q);
+    // }
 
-    addReturns(returns: AST_Returns): void {
-        this.returns = returns;
-    }
+    // addReturns(returns: AST_Returns): void {
+    //     this.returns = returns;
+    // }
 
-    addCompensation(c: AST_Compensation): void {
-        this.compensations.set(c.name, c);
-    }
+    // addCompensation(c: AST_Compensation): void {
+    //     this.compensations.set(c.name, c);
+    // }
 
     // addReturn(r: AST_Return): void {
     //     this.returns.set(r.name, r)
