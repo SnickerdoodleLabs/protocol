@@ -9,6 +9,7 @@ import {
   ConsentToken,
   RequestForData,
   BlockNumber,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -195,10 +196,10 @@ export class ConsentContract implements IConsentContract {
     ).map(() => {});
   }
 
-  public getDomains(): ResultAsync<string[], ConsentContractError> {
+  public getDomains(): ResultAsync<DomainName[], ConsentContractError> {
     return ResultAsync.fromPromise(
       // returns array of domains
-      this.contract.getDomains() as Promise<string[]>,
+      this.contract.getDomains() as Promise<DomainName[]>,
       (e) => {
         return new ConsentContractError("Unable to call requestForData()", e);
       },

@@ -31,7 +31,8 @@ const defaultConsentContractAddress = EVMContractAddress("");
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
-  protected port = 3000;
+  // ports 3000 to 3005 may conflict with insight-platform gateway services
+  protected port = 3006;
   protected cryptoUtils = new CryptoUtils();
 
   protected signer: ethers.Wallet;

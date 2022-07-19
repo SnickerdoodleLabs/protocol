@@ -28,3 +28,7 @@
 * [Core](/packages/core/README.md)
 * [Browser Extension](/packages/browserExtension/README.md)
 * [Test Harness](/packages/test-harness/README.md)
+
+* [Indexers](/packages/indexers/README.md)
+    * [src](/packages/indexers/src/README.md)
+    * [test](/packages/indexers/test/README.md)
