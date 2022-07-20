@@ -3,7 +3,7 @@ import { AST_Expr } from "../AST_Expr";
 import { Condition } from "./Condition";
 
 
-export class ConditionGE extends Condition {
+export class ConditionG extends Condition {
 
     constructor(
         name: SDQL_OperatorName, // ge - greater and equal then
