@@ -1,5 +1,5 @@
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
-import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr, EvalNotImplementedError, Operator, TypeChecker } from "@objects/businessObjects";
+import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionOr, EvalNotImplementedError, Operator, TypeChecker } from "@objects/businessObjects";
 import { QueryRepository } from "./QueryRepository";
 
 // TODO introduce dependency injection
@@ -45,6 +45,8 @@ export class AST_Evaluator {
         this.operatorMap.set(ConditionIn, this.evalIn)
         this.operatorMap.set(ConditionGE, this.evalGE)
         this.operatorMap.set(ConditionL, this.evalL)
+        this.operatorMap.set(ConditionG, this.evalG)
+
 
         this.expMap.set(Command_IF, this.evalIf);
         this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
@@ -221,17 +223,19 @@ export class AST_Evaluator {
     }
 
     public evalGE(cond: ConditionGE): SDQL_Return {
-
         const left = this.evalAny(cond.lval);
-        
         const right = this.evalAny(cond.rval);
-
         console.log('left', left);
         console.log('right', right);
-
         return SDQL_Return(left >= right);
+    }
 
-        
+    public evalG(cond: ConditionGE): SDQL_Return {
+        const left = this.evalAny(cond.lval);
+        const right = this.evalAny(cond.rval);
+        console.log('left', left);
+        console.log('right', right);
+        return SDQL_Return(left > right);
     }
 
     public evalL(cond: ConditionGE): SDQL_Return {

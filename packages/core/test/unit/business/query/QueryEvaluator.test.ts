@@ -8,12 +8,29 @@ import { Age } from "@snickerdoodlelabs/objects";
 import { CountryCode } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import { SDQL_Return } from "@snickerdoodlelabs/objects";
+import { ConditionG } from "@snickerdoodlelabs/objects";
+import { ConditionE } from "@snickerdoodlelabs/objects";
 // import { QueryEvaluator } from "businessObjects/SDQL";
 
 
 const conditionsGE = [
     new ConditionGE(SDQL_OperatorName('ge'), null, 20)
 ];
+const conditionsGE2 = [
+    new ConditionGE(SDQL_OperatorName('ge'), null, 25)
+];
+const conditionsGE3 = [
+    new ConditionGE(SDQL_OperatorName('ge'), null, 30)
+];
+
+const conditionsG = [
+    new ConditionG(SDQL_OperatorName('g'), null, 25)
+];
+const conditionsE = [
+    new ConditionE(SDQL_OperatorName('e'), null, 25)
+];
+
+
 const conditionsL = [
     new ConditionL(SDQL_OperatorName('l'), null, 30)
 ];
@@ -29,6 +46,8 @@ class QueryEvaluatorMocks {
     public dataWalletPersistence = td.object<IDataWalletPersistence>();
 
     public constructor() {  
+        this.dataWalletPersistence.setAge(Age(25));
+        this.dataWalletPersistence.setLocation(CountryCode(57));
         td.when(this.dataWalletPersistence.getAge())
         .thenReturn(
             okAsync(Age(25)),
@@ -37,15 +56,15 @@ class QueryEvaluatorMocks {
         .thenReturn(
             okAsync(CountryCode(57)),
         );
+        
     }
     
     public factory() {
-      return new QueryEvaluator(persistenceLayer);
+      return new QueryEvaluator(this.dataWalletPersistence);
     }
   }
 
-describe("QueryEvaluator", () => {
-
+describe("QueryEvaluator checking age boolean", () => {
     test("EvalPropertyQuery: when age is >= 20, returns true", () => {
         const propertyQuery = new AST_PropertyQuery(
             SDQL_Name("q1"),
@@ -53,23 +72,118 @@ describe("QueryEvaluator", () => {
             "age",
             conditionsGE
         )
-        console.log("hello");
+        console.log(propertyQuery);
+        persistenceLayer.setAge(Age(25));
+        const queryEvaluator = new QueryEvaluator(persistenceLayer)
+        const result = queryEvaluator.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result).toBe(true);
+    })
+    test("EvalPropertyQuery: when age is >= 25, returns true", () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsGE2
+        )
+        console.log(propertyQuery);
+        persistenceLayer.setAge(Age(25));
+        const queryEvaluator = new QueryEvaluator(persistenceLayer)
+        const result = queryEvaluator.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result).toBe(true);
+    })
+    test("EvalPropertyQuery: when age 30 >= 25, returns false", () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsGE3
+        )
         console.log(propertyQuery);
 
-        persistenceLayer.setAge(Age(25));
-        persistenceLayer.setLocation(CountryCode(57));
-        const queryEvaluator = new QueryEvaluator(persistenceLayer)
-
-        const age = persistenceLayer.getAge();
-        const location = persistenceLayer.getLocation();
-        console.log("Age is: ", age);
-        console.log("Location is: ", location);
-
-        const result2 = queryEvaluator.eval(propertyQuery);
-        expect(result2).toBeDefined();
-        expect(result2).toBe(true);
+        const mocks = new QueryEvaluatorMocks();
+        const service = mocks.factory();
+        const result = service.eval(propertyQuery);
+        expect(result).toBe(false);
     })
+})
+    /*
+    test("EvalPropertyQuery: when age is > 24, returns false", () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsG
+        )
+        console.log(propertyQuery);
+        persistenceLayer.setAge(Age(24));
+        const queryEvaluator = new QueryEvaluator(persistenceLayer)
+        const result = queryEvaluator.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result).toBe(false);
+    })
+    test("EvalPropertyQuery: when age is > 25, returns false", () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsG
+        )
+        console.log(propertyQuery);
+        persistenceLayer.setAge(Age(25));
+        const queryEvaluator = new QueryEvaluator(persistenceLayer)
+        const result = queryEvaluator.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result).toBe(false);
+    })
+    test("EvalPropertyQuery: when age is > 26, returns true", () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsG
+        )
+        console.log(propertyQuery);
+        persistenceLayer.setAge(Age(25));
+        const queryEvaluator = new QueryEvaluator(persistenceLayer)
+        const result = queryEvaluator.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result).toBe(true);
+    })
+    test("EvalPropertyQuery: when age is = 25, returns true", () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsE
+        )
+        console.log(propertyQuery);
+        persistenceLayer.setAge(Age(25));
+        const queryEvaluator = new QueryEvaluator(persistenceLayer)
+        const result = queryEvaluator.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result).toBe(true);
+    })
+    test("EvalPropertyQuery: when age is = 26, returns false", () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsE
+        )
+        console.log(propertyQuery);
+        persistenceLayer.setAge(Age(26));
+        const queryEvaluator = new QueryEvaluator(persistenceLayer)
+        const result = queryEvaluator.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result).toBe(false);
+    })
+    
+})
 
+
+describe("QueryEvaluator return integer values", () => {
     test("EvalPropertyQuery: return age", () => {
         const propertyQuery = new AST_PropertyQuery(
             SDQL_Name("q1"),
@@ -79,14 +193,30 @@ describe("QueryEvaluator", () => {
         )
         console.log(propertyQuery);
         persistenceLayer.setAge(Age(25));
+        const queryEvaluator = new QueryEvaluator(persistenceLayer)
+        console.log("queryEvaluator is: ", queryEvaluator)
+        const result = queryEvaluator.eval(propertyQuery);
+        console.log("Result is: ", result)
+        expect(result).toEqual(Age(25))
+    })
+    test("EvalPropertyQuery: return location", () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "integer",
+            "location",
+            []
+        )
+        console.log(propertyQuery);
         persistenceLayer.setLocation(CountryCode(57));
         const queryEvaluator = new QueryEvaluator(persistenceLayer)
-
         const result = queryEvaluator.eval(propertyQuery);
         console.log(result)
-        expect(result).toEqual(SDQL_Return(Age(25)))
+        expect(result).toEqual(SDQL_Return(CountryCode(57)))
     })
+})
 
+
+describe("QueryEvaluator checking location condition in", () => {
     test("EvalPropertyQuery: when location is in ConditionIn, return true", () => {
         const conditionsIn = new ConditionIn(
             SDQL_OperatorName('in'), 
@@ -127,3 +257,4 @@ describe("QueryEvaluator", () => {
     })
 
 })
+*/

@@ -1,6 +1,6 @@
 import { SDQL_Name, SDQL_OperatorName } from "@objects/primitives";
 import { AST_Query } from "./AST_Query";
-import { Condition, ConditionGE, ConditionIn, ConditionL } from "./condition";
+import { Condition, ConditionG, ConditionGE, ConditionIn, ConditionL } from "./condition";
 
 export class AST_PropertyQuery extends AST_Query {
 
@@ -62,6 +62,15 @@ export class AST_PropertyQuery extends AST_Query {
                             opName,
                             null,
                             rightOperand as Array<any>
+                        )
+                    )
+                    break;
+                case "g":
+                    conditions.push(
+                        new ConditionG(
+                            opName,
+                            null,
+                            Number(rightOperand)
                         )
                     )
                     break;

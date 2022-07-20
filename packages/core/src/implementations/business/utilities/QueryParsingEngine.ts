@@ -18,6 +18,9 @@ import { IpfsCID } from "@snickerdoodlelabs/objects";
 import _ from "underscore";
 import { URLString } from "@snickerdoodlelabs/objects";
 import { ConsentConditions } from "@snickerdoodlelabs/objects";
+import { AST } from "@snickerdoodlelabs/objects";
+import { Version } from "@snickerdoodlelabs/objects";
+import { AST_Factories } from "./query/AST_Factories";
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 @injectable()
@@ -36,15 +39,26 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   public handleQuery(obj: ISDQLQueryObject, cid: IpfsCID): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError> {
 
-    /* Still an empty return */
-    // NEVER Returned
+    /* Create New AST Tree */
+    /*
+    const ast = new AST(
+      Version(obj.version), 
+      obj.description,
+      obj.business
+    );
+    const astEvaluator = AST_Factories.makeAST_Evaluator(IpfsCID("000"), ast)
+      */
+
+    return okAsync([this.insightsMap, this.rewardsMap]);
+    /*
+    
     let result: boolean | number | number[] = 100;
 
     if (obj == null) {
       return okAsync([this.insightsMap, this.rewardsMap]);
     }
 
-    /* Missing Key Error */
+    
     let required = ["version", "description", "business", "queries", "returns", "compensations", "logic"];
     for (let i = 0; i < required.length; i++){
       if ((obj[required[i]] === undefined)){
@@ -57,7 +71,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     console.log("Second Logic Value should be: ", this.readLogicEntry(obj, obj["logic"]["returns"][1])["_promise"]);
 
 
-    /* READ ALL LOGIC RETURNS FIRST */
+    // READ ALL LOGIC RETURNS FIRST 
     for (let i = 0; i < obj["logic"]["returns"].length; i++) {
 
       this.readLogicEntry(obj, obj["logic"]["returns"][i]).map((returnVal) => result);
@@ -65,7 +79,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       this.insightsMap.push(new Insight(cid, obj["returns"]["url"] as URLString, result["_promise"]));
     }
     
-    /* READ ALL COMPENSATION RETURNS */
+    // READ ALL COMPENSATION RETURNS 
     for (let i = 0; i < obj["logic"]["compensations"].length; i++) {
       this.readLogicCompEntry(obj, obj["logic"]["compensations"][i], true).andThen(
         (safeReward) =>
@@ -73,6 +87,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       )
     }
     return okAsync([this.insightsMap, this.rewardsMap]);
+    */
   }
 
 
