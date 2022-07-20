@@ -7,6 +7,7 @@ export * from "@objects/errors/ConsentError";
 export * from "@objects/errors/CrumbsContractError";
 export * from "@objects/errors/DataWalletLockedError";
 export * from "@objects/errors/ConsentContractRepositoryError";
+export * from "@objects/errors/IBlockchainError";
 export * from "@objects/errors/InvalidParametersError";
 export * from "@objects/errors/InvalidSignatureError";
 export * from "@objects/errors/IPFSError";

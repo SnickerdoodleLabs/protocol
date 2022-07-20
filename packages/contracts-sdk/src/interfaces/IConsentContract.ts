@@ -142,7 +142,7 @@ export interface IConsentContract {
   /**
    * Returns an array of domains added to the contract
    */
-  getDomains(): ResultAsync<string[], ConsentContractError>;
+  getDomains(): ResultAsync<DomainName[], ConsentContractError>;
 
   /**
    * Returns a list of RequestForData events between two block numbers
@@ -156,11 +156,14 @@ export interface IConsentContract {
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
-  getDomains(): ResultAsync<DomainName[], ConsentContractError>;
+  disableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+
+  enableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+
   filters: IConsentContractFilters;
 }
 
-interface IConsentContractFilters {
+export interface IConsentContractFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,

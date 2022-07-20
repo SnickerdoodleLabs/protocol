@@ -30,7 +30,7 @@ export interface IConsentFactoryContract {
   ): ResultAsync<number, ConsentFactoryContractError>;
 
   /**
-   *  Return the an array of Consent addresses that user has deployed
+   *  Return the an array of Consent addresses that user has deployed between two indexes
    * @param ownerAddress Address of the user
    * @param startingIndex Starting array index to query
    * @param endingIndex Ending array index to query
@@ -39,6 +39,14 @@ export interface IConsentFactoryContract {
     ownerAddress: EVMAccountAddress,
     startingIndex: number,
     endingIndex: number,
+  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
+
+  /**
+   *  Return the an array of Consent addresses that user has deployed
+   * @param ownerAddress Address of the user
+   */
+  getUserDeployedConsents(
+    ownerAddress: EVMAccountAddress,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
 
   /**
