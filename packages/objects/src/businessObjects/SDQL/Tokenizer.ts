@@ -1,27 +1,28 @@
 import { InvalidRegularExpression, ParserError } from "./exceptions";
 
 export enum TokenType {
-    if,
-    else,
-    then,
-    and,
-    or,
-    query,
-    return,
-    compensation,
-    parenthesisOpen,
-    parenthesisClose,
-    number,
-    url,
-    string,
-    whitespace
+    if ='if',
+    else = 'else',
+    then ='then',
+    and = 'and',
+    or ='or',
+    query ='query',
+    return ='return',
+    compensation = 'compensation',
+    parenthesisOpen = 'parenthesisOpen',
+    parenthesisClose = 'parenthesisClose',
+    number ='number',
+    url ='url',
+    string ='string',
+    whitespace ='whitespace',
 
 }
 export class Token {
 
     constructor(
         readonly type: TokenType,
-        readonly val: any
+        readonly val: any,
+        readonly position: number
         ) {
 
         }
@@ -126,6 +127,8 @@ export class Tokenizer {
                 }
 
                 const rawVal = this.exprStr.slice(this.position, rexp.lastIndex);
+                const tokenVal = this.convertVal(tokenType, rawVal);
+                const token = new Token(tokenType, tokenVal, this.position);
 
                 if (rexp.lastIndex >= this.exprStr.length) {
                     this._hasNext = false;
@@ -134,9 +137,7 @@ export class Tokenizer {
                     this.position = rexp.lastIndex;
                 }
 
-                const tokenVal = this.convertVal(tokenType, rawVal);
-
-                return new Token(tokenType, tokenVal);
+                return token;
 
             }
             // if false, do nothing 

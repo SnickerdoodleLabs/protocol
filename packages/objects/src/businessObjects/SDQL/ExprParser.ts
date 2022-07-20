@@ -1,5 +1,6 @@
 import { To } from "history";
 import { AST_Expr } from "./AST_Expr";
+import { ParserError } from "./exceptions";
 import { Token, Tokenizer, TokenType } from "./Tokenizer";
 
 export class ExprParser {
@@ -38,12 +39,14 @@ export class ExprParser {
     }
     infixToPostFix(infix): Array<Token | TokenType> {
         
-        const stack: Array<TokenType> = [];
+        const stack: Array<Token> = [];
         const postFix: Array<Token | TokenType> = [];
         for (const token of infix) {
             /**
              * if token is 
              */
+            let popped: Array<Token> = [];
+
             switch (token.type) {
                 // when token is a literal or a variable
                 case TokenType.number:
@@ -59,21 +62,28 @@ export class ExprParser {
                     // pop everything that has higher or equal precedence 
 
                     
-                    let popped = this.popHigherEqTypes(stack, token);
-                    stack.push(token.type);
+                    popped = this.popHigherEqTypes(stack, token);
+                    stack.push(token);
                     postFix.push(...popped);
                     break;
                 
                 case TokenType.parenthesisOpen:
-                    stack.push(token.type);
+                    stack.push(token);
                     break;
                 case TokenType.parenthesisClose:
                     // pop up to the last open
+                    // console.log("stack before", stack);
                     popped = this.popHigherEqTypes(stack, token);
                     postFix.push(...popped);
+                    // console.log("popped", popped);
                     // assume next pop has a opening one
-                    stack.pop();
-                    
+                    // TODO raise error if 
+                    // console.log("stack after", stack);
+                    const parenthesisOpen = stack.pop();
+                    if (parenthesisOpen?.type != TokenType.parenthesisOpen) {
+                        throw new ParserError(token.position, "No matching opening parenthesis for this")
+                    }
+
 
 
             }
@@ -86,20 +96,24 @@ export class ExprParser {
         return postFix;
     }
 
-    popHigherEqTypes(stack: Array<TokenType>, token): Array<TokenType> {
+    popHigherEqTypes(stack: Array<Token>, token): Array<Token> {
         /**
          * it pops everything that has higher or equal precedence as the token
          */
-        const popped: Array<TokenType> = new Array<TokenType>();
+        const popped: Array<Token> = new Array<Token>();
 
         const precedence = this.precedence.get(token.type);
         if (precedence) {
+            // console.log("precedence", precedence);
             // let lastStackItem = stack[stack.length - 1];
             while (stack.length > 0 ) {
 
-                if (precedence.includes(stack[stack.length - 1])) {
+                // console.log("peeking", stack[stack.length - 1]);
+                if (precedence.includes(stack[stack.length - 1].type)) {
                     let lastStackItem = stack.pop()
-                    popped.push(lastStackItem as TokenType);
+                    popped.push(lastStackItem as Token);
+                } else {
+                    break;
                 }
             }
         }
