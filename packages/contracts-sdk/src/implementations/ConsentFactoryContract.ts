@@ -10,6 +10,7 @@ import {
   IBlockchainError,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
+import { EventFragment } from "ethers/lib/utils";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 @injectable()
@@ -36,7 +37,7 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     ownerAddress: EVMAccountAddress,
     baseUri: string,
     overrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentFactoryContractError> {
+  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.createConsent(
         ownerAddress,
@@ -50,17 +51,48 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    )
-      .andThen((tx) => {
-        return ResultAsync.fromPromise(tx.wait(), (e) => {
-          return new ConsentFactoryContractError(
-            "Wait for optIn() failed",
-            "Unknown",
-            e,
-          );
-        });
-      })
-      .map(() => {});
+    ).andThen((tx) => {
+      return ResultAsync.fromPromise(tx.wait(), (e) => {
+        return new ConsentFactoryContractError(
+          "Wait for optIn() failed",
+          "Unknown",
+          e,
+        );
+      }).andThen((receipt) => {
+        // Get the hash of the event
+        const event = "ConsentDeployed(address,address)";
+        const eventHash = ethers.utils.keccak256(
+          ethers.utils.toUtf8Bytes(event),
+        );
+
+        // Filter out for the ConsentDeployed event from the receipt's logs
+        // returns an array
+        const consentDeployedLog = receipt.logs.filter(
+          (_log) => _log.topics[0] == eventHash,
+        );
+
+        // access the data and topics from the filtered log
+        const data = consentDeployedLog[0].data;
+        const topics = consentDeployedLog[0].topics;
+
+        // Declare a new interface
+        const Interface = ethers.utils.Interface;
+        const iface = new Interface([
+          "event ConsentDeployed(address indexed owner, address indexed consentAddress)",
+        ]);
+
+        // Decode the log from the given data and topic
+        const decodedLog = iface.decodeEventLog(
+          "ConsentDeployed",
+          data,
+          topics,
+        );
+
+        const deployedConsentAddress = decodedLog.consentAddress;
+
+        return okAsync(deployedConsentAddress as EVMContractAddress);
+      });
+    });
   }
 
   // Gets the count of user's deployed Consents
