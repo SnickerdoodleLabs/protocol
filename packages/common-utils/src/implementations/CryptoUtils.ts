@@ -15,6 +15,7 @@ import {
   InitializationVector,
   SHA256Hash,
   HexString,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import argon2 from "argon2";
 import { ethers } from "ethers";
@@ -33,6 +34,10 @@ export class CryptoUtils implements ICryptoUtils {
     return okAsync(
       Crypto.randomBytes(nonceSize).toString("base64").slice(0, nonceSize),
     );
+  }
+
+  public getTokenId(): ResultAsync<TokenId, never> {
+    return okAsync(TokenId(BigInt(Crypto.randomInt(281474976710655))));
   }
 
   public deriveAESKeyFromSignature(

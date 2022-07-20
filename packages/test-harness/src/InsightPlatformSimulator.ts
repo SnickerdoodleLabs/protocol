@@ -16,6 +16,8 @@ import {
   InitializationVector,
   LanguageCode,
   Signature,
+  TokenId,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -112,34 +114,57 @@ export class InsightPlatformSimulator {
         })
         .andThen((tokenId) => {
           console.log(`Got TokenId: ${tokenId}`);
+
+          // If there's no token ID, there's no crumb, so we'll add it.
           if (tokenId == null) {
-            return errAsync(new Error(`tokenId is null`));
+            return this.cryptoUtils.getTokenId().andThen((newTokenId) => {
+              const crumbContent = TokenUri(
+                JSON.stringify({
+                  [languageCode]: {
+                    d: encrypted.data,
+                    iv: encrypted.initializationVector,
+                  },
+                } as ICrumbContent),
+              );
+              return this.crumbsContract
+                .createCrumb(newTokenId, crumbContent)
+                .map(() => {
+                  return newTokenId;
+                });
+            });
           }
-          return this.crumbsContract.tokenURI(tokenId);
+
+          // Got a token, need to get the URI
+          return this.crumbsContract.tokenURI(tokenId).andThen((tokenUri) => {
+            console.log("Got token uri from crumb", tokenUri);
+            // tokenUri is either null or a json blob.
+            if (tokenUri == null) {
+              return errAsync(
+                new Error(`Cannot retrieve tokenUri from token id ${tokenId}`),
+              );
+            }
+            // Existing crumb, we need to update it
+            const content = JSON.parse(tokenUri) as ICrumbContent;
+
+            content[languageCode] = {
+              d: encrypted.data,
+              iv: encrypted.initializationVector,
+            };
+
+            // TODO: Update crumb
+            //return this.crumbsContract.updateTokenUri() DOES NOT EXIST
+
+            return okAsync(tokenId);
+          });
         })
-        .andThen((tokenUri) => {
-          console.log("Got token uri from crumb", tokenUri);
-          // tokenUri is either null or a json blob.
-          if (tokenUri == null) {
-            // No crumb at all, add it!
-            //return this.crumbsContract.
-            return okAsync(undefined);
-          }
-          // Existing crumb, we need to update it
-          const content = JSON.parse(tokenUri) as ICrumbContent;
-
-          content[languageCode] = {
-            d: encrypted.data,
-            iv: encrypted.initializationVector,
-          };
-
-          // TODO: Update crumb
-
-          return okAsync(undefined);
-        })
-        .map(() => {
+        .map((tokenId) => {
           // We are supposed to return the token ID of the crumb
-          res.send("asdfasdf");
+          res.send(tokenId.toString());
+        })
+        .mapErr((e) => {
+          console.error(e);
+          res.statusCode = 500;
+          res.send(e.message);
         });
     });
 

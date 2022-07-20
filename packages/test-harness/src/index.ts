@@ -34,7 +34,7 @@ import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator
 const persistence = new LocalStoragePersistence();
 const core = new SnickerdoodleCore(
   {
-    defaultInsightPlatformBaseUrl: "http://localhost:3000",
+    defaultInsightPlatformBaseUrl: "http://localhost:3006",
   } as IConfigOverrides,
   persistence,
 );
@@ -56,6 +56,8 @@ const cohortInvitation = new CohortInvitation(
   TokenId(BigInt(123)),
   null,
 );
+
+let unlocked = false;
 
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
@@ -121,29 +123,38 @@ function mainPrompt(): ResultAsync<void, Error> {
 }
 
 function corePrompt(): ResultAsync<void, Error> {
+  let choices = [
+    { name: "Add Account", value: "addAccount" },
+    new inquirer.Separator(),
+    {
+      name: "Check Invitation Status",
+      value: "checkInvitationStatus",
+      short: "ci",
+    },
+    new inquirer.Separator(),
+    { name: "Set Age", value: "setAge" },
+    new inquirer.Separator(),
+    { name: "Get Age", value: "getAge" },
+    new inquirer.Separator(),
+    { name: "Cancel", value: "cancel" },
+  ];
+
+  // Only show the unlock option we are not already unlocked.
+  if (!unlocked) {
+    choices = [
+      { name: "Unlock", value: "unlock" },
+      new inquirer.Separator(),
+      ...choices,
+    ];
+  }
+
   return ResultAsync.fromPromise(
     inquirer.prompt([
       {
         type: "list",
         name: "core",
         message: "Please select a course of action:",
-        choices: [
-          { name: "Unlock", value: "unlock" },
-          new inquirer.Separator(),
-          { name: "Add Account", value: "addAccount" },
-          new inquirer.Separator(),
-          {
-            name: "Check Invitation Status",
-            value: "checkInvitationStatus",
-            short: "ci",
-          },
-          new inquirer.Separator(),
-          { name: "Set Age", value: "setAge" },
-          new inquirer.Separator(),
-          { name: "Get Age", value: "getAge" },
-          new inquirer.Separator(),
-          { name: "Cancel", value: "cancel" },
-        ],
+        choices: choices,
       },
     ]),
     (e) => {
@@ -262,6 +273,7 @@ function addAccount(
     })
     .map(() => {
       console.log(`Unlocked!`);
+      unlocked = true;
     })
     .mapErr((e) => {
       console.error(e);

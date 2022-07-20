@@ -1,6 +1,3 @@
-import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -12,6 +9,10 @@ import {
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
+
+import { ICrumbsContract } from "@contracts-sdk/interfaces/ICrumbsContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 @injectable()
 export class CrumbsContract implements ICrumbsContract {
@@ -31,14 +32,10 @@ export class CrumbsContract implements ICrumbsContract {
   }
 
   public addressToCrumbId(
-    accountAddress: EVMAccountAddress,
-    contractOverrides?: ContractOverrides | undefined,
+    accountAddress: EVMAccountAddress
   ): ResultAsync<TokenId | null, CrumbsContractError> {
     return ResultAsync.fromPromise(
-      this.contract.addressToCrumbId(
-        accountAddress,
-        contractOverrides,
-      ) as Promise<TokenId>,
+      this.contract.addressToCrumbId(accountAddress) as Promise<TokenId>,
       (e) => {
         return new CrumbsContractError(
           "Unable to call addressToCrumbId()",
@@ -79,14 +76,13 @@ export class CrumbsContract implements ICrumbsContract {
 
   public createCrumb(
     crumbId: TokenId,
-    mask: TokenUri,
-    contractOverrides?: ContractOverrides | undefined,
+    tokenUri: TokenUri,
+    contractOverrides?: ContractOverrides,
   ): ResultAsync<void, CrumbsContractError> {
     return ResultAsync.fromPromise(
       this.contract.createCrumb(
         crumbId,
-        mask,
-        contractOverrides,
+        tokenUri,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         // No error handling needed, any reverts from function call should return the reason
