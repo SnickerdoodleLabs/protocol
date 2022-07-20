@@ -31,7 +31,7 @@ export class EvaluationError extends Error {
 }
 
 export class ParserError extends Error {
-    constructor(position:string, message:string) {
+    constructor(position:number, message:string) {
         super(`${position}: {$message}`);
     }
 }
@@ -62,4 +62,11 @@ export class ReturnNotImplementedError extends Error {
     constructor(name: string) {
         super(`Return type for ${name} not implemented`);
     }
+}
+
+export class ParsingError extends Error {
+}
+
+export class InvalidRegularExpression extends Error {
+    
 }
