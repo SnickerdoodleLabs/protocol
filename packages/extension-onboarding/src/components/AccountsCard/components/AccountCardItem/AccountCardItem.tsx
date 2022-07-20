@@ -4,8 +4,6 @@ import React, { FC, useMemo } from "react";
 import tickIcon from "@extension-onboarding/assets/icons/tick.svg";
 import { useStyles } from "@extension-onboarding/components/AccountsCard/components/AccountCardItem/AccountCardItem.style";
 import { useAppContext } from "@extension-onboarding/Context/App";
-import { useLayoutContext } from "@extension-onboarding/Context/LayoutContext";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
 
 interface IAccountCardItemProps {
   // TODO write correct interface
@@ -14,18 +12,15 @@ interface IAccountCardItemProps {
     accountAddress: string;
     name: string;
   };
+  onUnlockClick: () => void;
 }
 
 const AccountCardItem: FC<IAccountCardItemProps> = ({
   account,
+  onUnlockClick,
 }: IAccountCardItemProps) => {
   const classes = useStyles();
-  const { providerList, deleteAccount } = useAppContext();
-  const { setModal } = useLayoutContext();
-
-  const onPrimaryButtonClick = () => {
-    deleteAccount(account);
-  };
+  const { providerList } = useAppContext();
 
   const providerObject = useMemo(
     () => providerList.find((provider) => provider.key === account.key),
@@ -48,15 +43,7 @@ const AccountCardItem: FC<IAccountCardItemProps> = ({
         </Typography>
       </Box>
       <Box className={classes.linkAccountContainer}>
-        <Button
-          onClick={() => {
-            setModal({
-              modalSelector: EModalSelectors.ACCOUNT_UNLINKED,
-              onPrimaryButtonClick
-            });
-          }}
-          className={classes.linkAccountButton}
-        >
+        <Button onClick={onUnlockClick} className={classes.linkAccountButton}>
           Unlink Account
         </Button>
       </Box>
