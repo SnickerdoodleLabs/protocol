@@ -235,6 +235,39 @@ describe("Crumbs", () => {
     });
   });
 
+  describe("updateCrumb", function () {
+    it("Allows owner to update its crumb", async function () {
+      // accounts 1 creates a crumb
+      await crumbs
+        .connect(accounts[1])
+        .createCrumb(
+          1,
+          "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        );
+
+      // accounts 1 updates his crumb
+      await expect(crumbs.connect(accounts[1]).updateCrumb(1, "newuri"))
+        .to.emit(crumbs, "CrumbUpdated")
+        .withArgs(accounts[1].address, 1, "newuri");
+
+      const newURI = await crumbs.tokenURI(1);
+      expect(newURI).to.eq("www.crumbs.com/newuri");
+    });
+
+    it("Does not allow an address to update another user's crumb.", async function () {
+      await crumbs
+        .connect(accounts[1])
+        .createCrumb(
+          1,
+          "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        );
+
+      await expect(
+        crumbs.connect(accounts[2]).updateCrumb(1, "newuri"),
+      ).to.revertedWith("Crumbs: Caller is not crumb id's owner");
+    });
+  });
+
   describe("setBaseURI", function () {
     it("Sets the baseURI", async function () {
       await crumbs.connect(accounts[0]).setBaseURI("www.crumbs.com");

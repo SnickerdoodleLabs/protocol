@@ -12,8 +12,8 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 /// @title Crumbs 
 /// @author Sean Sing
 /// @notice Snickerdoodle Protocol's Crumbs Contract
-/// @dev A crumb is an ERC721 NFT that holds the masks of a user's private key as part of their token uri
-/// @dev Any user can create and the store masks for their private keys 
+/// @dev A crumb is an ERC721 NFT that holds the JSON object (for SDL's parsing) of a user within the token uri
+/// @dev Any user can create a crumb, store and update the JSON object 
 /// @dev The ERC721's tokenId is labelled crumbId in this contract
 /// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter 
 /// @dev ERC2771ContextUpgradeable's features were directly embedded into the contract (see isTrustedForwarder for details)
@@ -22,7 +22,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 
 contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable, ERC2771ContextUpgradeable {
 
-    /// @notice Mapping of address to respective crumbId that stores its mask
+    /// @notice Mapping of address to respective crumbId that stores its JSON object
     mapping(address => uint256) public addressToCrumbId;
 
     /// @dev Total supply of Crumb tokens
@@ -34,13 +34,19 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
     /// @notice Emitted when a crumb is created
     /// @param owner Indexed address of data requester
     /// @param crumbId Indexed crumb id
-    /// @param mask Mask string 
-    event CrumbCreated(address indexed owner, uint256 indexed crumbId, string mask);
+    /// @param tokenURI tokenURI containing JSON object 
+    event CrumbCreated(address indexed owner, uint256 indexed crumbId, string tokenURI);
 
     /// @notice Emitted when a crumb is burnt
     /// @param owner Indexed address of data requester
     /// @param crumbId Indexed crumb id
     event CrumbBurnt(address indexed owner, uint256 indexed crumbId);
+
+    /// @notice Emitted when a crumb is updated
+    /// @param owner Indexed address of data requester
+    /// @param crumbId Indexed crumb id
+    /// @param tokenURI New token URI
+    event CrumbUpdated(address indexed owner, uint256 indexed crumbId, string tokenURI);
 
     /// @dev Initializes the contract with the base URI, then disables any initializers as recommended by OpenZeppelin
     constructor(address trustedForwarder, string memory baseURInew) ERC2771ContextUpgradeable(trustedForwarder) {
@@ -62,8 +68,8 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
 
     /// @notice Mints user a crumb 
     /// @param crumbId Id of the crumb token
-    /// @param mask String of mask of the calling address's private key
-    function createCrumb(uint256 crumbId, string memory mask) public {
+    /// @param _tokenURI String of JSON object
+    function createCrumb(uint256 crumbId, string memory _tokenURI) public {
         require(addressToCrumbId[_msgSender()] == 0, "Crumb: Address already has a crumb");
 
         // add address and crumbId to the mapping
@@ -71,13 +77,13 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
 
         // mint the crumb
         _safeMint(_msgSender(), crumbId);
-        // set the mask as the crumb's URI
-        _setTokenURI(crumbId, mask);
+        // set the JSON object as the crumb's URI
+        _setTokenURI(crumbId, _tokenURI);
 
         // increase total supply
         totalSupply++;
 
-        emit CrumbCreated(_msgSender(), crumbId, mask);
+        emit CrumbCreated(_msgSender(), crumbId, _tokenURI);
     }
 
     /// @notice Burns user's crumb 
@@ -91,6 +97,18 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
         totalSupply--;
 
         emit CrumbBurnt(_msgSender(), crumbId);
+    }
+
+    /// @notice Update a user's crumb 
+    /// @param crumbId Id of the crumb token to update
+    /// @param _tokenURI Id of the crumb token to update
+    function updateCrumb(uint256 crumbId, string memory _tokenURI) public {
+        
+        require(addressToCrumbId[_msgSender()] == crumbId, "Crumbs: Caller is not crumb id's owner");
+
+        _setTokenURI(crumbId, _tokenURI);
+
+        emit CrumbUpdated(_msgSender(), crumbId, _tokenURI);
     }
 
      /* SETTERS */
