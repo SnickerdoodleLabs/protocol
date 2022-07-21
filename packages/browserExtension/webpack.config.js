@@ -1,20 +1,17 @@
 const webpack = require("webpack");
 const path = require("path");
 const fileSystem = require("fs-extra");
+const { merge } = require("webpack-merge");
 const env = require("./utils/env");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-const MergeJsonsPlugin = require("merge-jsons-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const configFilePath = require.resolve("./tsconfig.json");
 const argon2 = require("argon2");
 
-const ASSET_PATH = process.env.ASSET_PATH || "/";
-
-process.env.__ONBOARDING_URL__ = "https://localhost:9005/";
 
 var alias = {
   "react-dom": "@hot-loader/react-dom",
@@ -65,7 +62,7 @@ var options = {
     filename: "[name].bundle.js",
     path: path.resolve(__dirname, "build"),
     clean: true,
-    publicPath: ASSET_PATH,
+    publicPath: process.env.ASSET_PATH,
   },
   module: {
     rules: [
@@ -92,10 +89,6 @@ var options = {
         test: new RegExp(".(" + fileExtensions.join("|") + ")$"),
         type: "asset/resource",
         exclude: /node_modules/,
-        // loader: 'file-loader',
-        // options: {
-        //   name: '[name].[ext]',
-        // },
       },
       {
         test: /\.html$/,
@@ -145,21 +138,47 @@ var options = {
     new webpack.EnvironmentPlugin(["NODE_ENV"]),
     new webpack.DefinePlugin({
       __ONBOARDING_URL__: JSON.stringify(process.env.__ONBOARDING_URL__),
+      __ACCOUNT_COOKIE_URL__: JSON.stringify(
+        process.env.__ACCOUNT_COOKIE_URL__,
+      ),
       __MANIFEST_VERSION__: JSON.stringify(
         process.env.__MANIFEST_VERSION__ || "v3",
       ),
       __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
     }),
-    new MergeJsonsPlugin({
-      files: [
-        `./src/manifest/${process.env.__MANIFEST_VERSION__ || "v3"}/base.json`,
-        `./src/manifest/${process.env.__MANIFEST_VERSION__ || "v3"}/${
-          process.env.__PLATFORM__ || "chrome"
-        }.json`,
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: `./src/manifest/${
+            process.env.__MANIFEST_VERSION__ || "v3"
+          }/base.json`,
+          to: path.join(__dirname, "build/manifest.json"),
+          force: true,
+          transform: function (content, path) {
+            return Buffer.from(
+              JSON.stringify(
+                merge(
+                  JSON.parse(content.toString()),
+                  fileSystem.readJSONSync(
+                    `./src/manifest/${
+                      process.env.__MANIFEST_VERSION__ || "v3"
+                    }/${process.env.__PLATFORM__ || "chrome"}.json`,
+                  ),
+                  {
+                    ...((process.env.__MANIFEST_VERSION__ || "v3") === "v3"
+                      ? {
+                          host_permissions: [
+                            process.env.__ACCOUNT_COOKIE_URL__,
+                          ],
+                        }
+                      : { permissions: [process.env.__ACCOUNT_COOKIE_URL__] }),
+                  },
+                ),
+              ),
+            );
+          },
+        },
       ],
-      output: {
-        fileName: "./manifest.json",
-      },
     }),
     new CopyWebpackPlugin({
       patterns: [

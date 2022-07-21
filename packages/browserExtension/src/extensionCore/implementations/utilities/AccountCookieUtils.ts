@@ -8,7 +8,10 @@ import Browser from "webextension-polyfill";
 import { IUnlockParams } from "@shared/interfaces/actions";
 import { IAccountCookieUtils } from "@interfaces/utilities";
 import { ExtensionCookieError } from "@shared/objects/errors";
+import { IConfigProvider } from "@shared/interfaces/configProvider";
 export class AccountCookieUtils implements IAccountCookieUtils {
+  constructor(protected configProvider: IConfigProvider) {}
+
   public writeAccountInfoToCookie(
     account: EVMAccountAddress,
     signature: Signature,
@@ -33,7 +36,7 @@ export class AccountCookieUtils implements IAccountCookieUtils {
         return ResultAsync.fromPromise(
           Browser.cookies.set({
             // TODO add onboarding url once its published
-            url: "https://snickerdoodlelabs.io/",
+            url: this.configProvider.getConfig().accountCookieUrl,
             expirationDate: date.getTime() / 1000,
             name: "account-info",
             value,
@@ -70,7 +73,7 @@ export class AccountCookieUtils implements IAccountCookieUtils {
       Browser.cookies.get({
         name: "account-info",
         // TODO add onboarding url once its published
-        url: "https://snickerdoodlelabs.io/",
+        url: this.configProvider.getConfig().accountCookieUrl,
       }),
       (e) => new ExtensionCookieError("Unable to get cookie"),
     );

@@ -60,7 +60,6 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { IConfigProvider } from "@shared/interfaces/configProvider";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 
-
 export class ExtensionCore {
   // snickerdooldle Core
   protected core: ISnickerdoodleCore;
@@ -76,7 +75,7 @@ export class ExtensionCore {
   // Utils
   protected contextProvider: IContextProvider;
   protected accountCookieUtils: IAccountCookieUtils;
-  protected errorUtils: IErrorUtils ;
+  protected errorUtils: IErrorUtils;
 
   // Factory
   protected rpcEngineFactory: IRpcEngineFactory;
@@ -84,7 +83,7 @@ export class ExtensionCore {
   // API
   protected coreListener: ICoreListener;
   protected errorListener: IErrorListener;
-  protected extensionListener : IExtensionListener
+  protected extensionListener: IExtensionListener;
   protected portConnectionListener: IPortConnectionListener;
   protected rpcCallHandler: IRpcCallHandler;
 
@@ -93,14 +92,14 @@ export class ExtensionCore {
   constructor() {
     this.core = new SnickerdoodleCore();
 
-    this.configProvider = ConfigProvider
+    this.configProvider = ConfigProvider;
 
     this.coreListener = new CoreListener(this.core);
     this.coreListener.initialize();
 
     this.contextProvider = new ContextProvider();
 
-    this.accountCookieUtils = new AccountCookieUtils();
+    this.accountCookieUtils = new AccountCookieUtils(this.configProvider);
     this.errorUtils = new ErrorUtils(this.contextProvider);
 
     this.accountRepository = new AccountRepository(
@@ -123,7 +122,7 @@ export class ExtensionCore {
     this.portConnectionRepository = new PortConnectionRepository(
       this.contextProvider,
       this.rpcEngineFactory,
-      this.configProvider
+      this.configProvider,
     );
 
     this.portConnectionService = new PortConnectionService(

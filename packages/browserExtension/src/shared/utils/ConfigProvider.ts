@@ -3,6 +3,7 @@ import { IConfigProvider } from "@shared/interfaces/configProvider";
 import { ExtensionConfig } from "@shared/objects/Config";
 
 declare const __ONBOARDING_URL__: string;
+declare const __ACCOUNT_COOKIE_URL__: string;
 declare const __MANIFEST_VERSION__: EManifestVersion;
 declare const __PLATFORM__: EPlatform;
 
@@ -11,6 +12,7 @@ class ConfigProvider implements IConfigProvider {
   constructor() {
     this.extensionConfig = new ExtensionConfig(
       __ONBOARDING_URL__,
+      __ACCOUNT_COOKIE_URL__,
       __MANIFEST_VERSION__,
       __PLATFORM__,
     );

@@ -2,6 +2,8 @@
 process.env.BABEL_ENV = "development";
 process.env.NODE_ENV = "development";
 process.env.ASSET_PATH = "/";
+process.env.__ONBOARDING_URL__ = "https://localhost:9005/";
+process.env.__ACCOUNT_COOKIE_URL__ = "https://snickerdoodlelabs.io/";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
