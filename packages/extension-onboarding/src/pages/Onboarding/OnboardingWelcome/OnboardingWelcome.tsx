@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
-import artboard from "@extension-onboarding/assets/icons/artboard.png";
+import artboardImage from "@extension-onboarding/assets/images/artboard.png";
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
 import avalancheCircle from "@extension-onboarding/assets/icons/avalanche-circle.svg";
 import algorandCircle from "@extension-onboarding/assets/icons/algorand-circle.svg";
@@ -59,7 +59,7 @@ const OnboardingWelcome: FC = () => {
           </Box>
         </Box>
         <Box className={classes.artboard}>
-          <img src={artboard} />
+          <img src={artboardImage} />
         </Box>
       </Box>
       <Box
