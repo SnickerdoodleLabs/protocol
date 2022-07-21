@@ -132,7 +132,7 @@ describe("Crumbs", () => {
         crumbs
           .connect(accounts[2])
           .transferFrom(accounts[1].address, accounts[2].address, 1),
-      ).to.revertedWith("ERC721: transfer caller is not owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner nor approved");
 
       // check if account 1 still owns crumb id 1
       const crumbId = await crumbs.addressToCrumbId(accounts[1].address);
@@ -161,7 +161,7 @@ describe("Crumbs", () => {
         crumbs
           .connect(accounts[1])
           .transferFrom(accounts[2].address, accounts[1].address, 2),
-      ).to.revertedWith("ERC721: transfer caller is not owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner nor approved");
 
       // check if account 1 still owns crumb id 1
       const crumbId1 = await crumbs.addressToCrumbId(accounts[1].address);
@@ -230,7 +230,7 @@ describe("Crumbs", () => {
         );
 
       await expect(crumbs.connect(accounts[2]).burnCrumb(1)).to.revertedWith(
-        "ERC721Burnable: caller is not owner nor approved",
+        "ERC721: caller is not token owner nor approved",
       );
     });
   });
