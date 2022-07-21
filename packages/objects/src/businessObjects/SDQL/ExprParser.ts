@@ -25,6 +25,10 @@ export class ExprParser {
             TokenType.or,
             [TokenType.and, TokenType.or]
         );
+        // this.precedence.set(
+        //     TokenType.then,
+        //     [TokenType.if, TokenType.or]
+        // );
     }
 
     parse(exprStr: string): AST_Expr {
@@ -34,10 +38,12 @@ export class ExprParser {
         return ast;
     }
     tokensToAst(tokens): AST_Expr {
-        const postFix: Array<Token | TokenType> = this.infixToPostFix(tokens);
-        throw new Error("Not implemented yet"); 
+        const postFix: Array<Token> = this.infixToPostFix(tokens);
+        const ast = this.buildAstFromPostfix(postFix);
+        return ast;
     }
-    infixToPostFix(infix): Array<Token | TokenType> {
+    // 
+    infixToPostFix(infix): Array<Token> {
         
         const stack: Array<Token> = [];
         const postFix: Array<Token | TokenType> = [];
@@ -46,6 +52,8 @@ export class ExprParser {
              * if token is 
              */
             let popped: Array<Token> = [];
+
+            // Conver to a Map later.
 
             switch (token.type) {
                 // when token is a literal or a variable
@@ -56,6 +64,10 @@ export class ExprParser {
                     postFix.push(token);
                     break;
                 
+                case TokenType.if:
+                    stack.push(token);
+                    break;
+
                 case TokenType.and:
                 case TokenType.or:
                     
@@ -83,7 +95,26 @@ export class ExprParser {
                     if (parenthesisOpen?.type != TokenType.parenthesisOpen) {
                         throw new ParserError(token.position, "No matching opening parenthesis for this")
                     }
+                    break;
 
+                case TokenType.then:
+                    // pop until if
+                    console.log("stack before", stack);
+                    popped = this.popToType(stack, token, TokenType.if);
+                    console.log("popped", popped);
+                    console.log("stack after", stack);
+                    postFix.push(...popped);
+                    stack.push(token);
+                    break;
+                
+                case TokenType.else:
+                    console.log("stack before", stack);
+                    popped = this.popToType(stack, token, TokenType.then);
+                    console.log("popped", popped);
+                    console.log("stack after", stack);
+                    postFix.push(...popped);
+                    stack.push(token);
+                    break;
 
 
             }
@@ -96,7 +127,7 @@ export class ExprParser {
         return postFix;
     }
 
-    popHigherEqTypes(stack: Array<Token>, token): Array<Token> {
+    popHigherEqTypes(stack: Array<Token>, token: Token): Array<Token> {
         /**
          * it pops everything that has higher or equal precedence as the token
          */
@@ -110,7 +141,7 @@ export class ExprParser {
 
                 // console.log("peeking", stack[stack.length - 1]);
                 if (precedence.includes(stack[stack.length - 1].type)) {
-                    let lastStackItem = stack.pop()
+                    let lastStackItem = stack.pop();
                     popped.push(lastStackItem as Token);
                 } else {
                     break;
@@ -119,5 +150,32 @@ export class ExprParser {
         }
 
         return popped;
+    }
+
+    popToType(stack: Array<Token>, token: Token, toType: TokenType): Array<Token> {
+        /**
+         * it pops everything that has higher or equal precedence as the token
+         */
+        const popped: Array<Token> = new Array<Token>();
+        while (stack.length > 0 ) {
+
+            let lastStackItem = stack.pop() as Token;
+            popped.push(lastStackItem as Token);
+
+            if (lastStackItem.type === toType) {
+                return popped;
+            }
+
+        }
+
+        throw new ParserError(token.position, `Missing matching ${toType}`);
+    }
+    buildAstFromPostfix(postFix: Array<Token>): AST_Expr {
+        // exp1, exp2, op
+        // cond, if
+        // exp1, then
+        // else
+        throw new Error("Not implemented yet"); 
+        
     }
 }
