@@ -2,7 +2,7 @@ import { AST, AST_BoolExpr, AST_ConditionExpr, AST_PropertyQuery, AST_Query, AST
 import { ExprParser } from "businessObjects/SDQL/ExprParser";
 import { Token, Tokenizer, TokenType } from "businessObjects/SDQL/Tokenizer";
 import { IpfsCID } from "primitives";
-import { avalanceSchemaStr } from "./avalanche.data";
+import { avalance1SchemaStr } from "./avalanche1.data";
 
 describe("Postfix expressions", () => {
 
@@ -340,7 +340,7 @@ describe("Postfix expressions", () => {
 
 describe("Postfix to AST", () => {
     
-    const schema = SDQLSchema.fromString(avalanceSchemaStr);
+    const schema = SDQLSchema.fromString(avalance1SchemaStr);
     const parser = new SDQLParser(IpfsCID("0"), schema);
     parser.parse();
     const context = parser.context;

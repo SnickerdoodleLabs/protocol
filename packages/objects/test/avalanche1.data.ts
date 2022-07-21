@@ -1,4 +1,4 @@
-export const avalanceSchemaStr = `
+export const avalance1SchemaStr = `
 {
     "version": 0.1,
     "description": "Interactions with the Avalanche blockchain for 15-year and older individuals",

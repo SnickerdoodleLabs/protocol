@@ -1,10 +1,10 @@
 import { SDQLSchema } from "businessObjects/SDQL/SDQLSchema";
-import { avalanceSchemaStr } from "./avalanche.data";
+import { avalance1SchemaStr } from "./avalanche1.data";
 
 
 describe("SDQLSchema with Avalanche", () => {
 
-    const sdqlSchema = SDQLSchema.fromString(avalanceSchemaStr);
+    const sdqlSchema = SDQLSchema.fromString(avalance1SchemaStr);
     const querySchema = sdqlSchema.getQuerySchema();
     const returnSchema = sdqlSchema.getReturnSchema();
     const compensationSchema = sdqlSchema.getCompensationSchema();

@@ -3,11 +3,11 @@ import { AST_Compensation } from "businessObjects/SDQL/AST_Compensation";
 import { SDQLSchema } from "businessObjects/SDQL/SDQLSchema";
 import { IpfsCID, SDQL_Name } from "primitives";
 // import { AST_Factories } from "businessObjects/SDQL/AST_Factories";
-import { avalanceSchemaStr } from "./avalanche.data";
+import { avalance1SchemaStr } from "./avalanche1.data";
 
 describe("SDQLParser on avalanche", () => {
     
-    const schema = SDQLSchema.fromString(avalanceSchemaStr);
+    const schema = SDQLSchema.fromString(avalance1SchemaStr);
     const parser = new SDQLParser(IpfsCID("0"), schema);
 
     parser.parse();
@@ -99,6 +99,10 @@ describe("SDQLParser on avalanche", () => {
         });
     });
 
-
+    describe.only("Checking Logic returns", () => {
+        test("avalance 1 has 2 returns", () => {
+            expect(parser.logicReturns.size).toBe(2);
+        });
+    });
 
 });

@@ -8,7 +8,9 @@ import { AST_Query } from "./AST_Query";
 import { AST_Return } from "./AST_Return";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
 import { AST_Returns } from "./AST_Returns";
+import { Command } from "./Command";
 import { DuplicateIdInSchema, ParsingError, ReturnNotImplementedError } from "./exceptions";
+import { ExprParser } from "./ExprParser";
 import { SDQLSchema } from "./SDQLSchema";
 
 export class SDQLParser {
@@ -16,14 +18,17 @@ export class SDQLParser {
     context: Map<string, any> = new Map();
     queries: Map<SDQL_Name, AST_Query> = new Map();
     returns: AST_Returns | null;
-    logicReturns: Map<string, AST_Expr> = new Map();
-    logicCompensations: Map<string, AST_Expr> = new Map();
+    logicReturns: Map<string, AST_Expr | Command> = new Map();
+    logicCompensations: Map<string, AST_Expr | Command> = new Map();
+
+    exprParser: ExprParser | null = null;
     
     constructor(
         readonly cid: IpfsCID, 
         readonly schema: SDQLSchema
         ) {
             this.returns = null;
+            this.exprParser = new ExprParser(this.context);
     }
 
     private saveInContext(name:any, val: any):void {
@@ -43,10 +48,11 @@ export class SDQLParser {
 
         this.parseCompensations()
 
-        // this.parseLogic();
+        this.parseLogic();
 
     }
 
+    // #region non-logic
     private parseQueries() {
         const querySchema = this.schema.getQuerySchema();
         let queries = new Array<any>();
@@ -141,20 +147,37 @@ export class SDQLParser {
         }
 
     }
+    // #endregion
 
-    public parseExpString(expStr:string): AST_Expr {
-        throw new ParsingError("not implemented");
+    // #region Logic
+    public parseExpString(expStr:string): AST_Expr | Command {
+        if (this.exprParser)
+            return this.exprParser.parse(expStr);
+        throw new Error("Expression Parser not found.");
     }
 
     private parseLogic() {
         const logicSchema = this.schema.getLogicSchema();
-        this.parseLogicReturns(logicSchema["returns"]);
+        this.logicReturns = this.parseLogicExpressions(logicSchema["returns"]);
+        this.logicCompensations = this.parseLogicExpressions(logicSchema["compensations"]);
 
     }
 
-    private parseLogicReturns(logicSchema: Array<string>): Map<string, AST_Expr> {
-        let lrs = new Map<string, AST_Expr>();
-        for (let expStr of logicSchema) {
+    // private parseLogicReturns(logicSchema: Array<string>): Map<string, AST_Expr> {
+    //     let lrs = new Map<string, AST_Expr>();
+    //     for (let expStr of logicSchema) {
+    //         let exp = this.parseExpString(expStr);
+    //         lrs.set(expStr, exp)
+
+    //     }
+    //     return lrs;
+    // }
+
+    private parseLogicExpressions(expressions: Array<string>): Map<string, AST_Expr | Command> {
+
+        console.log('expressions', expressions);
+        let lrs = new Map<string, AST_Expr | Command>();
+        for (let expStr of expressions) {
             let exp = this.parseExpString(expStr);
             lrs.set(expStr, exp)
 
@@ -162,6 +185,6 @@ export class SDQLParser {
         return lrs;
     }
 
-    
+    // #endregion
     
 }
