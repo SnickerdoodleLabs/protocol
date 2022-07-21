@@ -15,7 +15,7 @@ export class ExprParser {
     constructor(readonly context: Map<string, any>) {
         this.precedence.set(
             TokenType.parenthesisClose,
-            [TokenType.and, TokenType.or, TokenType.if, TokenType.then, TokenType.else]
+            [TokenType.and, TokenType.or, TokenType.if, TokenType.then, TokenType.else] // TODO everything up to a opening parenthesis
         );
         this.precedence.set(
             TokenType.and,
@@ -46,7 +46,7 @@ export class ExprParser {
     infixToPostFix(infix): Array<Token> {
         
         const stack: Array<Token> = [];
-        const postFix: Array<Token | TokenType> = [];
+        const postFix: Array<Token> = [];
         for (const token of infix) {
             /**
              * if token is 
@@ -98,23 +98,27 @@ export class ExprParser {
                     break;
 
                 case TokenType.then:
+                case TokenType.else:
                     // pop until if
-                    console.log("stack before", stack);
-                    popped = this.popToType(stack, token, TokenType.if);
-                    console.log("popped", popped);
-                    console.log("stack after", stack);
+                    // console.log("stack before", stack);
+                    // popped = this.popToType(stack, token, TokenType.if);
+                    // console.log("popped", popped);
+                    // console.log("stack after", stack);
+                    // postFix.push(...popped);
+                    // stack.push(token);
+                    popped = this.popBefore(stack, token, TokenType.if); // condition output
                     postFix.push(...popped);
-                    stack.push(token);
+
                     break;
                 
-                case TokenType.else:
-                    console.log("stack before", stack);
-                    popped = this.popToType(stack, token, TokenType.then);
-                    console.log("popped", popped);
-                    console.log("stack after", stack);
-                    postFix.push(...popped);
-                    stack.push(token);
-                    break;
+                // case TokenType.else:
+                //     console.log("stack before", stack);
+                //     popped = this.popToType(stack, token, TokenType.then);
+                //     console.log("popped", popped);
+                //     console.log("stack after", stack);
+                //     postFix.push(...popped);
+                //     stack.push(token);
+                //     break;
 
 
             }
@@ -168,8 +172,30 @@ export class ExprParser {
 
         }
 
-        throw new ParserError(token.position, `Missing matching ${toType}`);
+        throw new ParserError(token.position, `Missing matching ${toType} for ${token.type}`);
     }
+
+    popBefore(stack: Array<Token>, token: Token, toType: TokenType): Array<Token> {
+        /**
+         * it pops everything that has higher or equal precedence as the token
+         */
+        const popped: Array<Token> = new Array<Token>();
+        while (stack.length > 0 ) {
+
+            let lastStackItem = stack.pop() as Token;
+
+            if (lastStackItem.type === toType) {
+                stack.push(lastStackItem)
+                return popped;
+            } else {
+                popped.push(lastStackItem as Token);
+            }
+
+        }
+
+        throw new ParserError(token.position, `Missing matching ${toType} for ${token.type}`);
+    }
+
     buildAstFromPostfix(postFix: Array<Token>): AST_Expr {
         // exp1, exp2, op
         // cond, if
