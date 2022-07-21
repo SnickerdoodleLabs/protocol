@@ -1,5 +1,13 @@
+import { SDQL_Name, SDQL_OperatorName } from "@objects/primitives";
 import { To } from "history";
+import { AST } from "prettier";
+import { AST_BoolExpr } from "./AST_BoolExpr";
+import { AST_Compensation } from "./AST_Compensation";
 import { AST_Expr } from "./AST_Expr";
+import { AST_Query } from "./AST_Query";
+import { AST_Return } from "./AST_Return";
+import { AST_ReturnExpr } from "./AST_ReturnExpr";
+import { ConditionAnd, ConditionOr } from "./condition";
 import { ParserError } from "./exceptions";
 import { Token, Tokenizer, TokenType } from "./Tokenizer";
 
@@ -11,6 +19,7 @@ export class ExprParser {
      */
 
     precedence: Map<TokenType, Array<TokenType>> = new Map();
+    id: number = 0;
 
     constructor(readonly context: Map<string, any>) {
         this.precedence.set(
@@ -30,6 +39,11 @@ export class ExprParser {
         //     [TokenType.if, TokenType.or]
         // );
     }
+    private getNextId(name: string) {
+        const nextId = `${name}${this.id}`
+        this.id++;
+        return nextId;
+    }
 
     parse(exprStr: string): AST_Expr {
         const tokenizer = new Tokenizer(exprStr);
@@ -37,12 +51,13 @@ export class ExprParser {
         const ast = this.tokensToAst(tokens);
         return ast;
     }
+
     tokensToAst(tokens): AST_Expr {
         const postFix: Array<Token> = this.infixToPostFix(tokens);
         const ast = this.buildAstFromPostfix(postFix);
         return ast;
     }
-    // 
+    // #region infix to postfix
     infixToPostFix(infix): Array<Token> {
         
         const stack: Array<Token> = [];
@@ -195,13 +210,96 @@ export class ExprParser {
 
         throw new ParserError(token.position, `Missing matching ${toType} for ${token.type}`);
     }
+    // #endregion
 
     buildAstFromPostfix(postFix: Array<Token>): AST_Expr {
         // exp1, exp2, op
-        // cond, if
-        // exp1, then
-        // else
-        throw new Error("Not implemented yet"); 
+        // exp1, exp2, if
+        // exp1, exp2, exp3 if
+
+        const exprTypes: Array<TokenType> = [TokenType.query, TokenType.return, TokenType.compensation, TokenType.number, TokenType.string]
+        // const expList: Array<AST_Expr | AST_Query | AST_Compensation | AST_ReturnExpr> = [];
+        let expList: Array<any> = [];
+
+        for (let token of postFix) {
+
+            if (exprTypes.includes(token.type)) {
+                const executable = this.getExecutableFromContext(token);
+                expList.push(executable);
+            } else {
+                // we have a operator type
+                let newExp: any = null;
+                switch(token.type) {
+                    case TokenType.and:
+                        newExp = this.createAnd(expList[0], expList[1], token);
+                        break;
+                    case TokenType.or:
+                        newExp = this.createOr(expList[0], expList[1], token);
+                        break;
+                }
+
+                if (!newExp) {
+                    throw new ParserError(token.position, `Could not convert to ast ${token.val}`)
+                } else {
+                    expList = [newExp];
+                }
+            }
+        }
+
+        return expList.pop()
+
+        // throw new Error("Not implemented yet"); 
         
+    }
+
+    getExecutableFromContext(token: Token): AST_Expr | AST_Query | AST_Compensation | AST_ReturnExpr {
+        
+        let nameStr = '';
+        switch(token.type) {
+            case TokenType.query:
+            case TokenType.return:
+            case TokenType.compensation:
+                nameStr = token.val.substring(1);
+                break;
+            default:
+                throw new ParserError(token.position, `invalid executable type for ${token.val}`)
+                
+        }
+
+        const executable = this.context.get(nameStr);
+        if (!executable) {
+            throw new ParserError(token.position, `no executable for token ${token.val} in the context`)
+        }
+
+        return executable;
+    }
+
+    createAnd(exp1: any, exp2: any, token: Token): AST_BoolExpr {
+        
+        const id = this.getNextId(token.val);
+        const condition = new ConditionAnd(
+                            SDQL_OperatorName(id),
+                            exp1,
+                            exp2
+                        );
+        return new AST_BoolExpr(
+            SDQL_Name(id),
+            condition
+        );
+
+    }
+
+    createOr(exp1: any, exp2: any, token: Token): AST_BoolExpr {
+        
+        const id = this.getNextId(token.val);
+        const condition = new ConditionOr(
+                            SDQL_OperatorName(id),
+                            exp1,
+                            exp2
+                        );
+        return new AST_BoolExpr(
+            SDQL_Name(id),
+            condition
+        );
     }
 }

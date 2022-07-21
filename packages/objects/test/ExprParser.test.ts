@@ -1,5 +1,8 @@
+import { AST_BoolExpr, ConditionAnd, ConditionOr, SDQLParser, SDQLSchema } from "businessObjects";
 import { ExprParser } from "businessObjects/SDQL/ExprParser";
 import { Token, Tokenizer, TokenType } from "businessObjects/SDQL/Tokenizer";
+import { IpfsCID } from "primitives";
+import { avalanceSchemaStr } from "./avalanche.data";
 
 describe("Postfix expressions", () => {
 
@@ -186,7 +189,7 @@ describe("Postfix expressions", () => {
 
     });
 
-    test.only("if$q1and$q2then$r1 -> $q1, $q2, and, r1, if", () => {
+    test("if$q1and$q2then$r1 -> $q1, $q2, and, r1, if", () => {
         
         const tokenizer = new Tokenizer("if$q1and$q2then$r1");
         const tokens = tokenizer.all();
@@ -267,7 +270,7 @@ describe("Postfix expressions", () => {
     });
 
 
-    test.only("if$q1and$q2then$r1else$r2 -> $q1, $q2, and, $r1, $r2, if", () => {
+    test("if$q1and$q2then$r1else$r2 -> $q1, $q2, and, $r1, $r2, if", () => {
         
         const tokenizer = new Tokenizer("if$q1and$q2then$r1else$r2");
         const tokens = tokenizer.all();
@@ -304,6 +307,43 @@ describe("Postfix expressions", () => {
         console.log("postfixTokens", postfixTokens);
 
         expect(postfixTokens).toEqual(expectedPostfixTokens);
+
+    });
+
+});
+
+describe("Postfix to AST", () => {
+    
+    const schema = SDQLSchema.fromString(avalanceSchemaStr);
+    const parser = new SDQLParser(IpfsCID("0"), schema);
+    parser.parse();
+    const context = parser.context;
+    
+    test.only("$q1$q2andq3or to ast", () => {
+        const postFix = [
+            new Token(TokenType.query, "$q1", 0),
+            new Token(TokenType.query, "$q2", 6),
+            new Token(TokenType.and, "and", 3),
+            new Token(TokenType.query, "$q3", 11),
+            new Token(TokenType.or, "or", 9)
+        ];
+
+        console.log(context.keys());
+        const exprParser = new ExprParser(context);
+
+        const expr = exprParser.buildAstFromPostfix(postFix);
+        console.log(expr);
+
+        expect(expr.constructor).toBe(AST_BoolExpr);
+        expect(expr.source.constructor).toBe(ConditionOr);
+        const or = expr.source as ConditionOr;
+        expect(or.lval.constructor).toBe(AST_BoolExpr);
+        expect((or.lval as AST_BoolExpr).source.constructor).toBe(ConditionAnd);
+        const and = (or.lval as AST_BoolExpr).source as ConditionAnd;
+
+        expect(and.lval).toEqual(context.get('q1'));
+        expect(and.rval).toEqual(context.get('q2'));
+        expect(or.rval).toEqual(context.get('q3'));
 
     });
 

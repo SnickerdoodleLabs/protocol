@@ -18,7 +18,7 @@ export class AST_BoolExpr extends AST_Expr {
 
     check(): void {
         // TODO:
-        throw new TypeError("Expected boolean return type")
+        // throw new TypeError("Expected boolean return type")
     }
 
 

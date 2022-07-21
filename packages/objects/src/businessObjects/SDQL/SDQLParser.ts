@@ -43,7 +43,7 @@ export class SDQLParser {
 
         this.parseCompensations()
 
-        this.parseLogic();
+        // this.parseLogic();
 
     }
 
