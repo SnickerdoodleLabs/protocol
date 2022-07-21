@@ -9,7 +9,6 @@ import { IRequestRepository } from "../interfaces/data/IRequestRepository";
 import { PII } from "../interfaces/objects";
 import { PIIService } from "./business";
 import { PIIRepository } from "./data";
-import { RequestRepository } from "./data/RequestRepository";
 
 
 export class CoreText {

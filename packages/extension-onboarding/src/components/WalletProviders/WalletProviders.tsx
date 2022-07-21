@@ -82,8 +82,8 @@ const WalletProviders: FC = () => {
             provider={provider}
           />
           {provider.key === EWalletProviderKeys.PHANTOM && (
-            <Box mt={2}>
-              <Typography>Steps to add multiple Phantom account</Typography>
+            <Box mt={2} mb={5}>
+              <Typography className={classes.phantomSteps}>Steps to add multiple Phantom account</Typography>
             </Box>
           )}
         </Box>
@@ -102,7 +102,7 @@ const WalletProviders: FC = () => {
         </Box>
       ))}
       {walletConnect && (
-        <>
+        <Box mt={2}>
           <Typography className={classes.sectionTitle}>
             Connect Your Wallets From Your Mobile Devices
           </Typography>
@@ -114,7 +114,7 @@ const WalletProviders: FC = () => {
               provider={walletConnect}
             />
           </Box>
-        </>
+          </Box>
       )}
     </Box>
   );

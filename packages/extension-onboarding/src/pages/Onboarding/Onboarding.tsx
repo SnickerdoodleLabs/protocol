@@ -4,24 +4,24 @@ import React, { useState } from "react";
 import ProfileCreation from "./ProfileCreation";
 import AccountLinking from "./AccountLinking/AccountLinking";
 
-import Logo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import SnickerProgressBar from "@extension-onboarding/components/SnickerProgressBar";
+import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import { useEffect } from "react";
 import { useAppContext } from "@extension-onboarding/Context/App";
 import OnboardingWelcome from "./OnboardingWelcome";
 import ViewData from "@extension-onboarding/pages/Onboarding/ViewData/ViewData";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/Onboarding.style";
+import ProgressBar from "@extension-onboarding/components/ProgressBar/ProgressBar";
 
 export default function Onboarding() {
   const { stepperStatus } = useAppContext();
-  const [progressValue, setProgressValue] = useState(0);
+  const [progressValue, setProgressValue] = useState<number>(0);
 
   useEffect(() => {
     setProgressValue(stepperStatus);
   }, [stepperStatus]);
 
   const returnState = (value) => {
-    const stateArray = [<ProfileCreation />,
+    const stateArray = [
       <OnboardingWelcome />,
       <AccountLinking />,
       <ProfileCreation />,
@@ -34,11 +34,11 @@ export default function Onboarding() {
   return (
     <Box display="flex" justifyContent="center">
       <Box>
-          <img src={Logo} />
+          <img src={snickerDoodleLogo} />
         {progressValue === 0 ? (
           ""
         ) : (
-          <SnickerProgressBar progressStatus={progressValue} />
+          <ProgressBar progressStatus={progressValue} />
         )}
         {returnState(progressValue)}
       </Box>
