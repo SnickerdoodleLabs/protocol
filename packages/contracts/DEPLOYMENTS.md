@@ -12,6 +12,7 @@ Subnet created by running the `snickerdoodlelabs/devchain` docker image with the
 - SnickerdoodleTimelock Contract: `0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9`
 - SnickerdoodleGovernor Contract: `0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9`
 - Sift Contract: `0x0165878A594ca255338adfa4d48449f69242Eb8F`
+- MinimalForwarder Contract : `0xa513e6e4b8f2a923d98304ec87f64353c4d5c853`
 
 ## Local Hardhat Node
 
@@ -25,3 +26,4 @@ Local blockchain created by running the `snickerdoodlelabs/devchain` docker imag
 - SnickerdoodleTimelock Contract: `0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9`
 - SnickerdoodleGovernor Contract: `0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9`
 - Sift Contract: `0x0165878A594ca255338adfa4d48449f69242Eb8F`
+- MinimalForwarder Contract : `0xa513e6e4b8f2a923d98304ec87f64353c4d5c853`
