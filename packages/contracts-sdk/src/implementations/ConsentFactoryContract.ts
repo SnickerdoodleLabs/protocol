@@ -6,12 +6,11 @@ import {
   ConsentFactoryContractError,
   EVMAccountAddress,
   EVMContractAddress,
-  HexString,
   IBlockchainError,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
   protected contract: ethers.Contract;
@@ -105,6 +104,15 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         );
       },
     );
+  }
+
+  // get the latest deployed consent address by owner account address
+  public getUserDeployedConsents(
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
+    return this.getUserDeployedConsentsCount(ownerAddress).andThen((count) => {
+      return this.getUserDeployedConsentsByIndex(ownerAddress, 0, count);
+    });
   }
 
   // Gets the count of Consent address user has opted into

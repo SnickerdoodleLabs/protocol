@@ -512,6 +512,52 @@ export class ConsentContract implements IConsentContract {
       });
   }
 
+  public disableOpenOptIn(): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.disableOpenOptIn() as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call disableOpenOptIn()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for disableOpenOptIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public enableOpenOptIn(): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.enableOpenOptIn() as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call enableOpenOptIn()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for enableOpenOptIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
   public filters = {
     Transfer: (
       fromAddress: EVMAccountAddress | null,
