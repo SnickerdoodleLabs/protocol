@@ -4,7 +4,8 @@ import {
   IProvider,
 } from "@extension-onboarding/services/providers";
 import Onboarding from "@extension-onboarding/pages/Onboarding/Onboarding";
-import { ProviderContext } from "@extension-onboarding/Context/ProviderContext";
+import { LayoutProvider } from "@extension-onboarding/Context/LayoutContext";
+import { AppContextProvider } from "@extension-onboarding/Context/App";
 
 const App: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -50,9 +51,11 @@ const App: FC = () => {
   }));
   return (
     // @ts-ignore
-    <ProviderContext.Provider value={providerValue}>
-      <Onboarding />
-    </ProviderContext.Provider>
+    <AppContextProvider>
+      <LayoutProvider>
+        <Onboarding />
+      </LayoutProvider>
+    </AppContextProvider>
   );
 
   {

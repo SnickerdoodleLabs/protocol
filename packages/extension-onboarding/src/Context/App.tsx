@@ -27,12 +27,12 @@ export interface IAppContext {
   stepperStatus: number;
 }
 export interface IUserObject {
-  firstName: string;
-  lastName: string;
-  emailAddress: string;
-  birthday?: string; // TODO Should be Date
-  country?: string;
-  gender?: string;
+  firstName: string | null;
+  lastName: string | null;
+  emailAddress: string | null;
+  birthday?: string | null; // TODO Should be Date
+  country?: string | null;
+  gender?: string | null;
 }
 
 const AppContext = createContext<IAppContext>({} as IAppContext);
