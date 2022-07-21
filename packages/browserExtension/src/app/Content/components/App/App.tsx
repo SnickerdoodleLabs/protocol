@@ -16,7 +16,7 @@ import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
-import Config from "@shared/constants/Config";
+import ConfigProvider from "@shared/utils/ConfigProvider";
 import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
 import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
@@ -43,7 +43,10 @@ const connect = () => {
   coreGateway = new ExternalCoreGateway(rpcEngine);
   notificationEmitter = streamMiddleware.events;
 
-  if (new URL(Config.onboardingUrl).origin === window.location.origin) {
+  if (
+    new URL(ConfigProvider.getConfig().onboardingUrl).origin ===
+    window.location.origin
+  ) {
     const injector = new OnboardingProviderInjector(extensionMux);
     injector.startPipeline();
   }

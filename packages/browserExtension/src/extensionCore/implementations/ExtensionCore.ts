@@ -53,9 +53,13 @@ import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 // snickerdoodleobjects
 import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
+
+// shared
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
-import { BrowserUtils } from "@enviroment/shared/utils";
-import Config from "@shared/constants/Config";
+// shared - config
+import { IConfigProvider } from "@shared/interfaces/configProvider";
+import ConfigProvider from "@shared/utils/ConfigProvider";
+
 
 export class ExtensionCore {
   // snickerdooldle Core
@@ -84,8 +88,12 @@ export class ExtensionCore {
   protected portConnectionListener: IPortConnectionListener;
   protected rpcCallHandler: IRpcCallHandler;
 
+  protected configProvider: IConfigProvider;
+
   constructor() {
     this.core = new SnickerdoodleCore();
+
+    this.configProvider = ConfigProvider
 
     this.coreListener = new CoreListener(this.core);
     this.coreListener.initialize();
@@ -115,13 +123,14 @@ export class ExtensionCore {
     this.portConnectionRepository = new PortConnectionRepository(
       this.contextProvider,
       this.rpcEngineFactory,
+      this.configProvider
     );
 
     this.portConnectionService = new PortConnectionService(
       this.portConnectionRepository,
     );
 
-    this.extensionListener = new ExtensionListener();
+    this.extensionListener = new ExtensionListener(this.configProvider);
     this.extensionListener.initialize();
 
     this.errorListener = new ErrorListener(this.contextProvider);
@@ -138,16 +147,17 @@ export class ExtensionCore {
 
   private tryUnlock() {
     this.accountCookieUtils.readAccountInfoFromCookie().andThen((values) => {
+      const config = this.configProvider.getConfig();
       if (values?.length) {
         const { accountAddress, signature, languageCode } = values[0];
         return this.accountService
           .unlock(accountAddress, signature, languageCode, true)
           .mapErr((e) => {
-            ExtensionUtils.openTab({ url: Config.onboardingUrl });
+            ExtensionUtils.openTab({ url: config.onboardingUrl });
             return okAsync(undefined);
           });
       } else {
-        ExtensionUtils.openTab({ url: Config.onboardingUrl });
+        ExtensionUtils.openTab({ url: config.onboardingUrl });
         return okAsync(undefined);
       }
     });

@@ -9,17 +9,18 @@ import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   EXTERNAL_PORTS,
 } from "@shared/constants/ports";
-import Config from "@shared/constants/Config";
 import { URLString } from "@snickerdoodlelabs/objects";
 import PortStream from "extension-port-stream";
 import ObjectMultiplex from "obj-multiplex";
 import pump from "pump";
 import endOfStream from "end-of-stream";
 import { EPortNames } from "@shared/enums/ports";
+import { IConfigProvider } from "@shared/interfaces/configProvider";
 export class PortConnectionRepository implements IPortConnectionRepository {
   constructor(
     protected contextProvider: IContextProvider,
     protected rpcEngineFactory: IRpcEngineFactory,
+    protected configProvider: IConfigProvider
   ) {}
 
   public connectRemote(remotePort: Runtime.Port) {
@@ -53,8 +54,8 @@ export class PortConnectionRepository implements IPortConnectionRepository {
   private _setupExternalConnection(remotePort: Runtime.Port) {
     const url = new URL(remotePort!.sender!.url!);
     const { origin } = url;
-
-    const { origin: onboardingUrlOrigin } = new URL(Config.onboardingUrl);
+    const onboardingUrl = this.configProvider.getConfig().onboardingUrl
+;    const { origin: onboardingUrlOrigin } = new URL(onboardingUrl);
 
     const portStream = new PortStream(remotePort);
     // create multiplex to enable substreams
