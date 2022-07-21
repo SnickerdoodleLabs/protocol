@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { AST_PropertyQuery, AST_BoolExpr, Condition, ConditionGE, ConditionIn, ConditionL, SDQL_OperatorName, SDQL_Name, ConditionAnd, ConditionLE} from "@snickerdoodlelabs/objects";
+import { AST_PropertyQuery, AST_BoolExpr, Condition, ConditionGE, ConditionIn, ConditionL, SDQL_OperatorName, SDQL_Name, ConditionAnd, ConditionLE, Gender} from "@snickerdoodlelabs/objects";
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
 import { LocalStoragePersistence } from "@persistence/LocalStoragePersistence";
 import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
@@ -80,6 +80,10 @@ class QueryEvaluatorMocks {
         .thenReturn(
             okAsync(CountryCode(57)),
         );
+        td.when(this.dataWalletPersistence.getGender())
+        .thenReturn(
+            okAsync(Gender("male")),
+        );
         
     }
     
@@ -94,7 +98,8 @@ describe("QueryEvaluator checking age boolean: GE", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsGE
+            conditionsGE,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -108,7 +113,8 @@ describe("QueryEvaluator checking age boolean: GE", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsGE2
+            conditionsGE2,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -121,7 +127,8 @@ describe("QueryEvaluator checking age boolean: GE", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsGE3
+            conditionsGE3,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -137,7 +144,8 @@ describe("QueryEvaluator checking age boolean: LE", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsLE
+            conditionsLE,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -150,7 +158,8 @@ describe("QueryEvaluator checking age boolean: LE", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsLE2
+            conditionsLE2,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -163,7 +172,8 @@ describe("QueryEvaluator checking age boolean: LE", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsLE3
+            conditionsLE3,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -179,7 +189,8 @@ describe("QueryEvaluator checking age boolean: G", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsG
+            conditionsG,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -193,7 +204,8 @@ describe("QueryEvaluator checking age boolean: G", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsG2
+            conditionsG2,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -207,7 +219,8 @@ describe("QueryEvaluator checking age boolean: G", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsG3
+            conditionsG3,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -223,7 +236,8 @@ describe("QueryEvaluator checking age boolean: L", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsL
+            conditionsL,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -238,7 +252,8 @@ describe("QueryEvaluator checking age boolean: L", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsL2
+            conditionsL2,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -252,7 +267,8 @@ describe("QueryEvaluator checking age boolean: L", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsL3
+            conditionsL3,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -270,7 +286,8 @@ describe("QueryEvaluator checking age boolean: E", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsE
+            conditionsE,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -283,7 +300,8 @@ describe("QueryEvaluator checking age boolean: E", () => {
             SDQL_Name("q1"),
             "boolean",
             "age",
-            conditionsE2
+            conditionsE2,
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -303,7 +321,8 @@ describe("QueryEvaluator checking location condition in", () => {
             SDQL_Name("q1"),
             "boolean",
             "location",
-            [conditionsIn]
+            [conditionsIn],
+            []
         )
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
@@ -320,7 +339,8 @@ describe("QueryEvaluator checking location condition in", () => {
             SDQL_Name("q1"),
             "boolean",
             "location",
-            [conditionsIn2]
+            [conditionsIn2],
+            []
         )
         //console.log(propertyQuery);
         //  DO the mocks to get age
@@ -338,6 +358,7 @@ describe("QueryEvaluator return integer values", () => {
             SDQL_Name("q1"),
             "integer",
             "age",
+            [],
             []
         )
         const mocks = new QueryEvaluatorMocks();
@@ -351,6 +372,7 @@ describe("QueryEvaluator return integer values", () => {
             SDQL_Name("q1"),
             "integer",
             "location",
+            [],
             []
         )
         const mocks = new QueryEvaluatorMocks();
@@ -358,5 +380,20 @@ describe("QueryEvaluator return integer values", () => {
         const result = await repo.eval(propertyQuery);
         console.log("Location is: ", result["value"]);
         expect(result["value"]).toEqual(CountryCode(57))
+    })
+
+    test("EvalPropertyQuery: return gender as male", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "enum",
+            "gender",
+            [], 
+            ["male", "female", "non-binary", "unknown"]
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        console.log("Gender is: ", result["value"]);
+        expect(result["value"]).toEqual(Gender("male"))
     })
 })

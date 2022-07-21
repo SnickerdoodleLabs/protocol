@@ -1,4 +1,4 @@
-import { Age, CountryCode, SDQL_Return } from "@objects/primitives";
+import { Age, CountryCode, Gender, SDQL_Return } from "@objects/primitives";
 import { 
     AST_PropertyQuery,
     AST_Query,
@@ -98,6 +98,35 @@ export class QueryEvaluator {
                 );
                 console.log("Tracking the result: ", result);
                 return okAsync(result);
+            
+            case "gender":
+                console.log("Tracking the result: ", result);
+                return this.dataWalletPersistence.getGender().andThen( 
+                    (gender) => 
+                    {
+                        console.log("Gender: ", gender);
+                        console.log("Return Type: ", q.returnType);
+
+                        switch(q.returnType){
+                            case "enum":
+                                console.log("Property: Gender, Return Type: Enum");
+                                console.log("Gender: ", gender);
+
+                                for (let key of q.enum_keys) {
+                                    if (key == gender){
+                                        return (okAsync(SDQL_Return(gender)))
+                                    }
+                                }
+                                console.log("After conditions: ", result);
+                                return okAsync(SDQL_Return(Gender("unknown")));
+                            default:
+                                return okAsync(result);
+                        }
+                    }
+                );
+                console.log("Tracking the result: ", result);
+                return okAsync(result);
+            
             default:
                 console.log("Tracking the result: ", result);
                 return okAsync(result);

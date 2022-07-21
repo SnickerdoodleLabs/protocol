@@ -1,6 +1,8 @@
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
 import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionOr, EvalNotImplementedError, Operator, TypeChecker } from "@objects/businessObjects";
 import { QueryRepository } from "./QueryRepository";
+import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { okAsync, ResultAsync } from "neverthrow";
 
 // TODO introduce dependency injection
 
@@ -45,8 +47,6 @@ export class AST_Evaluator {
         this.operatorMap.set(ConditionIn, this.evalIn)
         this.operatorMap.set(ConditionGE, this.evalGE)
         this.operatorMap.set(ConditionL, this.evalL)
-        this.operatorMap.set(ConditionG, this.evalG)
-
 
         this.expMap.set(Command_IF, this.evalIf);
         this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
@@ -131,23 +131,34 @@ export class AST_Evaluator {
     public evalConditionExpr(expr: AST_ConditionExpr) {
         let condResult: SDQL_Return | null = null;
         if (TypeChecker.isQuery(expr.source)) {
-
-            condResult = this.evalQuery(expr.source as AST_Query);
+            return this.evalQuery(expr.source as AST_Query).andThen(
+                (val: SDQL_Return) =>
+                {
+                    return okAsync(val);
+                }
+            );
 
         } else if (TypeChecker.isOperator(expr.source)) {
 
             condResult = this.evalOperator(expr.source as Operator);
+            return okAsync(condResult);
+            /*
+            return this.evalOperator(expr.source as Operator).andThen(
+                (val: SDQL_Return) =>
+                {
+                    return okAsync(val);
+                }
+            );
+            */
 
         } else {
-
             throw new TypeError("If condition has wrong type");
-
         }
 
         return condResult
     }
 
-    public evalQuery(q: AST_Query): SDQL_Return {
+    public evalQuery(q: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
         
         /**
          * It sends the query to the Query Repository
@@ -230,12 +241,12 @@ export class AST_Evaluator {
         return SDQL_Return(left >= right);
     }
 
-    public evalG(cond: ConditionGE): SDQL_Return {
+    public evalG(cond: ConditionG): SDQL_Return {
         const left = this.evalAny(cond.lval);
         const right = this.evalAny(cond.rval);
         console.log('left', left);
         console.log('right', right);
-        return SDQL_Return(left > right);
+        return SDQL_Return(left >= right);
     }
 
     public evalL(cond: ConditionGE): SDQL_Return {
@@ -254,13 +265,20 @@ export class AST_Evaluator {
 
     //#endregion
 
-    public evalReturnExpr(expr: AST_ReturnExpr): SDQL_Return {
+    public evalReturnExpr(expr: AST_ReturnExpr): ResultAsync<SDQL_Return, PersistenceError> {
 
         if (TypeChecker.isQuery(expr.source)) {
-            return this.evalQuery((expr.source) as AST_Query);
+            //return this.evalQuery((expr.source) as AST_Query);
+            return this.evalQuery(expr.source as AST_Query).andThen(
+                (val: SDQL_Return) =>
+                {
+                    return okAsync(val);
+                }
+            );
+            
         }
         
-        return this.evalReturn(((expr as AST_ReturnExpr).source) as AST_Return);
+        return okAsync(this.evalReturn(((expr as AST_ReturnExpr).source) as AST_Return));
 
     }
     public evalReturn(r: AST_Return): SDQL_Return {
