@@ -175,7 +175,7 @@ export class SDQLParser {
 
     private parseLogicExpressions(expressions: Array<string>): Map<string, AST_Expr | Command> {
 
-        console.log('expressions', expressions);
+        // console.log('expressions', expressions);
         let lrs = new Map<string, AST_Expr | Command>();
         for (let expStr of expressions) {
             let exp = this.parseExpString(expStr);

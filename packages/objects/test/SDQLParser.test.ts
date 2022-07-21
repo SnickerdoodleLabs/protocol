@@ -1,4 +1,4 @@
-import { AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, ConditionGE, SDQLParser } from "businessObjects";
+import { AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, SDQLParser } from "businessObjects";
 import { AST_Compensation } from "businessObjects/SDQL/AST_Compensation";
 import { SDQLSchema } from "businessObjects/SDQL/SDQLSchema";
 import { IpfsCID, SDQL_Name } from "primitives";
@@ -99,10 +99,55 @@ describe("SDQLParser on avalanche", () => {
         });
     });
 
-    describe.only("Checking Logic returns", () => {
-        test("avalance 1 has 2 returns", () => {
+    describe("Checking Logic return ASTs", () => {
+        test("avalance 1 has 2 return ASTs", () => {
             expect(parser.logicReturns.size).toBe(2);
+        });
+
+        test("First return is a valid if($q1and$q2)then$r1else$r2 AST", () => {
+            const eef = parser.logicReturns.get('if($q1and$q2)then$r1else$r2') as Command_IF;
+            expect(eef.constructor).toBe(Command_IF);
+            expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
+            const and = (eef.conditionExpr.source) as ConditionAnd;
+            expect(and.constructor).toBe(ConditionAnd);
+            expect(and.lval).toEqual(parser.context.get('q1'));
+            expect(and.rval).toEqual(parser.context.get('q2'));
+
+            expect(eef.trueExpr.constructor).toBe(AST_ReturnExpr);
+            expect(eef.falseExpr?.constructor).toBe(AST_ReturnExpr);
+
+            expect(eef.trueExpr).toEqual(parser.context.get('r1'));
+            expect(eef.falseExpr).toEqual(parser.context.get('r2'));
+
+        });
+
+        test("Second return is $r3", () => {
+
+            const r3 = parser.logicReturns.get('$r3');
+            expect(r3).toEqual(parser.context.get('r3'));
+
         });
     });
 
+    describe.only("Checking Logic compenstation ASTs", () => {
+        test("avalance 1 has 3 compenstation ASTs", () => {
+            expect(parser.logicCompensations.size).toBe(3);
+        });
+        test("First compenstation is a valid if$q1then$c1 AST", () => {
+            const eef = parser.logicCompensations.get('if$q1then$c1') as Command_IF;
+            expect(eef.constructor).toBe(Command_IF);
+            expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
+            const q1 = (eef.conditionExpr.source) as AST_Query;
+            expect(q1.constructor).toBe(AST_NetworkQuery);
+            expect(q1).toEqual(parser.context.get('q1'));
+            
+
+            expect(eef.trueExpr.constructor).toBe(AST_Compensation);
+            expect(eef.falseExpr).toBeNull();
+
+            expect(eef.trueExpr).toEqual(parser.context.get('c1'));
+
+        });
+
+    });
 });

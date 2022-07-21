@@ -1,4 +1,4 @@
-import { AST, AST_BoolExpr, AST_ConditionExpr, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionOr, SDQLParser, SDQLSchema } from "businessObjects";
+import { AST, AST_BoolExpr, AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionOr, SDQLParser, SDQLSchema } from "businessObjects";
 import { ExprParser } from "businessObjects/SDQL/ExprParser";
 import { Token, Tokenizer, TokenType } from "businessObjects/SDQL/Tokenizer";
 import { IpfsCID } from "primitives";
@@ -382,6 +382,34 @@ describe("Postfix to AST", () => {
         expect(and.lval).toEqual(context.get('q1'));
         expect(and.rval).toEqual(context.get('q2'));
         expect(or.rval).toEqual(context.get('q3'));
+
+    });
+
+    test("$q1, $r1, if", () => {
+        
+        const postFix = [
+            new Token(TokenType.query, "$q1", 2),
+            new Token(TokenType.return, "$r1", 15),
+            new Token(TokenType.if, "if", 0),
+        ]
+        const exprParser = new ExprParser(context);
+        const expr = exprParser.buildAstFromPostfix(postFix);
+        console.log(expr);
+
+        expect(expr.constructor).toBe(Command_IF);
+        const ifCommand = expr as Command_IF;
+        expect(ifCommand.conditionExpr.constructor).toBe(AST_ConditionExpr);
+        expect(ifCommand.trueExpr.constructor).toBe(AST_ReturnExpr);
+        expect(ifCommand.falseExpr).toBeNull();
+
+        const rExp = ifCommand.trueExpr as AST_ReturnExpr;
+        expect(rExp.source.constructor).toBe(AST_Return);
+        expect(rExp).toEqual(context.get('r1'));
+
+        const condExp = ifCommand.conditionExpr as AST_ConditionExpr;
+        expect(condExp.source.constructor).toBe(AST_NetworkQuery);
+
+        expect(condExp.source).toEqual(context.get('q1'))
 
     });
 

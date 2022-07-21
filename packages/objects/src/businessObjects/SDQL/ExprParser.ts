@@ -1,6 +1,6 @@
 import { SDQL_Name, SDQL_OperatorName } from "@objects/primitives";
 import { To } from "history";
-import { AST } from "prettier";
+import { AST } from "./AST";
 import { AST_BoolExpr } from "./AST_BoolExpr";
 import { AST_Compensation } from "./AST_Compensation";
 import { AST_Expr } from "./AST_Expr";
@@ -319,9 +319,15 @@ export class ExprParser {
 
     createIf(expList: Array<any>, token: Token): Command_IF {
 
-        const conditionExpr = expList[0];
+        let conditionExpr = expList[0];
         const trueExpr = expList[1];
         const falseExpr = (expList.length > 2) ? expList[2] : null;
+
+        if (conditionExpr) {
+            if (conditionExpr.constructor != AST_ConditionExpr) {
+                conditionExpr = new AST_ConditionExpr(conditionExpr.name, conditionExpr);
+            }
+        }
         
         const id = this.getNextId(token.val);
         return new Command_IF(
