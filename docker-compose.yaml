@@ -5,16 +5,18 @@ services:
     container_name: doodlechain
     ports:
       - '8545:8569'
+    environment:
+      NETWORK: dev
     image: 'snickerdoodlelabs/devchain:latest'
 
-  extension-onboarding:
-    image: snickerdoodlelabs/extension-onboarding:local
-    ports:
-      - 8080:80
-    volumes:
-      - ./packages/extension-onboarding:/app/packages/extension-onboarding
-    networks:
-      - internal
+  # extension-onboarding:
+  #   image: snickerdoodlelabs/extension-onboarding:local
+  #   ports:
+  #     - 8080:80
+  #   volumes:
+  #     - ./packages/extension-onboarding:/app/packages/extension-onboarding
+  #   networks:
+  #     - internal
       
   ipfs:
     image: ipfs/go-ipfs:release

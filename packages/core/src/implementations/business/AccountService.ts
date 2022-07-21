@@ -89,7 +89,7 @@ export class AccountService implements IAccountService {
       // You can't unlock if we're already unlocked!
       if (context.dataWalletAddress != null || context.unlockInProgress) {
         // TODO: Need to consider the error type here, I'm getting lazy
-        return errAsync(new InvalidSignatureError());
+        return errAsync(new InvalidSignatureError("Unlock already in progress!"));
       }
 
       // Need to update the context
