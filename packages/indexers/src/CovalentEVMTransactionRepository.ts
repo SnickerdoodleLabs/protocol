@@ -1,4 +1,3 @@
-import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -16,6 +15,7 @@ import {
   EVMEvent,
   IEVMAccountBalanceRepository,
   IEVMBalance,
+  AccountBalanceError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
