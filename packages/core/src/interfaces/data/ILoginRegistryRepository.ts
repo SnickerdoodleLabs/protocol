@@ -7,6 +7,7 @@ import {
   EVMAccountAddress,
   EVMPrivateKey,
   LanguageCode,
+  Signature,
   TokenId,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -30,6 +31,7 @@ export interface ILoginRegistryRepository {
     accountAddress: EVMAccountAddress,
     encryptedDataWalletKey: AESEncryptedString,
     languageCode: LanguageCode,
+    metatransactionSignature: Signature,
     dataWalletKey: EVMPrivateKey,
   ): ResultAsync<TokenId, AjaxError>;
 }

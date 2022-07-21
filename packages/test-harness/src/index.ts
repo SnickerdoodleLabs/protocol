@@ -72,6 +72,12 @@ core.getEvents().map(async (events) => {
     console.log(`Query posted`, query);
   });
 
+  events.onMetatransactionSignatureRequested.subscribe((request) => {
+    console.log(`Metadata Transaction Requested`);
+
+    
+  })
+
   // Main event prompt. Core is up and running
   while (true) {
     await mainPrompt();

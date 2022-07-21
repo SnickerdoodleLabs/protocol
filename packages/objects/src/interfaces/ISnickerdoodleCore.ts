@@ -1,13 +1,7 @@
 import { ResultAsync } from "neverthrow";
-import { Observable } from "rxjs";
 
-import { EInvitationStatus } from "..";
-
-import {
-  CohortInvitation,
-  ConsentConditions,
-  SDQLQuery,
-} from "@objects/businessObjects";
+import { CohortInvitation, ConsentConditions } from "@objects/businessObjects";
+import { EInvitationStatus } from "@objects/enum";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -21,6 +15,7 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
+import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   Age,
   DataWalletAddress,
@@ -176,7 +171,7 @@ export interface ISnickerdoodleCore {
     AjaxError | UninitializedError | ConsentError | IPFSError
   >;
 
-  getEvents(): ResultAsync<IQueryEngineEvents, never>;
+  getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
   /** Google User Information */
   setAge(age: Age): ResultAsync<void, PersistenceError>;
@@ -202,9 +197,3 @@ export interface ISnickerdoodleCore {
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
-
-export interface IQueryEngineEvents {
-  onInitialized: Observable<DataWalletAddress>;
-  onQueryPosted: Observable<SDQLQuery>;
-  onAccountAdded: Observable<EVMAccountAddress>;
-}

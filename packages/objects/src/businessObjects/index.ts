@@ -9,6 +9,7 @@ export * from "@objects/businessObjects/EVMTransaction";
 export * from "@objects/businessObjects/EVMEvent";
 export * from "@objects/businessObjects/ExternallyOwnedAccount";
 export * from "@objects/businessObjects/Insight";
+export * from "@objects/businessObjects/MetatransactionSignatureRequest";
 export * from "@objects/businessObjects/RequestForData";
 export * from "@objects/businessObjects/Reward";
 export * from "@objects/businessObjects/SDQLQuery";

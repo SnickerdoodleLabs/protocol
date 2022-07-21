@@ -17,11 +17,13 @@ import {
   IDataWalletPersistenceType,
   InvalidSignatureError,
   LanguageCode,
+  MetatransactionSignatureRequest,
   PersistenceError,
   Signature,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
+import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -89,7 +91,9 @@ export class AccountService implements IAccountService {
       // You can't unlock if we're already unlocked!
       if (context.dataWalletAddress != null || context.unlockInProgress) {
         // TODO: Need to consider the error type here, I'm getting lazy
-        return errAsync(new InvalidSignatureError("Unlock already in progress!"));
+        return errAsync(
+          new InvalidSignatureError("Unlock already in progress!"),
+        );
       }
 
       // Need to update the context
@@ -103,6 +107,7 @@ export class AccountService implements IAccountService {
               accountAddress,
               signature,
               languageCode,
+              context,
             );
           }
           return this.unlockExistingWallet(encryptedDataWalletKey, signature);
@@ -136,6 +141,7 @@ export class AccountService implements IAccountService {
     accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    context: CoreContext,
   ): ResultAsync<
     ExternallyOwnedAccount,
     | BlockchainProviderError
@@ -156,13 +162,31 @@ export class AccountService implements IAccountService {
               dataWalletKey,
             ),
           );
-          return this.loginRegistryRepo.addCrumb(
-            dataWalletAddress,
-            accountAddress,
-            encryptedDataWallet,
-            languageCode,
-            dataWalletKey,
-          );
+
+          // Need to get a signature on the add crumb metatransaction
+          return ResultAsync.fromSafePromise<Signature, never>(
+            new Promise<Signature>((resolve) => {
+              context.publicEvents.onMetatransactionSignatureRequested.next(
+                new MetatransactionSignatureRequest(
+                  snickerdoodleSigningDomain,
+                  {}, // types
+                  {}, // data
+                  (signature) => {
+                    resolve(signature);
+                  },
+                ),
+              );
+            }),
+          ).andThen((signature) => {
+            return this.loginRegistryRepo.addCrumb(
+              dataWalletAddress,
+              accountAddress,
+              encryptedDataWallet,
+              languageCode,
+              signature,
+              dataWalletKey,
+            );
+          });
         })
         .map(() => {
           return new ExternallyOwnedAccount(
