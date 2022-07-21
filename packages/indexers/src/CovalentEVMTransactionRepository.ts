@@ -96,12 +96,14 @@ interface ICovalentEVMTransactionResponse {
 }
 
 interface ICovalentEVMBalanceResponse {
-  address: string;
-  updated_at: string;
-  next_update_at: string;
-  quote_currency: string;
-  chain_id: number;
-  items: IEVMTokenInfo[];
+  data: {
+    address: string;
+    updated_at: string;
+    next_update_at: string;
+    quote_currency: string;
+    chain_id: number;
+    items: IEVMTokenInfo[];
+  };
 }
 
 interface IEVMTokenInfo {
@@ -139,7 +141,7 @@ export class CovalentEVMTransactionRepository
     return this.generatePrimer(startTime, endTime).andThen((primer) => {
       return this.generateQueryConfig(
         chainId,
-        "transactions_v2",
+        this.ENDPOINT_TRANSACTIONS,
         accountAddress,
         primer,
       ).andThen((queryConfig) => {
@@ -219,7 +221,7 @@ export class CovalentEVMTransactionRepository
           requestConfig,
         )
         .map((queryResult) => {
-          return queryResult.items.map((tokenInfo) => {
+          return queryResult.data.items.map((tokenInfo) => {
             return {
               ticker: tokenInfo.contract_ticker_symbol,
               chainId: chainId,
