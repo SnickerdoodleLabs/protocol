@@ -46,7 +46,8 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       // URLString("http://localhost:3000/v0"),
       URLString("http://insight-platform"),
       snickerdoodleSigningDomain,
-      5000, // polling interval
+      5000, // polling interval indexing,
+      5000, // polling interval balance
       "covalent api key",
     );
   }

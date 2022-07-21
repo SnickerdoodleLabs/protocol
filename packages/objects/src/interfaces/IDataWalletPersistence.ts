@@ -1,5 +1,7 @@
 import { ResultAsync } from "neverthrow";
 
+import { IEVMBalance } from "./chains";
+
 import {
   ClickData,
   ClickFilter,
@@ -19,9 +21,7 @@ import {
   FamilyName,
   CountryCode,
   UnixTimestamp,
-  BigNumberString,
 } from "@objects/primitives";
-import { IEVMTokenInfo } from "./chains";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -112,16 +112,8 @@ export interface IDataWalletPersistence {
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
 
-  addEVMAccountBalance(
-    chainId: ChainId,
-    address: EVMAccountAddress,
-    ticker: string,
-    balance: BigNumberString,
-  ): ResultAsync<void, PersistenceError>;
-
-  addTokenInfo(
-    chainId: ChainId,
-    tokenInfo: IEVMTokenInfo,
+  updateAccountBalances(
+    balances: IEVMBalance[],
   ): ResultAsync<void, PersistenceError>;
 }
 

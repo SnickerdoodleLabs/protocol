@@ -15,7 +15,7 @@ import {
   BigNumberString,
   EVMEvent,
   IEVMAccountBalanceRepository,
-  IEVMTokenInfo,
+  IEVMBalance,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -102,6 +102,19 @@ interface ICovalentEVMBalanceResponse {
   quote_currency: string;
   chain_id: number;
   items: IEVMTokenInfo[];
+}
+
+interface IEVMTokenInfo {
+  contract_decimals: number;
+  contract_ticker_symbol: string;
+  contract_address: string;
+  supports_erc: string[];
+  balance: BigNumberString;
+
+  contract_name?: string;
+  logo_url?: string;
+  last_transferred_at?: string;
+  type?: string;
 }
 
 @injectable()
@@ -193,7 +206,7 @@ export class CovalentEVMTransactionRepository
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMTokenInfo[], AccountBalanceError | AjaxError> {
+  ): ResultAsync<IEVMBalance[], AccountBalanceError | AjaxError> {
     return this.generateQueryConfig(
       chainId,
       this.ENDPOINT_BALANCES,
@@ -206,7 +219,14 @@ export class CovalentEVMTransactionRepository
           requestConfig,
         )
         .map((queryResult) => {
-          return queryResult.items;
+          return queryResult.items.map((tokenInfo) => {
+            return {
+              ticker: tokenInfo.contract_ticker_symbol,
+              chainId: chainId,
+              accountAddress: accountAddress,
+              balance: tokenInfo.balance,
+            };
+          });
         });
     });
   }

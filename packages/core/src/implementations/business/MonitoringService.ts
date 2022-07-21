@@ -16,6 +16,7 @@ import {
   PersistenceError,
   IAccountBalancesType,
   IAccountBalances,
+  IEVMBalance,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -90,11 +91,52 @@ export class MonitoringService implements IMonitoringService {
     return ResultUtils.combine([
       this.persistence.getAccounts(),
       this.configProvider.getConfig(),
-    ]).andThen(([accountAddresses, config]) => {
-      return config.supportedChains.map((chainId) => {
-        return accountAddresses.map((accountAddress) => {
-          this.getLatestBalances(chainId, accountAddress)
-        });
+    ])
+      .andThen(([accountAddresses, config]) => {
+        return ResultUtils.combine(
+          accountAddresses.map((accountAddress) => {
+            return ResultUtils.combine(
+              config.supportedChains.map((chainId) => {
+                return this.getLatestBalances(chainId, accountAddress);
+              }),
+            );
+          }),
+        );
+      })
+      .andThen((balancesArr) => {
+        const balances = balancesArr.flat(2);
+        return this.persistence.updateAccountBalances(balances);
+      });
+  }
+
+  protected getLatestBalances(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    IEVMBalance[],
+    PersistenceError | AccountBalanceError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.accountBalances.getEVMBalanceRepository(),
+      this.accountBalances.getSimulatorEVMBalanceRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+      const chainInfo = config.chainInformation.get(chainId);
+      if (chainInfo == null) {
+        this.logUtils.error(`No available chain info for chain ${chainId}`);
+        return okAsync([]);
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getBalancesForAccount(chainId, accountAddress);
+        case EIndexer.Simulator:
+          return simulatorRepo.getBalancesForAccount(chainId, accountAddress);
+        default:
+          this.logUtils.error(
+            `No available balance repository for chain ${chainId}`,
+          );
+          return okAsync([]);
       }
     });
   }

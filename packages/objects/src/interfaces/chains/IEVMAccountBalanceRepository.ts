@@ -4,22 +4,17 @@ import { AjaxError, BigNumberString, ChainId, EVMAccountAddress } from "../..";
 
 import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
 
-export interface IEVMTokenInfo {
-  contract_decimals: number;
-  contract_ticker_symbol: string;
-  contract_address: string;
-  supports_erc: string[];
+export type TickerSymbol = string;
+export interface IEVMBalance {
+  ticker: TickerSymbol;
+  chainId: ChainId;
+  accountAddress: EVMAccountAddress;
   balance: BigNumberString;
-
-  contract_name?: string;
-  logo_url?: string;
-  last_transferred_at?: string;
-  type?: string;
 }
 
 export interface IEVMAccountBalanceRepository {
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMTokenInfo[], AccountBalanceError | AjaxError>;
+  ): ResultAsync<IEVMBalance[], AccountBalanceError | AjaxError>;
 }

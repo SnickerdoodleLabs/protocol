@@ -16,6 +16,7 @@ import {
   SiteVisit,
   UnixTimestamp,
   ChainId,
+  IEVMBalance,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -219,6 +220,12 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getLocation(): ResultAsync<CountryCode, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  updateAccountBalances(
+    balances: IEVMBalance[],
+  ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 }
