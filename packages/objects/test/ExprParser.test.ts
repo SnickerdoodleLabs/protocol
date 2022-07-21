@@ -342,7 +342,7 @@ describe("Postfix to AST", () => {
     
     const schema = SDQLSchema.fromString(avalance1SchemaStr);
     const parser = new SDQLParser(IpfsCID("0"), schema);
-    parser.parse();
+    parser.buildAST();
     const context = parser.context;
     
     test("$r2", () => {

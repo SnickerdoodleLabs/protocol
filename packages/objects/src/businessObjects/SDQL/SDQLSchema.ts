@@ -12,6 +12,18 @@ export class SDQLSchema {
         return new SDQLSchema(obj)
     }
 
+    public get version(): string {
+        return `${this.internalObj["version"]}`;
+    }
+
+    public get description(): string {
+        return this.internalObj["description"];
+    }
+
+    public get business(): string {
+        return this.internalObj["business"];
+    }
+
     getQuerySchema(): Object {
 
         return this.internalObj["queries"];

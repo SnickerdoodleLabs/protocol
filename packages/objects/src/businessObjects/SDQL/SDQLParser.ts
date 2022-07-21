@@ -1,7 +1,8 @@
-import { IpfsCID, SDQL_Name, URLString } from "@objects/primitives";
-import { AST } from "prettier";
+import { IpfsCID, SDQL_Name, URLString, Version } from "@objects/primitives";
+import { AST } from "./AST";
 import { AST_Compensation } from "./AST_Compensation";
 import { AST_Expr } from "./AST_Expr";
+import { AST_Logic } from "./AST_Logic";
 import { AST_NetworkQuery } from "./AST_NetworkQuery";
 import { AST_PropertyQuery } from "./AST_PropertyQuery";
 import { AST_Query } from "./AST_Query";
@@ -18,6 +19,7 @@ export class SDQLParser {
     context: Map<string, any> = new Map();
     queries: Map<SDQL_Name, AST_Query> = new Map();
     returns: AST_Returns | null;
+    compensations: Map<SDQL_Name, AST_Compensation> = new Map();
     logicReturns: Map<string, AST_Expr | Command> = new Map();
     logicCompensations: Map<string, AST_Expr | Command> = new Map();
 
@@ -39,7 +41,7 @@ export class SDQLParser {
         this.context.set(name, val);
     }
 
-    parse() {
+    private parse() {
         // const queries = this.parseQueries();
         this.parseQueries();
 
@@ -50,6 +52,24 @@ export class SDQLParser {
 
         this.parseLogic();
 
+    }
+
+    buildAST(): AST {
+
+        this.parse();
+
+        return new AST(
+            Version(this.schema["version"]),
+            this.schema["description"],
+            this.schema["business"],
+            this.queries,
+            this.returns,
+            this.compensations,
+            new AST_Logic(
+                this.logicReturns, this.logicCompensations
+            )
+
+        );
     }
 
     // #region non-logic
@@ -128,7 +148,6 @@ export class SDQLParser {
 
     private parseCompensations() {
         const compensationSchema = this.schema.getCompensationSchema();
-        const compensations = new Array<AST_Compensation>();
 
         for (let cName in compensationSchema) {
 
@@ -142,7 +161,7 @@ export class SDQLParser {
                                     URLString(schema.callback)
                                 );
 
-            compensations.push(compensation);
+            this.compensations.set(compensation.name, compensation);
             this.saveInContext(cName, compensation);
         }
 

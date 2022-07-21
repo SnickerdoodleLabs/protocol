@@ -10,7 +10,8 @@ describe("SDQLParser on avalanche", () => {
     const schema = SDQLSchema.fromString(avalance1SchemaStr);
     const parser = new SDQLParser(IpfsCID("0"), schema);
 
-    parser.parse();
+    const ast = parser.buildAST();
+    // parser.parse();
 
     describe("Checking queries", () => {
 
@@ -129,7 +130,7 @@ describe("SDQLParser on avalanche", () => {
         });
     });
 
-    describe.only("Checking Logic compenstation ASTs", () => {
+    describe("Checking Logic compenstation ASTs", () => {
         test("avalance 1 has 3 compenstation ASTs", () => {
             expect(parser.logicCompensations.size).toBe(3);
         });
@@ -147,6 +148,17 @@ describe("SDQLParser on avalanche", () => {
 
             expect(eef.trueExpr).toEqual(parser.context.get('c1'));
 
+        });
+
+    });
+    describe.only("AST validation", () => {
+
+        test("meta check", () => {
+            console.log(ast);
+            expect(ast.version).toBe('0.1');
+            expect(ast.description).toBe("Interactions with the Avalanche blockchain for 15-year and older individuals");
+            expect(ast.business).toBe("Shrapnel");
+            
         });
 
     });
