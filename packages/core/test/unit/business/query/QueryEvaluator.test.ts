@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { AST_PropertyQuery, AST_BoolExpr, Condition, ConditionGE, ConditionIn, ConditionL, SDQL_OperatorName, SDQL_Name, ConditionAnd} from "@snickerdoodlelabs/objects";
+import { AST_PropertyQuery, AST_BoolExpr, Condition, ConditionGE, ConditionIn, ConditionL, SDQL_OperatorName, SDQL_Name, ConditionAnd, ConditionLE} from "@snickerdoodlelabs/objects";
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
 import { LocalStoragePersistence } from "@persistence/LocalStoragePersistence";
 import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
@@ -24,13 +24,13 @@ const conditionsGE3 = [
 ];
 
 const conditionsLE = [
-    new ConditionGE(SDQL_OperatorName('ge'), null, 20)
+    new ConditionLE(SDQL_OperatorName('le'), null, 20)
 ];
 const conditionsLE2 = [
-    new ConditionGE(SDQL_OperatorName('ge'), null, 25)
+    new ConditionLE(SDQL_OperatorName('le'), null, 25)
 ];
 const conditionsLE3 = [
-    new ConditionGE(SDQL_OperatorName('ge'), null, 30)
+    new ConditionLE(SDQL_OperatorName('le'), null, 30)
 ];
 
 const conditionsG = [
@@ -43,13 +43,13 @@ const conditionsG3 = [
     new ConditionG(SDQL_OperatorName('g'), null, 26)
 ];
 const conditionsL = [
-    new ConditionG(SDQL_OperatorName('g'), null, 24)
+    new ConditionL(SDQL_OperatorName('l'), null, 24)
 ];
 const conditionsL2 = [
-    new ConditionG(SDQL_OperatorName('g'), null, 25)
+    new ConditionL(SDQL_OperatorName('l'), null, 25)
 ];
 const conditionsL3 = [
-    new ConditionG(SDQL_OperatorName('g'), null, 26)
+    new ConditionL(SDQL_OperatorName('l'), null, 26)
 ];
 
 const conditionsE = [
@@ -131,6 +131,48 @@ describe("QueryEvaluator checking age boolean: GE", () => {
     })
 })
 
+describe("QueryEvaluator checking age boolean: LE", () => {
+    test("EvalPropertyQuery: when age is 25 <= 20, returns false", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsLE
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result["value"]).toBe(false);
+    })
+    test("EvalPropertyQuery: when age is 25 <= 25, returns true", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsLE2
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result["value"]).toBe(true);
+    })
+    test("EvalPropertyQuery: when age 25 <= 30, returns true", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsLE3
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result["value"]).toBe(true);
+    })
+})
+
 describe("QueryEvaluator checking age boolean: G", () => {
     test("EvalPropertyQuery: when age is 25 > 24, returns true", async () => {
         const propertyQuery = new AST_PropertyQuery(
@@ -174,7 +216,54 @@ describe("QueryEvaluator checking age boolean: G", () => {
         expect(result["value"]).toBe(false);
     })
 })
-  
+
+describe("QueryEvaluator checking age boolean: L", () => {
+    test("EvalPropertyQuery: when age is 25 < 24, returns false", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsL
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        console.log(result["value"]);
+        expect(result).toBeDefined();
+        expect(result["value"]).toBe(false);
+    })
+    
+    test("EvalPropertyQuery: when age is 25 < 25, returns false", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsL2
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result["value"]).toBe(false);
+    })
+    
+    test("EvalPropertyQuery: when age is 25 < 26, returns true", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "boolean",
+            "age",
+            conditionsL3
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        console.log(result["value"]);
+
+        expect(result).toBeDefined();
+        expect(result["value"]).toBe(true);
+    })
+})
+
 describe("QueryEvaluator checking age boolean: E", () => {
     test("EvalPropertyQuery: when age is 25 == 25, returns true", async () => {
         const propertyQuery = new AST_PropertyQuery(
@@ -204,131 +293,8 @@ describe("QueryEvaluator checking age boolean: E", () => {
     })
 })
 
-
-
-describe("QueryEvaluator checking age boolean: LE", () => {
-    test("EvalPropertyQuery: when age is 25 <= 20, returns true", async () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "boolean",
-            "age",
-            conditionsLE
-        )
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(propertyQuery);
-        expect(result).toBeDefined();
-        expect(result["value"]).toBe(true);
-    })
-    test("EvalPropertyQuery: when age is 25 <= 25, returns true", async () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "boolean",
-            "age",
-            conditionsLE2
-        )
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(propertyQuery);
-        expect(result).toBeDefined();
-        expect(result["value"]).toBe(true);
-    })
-    test("EvalPropertyQuery: when age 25 <= 30, returns false", async () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "boolean",
-            "age",
-            conditionsLE3
-        )
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(propertyQuery);
-        expect(result).toBeDefined();
-        expect(result["value"]).toBe(false);
-    })
-})
-
-
-describe("QueryEvaluator checking age boolean: L", () => {
-    test("EvalPropertyQuery: when age is 25 < 24, returns false", async () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "boolean",
-            "age",
-            conditionsL
-        )
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(propertyQuery);
-        expect(result).toBeDefined();
-        expect(result["value"]).toBe(false);
-    })
-    
-    test("EvalPropertyQuery: when age is 25 < 25, returns false", async () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "boolean",
-            "age",
-            conditionsL2
-        )
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(propertyQuery);
-        expect(result).toBeDefined();
-        expect(result["value"]).toBe(false);
-    })
-    
-    test("EvalPropertyQuery: when age is 25 < 26, returns true", async () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "boolean",
-            "age",
-            conditionsL3
-        )
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(propertyQuery);
-        expect(result).toBeDefined();
-        expect(result["value"]).toBe(true);
-    })
-})
-
-/*
-describe("QueryEvaluator return integer values", () => {
-    test("EvalPropertyQuery: return age", () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "integer",
-            "age",
-            []
-        )
-        console.log(propertyQuery);
-        persistenceLayer.setAge(Age(25));
-        const queryEvaluator = new QueryEvaluator(persistenceLayer)
-        console.log("queryEvaluator is: ", queryEvaluator)
-        const result = queryEvaluator.eval(propertyQuery);
-        console.log("Result is: ", result)
-        expect(result).toEqual(Age(25))
-    })
-    test("EvalPropertyQuery: return location", () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "integer",
-            "location",
-            []
-        )
-        console.log(propertyQuery);
-        persistenceLayer.setLocation(CountryCode(57));
-        const queryEvaluator = new QueryEvaluator(persistenceLayer)
-        const result = queryEvaluator.eval(propertyQuery);
-        console.log(result)
-        expect(result).toEqual(SDQL_Return(CountryCode(57)))
-    })
-})
-
-
 describe("QueryEvaluator checking location condition in", () => {
-    test("EvalPropertyQuery: when location is in ConditionIn, return true", () => {
+    test("EvalPropertyQuery: when location is in ConditionIn, return true", async () => {
         const conditionsIn = new ConditionIn(
             SDQL_OperatorName('in'), 
             57, 
@@ -339,16 +305,14 @@ describe("QueryEvaluator checking location condition in", () => {
             "location",
             [conditionsIn]
         )
-        //console.log(propertyQuery);
-        //  DO the mocks to get age
-        // DO the rest
         const mocks = new QueryEvaluatorMocks();
-        const service = mocks.factory();
-        const result = service.eval(propertyQuery);
-        expect(result).toBe(true);
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result["value"]).toBe(true);
     })
-    test("EvalPropertyQuery: when location is NOT in ConditionIn, return false", () => {
-        const conditionsIn = new ConditionIn(
+    test("EvalPropertyQuery: when location is NOT in ConditionIn, return false", async () => {
+        const conditionsIn2 = new ConditionIn(
             SDQL_OperatorName('in'), 
             57, 
             [62, 85, 45])
@@ -356,16 +320,43 @@ describe("QueryEvaluator checking location condition in", () => {
             SDQL_Name("q1"),
             "boolean",
             "location",
-            [conditionsIn]
+            [conditionsIn2]
         )
         //console.log(propertyQuery);
         //  DO the mocks to get age
         // DO the rest
         const mocks = new QueryEvaluatorMocks();
-        const service = mocks.factory();
-        const result = service.eval(propertyQuery);
-        expect(result).toBe(false);
-    })
-
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result["value"]).toBe(false);
+    });
 })
-*/
+describe("QueryEvaluator return integer values", () => {
+    test("EvalPropertyQuery: return age", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "integer",
+            "age",
+            []
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        console.log("Age is: ", result["value"]);
+        expect(result["value"]).toEqual(Age(25))
+    })
+    test("EvalPropertyQuery: return location", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "integer",
+            "location",
+            []
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        console.log("Location is: ", result["value"]);
+        expect(result["value"]).toEqual(CountryCode(57))
+    })
+})

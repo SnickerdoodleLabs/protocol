@@ -45,14 +45,14 @@ export class QueryEvaluator {
         let result = SDQL_Return(true);
         switch (q.property){
             case "age":
-                //console.log("Tracking the result: ", result);
+                console.log("Tracking the result: ", result);
                 return this.dataWalletPersistence.getAge().andThen(
                     (age) => 
                     {
                         switch(q.returnType){
                             case "boolean":
-                                //console.log("Property: Age, Return Type: Boolean");
-                                //console.log("Before conditions: ", result);
+                                console.log("Property: Age, Return Type: Boolean");
+                                console.log("Before conditions: ", result);
                                 for (let condition of q.conditions) {
                                     result = (result) && (this.evalPropertyConditon(age, condition));
                                 }
@@ -62,10 +62,10 @@ export class QueryEvaluator {
                                 //console.log("Property: Age, Return Type: Integer");
                                 //console.log("Returning age: ", age)
                                 result = SDQL_Return(age);
-                                //console.log("Tracking the result: ", result);
+                                console.log("Tracking the result: ", result);
                                 return okAsync(result);
                             default:
-                                //console.log("Tracking the result: ", result);
+                                console.log("Tracking the result: ", result);
                                 return okAsync(result);
                         }
                     }
@@ -73,33 +73,33 @@ export class QueryEvaluator {
                 console.log("Tracking the result: ", result);
                 return okAsync(result);
             case "location":
-                this.dataWalletPersistence.getLocation().map( 
-                    (location) => {
+                console.log("Tracking the result: ", result);
+                return this.dataWalletPersistence.getLocation().andThen( 
+                    (location) => 
+                    {
                         switch(q.returnType){
                             case "boolean":
-                                //console.log("Property: Location, Return Type: Boolean");
+                                console.log("Property: Location, Return Type: Boolean");
+                                console.log("Before conditions: ", result);
                                 for (let condition of q.conditions) {
-                                    result = result && this.evalPropertyConditon(location, condition);
+                                    result = (result) && (this.evalPropertyConditon(location, condition));
                                 }
-                                return result;
+                                //console.log("After conditions: ", result);
+                                return okAsync(result);
                             case "integer": 
                                 //console.log("Property: Location, Return Type: Integer");
                                 //console.log("Returning location: ", location)
                                 result = SDQL_Return(location);
-                                return result;
-                            case "number": 
-                                //console.log("Property: Location, Return Type: Number");
-                                //console.log("Returning location: ", location)
-                                result = SDQL_Return(location);
-                                return result;
+                                return okAsync(result);
                             default:
-                                return result;
+                                return okAsync(result);
                         }
-                });
-                //console.log("Tracking the result: ", result);
+                    }
+                );
+                console.log("Tracking the result: ", result);
                 return okAsync(result);
             default:
-                //console.log("Tracking the result: ", result);
+                console.log("Tracking the result: ", result);
                 return okAsync(result);
         }
         console.log("Tracking the result: ", result);
@@ -125,6 +125,13 @@ export class QueryEvaluator {
                 //console.log("Return should be: ", propertyVal > val);
                 return (SDQL_Return(propertyVal > val));
                 //return okAsync(SDQL_Return(propertyVal > val));
+            case ConditionL:
+                val = (condition as ConditionL).rval;
+                console.log("PropertyVal is: ", propertyVal);
+                console.log("Val is: ", val);
+                console.log("Return should be: ", propertyVal < val);
+                return (SDQL_Return(propertyVal < val));
+                //return okAsync(SDQL_Return(propertyVal < val));
             case ConditionE:
                 val = (condition as ConditionE).rval;
                 //console.log("PropertyVal is: ", propertyVal);
@@ -136,28 +143,21 @@ export class QueryEvaluator {
                 val = (condition as ConditionLE).rval;
                 return (SDQL_Return(propertyVal <= val));
                 //return okAsync(SDQL_Return(propertyVal <= val));
-
-            case ConditionL:
-                val = (condition as ConditionL).rval;
-                console.log("PropertyVal is: ", propertyVal);
-                console.log("Val is: ", val);
-                console.log("Return should be: ", propertyVal < val);
-                return (SDQL_Return(propertyVal < val));
-                //return okAsync(SDQL_Return(propertyVal < val));
-
             case ConditionIn:
-                //console.log("In Condition IN");
+                console.log("In Condition IN");
                 let find_val = (condition as ConditionIn).lval;
-                //console.log("Looking for: ", find_val);
+                console.log("Looking for: ", find_val);
                 let in_values = (condition as ConditionIn).rvals;
-                //console.log("Within: ", in_values);
+                console.log("Within: ", in_values);
                 for (let i=0; i < in_values.length; i++){
                     if (find_val == in_values[i]){
+                        console.log("Found: ", find_val);
                         return (SDQL_Return(true));
                         //return okAsync(SDQL_Return(true));
 
                     }
                 }
+                console.log("Did not Find: ", find_val);
                 return (SDQL_Return(false));
                 //return okAsync(SDQL_Return(false));
 
