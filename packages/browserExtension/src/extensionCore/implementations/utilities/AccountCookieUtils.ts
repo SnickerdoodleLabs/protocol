@@ -17,31 +17,32 @@ export class AccountCookieUtils implements IAccountCookieUtils {
     const _value = { account, signature, languageCode };
     const date = new Date();
     date.setFullYear(date.getFullYear() + 1);
-    this._getAccountCookie().andThen((cookie) => {
-      let value = JSON.stringify([_value]);
-      if (cookie?.value) {
-        value = JSON.stringify(
-          Array.from(new Set([...JSON.parse(cookie.value), _value])),
+    return this._getAccountCookie()
+      .andThen((cookie) => {
+        let value = JSON.stringify([_value]);
+        if (cookie?.value) {
+          value = JSON.stringify(
+            Array.from(new Set([...JSON.parse(cookie.value), _value])),
+          );
+        }
+        if (!Browser.cookies) {
+          return errAsync(
+            new ExtensionCookieError("Cookie Permissions not granted"),
+          );
+        }
+        return ResultAsync.fromPromise(
+          Browser.cookies.set({
+            // TODO add onboarding url once its published
+            url: "https://snickerdoodlelabs.io/",
+            expirationDate: date.getTime() / 1000,
+            name: "account-info",
+            value,
+            httpOnly: true,
+          }),
+          (e) => new ExtensionCookieError("Unable to set cookie"),
         );
-      }
-      if (!Browser.cookies) {
-        return errAsync(
-          new ExtensionCookieError("Cookie Permissions not granted"),
-        );
-      }
-      return ResultAsync.fromPromise(
-        Browser.cookies.set({
-          // TODO add onboarding url once its published
-          url: "https://snickerdoodlelabs.io/",
-          expirationDate: date.getTime() / 1000,
-          name: "account-info",
-          value,
-          httpOnly: true,
-        }),
-        (e) => new ExtensionCookieError("Unable to set cookie"),
-      );
-    });
-    return okAsync(undefined);
+      })
+      .map(() => {});
   }
 
   public readAccountInfoFromCookie(): ResultAsync<
