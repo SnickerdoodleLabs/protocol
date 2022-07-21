@@ -32,7 +32,7 @@ export class CrumbsContract implements ICrumbsContract {
   }
 
   public addressToCrumbId(
-    accountAddress: EVMAccountAddress
+    accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenId | null, CrumbsContractError> {
     return ResultAsync.fromPromise(
       this.contract.addressToCrumbId(accountAddress) as Promise<TokenId>,
@@ -96,7 +96,7 @@ export class CrumbsContract implements ICrumbsContract {
       .andThen((tx) => {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new CrumbsContractError(
-            "Wait for optIn() failed",
+            "Wait for createCrumb() failed",
             "Unknown",
             e,
           );
@@ -126,7 +126,37 @@ export class CrumbsContract implements ICrumbsContract {
       .andThen((tx) => {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new CrumbsContractError(
-            "Wait for optIn() failed",
+            "Wait for burnCrumb() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public updateTokenURI(
+    crumbId: TokenId,
+    tokenURI: TokenUri,
+  ): ResultAsync<void, CrumbsContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.updateCrumb(
+        crumbId,
+        tokenURI,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        // No error handling needed, any reverts from function call should return the reason
+        return new CrumbsContractError(
+          "Unable to call updateCrumbId()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new CrumbsContractError(
+            "Wait for updateCrumbId() failed",
             "Unknown",
             e,
           );
