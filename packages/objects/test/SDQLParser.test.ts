@@ -151,14 +151,14 @@ describe("SDQLParser on avalanche", () => {
         });
 
     });
-    describe.only("AST validation", () => {
+    describe("AST validation", () => {
 
         test("meta check", () => {
             console.log(ast);
             expect(ast.version).toBe('0.1');
             expect(ast.description).toBe("Interactions with the Avalanche blockchain for 15-year and older individuals");
             expect(ast.business).toBe("Shrapnel");
-            
+
         });
 
     });
