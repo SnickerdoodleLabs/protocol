@@ -522,7 +522,17 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map(() => {});
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for disableOpenOptIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public enableOpenOptIn(): ResultAsync<void, ConsentContractError> {
@@ -535,7 +545,17 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map(() => {});
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for enableOpenOptIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public filters = {
