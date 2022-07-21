@@ -9,7 +9,7 @@ const { ethers, upgrades } = require("hardhat");
 // declare variables that need to be referenced by other functions
 let accounts;
 let owner;
-let trustedForwarder;
+let trustedForwarderAddress;
 let tokenDistributor;
 let consentAddress;
 let doodleTokenAddress;
@@ -19,8 +19,6 @@ async function setLocalAccounts() {
   accounts = await hre.ethers.getSigners();
   owner = accounts[0];
   console.log(owner.address);
-  //for local testing, take the Account #19 hardhat accounts as the trusted forwarder address
-  trustedForwarder = accounts[19];
 
   //for local testing,take the Account #18 of hardhat accounts as the trusted forwarder address
   tokenDistributor = accounts[18];
@@ -50,7 +48,7 @@ async function deployConsentFactory() {
   // the Consent Factory contract requires one argument on deployment:
   // the address of the trusted forwarder who will pay for the meta tx fees
   const consentFactory = await ConsentFactory.deploy(
-    trustedForwarder.address,
+    trustedForwarderAddress,
     consentAddress,
   );
   const consentFactory_receipt = await consentFactory.deployTransaction.wait();
@@ -149,7 +147,7 @@ async function deployCrumbs() {
   // the address of the trusted forwarder address
   // the base uri
   const crumbs = await Crumbs.deploy(
-    trustedForwarder.address,
+    trustedForwarderAddress,
     "www.crumbs.com/",
   );
   const crumbs_receipt = await crumbs.deployTransaction.wait();
@@ -187,6 +185,8 @@ async function deployMinimalForwarder() {
   const minimalForwarder_receipt =
     await minimalForwarder.deployTransaction.wait();
 
+  trustedForwarderAddress = minimalForwarder.address;
+
   console.log("MinimalForwarder deployed to:", minimalForwarder.address);
   console.log(
     "MinimalForwarder Gas Fee:",
@@ -204,6 +204,9 @@ async function fullDeployment() {
   // await hre.run('compile');
 
   await setLocalAccounts();
+
+  await deployMinimalForwarder();
+
   await deployConsent();
   await deployConsentFactory();
 
@@ -218,8 +221,6 @@ async function fullDeployment() {
 
   await deployCrumbs();
   await deploySift();
-
-  await deployMinimalForwarder();
 
   console.log("");
   console.log("Full deployment successful!");
