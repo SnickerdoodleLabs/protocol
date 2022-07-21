@@ -8,7 +8,7 @@ export class Command_IF extends Command{
     constructor(
         readonly name: SDQL_Name,
         readonly trueExpr: AST_ReturnExpr,
-        readonly falseExpr: AST_ReturnExpr,
+        readonly falseExpr: AST_ReturnExpr | null,
         readonly conditionExpr: AST_ConditionExpr
 
     ) {
