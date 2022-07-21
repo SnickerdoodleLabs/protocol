@@ -1,18 +1,11 @@
 import { IAccountService } from "@interfaces/business";
 import { IAccountRepository } from "@interfaces/data";
-import { ExtensionCookieError } from "@shared/objects/errors";
+import { SnickerDoodleCoreError, ExtensionCookieError } from "@shared/objects/errors";
+
 import {
-  AjaxError,
-  BlockchainProviderError,
-  ConsentContractError,
-  CrumbsContractError,
   EVMAccountAddress,
-  InvalidSignatureError,
   LanguageCode,
-  PersistenceError,
   Signature,
-  UninitializedError,
-  UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
 
 import { ResultAsync } from "neverthrow";
@@ -23,15 +16,7 @@ export class AccountService implements IAccountService {
     account: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | PersistenceError
-    | CrumbsContractError
-    | AjaxError
-    | ExtensionCookieError
-  > {
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
     return this.accountRepository.addAccount(account, signature, languageCode);
   }
 
@@ -40,18 +25,7 @@ export class AccountService implements IAccountService {
     signature: Signature,
     languageCode: LanguageCode,
     calledWithCookie?: boolean,
-  ): ResultAsync<
-    void,
-    | UnsupportedLanguageError
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | PersistenceError
-    | InvalidSignatureError
-    | AjaxError
-    | CrumbsContractError
-    | ExtensionCookieError
-  > {
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
     return this.accountRepository.unlock(
       account,
       signature,
@@ -62,7 +36,7 @@ export class AccountService implements IAccountService {
 
   public getUnlockMessage(
     languageCode: LanguageCode,
-  ): ResultAsync<string, UnsupportedLanguageError> {
+  ): ResultAsync<string, SnickerDoodleCoreError> {
     return this.accountRepository.getUnlockMessage(languageCode);
   }
 }

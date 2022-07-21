@@ -1,4 +1,4 @@
-import { EPlatform, EManifestVersion } from "@shared/objects/config";
+import { EPlatform, EManifestVersion } from "@shared/enums/config";
 
 declare const __ONBOARDING_URL__: string;
 declare const __MANIFEST_VERSION__: EManifestVersion;

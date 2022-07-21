@@ -1,19 +1,14 @@
 import { IAccountRepository } from "@interfaces/data";
-import { IAccountCookieUtils } from "@interfaces/utilities";
-import { ExtensionCookieError } from "@shared/objects/errors";
+import { IAccountCookieUtils, IErrorUtils } from "@interfaces/utilities";
 import {
-  AjaxError,
-  BlockchainProviderError,
-  ConsentContractError,
-  CrumbsContractError,
+  SnickerDoodleCoreError,
+  ExtensionCookieError,
+} from "@shared/objects/errors";
+import {
   EVMAccountAddress,
-  InvalidSignatureError,
   ISnickerdoodleCore,
   LanguageCode,
-  PersistenceError,
   Signature,
-  UninitializedError,
-  UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
 
 import { okAsync, ResultAsync } from "neverthrow";
@@ -21,29 +16,29 @@ export class AccountRepository implements IAccountRepository {
   constructor(
     protected core: ISnickerdoodleCore,
     protected accountCookieUtils: IAccountCookieUtils,
+    protected errorUtils: IErrorUtils,
   ) {}
 
   public addAccount(
     account: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | PersistenceError
-    | CrumbsContractError
-    | AjaxError
-    | ExtensionCookieError
-  > {
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
     return this.core
       .addAccount(account, signature, languageCode)
+      .mapErr((error) => {
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      })
       .andThen(() => {
         return this.accountCookieUtils.writeAccountInfoToCookie(
           account,
           signature,
           languageCode,
         );
+      })
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return error;
       });
   }
 
@@ -52,32 +47,33 @@ export class AccountRepository implements IAccountRepository {
     signature: Signature,
     languageCode: LanguageCode,
     calledWithCookie: boolean,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | PersistenceError
-    | UnsupportedLanguageError
-    | InvalidSignatureError
-    | AjaxError
-    | ConsentContractError
-    | ExtensionCookieError
-  > {
-    return this.core.unlock(account, signature, languageCode).andThen(() => {
-      if (calledWithCookie) {
-        return okAsync(undefined);
-      }
-      return this.accountCookieUtils.writeAccountInfoToCookie(
-        account,
-        signature,
-        languageCode,
-      );
-    });
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
+    return this.core
+      .unlock(account, signature, languageCode)
+      .mapErr((error) => {
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      })
+      .andThen(() => {
+        if (calledWithCookie) {
+          return okAsync(undefined);
+        }
+        return this.accountCookieUtils.writeAccountInfoToCookie(
+          account,
+          signature,
+          languageCode,
+        );
+      })
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return error;
+      });
   }
   public getUnlockMessage(
     languageCode: LanguageCode,
-  ): ResultAsync<string, UnsupportedLanguageError> {
-    return this.core.getUnlockMessage(languageCode);
+  ): ResultAsync<string, SnickerDoodleCoreError> {
+    return this.core.getUnlockMessage(languageCode).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 }

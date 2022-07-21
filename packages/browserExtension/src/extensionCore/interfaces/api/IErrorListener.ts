@@ -1,5 +1,4 @@
 import { ResultAsync } from "neverthrow";
-
-export interface IClientEventListener {
+export interface IErrorListener {
   initialize(): ResultAsync<void, never>;
 }

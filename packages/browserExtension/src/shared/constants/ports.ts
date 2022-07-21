@@ -1,14 +1,4 @@
-export enum EPortNames {
-  SD_POPUP = "SD_POPUP",
-  SD_NOTIFICATION = "SD_NOTIFICATION",
-  SD_FULL_SCREEN = "SD_FULLSCREEN",
-  SD_CONTENT_SCRIPT = "SD_CONTENT_SCRIPT",
-}
-
-export enum EConnectionModes {
-  SD_INTERNAL = "SD_INTERNAL",
-  EXTERNAL = "EXTERNAL",
-}
+import { EPortNames } from "@shared/enums/ports";
 
 export const INTERNAL_PORTS = [
   EPortNames.SD_FULL_SCREEN,

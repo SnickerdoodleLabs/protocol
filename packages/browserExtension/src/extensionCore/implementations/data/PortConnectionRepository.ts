@@ -4,8 +4,6 @@ import { IPortConnectionRepository } from "@interfaces/data";
 import { IContextProvider } from "@interfaces/utilities";
 import { IRpcEngineFactory } from "@interfaces/utilities/factory";
 import {
-  EConnectionModes,
-  EPortNames,
   INTERNAL_PORTS,
   CONTENT_SCRIPT_SUBSTREAM,
   ONBOARDING_PROVIDER_SUBSTREAM,
@@ -17,6 +15,7 @@ import PortStream from "extension-port-stream";
 import ObjectMultiplex from "obj-multiplex";
 import pump from "pump";
 import endOfStream from "end-of-stream";
+import { EPortNames } from "@shared/enums/ports";
 export class PortConnectionRepository implements IPortConnectionRepository {
   constructor(
     protected contextProvider: IContextProvider,
@@ -47,7 +46,6 @@ export class PortConnectionRepository implements IPortConnectionRepository {
     this.rpcEngineFactory.createRrpcEngine(
       remotePort,
       remotePort.name as EPortNames,
-      EConnectionModes.SD_INTERNAL,
       portStream,
     );
   }
@@ -67,16 +65,13 @@ export class PortConnectionRepository implements IPortConnectionRepository {
     this.rpcEngineFactory.createRrpcEngine(
       remotePort,
       origin as URLString,
-      EConnectionModes.EXTERNAL,
       portStreamMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
     );
-
     // create injected onboarding handler if orgins match
     if (origin === onboardingUrlOrigin) {
       this.rpcEngineFactory.createRrpcEngine(
         remotePort,
         origin as URLString,
-        EConnectionModes.EXTERNAL,
         portStreamMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
       );
     }

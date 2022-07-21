@@ -10,23 +10,15 @@ export class PortConnectionUtils {
     port: Runtime.Port,
     connectionHandler: (port: Runtime.Port) => ResultAsync<void, never>,
   ) {
-    // @ts-ignore
+    let _timer;
     const deleteTimer = () => {
-      // @ts-ignore
-      if (port._timer) {
-        // @ts-ignore
-        clearTimeout(port._timer);
-        // @ts-ignore
-        delete port._timer;
-      }
+      clearTimeout(_timer);
     };
     const forceReconnect = () => {
       deleteTimer();
       port.disconnect();
     };
-    // @ts-ignore
-    port._timer = setTimeout(forceReconnect, 180000);
-
+    _timer = setTimeout(forceReconnect, 180000);
     connectionHandler(port);
   }
 }

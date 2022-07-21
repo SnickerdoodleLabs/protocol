@@ -5,11 +5,11 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import Browser from "webextension-polyfill";
-import { IUnlockParams } from "@shared/objects/EventParams";
+import { IUnlockParams } from "@shared/interfaces/actions";
 import { IAccountCookieUtils } from "@interfaces/utilities";
 import { ExtensionCookieError } from "@shared/objects/errors";
 export class AccountCookieUtils implements IAccountCookieUtils {
-  writeAccountInfoToCookie(
+  public writeAccountInfoToCookie(
     account: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
@@ -44,7 +44,7 @@ export class AccountCookieUtils implements IAccountCookieUtils {
     return okAsync(undefined);
   }
 
-  readAccountInfoFromCookie(): ResultAsync<
+  public readAccountInfoFromCookie(): ResultAsync<
     IUnlockParams[],
     ExtensionCookieError
   > {

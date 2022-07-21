@@ -19,7 +19,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { createBackgroundConnectors } from "@app/Popup/utils";
 import { InternalCoreGateway } from "@app/coreGateways";
-import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
+import {  PORT_NOTIFICATION } from "@shared/constants/ports";
+import { EPortNames } from "@shared/enums/ports";
 
 const Popup = () => {
   const [portName, setPortName] = useState<EPortNames | null>(null);

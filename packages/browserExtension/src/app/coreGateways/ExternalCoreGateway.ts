@@ -1,7 +1,7 @@
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
-import { EExternalActions } from "@shared/constants/actions";
-import { IExternalState } from "@shared/objects/State";
+import { EExternalActions } from "@shared/enums";
+import { IExternalState } from "@shared/interfaces/states";
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import {
   EVMAccountAddress,
@@ -12,7 +12,7 @@ import {
   IAddAccountParams,
   IGetUnlockMessageParams,
   IUnlockParams,
-} from "@shared/objects/EventParams";
+} from "@shared/interfaces/actions";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;

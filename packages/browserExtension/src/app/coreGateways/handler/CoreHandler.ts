@@ -8,16 +8,15 @@ export default class CoreHandler {
     return ResultAsync.fromPromise<T, unknown>(
       new Promise((resolve, reject) => {
         const requestObject = this._createRequestObject(method, params);
-        this.rpcEngine.handle(requestObject, async (error, result) => {
+        this.rpcEngine.handle(requestObject, async (error,result ) => {
           if (error) {
-            // @ts-ignore - no type support provided
             return reject(error ?? new Error());
           }
           // @ts-ignore - no type support provided
           return resolve(result.result);
         });
       }),
-      (e) => console.log(e),
+      (e) => (e),
     );
   }
 

@@ -1,4 +1,4 @@
-import { EConnectionModes, EPortNames } from "@shared/constants/ports";
+import { EPortNames } from "@shared/enums/ports";
 import { URLString } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { Ok } from "neverthrow";
@@ -8,7 +8,6 @@ export interface IRpcEngineFactory {
   createRrpcEngine(
     remotePort: Runtime.Port,
     origin: EPortNames | URLString,
-    mode: EConnectionModes,
     stream: any,
   ): Ok<JsonRpcEngine, never>;
 }

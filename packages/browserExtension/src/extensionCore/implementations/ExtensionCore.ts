@@ -1,21 +1,18 @@
 // Utils
-import { IAccountCookieUtils, IContextProvider } from "@interfaces/utilities";
+import {
+  IAccountCookieUtils,
+  IContextProvider,
+  IErrorUtils,
+} from "@interfaces/utilities";
 import {
   AccountCookieUtils,
   ContextProvider,
+  ErrorUtils,
 } from "@implementations/utilities";
 
 // Utils / Factory
-import {
-  IExternalRpcMiddlewareFactory,
-  IInternalRpcMiddlewareFactory,
-  IRpcEngineFactory,
-} from "@interfaces/utilities/factory";
-import {
-  ExternalRpcMiddlewareFactory,
-  InternalRpcMiddlewareFactory,
-  RpcEngineFactory,
-} from "@implementations/utilities/factory";
+import { IRpcEngineFactory } from "@interfaces/utilities/factory";
+import { RpcEngineFactory } from "@implementations/utilities/factory";
 
 // Business
 import {
@@ -36,14 +33,18 @@ import {
 
 // API
 import {
-  IClientEventListener,
   ICoreListener,
+  IErrorListener,
+  IExtensionListener,
   IPortConnectionListener,
+  IRpcCallHandler,
 } from "@interfaces/api";
 import {
-  ClientEventsListener,
   CoreListener,
+  ErrorListener,
+  ExtensionListener,
   PortConnectionListener,
+  RpcCallHandler,
 } from "@implementations/api";
 
 // core package
@@ -51,7 +52,6 @@ import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
 import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
-import Browser from "webextension-polyfill";
 import { okAsync } from "neverthrow";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { BrowserUtils } from "@enviroment/shared/utils";
@@ -72,16 +72,17 @@ export class ExtensionCore {
   // Utils
   protected contextProvider: IContextProvider;
   protected accountCookieUtils: IAccountCookieUtils;
+  protected errorUtils: IErrorUtils ;
 
   // Factory
-  protected externalRpcMiddlewareFactory: IExternalRpcMiddlewareFactory;
-  protected internalRpcMiddlewareFactory: IInternalRpcMiddlewareFactory;
   protected rpcEngineFactory: IRpcEngineFactory;
 
   // API
-  protected clientEventListener: IClientEventListener;
   protected coreListener: ICoreListener;
+  protected errorListener: IErrorListener;
+  protected extensionListener : IExtensionListener
   protected portConnectionListener: IPortConnectionListener;
+  protected rpcCallHandler: IRpcCallHandler;
 
   constructor() {
     this.core = new SnickerdoodleCore();
@@ -91,26 +92,25 @@ export class ExtensionCore {
 
     this.contextProvider = new ContextProvider();
 
-    this.internalRpcMiddlewareFactory = new InternalRpcMiddlewareFactory(
-      this.contextProvider,
-    );
-
-    this.externalRpcMiddlewareFactory = new ExternalRpcMiddlewareFactory(
-      this.contextProvider,
-    );
-    this.rpcEngineFactory = new RpcEngineFactory(
-      this.contextProvider,
-      this.internalRpcMiddlewareFactory,
-      this.externalRpcMiddlewareFactory,
-    );
-
     this.accountCookieUtils = new AccountCookieUtils();
+    this.errorUtils = new ErrorUtils(this.contextProvider);
 
     this.accountRepository = new AccountRepository(
       this.core,
       this.accountCookieUtils,
+      this.errorUtils,
     );
     this.accountService = new AccountService(this.accountRepository);
+
+    this.rpcCallHandler = new RpcCallHandler(
+      this.contextProvider,
+      this.accountService,
+    );
+
+    this.rpcEngineFactory = new RpcEngineFactory(
+      this.contextProvider,
+      this.rpcCallHandler,
+    );
 
     this.portConnectionRepository = new PortConnectionRepository(
       this.contextProvider,
@@ -120,19 +120,17 @@ export class ExtensionCore {
     this.portConnectionService = new PortConnectionService(
       this.portConnectionRepository,
     );
-    this.clientEventListener = new ClientEventsListener(
-      this.contextProvider,
-      this.accountService,
-    );
-    this.clientEventListener.initialize();
+
+    this.extensionListener = new ExtensionListener();
+    this.extensionListener.initialize();
+
+    this.errorListener = new ErrorListener(this.contextProvider);
+    this.errorListener.initialize();
 
     this.portConnectionListener = new PortConnectionListener(
       this.portConnectionService,
     );
     this.portConnectionListener.initialize();
-
-    this.listenExtensionIconClicks();
-    this.keepAliveServiceWorker();
 
     // TODO enable again once the unlock method on core is complated
     //this.tryUnlock();
@@ -154,28 +152,4 @@ export class ExtensionCore {
       }
     });
   }
-
-  private listenExtensionIconClicks() {
-    BrowserUtils.browserAction.onClicked.addListener((info, tab) => {
-      if (info.windowId) {
-        ExtensionUtils.getAllTabsOnWindow(info.windowId).andThen((tabs) => {
-          const onboardingTab = tabs.find(
-            (tab) =>
-              new URL(tab.url || "").origin ===
-              new URL(Config.onboardingUrl).origin,
-          );
-          if (onboardingTab) {
-            return ExtensionUtils.switchToTab(onboardingTab.id);
-          }
-          return ExtensionUtils.openTab({ url: Config.onboardingUrl });
-        });
-      } else {
-        ExtensionUtils.openTab({ url: Config.onboardingUrl });
-      }
-      // when the below method is called onClick event not gonna fired again this can be called after onboarding is completed
-      // BrowserUtils.browserAction.setPopup({ popup: "popup.html" });
-    });
-  }
-
-  private keepAliveServiceWorker() {}
 }
