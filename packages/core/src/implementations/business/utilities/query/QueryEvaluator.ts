@@ -11,10 +11,12 @@ import {
     ConditionL,
     ConditionLE,
     ConditionE,   
-    IDataWalletPersistenceType
+    IDataWalletPersistenceType,
+    PersistenceError
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { AST_NetworkQuery } from "@snickerdoodlelabs/objects";
+import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
 @injectable()
 export class QueryEvaluator {
@@ -25,7 +27,7 @@ export class QueryEvaluator {
     protected age: Age = Age(0);
     protected location: CountryCode = CountryCode(12345);
 
-    public eval(query: AST_Query): any {
+    public eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
         // All the switch statements here
         console.log("Constructor: ", query.constructor);
 
@@ -33,19 +35,18 @@ export class QueryEvaluator {
             case AST_NetworkQuery:
                 return this.evalNetworkQuery(query as AST_NetworkQuery)
             default:
-                return this.evalPropertyQuery(query as AST_PropertyQuery);
+                return (this.evalPropertyQuery(query as AST_PropertyQuery));
         }
     }
-    public evalNetworkQuery(q: AST_NetworkQuery): SDQL_Return {
-        return SDQL_Return(0);
+    public evalNetworkQuery(q: AST_NetworkQuery): ResultAsync<SDQL_Return, PersistenceError> {
+        return okAsync(SDQL_Return(0));
     } 
-    public evalPropertyQuery(q: AST_PropertyQuery): SDQL_Return { 
-        let result: SDQL_Return;
-        result = SDQL_Return(true);
+    public evalPropertyQuery(q: AST_PropertyQuery): ResultAsync<SDQL_Return, PersistenceError> { 
+        let result = SDQL_Return(true);
         switch (q.property){
             case "age":
                 console.log("Tracking the result: ", result);
-                this.dataWalletPersistence.getAge().map(
+                return this.dataWalletPersistence.getAge().andThen(
                     (age) => 
                     {
                         switch(q.returnType){
@@ -53,26 +54,24 @@ export class QueryEvaluator {
                                 console.log("Property: Age, Return Type: Boolean");
                                 console.log("Before conditions: ", result);
                                 for (let condition of q.conditions) {
-                                    result = result && this.evalPropertyConditon(age, condition);
+                                    result = (result) && (this.evalPropertyConditon(age, condition));
                                 }
-                                console.log("Tracking the result: ", result);
-                                return result;
-                                break;
+                                console.log("After conditions: ", result);
+                                return okAsync(result);
                             case "integer": 
                                 console.log("Property: Age, Return Type: Integer");
                                 console.log("Returning age: ", age)
                                 result = SDQL_Return(age);
                                 console.log("Tracking the result: ", result);
-                                return result;
+                                return okAsync(result);
                             default:
                                 console.log("Tracking the result: ", result);
-                                return result;
+                                return okAsync(result);
                         }
                     }
                 );
-                break;
                 console.log("Tracking the result: ", result);
-                //return result;
+                return okAsync(result);
             case "location":
                 this.dataWalletPersistence.getLocation().map( 
                     (location) => {
@@ -98,15 +97,14 @@ export class QueryEvaluator {
                         }
                 });
                 console.log("Tracking the result: ", result);
-                return result;
+                return okAsync(result);
             default:
                 console.log("Tracking the result: ", result);
-                return result;
+                return okAsync(result);
         }
-        
         console.log("Tracking the result: ", result);
-        break;
-        return result;
+        return okAsync(result);
+        
     }
 
     public evalPropertyConditon(propertyVal: any, condition: Condition): SDQL_Return {
@@ -117,19 +115,26 @@ export class QueryEvaluator {
                 console.log("PropertyVal is: ", propertyVal);
                 console.log("Val is: ", val);
                 console.log("Return should be: ", propertyVal >= val);
-                return SDQL_Return(propertyVal >= val);
+                return (SDQL_Return(propertyVal >= val));
+                //return okAsync(SDQL_Return(propertyVal >= val));
             case ConditionG:
                 val = (condition as ConditionG).rval;
-                return SDQL_Return(propertyVal > val);
+                return (SDQL_Return(propertyVal > val));
+                //return okAsync(SDQL_Return(propertyVal > val));
             case ConditionE:
                 val = (condition as ConditionE).rval;
-                return SDQL_Return(propertyVal == val);
+                return (SDQL_Return(propertyVal == val));
+                //return okAsync(SDQL_Return(propertyVal == val));
             case ConditionLE:
                 val = (condition as ConditionLE).rval;
-                return SDQL_Return(propertyVal <= val);
+                return (SDQL_Return(propertyVal <= val));
+                //return okAsync(SDQL_Return(propertyVal <= val));
+
             case ConditionL:
                 val = (condition as ConditionL).rval;
-                return SDQL_Return(propertyVal < val);
+                return (SDQL_Return(propertyVal < val));
+                //return okAsync(SDQL_Return(propertyVal < val));
+
             case ConditionIn:
                 console.log("In Condition IN");
                 let find_val = (condition as ConditionIn).lval;
@@ -138,10 +143,14 @@ export class QueryEvaluator {
                 console.log("Within: ", in_values);
                 for (let i=0; i < in_values.length; i++){
                     if (find_val == in_values[i]){
-                        return SDQL_Return(true);
+                        return (SDQL_Return(true));
+                        //return okAsync(SDQL_Return(true));
+
                     }
                 }
-                return SDQL_Return(false);
+                return (SDQL_Return(false));
+                //return okAsync(SDQL_Return(false));
+
             default:
                 throw new EvalNotImplementedError(condition.constructor.name);
         }
