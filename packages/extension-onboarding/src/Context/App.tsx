@@ -9,6 +9,7 @@ import {
   getProviderList,
   IProvider,
 } from "@extension-onboarding/services/providers";
+import { PII } from "@extension-onboarding/services/interfaces/objects";
 
 export interface ILinkedAccount {
   name: string;
@@ -22,17 +23,10 @@ export interface IAppContext {
   providerList: IProvider[];
   addAccount: (account: ILinkedAccount) => void;
   deleteAccount: (account: ILinkedAccount) => void;
-  addUserObject: (account: IUserObject) => void;
+  addUserObject: (account: PII) => void;
+  getUserObject: () => PII | undefined;
   changeStepperStatus: (status: string) => void;
   stepperStatus: number;
-}
-export interface IUserObject {
-  firstName: string | null;
-  lastName: string | null;
-  emailAddress: string | null;
-  birthday?: string | null; // TODO Should be Date
-  country?: string | null;
-  gender?: string | null;
 }
 
 const AppContext = createContext<IAppContext>({} as IAppContext);
@@ -42,7 +36,7 @@ export const AppContextProvider: FC = ({ children }) => {
   const [providerList, setProviderList] = useState<IProvider[]>([]);
   const [stepperStatus, setStepperStatus] = useState(0);
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
-  const [userObject, setUserObject] = useState<IUserObject>();
+  const [userObject, setUserObject] = useState<PII>();
   useEffect(() => {
     document.addEventListener(
       "SD_WALLET_EXTENSION_CONNECTED",
@@ -85,9 +79,12 @@ export const AppContextProvider: FC = ({ children }) => {
     }
   };
 
-  const addUserObject = (user: IUserObject) => {
+  const addUserObject = (user: PII) => {
     console.log("userObject",user)
     setUserObject(user);
+  };
+  const getUserObject = () => {
+   return userObject;
   };
 
   return (
@@ -96,6 +93,7 @@ export const AppContextProvider: FC = ({ children }) => {
         providerList,
         linkedAccounts,
         addAccount,
+        getUserObject,
         deleteAccount,
         stepperStatus,
         changeStepperStatus,
