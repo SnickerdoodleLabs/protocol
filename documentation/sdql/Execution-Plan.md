@@ -9,7 +9,7 @@ graph TD;
     
 ```
 
-## Process
+## Process - Schema to Execution
 
 ```mermaid
 flowchart TD;
@@ -32,8 +32,7 @@ graph TD;
     IF-->ConditionExpr;
     IF-->FalseExpr-->r2;
 
-    ConditionExpr --> Parenthesis1["("];
-    Parenthesis1 --> And1;
+    ConditionExpr --> And1;
     And1 --> BoolExpr4;
     BoolExpr4 --> And2;
     And1 --> BoolExpr3;
@@ -46,3 +45,13 @@ graph TD;
 ```
 
 We traverse the tree in post-order (evaluate children first in any order).
+
+
+## Infix to Postfix expressions:
+
+1. if(condition)thenTrueExpr --> condition, if, TrueExpr, then
+2. if(condition)thenTrueExprElseFalseExpr --> condition, if, TrueExpr, then, FalseExpr, else
+3. $q1and$q2 -> $q1,$q2,and
+4. $q1and$q2or$q3 -> $q1,$q2,and,q3,or
+5. ($q1and($q2or$q3)) -> $q1,$q2,q3,or,and
+6. if$q1and$q2then$r1 -> $q1, $q2, and, if, $r1, then

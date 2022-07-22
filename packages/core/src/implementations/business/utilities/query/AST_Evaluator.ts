@@ -123,7 +123,9 @@ export class AST_Evaluator {
             return this.evalExpr(eef.trueExpr)
         } else {
 
-            return this.evalExpr(eef.falseExpr)
+            if (eef.falseExpr)
+                return this.evalExpr(eef.falseExpr)
+            return SDQL_Return(null);
         }
 
     }

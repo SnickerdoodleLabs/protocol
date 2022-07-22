@@ -2,7 +2,6 @@ import { SDQL_Name, Version } from "@objects/primitives";
 import { AST_Compensation } from "./AST_Compensation";
 import { AST_Logic } from "./AST_Logic";
 import { AST_Query } from "./AST_Query";
-import { AST_Return } from "./AST_Return";
 import { AST_Returns } from "./AST_Returns";
 
 export class AST {
@@ -11,9 +10,9 @@ export class AST {
     // business: string; //TODO
     // queries: Record<SDQL_Name, AST_Query>;
     // TODO replace names with more specific brands
-    queries: Map<SDQL_Name, AST_Query>;
-    returns: AST_Returns | null;
-    compensations: Map<SDQL_Name, AST_Compensation>;
+    // queries: Map<SDQL_Name, AST_Query>;
+    // returns: AST_Returns | null;
+    // compensations: Map<SDQL_Name, AST_Compensation>;
     // logic: AST_Logic;
     
 
@@ -21,10 +20,14 @@ export class AST {
         readonly version: Version,
         readonly description: string, //TODO
         readonly business: string, //TODO
+        readonly queries: Map<SDQL_Name, AST_Query>,
+        readonly returns: AST_Returns | null,
+        readonly compensations: Map<SDQL_Name, AST_Compensation>,
+        readonly logic: AST_Logic
     ) {
-        this.queries = new Map<SDQL_Name, AST_Query>();
-        this.returns = null;
-        this.compensations = new Map<SDQL_Name, AST_Compensation>();
+        // this.queries = new Map<SDQL_Name, AST_Query>();
+        // this.returns = null;
+        // this.compensations = new Map<SDQL_Name, AST_Compensation>();
         // this.logic = new AST_Logic();
     }
 

@@ -1,9 +1,9 @@
 import { SDQL_Name } from "@objects/primitives";
-import { AST_Expr } from "../AST_Expr";
+import { AST_BoolExpr } from "../AST_BoolExpr";
 import { AST_Query } from "../AST_Query";
 import { Condition } from "./Condition";
 
-export class AST_ConditionExpr extends AST_Expr {
+export class AST_ConditionExpr extends AST_BoolExpr {
     /**
      * Always resolves to a boolean value
      * We need this abstraction layer because a conditional expression can both be a query or a conditional operator
