@@ -29,7 +29,7 @@ export class AST_Evaluator {
 
     constructor(
         readonly cid: IpfsCID,
-        readonly ast: AST
+        readonly ast: AST | null
     ) {
     //     this.exprMap.set(AST_Query, this.evalQuery);
     //     this.exprMap.set(Command_IF, this.evalIf);
@@ -193,46 +193,52 @@ export class AST_Evaluator {
 
         const evaluator = this.operatorMap.get(op.constructor);
         if (evaluator) {
-            return evaluator.apply(this, [op])
+            return await evaluator.apply(this, [op])
         } else {
             throw new Error("No operator evaluator defined for " + op.constructor);
         }
         
     }
 
-    public evalAnd(cond: ConditionAnd): ResultAsync<SDQL_Return, EvaluationError> {
+    public async evalAnd(cond: ConditionAnd): Promise<ResultAsync<SDQL_Return, EvaluationError>> {
 
         // console.log(this);
-        const left = this.evalAny(cond.lval);
+        const left = await this.evalAny(cond.lval);
+        if (left.isErr()) {
+            return errAsync(new EvaluationError(cond.name));
+        }
 
-        left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
-            if (lval == false) {
-                return okAsync(SDQL_Return(false));
-            } else {
-                const right = this.evalAny(cond.rval);
-                return right.andThen((rval): ResultAsync<SDQL_Return, EvaluationError> => {
+        // left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
+        //     if (lval == false) {
+        //         return okAsync(SDQL_Return(false));
+        //     } else {
+        //         const right = this.evalAny(cond.rval);
+        //         return right.andThen((rval): ResultAsync<SDQL_Return, EvaluationError> => {
 
-                    if (rval == false) {
-                        return okAsync(SDQL_Return(false));
-                    } else {
-                        return okAsync(SDQL_Return(true)); 
-                    }
-                });
-            }
-        });
+        //             if (rval == false) {
+        //                 return okAsync(SDQL_Return(false));
+        //             } else {
+        //                 return okAsync(SDQL_Return(true)); 
+        //             }
+        //         });
+        //     }
+        // });
         
-        if (left == false) {
+        if (left.value == false) {
             return left;
         }
         
-        const right = this.evalAny(cond.rval);
+        const right = await this.evalAny(cond.rval);
+        if (right.isErr()) {
+            return errAsync(new EvaluationError(cond.name));
+        }
 
-        if (right == false) {
+        if (right.value == false) {
             return right;
         }
         
         // console.log('evalAnd', `left is ${left} and right is ${right}`);
-        return left && right;
+        return okAsync(SDQL_Return(left.value && right.value)) ;
     }
 
     public evalOr(cond: ConditionOr): ResultAsync<SDQL_Return, EvaluationError> {
