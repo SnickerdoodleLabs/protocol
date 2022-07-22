@@ -1,9 +1,10 @@
 import { JsonRpcEngine } from "json-rpc-engine";
 import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
 import { v4 } from "uuid";
-import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
+import { PORT_NOTIFICATION } from "@shared/constants/ports";
 import { okAsync } from "neverthrow";
 import { URLString } from "@snickerdoodlelabs/objects";
+import { EPortNames } from "@shared/enums/ports";
 export class AppContext {
   constructor(
     protected lock: boolean = false,

@@ -1,17 +1,17 @@
-var webpack = require("webpack"),
-  path = require("path"),
-  fileSystem = require("fs-extra"),
-  env = require("./utils/env"),
-  CopyWebpackPlugin = require("copy-webpack-plugin"),
-  HtmlWebpackPlugin = require("html-webpack-plugin"),
-  TerserPlugin = require("terser-webpack-plugin");
+const webpack = require("webpack");
+const path = require("path");
+const fileSystem = require("fs-extra");
+const { merge } = require("webpack-merge");
+const env = require("./utils/env");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-var { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const configFilePath = require.resolve("./tsconfig.json");
 const argon2 = require("argon2");
 
-const ASSET_PATH = process.env.ASSET_PATH || "/";
 
 var alias = {
   "react-dom": "@hot-loader/react-dom",
@@ -48,16 +48,21 @@ var options = {
     popup: path.join(__dirname, "src", "app", "Popup", "index.jsx"),
     background: path.join(__dirname, "src", "extensionCore", "index.ts"),
     contentScript: path.join(__dirname, "src", "app", "Content", "index.js"),
+    "injectables/onboarding": path.join(
+      __dirname,
+      "src",
+      "app",
+      "Content",
+      "injectables",
+      "onboarding.ts",
+    ),
     devtools: path.join(__dirname, "src", "app", "Devtools", "index.js"),
-  },
-  chromeExtensionBoilerplate: {
-    notHotReload: ["background", "contentScript", "devtools"],
   },
   output: {
     filename: "[name].bundle.js",
     path: path.resolve(__dirname, "build"),
     clean: true,
-    publicPath: ASSET_PATH,
+    publicPath: process.env.ASSET_PATH,
   },
   module: {
     rules: [
@@ -84,10 +89,6 @@ var options = {
         test: new RegExp(".(" + fileExtensions.join("|") + ")$"),
         type: "asset/resource",
         exclude: /node_modules/,
-        // loader: 'file-loader',
-        // options: {
-        //   name: '[name].[ext]',
-        // },
       },
       {
         test: /\.html$/,
@@ -135,20 +136,45 @@ var options = {
     new webpack.ProgressPlugin(),
     // expose and write the allowed env vars on the compiled bundle
     new webpack.EnvironmentPlugin(["NODE_ENV"]),
+    new webpack.DefinePlugin({
+      __ONBOARDING_URL__: JSON.stringify(process.env.__ONBOARDING_URL__),
+      __ACCOUNT_COOKIE_URL__: JSON.stringify(
+        process.env.__ACCOUNT_COOKIE_URL__,
+      ),
+      __MANIFEST_VERSION__: JSON.stringify(
+        process.env.__MANIFEST_VERSION__ || "v3",
+      ),
+      __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
+    }),
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: "src/manifest.json",
-          to: path.join(__dirname, "build"),
+          from: `./src/manifest/${
+            process.env.__MANIFEST_VERSION__ || "v3"
+          }/base.json`,
+          to: path.join(__dirname, "build/manifest.json"),
           force: true,
           transform: function (content, path) {
-            // generates the manifest file using the package.json informations
             return Buffer.from(
-              JSON.stringify({
-                description: process.env.npm_package_description,
-                version: process.env.npm_package_version,
-                ...JSON.parse(content.toString()),
-              }),
+              JSON.stringify(
+                merge(
+                  JSON.parse(content.toString()),
+                  fileSystem.readJSONSync(
+                    `./src/manifest/${
+                      process.env.__MANIFEST_VERSION__ || "v3"
+                    }/${process.env.__PLATFORM__ || "chrome"}.json`,
+                  ),
+                  {
+                    ...((process.env.__MANIFEST_VERSION__ || "v3") === "v3"
+                      ? {
+                          host_permissions: [
+                            process.env.__ACCOUNT_COOKIE_URL__,
+                          ],
+                        }
+                      : { permissions: [process.env.__ACCOUNT_COOKIE_URL__] }),
+                  },
+                ),
+              ),
             );
           },
         },

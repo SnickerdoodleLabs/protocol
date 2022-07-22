@@ -1,5 +1,5 @@
 import React from "react";
-import { EPATHS } from "@shared/constants/paths";
+import { EPATHS } from "@shared/enums/paths";
 import Login from "@app/Popup/pages/Login";
 
 interface IRoute {

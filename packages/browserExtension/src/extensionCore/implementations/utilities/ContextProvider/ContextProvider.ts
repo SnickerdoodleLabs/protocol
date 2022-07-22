@@ -1,24 +1,24 @@
 import { IContextProvider } from "@interfaces/utilities";
-import { ClientEvents } from "@interfaces/objects";
 import { AccountContext } from "@implementations/utilities/ContextProvider/AccountContext";
 import { AppContext } from "@implementations/utilities/ContextProvider/AppContext";
 import { UserContext } from "@implementations/utilities/ContextProvider/UserContext";
 import { SiteContext } from "@implementations/utilities/ContextProvider/SiteContext";
-import { IInternalState, IExternalState } from "@shared/objects/State";
+import { IInternalState, IExternalState } from "@shared/interfaces/states";
+import { Subject } from "rxjs";
 
 export class ContextProvider implements IContextProvider {
   protected accountContext: AccountContext;
   protected appContext: AppContext;
-  protected clientEvents: ClientEvents;
   protected userContext: UserContext;
   protected siteContext: SiteContext;
+  protected onExtensionError: Subject<Error>
 
   constructor() {
     this.accountContext = new AccountContext(() => {});
     this.appContext = new AppContext();
-    this.clientEvents = new ClientEvents();
     this.userContext = new UserContext();
     this.siteContext = new SiteContext();
+    this.onExtensionError = new Subject()
   }
 
   public getAccountContext() {
@@ -50,8 +50,8 @@ export class ContextProvider implements IContextProvider {
     };
   }
 
-  public getClientEvents() {
-    return this.clientEvents;
+  public getErrorSubject(): Subject<Error> {
+    return this.onExtensionError
   }
 
   public setAccountContext() {

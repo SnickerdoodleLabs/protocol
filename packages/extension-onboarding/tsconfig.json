@@ -13,6 +13,11 @@
 			"dom"
 		]
 	},
+	"references": [
+		{
+			"path": "../objects"
+		}
+	],
 	"include": [
 		"./src/**/*.ts",
 		"./src/**/*.tsx",

@@ -1,0 +1,14 @@
+export enum EInternalActions {
+    UNLOCK = "UNLOCK",
+    GET_STATE = "GET_INTERNAL_STATE",
+    GET_UNLOCK_MESSAGE = "GET_UNLOCK_MESSAGE",
+    ADD_ACCOUNT = "ADD_ACCOUNT",
+  }
+  
+  export enum EExternalActions {
+    UNLOCK = "UNLOCK",
+    GET_UNLOCK_MESSAGE = "GET_UNLOCK_MESSAGE",
+    GET_STATE = "GET_EXTERNAL_STATE",
+    ADD_ACCOUNT = "ADD_ACCOUNT",
+  }
+  
