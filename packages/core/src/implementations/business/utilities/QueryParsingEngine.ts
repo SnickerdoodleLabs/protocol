@@ -37,6 +37,18 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     this.rewardsMap = [];
   }
 
+  /**
+   * public handleQuery(cid, schemaString): {"returns": 
+   *                                                {"orignalExp": value, "$r3": vallue}, 
+   *                                         "compensations":{}...
+   *                                        } 
+   * {
+   * 1. create the SDQLParser and ast
+   * 2. iterate over ast.logic.returns and evaluate every returnAST (astEvaluator.evalAny(returnAST))
+   * 3. iterate over ast.logic.compensations and evaluate every compensationAST.
+   * }
+   */
+
   public handleQuery(obj: ISDQLQueryObject, cid: IpfsCID): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError> {
 
     /* Create New AST Tree */

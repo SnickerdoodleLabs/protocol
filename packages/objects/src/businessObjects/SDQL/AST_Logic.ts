@@ -5,6 +5,7 @@ import { Command } from "./Command";
 export class AST_Logic{
     /**
      * logic has returns and compensations
+     * returns["if($q1and$q2)then$r1else$r2"] = a executable expression
      */
 
     constructor(
