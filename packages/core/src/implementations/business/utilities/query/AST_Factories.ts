@@ -5,7 +5,7 @@ import { AST_Evaluator } from "./AST_Evaluator";
 
 export class AST_Factories {
 
-    static makeAST_Evaluator(cid: IpfsCID, ast: AST): AST_Evaluator {
+    static makeAST_Evaluator(cid: IpfsCID, ast: AST | null): AST_Evaluator {
 
         const astEvaluator = new AST_Evaluator(cid, ast);
         astEvaluator.postConstructor();

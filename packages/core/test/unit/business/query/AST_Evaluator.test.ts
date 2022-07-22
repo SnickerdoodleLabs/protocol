@@ -7,51 +7,61 @@ import { IpfsCID, SDQL_Name, SDQL_OperatorName, SDQL_Return, Version } from "@ob
 import { AST, AST_ConditionExpr, AST_Expr, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "@objects/businessObjects";
 
 
-const ast = new AST(
-    Version("0.1"), 
-    "Interactions with the Avalanche blockchain for 15-year and older individuals",
-    "Shrapnel"
-    );
-const astEvaluator = AST_Factories.makeAST_Evaluator(IpfsCID("000"), ast)
+// const ast = new AST(
+//     Version("0.1"), 
+//     "Interactions with the Avalanche blockchain for 15-year and older individuals",
+//     "Shrapnel"
+//     );
+const astEvaluator = AST_Factories.makeAST_Evaluator(IpfsCID("000"), null)
 
 // #region Conditions
 
-describe("Conditions", () => {
+describe.only("Conditions", () => {
 
-    test("boolean true and true is true", () => {
+    test("boolean true and true is true", async () => {
         const and = new ConditionAnd(
             SDQL_OperatorName("And1"),
             true,
             true
         );
 
-        const result = astEvaluator.evalOperator(and);
-        expect(result).toBe(true);
+        const result = await astEvaluator.evalOperator(and);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(true);
+        }
     })
 
-    test("boolean true and false is false", () => {
+    test("boolean true and false is false", async () => {
         const and = new ConditionAnd(
             SDQL_OperatorName("And1"),
             true,
             false
         );
 
-        const result = astEvaluator.evalOperator(and);
-        expect(result).toBe(false);
+        const result = await astEvaluator.evalOperator(and);
+
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(false);
+        }
     })
 
-    test("boolean false and true is false", () => {
+    test("boolean false and true is false", async () => {
         const and = new ConditionAnd(
             SDQL_OperatorName("And1"),
             false,
             true
         );
 
-        const result = astEvaluator.evalOperator(and);
-        expect(result).toBe(false);
+        const result = await astEvaluator.evalOperator(and);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(false);
+        }
     })
 
-    test("SDQL_Return true and true is true", () => {
+    test("SDQL_Return true and true is true", async () => {
         const and = new ConditionAnd(
             SDQL_OperatorName("And1"),
             SDQL_Return(true),
@@ -60,12 +70,15 @@ describe("Conditions", () => {
 
         // console.log("SDQL_Return type", typeof SDQL_Return(true));
 
-        const result = astEvaluator.evalOperator(and);
-        expect(result).toBe(true);
+        const result = await astEvaluator.evalOperator(and);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(true);
+        }
     });
 
 
-    test("1 is in [2, 1, 3]", () => {
+    test("1 is in [2, 1, 3]", async () => {
 
         const condIn = new ConditionIn(
             SDQL_OperatorName("In1"),
@@ -75,11 +88,14 @@ describe("Conditions", () => {
             ),
             [2, 1, 3]
         );
-        const result = astEvaluator.evalOperator(condIn);
-        expect(result).toBe(true);
+        const result = await astEvaluator.evalOperator(condIn);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(true);
+        }
     });
 
-    test("1 not in [2, 3]", () => {
+    test("1 not in [2, 3]", async () => {
 
         const condIn = new ConditionIn(
             SDQL_OperatorName("In1"),
@@ -89,11 +105,14 @@ describe("Conditions", () => {
             ),
             [2, 3]
         );
-        const result = astEvaluator.evalOperator(condIn);
-        expect(result).toBe(false);
+        const result = await astEvaluator.evalOperator(condIn);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(false);
+        }
     });
 
-    test("apple is in ['apple', 'banana', 'orange']", () => {
+    test("apple is in ['apple', 'banana', 'orange']", async () => {
 
         const condIn = new ConditionIn(
             SDQL_OperatorName("In1"),
@@ -103,11 +122,14 @@ describe("Conditions", () => {
             ),
             ['apple', 'banana', 'orange']
         );
-        const result = astEvaluator.evalOperator(condIn);
-        expect(result).toBe(true);
+        const result = await astEvaluator.evalOperator(condIn);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(true);
+        }
     });
 
-    test("apple not in ['banana', 'orange']", () => {
+    test("apple not in ['banana', 'orange']", async () => {
 
         const condIn = new ConditionIn(
             SDQL_OperatorName("In1"),
@@ -117,12 +139,15 @@ describe("Conditions", () => {
             ),
             ['banana', 'orange']
         );
-        const result = astEvaluator.evalOperator(condIn);
-        expect(result).toBe(false);
+        const result = await astEvaluator.evalOperator(condIn);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(false);
+        }
     });
 
     
-    test("1 < 2", () => {
+    test("1 < 2", async () => {
 
         const cond = new ConditionL(
             SDQL_OperatorName("In1"),
@@ -133,11 +158,14 @@ describe("Conditions", () => {
             )
             
         );
-        const result = astEvaluator.evalOperator(cond);
-        expect(result).toBe(true);
+        const result = await astEvaluator.evalOperator(cond);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(true);
+        }
     });
     
-    test("3 >= 2", () => {
+    test("3 >= 2", async () => {
 
         const cond = new ConditionGE(
             SDQL_OperatorName("In1"),
@@ -148,11 +176,14 @@ describe("Conditions", () => {
             )
             
         );
-        const result = astEvaluator.evalOperator(cond);
-        expect(result).toBe(true);
+        const result = await astEvaluator.evalOperator(cond);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(true);
+        }
     });
     
-    test("2 >= 2", () => {
+    test("2 >= 2", async () => {
 
         const cond = new ConditionGE(
             SDQL_OperatorName("In1"),
@@ -163,8 +194,11 @@ describe("Conditions", () => {
             )
             
         );
-        const result = astEvaluator.evalOperator(cond);
-        expect(result).toBe(true);
+        const result = await astEvaluator.evalOperator(cond);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toBe(true);
+        }
     });
     
 });
