@@ -6,7 +6,6 @@ import {
   Radio,
   RadioGroup,
   Typography,
-  TextField,
 } from "@material-ui/core";
 import React, { FC, useEffect, useState } from "react";
 import { GoogleLogin, GoogleLogout } from "react-google-login";
@@ -18,21 +17,17 @@ import {
   googleScopes,
   clientID,
 } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
-import { CoreText } from "@extension-onboarding/services/implementations/CoreText";
+import { ApiGateway } from "@extension-onboarding/services/implementations/APIGateway";
 import { Formik, Form, Field } from "formik";
-import { Select } from "formik-material-ui";
+import { Select, TextField } from "formik-material-ui";
 import * as yup from "yup";
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
 import artboardImage from "@extension-onboarding/assets/images/artboard.png";
 
 const ProfileCreation: FC = () => {
-  const coreText = new CoreText();
+  const apiGateway = new ApiGateway();
   const { changeStepperStatus, addUserObject } = useAppContext();
   const [formValues, setFormValues] = useState<PII>(new PII());
-
-  const onFormSubmit = (values: PII) => {
-    console.log(values);
-  };
 
   useEffect(() => {
     function start() {
@@ -45,7 +40,7 @@ const ProfileCreation: FC = () => {
   }, []);
 
   const onSuccess = (res) => {
-    coreText.PIIService.fetchPIIFromGoogle(
+    apiGateway.PIIService.fetchPIIFromGoogle(
       res?.tokenObj?.access_token,
       res?.googleId,
     ).map((res) => {
@@ -56,9 +51,15 @@ const ProfileCreation: FC = () => {
     console.log("googleResFail", res);
   };
 
+  const onFormSubmit = (values: PII) => {
+  changeStepperStatus('next');
+  addUserObject(values);
+  };
+
   const classes = useStyles();
   return (
     <Box mt={15}>
+         
       <Box display="flex">
         <Box width={700}>
           <Typography className={classes.title}>
@@ -74,12 +75,14 @@ const ProfileCreation: FC = () => {
           </Box>
 
           <Box>
+            
             <Box>
-              <Formik
+            <Formik
                 initialValues={formValues}
                 onSubmit={onFormSubmit}
                 enableReinitialize
               >
+          
                 {({ handleSubmit, values, setFieldValue }) => {
                   return (
                     <Form
@@ -90,24 +93,31 @@ const ProfileCreation: FC = () => {
                       <Box display="flex">
                         <Box>
                           <Box>
-                            <FormLabel>First Name</FormLabel>
+                            <FormLabel className={classes.formLabel}>
+                              First Name
+                            </FormLabel>
                           </Box>
                           <Field
-                            className={classes.inputContainer}
+                            className={classes.input}
                             component={TextField}
+                            variant="outlined"
                             name="given_name"
                             type="text"
                             placeholder="First Name"
+                            required
                             value={values.given_name}
                           />
                         </Box>
                         <Box ml={3}>
                           <Box>
-                            <FormLabel>Last Name</FormLabel>
+                            <FormLabel className={classes.formLabel}>
+                              Last Name
+                            </FormLabel>
                           </Box>
                           <Field
-                            className={classes.inputContainer}
+                            className={classes.input}
                             component={TextField}
+                            variant="outlined"
                             name="family_name"
                             type="text"
                             placeholder="Last Name"
@@ -118,11 +128,14 @@ const ProfileCreation: FC = () => {
                       <Box display="flex" mt={3}>
                         <Box>
                           <Box>
-                            <FormLabel>Email Address</FormLabel>
+                            <FormLabel className={classes.formLabel}>
+                              Email Address
+                            </FormLabel>
                           </Box>
                           <Field
-                            className={classes.inputContainer}
+                            className={classes.input}
                             component={TextField}
+                            variant="outlined"
                             fullWidth
                             name="email_address"
                             type="email"
@@ -132,38 +145,41 @@ const ProfileCreation: FC = () => {
                         </Box>
                         <Box ml={3}>
                           <Box>
-                            <FormLabel>Date of Birthday</FormLabel>
+                            <FormLabel className={classes.formLabel}>
+                              Date of Birthday
+                            </FormLabel>
                           </Box>
-                          <TextField
+                          <Field
+                            className={classes.input}
+                            component={TextField}
                             variant="outlined"
-                            className={classes.inputContainer}
                             fullWidth
                             name="date_of_birth"
                             type="text"
                             placeholder="Date of Birth"
                             value={values.date_of_birth}
-                            onChange={(event) => {
-                              setFieldValue(
-                                "date_of_birth",
-                                event.currentTarget.value,
-                              );
-                            }}
                           />
                         </Box>
                       </Box>
                       <Box display="flex" mt={3}>
                         <Box>
                           <Box>
-                            <FormLabel>Country</FormLabel>
+                            <FormLabel className={classes.formLabel}>
+                              Country
+                            </FormLabel>
                           </Box>
                           <Field
-                            className={classes.inputContainer}
+                            className={classes.input}
                             component={Select}
+                            variant="outlined"
                             fullWidth
                             name="country_code"
                             placeholder="Country"
-                            values={values.country_code}
+                            value={values.country_code || "US"}
                           >
+                            <option selected value="US">
+                              United States
+                            </option>
                             <option value="red">Red</option>
                             <option value="green">Green</option>
                             <option value="blue">Blue</option>
@@ -172,7 +188,9 @@ const ProfileCreation: FC = () => {
 
                         <Box ml={3}>
                           <Box>
-                            <FormLabel>Gender</FormLabel>
+                            <FormLabel className={classes.formLabel}>
+                              Gender
+                            </FormLabel>
                           </Box>
                           <Box mt={1}>
                             <RadioGroup
@@ -205,26 +223,27 @@ const ProfileCreation: FC = () => {
                           </Box>
                         </Box>
                       </Box>
+
+                      <Box mt={5} mb={2}>
+                        <Typography className={classes.socialLoginTitle}>
+                          Or Build your Profile by Linking your Data from Google
+                        </Typography>
+                      </Box>
+                      <GoogleLogin
+                        clientId={clientID}
+                        className={classes.googleButton}
+                        buttonText="Link your data from Google"
+                        onSuccess={onSuccess}
+                        onFailure={onFailure}
+                        cookiePolicy={"single_host_origin"}
+                        isSignedIn={true}
+                      />
+                      
                     </Form>
                   );
                 }}
               </Formik>
-              <Box mt={5} mb={2}>
-                <Typography className={classes.socialLoginTitle}>
-                  Or Build your Profile by Linking your Data from Google
-                </Typography>
               </Box>
-
-              <GoogleLogin
-                clientId={clientID}
-                className={classes.googleButton}
-                buttonText="Link your data from Google"
-                onSuccess={onSuccess}
-                onFailure={onFailure}
-                cookiePolicy={"single_host_origin"}
-                isSignedIn={true}
-              />
-            </Box>
           </Box>
         </Box>
         <Box className={classes.artboardImageContainer}>
@@ -242,9 +261,7 @@ const ProfileCreation: FC = () => {
         <Box>
           <PrimaryButton
             type="submit"
-            onClick={() => {
-              changeStepperStatus("next");
-            }}
+            form="profile-create-form"
           >
             Next
           </PrimaryButton>

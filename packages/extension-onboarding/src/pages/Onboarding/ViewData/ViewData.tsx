@@ -7,7 +7,8 @@ import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewData/ViewD
 import ChainData from "./components/ChainData";
 
 const ViewData: FC = () => {
-  const { changeStepperStatus } = useAppContext();
+  const { changeStepperStatus, linkedAccounts, getUserObject } =
+    useAppContext();
 
   const classes = useStyles();
   return (
@@ -32,15 +33,32 @@ const ViewData: FC = () => {
               <Typography className={classes.cardTitle}>
                 Personal Info
               </Typography>
-              <PersonalData title="FULL NAME" information="Jane Morris" />
+              <PersonalData
+                title="FULL NAME"
+                information={`${getUserObject()?.given_name} ${
+                  getUserObject()?.family_name
+                }`}
+              />
               <Box className={classes.divider}></Box>
-              <PersonalData title="BIRTHDAY" information="Jane Morris" />
+              <PersonalData
+                title="BIRTHDAY"
+                information={getUserObject()?.date_of_birth}
+              />
               <Box className={classes.divider}></Box>
-              <PersonalData title="GENDER" information="Jane Morris" />
+              <PersonalData
+                title="GENDER"
+                information={getUserObject()?.gender}
+              />
               <Box className={classes.divider}></Box>
-              <PersonalData title="EMAIL" information="Jane Morris" />
+              <PersonalData
+                title="EMAIL"
+                information={getUserObject()?.email_address}
+              />
               <Box className={classes.divider}></Box>
-              <PersonalData title="COUNTRY" information="Jane Morris" />
+              <PersonalData
+                title="COUNTRY"
+                information={getUserObject()?.country_code || "United States"}
+              />
             </Box>
 
             <Box
@@ -57,45 +75,21 @@ const ViewData: FC = () => {
               <Typography className={classes.cardTitle}>
                 On-chain Info
               </Typography>
-              <ChainData
-                account={{
-                  name: "Metamask",
-                  accountAddress: "0x1Fc43980F776357cAa2a2dc163c0be95BD49fF3e",
-                  key: "metamask",
-                }}
-              />
-              <Box className={classes.dividerChainData}></Box>
-              <ChainData
-                account={{
-                  name: "Metamask",
-                  accountAddress: "0x1Fc43980F776357cAa2a2dc163c0be95BD49fF3e",
-                  key: "metamask",
-                }}
-              />
-              <Box className={classes.dividerChainData}></Box>
-              <ChainData
-                account={{
-                  name: "Metamask",
-                  accountAddress: "0x1Fc43980F776357cAa2a2dc163c0be95BD49fF3e",
-                  key: "metamask",
-                }}
-              />
-              <Box className={classes.dividerChainData}></Box>
-              <ChainData
-                account={{
-                  name: "Metamask",
-                  accountAddress: "0x1Fc43980F776357cAa2a2dc163c0be95BD49fF3e",
-                  key: "metamask",
-                }}
-              />
-              <Box className={classes.dividerChainData}></Box>
-              <ChainData
-                account={{
-                  name: "Metamask",
-                  accountAddress: "0x1Fc43980F776357cAa2a2dc163c0be95BD49fF3e",
-                  key: "metamask",
-                }}
-              />
+              {linkedAccounts.map((account,index) => {
+                return (
+                  <Box>
+                    <ChainData
+                      account={{
+                        name: account.name,
+                        accountAddress: account.accountAddress,
+                        key: account.key,
+                      }}
+                    />
+                  {index+1 !== linkedAccounts.length && <Box className={classes.dividerChainData} />} 
+                  </Box>
+                );
+              })}
+
             </Box>
           </Box>
         </Box>

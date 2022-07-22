@@ -13,25 +13,33 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 18,
     lineHeight: "23px",
   },
-  inputContainer:{
-    width:330,
-    height:55,
-    border:"1px solid #D9D9D9",
-    borderRadius:8,
+  formLabel: {
+    fontSize: 16,
+    fontWeight: 500,
+    fontFamily: "Space Grotesk",
+    color: "#232039",
   },
-  artboardImageContainer:{
-    
+  input: {
+    width: 330,
+    height: 55,
+    border: "1px solid #D9D9D9",
+    borderRadius: 8,
+    fontSize:14,
+    fontWeight:500,
+    color:"#929292",
+
   },
+  artboardImageContainer: {},
   buttonContainer: {
     display: "flex",
     justifyContent: "flex-end",
     margin: 20,
   },
-  socialLoginTitle:{
-    fontFamily:"Space Grotesk",
-    fontWeight:700,
-    fontSize:20,
-    color:"#232039"
+  socialLoginTitle: {
+    fontFamily: "Space Grotesk",
+    fontWeight: 700,
+    fontSize: 20,
+    color: "#232039",
   },
   googleButton: {
     width: "330px !important",
