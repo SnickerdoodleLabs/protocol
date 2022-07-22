@@ -17,7 +17,7 @@ import {
   googleScopes,
   clientID,
 } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
-import { ApiGateway } from "@extension-onboarding/services/implementations/APIGateway";
+import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
 import { Formik, Form, Field } from "formik";
 import { Select, TextField } from "formik-material-ui";
 import * as yup from "yup";
