@@ -16,7 +16,7 @@ const astEvaluator = AST_Factories.makeAST_Evaluator(IpfsCID("000"), null)
 
 // #region Conditions
 
-describe.only("Conditions", () => {
+describe("Conditions", () => {
 
     test("boolean true and true is true", async () => {
         const and = new ConditionAnd(
@@ -197,6 +197,8 @@ describe.only("Conditions", () => {
         const result = await astEvaluator.evalOperator(cond);
         expect(result.isOk()).toBe(true);
         if (result.isOk()) {
+            // console.log(result);
+            // console.log(result.value);
             expect(result.value).toBe(true);
         }
     });
@@ -206,7 +208,7 @@ describe.only("Conditions", () => {
 // #endregion
 
 // #region IF Command
-describe("IF Command: evalIf()", () => {
+describe("IF Command: evalIf()",() => {
 
     const r1 = new AST_ReturnExpr(
         SDQL_Name("r1"),
@@ -223,7 +225,7 @@ describe("IF Command: evalIf()", () => {
         )
     )
 
-    test("true q1 and true q2, return r1", () =>{
+    test("true q1 and true q2, return r1",  async () =>{
 
         const and = new ConditionAnd(
             SDQL_OperatorName("And1"),
@@ -242,10 +244,13 @@ describe("IF Command: evalIf()", () => {
             
         )
 
-        const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(((r1.source) as AST_Return).message)
+        const result = await astEvaluator.evalIf(commandIf);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toEqual(((r1.source) as AST_Return).message);
+        }
     });
-    test("false q1 and true q2, return r2", () =>{
+    test("false q1 and true q2, return r2", async () =>{
 
         const and = new ConditionAnd(
             SDQL_OperatorName("And1"),
@@ -264,10 +269,14 @@ describe("IF Command: evalIf()", () => {
             
         )
 
-        const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(((r2.source) as AST_Return).message)
+        const result = await astEvaluator.evalIf(commandIf);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toEqual(((r2.source) as AST_Return).message);
+        }
+
     });
-    test("true q1 and false q2, return r1", () =>{
+    test("true q1 and false q2, return r2", async () =>{
 
         const and = new ConditionAnd(
             SDQL_OperatorName("And1"),
@@ -286,10 +295,13 @@ describe("IF Command: evalIf()", () => {
             
         )
 
-        const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(((r2.source) as AST_Return).message)
+        const result = await astEvaluator.evalIf(commandIf);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toEqual(((r2.source) as AST_Return).message);
+        }
     });
-    test("false q1 and false q2, return r1", () =>{
+    test("false q1 and false q2, return r2", async () =>{
 
         const and = new ConditionAnd(
             SDQL_OperatorName("And1"),
@@ -308,11 +320,14 @@ describe("IF Command: evalIf()", () => {
             
         )
 
-        const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(((r2.source) as AST_Return).message)
+        const result = await astEvaluator.evalIf(commandIf);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toEqual(((r2.source) as AST_Return).message);
+        }
     });
 
-    test("true q1 or true q2, return r1", () =>{
+    test("true q1 or true q2, return r1", async () =>{
 
         const or = new ConditionOr(
             SDQL_OperatorName("Or1"),
@@ -331,11 +346,14 @@ describe("IF Command: evalIf()", () => {
             
         )
 
-        const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(((r1.source) as AST_Return).message)
+        const result = await astEvaluator.evalIf(commandIf);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toEqual(((r1.source) as AST_Return).message);
+        }
     });
 
-    test("false q1 or true q2, return r1", () =>{
+    test("false q1 or true q2, return r1", async () =>{
 
         const or = new ConditionOr(
             SDQL_OperatorName("Or1"),
@@ -354,11 +372,14 @@ describe("IF Command: evalIf()", () => {
             
         )
 
-        const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(((r1.source) as AST_Return).message)
+        const result = await astEvaluator.evalIf(commandIf);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toEqual(((r1.source) as AST_Return).message);
+        }
     });
 
-    test("true q1 or false q2, return r1", () =>{
+    test("true q1 or false q2, return r1", async () =>{
 
         const or = new ConditionOr(
             SDQL_OperatorName("Or1"),
@@ -377,11 +398,15 @@ describe("IF Command: evalIf()", () => {
             
         )
 
-        const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(((r1.source) as AST_Return).message)
+        const result = await astEvaluator.evalIf(commandIf);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toEqual(((r1.source) as AST_Return).message);
+        }
+
     });
 
-    test("false q1 or false q2, return r1", () =>{
+    test("false q1 or false q2, return r2", async () =>{
 
         const or = new ConditionOr(
             SDQL_OperatorName("Or1"),
@@ -400,8 +425,11 @@ describe("IF Command: evalIf()", () => {
             
         )
 
-        const result = astEvaluator.evalIf(commandIf);
-        expect(result).toEqual(((r2.source) as AST_Return).message)
+        const result = await astEvaluator.evalIf(commandIf);
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+            expect(result.value).toEqual(((r2.source) as AST_Return).message);
+        }
     });
 
 });

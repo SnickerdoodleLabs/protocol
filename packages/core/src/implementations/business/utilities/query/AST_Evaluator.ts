@@ -81,8 +81,8 @@ export class AST_Evaluator {
             
             const evaluator = this.expMap.get(expr.constructor);
             if (evaluator) {
-                const val = evaluator.apply(this, [expr]); // Sometimes returns ResultAsync, sometimes SDQL_Return
-                return okAsync(val);
+                const val = evaluator.apply(this, [expr]); // Always returns ResultAsync
+                return val;
             } else {
                 return errAsync(new EvalNotImplementedError(typeof expr));
             }
@@ -100,14 +100,21 @@ export class AST_Evaluator {
         // 1. we need the value here.
         const condResult = this.evalConditionExpr(eef.conditionExpr);
         return condResult.andThen((val):ResultAsync<SDQL_Return, EvaluationError> => {
+
             if (val == true) {
-                return this.evalExpr(eef.trueExpr);
+                const trueResult = this.evalExpr(eef.trueExpr);
+                // console.log('trueResult', trueResult);
+
+                // return trueResult.andThen((val) => okAsync(val));
+                // console.log('trueResult', trueResult);
+                return trueResult;
             } else {
                 if (eef.falseExpr) {
                     return this.evalExpr(eef.falseExpr);
                 }
                 return errAsync(new EvaluationError(`if ${eef.name} do not have a falseExpr`))
             }
+
         });
 
         // condResult.then((x) => {
