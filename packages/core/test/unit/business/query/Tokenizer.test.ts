@@ -1,5 +1,9 @@
-import { ParserError } from "businessObjects";
-import { Tokenizer, TokenType } from "businessObjects/SDQL/Tokenizer";
+
+import "reflect-metadata";
+
+import { Tokenizer, TokenType } from "@core/implementations/business/utilities/query";
+import { ParserError } from "@objects/businessObjects";
+
 
 describe("Tokenizer", () => {
 

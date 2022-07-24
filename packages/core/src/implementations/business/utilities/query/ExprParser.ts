@@ -1,17 +1,15 @@
+import { AST_Compensation, AST_ConditionExpr, AST_Expr, AST_Query, AST_ReturnExpr, Command, Command_IF, ConditionAnd, ConditionOr, ParserError } from "@objects/businessObjects";
 import { SDQL_Name, SDQL_OperatorName } from "@objects/primitives";
-import { To } from "history";
-import { AST } from "./AST";
-import { AST_BoolExpr } from "./AST_BoolExpr";
-import { AST_Compensation } from "./AST_Compensation";
-import { AST_Expr } from "./AST_Expr";
-import { AST_Query } from "./AST_Query";
-import { AST_Return } from "./AST_Return";
-import { AST_ReturnExpr } from "./AST_ReturnExpr";
-import { Command } from "./Command";
-import { Command_IF } from "./Command_IF";
-import { AST_ConditionExpr, ConditionAnd, ConditionOr } from "./condition";
-import { ParserError } from "./exceptions";
 import { Token, Tokenizer, TokenType } from "./Tokenizer";
+// import { AST_Compensation } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Compensation";
+// import { AST_Expr } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Expr";
+// import { AST_Query } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Query";
+// import { AST_ReturnExpr } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_ReturnExpr";
+// import { Command } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/Command";
+// import { Command_IF } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/Command_IF";
+// import { AST_ConditionExpr, ConditionAnd, ConditionOr } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/condition";
+// import { ParserError } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/exceptions";
+// import { Token, Tokenizer, TokenType } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/Tokenizer";
 
 export class ExprParser {
     /**

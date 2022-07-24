@@ -7,7 +7,6 @@ export class ConditionL extends Condition {
         name: SDQL_OperatorName,
         readonly lval: null | number | AST_Expr,
         readonly rval: number | AST_Expr,
-        //protected persistenceRepo: IDataWalletPersistence
     ) {
         super(name);
     }
