@@ -117,18 +117,18 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         _safeMint(_msgSender(), tokenId);
         _setTokenURI(tokenId, agreementURI);
 
-        /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender());
-        
         /// increase total supply count
         totalSupply++;
+
+        /// add user's consent contract to ConsentFactory
+        consentFactoryInstance.addUserConsents(_msgSender());
     }
 
     /// @notice Allows specific users to opt in to sharing their data
     /// @dev For restricted opt ins, the owner will first sign a digital signature on-chain
-    /// @dev The function is called with the signed signature
+    /// @dev The function is called with the signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
-    /// @param tokenId User's Consent token id to mint against
+    /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
     /// @param agreementURI User's Consent token uri containing agreement flags
     /// @param signature Owner's signature to agree with user opt in
     function restrictedOptIn (
@@ -152,11 +152,47 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         _safeMint(_msgSender(), tokenId);
         _setTokenURI(tokenId, agreementURI);
 
-        /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender());
-
         /// increase total supply count
         totalSupply++;
+
+        /// add user's consent contract to ConsentFactory
+        consentFactoryInstance.addUserConsents(_msgSender());
+    }
+
+    /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
+    /// @dev For restricted opt ins, the owner will first sign a digital signature on-chain
+    /// @dev The function is called with the a signature from SIGNER_ROLE
+    /// @dev If the message signature is valid, the user calling this function is minted a Consent token
+    /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
+    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @param signature Owner's signature to agree with user opt in
+    function anonymousRestrictedOptIn (
+        uint256 tokenId, 
+        string memory agreementURI,
+        bytes memory signature
+        )
+        external
+        whenNotPaused
+    {
+        /// if user has opted in before, revert
+        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+        
+        /// check the signature against the payload
+        /// Any account possessing the signature and payload can call this method
+        require(
+            _isValidSignature(tokenId, agreementURI, signature),
+            "Consent: Contract owner did not sign this message"
+        );
+
+        /// mint the consent token and set its uri
+        _safeMint(_msgSender(), tokenId);
+        _setTokenURI(tokenId, agreementURI);
+
+        /// increase total supply count before interaction
+        totalSupply++;
+
+        /// add user's consent contract to ConsentFactory
+        consentFactoryInstance.addUserConsents(_msgSender());
     }
 
     /// @notice Allows users to opt out of sharing their data
@@ -301,6 +337,29 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         // convert the payload to a 32 byte hash
         bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, tokenId, agreementURI)));
+        
+        // retrieve the signature's signer 
+        address signer = ECDSAUpgradeable.recover(hash, signature);
+
+        require(signer != address(0), "Consent: Signer cannot be 0 address.");
+
+        // check if the recovered signature has the SIGNER_ROLE
+        return hasRole(SIGNER_ROLE, signer);
+    }
+
+    /// @notice Verify that a signature is valid (doesn't check for recipient account)
+    /// @param tokenId Token id to be tied to current user
+    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @param signature Signature of approved user's message hash 
+    /// @return Boolean of whether signature is valid
+    function _isValidSignature(
+        uint256 tokenId,
+        string memory agreementURI,
+        bytes memory signature
+    ) internal view returns (bool) {
+
+        // convert the payload to a 32 byte hash
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementURI)));
         
         // retrieve the signature's signer 
         address signer = ECDSAUpgradeable.recover(hash, signature);
