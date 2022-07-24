@@ -175,7 +175,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         whenNotPaused
     {
         /// if user has opted in before, revert
-        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+        require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
         
         /// check the signature against the payload
         /// Any account possessing the signature and payload can call this method
