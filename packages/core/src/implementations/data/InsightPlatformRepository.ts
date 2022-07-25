@@ -42,6 +42,34 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     throw new Error("undefined");
   }
 
+  public deliverInsight(
+    cId: IpfsCID,
+    dataWalletAddress: DataWalletAddress,
+    consentContractAddress: EVMContractAddress,
+    signature: Signature,
+    returns: Array<any>
+    ): ResultAsync<void, AjaxError> {
+      
+      return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const url = new URL(
+          urlJoin(
+            config.defaultInsightPlatformBaseUrl,
+            "responses"
+          ),
+        );
+        return this.ajaxUtils.post<boolean>(url, {
+          consentContractId: consentContractAddress,
+          queryId: cId,
+          dataWallet: dataWalletAddress,
+          returns: returns,
+          signature: signature
+        });
+      })
+      .map((response) => {});
+    }
+
   public getBusinessConsentContracts(): ResultAsync<
     BusinessConsentContract[],
     AjaxError
