@@ -140,6 +140,18 @@ export class ExtensionUtils {
     });
   };
 
+  public static getAllTabsOnWindow = (windowId: number) => {
+    return ResultAsync.fromSafePromise(
+      browser.tabs.query({ windowId }),
+    ).andThen((tabs) => {
+      const error = ExtensionUtils.checkForError();
+      if (error) {
+        return errAsync(error);
+      }
+      return okAsync(tabs);
+    });
+  };
+
   public static getCurrentTab = () => {
     return ResultAsync.fromSafePromise(browser.tabs.getCurrent()).andThen(
       (tab) => {
@@ -178,9 +190,4 @@ export class ExtensionUtils {
       },
     );
   };
-
-  public static getManifestVersion = () =>
-    browser.runtime.getManifest().manifest_version;
-
-  public static isManifest3 = () => ExtensionUtils.getManifestVersion() === 3;
 }

@@ -1,3 +1,4 @@
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -8,12 +9,10 @@ import {
   ConsentToken,
   RequestForData,
   BlockNumber,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
-
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
-
 export interface IConsentContract {
   /**
    * Create a consent token owned by the signer
@@ -50,9 +49,43 @@ export interface IConsentContract {
   requestForData(ipfsCID: IpfsCID): ResultAsync<void, ConsentContractError>;
 
   /**
-   * Returns address of the consent contract owner (admin)
+   * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
+   * Address at index 0 of the returned array is the contract owner
    */
   getConsentOwner(): ResultAsync<EVMAccountAddress, ConsentContractError>;
+
+  /**
+   * Returns array of addresses that has the DEFAULT_ADMIN_ROLE
+   * Address at index 0 of the returned array is the contract owner
+   */
+  getDefaultAdminRoleMembers(): ResultAsync<
+    EVMAccountAddress[],
+    ConsentContractError
+  >;
+
+  /**
+   * Returns array of addresses that has the SIGNER_ROLE
+   */
+  getSignerRoleMembers(): ResultAsync<
+    EVMAccountAddress[],
+    ConsentContractError
+  >;
+
+  /**
+   * Returns array of addresses that has the PAUSER_ROLE
+   */
+  getPauserRoleMembers(): ResultAsync<
+    EVMAccountAddress[],
+    ConsentContractError
+  >;
+
+  /**
+   * Returns array of addresses that has the REQUESTER_ROLE
+   */
+  getRequesterRoleMembers(): ResultAsync<
+    EVMAccountAddress[],
+    ConsentContractError
+  >;
 
   /**
    * Returns the number of consent tokens owned by a specific address
@@ -66,11 +99,15 @@ export interface IConsentContract {
    * Returns the token uri for a specific token Id
    * @param tokenId token Id
    */
-  tokenURI(tokenId: TokenIdNumber): ResultAsync<TokenUri, ConsentContractError>;
+  tokenURI(
+    tokenId: TokenIdNumber,
+  ): ResultAsync<TokenUri | null, ConsentContractError>;
 
   /**
    * Returns a topic event object that can be fetched for events logs
    * @param eventFilter event filer
+   * @param fromBlock optional parameter of starting block to query
+   * @param toBlock optional parameter of ending block to query
    */
   queryFilter(
     eventFilter: EventFilter,
@@ -103,6 +140,11 @@ export interface IConsentContract {
   removeDomain(domain: string): ResultAsync<void, ConsentContractError>;
 
   /**
+   * Returns an array of domains added to the contract
+   */
+  getDomains(): ResultAsync<DomainName[], ConsentContractError>;
+
+  /**
    * Returns a list of RequestForData events between two block numbers
    * @param requesterAddress owner address of the request
    * @param fromBlock from block number
@@ -114,10 +156,14 @@ export interface IConsentContract {
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
+  disableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+
+  enableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+
   filters: IConsentContractFilters;
 }
 
-interface IConsentContractFilters {
+export interface IConsentContractFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,

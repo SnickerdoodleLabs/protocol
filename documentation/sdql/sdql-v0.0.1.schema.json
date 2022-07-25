@@ -27,14 +27,19 @@
                                 "network",
                                 "age",
                                 "location",
-                                "browsing_history"
+                                "browsing_history",
+                                "gender",
+                                "url_visited_count",
+                                "chain_transaction_count"
                             ]
                         },
                         "return": {
                             "type": "string",
                             "enum": [
                                 "boolean",
-                                "integer"
+                                "integer",
+                                "object",
+                                "enum"
                             ]
                         },
                         "chain": {
@@ -129,13 +134,30 @@
                                 "g": {
                                     "type": "integer"
                                 },
-                                "has":{
+                                "has": {
                                     "type": "object",
-                                    "patternProperties":{
+                                    "patternProperties": {
                                         "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
                                             "type": "number"
                                         }
                                     }
+                                }
+                            }
+                        },
+                        "enum_keys": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "object_schema": {
+                            "type": "object",
+                            "properties": {
+                                "properties": {
+                                    "type": "object"
+                                },
+                                "patternProperties": {
+                                    "type": "object"
                                 }
                             }
                         }
@@ -145,6 +167,39 @@
                         "return"
                     ],
                     "anyOf": [
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "gender"
+                                },
+                                "return": {
+                                    "const": "enum"
+                                }
+                            },
+                            "required": [
+                                "enum_keys"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "anyOf": [
+                                        {
+                                            "const": "url_visited_count"
+                                        },
+                                        {
+                                            "const": "chain_transaction_count"
+                                        }
+                                    ]                                
+                                },
+                                "return": {
+                                    "const": "object"
+                                }
+                            },
+                            "required": [
+                                "object_schema"
+                            ]
+                        },
                         {
                             "properties": {
                                 "name": {
@@ -208,7 +263,7 @@
                             "required": [
                                 "conditions"
                             ]
-                        } 
+                        }
                     ]
                 }
             }

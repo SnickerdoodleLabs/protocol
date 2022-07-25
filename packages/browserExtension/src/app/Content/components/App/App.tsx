@@ -9,21 +9,57 @@ import browser from "webextension-polyfill";
 import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
 import Browser from "webextension-polyfill";
 import { ExternalCoreGateway } from "@app/coreGateways";
-import { createBackgroundConnectors } from "app/utils";
-import { IExternalState } from "@shared/objects/State";
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
-import { LanguageCode } from "@snickerdoodlelabs/objects";
+import { IExternalState } from "@shared/interfaces/states";
+import pump from "pump";
+import ObjectMultiplex from "obj-multiplex";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
+import ConfigProvider from "@shared/utils/ConfigProvider";
+import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
+import { VersionUtils } from "@shared/utils/VersionUtils";
+import endOfStream from "end-of-stream";
+import { EPortNames } from "@shared/enums/ports";
 
-const port = Browser.runtime.connect({ name: "SD_CONTENT_SCRIPT" });
-let coreGateway: ExternalCoreGateway;
+let coreGateway;
 let notificationEmitter;
 
-const connectors = createBackgroundConnectors(port);
-if (connectors.isOk()) {
-  coreGateway = new ExternalCoreGateway(connectors.value.rpcEngine);
-  notificationEmitter = connectors.value.streamMiddleware.events;
-}
+const connect = () => {
+  const port = Browser.runtime.connect({ name: EPortNames.SD_CONTENT_SCRIPT });
+  const extensionStream = new PortStream(port);
+  const extensionMux = new ObjectMultiplex();
+  extensionMux.setMaxListeners(25);
+  pump(extensionMux, extensionStream, extensionMux);
+  const streamMiddleware = createStreamMiddleware();
+  pump(
+    streamMiddleware.stream,
+    extensionMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
+    streamMiddleware.stream,
+  );
+  const rpcEngine = new JsonRpcEngine();
+  rpcEngine.push(streamMiddleware.middleware);
+
+  coreGateway = new ExternalCoreGateway(rpcEngine);
+  notificationEmitter = streamMiddleware.events;
+
+  if (
+    new URL(ConfigProvider.getConfig().onboardingUrl).origin ===
+    window.location.origin
+  ) {
+    const injector = new OnboardingProviderInjector(extensionMux);
+    injector.startPipeline();
+  }
+  // keep service worker alive
+  if (VersionUtils.isManifest3) {
+    port.onDisconnect.addListener(connect);
+  }
+  endOfStream(extensionStream, () => {
+    extensionMux.destroy();
+  });
+};
+
+connect();
 
 const App = () => {
   const [backgroundState, setBackgroundState] = useState<IExternalState>();
@@ -56,12 +92,12 @@ const App = () => {
   };
 
   const isScam = useMemo(
-    () => backgroundState?.scamList.includes(window.location.origin),
+    () => backgroundState?.scamList?.includes(window.location.origin),
     [backgroundState],
   );
 
   const isInWhiteList = useMemo(
-    () => backgroundState?.whiteList.includes(window.location.origin),
+    () => backgroundState?.whiteList?.includes(window.location.origin),
     [backgroundState],
   );
 
@@ -118,13 +154,6 @@ const App = () => {
   const onWalletConnectionCompleted = async (e: Event) => {
     // @ts-ignore
     const { accounts, signature, chainId } = e.detail;
-    const persistence = new LocalStoragePersistence();
-    let core = new SnickerdoodleCore(undefined, persistence);
-    await core.unlock(accounts[0], signature, LanguageCode("en"));
-    core.addAccount(accounts[0], signature, LanguageCode("en"));
-    console.log("accounts received: ", accounts);
-    console.log("signature received: ", signature);
-    console.log("chainId received: ", chainId);
     browser.storage.sync.set(
       {
         onChainData: {

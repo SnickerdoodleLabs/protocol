@@ -1,3 +1,4 @@
+export * from "@objects/errors/AccountBalanceError";
 export * from "@objects/errors/AccountIndexingError";
 export * from "@objects/errors/AjaxError";
 export * from "@objects/errors/BlockchainProviderError";
@@ -7,6 +8,7 @@ export * from "@objects/errors/ConsentError";
 export * from "@objects/errors/CrumbsContractError";
 export * from "@objects/errors/DataWalletLockedError";
 export * from "@objects/errors/ConsentContractRepositoryError";
+export * from "@objects/errors/IBlockchainError";
 export * from "@objects/errors/InvalidParametersError";
 export * from "@objects/errors/InvalidSignatureError";
 export * from "@objects/errors/IPFSError";

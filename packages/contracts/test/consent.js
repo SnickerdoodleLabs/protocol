@@ -21,6 +21,7 @@ describe("Consent", () => {
   let accounts;
   let owner;
 
+  const signerRoleBytes = ethers.utils.id("SIGNER_ROLE");
   const requesterRoleBytes = ethers.utils.id("REQUESTER_ROLE");
   const pauserRoleBytes = ethers.utils.id("PAUSER_ROLE");
   const defaultAdminRoleBytes = ethers.utils.formatBytes32String(0); //bytes for DEFAULT_ADMIN_ROLE on the contract is 0 by default
@@ -256,7 +257,7 @@ describe("Consent", () => {
 
       // call opt out with another account that does not own the token
       await expect(consent.connect(accounts[2]).optOut(1)).to.revertedWith(
-        "ERC721Burnable: caller is not owner nor approved",
+        "ERC721: caller is not token owner nor approved",
       );
     });
   });
@@ -319,7 +320,7 @@ describe("Consent", () => {
           accounts[2].address,
           1,
         ),
-      ).to.revertedWith("ERC721: transfer caller is not owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner nor approved");
 
       // check token balance of the account has 1
       await expect(
@@ -330,7 +331,7 @@ describe("Consent", () => {
             accounts[2].address,
             1,
           ),
-      ).to.revertedWith("ERC721: transfer caller is not owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner nor approved");
     });
   });
 
@@ -490,6 +491,74 @@ describe("Consent", () => {
   describe("supportInterface", function () {
     it("Returns true that EIP165 interface is supported", async function () {
       expect(await consent.supportsInterface(0x01ffc9a7)).to.eq(true);
+    });
+  });
+
+  describe("getRoleMemberCount, getRoleMember", function () {
+    it("Returns the correct DEFAULT_ADMIN_ROLE member count", async function () {
+      const count = await consent
+        .connect(accounts[1])
+        .getRoleMemberCount(defaultAdminRoleBytes);
+
+      // contract owner and consent factory addresses will have DEFAULT_ADMIN_ROLEs
+      // refer to Consent contract constructor for details
+      expect(count).to.eq(2);
+    });
+
+    it("Returns the correct array of DEFAULT_ADMIN_ROLE members", async function () {
+      const count = await consent.getRoleMemberCount(defaultAdminRoleBytes);
+
+      let memberArray = [];
+
+      for (let i = 0; i < count.toNumber(); i++) {
+        memberArray.push(await consent.getRoleMember(defaultAdminRoleBytes, i));
+      }
+
+      // check that
+      expect(memberArray.length).to.eq(2);
+      expect(memberArray[0]).to.eq(accounts[1].address);
+    });
+
+    it("Returns the correct array of SIGNER_ROLE members", async function () {
+      const count = await consent.getRoleMemberCount(signerRoleBytes);
+
+      let memberArray = [];
+
+      for (let i = 0; i < count.toNumber(); i++) {
+        memberArray.push(await consent.getRoleMember(signerRoleBytes, i));
+      }
+
+      // check that
+      expect(memberArray.length).to.eq(1);
+      expect(memberArray[0]).to.eq(accounts[1].address);
+    });
+
+    it("Returns the correct array of PAUSER_ROLE members", async function () {
+      const count = await consent.getRoleMemberCount(pauserRoleBytes);
+
+      let memberArray = [];
+
+      for (let i = 0; i < count.toNumber(); i++) {
+        memberArray.push(await consent.getRoleMember(pauserRoleBytes, i));
+      }
+
+      // check that
+      expect(memberArray.length).to.eq(1);
+      expect(memberArray[0]).to.eq(accounts[1].address);
+    });
+
+    it("Returns the correct array of REQUESTER_ROLE members", async function () {
+      const count = await consent.getRoleMemberCount(requesterRoleBytes);
+
+      let memberArray = [];
+
+      for (let i = 0; i < count.toNumber(); i++) {
+        memberArray.push(await consent.getRoleMember(requesterRoleBytes, i));
+      }
+
+      // check that
+      expect(memberArray.length).to.eq(1);
+      expect(memberArray[0]).to.eq(accounts[1].address);
     });
   });
 

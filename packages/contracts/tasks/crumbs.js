@@ -2,7 +2,7 @@ const { CR, crumbsContract, consentFactory } = require("./constants.js");
 
 task("createCrumb", "Creates a crumb")
   .addParam("crumbid", "Desired crumb Id")
-  .addParam("mask", "String of private key mask")
+  .addParam("tokenuri", "String of JSON object to set as token URI")
   .addParam(
     "owneraddressindex",
     "Index or owner address of the connected wallet to generate Signer object to sign the tx.",
@@ -21,7 +21,7 @@ task("createCrumb", "Creates a crumb")
 
     await crumbsContractHandle
       .connect(signingAccount)
-      .createCrumb(taskArgs.crumbid, taskArgs.mask);
+      .createCrumb(taskArgs.crumbid, taskArgs.tokenuri);
 
     console.log("");
     console.log(

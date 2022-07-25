@@ -17,9 +17,10 @@ import {
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
-import { createBackgroundConnectors } from "@app/utils";
+import { createBackgroundConnectors } from "@app/Popup/utils";
 import { InternalCoreGateway } from "@app/coreGateways";
-import { EPortNames, PORT_NOTIFICATION } from "@shared/constants/ports";
+import {  PORT_NOTIFICATION } from "@shared/constants/ports";
+import { EPortNames } from "@shared/enums/ports";
 
 const Popup = () => {
   const [portName, setPortName] = useState<EPortNames | null>(null);
@@ -48,11 +49,11 @@ const Popup = () => {
     // create gateway
     const rpcGateway = new InternalCoreGateway(rpcEngine);
     // test gateway
-    rpcGateway.login(
-      "" as EVMAccountAddress,
-      "" as Signature,
-      "" as LanguageCode,
-    );
+    // rpcGateway.login(
+    //   "" as EVMAccountAddress,
+    //   "" as Signature,
+    //   "" as LanguageCode,
+    // );
     // use to get updates
     streamMiddleware.events.on(PORT_NOTIFICATION, (not) =>
       setMessage(not.data),

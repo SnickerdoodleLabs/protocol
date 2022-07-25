@@ -1,3 +1,4 @@
+import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
 import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   SiteVisit,
@@ -13,6 +14,9 @@ import {
   UnixTimestamp,
   AjaxError,
   PersistenceError,
+  IAccountBalancesType,
+  IAccountBalances,
+  IEVMBalance,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -30,6 +34,7 @@ import {
 export class MonitoringService implements IMonitoringService {
   public constructor(
     @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
+    @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -77,6 +82,63 @@ export class MonitoringService implements IMonitoringService {
         const transactions = transactionsArr.flat(2);
         return this.persistence.addEVMTransactions(transactions);
       });
+  }
+
+  public pollBalances(): ResultAsync<
+    void,
+    PersistenceError | AccountBalanceError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this.persistence.getAccounts(),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([accountAddresses, config]) => {
+        return ResultUtils.combine(
+          accountAddresses.map((accountAddress) => {
+            return ResultUtils.combine(
+              config.supportedChains.map((chainId) => {
+                return this.getLatestBalances(chainId, accountAddress);
+              }),
+            );
+          }),
+        );
+      })
+      .andThen((balancesArr) => {
+        const balances = balancesArr.flat(2);
+        return this.persistence.updateAccountBalances(balances);
+      });
+  }
+
+  protected getLatestBalances(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    IEVMBalance[],
+    PersistenceError | AccountBalanceError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.accountBalances.getEVMBalanceRepository(),
+      this.accountBalances.getSimulatorEVMBalanceRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+      const chainInfo = config.chainInformation.get(chainId);
+      if (chainInfo == null) {
+        this.logUtils.error(`No available chain info for chain ${chainId}`);
+        return okAsync([]);
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getBalancesForAccount(chainId, accountAddress);
+        case EIndexer.Simulator:
+          return simulatorRepo.getBalancesForAccount(chainId, accountAddress);
+        default:
+          this.logUtils.error(
+            `No available balance repository for chain ${chainId}`,
+          );
+          return okAsync([]);
+      }
+    });
   }
 
   public siteVisited(SiteVisit: SiteVisit): ResultAsync<void, never> {

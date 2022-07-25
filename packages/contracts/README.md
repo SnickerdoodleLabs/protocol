@@ -26,11 +26,11 @@ Contains an EIP20 compatible token, wrapper token (for subnet deployments), and 
 
 ### [registry](/packages/contracts/contracts/registry/README.md)
 
-Contains an EIP721 compatible registry contract for storing Snickerdoodle account recovery details. 
+Contains an EIP721 compatible registry contract for storing Snickerdoodle account recovery details.
 
 ### [governance](/packages/contracts/contracts/governance/README.md)
 
-Contains the implementation of the Snickerdoodle Protocol governance DAO. 
+Contains the implementation of the Snickerdoodle Protocol governance DAO.
 
 ### Install Dependencies
 
@@ -43,7 +43,7 @@ cd packages/contracts
 npm install
 ```
 
-### Compiling Contracts 
+### Compiling Contracts
 
 Use Hardhat to compile the protocol contracts like this:
 
@@ -51,7 +51,7 @@ Use Hardhat to compile the protocol contracts like this:
 npx hardhat compile
 ```
 
-This command will create a subdirectory called `artifacts` which will contain the contract [ABI](https://docs.soliditylang.org/en/v0.8.13/abi-spec.html) and bytecode for all contracts in the `contracts` subdirectory. 
+This command will create a subdirectory called `artifacts` which will contain the contract [ABI](https://docs.soliditylang.org/en/v0.8.13/abi-spec.html) and bytecode for all contracts in the `contracts` subdirectory.
 
 ### Docker
 
@@ -86,4 +86,4 @@ Exit the tmux session running the local testnet by pressing `Cntrl` + `b` `d`h.
 
 ## Deployment Addresses
 
-A list of Snickerdoodle Protocol contract addresses can be found [here](/packages/contracts/DEPLOYMENTS.md). 
+A list of Snickerdoodle Protocol contract addresses can be found [here](/packages/contracts/DEPLOYMENTS.md).

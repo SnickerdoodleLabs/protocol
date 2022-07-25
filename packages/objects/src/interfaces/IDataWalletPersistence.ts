@@ -1,5 +1,7 @@
 import { ResultAsync } from "neverthrow";
 
+import { IEVMBalance } from "./chains";
+
 import {
   ClickData,
   ClickFilter,
@@ -113,13 +115,9 @@ export interface IDataWalletPersistence {
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
 
-  getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError>;
-
+  updateAccountBalances(
+    balances: IEVMBalance[],
+  ): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

@@ -9,7 +9,7 @@ const { ethers, upgrades } = require("hardhat");
 // declare variables that need to be referenced by other functions
 let accounts;
 let owner;
-let trustedForwarder;
+let trustedForwarderAddress;
 let tokenDistributor;
 let consentAddress;
 let doodleTokenAddress;
@@ -18,10 +18,9 @@ let timelockAddress;
 async function setLocalAccounts() {
   accounts = await hre.ethers.getSigners();
   owner = accounts[0];
-  //for local testing, take the 20th address of hardhat accounts as the trusted forwarder address
-  trustedForwarder = accounts[19];
+  console.log(owner.address);
 
-  //for local testing,take the 19th address of hardhat accounts as the trusted forwarder address
+  //for local testing,take the Account #18 of hardhat accounts as the trusted forwarder address
   tokenDistributor = accounts[18];
 }
 
@@ -49,7 +48,7 @@ async function deployConsentFactory() {
   // the Consent Factory contract requires one argument on deployment:
   // the address of the trusted forwarder who will pay for the meta tx fees
   const consentFactory = await ConsentFactory.deploy(
-    trustedForwarder.address,
+    trustedForwarderAddress,
     consentAddress,
   );
   const consentFactory_receipt = await consentFactory.deployTransaction.wait();
@@ -148,7 +147,7 @@ async function deployCrumbs() {
   // the address of the trusted forwarder address
   // the base uri
   const crumbs = await Crumbs.deploy(
-    trustedForwarder.address,
+    trustedForwarderAddress,
     "www.crumbs.com/",
   );
   const crumbs_receipt = await crumbs.deployTransaction.wait();
@@ -173,6 +172,28 @@ async function deploySift() {
   console.log("Sift Gas Fee:", sift_receipt.gasUsed.toString());
 }
 
+async function deployMinimalForwarder() {
+  console.log("");
+  console.log("Deploying MinimalForwarder contract...");
+
+  const MinimalForwarder = await hre.ethers.getContractFactory(
+    "MinimalForwarder",
+  );
+
+  // the MinimalForwarder does not require any arguments on deployment
+  const minimalForwarder = await MinimalForwarder.deploy();
+  const minimalForwarder_receipt =
+    await minimalForwarder.deployTransaction.wait();
+
+  trustedForwarderAddress = minimalForwarder.address;
+
+  console.log("MinimalForwarder deployed to:", minimalForwarder.address);
+  console.log(
+    "MinimalForwarder Gas Fee:",
+    minimalForwarder_receipt.gasUsed.toString(),
+  );
+}
+
 // function that runs the full deployment of all contracts
 async function fullDeployment() {
   // Hardhat always runs the compile task when running scripts with its command
@@ -183,6 +204,9 @@ async function fullDeployment() {
   // await hre.run('compile');
 
   await setLocalAccounts();
+
+  await deployMinimalForwarder();
+
   await deployConsent();
   await deployConsentFactory();
 

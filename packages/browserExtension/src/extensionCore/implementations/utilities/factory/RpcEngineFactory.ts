@@ -1,46 +1,39 @@
 import { IContextProvider } from "@interfaces/utilities";
-import {
-  IExternalRpcMiddlewareFactory,
-  IInternalRpcMiddlewareFactory,
-  IRpcEngineFactory,
-} from "@interfaces/utilities/factory";
+import { IRpcEngineFactory } from "@interfaces/utilities/factory";
 import { Runtime } from "webextension-polyfill";
-import PortStream from "extension-port-stream";
 import endOfStream from "end-of-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createEngineStream } from "json-rpc-middleware-stream";
 import pump from "pump";
 import { err, ok } from "neverthrow";
-import { EConnectionModes, EPortNames } from "@shared/constants/ports";
+import { EPortNames } from "@shared/enums/ports";
 import { URLString } from "@snickerdoodlelabs/objects";
+import { createAsyncMiddleware } from "json-rpc-engine";
+import { IRpcCallHandler } from "@interfaces/api";
 
 export class RpcEngineFactory implements IRpcEngineFactory {
   constructor(
     protected contextProvider: IContextProvider,
-    protected internalRpcMiddlewareFactory: IInternalRpcMiddlewareFactory,
-    protected externalRpcMiddlewareFactory: IExternalRpcMiddlewareFactory,
+    protected rpcCallHandler: IRpcCallHandler,
   ) {}
 
   public createRrpcEngine(
     remotePort: Runtime.Port,
     origin: EPortNames | URLString,
-    mode: EConnectionModes,
+    stream: any,
   ) {
-    // create stream duplex
-    const portStream = new PortStream(remotePort);
     // create rpc handler engine
     const rpcEngine = new JsonRpcEngine();
     // add middleware for handling rpc events
     rpcEngine.push(
-      (mode === EConnectionModes.EXTERNAL
-        ? this.externalRpcMiddlewareFactory
-        : this.internalRpcMiddlewareFactory
-      ).createMiddleware(),
+      createAsyncMiddleware(async (req, res, next) => {
+        await this.rpcCallHandler.handleRpcCall(req, res, next);
+      }),
     );
     // create rpc stream duplex
-    const providerStream = createEngineStream({ engine: rpcEngine });
-    // pipe portStream to engineStream
-    pump(portStream, providerStream, portStream, (error) => {
+    const engineStream = createEngineStream({ engine: rpcEngine });
+    // pipe incoming stream to engineStream
+    pump(stream, engineStream, stream, (error) => {
       err(error);
     });
 
@@ -52,7 +45,7 @@ export class RpcEngineFactory implements IRpcEngineFactory {
       rpcEngine,
     );
 
-    endOfStream(portStream, () => {
+    endOfStream(stream, () => {
       connectionId && appContext.removeConnection(origin, connectionId);
     });
     return ok(rpcEngine);

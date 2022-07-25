@@ -5,14 +5,20 @@ import {
   Age,
   AjaxError,
   BlockchainProviderError,
-  ConsentContractError,
   CrumbsContractError,
+  CohortInvitation,
+  ConsentContractError,
+  ConsentContractRepositoryError,
+  DomainName,
+  EInvitationStatus,
   EVMAccountAddress,
+  EVMContractAddress,
   EVMPrivateKey,
   IConfigOverrides,
   InvalidSignatureError,
   LanguageCode,
   PersistenceError,
+  TokenId,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
@@ -28,7 +34,7 @@ import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator
 const persistence = new LocalStoragePersistence();
 const core = new SnickerdoodleCore(
   {
-    defaultInsightPlatformBaseUrl: "http://localhost:3000",
+    defaultInsightPlatformBaseUrl: "http://localhost:3006",
   } as IConfigOverrides,
   persistence,
 );
@@ -42,6 +48,16 @@ const accountPrivateKey = EVMPrivateKey(
 const accountAddress = EVMAccountAddress(
   "0x14791697260E4c9A71f18484C9f997B308e59325",
 );
+const domainName = DomainName("snickerdoodle.dev");
+
+const cohortInvitation = new CohortInvitation(
+  domainName,
+  EVMContractAddress("0x93fb1De05a05350b10F93b07533533709AdB3347"),
+  TokenId(BigInt(123)),
+  null,
+);
+
+let unlocked = false;
 
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
@@ -73,12 +89,13 @@ function mainPrompt(): ResultAsync<void, Error> {
           { name: "Nothing", value: "nothing" },
           new inquirer.Separator(),
           { name: "Core", value: "core" },
+          new inquirer.Separator(),
           {
             name: "Insight Platform Simulator",
             value: "simulator",
           },
           new inquirer.Separator(),
-          { name: "Exit", value: "exit" },
+          { name: "Exit", value: "exit", short: "e" },
         ],
       },
     ]),
@@ -106,21 +123,38 @@ function mainPrompt(): ResultAsync<void, Error> {
 }
 
 function corePrompt(): ResultAsync<void, Error> {
+  let choices = [
+    { name: "Add Account", value: "addAccount" },
+    new inquirer.Separator(),
+    {
+      name: "Check Invitation Status",
+      value: "checkInvitationStatus",
+      short: "ci",
+    },
+    new inquirer.Separator(),
+    { name: "Set Age", value: "setAge" },
+    new inquirer.Separator(),
+    { name: "Get Age", value: "getAge" },
+    new inquirer.Separator(),
+    { name: "Cancel", value: "cancel" },
+  ];
+
+  // Only show the unlock option we are not already unlocked.
+  if (!unlocked) {
+    choices = [
+      { name: "Unlock", value: "unlock" },
+      new inquirer.Separator(),
+      ...choices,
+    ];
+  }
+
   return ResultAsync.fromPromise(
     inquirer.prompt([
       {
         type: "list",
         name: "core",
         message: "Please select a course of action:",
-        choices: [
-          { name: "Unlock", value: "unlock" },
-          { name: "Add Account", value: "addAccount" },
-          new inquirer.Separator(),
-          { name: "Set Age", value: "setAge" },
-          { name: "Get Age", value: "getAge" },
-          new inquirer.Separator(),
-          { name: "Cancel", value: "cancel" },
-        ],
+        choices: choices,
       },
     ]),
     (e) => {
@@ -136,6 +170,10 @@ function corePrompt(): ResultAsync<void, Error> {
         return unlockCore(accountAddress, accountPrivateKey);
       case "addAccount":
         return addAccount(accountAddress, accountPrivateKey);
+      case "checkInvitationStatus":
+        return checkInvitationStatus(cohortInvitation).map((status) => {
+          console.log(status);
+        });
       case "setAge":
         console.log("Age is set to 15");
         return core.setAge(Age(15));
@@ -235,9 +273,33 @@ function addAccount(
     })
     .map(() => {
       console.log(`Unlocked!`);
+      unlocked = true;
     })
     .mapErr((e) => {
       console.error(e);
       return e;
+    });
+}
+
+function checkInvitationStatus(
+  invitation: CohortInvitation,
+): ResultAsync<
+  EInvitationStatus,
+  | BlockchainProviderError
+  | PersistenceError
+  | UninitializedError
+  | AjaxError
+  | ConsentContractError
+  | ConsentContractRepositoryError
+> {
+  // Need to get the unlock message first
+  return core
+    .checkInvitationStatus(invitation)
+    .mapErr((e) => {
+      console.log("error: ", e);
+      return e;
+    })
+    .map((status) => {
+      return status;
     });
 }

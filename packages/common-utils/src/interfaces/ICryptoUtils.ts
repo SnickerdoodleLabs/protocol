@@ -11,11 +11,13 @@ import {
   EVMAccountAddress,
   Signature,
   HexString,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface ICryptoUtils {
   getNonce(nonceSize?: number): ResultAsync<string, never>;
+  getTokenId(): ResultAsync<TokenId, never>;
 
   createAESKey(): ResultAsync<AESKey, never>;
   deriveAESKeyFromSignature(
