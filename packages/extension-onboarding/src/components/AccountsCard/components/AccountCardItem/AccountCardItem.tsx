@@ -3,7 +3,7 @@ import React, { FC, useMemo } from "react";
 
 import tickIcon from "@extension-onboarding/assets/icons/tick.svg";
 import { useStyles } from "@extension-onboarding/components/AccountsCard/components/AccountCardItem/AccountCardItem.style";
-import { useAppContext } from "@extension-onboarding/Context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 
 interface IAccountCardItemProps {
   // TODO write correct interface

@@ -4,8 +4,8 @@ import {
   IProvider,
 } from "@extension-onboarding/services/providers";
 import Onboarding from "@extension-onboarding/pages/Onboarding/Onboarding";
-import { LayoutProvider } from "@extension-onboarding/Context/LayoutContext";
-import { AppContextProvider } from "@extension-onboarding/Context/App";
+import { LayoutProvider } from "@extension-onboarding/context/LayoutContext";
+import { AppContextProvider } from "@extension-onboarding/context/App";
 
 const App: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);

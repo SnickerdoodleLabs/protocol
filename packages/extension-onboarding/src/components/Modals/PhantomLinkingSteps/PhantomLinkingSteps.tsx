@@ -4,7 +4,7 @@ import phantomStepsImage from "@extension-onboarding/assets/images/phantom-steps
 import phantomPlaceholderImage from "@extension-onboarding/assets/images/phantom-placeholder.png";
 import { useStyles } from "@extension-onboarding/components/Modals/PhantomLinkingSteps/PhantomLinkingSteps.style";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { useLayoutContext } from "@extension-onboarding/Context/LayoutContext";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const PhantomLinkingSteps: FC = () => {
   const { modalState, closeModal } = useLayoutContext();

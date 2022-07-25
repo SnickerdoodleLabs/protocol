@@ -11,7 +11,7 @@ import React, { FC, useEffect, useState } from "react";
 import { GoogleLogin, GoogleLogout } from "react-google-login";
 import { gapi } from "gapi-script";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { useAppContext } from "@extension-onboarding/Context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
 import {
   googleScopes,

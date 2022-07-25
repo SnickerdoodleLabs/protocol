@@ -1,7 +1,7 @@
 import { Box, Grid, Typography } from "@material-ui/core";
 import React, { FC } from "react";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { useAppContext } from "@extension-onboarding/Context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 import PersonalData from "./components/PersonalData";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewData/ViewData.style";
 import ChainData from "./components/ChainData";
