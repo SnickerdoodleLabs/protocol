@@ -10,6 +10,7 @@ import { okAsync } from "neverthrow";
 import td from "testdouble";
 
 import * as CovalentAvaxResponse from "@indexers-test/mock/CovalentResponse_AVAX_EndTime";
+import * as CovalentBalanceResponse from "@indexers-test/mock/CovalentResponse_ETH_Balances";
 import * as CovalentEthResponse from "@indexers-test/mock/CovalentResponse_ETH_NoEnd";
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
 import { IIndexerConfig } from "@indexers/IIndexerConfig";
@@ -42,7 +43,7 @@ class CovalentEVMTransactionRepositoryMocks {
     ).thenReturn(okAsync(responseRepo.response));
   }
 
-  public factoryService(): IEVMTransactionRepository {
+  public factoryService(): CovalentEVMTransactionRepository {
     return new CovalentEVMTransactionRepository(
       this.configProvider,
       this.ajaxUtils,
@@ -92,5 +93,19 @@ describe("CovalentEVMTransactionRepository tests", () => {
     expect(response.isErr()).toBeFalsy();
     const transactions = response._unsafeUnwrap();
     expect(transactions.length).toBe(9);
+  });
+
+  test("getBalancesForAccount() should run successfully", async () => {
+    // Arrange
+    const mocks = new CovalentEVMTransactionRepositoryMocks(
+      CovalentBalanceResponse,
+    );
+    const repo = mocks.factoryService();
+
+    // Act
+    const response = await repo.getBalancesForAccount(
+      CovalentBalanceResponse.chainId,
+      CovalentBalanceResponse.accountAddress,
+    );
   });
 });

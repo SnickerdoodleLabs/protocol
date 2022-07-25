@@ -1,3 +1,4 @@
+import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
 import {
   SiteVisit,
   EVMTransaction,
@@ -18,6 +19,10 @@ export interface IMonitoringService {
     PersistenceError | AccountIndexingError | AjaxError
   >;
   siteVisited(siteVisit: SiteVisit): ResultAsync<void, never>;
+  pollBalances(): ResultAsync<
+    void,
+    PersistenceError | AccountBalanceError | AjaxError
+  >;
 }
 
 export const IMonitoringServiceType = Symbol.for("IMonitoringService");

@@ -1,5 +1,7 @@
 import { ResultAsync } from "neverthrow";
 
+import { IEVMBalance } from "./chains";
+
 import {
   ClickData,
   ClickFilter,
@@ -108,6 +110,10 @@ export interface IDataWalletPersistence {
   ): ResultAsync<EVMTransaction | null, PersistenceError>;
   addEVMTransactions(
     transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError>;
+
+  updateAccountBalances(
+    balances: IEVMBalance[],
   ): ResultAsync<void, PersistenceError>;
 }
 
