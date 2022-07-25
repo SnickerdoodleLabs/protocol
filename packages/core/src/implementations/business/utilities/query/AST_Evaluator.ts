@@ -3,16 +3,16 @@ import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr
 import { QueryRepository } from "./QueryRepository";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { inject, injectable } from "inversify";
 
 // TODO introduce dependency injection
-
 
 export class AST_Evaluator {
     /**
      * @remarks This class should not be instantiated directly. Use the AST_Factories instead.
      */
 
-    readonly queryRepository: QueryRepository = new QueryRepository();
+    // readonly queryRepository: QueryRepository = new QueryRepository();
     // readonly exprMap: Map<AST_Expr.name 
     //                     | typeof AST_Query 
     //                     | typeof Condition
@@ -29,7 +29,8 @@ export class AST_Evaluator {
 
     constructor(
         readonly cid: IpfsCID,
-        readonly ast: AST | null
+        readonly ast: AST | null,
+        readonly queryRepository: QueryRepository
     ) {
     //     this.exprMap.set(AST_Query, this.evalQuery);
     //     this.exprMap.set(Command_IF, this.evalIf);

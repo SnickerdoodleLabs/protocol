@@ -73,6 +73,8 @@ import {
 } from "@core/interfaces/utilities/factory";
 import { CovalentEVMTransactionRepository, IIndexerConfigProvider, IIndexerConfigProviderType } from "@snickerdoodlelabs/indexers";
 import { IEVMTransactionRepository, IEVMTransactionRepositoryType } from "@snickerdoodlelabs/objects";
+import { QueryEvaluator } from "./business/utilities";
+import { AST_Evaluator, AST_EvaluatorType, AST_Factories, QueryEvaluatorType, QueryRepository, QueryRepositoryType } from "./business/utilities/query";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -138,5 +140,16 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IContractFactory>(IContractFactoryType)
       .to(ContractFactory)
       .inSingletonScope();
+
+    
+    // Query instances
+    bind<QueryEvaluator>(QueryEvaluatorType)
+      .to(QueryEvaluator)
+      .inSingletonScope();
+    
+    bind<QueryRepository>(QueryRepositoryType)
+      .to(QueryRepository)
+      .inSingletonScope();
+    
   },
 );

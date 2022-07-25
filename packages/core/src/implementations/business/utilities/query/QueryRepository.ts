@@ -6,15 +6,20 @@ import { DefaultDataWalletPersistence } from "@core/implementations/data";
 import { LocalStoragePersistence } from "@persistence/LocalStoragePersistence";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { inject, injectable } from "inversify";
+import { QueryEvaluatorType } from ".";
 
+@injectable()
 export class QueryRepository {
 
-    queryValuator: QueryEvaluator;
-    dataWalletPersistence: LocalStoragePersistence;
+    // queryValuator: QueryEvaluator;
+    // dataWalletPersistence: LocalStoragePersistence;
 
-    constructor() {
-        this.dataWalletPersistence = new LocalStoragePersistence();
-        this.queryValuator = new QueryEvaluator(this.dataWalletPersistence);
+    constructor(
+        @inject(QueryEvaluatorType) readonly queryValuator: QueryEvaluator
+    ) {
+        // this.dataWalletPersistence = new LocalStoragePersistence();
+        // this.queryValuator = new QueryEvaluator(this.dataWalletPersistence);
     }
 
     get(cid: IpfsCID, q: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
