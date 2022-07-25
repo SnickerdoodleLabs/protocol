@@ -6,12 +6,10 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { Action, Tabs } from "webextension-polyfill";
 
 export class ExtensionListener implements IExtensionListener {
-  constructor(protected configProvider: IConfigProvider){
-
-  }
- public initialize(): ResultAsync<void, never> {
+  constructor(protected configProvider: IConfigProvider) {}
+  public initialize(): ResultAsync<void, never> {
     BrowserUtils.browserAction.onClicked.addListener(
-      this.handleExtensionIconClick,
+      this.handleExtensionIconClick.bind(this),
     );
     return okAsync(undefined);
   }
