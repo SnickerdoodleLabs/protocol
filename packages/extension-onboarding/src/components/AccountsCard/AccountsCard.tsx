@@ -8,22 +8,25 @@ import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import {
   useAppContext,
   ILinkedAccount,
-} from "@extension-onboarding/Context/App";
-import { useLayoutContext } from "@extension-onboarding/Context/LayoutContext";
+} from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const AccountCard: FC = () => {
   const classes = useStyles();
   const { linkedAccounts, deleteAccount } = useAppContext();
   const { setModal } = useLayoutContext();
 
-  const onUnlinkClick = useCallback((account: ILinkedAccount) => {
-    setModal({
-      modalSelector: EModalSelectors.ACCOUNT_UNLINKED,
-      onPrimaryButtonClick: () => {
-        deleteAccount(account);
-      },
-    });
-  }, []);
+  const onUnlinkClick = useCallback(
+    (account: ILinkedAccount) => {
+      setModal({
+        modalSelector: EModalSelectors.ACCOUNT_UNLINKED,
+        onPrimaryButtonClick: () => {
+          deleteAccount(account);
+        },
+      });
+    },
+    [linkedAccounts],
+  );
   return (
     <>
       <Typography className={classes.title}>Your Linked Account</Typography>

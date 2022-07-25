@@ -8,8 +8,8 @@ import {
   ALERT_MESSAGES,
   EWalletProviderKeys,
 } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/Context/App";
-import { useLayoutContext } from "@extension-onboarding/Context/LayoutContext";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/providers";
 
 const WalletProviders: FC = () => {

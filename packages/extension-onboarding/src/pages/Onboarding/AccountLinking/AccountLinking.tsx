@@ -4,7 +4,7 @@ import React, { FC } from "react";
 import AccountsCard from "@extension-onboarding/components/AccountsCard";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
-import { useAppContext } from "@extension-onboarding/Context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/AccountLinking/AccountLinking.style";
 
 const AccountLinking: FC = () => {

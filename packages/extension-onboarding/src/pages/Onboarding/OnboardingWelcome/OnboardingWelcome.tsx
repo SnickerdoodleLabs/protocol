@@ -8,7 +8,7 @@ import solonaCircle from "@extension-onboarding/assets/icons/solona-circle.svg";
 import polygonCircle from "@extension-onboarding/assets/icons/polygon-circle.svg";
 import arbitrumCircle from "@extension-onboarding/assets/icons/arbitrum-circle.svg";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { useAppContext } from "@extension-onboarding/Context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/OnboardingWelcome/OnboardingWelcome.style";
 
 const OnboardingWelcome: FC = () => {

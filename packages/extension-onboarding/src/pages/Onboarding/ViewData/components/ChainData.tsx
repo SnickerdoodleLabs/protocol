@@ -3,8 +3,8 @@ import React, { FC, useMemo } from "react";
 
 import tickIcon from "@extension-onboarding/assets/icons/tick.svg";
 import { useStyles } from "@extension-onboarding/components/AccountsCard/components/AccountCardItem/AccountCardItem.style";
-import { useAppContext } from "@extension-onboarding/Context/App";
-import { useLayoutContext } from "@extension-onboarding/Context/LayoutContext";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 
 interface IAccountCardItemProps {

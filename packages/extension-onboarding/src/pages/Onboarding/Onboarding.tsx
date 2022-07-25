@@ -6,7 +6,7 @@ import AccountLinking from "./AccountLinking/AccountLinking";
 
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import { useEffect } from "react";
-import { useAppContext } from "@extension-onboarding/Context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 import OnboardingWelcome from "./OnboardingWelcome";
 import ViewData from "@extension-onboarding/pages/Onboarding/ViewData/ViewData";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/Onboarding.style";
