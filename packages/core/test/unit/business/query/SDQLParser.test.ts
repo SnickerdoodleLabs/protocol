@@ -1,7 +1,10 @@
-import { AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, SDQLParser } from "businessObjects";
-import { AST_Compensation } from "businessObjects/SDQL/AST_Compensation";
-import { SDQLSchema } from "businessObjects/SDQL/SDQLSchema";
-import { IpfsCID, SDQL_Name } from "primitives";
+import "reflect-metadata";
+import { SDQLParser } from "@core/implementations/business/utilities/query";
+import { AST_Compensation, AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, SDQLSchema } from "@objects/businessObjects";
+import { IpfsCID, SDQL_Name } from "@objects/primitives";
+// import { AST_Compensation } from "businessObjects/SDQL/AST_Compensation";
+// import { SDQLSchema } from "businessObjects/SDQL/SDQLSchema";
+// import { IpfsCID, SDQL_Name } from "primitives";
 // import { AST_Factories } from "businessObjects/SDQL/AST_Factories";
 import { avalance1SchemaStr } from "./avalanche1.data";
 

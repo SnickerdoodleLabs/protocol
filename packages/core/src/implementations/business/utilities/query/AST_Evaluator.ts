@@ -3,16 +3,16 @@ import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr
 import { QueryRepository } from "./QueryRepository";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { inject, injectable } from "inversify";
 
 // TODO introduce dependency injection
-
 
 export class AST_Evaluator {
     /**
      * @remarks This class should not be instantiated directly. Use the AST_Factories instead.
      */
 
-    readonly queryRepository: QueryRepository = new QueryRepository();
+    // readonly queryRepository: QueryRepository = new QueryRepository();
     // readonly exprMap: Map<AST_Expr.name 
     //                     | typeof AST_Query 
     //                     | typeof Condition
@@ -29,7 +29,8 @@ export class AST_Evaluator {
 
     constructor(
         readonly cid: IpfsCID,
-        readonly ast: AST | null
+        readonly ast: AST | null,
+        readonly queryRepository: QueryRepository
     ) {
     //     this.exprMap.set(AST_Query, this.evalQuery);
     //     this.exprMap.set(Command_IF, this.evalIf);
@@ -81,8 +82,8 @@ export class AST_Evaluator {
             
             const evaluator = this.expMap.get(expr.constructor);
             if (evaluator) {
-                const val = evaluator.apply(this, [expr]); // Sometimes returns ResultAsync, sometimes SDQL_Return
-                return okAsync(val);
+                const val = evaluator.apply(this, [expr]); // Always returns ResultAsync
+                return val;
             } else {
                 return errAsync(new EvalNotImplementedError(typeof expr));
             }
@@ -100,14 +101,21 @@ export class AST_Evaluator {
         // 1. we need the value here.
         const condResult = this.evalConditionExpr(eef.conditionExpr);
         return condResult.andThen((val):ResultAsync<SDQL_Return, EvaluationError> => {
+
             if (val == true) {
-                return this.evalExpr(eef.trueExpr);
+                const trueResult = this.evalExpr(eef.trueExpr);
+                // console.log('trueResult', trueResult);
+
+                // return trueResult.andThen((val) => okAsync(val));
+                // console.log('trueResult', trueResult);
+                return trueResult;
             } else {
                 if (eef.falseExpr) {
                     return this.evalExpr(eef.falseExpr);
                 }
                 return errAsync(new EvaluationError(`if ${eef.name} do not have a falseExpr`))
             }
+
         });
 
         // condResult.then((x) => {

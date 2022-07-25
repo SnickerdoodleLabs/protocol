@@ -13,19 +13,6 @@ export class ConditionIn extends Condition {
         super(name);
     }
 
-    // public result(): ResultAsync<boolean, PersistenceError>{
-    //     let repoLoc: CountryCode = CountryCode(1);
-    //     this.persistenceRepo.getLocation().map( () => (repoLoc))
-    //     if (repoLoc == null){
-    //         return errAsync(new PersistenceError("Bad Variable"));
-    //     }
-    //     for (let i = 0; i < this.vals.length; i++){
-    //         if (this.vals[i] == repoLoc) {             
-    //             return okAsync(true);
-    //         } 
-    //     }
-    //     return okAsync(false);
-    // }
     check(): boolean {
         // TODO
         return true;

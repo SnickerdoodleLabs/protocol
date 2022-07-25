@@ -9,7 +9,6 @@ export class ConditionGE extends Condition {
         name: SDQL_OperatorName, // ge - greater and equal then
         readonly lval: null | number | AST_Expr,
         readonly rval: number | AST_Expr,
-        // protected persistenceRepo: IDataWalletPersistence
     ) {
         super(name);
     }

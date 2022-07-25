@@ -1,16 +1,10 @@
+
 import "reflect-metadata";
-import { AST_PropertyQuery, AST_BoolExpr, Condition, ConditionGE, ConditionIn, ConditionL, SDQL_OperatorName, SDQL_Name, ConditionAnd, ConditionLE, Gender} from "@snickerdoodlelabs/objects";
+
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
-import { LocalStoragePersistence } from "@persistence/LocalStoragePersistence";
-import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
-import td from "testdouble";
-import { Age } from "@snickerdoodlelabs/objects";
-import { CountryCode } from "@snickerdoodlelabs/objects";
+import { Age, AST_PropertyQuery, ConditionE, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionLE, CountryCode, Gender, IDataWalletPersistence, SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
-import { SDQL_Return } from "@snickerdoodlelabs/objects";
-import { ConditionG } from "@snickerdoodlelabs/objects";
-import { ConditionE } from "@snickerdoodlelabs/objects";
-// import { QueryEvaluator } from "businessObjects/SDQL";
+import td from "testdouble";
 
 
 const conditionsGE = [

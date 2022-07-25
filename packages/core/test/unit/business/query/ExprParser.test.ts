@@ -1,8 +1,14 @@
-import { AST, AST_BoolExpr, AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionOr, SDQLParser, SDQLSchema } from "businessObjects";
-import { ExprParser } from "businessObjects/SDQL/ExprParser";
-import { Token, Tokenizer, TokenType } from "businessObjects/SDQL/Tokenizer";
-import { IpfsCID } from "primitives";
+
+import "reflect-metadata";
+
+import { ExprParser, SDQLParser, Token, Tokenizer, TokenType } from "@core/implementations/business/utilities/query";
+import { AST, AST_BoolExpr, AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionOr, SDQLSchema } from "@objects/businessObjects";
+import { IpfsCID } from "@objects/primitives";
 import { avalance1SchemaStr } from "./avalanche1.data";
+// import { ExprParser } from "businessObjects/SDQL/ExprParser";
+// import { Token, Tokenizer, TokenType } from "businessObjects/SDQL/Tokenizer";
+// import { IpfsCID } from "primitives";
+// import { avalance1SchemaStr } from "@snickerdoodlelabs/objects/test/avalanche1.data";
 
 describe("Postfix expressions", () => {
 

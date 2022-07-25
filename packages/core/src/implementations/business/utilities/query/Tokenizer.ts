@@ -1,4 +1,6 @@
-import { InvalidRegularExpression, ParserError } from "./exceptions";
+// import { InvalidRegularExpression, ParserError } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/exceptions";
+
+import { InvalidRegularExpression, ParserError } from "@objects/businessObjects";
 
 export enum TokenType {
     if ='if',
