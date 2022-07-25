@@ -1,3 +1,4 @@
+import { URLString } from "@snickerdoodlelabs/objects";
 import {
   Age,
   ClickData,
@@ -205,4 +206,9 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
+
+  getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>{
+    throw new Error("Method not implemented.");
+  }
+
 }

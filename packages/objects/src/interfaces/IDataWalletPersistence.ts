@@ -24,6 +24,7 @@ import {
   FamilyName,
   CountryCode,
   UnixTimestamp,
+  URLString,
 } from "@objects/primitives";
 
 /**
@@ -118,6 +119,12 @@ export interface IDataWalletPersistence {
   updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<void, PersistenceError>;
+
+  updateAccountBalances(
+    balances: IEVMBalance[],
+  ): ResultAsync<void, PersistenceError>;
+
+  getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

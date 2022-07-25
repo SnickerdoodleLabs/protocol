@@ -98,7 +98,6 @@ export class QueryEvaluator {
                 );
                 console.log("Tracking the result: ", result);
                 return okAsync(result);
-            
             case "gender":
                 console.log("Tracking the result: ", result);
                 return this.dataWalletPersistence.getGender().andThen( 
@@ -106,12 +105,10 @@ export class QueryEvaluator {
                     {
                         console.log("Gender: ", gender);
                         console.log("Return Type: ", q.returnType);
-
                         switch(q.returnType){
                             case "enum":
                                 console.log("Property: Gender, Return Type: Enum");
                                 console.log("Gender: ", gender);
-
                                 for (let key of q.enum_keys) {
                                     if (key == gender){
                                         return (okAsync(SDQL_Return(gender)))
@@ -124,9 +121,16 @@ export class QueryEvaluator {
                         }
                     }
                 );
-                console.log("Tracking the result: ", result);
                 return okAsync(result);
-            
+            case "url_visited_count":
+                console.log("Tracking the result: ", result);
+                return this.dataWalletPersistence.getURLs().andThen( 
+                    (url_visited_count) => 
+                    {
+                        console.log("URL count: ", url_visited_count);
+                        return (okAsync(SDQL_Return(url_visited_count))) 
+                    }
+                );
             default:
                 console.log("Tracking the result: ", result);
                 return okAsync(result);

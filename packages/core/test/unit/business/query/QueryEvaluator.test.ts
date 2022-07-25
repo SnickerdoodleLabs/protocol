@@ -2,7 +2,7 @@
 import "reflect-metadata";
 
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
-import { Age, AST_PropertyQuery, ConditionE, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionLE, CountryCode, Gender, IDataWalletPersistence, SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
+import { Age, AST_PropertyQuery, ConditionE, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionLE, CountryCode, Gender, IDataWalletPersistence, SDQL_Name, SDQL_OperatorName, URLString } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import td from "testdouble";
 
@@ -63,6 +63,11 @@ class QueryEvaluatorMocks {
 
     public dataWalletPersistence = td.object<IDataWalletPersistence>();
 
+    public URLmap = new Map<URLString, number>([
+        [URLString("www.snickerdoodlelabs.io"), 10]
+    ]);
+
+
     public constructor() {  
         this.dataWalletPersistence.setAge(Age(25));
         this.dataWalletPersistence.setLocation(CountryCode(57));
@@ -77,6 +82,11 @@ class QueryEvaluatorMocks {
         td.when(this.dataWalletPersistence.getGender())
         .thenReturn(
             okAsync(Gender("male")),
+        );
+
+        td.when(this.dataWalletPersistence.getURLs())
+        .thenReturn(
+            okAsync(this.URLmap),
         );
         
     }
@@ -389,5 +399,24 @@ describe("QueryEvaluator return integer values", () => {
         const result = await repo.eval(propertyQuery);
         console.log("Gender is: ", result["value"]);
         expect(result["value"]).toEqual(Gender("male"))
+    })
+})
+
+
+
+describe("Return URLs Map", () => {
+    test("EvalPropertyQuery: return URLs count", async () => {
+        const propertyQuery = new AST_PropertyQuery(
+            SDQL_Name("q1"),
+            "integer",
+            "url_visited_count",
+            [],
+            []
+        )
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(propertyQuery);
+        console.log("URLs is: ", result["value"]);
+        expect(result["value"]).toEqual([])
     })
 })
