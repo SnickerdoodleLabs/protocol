@@ -137,7 +137,7 @@ export class QueryService implements IQueryService {
 
       .andThen((insights) => {
         // Get the reward
-        const insightMap = insights.reduce((prev, cur) => {
+        const insightMap = insights.reduce((prev, cur) => { // TODO rename prev to map or prevMap
           prev.set(cur.queryId, cur);
           return prev;
         }, new Map<IpfsCID, Insight>());

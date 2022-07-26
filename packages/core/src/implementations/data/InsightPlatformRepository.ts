@@ -68,7 +68,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         });
       })
       .map((response) => {});
-    }
+  }
 
   public getBusinessConsentContracts(): ResultAsync<
     BusinessConsentContract[],
