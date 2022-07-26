@@ -9,6 +9,11 @@
       "path": ".."
     }
   ],
-  "include": ["../src/**/*.ts", "../test/**/*.ts"],
+  "include": [
+    "../src/**/*.ts", 
+    "../src/**/**/*.ts", 
+    "../test/**/*.ts",
+  
+    "../test/**/**/*.ts"],
   "exclude": ["node_modules"]
 }

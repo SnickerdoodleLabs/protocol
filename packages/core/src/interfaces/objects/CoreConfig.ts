@@ -1,5 +1,6 @@
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
+
 import {
   ChainId,
   ChainInformation,

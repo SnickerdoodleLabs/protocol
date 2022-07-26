@@ -8,7 +8,10 @@ import {
   EVMTransaction,
   SiteVisit,
 } from "@objects/businessObjects";
-import { PersistenceError } from "@objects/errors";
+import { 
+  PersistenceError,
+  AccountIndexingError,
+  AjaxError  } from "@objects/errors";
 import {
   Age,
   EmailAddressString,
@@ -21,6 +24,7 @@ import {
   FamilyName,
   CountryCode,
   UnixTimestamp,
+  URLString,
 } from "@objects/primitives";
 
 /**
@@ -115,6 +119,12 @@ export interface IDataWalletPersistence {
   updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<void, PersistenceError>;
+
+  updateAccountBalances(
+    balances: IEVMBalance[],
+  ): ResultAsync<void, PersistenceError>;
+
+  getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

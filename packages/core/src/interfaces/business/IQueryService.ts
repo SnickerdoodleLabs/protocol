@@ -6,6 +6,7 @@ import {
   ConsentContractRepositoryError,
   EVMContractAddress,
   IpfsCID,
+  QueryFormatError,
   UninitializedError,
   IPFSError,
 } from "@snickerdoodlelabs/objects";
@@ -29,7 +30,7 @@ export interface IQueryService {
     queryId: IpfsCID,
   ): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError
+    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
   >;
 }
 

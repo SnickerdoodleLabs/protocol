@@ -12,9 +12,16 @@ export * from "@objects/primitives/DataWalletAddress";
 export * from "@objects/primitives/DomainName";
 export * from "@objects/primitives/EmailAddressString";
 export * from "@objects/primitives/EncryptedString";
+
+export * from "@objects/primitives/EVMChainCode";
 export * from "@objects/primitives/EVMAccountAddress";
 export * from "@objects/primitives/EVMContractAddress";
+export * from "@objects/primitives/EVMContractFunction";
+export * from "@objects/primitives/EVMToken";
+export * from "@objects/primitives/EVMBlockNumber";
+export * from "@objects/primitives/EVMBlockRange";
 export * from "@objects/primitives/EVMPrivateKey";
+
 export * from "@objects/primitives/GivenName";
 export * from "@objects/primitives/Gender";
 export * from "@objects/primitives/HexString";
@@ -34,4 +41,7 @@ export * from "@objects/primitives/TokenUri";
 export * from "@objects/primitives/UnixTimestamp";
 export * from "@objects/primitives/URLString";
 export * from "@objects/primitives/UUID";
+
+export * from "@objects/primitives/SDQL";
+export * from "@objects/primitives/Version";
 export * from "@objects/primitives/TIckerSymbol";

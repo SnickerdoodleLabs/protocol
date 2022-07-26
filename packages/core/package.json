@@ -30,6 +30,7 @@
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
     "prepare": "yarn build",
     "test": "yarn test:ci",
+    "testL": "jest",
     "test-integration": "cucumber-js --require-module ts-node/register --require-module tsconfig-paths/register --require 'test/integration/**/*.ts' test/integration/features/**/*.feature",
     "test:ci": "npx jest --runInBand --coverage --passWithNoTests",
     "test:watch": "jest --watch --color --detectOpenHandles"
@@ -50,5 +51,18 @@
     "rxjs": "^7.5.5",
     "url-join-ts": "^1.0.5",
     "uuid": "^8.3.0"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.18.6",
+    "jest": "^26.4.2"
+  },
+  "jest": {
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "moduleNameMapper": {
+      "^@objects/(.+)$": "<rootDir>src/$1"
+    }
   }
 }
