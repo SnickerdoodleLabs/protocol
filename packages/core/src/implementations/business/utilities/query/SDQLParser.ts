@@ -83,17 +83,17 @@ export class SDQLParser {
         let queries = new Array<any>();
         for (let qName in querySchema) {
 
-            console.log(`parsing query ${qName}`);
+            // console.log(`parsing query ${qName}`);
             let name = SDQL_Name(qName);
             let schema = querySchema[qName];
 
             switch(schema.name) {
                 case "network":
-                    console.log(`${qName} is a network query`);
+                    // console.log(`${qName} is a network query`);
                     queries.push(AST_NetworkQuery.fromSchema(name, schema));
                     break;
                 default:
-                    console.log(`${qName} is a property query`);
+                    // console.log(`${qName} is a property query`);
                     queries.push(AST_PropertyQuery.fromSchema(name, schema));
                     break;
             }
@@ -113,7 +113,7 @@ export class SDQLParser {
 
         for (let rName in returnsSchema) {
 
-            console.log(`parsing return ${rName}`);
+            // console.log(`parsing return ${rName}`);
 
             let name = SDQL_Name(rName);
             let schema = returnsSchema[rName];
@@ -123,7 +123,7 @@ export class SDQLParser {
             }
 
             if ("query" in schema) {
-                console.log(`${rName} is a query`);
+                // console.log(`${rName} is a query`);
                 let returnExpr = new AST_ReturnExpr(
                     name, 
                     this.context.get(SDQL_Name(schema.query))
@@ -132,7 +132,7 @@ export class SDQLParser {
                 returns.push(returnExpr);
             } else if ("message" in schema) {
 
-                console.log(`${rName} is a message`);
+                // console.log(`${rName} is a message`);
                 let returnExpr = new AST_ReturnExpr(
                     name, 
                     new AST_Return(schema.name, schema.message)
@@ -156,7 +156,7 @@ export class SDQLParser {
 
         for (let cName in compensationSchema) {
 
-            console.log(`parsing compensation ${cName}`);
+            // console.log(`parsing compensation ${cName}`);
 
             let name = SDQL_Name(cName);
             let schema = compensationSchema[cName];

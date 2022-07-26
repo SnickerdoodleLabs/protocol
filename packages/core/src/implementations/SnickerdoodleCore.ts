@@ -4,7 +4,7 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 
-import { DefaultAccountIndexers } from "@indexers/DefaultAccountIndexers";
+import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
