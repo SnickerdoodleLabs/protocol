@@ -15,21 +15,21 @@ describe("Tokenizer", () => {
         regex1.test(str1);
         // console.log(regex1.exec(str1));
         // console.log(str1.search(regex1));
-        console.log('lastIndex', regex1.lastIndex);
+        // console.log('lastIndex', regex1.lastIndex);
         // expected output: 9
         
         regex1.test(str1);
         // console.log(regex1.exec(str1));
         
         // console.log(str1.search(regex1));
-        console.log('lastIndex', regex1.lastIndex);
+        // console.log('lastIndex', regex1.lastIndex);
         // expected output: 19
 
         regex1.test(str1);
         // console.log(regex1.exec(str1));
         
         // console.log(str1.search(regex1));
-        console.log('lastIndex', regex1.lastIndex);
+        // console.log('lastIndex', regex1.lastIndex);
         // expected output: 19
         
     });
@@ -42,7 +42,7 @@ describe("Tokenizer", () => {
             let token = tokenizer.next();
             expect(token.val).toBe(12)
             expect(token.type).toBe(TokenType.number);
-            console.log("token value", token.val)
+            // console.log("token value", token.val)
 
             expect(tokenizer.position).toBe(0);
             expect(tokenizer.hasNext()).toBe(false);

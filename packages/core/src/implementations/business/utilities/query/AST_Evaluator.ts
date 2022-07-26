@@ -199,8 +199,8 @@ export class AST_Evaluator {
         
 
         const evaluator = this.operatorMap.get(op.constructor);
-        console.log("Evaluating", op);
-        console.log("with", evaluator);
+        // console.log("Evaluating", op);
+        // console.log("with", evaluator);
         if (evaluator) {
             return evaluator.apply(this, [op])
         } else {
@@ -301,8 +301,8 @@ export class AST_Evaluator {
         return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
             const right = this.evalAny(cond.rvals);
             return right.andThen((rvals): ResultAsync<SDQL_Return, EvaluationError> => {
-                console.log('left', lval);
-                console.log('right', rvals);
+                // console.log('left', lval);
+                // console.log('right', rvals);
                 return okAsync(SDQL_Return((rvals as Array<any>).includes(lval)));
             
             });
