@@ -38,6 +38,7 @@ import {
 } from "json-rpc-engine";
 
 import { okAsync, ResultAsync } from "neverthrow";
+import { Runtime } from "webextension-polyfill";
 
 export class RpcCallHandler implements IRpcCallHandler {
   constructor(
@@ -50,9 +51,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     req: JsonRpcRequest<unknown>,
     res: PendingJsonRpcResponse<unknown>,
     next: AsyncJsonRpcEngineNextCallback,
+    sender: Runtime.MessageSender | undefined
   ) {
     const { method, params } = req;
-
+    
     switch (method) {
       case EExternalActions.UNLOCK: {
         const { accountAddress, signature, languageCode } =
