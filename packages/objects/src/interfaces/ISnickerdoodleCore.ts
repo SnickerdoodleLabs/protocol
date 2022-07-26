@@ -151,7 +151,7 @@ export interface ISnickerdoodleCore {
 
   /**
    * This method will actually burn a user's consent token. This data wallet will no longer
-   * recieve notifications of queries for this cohort.
+   * receive notifications of queries for this cohort.
    * @param consentContractAddress
    */
   leaveCohort(
@@ -164,6 +164,26 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | ConsentContractRepositoryError
     | ConsentError
+  >;
+
+  /**
+   * This method retrieve a an invitation's details.
+   * It takes the CohortInvitation's contract address, get's its baseURI (IPFS CID to its metadata)
+   * Uses the 'image' property's IPFS CID to get the token's image url
+   * Returns the full json of to populate the invitation popup
+   * @param invitation
+   */
+  getInvitationDetails(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    JSON,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | Error
   >;
 
   // Called by the form factor to approve the processing of the query.
