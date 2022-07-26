@@ -52,16 +52,43 @@ describe("ConsentFactory", () => {
   describe("createConsent", function () {
     it("Deploys a Beacon Proxy pointing to a new instance of a Consent contract", async function () {
       // create a consent contract
-      await consentFactory
+      const tx = await consentFactory
         .connect(owner)
         .createConsent(user1.address, "www.user1uri.com", "USER1");
+      // get the receipt
+      const receipt = await tx.wait();
 
+      // get the hash of the event
+      const event = "ConsentDeployed(address,address)";
+      const eventHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(event));
+
+      // filter out for ConsentDeployed event from the receipt logs
+      const consentDeployedLog = receipt.logs.filter(
+        (_log) => _log.topics[0] == eventHash,
+      );
+      // capture the data and topics
+      const data = consentDeployedLog[0].data;
+      const topics = consentDeployedLog[0].topics;
+
+      // declare interface
+      const Interface = ethers.utils.Interface;
+      const iface = new Interface([
+        "event ConsentDeployed(address indexed owner, address indexed consentAddress)",
+      ]);
+
+      // use interface to decode the logs with the data and topics
+      const decoded = iface.decodeEventLog("ConsentDeployed", data, topics);
+
+      // retrieve the address from the contract
       deployedConsentAddressArray =
         await consentFactory.getUserDeployedConsentsByIndex(
           user1.address,
           0,
           5,
         );
+
+      // compare with address in the event log to ensure similar value
+      expect(deployedConsentAddressArray[0]).to.eq(decoded.consentAddress);
 
       deployedConsentInstance = await Consent.attach(
         deployedConsentAddressArray[0],

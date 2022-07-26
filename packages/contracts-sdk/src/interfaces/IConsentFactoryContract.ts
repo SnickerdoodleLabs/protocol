@@ -19,7 +19,7 @@ export interface IConsentFactoryContract {
     ownerAddress: EVMAccountAddress,
     baseUri: string,
     overrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentFactoryContractError>;
+  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError>;
 
   /**
    *  Return the number Consent addresses that user has deployed
