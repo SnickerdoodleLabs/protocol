@@ -51,7 +51,7 @@ export const getProviderList = (): IProvider[] => {
       icon: CoinbaseIcon,
       name: "Coinbase",
       key: EWalletProviderKeys.COINBASE,
-      installationUrl: "",
+      installationUrl: "https://www.coinbase.com/wallet",
     },
   ];
 };
