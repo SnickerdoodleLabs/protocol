@@ -49,6 +49,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       5000, // polling interval indexing,
       5000, // polling interval balance
       "covalent api key",
+      "moralis api key",
     );
   }
 

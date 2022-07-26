@@ -1,3 +1,4 @@
+import { URLString } from "@snickerdoodlelabs/objects";
 import {
   Age,
   ClickData,
@@ -17,6 +18,7 @@ import {
   EVMTransaction,
   ChainId,
   IEVMBalance,
+  IEVMNFT,
 } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -38,7 +40,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
   ): ResultAsync<T, PersistenceError> {
-    const value = LocalStorageUtils.readLocalStorage(ELocalStorageKey.AGE);
+    const value = LocalStorageUtils.readLocalStorage(key);
     if (!value) {
       return errAsync(
         new PersistenceError(`Key ${key} is not found in Local Storage!`),
@@ -203,6 +205,14 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>{
+    throw new Error("Method not implemented.");
+  }
+
+  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 }

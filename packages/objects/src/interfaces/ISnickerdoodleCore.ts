@@ -12,6 +12,7 @@ import {
   InvalidSignatureError,
   IPFSError,
   PersistenceError,
+  QueryFormatError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
@@ -168,7 +169,7 @@ export interface ISnickerdoodleCore {
     queryId: IpfsCID,
   ): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError
+    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
   >;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;

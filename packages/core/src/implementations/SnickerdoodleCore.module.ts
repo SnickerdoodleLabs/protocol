@@ -1,8 +1,8 @@
 import {
   AxiosAjaxUtils,
   CryptoUtils,
-  IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
   ICryptoUtils,
   ICryptoUtilsType,
   ILogUtils,
@@ -21,6 +21,13 @@ import {
 import { ContainerModule, interfaces } from "inversify";
 
 import {
+  QueryEvaluator,
+  QueryEvaluatorType,
+  QueryRepository,
+  QueryRepositoryType,
+} from "./business/utilities/query";
+
+import {
   AccountIndexerPoller,
   BlockchainListener,
 } from "@core/implementations/api";
@@ -32,9 +39,9 @@ import {
   QueryService,
 } from "@core/implementations/business";
 import {
+  ConsentContractRepository,
   InsightPlatformRepository,
   CrumbsRepository,
-  ConsentContractRepository,
 } from "@core/implementations/data";
 import {
   BlockchainProvider,
@@ -151,6 +158,15 @@ export const snickerdoodleCoreModule = new ContainerModule(
     // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)
       .to(ContractFactory)
+      .inSingletonScope();
+
+    // Query instances
+    bind<QueryEvaluator>(QueryEvaluatorType)
+      .to(QueryEvaluator)
+      .inSingletonScope();
+
+    bind<QueryRepository>(QueryRepositoryType)
+      .to(QueryRepository)
       .inSingletonScope();
   },
 );

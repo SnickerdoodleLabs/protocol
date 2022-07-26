@@ -1,10 +1,10 @@
-import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
 import {
   SiteVisit,
-  EVMTransaction,
   PersistenceError,
   AccountIndexingError,
   AjaxError,
+  AccountBalanceError,
+  AccountNFTError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -23,6 +23,7 @@ export interface IMonitoringService {
     void,
     PersistenceError | AccountBalanceError | AjaxError
   >;
+  pollNFTs(): ResultAsync<void, PersistenceError | AccountNFTError | AjaxError>;
 }
 
 export const IMonitoringServiceType = Symbol.for("IMonitoringService");

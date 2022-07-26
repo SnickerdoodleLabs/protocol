@@ -6,5 +6,6 @@ export * from "@objects/interfaces/ISnickerdoodleCore";
 export * from "@objects/interfaces/ISnickerdoodleCoreEvents";
 export * from "@objects/interfaces/ISDQLQueryObject";
 export * from "@objects/interfaces/IAccountBalances";
+export * from "@objects/interfaces/IAccountNFTs";
 
 export * from "@objects/interfaces/chains";
