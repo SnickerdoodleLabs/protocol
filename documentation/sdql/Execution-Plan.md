@@ -13,7 +13,7 @@ graph TD;
 
 ```mermaid
 flowchart TD;
-    QP["Query Parser"]--AST-->ASTE["AST Evaluator"]--Query-->QR["Query Repository #40;Cache#41;"];
+    QP["Query Service"]--AST-->ASTE["AST Evaluator"]--Query-->QR["Query Repository #40;Cache#41;"];
     QR --> Cache{"In cache?"}
     Cache -- Yes --> QR
     Cache -- No --> QEVAL["Query Evaluator"] --> DW["Data Wallet Repository"]
