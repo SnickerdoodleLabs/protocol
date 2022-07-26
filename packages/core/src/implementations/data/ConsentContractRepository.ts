@@ -9,6 +9,7 @@ import {
   ConsentContractError,
   AjaxError,
   ConsentContractRepositoryError,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -178,5 +179,22 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
       return okAsync(consentContract);
     });
+  }
+
+  public getBaseURI(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    TokenUri,
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  > {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (consentContract) => {
+        return consentContract.getBaseURI();
+      },
+    );
   }
 }

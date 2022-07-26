@@ -8,6 +8,7 @@ import {
   ConsentContractError,
   AjaxError,
   ConsentContractRepositoryError,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -43,6 +44,17 @@ export interface IConsentContractRepository {
 
   getConsentContracts(): ResultAsync<
     Map<EVMContractAddress, IConsentContract>,
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  >;
+
+  getBaseURI(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    TokenUri,
+    | ConsentContractError
     | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError

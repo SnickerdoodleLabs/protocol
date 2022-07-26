@@ -226,4 +226,26 @@ export class CohortService implements ICohortService {
         });
     });
   }
+
+  // If checkInvitationStatus id VALID, we can get its details here
+  public getInvitationDetails(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    JSON,
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | ConsentError
+  > {
+    return this.consentRepo
+      .getBaseURI(invitation.consentContractAddress)
+      .andThen((baseURI) => {
+        // The baseURI would be an IPFS CID that is type <NFTMetadata> based on reference below:
+        //https://docs.opensea.io/docs/metadata-standards#metadata-structure
+        // do ipfs check to retrieve its json
+        // return the json object
+      });
+  }
 }

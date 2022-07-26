@@ -44,7 +44,7 @@ export const REWARD_DATA: Array<IRewardItem> = [
     title: "Claim your NFT!",
     description:
       "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
-    image: Browser.runtime.getURL("assets/img/sharapnel-item.png"),
+    image: Browser.runtime.getURL("assets/img/sharapnel-item.png"), //this url should be obtained from getInvitationDetails
     primaryButtonText: "Claim Reward",
     secondaryButtonText: "Back to Game",
     rewardName: "ATG-36 Helmet",

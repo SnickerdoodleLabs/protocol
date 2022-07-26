@@ -557,6 +557,18 @@ export class ConsentContract implements IConsentContract {
       })
       .map(() => {});
   }
+  public getBaseURI(): ResultAsync<TokenUri, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.baseURI() as Promise<TokenUri>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call baseURI()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
 
   public filters = {
     Transfer: (

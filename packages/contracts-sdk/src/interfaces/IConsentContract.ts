@@ -156,9 +156,20 @@ export interface IConsentContract {
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
+  /**
+   * Disables open opt in on the contract
+   */
   disableOpenOptIn(): ResultAsync<void, ConsentContractError>;
 
+  /**
+   * Enables open opt in on the contract
+   */
   enableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+
+  /**
+   * Returns the base URI of the contract
+   */
+  getBaseURI(): ResultAsync<TokenUri, ConsentContractError>;
 
   filters: IConsentContractFilters;
 }
