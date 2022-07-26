@@ -4,7 +4,7 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 
-import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
+import { DefaultAccountIndexers } from "@indexers/DefaultAccountIndexers";
 import {
   Age,
   AjaxError,
@@ -39,6 +39,7 @@ import {
   IAccountIndexingType,
   IConfigOverrides,
   CrumbsContractError,
+  QueryFormatError,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -268,7 +269,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     queryId: IpfsCID,
   ): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError
+    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);

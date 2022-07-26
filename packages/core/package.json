@@ -30,6 +30,7 @@
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
     "prepare": "yarn build",
     "test": "yarn test:ci",
+    "testL": "jest",
     "test-integration": "cucumber-js --require-module ts-node/register --require-module tsconfig-paths/register --require 'test/integration/**/*.ts' test/integration/features/**/*.feature",
     "test:ci": "npx jest --runInBand --coverage --passWithNoTests",
     "test:watch": "jest --watch --color --detectOpenHandles"

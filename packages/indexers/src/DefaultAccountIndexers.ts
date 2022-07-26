@@ -11,13 +11,12 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { SimulatorEVMTransactionRepository } from "./SimulatorEVMTransactionRepository";
-
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider";
+import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {

@@ -10,6 +10,7 @@ import {
   IpfsCID,
   IPFSError,
   ISDQLQueryObject,
+  QueryFormatError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";

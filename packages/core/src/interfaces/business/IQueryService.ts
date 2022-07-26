@@ -6,6 +6,7 @@ import {
   ConsentContractRepositoryError,
   EVMContractAddress,
   IpfsCID,
+  QueryFormatError,
   UninitializedError,
   IPFSError,
 } from "@snickerdoodlelabs/objects";

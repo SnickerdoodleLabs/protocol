@@ -1,4 +1,3 @@
-import { IConfigOverrides } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { IIndexerConfig } from "@indexers/IIndexerConfig";

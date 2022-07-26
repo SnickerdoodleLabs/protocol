@@ -1,4 +1,3 @@
-import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
 import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   SiteVisit,
@@ -17,6 +16,7 @@ import {
   IAccountBalancesType,
   IAccountBalances,
   IEVMBalance,
+  AccountBalanceError,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";

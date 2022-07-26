@@ -1,10 +1,9 @@
-import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
 import {
   SiteVisit,
-  EVMTransaction,
   PersistenceError,
   AccountIndexingError,
   AjaxError,
+  AccountBalanceError
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 

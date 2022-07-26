@@ -1,10 +1,13 @@
 import { ResultAsync } from "neverthrow";
 
-import { AjaxError, BigNumberString, ChainId, EVMAccountAddress } from "../..";
+import { AccountBalanceError, AjaxError } from "@objects/errors";
+import {
+  BigNumberString,
+  ChainId,
+  EVMAccountAddress,
+  TickerSymbol,
+} from "@objects/primitives";
 
-import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
-
-export type TickerSymbol = string;
 export interface IEVMBalance {
   ticker: TickerSymbol;
   chainId: ChainId;
