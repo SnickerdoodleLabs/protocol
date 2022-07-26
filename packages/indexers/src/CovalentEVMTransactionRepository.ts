@@ -16,6 +16,7 @@ import {
   IEVMAccountBalanceRepository,
   IEVMBalance,
   AccountBalanceError,
+  TickerSymbol,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -223,7 +224,7 @@ export class CovalentEVMTransactionRepository
         .map((queryResult) => {
           return queryResult.data.items.map((tokenInfo) => {
             return {
-              ticker: tokenInfo.contract_ticker_symbol,
+              ticker: TickerSymbol(tokenInfo.contract_ticker_symbol),
               chainId: chainId,
               accountAddress: accountAddress,
               balance: tokenInfo.balance,
