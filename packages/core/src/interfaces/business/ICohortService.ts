@@ -55,6 +55,19 @@ export interface ICohortService {
     | AjaxError
     | ConsentError
   >;
+
+  getInvitationDetails(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    JSON,
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | ConsentError
+    | Error
+  >;
 }
 
 export const ICohortServiceType = Symbol.for("ICohortService");
