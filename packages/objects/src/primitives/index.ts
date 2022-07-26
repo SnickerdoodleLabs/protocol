@@ -34,3 +34,4 @@ export * from "@objects/primitives/TokenUri";
 export * from "@objects/primitives/UnixTimestamp";
 export * from "@objects/primitives/URLString";
 export * from "@objects/primitives/UUID";
+export * from "@objects/primitives/TIckerSymbol";

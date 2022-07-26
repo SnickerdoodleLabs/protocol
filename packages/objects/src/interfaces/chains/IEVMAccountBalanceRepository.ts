@@ -1,12 +1,12 @@
 import { ResultAsync } from "neverthrow";
-import { Brand, make } from "ts-brand";
 
-import { AjaxError, BigNumberString, ChainId, EVMAccountAddress } from "../..";
-
-import { AccountBalanceError } from "@objects/errors/AccountBalanceError";
-
-export type TickerSymbol = Brand<string, "TickerSymbol">;
-export const TickerSymbol = make<TickerSymbol>();
+import { AccountBalanceError, AjaxError } from "@objects/errors";
+import {
+  BigNumberString,
+  ChainId,
+  EVMAccountAddress,
+  TickerSymbol,
+} from "@objects/primitives";
 
 export interface IEVMBalance {
   ticker: TickerSymbol;

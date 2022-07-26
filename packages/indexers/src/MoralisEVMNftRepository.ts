@@ -1,10 +1,10 @@
-import { AccountNFTError } from "@extension-onboarding/packages/objects/src/errors/AccountNFTError";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  AccountNFTError,
   AjaxError,
   BigNumberString,
   ChainId,
@@ -13,9 +13,12 @@ import {
   IEVMNFT,
   IEVMNftRepository,
   TickerSymbol,
+  TokenId,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
@@ -84,10 +87,10 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
     const items: IEVMNFT[] = response.result.map((token) => {
       return {
         contract: EVMContractAddress(token.token_address),
-        tokenId: BigNumberString(token.token_id),
+        tokenId: TokenId(BigInt(token.token_id)),
         contractType: token.contract_type,
         owner: EVMAccountAddress(token.owner_of),
-        tokenUri: token.token_uri,
+        tokenUri: TokenUri(token.token_uri),
         metadata: token.metadata,
         amount: BigNumberString(token.amount),
         name: token.name,
@@ -126,17 +129,22 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
     cursor?: string,
     contracts?: EVMContractAddress[],
   ): ResultAsync<IRequestConfig, never> {
-    let url = `https://deep-index.moralis.io/api/v2/${accountAddress.toString()}/nft?chain=${chainId.toString(
-      16,
-    )}&format=decimal`;
-
+    const params = {
+      format: "decimal",
+      chain: chainId.toString(),
+    };
     if (contracts != undefined) {
-      url += `&token_addresses=${contracts.toString()}`;
+      params["token_addresses"] = contracts.toString();
+    }
+    if (cursor != undefined) {
+      params["cursor"] = cursor;
     }
 
-    if (cursor != undefined) {
-      url += `&cursor=${cursor}`;
-    }
+    const url = urlJoinP(
+      "https://deep-index.moralis.io",
+      ["api", "v2", accountAddress.toString(), "nft"],
+      params,
+    );
 
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {

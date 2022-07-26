@@ -1,29 +1,8 @@
 import { ResultAsync } from "neverthrow";
 
-import {
-  AjaxError,
-  BigNumberString,
-  ChainId,
-  EVMAccountAddress,
-  EVMContractAddress,
-} from "../..";
-
-import { TickerSymbol } from "./IEVMAccountBalanceRepository";
-
-import { AccountNFTError } from "@objects/errors/AccountNFTError";
-
-export interface IEVMNFT {
-  contract: EVMContractAddress;
-  tokenId: BigNumberString;
-  contractType: string;
-  owner: EVMAccountAddress;
-  tokenUri: string;
-  metadata: string;
-  amount: string;
-  name: string;
-  ticker: TickerSymbol;
-  chain: ChainId;
-}
+import { IEVMNFT } from "@objects/businessObjects";
+import { AccountNFTError, AjaxError } from "@objects/errors";
+import { ChainId, EVMAccountAddress } from "@objects/primitives";
 
 export interface IEVMNftRepository {
   getTokensForAccount(
