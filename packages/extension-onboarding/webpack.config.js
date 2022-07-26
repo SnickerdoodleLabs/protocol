@@ -7,6 +7,7 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
 const argon2 = require("argon2");
+const fileSystem = require("fs-extra");
 
 /** @type import('webpack').Configuration */
 module.exports = {
@@ -107,8 +108,16 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
-      __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
-      __GAPI_CLIENT_ID_: JSON.stringify(process.env.__GAPI_CLIENT_ID_),
+      __INFURA_ID__: JSON.stringify(
+        process.env.__BUILD_ENV__ === "PROD"
+          ? process.env.__INFURA_ID__
+          : fileSystem.readJsonSync("./development.json").DEV_INFURA_ID,
+      ),
+      __GAPI_CLIENT_ID__: JSON.stringify(
+        process.env.__BUILD_ENV__ === "PROD"
+          ? process.env.__GAPI_CLIENT_ID__
+          : fileSystem.readJsonSync("./development.json").DEV_GAPI_CLIENT_ID,
+      ),
     }),
   ],
 };
