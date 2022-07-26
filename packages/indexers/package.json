@@ -41,6 +41,7 @@
     "inversify": "^5.1.1",
     "neverthrow": "^4.3.1",
     "neverthrow-result-utils": "^1.0.2",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "url-join-ts": "^1.0.5"
   }
 }
