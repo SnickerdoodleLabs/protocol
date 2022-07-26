@@ -264,6 +264,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public processQuery(
+    consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
     void,
@@ -272,7 +273,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(queryId);
+    return queryService.processQuery(consentContractAddress, queryId);
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {

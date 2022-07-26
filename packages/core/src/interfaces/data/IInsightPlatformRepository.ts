@@ -19,7 +19,12 @@ export interface IInsightPlatformRepository {
     insights: Insight[],
   ): ResultAsync<Map<IpfsCID, Reward>, AjaxError>;
 
-  deliverInsights(insights: Insight[]): ResultAsync<void, AjaxError>;
+  deliverInsights(
+    dataWalletAddress: DataWalletAddress,
+    consentContractAddress: EVMContractAddress,
+    queryId: IpfsCID,
+    signature: Signature,
+    insights: Insight[]): ResultAsync<void, AjaxError>;
 
   getBusinessConsentContracts(): ResultAsync<
     BusinessConsentContract[],

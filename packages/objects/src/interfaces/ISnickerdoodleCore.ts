@@ -170,6 +170,7 @@ export interface ISnickerdoodleCore {
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   processQuery(
+    consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
     void,
