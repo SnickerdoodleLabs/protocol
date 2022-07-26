@@ -1,5 +1,6 @@
 export * from "@objects/errors/AccountBalanceError";
 export * from "@objects/errors/AccountIndexingError";
+export * from "@objects/errors/AccountNFTError";
 export * from "@objects/errors/AjaxError";
 export * from "@objects/errors/BlockchainProviderError";
 export * from "@objects/errors/ConsentFactoryContractError";

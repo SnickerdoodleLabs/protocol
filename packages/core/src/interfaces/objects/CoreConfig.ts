@@ -21,5 +21,6 @@ export class CoreConfig implements IIndexerConfig {
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
     public covalentApiKey: string,
+    public moralisApiKey: string,
   ) {}
 }

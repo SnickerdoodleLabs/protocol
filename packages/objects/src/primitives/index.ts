@@ -44,3 +44,4 @@ export * from "@objects/primitives/UUID";
 
 export * from "@objects/primitives/SDQL";
 export * from "@objects/primitives/Version";
+export * from "@objects/primitives/TIckerSymbol";

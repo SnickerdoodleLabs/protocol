@@ -39,7 +39,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
   ): ResultAsync<T, PersistenceError> {
-    const value = LocalStorageUtils.readLocalStorage(ELocalStorageKey.AGE);
+    const value = LocalStorageUtils.readLocalStorage(key);
     if (!value) {
       return errAsync(
         new PersistenceError(`Key ${key} is not found in Local Storage!`),
