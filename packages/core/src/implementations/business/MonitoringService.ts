@@ -17,6 +17,8 @@ import {
   IAccountBalances,
   IEVMBalance,
   AccountBalanceError,
+  AccountNFTError,
+  IEVMNFT,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -84,6 +86,31 @@ export class MonitoringService implements IMonitoringService {
       });
   }
 
+  public pollNFTs(): ResultAsync<
+    void,
+    PersistenceError | AjaxError | AccountNFTError
+  > {
+    return ResultUtils.combine([
+      this.persistence.getAccounts(),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([accountAddresses, config]) => {
+        return ResultUtils.combine(
+          accountAddresses.map((accountAddress) => {
+            return ResultUtils.combine(
+              config.supportedChains.map((chainId) => {
+                return this.getLatestNFTs(chainId, accountAddress);
+              }),
+            );
+          }),
+        );
+      })
+      .andThen((nftArr) => {
+        const nfts = nftArr.flat(2);
+        return this.persistence.updateAccountNFTs(nfts);
+      });
+  }
+
   public pollBalances(): ResultAsync<
     void,
     PersistenceError | AccountBalanceError | AjaxError
@@ -107,6 +134,13 @@ export class MonitoringService implements IMonitoringService {
         const balances = balancesArr.flat(2);
         return this.persistence.updateAccountBalances(balances);
       });
+  }
+
+  protected getLatestNFTs(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<IEVMNFT[], PersistenceError | AccountNFTError | AjaxError> {
+    throw new Error();
   }
 
   protected getLatestBalances(

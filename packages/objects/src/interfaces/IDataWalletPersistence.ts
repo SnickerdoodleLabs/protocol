@@ -6,6 +6,7 @@ import {
   ClickData,
   ClickFilter,
   EVMTransaction,
+  IEVMNFT,
   SiteVisit,
 } from "@objects/businessObjects";
 import { 
@@ -125,6 +126,7 @@ export interface IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError>;
 
   getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>;
+  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
