@@ -13,11 +13,13 @@ export interface IConsentFactoryContract {
    * Creates a consent contract for user
    * @param ownerAddress Address of the owner of the Consent contract instance
    * @param baseUri Base uri for the for the Consent contract instance
+   * @param name Name of the Consent contract address
    * @param overrides Any transaction call overrides
    */
   createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: string,
+    name: string,
     overrides?: ContractOverrides,
   ): ResultAsync<EVMContractAddress, ConsentFactoryContractError>;
 

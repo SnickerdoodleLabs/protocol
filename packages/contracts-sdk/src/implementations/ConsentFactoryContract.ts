@@ -11,7 +11,7 @@ import {
 import { ethers, BigNumber } from "ethers";
 import { EventFragment } from "ethers/lib/utils";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
   protected contract: ethers.Contract;
@@ -35,12 +35,14 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: string,
+    name: string,
     overrides?: ContractOverrides,
   ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.createConsent(
         ownerAddress,
         baseUri,
+        name,
         overrides,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
