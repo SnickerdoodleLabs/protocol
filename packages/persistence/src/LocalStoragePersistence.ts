@@ -18,6 +18,7 @@ import {
   EVMTransaction,
   ChainId,
   IEVMBalance,
+  IEVMNFT,
 } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -211,4 +212,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
+  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
 }
