@@ -1,19 +1,21 @@
 import {
   EVMContractAddress,
-  BigNumberString,
   EVMAccountAddress,
   TickerSymbol,
   ChainId,
+  TokenId,
+  TokenUri,
+  BigNumberString,
 } from "@objects/primitives";
 
 export interface IEVMNFT {
   contract: EVMContractAddress;
-  tokenId: BigNumberString;
+  tokenId: TokenId;
   contractType: string;
   owner: EVMAccountAddress;
-  tokenUri: string;
+  tokenUri: TokenUri;
   metadata: string;
-  amount: string;
+  amount: BigNumberString;
   name: string;
   ticker: TickerSymbol;
   chain: ChainId;

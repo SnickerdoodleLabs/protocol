@@ -1,7 +1,3 @@
-import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   ConsentFactoryContractError,
   EVMAccountAddress,
@@ -9,9 +5,13 @@ import {
   IBlockchainError,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
-import { EventFragment } from "ethers/lib/utils";
 import { injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
+
+import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
   protected contract: ethers.Contract;
