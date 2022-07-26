@@ -75,7 +75,9 @@ const WalletProviders: FC = () => {
 
   return (
     <Box>
-      <Typography className={classes.sectionTitle}>Your Wallets</Typography>
+      {!!detectedProviders.length && (
+        <Typography className={classes.sectionTitle}>Your Wallets</Typography>
+      )}
       {detectedProviders.map((provider) => (
         <Box mt={2} key={provider.key}>
           <WalletProviderItem
@@ -93,9 +95,11 @@ const WalletProviders: FC = () => {
           )}
         </Box>
       ))}
-      <Typography className={classes.sectionTitle}>
-        Other Supported Wallets
-      </Typography>
+      {!!unDetectedProviders.length && (
+        <Typography className={classes.sectionTitle}>
+          {`${!!detectedProviders.length ? "Other " : ""}Supported Wallets`}
+        </Typography>
+      )}
       {unDetectedProviders.map((provider) => (
         <Box mt={2} key={provider.key}>
           <WalletProviderItem
