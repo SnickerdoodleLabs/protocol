@@ -80,7 +80,7 @@ describe("Postfix expressions", () => {
             new Token(TokenType.query, "$q3", 11),
         ]
 
-        console.log("tokens", tokens);
+        // console.log("tokens", tokens);
         
         expect(tokens).toEqual(expectedTokens);
 
@@ -97,8 +97,8 @@ describe("Postfix expressions", () => {
             new Token(TokenType.or, "or", 9)
         ]
 
-        console.log("expectedPostfixTokens", expectedPostfixTokens);
-        console.log("postfixTokens", postfixTokens);
+        // console.log("expectedPostfixTokens", expectedPostfixTokens);
+        // console.log("postfixTokens", postfixTokens);
 
         expect(postfixTokens).toEqual(expectedPostfixTokens);
 
@@ -119,7 +119,7 @@ describe("Postfix expressions", () => {
             new Token(TokenType.parenthesisClose, ")", 15),
         ]
 
-        console.log("tokens", tokens);
+        // console.log("tokens", tokens);
         
         expect(tokens).toEqual(expectedTokens);
 
@@ -136,8 +136,8 @@ describe("Postfix expressions", () => {
             new Token(TokenType.or, "or", 10),
         ]
 
-        console.log("expectedPostfixTokens", expectedPostfixTokens);
-        console.log("postfixTokens", postfixTokens);
+        // console.log("expectedPostfixTokens", expectedPostfixTokens);
+        // console.log("postfixTokens", postfixTokens);
 
         expect(postfixTokens).toEqual(expectedPostfixTokens);
 
@@ -158,7 +158,7 @@ describe("Postfix expressions", () => {
             new Token(TokenType.parenthesisClose, ")", 17)
         ]
 
-        console.log("tokens", tokens);
+        // console.log("tokens", tokens);
         
         expect(tokens).toEqual(expectedTokens);
 
@@ -175,8 +175,8 @@ describe("Postfix expressions", () => {
             new Token(TokenType.and, "and", 4),
         ]
 
-        console.log("expectedPostfixTokens", expectedPostfixTokens);
-        console.log("postfixTokens", postfixTokens);
+        // console.log("expectedPostfixTokens", expectedPostfixTokens);
+        // console.log("postfixTokens", postfixTokens);
 
         expect(postfixTokens).toEqual(expectedPostfixTokens);
 
@@ -234,7 +234,7 @@ describe("Postfix expressions", () => {
             new Token(TokenType.return, "$r1", 15)
         ]
 
-        console.log("tokens", tokens);
+        // console.log("tokens", tokens);
         
         expect(tokens).toEqual(expectedTokens);
 
@@ -251,8 +251,8 @@ describe("Postfix expressions", () => {
             new Token(TokenType.if, "if", 0),
         ]
 
-        console.log("expectedPostfixTokens", expectedPostfixTokens);
-        console.log("postfixTokens", postfixTokens);
+        // console.log("expectedPostfixTokens", expectedPostfixTokens);
+        // console.log("postfixTokens", postfixTokens);
 
         expect(postfixTokens).toEqual(expectedPostfixTokens);
 
@@ -317,7 +317,7 @@ describe("Postfix expressions", () => {
             new Token(TokenType.return, "$r2", 22),
         ]
 
-        console.log("tokens", tokens);
+        // console.log("tokens", tokens);
         
         expect(tokens).toEqual(expectedTokens);
 
@@ -335,8 +335,8 @@ describe("Postfix expressions", () => {
             new Token(TokenType.if, "if", 0),
         ]
 
-        console.log("expectedPostfixTokens", expectedPostfixTokens);
-        console.log("postfixTokens", postfixTokens);
+        // console.log("expectedPostfixTokens", expectedPostfixTokens);
+        // console.log("postfixTokens", postfixTokens);
 
         expect(postfixTokens).toEqual(expectedPostfixTokens);
 
@@ -358,7 +358,7 @@ describe("Postfix to AST", () => {
         ]
         const exprParser = new ExprParser(context);
         const expr = exprParser.buildAstFromPostfix(postFix);
-        console.log(expr);
+        // console.log(expr);
         expect(expr).toEqual(context.get('r2'));
     });
 
@@ -375,7 +375,7 @@ describe("Postfix to AST", () => {
         const exprParser = new ExprParser(context);
 
         const expr = exprParser.buildAstFromPostfix(postFix) as AST_ConditionExpr;
-        console.log(expr);
+        // console.log(expr);
 
         expect(expr.constructor).toBe(AST_ConditionExpr);
         // const cond = expr.source as ConditionOr;
@@ -400,7 +400,7 @@ describe("Postfix to AST", () => {
         ]
         const exprParser = new ExprParser(context);
         const expr = exprParser.buildAstFromPostfix(postFix);
-        console.log(expr);
+        // console.log(expr);
 
         expect(expr.constructor).toBe(Command_IF);
         const ifCommand = expr as Command_IF;
@@ -430,7 +430,7 @@ describe("Postfix to AST", () => {
         ]
         const exprParser = new ExprParser(context);
         const expr = exprParser.buildAstFromPostfix(postFix);
-        console.log(expr);
+        // console.log(expr);
 
         expect(expr.constructor).toBe(Command_IF);
         const ifCommand = expr as Command_IF;
@@ -464,7 +464,7 @@ describe("Postfix to AST", () => {
         ]
         const exprParser = new ExprParser(context);
         const expr = exprParser.buildAstFromPostfix(postFix);
-        console.log(expr);
+        // console.log(expr);
 
         expect(expr.constructor).toBe(Command_IF);
         const ifCommand = expr as Command_IF;
