@@ -4,9 +4,10 @@ import { IpfsCID } from "@snickerdoodlelabs/objects";
 import { QueryFormatError } from "@snickerdoodlelabs/objects";
 import { EligibleReward } from "@snickerdoodlelabs/objects";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { SDQLQuery } from "@snickerdoodlelabs/objects";
 
 export interface IQueryParsingEngine {
-  handleQuery(obj: ISDQLQueryObject, cid: IpfsCID): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError>
+  handleQuery(query: SDQLQuery): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError>
   readLogicEntry(obj: ISDQLQueryObject, input: string): ResultAsync<number | number[] | boolean, never | PersistenceError>
   readQueryEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number, PersistenceError>
   readReturnEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number | boolean, PersistenceError> 

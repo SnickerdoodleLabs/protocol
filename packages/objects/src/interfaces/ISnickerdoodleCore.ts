@@ -207,6 +207,6 @@ export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
 
 export interface IQueryEngineEvents {
   onInitialized: Observable<DataWalletAddress>;
-  onQueryPosted: Observable<SDQLQuery>;
+  onQueryPosted: Observable<{consentContractAddress:EVMContractAddress, query:SDQLQuery}>;
   onAccountAdded: Observable<EVMAccountAddress>;
 }

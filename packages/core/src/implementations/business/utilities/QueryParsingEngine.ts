@@ -21,6 +21,8 @@ import { ConsentConditions } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/objects";
 import { Version } from "@snickerdoodlelabs/objects";
 import { AST_Factories } from "./query/AST_Factories";
+import { SDQLQuery } from "@snickerdoodlelabs/objects";
+import { SDQLSchema } from "@snickerdoodlelabs/objects";
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 @injectable()
@@ -49,7 +51,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
    * }
    */
 
-  public handleQuery(obj: ISDQLQueryObject, cid: IpfsCID): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError> {
+  public handleQuery(query: SDQLQuery): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError> {
+
+    const schema = query.query as SDQLSchema;
+    const queryId: IpfsCID = query.cid;
 
     /* Create New AST Tree */
     /*

@@ -38,6 +38,9 @@ import {
 } from "@core/interfaces/utilities";
 import { QueryReponse } from "@core/interfaces/objects/QueryResponse";
 import { TypedDataField } from "@ethersproject/abstract-signer";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
+import { Reward } from "@snickerdoodlelabs/objects";
+import { EligibleReward } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -55,6 +58,7 @@ export class QueryService implements IQueryService {
     protected consentContractRepository: IConsentContractRepository,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {}
 
   public onQueryPosted(
@@ -174,7 +178,29 @@ export class QueryService implements IQueryService {
           context.dataWalletKey,
         )
         .andThen((signature) => {
-          return okAsync[];
+          return this.sdqlQueryRepo
+            .getByCID(queryId)
+            .andThen((query) => {
+              if (!query) {
+                return errAsync(new IPFSError("Query not found " + queryId));
+              }
+    
+              // TODO parse, evaluate, combine
+    
+              // Convert string to an object
+              // const queryContent = JSON.parse(query.query) as ISDQLQueryObject;
+    
+              // Break down the actual parts of the query.
+              return this.queryParsingEngine.handleQuery(query);
+            }).andThen((maps) => {
+              // return this.insightPlatformRepo.deliverInsights(insights);
+              let maps2 = maps as Array<Insight[] | EligibleReward[]>;
+              const insights = maps2[0];
+              const rewards = maps2[1];
+
+              console.log(insights, rewards);
+              return errAsync(new UninitializedError("TODO"))
+            });
         }).andThen((insights) => {
           // return this.insightPlatformRepo.deliverInsights(insights);
           return errAsync(new UninitializedError("TODO"))
