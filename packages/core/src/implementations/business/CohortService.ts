@@ -1,4 +1,21 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { ICohortService } from "@core/interfaces/business";
+import {
+  IInsightPlatformRepositoryType,
+  IConsentContractRepository,
+  IConsentContractRepositoryType,
+  IInsightPlatformRepository,
+} from "@core/interfaces/data";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory";
 import { TypedDataField } from "@ethersproject/abstract-signer";
 import {
   ICryptoUtils,
@@ -24,24 +41,6 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { ICohortService } from "@core/interfaces/business";
-import {
-  IInsightPlatformRepositoryType,
-  IConsentContractRepository,
-  IConsentContractRepositoryType,
-  IInsightPlatformRepository,
-} from "@core/interfaces/data";
-import {
-  IConfigProvider,
-  IConfigProviderType,
-  IContextProvider,
-  IContextProviderType,
-} from "@core/interfaces/utilities";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory";
 
 @injectable()
 export class CohortService implements ICohortService {
@@ -244,20 +243,64 @@ export class CohortService implements ICohortService {
     return this.consentRepo
       .getBaseURI(invitation.consentContractAddress)
       .andThen((baseURI) => {
-        // make ipfs http address
-        const ipfsURL = "http://ipfs.io/" + baseURI;
-
-        return ResultAsync.fromPromise(fetch(ipfsURL), (e) => {
-          return new Error("Fetch error");
-        }).andThen((response) => {
-          return ResultAsync.fromPromise(response.json(), (e) => {
-            return new Error("json() error");
-          });
-        });
+        // baseURI should already be an ipfs CID which already include the public gateway 'http://ipfs.io/'
+        // fetch its metadata using the CID
+        return (
+          ResultAsync.fromPromise(fetch(baseURI), (e) => {
+            return new Error("IPFS Metadata fetch error");
+          })
+            // parse the returned metadata to json
+            .andThen((response) => {
+              return (
+                ResultAsync.fromPromise(response.json(), (e) => {
+                  return new Error("IPFS Metadata json parsing error");
+                })
+                  // returns eg: {
+                  /* {
+                        "name": "Snickerdoodle Cookie"
+                        "title": "Claim your NFT and share insights!"
+                        "description": "Click "Claim Reward and recieve this free in-game asset in return for sharing anonymized insights about your game usage.", 
+                        "image": "ipfs://QmSkbhgq7rEmo9mty6hYABdxhqznqUnfuCG8bxn69TrXNw"
+                    } */
+                  // then fetch the image's url using the ipfs image CID using the parsed json metadata above
+                  .andThen((jsonResponse) => {
+                    const ipfsImageCID = jsonResponse.image;
+                    return (
+                      ResultAsync.fromPromise(fetch(ipfsImageCID), (e) => {
+                        return new Error("IPFS Image CID fetch error");
+                      })
+                        // parse the second response that contains the IPFS image
+                        .andThen((secondResponse) => {
+                          return (
+                            ResultAsync.fromPromise(
+                              secondResponse.json(),
+                              (e) => {
+                                return new Error(
+                                  "IPFS Image json parsing error",
+                                );
+                              },
+                            )
+                              // returns eg. "www.google.com/cookie"
+                              // replace the parsed image url to the original json and return it as the final complete json
+                              .andThen((jsonSecondResponse) => {
+                                const finalJSON = jsonResponse;
+                                finalJSON.image = jsonSecondResponse;
+                                return okAsync(finalJSON);
+                              })
+                            // returns eg: {
+                            /* {
+                                "name": "Snickerdoodle Cookie"
+                                "title": "Claim your NFT and share insights!"
+                                "description": "Click "Claim Reward and receive this free in-game asset in return for sharing anonymized insights about your game usage.", 
+                                "image":  "www.google.com/cookie"
+                            } */
+                          );
+                        })
+                    );
+                  })
+              );
+            })
+        );
       });
-    // The baseURI would be an IPFS CID that is type <NFTMetadata> based on reference below:
-    //https://docs.opensea.io/docs/metadata-standards#metadata-structure
-    // do ipfs check to retrieve its json
-    // return the json object
   }
 }
