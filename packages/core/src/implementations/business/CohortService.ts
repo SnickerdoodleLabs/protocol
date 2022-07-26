@@ -19,6 +19,7 @@ import {
   ConsentContractRepositoryError,
   BlockchainProviderError,
   AjaxError,
+  IPFSError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -238,14 +239,25 @@ export class CohortService implements ICohortService {
     | BlockchainProviderError
     | AjaxError
     | ConsentError
+    | Error
   > {
     return this.consentRepo
       .getBaseURI(invitation.consentContractAddress)
       .andThen((baseURI) => {
-        // The baseURI would be an IPFS CID that is type <NFTMetadata> based on reference below:
-        //https://docs.opensea.io/docs/metadata-standards#metadata-structure
-        // do ipfs check to retrieve its json
-        // return the json object
+        // make ipfs http address
+        const ipfsURL = "http://ipfs.io/" + baseURI;
+
+        return ResultAsync.fromPromise(fetch(ipfsURL), (e) => {
+          return new Error("Fetch error");
+        }).andThen((response) => {
+          return ResultAsync.fromPromise(response.json(), (e) => {
+            return new Error("json() error");
+          });
+        });
       });
+    // The baseURI would be an IPFS CID that is type <NFTMetadata> based on reference below:
+    //https://docs.opensea.io/docs/metadata-standards#metadata-structure
+    // do ipfs check to retrieve its json
+    // return the json object
   }
 }
