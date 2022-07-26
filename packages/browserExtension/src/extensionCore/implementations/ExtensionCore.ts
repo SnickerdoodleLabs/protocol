@@ -18,16 +18,19 @@ import { RpcEngineFactory } from "@implementations/utilities/factory";
 import {
   PortConnectionService,
   AccountService,
+  PIIService,
 } from "@implementations/business";
-import { IAccountService, IPortConnectionService } from "@interfaces/business";
+import { IAccountService, IPIIService, IPortConnectionService } from "@interfaces/business";
 
 // Repository
 import {
   PortConnectionRepository,
   AccountRepository,
+  PIIRepository,
 } from "@implementations/data";
 import {
   IAccountRepository,
+  IPIIRepository,
   IPortConnectionRepository,
 } from "@interfaces/data";
 
@@ -60,6 +63,9 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { IConfigProvider } from "@shared/interfaces/configProvider";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 
+
+import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+
 export class ExtensionCore {
   // snickerdooldle Core
   protected core: ISnickerdoodleCore;
@@ -67,10 +73,12 @@ export class ExtensionCore {
   // Business
   protected accountService: IAccountService;
   protected portConnectionService: IPortConnectionService;
+  protected piiService: IPIIService;
 
   // Data
   protected accountRepository: IAccountRepository;
   protected portConnectionRepository: IPortConnectionRepository;
+  protected piiRepository: IPIIRepository;
 
   // Utils
   protected contextProvider: IContextProvider;
@@ -90,7 +98,7 @@ export class ExtensionCore {
   protected configProvider: IConfigProvider;
 
   constructor() {
-    this.core = new SnickerdoodleCore();
+    this.core = new SnickerdoodleCore(undefined, new LocalStoragePersistence());
 
     this.configProvider = ConfigProvider;
 
@@ -109,9 +117,13 @@ export class ExtensionCore {
     );
     this.accountService = new AccountService(this.accountRepository);
 
+    this.piiRepository = new PIIRepository(this.core, this.errorUtils)
+    this.piiService = new PIIService(this.piiRepository);
+
     this.rpcCallHandler = new RpcCallHandler(
       this.contextProvider,
       this.accountService,
+      this.piiService,
     );
 
     this.rpcEngineFactory = new RpcEngineFactory(
