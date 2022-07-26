@@ -10,7 +10,10 @@ import {
 } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IProvider } from "@extension-onboarding/services/providers";
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
+
+declare const window: IWindowWithSdlDataWallet;
 
 const WalletProviders: FC = () => {
   const classes = useStyles();
@@ -83,7 +86,9 @@ const WalletProviders: FC = () => {
           />
           {provider.key === EWalletProviderKeys.PHANTOM && (
             <Box mt={2} mb={5}>
-              <Typography className={classes.phantomSteps}>Steps to add multiple Phantom account</Typography>
+              <Typography className={classes.phantomSteps}>
+                Steps to add multiple Phantom account
+              </Typography>
             </Box>
           )}
         </Box>
@@ -114,7 +119,7 @@ const WalletProviders: FC = () => {
               provider={walletConnect}
             />
           </Box>
-          </Box>
+        </Box>
       )}
     </Box>
   );

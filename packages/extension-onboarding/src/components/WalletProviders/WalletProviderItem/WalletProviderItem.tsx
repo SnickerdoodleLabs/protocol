@@ -4,18 +4,7 @@ import React, { useMemo, FC, memo } from "react";
 import tickIcon from "@extension-onboarding/assets/icons/tick.svg";
 import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviderItem/WalletProviderItem.style";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { IProvider } from "@extension-onboarding/services/providers";
-
-export interface ISDLDataWallet {
-  // TODO add SDLWallet functions with correct types
-  getUnlockMessage(): any;
-}
-
-declare global {
-  interface Window {
-    sdlDataWallet: ISDLDataWallet;
-  }
-}
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 
 interface IWalletProviderItemProps {
   provider: IProvider;

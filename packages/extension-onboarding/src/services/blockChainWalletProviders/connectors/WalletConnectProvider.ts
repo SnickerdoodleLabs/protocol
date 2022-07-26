@@ -8,10 +8,12 @@ import WalletConnect from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
-import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
+import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 
 export class WalletConnectProvider implements IWalletProvider {
   protected _web3Provider: Web3Provider | null = null;
+  constructor(protected config: Config) {}
 
   get isInstalled(): boolean {
     return true;
