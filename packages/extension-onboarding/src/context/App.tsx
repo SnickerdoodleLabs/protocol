@@ -5,10 +5,11 @@ import React, {
   useEffect,
   useState,
 } from "react";
+
 import {
   getProviderList,
   IProvider,
-} from "@extension-onboarding/services/providers";
+} from "@extension-onboarding/services/blockChainWalletProviders";
 import { PII } from "@extension-onboarding/services/interfaces/objects";
 
 export interface ILinkedAccount {
@@ -66,8 +67,8 @@ export const AppContextProvider: FC = ({ children }) => {
     setLinkedAccounts((prevState) => [...prevState, account]);
   };
   const deleteAccount = (account: ILinkedAccount) => {
-   const accounts = linkedAccounts.filter(acc => acc !== account);
-   setLinkedAccounts(accounts);
+    const accounts = linkedAccounts.filter((acc) => acc !== account);
+    setLinkedAccounts(accounts);
   };
 
   // TODO Change Stepper System
@@ -80,11 +81,11 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const addUserObject = (user: PII) => {
-    console.log("userObject",user)
+    console.log("userObject", user);
     setUserObject(user);
   };
   const getUserObject = () => {
-   return userObject;
+    return userObject;
   };
 
   return (
@@ -97,7 +98,7 @@ export const AppContextProvider: FC = ({ children }) => {
         deleteAccount,
         stepperStatus,
         changeStepperStatus,
-        addUserObject
+        addUserObject,
       }}
     >
       {children}

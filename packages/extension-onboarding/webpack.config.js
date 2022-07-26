@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
@@ -61,7 +62,6 @@ module.exports = {
           {
             loader: "sass-loader",
             options: {
-              
               sassOptions: {
                 includePaths: [path.resolve(__dirname, "node_modules")],
               },
@@ -107,6 +107,8 @@ module.exports = {
     }),
     new webpack.DefinePlugin({
       __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
+      __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
+      __GAPI_CLIENT_ID_: JSON.stringify(process.env.__GAPI_CLIENT_ID_),
     }),
   ],
 };

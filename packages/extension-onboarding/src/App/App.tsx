@@ -2,7 +2,7 @@ import React, { FC, useEffect, useMemo, useState } from "react";
 import {
   getProviderList,
   IProvider,
-} from "@extension-onboarding/services/providers";
+} from "@extension-onboarding/services/blockChainWalletProviders";
 import Onboarding from "@extension-onboarding/pages/Onboarding/Onboarding";
 import { LayoutProvider } from "@extension-onboarding/context/LayoutContext";
 import { AppContextProvider } from "@extension-onboarding/context/App";

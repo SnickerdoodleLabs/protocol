@@ -1,28 +1,31 @@
+import { Web3Provider } from "@ethersproject/providers";
 import {
   ChainInformation,
   EVMAccountAddress,
   Signature,
 } from "@snickerdoodlelabs/objects";
-import { ResultAsync, okAsync, errAsync } from "neverthrow";
-import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
 import WalletConnect from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
-import { Web3Provider } from "@ethersproject/providers";
+import { ResultAsync, okAsync, errAsync } from "neverthrow";
+
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
+import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 
 export class WalletConnectProvider implements IWalletProvider {
   protected _web3Provider: Web3Provider | null = null;
+  constructor(protected config: Config) {}
 
   get isInstalled(): boolean {
     return true;
   }
   connect(): ResultAsync<EVMAccountAddress, unknown> {
     localStorage.removeItem("walletconnect");
-    let bridge = "https://bridge.walletconnect.org";
-    let qrcode = true;
-    let infuraId = "72827ccd538446f2a20e35a632664c52";
-    let rpc = undefined;
-    let chainId = 1;
-    let qrcodeModalOptions = undefined;
+    const bridge = "https://bridge.walletconnect.org";
+    const qrcode = true;
+    const infuraId = "72827ccd538446f2a20e35a632664c52";
+    const rpc = undefined;
+    const chainId = 1;
+    const qrcodeModalOptions = undefined;
 
     const provider = new WalletConnect({
       bridge,

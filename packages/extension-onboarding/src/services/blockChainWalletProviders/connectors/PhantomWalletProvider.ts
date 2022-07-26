@@ -1,5 +1,4 @@
-import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
-import { ResultAsync, okAsync, errAsync } from "neverthrow";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import {
   EVMAccountAddress,
   ChainId,
@@ -7,6 +6,9 @@ import {
   ChainInformation,
 } from "@snickerdoodlelabs/objects";
 import { PublicKey } from "@solana/web3.js";
+import { ResultAsync, okAsync, errAsync } from "neverthrow";
+
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 
 type DisplayEncoding = "utf8" | "hex";
 
