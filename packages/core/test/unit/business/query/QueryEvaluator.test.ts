@@ -246,7 +246,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(propertyQuery);
-        console.log(result["value"]);
+        // console.log(result["value"]);
         expect(result).toBeDefined();
         expect(result["value"]).toBe(false);
     })
@@ -277,7 +277,7 @@ describe("QueryEvaluator checking age boolean: L", () => {
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(propertyQuery);
-        console.log(result["value"]);
+        // console.log(result["value"]);
 
         expect(result).toBeDefined();
         expect(result["value"]).toBe(true);
@@ -368,7 +368,7 @@ describe("QueryEvaluator return integer values", () => {
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(propertyQuery);
-        console.log("Age is: ", result["value"]);
+        // console.log("Age is: ", result["value"]);
         expect(result["value"]).toEqual(Age(25))
     })
     test("EvalPropertyQuery: return location", async () => {
@@ -382,7 +382,7 @@ describe("QueryEvaluator return integer values", () => {
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(propertyQuery);
-        console.log("Location is: ", result["value"]);
+        // console.log("Location is: ", result["value"]);
         expect(result["value"]).toEqual(CountryCode(57))
     })
 
@@ -397,7 +397,7 @@ describe("QueryEvaluator return integer values", () => {
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(propertyQuery);
-        console.log("Gender is: ", result["value"]);
+        // console.log("Gender is: ", result["value"]);
         expect(result["value"]).toEqual(Gender("male"))
     })
 })
@@ -416,7 +416,7 @@ describe("Return URLs Map", () => {
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(propertyQuery);
-        console.log("URLs is: ", result["value"]);
+        // console.log("URLs is: ", result["value"]);
         expect(result["value"]).toEqual([])
     })
 })
