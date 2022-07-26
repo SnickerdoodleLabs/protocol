@@ -10128,7 +10128,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-format@npm:^4.0.11, date-format@npm:^4.0.13":
+"date-format@npm:^4.0.13":
   version: 4.0.13
   resolution: "date-format@npm:4.0.13"
   checksum: b4584fdd43d31e9c900da775cce4806903ba207e21f79d99959858141849d41ec919f941d1fb2e4efd2355ce1909ca1fe41a5184568c74cb540cf24c4f8bb39b
@@ -10964,9 +10964,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.188":
-  version: 1.4.199
-  resolution: "electron-to-chromium@npm:1.4.199"
-  checksum: d029a04cd765400bfa245c17e4895e15fcab3fd5c4dff7bfe1ceae9316a06fb4695b7078a50cfd04e0ca77ae27897520e4a8a332c13f7c2fdb2ee4a4b4593199
+  version: 1.4.201
+  resolution: "electron-to-chromium@npm:1.4.201"
+  checksum: dc8bff80ffc17dec64cdde97ef249292fc14e4ef6a3cb7fd3c1a0691fa846053a993cc6244ff0302c8d4d19baa4fdf0d1a39b413dda87415fec69c7c7a5a05b8
   languageName: node
   linkType: hard
 
@@ -12340,7 +12340,7 @@ __metadata:
   dependencies:
     bn.js: ^4.11.8
     ethereumjs-util: ^6.0.0
-  checksum: ae074be0bb012857ab5d3ae644d1163b908a48dd724b7d2567cfde309dc72222d460438f2411936a70dc949dc604ce1ef7118f7273bd525815579143c907e336
+  checksum: 03127d09960e5f8a44167463faf25b2894db2f746376dbb8195b789ed11762f93db9c574eaa7c498c400063508e9dfc1c80de2edf5f0e1406b25c87d860ff2f1
   languageName: node
   linkType: hard
 
@@ -13494,7 +13494,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"flatted@npm:^3.1.0, flatted@npm:^3.2.5":
+"flatted@npm:^3.1.0, flatted@npm:^3.2.6":
   version: 3.2.6
   resolution: "flatted@npm:3.2.6"
   checksum: 33b87aa88dfa40ca6ee31d7df61712bbbad3d3c05c132c23e59b9b61d34631b337a18ff2b8dc5553acdc871ec72b741e485f78969cf006124a3f57174de29a0e
@@ -18548,15 +18548,15 @@ __metadata:
   linkType: hard
 
 "log4js@npm:^6.3.0":
-  version: 6.6.0
-  resolution: "log4js@npm:6.6.0"
+  version: 6.6.1
+  resolution: "log4js@npm:6.6.1"
   dependencies:
-    date-format: ^4.0.11
+    date-format: ^4.0.13
     debug: ^4.3.4
-    flatted: ^3.2.5
+    flatted: ^3.2.6
     rfdc: ^1.3.0
-    streamroller: ^3.1.1
-  checksum: b21704c677b557f1c14fda4e398cecba7975b1041d8247c293aa7b7a2ea3588894e87bcc93fc9bd85ce9b4a1b30021b3fb867f2e0060eec6760253a5faecc164
+    streamroller: ^3.1.2
+  checksum: 68f29e7b8b0efa2f987e65ee122fde0bc806dd7ad20f0a9f2da316696423e42381ba348bd6e2f6a2feba042a6ed33c14955210741f47ab897b3204aba8bcd84b
   languageName: node
   linkType: hard
 
@@ -19820,9 +19820,9 @@ __metadata:
   linkType: hard
 
 "multiformats@npm:^9.0.2, multiformats@npm:^9.4.13, multiformats@npm:^9.4.2, multiformats@npm:^9.4.5, multiformats@npm:^9.5.1, multiformats@npm:^9.5.4":
-  version: 9.7.0
-  resolution: "multiformats@npm:9.7.0"
-  checksum: 6904d9d9f4ed764e9e61d064948f4590159fc85d9da5629e8ccad7fd84e55d7d9f6e8ffd471a27ac04fdc857acc4858b61cf579c87f45cca4d98a5a6ef200bf3
+  version: 9.7.1
+  resolution: "multiformats@npm:9.7.1"
+  checksum: 9193a4b55573dc88053a357e5f9562696d7cc47669e5ce5d7e147e3db1ec3f793567d7943c7e20271af9acd1e48c1679d0dfe932094333b16ed7f9f2ccf9197f
   languageName: node
   linkType: hard
 
@@ -24570,11 +24570,11 @@ __metadata:
   linkType: hard
 
 "sonic-boom@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "sonic-boom@npm:3.1.0"
+  version: 3.2.0
+  resolution: "sonic-boom@npm:3.2.0"
   dependencies:
     atomic-sleep: ^1.0.0
-  checksum: 164fa2fa6726a5be083a4a9c30ab556f64817d97622c606e4486fcb1b5ceb43e065d0ded07e593225f6bf018640eed5482cf5a2cdef0eae828ab66782950fe7d
+  checksum: 526669b78e0ac3bcbe2a53e5ac8960d3b25e61d8e6a46eaed5a0c46d7212c5f638bb136236870babedfcb626063711ba8f81e538f88b79e6a90a5b2ff71943b4
   languageName: node
   linkType: hard
 
@@ -25042,7 +25042,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"streamroller@npm:^3.1.1":
+"streamroller@npm:^3.1.2":
   version: 3.1.2
   resolution: "streamroller@npm:3.1.2"
   dependencies:
