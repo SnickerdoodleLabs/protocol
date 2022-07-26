@@ -1,6 +1,6 @@
-import { JsonRpcSigner, JsonRpcProvider } from "@ethersproject/providers";
+import { JsonRpcProvider } from "@ethersproject/providers";
 import { BlockchainProviderError, ChainId } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
+import { ethers, Wallet } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface IBlockchainProvider {
@@ -8,7 +8,7 @@ export interface IBlockchainProvider {
 
   // There is only a single signer that we will deal with, which uses the
   // derived DataWallet Key.
-  getControlSigner(): ResultAsync<JsonRpcSigner, BlockchainProviderError>;
+  getControlSigner(): ResultAsync<Wallet, BlockchainProviderError>;
 
   // If no chain ID is given, it returns the provider for the DoodleChain
   getProvider(

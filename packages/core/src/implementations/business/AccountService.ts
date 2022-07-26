@@ -6,6 +6,7 @@ import {
 import {
   AESEncryptedString,
   AjaxError,
+  BigNumberString,
   BlockchainProviderError,
   ConsentContractError,
   CrumbsContractError,
@@ -13,6 +14,8 @@ import {
   EVMAccountAddress,
   EVMPrivateKey,
   ExternallyOwnedAccount,
+  HexString,
+  ICrumbContent,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   InvalidSignatureError,
@@ -20,18 +23,25 @@ import {
   MetatransactionSignatureRequest,
   PersistenceError,
   Signature,
+  TokenId,
+  TokenUri,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@snickerdoodlelabs/objects";
-import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
+import {
+  forwardRequestTypes,
+  snickerdoodleSigningDomain,
+} from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountService } from "@core/interfaces/business";
 import {
-  ILoginRegistryRepository,
-  ILoginRegistryRepositoryType,
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+  ICrumbsRepository,
+  ICrumbsRepositoryType,
 } from "@core/interfaces/data";
 import { CoreContext } from "@core/interfaces/objects";
 import {
@@ -40,17 +50,24 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory";
 
 @injectable()
 export class AccountService implements IAccountService {
   public constructor(
-    @inject(ILoginRegistryRepositoryType)
-    protected loginRegistryRepo: ILoginRegistryRepository,
+    @inject(IInsightPlatformRepositoryType)
+    protected insightPlatformRepo: IInsightPlatformRepository,
+    @inject(ICrumbsRepositoryType)
+    protected loginRegistryRepo: ICrumbsRepository,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IContractFactoryType) protected contractFactory: IContractFactory,
   ) {}
 
   public getUnlockMessage(
@@ -164,29 +181,14 @@ export class AccountService implements IAccountService {
           );
 
           // Need to get a signature on the add crumb metatransaction
-          return ResultAsync.fromSafePromise<Signature, never>(
-            new Promise<Signature>((resolve) => {
-              context.publicEvents.onMetatransactionSignatureRequested.next(
-                new MetatransactionSignatureRequest(
-                  snickerdoodleSigningDomain,
-                  {}, // types
-                  {}, // data
-                  (signature) => {
-                    resolve(signature);
-                  },
-                ),
-              );
-            }),
-          ).andThen((signature) => {
-            return this.loginRegistryRepo.addCrumb(
-              dataWalletAddress,
-              accountAddress,
-              encryptedDataWallet,
-              languageCode,
-              signature,
-              dataWalletKey,
-            );
-          });
+          return this.addCrumbMetatransaction(
+            accountAddress,
+            context,
+            encryptedDataWallet,
+            languageCode,
+            dataWalletAddress,
+            dataWalletKey,
+          );
         })
         .map(() => {
           return new ExternallyOwnedAccount(
@@ -195,6 +197,63 @@ export class AccountService implements IAccountService {
             ),
             dataWalletKey,
           );
+        });
+    });
+  }
+
+  protected addCrumbMetatransaction(
+    accountAddress: EVMAccountAddress,
+    context: CoreContext,
+    encrypted: AESEncryptedString,
+    languageCode: LanguageCode,
+    dataWalletAddress: DataWalletAddress,
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<
+    TokenId,
+    BlockchainProviderError | UninitializedError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this.cryptoUtils.getTokenId(),
+      this.contractFactory.factoryCrumbsContract(),
+    ]).andThen(([crumbId, crumbsContract]) => {
+      // Create the crumb content
+      const crumbContent = TokenUri(
+        JSON.stringify({
+          [languageCode]: {
+            d: encrypted.data,
+            iv: encrypted.initializationVector,
+          },
+        } as ICrumbContent),
+      );
+      const callData = crumbsContract.encodeCreateCrumb(crumbId, crumbContent);
+
+      return ResultAsync.fromSafePromise<[Signature, BigNumberString], never>(
+        new Promise<[Signature, BigNumberString]>((resolve) => {
+          context.publicEvents.onMetatransactionSignatureRequested.next(
+            new MetatransactionSignatureRequest(
+              accountAddress,
+              crumbsContract.contractAddress,
+              callData, // data
+              (signature: Signature, nonce: BigNumberString) => {
+                resolve([signature, nonce]);
+              },
+            ),
+          );
+        }),
+      )
+        .andThen(([signature, nonce]) => {
+          return this.insightPlatformRepo.executeMetatransaction(
+            dataWalletAddress,
+            accountAddress,
+            crumbsContract.contractAddress,
+            nonce,
+            callData,
+            signature,
+            dataWalletKey,
+          );
+        })
+        .map(() => {
+          return crumbId;
         });
     });
   }
@@ -269,11 +328,13 @@ export class AccountService implements IAccountService {
           );
         })
         .andThen((encryptedDataWalletKey) => {
-          return this.loginRegistryRepo.addCrumb(
-            context.dataWalletAddress!,
+          // Need to get a signature on the add crumb metatransaction
+          return this.addCrumbMetatransaction(
             accountAddress,
+            context,
             encryptedDataWalletKey,
             languageCode,
+            context.dataWalletAddress!,
             context.dataWalletKey!,
           );
         })

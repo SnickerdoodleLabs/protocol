@@ -1,6 +1,7 @@
 import {
   IConsentContract,
   ICrumbsContract,
+  IMinimalForwarderContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
@@ -19,6 +20,11 @@ export interface IContractFactory {
 
   factoryCrumbsContract(): ResultAsync<
     ICrumbsContract,
+    BlockchainProviderError | UninitializedError
+  >;
+
+  factoryMinimalForwarderContract(): ResultAsync<
+    IMinimalForwarderContract,
     BlockchainProviderError | UninitializedError
   >;
 }

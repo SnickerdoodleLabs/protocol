@@ -3,13 +3,19 @@ import {
   TypedDataField,
 } from "@ethersproject/abstract-signer";
 
-import { Signature } from "@objects/primitives";
+import {
+  BigNumberString,
+  EVMAccountAddress,
+  EVMContractAddress,
+  HexString,
+  Signature,
+} from "@objects/primitives";
 
 export class MetatransactionSignatureRequest {
   public constructor(
-    public domain: TypedDataDomain,
-    public types: Record<string, TypedDataField[]>,
-    public data: Record<string, unknown>,
-    public callback: (signature: Signature) => void,
+    public accountAddress: EVMAccountAddress,
+    public contractAddress: EVMContractAddress,
+    public data: HexString,
+    public callback: (signature: Signature, nonce: BigNumberString) => void,
   ) {}
 }

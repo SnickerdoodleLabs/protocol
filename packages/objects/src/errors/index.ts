@@ -12,6 +12,7 @@ export * from "@objects/errors/IBlockchainError";
 export * from "@objects/errors/InvalidParametersError";
 export * from "@objects/errors/InvalidSignatureError";
 export * from "@objects/errors/IPFSError";
+export * from "@objects/errors/MinimalForwarderContractError";
 export * from "@objects/errors/PersistenceError";
 export * from "@objects/errors/ProviderRpcError";
 export * from "@objects/errors/UninitializedError";

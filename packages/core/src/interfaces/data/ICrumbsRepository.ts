@@ -1,19 +1,14 @@
 import {
   AESEncryptedString,
-  AjaxError,
   BlockchainProviderError,
   CrumbsContractError,
-  DataWalletAddress,
   EVMAccountAddress,
-  EVMPrivateKey,
   LanguageCode,
-  Signature,
-  TokenId,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface ILoginRegistryRepository {
+export interface ICrumbsRepository {
   /** getCrumb() returns the encrypted private key for the data wallet stored on the DoodleChain
    * if it exists for the account address, or null if the token is
    * not yet minted
@@ -25,17 +20,6 @@ export interface ILoginRegistryRepository {
     AESEncryptedString | null,
     BlockchainProviderError | UninitializedError | CrumbsContractError
   >;
-
-  addCrumb(
-    dataWalletAddress: DataWalletAddress,
-    accountAddress: EVMAccountAddress,
-    encryptedDataWalletKey: AESEncryptedString,
-    languageCode: LanguageCode,
-    metatransactionSignature: Signature,
-    dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<TokenId, AjaxError>;
 }
 
-export const ILoginRegistryRepositoryType = Symbol.for(
-  "ILoginRegistryRepository",
-);
+export const ICrumbsRepositoryType = Symbol.for("ICrumbsRepository");

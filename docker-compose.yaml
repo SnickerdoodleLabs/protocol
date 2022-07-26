@@ -4,7 +4,7 @@ services:
   doodlechain:
     container_name: doodlechain
     ports:
-      - '8545:8569'
+      - 8545:8569
     environment:
       NETWORK: dev
     image: 'snickerdoodlelabs/devchain:latest'
