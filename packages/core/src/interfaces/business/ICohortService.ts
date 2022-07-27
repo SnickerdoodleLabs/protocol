@@ -15,6 +15,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ICohortService {
+  getInvitationDetails(invitation: CohortInvitation): ResultAsync<JSON, BlockchainProviderError | UninitializedError | ConsentContractError | PersistenceError | AjaxError | ConsentContractRepositoryError | Error>;
   checkInvitationStatus(
     invitation: CohortInvitation,
   ): ResultAsync<

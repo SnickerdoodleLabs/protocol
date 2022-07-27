@@ -3,6 +3,7 @@ import {
   AjaxError,
   BlockchainProviderError,
   CohortInvitation,
+  ConsentConditions,
   ConsentContractError,
   ConsentContractRepositoryError,
   EInvitationStatus,
@@ -17,5 +18,17 @@ export interface ICohortRepository {
   ): ResultAsync<CohortInvitation, SnickerDoodleCoreError>;
   checkInvitationStatus(
     invitation: CohortInvitation,
-  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> 
+  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
+
+  getInvitationDetails(
+    invitation: CohortInvitation,
+  ): ResultAsync<JSON, SnickerDoodleCoreError>;
+
+  acceptInvitation(
+    invitation: CohortInvitation,
+    consentConditions: ConsentConditions | null,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+  rejectInvitation(
+    invitation: CohortInvitation,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
 }

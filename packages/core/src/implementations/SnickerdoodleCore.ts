@@ -273,6 +273,23 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     return cohortService.getCohortInvitationByDomain(domain);
   }
+  public getInvitationDetails(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    JSON,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | Error
+  > {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.getInvitationDetails(invitation);
+  }
 
   public processQuery(
     queryId: IpfsCID,

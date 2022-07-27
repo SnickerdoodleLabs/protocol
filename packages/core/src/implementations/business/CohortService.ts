@@ -59,6 +59,9 @@ export class CohortService implements ICohortService {
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
   ) {}
+  getInvitationDetails(invitation: CohortInvitation): ResultAsync<JSON, BlockchainProviderError | UninitializedError | ConsentContractError | PersistenceError | AjaxError | ConsentContractRepositoryError | Error> {
+    throw new Error("Method not implemented.");
+  }
 
   public checkInvitationStatus(
     invitation: CohortInvitation,

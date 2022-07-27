@@ -172,6 +172,36 @@ export interface ISnickerdoodleCore {
     domain: DomainName,
   ): ResultAsync<CohortInvitation, Error>
 
+  getInvitationDetails(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    JSON,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | Error
+  >
+  acceptInvitation(
+    invitation: CohortInvitation,
+    consentConditions: ConsentConditions | null,
+  ): ResultAsync<void, AjaxError | UninitializedError | PersistenceError>
+
+  rejectInvitation(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | PersistenceError
+    | UninitializedError
+    | ConsentError
+    | AjaxError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+  > 
+
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).

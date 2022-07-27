@@ -130,7 +130,7 @@ export class ExtensionCore {
     this.piiService = new PIIService(this.piiRepository);
 
     this.cohortRepository = new CohortRepository(this.core,this.errorUtils)
-    this.cohortService = new CohortService(this.cohortRepository)
+    this.cohortService = new CohortService(this.cohortRepository,this.contextProvider)
 
     this.rpcCallHandler = new RpcCallHandler(
       this.contextProvider,
