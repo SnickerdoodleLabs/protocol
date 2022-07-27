@@ -265,8 +265,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public processQuery(
-    consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
+    {
+      consentContractAddress,
+      queryId
+    }: 
+    {
+      consentContractAddress: EVMContractAddress,
+      queryId: IpfsCID
+    }
   ): ResultAsync<
     void,
     AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError

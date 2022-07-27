@@ -49,7 +49,7 @@ import {
   ContextProvider,
   DataWalletUtils,
 } from "@core/implementations/utilities";
-import { ContractFactory } from "@core/implementations/utilities/factory";
+import { ContractFactory, QueryFactories } from "@core/implementations/utilities/factory";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
@@ -89,6 +89,7 @@ import {
 import {
   IContractFactory,
   IContractFactoryType,
+  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
 
 export const snickerdoodleCoreModule = new ContainerModule(
@@ -167,6 +168,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<QueryRepository>(QueryRepositoryType)
       .to(QueryRepository)
+      .inSingletonScope();
+    
+    bind<QueryFactories>(IQueryFactoriesType)
+      .to(QueryFactories)
       .inSingletonScope();
   },
 );

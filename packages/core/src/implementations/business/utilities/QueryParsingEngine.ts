@@ -53,8 +53,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   public handleQuery(query: SDQLQuery): ResultAsync<[Insight[], EligibleReward[]], never | QueryFormatError> {
 
-    const schema = query.query as SDQLSchema;
+    const schema = new SDQLSchema(query.query);
     const queryId: IpfsCID = query.cid;
+
+    
 
     /* Create New AST Tree */
     /*

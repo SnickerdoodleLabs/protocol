@@ -28,13 +28,14 @@ export interface IQueryService {
   >;
   processQuery(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
+    queryId: IpfsCID
   ): ResultAsync<
     void,
     | AjaxError 
     | UninitializedError 
     | ConsentError 
     | IPFSError
+    | QueryFormatError
     
   >;
 }

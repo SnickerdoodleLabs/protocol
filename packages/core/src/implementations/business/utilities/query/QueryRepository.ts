@@ -6,9 +6,10 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { QueryEvaluatorType } from ".";
 import { QueryEvaluator } from "./QueryEvaluator";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { IQueryRepository } from "@core/interfaces/business/utilities";
 
 @injectable()
-export class QueryRepository {
+export class QueryRepository implements IQueryRepository {
 
     queryValuator: QueryEvaluator;
     dataWalletPersistence: LocalStoragePersistence;

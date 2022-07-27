@@ -117,7 +117,7 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          context.publicEvents.onQueryPosted.next(consentContractAddress, query);
+          context.publicEvents.onQueryPosted.next({consentContractAddress: consentContractAddress, query: query});
 
           return okAsync(undefined);
         });
@@ -135,13 +135,14 @@ export class QueryService implements IQueryService {
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
+    queryId: IpfsCID
   ): ResultAsync<
     void,
     | AjaxError 
     | UninitializedError 
     | ConsentError 
     | IPFSError
+    | QueryFormatError
   
   > {
     // 1. Parse the query
