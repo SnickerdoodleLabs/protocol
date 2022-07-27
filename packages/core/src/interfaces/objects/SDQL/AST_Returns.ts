@@ -1,4 +1,4 @@
-import { SDQL_Name, URLString } from "@objects/primitives";
+import { SDQL_Name, URLString } from "@snickerdoodlelabs/objects";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
 
 export class AST_Returns extends Map<SDQL_Name, any>{

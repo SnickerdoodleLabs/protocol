@@ -1,8 +1,8 @@
-import { SDQL_Name } from "@objects/primitives";
 import { Command_IF } from "./Command_IF";
 import { AST_Query } from "./AST_Query";
 import { Operator } from "./Operator";
 import { AST_Return } from "./AST_Return";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
 export class AST_Expr {
     /**

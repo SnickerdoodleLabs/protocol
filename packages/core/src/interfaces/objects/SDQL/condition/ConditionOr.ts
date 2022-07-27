@@ -1,6 +1,5 @@
-import { SDQL_OperatorName } from "@objects/primitives";
+import { SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 import { AST_BoolExpr } from "../AST_BoolExpr";
-import { Operator } from "../Operator";
 import { Condition } from "./Condition";
 
 export class ConditionOr extends Condition {

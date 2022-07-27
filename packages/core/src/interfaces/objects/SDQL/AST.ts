@@ -1,4 +1,4 @@
-import { SDQL_Name, Version } from "@objects/primitives";
+import { SDQL_Name, Version } from "@snickerdoodlelabs/objects";
 import { AST_Compensation } from "./AST_Compensation";
 import { AST_Logic } from "./AST_Logic";
 import { AST_Query } from "./AST_Query";

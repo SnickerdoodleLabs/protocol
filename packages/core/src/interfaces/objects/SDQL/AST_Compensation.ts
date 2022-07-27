@@ -1,4 +1,4 @@
-import { SDQL_Name, URLString } from "@objects/primitives";
+import { SDQL_Name, URLString } from "@snickerdoodlelabs/objects";
 
 export class AST_Compensation {
     
