@@ -174,18 +174,15 @@ export class QueryService implements IQueryService {
       //     type: "string" 
       //   }],
       // };
-      const value = {
-        consentContractId: consentContractAddress,
-        queryId,
-        dataWallet: context.dataWalletAddress,
-        returns: "hello world",
-      } as Record<string, unknown>;
+
+      const insights: InsightString[] = [];
+      const signableData = this.createSignable(consentContractAddress, queryId, context, insights);
       
       return this.cryptoUtils
         .signTypedData(
           config.snickerdoodleProtocolDomain,
           insightDeliveryTypes,
-          value,
+          signableData,
           context.dataWalletKey,
         )
         .andThen((signature) => {
@@ -273,5 +270,15 @@ export class QueryService implements IQueryService {
       //       return this.insightPlatformRepo.deliverInsights(insights);
       //     });
       // });
+  }
+
+
+  public createSignable(consentContractAddress: EVMContractAddress, queryId: IpfsCID, context: any, insights: InsightString[]) {
+    return {
+      consentContractId: consentContractAddress,
+      queryId,
+      dataWallet: context.dataWalletAddress,
+      returns: JSON.stringify(insights),
+    } as Record<string, unknown>;
   }
 }

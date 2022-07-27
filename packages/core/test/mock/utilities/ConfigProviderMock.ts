@@ -1,5 +1,8 @@
 import { CoreConfig } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
+import { IConfigOverrides } from "@snickerdoodlelabs/objects";
+import { okAsync, ResultAsync } from "neverthrow";
+import { controlChainInformation, testCoreConfig } from "../mocks";
 
 export class ConfigProviderMock implements IConfigProvider {
 
@@ -8,30 +11,17 @@ export class ConfigProviderMock implements IConfigProvider {
 
     constructor() {
         
-        this.config = new CoreConfig(
-            controlChainId,
-            [], //TODO: supported chains
-            URLString(""),
-            chainConfig,
-            controlChainInformation,
-            URLString("ipfs node address"),
-            // uncomment following line to test locally
-            // URLString("http://localhost:3000/v0"),
-            URLString("http://insight-platform"),
-            snickerdoodleSigningDomain,
-            5000, // polling interval indexing,
-            5000, // polling interval balance
-            "covalent api key",
-            "moralis api key",
-        );
+        
+        // console.log(controlChainInformation);
+        this.config = testCoreConfig
     }
 
-    getConfig(): ResultAsync<CoreConfig, never> {
-
+    public getConfig(): ResultAsync<CoreConfig, never> {
+        return okAsync(this.config);
     }
-
-    setConfigOverrides(overrides: IConfigOverrides): void {
-
+    
+      public setConfigOverrides(overrides: IConfigOverrides): void {
+        this.config = { ...this.config, ...overrides };
     }
 
 }
