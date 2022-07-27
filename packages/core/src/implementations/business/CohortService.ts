@@ -37,9 +37,11 @@ import {
   BlockchainProviderError,
   AjaxError,
   IPFSError,
+  DomainName,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
@@ -227,6 +229,26 @@ export class CohortService implements ICohortService {
     });
   }
 
+  public getCohortInvitationByDomain(
+    domain: URL,
+  ): ResultAsync<CohortInvitation, Error> {
+    const domainToCheck = domain;
+
+    switch (domainToCheck) {
+      case new URL("www.shrapnel.com"):
+        return okAsync(
+          new CohortInvitation(
+            "www.shrapnel.com" as DomainName, //public domain: DomainName,
+            "0xE451980132E65465d0a498c53f0b5227326Dd73F" as EVMContractAddress, // address from hardhat task
+            BigInt(1) as TokenId, // public tokenId: TokenId,
+            null,
+          ),
+        ); //public businessSignature: Signature | null,);
+    }
+
+    return okErr("Domain does not have a contract address");
+  }
+
   // If checkInvitationStatus id VALID, we can get its details here
   public getInvitationDetails(
     invitation: CohortInvitation,
@@ -303,4 +325,7 @@ export class CohortService implements ICohortService {
         );
       });
   }
+}
+function okErr(arg0: string): ResultAsync<CohortInvitation, Error> {
+  throw new Error("Function not implemented.");
 }

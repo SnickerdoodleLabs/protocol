@@ -6,6 +6,7 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  DomainName,
   EInvitationStatus,
   EVMContractAddress,
   PersistenceError,
@@ -55,6 +56,10 @@ export interface ICohortService {
     | AjaxError
     | ConsentError
   >;
+
+  getCohortInvitationByDomain(
+    domain: DomainName,
+  ): ResultAsync<CohortInvitation, Error>;
 
   getInvitationDetails(
     invitation: CohortInvitation,
