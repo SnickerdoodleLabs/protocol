@@ -14,6 +14,7 @@ import {
   BlockNumber,
   IBlockchainError,
   DomainName,
+  BaseURI,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -85,7 +86,7 @@ export class ConsentContract implements IConsentContract {
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
-          "Unable to call optIn()",
+          "Unable to call restrictedOptIn()",
           (e as IBlockchainError).reason,
           e,
         );
@@ -94,7 +95,7 @@ export class ConsentContract implements IConsentContract {
       .andThen((tx) => {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new ConsentContractError(
-            "Wait for optIn() failed",
+            "Wait for restrictedOptIn() failed",
             "Unknown",
             e,
           );
@@ -121,7 +122,7 @@ export class ConsentContract implements IConsentContract {
       .andThen((tx) => {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new ConsentContractError(
-            "Wait for addDomain() failed",
+            "Wait for requestForData() failed",
             "Unknown",
             e,
           );
@@ -545,6 +546,44 @@ export class ConsentContract implements IConsentContract {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new ConsentContractError(
             "Wait for enableOpenOptIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public baseURI(): ResultAsync<BaseURI, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.baseURI() as Promise<BaseURI>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call baseURI()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
+  public setBaseURI(baseUri: BaseURI): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.setBaseURI(
+        baseUri,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call setBaseURI()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for setBaseURI() failed",
             "Unknown",
             e,
           );
