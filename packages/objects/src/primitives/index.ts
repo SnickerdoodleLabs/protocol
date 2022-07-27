@@ -17,6 +17,7 @@ export * from "@objects/primitives/EVMChainCode";
 export * from "@objects/primitives/EVMAccountAddress";
 export * from "@objects/primitives/EVMContractAddress";
 export * from "@objects/primitives/EVMContractFunction";
+export * from "@objects/primitives/EVMContractDirection";
 export * from "@objects/primitives/EVMToken";
 export * from "@objects/primitives/EVMBlockNumber";
 export * from "@objects/primitives/EVMBlockRange";

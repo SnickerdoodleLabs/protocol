@@ -1,4 +1,4 @@
-import { EVMChainCode, SDQL_Name, SDQL_Return } from "@objects/primitives";
+import { EVMChainCode, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { AST_Contract } from "./AST_Contract";
 import { AST_Query } from "./AST_Query";
 

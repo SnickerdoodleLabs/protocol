@@ -1,5 +1,4 @@
-import { SDQL_Name } from "@objects/primitives";
-import { AST_Expr } from "./AST_Expr";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
 import { Command } from "./Command";
 import { AST_ConditionExpr } from "./condition/AST_ConditionExpr";

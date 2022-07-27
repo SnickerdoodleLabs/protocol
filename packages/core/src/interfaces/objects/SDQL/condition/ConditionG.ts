@@ -1,4 +1,4 @@
-import { SDQL_OperatorName } from "@objects/primitives";
+import { SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 import { AST_Expr } from "../AST_Expr";
 import { Condition } from "./Condition";
 

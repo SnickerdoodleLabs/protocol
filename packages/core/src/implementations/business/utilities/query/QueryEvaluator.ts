@@ -1,4 +1,3 @@
-import { Age, CountryCode, Gender, SDQL_Return } from "@objects/primitives";
 import { 
     AST_PropertyQuery,
     AST_Query,
@@ -12,7 +11,7 @@ import {
     ConditionE,   
     AST_Expr
 } from "@core/interfaces/objects";
-import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
+import { Age, CountryCode, Gender, IDataWalletPersistence, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { IDataWalletPersistenceType } from "@snickerdoodlelabs/objects";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";

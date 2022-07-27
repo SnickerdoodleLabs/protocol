@@ -2,22 +2,8 @@
 import "reflect-metadata";
 
 import { AST, AST_Compensation, AST_Expr, AST_Logic, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, AST_Returns, Command, DuplicateIdInSchema, ReturnNotImplementedError, SDQLSchema } from "@core/interfaces/objects";
-import { IpfsCID, SDQL_Name, URLString, Version } from "@objects/primitives";
 import { ExprParser } from "./ExprParser";
-// import { AST } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST";
-// import { AST_Compensation } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Compensation";
-// import { AST_Expr } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Expr";
-// import { AST_Logic } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Logic";
-// import { AST_NetworkQuery } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_NetworkQuery";
-// import { AST_PropertyQuery } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_PropertyQuery";
-// import { AST_Query } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Query";
-// import { AST_Return } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Return";
-// import { AST_ReturnExpr } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_ReturnExpr";
-// import { AST_Returns } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Returns";
-// import { Command } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/Command";
-// import { DuplicateIdInSchema, ParsingError, ReturnNotImplementedError } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/exceptions";
-// import { ExprParser } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/ExprParser";
-// import { SDQLSchema } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/SDQLSchema";
+import { IpfsCID, SDQL_Name, URLString, Version } from "@snickerdoodlelabs/objects";
 
 export class SDQLParser {
 

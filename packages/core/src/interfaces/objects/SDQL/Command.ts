@@ -1,4 +1,4 @@
-import { SDQL_Name } from "@objects/primitives";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
 export abstract class Command {
     

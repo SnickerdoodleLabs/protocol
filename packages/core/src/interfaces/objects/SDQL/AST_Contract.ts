@@ -1,5 +1,4 @@
-import { ChainId, EVMBlockNumber, EVMBlockRange, EVMContractAddress, EVMContractFunction, EVMToken } from "@objects/primitives";
-import { EVMContractDirection } from "@objects/primitives/EVMContractDirection";
+import { ChainId, EVMBlockRange, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken } from "@snickerdoodlelabs/objects";
 
 export class AST_Contract {
     constructor(

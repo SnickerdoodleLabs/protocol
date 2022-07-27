@@ -1,4 +1,4 @@
-import { SDQL_Name } from "@objects/primitives";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
 import { AST_BoolExpr } from "../AST_BoolExpr";
 import { AST_Query } from "../AST_Query";
 import { Condition } from "./Condition";

@@ -1,5 +1,4 @@
-import { SDQL_Name, SDQL_Return } from "@objects/primitives";
-import { AST_Expr } from "./AST_Expr";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
 export abstract class AST_Query {
 

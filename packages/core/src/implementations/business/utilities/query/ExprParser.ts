@@ -1,5 +1,5 @@
 import { AST_Compensation, AST_ConditionExpr, AST_Expr, AST_Query, AST_ReturnExpr, Command, Command_IF, ConditionAnd, ConditionOr, ParserError } from "@core/interfaces/objects";
-import { SDQL_Name, SDQL_OperatorName } from "@objects/primitives";
+import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 import { Token, Tokenizer, TokenType } from "./Tokenizer";
 // import { AST_Compensation } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Compensation";
 // import { AST_Expr } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Expr";

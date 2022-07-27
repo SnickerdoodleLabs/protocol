@@ -1,5 +1,4 @@
-import { SDQL_OperatorName } from "@objects/primitives";
-import { AST_Expr } from "./AST_Expr";
+import { SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 
 export abstract class Operator {
 
