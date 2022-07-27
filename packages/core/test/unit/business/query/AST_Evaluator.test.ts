@@ -5,6 +5,7 @@ import "reflect-metadata";
 import { AST_Factories, QueryRepository } from "@core/implementations/business/utilities";
 import { IpfsCID, SDQL_Name, SDQL_OperatorName, SDQL_Return, Version } from "@objects/primitives";
 import { AST, AST_ConditionExpr, AST_Expr, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "@objects/businessObjects";
+import { QueryFactories } from "@core/implementations/utilities/factory";
 
 
 // const ast = new AST(
@@ -13,7 +14,9 @@ import { AST, AST_ConditionExpr, AST_Expr, AST_Return, AST_ReturnExpr, Command_I
 //     "Shrapnel"
 //     );
 const queryRepository = new QueryRepository();
-const astEvaluator = AST_Factories.makeAST_Evaluator(IpfsCID("000"), null, queryRepository);
+// const astEvaluator = AST_Factories.makeAST_Evaluator(IpfsCID("000"), null, queryRepository);
+const queryFactories = new QueryFactories();
+const astEvaluator = queryFactories.makeAstEvaluator(IpfsCID("000"), null, queryRepository);
 
 // #region Conditions
 
