@@ -4,7 +4,7 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 
-import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
+import { DefaultAccountBalances, DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
@@ -40,6 +40,8 @@ import {
   IConfigOverrides,
   CrumbsContractError,
   QueryFormatError,
+  IAccountBalances,
+  IAccountBalancesType,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -78,6 +80,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     configOverrides?: IConfigOverrides,
     persistence?: IDataWalletPersistence,
     accountIndexer?: IAccountIndexing,
+    accountBalances?: IAccountBalances,
   ) {
     this.iocContainer = new Container();
 
@@ -108,6 +111,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer
         .bind(IAccountIndexingType)
         .to(DefaultAccountIndexers)
+        .inSingletonScope();
+    }
+
+    // If an Account Balances is provided, hook it up. If not we'll use the default.
+    if (accountBalances != null) {
+      this.iocContainer
+        .bind(IAccountBalancesType)
+        .toConstantValue(accountBalances);
+    } else {
+      this.iocContainer
+        .bind(IAccountBalancesType)
+        .to(DefaultAccountBalances)
         .inSingletonScope();
     }
 
