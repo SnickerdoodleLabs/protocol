@@ -2,7 +2,7 @@
 import "reflect-metadata";
 
 import { Tokenizer, TokenType } from "@core/implementations/business/utilities/query";
-import { ParserError } from "@objects/businessObjects";
+import { ParserError } from "@core/interfaces/objects";
 
 
 describe("Tokenizer", () => {

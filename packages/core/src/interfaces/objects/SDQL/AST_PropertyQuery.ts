@@ -1,6 +1,7 @@
 import { SDQL_Name, SDQL_OperatorName } from "@objects/primitives";
 import { AST_Query } from "./AST_Query";
-import { Condition, ConditionG, ConditionGE, ConditionIn, ConditionL } from "./condition";
+import { Condition, ConditionG, ConditionGE, ConditionIn, ConditionL } from "@core/interfaces/objects/SDQL/condition";
+
 
 export class AST_PropertyQuery extends AST_Query {
 

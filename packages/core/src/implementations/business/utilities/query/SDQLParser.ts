@@ -1,7 +1,7 @@
 
 import "reflect-metadata";
 
-import { AST, AST_Compensation, AST_Expr, AST_Logic, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, AST_Returns, Command, DuplicateIdInSchema, ReturnNotImplementedError, SDQLSchema } from "@objects/businessObjects";
+import { AST, AST_Compensation, AST_Expr, AST_Logic, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, AST_Returns, Command, DuplicateIdInSchema, ReturnNotImplementedError, SDQLSchema } from "@core/interfaces/objects";
 import { IpfsCID, SDQL_Name, URLString, Version } from "@objects/primitives";
 import { ExprParser } from "./ExprParser";
 // import { AST } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST";

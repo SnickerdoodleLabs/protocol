@@ -1,18 +1,17 @@
 import {
   IDataWalletPersistence,
-  IDataWalletPersistenceType,
-  Insight, QueryFormatError
+  IDataWalletPersistenceType, QueryFormatError
 } from "@snickerdoodlelabs/objects";
 
 import { EligibleReward } from "@snickerdoodlelabs/objects";
 
 import { IQueryParsingEngine, IQueryRepository, IQueryRepositoryType } from "@core/interfaces/business/utilities";
+import { InsightString } from "@core/interfaces/objects";
 import { IQueryFactories, IQueryFactoriesType } from "@core/interfaces/utilities/factory";
-import { IpfsCID, SDQLQuery, SDQLSchema } from "@snickerdoodlelabs/objects";
+import { IpfsCID, SDQLQuery, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { InsightString } from "@core/interfaces/objects";
-import { SDQL_Return } from "@snickerdoodlelabs/objects";
+
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 

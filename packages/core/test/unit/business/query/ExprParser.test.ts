@@ -2,7 +2,7 @@
 import "reflect-metadata";
 
 import { ExprParser, SDQLParser, Token, Tokenizer, TokenType } from "@core/implementations/business/utilities/query";
-import { AST, AST_BoolExpr, AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionOr, SDQLSchema } from "@objects/businessObjects";
+import { AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionOr, SDQLSchema } from "@core/interfaces/objects/SDQL";
 import { IpfsCID } from "@objects/primitives";
 import { avalance1SchemaStr } from "./avalanche1.data";
 // import { ExprParser } from "businessObjects/SDQL/ExprParser";

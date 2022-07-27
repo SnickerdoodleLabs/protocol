@@ -1,7 +1,7 @@
 import { IQueryRepository } from "@core/interfaces/business/utilities";
+import { AST_Query } from "@core/interfaces/objects";
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
-import { AST_Query } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Query";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";

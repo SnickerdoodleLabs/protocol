@@ -1,5 +1,5 @@
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
-import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionOr, EvalNotImplementedError, EvaluationError, Operator, TypeChecker } from "@objects/businessObjects";
+import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionOr, EvalNotImplementedError, EvaluationError, Operator, TypeChecker } from "@core/interfaces/objects";
 import { QueryRepository } from "./QueryRepository";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
