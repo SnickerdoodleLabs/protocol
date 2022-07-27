@@ -8,6 +8,8 @@ import { EVMAccountAddress, EVMContractAddress, IpfsCID, SDQLQuery, SDQLString }
 import { ContextProviderMock } from "@core-tests/mock/utilities";
 import { IQueryService } from "@core/interfaces/business";
 import { QueryService } from "@core/implementations/business";
+import { IConfigProvider } from "@core/interfaces/utilities";
+import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
@@ -21,6 +23,8 @@ class QueryServiceMocks {
   public insightPlatformRepo: IInsightPlatformRepository;
   public consentContractRepo: IConsentContractRepository;
   public contextProvider: ContextProviderMock;
+  public configProvider: IConfigProvider;
+  public cryptoUtils: ICryptoUtils;
 
   public constructor() {
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
