@@ -20,3 +20,7 @@ export const queryId = IpfsCID("queryId");
 export const qureyString = SDQLString("qurey");
 
 export const SDQuery = new SDQLQuery(queryId, qureyString);
+
+// #region for config provider mock
+
+// #endregion
