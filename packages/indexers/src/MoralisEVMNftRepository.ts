@@ -131,7 +131,7 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
   ): ResultAsync<IRequestConfig, never> {
     const params = {
       format: "decimal",
-      chain: chainId.toString(),
+      chain: `0x${chainId.toString(16)}`,
     };
     if (contracts != undefined) {
       params["token_addresses"] = contracts.toString();

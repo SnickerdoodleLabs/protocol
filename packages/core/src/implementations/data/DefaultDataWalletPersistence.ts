@@ -18,12 +18,11 @@ import {
   ChainId,
   IEVMBalance,
   URLString,
+  IEVMNFT,
+  EVMTransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { AccountIndexingError } from "@snickerdoodlelabs/objects";
-import { AjaxError } from "@snickerdoodlelabs/objects";
-
 
 /**
  * This class is where we should implement the cloud-based data wallet persistence.
@@ -227,13 +226,37 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-  updateAccountBalances(
+  public updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
-  getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>{
+  public updateAccountNFTs(
+    nfts: IEVMNFT[],
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getURLs(): ResultAsync<Map<URLString, number>, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getEVMTransactions(
+    filter: EVMTransactionFilter,
+  ): ResultAsync<EVMTransaction[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getAccountBalances(): ResultAsync<IEVMBalance, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public addURL(url: URLString): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 }

@@ -10,9 +10,16 @@ import {
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
 } from "@shared/constants/ports";
 import {
+  Age,
+  CountryCode,
+  EmailAddressString,
   EVMAccountAddress,
+  FamilyName,
+  Gender,
+  GivenName,
   LanguageCode,
   Signature,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
 let coreGateway: ExternalCoreGateway;
@@ -59,6 +66,48 @@ export class OnboardingProvider {
   }
   static getUnlockMessage(languageCode: LanguageCode = LanguageCode("en")) {
     return coreGateway.getUnlockMessage(languageCode);
+  }
+  static getFamilyName() {
+    return coreGateway.getFamilyName();
+  }
+  static getGivenName() {
+    return coreGateway.getGivenName();
+  }
+  static getAge() {
+    return coreGateway.getAge();
+  }
+  static getBirthday() {
+    return coreGateway.getBirtday();
+  }
+  static getEmail() {
+    return coreGateway.getEmail();
+  }
+  static getLocation() {
+    return coreGateway.getLocation();
+  }
+  static getGender() {
+    return coreGateway.getGender();
+  }
+  static setFamilyName(familyName: FamilyName) {
+    return coreGateway.setFamilyName(familyName);
+  }
+  static setGivenName(givenName: GivenName) {
+    return coreGateway.setGivenName(givenName);
+  }
+  static setAge(age: Age) {
+    return coreGateway.setAge(age);
+  }
+  static setBirthday(birthday: UnixTimestamp) {
+    return coreGateway.setBirtday(birthday);
+  }
+  static setEmail(email: EmailAddressString) {
+    return coreGateway.setEmail(email);
+  }
+  static setLocation(location: CountryCode) {
+    return coreGateway.setLocation(location);
+  }
+  static setGender(gender: Gender) {
+    return coreGateway.setGender(gender);
   }
 }
 

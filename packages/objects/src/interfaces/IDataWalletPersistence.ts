@@ -6,12 +6,11 @@ import {
   ClickData,
   ClickFilter,
   EVMTransaction,
+  EVMTransactionFilter,
+  IEVMNFT,
   SiteVisit,
 } from "@objects/businessObjects";
-import { 
-  PersistenceError,
-  AccountIndexingError,
-  AjaxError  } from "@objects/errors";
+import { PersistenceError } from "@objects/errors";
 import {
   Age,
   EmailAddressString,
@@ -115,15 +114,19 @@ export interface IDataWalletPersistence {
   addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
+  getEVMTransactions(
+    filter: EVMTransactionFilter,
+  ): ResultAsync<EVMTransaction[], PersistenceError>;
 
   updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<void, PersistenceError>;
+  getAccountBalances(): ResultAsync<IEVMBalance, PersistenceError>;
 
-  updateAccountBalances(
-    balances: IEVMBalance[],
-  ): ResultAsync<void, PersistenceError>;
+  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<void, PersistenceError>;
+  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 
+  addURL(url: URLString): ResultAsync<void, PersistenceError>;
   getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>;
 }
 

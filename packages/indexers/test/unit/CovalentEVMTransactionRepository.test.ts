@@ -1,11 +1,5 @@
 import "reflect-metadata";
 import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
-import {
-  ChainId,
-  EVMAccountAddress,
-  IDataWalletPersistence,
-  IEVMTransactionRepository,
-} from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import td from "testdouble";
 
@@ -16,16 +10,13 @@ import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransacti
 import { IIndexerConfig } from "@indexers/IIndexerConfig";
 import { IIndexerConfigProvider } from "@indexers/IIndexerConfigProvider";
 
-const chainId = ChainId(1337);
-const accountAddress = EVMAccountAddress("0xPhoebe");
-const startTime = new Date(123456);
-
 class CovalentEVMTransactionRepositoryMocks {
   public configProvider = td.object<IIndexerConfigProvider>();
   public ajaxUtils = td.object<IAxiosAjaxUtils>();
 
   public config: IIndexerConfig = {
     covalentApiKey: "CovalentApiKey",
+    moralisApiKey: "MoralisApiKey",
   };
 
   constructor(public responseRepo) {

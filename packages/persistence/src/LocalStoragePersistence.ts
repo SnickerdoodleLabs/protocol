@@ -1,5 +1,5 @@
-import { URLString } from "@snickerdoodlelabs/objects";
 import {
+  URLString,
   Age,
   ClickData,
   ClickFilter,
@@ -18,6 +18,8 @@ import {
   EVMTransaction,
   ChainId,
   IEVMBalance,
+  IEVMNFT,
+  EVMTransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -33,6 +35,11 @@ enum ELocalStorageKey {
   GENDER = "SD_Gender",
   EMAIL = "SD_Email",
   LOCATION = "SD_Location",
+  BALANCES = "SD_Balances",
+  NFTS = "SD_NFTs",
+  URLs = "SD_URLs",
+  CLICKS = "SD_CLICKS",
+  REJECTED_COHORTS = "SD_RejectedCohorts",
 }
 
 export class LocalStoragePersistence implements IDataWalletPersistence {
@@ -60,26 +67,40 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    const savedClicks = LocalStorageUtils.readLocalStorage(
+      ELocalStorageKey.CLICKS,
+    );
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.CLICKS, [
+      ...savedClicks,
+      click,
+    ]);
+    return okAsync(undefined);
   }
 
   public getClicks(
     clickFilter: ClickFilter,
   ): ResultAsync<ClickData, PersistenceError> {
-    throw new Error("Method not implemented.");
+    return this._checkAndRetrieveValue(ELocalStorageKey.CLICKS);
   }
 
   public getRejectedCohorts(): ResultAsync<
     EVMContractAddress[],
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    return this._checkAndRetrieveValue(ELocalStorageKey.REJECTED_COHORTS);
   }
 
   public addRejectedCohorts(
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    const saved = LocalStorageUtils.readLocalStorage(
+      ELocalStorageKey.REJECTED_COHORTS,
+    );
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.REJECTED_COHORTS, [
+      ...saved,
+      consentContractAddresses,
+    ]);
+    return okAsync(undefined);
   }
 
   public addSiteVisits(
@@ -97,26 +118,6 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
 
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.SITE_VISITS);
-  }
-
-  public addEVMTransactions(
-    transactions: EVMTransaction[],
-  ): ResultAsync<void, PersistenceError> {
-    const savedTransactions = LocalStorageUtils.readLocalStorage(
-      ELocalStorageKey.TRANSACTIONS,
-    );
-    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.TRANSACTIONS, [
-      ...savedTransactions,
-      ...transactions,
-    ]);
-    return okAsync(undefined);
-  }
-
-  public getLatestTransactionForAccount(
-    chainId: ChainId,
-    address: EVMAccountAddress,
-  ): ResultAsync<EVMTransaction | null, PersistenceError> {
-    throw new Error("Method not implemented.");
   }
 
   public addAccount(
@@ -201,14 +202,81 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION);
   }
 
-  updateAccountBalances(
+  public updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<void, PersistenceError> {
-    throw new Error("Method not implemented.");
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.BALANCES, balances);
+    return okAsync(undefined);
   }
 
-  getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>{
-    throw new Error("Method not implemented.");
+  public addURL(url: URLString): ResultAsync<void, PersistenceError> {
+    const urls = LocalStorageUtils.readLocalStorage(ELocalStorageKey.URLs);
+    LocalStorageUtils.writeLocalStorage(
+      ELocalStorageKey.URLs,
+      Array.from(new Set([...urls, url])),
+    );
+    return okAsync(undefined);
   }
 
+  public getURLs(): ResultAsync<Map<URLString, number>, PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.URLs);
+  }
+
+  public updateAccountNFTs(
+    nfts: IEVMNFT[],
+  ): ResultAsync<void, PersistenceError> {
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.NFTS, nfts);
+    return okAsync(undefined);
+  }
+
+  public addEVMTransactions(
+    transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError> {
+    const savedTransactions = LocalStorageUtils.readLocalStorage(
+      ELocalStorageKey.TRANSACTIONS,
+    );
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.TRANSACTIONS, [
+      ...savedTransactions,
+      ...transactions,
+    ]);
+    return okAsync(undefined);
+  }
+
+  public getEVMTransactions(
+    filter: EVMTransactionFilter,
+  ): ResultAsync<EVMTransaction[], PersistenceError> {
+    return this._checkAndRetrieveValue<EVMTransaction[]>(
+      ELocalStorageKey.TRANSACTIONS,
+    ).andThen((transactions) => {
+      return okAsync(
+        transactions.filter((value) => {
+          filter.matches(value);
+        }),
+      );
+    });
+  }
+
+  public getLatestTransactionForAccount(
+    chainId: ChainId,
+    address: EVMAccountAddress,
+  ): ResultAsync<EVMTransaction | null, PersistenceError> {
+    return this.getEVMTransactions(
+      new EVMTransactionFilter([chainId], [address]),
+    ).andThen((transactions) => {
+      if (transactions.length == 0) {
+        return okAsync(null);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const tip = transactions.sort((a, b) => a.timestamp - b.timestamp).pop()!;
+      return okAsync(tip);
+    });
+  }
+
+  public getAccountBalances(): ResultAsync<IEVMBalance, PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.BALANCES);
+  }
+  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+    return this._checkAndRetrieveValue(ELocalStorageKey.NFTS);
+  }
 }
