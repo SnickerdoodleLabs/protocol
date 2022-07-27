@@ -389,42 +389,54 @@ function joinCampaign(): ResultAsync<
         { name: "Cancel", value: "cancel" },
       ],
     },
-  ]).andThen((answers) => {
-    const contractAddress = EVMContractAddress(answers.joinCampaign);
-    if (consentContracts.includes(contractAddress)) {
-      // They did not pick "cancel"
-      // We need to make an invitation for ourselves
-      return cryptoUtils.getTokenId().andThen((tokenId) => {
-        const invitation = new CohortInvitation(
-          DomainName("testDomain"),
-          contractAddress,
-          tokenId,
-          null,
-        );
+  ])
+    .andThen((answers) => {
+      const contractAddress = EVMContractAddress(answers.joinCampaign);
+      if (consentContracts.includes(contractAddress)) {
+        // They did not pick "cancel"
+        // We need to make an invitation for ourselves
+        return cryptoUtils.getTokenId().andThen((tokenId) => {
+          const invitation = new CohortInvitation(
+            DomainName("testDomain"),
+            contractAddress,
+            tokenId,
+            null,
+          );
 
-        return core
-          .checkInvitationStatus(invitation)
-          .andThen((invitationStatus) => {
-            if (invitationStatus != EInvitationStatus.New) {
-              return errAsync(
-                new Error(`Invalid invitation to campaign ${contractAddress}`),
+          return core
+            .checkInvitationStatus(invitation)
+            .andThen((invitationStatus) => {
+              if (invitationStatus != EInvitationStatus.New) {
+                return errAsync(
+                  new Error(
+                    `Invalid invitation to campaign ${contractAddress}`,
+                  ),
+                );
+              }
+
+              // Accept with no conditions
+              return core.acceptInvitation(invitation, null);
+            })
+            .map(() => {
+              console.log(
+                `Accepted invitation to ${contractAddress}, with token Id ${tokenId}`,
               );
-            }
+            });
+        });
+      }
 
-            // Accept with no conditions
-            return core.acceptInvitation(invitation, null);
-          });
-      });
-    }
-
-    return okAsync(undefined);
-  });
+      return okAsync(undefined);
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
+    });
 }
 
 function prompt(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   questions: inquirer.QuestionCollection<any>,
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): ResultAsync<any, never> {
   return ResultAsync.fromPromise(inquirer.prompt(questions), (e) => {
     if ((e as any).isTtyError) {
@@ -433,7 +445,7 @@ function prompt(
     }
     return e as Error;
   }).orElse((e) => {
-    // Swallow the error
+    // Swallow the error, returns an empty answer
     return okAsync({});
   });
 }

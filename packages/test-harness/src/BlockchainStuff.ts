@@ -5,9 +5,11 @@ import {
   MinimalForwarderContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
+  BaseURI,
   chainConfig,
   ChainId,
   ConsentFactoryContractError,
+  ConsentName,
   ControlChainInformation,
   EVMAccountAddress,
   EVMContractAddress,
@@ -65,12 +67,15 @@ export class BlockchainStuff {
     );
   }
 
-  public createConsentContract(): ResultAsync<
-    EVMContractAddress,
-    ConsentFactoryContractError
-  > {
+  public createConsentContract(
+    name: ConsentName,
+  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
     return this.consentFactoryContract
-      .createConsent(this.businessAccount.accountAddress, "this is a base uri")
+      .createConsent(
+        this.businessAccount.accountAddress,
+        BaseURI("this is a base uri"),
+        name,
+      )
       .map((contractAddress) => {
         // Got the new consent contract address
         // Create the contract wrapper

@@ -4,6 +4,7 @@ import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
   CohortInvitation,
   EInvitationStatus,
@@ -14,12 +15,20 @@ import {
   EVMContractAddress,
   IDataWalletPersistenceType,
   IDataWalletPersistence,
-  Signature,
   ConsentContractError,
   ConsentContractRepositoryError,
   BlockchainProviderError,
   AjaxError,
+  EVMAccountAddress,
+  BigNumberString,
+  TokenUri,
+  MinimalForwarderContractError,
 } from "@snickerdoodlelabs/objects";
+import {
+  forwardRequestTypes,
+  getMinimalForwarderSigningDomain,
+} from "@snickerdoodlelabs/signature-verification";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -115,20 +124,73 @@ export class CohortService implements ICohortService {
   public acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, UninitializedError | PersistenceError | AjaxError> {
-    // TODO: Need to sign the invitation with our data wallet!
-    //context.dataWalletKey
-    const signature = Signature("TODO, this should sign the invitation!");
-
-    // Not already opted in. We are only supporting a lazy opt-in process, whereby the business pays the gas
-    return this.contextProvider.getContext().andThen((context) => {
-      if (context.dataWalletAddress == null) {
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+  > {
+    // This will actually create a metatransaction, since the invitation is issued
+    // to the data wallet address
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+      this.contractFactory.factoryConsentContracts([
+        invitation.consentContractAddress,
+      ]),
+      this.contractFactory.factoryMinimalForwarderContract(),
+    ]).andThen(([config, context, [consentContract], minimalForwarder]) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
           new UninitializedError("Data wallet has not been unlocked yet!"),
         );
       }
-      return this.insightPlatformRepo
-        .acceptInvitation(context.dataWalletAddress, invitation, signature)
+
+      // Encode the call to the consent contract
+      const callData = consentContract.encodeOptIn(
+        invitation.tokenId,
+        TokenUri("ConsentConditionsGoHere"),
+      );
+
+      return minimalForwarder
+        .getNonce(EVMAccountAddress(context.dataWalletAddress))
+        .andThen((nonce) => {
+          // We need to take the types, and send it to the account signer
+          const value = {
+            to: invitation.consentContractAddress, // Contract address for the metatransaction
+            from: EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
+            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+            gas: BigNumber.from(1000000), // The amount of gas to pay.
+            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            data: callData, // The actual bytes of the request, encoded as a hex string
+          } as IMinimalForwarderRequest;
+
+          return this.cryptoUtils.signTypedData(
+            getMinimalForwarderSigningDomain(
+              config.controlChainId,
+              config.controlChainInformation.metatransactionForwarderAddress,
+            ),
+            forwardRequestTypes,
+            value,
+            context.dataWalletKey!,
+          );
+        })
+        .andThen((metatransactionSignature) => {
+          // Got the signature for the metatransaction, now we can execute it.
+          // .executeMetatransaction will sign everything and have the server run
+          // the metatransaction.
+          return this.insightPlatformRepo.executeMetatransaction(
+            context.dataWalletAddress!,
+            EVMAccountAddress(context.dataWalletAddress!),
+            invitation.consentContractAddress,
+            BigNumberString(BigNumber.from(invitation.tokenId).toString()),
+            callData,
+            metatransactionSignature,
+            context.dataWalletKey!,
+          );
+        })
         .map(() => {
           // Notify the world that we've opted in to the cohort
           context.publicEvents.onCohortJoined.next(

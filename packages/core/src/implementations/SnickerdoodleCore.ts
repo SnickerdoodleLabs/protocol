@@ -4,7 +4,10 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 
-import { DefaultAccountBalances, DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
+import {
+  DefaultAccountBalances,
+  DefaultAccountIndexers,
+} from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
@@ -42,6 +45,7 @@ import {
   QueryFormatError,
   IAccountBalances,
   IAccountBalancesType,
+  MinimalForwarderContractError,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -237,7 +241,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, AjaxError | UninitializedError | PersistenceError> {
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
+  > {
     const cohortService =
       this.iocContainer.get<ICohortService>(ICohortServiceType);
 
@@ -279,16 +290,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.leaveCohort(consentContractAddress);
   }
 
-  public processQuery(
-    {
-      consentContractAddress,
-      queryId
-    }: 
-    {
-      consentContractAddress: EVMContractAddress,
-      queryId: IpfsCID
-    }
-  ): ResultAsync<
+  public processQuery({
+    consentContractAddress,
+    queryId,
+  }: {
+    consentContractAddress: EVMContractAddress;
+    queryId: IpfsCID;
+  }): ResultAsync<
     void,
     AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
   > {

@@ -38,7 +38,6 @@ export * from "@objects/primitives/SDQLString";
 export * from "@objects/primitives/SHA256Hash";
 export * from "@objects/primitives/Signature";
 export * from "@objects/primitives/TokenId";
-export * from "@objects/primitives/TokenIdNumber";
 export * from "@objects/primitives/TokenUri";
 export * from "@objects/primitives/UnixTimestamp";
 export * from "@objects/primitives/URLString";
