@@ -53,38 +53,30 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public deliverInsights(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    cid: IpfsCID,
-    signature: Signature,
-    insights: Insight[]): ResultAsync<void, never> {
-    throw new Error("undefined");
-  }
-
-  public deliverInsight(
-    dataWalletAddress: DataWalletAddress,
-    consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    returns: Array<string>
-  ): ResultAsync<void, AjaxError> {
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const url = new URL(
-          urlJoin(
-            config.defaultInsightPlatformBaseUrl,
-            "responses"
-          )
-        );
-        return this.ajaxUtils.post<boolean>(url, {
-          consentContractId: consentContractAddress,
-          queryId: queryId,
-          dataWallet: dataWalletAddress,
-          returns: returns,
-          signature: signature,
-        });
-      })
-      .map((response) => {});
+    returns: string 
+    ): ResultAsync<void, AjaxError> {
+      return this.configProvider
+        .getConfig()
+        .andThen((config) => {
+          const url = new URL(
+            urlJoin(
+              config.defaultInsightPlatformBaseUrl,
+              "responses"
+            )
+          );
+          return this.ajaxUtils.post<boolean>(url, {
+            consentContractId: consentContractAddress,
+            queryId: queryId,
+            dataWallet: dataWalletAddress,
+            returns: returns,
+            signature: signature,
+          });
+        })
+        .map((response) => {});
   }
+
 
   public getBusinessConsentContracts(): ResultAsync<
     BusinessConsentContract[],
