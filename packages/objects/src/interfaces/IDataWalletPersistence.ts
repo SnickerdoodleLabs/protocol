@@ -67,7 +67,7 @@ export interface IDataWalletPersistence {
   addClick(click: ClickData): ResultAsync<void, PersistenceError>;
 
   /** This returns you click data that you have stored, according to the filter */
-  getClicks(clickFilter: ClickFilter): ResultAsync<ClickData, PersistenceError>;
+  getClicks(): ResultAsync<ClickData[], PersistenceError>;
 
   /** Google User Information */
   setAge(age: Age): ResultAsync<void, PersistenceError>;
