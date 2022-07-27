@@ -42,6 +42,7 @@ import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils"
 import { Reward } from "@snickerdoodlelabs/objects";
 import { EligibleReward } from "@snickerdoodlelabs/objects";
 import { InsightString } from "@core/interfaces/objects";
+import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -163,19 +164,27 @@ export class QueryService implements IQueryService {
       }
 
       // Need to sign the request to deliverInsights
+      // const value = {
+      //   consentContractAddress: consentContractAddress,
+      // } as Record<string, unknown>;
+
+      // const types: Record<string, TypedDataField[]> = {
+      //   InsightDelivery: [{ 
+      //     name: "consentContractAddress", 
+      //     type: "string" 
+      //   }],
+      // };
       const value = {
-        consentContractAddress: consentContractAddress,
+        consentContractId: consentContractAddress,
+        queryId,
+        dataWallet: context.dataWalletAddress,
+        returns: "hello world",
       } as Record<string, unknown>;
-
-      const types: Record<string, TypedDataField[]> = {
-        InsightDelivery: [{ name: "consentContractAddress", type: "string" }],
-      };
-
       
       return this.cryptoUtils
         .signTypedData(
           config.snickerdoodleProtocolDomain,
-          types,
+          insightDeliveryTypes,
           value,
           context.dataWalletKey,
         )
