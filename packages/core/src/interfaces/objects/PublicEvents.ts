@@ -11,7 +11,7 @@ import { Subject } from "rxjs";
 
 export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onInitialized: Subject<DataWalletAddress>;
-  public onQueryPosted: Subject<SDQLQuery>;
+  public onQueryPosted: Subject<{consentContractAddress:EVMContractAddress, query:SDQLQuery}>;
   public onAccountAdded: Subject<EVMAccountAddress>;
   public onCohortJoined: Subject<EVMContractAddress>;
   public onCohortLeft: Subject<EVMContractAddress>;

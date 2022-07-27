@@ -7,54 +7,49 @@ import {
   ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
-  LogUtils,
+  LogUtils
 } from "@snickerdoodlelabs/common-utils";
 import {
   CovalentEVMTransactionRepository,
   IIndexerConfigProvider,
-  IIndexerConfigProviderType,
+  IIndexerConfigProviderType
 } from "@snickerdoodlelabs/indexers";
 import {
   IEVMTransactionRepository,
-  IEVMTransactionRepositoryType,
+  IEVMTransactionRepositoryType
 } from "@snickerdoodlelabs/objects";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
-  QueryEvaluator,
-  QueryEvaluatorType,
-  QueryRepository,
-  QueryRepositoryType,
+  QueryEvaluator, QueryRepository
 } from "./business/utilities/query";
 
 import {
   AccountIndexerPoller,
-  BlockchainListener,
+  BlockchainListener
 } from "@core/implementations/api";
 import {
   AccountService,
   CohortService,
   MonitoringService,
   ProfileService,
-  QueryService,
+  QueryService
 } from "@core/implementations/business";
 import {
-  ConsentContractRepository,
-  InsightPlatformRepository,
-  CrumbsRepository,
+  ConsentContractRepository, CrumbsRepository, InsightPlatformRepository
 } from "@core/implementations/data";
 import {
   BlockchainProvider,
   ConfigProvider,
   ContextProvider,
-  DataWalletUtils,
+  DataWalletUtils
 } from "@core/implementations/utilities";
-import { ContractFactory } from "@core/implementations/utilities/factory";
+import { ContractFactory, QueryFactories } from "@core/implementations/utilities/factory";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
-  IBlockchainListenerType,
+  IBlockchainListenerType
 } from "@core/interfaces/api";
 import {
   IAccountService,
@@ -66,15 +61,16 @@ import {
   IProfileService,
   IProfileServiceType,
   IQueryService,
-  IQueryServiceType,
+  IQueryServiceType
 } from "@core/interfaces/business";
+import { IQueryEvaluator, IQueryEvaluatorType, IQueryRepository, IQueryRepositoryType } from "@core/interfaces/business/utilities";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType
 } from "@core/interfaces/data";
 import {
   IBlockchainProvider,
@@ -84,11 +80,13 @@ import {
   IContextProvider,
   IContextProviderType,
   IDataWalletUtils,
-  IDataWalletUtilsType,
+  IDataWalletUtilsType
 } from "@core/interfaces/utilities";
 import {
   IContractFactory,
   IContractFactoryType,
+  IQueryFactories,
+  IQueryFactoriesType
 } from "@core/interfaces/utilities/factory";
 
 export const snickerdoodleCoreModule = new ContainerModule(
@@ -161,12 +159,16 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Query instances
-    bind<QueryEvaluator>(QueryEvaluatorType)
+    bind<IQueryEvaluator>(IQueryEvaluatorType)
       .to(QueryEvaluator)
       .inSingletonScope();
 
-    bind<QueryRepository>(QueryRepositoryType)
+    bind<IQueryRepository>(IQueryRepositoryType)
       .to(QueryRepository)
+      .inSingletonScope();
+    
+    bind<IQueryFactories>(IQueryFactoriesType)
+      .to(QueryFactories)
       .inSingletonScope();
   },
 );

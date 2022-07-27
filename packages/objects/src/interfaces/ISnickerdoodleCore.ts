@@ -1,6 +1,6 @@
 import { ResultAsync } from "neverthrow";
 
-import { CohortInvitation, ConsentConditions } from "@objects/businessObjects";
+import { CohortInvitation, ConsentConditions, SDQLQuery } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
   AjaxError,
@@ -32,6 +32,7 @@ import {
   UnixTimestamp,
   CountryCode,
 } from "@objects/primitives";
+import { Observable } from "rxjs";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -166,7 +167,14 @@ export interface ISnickerdoodleCore {
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   processQuery(
-    queryId: IpfsCID,
+    {
+      consentContractAddress,
+      queryId
+    }: 
+    {
+      consentContractAddress: EVMContractAddress,
+      queryId: IpfsCID
+    }
   ): ResultAsync<
     void,
     AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
@@ -198,3 +206,9 @@ export interface ISnickerdoodleCore {
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
+
+export interface IQueryEngineEvents {
+  onInitialized: Observable<DataWalletAddress>;
+  onQueryPosted: Observable<{consentContractAddress:EVMContractAddress, query:SDQLQuery}>;
+  onAccountAdded: Observable<EVMAccountAddress>;
+}

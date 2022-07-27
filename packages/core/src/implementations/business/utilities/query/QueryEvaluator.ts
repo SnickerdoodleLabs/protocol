@@ -18,9 +18,10 @@ import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { AST_NetworkQuery } from "@core/interfaces/objects";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
+import { IQueryEvaluator } from "@core/interfaces/business/utilities";
 
 @injectable()
-export class QueryEvaluator {
+export class QueryEvaluator implements IQueryEvaluator {
     constructor(
         @inject(IDataWalletPersistenceType)
         protected dataWalletPersistence: IDataWalletPersistence
