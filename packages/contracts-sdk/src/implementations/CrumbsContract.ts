@@ -5,6 +5,7 @@ import {
   TokenId,
   CrumbsContractError,
   IBlockchainError,
+  HexString,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
@@ -22,7 +23,7 @@ export class CrumbsContract implements ICrumbsContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    contractAddress: EVMContractAddress,
+    public contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
@@ -105,6 +106,18 @@ export class CrumbsContract implements ICrumbsContract {
       .map(() => {});
   }
 
+  public encodeCreateCrumb(
+    crumbId: TokenId,
+    crumbContent: TokenUri,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("createCrumb", [
+        crumbId,
+        crumbContent,
+      ]),
+    );
+  }
+
   public burnCrumb(
     crumbId: TokenId,
     contractOverrides?: ContractOverrides | undefined,
@@ -163,5 +176,9 @@ export class CrumbsContract implements ICrumbsContract {
         });
       })
       .map(() => {});
+  }
+
+  public getContract(): ethers.Contract {
+    return this.contract;
   }
 }

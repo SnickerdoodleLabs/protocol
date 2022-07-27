@@ -8,22 +8,16 @@ import { ICrumbsContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   LanguageCode,
   BlockchainProviderError,
-  TokenId,
   EVMAccountAddress,
   AESEncryptedString,
   UninitializedError,
   CrumbsContractError,
-  EVMPrivateKey,
-  AjaxError,
-  DataWalletAddress,
   ICrumbContent,
 } from "@snickerdoodlelabs/objects";
-import { addCrumbTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { urlJoin } from "url-join-ts";
+import { okAsync, ResultAsync } from "neverthrow";
 
-import { ILoginRegistryRepository } from "@core/interfaces/data";
+import { ICrumbsRepository } from "@core/interfaces/data";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -34,7 +28,7 @@ import {
 } from "@core/interfaces/utilities/factory";
 
 @injectable()
-export class LoginRegistryRepository implements ILoginRegistryRepository {
+export class CrumbsRepository implements ICrumbsRepository {
   protected crumbsContract: ResultAsync<
     ICrumbsContract,
     BlockchainProviderError | UninitializedError
@@ -94,58 +88,6 @@ export class LoginRegistryRepository implements ILoginRegistryRepository {
           return new AESEncryptedString(languageCrumb.d, languageCrumb.iv);
         });
       });
-    });
-  }
-
-  /**
-   * Adds or updates the on-chain crumb. This is actually a little complicated as we need to do it via the
-   * Insight Platform
-   * @param accountAddress
-   * @param encryptedDataWalletKey
-   * @param languageCode
-   * @returns
-   */
-  public addCrumb(
-    dataWalletAddress: DataWalletAddress,
-    accountAddress: EVMAccountAddress,
-    encryptedDataWalletKey: AESEncryptedString,
-    languageCode: LanguageCode,
-    dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<TokenId, AjaxError> {
-    // We don't even need to check the existing crumb. We're going to make a request to the insight platform
-    // to add a crumb for us. What we need to do is generate a request and sign it.
-    return this.configProvider.getConfig().andThen((config) => {
-      const value = {
-        accountAddress: accountAddress,
-        data: encryptedDataWalletKey.data,
-        initializationVector: encryptedDataWalletKey.initializationVector,
-        languageCode: languageCode,
-      } as Record<string, unknown>;
-
-      return this.cryptoUtils
-        .signTypedData(
-          config.snickerdoodleProtocolDomain,
-          addCrumbTypes,
-          value,
-          dataWalletKey,
-        )
-        .andThen((signature) => {
-          const url = new URL(
-            urlJoin(
-              config.defaultInsightPlatformBaseUrl,
-              "crumb",
-              encodeURIComponent(accountAddress),
-            ),
-          );
-
-          return this.ajaxUtils.post<TokenId>(url, {
-            dataWallet: dataWalletAddress,
-            data: encryptedDataWalletKey.data,
-            initializationVector: encryptedDataWalletKey.initializationVector,
-            languageCode: languageCode,
-            signature: signature,
-          });
-        });
     });
   }
 

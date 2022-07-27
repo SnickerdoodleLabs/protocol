@@ -1,6 +1,12 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
+  ICryptoUtilsType,
+  ICryptoUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AjaxError,
@@ -10,10 +16,14 @@ import {
   CohortInvitation,
   EVMContractAddress,
   Signature,
-  TokenId,
   DomainName,
   DataWalletAddress,
+  EVMAccountAddress,
+  HexString,
+  EVMPrivateKey,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
+import { executeMetatransactionTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
@@ -28,6 +38,7 @@ import {
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IConfigProviderType) public configProvider: IConfigProvider,
   ) {}
@@ -152,12 +163,67 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         return response.records;
       });
   }
+
+  public executeMetatransaction(
+    dataWalletAddress: DataWalletAddress,
+    accountAddress: EVMAccountAddress,
+    contractAddress: EVMContractAddress,
+    nonce: BigNumberString,
+    data: HexString,
+    metatransactionSignature: Signature,
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<void, AjaxError> {
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const value = {
+          accountAddress: accountAddress,
+          contractAddress: contractAddress,
+          nonce: nonce,
+          data: data,
+          metatransactionSignature: metatransactionSignature,
+        } as Record<string, unknown>;
+
+        return this.cryptoUtils
+          .signTypedData(
+            config.snickerdoodleProtocolDomain,
+            executeMetatransactionTypes,
+            value,
+            dataWalletKey,
+          )
+          .andThen((signature) => {
+            const url = new URL(
+              urlJoin(config.defaultInsightPlatformBaseUrl, "metatransaction"),
+            );
+
+            const postBody = {
+              dataWallet: dataWalletAddress,
+              accountAddress: accountAddress,
+              contractAddress: contractAddress,
+              nonce: nonce,
+              data: data,
+              metatransactionSignature: metatransactionSignature,
+              signature: signature,
+            };
+
+            console.log("postBody", postBody);
+
+            return this.ajaxUtils.post<IExecuteMetatransactionResponse>(
+              url,
+              postBody,
+            );
+          });
+      })
+      .map(() => {});
+  }
 }
 
 // Refer to documentation/openapi/Insight Platform API.yaml
 interface IGetTxtRecordsResponse {
   records: string[];
 }
+
+interface IExecuteMetatransactionResponse {}
 
 export const IInsightPlatformRepositoryType = Symbol.for(
   "IInsightPlatformRepository",

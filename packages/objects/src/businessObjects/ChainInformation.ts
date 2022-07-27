@@ -22,6 +22,7 @@ export class ControlChainInformation extends ChainInformation {
     public indexer: EIndexer,
     public consentFactoryContractAddress: EVMContractAddress,
     public crumbsContractAddress: EVMContractAddress,
+    public metatransactionForwarderAddress: EVMContractAddress,
   ) {
     super(name, chainId, isDev, providerUrls, averageBlockMiningTime, indexer);
   }

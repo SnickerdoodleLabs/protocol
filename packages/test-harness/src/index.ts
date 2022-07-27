@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   Age,
@@ -21,12 +22,22 @@ import {
   TokenId,
   UninitializedError,
   UnsupportedLanguageError,
+  Signature,
+  chainConfig,
+  ChainId,
+  ControlChainInformation,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import {
+  forwardRequestTypes,
+  getMinimalForwarderSigningDomain,
+} from "@snickerdoodlelabs/signature-verification";
+import { BigNumber } from "ethers";
 import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
 
 // https://github.com/SBoudrias/Inquirer.js
@@ -39,15 +50,16 @@ const core = new SnickerdoodleCore(
   persistence,
 );
 
-const simulator = new InsightPlatformSimulator();
-const cryptoUtils = new CryptoUtils();
-const languageCode = LanguageCode("en");
 const accountPrivateKey = EVMPrivateKey(
   "0x0123456789012345678901234567890123456789012345678901234567890123",
 );
-const accountAddress = EVMAccountAddress(
-  "0x14791697260E4c9A71f18484C9f997B308e59325",
-);
+
+const blockchain = new BlockchainStuff(accountPrivateKey);
+
+const simulator = new InsightPlatformSimulator(blockchain);
+const cryptoUtils = new CryptoUtils();
+const languageCode = LanguageCode("en");
+
 const domainName = DomainName("snickerdoodle.dev");
 
 const cohortInvitation = new CohortInvitation(
@@ -70,6 +82,61 @@ core.getEvents().map(async (events) => {
 
   events.onQueryPosted.subscribe((query) => {
     console.log(`Query posted`, query);
+  });
+
+  events.onMetatransactionSignatureRequested.subscribe(async (request) => {
+    // This method needs to happen in nicer form in all form factors
+    try {
+      console.log(
+        `Metadata Transaction Requested! Signer account address: ${blockchain.accountAddress}`,
+        `Request account address: ${request.accountAddress}`,
+      );
+
+      // We need to get a nonce for this account address from the forwarder contract
+      const nonceResult = await blockchain.minimalForwarder.getNonce(
+        request.accountAddress,
+      );
+      if (nonceResult.isErr()) {
+        throw nonceResult.error;
+      }
+      const nonce = nonceResult.value;
+
+      // We need to take the types, and send it to the account signer
+      const value = {
+        to: request.contractAddress, // Contract address for the metatransaction
+        from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
+        value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+        gas: BigNumber.from(1000000), // The amount of gas to pay.
+        nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+        data: request.data, // The actual bytes of the request, encoded as a hex string
+      } as IMinimalForwarderRequest;
+
+      // Get the chain info for the doodle chain
+      const doodleChainConfig = chainConfig.get(
+        ChainId(31337),
+      ) as ControlChainInformation;
+
+      const metatransactionSignature = Signature(
+        await blockchain.accountWallet._signTypedData(
+          // This domain is critical- we have to use this and not the normal Snickerdoodle domain
+          getMinimalForwarderSigningDomain(
+            doodleChainConfig.chainId,
+            doodleChainConfig.metatransactionForwarderAddress,
+          ),
+          forwardRequestTypes,
+          value,
+        ),
+      );
+
+      console.log(
+        `Metatransaction signature generated: ${metatransactionSignature}`,
+      );
+
+      request.callback(metatransactionSignature, nonce);
+    } catch (e) {
+      console.error(`Error signing forwarding request!`, e);
+      process.exit(1);
+    }
   });
 
   // Main event prompt. Core is up and running
@@ -167,9 +234,9 @@ function corePrompt(): ResultAsync<void, Error> {
   ).andThen((answers) => {
     switch (answers.core) {
       case "unlock":
-        return unlockCore(accountAddress, accountPrivateKey);
+        return unlockCore(blockchain.accountAddress, accountPrivateKey);
       case "addAccount":
-        return addAccount(accountAddress, accountPrivateKey);
+        return addAccount(blockchain.accountAddress, accountPrivateKey);
       case "checkInvitationStatus":
         return checkInvitationStatus(cohortInvitation).map((status) => {
           console.log(status);

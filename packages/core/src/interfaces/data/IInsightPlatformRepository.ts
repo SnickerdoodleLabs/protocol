@@ -1,4 +1,8 @@
 import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
+import {
   AjaxError,
   Insight,
   IpfsCID,
@@ -9,6 +13,10 @@ import {
   TokenId,
   DomainName,
   DataWalletAddress,
+  HexString,
+  EVMAccountAddress,
+  EVMPrivateKey,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -44,6 +52,16 @@ export interface IInsightPlatformRepository {
   ): ResultAsync<void, AjaxError>;
 
   getTXTRecords(domainName: DomainName): ResultAsync<string[], AjaxError>;
+
+  executeMetatransaction(
+    dataWalletAddress: DataWalletAddress,
+    accountAddress: EVMAccountAddress,
+    contractAddress: EVMContractAddress,
+    nonce: BigNumberString,
+    data: HexString,
+    metatransactionSignature: Signature,
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<void, AjaxError>;
 }
 
 export const IInsightPlatformRepositoryType = Symbol.for(

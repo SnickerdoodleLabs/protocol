@@ -25,7 +25,7 @@ import {
   InvalidSignatureError,
   IpfsCID,
   IPFSError,
-  IQueryEngineEvents,
+  ISnickerdoodleCoreEvents,
   ISnickerdoodleCore,
   LanguageCode,
   FamilyName,
@@ -120,7 +120,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     }
   }
 
-  public getEvents(): ResultAsync<IQueryEngineEvents, never> {
+  public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
     const contextProvider =
       this.iocContainer.get<IContextProvider>(IContextProviderType);
 

@@ -1,6 +1,6 @@
 import {
   ISnickerdoodleCore,
-  IQueryEngineEvents,
+  ISnickerdoodleCoreEvents,
 } from "@snickerdoodlelabs/objects";
 import { ICoreListener } from "@interfaces/api";
 import { ok, okAsync, ResultAsync } from "neverthrow";
@@ -9,7 +9,7 @@ export class CoreListener implements ICoreListener {
   constructor(protected core: ISnickerdoodleCore) {}
 
   public initialize(): ResultAsync<void, never> {
-    this.core.getEvents().map((events: IQueryEngineEvents) => {
+    this.core.getEvents().map((events: ISnickerdoodleCoreEvents) => {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
