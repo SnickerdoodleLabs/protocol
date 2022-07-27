@@ -27,7 +27,7 @@ export class RpcEngineFactory implements IRpcEngineFactory {
     // add middleware for handling rpc events
     rpcEngine.push(
       createAsyncMiddleware(async (req, res, next) => {
-        await this.rpcCallHandler.handleRpcCall(req, res, next);
+        await this.rpcCallHandler.handleRpcCall(req, res, next, remotePort.sender );
       }),
     );
     // create rpc stream duplex

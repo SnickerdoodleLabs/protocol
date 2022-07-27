@@ -1,7 +1,3 @@
-import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   BaseURI,
   ConsentFactoryContractError,
@@ -13,6 +9,11 @@ import {
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
+
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
   protected contract: ethers.Contract;

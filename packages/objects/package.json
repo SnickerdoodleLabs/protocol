@@ -34,7 +34,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "echo \"No tests specified yet\" && exit 0"
+    "test": "jest"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
@@ -42,5 +42,18 @@
     "neverthrow": "^4.3.1",
     "rxjs": "^7.5.5",
     "ts-brand": "^0.0.2"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.18.6",
+    "jest": "^26.4.2"
+  },
+  "jest": {
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "moduleNameMapper": {
+      "^@objects/(.+)$": "<rootDir>src/$1"
+    }
   }
 }

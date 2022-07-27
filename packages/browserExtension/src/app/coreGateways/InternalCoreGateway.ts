@@ -1,4 +1,4 @@
-import { JsonRpcEngine } from "json-rpc-engine";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
 import { EInternalActions } from "@shared/enums";
@@ -12,7 +12,7 @@ export class InternalCoreGateway {
     this._handler = new CoreHandler(rpcEngine);
   }
 
-  public getState(): ResultAsync<IInternalState, unknown> {
+  public getState(): ResultAsync<IInternalState, JsonRpcError> {
     return this._handler.call(EInternalActions.GET_STATE);
   }
 }

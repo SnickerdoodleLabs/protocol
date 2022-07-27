@@ -4,19 +4,19 @@ import { ResultAsync } from "neverthrow";
 export default class CoreHandler {
   constructor(protected rpcEngine: JsonRpcEngine) {}
 
-  public call<T>(method, params?): ResultAsync<T, unknown> {
-    return ResultAsync.fromPromise<T, unknown>(
+  public call<T, K>(method, params?): ResultAsync<T, K> {
+    return ResultAsync.fromPromise<T, K>(
       new Promise((resolve, reject) => {
         const requestObject = this._createRequestObject(method, params);
         this.rpcEngine.handle(requestObject, async (error,result ) => {
           if (error) {
-            return reject(error ?? new Error());
+            return reject(error);
           }
           // @ts-ignore - no type support provided
           return resolve(result.result);
         });
       }),
-      (e) => (e),
+      (e) => (e as K),
     );
   }
 
