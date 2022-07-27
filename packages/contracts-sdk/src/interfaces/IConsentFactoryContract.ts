@@ -1,23 +1,31 @@
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
+  BaseURI,
   ConsentFactoryContractError,
+  ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
-  HexString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IConsentFactoryContract {
   /**
+   * Return contract address
+   */
+  getContractAddress(): EVMContractAddress;
+
+  /**
    * Creates a consent contract for user
    * @param ownerAddress Address of the owner of the Consent contract instance
    * @param baseUri Base uri for the for the Consent contract instance
+   * @param name Name for the for the Consent contract instance
    * @param overrides Any transaction call overrides
    */
   createConsent(
     ownerAddress: EVMAccountAddress,
-    baseUri: string,
+    baseUri: BaseURI,
+    name: ConsentName,
     overrides?: ContractOverrides,
   ): ResultAsync<EVMContractAddress, ConsentFactoryContractError>;
 

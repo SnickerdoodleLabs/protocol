@@ -1,7 +1,6 @@
 import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -45,13 +44,11 @@ export class ConsentContract implements IConsentContract {
   public optIn(
     tokenId: TokenIdNumber,
     agreementURI: TokenUri,
-    contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.optIn(
         tokenId,
         agreementURI,
-        contractOverrides,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
@@ -78,7 +75,6 @@ export class ConsentContract implements IConsentContract {
     agreementURI: TokenUri,
     nonce: number,
     signature: Signature,
-    contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.restrictedOptIn(
@@ -86,7 +82,6 @@ export class ConsentContract implements IConsentContract {
         agreementURI,
         nonce,
         signature,
-        contractOverrides,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
