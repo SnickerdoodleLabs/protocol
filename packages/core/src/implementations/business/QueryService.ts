@@ -41,7 +41,7 @@ import { TypedDataField } from "@ethersproject/abstract-signer";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import { Reward } from "@snickerdoodlelabs/objects";
 import { EligibleReward } from "@snickerdoodlelabs/objects";
-import { InsightString } from "@core/interfaces/objects";
+import { CoreConfig, CoreContext, InsightString } from "@core/interfaces/objects";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 
 @injectable()
@@ -163,74 +163,27 @@ export class QueryService implements IQueryService {
         );
       }
 
-      // Need to sign the request to deliverInsights
-      // const value = {
-      //   consentContractAddress: consentContractAddress,
-      // } as Record<string, unknown>;
+      return this.sdqlQueryRepo
+        .getByCID(queryId)
+        .andThen((query) => {
+          if (!query) {
+            return errAsync(new IPFSError("Query not found " + queryId));
+          }
 
-      // const types: Record<string, TypedDataField[]> = {
-      //   InsightDelivery: [{ 
-      //     name: "consentContractAddress", 
-      //     type: "string" 
-      //   }],
-      // };
+          return this.queryParsingEngine.handleQuery(query);
 
-      const insights: InsightString[] = [];
-      const signableData = this.createSignable(consentContractAddress, queryId, context, insights);
-      
-      return this.cryptoUtils
-        .signTypedData(
-          config.snickerdoodleProtocolDomain,
-          insightDeliveryTypes,
-          signableData,
-          context.dataWalletKey,
-        )
-        .andThen((signature) => {
-          return this.sdqlQueryRepo
-            .getByCID(queryId)
-            .andThen((query) => {
-              if (!query) {
-                return errAsync(new IPFSError("Query not found " + queryId));
-              }
-    
-              // TODO parse, evaluate, combine
-    
-              // Convert string to an object
-              // const queryContent = JSON.parse(query.query) as ISDQLQueryObject;
-    
-              // Break down the actual parts of the query.
-              return this.queryParsingEngine.handleQuery(query);
-            }).andThen((maps) => {
-              // return this.insightPlatformRepo.deliverInsights(insights);
-              const insights = maps[0];
-              const rewards = maps[1];
+        }).andThen((maps) => {
 
-              console.log(insights, rewards);
-              return errAsync(new UninitializedError("TODO"))
-            });
-        }).andThen((insights) => {
-          // return this.insightPlatformRepo.deliverInsights(insights);
-          return errAsync(new UninitializedError("TODO"))
+          const maps2 = maps as  [InsightString[], EligibleReward[]];
+          const insights = maps2[0];
+          const rewards = maps2[1];
+
+          console.log(insights, rewards);
+
+          return this.deliverInsights(context, config, consentContractAddress, queryId, insights);
+          
         });
-
-      // return this.sdqlQueryRepo
-      //   .getByCID(queryId)
-      //   .andThen((query) => {
-      //     if (!query) {
-      //       return errAsync(new IPFSError("Query not found " + queryId));
-      //     }
-
-      //     // TODO parse, evaluate, combine
-
-      //     // Convert string to an object
-      //     const queryContent = JSON.parse(query.query) as ISDQLQueryObject;
-
-      //     // Break down the actual parts of the query.
-      //     return this.queryParsingEngine.handleQuery(queryContent);
-      //   }).andThen((insights) => {
-      //     // return this.insightPlatformRepo.deliverInsights(insights);
-      //     return errAsync(new UninitializedError("TODO"))
-      //   });
+        
 
     });
 
@@ -272,13 +225,44 @@ export class QueryService implements IQueryService {
       // });
   }
 
+  public deliverInsights(context: CoreContext, config: CoreConfig, consentContractAddress: EVMContractAddress, queryId: IpfsCID, insights: InsightString[])
+  : ResultAsync<
+    void,
+    | AjaxError 
+    | UninitializedError 
+    | ConsentError 
+    | IPFSError
+    | QueryFormatError {
+    
+    const returns = JSON.stringify(insights);
 
-  public createSignable(consentContractAddress: EVMContractAddress, queryId: IpfsCID, context: any, insights: InsightString[]) {
+    const signableData = this.createSignable(context, consentContractAddress, queryId, returns);
+    
+    return this.cryptoUtils
+      .signTypedData(
+        config.snickerdoodleProtocolDomain,
+        insightDeliveryTypes,
+        signableData,
+        context.dataWalletKey,
+      )
+      .andThen((signature) => {
+        return this.insightPlatformRepo.deliverInsights(
+          context.dataWalletAddress,
+          consentContractAddress,
+          queryId,
+          signature,
+          returns
+        )
+      });
+
+  }
+
+  public createSignable(context: CoreContext, consentContractAddress: EVMContractAddress, queryId: IpfsCID, returns: string) {
     return {
       consentContractId: consentContractAddress,
       queryId,
       dataWallet: context.dataWalletAddress,
-      returns: JSON.stringify(insights),
+      returns: JSON.stringify(returns),
     } as Record<string, unknown>;
   }
 }
