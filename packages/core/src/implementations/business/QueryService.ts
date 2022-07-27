@@ -41,6 +41,7 @@ import { TypedDataField } from "@ethersproject/abstract-signer";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import { Reward } from "@snickerdoodlelabs/objects";
 import { EligibleReward } from "@snickerdoodlelabs/objects";
+import { InsightString } from "@core/interfaces/objects";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -195,7 +196,7 @@ export class QueryService implements IQueryService {
               return this.queryParsingEngine.handleQuery(query);
             }).andThen((maps) => {
               // return this.insightPlatformRepo.deliverInsights(insights);
-              let maps2 = maps as Array<Insight[] | EligibleReward[]>;
+              let maps2 = maps as Array<InsightString[] | EligibleReward[]>;
               const insights = maps2[0];
               const rewards = maps2[1];
 
