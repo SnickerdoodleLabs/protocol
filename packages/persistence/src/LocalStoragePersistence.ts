@@ -273,7 +273,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance, PersistenceError> {
+  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.BALANCES);
   }
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
