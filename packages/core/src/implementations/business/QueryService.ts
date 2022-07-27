@@ -196,9 +196,8 @@ export class QueryService implements IQueryService {
               return this.queryParsingEngine.handleQuery(query);
             }).andThen((maps) => {
               // return this.insightPlatformRepo.deliverInsights(insights);
-              let maps2 = maps as Array<InsightString[] | EligibleReward[]>;
-              const insights = maps2[0];
-              const rewards = maps2[1];
+              const insights = maps[0];
+              const rewards = maps[1];
 
               console.log(insights, rewards);
               return errAsync(new UninitializedError("TODO"))
