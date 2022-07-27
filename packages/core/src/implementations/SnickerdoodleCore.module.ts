@@ -67,6 +67,8 @@ import { IQueryEvaluator, IQueryEvaluatorType, IQueryRepository, IQueryRepositor
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  ICrumbsRepository,
+  ICrumbsRepositoryType,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType
 } from "@core/interfaces/data";

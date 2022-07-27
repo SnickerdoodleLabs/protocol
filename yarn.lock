@@ -3425,30 +3425,31 @@ __metadata:
   linkType: hard
 
 "@openzeppelin/hardhat-upgrades@npm:^1.17.0":
-  version: 1.19.0
-  resolution: "@openzeppelin/hardhat-upgrades@npm:1.19.0"
+  version: 1.19.1
+  resolution: "@openzeppelin/hardhat-upgrades@npm:1.19.1"
   dependencies:
     "@openzeppelin/upgrades-core": ^1.16.0
     chalk: ^4.1.0
+    debug: ^4.1.1
     proper-lockfile: ^4.1.1
   peerDependencies:
     "@nomiclabs/hardhat-ethers": ^2.0.0
     "@nomiclabs/hardhat-etherscan": ^3.1.0
+    ethers: ^5.0.5
     hardhat: ^2.0.2
   peerDependenciesMeta:
     "@nomiclabs/harhdat-etherscan":
       optional: true
   bin:
     migrate-oz-cli-project: dist/scripts/migrate-oz-cli-project.js
-  checksum: eba1149e3164f162b733af40710c99b0ccbe8aad7d5e7fe000b509e946cdee9a42f6ae58eaf868f0af0094e2a83902a7f67bd3801b6e9d1f52fd212949d84a68
+  checksum: 006acdb309ef5b8d4fa2a8ff61e19089a667dc2d917440bfb127eed8a6dfab487259c89fd0207ffb4fa61983860e767660ad8dce4c73c93b4f10c108385d3ed4
   languageName: node
   linkType: hard
 
 "@openzeppelin/upgrades-core@npm:^1.16.0":
-  version: 1.16.1
-  resolution: "@openzeppelin/upgrades-core@npm:1.16.1"
+  version: 1.17.0
+  resolution: "@openzeppelin/upgrades-core@npm:1.17.0"
   dependencies:
-    bn.js: ^5.1.2
     cbor: ^8.0.0
     chalk: ^4.1.0
     compare-versions: ^4.0.0
@@ -3456,7 +3457,7 @@ __metadata:
     ethereumjs-util: ^7.0.3
     proper-lockfile: ^4.1.1
     solidity-ast: ^0.4.15
-  checksum: 2cf0bca09f6f0924a1872cb4d97df50382d1defb5770bcdf755cf069efed27727a6ca47206c868cf56411ec5addf63f7811aa5ee4db146ec8308ae400fbf944b
+  checksum: 21d01a89ae0a25fbb3b3e4839aae6976e1b5af90e133abd6b14f7e1aa35513ef1c3816b1dbe04012814c4b1e0175dcd1313143767d705d8d4add0dea6a8312b1
   languageName: node
   linkType: hard
 
@@ -3998,6 +3999,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/signature-verification@workspace:packages/signatureVerification"
   dependencies:
+    "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
     neverthrow: ^4.3.1
     ts-brand: ^0.0.2
@@ -4371,13 +4373,13 @@ __metadata:
   linkType: hard
 
 "@types/express-serve-static-core@npm:*, @types/express-serve-static-core@npm:^4.17.18, @types/express-serve-static-core@npm:^4.17.9":
-  version: 4.17.29
-  resolution: "@types/express-serve-static-core@npm:4.17.29"
+  version: 4.17.30
+  resolution: "@types/express-serve-static-core@npm:4.17.30"
   dependencies:
     "@types/node": "*"
     "@types/qs": "*"
     "@types/range-parser": "*"
-  checksum: ec4194dc59276ec6dd906887fc377be0cadf4aaa4d535d9052ab9624937ef2b984a8d9da2c11c96979e21f3d9f78f1da93e767dbcec637f7f13d2e3003151145
+  checksum: c40d9027884ab9e97fa29d9d41d1b75a5966109312e26594cf03c61b278b5bf8e095f53589e47899b34a2e224291a44043617695c3e8bd22284f988e48582ee6
   languageName: node
   linkType: hard
 
@@ -4714,9 +4716,9 @@ __metadata:
   linkType: hard
 
 "@types/prettier@npm:^2.0.0, @types/prettier@npm:^2.1.1":
-  version: 2.6.3
-  resolution: "@types/prettier@npm:2.6.3"
-  checksum: e1836699ca189fff6d2a73dc22e028b6a6f693ed1180d5998ac29fa197caf8f85aa92cb38db642e4a370e616b451cb5722ad2395dab11c78e025a1455f37d1f0
+  version: 2.6.4
+  resolution: "@types/prettier@npm:2.6.4"
+  checksum: a8ec6601cbacf8040782cc883bf1a9393fdcb991ebe88440b0f875bb1556652927ac9fe61a721b6c666ac6252158ba327ce2868559bafa2c86e7dfef4089782a
   languageName: node
   linkType: hard
 
@@ -8206,16 +8208,16 @@ __metadata:
   linkType: hard
 
 "browserslist@npm:^4.14.5, browserslist@npm:^4.20.2, browserslist@npm:^4.21.2":
-  version: 4.21.2
-  resolution: "browserslist@npm:4.21.2"
+  version: 4.21.3
+  resolution: "browserslist@npm:4.21.3"
   dependencies:
-    caniuse-lite: ^1.0.30001366
-    electron-to-chromium: ^1.4.188
+    caniuse-lite: ^1.0.30001370
+    electron-to-chromium: ^1.4.202
     node-releases: ^2.0.6
-    update-browserslist-db: ^1.0.4
+    update-browserslist-db: ^1.0.5
   bin:
     browserslist: cli.js
-  checksum: 30fe59f8b065f99665ea63819d29c797660f7975857c290f61f570403abed4d7039ca15b6fd21e39a57b87e1a9262f94676114040766fc0da6ccc11faf9fc377
+  checksum: ff512a7bcca1c530e2854bbdfc7be2791d0fb524097a6340e56e1d5924164c7e4e0a9b070de04cdc4c149d15cb4d4275cb7c626ebbce954278a2823aaad2452a
   languageName: node
   linkType: hard
 
@@ -8612,7 +8614,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001332, caniuse-lite@npm:^1.0.30001366":
+"caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001332, caniuse-lite@npm:^1.0.30001370":
   version: 1.0.30001370
   resolution: "caniuse-lite@npm:1.0.30001370"
   checksum: 28e1fd4d623a52945220b189b703556178ec8a185d317e4ae2557a24f68f88bd8168db67700970164690dbf7d29df69efbd318b54457b335a4361314bb530792
@@ -10962,10 +10964,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.188":
-  version: 1.4.201
-  resolution: "electron-to-chromium@npm:1.4.201"
-  checksum: dc8bff80ffc17dec64cdde97ef249292fc14e4ef6a3cb7fd3c1a0691fa846053a993cc6244ff0302c8d4d19baa4fdf0d1a39b413dda87415fec69c7c7a5a05b8
+"electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.202":
+  version: 1.4.202
+  resolution: "electron-to-chromium@npm:1.4.202"
+  checksum: f6210322a16eb67c3743a5fd18c0e99fc71720132a6da61d93f26a96a4b6fc30b1b1f44e0b1f8eb91358b859f687f745d405515ad5482ded6ee69e5117907aa7
   languageName: node
   linkType: hard
 
@@ -26816,7 +26818,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"update-browserslist-db@npm:^1.0.4":
+"update-browserslist-db@npm:^1.0.5":
   version: 1.0.5
   resolution: "update-browserslist-db@npm:1.0.5"
   dependencies:
