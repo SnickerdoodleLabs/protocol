@@ -1,4 +1,5 @@
-import { AST_NetworkQuery, AST_PropertyQuery, PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
+import { AST_NetworkQuery, AST_PropertyQuery } from "@core/interfaces/objects";
+import { PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryEvaluator {

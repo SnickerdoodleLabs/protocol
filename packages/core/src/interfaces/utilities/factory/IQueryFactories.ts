@@ -1,6 +1,7 @@
 import { AST_Evaluator, SDQLParser } from "@core/implementations/business";
 import { IQueryRepository } from "@core/interfaces/business/utilities";
-import { AST, IpfsCID, SDQLSchema } from "@snickerdoodlelabs/objects";
+import { AST } from "@core/interfaces/objects";
+import { IpfsCID } from "@snickerdoodlelabs/objects";
 
 export interface IQueryFactories {
     

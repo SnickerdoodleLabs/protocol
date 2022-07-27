@@ -1,4 +1,5 @@
-import { AST_Query, IpfsCID, PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
+import { AST_Query } from "@core/interfaces/objects";
+import { IpfsCID, PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryRepository {
