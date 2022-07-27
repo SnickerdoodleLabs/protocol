@@ -116,9 +116,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-  public getClicks(
-    clickFilter: ClickFilter,
-  ): ResultAsync<ClickData, PersistenceError> {
+  public getClicks(): ResultAsync<ClickData[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
