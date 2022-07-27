@@ -1,8 +1,8 @@
-import { AST } from "@objects/businessObjects";
-import { SDQLSchema } from "@objects/businessObjects/SDQL/SDQLSchema";
 import { IpfsCID } from "@objects/primitives";
 import { QueryRepository, SDQLParser } from ".";
 import { AST_Evaluator } from "./AST_Evaluator";
+import { SDQLSchema } from "@core/interfaces/objects";
+import { AST } from "@core/interfaces/objects";
 
 export class AST_Factories {
 

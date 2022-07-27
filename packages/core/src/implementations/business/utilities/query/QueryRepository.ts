@@ -1,11 +1,11 @@
 import { IpfsCID, SDQL_Return } from "@objects/primitives";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
-import { AST_Query } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Query";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { QueryEvaluatorType } from ".";
 import { QueryEvaluator } from "./QueryEvaluator";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { AST_Query } from "@core/interfaces/objects";
 
 @injectable()
 export class QueryRepository {

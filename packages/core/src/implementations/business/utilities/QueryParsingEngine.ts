@@ -16,11 +16,8 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
 import { IpfsCID } from "@snickerdoodlelabs/objects";
 import _ from "underscore";
-import { URLString } from "@snickerdoodlelabs/objects";
 import { ConsentConditions } from "@snickerdoodlelabs/objects";
-import { AST } from "@snickerdoodlelabs/objects";
-import { Version } from "@snickerdoodlelabs/objects";
-import { AST_Factories } from "./query/AST_Factories";
+
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 @injectable()

@@ -2,7 +2,6 @@ import { Age, CountryCode, Gender, SDQL_Return } from "@objects/primitives";
 import { 
     AST_PropertyQuery,
     AST_Query,
-    IDataWalletPersistence, 
     EvalNotImplementedError,
     Condition, 
     ConditionGE, 
@@ -11,12 +10,13 @@ import {
     ConditionL,
     ConditionLE,
     ConditionE,   
-    IDataWalletPersistenceType,
-    PersistenceError,
     AST_Expr
-} from "@snickerdoodlelabs/objects";
+} from "@core/interfaces/objects";
+import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
+import { IDataWalletPersistenceType } from "@snickerdoodlelabs/objects";
+import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { AST_NetworkQuery } from "@snickerdoodlelabs/objects";
+import { AST_NetworkQuery } from "@core/interfaces/objects";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
 @injectable()
