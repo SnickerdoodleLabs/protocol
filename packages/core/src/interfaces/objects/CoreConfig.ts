@@ -1,6 +1,5 @@
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
-
 import {
   ChainId,
   ChainInformation,
@@ -20,6 +19,7 @@ export class CoreConfig implements IIndexerConfig {
     public snickerdoodleProtocolDomain: TypedDataDomain,
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
+    public accountNFTPollingIntervalMS: number,
     public covalentApiKey: string,
     public moralisApiKey: string,
   ) {}

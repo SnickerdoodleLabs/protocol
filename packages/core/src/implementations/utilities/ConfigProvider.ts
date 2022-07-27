@@ -48,6 +48,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       snickerdoodleSigningDomain,
       5000, // polling interval indexing,
       5000, // polling interval balance
+      5000, // polling interval nfts
       "covalent api key",
       "moralis api key",
     );

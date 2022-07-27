@@ -34,6 +34,12 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
           this.logUtils.error(e);
         });
       }, config.accountBalancePollingIntervalMS);
+
+      setInterval(() => {
+        this.monitoringService.pollNFTs().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+      }, config.accountNFTPollingIntervalMS);
     });
   }
 }

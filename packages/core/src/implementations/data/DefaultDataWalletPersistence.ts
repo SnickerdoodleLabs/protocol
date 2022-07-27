@@ -248,7 +248,7 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance, PersistenceError> {
+  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
