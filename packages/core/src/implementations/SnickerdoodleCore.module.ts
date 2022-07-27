@@ -41,7 +41,7 @@ import {
 import {
   ConsentContractRepository,
   InsightPlatformRepository,
-  LoginRegistryRepository,
+  CrumbsRepository,
 } from "@core/implementations/data";
 import {
   BlockchainProvider,
@@ -73,8 +73,8 @@ import {
   IConsentContractRepositoryType,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
-  ILoginRegistryRepository,
-  ILoginRegistryRepositoryType,
+  ICrumbsRepository,
+  ICrumbsRepositoryType,
 } from "@core/interfaces/data";
 import {
   IBlockchainProvider,
@@ -122,8 +122,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
       .inSingletonScope();
-    bind<ILoginRegistryRepository>(ILoginRegistryRepositoryType)
-      .to(LoginRegistryRepository)
+    bind<ICrumbsRepository>(ICrumbsRepositoryType)
+      .to(CrumbsRepository)
       .inSingletonScope();
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,

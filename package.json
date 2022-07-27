@@ -40,6 +40,7 @@
     "compile-config": "npx tsc --showConfig",
     "docker-push": "yarn workspaces foreach -p run docker-push",
     "dockerize": "yarn workspaces foreach -p run dockerize",
+    "docker-pull": "docker-compose pull",
     "format": "eslint --fix \"packages/**/*.ts\" && yarn format:pkg",
     "format:pkg": "format-package -w",
     "lint": "eslint \"packages/*/{src,test}/**/*.{ts,tsx}\" --quiet",
