@@ -2,11 +2,10 @@
 
 import "reflect-metadata";
 
-import { AST_Factories, QueryRepository } from "@core/implementations/business/utilities";
+import { QueryRepository } from "@core/implementations/business/utilities";
 import { IpfsCID, SDQL_Name, SDQL_OperatorName, SDQL_Return, Version } from "@objects/primitives";
-import { AST, AST_ConditionExpr, AST_Expr, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "@objects/businessObjects";
-
-
+import { AST, AST_ConditionExpr, AST_Expr, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "@core/interfaces/objects";
+import { AST_Factories } from "@core/implementations/business/utilities/query";
 // const ast = new AST(
 //     Version("0.1"), 
 //     "Interactions with the Avalanche blockchain for 15-year and older individuals",

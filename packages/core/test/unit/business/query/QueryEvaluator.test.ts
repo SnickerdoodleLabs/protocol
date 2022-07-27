@@ -2,7 +2,17 @@
 import "reflect-metadata";
 
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
-import { Age, AST_PropertyQuery, ConditionE, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionLE, CountryCode, Gender, IDataWalletPersistence, SDQL_Name, SDQL_OperatorName, URLString } from "@snickerdoodlelabs/objects";
+import { Age, CountryCode, Gender, SDQL_Name, SDQL_OperatorName, URLString } from "@objects/primitives";
+import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
+import { 
+    AST_PropertyQuery, 
+    ConditionE, 
+    ConditionG, 
+    ConditionGE, 
+    ConditionIn, 
+    ConditionL, 
+    ConditionLE
+} from "@core/interfaces/objects";
 import { okAsync } from "neverthrow";
 import td from "testdouble";
 
@@ -403,7 +413,7 @@ describe("QueryEvaluator return integer values", () => {
 })
 
 
-
+/*
 describe("Return URLs Map", () => {
     test("EvalPropertyQuery: return URLs count", async () => {
         const propertyQuery = new AST_PropertyQuery(
@@ -420,3 +430,4 @@ describe("Return URLs Map", () => {
         expect(result["value"]).toEqual([])
     })
 })
+*/

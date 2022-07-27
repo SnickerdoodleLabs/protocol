@@ -1,6 +1,5 @@
-import { SDQLSchema } from "businessObjects/SDQL/SDQLSchema";
+import { SDQLSchema } from "@core/interfaces/objects/SDQL";
 import { avalance1SchemaStr } from "./avalanche1.data";
-
 
 describe("SDQLSchema with Avalanche", () => {
 
