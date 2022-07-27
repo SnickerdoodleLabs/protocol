@@ -36,6 +36,7 @@ import {
   Signature,
   UnixTimestamp,
   CountryCode,
+  DomainName,
 } from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
@@ -166,6 +167,10 @@ export interface ISnickerdoodleCore {
     | ConsentContractRepositoryError
     | ConsentError
   >;
+
+  getCohortInvitationByDomain(
+    domain: DomainName,
+  ): ResultAsync<CohortInvitation, Error>
 
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be

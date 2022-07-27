@@ -40,6 +40,7 @@ import {
   IConfigOverrides,
   CrumbsContractError,
   QueryFormatError,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -262,6 +263,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<ICohortService>(ICohortServiceType);
 
     return cohortService.leaveCohort(consentContractAddress);
+  }
+
+  public getCohortInvitationByDomain(
+    domain: DomainName,
+  ): ResultAsync<CohortInvitation, Error> {
+    const cohortService =
+      this.iocContainer.get<ICohortService>(ICohortServiceType);
+
+    return cohortService.getCohortInvitationByDomain(domain);
   }
 
   public processQuery(

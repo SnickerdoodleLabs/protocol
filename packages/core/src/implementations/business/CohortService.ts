@@ -19,6 +19,8 @@ import {
   ConsentContractRepositoryError,
   BlockchainProviderError,
   AjaxError,
+  TokenId,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -225,5 +227,28 @@ export class CohortService implements ICohortService {
           context.publicEvents.onCohortLeft.next(consentContractAddress);
         });
     });
+  }
+
+  public getCohortInvitationByDomain(
+    domain: DomainName,
+  ): ResultAsync<CohortInvitation, Error> {
+    const domainToCheck = domain;
+
+    switch (domainToCheck) {
+      case "www.shrapnel.com":
+        return okAsync(
+          new CohortInvitation(
+            "www.shrapnel.com" as DomainName, //public domain: DomainName,
+            "0xE451980132E65465d0a498c53f0b5227326Dd73F" as EVMContractAddress, // address from hardhat task
+            BigInt(1) as TokenId, // public tokenId: TokenId,
+            null,
+          ),
+        ); //public businessSignature: Signature | null,);
+    }
+    function okErr(arg0: string): ResultAsync<CohortInvitation, Error> {
+      throw new Error("Function not implemented.");
+    }
+
+    return okErr("Domain does not have a contract address");
   }
 }
