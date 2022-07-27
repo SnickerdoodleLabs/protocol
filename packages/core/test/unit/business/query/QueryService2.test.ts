@@ -76,13 +76,19 @@ describe("processQuery tests", () => {
   const queryService = mocks.factory() as QueryService;
 
   test("test signable", () => {
-    mocks.contextProvider.getContext().then((context) => {
+    mocks.contextProvider.getContext().then((result) => {
 
-      const signable = queryService.createSignable(consentContractAddress, queryId, context, insights);
-      expect(signable["queryId"]).toEqual(queryId);
-      expect(signable["consentContractId"]).toEqual(consentContractAddress);
-      expect(signable["dataWallet"]).toEqual(dataWalletAddress);
-      expect(signable["insights"]).toEqual(JSON.stringify(insights));
+      expect(result.isOk()).toBe(true);
+
+      if (result.isOk()) {
+        const context = result.value;
+        expect(context.dataWalletAddress).toBe(dataWalletAddress);
+        const signable = queryService.createSignable(consentContractAddress, queryId, context, insights);
+        expect(signable["queryId"]).toEqual(queryId);
+        expect(signable["consentContractId"]).toEqual(consentContractAddress);
+        expect(signable["dataWallet"]).toEqual(dataWalletAddress);
+        expect(signable["insights"]).toEqual(JSON.stringify(insights));
+      } 
 
     });
     
