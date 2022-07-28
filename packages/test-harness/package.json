@@ -26,7 +26,7 @@
     "alias": "tsc-alias",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
-    "compile": "tsc --build && cd ../.. && yarn alias",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
     "docker-push": "docker push snickerdoodlelabs/protocol-test-harness:local",
     "dockerize": "docker build -t snickerdoodlelabs/protocol-test-harness:local -f Dockerfile --progress=plain ../..",
     "start": "yarn compile && npx ts-node -r tsconfig-paths/register src/index.ts"
