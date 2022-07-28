@@ -1,9 +1,9 @@
 import { InsightString } from "@core/interfaces/objects";
-import { EligibleReward, Insight, QueryFormatError, SDQLQuery } from "@snickerdoodlelabs/objects";
+import { EligibleReward, EvaluationError, QueryFormatError, SDQLQuery } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryParsingEngine {
-  handleQuery(query: SDQLQuery): ResultAsync<[InsightString[], EligibleReward[]], never | QueryFormatError>
+  handleQuery(query: SDQLQuery): ResultAsync<[InsightString[], EligibleReward[]], EvaluationError | QueryFormatError>
   // readLogicEntry(obj: ISDQLQueryObject, input: string): ResultAsync<number | number[] | boolean, never | PersistenceError>
   // readQueryEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number, PersistenceError>
   // readReturnEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number | boolean, PersistenceError> 

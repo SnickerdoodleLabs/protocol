@@ -3,9 +3,7 @@ import { Observable } from "rxjs";
 
 import {
   CohortInvitation,
-  ConsentConditions,
-  SDQLQuery,
-  IEVMNFT,
+  ConsentConditions, IEVMNFT, SDQLQuery
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -15,30 +13,22 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   CrumbsContractError,
+  EvaluationError,
   InvalidSignatureError,
   IPFSError,
   MinimalForwarderContractError,
   PersistenceError,
   QueryFormatError,
   UninitializedError,
-  UnsupportedLanguageError,
+  UnsupportedLanguageError
 } from "@objects/errors";
 import { IEVMBalance } from "@objects/interfaces/chains";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
-  Age,
-  DataWalletAddress,
-  EmailAddressString,
-  GivenName,
-  Gender,
-  EVMAccountAddress,
-  EVMContractAddress,
-  IpfsCID,
-  LanguageCode,
-  FamilyName,
-  Signature,
-  UnixTimestamp,
-  CountryCode,
+  Age, CountryCode, DataWalletAddress,
+  EmailAddressString, EVMAccountAddress,
+  EVMContractAddress, FamilyName, Gender, GivenName, LanguageCode, Signature,
+  UnixTimestamp
 } from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
@@ -182,13 +172,19 @@ export interface ISnickerdoodleCore {
   // re-checked, of course (trust nobody!).
   processQuery({
     consentContractAddress,
-    queryId,
+    query
   }: {
-    consentContractAddress: EVMContractAddress;
-    queryId: IpfsCID;
-  }): ResultAsync<
+    consentContractAddress: EVMContractAddress,
+    query:SDQLQuery
+}): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
+    | AjaxError 
+    | UninitializedError 
+    | ConsentError 
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  
   >;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
