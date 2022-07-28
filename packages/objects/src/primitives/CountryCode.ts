@@ -1,4 +1,4 @@
 import { Brand, make } from "ts-brand";
 
-export type CountryCode = Brand<number, "CountryCode">;
+export type CountryCode = Brand<string, "CountryCode">;
 export const CountryCode = make<CountryCode>();
