@@ -40,6 +40,8 @@ import {
   IConfigOverrides,
   CrumbsContractError,
   QueryFormatError,
+  IEVMBalance,
+  IEVMNFT,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -324,5 +326,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
   getAge(): ResultAsync<Age, PersistenceError> {
     return this.profileService.getAge();
+  }
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getAccounts();
+  }
+
+  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getAccountBalances();
+  }
+
+  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getAccountNFTs();
   }
 }

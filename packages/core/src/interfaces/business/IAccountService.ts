@@ -5,6 +5,8 @@ import {
   CrumbsContractError,
   EVMAccountAddress,
   InvalidSignatureError,
+  IEVMBalance,
+  IEVMNFT,
   LanguageCode,
   PersistenceError,
   Signature,
@@ -46,6 +48,12 @@ export interface IAccountService {
     | CrumbsContractError
     | AjaxError
   >;
+
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
+
+  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+
+  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");
