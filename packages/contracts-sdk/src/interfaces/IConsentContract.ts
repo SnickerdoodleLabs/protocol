@@ -31,15 +31,37 @@ export interface IConsentContract {
    * Create a consent token with providing the business signature
    * @param tokenId randomly generated token id
    * @param agreementURI token uri data
-   * @param nonce nonce to verify the signature
    * @param signature business or consent contract owner signature
    * @param contractOverrides for overriding transaction gas object
    */
   restrictedOptIn(
     tokenId: TokenIdNumber,
     agreementURI: TokenUri,
-    nonce: number,
     signature: Signature,
+    contractOverrides?: ContractOverrides,
+  ): ResultAsync<void, ConsentContractError>;
+
+  /**
+   * Create a consent token with providing the business signature
+   * Allows Signature Issuer to send anonymous invitation link to end user to opt in
+   * @param tokenId randomly generated token id
+   * @param agreementURI token uri data
+   * @param signature business or consent contract owner signature
+   * @param contractOverrides for overriding transaction gas object
+   */
+  anonymousRestrictedOptIn(
+    tokenId: TokenIdNumber,
+    agreementURI: TokenUri,
+    signature: Signature,
+    contractOverrides?: ContractOverrides,
+  ): ResultAsync<void, ConsentContractError>;
+
+  /**
+   * Burns a user's consent token to opt out of Consent contract
+   * @param tokenId Token id to opt out for
+   */
+  optOut(
+    tokenId: TokenIdNumber,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
 
