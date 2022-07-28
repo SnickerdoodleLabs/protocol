@@ -680,7 +680,17 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map(() => {});
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for grantRole() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public revokeRole(
@@ -699,7 +709,17 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map(() => {});
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for revokeRole() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public renounceRole(
@@ -718,7 +738,17 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map(() => {});
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for renounceRole() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public filters = {
