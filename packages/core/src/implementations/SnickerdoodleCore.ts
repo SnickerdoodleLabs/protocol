@@ -279,11 +279,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
-    | UninitializedError
-    | AjaxError
     | ConsentContractError
     | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
     | ConsentError
   > {
     const cohortService =

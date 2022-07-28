@@ -73,6 +73,8 @@ export interface IConsentContract {
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
 
+  encodeOptOut(tokenId: TokenId): HexString;
+
   /**
    * Submit for blockchain requestForData event
    * @param ipfsCID ipfs conent id of a query

@@ -243,6 +243,9 @@ export class CohortService implements ICohortService {
     | UninitializedError
     | AjaxError
     | MinimalForwarderContractError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | ConsentError
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
@@ -258,55 +261,73 @@ export class CohortService implements ICohortService {
         );
       }
 
-      // Encode the call to the consent contract
-      const callData = consentContract.(
-        invitation.tokenId,
-        TokenUri("ConsentConditionsGoHere"),
-      );
+      // We need to find your opt-in token
+      return this.consentRepo
+        .getConsentTokens(
+          consentContractAddress,
+          EVMAccountAddress(context.dataWalletAddress),
+        )
+        .andThen((consentTokens) => {
+          // These are all of your consent tokens, we need to find the one for this particular consent contract
+          const consentToken = consentTokens.find((token) => {
+            return token.consentContractAddress == consentContractAddress;
+          });
 
-      return minimalForwarder
-        .getNonce(EVMAccountAddress(context.dataWalletAddress))
-        .andThen((nonce) => {
-          // We need to take the types, and send it to the account signer
-          const value = {
-            to: invitation.consentContractAddress, // Contract address for the metatransaction
-            from: EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
-            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(1000000), // The amount of gas to pay.
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-            data: callData, // The actual bytes of the request, encoded as a hex string
-          } as IMinimalForwarderRequest;
-
-          return this.cryptoUtils
-            .signTypedData(
-              getMinimalForwarderSigningDomain(
-                config.controlChainId,
-                config.controlChainInformation.metatransactionForwarderAddress,
+          if (consentToken == null) {
+            // You're not actually opted in!
+            return errAsync(
+              new ConsentError(
+                "Cannot opt out of consent contract, you were not opted in!",
               ),
-              forwardRequestTypes,
-              value,
-              context.dataWalletKey!,
-            )
-            .andThen((metatransactionSignature) => {
-              // Got the signature for the metatransaction, now we can execute it.
-              // .executeMetatransaction will sign everything and have the server run
-              // the metatransaction.
-              return this.insightPlatformRepo.executeMetatransaction(
-                context.dataWalletAddress!, // data wallet address
-                EVMAccountAddress(context.dataWalletAddress!), // account address
-                invitation.consentContractAddress, // contract address
-                BigNumberString(BigNumber.from(nonce).toString()),
-                callData,
-                metatransactionSignature,
-                context.dataWalletKey!,
-              );
+            );
+          }
+
+          // Encode the call to the consent contract
+          const callData = consentContract.encodeOptOut(consentToken.tokenId);
+
+          return minimalForwarder
+            .getNonce(EVMAccountAddress(context.dataWalletAddress!))
+            .andThen((nonce) => {
+              // We need to take the types, and send it to the account signer
+              const value = {
+                to: consentContractAddress, // Contract address for the metatransaction
+                from: EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
+                value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+                gas: BigNumber.from(1000000), // The amount of gas to pay.
+                nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+                data: callData, // The actual bytes of the request, encoded as a hex string
+              } as IMinimalForwarderRequest;
+
+              return this.cryptoUtils
+                .signTypedData(
+                  getMinimalForwarderSigningDomain(
+                    config.controlChainId,
+                    config.controlChainInformation
+                      .metatransactionForwarderAddress,
+                  ),
+                  forwardRequestTypes,
+                  value,
+                  context.dataWalletKey!,
+                )
+                .andThen((metatransactionSignature) => {
+                  // Got the signature for the metatransaction, now we can execute it.
+                  // .executeMetatransaction will sign everything and have the server run
+                  // the metatransaction.
+                  return this.insightPlatformRepo.executeMetatransaction(
+                    context.dataWalletAddress!, // data wallet address
+                    EVMAccountAddress(context.dataWalletAddress!), // account address
+                    consentContractAddress, // contract address
+                    BigNumberString(BigNumber.from(nonce).toString()),
+                    callData,
+                    metatransactionSignature,
+                    context.dataWalletKey!,
+                  );
+                });
+            })
+            .map(() => {
+              // Notify the world that we've opted in to the cohort
+              context.publicEvents.onCohortLeft.next(consentContractAddress);
             });
-        })
-        .map(() => {
-          // Notify the world that we've opted in to the cohort
-          context.publicEvents.onCohortJoined.next(
-            invitation.consentContractAddress,
-          );
         });
     });
   }

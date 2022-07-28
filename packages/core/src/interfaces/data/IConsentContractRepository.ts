@@ -12,11 +12,6 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IConsentContractRepository {
-  initializeConsentContracts(): ResultAsync<
-    void,
-    BlockchainProviderError | UninitializedError | AjaxError
-  >;
-
   getConsentTokens(
     consentContractAddress: EVMContractAddress,
     ownerAddress: EVMAccountAddress,

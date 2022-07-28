@@ -53,39 +53,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
     this.consentContractsPromise = null;
   }
 
-  // I think this method is broken and unnecessary now. I don't think there is a
-  // need to go to the insight platform for this.
-  public initializeConsentContracts(): ResultAsync<
-    void,
-    BlockchainProviderError | UninitializedError | AjaxError
-  > {
-    if (this.consentContractsPromise != null) {
-      return this.consentContractsPromise;
-    }
-
-    this.consentContractsPromise = this.insightPlatformRepo
-      .getBusinessConsentContracts()
-      .andThen((businessConsentContracts) => {
-        return this.consentContractFactory
-          .factoryConsentContracts(
-            businessConsentContracts.map(
-              (businessConsentContract) =>
-                businessConsentContract.contractAddress,
-            ),
-          )
-          .map((contracts) => {
-            contracts.forEach((contract, index) => {
-              this.consentContracts.set(
-                businessConsentContracts[index].contractAddress,
-                contract,
-              );
-            });
-          });
-      });
-
-    return this.consentContractsPromise;
-  }
-
   public getConsentTokens(
     consentContractAddress: EVMContractAddress,
     ownerAddress: EVMAccountAddress,

@@ -31,10 +31,10 @@ export class ConsentContract implements IConsentContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    consentAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
-      consentAddress,
+      contractAddress,
       ContractsAbis.ConsentAbi.abi,
       providerOrSigner,
     );
@@ -167,6 +167,12 @@ export class ConsentContract implements IConsentContract {
         });
       })
       .map(() => {});
+  }
+
+  public encodeOptOut(tokenId: TokenId): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("optOut", [tokenId]),
+    );
   }
 
   public requestForData(
@@ -470,6 +476,7 @@ export class ConsentContract implements IConsentContract {
                 (tokenUri) => {
                   return okAsync(
                     new ConsentToken(
+                      this.contractAddress,
                       ownerAddress,
                       TokenId(logEvent.args?.tokenId?.toNumber()),
                       tokenUri as TokenUri,

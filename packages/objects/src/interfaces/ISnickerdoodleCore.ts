@@ -169,11 +169,12 @@ export interface ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
-    | UninitializedError
-    | AjaxError
     | ConsentContractError
     | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
     | ConsentError
   >;
 
