@@ -53,6 +53,8 @@ export class ConsentContractRepository implements IConsentContractRepository {
     this.consentContractsPromise = null;
   }
 
+  // I think this method is broken and unnecessary now. I don't think there is a
+  // need to go to the insight platform for this.
   public initializeConsentContracts(): ResultAsync<
     void,
     BlockchainProviderError | UninitializedError | AjaxError
@@ -114,20 +116,22 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | AjaxError
   > {
     return ResultUtils.combine([
-      this.getConsentContract(consentContractAddress),
+      this.consentContractFactory.factoryConsentContracts([
+        consentContractAddress,
+      ]),
       this.contextProvider.getContext(),
     ])
-      .andThen(([consentContract, context]) => {
+      .andThen(([[consentContract], context]) => {
         // We will use the data wallet address if another address is not provided
         if (address == null) {
-          if (context.dataWalletAddress != null) {
-            address = EVMAccountAddress(context.dataWalletAddress);
+          if (context.dataWalletAddress == null) {
+            return errAsync(
+              new UninitializedError(
+                "No data wallet address provided and core uninitialized in isAddressOptedIn",
+              ),
+            );
           }
-          return errAsync(
-            new UninitializedError(
-              "No data wallet address provided and core uninitialized in isAddressOptedIn",
-            ),
-          );
+          address = EVMAccountAddress(context.dataWalletAddress);
         }
         return consentContract.balanceOf(address);
       })

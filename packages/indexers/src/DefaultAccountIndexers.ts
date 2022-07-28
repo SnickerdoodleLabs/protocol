@@ -4,8 +4,6 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import {
   IAccountIndexing,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   IEVMTransactionRepository,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";

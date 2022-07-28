@@ -1,6 +1,3 @@
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -8,18 +5,23 @@ import {
   IpfsCID,
   TokenUri,
   Signature,
-  TokenIdNumber,
+  TokenId,
   ConsentToken,
   RequestForData,
   BlockNumber,
   IBlockchainError,
   DomainName,
   BaseURI,
+  HexString,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber, Bytes } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -43,7 +45,7 @@ export class ConsentContract implements IConsentContract {
   }
 
   public optIn(
-    tokenId: TokenIdNumber,
+    tokenId: TokenId,
     agreementURI: TokenUri,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
@@ -71,8 +73,17 @@ export class ConsentContract implements IConsentContract {
       .map(() => {});
   }
 
+  public encodeOptIn(tokenId: TokenId, agreementURI: TokenUri): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("optIn", [
+        tokenId,
+        agreementURI,
+      ]),
+    );
+  }
+
   public restrictedOptIn(
-    tokenId: TokenIdNumber,
+    tokenId: TokenId,
     agreementURI: TokenUri,
     signature: Signature,
   ): ResultAsync<void, ConsentContractError> {
@@ -103,7 +114,7 @@ export class ConsentContract implements IConsentContract {
   }
 
   public anonymousRestrictedOptIn(
-    tokenId: TokenIdNumber,
+    tokenId: TokenId,
     agreementURI: TokenUri,
     signature: Signature,
   ): ResultAsync<void, ConsentContractError> {
@@ -133,9 +144,7 @@ export class ConsentContract implements IConsentContract {
       .map(() => {});
   }
 
-  public optOut(
-    tokenId: TokenIdNumber,
-  ): ResultAsync<void, ConsentContractError> {
+  public optOut(tokenId: TokenId): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.optOut(
         tokenId,
@@ -402,7 +411,7 @@ export class ConsentContract implements IConsentContract {
   }
 
   public tokenURI(
-    tokenId: TokenIdNumber,
+    tokenId: TokenId,
   ): ResultAsync<TokenUri | null, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract?.tokenURI(tokenId) as Promise<TokenUri | null>,
@@ -462,7 +471,7 @@ export class ConsentContract implements IConsentContract {
                   return okAsync(
                     new ConsentToken(
                       ownerAddress,
-                      TokenIdNumber(logEvent.args?.tokenId?.toNumber()),
+                      TokenId(logEvent.args?.tokenId?.toNumber()),
                       tokenUri as TokenUri,
                     ),
                   );

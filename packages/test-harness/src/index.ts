@@ -26,6 +26,7 @@ import {
   chainConfig,
   ChainId,
   ControlChainInformation,
+  ConsentFactoryContractError,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import {
@@ -34,7 +35,7 @@ import {
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import inquirer from "inquirer";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
@@ -68,6 +69,8 @@ const cohortInvitation = new CohortInvitation(
   TokenId(BigInt(123)),
   null,
 );
+
+const consentContracts = new Array<EVMContractAddress>();
 
 let unlocked = false;
 
@@ -194,9 +197,8 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "Add Account", value: "addAccount" },
     new inquirer.Separator(),
     {
-      name: "Check Invitation Status",
-      value: "checkInvitationStatus",
-      short: "ci",
+      name: "Join Campaign",
+      value: "joinCampaign",
     },
     new inquirer.Separator(),
     { name: "Set Age", value: "setAge" },
@@ -215,32 +217,21 @@ function corePrompt(): ResultAsync<void, Error> {
     ];
   }
 
-  return ResultAsync.fromPromise(
-    inquirer.prompt([
-      {
-        type: "list",
-        name: "core",
-        message: "Please select a course of action:",
-        choices: choices,
-      },
-    ]),
-    (e) => {
-      if ((e as any).isTtyError) {
-        // Prompt couldn't be rendered in the current environment
-        console.log("TtyError");
-      }
-      return e as Error;
+  return prompt([
+    {
+      type: "list",
+      name: "core",
+      message: "Please select a course of action:",
+      choices: choices,
     },
-  ).andThen((answers) => {
+  ]).andThen((answers) => {
     switch (answers.core) {
       case "unlock":
         return unlockCore(blockchain.accountAddress, accountPrivateKey);
       case "addAccount":
         return addAccount(blockchain.accountAddress, accountPrivateKey);
-      case "checkInvitationStatus":
-        return checkInvitationStatus(cohortInvitation).map((status) => {
-          console.log(status);
-        });
+      case "joinCampaign":
+        return joinCampaign();
       case "setAge":
         console.log("Age is set to 15");
         return core.setAge(Age(15));
@@ -252,33 +243,42 @@ function corePrompt(): ResultAsync<void, Error> {
 }
 
 function simulatorPrompt(): ResultAsync<void, Error> {
-  return ResultAsync.fromPromise(
-    inquirer.prompt([
-      {
-        type: "list",
-        name: "simulator",
-        message: "Please select a course of action:",
-        choices: [
-          { name: "Post Query", value: "post", short: "p" },
-          new inquirer.Separator(),
-          { name: "Cancel", value: "cancel", short: "c" },
-        ],
-      },
-    ]),
-    (e) => {
-      if ((e as any).isTtyError) {
-        // Prompt couldn't be rendered in the current environment
-        console.log("TtyError");
-      }
-      return e as Error;
+  return prompt([
+    {
+      type: "list",
+      name: "simulator",
+      message: "Please select a course of action:",
+      choices: [
+        { name: "Create Campaign", value: "createCampaign" },
+        { name: "Post Query", value: "post" },
+        new inquirer.Separator(),
+        { name: "Cancel", value: "cancel" },
+      ],
     },
-  ).andThen((answers) => {
+  ]).andThen((answers) => {
     switch (answers.simulator) {
+      case "createCampaign":
+        return createCampaign();
       case "post":
         return simulator.postQuery();
     }
     return okAsync(undefined);
   });
+}
+
+function createCampaign(): ResultAsync<
+  void,
+  ConsentFactoryContractError | ConsentContractError
+> {
+  return simulator
+    .createCampaign(domainName)
+    .mapErr((e) => {
+      console.error(e);
+      return e;
+    })
+    .map((contractAddress) => {
+      consentContracts.push(contractAddress);
+    });
 }
 
 function unlockCore(
@@ -348,25 +348,89 @@ function addAccount(
     });
 }
 
-function checkInvitationStatus(
-  invitation: CohortInvitation,
-): ResultAsync<
-  EInvitationStatus,
-  | BlockchainProviderError
+function joinCampaign(): ResultAsync<
+  void,
+  | Error
   | PersistenceError
+  | BlockchainProviderError
   | UninitializedError
-  | AjaxError
   | ConsentContractError
+  | AjaxError
   | ConsentContractRepositoryError
 > {
-  // Need to get the unlock message first
-  return core
-    .checkInvitationStatus(invitation)
-    .mapErr((e) => {
-      console.log("error: ", e);
-      return e;
+  return prompt([
+    {
+      type: "list",
+      name: "joinCampaign",
+      message: "Please choose a campaign to join:",
+      choices: [
+        ...consentContracts.map((contractAddress) => {
+          return {
+            name: `Consent Contract ${contractAddress}`,
+            value: contractAddress,
+          };
+        }),
+        new inquirer.Separator(),
+        { name: "Cancel", value: "cancel" },
+      ],
+    },
+  ])
+    .andThen((answers) => {
+      const contractAddress = EVMContractAddress(answers.joinCampaign);
+      if (consentContracts.includes(contractAddress)) {
+        // They did not pick "cancel"
+        // We need to make an invitation for ourselves
+        return cryptoUtils.getTokenId().andThen((tokenId) => {
+          const invitation = new CohortInvitation(
+            domainName,
+            contractAddress,
+            tokenId,
+            null,
+          );
+
+          return core
+            .checkInvitationStatus(invitation)
+            .andThen((invitationStatus) => {
+              if (invitationStatus != EInvitationStatus.New) {
+                return errAsync(
+                  new Error(
+                    `Invalid invitation to campaign ${contractAddress}`,
+                  ),
+                );
+              }
+
+              // Accept with no conditions
+              return core.acceptInvitation(invitation, null);
+            })
+            .map(() => {
+              console.log(
+                `Accepted invitation to ${contractAddress}, with token Id ${tokenId}`,
+              );
+            });
+        });
+      }
+
+      return okAsync(undefined);
     })
-    .map((status) => {
-      return status;
+    .mapErr((e) => {
+      console.error(e);
+      return e;
     });
+}
+
+function prompt(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  questions: inquirer.QuestionCollection<any>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): ResultAsync<any, never> {
+  return ResultAsync.fromPromise(inquirer.prompt(questions), (e) => {
+    if ((e as any).isTtyError) {
+      // Prompt couldn't be rendered in the current environment
+      console.log("TtyError");
+    }
+    return e as Error;
+  }).orElse((e) => {
+    // Swallow the error, returns an empty answer
+    return okAsync({});
+  });
 }

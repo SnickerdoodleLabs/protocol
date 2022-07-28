@@ -55,7 +55,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     cid: IpfsCID,
     signature: Signature,
-    insights: Insight[]): ResultAsync<void, never> {
+    insights: Insight[],
+  ): ResultAsync<void, never> {
     throw new Error("undefined");
   }
 
@@ -64,16 +65,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    returns: Array<string>
+    returns: Array<string>,
   ): ResultAsync<void, AjaxError> {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
         const url = new URL(
-          urlJoin(
-            config.defaultInsightPlatformBaseUrl,
-            "responses"
-          )
+          urlJoin(config.defaultInsightPlatformBaseUrl, "responses"),
         );
         return this.ajaxUtils.post<boolean>(url, {
           consentContractId: consentContractAddress,
@@ -91,32 +89,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     AjaxError
   > {
     throw new Error("undefined");
-  }
-
-  public acceptInvitation(
-    dataWalletAddress: DataWalletAddress,
-    invitation: CohortInvitation,
-    signature: Signature,
-  ): ResultAsync<void, AjaxError> {
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const url = new URL(
-          urlJoin(
-            config.defaultInsightPlatformBaseUrl,
-            "cohort",
-            encodeURIComponent(invitation.consentContractAddress),
-            "leave",
-          ),
-        );
-        return this.ajaxUtils.put<boolean>(url, {
-          dataWallet: dataWalletAddress,
-          tokenId: invitation.tokenId,
-          businessSignature: invitation.businessSignature,
-          signature: signature,
-        });
-      })
-      .map((response) => {});
   }
 
   public leaveCohort(

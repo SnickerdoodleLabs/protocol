@@ -1,9 +1,8 @@
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   ConsentContractError,
   EVMAccountAddress,
   IpfsCID,
-  TokenIdNumber,
+  TokenId,
   TokenUri,
   Signature,
   ConsentToken,
@@ -11,11 +10,16 @@ import {
   BlockNumber,
   DomainName,
   BaseURI,
+  HexString,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { ConsentRoles } from "./objects/ConsentRoles";
+import {
+  ConsentRoles,
+  ContractOverrides,
+} from "@contracts-sdk/interfaces/objects";
+
 export interface IConsentContract {
   /**
    * Create a consent token owned by the signer
@@ -24,10 +28,12 @@ export interface IConsentContract {
    * @param contractOverrides for overriding transaction gas object
    */
   optIn(
-    tokenId: TokenIdNumber,
+    tokenId: TokenId,
     agreementURI: TokenUri,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
+
+  encodeOptIn(tokenId: TokenId, agreementURI: TokenUri): HexString;
 
   /**
    * Create a consent token with providing the business signature
@@ -37,7 +43,7 @@ export interface IConsentContract {
    * @param contractOverrides for overriding transaction gas object
    */
   restrictedOptIn(
-    tokenId: TokenIdNumber,
+    tokenId: TokenId,
     agreementURI: TokenUri,
     signature: Signature,
     contractOverrides?: ContractOverrides,
@@ -52,7 +58,7 @@ export interface IConsentContract {
    * @param contractOverrides for overriding transaction gas object
    */
   anonymousRestrictedOptIn(
-    tokenId: TokenIdNumber,
+    tokenId: TokenId,
     agreementURI: TokenUri,
     signature: Signature,
     contractOverrides?: ContractOverrides,
@@ -63,7 +69,7 @@ export interface IConsentContract {
    * @param tokenId Token id to opt out for
    */
   optOut(
-    tokenId: TokenIdNumber,
+    tokenId: TokenId,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
 
@@ -125,7 +131,7 @@ export interface IConsentContract {
    * @param tokenId token Id
    */
   tokenURI(
-    tokenId: TokenIdNumber,
+    tokenId: TokenId,
   ): ResultAsync<TokenUri | null, ConsentContractError>;
 
   /**
