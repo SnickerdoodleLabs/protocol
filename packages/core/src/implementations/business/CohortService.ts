@@ -231,7 +231,7 @@ export class CohortService implements ICohortService {
 
   public getCohortInvitationByDomain(
     domain: URL,
-  ): ResultAsync<CohortInvitation, Error> {
+  ): ResultAsync<CohortInvitation | null, Error> {
     const domainToCheck = domain;
 
     switch (domainToCheck) {
@@ -246,7 +246,7 @@ export class CohortService implements ICohortService {
         ); //public businessSignature: Signature | null,);
     }
 
-    return okErr("Domain does not have a contract address");
+    return err("Domain does not have an invitation");
   }
 
   // If checkInvitationStatus id VALID, we can get its details here

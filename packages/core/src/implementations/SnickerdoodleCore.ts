@@ -266,7 +266,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getCohortInvitationByDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation, Error> {
+  ): ResultAsync<CohortInvitation | null, Error> {
     const cohortService =
       this.iocContainer.get<ICohortService>(ICohortServiceType);
 

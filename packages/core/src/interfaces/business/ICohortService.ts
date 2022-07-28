@@ -59,7 +59,7 @@ export interface ICohortService {
 
   getCohortInvitationByDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation, Error>;
+  ): ResultAsync<CohortInvitation | null, Error>;
 
   getInvitationDetails(
     invitation: CohortInvitation,
