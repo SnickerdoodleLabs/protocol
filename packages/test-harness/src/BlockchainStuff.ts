@@ -1,29 +1,43 @@
 import {
   ConsentContract,
+  ConsentFactoryContract,
   CrumbsContract,
   MinimalForwarderContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
+  BaseURI,
   chainConfig,
   ChainId,
+  ConsentContractError,
+  ConsentFactoryContractError,
+  ConsentName,
   ControlChainInformation,
+  DomainName,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
+import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { localChainAccounts } from "@test-harness/LocalChainAccounts";
 const defaultConsentContractAddress = EVMContractAddress("");
 
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
+  public businessSigner: ethers.Wallet;
   public accountWallet: ethers.Wallet;
   public accountAddress: EVMAccountAddress;
   public provider: ethers.providers.JsonRpcProvider;
-  public consentContract: ConsentContract;
+  public consentFactoryContract: ConsentFactoryContract;
   public crumbsContract: CrumbsContract;
   public minimalForwarder: MinimalForwarderContract;
+
+  public serverAccount = localChainAccounts[0];
+  public businessAccount = localChainAccounts[1];
+
+  public consentContracts = new Map<EVMContractAddress, ConsentContract>();
 
   public constructor(public accountPrivateKey: EVMPrivateKey) {
     // Initialize a connection to the local blockchain
@@ -33,7 +47,12 @@ export class BlockchainStuff {
     );
     // We'll use account 0
     this.serverSigner = new ethers.Wallet(
-      localChainAccounts[0].privateKey,
+      this.serverAccount.privateKey,
+      this.provider,
+    );
+
+    this.businessSigner = new ethers.Wallet(
+      this.businessAccount.privateKey,
       this.provider,
     );
 
@@ -43,9 +62,9 @@ export class BlockchainStuff {
     const doodleChain = chainConfig.get(
       ChainId(31337),
     ) as ControlChainInformation;
-    this.consentContract = new ConsentContract(
+    this.consentFactoryContract = new ConsentFactoryContract(
       this.serverSigner,
-      defaultConsentContractAddress,
+      doodleChain.consentFactoryContractAddress,
     );
     this.crumbsContract = new CrumbsContract(
       this.serverSigner,
@@ -55,5 +74,35 @@ export class BlockchainStuff {
       this.serverSigner,
       doodleChain.metatransactionForwarderAddress,
     );
+  }
+
+  public createConsentContract(
+    name: ConsentName,
+    domain: DomainName,
+  ): ResultAsync<
+    EVMContractAddress,
+    ConsentFactoryContractError | ConsentContractError
+  > {
+    return this.consentFactoryContract
+      .createConsent(
+        this.serverAccount.accountAddress, // The server account has all the permissions to start with. We'll add the business' account later
+        BaseURI("this is a base uri"),
+        name,
+      )
+      .andThen((contractAddress) => {
+        // Got the new consent contract address
+        // Create the contract wrapper
+        const consentContract = new ConsentContract(
+          this.serverSigner,
+          contractAddress,
+        );
+        this.consentContracts.set(contractAddress, consentContract);
+
+        return ResultUtils.combine([consentContract.addDomain(domain)]).map(
+          () => {
+            return contractAddress;
+          },
+        );
+      });
   }
 }

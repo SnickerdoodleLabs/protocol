@@ -6,7 +6,11 @@ import { CryptoUtils, ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BigNumberString,
+  ConsentContractError,
+  ConsentFactoryContractError,
+  ConsentName,
   DataWalletAddress,
+  DomainName,
   EVMAccountAddress,
   EVMContractAddress,
   HexString,
@@ -28,6 +32,8 @@ export class InsightPlatformSimulator {
   // ports 3000 to 3005 may conflict with insight-platform gateway services
   protected port = 3006;
   protected cryptoUtils = new CryptoUtils();
+
+  protected consentContracts = new Array<EVMContractAddress>();
 
   public constructor(protected blockchain: BlockchainStuff) {
     this.app = express();
@@ -114,5 +120,29 @@ export class InsightPlatformSimulator {
 
   public postQuery(): ResultAsync<void, never> {
     return okAsync(undefined);
+  }
+
+  public createCampaign(
+    domain: DomainName,
+  ): ResultAsync<
+    EVMContractAddress,
+    ConsentFactoryContractError | ConsentContractError
+  > {
+    // Need to create a consent contract
+    return this.blockchain
+      .createConsentContract(
+        ConsentName(
+          `Snackerdoodle Test Harness ${this.consentContracts.length + 1}`,
+        ),
+        domain,
+      )
+      .map((contractAddress) => {
+        console.log(
+          `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}`,
+        );
+        this.consentContracts.push(contractAddress);
+
+        return contractAddress;
+      });
   }
 }

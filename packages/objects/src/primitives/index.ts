@@ -1,6 +1,7 @@
 export * from "@objects/primitives/AESKey";
 export * from "@objects/primitives/Age";
 export * from "@objects/primitives/Argon2Hash";
+export * from "@objects/primitives/BaseURI";
 export * from "@objects/primitives/BigNumberString";
 export * from "@objects/primitives/BlockNumber";
 export * from "@objects/primitives/ChainId";
@@ -37,7 +38,6 @@ export * from "@objects/primitives/SDQLString";
 export * from "@objects/primitives/SHA256Hash";
 export * from "@objects/primitives/Signature";
 export * from "@objects/primitives/TokenId";
-export * from "@objects/primitives/TokenIdNumber";
 export * from "@objects/primitives/TokenUri";
 export * from "@objects/primitives/UnixTimestamp";
 export * from "@objects/primitives/URLString";

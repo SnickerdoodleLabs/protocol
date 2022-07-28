@@ -40,12 +40,6 @@ export interface IInsightPlatformRepository {
     AjaxError
   >;
 
-  acceptInvitation(
-    dataWalletAddress: DataWalletAddress,
-    invitation: CohortInvitation,
-    signature: Signature,
-  ): ResultAsync<void, AjaxError>;
-
   leaveCohort(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,

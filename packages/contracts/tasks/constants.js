@@ -51,7 +51,7 @@ const gasSettings = async function (txCount) {
 const consentFactory = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
   } else if (hre.hardhatArguments.network == "hardhat") {
     return "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
   } else if (hre.hardhatArguments.network == "rinkeby") {

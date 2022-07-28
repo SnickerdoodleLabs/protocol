@@ -1,17 +1,19 @@
 import {
+  BaseURI,
   ConsentFactoryContractError,
+  ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
   IBlockchainError,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
   protected contract: ethers.Contract;
@@ -29,19 +31,23 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     );
   }
 
+  public getContractAddress(): EVMContractAddress {
+    return EVMContractAddress(this.contract?.address || "");
+  }
+
   // Function to help user create consent
   // After creating consent, call getUserDeployedConsentsCount to get total number of deployed consents
   // Then use getUserConsentAddressesByIndex to get list of count
   public createConsent(
     ownerAddress: EVMAccountAddress,
-    baseUri: string,
-    overrides?: ContractOverrides,
+    baseUri: BaseURI,
+    name: ConsentName,
   ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
     return ResultAsync.fromPromise(
       this.contract.createConsent(
         ownerAddress,
         baseUri,
-        overrides,
+        name,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentFactoryContractError(
@@ -50,14 +56,17 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           e,
         );
       },
-    ).andThen((tx) => {
-      return ResultAsync.fromPromise(tx.wait(), (e) => {
-        return new ConsentFactoryContractError(
-          "Wait for optIn() failed",
-          "Unknown",
-          e,
-        );
-      }).andThen((receipt) => {
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentFactoryContractError(
+            "Wait for optIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .andThen((receipt) => {
         // Get the hash of the event
         const event = "ConsentDeployed(address,address)";
         const eventHash = ethers.utils.keccak256(
@@ -91,7 +100,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
         return okAsync(deployedConsentAddress as EVMContractAddress);
       });
-    });
   }
 
   // Gets the count of user's deployed Consents

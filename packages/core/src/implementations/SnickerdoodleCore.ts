@@ -4,7 +4,10 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 
-import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
+import {
+  DefaultAccountBalances,
+  DefaultAccountIndexers,
+} from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
@@ -41,6 +44,11 @@ import {
   CrumbsContractError,
   QueryFormatError,
   EvaluationError,
+  IAccountBalances,
+  IAccountBalancesType,
+  MinimalForwarderContractError,
+  IEVMBalance,
+  IEVMNFT,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -80,6 +88,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     configOverrides?: IConfigOverrides,
     persistence?: IDataWalletPersistence,
     accountIndexer?: IAccountIndexing,
+    accountBalances?: IAccountBalances,
   ) {
     this.iocContainer = new Container();
 
@@ -110,6 +119,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer
         .bind(IAccountIndexingType)
         .to(DefaultAccountIndexers)
+        .inSingletonScope();
+    }
+
+    // If an Account Balances is provided, hook it up. If not we'll use the default.
+    if (accountBalances != null) {
+      this.iocContainer
+        .bind(IAccountBalancesType)
+        .toConstantValue(accountBalances);
+    } else {
+      this.iocContainer
+        .bind(IAccountBalancesType)
+        .to(DefaultAccountBalances)
         .inSingletonScope();
     }
 
@@ -224,7 +245,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, AjaxError | UninitializedError | PersistenceError> {
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
+  > {
     const cohortService =
       this.iocContainer.get<ICohortService>(ICohortServiceType);
 
@@ -266,16 +294,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.leaveCohort(consentContractAddress);
   }
 
-  public processQuery(
-    {
-      consentContractAddress,
-      query
-    }: 
-    {
-      consentContractAddress: EVMContractAddress,
-      query:SDQLQuery
-    }
-  ): ResultAsync<
+  public processQuery({
+    consentContractAddress,
+    queryId,
+  }: {
+    consentContractAddress: EVMContractAddress;
+    queryId: IpfsCID;
+  }): ResultAsync<
     void,
     | AjaxError 
     | UninitializedError 
@@ -332,5 +357,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
   getAge(): ResultAsync<Age, PersistenceError> {
     return this.profileService.getAge();
+  }
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getAccounts();
+  }
+
+  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getAccountBalances();
+  }
+
+  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getAccountNFTs();
   }
 }

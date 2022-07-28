@@ -89,32 +89,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     throw new Error("undefined");
   }
 
-  public acceptInvitation(
-    dataWalletAddress: DataWalletAddress,
-    invitation: CohortInvitation,
-    signature: Signature,
-  ): ResultAsync<void, AjaxError> {
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const url = new URL(
-          urlJoin(
-            config.defaultInsightPlatformBaseUrl,
-            "cohort",
-            encodeURIComponent(invitation.consentContractAddress),
-            "leave",
-          ),
-        );
-        return this.ajaxUtils.put<boolean>(url, {
-          dataWallet: dataWalletAddress,
-          tokenId: invitation.tokenId,
-          businessSignature: invitation.businessSignature,
-          signature: signature,
-        });
-      })
-      .map((response) => {});
-  }
-
   public leaveCohort(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
