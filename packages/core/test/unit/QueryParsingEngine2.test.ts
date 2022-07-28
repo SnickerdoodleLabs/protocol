@@ -12,6 +12,7 @@ import { avalance1SchemaStr } from "./business/query/avalanche1.data";
 
 const queryId = IpfsCID("Beep");
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance1SchemaStr));
+const country = CountryCode(1);
 
 class QueryParsingMocks {
       public persistenceRepo = td.object<IDataWalletPersistence>();
@@ -25,7 +26,7 @@ class QueryParsingMocks {
         this.queryFactories = new QueryFactories();
 
         td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
-        td.when(this.persistenceRepo.getLocation()).thenReturn(okAsync(CountryCode(1)));
+        td.when(this.persistenceRepo.getLocation()).thenReturn(okAsync(country));
 
         this.queryEvaluator = new QueryEvaluator(this.persistenceRepo);
         this.queryRepository = new QueryRepository(this.queryEvaluator);
@@ -42,14 +43,17 @@ class QueryParsingMocks {
 
 describe("Testing order of results", () => {
     const mocks = new QueryParsingMocks();
-    test("avalance 1 logics", () => {
+    test("avalance 1 logics", async () => {
         const engine = mocks.factory();
 
-        engine.handleQuery(sdqlQuery).andThen(([insights, rewards]) => {
+        await engine.handleQuery(sdqlQuery).andThen(([insights, rewards]) => {
 
-            console.log(insights);
-            return okAsync(0);
+            // console.log(insights);
+            // return okAsync(0);
+            expect(insights).toEqual(['qualified', country]);
+            return okAsync(insights);
 
         })
+
     });
 });

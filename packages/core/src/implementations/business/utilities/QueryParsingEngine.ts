@@ -59,15 +59,15 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     const ast = sdqlParser.buildAST();
 
     const astEvaluator = this.queryFactories.makeAstEvaluator(cid, ast, this.queryRepository)
-    console.log("line 59", "made ast and evaluator");
+    // console.log("line 59", "made ast and evaluator");
 
     const results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
 
     for (const returnStr of ast.logic.returns.keys()) {
-      console.log("line 62", returnStr);
+      // console.log("line 62", returnStr);
       const result = astEvaluator.evalAny(ast.logic.returns.get(returnStr));
 
-      console.log(result);
+      // console.log(result);
       results.push(result);
     }
 

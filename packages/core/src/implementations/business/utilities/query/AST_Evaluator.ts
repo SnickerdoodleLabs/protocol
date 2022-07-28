@@ -67,7 +67,7 @@ export class AST_Evaluator {
     }
 
     public evalAny(expr: any): ResultAsync<SDQL_Return, EvaluationError> {
-        console.log("evalAny", expr);
+        // console.log("evalAny", expr);
         if (expr === undefined) {
             return errAsync(new EvaluationError("undefined expression"));
         }
@@ -196,7 +196,7 @@ export class AST_Evaluator {
 
     public evalQuery(q: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
         
-        console.log(q);
+        // console.log(q);
         /**
          * It sends the query to the Query Repository
          */
