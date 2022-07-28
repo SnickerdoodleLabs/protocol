@@ -204,7 +204,6 @@ describe("CryptoUtils tests", () => {
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
 
-    const dataToEncrypt = "Phoebe is cute!";
     const testDomain = {
       name: "Test Domain",
       version: "1",
@@ -212,8 +211,9 @@ describe("CryptoUtils tests", () => {
 
     const testTypes: Record<string, TypedDataField[]> = {
       // I am not sure but so far this key doesn't actually matter.
-      // You can have multiple keys, I think so you can just have a single set of types
-      // When verifying or signing, it seems to look at all the sets, and use the one that fits.
+      // You can not have multiple keys though, I just tested that, you get
+      // "ambiguous primary types or unused types" error. So call it whatever you want, but you
+      // only have 1.
       TestData: [
         { name: "testAddress", type: "address" },
         { name: "testString", type: "string" },
