@@ -1,9 +1,14 @@
 import { IAccountService } from "@interfaces/business";
 import { IAccountRepository } from "@interfaces/data";
-import { SnickerDoodleCoreError, ExtensionCookieError } from "@shared/objects/errors";
+import {
+  SnickerDoodleCoreError,
+  ExtensionCookieError,
+} from "@shared/objects/errors";
 
 import {
   EVMAccountAddress,
+  IEVMBalance,
+  IEVMNFT,
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
@@ -11,6 +16,24 @@ import {
 import { ResultAsync } from "neverthrow";
 export class AccountService implements IAccountService {
   constructor(protected accountRepository: IAccountRepository) {}
+
+  public getAccounts(): ResultAsync<
+    EVMAccountAddress[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountRepository.getAccounts();
+  }
+
+  public getAccountBalances(): ResultAsync<
+    IEVMBalance[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountRepository.getAccountBalances();
+  }
+
+  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+    return this.accountRepository.getAccountNFTs();
+  }
 
   public addAccount(
     account: EVMAccountAddress,

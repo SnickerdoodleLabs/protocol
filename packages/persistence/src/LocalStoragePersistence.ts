@@ -159,7 +159,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   }
 
   public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.FIRST_NAME, name);
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.LAST_NAME, name);
     return okAsync(undefined);
   }
 

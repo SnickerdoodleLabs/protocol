@@ -74,14 +74,12 @@ export class ConsentContract implements IConsentContract {
   public restrictedOptIn(
     tokenId: TokenIdNumber,
     agreementURI: TokenUri,
-    nonce: number,
     signature: Signature,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.restrictedOptIn(
         tokenId,
         agreementURI,
-        nonce,
         signature,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -96,6 +94,64 @@ export class ConsentContract implements IConsentContract {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new ConsentContractError(
             "Wait for restrictedOptIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public anonymousRestrictedOptIn(
+    tokenId: TokenIdNumber,
+    agreementURI: TokenUri,
+    signature: Signature,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.anonymousRestrictedOptIn(
+        tokenId,
+        agreementURI,
+        signature,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call anonymousRestrictedOptIn()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for anonymousRestrictedOptIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public optOut(
+    tokenId: TokenIdNumber,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.optOut(
+        tokenId,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call optOut()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for optOut() failed",
             "Unknown",
             e,
           );
