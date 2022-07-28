@@ -163,8 +163,9 @@ describe("processQuery tests",() => {
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig()
     ]).andThen(([context, config]) => {
-      (context as CoreContext).dataWalletAddress = null;
-      const res = queryService.validateContextConfig(context as CoreContext, config as CoreConfig);
+      const copyContext:CoreContext = {...(context as CoreContext)};
+      copyContext.dataWalletAddress = null;
+      const res = queryService.validateContextConfig(copyContext, config as CoreConfig);
       expect(res).toBeInstanceOf(UninitializedError);
       return okAsync(true);
     });
@@ -175,8 +176,9 @@ describe("processQuery tests",() => {
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig()
     ]).andThen(([context, config]) => {
-      (context as CoreContext).dataWalletKey = null;
-      const res = queryService.validateContextConfig(context as CoreContext, config as CoreConfig);
+      const copyContext:CoreContext = {...(context as CoreContext)};
+      copyContext.dataWalletKey = null;
+      const res = queryService.validateContextConfig(copyContext, config as CoreConfig);
       expect(res).toBeInstanceOf(UninitializedError);
       return okAsync(true);
     });
@@ -189,8 +191,9 @@ describe("processQuery tests",() => {
       mocks.configProvider.getConfig()
     ]).andThen(([context, config]) => {
       
-      // (context as CoreContext).dataWalletKey = mocks.dataWalletKey;
-      // (context as CoreContext).dataWalletAddress = mocks.dataWalletAddress;
+      // const copyContext:CoreContext = {...(context as CoreContext)};
+      // copyContext.dataWalletKey = mocks.dataWalletKey;
+      // copyContext.dataWalletAddress = mocks.dataWalletAddress;
 
       return queryService.deliverInsights(context as CoreContext, config as CoreConfig, consentContractAddress, queryId, insights);
 
@@ -225,13 +228,12 @@ describe("processQuery tests",() => {
 
 
 
-  test.only("processQuery success", async () => {
+  test("processQuery success", async () => {
 
-    return queryService.processQuery(consentContractAddress, sdqlQuery)
+    await queryService.processQuery(consentContractAddress, sdqlQuery)
       .then((result) => {
-        console.log('result', result);
+        // console.log('result', result);
         expect(result.isOk()).toBeTruthy();
-        expect(result.value).toBeUndefined();
       });
   });
 
