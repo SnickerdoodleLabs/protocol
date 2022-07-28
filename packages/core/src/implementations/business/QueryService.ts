@@ -173,82 +173,20 @@ export class QueryService implements IQueryService {
           const insights = maps2[0];
           const rewards = maps2[1];
 
-          console.log(insights, rewards);
+          // console.log(insights, rewards);
 
           return this.deliverInsights(context, config, consentContractAddress, query.cid, insights)
             .map(() => {
-              // take it back to the caller?
-              console.log("insight delivery api call done");
+              
+              // console.log("insight delivery api call done");
               context.publicEvents.onQueryPosted.next({consentContractAddress, query});
-              // return {};
+              
             });;
           
         });
-      // return this.sdqlQueryRepo
-      //   .getByCID(queryId)
-      //   .andThen((query) => {
-      //     if (!query) {
-      //       return errAsync(new IPFSError("Query not found " + queryId));
-      //     }
-
-      //     return this.queryParsingEngine.handleQuery(query);
-
-      //   }).andThen((maps) => {
-
-      //     const maps2 = maps as  [InsightString[], EligibleReward[]];
-      //     const insights = maps2[0];
-      //     const rewards = maps2[1];
-
-      //     console.log(insights, rewards);
-
-      //     return this.deliverInsights(context, config, consentContractAddress, queryId, insights)
-      //       .map(() => {
-      //         // take it back to the caller?
-      //         console.log("insight delivery api call done");
-      //         context.publicEvents.onQueryPosted.next({consentContractAddress, queryI});
-      //       });;
-          
-      //   });
         
-
     });
 
-    // Get the IPFS data for the query. This is just "Get the query";
-    // return this.sdqlQueryRepo
-    //   .getByCID(queryId)
-    //   .andThen((query) => {
-    //     if (query == null) {
-    //       // The query doesn't actually exist
-    //       // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
-    //       // Andrew - commented out Error, Error and never do not correlate with entire system
-    //       return errAsync(new ConsentError("No consent token!"));
-    //     }
-
-    //     // Convert string to an object
-    //     const queryContent = JSON.parse(query.query) as ISDQLQueryObject;
-
-    //     // Break down the actual parts of the query.
-    //     return this.queryParsingEngine.handleQuery(queryContent);
-    //   }).andThen((insights) => {
-    //     // return this.insightPlatformRepo.deliverInsights(insights);
-    //     return errAsync(new UninitializedError("TODO"))
-    //   });
-
-      // .andThen((insights) => {
-      //   // Get the reward
-      //   const insightMap = insights.reduce((prev, cur) => { // TODO rename prev to map or prevMap
-      //     prev.set(cur.queryId, cur);
-      //     return prev;
-      //   }, new Map<IpfsCID, Insight>());
-
-      //   // Looking for keys or values - Andrew
-      //   // IpfsCID or Insight?
-      //   return this.insightPlatformRepo
-      //     .claimReward(Array.from(insightMap.values()))
-      //     .andThen((rewardsMap) => {
-      //       return this.insightPlatformRepo.deliverInsights(insights);
-      //     });
-      // });
   }
 
   public validateContextConfig(context: CoreContext, config: CoreConfig): UninitializedError | null {
@@ -281,7 +219,7 @@ export class QueryService implements IQueryService {
       )
       .andThen((signature) => {
 
-        console.log('signature', signature);
+        // console.log('signature', signature);
 
         const res = this.insightPlatformRepo.deliverInsights(
           context.dataWalletAddress as DataWalletAddress,
@@ -303,7 +241,7 @@ export class QueryService implements IQueryService {
       consentContractId: consentContractAddress,
       queryId,
       dataWallet: context.dataWalletAddress,
-      returns: JSON.stringify(returns),
+      returns: returns,
     } as Record<string, unknown>;
   }
 }

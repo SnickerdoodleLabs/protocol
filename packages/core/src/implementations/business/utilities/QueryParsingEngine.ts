@@ -72,7 +72,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     }
 
     return ResultUtils.combine(results).andThen((insighResults) => {
-      console.log(insighResults);
+      // console.log(insighResults);
 
         for (const sdqlR of insighResults) {
           insights.push(InsightString(sdqlR as string));
