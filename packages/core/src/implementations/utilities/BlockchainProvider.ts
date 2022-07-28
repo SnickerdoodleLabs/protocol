@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   JsonRpcSigner,
   JsonRpcProvider,
@@ -5,7 +6,7 @@ import {
 } from "@ethersproject/providers";
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { ChainId, BlockchainProviderError } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
+import { ethers, Wallet } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -14,6 +15,8 @@ import {
   IBlockchainProvider,
   IConfigProvider,
   IConfigProviderType,
+  IContextProvider,
+  IContextProviderType,
 } from "@core/interfaces/utilities";
 
 @injectable()
@@ -26,6 +29,7 @@ export class BlockchainProvider implements IBlockchainProvider {
 
   public constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.providersInitializationResult = null;
@@ -49,6 +53,9 @@ export class BlockchainProvider implements IBlockchainProvider {
         });
 
         const fallbackProvider = new FallbackProvider(providers, chainId); */
+          this.logUtils.debug(
+            `Initializing provider for chain ${chainId}, url ${chainInformation.providerUrls}`,
+          );
           this.providers.set(
             chainId,
             new JsonRpcProvider(chainInformation.providerUrls[0], chainId),
@@ -59,11 +66,13 @@ export class BlockchainProvider implements IBlockchainProvider {
     return this.providersInitializationResult;
   }
 
-  public getControlSigner(): ResultAsync<
-    JsonRpcSigner,
-    BlockchainProviderError
-  > {
-    throw new Error("Method not implemented.");
+  public getControlSigner(): ResultAsync<Wallet, BlockchainProviderError> {
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.getControlProvider(),
+    ]).map(([context, provider]) => {
+      return new Wallet(context.dataWalletKey!, provider);
+    });
   }
 
   public getControlProvider(): ResultAsync<

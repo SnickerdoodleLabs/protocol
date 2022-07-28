@@ -10,5 +10,9 @@
   "exclude": [
     "node_modules"
   ],
-  "references": []
+  "references": [
+    {
+      "path": "../objects"
+    },
+  ]
 }

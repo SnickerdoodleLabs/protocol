@@ -1,13 +1,21 @@
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   EVMAccountAddress,
   CrumbsContractError,
   TokenId,
   TokenUri,
+  HexString,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+
 export interface ICrumbsContract {
+  /**
+   * The address of the contract
+   */
+  contractAddress: EVMContractAddress;
   /**
    * Gets the token id mapped to a particular account address, returns 0 if no such token exists
    * @param accountAddress the owner account address
@@ -36,9 +44,16 @@ export interface ICrumbsContract {
    */
   createCrumb(
     crumbId: TokenId,
-    mask: string,
+    tokenUri: TokenUri,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, CrumbsContractError>;
+
+  /**
+   * Returns an encoded call to createCrumb. Useful for metatransactions
+   * @param crumbId
+   * @param crumbContent
+   */
+  encodeCreateCrumb(crumbId: TokenId, crumbContent: TokenUri): HexString;
 
   /**
    * Burns the crumb id belonging to the function caller
@@ -48,6 +63,8 @@ export interface ICrumbsContract {
     crumbId: TokenId,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, CrumbsContractError>;
+
+  getContract(): ethers.Contract;
 }
 
 export const ICrumbsContractType = Symbol.for("ICrumbsContract");

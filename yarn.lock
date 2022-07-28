@@ -3369,10 +3369,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/openapi-types@npm:^12.10.0":
-  version: 12.10.1
-  resolution: "@octokit/openapi-types@npm:12.10.1"
-  checksum: 2f0e1e90eac1e73a146d9a42e0f13f4ae290a8a465bd39a377dc723af3d5b2dff51c3c6fecd085adbdd8e63f10c94934d32e79a8559981486c78866e477cd84c
+"@octokit/openapi-types@npm:^12.11.0":
+  version: 12.11.0
+  resolution: "@octokit/openapi-types@npm:12.11.0"
+  checksum: 8a7d4bd6288cc4085cabe0ca9af2b87c875c303af932cb138aa1b2290eb69d32407759ac23707bb02776466e671244a902e9857896903443a69aff4b6b2b0e3b
   languageName: node
   linkType: hard
 
@@ -3402,53 +3402,54 @@ __metadata:
   linkType: hard
 
 "@octokit/types@npm:^6.0.3, @octokit/types@npm:^6.16.1":
-  version: 6.40.0
-  resolution: "@octokit/types@npm:6.40.0"
+  version: 6.41.0
+  resolution: "@octokit/types@npm:6.41.0"
   dependencies:
-    "@octokit/openapi-types": ^12.10.0
-  checksum: e8854fefd24003423bb03c3530449d1b390d340dc21f078a34adfa89a356138e9ab8f02493c6aa1e1bd101f630658dce24877e0615c130911fac8adc721eac42
+    "@octokit/openapi-types": ^12.11.0
+  checksum: fd6f75e0b19b90d1a3d244d2b0c323ed8f2f05e474a281f60a321986683548ef2e0ec2b3a946aa9405d6092e055344455f69f58957c60f58368c8bdda5b7d2ab
   languageName: node
   linkType: hard
 
 "@openzeppelin/contracts-upgradeable@npm:^4.6.0":
-  version: 4.7.1
-  resolution: "@openzeppelin/contracts-upgradeable@npm:4.7.1"
-  checksum: ae6d0ec4d83f030735c2166607e6c179b712854195e6ab48db66dd9aedbdcf0caf2bb91293ab30197c2597e6a828aa99a7a528d0a4e01a56f20ee5e894b07971
+  version: 4.7.2
+  resolution: "@openzeppelin/contracts-upgradeable@npm:4.7.2"
+  checksum: da4b27323516ef4d2de1262c87532cbd403b4a8a36b96bf40159cb2bfbc8f386b918415de4cd204fba36626a7236e07295ce38312e714f4cea274467d88f949b
   languageName: node
   linkType: hard
 
 "@openzeppelin/contracts@npm:^4.6.0":
-  version: 4.7.1
-  resolution: "@openzeppelin/contracts@npm:4.7.1"
-  checksum: 6377e978edb83dafd68e784d3e1334fc5a4adb9afcf855a44a66e1e8046c25894cb230e7dce54bdaa01f00a38248bb8d45780864a1f429e8ef9ffe666a005bf4
+  version: 4.7.2
+  resolution: "@openzeppelin/contracts@npm:4.7.2"
+  checksum: f02f2b44cdec46bafe1b608b495b6e2dc161ae4a3f308ba9921787cb77b8b877232839047b12f03b4d0fee9ca9208887fd5b9e7bdbf9a8c4f01021b1f1181233
   languageName: node
   linkType: hard
 
 "@openzeppelin/hardhat-upgrades@npm:^1.17.0":
-  version: 1.19.0
-  resolution: "@openzeppelin/hardhat-upgrades@npm:1.19.0"
+  version: 1.19.1
+  resolution: "@openzeppelin/hardhat-upgrades@npm:1.19.1"
   dependencies:
     "@openzeppelin/upgrades-core": ^1.16.0
     chalk: ^4.1.0
+    debug: ^4.1.1
     proper-lockfile: ^4.1.1
   peerDependencies:
     "@nomiclabs/hardhat-ethers": ^2.0.0
     "@nomiclabs/hardhat-etherscan": ^3.1.0
+    ethers: ^5.0.5
     hardhat: ^2.0.2
   peerDependenciesMeta:
     "@nomiclabs/harhdat-etherscan":
       optional: true
   bin:
     migrate-oz-cli-project: dist/scripts/migrate-oz-cli-project.js
-  checksum: eba1149e3164f162b733af40710c99b0ccbe8aad7d5e7fe000b509e946cdee9a42f6ae58eaf868f0af0094e2a83902a7f67bd3801b6e9d1f52fd212949d84a68
+  checksum: 006acdb309ef5b8d4fa2a8ff61e19089a667dc2d917440bfb127eed8a6dfab487259c89fd0207ffb4fa61983860e767660ad8dce4c73c93b4f10c108385d3ed4
   languageName: node
   linkType: hard
 
 "@openzeppelin/upgrades-core@npm:^1.16.0":
-  version: 1.16.1
-  resolution: "@openzeppelin/upgrades-core@npm:1.16.1"
+  version: 1.17.0
+  resolution: "@openzeppelin/upgrades-core@npm:1.17.0"
   dependencies:
-    bn.js: ^5.1.2
     cbor: ^8.0.0
     chalk: ^4.1.0
     compare-versions: ^4.0.0
@@ -3456,7 +3457,7 @@ __metadata:
     ethereumjs-util: ^7.0.3
     proper-lockfile: ^4.1.1
     solidity-ast: ^0.4.15
-  checksum: 2cf0bca09f6f0924a1872cb4d97df50382d1defb5770bcdf755cf069efed27727a6ca47206c868cf56411ec5addf63f7811aa5ee4db146ec8308ae400fbf944b
+  checksum: 21d01a89ae0a25fbb3b3e4839aae6976e1b5af90e133abd6b14f7e1aa35513ef1c3816b1dbe04012814c4b1e0175dcd1313143767d705d8d4add0dea6a8312b1
   languageName: node
   linkType: hard
 
@@ -3855,7 +3856,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/contracts-sdk@workspace:packages/contracts-sdk"
   dependencies:
-    "@snickerdoodlelabs/objects": ">=0.0.1"
+    "@snickerdoodlelabs/objects": ^0.0.5
     ethers: ^5.6.6
     inversify: ^5.1.1
     neverthrow: ^4.3.1
@@ -3970,7 +3971,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/objects@>=0.0.1, @snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
+"@snickerdoodlelabs/objects@>=0.0.1, @snickerdoodlelabs/objects@^0.0.5, @snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
   dependencies:
@@ -3998,6 +3999,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/signature-verification@workspace:packages/signatureVerification"
   dependencies:
+    "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
     neverthrow: ^4.3.1
     ts-brand: ^0.0.2
@@ -4371,13 +4373,13 @@ __metadata:
   linkType: hard
 
 "@types/express-serve-static-core@npm:*, @types/express-serve-static-core@npm:^4.17.18, @types/express-serve-static-core@npm:^4.17.9":
-  version: 4.17.29
-  resolution: "@types/express-serve-static-core@npm:4.17.29"
+  version: 4.17.30
+  resolution: "@types/express-serve-static-core@npm:4.17.30"
   dependencies:
     "@types/node": "*"
     "@types/qs": "*"
     "@types/range-parser": "*"
-  checksum: ec4194dc59276ec6dd906887fc377be0cadf4aaa4d535d9052ab9624937ef2b984a8d9da2c11c96979e21f3d9f78f1da93e767dbcec637f7f13d2e3003151145
+  checksum: c40d9027884ab9e97fa29d9d41d1b75a5966109312e26594cf03c61b278b5bf8e095f53589e47899b34a2e224291a44043617695c3e8bd22284f988e48582ee6
   languageName: node
   linkType: hard
 
@@ -4714,9 +4716,9 @@ __metadata:
   linkType: hard
 
 "@types/prettier@npm:^2.0.0, @types/prettier@npm:^2.1.1":
-  version: 2.6.3
-  resolution: "@types/prettier@npm:2.6.3"
-  checksum: e1836699ca189fff6d2a73dc22e028b6a6f693ed1180d5998ac29fa197caf8f85aa92cb38db642e4a370e616b451cb5722ad2395dab11c78e025a1455f37d1f0
+  version: 2.6.4
+  resolution: "@types/prettier@npm:2.6.4"
+  checksum: a8ec6601cbacf8040782cc883bf1a9393fdcb991ebe88440b0f875bb1556652927ac9fe61a721b6c666ac6252158ba327ce2868559bafa2c86e7dfef4089782a
   languageName: node
   linkType: hard
 
@@ -4833,13 +4835,13 @@ __metadata:
   linkType: hard
 
 "@types/react@npm:^17.0.38":
-  version: 17.0.47
-  resolution: "@types/react@npm:17.0.47"
+  version: 17.0.48
+  resolution: "@types/react@npm:17.0.48"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 2e7fe0eb630cb77da03b6da308c58728c01b38e878118e9ff5cd8045181c8d4f32dc936e328f46a62cadb56e1fe4c5a911b5113584f93a99e1f35df7f059246b
+  checksum: b683fa33f751ced0b8c8715df9f40de15513c1d7ce66064a75cdfb8805cc913b0b214a2e7022ef0b724bd62a1e8651d040cd265dd0452bde03cca9b8e495742d
   languageName: node
   linkType: hard
 
@@ -6255,12 +6257,12 @@ __metadata:
   linkType: hard
 
 "are-we-there-yet@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "are-we-there-yet@npm:3.0.0"
+  version: 3.0.1
+  resolution: "are-we-there-yet@npm:3.0.1"
   dependencies:
     delegates: ^1.0.0
     readable-stream: ^3.6.0
-  checksum: 348edfdd931b0b50868b55402c01c3f64df1d4c229ab6f063539a5025fd6c5f5bb8a0cab409bbed8d75d34762d22aa91b7c20b4204eb8177063158d9ba792981
+  checksum: 52590c24860fa7173bedeb69a4c05fb573473e860197f618b9a28432ee4379049336727ae3a1f9c4cb083114601c1140cee578376164d0e651217a9843f9fe83
   languageName: node
   linkType: hard
 
@@ -8206,16 +8208,16 @@ __metadata:
   linkType: hard
 
 "browserslist@npm:^4.14.5, browserslist@npm:^4.20.2, browserslist@npm:^4.21.2":
-  version: 4.21.2
-  resolution: "browserslist@npm:4.21.2"
+  version: 4.21.3
+  resolution: "browserslist@npm:4.21.3"
   dependencies:
-    caniuse-lite: ^1.0.30001366
-    electron-to-chromium: ^1.4.188
+    caniuse-lite: ^1.0.30001370
+    electron-to-chromium: ^1.4.202
     node-releases: ^2.0.6
-    update-browserslist-db: ^1.0.4
+    update-browserslist-db: ^1.0.5
   bin:
     browserslist: cli.js
-  checksum: 30fe59f8b065f99665ea63819d29c797660f7975857c290f61f570403abed4d7039ca15b6fd21e39a57b87e1a9262f94676114040766fc0da6ccc11faf9fc377
+  checksum: ff512a7bcca1c530e2854bbdfc7be2791d0fb524097a6340e56e1d5924164c7e4e0a9b070de04cdc4c149d15cb4d4275cb7c626ebbce954278a2823aaad2452a
   languageName: node
   linkType: hard
 
@@ -8612,7 +8614,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001332, caniuse-lite@npm:^1.0.30001366":
+"caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30001332, caniuse-lite@npm:^1.0.30001370":
   version: 1.0.30001370
   resolution: "caniuse-lite@npm:1.0.30001370"
   checksum: 28e1fd4d623a52945220b189b703556178ec8a185d317e4ae2557a24f68f88bd8168db67700970164690dbf7d29df69efbd318b54457b335a4361314bb530792
@@ -10962,10 +10964,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.188":
-  version: 1.4.201
-  resolution: "electron-to-chromium@npm:1.4.201"
-  checksum: dc8bff80ffc17dec64cdde97ef249292fc14e4ef6a3cb7fd3c1a0691fa846053a993cc6244ff0302c8d4d19baa4fdf0d1a39b413dda87415fec69c7c7a5a05b8
+"electron-to-chromium@npm:^1.3.47, electron-to-chromium@npm:^1.4.202":
+  version: 1.4.202
+  resolution: "electron-to-chromium@npm:1.4.202"
+  checksum: f6210322a16eb67c3743a5fd18c0e99fc71720132a6da61d93f26a96a4b6fc30b1b1f44e0b1f8eb91358b859f687f745d405515ad5482ded6ee69e5117907aa7
   languageName: node
   linkType: hard
 
@@ -21591,8 +21593,8 @@ __metadata:
   linkType: hard
 
 "pino@npm:^8.1.0":
-  version: 8.3.0
-  resolution: "pino@npm:8.3.0"
+  version: 8.3.1
+  resolution: "pino@npm:8.3.1"
   dependencies:
     atomic-sleep: ^1.0.0
     fast-redact: ^3.1.1
@@ -21601,13 +21603,13 @@ __metadata:
     pino-std-serializers: ^6.0.0
     process-warning: ^2.0.0
     quick-format-unescaped: ^4.0.3
-    real-require: ^0.1.0
+    real-require: ^0.2.0
     safe-stable-stringify: ^2.3.1
     sonic-boom: ^3.1.0
     thread-stream: ^2.0.0
   bin:
     pino: bin.js
-  checksum: c6e3dd7d95f14dfc5a4a1672b5ab4ffcae7b49724ad0f3af6a07d687e6ef0b0c7601d14b8355074d284b24326c722eaee45682042931c061696620444248ec10
+  checksum: 4871cf02fdc62ce27042a98797d343e381375486bd9e88a2a4ee72259e12227f040c76a6050707dfe76f3cacfcec0c049c28b53eb9a82074ddf2913cce9473ee
   languageName: node
   linkType: hard
 
@@ -22749,6 +22751,13 @@ __metadata:
   version: 0.1.0
   resolution: "real-require@npm:0.1.0"
   checksum: 96745583ed4f82cd5c6a6af012fd1d3c6fc2f13ae1bcff1a3c4f8094696013a1a07c82c5aa66a403d7d4f84949fc2203bc927c7ad120caad125941ca2d7e5e8e
+  languageName: node
+  linkType: hard
+
+"real-require@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "real-require@npm:0.2.0"
+  checksum: fa060f19f2f447adf678d1376928c76379dce5f72bd334da301685ca6cdcb7b11356813332cc243c88470796bc2e2b1e2917fc10df9143dd93c2ea608694971d
   languageName: node
   linkType: hard
 
@@ -26816,7 +26825,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"update-browserslist-db@npm:^1.0.4":
+"update-browserslist-db@npm:^1.0.5":
   version: 1.0.5
   resolution: "update-browserslist-db@npm:1.0.5"
   dependencies:

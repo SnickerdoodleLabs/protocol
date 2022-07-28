@@ -3,6 +3,8 @@ import {
   IConsentContract,
   ICrumbsContract,
   CrumbsContract,
+  IMinimalForwarderContract,
+  MinimalForwarderContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
@@ -61,6 +63,21 @@ export class ContractFactory implements IContractFactory {
       return new CrumbsContract(
         provider,
         config.controlChainInformation.crumbsContractAddress,
+      );
+    });
+  }
+
+  public factoryMinimalForwarderContract(): ResultAsync<
+    IMinimalForwarderContract,
+    BlockchainProviderError | UninitializedError
+  > {
+    return ResultUtils.combine([
+      this.blockchainProvider.getControlProvider(),
+      this.configProvider.getConfig(),
+    ]).map(([provider, config]) => {
+      return new MinimalForwarderContract(
+        provider,
+        config.controlChainInformation.metatransactionForwarderAddress,
       );
     });
   }

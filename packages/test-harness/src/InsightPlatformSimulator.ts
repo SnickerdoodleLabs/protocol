@@ -1,35 +1,27 @@
+import {
+  TypedDataDomain,
+  TypedDataField,
+} from "@ethersproject/abstract-signer";
 import { CryptoUtils, ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
-  ConsentContract,
-  CrumbsContract,
-} from "@snickerdoodlelabs/contracts-sdk";
-import {
-  AESEncryptedString,
-  chainConfig,
-  ChainId,
-  ControlChainInformation,
+  BigNumberString,
   DataWalletAddress,
-  EncryptedString,
   EVMAccountAddress,
   EVMContractAddress,
-  ICrumbContent,
-  InitializationVector,
-  LanguageCode,
+  HexString,
   Signature,
-  TokenId,
-  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
-  addCrumbTypes,
+  executeMetatransactionTypes,
 } from "@snickerdoodlelabs/signature-verification";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import express from "express";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
+import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { localChainAccounts } from "@test-harness/LocalChainAccounts";
-
-const defaultConsentContractAddress = EVMContractAddress("");
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
@@ -37,35 +29,7 @@ export class InsightPlatformSimulator {
   protected port = 3006;
   protected cryptoUtils = new CryptoUtils();
 
-  protected signer: ethers.Wallet;
-  protected provider: ethers.providers.JsonRpcProvider;
-  protected consentContract: ConsentContract;
-  protected crumbsContract: CrumbsContract;
-
-  public constructor() {
-    // Initialize a connection to the local blockchain
-    this.provider = new ethers.providers.JsonRpcProvider(
-      "http://localhost:8545",
-      31337,
-    );
-    // We'll use account 0
-    this.signer = new ethers.Wallet(
-      localChainAccounts[0].privateKey,
-      this.provider,
-    );
-
-    const doodleChain = chainConfig.get(
-      ChainId(31337),
-    ) as ControlChainInformation;
-    this.consentContract = new ConsentContract(
-      this.signer,
-      defaultConsentContractAddress,
-    );
-    this.crumbsContract = new CrumbsContract(
-      this.signer,
-      doodleChain.crumbsContractAddress,
-    );
-
+  public constructor(protected blockchain: BlockchainStuff) {
     this.app = express();
 
     this.app.use(express.json());
@@ -75,91 +39,66 @@ export class InsightPlatformSimulator {
       res.send("Hello World!");
     });
 
-    this.app.post("/crumb/:accountAddress", (req, res) => {
+    this.app.post("/metatransaction", (req, res) => {
       // Gather all the parameters
-      const accountAddress = EVMAccountAddress(req.params.accountAddress);
+      const accountAddress = EVMAccountAddress(req.body.accountAddress);
       const dataWalletAddress = DataWalletAddress(req.body.dataWallet);
-      const encrypted = new AESEncryptedString(
-        EncryptedString(req.body.data),
-        InitializationVector(req.body.initializationVector),
-      );
-      const languageCode = LanguageCode(req.body.languageCode);
+      const contractAddress = EVMContractAddress(req.body.contractAddress);
+      const nonce = BigNumberString(req.body.nonce);
+      const data = HexString(req.body.data);
       const signature = Signature(req.body.signature);
+      const metatransactionSignature = Signature(
+        req.body.metatransactionSignature,
+      );
 
       const value = {
         accountAddress: accountAddress,
-        data: encrypted.data,
-        initializationVector: encrypted.initializationVector,
-        languageCode: languageCode,
+        contractAddress: contractAddress,
+        nonce: nonce,
+        data: data,
+        metatransactionSignature: metatransactionSignature,
       } as Record<string, unknown>;
 
       // Verify the signature
       this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
-          addCrumbTypes,
+          executeMetatransactionTypes,
           value,
           signature,
         )
         .andThen((verificationAddress) => {
           if (verificationAddress != EVMAccountAddress(dataWalletAddress)) {
-            console.error("Invalid signature");
+            console.error(
+              `Invalid signature. Data Wallet Address: ${dataWalletAddress}, verified address: ${verificationAddress}`,
+            );
             return errAsync(new Error("Invalid signature!"));
           }
 
-          console.log("Verified signature!");
+          console.log(
+            `Verified signature from data wallet ${verificationAddress}!`,
+          );
 
-          // Add the crumb to the contract
-          return this.crumbsContract.addressToCrumbId(accountAddress);
+          const forwarderRequest = {
+            to: contractAddress, // Contract address for the metatransaction
+            from: accountAddress, // EOA to run the transaction as
+            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+            gas: BigNumber.from(1000000), // The amount of gas to pay.
+            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            data: data, // The actual bytes of the request, encoded as a hex string
+          } as IMinimalForwarderRequest;
+
+          console.log("Forwarder request", forwarderRequest);
+          console.log("Metatransaction signature", metatransactionSignature);
+
+          // Now we need to actually execute the metatransaction
+          return this.blockchain.minimalForwarder.execute(
+            forwarderRequest,
+            metatransactionSignature,
+          );
         })
-        .andThen((tokenId) => {
-          console.log(`Got TokenId: ${tokenId}`);
-
-          // If there's no token ID, there's no crumb, so we'll add it.
-          if (tokenId == null) {
-            return this.cryptoUtils.getTokenId().andThen((newTokenId) => {
-              const crumbContent = TokenUri(
-                JSON.stringify({
-                  [languageCode]: {
-                    d: encrypted.data,
-                    iv: encrypted.initializationVector,
-                  },
-                } as ICrumbContent),
-              );
-              return this.crumbsContract
-                .createCrumb(newTokenId, crumbContent)
-                .map(() => {
-                  return newTokenId;
-                });
-            });
-          }
-
-          // Got a token, need to get the URI
-          return this.crumbsContract.tokenURI(tokenId).andThen((tokenUri) => {
-            console.log("Got token uri from crumb", tokenUri);
-            // tokenUri is either null or a json blob.
-            if (tokenUri == null) {
-              return errAsync(
-                new Error(`Cannot retrieve tokenUri from token id ${tokenId}`),
-              );
-            }
-            // Existing crumb, we need to update it
-            const content = JSON.parse(tokenUri) as ICrumbContent;
-
-            content[languageCode] = {
-              d: encrypted.data,
-              iv: encrypted.initializationVector,
-            };
-
-            // TODO: Update crumb
-            //return this.crumbsContract.updateTokenUri() DOES NOT EXIST
-
-            return okAsync(tokenId);
-          });
-        })
-        .map((tokenId) => {
-          // We are supposed to return the token ID of the crumb
-          res.send(tokenId.toString());
+        .map(() => {
+          res.send("TokenId");
         })
         .mapErr((e) => {
           console.error(e);

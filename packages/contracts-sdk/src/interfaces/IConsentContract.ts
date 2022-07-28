@@ -10,6 +10,7 @@ import {
   RequestForData,
   BlockNumber,
   DomainName,
+  BaseURI,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -159,6 +160,10 @@ export interface IConsentContract {
   disableOpenOptIn(): ResultAsync<void, ConsentContractError>;
 
   enableOpenOptIn(): ResultAsync<void, ConsentContractError>;
+
+  baseURI(): ResultAsync<BaseURI, ConsentContractError>;
+
+  setBaseURI(baseUri: BaseURI): ResultAsync<void, ConsentContractError>;
 
   filters: IConsentContractFilters;
 }

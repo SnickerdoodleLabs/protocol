@@ -27,6 +27,8 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  IEVMBalance,
+  IEVMNFT,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -51,10 +53,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     req: JsonRpcRequest<unknown>,
     res: PendingJsonRpcResponse<unknown>,
     next: AsyncJsonRpcEngineNextCallback,
-    sender: Runtime.MessageSender | undefined
+    sender: Runtime.MessageSender | undefined,
   ) {
     const { method, params } = req;
-    
+
     switch (method) {
       case EExternalActions.UNLOCK: {
         const { accountAddress, signature, languageCode } =
@@ -78,6 +80,18 @@ export class RpcCallHandler implements IRpcCallHandler {
           this.getUnlockMessage(languageCode),
           res,
         );
+      }
+      case EExternalActions.GET_ACCOUNTS:
+      case EInternalActions.GET_ACCOUNTS: {
+        return this._sendAsyncResponse(this.getAccounts(), res);
+      }
+      case EExternalActions.GET_ACCOUNT_BALANCES:
+      case EInternalActions.GET_ACCOUNT_BALANCES: {
+        return this._sendAsyncResponse(this.getAccountBalances(), res);
+      }
+      case EExternalActions.GET_ACCOUNT_NFTS:
+      case EInternalActions.GET_ACCOUNT_NFTS: {
+        return this._sendAsyncResponse(this.getAccountNFTs(), res);
       }
       case EExternalActions.SET_AGE: {
         const { age } = params as ISetAgeParams;
@@ -174,6 +188,21 @@ export class RpcCallHandler implements IRpcCallHandler {
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
     return this.accountService.getUnlockMessage(languageCode);
+  }
+  private getAccounts(): ResultAsync<
+    EVMAccountAddress[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountService.getAccounts();
+  }
+  private getAccountBalances(): ResultAsync<
+    IEVMBalance[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountService.getAccountBalances();
+  }
+  private getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+    return this.accountService.getAccountNFTs();
   }
   private setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setAge(age);

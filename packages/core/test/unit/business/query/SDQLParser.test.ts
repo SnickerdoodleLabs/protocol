@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { SDQLParser } from "@core/implementations/business/utilities/query";
-import { AST_Compensation, AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, SDQLSchema } from "@objects/businessObjects";
+import { AST_Compensation, AST_ConditionExpr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, SDQLSchema } from "@core/interfaces/objects/SDQL";
 import { IpfsCID, SDQL_Name } from "@objects/primitives";
 // import { AST_Compensation } from "businessObjects/SDQL/AST_Compensation";
 // import { SDQLSchema } from "businessObjects/SDQL/SDQLSchema";

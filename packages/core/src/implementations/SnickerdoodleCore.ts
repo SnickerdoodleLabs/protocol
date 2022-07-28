@@ -25,7 +25,7 @@ import {
   InvalidSignatureError,
   IpfsCID,
   IPFSError,
-  IQueryEngineEvents,
+  ISnickerdoodleCoreEvents,
   ISnickerdoodleCore,
   LanguageCode,
   FamilyName,
@@ -41,6 +41,8 @@ import {
   CrumbsContractError,
   QueryFormatError,
   DomainName,
+  IEVMBalance,
+  IEVMNFT,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -121,7 +123,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     }
   }
 
-  public getEvents(): ResultAsync<IQueryEngineEvents, never> {
+  public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
     const contextProvider =
       this.iocContainer.get<IContextProvider>(IContextProviderType);
 
@@ -292,7 +294,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public processQuery(
-    queryId: IpfsCID,
+    {
+      consentContractAddress,
+      queryId
+    }: 
+    {
+      consentContractAddress: EVMContractAddress,
+      queryId: IpfsCID
+    }
   ): ResultAsync<
     void,
     AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
@@ -300,7 +309,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(queryId);
+    return queryService.processQuery(consentContractAddress, queryId);
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
@@ -344,5 +353,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
   getAge(): ResultAsync<Age, PersistenceError> {
     return this.profileService.getAge();
+  }
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getAccounts();
+  }
+
+  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getAccountBalances();
+  }
+
+  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getAccountNFTs();
   }
 }

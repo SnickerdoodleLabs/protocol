@@ -2,7 +2,6 @@ import {
   URLString,
   Age,
   ClickData,
-  ClickFilter,
   EmailAddressString,
   GivenName,
   Gender,
@@ -22,7 +21,7 @@ import {
   EVMTransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -63,7 +62,11 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   }
 
   public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
-    return this._checkAndRetrieveValue(ELocalStorageKey.ACCOUNT);
+    return this._checkAndRetrieveValue<EVMAccountAddress[]>(
+      ELocalStorageKey.ACCOUNT,
+    ).orElse((_e) => {
+      return okAsync([]);
+    });
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
@@ -71,23 +74,25 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       ELocalStorageKey.CLICKS,
     );
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.CLICKS, [
-      ...savedClicks,
+      ...(savedClicks ?? []),
       click,
     ]);
     return okAsync(undefined);
   }
 
-  public getClicks(
-    clickFilter: ClickFilter,
-  ): ResultAsync<ClickData, PersistenceError> {
-    return this._checkAndRetrieveValue(ELocalStorageKey.CLICKS);
+  public getClicks(): ResultAsync<ClickData[], PersistenceError> {
+    return this._checkAndRetrieveValue<ClickData[]>(
+      ELocalStorageKey.CLICKS,
+    ).orElse((_e) => okAsync([]));
   }
 
   public getRejectedCohorts(): ResultAsync<
     EVMContractAddress[],
     PersistenceError
   > {
-    return this._checkAndRetrieveValue(ELocalStorageKey.REJECTED_COHORTS);
+    return this._checkAndRetrieveValue<EVMContractAddress[]>(
+      ELocalStorageKey.REJECTED_COHORTS,
+    ).orElse((_e) => okAsync([]));
   }
 
   public addRejectedCohorts(
@@ -97,7 +102,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       ELocalStorageKey.REJECTED_COHORTS,
     );
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.REJECTED_COHORTS, [
-      ...saved,
+      ...(saved ?? []),
       consentContractAddresses,
     ]);
     return okAsync(undefined);
@@ -110,14 +115,16 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       ELocalStorageKey.SITE_VISITS,
     );
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.SITE_VISITS, [
-      ...savedSiteVisits,
+      ...(savedSiteVisits ?? []),
       siteVisits,
     ]);
     return okAsync(undefined);
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
-    return this._checkAndRetrieveValue(ELocalStorageKey.SITE_VISITS);
+    return this._checkAndRetrieveValue<SiteVisit[]>(
+      ELocalStorageKey.SITE_VISITS,
+    ).orElse((_e) => okAsync([]));
   }
 
   public addAccount(
@@ -152,7 +159,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   }
 
   public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.FIRST_NAME, name);
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.LAST_NAME, name);
     return okAsync(undefined);
   }
 
@@ -236,7 +243,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       ELocalStorageKey.TRANSACTIONS,
     );
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.TRANSACTIONS, [
-      ...savedTransactions,
+      ...(savedTransactions ?? []),
       ...transactions,
     ]);
     return okAsync(undefined);
@@ -247,13 +254,15 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   ): ResultAsync<EVMTransaction[], PersistenceError> {
     return this._checkAndRetrieveValue<EVMTransaction[]>(
       ELocalStorageKey.TRANSACTIONS,
-    ).andThen((transactions) => {
-      return okAsync(
-        transactions.filter((value) => {
-          filter.matches(value);
-        }),
-      );
-    });
+    )
+      .andThen((transactions) => {
+        return okAsync(
+          transactions.filter((value) => {
+            filter.matches(value);
+          }),
+        );
+      })
+      .orElse((_e) => okAsync([]));
   }
 
   public getLatestTransactionForAccount(
@@ -273,10 +282,14 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance, PersistenceError> {
-    return this._checkAndRetrieveValue(ELocalStorageKey.BALANCES);
+  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+    return this._checkAndRetrieveValue<IEVMBalance[]>(
+      ELocalStorageKey.BALANCES,
+    ).orElse((_e) => okAsync([]));
   }
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this._checkAndRetrieveValue(ELocalStorageKey.NFTS);
+    return this._checkAndRetrieveValue<IEVMNFT[]>(ELocalStorageKey.NFTS).orElse(
+      (_e) => okAsync([]),
+    );
   }
 }

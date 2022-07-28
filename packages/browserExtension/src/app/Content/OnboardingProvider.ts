@@ -67,6 +67,15 @@ export class OnboardingProvider {
   static getUnlockMessage(languageCode: LanguageCode = LanguageCode("en")) {
     return coreGateway.getUnlockMessage(languageCode);
   }
+  static getAccounts() {
+    return coreGateway.getAccounts();
+  }
+  static getAccountBalances() {
+    return coreGateway.getAccountBalances();
+  }
+  static getAccountNFTs() {
+    return coreGateway.getAccountNFTs();
+  }
   static getFamilyName() {
     return coreGateway.getFamilyName();
   }

@@ -2,10 +2,18 @@ const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
 
 async function getSignature(owner, address, tokenId, agreementURI) {
-  var msgHash = ethers.utils.solidityKeccak256(
-    ["address", "uint256", "string"],
-    [address, tokenId, agreementURI],
-  );
+  let msgHash; 
+  if (address === null) {
+    msgHash = ethers.utils.solidityKeccak256(
+      ["uint256", "string"],
+      [tokenId, agreementURI],
+    );
+  } else {
+    msgHash = ethers.utils.solidityKeccak256(
+      ["address", "uint256", "string"],
+      [address, tokenId, agreementURI],
+    );
+  }
 
   // Sign the string message
   // This step represents a business user signing a message for an approved user on their platform
@@ -236,6 +244,115 @@ describe("Consent", () => {
     });
   });
 
+  describe("anonymousRestrictedOptIn", function () {
+    it("Allows a user who as a signed payload to opt-in", async function () {
+      let sig = await getSignature(
+        user1,
+        null,
+        1,
+        "www.uri.com/1",
+      );
+
+      // User 2 can now call restricted opt in if business entity has signed to approve them
+      await consent
+        .connect(accounts[2])
+        .anonymousRestrictedOptIn(1, "www.uri.com/1", sig);
+    });
+
+    it("Does not allows user to opt-in twice even if signed for", async function () {
+      // user1 who is the owner signs user 2's address
+      // pass in address in lowercase to match Solidity string conversion
+      let sig = await getSignature(
+        user1,
+        null,
+        1,
+        "www.uri.com/1",
+      );
+
+      // user1 who is the owner signs user 2's address
+      // pass in address in lowercase to match Solidity string conversion
+      let sig2 = await getSignature(
+        user1,
+        null,
+        2,
+        "www.uri.com/2",
+      );
+
+      // User 2 can now call restricted opt in if business entity has signed to approve them
+      await consent
+        .connect(accounts[2])
+        .anonymousRestrictedOptIn(1, "www.uri.com/1", sig);
+
+      // User 2 tries to now call restricted opt in again with second business signature
+      await expect(
+        consent.connect(accounts[2]).anonymousRestrictedOptIn(2, "www.uri.com/2", sig2),
+      ).to.revertedWith("Consent: User has already opted in");
+    });
+
+    it("Does not allow opt-ins when function is paused.", async function () {
+      // Business user signs user 2's address
+      // pass in address in lowercase to match Solidity string conversion
+      let sig = await getSignature(
+        user1,
+        null,
+        1,
+        "www.uri.com/1",
+      );
+
+      // pause the contract
+      await consent.connect(user1).pause();
+
+      // User 2 can now call restricted opt in if business entity has signed to approve them
+      await expect(
+        consent.connect(accounts[2]).anonymousRestrictedOptIn(1, "www.uri.com/1", sig),
+      ).to.revertedWith("Pausable: paused");
+    });
+
+    it("Does not allow restricted opt-ins with an existent token id.", async function () {
+      // Business user signs user 2's address
+      // pass in address in lowercase to match Solidity string conversion
+      let sig = await getSignature(
+        user1,
+        null,
+        1,
+        "www.uri.com/1",
+      );
+
+      let sig3 = await getSignature(
+        user1,
+        null,
+        1,
+        "www.uri.com/2",
+      );
+
+      // User 2 can now call restricted opt in if business entity has signed to approve them
+      await consent
+        .connect(accounts[2])
+        .anonymousRestrictedOptIn(1, "www.uri.com/1", sig);
+
+      // User 2 tried to call again with the same token id
+      await expect(
+        consent.connect(accounts[3]).anonymousRestrictedOptIn(1, "www.uri.com/2", sig3),
+      ).to.revertedWith("ERC721: token already minted");
+    });
+
+    it("Does not allow approved user to call restricted opt-ins with a different token id.", async function () {
+      // Business user signs user 2's address
+      // pass in address in lowercase to match Solidity string conversion
+      let sig = await getSignature(
+        user1,
+        null,
+        1,
+        "www.uri.com/1",
+      );
+
+      // User 2 tries to call restricted opt in again with another token Id
+      await expect(
+        consent.connect(accounts[2]).restrictedOptIn(2, "www.uri.com/1", sig),
+      ).to.revertedWith("Consent: Contract owner did not sign this message");
+    });
+  });
+
   describe("optOut", function () {
     it("Allows any address to opt-out after opting-in.", async function () {
       // call opt in
@@ -301,11 +418,11 @@ describe("Consent", () => {
       await expect(
         consent
           .connect(accounts[1])
-          ["safeTransferFrom(address,address,uint256)"](
-            accounts[1].address,
-            accounts[2].address,
-            1,
-          ),
+        ["safeTransferFrom(address,address,uint256)"](
+          accounts[1].address,
+          accounts[2].address,
+          1,
+        ),
       ).to.revertedWith("Consent: Consent tokens are non-transferrable");
     });
 
@@ -326,11 +443,11 @@ describe("Consent", () => {
       await expect(
         consent
           .connect(accounts[2])
-          ["safeTransferFrom(address,address,uint256)"](
-            accounts[1].address,
-            accounts[2].address,
-            1,
-          ),
+        ["safeTransferFrom(address,address,uint256)"](
+          accounts[1].address,
+          accounts[2].address,
+          1,
+        ),
       ).to.revertedWith("ERC721: caller is not token owner nor approved");
     });
   });

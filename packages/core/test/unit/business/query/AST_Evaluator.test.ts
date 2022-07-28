@@ -2,18 +2,19 @@
 
 import "reflect-metadata";
 
-import { AST_Factories, QueryRepository } from "@core/implementations/business/utilities";
-import { IpfsCID, SDQL_Name, SDQL_OperatorName, SDQL_Return, Version } from "@objects/primitives";
-import { AST, AST_ConditionExpr, AST_Expr, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "@objects/businessObjects";
-
-
+import { QueryRepository } from "@core/implementations/business/utilities";
+import { QueryFactories } from "@core/implementations/utilities/factory";
+import { AST_ConditionExpr, AST_Expr, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionGE, ConditionIn, ConditionL, ConditionOr } from "@core/interfaces/objects";
+import { IpfsCID, SDQL_Name, SDQL_OperatorName, SDQL_Return } from "@objects/primitives";
 // const ast = new AST(
 //     Version("0.1"), 
 //     "Interactions with the Avalanche blockchain for 15-year and older individuals",
 //     "Shrapnel"
 //     );
 const queryRepository = new QueryRepository();
-const astEvaluator = AST_Factories.makeAST_Evaluator(IpfsCID("000"), null, queryRepository);
+// const astEvaluator = AST_Factories.makeAST_Evaluator(IpfsCID("000"), null, queryRepository);
+const queryFactories = new QueryFactories();
+const astEvaluator = queryFactories.makeAstEvaluator(IpfsCID("000"), null, queryRepository);
 
 // #region Conditions
 

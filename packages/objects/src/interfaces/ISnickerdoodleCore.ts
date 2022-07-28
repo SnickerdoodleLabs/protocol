@@ -1,13 +1,7 @@
 import { ResultAsync } from "neverthrow";
-import { Observable } from "rxjs";
 
-import { EInvitationStatus } from "..";
-
-import {
-  CohortInvitation,
-  ConsentConditions,
-  SDQLQuery,
-} from "@objects/businessObjects";
+import { CohortInvitation, ConsentConditions, IEVMNFT, SDQLQuery } from "@objects/businessObjects";
+import { EInvitationStatus } from "@objects/enum";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -22,6 +16,7 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
+import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   Age,
   DataWalletAddress,
@@ -38,6 +33,8 @@ import {
   CountryCode,
   DomainName,
 } from "@objects/primitives";
+import { Observable } from "rxjs";
+import { IEVMBalance } from "@objects/interfaces/chains";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -206,13 +203,20 @@ export interface ISnickerdoodleCore {
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   processQuery(
-    queryId: IpfsCID,
+    {
+      consentContractAddress,
+      queryId
+    }: 
+    {
+      consentContractAddress: EVMContractAddress,
+      queryId: IpfsCID
+    }
   ): ResultAsync<
     void,
     AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
   >;
 
-  getEvents(): ResultAsync<IQueryEngineEvents, never>;
+  getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
   /** Google User Information */
   setAge(age: Age): ResultAsync<void, PersistenceError>;
@@ -235,12 +239,16 @@ export interface ISnickerdoodleCore {
 
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode, PersistenceError>;
+
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
+  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
 
 export interface IQueryEngineEvents {
   onInitialized: Observable<DataWalletAddress>;
-  onQueryPosted: Observable<SDQLQuery>;
+  onQueryPosted: Observable<{consentContractAddress:EVMContractAddress, query:SDQLQuery}>;
   onAccountAdded: Observable<EVMAccountAddress>;
 }

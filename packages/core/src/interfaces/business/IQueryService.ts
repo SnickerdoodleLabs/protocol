@@ -27,10 +27,16 @@ export interface IQueryService {
     | ConsentError
   >;
   processQuery(
-    queryId: IpfsCID,
+    consentContractAddress: EVMContractAddress,
+    queryId: IpfsCID
   ): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
+    | AjaxError 
+    | UninitializedError 
+    | ConsentError 
+    | IPFSError
+    | QueryFormatError
+    
   >;
 }
 

@@ -1,14 +1,13 @@
-import { IpfsCID, SDQL_Return } from "@objects/primitives";
-import { PersistenceError } from "@snickerdoodlelabs/objects";
-import { AST_Query } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/AST_Query";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import { QueryEvaluatorType } from ".";
-import { QueryEvaluator } from "./QueryEvaluator";
+import { IQueryRepository } from "@core/interfaces/business/utilities";
+import { AST_Query } from "@core/interfaces/objects";
+import { IpfsCID, PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import { QueryEvaluator } from "./QueryEvaluator";
 
 @injectable()
-export class QueryRepository {
+export class QueryRepository implements IQueryRepository {
 
     queryValuator: QueryEvaluator;
     dataWalletPersistence: LocalStoragePersistence;

@@ -1,9 +1,9 @@
-import { IpfsCID, SDQL_Return } from "@objects/primitives";
-import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionOr, EvalNotImplementedError, EvaluationError, Operator, TypeChecker } from "@objects/businessObjects";
+import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionOr, EvalNotImplementedError, EvaluationError, Operator, TypeChecker } from "@core/interfaces/objects";
 import { QueryRepository } from "./QueryRepository";
-import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { IpfsCID, PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { inject, injectable } from "inversify";
+import { IQueryRepository } from "@core/interfaces/business/utilities";
 
 // TODO introduce dependency injection
 
@@ -30,19 +30,8 @@ export class AST_Evaluator {
     constructor(
         readonly cid: IpfsCID,
         readonly ast: AST | null,
-        readonly queryRepository: QueryRepository
+        readonly queryRepository: IQueryRepository
     ) {
-    //     this.exprMap.set(AST_Query, this.evalQuery);
-    //     this.exprMap.set(Command_IF, this.evalIf);
-    //     this.exprMap.set(AST_ConditionExpr, this.evalConditionExpr);
-    //     this.exprMap.set(Condition, this.evalCondition);
-        // console.log(this);
-    }
-
-    postConstructor() {
-        /**
-         * This function must be called after construction. Otherwise the object will not be initialized correctly.
-         */
         this.operatorMap.set(ConditionAnd, this.evalAnd)
         this.operatorMap.set(ConditionOr, this.evalOr)
         this.operatorMap.set(ConditionIn, this.evalIn)
@@ -53,6 +42,22 @@ export class AST_Evaluator {
         this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
         this.expMap.set(AST_ReturnExpr, this.evalReturnExpr); 
         this.expMap.set(Operator, this.evalOperator);
+    }
+
+    postConstructor() {
+        /**
+         * This function must be called after construction. Otherwise the object will not be initialized correctly.
+         */
+        // this.operatorMap.set(ConditionAnd, this.evalAnd)
+        // this.operatorMap.set(ConditionOr, this.evalOr)
+        // this.operatorMap.set(ConditionIn, this.evalIn)
+        // this.operatorMap.set(ConditionGE, this.evalGE)
+        // this.operatorMap.set(ConditionL, this.evalL)
+
+        // this.expMap.set(Command_IF, this.evalIf);
+        // this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
+        // this.expMap.set(AST_ReturnExpr, this.evalReturnExpr); 
+        // this.expMap.set(Operator, this.evalOperator);
         // this.expMap.set(isPrimitiveExpr, this.evalPrimitiveExpr);
     }
 

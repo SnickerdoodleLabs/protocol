@@ -1,6 +1,7 @@
 export * from "@objects/primitives/AESKey";
 export * from "@objects/primitives/Age";
 export * from "@objects/primitives/Argon2Hash";
+export * from "@objects/primitives/BaseURI";
 export * from "@objects/primitives/BigNumberString";
 export * from "@objects/primitives/BlockNumber";
 export * from "@objects/primitives/ChainId";
@@ -17,6 +18,7 @@ export * from "@objects/primitives/EVMChainCode";
 export * from "@objects/primitives/EVMAccountAddress";
 export * from "@objects/primitives/EVMContractAddress";
 export * from "@objects/primitives/EVMContractFunction";
+export * from "@objects/primitives/EVMContractDirection";
 export * from "@objects/primitives/EVMToken";
 export * from "@objects/primitives/EVMBlockNumber";
 export * from "@objects/primitives/EVMBlockRange";

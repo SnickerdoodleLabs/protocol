@@ -67,7 +67,7 @@ export interface IDataWalletPersistence {
   addClick(click: ClickData): ResultAsync<void, PersistenceError>;
 
   /** This returns you click data that you have stored, according to the filter */
-  getClicks(clickFilter: ClickFilter): ResultAsync<ClickData, PersistenceError>;
+  getClicks(): ResultAsync<ClickData[], PersistenceError>;
 
   /** Google User Information */
   setAge(age: Age): ResultAsync<void, PersistenceError>;
@@ -121,7 +121,7 @@ export interface IDataWalletPersistence {
   updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<void, PersistenceError>;
-  getAccountBalances(): ResultAsync<IEVMBalance, PersistenceError>;
+  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
 
   updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<void, PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
