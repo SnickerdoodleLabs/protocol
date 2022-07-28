@@ -6,6 +6,8 @@ export enum EInternalActions {
 }
 
 export enum EExternalActions {
+  SET_DEV_CONFIG = "SET_DEV_CONFIG",
+  CLEAR_DEV_CONFIG = "CLEAR_DEV_CONFIG",
   UNLOCK = "UNLOCK",
   GET_UNLOCK_MESSAGE = "GET_UNLOCK_MESSAGE",
   GET_STATE = "GET_EXTERNAL_STATE",

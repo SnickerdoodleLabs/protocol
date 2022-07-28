@@ -134,4 +134,13 @@ export class ExternalCoreGateway {
   public getLocation(): ResultAsync<CountryCode, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_LOCATION);
   }
+  // for testing with local
+  public setDevConfig(config: any): ResultAsync<any, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_DEV_CONFIG, {
+      config,
+    } as any);
+  }
+  public clearDevConfig(): ResultAsync<any, JsonRpcError> {
+    return this._handler.call(EExternalActions.CLEAR_DEV_CONFIG);
+  }
 }

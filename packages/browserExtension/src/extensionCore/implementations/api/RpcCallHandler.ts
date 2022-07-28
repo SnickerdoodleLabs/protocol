@@ -38,7 +38,7 @@ import {
 } from "json-rpc-engine";
 
 import { okAsync, ResultAsync } from "neverthrow";
-import { Runtime } from "webextension-polyfill";
+import Browser, { Runtime } from "webextension-polyfill";
 
 export class RpcCallHandler implements IRpcCallHandler {
   constructor(
@@ -51,11 +51,22 @@ export class RpcCallHandler implements IRpcCallHandler {
     req: JsonRpcRequest<unknown>,
     res: PendingJsonRpcResponse<unknown>,
     next: AsyncJsonRpcEngineNextCallback,
-    sender: Runtime.MessageSender | undefined
+    sender: Runtime.MessageSender | undefined,
   ) {
     const { method, params } = req;
-    
+
     switch (method) {
+      case EExternalActions.SET_DEV_CONFIG: {
+        const { config } = params as any;
+        await Browser.storage.local.set({ SD_TEST_CONFIG: config });
+
+        return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
+      }
+      case EExternalActions.CLEAR_DEV_CONFIG: {
+        await Browser.storage.local.remove("SD_TEST_CONFIG");
+        return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
+      }
+
       case EExternalActions.UNLOCK: {
         const { accountAddress, signature, languageCode } =
           params as IUnlockParams;

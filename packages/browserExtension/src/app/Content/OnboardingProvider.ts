@@ -109,6 +109,12 @@ export class OnboardingProvider {
   static setGender(gender: Gender) {
     return coreGateway.setGender(gender);
   }
+  static setDevConfig(config) {
+    return coreGateway.setDevConfig(config)
+  }
+  static clearConfig() {
+    return coreGateway.clearDevConfig()
+  }
 }
 
 export default OnboardingProvider;
