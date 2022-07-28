@@ -6,9 +6,11 @@ import { CryptoUtils, ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BigNumberString,
+  ConsentContractError,
   ConsentFactoryContractError,
   ConsentName,
   DataWalletAddress,
+  DomainName,
   EVMAccountAddress,
   EVMContractAddress,
   HexString,
@@ -120,9 +122,11 @@ export class InsightPlatformSimulator {
     return okAsync(undefined);
   }
 
-  public createCampaign(): ResultAsync<
+  public createCampaign(
+    domain: DomainName,
+  ): ResultAsync<
     EVMContractAddress,
-    ConsentFactoryContractError
+    ConsentFactoryContractError | ConsentContractError
   > {
     // Need to create a consent contract
     return this.blockchain
@@ -130,6 +134,7 @@ export class InsightPlatformSimulator {
         ConsentName(
           `Snackerdoodle Test Harness ${this.consentContracts.length + 1}`,
         ),
+        domain,
       )
       .map((contractAddress) => {
         console.log(

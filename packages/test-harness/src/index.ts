@@ -217,23 +217,14 @@ function corePrompt(): ResultAsync<void, Error> {
     ];
   }
 
-  return ResultAsync.fromPromise(
-    inquirer.prompt([
-      {
-        type: "list",
-        name: "core",
-        message: "Please select a course of action:",
-        choices: choices,
-      },
-    ]),
-    (e) => {
-      if ((e as any).isTtyError) {
-        // Prompt couldn't be rendered in the current environment
-        console.log("TtyError");
-      }
-      return e as Error;
+  return prompt([
+    {
+      type: "list",
+      name: "core",
+      message: "Please select a course of action:",
+      choices: choices,
     },
-  ).andThen((answers) => {
+  ]).andThen((answers) => {
     switch (answers.core) {
       case "unlock":
         return unlockCore(blockchain.accountAddress, accountPrivateKey);
@@ -252,28 +243,19 @@ function corePrompt(): ResultAsync<void, Error> {
 }
 
 function simulatorPrompt(): ResultAsync<void, Error> {
-  return ResultAsync.fromPromise(
-    inquirer.prompt([
-      {
-        type: "list",
-        name: "simulator",
-        message: "Please select a course of action:",
-        choices: [
-          { name: "Create Campaign", value: "createCampaign" },
-          { name: "Post Query", value: "post" },
-          new inquirer.Separator(),
-          { name: "Cancel", value: "cancel" },
-        ],
-      },
-    ]),
-    (e) => {
-      if ((e as any).isTtyError) {
-        // Prompt couldn't be rendered in the current environment
-        console.log("TtyError");
-      }
-      return e as Error;
+  return prompt([
+    {
+      type: "list",
+      name: "simulator",
+      message: "Please select a course of action:",
+      choices: [
+        { name: "Create Campaign", value: "createCampaign" },
+        { name: "Post Query", value: "post" },
+        new inquirer.Separator(),
+        { name: "Cancel", value: "cancel" },
+      ],
     },
-  ).andThen((answers) => {
+  ]).andThen((answers) => {
     switch (answers.simulator) {
       case "createCampaign":
         return createCampaign();
@@ -284,9 +266,12 @@ function simulatorPrompt(): ResultAsync<void, Error> {
   });
 }
 
-function createCampaign(): ResultAsync<void, ConsentFactoryContractError> {
+function createCampaign(): ResultAsync<
+  void,
+  ConsentFactoryContractError | ConsentContractError
+> {
   return simulator
-    .createCampaign()
+    .createCampaign(domainName)
     .mapErr((e) => {
       console.error(e);
       return e;
@@ -397,7 +382,7 @@ function joinCampaign(): ResultAsync<
         // We need to make an invitation for ourselves
         return cryptoUtils.getTokenId().andThen((tokenId) => {
           const invitation = new CohortInvitation(
-            DomainName("testDomain"),
+            domainName,
             contractAddress,
             tokenId,
             null,

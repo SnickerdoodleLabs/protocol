@@ -8,21 +8,25 @@ import {
   BaseURI,
   chainConfig,
   ChainId,
+  ConsentContractError,
   ConsentFactoryContractError,
   ConsentName,
   ControlChainInformation,
+  DomainName,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { localChainAccounts } from "@test-harness/LocalChainAccounts";
 const defaultConsentContractAddress = EVMContractAddress("");
 
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
+  public businessSigner: ethers.Wallet;
   public accountWallet: ethers.Wallet;
   public accountAddress: EVMAccountAddress;
   public provider: ethers.providers.JsonRpcProvider;
@@ -44,6 +48,11 @@ export class BlockchainStuff {
     // We'll use account 0
     this.serverSigner = new ethers.Wallet(
       this.serverAccount.privateKey,
+      this.provider,
+    );
+
+    this.businessSigner = new ethers.Wallet(
+      this.businessAccount.privateKey,
       this.provider,
     );
 
@@ -69,21 +78,31 @@ export class BlockchainStuff {
 
   public createConsentContract(
     name: ConsentName,
-  ): ResultAsync<EVMContractAddress, ConsentFactoryContractError> {
+    domain: DomainName,
+  ): ResultAsync<
+    EVMContractAddress,
+    ConsentFactoryContractError | ConsentContractError
+  > {
     return this.consentFactoryContract
       .createConsent(
-        this.businessAccount.accountAddress,
+        this.serverAccount.accountAddress, // The server account has all the permissions to start with. We'll add the business' account later
         BaseURI("this is a base uri"),
         name,
       )
-      .map((contractAddress) => {
+      .andThen((contractAddress) => {
         // Got the new consent contract address
         // Create the contract wrapper
-        this.consentContracts.set(
+        const consentContract = new ConsentContract(
+          this.serverSigner,
           contractAddress,
-          new ConsentContract(this.serverSigner, contractAddress),
         );
-        return contractAddress;
+        this.consentContracts.set(contractAddress, consentContract);
+
+        return ResultUtils.combine([consentContract.addDomain(domain)]).map(
+          () => {
+            return contractAddress;
+          },
+        );
       });
   }
 }

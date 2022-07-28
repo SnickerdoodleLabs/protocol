@@ -39,6 +39,8 @@ import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
   IInsightPlatformRepository,
+  IDNSRepositoryType,
+  IDNSRepository,
 } from "@core/interfaces/data";
 import {
   IConfigProvider,
@@ -60,6 +62,7 @@ export class CohortService implements ICohortService {
     protected consentRepo: IConsentContractRepository,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
+    @inject(IDNSRepositoryType) protected dnsRepository: IDNSRepository,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -103,7 +106,7 @@ export class CohortService implements ICohortService {
           const contract = contracts[0];
           return ResultUtils.combine([
             contract.getDomains(),
-            this.insightPlatformRepo.getTXTRecords(invitation.domain),
+            this.dnsRepository.fetchTXTRecords(invitation.domain),
           ]);
         })
         .map(([domains, domainTXT]) => {
@@ -112,9 +115,10 @@ export class CohortService implements ICohortService {
             return EInvitationStatus.Invalid;
           }
 
-          if (!domainTXT.includes(invitation.consentContractAddress)) {
-            return EInvitationStatus.Invalid;
-          }
+          // TODO: Uncomment this when we have DNS simulation working!
+          // if (!domainTXT.includes(invitation.consentContractAddress)) {
+          //   return EInvitationStatus.Invalid;
+          // }
 
           return EInvitationStatus.New;
         });
@@ -167,29 +171,30 @@ export class CohortService implements ICohortService {
             data: callData, // The actual bytes of the request, encoded as a hex string
           } as IMinimalForwarderRequest;
 
-          return this.cryptoUtils.signTypedData(
-            getMinimalForwarderSigningDomain(
-              config.controlChainId,
-              config.controlChainInformation.metatransactionForwarderAddress,
-            ),
-            forwardRequestTypes,
-            value,
-            context.dataWalletKey!,
-          );
-        })
-        .andThen((metatransactionSignature) => {
-          // Got the signature for the metatransaction, now we can execute it.
-          // .executeMetatransaction will sign everything and have the server run
-          // the metatransaction.
-          return this.insightPlatformRepo.executeMetatransaction(
-            context.dataWalletAddress!,
-            EVMAccountAddress(context.dataWalletAddress!),
-            invitation.consentContractAddress,
-            BigNumberString(BigNumber.from(invitation.tokenId).toString()),
-            callData,
-            metatransactionSignature,
-            context.dataWalletKey!,
-          );
+          return this.cryptoUtils
+            .signTypedData(
+              getMinimalForwarderSigningDomain(
+                config.controlChainId,
+                config.controlChainInformation.metatransactionForwarderAddress,
+              ),
+              forwardRequestTypes,
+              value,
+              context.dataWalletKey!,
+            )
+            .andThen((metatransactionSignature) => {
+              // Got the signature for the metatransaction, now we can execute it.
+              // .executeMetatransaction will sign everything and have the server run
+              // the metatransaction.
+              return this.insightPlatformRepo.executeMetatransaction(
+                context.dataWalletAddress!, // data wallet address
+                EVMAccountAddress(context.dataWalletAddress!), // account address
+                invitation.consentContractAddress, // contract address
+                BigNumberString(BigNumber.from(nonce).toString()),
+                callData,
+                metatransactionSignature,
+                context.dataWalletKey!,
+              );
+            });
         })
         .map(() => {
           // Notify the world that we've opted in to the cohort
