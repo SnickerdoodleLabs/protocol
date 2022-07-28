@@ -111,7 +111,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         whenNotDisabled
     {   
         /// if user has opted in before, revert
-        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+        require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
 
         /// mint the consent token and set its agreement uri
         _safeMint(_msgSender(), tokenId);
@@ -140,7 +140,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         whenNotPaused
     {
         /// if user has opted in before, revert
-        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+        require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
         
         /// check the signature against the payload
         require(
