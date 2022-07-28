@@ -1,17 +1,10 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   AjaxError,
   Insight,
   IpfsCID,
   Reward,
-  CohortInvitation,
   EVMContractAddress,
   Signature,
-  TokenId,
-  DomainName,
   DataWalletAddress,
   HexString,
   EVMAccountAddress,
@@ -19,8 +12,6 @@ import {
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { BusinessConsentContract } from "@core/interfaces/objects";
 
 export interface IInsightPlatformRepository {
   claimReward(
@@ -32,20 +23,8 @@ export interface IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    insights: Insight[]): ResultAsync<void, AjaxError>;
-
-  getBusinessConsentContracts(): ResultAsync<
-    BusinessConsentContract[],
-    AjaxError
-  >;
-
-  leaveCohort(
-    dataWalletAddress: DataWalletAddress,
-    consentContractAddress: EVMContractAddress,
-    signature: Signature,
+    insights: Insight[],
   ): ResultAsync<void, AjaxError>;
-
-  getTXTRecords(domainName: DomainName): ResultAsync<string[], AjaxError>;
 
   executeMetatransaction(
     dataWalletAddress: DataWalletAddress,
