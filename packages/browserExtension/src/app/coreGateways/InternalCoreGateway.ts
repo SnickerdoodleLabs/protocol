@@ -5,6 +5,11 @@ import { EInternalActions } from "@shared/enums";
 
 import { IInternalState } from "@shared/interfaces/states";
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
+import {
+  EVMAccountAddress,
+  IEVMBalance,
+  IEVMNFT,
+} from "@snickerdoodlelabs/objects";
 
 export class InternalCoreGateway {
   protected _handler: CoreHandler;
@@ -14,5 +19,14 @@ export class InternalCoreGateway {
 
   public getState(): ResultAsync<IInternalState, JsonRpcError> {
     return this._handler.call(EInternalActions.GET_STATE);
+  }
+  public getAccounts(): ResultAsync<EVMAccountAddress[], JsonRpcError> {
+    return this._handler.call(EInternalActions.GET_ACCOUNTS);
+  }
+  public getAccountBalances(): ResultAsync<IEVMBalance[], JsonRpcError> {
+    return this._handler.call(EInternalActions.GET_ACCOUNT_BALANCES);
+  }
+  public getAccountNFTs(): ResultAsync<IEVMNFT[], JsonRpcError> {
+    return this._handler.call(EInternalActions.GET_ACCOUNT_NFTS);
   }
 }

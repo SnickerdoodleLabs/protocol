@@ -14,7 +14,7 @@ import {
   BaseURI,
   HexString,
 } from "@snickerdoodlelabs/objects";
-import { ethers, EventFilter, Event, BigNumber } from "ethers";
+import { ethers, EventFilter, Event, BigNumber, Bytes } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -85,14 +85,12 @@ export class ConsentContract implements IConsentContract {
   public restrictedOptIn(
     tokenId: TokenId,
     agreementURI: TokenUri,
-    nonce: number,
     signature: Signature,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.restrictedOptIn(
         tokenId,
         agreementURI,
-        nonce,
         signature,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -107,6 +105,62 @@ export class ConsentContract implements IConsentContract {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new ConsentContractError(
             "Wait for restrictedOptIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public anonymousRestrictedOptIn(
+    tokenId: TokenId,
+    agreementURI: TokenUri,
+    signature: Signature,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.anonymousRestrictedOptIn(
+        tokenId,
+        agreementURI,
+        signature,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call anonymousRestrictedOptIn()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for anonymousRestrictedOptIn() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public optOut(tokenId: TokenId): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.optOut(
+        tokenId,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call optOut()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for optOut() failed",
             "Unknown",
             e,
           );
@@ -595,6 +649,109 @@ export class ConsentContract implements IConsentContract {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new ConsentContractError(
             "Wait for setBaseURI() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public hasRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<boolean, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.hasRole(ConsentRoles[role], address) as Promise<boolean>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call hasRole()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
+  public grantRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.grantRole(
+        ConsentRoles[role],
+        address,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call grantRole()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for grantRole() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public revokeRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.revokeRole(
+        ConsentRoles[role],
+        address,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call revokeRole()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for revokeRole() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public renounceRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.renounceRole(
+        ConsentRoles[role],
+        address,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call renounceRole()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for renounceRole() failed",
             "Unknown",
             e,
           );

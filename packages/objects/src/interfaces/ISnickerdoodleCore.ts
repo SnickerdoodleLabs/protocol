@@ -5,6 +5,7 @@ import {
   CohortInvitation,
   ConsentConditions,
   SDQLQuery,
+  IEVMNFT,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -22,6 +23,7 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
+import { IEVMBalance } from "@objects/interfaces/chains";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   Age,
@@ -212,6 +214,10 @@ export interface ISnickerdoodleCore {
 
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode, PersistenceError>;
+
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
+  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

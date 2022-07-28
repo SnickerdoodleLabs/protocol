@@ -18,6 +18,8 @@ import {
   ICrumbContent,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
+  IEVMBalance,
+  IEVMNFT,
   InvalidSignatureError,
   LanguageCode,
   MetatransactionSignatureRequest,
@@ -347,5 +349,17 @@ export class AccountService implements IAccountService {
           context.publicEvents.onAccountAdded.next(accountAddress);
         });
     });
+  }
+
+  public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
+    return this.dataWalletPersistence.getAccounts();
+  }
+
+  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+    return this.dataWalletPersistence.getAccountBalances();
+  }
+
+  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+    return this.dataWalletPersistence.getAccountNFTs();
   }
 }
