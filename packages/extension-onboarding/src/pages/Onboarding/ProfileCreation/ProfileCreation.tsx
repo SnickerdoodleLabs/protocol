@@ -4,30 +4,155 @@ import {
   FormLabel,
   FormControlLabel,
   Radio,
-  RadioGroup,
   Typography,
+  MenuItem,
 } from "@material-ui/core";
+import { Age, UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Select, TextField, RadioGroup } from "formik-material-ui";
+import { gapi } from "gapi-script";
+import { ResultAsync } from "neverthrow";
 import React, { FC, useEffect, useState } from "react";
 import { GoogleLogin, GoogleLogout } from "react-google-login";
-import { gapi } from "gapi-script";
+import * as yup from "yup";
+
+import artboardImage from "@extension-onboarding/assets/images/artboard.png";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
+import { countries } from "@extension-onboarding/constants/countries";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
 import {
   googleScopes,
   clientID,
 } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
+import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
 import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { Formik, Form, Field } from "formik";
-import { Select, TextField } from "formik-material-ui";
-import * as yup from "yup";
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
-import artboardImage from "@extension-onboarding/assets/images/artboard.png";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
+
+declare const window: IWindowWithSdlDataWallet;
 
 const ProfileCreation: FC = () => {
   const apiGateway = new ApiGateway();
   const { changeStepperStatus, addUserObject } = useAppContext();
   const [formValues, setFormValues] = useState<PII>(new PII());
+
+  // TODO move below to right place
+
+  const getDataFromWallet = async () => {
+    const convertToSafePromise = <T, K>(
+      fn: ResultAsync<T, K>,
+    ): Promise<T | null> => {
+      return fn.unwrapOr(null);
+    };
+    const [
+      age,
+      given_name,
+      family_name,
+      email,
+      birthday,
+      country_code,
+      gender,
+    ] = [
+      await convertToSafePromise(window.sdlDataWallet.getAge()),
+      await convertToSafePromise(window.sdlDataWallet.getGivenName()),
+      await convertToSafePromise(window.sdlDataWallet.getFamilyName()),
+      await convertToSafePromise(window.sdlDataWallet.getEmail()),
+      await convertToSafePromise(window.sdlDataWallet.getBirthday()),
+      await convertToSafePromise(window.sdlDataWallet.getLocation()),
+      await convertToSafePromise(window.sdlDataWallet.getGender()),
+    ];
+    setFormValues(
+      new PII(
+        given_name,
+        family_name,
+        email,
+        birthday ? new Date(birthday * 1000).toLocaleDateString() : null,
+        country_code,
+        null,
+        null,
+        gender,
+      ),
+    );
+  };
+
+  const sendDataToWallet = async (values: Partial<PII>) => {
+    const convertToSafePromise = <T, K>(
+      fn: ResultAsync<T, K>,
+    ): Promise<T | undefined> => {
+      return fn.unwrapOr(undefined);
+    };
+    const res = [
+      ...(values.given_name
+        ? [
+            await convertToSafePromise(
+              window.sdlDataWallet.setGivenName(values.given_name),
+            ),
+          ]
+        : []),
+      ...(values.family_name
+        ? [
+            await convertToSafePromise(
+              window.sdlDataWallet.setFamilyName(values.family_name),
+            ),
+          ]
+        : []),
+      ...(values.email_address
+        ? [
+            await convertToSafePromise(
+              window.sdlDataWallet.setEmail(values.email_address),
+            ),
+          ]
+        : []),
+      ...(values.date_of_birth
+        ? [
+            await convertToSafePromise(
+              window.sdlDataWallet.setBirthday(
+                (+new Date(values.date_of_birth) / 1000) as UnixTimestamp,
+              ),
+            ),
+            await convertToSafePromise(
+              window.sdlDataWallet.setAge(
+                Age(
+                  new Date().getFullYear() -
+                    new Date(values.date_of_birth).getFullYear(),
+                ),
+              ),
+            ),
+          ]
+        : []),
+      ...(values.gender
+        ? [
+            await convertToSafePromise(
+              window.sdlDataWallet.setGender(values.gender),
+            ),
+          ]
+        : []),
+      ...(values.country_code
+        ? [
+            await convertToSafePromise(
+              window.sdlDataWallet.setLocation(values.country_code),
+            ),
+          ]
+        : []),
+    ];
+  };
+
+  const schema = yup.object().shape({
+    given_name: yup.string().required("First Name is required").nullable(),
+    family_name: yup.string().required("Last Name is required").nullable(),
+    email_address: yup
+      .string()
+      .email()
+      .required("Email Address is required")
+      .typeError("Please enter valid Email Address!")
+      .nullable(),
+    date_of_birth: yup
+      .date()
+      .required("Date of Birthday is required")
+      .typeError("Please enter valid Date of Birthday!")
+      .nullable(),
+    gender: yup.string().required("Gender is required").nullable(),
+  });
 
   useEffect(() => {
     function start() {
@@ -37,6 +162,7 @@ const ProfileCreation: FC = () => {
       });
     }
     gapi.load("client:auth2", start);
+    getDataFromWallet();
   }, []);
 
   const onSuccess = (res) => {
@@ -52,14 +178,14 @@ const ProfileCreation: FC = () => {
   };
 
   const onFormSubmit = (values: PII) => {
-  changeStepperStatus('next');
-  addUserObject(values);
+    sendDataToWallet(values);
+    changeStepperStatus("next");
+    addUserObject(values);
   };
 
   const classes = useStyles();
   return (
     <Box mt={15}>
-         
       <Box display="flex">
         <Box width={700}>
           <Typography className={classes.title}>
@@ -75,14 +201,13 @@ const ProfileCreation: FC = () => {
           </Box>
 
           <Box>
-            
             <Box>
-            <Formik
+              <Formik
                 initialValues={formValues}
                 onSubmit={onFormSubmit}
                 enableReinitialize
+                validationSchema={schema}
               >
-          
                 {({ handleSubmit, values, setFieldValue }) => {
                   return (
                     <Form
@@ -177,12 +302,14 @@ const ProfileCreation: FC = () => {
                             placeholder="Country"
                             value={values.country_code || "US"}
                           >
-                            <option selected value="US">
+                            <MenuItem selected value="US">
                               United States
-                            </option>
-                            <option value="red">Red</option>
-                            <option value="green">Green</option>
-                            <option value="blue">Blue</option>
+                            </MenuItem>
+                            {countries.map((country) => (
+                              <MenuItem key={country.code} value={country.code}>
+                                {country.name}
+                              </MenuItem>
+                            ))}
                           </Field>
                         </Box>
 
@@ -193,8 +320,10 @@ const ProfileCreation: FC = () => {
                             </FormLabel>
                           </Box>
                           <Box mt={1}>
-                            <RadioGroup
+                            <Field
+                              component={RadioGroup}
                               row
+                              required
                               name="gender"
                               value={values.gender}
                               onChange={(event) => {
@@ -219,7 +348,15 @@ const ProfileCreation: FC = () => {
                                 control={<Radio />}
                                 label="Non-Binary"
                               />
-                            </RadioGroup>
+                            </Field>
+                            <ErrorMessage
+                              children={(errorMessage: string) => (
+                                <Typography className={classes.errorMessage}>
+                                  {errorMessage}
+                                </Typography>
+                              )}
+                              name="gender"
+                            />
                           </Box>
                         </Box>
                       </Box>
@@ -236,14 +373,13 @@ const ProfileCreation: FC = () => {
                         onSuccess={onSuccess}
                         onFailure={onFailure}
                         cookiePolicy={"single_host_origin"}
-                        isSignedIn={true}
+                        isSignedIn={false}
                       />
-                      
                     </Form>
                   );
                 }}
               </Formik>
-              </Box>
+            </Box>
           </Box>
         </Box>
         <Box className={classes.artboardImageContainer}>
@@ -259,10 +395,7 @@ const ProfileCreation: FC = () => {
           Back
         </Button>
         <Box>
-          <PrimaryButton
-            type="submit"
-            form="profile-create-form"
-          >
+          <PrimaryButton type="submit" form="profile-create-form">
             Next
           </PrimaryButton>
         </Box>
@@ -271,108 +404,3 @@ const ProfileCreation: FC = () => {
   );
 };
 export default ProfileCreation;
-
-{
-  /*
-  <Box>
-      <Formik
-        initialValues={formValues}
-        onSubmit={onFormSubmit}
-        enableReinitialize
-      >
-        {({ handleSubmit, values, setFieldValue }) => {
-          return (
-            <Form noValidate onSubmit={handleSubmit} id="profile-create-form">
-              <Field
-                component={TextField}
-                fullWidth
-                name="given_name"
-                type="text"
-                placeholder="First Name"
-                value={values.given_name}
-              />
-              <Field
-                component={TextField}
-                fullWidth
-                name="family_name"
-                type="text"
-                placeholder="Last Name"
-                value={values.family_name}
-              />
-              <Field
-                component={TextField}
-                fullWidth
-                name="email_address"
-                type="email"
-                placeholder="Email Address"
-                value={values.email_address}
-              />
-              <Field
-                component={TextField}
-                fullWidth
-                name="date_of_birth"
-                type="text"
-                placeholder="Date of Birth"
-                value={values.date_of_birth}
-              />
-              <Field
-                component={Select}
-                fullWidth
-                name="country_code"
-                placeholder="Country"
-                values={values.country_code}
-              >
-                <option value="red">Red</option>
-                <option value="green">Green</option>
-                <option value="blue">Blue</option>
-              </Field>
-
-              <div role="group" aria-labelledby="my-radio-group">
-                <label>
-                  <Field type="radio" name="gender" value="male" />
-                  Male
-                </label>
-                <label>
-                  <Field type="radio" name="gender" value="female" />
-                  Female
-                </label>
-                <label>
-                  <Field type="radio" name="gender" value="non-binary" />
-                  Non-Binary
-                </label>
-              </div>
-            </Form>
-          );
-        }}
-      </Formik>
-
-      <GoogleLogin
-        clientId={clientID}
-        className={classes.googleButton}
-        buttonText="Sign in with Google"
-        onSuccess={onSuccess}
-        onFailure={onFailure}
-        cookiePolicy={"single_host_origin"}
-        isSignedIn={true}
-      />
-
-      <Box className={classes.buttonContainer}>
-        <Button
-          onClick={() => {
-            changeStepperStatus("back");
-          }}
-        >
-          Back
-        </Button>
-        <PrimaryButton
-          type="submit"
-          onClick={() => {
-            changeStepperStatus("next");
-          }}
-        >
-          Next
-        </PrimaryButton>
-      </Box>
-    </Box>
-  */
-}

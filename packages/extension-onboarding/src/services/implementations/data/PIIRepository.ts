@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { IGoogleObject } from "@extension-onboarding/services/interfaces/data/IGoogleObject";
 import { IPIIRepository } from "@extension-onboarding/services/interfaces/data/IPIIRepository";
 import { PII } from "@extension-onboarding/services/interfaces/objects";
-import { AjaxError } from "@snickerdoodlelabs/objects";
+import { AjaxError, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 
@@ -19,20 +20,30 @@ export class PIIRepository implements IPIIRepository {
         { headers: { Authorization: `Bearer ${auth_token}` } },
       )
       .map((googleObject) => {
-        console.log("fetchPIIFromGoogle",googleObject)
-        // @ts-ignore
-        return this.googleObjectToBusinessPII(googleObject.responses[0].person as IGoogleObject);
+        console.log("fetchPIIFromGoogle", googleObject);
+
+        return this.googleObjectToBusinessPII(
+          // @ts-ignore
+          googleObject.responses[0].person as IGoogleObject,
+        );
       });
   }
 
   private googleObjectToBusinessPII(googleObject: IGoogleObject) {
-    const given_name = googleObject?.names?.[0]?.givenName;
-    const family_name = googleObject?.names?.[0]?.familyName;
-    const email_address = googleObject?.emailAddresses?.[0]?.value;
-    const date_of_birth = `${googleObject?.birthdays?.[0]?.date.day}/${googleObject?.birthdays?.[0]?.date.month}/${googleObject?.birthdays?.[0]?.date.year}`;
-    const phone_number = googleObject?.phoneNumbers?.[0]?.canonicalForm;
-    const photo_url = googleObject?.photos?.[0]?.url;
-    const gender = googleObject?.genders?.[0]?.value;
+    const { names, emailAddresses, birthdays, phoneNumbers, photos, genders } =
+      googleObject;
+
+    const given_name = names?.[0]?.givenName ?? null;
+    const family_name = names?.[0]?.familyName ?? null;
+    const email_address = emailAddresses?.[0]?.value ?? null;
+    const date_of_birth = birthdays?.[0]?.date
+      ? new Date(
+          Object.values(birthdays?.[0]?.date).join(","),
+        ).toLocaleDateString()
+      : null;
+    const phone_number = phoneNumbers?.[0]?.canonicalForm ?? null;
+    const photo_url = photos?.[0]?.url ?? null;
+    const gender = genders?.[0]?.value ?? null;
     // TODO Country code
 
     return new PII(
