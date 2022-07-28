@@ -1,4 +1,4 @@
-import { SDQLQuery } from "@snickerdoodlelabs/objects";
+import { EvaluationError, SDQLQuery } from "@snickerdoodlelabs/objects";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -37,6 +37,7 @@ export interface IQueryService {
     | ConsentError 
     | IPFSError
     | QueryFormatError
+    | EvaluationError
     
   >;
 }

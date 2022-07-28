@@ -40,6 +40,7 @@ import {
   IConfigOverrides,
   CrumbsContractError,
   QueryFormatError,
+  EvaluationError,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -276,7 +277,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     }
   ): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
+    | AjaxError 
+    | UninitializedError 
+    | ConsentError 
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);

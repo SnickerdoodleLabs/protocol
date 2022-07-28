@@ -1,9 +1,9 @@
 
 import "reflect-metadata";
 
-import { AST, AST_Compensation, AST_Expr, AST_Logic, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, AST_Returns, Command, DuplicateIdInSchema, ReturnNotImplementedError, SDQLSchema } from "@core/interfaces/objects";
+import { AST, AST_Compensation, AST_Expr, AST_Logic, AST_NetworkQuery, AST_PropertyQuery, AST_Query, AST_Return, AST_ReturnExpr, AST_Returns, Command, SDQLSchema } from "@core/interfaces/objects";
 import { ExprParser } from "./ExprParser";
-import { IpfsCID, SDQL_Name, URLString, Version } from "@snickerdoodlelabs/objects";
+import { DuplicateIdInSchema, IpfsCID, ReturnNotImplementedError, SDQL_Name, URLString, Version } from "@snickerdoodlelabs/objects";
 
 export class SDQLParser {
 

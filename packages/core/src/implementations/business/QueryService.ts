@@ -4,6 +4,7 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  EvaluationError,
   EVMAccountAddress,
   EVMContractAddress, IpfsCID,
   IPFSError, QueryFormatError,
@@ -141,6 +142,7 @@ export class QueryService implements IQueryService {
     | ConsentError 
     | IPFSError
     | QueryFormatError
+    | EvaluationError
   
   > {
     // 1. Parse the query

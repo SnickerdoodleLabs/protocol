@@ -1,4 +1,5 @@
 import {
+  EvaluationError,
   IDataWalletPersistence,
   IDataWalletPersistenceType, QueryFormatError
 } from "@snickerdoodlelabs/objects";
@@ -10,7 +11,9 @@ import { InsightString } from "@core/interfaces/objects";
 import { IQueryFactories, IQueryFactoriesType } from "@core/interfaces/utilities/factory";
 import { IpfsCID, SDQLQuery, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { objectTypeSpreadProperty } from "@babel/types";
+import { ResultUtils } from "neverthrow-result-utils";
 
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
@@ -20,8 +23,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   
 
   public constructor(
-    @inject(IDataWalletPersistenceType)
-    protected persistenceRepo: IDataWalletPersistence,
+    // @inject(IDataWalletPersistenceType)
+    // protected persistenceRepo: IDataWalletPersistence,
     @inject(IQueryFactoriesType)
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
@@ -41,10 +44,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
    * }
    */
 
-  public handleQuery(query: SDQLQuery): ResultAsync<[InsightString[], EligibleReward[]], never | QueryFormatError> {
+  public handleQuery(query: SDQLQuery): ResultAsync<[InsightString[], EligibleReward[]], EvaluationError | QueryFormatError> {
 
     const insights: Array<InsightString> = [];
-    const insightMap: Map<string, SDQL_Return> = new Map();
+    const insightMap: Map<string, SDQL_Return | string> = new Map();
     const rewards: EligibleReward[] = [];
 
     const schemaString = query.query;
@@ -56,39 +59,29 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     const ast = sdqlParser.buildAST();
 
     const astEvaluator = this.queryFactories.makeAstEvaluator(cid, ast, this.queryRepository)
+    console.log("line 59", "made ast and evaluator");
 
-    for (const returnStr in ast.logic.returns) {
+    const results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
 
-      const result = astEvaluator.evalAny(ast.logic.returns[returnStr]);
-      result.then((res2) =>{
-        if (res2.isOk()) {
-          insightMap.set(returnStr, res2.value);
-        } else {
-          
-          insightMap.set(returnStr, SDQL_Return(""));
+    for (const returnStr of ast.logic.returns.keys()) {
+      console.log("line 62", returnStr);
+      const result = astEvaluator.evalAny(ast.logic.returns.get(returnStr));
+
+      console.log(result);
+      results.push(result);
+    }
+
+    return ResultUtils.combine(results).andThen((insighResults) => {
+      console.log(insighResults);
+
+        for (const sdqlR of insighResults) {
+          insights.push(InsightString(sdqlR as string));
         }
-      });
-    }
-
-    for (let returnStr of logicSchema["returns"]) {
-      const obj = insightMap.get(returnStr);
-      if (obj) {
-        
-        insights.push(InsightString(JSON.stringify(obj)));
-
-      } else {
-
-        insights.push(InsightString(""));
-
-      }
-    }
-
-
-    // logicSchema["returns"].reduce() // reduce will destroy ordering because function is called asynchronously?
+        return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([insights, rewards]);
     
-
-    return okAsync([insights, rewards]);
+    });
 
   }
+
   
 }

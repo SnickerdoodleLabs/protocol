@@ -1,6 +1,6 @@
-import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionOr, EvalNotImplementedError, EvaluationError, Operator, TypeChecker } from "@core/interfaces/objects";
+import { AST, AST_ConditionExpr, AST_Expr, AST_Query, AST_Return, AST_ReturnExpr, Command_IF, ConditionAnd, ConditionG, ConditionGE, ConditionIn, ConditionL, ConditionOr, Operator, TypeChecker } from "@core/interfaces/objects";
 import { QueryRepository } from "./QueryRepository";
-import { IpfsCID, PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
+import { EvalNotImplementedError, EvaluationError, IpfsCID, PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { inject, injectable } from "inversify";
 import { IQueryRepository } from "@core/interfaces/business/utilities";
@@ -67,6 +67,10 @@ export class AST_Evaluator {
     }
 
     public evalAny(expr: any): ResultAsync<SDQL_Return, EvaluationError> {
+        console.log("evalAny", expr);
+        if (expr === undefined) {
+            return errAsync(new EvaluationError("undefined expression"));
+        }
         if (TypeChecker.isValue(expr)) {
             return okAsync(expr);
         } else {
@@ -192,6 +196,7 @@ export class AST_Evaluator {
 
     public evalQuery(q: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
         
+        console.log(q);
         /**
          * It sends the query to the Query Repository
          */
@@ -358,6 +363,7 @@ export class AST_Evaluator {
 
         if (TypeChecker.isQuery(expr.source)) {
             //return this.evalQuery((expr.source) as AST_Query);
+            // console.log(this);
             return this.evalQuery(expr.source as AST_Query).andThen(
                 (val) =>
                 {

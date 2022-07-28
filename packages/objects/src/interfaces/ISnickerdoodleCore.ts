@@ -9,6 +9,7 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   CrumbsContractError,
+  EvaluationError,
   InvalidSignatureError,
   IPFSError,
   PersistenceError,
@@ -177,7 +178,13 @@ export interface ISnickerdoodleCore {
     }
   ): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
+    | AjaxError 
+    | UninitializedError 
+    | ConsentError 
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  
   >;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
