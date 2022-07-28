@@ -65,7 +65,9 @@ class QueryServiceMocks {
       td.matchers.anything(),
       JSON.stringify(insights)
 
-      )).thenReturn({}); // success
+      )).thenReturn(
+        okAsync(0).map((result) => {})
+      ); // success
 
     td.when(this.insightPlatformRepo.deliverInsights(
       
@@ -180,7 +182,7 @@ describe("processQuery tests", () => {
     });
   });
 
-  test.only("deliverInsights success", async () => {
+  test("deliverInsights success", async () => {
 
     ResultUtils.combine([
       mocks.contextProvider.getContext(),
@@ -191,12 +193,7 @@ describe("processQuery tests", () => {
       // (context as CoreContext).dataWalletAddress = mocks.dataWalletAddress;
 
       return queryService.deliverInsights(context as CoreContext, config as CoreConfig, consentContractAddress, queryId, insights);
-        // .andThen((result) => {
-        //   console.log('result', result);
-        // })
-        // .mapErr((error) => {console.log('error', error); return error;})
 
-      // return okAsync(0);
     }).then((result) => {
       console.log('result', result);
       expect(result.isOk()).toBeTruthy();
@@ -206,7 +203,7 @@ describe("processQuery tests", () => {
 
   });
 
-  test.only("deliverInsights fail", async () => {
+  test("deliverInsights fail", async () => {
 
     ResultUtils.combine([
       mocks.contextProvider.getContext(),
@@ -217,21 +214,24 @@ describe("processQuery tests", () => {
       // (context as CoreContext).dataWalletAddress = mocks.dataWalletAddress;
 
       return queryService.deliverInsights(context as CoreContext, config as CoreConfig, consentContractAddress, queryId, insightsError);
-        // .andThen((result) => {
-        //   console.log('result', result);
-        // })
-        // .mapErr((error) => {console.log('error', error); return error;})
-
-      // return okAsync(0);
 
     }).then((result) => {
       // console.log('result', result);
       expect(result.isErr()).toBeTruthy();
     });
 
-    // expect(r).toBeDefined();
-    // console.log(r);
 
+  });
+
+
+
+  test("processQuery success", () => {
+
+    queryService.processQuery(consentContractAddress, sdqlQuery)
+      .then((result) => {
+        console.log('result', result);
+        expect(result.isOk()).toBeTruthy();
+      });
   });
 
 })

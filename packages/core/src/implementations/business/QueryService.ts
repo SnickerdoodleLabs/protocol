@@ -38,6 +38,7 @@ import { EligibleReward } from "@snickerdoodlelabs/objects";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { EVMPrivateKey } from "@snickerdoodlelabs/objects";
 import { DataWalletAddress } from "@snickerdoodlelabs/objects";
+import { SDQLQuery } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -114,7 +115,7 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          context.publicEvents.onQueryPosted.next({consentContractAddress: consentContractAddress, queryId: queryId});
+          context.publicEvents.onQueryPosted.next({consentContractAddress: consentContractAddress, query: query});
 
           return okAsync(undefined);
         });
@@ -132,7 +133,7 @@ export class QueryService implements IQueryService {
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID
+    query: SDQLQuery
   ): ResultAsync<
     void,
     | AjaxError 
@@ -163,17 +164,8 @@ export class QueryService implements IQueryService {
       //     new UninitializedError("Data wallet has not been unlocked yet!"),
       //   );
       // }
-
-      return this.sdqlQueryRepo
-        .getByCID(queryId)
-        .andThen((query) => {
-          if (!query) {
-            return errAsync(new IPFSError("Query not found " + queryId));
-          }
-
-          return this.queryParsingEngine.handleQuery(query);
-
-        }).andThen((maps) => {
+      return this.queryParsingEngine.handleQuery(query)
+        .andThen((maps) => {
 
           const maps2 = maps as  [InsightString[], EligibleReward[]];
           const insights = maps2[0];
@@ -181,14 +173,40 @@ export class QueryService implements IQueryService {
 
           console.log(insights, rewards);
 
-          return this.deliverInsights(context, config, consentContractAddress, queryId, insights)
+          return this.deliverInsights(context, config, consentContractAddress, query.cid, insights)
             .map(() => {
               // take it back to the caller?
               console.log("insight delivery api call done");
-              context.publicEvents.onQueryPosted.next({consentContractAddress, queryId});
+              context.publicEvents.onQueryPosted.next({consentContractAddress, query});
+              // return {};
             });;
           
         });
+      // return this.sdqlQueryRepo
+      //   .getByCID(queryId)
+      //   .andThen((query) => {
+      //     if (!query) {
+      //       return errAsync(new IPFSError("Query not found " + queryId));
+      //     }
+
+      //     return this.queryParsingEngine.handleQuery(query);
+
+      //   }).andThen((maps) => {
+
+      //     const maps2 = maps as  [InsightString[], EligibleReward[]];
+      //     const insights = maps2[0];
+      //     const rewards = maps2[1];
+
+      //     console.log(insights, rewards);
+
+      //     return this.deliverInsights(context, config, consentContractAddress, queryId, insights)
+      //       .map(() => {
+      //         // take it back to the caller?
+      //         console.log("insight delivery api call done");
+      //         context.publicEvents.onQueryPosted.next({consentContractAddress, queryI});
+      //       });;
+          
+      //   });
         
 
     });
@@ -271,7 +289,7 @@ export class QueryService implements IQueryService {
           returns
         )
 
-        console.log('res', res);
+        // console.log('res', res);
         return res
       })
 

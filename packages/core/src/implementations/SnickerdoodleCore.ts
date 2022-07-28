@@ -69,6 +69,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
+import { SDQLQuery } from "@snickerdoodlelabs/objects";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -267,11 +268,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public processQuery(
     {
       consentContractAddress,
-      queryId
+      query
     }: 
     {
       consentContractAddress: EVMContractAddress,
-      queryId: IpfsCID
+      query:SDQLQuery
     }
   ): ResultAsync<
     void,
@@ -280,7 +281,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(consentContractAddress, queryId);
+    return queryService.processQuery(consentContractAddress, query);
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {

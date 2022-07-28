@@ -169,11 +169,11 @@ export interface ISnickerdoodleCore {
   processQuery(
     {
       consentContractAddress,
-      queryId
+      query
     }: 
     {
       consentContractAddress: EVMContractAddress,
-      queryId: IpfsCID
+      query:SDQLQuery
     }
   ): ResultAsync<
     void,

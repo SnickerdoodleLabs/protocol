@@ -34,6 +34,7 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities";
+import { okAsync } from "neverthrow";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -74,7 +75,10 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
             signature: signature,
           });
         })
-        .map((response) => {});
+        .map((response) => {
+          console.log("Ajax response: " + JSON.stringify(response));
+          // return okAsync({});
+        });
   }
 
 
