@@ -14,6 +14,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { ConsentRoles } from "./objects/ConsentRoles";
 export interface IConsentContract {
   /**
    * Create a consent token owned by the signer
@@ -157,13 +159,68 @@ export interface IConsentContract {
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError>;
 
+  /**
+   * Disables open opt ins on the contract
+   * Only callable by addresses that have the PAUSER_ROLE on the Consent contract
+   */
   disableOpenOptIn(): ResultAsync<void, ConsentContractError>;
 
+  /**
+   * Enables open opt ins on the contract
+   * Only callable by addresses that have the PAUSER_ROLE on the Consent contract
+   */
   enableOpenOptIn(): ResultAsync<void, ConsentContractError>;
 
+  /**
+   * Returns the baseURI of the Consent contract
+   */
   baseURI(): ResultAsync<BaseURI, ConsentContractError>;
 
+  /**
+   * Sets a new baseURI for the Consent contract
+   * Only callable by addresses that have the DEFAULT_ADMIN_ROLE on the Consent contract
+   */
   setBaseURI(baseUri: BaseURI): ResultAsync<void, ConsentContractError>;
+
+  /**
+   * Checks if an address has a specific role in the Consent contract
+   * @param role string that is a key defined in ConsentRoles enum
+   * @param address Address to use
+   */
+  hasRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<boolean, ConsentContractError>;
+
+  /**
+   * Grants a role to an address
+   * @param role string that is a key defined in ConsentRoles enum
+   * @param address Address to use
+   */
+  grantRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<void, ConsentContractError>;
+
+  /**
+   * Revokes a role of an address
+   * @param role string that is a key defined in ConsentRoles enum
+   * @param address Address to use
+   */
+  revokeRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<void, ConsentContractError>;
+
+  /**
+   * Allows an address to renounce its role
+   * @param role string that is a key defined in ConsentRoles enum
+   * @param address Address to use
+   */
+  renounceRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<void, ConsentContractError>;
 
   filters: IConsentContractFilters;
 }

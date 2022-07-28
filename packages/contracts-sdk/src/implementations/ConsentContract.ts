@@ -16,7 +16,7 @@ import {
   DomainName,
   BaseURI,
 } from "@snickerdoodlelabs/objects";
-import { ethers, EventFilter, Event, BigNumber } from "ethers";
+import { ethers, EventFilter, Event, BigNumber, Bytes } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -590,6 +590,79 @@ export class ConsentContract implements IConsentContract {
         });
       })
       .map(() => {});
+  }
+
+  public hasRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<boolean, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.hasRole(ConsentRoles[role], address) as Promise<boolean>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call hasRole()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
+  public grantRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.grantRole(
+        ConsentRoles[role],
+        address,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call grantRole()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map(() => {});
+  }
+
+  public revokeRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.revokeRole(
+        ConsentRoles[role],
+        address,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call revokeRole()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map(() => {});
+  }
+
+  public renounceRole(
+    role: keyof typeof ConsentRoles,
+    address: EVMAccountAddress,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.renounceRole(
+        ConsentRoles[role],
+        address,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call renounceRole()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map(() => {});
   }
 
   public filters = {
