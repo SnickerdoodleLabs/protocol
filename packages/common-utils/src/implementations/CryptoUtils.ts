@@ -165,7 +165,7 @@ export class CryptoUtils implements ICryptoUtils {
     value: Record<string, unknown>,
     privateKey: EVMPrivateKey,
   ): ResultAsync<Signature, never> {
-    const wallet = new ethers.Wallet(privateKey);
+    const wallet = new ethers.Wallet(privateKey); // TODO, need to specify default provider (https://github.com/ethers-io/ethers.js/issues/2258)
 
     return ResultAsync.fromSafePromise<string, never>(
       wallet._signTypedData(domain, types, value),

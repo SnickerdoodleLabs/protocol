@@ -56,7 +56,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     queryId: IpfsCID,
     signature: Signature,
     returns: string 
-    ): ResultAsync<void, never> {
+    ): ResultAsync<void, AjaxError> {
       return this.configProvider
         .getConfig()
         .andThen((config) => {
@@ -74,9 +74,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
             signature: signature,
           });
         })
-        .map((response) => {
-          if
-        });
+        .map((response) => {});
   }
 
 

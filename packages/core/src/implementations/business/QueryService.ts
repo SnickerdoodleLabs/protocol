@@ -5,13 +5,9 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   EVMAccountAddress,
-  EVMContractAddress,
-  Insight,
-  IpfsCID,
-  IPFSError,
-  ISDQLQueryObject,
-  QueryFormatError,
-  UninitializedError,
+  EVMContractAddress, IpfsCID,
+  IPFSError, QueryFormatError,
+  UninitializedError
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -20,7 +16,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { IQueryService } from "@core/interfaces/business";
 import {
   IQueryParsingEngine,
-  IQueryParsingEngineType,
+  IQueryParsingEngineType
 } from "@core/interfaces/business/utilities";
 import {
   IConsentContractRepository,
@@ -28,21 +24,20 @@ import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
   ISDQLQueryRepository,
-  ISDQLQueryRepositoryType,
+  ISDQLQueryRepositoryType
 } from "@core/interfaces/data";
+import { CoreConfig, CoreContext, InsightString } from "@core/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
-  IContextProviderType,
+  IContextProviderType
 } from "@core/interfaces/utilities";
-import { QueryReponse } from "@core/interfaces/objects/QueryResponse";
-import { TypedDataField } from "@ethersproject/abstract-signer";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
-import { Reward } from "@snickerdoodlelabs/objects";
 import { EligibleReward } from "@snickerdoodlelabs/objects";
-import { CoreConfig, CoreContext, InsightString } from "@core/interfaces/objects";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
+import { EVMPrivateKey } from "@snickerdoodlelabs/objects";
+import { DataWalletAddress } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -119,7 +114,7 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          context.publicEvents.onQueryPosted.next({consentContractAddress: consentContractAddress, query: query});
+          context.publicEvents.onQueryPosted.next({consentContractAddress: consentContractAddress, queryId: queryId});
 
           return okAsync(undefined);
         });
@@ -157,11 +152,17 @@ export class QueryService implements IQueryService {
       this.configProvider.getConfig(),
     ]).andThen(([context, config]) => {
       
-      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
-        return errAsync(
-          new UninitializedError("Data wallet has not been unlocked yet!"),
-        );
+
+      const err = this.validateContextConfig(context, config);
+      if (err) {
+        return errAsync(err);
       }
+
+      // if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+      //   return errAsync(
+      //     new UninitializedError("Data wallet has not been unlocked yet!"),
+      //   );
+      // }
 
       return this.sdqlQueryRepo
         .getByCID(queryId)
@@ -180,7 +181,12 @@ export class QueryService implements IQueryService {
 
           console.log(insights, rewards);
 
-          return this.deliverInsights(context, config, consentContractAddress, queryId, insights);
+          return this.deliverInsights(context, config, consentContractAddress, queryId, insights)
+            .map(() => {
+              // take it back to the caller?
+              console.log("insight delivery api call done");
+              context.publicEvents.onQueryPosted.next({consentContractAddress, queryId});
+            });;
           
         });
         
@@ -225,6 +231,14 @@ export class QueryService implements IQueryService {
       // });
   }
 
+  public validateContextConfig(context: CoreContext, config: CoreConfig): UninitializedError | null {
+    
+    if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return new UninitializedError("Data wallet has not been unlocked yet!");
+    }
+    return null;
+  }
+
   public deliverInsights(context: CoreContext, config: CoreConfig, consentContractAddress: EVMContractAddress, queryId: IpfsCID, insights: InsightString[])
   : ResultAsync<
     void,
@@ -232,7 +246,7 @@ export class QueryService implements IQueryService {
     | UninitializedError 
     | ConsentError 
     | IPFSError
-    | QueryFormatError {
+    | QueryFormatError> {
     
     const returns = JSON.stringify(insights);
 
@@ -243,17 +257,24 @@ export class QueryService implements IQueryService {
         config.snickerdoodleProtocolDomain,
         insightDeliveryTypes,
         signableData,
-        context.dataWalletKey,
+        context.dataWalletKey as EVMPrivateKey,
       )
       .andThen((signature) => {
-        return this.insightPlatformRepo.deliverInsights(
-          context.dataWalletAddress,
+
+        console.log('signature', signature);
+
+        const res = this.insightPlatformRepo.deliverInsights(
+          context.dataWalletAddress as DataWalletAddress,
           consentContractAddress,
           queryId,
           signature,
           returns
         )
-      });
+
+        console.log('res', res);
+        return res
+      })
+
 
   }
 

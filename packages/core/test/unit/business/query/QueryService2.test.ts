@@ -2,18 +2,22 @@
 import td from "testdouble";
 
 import "reflect-metadata";
-import { okAsync } from "neverthrow";
+import { errAsync, okAsync, Result } from "neverthrow";
 import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
 import { IConsentContractRepository, IInsightPlatformRepository, ISDQLQueryRepository } from "@core/interfaces/data";
-import { EligibleReward, EVMAccountAddress, EVMContractAddress, IpfsCID, SDQLQuery, SDQLString } from "@snickerdoodlelabs/objects";
+import { AjaxError, DataWalletAddress, EligibleReward, EVMAccountAddress, EVMContractAddress, EVMPrivateKey, IpfsCID, SDQLQuery, SDQLString, Signature, UninitializedError } from "@snickerdoodlelabs/objects";
 import { ContextProviderMock } from "@core-tests/mock/utilities";
 import { IQueryService } from "@core/interfaces/business";
 import { QueryService } from "@core/implementations/business";
 import { IConfigProvider } from "@core/interfaces/utilities";
 import { CryptoUtils, ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { ConfigProviderMock } from "../../../mock/utilities/ConfigProviderMock";
-import { InsightString } from "@core/interfaces/objects";
+import { CoreConfig, CoreContext, InsightString } from "@core/interfaces/objects";
+import { ResultUtils } from "neverthrow-result-utils";
+import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
+import { CryptoUtilsMock } from "../../../mock/utilities/CryptoUtilsMock";
+import { noop } from "rxjs";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
@@ -21,6 +25,7 @@ const queryContent = SDQLString("Hello world!");
 const sdqlQuery = new SDQLQuery(queryId, queryContent);
 
 const insights: InsightString[] = [InsightString("Hello1"), InsightString('Hello2')];
+const insightsError: InsightString[] = [InsightString("Ajax Error producer")];
 const rewards: EligibleReward[] = [];
 
 class QueryServiceMocks {
@@ -31,6 +36,8 @@ class QueryServiceMocks {
   public contextProvider: ContextProviderMock;
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
+  public dataWalletAddress: DataWalletAddress | null = null;
+  public dataWalletKey: EVMPrivateKey | null = null;
 
   public constructor() {
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
@@ -39,19 +46,62 @@ class QueryServiceMocks {
     this.consentContractRepo = td.object<IConsentContractRepository>();
     this.contextProvider = new ContextProviderMock();
     this.configProvider = new ConfigProviderMock();
-    this.cryptoUtils = new CryptoUtils();
+    this.cryptoUtils = new CryptoUtilsMock();
+    // this.cryptoUtils = new CryptoUtils();
 
-    // td.when(this.sdqlQueryRepo.getByCID(queryId)).thenReturn(
-    //   okAsync(sdqlQuery),
-    // );
+    // this.cryptoUtils.createEthereumPrivateKey().then((result) => {
+    //   if (result.isOk()) {
+    //     this.dataWalletKey = result.value;
+    //     this.dataWalletAddress = (this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(this.dataWalletKey) as unknown) as DataWalletAddress;
+    //   }
+    // });
 
-    // td.when(
-    //   this.consentContractRepo.isAddressOptedIn(
-    //     consentContractAddress,
-    //     EVMAccountAddress(dataWalletAddress),
-    //   ),
-    // ).thenReturn(okAsync(true));
 
+    td.when(this.insightPlatformRepo.deliverInsights(
+      
+      td.matchers.anything(),
+      consentContractAddress,
+      queryId,
+      td.matchers.anything(),
+      JSON.stringify(insights)
+
+      )).thenReturn({}); // success
+
+    td.when(this.insightPlatformRepo.deliverInsights(
+      
+      td.matchers.anything(),
+      consentContractAddress,
+      queryId,
+      td.matchers.anything(),
+      JSON.stringify(insightsError)
+
+      // )).thenReturn({}); // success
+      )).thenReturn(errAsync(new AjaxError("mocked error"))); // error
+
+    td.when(this.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+      okAsync(sdqlQuery),
+    );
+
+    td.when(
+      this.consentContractRepo.isAddressOptedIn(
+        consentContractAddress,
+        EVMAccountAddress(dataWalletAddress),
+      ),
+    ).thenReturn(okAsync(true));
+
+    td.when(this.queryParsingEngine.handleQuery(sdqlQuery)).thenReturn(
+      okAsync([insights, rewards])
+    );
+
+    // td.when(this.cryptoUtils
+    //   .signTypedData(
+    //     td.matchers.anything(),
+    //     insightDeliveryTypes,
+    //     td.matchers.anything(),
+    //     // this.dataWalletKey as EVMPrivateKey,
+    //     td.matchers.isA(EVMPrivateKey)
+    //   )).thenReturn(okAsync(Signature("My signature")));
+    
     // td.when(this.queryParsingEngine.handleQuery(sdqlQuery)).thenReturn(
     //   okAsync([insights, rewards])
     // );
@@ -94,4 +144,94 @@ describe("processQuery tests", () => {
     });
     
   });
+  
+  test("no error if dataWallet and address are present", async () => {
+    await ResultUtils.combine([
+      mocks.contextProvider.getContext(),
+      mocks.configProvider.getConfig()
+    ]).andThen(([context, config]) => {
+      const res = queryService.validateContextConfig(context as CoreContext, config as CoreConfig);
+      expect(res).toBeNull();
+      return okAsync(true);
+    });
+  });
+
+  test("error if dataWalletAddress missing in context", async () => {
+    await ResultUtils.combine([
+      mocks.contextProvider.getContext(),
+      mocks.configProvider.getConfig()
+    ]).andThen(([context, config]) => {
+      (context as CoreContext).dataWalletAddress = null;
+      const res = queryService.validateContextConfig(context as CoreContext, config as CoreConfig);
+      expect(res).toBeInstanceOf(UninitializedError);
+      return okAsync(true);
+    });
+  });
+
+  test("error if dataWallet missing in context", async () => {
+    await ResultUtils.combine([
+      mocks.contextProvider.getContext(),
+      mocks.configProvider.getConfig()
+    ]).andThen(([context, config]) => {
+      (context as CoreContext).dataWalletKey = null;
+      const res = queryService.validateContextConfig(context as CoreContext, config as CoreConfig);
+      expect(res).toBeInstanceOf(UninitializedError);
+      return okAsync(true);
+    });
+  });
+
+  test.only("deliverInsights success", async () => {
+
+    ResultUtils.combine([
+      mocks.contextProvider.getContext(),
+      mocks.configProvider.getConfig()
+    ]).andThen(([context, config]) => {
+      
+      // (context as CoreContext).dataWalletKey = mocks.dataWalletKey;
+      // (context as CoreContext).dataWalletAddress = mocks.dataWalletAddress;
+
+      return queryService.deliverInsights(context as CoreContext, config as CoreConfig, consentContractAddress, queryId, insights);
+        // .andThen((result) => {
+        //   console.log('result', result);
+        // })
+        // .mapErr((error) => {console.log('error', error); return error;})
+
+      // return okAsync(0);
+    }).then((result) => {
+      console.log('result', result);
+      expect(result.isOk()).toBeTruthy();
+    });
+
+    // expect(r).toBeUndefined();
+
+  });
+
+  test.only("deliverInsights fail", async () => {
+
+    ResultUtils.combine([
+      mocks.contextProvider.getContext(),
+      mocks.configProvider.getConfig()
+    ]).andThen(([context, config]) => {
+      
+      // (context as CoreContext).dataWalletKey = mocks.dataWalletKey;
+      // (context as CoreContext).dataWalletAddress = mocks.dataWalletAddress;
+
+      return queryService.deliverInsights(context as CoreContext, config as CoreConfig, consentContractAddress, queryId, insightsError);
+        // .andThen((result) => {
+        //   console.log('result', result);
+        // })
+        // .mapErr((error) => {console.log('error', error); return error;})
+
+      // return okAsync(0);
+
+    }).then((result) => {
+      // console.log('result', result);
+      expect(result.isErr()).toBeTruthy();
+    });
+
+    // expect(r).toBeDefined();
+    // console.log(r);
+
+  });
+
 })

@@ -32,7 +32,8 @@ export interface IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    returns: string): ResultAsync<void, AjaxError>;
+    returns: string
+    ): ResultAsync<void, AjaxError>;
 
   getBusinessConsentContracts(): ResultAsync<
     BusinessConsentContract[],
