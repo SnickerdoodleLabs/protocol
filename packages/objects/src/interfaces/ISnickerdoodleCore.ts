@@ -1,6 +1,6 @@
 import { ResultAsync } from "neverthrow";
 
-import { CohortInvitation, ConsentConditions, SDQLQuery } from "@objects/businessObjects";
+import { CohortInvitation, ConsentConditions, IEVMNFT, SDQLQuery } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
   AjaxError,
@@ -33,6 +33,7 @@ import {
   CountryCode,
 } from "@objects/primitives";
 import { Observable } from "rxjs";
+import { IEVMBalance } from "@objects/interfaces/chains";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -203,6 +204,10 @@ export interface ISnickerdoodleCore {
 
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode, PersistenceError>;
+
+  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
+  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

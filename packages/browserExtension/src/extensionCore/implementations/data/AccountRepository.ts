@@ -6,6 +6,8 @@ import {
 } from "@shared/objects/errors";
 import {
   EVMAccountAddress,
+  IEVMBalance,
+  IEVMNFT,
   ISnickerdoodleCore,
   LanguageCode,
   Signature,
@@ -18,6 +20,32 @@ export class AccountRepository implements IAccountRepository {
     protected accountCookieUtils: IAccountCookieUtils,
     protected errorUtils: IErrorUtils,
   ) {}
+  public getAccounts(): ResultAsync<
+    EVMAccountAddress[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.getAccounts().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+
+  public getAccountBalances(): ResultAsync<
+    IEVMBalance[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.getAccountBalances().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+
+  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+    return this.core.getAccountNFTs().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
 
   public addAccount(
     account: EVMAccountAddress,
