@@ -268,6 +268,7 @@ export class CohortService implements ICohortService {
           EVMAccountAddress(context.dataWalletAddress),
         )
         .andThen((consentTokens) => {
+          console.log(consentTokens);
           // These are all of your consent tokens, we need to find the one for this particular consent contract
           const consentToken = consentTokens.find((token) => {
             return token.consentContractAddress == consentContractAddress;
