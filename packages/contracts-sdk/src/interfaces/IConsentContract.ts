@@ -259,11 +259,9 @@ export interface IConsentContractFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
-  ): ResultAsync<EventFilter, ConsentContractError>;
+  ): EventFilter;
 
-  RequestForData(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<EventFilter, ConsentContractError>;
+  RequestForData(ownerAddress: EVMAccountAddress): EventFilter;
 }
 
 export const IConsentContractType = Symbol.for("IConsentContract");
