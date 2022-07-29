@@ -4,6 +4,13 @@ import {
   Signature,
   TokenId,
 } from "@objects/primitives";
+export interface IDisplayItems {
+  title: string;
+  description: string;
+  image: string;
+  rewardName: string;
+  nftClaimedImage: string;
+}
 
 export class CohortInvitation {
   public constructor(
@@ -11,5 +18,6 @@ export class CohortInvitation {
     public consentContractAddress: EVMContractAddress,
     public tokenId: TokenId,
     public businessSignature: Signature | null,
+    public displayItems?: IDisplayItems
   ) {}
 }

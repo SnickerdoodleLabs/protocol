@@ -21,7 +21,7 @@ import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProvide
 import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
 import { EPortNames } from "@shared/enums/ports";
-import { DomainName } from "@snickerdoodlelabs/objects";
+import { CohortInvitation, DomainName } from "@snickerdoodlelabs/objects";
 
 let coreGateway;
 let notificationEmitter;
@@ -63,7 +63,7 @@ const connect = () => {
 connect();
 
 const App = () => {
-  const [backgroundState, setBackgroundState] = useState<IExternalState>();
+  const [cohort, setCohort] = useState<CohortInvitation>();
   const [cohortInvitation, setCohortInvitation] = useState();
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
   const [rewardToDisplay, setRewardToDisplay] = useState<
@@ -71,7 +71,7 @@ const App = () => {
   >();
 
   useEffect(() => {
-    initiateBackgroundState();
+    initiateCohort();
     initiateRewardItem();
     addEventListeners();
     return () => {
@@ -87,45 +87,14 @@ const App = () => {
     }
   }, [appState]);
 
-  const initiateBackgroundState = () => {
-console.log("getCohort",coreGateway.getCohortInvitationWithDomain(window.location.hostname as DomainName));
-console.log("getState",coreGateway.getState())
-
-    coreGateway.getCohortInvitationWithDomain(window.location.hostname as DomainName).map((cohort)=>{
-      console.log("cohort",cohort);
-      setCohortInvitation(cohort);
-    })
-    coreGateway.getState().map((state) => {
+  const initiateCohort = async() => {
+    coreGateway.getCohortInvitationWithDomain("www.shrapnel.com" as DomainName).map((state) => {
       console.log("state",state)
-      setBackgroundState(state);
+      setCohort(state);
     });
   };
 
 
-  const isScam = useMemo(
-    () => backgroundState?.scamList?.includes(window.location.origin),
-    [backgroundState],
-  );
-
-  const isInWhiteList = useMemo(
-    () => backgroundState?.whiteList?.includes(window.location.origin),
-    [backgroundState],
-  );
-
-  const renderScamWarning = useMemo(
-    () => (isScam ? <p>scam</p> : null),
-    [isScam],
-  );
-
-  const renderSafeUrlNotification = useMemo(
-    () => (isInWhiteList ? <p>safe url</p> : null),
-    [isInWhiteList],
-  );
-
-  const renderSafeUrlNotification2 = useMemo(
-    () => (cohortInvitation ? <p>safe url</p> : <p>safe url2</p>),
-    [cohortInvitation],
-  );
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
@@ -133,7 +102,7 @@ console.log("getState",coreGateway.getState())
 
   const initiateRewardItem = () => {
     const hostname = window.location.hostname;
-    const reward = REWARD_DATA.find((i) => i.host === hostname);
+    const reward = REWARD_DATA.find((i)=>i.host === hostname)
     if (reward) {
       setTimeout(() => {
         setRewardToDisplay(reward);
@@ -230,10 +199,7 @@ console.log("getState",coreGateway.getState())
 
   return (
     <>
-      {renderSafeUrlNotification}
-      {renderScamWarning}
       {renderComponent}
-      {renderSafeUrlNotification2}
     </>
   );
 };

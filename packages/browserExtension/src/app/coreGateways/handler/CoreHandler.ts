@@ -9,6 +9,8 @@ export default class CoreHandler {
       new Promise((resolve, reject) => {
         const requestObject = this._createRequestObject(method, params);
         this.rpcEngine.handle(requestObject, async (error,result ) => {
+          console.log("callRes",result);
+          console.log("callErr",error);
           if (error) {
             return reject(error);
           }

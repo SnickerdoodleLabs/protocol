@@ -39,8 +39,10 @@ export class CohortService implements ICohortService {
     domain: DomainName,
     sender: Runtime.MessageSender | null,
   ) {
+   
     return this.cohortRepository
       .getCohortInvitationWithDomain(domain)
+       // @ts-ignore /// getCohortInvitationWithDomain should be delete
       .andThen((cohortInvitation: CohortInvitation) => {
         const invitation: CohortInvitation = cohortInvitation;
         return this.cohortRepository

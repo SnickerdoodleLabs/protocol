@@ -152,7 +152,10 @@ export class RpcCallHandler implements IRpcCallHandler {
       }
       case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
         const { domain } = params as IGetCohortInvitationWithDomainParams;
-        return this._sendAsyncResponse(this.getCohortInvitationWithDomain(domain), res);
+        return this._sendAsyncResponse(
+          this.getCohortInvitationWithDomain(domain),
+          res,
+        );
       }
       case EExternalActions.GET_STATE:
         return (res.result = this.contextProvider.getExterenalState());
@@ -173,14 +176,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         res.error = err;
       })
       .map((result) => {
+        console.log("sendAsyncRes", result);
         if (typeof result === typeof undefined) {
           res.result = DEFAULT_RPC_SUCCESS_RESULT;
         } else {
-          res.result = result;
+          res.result = this.toObject(result);
         }
         return okAsync(undefined);
       });
   };
+  toObject(obj) {
+    return JSON.parse(JSON.stringify(obj, (_, v) =>
+    typeof v === "bigint" ? `${v}#bigint` : v,
+  ).replace(/"(-?\d+)#bigint"/g, (_, a) => a));
+  }
 
   private getCohortInvitationWithDomain(
     domain: DomainName,

@@ -30,7 +30,7 @@ import {
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICohortService } from "@core/interfaces/business";
@@ -52,10 +52,13 @@ import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory";
+import { IDNSServiceType } from "./DNSService";
+import { IDNSService } from "@core/interfaces/business/IDNSService";
 
 @injectable()
 export class CohortService implements ICohortService {
   public constructor(
+    @inject(IDNSServiceType) protected dnsService : IDNSService,
     @inject(IDataWalletPersistenceType)
     protected persistenceRepo: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
@@ -69,7 +72,18 @@ export class CohortService implements ICohortService {
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
   ) {}
-  getInvitationDetails(invitation: CohortInvitation): ResultAsync<JSON, BlockchainProviderError | UninitializedError | ConsentContractError | PersistenceError | AjaxError | ConsentContractRepositoryError | Error> {
+  getInvitationDetails(
+    invitation: CohortInvitation,
+  ): ResultAsync<
+    JSON,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | PersistenceError
+    | AjaxError
+    | ConsentContractRepositoryError
+    | Error
+  > {
     throw new Error("Method not implemented.");
   }
 
@@ -300,23 +314,23 @@ export class CohortService implements ICohortService {
   public getCohortInvitationByDomain(
     domain: DomainName,
   ): ResultAsync<CohortInvitation, Error> {
-    const domainToCheck = domain;
-
-    switch (domainToCheck) {
-      case "www.shrapnel.com":
-        return okAsync(
-          new CohortInvitation(
-            "www.shrapnel.com" as DomainName, //public domain: DomainName,
-            "0xE451980132E65465d0a498c53f0b5227326Dd73F" as EVMContractAddress, // address from hardhat task
-            BigInt(1) as TokenId, // public tokenId: TokenId,
-            null,
-          ),
-        ); //public businessSignature: Signature | null,);
-    }
-    function okErr(arg0: string): ResultAsync<CohortInvitation, Error> {
-      throw new Error("Function not implemented.");
-    }
-
-    return okErr("Domain does not have a contract address");
+    const contractAddresses = this.dnsService.fetchTXTRecords(domain); // returns contractAddress[]
+    
+    return okAsync(
+      new CohortInvitation(
+        domain as DomainName,
+         "0xE451980132E65465d0a498c53f0b5227326Dd73F" as EVMContractAddress,
+         BigInt(23) as TokenId,
+         null,
+         {
+           title: "Claim your NFT!",
+           description:
+             "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
+           image: "assets/img/crabada-item.png",
+           rewardName: "Crabada 761",
+           nftClaimedImage: "assets/img/crabada-item-claimed.png",
+         },
+       )
+    );
   }
 }

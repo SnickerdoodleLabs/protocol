@@ -22,5 +22,6 @@ export class CoreConfig implements IIndexerConfig {
     public accountNFTPollingIntervalMS: number,
     public covalentApiKey: string,
     public moralisApiKey: string,
+    public dnsServerAddress: URLString
   ) {}
 }
