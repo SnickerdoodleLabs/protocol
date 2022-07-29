@@ -55,4 +55,4 @@ jobs:
     - name: Set up GKE credentials & Deploy protocol
       run: |-
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
-        #kubectl set image deployment/insight-platform-insight-platform-business-portal-deployment insight-platform-business-portal=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/businessportal:$GITHUB_SHA
+        kubectl set image deployment/insight-platform-insight-platform-protocol-deployment insight-platform-protocol=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA
