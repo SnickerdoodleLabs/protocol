@@ -31,6 +31,7 @@ import {
   CohortService,
   MonitoringService,
   ProfileService,
+  QueryParsingEngine,
   QueryService,
 } from "@core/implementations/business";
 import {
@@ -38,6 +39,7 @@ import {
   CrumbsRepository,
   DNSRepository,
   InsightPlatformRepository,
+  SDQLQueryRepository,
 } from "@core/implementations/data";
 import {
   BlockchainProvider,
@@ -71,6 +73,8 @@ import {
 import {
   IQueryEvaluator,
   IQueryEvaluatorType,
+  IQueryParsingEngine,
+  IQueryParsingEngineType,
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
@@ -83,6 +87,8 @@ import {
   IDNSRepositoryType,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
 import {
   IBlockchainProvider,
@@ -131,6 +137,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(MonitoringService)
       .inSingletonScope();
 
+    bind<IQueryParsingEngine>(IQueryParsingEngineType)
+      .to(QueryParsingEngine)
+      .inSingletonScope();
+
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
       .inSingletonScope();
@@ -143,6 +153,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDNSRepository>(IDNSRepositoryType).to(DNSRepository);
     bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
       .to(CovalentEVMTransactionRepository)
+      .inSingletonScope();
+    bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
+      .to(SDQLQueryRepository)
       .inSingletonScope();
 
     // Utilities

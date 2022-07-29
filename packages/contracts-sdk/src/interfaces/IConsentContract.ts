@@ -11,6 +11,7 @@ import {
   DomainName,
   BaseURI,
   HexString,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -21,6 +22,8 @@ import {
 } from "@contracts-sdk/interfaces/objects";
 
 export interface IConsentContract {
+  getContractAddress(): EVMContractAddress;
+
   /**
    * Create a consent token owned by the signer
    * @param tokenId randomly generated token id
