@@ -1,6 +1,7 @@
 import {
   Age,
   CountryCode,
+  DomainName,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -52,4 +53,7 @@ export interface ISetEmailParams {
 
 export interface ISetLocationParams {
   location: CountryCode;
+}
+export interface IGetCohortInvitationWithDomainParams {
+  domain: DomainName;
 }

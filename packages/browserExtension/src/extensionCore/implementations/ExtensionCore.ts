@@ -61,7 +61,7 @@ import {
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
-import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import { DomainName, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 
 // shared
@@ -136,6 +136,7 @@ export class ExtensionCore {
       this.contextProvider,
       this.accountService,
       this.piiService,
+      this.cohortService
     );
 
     this.rpcEngineFactory = new RpcEngineFactory(

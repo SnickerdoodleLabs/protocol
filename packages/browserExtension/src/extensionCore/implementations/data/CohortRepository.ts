@@ -2,17 +2,11 @@ import { ICohortRepository } from "@interfaces/data";
 import { IErrorUtils } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
-  AjaxError,
-  BlockchainProviderError,
   CohortInvitation,
   ConsentConditions,
-  ConsentContractError,
-  ConsentContractRepositoryError,
   DomainName,
   EInvitationStatus,
   ISnickerdoodleCore,
-  PersistenceError,
-  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -21,7 +15,6 @@ export class CohortRepository implements ICohortRepository {
     protected core: ISnickerdoodleCore,
     protected errorUtils: IErrorUtils,
   ) {}
-
 
   public getCohortInvitationWithDomain(
     domain: DomainName,
@@ -60,12 +53,12 @@ export class CohortRepository implements ICohortRepository {
         return new SnickerDoodleCoreError((error as Error).message, error);
       });
   }
-  public rejectInvitation(invitation: CohortInvitation): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
-      .rejectInvitation(invitation)
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
+  public rejectInvitation(
+    invitation: CohortInvitation,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core.rejectInvitation(invitation).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 }

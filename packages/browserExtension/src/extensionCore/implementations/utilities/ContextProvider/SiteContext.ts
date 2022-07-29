@@ -1,7 +1,7 @@
 export class SiteContext {
   // dummy
   constructor(
-    protected scamList: string[] = ["https://www.facebook.com"],
+    protected scamList: string[] = ["https://www.facebook.com2"],
     protected whiteList: string[] = [],
   ) {}
 

@@ -1,5 +1,9 @@
 import { IRpcCallHandler } from "@interfaces/api";
-import { IAccountService, IPIIService } from "@interfaces/business";
+import {
+  IAccountService,
+  ICohortService,
+  IPIIService,
+} from "@interfaces/business";
 import { IContextProvider } from "@interfaces/utilities";
 import { EExternalActions, EInternalActions } from "@shared/enums";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
@@ -18,10 +22,13 @@ import {
   ISetGenderParams,
   ISetLocationParams,
   ISetEmailParams,
+  IGetCohortInvitationWithDomainParams,
 } from "@shared/interfaces/actions";
 import {
   Age,
+  CohortInvitation,
   CountryCode,
+  DomainName,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -47,6 +54,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected contextProvider: IContextProvider,
     protected accountService: IAccountService,
     protected piiService: IPIIService,
+    protected cohortService: ICohortService,
   ) {}
 
   public async handleRpcCall(
@@ -142,6 +150,10 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_LOCATION: {
         return this._sendAsyncResponse(this.getLocation(), res);
       }
+      case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
+        const { domain } = params as IGetCohortInvitationWithDomainParams;
+        return this._sendAsyncResponse(this.getCohortInvitationWithDomain(domain), res);
+      }
       case EExternalActions.GET_STATE:
         return (res.result = this.contextProvider.getExterenalState());
 
@@ -169,6 +181,12 @@ export class RpcCallHandler implements IRpcCallHandler {
         return okAsync(undefined);
       });
   };
+
+  private getCohortInvitationWithDomain(
+    domain: DomainName,
+  ): ResultAsync<CohortInvitation, SnickerDoodleCoreError> {
+    return this.cohortService.getCohortInvitationWithDomain(domain);
+  }
 
   private unlock(
     account: EVMAccountAddress,
