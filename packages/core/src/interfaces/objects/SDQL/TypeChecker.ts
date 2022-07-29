@@ -1,4 +1,5 @@
 import { AST } from "prettier";
+
 import { AST_Expr } from "./AST_Expr";
 import { AST_Query } from "./AST_Query";
 import { AST_ReturnExpr } from "./AST_ReturnExpr";
@@ -7,7 +8,15 @@ import { Command_IF } from "./Command_IF";
 import { AST_ConditionExpr } from "./condition/AST_ConditionExpr";
 import { Operator } from "./Operator";
 
-export type AstAllowedTypes = string | boolean | number | boolean | AST_Expr | AST_Query | Operator | Command
+export type AstAllowedTypes =
+  | string
+  | boolean
+  | number
+  | boolean
+  | AST_Expr
+  | AST_Query
+  | Operator
+  | Command;
 export class TypeChecker {
   static isValue(expr: any): boolean {
     /**
