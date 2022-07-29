@@ -1,5 +1,6 @@
 import {
   Age,
+  BigNumberString,
   CountryCode,
   EmailAddressString,
   EVMAccountAddress,
@@ -9,6 +10,7 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -52,4 +54,10 @@ export interface ISetEmailParams {
 
 export interface ISetLocationParams {
   location: CountryCode;
+}
+
+export interface IMetatransactionSignatureRequestCallbackParams {
+  id: UUID;
+  metatransactionSignature: Signature;
+  nonce: BigNumberString;
 }

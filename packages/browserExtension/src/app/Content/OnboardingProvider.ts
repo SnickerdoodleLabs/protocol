@@ -12,6 +12,7 @@ import {
 } from "@shared/constants/ports";
 import {
   Age,
+  BigNumberString,
   CountryCode,
   EmailAddressString,
   EVMAccountAddress,
@@ -21,6 +22,7 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 import { EventEmitter } from "events";
 import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
@@ -56,7 +58,7 @@ export class OnboardingProvider extends EventEmitter {
       _this.emit(resp.type, resp);
     });
   }
-  
+
   public getState() {
     return coreGateway.getState();
   }
@@ -128,6 +130,17 @@ export class OnboardingProvider extends EventEmitter {
   }
   public setGender(gender: Gender) {
     return coreGateway.setGender(gender);
+  }
+  public metatransactionSignatureRequestCallback(
+    id: UUID,
+    metatransactionSignature: Signature,
+    nonce: BigNumberString,
+  ) {
+    return coreGateway.metatransactionSignatureRequestCallback(
+      id,
+      metatransactionSignature,
+      nonce,
+    );
   }
 }
 

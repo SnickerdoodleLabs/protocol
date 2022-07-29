@@ -23,7 +23,7 @@ export class ContextProvider implements IContextProvider {
     this.siteContext = new SiteContext();
     this.onExtensionError = new Subject();
   }
-
+ 
   public getAccountContext(): AccountContext {
     return this.accountContext;
   }
@@ -78,6 +78,9 @@ export class ContextProvider implements IContextProvider {
     const { accountAddress, contractAddress, data } =
       metatransactionSignatureRequest;
     return { accountAddress, contractAddress, data };
+  }
+  public getMetatransactionSignatureRequestById(id: UUID): MetatransactionSignatureRequest | undefined {
+   return this.appContext.getMetatransactionSignatureRequestById(id);
   }
 
   public getInternalState(): IInternalState {

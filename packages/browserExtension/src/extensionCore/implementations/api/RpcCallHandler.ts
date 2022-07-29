@@ -18,6 +18,7 @@ import {
   ISetGenderParams,
   ISetLocationParams,
   ISetEmailParams,
+  IMetatransactionSignatureRequestCallbackParams,
 } from "@shared/interfaces/actions";
 import {
   Age,
@@ -141,6 +142,21 @@ export class RpcCallHandler implements IRpcCallHandler {
       }
       case EExternalActions.GET_LOCATION: {
         return this._sendAsyncResponse(this.getLocation(), res);
+      }
+      // TODO move it to correct place
+      case EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK: {
+        const { nonce, id, metatransactionSignature } =
+          params as IMetatransactionSignatureRequestCallbackParams;
+        const metatransactionSignatureRequest =
+          this.contextProvider.getMetatransactionSignatureRequestById(id);
+        if (!metatransactionSignatureRequest) {
+          return (res.result = "transaction not found");
+        }
+        metatransactionSignatureRequest.callback(
+          metatransactionSignature,
+          nonce,
+        );
+        return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
       }
       case EExternalActions.GET_STATE:
         return (res.result = this.contextProvider.getExterenalState());

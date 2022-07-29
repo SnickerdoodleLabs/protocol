@@ -2,7 +2,10 @@ import { AccountContext } from "@implementations/utilities/ContextProvider/Accou
 import { AppContext } from "@implementations/utilities/ContextProvider/AppContext";
 import { UserContext } from "@implementations/utilities/ContextProvider/UserContext";
 import { IInternalState, IExternalState } from "@shared/interfaces/states";
-import { MetatransactionSignatureRequest } from "@snickerdoodlelabs/objects";
+import {
+  MetatransactionSignatureRequest,
+  UUID,
+} from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
 export interface IContextProvider {
@@ -15,4 +18,7 @@ export interface IContextProvider {
   notifyPortsWithIncomingMetatransactionSignatureRequest(
     metatransactionSignatureRequest: MetatransactionSignatureRequest,
   ): void;
+  getMetatransactionSignatureRequestById(
+    id: UUID,
+  ): MetatransactionSignatureRequest | undefined;
 }
