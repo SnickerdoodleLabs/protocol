@@ -1,3 +1,6 @@
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -18,10 +21,6 @@ import { ethers, EventFilter, Event, BigNumber, Bytes } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -458,6 +457,8 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
+  // Returns all the past token ids generated for the user
+  // Keep incase we ever want a list of previous token ids issued to the user even if they opted out
   public getConsentTokensOfAddress(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<ConsentToken[], ConsentContractError> {
@@ -465,7 +466,6 @@ export class ConsentContract implements IConsentContract {
       if (numberOfTokens === 0) {
         return okAsync([] as ConsentToken[]);
       }
-
       return this.queryFilter(
         this.filters.Transfer(null, ownerAddress),
       ).andThen((logsEvents) => {
@@ -483,6 +483,37 @@ export class ConsentContract implements IConsentContract {
               );
             });
           }),
+        );
+      });
+    });
+  }
+
+  // Returns the current token id owned by the user
+  public getCurrentConsentTokenOfAddress(
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<ConsentToken[], ConsentContractError> {
+    return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
+      if (numberOfTokens === 0) {
+        return okAsync([] as ConsentToken[]);
+      }
+      // this returns all the past Transfer events pertaining to this contract
+      return this.queryFilter(
+        this.filters.Transfer(null, ownerAddress),
+      ).andThen((logsEvents) => {
+        console.log("Transfer events log count", logsEvents.length);
+        // Get only the last Transfer event (the latest opt in token id)
+        const lastIndex = logsEvents.length - 1;
+        return this.tokenURI(logsEvents[lastIndex].args?.tokenId).andThen(
+          (tokenUri) => {
+            return okAsync([
+              new ConsentToken(
+                this.contractAddress,
+                ownerAddress,
+                TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
+                tokenUri as TokenUri,
+              ),
+            ] as ConsentToken[]);
+          },
         );
       });
     });

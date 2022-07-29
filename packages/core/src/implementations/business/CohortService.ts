@@ -263,7 +263,7 @@ export class CohortService implements ICohortService {
 
       // We need to find your opt-in token
       return this.consentRepo
-        .getConsentTokens(
+        .getCurrentConsentToken(
           consentContractAddress,
           EVMAccountAddress(context.dataWalletAddress),
         )

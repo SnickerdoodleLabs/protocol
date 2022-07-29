@@ -149,10 +149,18 @@ export interface IConsentContract {
   ): ResultAsync<Event[], ConsentContractError>;
 
   /**
-   * Returns a consent tokens owned by address
+   * Returns consent tokens previously minted for the address
    * @param ownerAddress owner address
    */
   getConsentTokensOfAddress(
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<ConsentToken[], ConsentContractError>;
+
+  /**
+   * Returns a current consent token owned by address
+   * @param ownerAddress owner address
+   */
+  getCurrentConsentTokenOfAddress(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<ConsentToken[], ConsentContractError>;
 
