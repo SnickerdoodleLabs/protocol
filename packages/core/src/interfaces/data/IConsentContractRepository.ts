@@ -28,7 +28,7 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<
-    ConsentToken[],
+    ConsentToken | null,
     | ConsentContractError
     | ConsentContractRepositoryError
     | UninitializedError

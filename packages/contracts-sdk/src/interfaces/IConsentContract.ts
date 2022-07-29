@@ -162,7 +162,7 @@ export interface IConsentContract {
    */
   getCurrentConsentTokenOfAddress(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken[], ConsentContractError>;
+  ): ResultAsync<ConsentToken | null, ConsentContractError>;
 
   /**
    * Adds a domain to the contract storage

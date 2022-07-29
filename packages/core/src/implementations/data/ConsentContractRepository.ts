@@ -65,7 +65,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<
-    ConsentToken[],
+    ConsentToken | null,
     | ConsentContractError
     | ConsentContractRepositoryError
     | UninitializedError
