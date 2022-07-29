@@ -102,10 +102,10 @@ export class ExtensionCore {
 
     this.configProvider = ConfigProvider;
 
-    this.coreListener = new CoreListener(this.core);
-    this.coreListener.initialize();
+    this.contextProvider = new ContextProvider(this.configProvider);
 
-    this.contextProvider = new ContextProvider();
+    this.coreListener = new CoreListener(this.core, this.contextProvider);
+    this.coreListener.initialize();
 
     this.accountCookieUtils = new AccountCookieUtils(this.configProvider);
     this.errorUtils = new ErrorUtils(this.contextProvider);
