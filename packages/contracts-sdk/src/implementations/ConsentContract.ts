@@ -414,7 +414,6 @@ export class ConsentContract implements IConsentContract {
         );
       },
     ).map((numberOfTokens) => {
-      console.log("balanceOf", numberOfTokens.toString());
       return numberOfTokens.toNumber();
     });
   }
@@ -463,7 +462,6 @@ export class ConsentContract implements IConsentContract {
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<ConsentToken[], ConsentContractError> {
     return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
-      console.log(`balance of consent tokens for address ${ownerAddress}: ${numberOfTokens}`);
       if (numberOfTokens === 0) {
         return okAsync([] as ConsentToken[]);
       }
@@ -778,7 +776,7 @@ export class ConsentContract implements IConsentContract {
       toAddress: EVMAccountAddress | null,
     ): ResultAsync<EventFilter, ConsentContractError> => {
       return ResultAsync.fromPromise(
-        this.contract?.filters.Transfer(
+        this.contract.filters.Transfer(
           fromAddress,
           toAddress,
         ) as Promise<EventFilter>,

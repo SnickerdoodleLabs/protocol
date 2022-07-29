@@ -63,13 +63,6 @@ const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.dev");
 
-const cohortInvitation = new CohortInvitation(
-  domainName,
-  EVMContractAddress("0x93fb1De05a05350b10F93b07533533709AdB3347"),
-  TokenId(BigInt(123)),
-  null,
-);
-
 const consentContracts = new Array<EVMContractAddress>();
 const optedInConsentContracts = new Array<EVMContractAddress>();
 
