@@ -6,8 +6,8 @@ import { ResultAsync, fromThrowable } from "neverthrow";
 import {
   IConfigProvider,
   IConfigProviderType,
+  IIPFSProvider,
 } from "@core/interfaces/utilities";
-import { IIPFSProvider } from "@core/interfaces/utilities/IIPFSProvider";
 
 @injectable()
 export class IPFSProvider implements IIPFSProvider {

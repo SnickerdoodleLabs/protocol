@@ -27,6 +27,7 @@ import {
   ChainId,
   ControlChainInformation,
   ConsentFactoryContractError,
+  CountryCode,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import {
@@ -40,7 +41,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
-import { CountryCode } from "@snickerdoodlelabs/objects";
 
 // https://github.com/SBoudrias/Inquirer.js
 
