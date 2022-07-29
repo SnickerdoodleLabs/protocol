@@ -500,7 +500,7 @@ export class ConsentContract implements IConsentContract {
       return this.queryFilter(
         this.filters.Transfer(null, ownerAddress),
       ).andThen((logsEvents) => {
-        console.log("LogEvents: ", logsEvents);
+        console.log("Transfer events log count", logsEvents.length);
         // Get only the last Transfer event (the latest opt in token id)
         const lastIndex = logsEvents.length - 1;
         return this.tokenURI(logsEvents[lastIndex].args?.tokenId).andThen(
