@@ -23,16 +23,15 @@
 //   IInsightPlatformRepository,
 //   ISDQLQueryRepository,
 // } from "@core/interfaces/data";
-// import { 
-//     EVMContractAddress, 
-//     IpfsCID, 
+// import {
+//     EVMContractAddress,
+//     IpfsCID,
 //     SDQLString,
 //     SDQLQuery,
 //     Insight,
 //     EVMAccountAddress
 // } from "@snickerdoodlelabs/objects";
 // import { QueryParsingEngine } from "@core/implementations/business/utilities";
-
 
 // const testing_schema = JSON.stringify({
 //     "version": 0.1,
@@ -219,7 +218,6 @@
 //   protected rewardsMap: EligibleReward[] = [];
 //   protected transactions: EVMTransaction[] = [];
 
-
 //   public constructor() {
 
 //     let subQuery = (obj["queries"]["q1"]) as Object;
@@ -241,7 +239,6 @@
 //   }
 // }
 
-
 // describe("Query Parsing Engine tests", () => {
 //     test("Test Bad Requirements Functionality", async () => {
 //         const mocks = new QueryParsingEngineMocks();
@@ -257,9 +254,9 @@
 //     test("Test Handle Query Functionality", async () => {
 //             const mocks = new QueryParsingEngineMocks();
 //             const repo = mocks.factoryRepository();
-    
+
 //             const obj = JSON.parse(SDQLQueryObject.query) as ISDQLQueryObject;
-    
+
 //             td.when(repo.readLogicEntry(obj, obj["logic"]["returns"][0])).thenReturn(
 //                 okAsync([1])
 //             )
@@ -277,11 +274,9 @@
 //             )
 //             */
 
-    
-            
 //             const queryResult = await repo.handleQuery(obj, cidString);
 //             console.log(queryResult);
-    
+
 //             expect(queryResult).toBeDefined();
 //             /*
 //             expect(queryResult["value"][0]).toEqual(expect.arrayContaining(Insight[2]))
@@ -292,15 +287,13 @@
 //             console.log(queryResult["value"][0]);
 //             console.log(queryResult["value"][1]);
 
-        
-        
 //     });
 
 //     /*
 //     test("Test Read Logic Entry Functionality", async () => {
 //         const mocks = new QueryParsingEngineMocks();
 //         const repo = mocks.factoryRepository();
-        
+
 //         let obj = new SDQLQuery(cidString_test2, SDQLString(testing_schema));
 //         const queryContent = JSON.parse(obj.query) as ISDQLQueryObject;
 //         const queryResult = await repo.handleQuery(queryContent, cidString_test2);

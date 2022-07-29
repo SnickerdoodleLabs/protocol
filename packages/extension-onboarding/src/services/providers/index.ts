@@ -1,12 +1,12 @@
-import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
+import MetamaskIcon from "@extension-onboarding/assets/icons/metamask.svg";
+import PhantomIcon from "@extension-onboarding/assets/icons/phantom.svg";
+import WalleConnectIcon from "@extension-onboarding/assets/icons/wallet-connect.svg";
 import {
   MetamaskWalletProvider,
   PhantomWalletProvider,
   WalletConnectProvider,
 } from "@extension-onboarding/services/providers/connectors";
-import MetamaskIcon from "@extension-onboarding/assets/icons/metamask.svg";
-import PhantomIcon from "@extension-onboarding/assets/icons/phantom.svg";
-import WalleConnectIcon from "@extension-onboarding/assets/icons/wallet-connect.svg";
+import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
 
 export interface IProvider {
   provider: IWalletProvider;

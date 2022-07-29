@@ -2,11 +2,10 @@
 // Andrew Strimaitis
 // Unit Testing for Blockchain Listener - Pull-JSON-from-IPFS and Parse-JSON
 
-
 // 2 classes:
 //   1. EVMService
 //   2. EVMServiceMocks
-// 2 interfaces: 
+// 2 interfaces:
 //   1. IEVMRepository
 //   2. IEVMService
 // */

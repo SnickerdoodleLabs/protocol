@@ -1,3 +1,8 @@
+import { TypedDataField } from "@ethersproject/abstract-signer";
+import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -12,6 +17,8 @@ import {
   ISDQLQueryObject,
   QueryFormatError,
   UninitializedError,
+  Reward,
+  EligibleReward,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -30,22 +37,17 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
+import { InsightString } from "@core/interfaces/objects";
+import { QueryReponse } from "@core/interfaces/objects/QueryResponse";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
-import { QueryReponse } from "@core/interfaces/objects/QueryResponse";
-import { TypedDataField } from "@ethersproject/abstract-signer";
-import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
-import { Reward } from "@snickerdoodlelabs/objects";
-import { EligibleReward } from "@snickerdoodlelabs/objects";
-import { InsightString } from "@core/interfaces/objects";
 
 @injectable()
 export class QueryService implements IQueryService {
-
   // queryContractMap: Map<IpfsCID, EVMContractAddress> = new Map();
 
   public constructor(
@@ -77,7 +79,7 @@ export class QueryService implements IQueryService {
   > {
     // Get the IPFS data for the query. This is just "Get the query";
 
-    // Cache 
+    // Cache
     // if (!this.safeUpdateQueryContractMap(queryId, consentContractAddress)) {
     //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryId}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryId)}`)); ))
     // }
@@ -118,7 +120,10 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          context.publicEvents.onQueryPosted.next({consentContractAddress: consentContractAddress, query: query});
+          context.publicEvents.onQueryPosted.next({
+            consentContractAddress: consentContractAddress,
+            query: query,
+          });
 
           return okAsync(undefined);
         });
@@ -136,26 +141,20 @@ export class QueryService implements IQueryService {
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID
+    queryId: IpfsCID,
   ): ResultAsync<
     void,
-    | AjaxError 
-    | UninitializedError 
-    | ConsentError 
-    | IPFSError
-    | QueryFormatError
-  
+    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
   > {
     // 1. Parse the query
     // 2. Generate an insight(s)
     // 3. Redeem the reward
     // 4. Deliver the insight
-    
+
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
     ]).andThen(([context, config]) => {
-      
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
           new UninitializedError("Data wallet has not been unlocked yet!"),
@@ -171,7 +170,6 @@ export class QueryService implements IQueryService {
         InsightDelivery: [{ name: "consentContractAddress", type: "string" }],
       };
 
-      
       return this.cryptoUtils
         .signTypedData(
           config.snickerdoodleProtocolDomain,
@@ -186,26 +184,28 @@ export class QueryService implements IQueryService {
               if (!query) {
                 return errAsync(new IPFSError("Query not found " + queryId));
               }
-    
+
               // TODO parse, evaluate, combine
-    
+
               // Convert string to an object
               // const queryContent = JSON.parse(query.query) as ISDQLQueryObject;
-    
+
               // Break down the actual parts of the query.
               return this.queryParsingEngine.handleQuery(query);
-            }).andThen((maps) => {
+            })
+            .andThen((maps) => {
               // return this.insightPlatformRepo.deliverInsights(insights);
-              let maps2 = maps as Array<InsightString[] | EligibleReward[]>;
+              const maps2 = maps as Array<InsightString[] | EligibleReward[]>;
               const insights = maps2[0];
               const rewards = maps2[1];
 
               console.log(insights, rewards);
-              return errAsync(new UninitializedError("TODO"))
+              return errAsync(new UninitializedError("TODO"));
             });
-        }).andThen((insights) => {
+        })
+        .andThen((insights) => {
           // return this.insightPlatformRepo.deliverInsights(insights);
-          return errAsync(new UninitializedError("TODO"))
+          return errAsync(new UninitializedError("TODO"));
         });
 
       // return this.sdqlQueryRepo
@@ -226,7 +226,6 @@ export class QueryService implements IQueryService {
       //     // return this.insightPlatformRepo.deliverInsights(insights);
       //     return errAsync(new UninitializedError("TODO"))
       //   });
-
     });
 
     // Get the IPFS data for the query. This is just "Get the query";
@@ -250,20 +249,20 @@ export class QueryService implements IQueryService {
     //     return errAsync(new UninitializedError("TODO"))
     //   });
 
-      // .andThen((insights) => {
-      //   // Get the reward
-      //   const insightMap = insights.reduce((prev, cur) => { // TODO rename prev to map or prevMap
-      //     prev.set(cur.queryId, cur);
-      //     return prev;
-      //   }, new Map<IpfsCID, Insight>());
+    // .andThen((insights) => {
+    //   // Get the reward
+    //   const insightMap = insights.reduce((prev, cur) => { // TODO rename prev to map or prevMap
+    //     prev.set(cur.queryId, cur);
+    //     return prev;
+    //   }, new Map<IpfsCID, Insight>());
 
-      //   // Looking for keys or values - Andrew
-      //   // IpfsCID or Insight?
-      //   return this.insightPlatformRepo
-      //     .claimReward(Array.from(insightMap.values()))
-      //     .andThen((rewardsMap) => {
-      //       return this.insightPlatformRepo.deliverInsights(insights);
-      //     });
-      // });
+    //   // Looking for keys or values - Andrew
+    //   // IpfsCID or Insight?
+    //   return this.insightPlatformRepo
+    //     .claimReward(Array.from(insightMap.values()))
+    //     .andThen((rewardsMap) => {
+    //       return this.insightPlatformRepo.deliverInsights(insights);
+    //     });
+    // });
   }
 }
