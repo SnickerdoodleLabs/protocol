@@ -5,10 +5,11 @@ import {
   SDQL_Name,
   URLString,
   Version,
+  DuplicateIdInSchema,
+  ReturnNotImplementedError,
 } from "@snickerdoodlelabs/objects";
 
-import { ExprParser } from "./ExprParser";
-
+import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
 import {
   AST,
   AST_Compensation,
@@ -21,8 +22,6 @@ import {
   AST_ReturnExpr,
   AST_Returns,
   Command,
-  DuplicateIdInSchema,
-  ReturnNotImplementedError,
   SDQLSchema,
 } from "@core/interfaces/objects";
 

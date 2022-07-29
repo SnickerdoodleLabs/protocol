@@ -1,6 +1,6 @@
 import {
   EligibleReward,
-  Insight,
+  EvaluationError,
   QueryFormatError,
   SDQLQuery,
 } from "@snickerdoodlelabs/objects";
@@ -11,7 +11,10 @@ import { InsightString } from "@core/interfaces/objects";
 export interface IQueryParsingEngine {
   handleQuery(
     query: SDQLQuery,
-  ): ResultAsync<[InsightString[], EligibleReward[]], never | QueryFormatError>;
+  ): ResultAsync<
+    [InsightString[], EligibleReward[]],
+    EvaluationError | QueryFormatError
+  >;
   // readLogicEntry(obj: ISDQLQueryObject, input: string): ResultAsync<number | number[] | boolean, never | PersistenceError>
   // readQueryEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number, PersistenceError>
   // readReturnEntry(obj: ISDQLQueryObject, input: string, returnOnPermission: boolean): ResultAsync<number | boolean, PersistenceError>

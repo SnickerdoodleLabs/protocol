@@ -6,16 +6,16 @@ import {
   SDQL_Return,
   IDataWalletPersistenceType,
   PersistenceError,
+  EvalNotImplementedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync, okAsync, errAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 
 import { IQueryEvaluator } from "@core/interfaces/business/utilities";
 import {
   AST_NetworkQuery,
   AST_PropertyQuery,
   AST_Query,
-  EvalNotImplementedError,
   Condition,
   ConditionGE,
   ConditionIn,
@@ -33,7 +33,7 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected dataWalletPersistence: IDataWalletPersistence,
   ) {}
   protected age: Age = Age(0);
-  protected location: CountryCode = CountryCode(12345);
+  protected location: CountryCode = CountryCode("12345");
 
   public eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
     // All the switch statements here

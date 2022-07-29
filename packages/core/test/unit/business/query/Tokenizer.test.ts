@@ -1,10 +1,11 @@
 import "reflect-metadata";
 
+import { ParserError } from "@snickerdoodlelabs/objects";
+
 import {
   Tokenizer,
   TokenType,
 } from "@core/implementations/business/utilities/query";
-import { ParserError } from "@core/interfaces/objects";
 
 describe("Tokenizer", () => {
   test.skip("test tokenizer", () => {

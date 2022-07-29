@@ -23,7 +23,7 @@ export interface IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    insights: Insight[],
+    returns: string,
   ): ResultAsync<void, AjaxError>;
 
   executeMetatransaction(

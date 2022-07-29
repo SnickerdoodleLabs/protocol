@@ -1,4 +1,6 @@
 import {
+  EvaluationError,
+  SDQLQuery,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -28,10 +30,15 @@ export interface IQueryService {
   >;
   processQuery(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
+    query: SDQLQuery,
   ): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
+    | AjaxError
+    | UninitializedError
+    | ConsentError
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
   >;
 }
 

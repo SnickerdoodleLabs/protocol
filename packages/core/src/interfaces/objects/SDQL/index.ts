@@ -1,5 +1,5 @@
 export * from "@core/interfaces/objects/SDQL/condition";
-export * from "@core/interfaces/objects/SDQL/exceptions";
+// export * from "@core/interfaces/objects/SDQL/exceptions"
 export * from "@core/interfaces/objects/SDQL/AST";
 export * from "@core/interfaces/objects/SDQL/AST_Logic";
 export * from "@core/interfaces/objects/SDQL/AST_Expr";

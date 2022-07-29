@@ -3,7 +3,7 @@
 import {
   InvalidRegularExpression,
   ParserError,
-} from "@core/interfaces/objects";
+} from "@snickerdoodlelabs/objects";
 
 export enum TokenType {
   if = "if",

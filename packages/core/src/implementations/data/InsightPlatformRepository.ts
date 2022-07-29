@@ -19,7 +19,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { executeMetatransactionTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@core/interfaces/data";
@@ -46,19 +46,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public deliverInsights(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    cid: IpfsCID,
-    signature: Signature,
-    insights: Insight[],
-  ): ResultAsync<void, never> {
-    throw new Error("undefined");
-  }
-
-  public deliverInsight(
-    dataWalletAddress: DataWalletAddress,
-    consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    returns: Array<string>,
+    returns: string,
   ): ResultAsync<void, AjaxError> {
     return this.configProvider
       .getConfig()
@@ -74,7 +64,10 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           signature: signature,
         });
       })
-      .map((response) => {});
+      .map((response) => {
+        console.log("Ajax response: " + JSON.stringify(response));
+        // return okAsync({});
+      });
   }
 
   public executeMetatransaction(
