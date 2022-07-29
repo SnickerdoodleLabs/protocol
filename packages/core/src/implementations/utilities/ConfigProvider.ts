@@ -35,16 +35,15 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       );
     }
 
+    // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
       [], //TODO: supported chains
-      URLString(""),
+      URLString("http://localhost:8545"),
       chainConfig,
       controlChainInformation,
-      URLString("ipfs node address"),
-      // uncomment following line to test locally
-      // URLString("http://localhost:3000/v0"),
-      URLString("http://insight-platform"),
+      URLString("http://localhost:5021/api/v0"),
+      URLString("http://localhost:3006"),
       snickerdoodleSigningDomain,
       5000, // polling interval indexing,
       5000, // polling interval balance
@@ -59,6 +58,29 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
   }
 
   public setConfigOverrides(overrides: IConfigOverrides): void {
-    this.config = { ...this.config, ...overrides };
+    this.config.controlChainId =
+      overrides.controlChainId ?? this.config.controlChainId;
+    this.config.supportedChains =
+      overrides.supportedChains ?? this.config.supportedChains;
+    this.config.providerAddress =
+      overrides.providerAddress ?? this.config.providerAddress;
+    this.config.ipfsNodeAddress =
+      overrides.ipfsNodeAddress ?? this.config.ipfsNodeAddress;
+    this.config.defaultInsightPlatformBaseUrl =
+      overrides.defaultInsightPlatformBaseUrl ??
+      this.config.defaultInsightPlatformBaseUrl;
+    this.config.accountIndexingPollingIntervalMS =
+      overrides.accountIndexingPollingIntervalMS ??
+      this.config.accountIndexingPollingIntervalMS;
+    this.config.accountBalancePollingIntervalMS =
+      overrides.accountBalancePollingIntervalMS ??
+      this.config.accountBalancePollingIntervalMS;
+    this.config.accountNFTPollingIntervalMS =
+      overrides.accountNFTPollingIntervalMS ??
+      this.config.accountNFTPollingIntervalMS;
+    this.config.covalentApiKey =
+      overrides.covalentApiKey ?? this.config.covalentApiKey;
+    this.config.moralisApiKey =
+      overrides.moralisApiKey ?? this.config.moralisApiKey;
   }
 }
