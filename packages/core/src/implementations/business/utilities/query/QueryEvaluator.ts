@@ -1,7 +1,6 @@
 import { 
     AST_PropertyQuery,
     AST_Query,
-    EvalNotImplementedError,
     Condition, 
     ConditionGE, 
     ConditionIn,
@@ -11,7 +10,7 @@ import {
     ConditionE,   
     AST_Expr
 } from "@core/interfaces/objects";
-import { Age, CountryCode, Gender, IDataWalletPersistence, SDQL_Return } from "@snickerdoodlelabs/objects";
+import { Age, CountryCode, EvalNotImplementedError, Gender, IDataWalletPersistence, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { IDataWalletPersistenceType } from "@snickerdoodlelabs/objects";
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -26,7 +25,7 @@ export class QueryEvaluator implements IQueryEvaluator {
         protected dataWalletPersistence: IDataWalletPersistence
     ) {}
     protected age: Age = Age(0);
-    protected location: CountryCode = CountryCode(12345);
+    protected location: CountryCode = CountryCode("12345");
 
     public eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
         // All the switch statements here

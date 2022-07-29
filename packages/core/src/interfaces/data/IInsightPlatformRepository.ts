@@ -32,18 +32,13 @@ export interface IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    insights: Insight[]): ResultAsync<void, AjaxError>;
+    returns: string
+    ): ResultAsync<void, AjaxError>;
 
   getBusinessConsentContracts(): ResultAsync<
     BusinessConsentContract[],
     AjaxError
   >;
-
-  acceptInvitation(
-    dataWalletAddress: DataWalletAddress,
-    invitation: CohortInvitation,
-    signature: Signature,
-  ): ResultAsync<void, AjaxError>;
 
   leaveCohort(
     dataWalletAddress: DataWalletAddress,

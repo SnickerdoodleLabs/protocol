@@ -4,7 +4,10 @@
  * Regardless of form factor, you need to instantiate an instance of
  */
 
-import { DefaultAccountIndexers } from "@snickerdoodlelabs/indexers";
+import {
+  DefaultAccountBalances,
+  DefaultAccountIndexers
+} from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
@@ -13,25 +16,14 @@ import {
   ConsentConditions,
   ConsentContractError,
   ConsentContractRepositoryError,
-  ConsentError,
-  EInvitationStatus,
-  EmailAddressString,
-  GivenName,
-  Gender,
-  EVMAccountAddress,
-  EVMContractAddress,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-  InvalidSignatureError,
-  IpfsCID,
-  IPFSError,
-  ISnickerdoodleCoreEvents,
-  ISnickerdoodleCore,
-  LanguageCode,
-  FamilyName,
-  CountryCode,
-  PersistenceError,
-  Signature,
+  ConsentError, CountryCode, CrumbsContractError, EInvitationStatus,
+  EmailAddressString, EvaluationError, EVMAccountAddress,
+  EVMContractAddress, FamilyName, Gender, GivenName, IAccountBalances,
+  IAccountBalancesType, IAccountIndexing,
+  IAccountIndexingType,
+  IConfigOverrides, IDataWalletPersistence,
+  IDataWalletPersistenceType, IEVMBalance,
+  IEVMNFT, InvalidSignatureError, IPFSError, ISnickerdoodleCore, ISnickerdoodleCoreEvents, LanguageCode, MinimalForwarderContractError, PersistenceError, QueryFormatError, Signature,
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
@@ -43,26 +35,25 @@ import {
   DomainName,
   IEVMBalance,
   IEVMNFT,
+  UnsupportedLanguageError
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { DefaultDataWalletPersistence } from "@core/implementations/data";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import {
   IAccountIndexerPoller,
-  IAccountIndexerPollerType,
+  IAccountIndexerPollerType
 } from "@core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
   ICohortService,
-  ICohortServiceType,
-  IQueryService,
-  IQueryServiceType,
-  IProfileService,
-  IProfileServiceType,
+  ICohortServiceType, IProfileService,
+  IProfileServiceType, IQueryService,
+  IQueryServiceType
 } from "@core/interfaces/business";
 import {
   IBlockchainProvider,
@@ -70,8 +61,9 @@ import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
-  IContextProviderType,
+  IContextProviderType
 } from "@core/interfaces/utilities";
+import { SDQLQuery } from "@snickerdoodlelabs/objects";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -81,6 +73,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     configOverrides?: IConfigOverrides,
     persistence?: IDataWalletPersistence,
     accountIndexer?: IAccountIndexing,
+    accountBalances?: IAccountBalances,
   ) {
     this.iocContainer = new Container();
 
@@ -111,6 +104,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer
         .bind(IAccountIndexingType)
         .to(DefaultAccountIndexers)
+        .inSingletonScope();
+    }
+
+    // If an Account Balances is provided, hook it up. If not we'll use the default.
+    if (accountBalances != null) {
+      this.iocContainer
+        .bind(IAccountBalancesType)
+        .toConstantValue(accountBalances);
+    } else {
+      this.iocContainer
+        .bind(IAccountBalancesType)
+        .to(DefaultAccountBalances)
         .inSingletonScope();
     }
 
@@ -225,7 +230,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, AjaxError | UninitializedError | PersistenceError> {
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
+  > {
     const cohortService =
       this.iocContainer.get<ICohortService>(ICohortServiceType);
 
@@ -293,23 +305,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.getInvitationDetails(invitation);
   }
 
-  public processQuery(
-    {
+  public processQuery({
       consentContractAddress,
-      queryId
-    }: 
-    {
+      query
+    }: {
       consentContractAddress: EVMContractAddress,
-      queryId: IpfsCID
-    }
-  ): ResultAsync<
+      query:SDQLQuery
+    
+  }): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
+    | AjaxError 
+    | UninitializedError 
+    | ConsentError 
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(consentContractAddress, queryId);
+    return queryService.processQuery(consentContractAddress, query);
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {

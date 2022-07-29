@@ -1,3 +1,4 @@
+import { EvaluationError, SDQLQuery } from "@snickerdoodlelabs/objects";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -28,7 +29,7 @@ export interface IQueryService {
   >;
   processQuery(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID
+    query: SDQLQuery
   ): ResultAsync<
     void,
     | AjaxError 
@@ -36,6 +37,7 @@ export interface IQueryService {
     | ConsentError 
     | IPFSError
     | QueryFormatError
+    | EvaluationError
     
   >;
 }

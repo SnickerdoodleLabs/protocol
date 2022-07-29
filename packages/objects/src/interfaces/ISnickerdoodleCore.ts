@@ -1,6 +1,10 @@
 import { ResultAsync } from "neverthrow";
+import { Observable } from "rxjs";
 
-import { CohortInvitation, ConsentConditions, IEVMNFT, SDQLQuery } from "@objects/businessObjects";
+import {
+  CohortInvitation,
+  ConsentConditions, IEVMNFT, SDQLQuery
+} from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
   AjaxError,
@@ -9,13 +13,16 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   CrumbsContractError,
+  EvaluationError,
   InvalidSignatureError,
   IPFSError,
+  MinimalForwarderContractError,
   PersistenceError,
   QueryFormatError,
   UninitializedError,
-  UnsupportedLanguageError,
+  UnsupportedLanguageError
 } from "@objects/errors";
+import { IEVMBalance } from "@objects/interfaces/chains";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   Age,
@@ -33,8 +40,6 @@ import {
   CountryCode,
   DomainName,
 } from "@objects/primitives";
-import { Observable } from "rxjs";
-import { IEVMBalance } from "@objects/interfaces/chains";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -126,7 +131,14 @@ export interface ISnickerdoodleCore {
   acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, AjaxError | PersistenceError | UninitializedError>;
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
+  >;
 
   /**
    * This method will reject an invitation, which simply puts it on a list for future
@@ -202,18 +214,21 @@ export interface ISnickerdoodleCore {
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
-  processQuery(
-    {
-      consentContractAddress,
-      queryId
-    }: 
-    {
-      consentContractAddress: EVMContractAddress,
-      queryId: IpfsCID
-    }
-  ): ResultAsync<
+  processQuery({
+    consentContractAddress,
+    query
+  }: {
+    consentContractAddress: EVMContractAddress,
+    query:SDQLQuery
+}): ResultAsync<
     void,
-    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
+    | AjaxError 
+    | UninitializedError 
+    | ConsentError 
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  
   >;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
@@ -249,6 +264,9 @@ export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
 
 export interface IQueryEngineEvents {
   onInitialized: Observable<DataWalletAddress>;
-  onQueryPosted: Observable<{consentContractAddress:EVMContractAddress, query:SDQLQuery}>;
+  onQueryPosted: Observable<{
+    consentContractAddress: EVMContractAddress;
+    query: SDQLQuery;
+  }>;
   onAccountAdded: Observable<EVMAccountAddress>;
 }
