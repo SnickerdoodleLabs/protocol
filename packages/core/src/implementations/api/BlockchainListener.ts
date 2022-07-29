@@ -144,6 +144,7 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentContractError
     | ConsentError
   > {
+    console.debug("Listening for consent contract events on doodle chain");
     return this.consentContractRepository
       .getConsentContracts()
       .andThen((consentContractsMap) => {
