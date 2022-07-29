@@ -87,6 +87,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         consentFactoryAddress = _contractFactoryAddress;
         consentFactoryInstance = IConsentFactory(consentFactoryAddress);
 
+        // set trusted forwarder
+        trustedForwarder = 0x5FbDB2315678afecb367f032d93F642f64180aa3; 
+
         // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping 
         super._grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
         super._grantRole(PAUSER_ROLE, consentOwner);
@@ -111,7 +114,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         whenNotDisabled
     {   
         /// if user has opted in before, revert
-        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+        require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
 
         /// mint the consent token and set its agreement uri
         _safeMint(_msgSender(), tokenId);
@@ -140,7 +143,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         whenNotPaused
     {
         /// if user has opted in before, revert
-        require(balanceOf(msg.sender) == 0, "Consent: User has already opted in");
+        require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
         
         /// check the signature against the payload
         require(
@@ -199,7 +202,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev burns the user's consent token
     /// @param tokenId Token id of token being burnt
     function optOut(uint256 tokenId) external {
-        /// burn checks if msg.sender is owner of tokenId
+        /// burn checks if _msgSender() is owner of tokenId
         /// burn also reduces totalSupply
         /// burn also remove user's consent contract to ConsentFactory
         burn(tokenId);
@@ -303,10 +306,8 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev Inherited from ERC2771ContextUpgradeable to embed its features directly in this contract 
     /// @dev This is a workaround as ERC2771ContextUpgradeable does not have an _init() function
     /// @dev Allows the factory to deploy a BeaconProxy that initiates a Consent contract without a constructor 
-    function isTrustedForwarder(address forwarder) public pure virtual returns (bool) {
-        /// TODO: an arbitrary address is provided for now, to be replaced when Consent implementation contract deployed to live  
-        address tf = 0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199; 
-        return forwarder == tf;
+    function isTrustedForwarder(address forwarder) public view virtual returns (bool) {
+        return forwarder == trustedForwarder;
     }
 
     /// @notice Gets the Consent tokens base URI

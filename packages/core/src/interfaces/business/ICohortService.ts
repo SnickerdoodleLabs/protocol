@@ -56,11 +56,12 @@ export interface ICohortService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | MinimalForwarderContractError
     | ConsentContractError
     | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
     | ConsentError
   >;
 }

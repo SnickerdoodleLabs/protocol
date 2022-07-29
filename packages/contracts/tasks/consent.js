@@ -1,3 +1,4 @@
+const { task } = require("hardhat/config.js");
 const {
   consentContract,
   consentFactory,
@@ -5,20 +6,102 @@ const {
   CCFactory,
 } = require("./constants.js");
 
-task("checkBalanceOf", "Check balance of user").setAction(async () => {
+task("checkBalanceOf", "Check balance of user")
+.addParam("useraddress", "address of the users account")
+.addParam("contractaddress", "address of the consent contract")
+.setAction(async (taskArgs) => {
+  const useraccount = taskArgs.useraddress;
+  const contractaddress = taskArgs.contractaddress;
   const accounts = await hre.ethers.getSigners();
 
   // attach the first signer account to the consent contract handle
   const consentContractHandle = new hre.ethers.Contract(
-    consentContract(),
+    contractaddress,
+    CC().abi,
+    accounts[0],
+  );
+
+  const owner = await consentContractHandle
+    .balanceOf(useraccount);
+  console.log("Token balance is:", owner);
+});
+
+task("optIn", "Opt in to a consent contract")
+.addParam("contractaddress", "address of the consent contract")
+.addParam("tokenid", "token id to use for the optin token")
+.setAction(async (taskArgs) => {
+  const contractaddress = taskArgs.contractaddress;
+  const tokenid = taskArgs.tokenid;
+  const accounts = await hre.ethers.getSigners();
+
+  // attach the first signer account to the consent contract handle
+  const consentContractHandle = new hre.ethers.Contract(
+    contractaddress,
+    CC().abi,
+    accounts[0],
+  );
+
+  const txrct = await consentContractHandle.optIn(tokenid, "www.uri.com/1");
+  console.log(txrct);
+});
+
+task("getTrustedForwarder", "returns the trusted forwarder address of a consent contract")
+.addParam("contractaddress", "address of the consent contract")
+.setAction(async (taskArgs) => {
+  const contractaddress = taskArgs.contractaddress;
+  const accounts = await hre.ethers.getSigners();
+
+  // attach the first signer account to the consent contract handle
+  const consentContractHandle = new hre.ethers.Contract(
+    contractaddress,
+    CC().abi,
+    accounts[0],
+  );
+
+  const tf = await consentContractHandle.trustedForwarder();
+  console.log("The Trusted Forwarder address is:", tf);
+});
+
+task("setTrustedForwarder", "sets the trusted forwarder address of a consent contract")
+.addParam("contractaddress", "address of the consent contract")
+.addParam("trustedforwarder", "address to use as the trusted forwarder")
+.setAction(async (taskArgs) => {
+  const contractaddress = taskArgs.contractaddress;
+  const trustedforwarder = taskArgs.trustedforwarder;
+  const accounts = await hre.ethers.getSigners();
+
+  // attach the first signer account to the consent contract handle
+  const consentContractHandle = new hre.ethers.Contract(
+    contractaddress,
+    CC().abi,
+    accounts[0],
+  );
+
+  console.log("Attempting to set tf to:", trustedforwarder);
+  const txrct = await consentContractHandle.setTrustedForwarder(trustedforwarder);
+  const tf = await consentContractHandle.trustedForwarder();
+  console.log("The Trusted Forwarder address is:", tf);
+});
+
+task("checkOwnerOf", "Check balance of user")
+.addParam("tokenid", "token to get sus on")
+.addParam("contractaddress", "address of the consent contract")
+.setAction(async (taskArgs) => {
+  const tokenid = taskArgs.tokenid;
+  const contractaddress = taskArgs.contractaddress;
+  const accounts = await hre.ethers.getSigners();
+
+  // attach the first signer account to the consent contract handle
+  const consentContractHandle = new hre.ethers.Contract(
+    contractaddress,
     CC().abi,
     accounts[0],
   );
 
   const owner = await consentContractHandle
     .connect(accounts[0])
-    .balanceOf(accounts[1].address);
-  console.log("Token balance is:", owner);
+    .ownerOf(tokenid);
+  console.log("Token belongs to:", owner);
 });
 
 task(
@@ -321,17 +404,4 @@ task("getConsentTokens", "").setAction(async (taskArgs) => {
     console.log("tokenURI: ", index, "   ", tokenURI);
     console.log("");
   }
-});
-
-task("optIn", "Opt in a user").setAction(async () => {
-  const accounts = await hre.ethers.getSigners();
-
-  // attach the first signer account to the consent contract handle
-  const consentContractHandle = new hre.ethers.Contract(
-    consentContract(),
-    CC().abi,
-    accounts[0],
-  );
-
-  await consentContractHandle.connect(accounts[1]).optIn(33, "www.uri.com/1");
 });

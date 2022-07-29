@@ -6,7 +6,7 @@
 
 import {
   DefaultAccountBalances,
-  DefaultAccountIndexers
+  DefaultAccountIndexers,
 } from "@snickerdoodlelabs/indexers";
 import {
   Age,
@@ -16,17 +16,39 @@ import {
   ConsentConditions,
   ConsentContractError,
   ConsentContractRepositoryError,
-  ConsentError, CountryCode, CrumbsContractError, EInvitationStatus,
-  EmailAddressString, EvaluationError, EVMAccountAddress,
-  EVMContractAddress, FamilyName, Gender, GivenName, IAccountBalances,
-  IAccountBalancesType, IAccountIndexing,
+  ConsentError,
+  CountryCode,
+  CrumbsContractError,
+  EInvitationStatus,
+  EmailAddressString,
+  EvaluationError,
+  EVMAccountAddress,
+  EVMContractAddress,
+  FamilyName,
+  Gender,
+  GivenName,
+  IAccountBalances,
+  IAccountBalancesType,
+  IAccountIndexing,
   IAccountIndexingType,
-  IConfigOverrides, IDataWalletPersistence,
-  IDataWalletPersistenceType, IEVMBalance,
-  IEVMNFT, InvalidSignatureError, IPFSError, ISnickerdoodleCore, ISnickerdoodleCoreEvents, LanguageCode, MinimalForwarderContractError, PersistenceError, QueryFormatError, Signature,
+  IConfigOverrides,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  IEVMBalance,
+  IEVMNFT,
+  InvalidSignatureError,
+  IPFSError,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreEvents,
+  LanguageCode,
+  MinimalForwarderContractError,
+  PersistenceError,
+  QueryFormatError,
+  Signature,
   UninitializedError,
   UnixTimestamp,
-  UnsupportedLanguageError
+  UnsupportedLanguageError,
+  SDQLQuery,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -36,15 +58,17 @@ import { DefaultDataWalletPersistence } from "@core/implementations/data";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import {
   IAccountIndexerPoller,
-  IAccountIndexerPollerType
+  IAccountIndexerPollerType,
 } from "@core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
   ICohortService,
-  ICohortServiceType, IProfileService,
-  IProfileServiceType, IQueryService,
-  IQueryServiceType
+  ICohortServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
 } from "@core/interfaces/business";
 import {
   IBlockchainProvider,
@@ -52,9 +76,8 @@ import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
-  IContextProviderType
+  IContextProviderType,
 } from "@core/interfaces/utilities";
-import { SDQLQuery } from "@snickerdoodlelabs/objects";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -257,11 +280,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
-    | UninitializedError
-    | AjaxError
     | ConsentContractError
     | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
     | ConsentError
   > {
     const cohortService =
@@ -271,21 +295,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public processQuery({
-      consentContractAddress,
-      query
-    }: {
-      consentContractAddress: EVMContractAddress,
-      query:SDQLQuery
-    
+    consentContractAddress,
+    query,
+  }: {
+    consentContractAddress: EVMContractAddress;
+    query: SDQLQuery;
   }): ResultAsync<
     void,
-    | AjaxError 
-    | UninitializedError 
-    | ConsentError 
+    | AjaxError
+    | UninitializedError
+    | ConsentError
     | IPFSError
     | QueryFormatError
     | EvaluationError
-  
   > {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);

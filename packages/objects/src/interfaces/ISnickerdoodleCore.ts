@@ -3,7 +3,9 @@ import { Observable } from "rxjs";
 
 import {
   CohortInvitation,
-  ConsentConditions, IEVMNFT, SDQLQuery
+  ConsentConditions,
+  IEVMNFT,
+  SDQLQuery,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -20,15 +22,23 @@ import {
   PersistenceError,
   QueryFormatError,
   UninitializedError,
-  UnsupportedLanguageError
+  UnsupportedLanguageError,
 } from "@objects/errors";
 import { IEVMBalance } from "@objects/interfaces/chains";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
-  Age, CountryCode, DataWalletAddress,
-  EmailAddressString, EVMAccountAddress,
-  EVMContractAddress, FamilyName, Gender, GivenName, LanguageCode, Signature,
-  UnixTimestamp
+  Age,
+  CountryCode,
+  DataWalletAddress,
+  EmailAddressString,
+  EVMAccountAddress,
+  EVMContractAddress,
+  FamilyName,
+  Gender,
+  GivenName,
+  LanguageCode,
+  Signature,
+  UnixTimestamp,
 } from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
@@ -159,11 +169,12 @@ export interface ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
-    | UninitializedError
-    | AjaxError
     | ConsentContractError
     | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
     | ConsentError
   >;
 
@@ -172,19 +183,18 @@ export interface ISnickerdoodleCore {
   // re-checked, of course (trust nobody!).
   processQuery({
     consentContractAddress,
-    query
+    query,
   }: {
-    consentContractAddress: EVMContractAddress,
-    query:SDQLQuery
-}): ResultAsync<
+    consentContractAddress: EVMContractAddress;
+    query: SDQLQuery;
+  }): ResultAsync<
     void,
-    | AjaxError 
-    | UninitializedError 
-    | ConsentError 
+    | AjaxError
+    | UninitializedError
+    | ConsentError
     | IPFSError
     | QueryFormatError
     | EvaluationError
-  
   >;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;

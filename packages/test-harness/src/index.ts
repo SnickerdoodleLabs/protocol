@@ -64,14 +64,8 @@ const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.dev");
 
-const cohortInvitation = new CohortInvitation(
-  domainName,
-  EVMContractAddress("0x93fb1De05a05350b10F93b07533533709AdB3347"),
-  TokenId(BigInt(123)),
-  null,
-);
-
 const consentContracts = new Array<EVMContractAddress>();
+const optedInConsentContracts = new Array<EVMContractAddress>();
 
 let unlocked = false;
 
@@ -198,8 +192,12 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "Add Account", value: "addAccount" },
     new inquirer.Separator(),
     {
-      name: "Join Campaign",
-      value: "joinCampaign",
+      name: "Opt In to Campaign",
+      value: "optInCampaign",
+    },
+    {
+      name: "Opt Out of Campaign",
+      value: "optOutCampaign",
     },
     new inquirer.Separator(),
     { name: "Set Age", value: "setAge" },
@@ -236,8 +234,10 @@ function corePrompt(): ResultAsync<void, Error> {
         return unlockCore(blockchain.accountAddress, accountPrivateKey);
       case "addAccount":
         return addAccount(blockchain.accountAddress, accountPrivateKey);
-      case "joinCampaign":
-        return joinCampaign();
+      case "optInCampaign":
+        return optInCampaign();
+      case "optOutCampaign":
+        return optOutCampaign();
       case "setAge":
         console.log("Age is set to 15");
         return core.setAge(Age(15));
@@ -359,7 +359,7 @@ function addAccount(
     });
 }
 
-function joinCampaign(): ResultAsync<
+function optInCampaign(): ResultAsync<
   void,
   | Error
   | PersistenceError
@@ -372,7 +372,7 @@ function joinCampaign(): ResultAsync<
   return prompt([
     {
       type: "list",
-      name: "joinCampaign",
+      name: "optInCampaign",
       message: "Please choose a campaign to join:",
       choices: [
         ...consentContracts.map((contractAddress) => {
@@ -387,7 +387,7 @@ function joinCampaign(): ResultAsync<
     },
   ])
     .andThen((answers) => {
-      const contractAddress = EVMContractAddress(answers.joinCampaign);
+      const contractAddress = EVMContractAddress(answers.optInCampaign);
       if (consentContracts.includes(contractAddress)) {
         // They did not pick "cancel"
         // We need to make an invitation for ourselves
@@ -417,9 +417,62 @@ function joinCampaign(): ResultAsync<
               console.log(
                 `Accepted invitation to ${contractAddress}, with token Id ${tokenId}`,
               );
+              optedInConsentContracts.push(contractAddress);
             });
         });
       }
+
+      return okAsync(undefined);
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
+    });
+}
+
+function optOutCampaign(): ResultAsync<
+  void,
+  | Error
+  | PersistenceError
+  | BlockchainProviderError
+  | UninitializedError
+  | ConsentContractError
+  | AjaxError
+  | ConsentContractRepositoryError
+> {
+  return prompt([
+    {
+      type: "list",
+      name: "optOutCampaign",
+      message: "Please choose a campaign to opt out of:",
+      choices: [
+        ...optedInConsentContracts.map((contractAddress) => {
+          return {
+            name: `Consent Contract ${contractAddress}`,
+            value: contractAddress,
+          };
+        }),
+        new inquirer.Separator(),
+        { name: "Cancel", value: "cancel" },
+      ],
+    },
+  ])
+    .andThen((answers) => {
+      const contractAddress = EVMContractAddress(answers.optOutCampaign);
+      if (optedInConsentContracts.includes(contractAddress)) {
+        // They did not pick "cancel"
+        // Opt out
+        return core.leaveCohort(contractAddress).map(() => {
+          console.log(`Opted out of consent contract ${contractAddress}`);
+
+          // Remove it from the list of opted-in contracts
+          const index = optedInConsentContracts.indexOf(contractAddress, 0);
+          optedInConsentContracts.splice(index, 1);
+        });
+      }
+      console.log(
+        `optedInConsentContracts does not include ${contractAddress}`,
+      );
 
       return okAsync(undefined);
     })
