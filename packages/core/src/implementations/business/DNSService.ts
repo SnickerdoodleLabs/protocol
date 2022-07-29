@@ -7,10 +7,9 @@ export class DNSService implements IDNSService {
   constructor(public dnsRepository: IDNSRepository) {}
 
   public fetchTXTRecords(domain: DomainName): ResultAsync<string[], AjaxError> {
-    // @ts-ignore // TODO delete ts ignore
     return this.formatTxtRecords(this.dnsRepository.fetchTXTRecords(domain));
   }
-  formatTxtRecords(txtRecords: string[]) {
+  formatTxtRecords(txtRecords: ITXTRecords[]) {
     // txtRecords = [{data:'0x999'},{data:'0x999,0x1111'},{data:'0x999'},{data:'01x999'}];
     // return = ["0x999", "0x999", "0x1111", "0x999"]
     let formatedContractAddresses: string[] = [];
@@ -30,4 +29,10 @@ export class DNSService implements IDNSService {
       });
     return formatedContractAddresses;
   }
+}
+interface ITXTRecords{
+  name: string;
+  type: number;
+  TTL: number;
+  data: string;
 }
