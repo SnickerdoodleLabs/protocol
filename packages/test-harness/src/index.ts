@@ -40,6 +40,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
+import { CountryCode } from "@snickerdoodlelabs/objects";
 
 // https://github.com/SBoudrias/Inquirer.js
 
@@ -205,7 +206,12 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "Get Age", value: "getAge" },
     new inquirer.Separator(),
+    { name: "Set Location", value: "setLocation" },
+    new inquirer.Separator(),
+    { name: "Get Location", value: "getLocation" },
+    new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
+    new inquirer.Separator(),
   ];
 
   // Only show the unlock option we are not already unlocked.
@@ -237,6 +243,11 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.setAge(Age(15));
       case "getAge":
         return core.getAge().map(console.log);
+      case "setLocation":
+        console.log("Location Country Code is US");
+        return core.setLocation(CountryCode("US"));
+      case "getLocation":
+        return core.getLocation().map(console.log);
     }
     return okAsync(undefined);
   });
