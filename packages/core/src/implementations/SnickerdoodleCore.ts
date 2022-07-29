@@ -48,7 +48,8 @@ import {
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
-, SDQLQuery } from "@snickerdoodlelabs/objects";
+  SDQLQuery,
+} from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -57,15 +58,17 @@ import { DefaultDataWalletPersistence } from "@core/implementations/data";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import {
   IAccountIndexerPoller,
-  IAccountIndexerPollerType
+  IAccountIndexerPollerType,
 } from "@core/interfaces/api";
 import {
   IAccountService,
   IAccountServiceType,
   ICohortService,
-  ICohortServiceType, IProfileService,
-  IProfileServiceType, IQueryService,
-  IQueryServiceType
+  ICohortServiceType,
+  IProfileService,
+  IProfileServiceType,
+  IQueryService,
+  IQueryServiceType,
 } from "@core/interfaces/business";
 import {
   IBlockchainProvider,
@@ -73,7 +76,7 @@ import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
-  IContextProviderType
+  IContextProviderType,
 } from "@core/interfaces/utilities";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
