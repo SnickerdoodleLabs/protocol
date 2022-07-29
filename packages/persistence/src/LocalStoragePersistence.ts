@@ -45,13 +45,14 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
   ): ResultAsync<T, PersistenceError> {
-    const value = LocalStorageUtils.readLocalStorage(key);
-    if (!value) {
-      return errAsync(
-        new PersistenceError(`Key ${key} is not found in Local Storage!`),
-      );
-    }
-    return okAsync(value as T);
+    return LocalStorageUtils.readLocalStorage(key).andThen((value) => {
+      if (!value) {
+        return errAsync(
+          new PersistenceError(`Key ${key} is not found in Local Storage!`),
+        );
+      }
+      return okAsync(value as T);
+    });
   }
 
   public unlock(
