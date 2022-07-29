@@ -104,6 +104,30 @@ task("checkOwnerOf", "Check balance of user")
   console.log("Token belongs to:", owner);
 });
 
+task("getUserConsentContracts", "Check which constract a user has opted in to.")
+.addParam("user", "address of the user")
+.setAction(async (taskArgs) => {
+  const useraddress = taskArgs.user;
+  const accounts = await hre.ethers.getSigners();
+
+  // attach the first signer account to the consent contract handle
+  const consentContractFactorHandle = new hre.ethers.Contract(
+    consentFactory(),
+    CCFactory().abi,
+    accounts[0],
+  );
+
+  const numCCs = await consentContractFactorHandle
+  .connect(accounts[0])
+  .getUserConsentAddressesCount(useraddress);
+  console.log("User has this many CCs:", numCCs)
+
+  const myCCs = await consentContractFactorHandle
+  .connect(accounts[0])
+  .getUserConsentAddressesByIndex(useraddress, 0, numCCs);
+  console.log(myCCs);
+});
+
 task(
   "createConsentContract",
   "Calls the consent factory and deploys a Consent contract",
