@@ -8,16 +8,14 @@ import { inject, injectable } from "inversify";
 import { IPFSHTTPClient } from "ipfs-http-client";
 import { ResultAsync } from "neverthrow";
 
-import {
-  IIPFSProvider,
-  IIPFSProviderType,
-  ISDQLQueryRepository,
-} from "@core/interfaces/data";
+import { ISDQLQueryRepository } from "@core/interfaces/data";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
+  IIPFSProvider,
+  IIPFSProviderType,
 } from "@core/interfaces/utilities";
 
 @injectable()
