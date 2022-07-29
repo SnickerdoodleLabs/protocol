@@ -38,6 +38,10 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory";
 
 /**
  * This class has 2 main roles, both involving monitoring the blockchain. 1st, it listens specifically to the
@@ -60,6 +64,7 @@ export class BlockchainListener implements IBlockchainListener {
     protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
+    @inject(IContractFactoryType) protected contractFactory: IContractFactory,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,

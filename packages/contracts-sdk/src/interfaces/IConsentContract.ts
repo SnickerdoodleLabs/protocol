@@ -73,6 +73,8 @@ export interface IConsentContract {
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
 
+  encodeOptOut(tokenId: TokenId): HexString;
+
   /**
    * Submit for blockchain requestForData event
    * @param ipfsCID ipfs conent id of a query
@@ -147,12 +149,20 @@ export interface IConsentContract {
   ): ResultAsync<Event[], ConsentContractError>;
 
   /**
-   * Returns a consent tokens owned by address
+   * Returns consent tokens previously minted for the address
    * @param ownerAddress owner address
    */
   getConsentTokensOfAddress(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<ConsentToken[], ConsentContractError>;
+
+  /**
+   * Returns a current consent token owned by address
+   * @param ownerAddress owner address
+   */
+  getCurrentConsentTokenOfAddress(
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<ConsentToken | null, ConsentContractError>;
 
   /**
    * Adds a domain to the contract storage
@@ -257,11 +267,9 @@ export interface IConsentContractFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
-  ): ResultAsync<EventFilter, ConsentContractError>;
+  ): EventFilter;
 
-  RequestForData(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<EventFilter, ConsentContractError>;
+  RequestForData(ownerAddress: EVMAccountAddress): EventFilter;
 }
 
 export const IConsentContractType = Symbol.for("IConsentContract");

@@ -1,5 +1,4 @@
-import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
-import { ResultAsync, okAsync, errAsync } from "neverthrow";
+import { Web3Provider } from "@ethersproject/providers";
 import {
   EVMAccountAddress,
   ChainId,
@@ -7,7 +6,9 @@ import {
   ChainInformation,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
-import { Web3Provider } from "@ethersproject/providers";
+import { ResultAsync, okAsync, errAsync } from "neverthrow";
+
+import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
 
 export class MetamaskWalletProvider implements IWalletProvider {
   protected _provider;

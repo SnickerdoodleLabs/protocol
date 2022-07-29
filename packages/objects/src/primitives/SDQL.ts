@@ -1,12 +1,13 @@
 import { Brand, make } from "ts-brand";
 import { ChainId } from "./ChainId";
-import { URLString } from "./URLString";
+import { URLString } from "@objects/primitives/URLString";
 
 //#region types
 export type SDQL_Name = Brand<string, "SDQL_Name">;
 export const SDQL_Name = make<SDQL_Name>();
 
 export type SDQL_Return = Brand<string|boolean|number|Array<any>|Map<URLString, number>|Map<ChainId, number>|null, "SDQL_Return">;
+
 export const SDQL_Return = make<SDQL_Return>();
 
 // export type SDQL_Chain = Brand<string, "SDQL_Chain">; EVMChainCode
@@ -17,7 +18,6 @@ export const SDQL_Return = make<SDQL_Return>();
 
 export type SDQL_OperatorName = Brand<string, "SDQL_OperatorName">;
 export const SDQL_OperatorName = make<SDQL_OperatorName>();
-
 
 export type SDQL_Conditions = Brand<Array<Object>, "SDQL_Conditions">; // not sure if arrays are suppored in make
 export const SDQL_Conditions = make<SDQL_Conditions>();
@@ -39,6 +39,5 @@ export const SDQL_Returns = make<SDQL_Returns>();
 
 export type SDQL_Compensations = Brand<Array<string>, "SDQL_Compensations">; // not sure if arrays are suppored in make
 export const SDQL_Compensations = make<SDQL_Compensations>();
-
 
 //#endregion

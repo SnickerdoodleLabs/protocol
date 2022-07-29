@@ -58,6 +58,7 @@ export class InsightPlatformSimulator {
       );
 
       const value = {
+        dataWallet: dataWalletAddress,
         accountAddress: accountAddress,
         contractAddress: contractAddress,
         nonce: nonce,
@@ -94,7 +95,6 @@ export class InsightPlatformSimulator {
             data: data, // The actual bytes of the request, encoded as a hex string
           } as IMinimalForwarderRequest;
 
-          console.log("Forwarder request", forwarderRequest);
           console.log("Metatransaction signature", metatransactionSignature);
 
           // Now we need to actually execute the metatransaction

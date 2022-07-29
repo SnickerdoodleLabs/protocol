@@ -30,6 +30,5 @@ export class AST_Contract {
             EVMBlockRange.fromString(schema.blockrange)
 
         );
-
-    }
+  }
 }
