@@ -12,12 +12,12 @@ export class AST_PropertyQuery extends AST_Query {
     
     constructor(
         readonly name: SDQL_Name,
-        readonly returnType: "string" | "boolean" | "integer" | "number" | "list" | "enum",
+        readonly returnType: "string" | "boolean" | "integer" | "number" | "list" | "enum" | "object",
         readonly property: string,
         readonly conditions: Array<Condition>,
-
         // for reading gender
-        readonly enum_keys: Array<string>
+        readonly enum_keys: Array<string>,
+        readonly patternProperties: Object
 
     ) {
         super(name, returnType);
@@ -31,7 +31,8 @@ export class AST_PropertyQuery extends AST_Query {
             schema.return,
             schema.name,
             conditions,
-            schema.enum_keys
+            schema.enum_keys,
+            schema.patternProperties
         )
     }
 

@@ -1,15 +1,16 @@
 import { EVMBlockNumber } from "./EVMBlockNumber";
+import { UnixTimestamp } from "./UnixTimestamp";
 
 export class EVMBlockRange {
     constructor(
-        readonly start: EVMBlockNumber,
-        readonly end: EVMBlockNumber
+        readonly start: UnixTimestamp,
+        readonly end: UnixTimestamp
     ) {}
 
     static fromString(schema: any): EVMBlockRange {
         return new EVMBlockRange(
-            EVMBlockNumber(Number(schema.start)),
-            EVMBlockNumber(Number(schema.end))
+            UnixTimestamp(Number(schema.start)),
+            UnixTimestamp(Number(schema.end))
         )
     }
 }

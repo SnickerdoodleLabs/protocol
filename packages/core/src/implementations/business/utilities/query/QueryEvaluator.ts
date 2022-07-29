@@ -17,6 +17,9 @@ import { inject, injectable } from "inversify";
 import { AST_NetworkQuery } from "@core/interfaces/objects";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import { IQueryEvaluator } from "@core/interfaces/business/utilities";
+import { EVMTransactionFilter } from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
+import { UnixTimestamp } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -38,8 +41,37 @@ export class QueryEvaluator implements IQueryEvaluator {
         }
     }
     public evalNetworkQuery(q: AST_NetworkQuery): ResultAsync<SDQL_Return, PersistenceError> {
-        return okAsync(SDQL_Return(0));
+        let result = SDQL_Return(false);
+        let chainId = q.contract.networkId;
+        let address = q.contract.address as EVMAccountAddress;
+        let hash = "";
+        let startTime = q.contract.blockrange.start;
+        let endTime = q.contract.blockrange.end;
+        console.log("Address: ", address)
+        console.log("Start Time: ", startTime)
+        console.log("End Time: ", endTime)
+
+        let filter = new EVMTransactionFilter(
+            [chainId],
+            [address],
+            [hash],
+            startTime,
+            endTime
+        );
+        return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
+            (transactions) =>
+            {
+                if (transactions == null){
+                    return okAsync(SDQL_Return(false));
+                }
+                if (transactions.length == 0){
+                    return okAsync(SDQL_Return(false));
+                }
+                return okAsync(SDQL_Return(true));
+            }
+        ) 
     } 
+
     public evalPropertyQuery(q: AST_PropertyQuery): ResultAsync<SDQL_Return, PersistenceError> { 
         let result = SDQL_Return(true);
         switch (q.property){
@@ -123,11 +155,24 @@ export class QueryEvaluator implements IQueryEvaluator {
                 return okAsync(result);
             case "url_visited_count":
                 // console.log("Tracking the result: ", result);
-                return this.dataWalletPersistence.getURLs().andThen( 
+                return this.dataWalletPersistence.getSiteVisitsMap().andThen( 
                     (url_visited_count) => 
                     {
                         // console.log("URL count: ", url_visited_count);
                         return (okAsync(SDQL_Return(url_visited_count))) 
+                    }
+                );
+            case "chain_transaction_count":
+                // console.log("Tracking the result: ", result);
+                let obj = q.patternProperties;
+                let key = Object.keys(obj)[0];
+                console.log("Key: ", key);
+
+                return this.dataWalletPersistence.getTransactionsMap().andThen( 
+                    (transactionsMap) => 
+                    {
+                        // console.log("URL count: ", url_visited_count);
+                        return (okAsync(SDQL_Return(transactionsMap))) 
                     }
                 );
             default:
