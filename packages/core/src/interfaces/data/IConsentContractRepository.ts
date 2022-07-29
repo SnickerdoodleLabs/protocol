@@ -24,6 +24,18 @@ export interface IConsentContractRepository {
     | AjaxError
   >;
 
+  getCurrentConsentToken(
+    consentContractAddress: EVMContractAddress,
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<
+    ConsentToken[],
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  >;
+
   isAddressOptedIn(
     consentContractAddress: EVMContractAddress,
     address?: EVMAccountAddress,

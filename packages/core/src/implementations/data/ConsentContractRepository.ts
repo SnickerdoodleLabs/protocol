@@ -61,6 +61,24 @@ export class ConsentContractRepository implements IConsentContractRepository {
     );
   }
 
+  public getCurrentConsentToken(
+    consentContractAddress: EVMContractAddress,
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<
+    ConsentToken[],
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+  > {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (consentContract) => {
+        return consentContract.getCurrentConsentTokenOfAddress(ownerAddress);
+      },
+    );
+  }
+
   public isAddressOptedIn(
     consentContractAddress: EVMContractAddress,
     address?: EVMAccountAddress,
