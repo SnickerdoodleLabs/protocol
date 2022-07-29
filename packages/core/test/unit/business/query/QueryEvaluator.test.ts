@@ -7,6 +7,7 @@ import { okAsync } from "neverthrow";
 import td from "testdouble";
 import { AST_Contract } from "@core/interfaces/objects/SDQL/AST_Contract";
 import {
+    AST_NetworkQuery,
   AST_PropertyQuery,
   ConditionE,
   ConditionG,
@@ -291,27 +292,11 @@ describe("QueryEvaluator checking age boolean: L", () => {
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(propertyQuery);
+        expect(result).toBeDefined();
+        expect(result["value"]).toBe(true);
+    })
+})
         // console.log(result["value"]);
-  public constructor() {
-    this.dataWalletPersistence.setAge(Age(25));
-    this.dataWalletPersistence.setLocation(CountryCode(57));
-    td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
-    td.when(this.dataWalletPersistence.getLocation()).thenReturn(
-      okAsync(CountryCode(57)),
-    );
-    td.when(this.dataWalletPersistence.getGender()).thenReturn(
-      okAsync(Gender("male")),
-    );
-
-    td.when(this.dataWalletPersistence.getURLs()).thenReturn(
-      okAsync(this.URLmap),
-    );
-  }
-
-  public factory() {
-    return new QueryEvaluator(this.dataWalletPersistence);
-  }
-}
 
 describe("QueryEvaluator checking age boolean: GE", () => {
   test("EvalPropertyQuery: when age is 25 >= 20, returns true", async () => {
@@ -321,6 +306,8 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       "age",
       conditionsGE,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -336,6 +323,8 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       "age",
       conditionsGE2,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -350,6 +339,8 @@ describe("QueryEvaluator checking age boolean: GE", () => {
       "age",
       conditionsGE3,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -367,6 +358,8 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       "age",
       conditionsLE,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -381,6 +374,8 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       "age",
       conditionsLE2,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -395,6 +390,8 @@ describe("QueryEvaluator checking age boolean: LE", () => {
       "age",
       conditionsLE3,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -412,6 +409,8 @@ describe("QueryEvaluator checking age boolean: G", () => {
       "age",
       conditionsG,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -427,6 +426,8 @@ describe("QueryEvaluator checking age boolean: G", () => {
       "age",
       conditionsG2,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -442,6 +443,8 @@ describe("QueryEvaluator checking age boolean: G", () => {
       "age",
       conditionsG3,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -459,6 +462,8 @@ describe("QueryEvaluator checking age boolean: L", () => {
       "age",
       conditionsL,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -475,6 +480,8 @@ describe("QueryEvaluator checking age boolean: L", () => {
       "age",
       conditionsL2,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
@@ -490,6 +497,8 @@ describe("QueryEvaluator checking age boolean: L", () => {
       "age",
       conditionsL3,
       [],
+      {}
+
     );
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
