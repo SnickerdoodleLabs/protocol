@@ -22,10 +22,6 @@
     "lib": "lib"
   },
   "workspaces": {
-    "nohoist": [
-      "**/mobileApp",
-      "**/mobileApp/**"
-    ],
     "packages": [
       "packages/*"
     ]

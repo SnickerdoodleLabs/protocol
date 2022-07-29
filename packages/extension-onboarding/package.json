@@ -4,14 +4,14 @@
   "description": "SPA for providing connection between wallet providers and snickerdoodlelabs data wallet browser extension",
   "main": "dist/index.js",
   "scripts": {
-    "alias": "tsc-alias",
+    "alias": "npx tsc-alias",
     "build": "yarn clean && yarn compile && yarn postCompile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
-    "compile": "tsc --build && tsc-alias",
+    "compile": "npx tsc --build && yarn alias",
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "docker-push": "docker push snickerdoodlelabs/extension-onboarding:local",
     "dockerize": "docker build -t snickerdoodlelabs/extension-onboarding:local -f Dockerfile --progress=plain ../..",
-    "postCompile": "webpack",
+    "postCompile": "npx webpack",
     "prepare": "yarn build",
     "start": "webpack serve --config webpack.config.js --mode development",
     "test": "echo \"Error: no test specified\" && exit 0"
