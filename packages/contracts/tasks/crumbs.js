@@ -64,3 +64,21 @@ task("burnCrumb", "Burns a crumb")
     );
     console.log("");
   });
+
+task("numberOfCrumbs", "Check number of crumbs an account has")
+.addParam("useraddress", "address of the users account")
+.setAction(async (taskArgs) => {
+  const useraccount = taskArgs.useraddress;
+  const accounts = await hre.ethers.getSigners();
+
+  // attach the first signer account to the consent contract handle
+  const consentContractHandle = new hre.ethers.Contract(
+    crumbsContract(),
+    CR().abi,
+    accounts[0],
+  );
+
+  const owner = await consentContractHandle
+    .balanceOf(useraccount);
+  console.log("Token balance is:", owner);
+});
