@@ -491,10 +491,10 @@ export class ConsentContract implements IConsentContract {
   // Returns the current token id owned by the user
   public getCurrentConsentTokenOfAddress(
     ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken[], ConsentContractError> {
+  ): ResultAsync<ConsentToken | null, ConsentContractError> {
     return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
       if (numberOfTokens === 0) {
-        return okAsync([] as ConsentToken[]);
+        return okAsync(null);
       }
       // this returns all the past Transfer events pertaining to this contract
       return this.queryFilter(
@@ -505,14 +505,14 @@ export class ConsentContract implements IConsentContract {
         const lastIndex = logsEvents.length - 1;
         return this.tokenURI(logsEvents[lastIndex].args?.tokenId).andThen(
           (tokenUri) => {
-            return okAsync([
+            return okAsync(
               new ConsentToken(
                 this.contractAddress,
                 ownerAddress,
                 TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
                 tokenUri as TokenUri,
               ),
-            ] as ConsentToken[]);
+            );
           },
         );
       });
