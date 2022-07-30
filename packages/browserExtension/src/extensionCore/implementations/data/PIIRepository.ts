@@ -8,7 +8,8 @@ import {
   UnixTimestamp,
   Gender,
   EmailAddressString,
-  CountryCode,
+  CountryCodeLetter,
+  CountryCodeNumber,
   ISnickerdoodleCore,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -99,14 +100,14 @@ export class PIIRepository implements IPIIRepository {
     });
   }
   setLocation(
-    location: CountryCode,
+    location: CountryCodeLetter | CountryCodeNumber,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setLocation(location).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getLocation(): ResultAsync<CountryCode, SnickerDoodleCoreError> {
+  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, SnickerDoodleCoreError> {
     return this.core.getLocation().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

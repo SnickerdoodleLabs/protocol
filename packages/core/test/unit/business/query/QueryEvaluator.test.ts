@@ -1,7 +1,11 @@
 import "reflect-metadata";
 
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
-import { Age, ChainId, CountryCode, EVMAccountAddress, EVMBlockNumber, EVMBlockRange, EVMChainCode, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken, Gender, SDQL_Name, SDQL_OperatorName, UnixTimestamp, URLString } from "@objects/primitives";
+import { Age, ChainId, 
+    CountryCodeLetter,
+    CountryCodeNumber,
+    EVMAccountAddress, EVMBlockRange, EVMChainCode, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken, Gender, SDQL_Name, SDQL_OperatorName, URLString } from "@objects/primitives";
+import { UnixTimestamp } from "@objects/businessObjects";
 import { EVMTransaction, EVMTransactionFilter, IDataWalletPersistence } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import td from "testdouble";

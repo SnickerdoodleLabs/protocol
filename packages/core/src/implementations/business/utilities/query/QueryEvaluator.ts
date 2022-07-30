@@ -1,6 +1,7 @@
 import {
   Age,
-  CountryCode,
+  CountryCodeLetter,
+  CountryCodeNumber,
   Gender,
   IDataWalletPersistence,
   SDQL_Return,
@@ -37,7 +38,7 @@ export class QueryEvaluator implements IQueryEvaluator {
     ) {}
 
     protected age: Age = Age(0);
-    protected location: CountryCode = CountryCode("12345");
+    protected location: CountryCodeLetter = CountryCodeLetter("12345");
 
     public eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
     // All the switch statements here

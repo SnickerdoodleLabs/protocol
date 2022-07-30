@@ -40,7 +40,8 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
-import { CountryCode } from "@snickerdoodlelabs/objects";
+import {   CountryCodeLetter,
+  CountryCodeNumber } from "@snickerdoodlelabs/objects";
 
 // https://github.com/SBoudrias/Inquirer.js
 
@@ -245,7 +246,7 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getAge().map(console.log);
       case "setLocation":
         console.log("Location Country Code is US");
-        return core.setLocation(CountryCode("US"));
+        return core.setLocation(CountryCodeLetter("US"));
       case "getLocation":
         return core.getLocation().map(console.log);
     }

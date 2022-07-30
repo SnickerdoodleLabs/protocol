@@ -21,7 +21,8 @@ import {
 } from "@shared/interfaces/actions";
 import {
   Age,
-  CountryCode,
+  CountryCodeLetter,
+  CountryCodeNumber,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -249,11 +250,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.piiService.getEmail();
   }
   private setLocation(
-    location: CountryCode,
+    location: CountryCodeLetter | CountryCodeNumber,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setLocation(location);
   }
-  private getLocation(): ResultAsync<CountryCode, SnickerDoodleCoreError> {
+  private getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, SnickerDoodleCoreError> {
     return this.piiService.getLocation();
   }
 }

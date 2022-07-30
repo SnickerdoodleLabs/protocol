@@ -5,7 +5,8 @@ import {
   UnixTimestamp,
   Gender,
   EmailAddressString,
-  CountryCode,
+  CountryCodeLetter,
+  CountryCodeNumber,
   Age,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -31,9 +32,9 @@ export interface IProfileService {
 
   getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
 
-  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
+  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, PersistenceError>;
 
-  getLocation(): ResultAsync<CountryCode, PersistenceError>;
+  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError>;
 
   setAge(age: Age): ResultAsync<void, PersistenceError>;
 

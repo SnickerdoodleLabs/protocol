@@ -1,5 +1,5 @@
-import { EVMBlockNumber } from "./EVMBlockNumber";
-import { UnixTimestamp } from "./UnixTimestamp";
+import { EVMBlockNumber } from "@objects/businessObjects";
+import { UnixTimestamp } from "@objects/businessObjects";
 
 export class EVMBlockRange {
     constructor(

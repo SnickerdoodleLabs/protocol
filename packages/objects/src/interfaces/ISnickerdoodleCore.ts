@@ -28,7 +28,8 @@ import { IEVMBalance } from "@objects/interfaces/chains";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   Age,
-  CountryCode,
+  CountryCodeLetter,
+  CountryCodeNumber,
   DataWalletAddress,
   EmailAddressString,
   EVMAccountAddress,
@@ -38,8 +39,9 @@ import {
   GivenName,
   LanguageCode,
   Signature,
-  UnixTimestamp,
 } from "@objects/primitives";
+import { UnixTimestamp } from "@objects/businessObjects";
+
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -218,8 +220,8 @@ export interface ISnickerdoodleCore {
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
   getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
 
-  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
-  getLocation(): ResultAsync<CountryCode, PersistenceError>;
+  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError>;
 
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;

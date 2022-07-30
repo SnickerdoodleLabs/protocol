@@ -21,10 +21,11 @@ import {
   GivenName,
   Gender,
   FamilyName,
-  CountryCode,
-  UnixTimestamp,
+  CountryCodeLetter,
+  CountryCodeNumber,
   URLString,
 } from "@objects/primitives";
+import { UnixTimestamp } from "@objects/businessObjects";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -88,8 +89,8 @@ export interface IDataWalletPersistence {
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
   getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
 
-  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
-  getLocation(): ResultAsync<CountryCode, PersistenceError>;
+  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected

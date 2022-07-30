@@ -1,6 +1,7 @@
 import {
   Age,
-  CountryCode,
+  CountryCodeLetter,
+  CountryCodeNumber,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -51,5 +52,5 @@ export interface ISetEmailParams {
 }
 
 export interface ISetLocationParams {
-  location: CountryCode;
+  location: CountryCodeLetter | CountryCodeNumber;
 }

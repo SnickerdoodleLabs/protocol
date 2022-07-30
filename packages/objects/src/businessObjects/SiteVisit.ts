@@ -1,5 +1,5 @@
-import { UnixTimestamp, URLString } from "@objects/primitives";
-
+import { URLString } from "@objects/primitives";
+import { UnixTimestamp } from "@objects/businessObjects";
 /**
  * Represents a visit to a particular Url
  */

@@ -11,7 +11,8 @@ import {
   EVMTransaction,
   IDataWalletPersistence,
   FamilyName,
-  CountryCode,
+  CountryCodeLetter,
+  CountryCodeNumber,
   PersistenceError,
   SiteVisit,
   UnixTimestamp,
@@ -215,12 +216,12 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setLocation(
-    location: CountryCode,
+    location: CountryCodeLetter | CountryCodeNumber,
   ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
-  public getLocation(): ResultAsync<CountryCode, PersistenceError> {
+  public getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 

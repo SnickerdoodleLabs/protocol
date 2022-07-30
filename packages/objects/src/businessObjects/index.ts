@@ -17,3 +17,7 @@ export * from "@objects/businessObjects/SDQLQuery";
 export * from "@objects/businessObjects/SiteVisit";
 //export * from "@objects/businessObjects/SDQL";
 export * from "@objects/businessObjects/EVMNFT";
+
+export * from "@objects/businessObjects/EVMBlockNumber";
+export * from "@objects/businessObjects/UnixTimestamp";
+

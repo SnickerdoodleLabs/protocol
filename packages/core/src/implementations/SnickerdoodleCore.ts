@@ -17,7 +17,6 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
-  CountryCode,
   CrumbsContractError,
   EInvitationStatus,
   EmailAddressString,
@@ -49,6 +48,9 @@ import {
   UnixTimestamp,
   UnsupportedLanguageError,
   SDQLQuery,
+
+  CountryCodeLetter,
+  CountryCodeNumber,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -345,10 +347,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
     return this.profileService.getEmail();
   }
-  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
+  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, PersistenceError> {
     return this.profileService.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCode, PersistenceError> {
+  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError> {
     return this.profileService.getLocation();
   }
   setAge(age: Age): ResultAsync<void, PersistenceError> {
