@@ -247,20 +247,14 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     );
   }
 
-  getOptedInConsentContractAddressForAccount(
+  public getOptedInConsentContractAddressForAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
     console.log(`getOptedInConsentContractAddressForAccount`, accountAddress);
-    return ResultAsync.fromPromise(
-      this.contract.addressToUserArray(accountAddress) as Promise<
-        EVMContractAddress[]
-      >,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getOptedInConsentContractAddressForAccount()",
-          (e as IBlockchainError).reason,
-          e,
-        );
+
+    return this.getUserConsentAddressesCount(accountAddress).andThen(
+      (count) => {
+        return this.getUserConsentAddressesByIndex(accountAddress, 0, count);
       },
     );
   }
