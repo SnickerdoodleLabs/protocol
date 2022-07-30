@@ -14,7 +14,7 @@ export class MTSRNotification extends BaseNotification {
       contractAddress: EVMContractAddress;
       data: HexString;
     },
-    public id: UUID,
+    public key: UUID,
   ) {
     super(ENotificationTypes.INCOMING_METATRANSACTION_SIGNATURE_REQUEST);
   }
