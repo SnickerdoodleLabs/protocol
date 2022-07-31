@@ -128,7 +128,7 @@ export interface ISnickerdoodleCore {
    * @param invitation The actual invitation to the cohort
    * @param consentConditions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
    */
-  acceptInvitation(
+   acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<
@@ -179,7 +179,7 @@ export interface ISnickerdoodleCore {
 
   getCohortInvitationByDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation, Error>
+  ): ResultAsync<CohortInvitation[], Error>
 
   getInvitationDetails(
     invitation: CohortInvitation,
@@ -193,11 +193,6 @@ export interface ISnickerdoodleCore {
     | ConsentContractRepositoryError
     | Error
   >
-  acceptInvitation(
-    invitation: CohortInvitation,
-    consentConditions: ConsentConditions | null,
-  ): ResultAsync<void, AjaxError | UninitializedError | PersistenceError>
-
   rejectInvitation(
     invitation: CohortInvitation,
   ): ResultAsync<

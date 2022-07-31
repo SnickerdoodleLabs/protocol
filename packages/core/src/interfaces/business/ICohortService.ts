@@ -65,7 +65,7 @@ export interface ICohortService {
     | AjaxError
     | ConsentError
   >;
-  getCohortInvitationByDomain(domain: DomainName): ResultAsync<CohortInvitation, Error>;
+  getCohortInvitationByDomain(domain: DomainName): ResultAsync<CohortInvitation[], Error>;
 }
 
 export const ICohortServiceType = Symbol.for("ICohortService");

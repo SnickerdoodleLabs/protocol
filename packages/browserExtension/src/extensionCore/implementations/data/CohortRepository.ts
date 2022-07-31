@@ -18,7 +18,7 @@ export class CohortRepository implements ICohortRepository {
 
   public getCohortInvitationWithDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation, SnickerDoodleCoreError> {
+  ): ResultAsync<CohortInvitation[], SnickerDoodleCoreError> {
     return this.core.getCohortInvitationByDomain(domain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

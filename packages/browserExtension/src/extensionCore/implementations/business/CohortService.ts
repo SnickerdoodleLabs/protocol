@@ -25,7 +25,7 @@ export class CohortService implements ICohortService {
 
   public getCohortInvitationWithDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation, SnickerDoodleCoreError> {
+  ): ResultAsync<CohortInvitation[], SnickerDoodleCoreError> {
     return this.cohortRepository.getCohortInvitationWithDomain(domain);
   }
 
@@ -35,26 +35,24 @@ export class CohortService implements ICohortService {
     return this.cohortRepository.checkInvitationStatus(invitation);
   }
 
-  public getInvitationDetailsWithDomain(
-    domain: DomainName,
-    sender: Runtime.MessageSender | null,
-  ) {
-   
-    return this.cohortRepository
-      .getCohortInvitationWithDomain(domain)
-       // @ts-ignore /// getCohortInvitationWithDomain should be delete
-      .andThen((cohortInvitation: CohortInvitation) => {
-        const invitation: CohortInvitation = cohortInvitation;
-        return this.cohortRepository
-          .checkInvitationStatus(invitation)
-          .andThen((invitationStatus: EInvitationStatus) => {
-            if (invitationStatus === EInvitationStatus.New) {
-              return this.cohortRepository.getInvitationDetails(invitation);
-            } else {
-              return okAsync(null);
-            }
-          });
-      });
+  public getInvitationDetailsWithDomain(domain: DomainName) {
+    return (
+      this.cohortRepository
+        .getCohortInvitationWithDomain(domain)
+        // @ts-ignore /// getCohortInvitationWithDomain should be delete
+        .andThen((cohortInvitation: CohortInvitation) => {
+          const invitation: CohortInvitation = cohortInvitation;
+          return this.cohortRepository
+            .checkInvitationStatus(invitation)
+            .andThen((invitationStatus: EInvitationStatus) => {
+              if (invitationStatus === EInvitationStatus.New) {
+                return this.cohortRepository.getInvitationDetails(invitation);
+              } else {
+                return okAsync(null);
+              }
+            });
+        })
+    );
   }
   public getInvitationDetails(
     invitation: CohortInvitation,

@@ -29,6 +29,7 @@ import {
   CohortInvitation,
   CountryCode,
   DomainName,
+  EInvitationStatus,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -185,16 +186,37 @@ export class RpcCallHandler implements IRpcCallHandler {
         return okAsync(undefined);
       });
   };
+  // to fix {code: -32603, message: 'Do not know how to serialize a BigInt', data: {…}}
   toObject(obj) {
-    return JSON.parse(JSON.stringify(obj, (_, v) =>
-    typeof v === "bigint" ? `${v}#bigint` : v,
-  ).replace(/"(-?\d+)#bigint"/g, (_, a) => a));
+    return JSON.parse(
+      JSON.stringify(obj, (_, v) =>
+        typeof v === "bigint" ? `${v}#bigint` : v,
+      ).replace(/"(-?\d+)#bigint"/g, (_, a) => a),
+    );
   }
 
   private getCohortInvitationWithDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation, SnickerDoodleCoreError> {
-    return this.cohortService.getCohortInvitationWithDomain(domain);
+  ): ResultAsync<any, SnickerDoodleCoreError> {
+    return this.cohortService
+      .getCohortInvitationWithDomain(domain)
+      .map((result) => {
+        return result.map((invitation) => {
+          if (invitation.domain === domain) {
+            return this.cohortService
+              .checkInvitationStatus(invitation)
+              .map((result: EInvitationStatus) => {
+                if (result === EInvitationStatus.New) {
+                  return invitation;
+                } else {
+                  return null;
+                }
+              });
+          } else {
+            return null;
+          }
+        });
+      });
   }
 
   private unlock(

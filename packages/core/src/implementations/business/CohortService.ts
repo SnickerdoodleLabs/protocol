@@ -4,7 +4,11 @@ import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import {
+  ConsentContract,
+  IConsentContract,
+  IMinimalForwarderRequest,
+} from "@snickerdoodlelabs/contracts-sdk";
 import {
   CohortInvitation,
   EInvitationStatus,
@@ -23,12 +27,15 @@ import {
   BigNumberString,
   TokenUri,
   MinimalForwarderContractError,
+  DomainName,
+  TokenId,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import { BigNumber } from "ethers";
+import { BigNumber, Wallet } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -52,13 +59,10 @@ import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory";
-import { IDNSServiceType } from "./DNSService";
-import { IDNSService } from "@core/interfaces/business/IDNSService";
 
 @injectable()
 export class CohortService implements ICohortService {
   public constructor(
-    @inject(IDNSServiceType) protected dnsService : IDNSService,
     @inject(IDataWalletPersistenceType)
     protected persistenceRepo: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
@@ -313,24 +317,56 @@ export class CohortService implements ICohortService {
 
   public getCohortInvitationByDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation, Error> {
-    const contractAddresses = this.dnsService.fetchTXTRecords(domain); // returns contractAddress[]
-    
-    return okAsync(
-      new CohortInvitation(
-        domain as DomainName,
-         "0xE451980132E65465d0a498c53f0b5227326Dd73F" as EVMContractAddress,
-         BigInt(23) as TokenId,
-         null,
-         {
-           title: "Claim your NFT!",
-           description:
-             "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
-           image: "assets/img/crabada-item.png",
-           rewardName: "Crabada 761",
-           nftClaimedImage: "assets/img/crabada-item-claimed.png",
-         },
-       )
-    );
+  ): ResultAsync<CohortInvitation[] , Error> {
+ /*    return okAsync([new CohortInvitation(domain,"asdasdas" as EVMContractAddress,TokenId(BigInt(1)),null,{
+      title: "Claim your NFT!",
+      description:
+        "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
+      image: "assets/img/crabada-item.png",
+      rewardName: "Crabada 761",
+      nftClaimedImage: "assets/img/crabada-item-claimed.png",
+    })]) */
+    let cohortInvitations: CohortInvitation[];
+    this.dnsRepository.fetchTXTRecords(domain).map((result) => {
+      let provider; // ???????
+      result.map((contractAddress) => {
+        const consentContract = new ConsentContract(
+          provider,
+          contractAddress as EVMContractAddress,
+        );
+        const domains = consentContract.getDomains();
+        domains.map((res) => {
+          res.map((domain) => {
+            const ipfdsCID = consentContract.baseURI(); // ????
+            // getCID ????
+            // openSea metadata will return displayItems object or whatever it's name.Like in below
+            const displayItems = {
+              title: "Claim your NFT!",
+              description:
+                "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
+              image: "assets/img/crabada-item.png",
+              rewardName: "Crabada 761",
+              nftClaimedImage: "assets/img/crabada-item-claimed.png",
+            };
+            const tokenId = TokenId(BigInt(1)); // ??????
+
+            const cohortInvitation = new CohortInvitation(
+              domain,
+              contractAddress as EVMContractAddress,
+              tokenId,
+              null,
+              displayItems,
+            );
+            cohortInvitations.push(cohortInvitation);
+          });
+        });
+        return okAsync(cohortInvitations);
+      });
+    });
+    return errAsync(
+      new Error(
+        `.....`,
+      ),
+    ); 
   }
 }

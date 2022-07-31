@@ -6,7 +6,7 @@ import ConnectWalletPending from "../Screens/ConnectWalletPending";
 import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
 import NftClaimed from "../Screens/NftClaimed";
 import browser from "webextension-polyfill";
-import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
+import { EAPP_STATE, IRewardItem } from "../../constants";
 import Browser from "webextension-polyfill";
 import { ExternalCoreGateway } from "@app/coreGateways";
 import { IExternalState } from "@shared/interfaces/states";
@@ -22,6 +22,7 @@ import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
 import { EPortNames } from "@shared/enums/ports";
 import { CohortInvitation, DomainName } from "@snickerdoodlelabs/objects";
+import { findIndex } from "rxjs";
 
 let coreGateway;
 let notificationEmitter;
@@ -72,7 +73,6 @@ const App = () => {
 
   useEffect(() => {
     initiateCohort();
-    initiateRewardItem();
     addEventListeners();
     return () => {
       removeEventListeners();
@@ -87,22 +87,37 @@ const App = () => {
     }
   }, [appState]);
 
-  const initiateCohort = async() => {
-    coreGateway.getCohortInvitationWithDomain("www.shrapnel.com" as DomainName).map((state) => {
-      console.log("state",state)
-      setCohort(state);
-    });
+  const initiateCohort = async () => {
+    coreGateway
+      .getCohortInvitationWithDomain(window.location.hostname as DomainName).map((invitation)=>{
+        if(invitation != null){
+          initiateRewardItem(invitation[0]);
+        }
+      })
   };
-
-
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
   };
+  enum EAVAILABLE_HOSTS {
+    SHRAPNEL = "www.shrapnel.com",
+    CRABADA = "market.crabada.com",
+  }
 
-  const initiateRewardItem = () => {
-    const hostname = window.location.hostname;
-    const reward = REWARD_DATA.find((i)=>i.host === hostname)
+  const initiateRewardItem = (cohort:CohortInvitation) => {
+    console.log("reward",cohort)
+    const reward = {
+      host: window.location.hostname,
+      title: cohort!.displayItems!.title,
+      description: cohort!.displayItems!.description,
+      image: Browser.runtime.getURL(cohort!.displayItems!.image),
+      primaryButtonText: "Claim Reward",
+      secondaryButtonText: "Back to Game",
+      rewardName: cohort!.displayItems!.rewardName,
+      nftClaimedImage: Browser.runtime.getURL(
+        cohort!.displayItems!.nftClaimedImage,
+      ),
+    };
     if (reward) {
       setTimeout(() => {
         setRewardToDisplay(reward);
@@ -197,11 +212,7 @@ const App = () => {
     }
   }, [rewardToDisplay, appState]);
 
-  return (
-    <>
-      {renderComponent}
-    </>
-  );
+  return <>{renderComponent}</>;
 };
 
 export default App;

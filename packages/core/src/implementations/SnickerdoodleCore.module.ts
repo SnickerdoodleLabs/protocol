@@ -99,8 +99,6 @@ import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
-import { IDNSService } from "@core/interfaces/business/IDNSService";
-import { DNSService, IDNSServiceType } from "./business/DNSService";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -118,10 +116,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IAccountService>(IAccountServiceType)
       .to(AccountService)
-      .inSingletonScope();
-
-      bind<IDNSService>(IDNSServiceType)
-      .to(DNSService)
       .inSingletonScope();
 
     bind<ICohortService>(ICohortServiceType)

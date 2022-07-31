@@ -15,7 +15,7 @@ import { ResultAsync } from "neverthrow";
 export interface ICohortRepository {
   getCohortInvitationWithDomain(
     domain: string,
-  ): ResultAsync<CohortInvitation, SnickerDoodleCoreError>;
+  ): ResultAsync<CohortInvitation[], SnickerDoodleCoreError>;
   checkInvitationStatus(
     invitation: CohortInvitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;

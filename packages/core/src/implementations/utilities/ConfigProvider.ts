@@ -51,6 +51,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       5000, // polling interval nfts
       "covalent api key",
       "moralis api key",
+      URLString("https://cloudflare-dns.com/dns-query")
     );
   }
 
