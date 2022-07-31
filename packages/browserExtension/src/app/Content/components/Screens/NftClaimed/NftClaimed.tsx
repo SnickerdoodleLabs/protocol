@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography } from "@material-ui/core";
 
 import SuccessModal, { useGenericModalStyles } from "../../Modals/SuccessModal";
-import Browser from 'webextension-polyfill'
+import Browser from "webextension-polyfill";
 
 import {
   EAPP_STATE,
@@ -12,15 +12,18 @@ import {
   rewardItemToClaim02Img,
   rewardItemToClaim03Img,
 } from "../../../constants";
+import { CohortInvitation } from "@snickerdoodlelabs/objects";
 
 interface INftClaimedProps {
   changeAppState: (state: EAPP_STATE) => void;
   rewardItem: IRewardItem;
+  cohortInvitation: CohortInvitation | undefined;
 }
 
 const NftClaimed: React.FC<INftClaimedProps> = ({
   changeAppState,
   rewardItem,
+  cohortInvitation,
 }: INftClaimedProps) => {
   const modalClasses = useGenericModalStyles();
 

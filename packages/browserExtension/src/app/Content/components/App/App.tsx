@@ -21,7 +21,11 @@ import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProvide
 import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
 import { EPortNames } from "@shared/enums/ports";
-import { CohortInvitation, DomainName } from "@snickerdoodlelabs/objects";
+import {
+  CohortInvitation,
+  DomainName,
+  TokenId,
+} from "@snickerdoodlelabs/objects";
 import { findIndex } from "rxjs";
 
 let coreGateway;
@@ -64,12 +68,11 @@ const connect = () => {
 connect();
 
 const App = () => {
-  const [cohort, setCohort] = useState<CohortInvitation>();
-  const [cohortInvitation, setCohortInvitation] = useState();
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
   const [rewardToDisplay, setRewardToDisplay] = useState<
     IRewardItem | undefined
   >();
+  const [cohortInvitation, setCohortInvitation] = useState<CohortInvitation>();
 
   useEffect(() => {
     initiateCohort();
@@ -89,34 +92,38 @@ const App = () => {
 
   const initiateCohort = async () => {
     coreGateway
-      .getCohortInvitationWithDomain(window.location.hostname as DomainName).map((invitation)=>{
-        if(invitation != null){
+      .getCohortInvitationWithDomain(window.location.hostname as DomainName)
+      .map((invitation) => {
+        if (invitation != null) {
           initiateRewardItem(invitation[0]);
         }
-      })
+      });
   };
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
   };
-  enum EAVAILABLE_HOSTS {
-    SHRAPNEL = "www.shrapnel.com",
-    CRABADA = "market.crabada.com",
-  }
 
-  const initiateRewardItem = (cohort:CohortInvitation) => {
-    console.log("reward",cohort)
-    const reward = {
+  const initiateRewardItem = (cohort: CohortInvitation) => {
+    // When we pass the Cohortinvitation rpcCallHandler to App.tsx we lost proporties of invitation because of that
+    // I'm creating new one for pass it to the acceptInvitation or rejectInvitation.
+    const rewardCohortInvitation = new CohortInvitation(
+      cohort.domain,
+      cohort.consentContractAddress,
+      TokenId(BigInt(cohort.tokenId)),
+      cohort.businessSignature,
+    );
+    setCohortInvitation(rewardCohortInvitation);
+
+    const reward: IRewardItem = {
       host: window.location.hostname,
       title: cohort!.displayItems!.title,
       description: cohort!.displayItems!.description,
-      image: Browser.runtime.getURL(cohort!.displayItems!.image),
+      image: cohort!.displayItems!.image,
       primaryButtonText: "Claim Reward",
       secondaryButtonText: "Back to Game",
       rewardName: cohort!.displayItems!.rewardName,
-      nftClaimedImage: Browser.runtime.getURL(
-        cohort!.displayItems!.nftClaimedImage,
-      ),
+      nftClaimedImage: cohort!.displayItems!.nftClaimedImage,
     };
     if (reward) {
       setTimeout(() => {
@@ -191,6 +198,7 @@ const App = () => {
         return (
           <RewardCard
             rewardItem={rewardToDisplay!}
+            cohortInvitation={cohortInvitation}
             changeAppState={changeAppState}
           />
         );
@@ -204,6 +212,7 @@ const App = () => {
         return (
           <NftClaimed
             rewardItem={rewardToDisplay!}
+            cohortInvitation={cohortInvitation}
             changeAppState={changeAppState}
           />
         );
