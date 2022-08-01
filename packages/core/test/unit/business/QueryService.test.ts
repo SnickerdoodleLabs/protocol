@@ -35,6 +35,7 @@ import {
   InsightString,
 } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
+import { SDQLQueryRequest } from "@snickerdoodlelabs/objects";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
@@ -262,8 +263,9 @@ describe("processQuery tests", () => {
   });
 
   test("processQuery success", async () => {
+    const queryRequest = new SDQLQueryRequest(consentContractAddress, sdqlQuery);
     await queryService
-      .processQuery(consentContractAddress, sdqlQuery)
+      .processQuery(queryRequest)
       .then((result) => {
         // console.log('result', result);
         expect(result.isOk()).toBeTruthy();

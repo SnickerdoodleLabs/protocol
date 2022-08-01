@@ -8,31 +8,6 @@ import {
 } from "@core/implementations/business/utilities/query";
 
 describe("Tokenizer", () => {
-  test.skip("test tokenizer", () => {
-    const regex1 = new RegExp("foo", "g");
-    const str1 = "table foo";
-
-    regex1.lastIndex = 6;
-    regex1.test(str1);
-    // console.log(regex1.exec(str1));
-    // console.log(str1.search(regex1));
-    // console.log('lastIndex', regex1.lastIndex);
-    // expected output: 9
-
-    regex1.test(str1);
-    // console.log(regex1.exec(str1));
-
-    // console.log(str1.search(regex1));
-    // console.log('lastIndex', regex1.lastIndex);
-    // expected output: 19
-
-    regex1.test(str1);
-    // console.log(regex1.exec(str1));
-
-    // console.log(str1.search(regex1));
-    // console.log('lastIndex', regex1.lastIndex);
-    // expected output: 19
-  });
 
   test("12 is a number", function () {
     const tokenizer = new Tokenizer("12");
