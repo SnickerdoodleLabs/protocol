@@ -48,7 +48,8 @@ import {
   UnixTimestamp,
   UnsupportedLanguageError,
   SDQLQuery,
-  CountryCode
+  CountryCode,
+  SDQLQueryRequest
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -303,13 +304,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.leaveCohort(consentContractAddress);
   }
 
-  public processQuery({
-    consentContractAddress,
-    query,
-  }: {
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }): ResultAsync<
+  public processQuery(queryRequest: SDQLQueryRequest): ResultAsync<
     void,
     | AjaxError
     | UninitializedError
@@ -321,7 +316,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(consentContractAddress, query);
+    return queryService.processQuery(queryRequest);
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {

@@ -1,21 +1,16 @@
 import { Observable } from "rxjs";
 
 import {
-  MetatransactionSignatureRequest,
-  SDQLQuery,
+  MetatransactionSignatureRequest, SDQLQueryRequest
 } from "@objects/businessObjects";
 import {
   DataWalletAddress,
-  EVMAccountAddress,
-  EVMContractAddress,
+  EVMAccountAddress
 } from "@objects/primitives";
 
 export interface ISnickerdoodleCoreEvents {
   onInitialized: Observable<DataWalletAddress>;
-  onQueryPosted: Observable<{
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }>;
+  onQueryPosted: Observable<SDQLQueryRequest>;
   onAccountAdded: Observable<EVMAccountAddress>;
   onMetatransactionSignatureRequested: Observable<MetatransactionSignatureRequest>;
 }

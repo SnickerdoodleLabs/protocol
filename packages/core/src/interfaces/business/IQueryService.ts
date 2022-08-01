@@ -11,6 +11,7 @@ import {
   QueryFormatError,
   UninitializedError,
   IPFSError,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -29,8 +30,7 @@ export interface IQueryService {
     | ConsentError
   >;
   processQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryRequest: SDQLQueryRequest
   ): ResultAsync<
     void,
     | AjaxError

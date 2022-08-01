@@ -6,6 +6,7 @@ import {
   ConsentConditions,
   IEVMNFT,
   SDQLQuery,
+  SDQLQueryRequest,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -182,13 +183,7 @@ export interface ISnickerdoodleCore {
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
-  processQuery({
-    consentContractAddress,
-    query,
-  }: {
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }): ResultAsync<
+  processQuery(queryRequest: SDQLQueryRequest): ResultAsync<
     void,
     | AjaxError
     | UninitializedError

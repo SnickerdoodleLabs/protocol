@@ -20,6 +20,7 @@ import {
   EVMPrivateKey,
   DataWalletAddress,
   SDQLQuery,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
@@ -125,10 +126,12 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          context.publicEvents.onQueryPosted.next({
-            consentContractAddress: consentContractAddress,
-            query: query,
-          });
+          const queryRequest = new SDQLQueryRequest(consentContractAddress, query);
+          // context.publicEvents.onQueryPosted.next({
+          //   consentContractAddress: consentContractAddress,
+          //   query: query,
+          // });
+          context.publicEvents.onQueryPosted.next(queryRequest);
 
           return okAsync(undefined);
         });
@@ -145,8 +148,7 @@ export class QueryService implements IQueryService {
   // }
 
   public processQuery(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    queryRequest: SDQLQueryRequest
   ): ResultAsync<
     void,
     | AjaxError
@@ -160,6 +162,8 @@ export class QueryService implements IQueryService {
     // 2. Generate an insight(s)
     // 3. Redeem the reward
     // 4. Deliver the insight
+    const consentContractAddress = queryRequest.consentContractAddress;
+    const query = queryRequest.query;
 
     return ResultUtils.combine([
       this.contextProvider.getContext(),

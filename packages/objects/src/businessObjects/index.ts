@@ -15,7 +15,7 @@ export * from "@objects/businessObjects/MetatransactionSignatureRequest";
 export * from "@objects/businessObjects/RequestForData";
 export * from "@objects/businessObjects/Reward";
 export * from "@objects/businessObjects/SDQLQuery";
+export * from "@objects/businessObjects/SDQLQueryRequest"; 
 export * from "@objects/businessObjects/SiteVisit";
-//export * from "@objects/businessObjects/SDQL";
 export * from "@objects/businessObjects/EVMNFT";
 
