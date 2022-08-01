@@ -54,6 +54,6 @@ export interface ISetEmailParams {
 export interface ISetLocationParams {
   location: CountryCode;
 }
-export interface IGetCohortInvitationWithDomainParams {
+export interface IGetInvitationWithDomainParams {
   domain: DomainName;
 }

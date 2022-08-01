@@ -12,12 +12,12 @@ import {
   rewardItemToClaim02Img,
   rewardItemToClaim03Img,
 } from "../../../constants";
-import { CohortInvitation } from "@snickerdoodlelabs/objects";
+import { Invitation } from "@snickerdoodlelabs/objects";
 
 interface INftClaimedProps {
   changeAppState: (state: EAPP_STATE) => void;
   rewardItem: IRewardItem;
-  cohortInvitation: CohortInvitation | undefined;
+  cohortInvitation: Invitation | undefined;
 }
 
 const NftClaimed: React.FC<INftClaimedProps> = ({

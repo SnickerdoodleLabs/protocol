@@ -22,7 +22,7 @@ import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
 import { EPortNames } from "@shared/enums/ports";
 import {
-  CohortInvitation,
+  Invitation,
   DomainName,
   TokenId,
 } from "@snickerdoodlelabs/objects";
@@ -72,7 +72,7 @@ const App = () => {
   const [rewardToDisplay, setRewardToDisplay] = useState<
     IRewardItem | undefined
   >();
-  const [cohortInvitation, setCohortInvitation] = useState<CohortInvitation>();
+  const [cohortInvitation, setInvitation] = useState<Invitation>();
 
   useEffect(() => {
     initiateCohort();
@@ -92,7 +92,7 @@ const App = () => {
 
   const initiateCohort = async () => {
     coreGateway
-      .getCohortInvitationWithDomain(window.location.hostname as DomainName)
+      .getInvitationWithDomain(window.location.hostname as DomainName)
       .map((invitation) => {
         if (invitation != null) {
           initiateRewardItem(invitation[0]);
@@ -104,16 +104,16 @@ const App = () => {
     setAppState(state);
   };
 
-  const initiateRewardItem = (cohort: CohortInvitation) => {
+  const initiateRewardItem = (cohort: Invitation) => {
     // When we pass the Cohortinvitation rpcCallHandler to App.tsx we lost proporties of invitation because of that
     // I'm creating new one for pass it to the acceptInvitation or rejectInvitation.
-    const rewardCohortInvitation = new CohortInvitation(
+    const rewardInvitation = new Invitation(
       cohort.domain,
       cohort.consentContractAddress,
       TokenId(BigInt(cohort.tokenId)),
       cohort.businessSignature,
     );
-    setCohortInvitation(rewardCohortInvitation);
+    setInvitation(rewardInvitation);
 
     const reward: IRewardItem = {
       host: window.location.hostname,

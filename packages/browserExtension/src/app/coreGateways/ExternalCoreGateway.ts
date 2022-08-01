@@ -5,7 +5,7 @@ import { IExternalState } from "@shared/interfaces/states";
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import {
   Age,
-  CohortInvitation,
+  Invitation,
   CountryCode,
   DomainName,
   EmailAddressString,
@@ -21,7 +21,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   IAddAccountParams,
-  IGetCohortInvitationWithDomainParams,
+  IGetInvitationWithDomainParams,
   IGetUnlockMessageParams,
   ISetAgeParams,
   ISetBirthdayParams,
@@ -42,12 +42,12 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_STATE);
   }
 
-  public getCohortInvitationWithDomain(
+  public getInvitationWithDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation, JsonRpcError> {
+  ): ResultAsync<Invitation, JsonRpcError> {
     return this._handler.call(
       EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN,
-      { domain } as IGetCohortInvitationWithDomainParams,
+      { domain } as IGetInvitationWithDomainParams,
     );
   }
 

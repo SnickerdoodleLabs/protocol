@@ -14,6 +14,7 @@ import {
   SDQLString,
   Signature,
   UnixTimestamp,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -22,6 +23,7 @@ import {
 import { BigNumber } from "ethers";
 import express from "express";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { IPFSClient } from "@test-harness/IPFSClient";
@@ -45,6 +47,17 @@ export class InsightPlatformSimulator {
 
     this.app.get("/", (req, res) => {
       res.send("Hello World!");
+    });
+
+    // Fakes Cloudflare DNS response
+    this.app.get("/dns", (req, res) => {
+      res.send({
+        Answer: this.consentContracts.map((contractAddress) => {
+          return {
+            data: `consentContracts:${contractAddress}`,
+          };
+        }),
+      });
     });
 
     this.app.post("/metatransaction", (req, res) => {
@@ -159,23 +172,48 @@ export class InsightPlatformSimulator {
     domain: DomainName,
   ): ResultAsync<
     EVMContractAddress,
-    ConsentFactoryContractError | ConsentContractError
+    ConsentFactoryContractError | ConsentContractError | Error
   > {
-    // Need to create a consent contract
-    return this.blockchain
-      .createConsentContract(
-        ConsentName(
-          `Snackerdoodle Test Harness ${this.consentContracts.length + 1}`,
-        ),
-        domain,
+    return this.ipfs
+      .postToIPFS(
+        JSON.stringify({
+          title: `${domain} title`,
+          description: "description",
+          image: URLString("http://example.com/image.png"),
+          rewardName: "rewardName",
+          nftClaimedImage: URLString("http://example.com/nftClaimedImage.png"),
+        }),
       )
-      .map((contractAddress) => {
-        console.log(
-          `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}`,
-        );
-        this.consentContracts.push(contractAddress);
+      .andThen((cid) => {
+        // Need to create a consent contract
+        return this.blockchain
+          .createConsentContract(
+            ConsentName(
+              `Snackerdoodle Test Harness ${this.consentContracts.length + 1}`,
+            ),
+            domain,
+            cid,
+          )
+          .andThen((contractAddress) => {
+            const consentContract =
+              this.blockchain.getConsentContract(contractAddress);
 
-        return contractAddress;
+            console.log(
+              `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}`,
+            );
+            this.consentContracts.push(contractAddress);
+
+            // Add a few URLs
+            // We need to do this
+            return consentContract
+              .addDomain(`${domain}/url/1`)
+              .andThen(() => {
+                return consentContract.addDomain(`${domain}/url/2`);
+              })
+              .map(() => {
+                return contractAddress;
+              });
+          });
       });
   }
 }

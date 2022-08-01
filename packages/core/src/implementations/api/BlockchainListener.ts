@@ -124,12 +124,10 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentContractError
     | ConsentError
   > {
-    
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.blockchainProvider.getLatestBlock(chainId),
     ]).andThen(([config, currentBlock]) => {
-      console.debug("chainBlockMined", chainId);
       const currentBlockNumber = BlockNumber(currentBlock.number);
       const latestKnownBlockNumber =
         this.chainLatestKnownBlockNumber.get(chainId) || BlockNumber(-1);
@@ -160,7 +158,6 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentContractError
     | ConsentError
   > {
-    console.debug("Listening for consent contract events on doodle chain");
     return this.consentContractRepository
       .getConsentContracts()
       .andThen((consentContractsMap) => {

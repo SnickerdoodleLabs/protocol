@@ -1,7 +1,7 @@
 import { IRpcCallHandler } from "@interfaces/api";
 import {
   IAccountService,
-  ICohortService,
+  IInvitationService,
   IPIIService,
 } from "@interfaces/business";
 import { IContextProvider } from "@interfaces/utilities";
@@ -22,11 +22,11 @@ import {
   ISetGenderParams,
   ISetLocationParams,
   ISetEmailParams,
-  IGetCohortInvitationWithDomainParams,
+  IGetInvitationWithDomainParams,
 } from "@shared/interfaces/actions";
 import {
   Age,
-  CohortInvitation,
+  Invitation,
   CountryCode,
   DomainName,
   EInvitationStatus,
@@ -55,7 +55,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected contextProvider: IContextProvider,
     protected accountService: IAccountService,
     protected piiService: IPIIService,
-    protected cohortService: ICohortService,
+    protected cohortService: IInvitationService,
   ) {}
 
   public async handleRpcCall(
@@ -152,9 +152,9 @@ export class RpcCallHandler implements IRpcCallHandler {
         return this._sendAsyncResponse(this.getLocation(), res);
       }
       case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
-        const { domain } = params as IGetCohortInvitationWithDomainParams;
+        const { domain } = params as IGetInvitationWithDomainParams;
         return this._sendAsyncResponse(
-          this.getCohortInvitationWithDomain(domain),
+          this.getInvitationWithDomain(domain),
           res,
         );
       }
@@ -195,11 +195,11 @@ export class RpcCallHandler implements IRpcCallHandler {
     );
   }
 
-  private getCohortInvitationWithDomain(
+  private getInvitationWithDomain(
     domain: DomainName,
   ): ResultAsync<any, SnickerDoodleCoreError> {
     return this.cohortService
-      .getCohortInvitationWithDomain(domain)
+      .getInvitationWithDomain(domain)
       .map((result) => {
         return result.map((invitation) => {
           if (invitation.domain === domain) {

@@ -1,11 +1,11 @@
-import { ICohortService } from "@interfaces/business";
+import { IInvitationService } from "@interfaces/business";
 import { ICohortRepository } from "@interfaces/data";
 import { IContextProvider } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   AjaxError,
   BlockchainProviderError,
-  CohortInvitation,
+  Invitation,
   ConsentConditions,
   ConsentContractError,
   ConsentContractRepositoryError,
@@ -17,20 +17,20 @@ import {
 import { okAsync, ResultAsync } from "neverthrow";
 import { Runtime } from "webextension-polyfill";
 
-export class CohortService implements ICohortService {
+export class InvitationService implements IInvitationService {
   constructor(
     protected cohortRepository: ICohortRepository,
     protected contexProvider: IContextProvider,
   ) {}
 
-  public getCohortInvitationWithDomain(
+  public getInvitationWithDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation[], SnickerDoodleCoreError> {
-    return this.cohortRepository.getCohortInvitationWithDomain(domain);
+  ): ResultAsync<Invitation[], SnickerDoodleCoreError> {
+    return this.cohortRepository.getInvitationWithDomain(domain);
   }
 
   public checkInvitationStatus(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
     return this.cohortRepository.checkInvitationStatus(invitation);
   }
@@ -38,10 +38,10 @@ export class CohortService implements ICohortService {
   public getInvitationDetailsWithDomain(domain: DomainName) {
     return (
       this.cohortRepository
-        .getCohortInvitationWithDomain(domain)
-        // @ts-ignore /// getCohortInvitationWithDomain should be delete
-        .andThen((cohortInvitation: CohortInvitation) => {
-          const invitation: CohortInvitation = cohortInvitation;
+        .getInvitationWithDomain(domain)
+        // @ts-ignore /// getInvitationWithDomain should be delete
+        .andThen((cohortInvitation: Invitation) => {
+          const invitation: Invitation = cohortInvitation;
           return this.cohortRepository
             .checkInvitationStatus(invitation)
             .andThen((invitationStatus: EInvitationStatus) => {
@@ -55,13 +55,13 @@ export class CohortService implements ICohortService {
     );
   }
   public getInvitationDetails(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<JSON, SnickerDoodleCoreError> {
     return this.cohortRepository.getInvitationDetails(invitation);
   }
 
   public acceptInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     consentConditions: ConsentConditions | null,
     sender: Runtime.MessageSender | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
@@ -75,7 +75,7 @@ export class CohortService implements ICohortService {
     }
   }
   public rejectInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     sender: Runtime.MessageSender | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     if (sender != "") {

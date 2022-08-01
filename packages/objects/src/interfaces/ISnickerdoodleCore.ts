@@ -2,10 +2,11 @@ import { ResultAsync } from "neverthrow";
 import { Observable } from "rxjs";
 
 import {
-  CohortInvitation,
+  Invitation,
   ConsentConditions,
   IEVMNFT,
   SDQLQuery,
+  PageInvitation,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -111,7 +112,7 @@ export interface ISnickerdoodleCore {
    * @param invitation
    */
   checkInvitationStatus(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     EInvitationStatus,
     | BlockchainProviderError
@@ -130,7 +131,7 @@ export interface ISnickerdoodleCore {
    * @param consentConditions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
    */
   acceptInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<
     void,
@@ -149,7 +150,7 @@ export interface ISnickerdoodleCore {
    * right?)
    */
   rejectInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -179,21 +180,15 @@ export interface ISnickerdoodleCore {
     | ConsentError
   >;
 
-  getCohortInvitationByDomain(
+  getInvitationsByDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation[], Error>;
-
-  getInvitationDetails(
-    invitation: CohortInvitation,
   ): ResultAsync<
-    JSON,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
+    PageInvitation[],
     | ConsentContractError
-    | ConsentContractRepositoryError
-    | Error
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | IPFSError
   >;
 
   // Called by the form factor to approve the processing of the query.

@@ -2,7 +2,7 @@ import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   AjaxError,
   BlockchainProviderError,
-  CohortInvitation,
+  Invitation,
   ConsentConditions,
   ConsentContractError,
   ConsentContractRepositoryError,
@@ -13,22 +13,22 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ICohortRepository {
-  getCohortInvitationWithDomain(
+  getInvitationWithDomain(
     domain: string,
-  ): ResultAsync<CohortInvitation[], SnickerDoodleCoreError>;
+  ): ResultAsync<Invitation[], SnickerDoodleCoreError>;
   checkInvitationStatus(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
 
   getInvitationDetails(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<JSON, SnickerDoodleCoreError>;
 
   acceptInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   rejectInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 }
