@@ -17,7 +17,6 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
-  CountryCode,
   CrumbsContractError,
   EInvitationStatus,
   EmailAddressString,
@@ -49,6 +48,7 @@ import {
   UnixTimestamp,
   UnsupportedLanguageError,
   SDQLQuery,
+  CountryCode
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";

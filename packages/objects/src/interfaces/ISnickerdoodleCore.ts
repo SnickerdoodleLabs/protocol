@@ -38,8 +38,9 @@ import {
   GivenName,
   LanguageCode,
   Signature,
-  UnixTimestamp,
 } from "@objects/primitives";
+import { UnixTimestamp } from "@objects/primitives";
+
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
