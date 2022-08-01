@@ -1,7 +1,7 @@
 import {
   ChainInformation,
   ControlChainInformation,
-} from "@extension-onboarding/packages/objects/src/businessObjects/ChainInformation";
+} from "@objects/businessObjects";
 import {
   URLString,
   ChainId,
