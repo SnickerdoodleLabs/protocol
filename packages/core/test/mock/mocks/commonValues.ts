@@ -1,9 +1,11 @@
-import { CoreConfig } from "@core/interfaces/objects";
-import { ChainInformation, ControlChainInformation } from "@extension-onboarding/packages/objects/src/businessObjects/ChainInformation";
-import { URLString } from "@snickerdoodlelabs/objects";
-import { ChainId } from "@snickerdoodlelabs/objects";
-import { chainConfig } from "@snickerdoodlelabs/objects";
 import {
+  ChainInformation,
+  ControlChainInformation,
+} from "@objects/businessObjects";
+import {
+  URLString,
+  ChainId,
+  chainConfig,
   DataWalletAddress,
   EVMContractAddress,
   EVMPrivateKey,
@@ -12,6 +14,8 @@ import {
   SDQLString,
 } from "@snickerdoodlelabs/objects";
 import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
+
+import { CoreConfig } from "@core/interfaces/objects";
 
 export const dataWalletAddress = DataWalletAddress("dataWalletAddress");
 
@@ -30,7 +34,9 @@ export const SDQuery = new SDQLQuery(queryId, qureyString);
 // #region for config provider mock
 
 export const controlChainId = ChainId(31337);
-export const controlChainInformation = chainConfig.get(controlChainId) as ControlChainInformation;
+export const controlChainInformation = chainConfig.get(
+  controlChainId,
+) as ControlChainInformation;
 
 // const chainConfig = new Map<ChainId, ChainInformation>([
 //   [

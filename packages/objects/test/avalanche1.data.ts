@@ -67,4 +67,4 @@ export const avalance1SchemaStr = `
     }
 }
 
-`
+`;

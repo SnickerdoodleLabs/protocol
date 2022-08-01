@@ -1,10 +1,10 @@
-import { ChainId, EVMBlockRange, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken } from "@snickerdoodlelabs/objects";
+import { ChainId, EVMAccountAddress, EVMBlockRange, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken } from "@snickerdoodlelabs/objects";
 
 export class AST_Contract {
     constructor(
         
         readonly networkId: ChainId,
-        readonly address: EVMContractAddress,
+        readonly address: EVMAccountAddress,
         readonly func: EVMContractFunction,
         readonly direction: EVMContractDirection,
         readonly token: EVMToken,
@@ -23,13 +23,12 @@ export class AST_Contract {
         }
         return new AST_Contract(
             ChainId(Number(schema.networkid)),
-            EVMContractAddress(schema.address),
+            EVMAccountAddress(schema.address),
             EVMContractFunction(schema.function),
             direction,
             EVMToken(schema.token),
             EVMBlockRange.fromString(schema.blockrange)
 
         );
-
-    }
+  }
 }

@@ -3,8 +3,19 @@ import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
 import { v4 } from "uuid";
 import { PORT_NOTIFICATION } from "@shared/constants/ports";
 import { okAsync } from "neverthrow";
-import { URLString } from "@snickerdoodlelabs/objects";
+import {
+  MetatransactionSignatureRequest,
+  URLString,
+  UUID,
+} from "@snickerdoodlelabs/objects";
 import { EPortNames } from "@shared/enums/ports";
+import {
+  IPortConnection,
+  IPortConnectionObject,
+  IPortConnections,
+} from "@interfaces/objects";
+import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
+
 export class AppContext {
   constructor(
     protected lock: boolean = false,
@@ -12,17 +23,17 @@ export class AppContext {
     protected notificationWindowId: number | null = null,
     protected isPopupOpen: boolean = false,
     protected currentNotificationPath: string | null = null,
-    protected connections: {
-      [origin: string]: {
-        [id: string]: {
-          engine: JsonRpcEngine;
-          tabId: number | undefined;
-          windowId: number | undefined;
-        };
-      };
-    } = {},
+    protected connections: IPortConnections = {},
+    protected pendingMetatransactionSignatureRequests: Map<
+      UUID,
+      MetatransactionSignatureRequest
+    > = new Map(),
     protected pendingActions: any[] = [],
     protected proccesingAction: any = null,
+    protected pendingCohortInvititaitions: Map<
+    string,
+    MetatransactionSignatureRequest
+  > = new Map(),
   ) {}
 
   public setNotificationOpen(
@@ -40,6 +51,26 @@ export class AppContext {
     this.isNotificationOpen = false;
     this.notificationWindowId = null;
     this.currentNotificationPath = null;
+  }
+
+  // TODO find smart way to idendify requests
+  public addMetatransactionSignatureRequest(
+    metatransactionSignatureRequest: MetatransactionSignatureRequest,
+  ): UUID {
+    const id = v4();
+    this.pendingMetatransactionSignatureRequests.set(
+      UUID(id),
+      metatransactionSignatureRequest,
+    );
+    return UUID(id);
+  }
+
+  public removeMetatransactionSignatureRequestWithId(id: UUID) {
+    this.pendingMetatransactionSignatureRequests.delete(id);
+  }
+
+  public getMetatransactionSignatureRequestById(id: UUID) {
+   return this.pendingMetatransactionSignatureRequests.get(id);
   }
 
   public async displayPopupNotification(path?: string, cb?: () => void) {
@@ -102,7 +133,17 @@ export class AppContext {
     }
   }
 
-  public notifyAllConnections(notification: any) {
+  public getActiveRpcConnectionObjectsByOrigin(
+    origin: string,
+  ): IPortConnectionObject[] {
+    return Object.values((this.connections[origin] as IPortConnection) ?? {});
+  }
+
+  public notifyConnectionPort(rpcEngine: JsonRpcEngine, notification: MTSRNotification) {
+    rpcEngine.emit(PORT_NOTIFICATION, notification);
+  }
+
+  public notifyAllConnections(notification: MTSRNotification) {
     Object.values(this.connections).forEach((conns) => {
       Object.keys(conns).forEach((connId) => {
         conns[connId] &&

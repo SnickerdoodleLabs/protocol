@@ -5,6 +5,8 @@ import {
   CrumbsContract,
   IMinimalForwarderContract,
   MinimalForwarderContract,
+  IConsentFactoryContract,
+  ConsentFactoryContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
@@ -12,7 +14,7 @@ import {
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -31,6 +33,20 @@ export class ContractFactory implements IContractFactory {
     @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
   ) {}
+  public factoryConsentFactoryContract(): ResultAsync<
+    IConsentFactoryContract,
+    BlockchainProviderError | UninitializedError
+  > {
+    return ResultUtils.combine([
+      this.blockchainProvider.getControlProvider(),
+      this.configProvider.getConfig(),
+    ]).map(([provider, config]) => {
+      return new ConsentFactoryContract(
+        provider,
+        config.controlChainInformation.consentFactoryContractAddress,
+      );
+    });
+  }
 
   public factoryConsentContracts(
     consentContractAddresses: EVMContractAddress[],
@@ -38,18 +54,11 @@ export class ContractFactory implements IContractFactory {
     IConsentContract[],
     BlockchainProviderError | UninitializedError
   > {
-    return this.blockchainProvider
-      .getControlProvider()
-      .andThen((provider) => {
-        return ResultUtils.combine(
-          consentContractAddresses.map((consentContractAddress) => {
-            return okAsync(
-              new ConsentContract(provider, consentContractAddress),
-            );
-          }),
-        );
-      })
-      .map((val) => val);
+    return this.blockchainProvider.getControlProvider().map((provider) => {
+      return consentContractAddresses.map((consentContractAddress) => {
+        return new ConsentContract(provider, consentContractAddress);
+      });
+    });
   }
 
   public factoryCrumbsContract(): ResultAsync<

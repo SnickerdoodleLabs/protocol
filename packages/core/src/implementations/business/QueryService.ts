@@ -1,3 +1,8 @@
+import { TypedDataField } from "@ethersproject/abstract-signer";
+import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -6,10 +11,17 @@ import {
   ConsentError,
   EvaluationError,
   EVMAccountAddress,
-  EVMContractAddress, IpfsCID,
-  IPFSError, QueryFormatError,
-  UninitializedError
+  EVMContractAddress,
+  IpfsCID,
+  IPFSError,
+  QueryFormatError,
+  UninitializedError,
+  EligibleReward,
+  EVMPrivateKey,
+  DataWalletAddress,
+  SDQLQuery,
 } from "@snickerdoodlelabs/objects";
+import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -17,7 +29,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { IQueryService } from "@core/interfaces/business";
 import {
   IQueryParsingEngine,
-  IQueryParsingEngineType
+  IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities";
 import {
   IConsentContractRepository,
@@ -25,25 +37,22 @@ import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
   ISDQLQueryRepository,
-  ISDQLQueryRepositoryType
+  ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
-import { CoreConfig, CoreContext, InsightString } from "@core/interfaces/objects";
+import {
+  CoreConfig,
+  CoreContext,
+  InsightString,
+} from "@core/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
-  IContextProviderType
+  IContextProviderType,
 } from "@core/interfaces/utilities";
-import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
-import { EligibleReward } from "@snickerdoodlelabs/objects";
-import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
-import { EVMPrivateKey } from "@snickerdoodlelabs/objects";
-import { DataWalletAddress } from "@snickerdoodlelabs/objects";
-import { SDQLQuery } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class QueryService implements IQueryService {
-
   // queryContractMap: Map<IpfsCID, EVMContractAddress> = new Map();
 
   public constructor(
@@ -75,7 +84,7 @@ export class QueryService implements IQueryService {
   > {
     // Get the IPFS data for the query. This is just "Get the query";
 
-    // Cache 
+    // Cache
     // if (!this.safeUpdateQueryContractMap(queryId, consentContractAddress)) {
     //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryId}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryId)}`)); ))
     // }
@@ -116,7 +125,10 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          context.publicEvents.onQueryPosted.next({consentContractAddress: consentContractAddress, query: query});
+          context.publicEvents.onQueryPosted.next({
+            consentContractAddress: consentContractAddress,
+            query: query,
+          });
 
           return okAsync(undefined);
         });
@@ -134,28 +146,25 @@ export class QueryService implements IQueryService {
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
-    query: SDQLQuery
+    query: SDQLQuery,
   ): ResultAsync<
     void,
-    | AjaxError 
-    | UninitializedError 
-    | ConsentError 
+    | AjaxError
+    | UninitializedError
+    | ConsentError
     | IPFSError
     | QueryFormatError
     | EvaluationError
-  
   > {
     // 1. Parse the query
     // 2. Generate an insight(s)
     // 3. Redeem the reward
     // 4. Deliver the insight
-    
+
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
     ]).andThen(([context, config]) => {
-      
-
       const err = this.validateContextConfig(context, config);
       if (err) {
         return errAsync(err);
@@ -166,50 +175,59 @@ export class QueryService implements IQueryService {
       //     new UninitializedError("Data wallet has not been unlocked yet!"),
       //   );
       // }
-      return this.queryParsingEngine.handleQuery(query)
-        .andThen((maps) => {
+      return this.queryParsingEngine.handleQuery(query).andThen((maps) => {
+        const maps2 = maps as [InsightString[], EligibleReward[]];
+        const insights = maps2[0];
+        const rewards = maps2[1];
 
-          const maps2 = maps as  [InsightString[], EligibleReward[]];
-          const insights = maps2[0];
-          const rewards = maps2[1];
+        // console.log(insights, rewards);
 
-          // console.log(insights, rewards);
-
-          return this.deliverInsights(context, config, consentContractAddress, query.cid, insights)
-            .map(() => {
-              
-              // console.log("insight delivery api call done");
-              context.publicEvents.onQueryPosted.next({consentContractAddress, query});
-              
-            });;
-          
+        return this.deliverInsights(
+          context,
+          config,
+          consentContractAddress,
+          query.cid,
+          insights,
+        ).map(() => {
+          // console.log("insight delivery api call done");
+          context.publicEvents.onQueryPosted.next({
+            consentContractAddress,
+            query,
+          });
         });
-        
+      });
     });
-
   }
 
-  public validateContextConfig(context: CoreContext, config: CoreConfig): UninitializedError | null {
-    
+  public validateContextConfig(
+    context: CoreContext,
+    config: CoreConfig,
+  ): UninitializedError | null {
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
-        return new UninitializedError("Data wallet has not been unlocked yet!");
+      return new UninitializedError("Data wallet has not been unlocked yet!");
     }
     return null;
   }
 
-  public deliverInsights(context: CoreContext, config: CoreConfig, consentContractAddress: EVMContractAddress, queryId: IpfsCID, insights: InsightString[])
-  : ResultAsync<
+  public deliverInsights(
+    context: CoreContext,
+    config: CoreConfig,
+    consentContractAddress: EVMContractAddress,
+    queryId: IpfsCID,
+    insights: InsightString[],
+  ): ResultAsync<
     void,
-    | AjaxError 
-    | UninitializedError 
-    | ConsentError 
-    | IPFSError
-    | QueryFormatError> {
-    
+    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
+  > {
     const returns = JSON.stringify(insights);
 
-    const signableData = this.createSignable(context, consentContractAddress, queryId, returns);
-    
+    const signableData = this.createSignable(
+      context,
+      consentContractAddress,
+      queryId,
+      returns,
+    );
+
     return this.cryptoUtils
       .signTypedData(
         config.snickerdoodleProtocolDomain,
@@ -218,7 +236,6 @@ export class QueryService implements IQueryService {
         context.dataWalletKey as EVMPrivateKey,
       )
       .andThen((signature) => {
-
         // console.log('signature', signature);
 
         const res = this.insightPlatformRepo.deliverInsights(
@@ -226,17 +243,20 @@ export class QueryService implements IQueryService {
           consentContractAddress,
           queryId,
           signature,
-          returns
-        )
+          returns,
+        );
 
         // console.log('res', res);
-        return res
-      })
-
-
+        return res;
+      });
   }
 
-  public createSignable(context: CoreContext, consentContractAddress: EVMContractAddress, queryId: IpfsCID, returns: string) {
+  public createSignable(
+    context: CoreContext,
+    consentContractAddress: EVMContractAddress,
+    queryId: IpfsCID,
+    returns: string,
+  ) {
     return {
       consentContractId: consentContractAddress,
       queryId,

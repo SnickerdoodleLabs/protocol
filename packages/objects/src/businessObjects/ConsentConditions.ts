@@ -1,4 +1,4 @@
-import { ok, okAsync, ResultAsync } from "neverthrow"
+import { ok, okAsync, ResultAsync } from "neverthrow";
 
 /**
  * ConsentConditions represent the rules to follow when processing queries for a particular
@@ -6,7 +6,7 @@ import { ok, okAsync, ResultAsync } from "neverthrow"
  * token itself in the Token URI.
  */
 export class ConsentConditions {
-  public constructor(public allowCrossBusinessQueries: boolean) { }
+  public constructor(public allowCrossBusinessQueries: boolean) {}
 
   public checkAge(): boolean {
     return true;

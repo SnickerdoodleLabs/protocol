@@ -11,7 +11,10 @@ import { Subject } from "rxjs";
 
 export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onInitialized: Subject<DataWalletAddress>;
-  public onQueryPosted: Subject<{consentContractAddress:EVMContractAddress, query:SDQLQuery}>;
+  public onQueryPosted: Subject<{
+    consentContractAddress: EVMContractAddress;
+    query: SDQLQuery;
+  }>;
   public onAccountAdded: Subject<EVMAccountAddress>;
   public onCohortJoined: Subject<EVMContractAddress>;
   public onCohortLeft: Subject<EVMContractAddress>;
@@ -27,5 +30,4 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onTransaction = new Subject();
     this.onMetatransactionSignatureRequested = new Subject();
   }
-  
 }

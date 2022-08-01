@@ -1,5 +1,3 @@
-import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
-import { ResultAsync, okAsync, errAsync } from "neverthrow";
 import {
   EVMAccountAddress,
   ChainId,
@@ -7,6 +5,9 @@ import {
   ChainInformation,
 } from "@snickerdoodlelabs/objects";
 import { PublicKey } from "@solana/web3.js";
+import { ResultAsync, okAsync, errAsync } from "neverthrow";
+
+import { IWalletProvider } from "@extension-onboarding/services/providers/interfaces";
 
 type DisplayEncoding = "utf8" | "hex";
 

@@ -1,10 +1,10 @@
-import { ResultAsync } from "neverthrow";
 import {
   EVMAccountAddress,
   ChainId,
   Signature,
   ChainInformation,
 } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 
 export interface IWalletProvider {
   isInstalled: boolean;

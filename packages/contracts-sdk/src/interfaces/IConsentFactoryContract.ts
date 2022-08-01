@@ -1,5 +1,3 @@
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
-import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 import {
   BaseURI,
   ConsentFactoryContractError,
@@ -8,6 +6,9 @@ import {
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
+import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
 
 export interface IConsentFactoryContract {
   /**
@@ -105,4 +106,8 @@ export interface IConsentFactoryContract {
   /* getConsentsDeployedByOwner(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>; */
+
+  getOptedInConsentContractAddressForAccount(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
 }

@@ -1,5 +1,6 @@
-import { EvaluationError, SDQLQuery } from "@snickerdoodlelabs/objects";
 import {
+  EvaluationError,
+  SDQLQuery,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -29,16 +30,15 @@ export interface IQueryService {
   >;
   processQuery(
     consentContractAddress: EVMContractAddress,
-    query: SDQLQuery
+    query: SDQLQuery,
   ): ResultAsync<
     void,
-    | AjaxError 
-    | UninitializedError 
-    | ConsentError 
+    | AjaxError
+    | UninitializedError
+    | ConsentError
     | IPFSError
     | QueryFormatError
     | EvaluationError
-    
   >;
 }
 

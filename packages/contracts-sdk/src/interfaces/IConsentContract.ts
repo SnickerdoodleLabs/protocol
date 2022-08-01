@@ -11,6 +11,7 @@ import {
   DomainName,
   BaseURI,
   HexString,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -21,6 +22,8 @@ import {
 } from "@contracts-sdk/interfaces/objects";
 
 export interface IConsentContract {
+  getContractAddress(): EVMContractAddress;
+
   /**
    * Create a consent token owned by the signer
    * @param tokenId randomly generated token id
@@ -72,6 +75,8 @@ export interface IConsentContract {
     tokenId: TokenId,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
+
+  encodeOptOut(tokenId: TokenId): HexString;
 
   /**
    * Submit for blockchain requestForData event
@@ -147,12 +152,20 @@ export interface IConsentContract {
   ): ResultAsync<Event[], ConsentContractError>;
 
   /**
-   * Returns a consent tokens owned by address
+   * Returns consent tokens previously minted for the address
    * @param ownerAddress owner address
    */
   getConsentTokensOfAddress(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<ConsentToken[], ConsentContractError>;
+
+  /**
+   * Returns a current consent token owned by address
+   * @param ownerAddress owner address
+   */
+  getCurrentConsentTokenOfAddress(
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<ConsentToken | null, ConsentContractError>;
 
   /**
    * Adds a domain to the contract storage
@@ -257,11 +270,9 @@ export interface IConsentContractFilters {
   Transfer(
     fromAddress: EVMAccountAddress | null,
     toAddress: EVMAccountAddress | null,
-  ): ResultAsync<EventFilter, ConsentContractError>;
+  ): EventFilter;
 
-  RequestForData(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<EventFilter, ConsentContractError>;
+  RequestForData(ownerAddress: EVMAccountAddress): EventFilter;
 }
 
 export const IConsentContractType = Symbol.for("IConsentContract");

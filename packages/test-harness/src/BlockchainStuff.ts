@@ -76,6 +76,18 @@ export class BlockchainStuff {
     );
   }
 
+  public getConsentContract(
+    contractAddress: EVMContractAddress,
+  ): ConsentContract {
+    const consentContract = this.consentContracts.get(contractAddress);
+    if (consentContract == null) {
+      throw new Error(
+        `Um, consent contract ${contractAddress} does not exist!`,
+      );
+    }
+    return consentContract;
+  }
+
   public createConsentContract(
     name: ConsentName,
     domain: DomainName,

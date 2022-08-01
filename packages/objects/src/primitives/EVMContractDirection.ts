@@ -1,4 +1,4 @@
 export enum EVMContractDirection {
-    To = "to",
-    From = "from"
+  To = "to",
+  From = "from",
 }

@@ -260,57 +260,92 @@ export class CohortService implements ICohortService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
+    | BlockchainProviderError
+    | UninitializedError
+    | AjaxError
+    | MinimalForwarderContractError
     | ConsentContractError
     | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
     | ConsentError
   > {
+    // This will actually create a metatransaction, since the invitation is issued
+    // to the data wallet address
     return ResultUtils.combine([
-      this.consentRepo.isAddressOptedIn(consentContractAddress),
-      this.contextProvider.getContext(),
       this.configProvider.getConfig(),
-    ]).andThen(([optedIn, context, config]) => {
-      if (!optedIn) {
-        return errAsync(
-          new ConsentError(
-            `Cannot opt out of cohort ${consentContractAddress}, as you are a member`,
-          ),
-        );
-      }
-
+      this.contextProvider.getContext(),
+      this.contractFactory.factoryConsentContracts([consentContractAddress]),
+      this.contractFactory.factoryMinimalForwarderContract(),
+    ]).andThen(([config, context, [consentContract], minimalForwarder]) => {
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
           new UninitializedError("Data wallet has not been unlocked yet!"),
         );
       }
 
-      // Need to sign the request to leave
-      const value = {
-        consentContractAddress: consentContractAddress,
-      } as Record<string, unknown>;
-
-      const types: Record<string, TypedDataField[]> = {
-        LeaveCohort: [{ name: "consentContractAddress", type: "string" }],
-      };
-
-      return this.cryptoUtils
-        .signTypedData(
-          config.snickerdoodleProtocolDomain,
-          types,
-          value,
-          context.dataWalletKey,
+      // We need to find your opt-in token
+      return this.consentRepo
+        .getCurrentConsentToken(
+          consentContractAddress,
+          EVMAccountAddress(context.dataWalletAddress),
         )
-        .andThen((signature) => {
-          return this.insightPlatformRepo.leaveCohort(
-            context.dataWalletAddress!,
-            consentContractAddress,
-            signature,
-          );
-        })
-        .map(() => {
-          context.publicEvents.onCohortLeft.next(consentContractAddress);
+        .andThen((consentToken) => {
+          console.log(consentToken);
+
+          if (consentToken == null) {
+            // You're not actually opted in!
+            return errAsync(
+              new ConsentError(
+                "Cannot opt out of consent contract, you were not opted in!",
+              ),
+            );
+          }
+
+          // Encode the call to the consent contract
+          const callData = consentContract.encodeOptOut(consentToken.tokenId);
+
+          return minimalForwarder
+            .getNonce(EVMAccountAddress(context.dataWalletAddress!))
+            .andThen((nonce) => {
+              // We need to take the types, and send it to the account signer
+              const value = {
+                to: consentContractAddress, // Contract address for the metatransaction
+                from: EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
+                value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+                gas: BigNumber.from(1000000), // The amount of gas to pay.
+                nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+                data: callData, // The actual bytes of the request, encoded as a hex string
+              } as IMinimalForwarderRequest;
+
+              return this.cryptoUtils
+                .signTypedData(
+                  getMinimalForwarderSigningDomain(
+                    config.controlChainId,
+                    config.controlChainInformation
+                      .metatransactionForwarderAddress,
+                  ),
+                  forwardRequestTypes,
+                  value,
+                  context.dataWalletKey!,
+                )
+                .andThen((metatransactionSignature) => {
+                  // Got the signature for the metatransaction, now we can execute it.
+                  // .executeMetatransaction will sign everything and have the server run
+                  // the metatransaction.
+                  return this.insightPlatformRepo.executeMetatransaction(
+                    context.dataWalletAddress!, // data wallet address
+                    EVMAccountAddress(context.dataWalletAddress!), // account address
+                    consentContractAddress, // contract address
+                    BigNumberString(BigNumber.from(nonce).toString()),
+                    callData,
+                    metatransactionSignature,
+                    context.dataWalletKey!,
+                  );
+                });
+            })
+            .map(() => {
+              // Notify the world that we've opted in to the cohort
+              context.publicEvents.onCohortLeft.next(consentContractAddress);
+            });
         });
     });
   }
