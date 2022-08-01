@@ -22,7 +22,7 @@ import {
   ISetGenderParams,
   ISetLocationParams,
   ISetEmailParams,
-  IGetCohortInvitationWithDomainParams,
+  IGetInvitationWithDomainParams,
   IMetatransactionSignatureRequestCallbackParams,
 } from "@shared/interfaces/actions";
 import {
@@ -58,7 +58,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected contextProvider: IContextProvider,
     protected accountService: IAccountService,
     protected piiService: IPIIService,
-    protected cohortService: IInvitationService,
+    protected invitationService: IInvitationService,
   ) {}
 
   public async handleRpcCall(
@@ -189,9 +189,9 @@ export class RpcCallHandler implements IRpcCallHandler {
         return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
       }
       case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
-        const { domain } = params as IGetCohortInvitationWithDomainParams;
+        const { domain } = params as IGetInvitationWithDomainParams;
         return new AsyncRpcResponseSender(
-          this.getInvitationWithDomain(domain),
+          this.getInvitationsByDomain(domain),
           res,
         ).call();
       }
@@ -205,30 +205,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     }
   }
 
-
-
-  private getInvitationWithDomain(
+  private getInvitationsByDomain(
     domain: DomainName,
   ): ResultAsync<any, SnickerDoodleCoreError> {
-    return this.cohortService
-      .getInvitationWithDomain(domain)
-      .map((result) => {
-        return result.map((invitation) => {
-          if (invitation.domain === domain) {
-            return this.cohortService
-              .checkInvitationStatus(invitation)
-              .map((result: EInvitationStatus) => {
-                if (result === EInvitationStatus.New) {
-                  return invitation;
-                } else {
-                  return null;
-                }
-              });
-          } else {
-            return null;
-          }
-        });
-      });
+    return this.invitationService.getInvitationByDomain(domain);
   }
 
   private unlock(

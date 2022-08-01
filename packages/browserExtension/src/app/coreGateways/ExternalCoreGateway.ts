@@ -45,7 +45,7 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_STATE);
   }
 
-  public getInvitationWithDomain(
+  public getInvitationsByDomain(
     domain: DomainName,
   ): ResultAsync<Invitation, JsonRpcError> {
     return this._handler.call(

@@ -1,4 +1,4 @@
-import { ICohortRepository } from "@interfaces/data";
+import { IInvitationRepository } from "@interfaces/data/IInvitationRepository";
 import { IErrorUtils } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
@@ -7,18 +7,19 @@ import {
   DomainName,
   EInvitationStatus,
   ISnickerdoodleCore,
+  PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export class CohortRepository implements ICohortRepository {
+export class InvitationRepository implements IInvitationRepository {
   constructor(
     protected core: ISnickerdoodleCore,
     protected errorUtils: IErrorUtils,
   ) {}
 
-  public getInvitationWithDomain(
+  public getInvitationsByDomain(
     domain: DomainName,
-  ): ResultAsync<Invitation[], SnickerDoodleCoreError> {
+  ): ResultAsync<PageInvitation[], SnickerDoodleCoreError> {
     return this.core.getInvitationsByDomain(domain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
@@ -29,14 +30,6 @@ export class CohortRepository implements ICohortRepository {
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
     return this.core.checkInvitationStatus(invitation).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
-  public getInvitationDetails(
-    invitation: Invitation,
-  ): ResultAsync<JSON, SnickerDoodleCoreError> {
-    return this.core.getInvitationDetails(invitation).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
