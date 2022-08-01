@@ -2,11 +2,12 @@ import { ResultAsync } from "neverthrow";
 import { Observable } from "rxjs";
 
 import {
-  CohortInvitation,
+  Invitation,
   ConsentConditions,
   IEVMNFT,
   SDQLQuery,
   SDQLQueryRequest,
+  PageInvitation,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -31,6 +32,7 @@ import {
   Age,
   CountryCode,
   DataWalletAddress,
+  DomainName,
   EmailAddressString,
   EVMAccountAddress,
   EVMContractAddress,
@@ -112,7 +114,7 @@ export interface ISnickerdoodleCore {
    * @param invitation
    */
   checkInvitationStatus(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     EInvitationStatus,
     | BlockchainProviderError
@@ -131,7 +133,7 @@ export interface ISnickerdoodleCore {
    * @param consentConditions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
    */
   acceptInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<
     void,
@@ -150,7 +152,7 @@ export interface ISnickerdoodleCore {
    * right?)
    */
   rejectInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -178,6 +180,17 @@ export interface ISnickerdoodleCore {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentError
+  >;
+
+  getInvitationsByDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    PageInvitation[],
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | IPFSError
   >;
 
   // Called by the form factor to approve the processing of the query.

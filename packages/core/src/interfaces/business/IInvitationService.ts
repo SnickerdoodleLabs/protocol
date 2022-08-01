@@ -1,22 +1,25 @@
 import {
   AjaxError,
   BlockchainProviderError,
-  CohortInvitation,
+  Invitation,
   ConsentConditions,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  DomainName,
   EInvitationStatus,
   EVMContractAddress,
   MinimalForwarderContractError,
   PersistenceError,
   UninitializedError,
+  PageInvitation,
+  IPFSError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface ICohortService {
+export interface IInvitationService {
   checkInvitationStatus(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     EInvitationStatus,
     | PersistenceError
@@ -28,7 +31,7 @@ export interface ICohortService {
   >;
 
   acceptInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<
     void,
@@ -40,7 +43,7 @@ export interface ICohortService {
   >;
 
   rejectInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     void,
     | UninitializedError
@@ -64,6 +67,17 @@ export interface ICohortService {
     | ConsentContractRepositoryError
     | ConsentError
   >;
+
+  getInvitationsByDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    PageInvitation[],
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | IPFSError
+  >;
 }
 
-export const ICohortServiceType = Symbol.for("ICohortService");
+export const IInvitationServiceType = Symbol.for("IInvitationService");

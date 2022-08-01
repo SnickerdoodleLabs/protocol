@@ -6,7 +6,7 @@ import ConnectWalletPending from "../Screens/ConnectWalletPending";
 import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
 import NftClaimed from "../Screens/NftClaimed";
 import browser from "webextension-polyfill";
-import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
+import { EAPP_STATE, IRewardItem } from "../../constants";
 import Browser from "webextension-polyfill";
 import { ExternalCoreGateway } from "@app/coreGateways";
 import { IExternalState } from "@shared/interfaces/states";
@@ -21,6 +21,12 @@ import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProvide
 import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
 import { EPortNames } from "@shared/enums/ports";
+import {
+  Invitation,
+  DomainName,
+  TokenId,
+} from "@snickerdoodlelabs/objects";
+import { findIndex } from "rxjs";
 
 let coreGateway;
 let notificationEmitter;
@@ -62,15 +68,14 @@ const connect = () => {
 connect();
 
 const App = () => {
-  const [backgroundState, setBackgroundState] = useState<IExternalState>();
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
   const [rewardToDisplay, setRewardToDisplay] = useState<
     IRewardItem | undefined
   >();
+  const [cohortInvitation, setInvitation] = useState<Invitation>();
 
   useEffect(() => {
-    initiateBackgroundState();
-    initiateRewardItem();
+    initiateCohort();
     addEventListeners();
     return () => {
       removeEventListeners();
@@ -85,39 +90,41 @@ const App = () => {
     }
   }, [appState]);
 
-  const initiateBackgroundState = () => {
-    coreGateway.getState().map((state) => {
-      setBackgroundState(state);
-    });
+  const initiateCohort = async () => {
+    coreGateway
+      .getInvitationWithDomain(window.location.hostname as DomainName)
+      .map((invitation) => {
+        if (invitation != null) {
+          initiateRewardItem(invitation[0]);
+        }
+      });
   };
-
-  const isScam = useMemo(
-    () => backgroundState?.scamList?.includes(window.location.origin),
-    [backgroundState],
-  );
-
-  const isInWhiteList = useMemo(
-    () => backgroundState?.whiteList?.includes(window.location.origin),
-    [backgroundState],
-  );
-
-  const renderScamWarning = useMemo(
-    () => (isScam ? <p>scam</p> : null),
-    [isScam],
-  );
-
-  const renderSafeUrlNotification = useMemo(
-    () => (isInWhiteList ? <p>safe url</p> : null),
-    [isInWhiteList],
-  );
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
   };
 
-  const initiateRewardItem = () => {
-    const hostname = window.location.hostname;
-    const reward = REWARD_DATA.find((i) => i.host === hostname);
+  const initiateRewardItem = (cohort: Invitation) => {
+    // When we pass the Cohortinvitation rpcCallHandler to App.tsx we lost proporties of invitation because of that
+    // I'm creating new one for pass it to the acceptInvitation or rejectInvitation.
+    const rewardInvitation = new Invitation(
+      cohort.domain,
+      cohort.consentContractAddress,
+      TokenId(BigInt(cohort.tokenId)),
+      cohort.businessSignature,
+    );
+    setInvitation(rewardInvitation);
+
+    const reward: IRewardItem = {
+      host: window.location.hostname,
+      title: cohort!.displayItems!.title,
+      description: cohort!.displayItems!.description,
+      image: cohort!.displayItems!.image,
+      primaryButtonText: "Claim Reward",
+      secondaryButtonText: "Back to Game",
+      rewardName: cohort!.displayItems!.rewardName,
+      nftClaimedImage: cohort!.displayItems!.nftClaimedImage,
+    };
     if (reward) {
       setTimeout(() => {
         setRewardToDisplay(reward);
@@ -191,6 +198,7 @@ const App = () => {
         return (
           <RewardCard
             rewardItem={rewardToDisplay!}
+            cohortInvitation={cohortInvitation}
             changeAppState={changeAppState}
           />
         );
@@ -204,6 +212,7 @@ const App = () => {
         return (
           <NftClaimed
             rewardItem={rewardToDisplay!}
+            cohortInvitation={cohortInvitation}
             changeAppState={changeAppState}
           />
         );
@@ -212,13 +221,7 @@ const App = () => {
     }
   }, [rewardToDisplay, appState]);
 
-  return (
-    <>
-      {renderSafeUrlNotification}
-      {renderScamWarning}
-      {renderComponent}
-    </>
-  );
+  return <>{renderComponent}</>;
 };
 
 export default App;

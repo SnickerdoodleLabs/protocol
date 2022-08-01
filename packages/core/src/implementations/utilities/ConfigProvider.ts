@@ -42,7 +42,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       URLString("http://localhost:8545"),
       chainConfig,
       controlChainInformation,
-      URLString("http://localhost:5021/api/v0"),
+      URLString("http://localhost:5001/api/v0"),
       URLString("http://localhost:3006"),
       snickerdoodleSigningDomain,
       5000, // polling interval indexing,
@@ -50,6 +50,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       5000, // polling interval nfts
       "covalent api key",
       "moralis api key",
+      URLString("https://cloudflare-dns.com/dns-query"),
     );
   }
 
@@ -82,5 +83,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       overrides.covalentApiKey ?? this.config.covalentApiKey;
     this.config.moralisApiKey =
       overrides.moralisApiKey ?? this.config.moralisApiKey;
+    this.config.dnsServerAddress =
+      overrides.dnsServerAddress ?? this.config.dnsServerAddress;
   }
 }

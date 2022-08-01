@@ -5,7 +5,7 @@ import {
   TokenId,
 } from "@objects/primitives";
 
-export class CohortInvitation {
+export class Invitation {
   public constructor(
     public domain: DomainName,
     public consentContractAddress: EVMContractAddress,

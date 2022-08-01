@@ -1,5 +1,9 @@
 import { IRpcCallHandler } from "@interfaces/api";
-import { IAccountService, IPIIService } from "@interfaces/business";
+import {
+  IAccountService,
+  IInvitationService,
+  IPIIService,
+} from "@interfaces/business";
 import { IContextProvider } from "@interfaces/utilities";
 import { EExternalActions, EInternalActions } from "@shared/enums";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
@@ -18,10 +22,14 @@ import {
   ISetGenderParams,
   ISetLocationParams,
   ISetEmailParams,
+  IGetInvitationWithDomainParams,
 } from "@shared/interfaces/actions";
 import {
   Age,
+  Invitation,
   CountryCode,
+  DomainName,
+  EInvitationStatus,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -47,6 +55,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected contextProvider: IContextProvider,
     protected accountService: IAccountService,
     protected piiService: IPIIService,
+    protected cohortService: IInvitationService,
   ) {}
 
   public async handleRpcCall(
@@ -142,6 +151,13 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_LOCATION: {
         return this._sendAsyncResponse(this.getLocation(), res);
       }
+      case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
+        const { domain } = params as IGetInvitationWithDomainParams;
+        return this._sendAsyncResponse(
+          this.getInvitationWithDomain(domain),
+          res,
+        );
+      }
       case EExternalActions.GET_STATE:
         return (res.result = this.contextProvider.getExterenalState());
 
@@ -161,14 +177,47 @@ export class RpcCallHandler implements IRpcCallHandler {
         res.error = err;
       })
       .map((result) => {
+        console.log("sendAsyncRes", result);
         if (typeof result === typeof undefined) {
           res.result = DEFAULT_RPC_SUCCESS_RESULT;
         } else {
-          res.result = result;
+          res.result = this.toObject(result);
         }
         return okAsync(undefined);
       });
   };
+  // to fix {code: -32603, message: 'Do not know how to serialize a BigInt', data: {…}}
+  toObject(obj) {
+    return JSON.parse(
+      JSON.stringify(obj, (_, v) =>
+        typeof v === "bigint" ? `${v}#bigint` : v,
+      ).replace(/"(-?\d+)#bigint"/g, (_, a) => a),
+    );
+  }
+
+  private getInvitationWithDomain(
+    domain: DomainName,
+  ): ResultAsync<any, SnickerDoodleCoreError> {
+    return this.cohortService
+      .getInvitationWithDomain(domain)
+      .map((result) => {
+        return result.map((invitation) => {
+          if (invitation.domain === domain) {
+            return this.cohortService
+              .checkInvitationStatus(invitation)
+              .map((result: EInvitationStatus) => {
+                if (result === EInvitationStatus.New) {
+                  return invitation;
+                } else {
+                  return null;
+                }
+              });
+          } else {
+            return null;
+          }
+        });
+      });
+  }
 
   private unlock(
     account: EVMAccountAddress,

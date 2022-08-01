@@ -1,5 +1,5 @@
 /**
- * EInvitationStatus is the status of a CohortInvitation in relation to this particular data wallet.
+ * EInvitationStatus is the status of a Invitation in relation to this particular data wallet.
  */
 export enum EInvitationStatus {
   New, // The invitation is not for a cohort that we have dealt with before

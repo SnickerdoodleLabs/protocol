@@ -4,15 +4,18 @@ import { Box, Typography } from "@material-ui/core";
 import Modal, { useGenericModalStyles } from "../../Modals/Modal";
 
 import { EAPP_STATE, IRewardItem } from "../../../constants";
+import { Invitation } from "@snickerdoodlelabs/objects";
 
 interface IRewardCardProps {
   changeAppState: (state: EAPP_STATE) => void;
   rewardItem: IRewardItem;
+  cohortInvitation: Invitation | undefined;
 }
 
 const RewardCard: React.FC<IRewardCardProps> = ({
   changeAppState,
   rewardItem,
+  cohortInvitation,
 }: IRewardCardProps) => {
   const modalClasses = useGenericModalStyles();
 

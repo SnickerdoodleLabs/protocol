@@ -16,13 +16,13 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { localChainAccounts } from "@test-harness/LocalChainAccounts";
-const defaultConsentContractAddress = EVMContractAddress("");
 
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
@@ -91,6 +91,7 @@ export class BlockchainStuff {
   public createConsentContract(
     name: ConsentName,
     domain: DomainName,
+    metadataCID: IpfsCID,
   ): ResultAsync<
     EVMContractAddress,
     ConsentFactoryContractError | ConsentContractError
@@ -98,10 +99,10 @@ export class BlockchainStuff {
     return this.consentFactoryContract
       .createConsent(
         this.serverAccount.accountAddress, // The server account has all the permissions to start with. We'll add the business' account later
-        BaseURI("this is a base uri"),
+        BaseURI(metadataCID),
         name,
       )
-      .andThen((contractAddress) => {
+      .map((contractAddress) => {
         // Got the new consent contract address
         // Create the contract wrapper
         const consentContract = new ConsentContract(
@@ -110,11 +111,7 @@ export class BlockchainStuff {
         );
         this.consentContracts.set(contractAddress, consentContract);
 
-        return ResultUtils.combine([consentContract.addDomain(domain)]).map(
-          () => {
-            return contractAddress;
-          },
-        );
+        return contractAddress;
       });
   }
 }
