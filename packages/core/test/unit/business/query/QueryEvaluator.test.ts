@@ -4,7 +4,7 @@ import { QueryEvaluator } from "@core/implementations/business/utilities/query/Q
 import { Age, ChainId, 
     CountryCode,
     EVMAccountAddress, EVMBlockRange, EVMChainCode, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken, Gender, SDQL_Name, SDQL_OperatorName, URLString } from "@objects/primitives";
-import { UnixTimestamp } from "@objects/businessObjects";
+import { UnixTimestamp } from "@objects/primitives";
 import { EVMTransaction, EVMTransactionFilter, IDataWalletPersistence } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import td from "testdouble";

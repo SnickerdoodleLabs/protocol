@@ -24,7 +24,7 @@ import {
   CountryCode,
   URLString,
 } from "@objects/primitives";
-import { UnixTimestamp } from "@objects/businessObjects";
+import { UnixTimestamp } from "@objects/primitives";
 
 /**
  * This is technically a repository, but since the form factor may need to override where

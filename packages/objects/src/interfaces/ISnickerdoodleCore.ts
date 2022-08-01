@@ -39,7 +39,7 @@ import {
   LanguageCode,
   Signature,
 } from "@objects/primitives";
-import { UnixTimestamp } from "@objects/businessObjects";
+import { UnixTimestamp } from "@objects/primitives";
 
 
 export interface ISnickerdoodleCore {

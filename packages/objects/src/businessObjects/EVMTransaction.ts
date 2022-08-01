@@ -5,7 +5,7 @@ import {
   EVMAccountAddress,
   BigNumberString,
 } from "@objects/primitives";
-import { UnixTimestamp } from "@objects/businessObjects";
+import { UnixTimestamp } from "@objects/primitives";
 
 /**
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to

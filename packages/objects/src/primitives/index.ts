@@ -21,7 +21,7 @@ export * from "@objects/primitives/EVMContractFunction";
 export * from "@objects/primitives/EVMContractDirection";
 export * from "@objects/primitives/EVMToken";
 //export * from "@extension-onboarding/packages/objects/src/businessObjects/EVMBlockNumber";
-export * from "@objects/primitives/EVMBlockRange";
+export * from "@extension-onboarding/packages/objects/src/businessObjects/EVMBlockRange";
 export * from "@objects/primitives/EVMPrivateKey";
 
 export * from "@objects/primitives/GivenName";
@@ -42,6 +42,10 @@ export * from "@objects/primitives/TokenUri";
 //export * from "@extension-onboarding/packages/objects/src/businessObjects/UnixTimestamp";
 export * from "@objects/primitives/URLString";
 export * from "@objects/primitives/UUID";
+
+export * from "@objects/primitives/UnixTimestamp";
+export * from "@objects/primitives/EVMBlockNumber";
+
 
 export * from "@objects/primitives/SDQL";
 export * from "@objects/primitives/Version";
