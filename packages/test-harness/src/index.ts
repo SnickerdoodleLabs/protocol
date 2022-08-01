@@ -610,7 +610,7 @@ function optOutCampaign(): ResultAsync<
         ...acceptedInvitations.map((invitation) => {
           return {
             name: `${invitation.invitation.consentContractAddress}`,
-            value: invitation.invitation.consentContractAddress,
+            value: invitation,
           };
         }),
         new inquirer.Separator(),
