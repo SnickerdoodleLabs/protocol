@@ -36,7 +36,7 @@ import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -56,11 +56,16 @@ const core = new SnickerdoodleCore(
   persistence,
 );
 
-const accountPrivateKey = EVMPrivateKey(
-  "0x0123456789012345678901234567890123456789012345678901234567890123",
-);
+const devAccountKeys = [
+  EVMPrivateKey(
+    "0x0123456789012345678901234567890123456789012345678901234567890123",
+  ),
+  EVMPrivateKey(
+    "0x1234567890123456789012345678901234567890123456789012345678901234",
+  ),
+];
 
-const blockchain = new BlockchainStuff(accountPrivateKey);
+const blockchain = new BlockchainStuff(devAccountKeys);
 const ipfs = new IPFSClient();
 
 const simulator = new InsightPlatformSimulator(blockchain, ipfs);
@@ -117,7 +122,7 @@ core.getEvents().map(async (events) => {
     // This method needs to happen in nicer form in all form factors
     try {
       console.log(
-        `Metadata Transaction Requested! Signer account address: ${blockchain.accountAddress}`,
+        `Metadata Transaction Requested!`,
         `Request account address: ${request.accountAddress}`,
       );
 
@@ -145,8 +150,11 @@ core.getEvents().map(async (events) => {
         ChainId(31337),
       ) as ControlChainInformation;
 
+      // Get the wallet we are going to sign with
+      const wallet = blockchain.getWalletForAddress(request.accountAddress);
+
       const metatransactionSignature = Signature(
-        await blockchain.accountWallet._signTypedData(
+        await wallet._signTypedData(
           // This domain is critical- we have to use this and not the normal Snickerdoodle domain
           getMinimalForwarderSigningDomain(
             doodleChainConfig.chainId,
@@ -253,9 +261,9 @@ function corePrompt(): ResultAsync<void, Error> {
   ]).andThen((answers) => {
     switch (answers.core) {
       case "unlock":
-        return unlockCore(blockchain.accountAddress, accountPrivateKey);
+        return unlockCore();
       case "addAccount":
-        return addAccount(blockchain.accountAddress, accountPrivateKey);
+        return addAccount();
       case "optInCampaign":
         return optInCampaign();
       case "optOutCampaign":
@@ -479,10 +487,7 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
     });
 }
 
-function unlockCore(
-  account: EVMAccountAddress,
-  privateKey: EVMPrivateKey,
-): ResultAsync<
+function unlockCore(): ResultAsync<
   void,
   | PersistenceError
   | UnsupportedLanguageError
@@ -493,17 +498,41 @@ function unlockCore(
   | AjaxError
   | CrumbsContractError
 > {
-  // Need to get the unlock message first
-  return core
-    .getUnlockMessage(languageCode)
-    .andThen((message) => {
-      // Sign the message
-      return cryptoUtils.signMessage(message, privateKey);
-    })
-    .andThen((signature) => {
-      return core.unlock(account, signature, languageCode);
+  return prompt([
+    {
+      type: "list",
+      name: "unlockAccountSelector",
+      message: "Which account do you want to unlock with?",
+      choices: blockchain.accountWallets.map((wallet) => {
+        return {
+          name: wallet.address,
+          value: wallet,
+        };
+      }),
+    },
+  ])
+    .andThen((answers) => {
+      const wallet = answers.unlockAccountSelector as ethers.Wallet;
+      // Need to get the unlock message first
+      return core
+        .getUnlockMessage(languageCode)
+        .andThen((message) => {
+          // Sign the message
+          return cryptoUtils.signMessage(
+            message,
+            EVMPrivateKey(wallet._signingKey().privateKey),
+          );
+        })
+        .andThen((signature) => {
+          return core.unlock(
+            EVMAccountAddress(wallet.address),
+            signature,
+            languageCode,
+          );
+        });
     })
     .map(() => {
+      unlocked = true;
       console.log(`Unlocked!`);
     })
     .mapErr((e) => {
@@ -512,10 +541,7 @@ function unlockCore(
     });
 }
 
-function addAccount(
-  account: EVMAccountAddress,
-  privateKey: EVMPrivateKey,
-): ResultAsync<
+function addAccount(): ResultAsync<
   void,
   | PersistenceError
   | UnsupportedLanguageError
@@ -526,19 +552,47 @@ function addAccount(
   | AjaxError
   | CrumbsContractError
 > {
-  // Need to get the unlock message first
   return core
-    .getUnlockMessage(languageCode)
-    .andThen((message) => {
-      // Sign the message
-      return cryptoUtils.signMessage(message, privateKey);
+    .getAccounts()
+    .andThen((linkedAccounts) => {
+      console.log("Linked Accounts", linkedAccounts);
+      const addableAccounts = blockchain.accountWallets.filter((aw) => {
+        return !linkedAccounts.includes(EVMAccountAddress(aw.address));
+      });
+      return prompt([
+        {
+          type: "list",
+          name: "addAccountSelector",
+          message: "Which account do you want to add?",
+          choices: addableAccounts.map((wallet) => {
+            return {
+              name: wallet.address,
+              value: wallet,
+            };
+          }),
+        },
+      ]);
     })
-    .andThen((signature) => {
-      return core.unlock(account, signature, languageCode);
-    })
-    .map(() => {
-      console.log(`Unlocked!`);
-      unlocked = true;
+
+    .andThen((answers) => {
+      const wallet = answers.addAccountSelector as ethers.Wallet;
+      // Need to get the unlock message first
+      return core
+        .getUnlockMessage(languageCode)
+        .andThen((message) => {
+          // Sign the message
+          return cryptoUtils.signMessage(
+            message,
+            EVMPrivateKey(wallet._signingKey().privateKey),
+          );
+        })
+        .andThen((signature) => {
+          return core.addAccount(
+            EVMAccountAddress(wallet.address),
+            signature,
+            languageCode,
+          );
+        });
     })
     .mapErr((e) => {
       console.error(e);
