@@ -8,6 +8,7 @@ export * from "@objects/businessObjects/ConsentToken";
 export * from "@objects/businessObjects/EligibleReward";
 export * from "@objects/businessObjects/EVMTransaction";
 export * from "@objects/businessObjects/EVMEvent";
+export * from "@objects/businessObjects/EVMBlockRange";
 export * from "@objects/businessObjects/ExternallyOwnedAccount";
 export * from "@objects/businessObjects/Insight";
 export * from "@objects/businessObjects/MetatransactionSignatureRequest";
@@ -17,3 +18,4 @@ export * from "@objects/businessObjects/SDQLQuery";
 export * from "@objects/businessObjects/SiteVisit";
 //export * from "@objects/businessObjects/SDQL";
 export * from "@objects/businessObjects/EVMNFT";
+

@@ -12,6 +12,9 @@ import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import { IQueryEvaluator } from "@core/interfaces/business/utilities";
+import { EVMTransactionFilter } from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
+import { UnixTimestamp } from "@snickerdoodlelabs/objects";
 import {
   AST_NetworkQuery,
   AST_PropertyQuery,
@@ -28,114 +31,164 @@ import {
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
-  constructor(
-    @inject(IDataWalletPersistenceType)
-    protected dataWalletPersistence: IDataWalletPersistence,
-  ) {}
-  protected age: Age = Age(0);
-  protected location: CountryCode = CountryCode("12345");
+    constructor(
+        @inject(IDataWalletPersistenceType)
+        protected dataWalletPersistence: IDataWalletPersistence,
+    ) {}
 
-  public eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
+    protected age: Age = Age(0);
+    protected location: CountryCode = CountryCode("12345");
+
+    public eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
     // All the switch statements here
     //console.log("Constructor: ", query.constructor);
-    switch (query.constructor) {
-      case AST_NetworkQuery:
-        return this.evalNetworkQuery(query as AST_NetworkQuery);
-      default:
-        return this.evalPropertyQuery(query as AST_PropertyQuery);
+        switch (query.constructor) {
+        case AST_NetworkQuery:
+            return this.evalNetworkQuery(query as AST_NetworkQuery);
+        default:
+            return this.evalPropertyQuery(query as AST_PropertyQuery);
+        }
     }
-  }
-  public evalNetworkQuery(
-    q: AST_NetworkQuery,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
-    return okAsync(SDQL_Return(0));
-  }
-  public evalPropertyQuery(
-    q: AST_PropertyQuery,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
-    let result = SDQL_Return(true);
-    switch (q.property) {
-      case "age":
-        // console.log("Tracking the result: ", result);
-        return this.dataWalletPersistence.getAge().andThen((age) => {
-          switch (q.returnType) {
-            case "boolean":
-              // console.log("Property: Age, Return Type: Boolean");
-              // console.log("Before conditions: ", result);
-              for (const condition of q.conditions) {
-                result = result && this.evalPropertyConditon(age, condition);
-              }
-              //console.log("After conditions: ", result);
-              return okAsync(result);
-            case "integer":
-              //console.log("Property: Age, Return Type: Integer");
-              //console.log("Returning age: ", age)
-              result = SDQL_Return(age);
-              // console.log("Tracking the result: ", result);
-              return okAsync(result);
-            default:
-              // console.log("Tracking the result: ", result);
-              return okAsync(result);
-          }
-        });
-        console.log("Tracking the result: ", result);
-        return okAsync(result);
-      case "location":
-        // console.log("Tracking the result: ", result);
-        return this.dataWalletPersistence.getLocation().andThen((location) => {
-          switch (q.returnType) {
-            case "boolean":
-              // console.log("Property: Location, Return Type: Boolean");
-              // console.log("Before conditions: ", result);
-              for (const condition of q.conditions) {
-                result =
-                  result && this.evalPropertyConditon(location, condition);
-              }
-              //console.log("After conditions: ", result);
-              return okAsync(result);
-            case "integer":
-              //console.log("Property: Location, Return Type: Integer");
-              //console.log("Returning location: ", location)
-              result = SDQL_Return(location);
-              return okAsync(result);
-            default:
-              return okAsync(result);
-          }
-        });
-        // console.log("Tracking the result: ", result);
-        return okAsync(result);
-      case "gender":
-        // console.log("Tracking the result: ", result);
-        return this.dataWalletPersistence.getGender().andThen((gender) => {
-          // console.log("Gender: ", gender);
-          // console.log("Return Type: ", q.returnType);
-          switch (q.returnType) {
-            case "enum":
-              // console.log("Property: Gender, Return Type: Enum");
-              // console.log("Gender: ", gender);
-              for (const key of q.enum_keys) {
-                if (key == gender) {
-                  return okAsync(SDQL_Return(gender));
+   
+    public evalNetworkQuery(q: AST_NetworkQuery): ResultAsync<SDQL_Return, PersistenceError> {
+        let result = SDQL_Return(false);
+        let chainId = q.contract.networkId;
+        let address = q.contract.address as EVMAccountAddress;
+        let hash = "";
+        let startTime = q.contract.blockrange.start;
+        let endTime = q.contract.blockrange.end;
+        console.log("Address: ", address)
+        console.log("Start Time: ", startTime)
+        console.log("End Time: ", endTime)
+
+        let filter = new EVMTransactionFilter(
+            [chainId],
+            [address],
+            [hash],
+            startTime,
+            endTime
+        );
+
+        return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
+            (transactions) =>
+            {
+                if (transactions == null){
+                    return okAsync(SDQL_Return(false));
                 }
-              }
-              // console.log("After conditions: ", result);
-              return okAsync(SDQL_Return(Gender("unknown")));
+                if (transactions.length == 0){
+                    return okAsync(SDQL_Return(false));
+                }
+                return okAsync(SDQL_Return(true));
+            }
+        ) 
+    } 
+
+    public evalPropertyQuery(q: AST_PropertyQuery): ResultAsync<SDQL_Return, PersistenceError> { 
+        let result = SDQL_Return(true);
+        switch (q.property){
+            case "age":
+                // console.log("Tracking the result: ", result);
+                return this.dataWalletPersistence.getAge().andThen(
+                    (age) => 
+                    {
+                        switch(q.returnType){
+                            case "boolean":
+                                // console.log("Property: Age, Return Type: Boolean");
+                                // console.log("Before conditions: ", result);
+                                for (let condition of q.conditions) {
+                                    result = (result) && (this.evalPropertyConditon(age, condition));
+                                }
+                                //console.log("After conditions: ", result);
+                                return okAsync(result);
+                            case "integer": 
+                                //console.log("Property: Age, Return Type: Integer");
+                                //console.log("Returning age: ", age)
+                                result = SDQL_Return(age);
+                                // console.log("Tracking the result: ", result);
+                                return okAsync(result);
+                            default:
+                                // console.log("Tracking the result: ", result);
+                                return okAsync(result);
+                        }
+                    }
+                );
+                console.log("Tracking the result: ", result);
+                return okAsync(result);
+            case "location":
+                // console.log("Tracking the result: ", result);
+                return this.dataWalletPersistence.getLocation().andThen( 
+                    (location) => 
+                    {
+                        switch(q.returnType){
+                            case "boolean":
+                                // console.log("Property: Location, Return Type: Boolean");
+                                // console.log("Before conditions: ", result);
+                                for (let condition of q.conditions) {
+                                    result = (result) && (this.evalPropertyConditon(location, condition));
+                                }
+                                //console.log("After conditions: ", result);
+                                return okAsync(result);
+                            case "integer": 
+                                //console.log("Property: Location, Return Type: Integer");
+                                //console.log("Returning location: ", location)
+                                result = SDQL_Return(location);
+                                return okAsync(result);
+                            default:
+                                return okAsync(result);
+                        }
+                    }
+                );
+                // console.log("Tracking the result: ", result);
+                return okAsync(result);
+            case "gender":
+                // console.log("Tracking the result: ", result);
+                return this.dataWalletPersistence.getGender().andThen( 
+                    (gender) => 
+                    {
+                        // console.log("Gender: ", gender);
+                        // console.log("Return Type: ", q.returnType);
+                        switch(q.returnType){
+                            case "enum":
+                                // console.log("Property: Gender, Return Type: Enum");
+                                // console.log("Gender: ", gender);
+                                for (let key of q.enum_keys) {
+                                    if (key == gender){
+                                        return (okAsync(SDQL_Return(gender)))
+                                    }
+                                }
+                                // console.log("After conditions: ", result);
+                                return okAsync(SDQL_Return(Gender("unknown")));
+                            default:
+                                return okAsync(result);
+                        }
+                    }
+                );
+                return okAsync(result);
+            case "url_visited_count":
+                // console.log("Tracking the result: ", result);
+                return this.dataWalletPersistence.getSiteVisitsMap().andThen( 
+                    (url_visited_count) => 
+                    {
+                        // console.log("URL count: ", url_visited_count);
+                        return (okAsync(SDQL_Return(url_visited_count))) 
+                    }
+                );
+            case "chain_transaction_count":
+                // console.log("Tracking the result: ", result);
+                let obj = q.patternProperties;
+                let key = Object.keys(obj)[0];
+                console.log("Key: ", key);
+
+                return this.dataWalletPersistence.getTransactionsMap().andThen( 
+                    (transactionsMap) => 
+                    {
+                        // console.log("URL count: ", url_visited_count);
+                        return (okAsync(SDQL_Return(transactionsMap))) 
+                    }
+                );
             default:
+              // console.log("Tracking the result: ", result);
               return okAsync(result);
-          }
-        });
-        return okAsync(result);
-      case "url_visited_count":
-        // console.log("Tracking the result: ", result);
-        return this.dataWalletPersistence
-          .getURLs()
-          .andThen((url_visited_count) => {
-            // console.log("URL count: ", url_visited_count);
-            return okAsync(SDQL_Return(url_visited_count));
-          });
-      default:
-        // console.log("Tracking the result: ", result);
-        return okAsync(result);
     }
     console.log("Tracking the result: ", result);
     return okAsync(result);

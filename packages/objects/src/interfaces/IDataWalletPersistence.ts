@@ -22,9 +22,9 @@ import {
   Gender,
   FamilyName,
   CountryCode,
-  UnixTimestamp,
   URLString,
 } from "@objects/primitives";
+import { UnixTimestamp } from "@objects/primitives";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -106,6 +106,13 @@ export interface IDataWalletPersistence {
 
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
+
+  // return a map of URLs
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
+
+  // return a map of Chain Transaction Counts
+  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+
 
   getLatestTransactionForAccount(
     chainId: ChainId,
