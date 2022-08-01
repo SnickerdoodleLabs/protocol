@@ -1,5 +1,5 @@
 import { Brand, make } from "ts-brand";
-import { ChainId } from "@objects/primitives";
+import { ChainId } from "./ChainId";
 import { URLString } from "@objects/primitives/URLString";
 
 //#region types
