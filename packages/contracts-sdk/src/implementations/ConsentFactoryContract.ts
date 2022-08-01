@@ -246,6 +246,18 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       },
     );
   }
+
+  public getOptedInConsentContractAddressForAccount(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
+    console.log(`getOptedInConsentContractAddressForAccount`, accountAddress);
+
+    return this.getUserConsentAddressesCount(accountAddress).andThen(
+      (count) => {
+        return this.getUserConsentAddressesByIndex(accountAddress, 0, count);
+      },
+    );
+  }
 }
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event
 

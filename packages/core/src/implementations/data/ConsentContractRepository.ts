@@ -9,6 +9,7 @@ import {
   ConsentContractError,
   AjaxError,
   ConsentContractRepositoryError,
+  ConsentFactoryContractError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -115,13 +116,40 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
   public getConsentContracts(): ResultAsync<
     Map<EVMContractAddress, IConsentContract>,
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   > {
-    return okAsync(new Map());
+    return this.getOptedInConsentContractAddresses()
+      .andThen((contractAddresses) => {
+        return this.consentContractFactory.factoryConsentContracts(
+          contractAddresses,
+        );
+      })
+      .map((consentContracts) => {
+        return new Map(
+          consentContracts.map((consentContract) => {
+            return [consentContract.getContractAddress(), consentContract];
+          }),
+        );
+      });
   }
+
+  public getOptedInConsentContractAddresses(): ResultAsync<
+    EVMContractAddress[],
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  > {
+    return ResultUtils.combine([
+      this.consentContractFactory.factoryConsentFactoryContract(),
+      this.contextProvider.getContext(),
+    ]).andThen(([consentFactoryContract, context]) => {
+      if (context.dataWalletAddress == null) {
+        return errAsync(new UninitializedError());
+      }
+      return consentFactoryContract.getOptedInConsentContractAddressForAccount(
+        EVMAccountAddress(context.dataWalletAddress),
+      );
+    });
+  }
+
   protected getConsentContract(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<

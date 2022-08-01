@@ -106,4 +106,8 @@ export interface IConsentFactoryContract {
   /* getConsentsDeployedByOwner(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>; */
+
+  getOptedInConsentContractAddressForAccount(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
 }
