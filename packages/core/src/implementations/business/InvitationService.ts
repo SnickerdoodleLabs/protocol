@@ -116,11 +116,20 @@ export class InvitationService implements IInvitationService {
         .andThen((contracts) => {
           const contract = contracts[0];
           return ResultUtils.combine([
-            contract.getDomains(),
+            contract.getDomains(), // This actually returns URLs
             this.getConsentContractAddressesFromDNS(invitation.domain),
           ]);
         })
-        .map(([domains, consentContractAddresses]) => {
+        .map(([urls, consentContractAddresses]) => {
+          console.debug("urls", urls);
+          console.debug("consentContractAddresses", consentContractAddresses);
+
+          const domains = urls.map((url) => {
+            return new URL(`http://${url}`).hostname;
+          });
+
+          console.debug("domains", domains);
+
           // The contract must include the domain
           if (!domains.includes(invitation.domain)) {
             return EInvitationStatus.Invalid;
