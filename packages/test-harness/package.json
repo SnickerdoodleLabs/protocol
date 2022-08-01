@@ -43,6 +43,7 @@
     "inquirer": "^8.0.0",
     "neverthrow": "^4.3.1",
     "neverthrow-result-utils": "^1.0.2",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "ipfs-http-client": "^55.0.0"
   }
 }

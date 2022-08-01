@@ -12,8 +12,11 @@ import td from "testdouble";
 
 import { SDQLQueryRepository } from "@core/implementations/data/SDQLQueryRepository";
 import { ISDQLQueryRepository } from "@core/interfaces/data";
-import { IIPFSProvider } from "@core/interfaces/data/IIPFSProvider";
-import { IContextProvider, IConfigProvider } from "@core/interfaces/utilities";
+import {
+  IIPFSProvider,
+  IContextProvider,
+  IConfigProvider,
+} from "@core/interfaces/utilities";
 
 const textToAdd = "Phoebe";
 const cidString = IpfsCID("QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF");

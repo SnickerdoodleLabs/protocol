@@ -3,10 +3,10 @@ import { inject, injectable } from "inversify";
 import { IPFSHTTPClient, create } from "ipfs-http-client";
 import { ResultAsync, fromThrowable } from "neverthrow";
 
-import { IIPFSProvider } from "@core/interfaces/data/IIPFSProvider";
 import {
   IConfigProvider,
   IConfigProviderType,
+  IIPFSProvider,
 } from "@core/interfaces/utilities";
 
 @injectable()

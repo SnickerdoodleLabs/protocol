@@ -59,6 +59,8 @@ import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
+  IBlockchainListener,
+  IBlockchainListenerType,
 } from "@core/interfaces/api";
 import {
   IAccountService,
@@ -195,13 +197,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
+    const blockchainListener = this.iocContainer.get<IBlockchainListener>(
+      IBlockchainListenerType,
+    );
+
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])
       .andThen(() => {
         return accountService.unlock(accountAddress, signature, languageCode);
       })
       .andThen(() => {
-        return ResultUtils.combine([accountIndexerPoller.initialize()]);
+        return ResultUtils.combine([
+          accountIndexerPoller.initialize(),
+          blockchainListener.initialize(),
+        ]);
       })
       .map(() => {});
   }

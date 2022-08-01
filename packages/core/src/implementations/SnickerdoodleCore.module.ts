@@ -31,6 +31,7 @@ import {
   CohortService,
   MonitoringService,
   ProfileService,
+  QueryParsingEngine,
   QueryService,
 } from "@core/implementations/business";
 import {
@@ -38,12 +39,14 @@ import {
   CrumbsRepository,
   DNSRepository,
   InsightPlatformRepository,
+  SDQLQueryRepository,
 } from "@core/implementations/data";
 import {
   BlockchainProvider,
   ConfigProvider,
   ContextProvider,
   DataWalletUtils,
+  IPFSProvider,
 } from "@core/implementations/utilities";
 import {
   ContractFactory,
@@ -70,6 +73,8 @@ import {
 import {
   IQueryEvaluator,
   IQueryEvaluatorType,
+  IQueryParsingEngine,
+  IQueryParsingEngineType,
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
@@ -82,6 +87,8 @@ import {
   IDNSRepositoryType,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
+  ISDQLQueryRepository,
+  ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
 import {
   IBlockchainProvider,
@@ -92,6 +99,8 @@ import {
   IContextProviderType,
   IDataWalletUtils,
   IDataWalletUtilsType,
+  IIPFSProvider,
+  IIPFSProviderType,
 } from "@core/interfaces/utilities";
 import {
   IContractFactory,
@@ -128,6 +137,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(MonitoringService)
       .inSingletonScope();
 
+    bind<IQueryParsingEngine>(IQueryParsingEngineType)
+      .to(QueryParsingEngine)
+      .inSingletonScope();
+
     bind<IInsightPlatformRepository>(IInsightPlatformRepositoryType)
       .to(InsightPlatformRepository)
       .inSingletonScope();
@@ -140,6 +153,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDNSRepository>(IDNSRepositoryType).to(DNSRepository);
     bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
       .to(CovalentEVMTransactionRepository)
+      .inSingletonScope();
+    bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
+      .to(SDQLQueryRepository)
       .inSingletonScope();
 
     // Utilities
@@ -164,6 +180,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
+    bind<IIPFSProvider>(IIPFSProviderType).to(IPFSProvider).inSingletonScope();
 
     // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)
