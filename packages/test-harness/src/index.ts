@@ -563,26 +563,53 @@ function optInCampaign(): ResultAsync<
           return okAsync(undefined);
         }
         const invitation = answers.optInCampaign as PageInvitation;
-        return core
-          .checkInvitationStatus(invitation.invitation)
-          .andThen((invitationStatus) => {
-            if (invitationStatus != EInvitationStatus.New) {
-              return errAsync(
-                new Error(
-                  `Invalid invitation to campaign ${invitation.invitation.consentContractAddress}`,
-                ),
-              );
-            }
 
-            // Accept with no conditions
-            return core.acceptInvitation(invitation.invitation, null);
-          })
-          .map(() => {
-            console.log(
-              `Accepted invitation to ${invitation.url}, with token Id ${invitation.invitation.tokenId}`,
-            );
-            acceptedInvitations.push(invitation);
-          });
+        // Show the invitation details, like the popup would
+        console.log("Invitation details:", invitation.domainDetails);
+
+        return prompt([
+          {
+            type: "list",
+            name: "acceptInvitation",
+            message: "Accept the invitation?",
+            choices: [
+              {
+                name: "Yes",
+                value: true,
+              },
+              {
+                name: "No",
+                value: false,
+              },
+            ],
+          },
+        ]).andThen((acceptAnswers) => {
+          // You can reject the invitation
+          if (!acceptAnswers.acceptInvitation) {
+            return okAsync(undefined);
+          }
+
+          return core
+            .checkInvitationStatus(invitation.invitation)
+            .andThen((invitationStatus) => {
+              if (invitationStatus != EInvitationStatus.New) {
+                return errAsync(
+                  new Error(
+                    `Invalid invitation to campaign ${invitation.invitation.consentContractAddress}`,
+                  ),
+                );
+              }
+
+              // Accept with no conditions
+              return core.acceptInvitation(invitation.invitation, null);
+            })
+            .map(() => {
+              console.log(
+                `Accepted invitation to ${invitation.url}, with token Id ${invitation.invitation.tokenId}`,
+              );
+              acceptedInvitations.push(invitation);
+            });
+        });
       });
     })
     .mapErr((e) => {
