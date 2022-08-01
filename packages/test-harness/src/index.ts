@@ -81,8 +81,8 @@ core.getEvents().map(async (events) => {
     console.log(`Initialized with address ${dataWalletAddress}`);
   });
 
-  events.onQueryPosted.subscribe((query) => {
-    console.log(`Query posted`, query);
+  events.onQueryPosted.subscribe((queryRequest) => {
+    console.log(`queryRequest posted`, queryRequest);
   });
 
   events.onMetatransactionSignatureRequested.subscribe(async (request) => {
