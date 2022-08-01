@@ -8,9 +8,11 @@ import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
+  PORT_NOTIFICATION,
 } from "@shared/constants/ports";
 import {
   Age,
+  BigNumberString,
   CountryCode,
   EmailAddressString,
   EVMAccountAddress,
@@ -20,7 +22,10 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
+  UUID,
 } from "@snickerdoodlelabs/objects";
+import { EventEmitter } from "events";
+import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
 
 let coreGateway: ExternalCoreGateway;
 
@@ -45,79 +50,98 @@ const clearMux = () => {
 };
 document.addEventListener("extension-stream-channel-closed", clearMux);
 
-export class OnboardingProvider {
-  static getState() {
+export class OnboardingProvider extends EventEmitter {
+  constructor() {
+    super();
+    const _this = this;
+    streamMiddleware.events.on(PORT_NOTIFICATION, (resp: MTSRNotification) => {
+      _this.emit(resp.type, resp);
+    });
+  }
+
+  public getState() {
     return coreGateway.getState();
   }
 
-  static unlock(
+  public unlock(
     accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode = LanguageCode("en"),
   ) {
     return coreGateway.unlock(accountAddress, signature, languageCode);
   }
-  static addAccount(
+  public addAccount(
     accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode = LanguageCode("en"),
   ) {
     return coreGateway.addAccount(accountAddress, signature, languageCode);
   }
-  static getUnlockMessage(languageCode: LanguageCode = LanguageCode("en")) {
+  public getUnlockMessage(languageCode: LanguageCode = LanguageCode("en")) {
     return coreGateway.getUnlockMessage(languageCode);
   }
-  static getAccounts() {
+  public getAccounts() {
     return coreGateway.getAccounts();
   }
-  static getAccountBalances() {
+  public getAccountBalances() {
     return coreGateway.getAccountBalances();
   }
-  static getAccountNFTs() {
+  public getAccountNFTs() {
     return coreGateway.getAccountNFTs();
   }
-  static getFamilyName() {
+  public getFamilyName() {
     return coreGateway.getFamilyName();
   }
-  static getGivenName() {
+  public getGivenName() {
     return coreGateway.getGivenName();
   }
-  static getAge() {
+  public getAge() {
     return coreGateway.getAge();
   }
-  static getBirthday() {
+  public getBirthday() {
     return coreGateway.getBirtday();
   }
-  static getEmail() {
+  public getEmail() {
     return coreGateway.getEmail();
   }
-  static getLocation() {
+  public getLocation() {
     return coreGateway.getLocation();
   }
-  static getGender() {
+  public getGender() {
     return coreGateway.getGender();
   }
-  static setFamilyName(familyName: FamilyName) {
+  public setFamilyName(familyName: FamilyName) {
     return coreGateway.setFamilyName(familyName);
   }
-  static setGivenName(givenName: GivenName) {
+  public setGivenName(givenName: GivenName) {
     return coreGateway.setGivenName(givenName);
   }
-  static setAge(age: Age) {
+  public setAge(age: Age) {
     return coreGateway.setAge(age);
   }
-  static setBirthday(birthday: UnixTimestamp) {
+  public setBirthday(birthday: UnixTimestamp) {
     return coreGateway.setBirtday(birthday);
   }
-  static setEmail(email: EmailAddressString) {
+  public setEmail(email: EmailAddressString) {
     return coreGateway.setEmail(email);
   }
-  static setLocation(location: CountryCode) {
+  public setLocation(location: CountryCode) {
     return coreGateway.setLocation(location);
   }
-  static setGender(gender: Gender) {
+  public setGender(gender: Gender) {
     return coreGateway.setGender(gender);
+  }
+  public metatransactionSignatureRequestCallback(
+    id: UUID,
+    metatransactionSignature: Signature,
+    nonce: BigNumberString,
+  ) {
+    return coreGateway.metatransactionSignatureRequestCallback(
+      id,
+      metatransactionSignature,
+      nonce,
+    );
   }
 }
 
-export default OnboardingProvider;
+export default new OnboardingProvider();

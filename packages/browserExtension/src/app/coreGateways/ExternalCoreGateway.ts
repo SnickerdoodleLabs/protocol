@@ -5,6 +5,7 @@ import { IExternalState } from "@shared/interfaces/states";
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import {
   Age,
+  BigNumberString,
   CountryCode,
   EmailAddressString,
   EVMAccountAddress,
@@ -16,10 +17,12 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 import {
   IAddAccountParams,
   IGetUnlockMessageParams,
+  IMetatransactionSignatureRequestCallbackParams,
   ISetAgeParams,
   ISetBirthdayParams,
   ISetEmailParams,
@@ -136,5 +139,19 @@ export class ExternalCoreGateway {
   }
   public getLocation(): ResultAsync<CountryCode, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_LOCATION);
+  }
+  public metatransactionSignatureRequestCallback(
+    id: UUID,
+    metatransactionSignature: Signature,
+    nonce: BigNumberString,
+  ) {
+    return this._handler.call(
+      EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK,
+      {
+        id,
+        metatransactionSignature,
+        nonce,
+      } as IMetatransactionSignatureRequestCallbackParams,
+    );
   }
 }
