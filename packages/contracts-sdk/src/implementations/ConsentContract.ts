@@ -31,17 +31,17 @@ export class ConsentContract implements IConsentContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    consentAddress: EVMContractAddress,
+    protected contractAddress: EVMContractAddress,
   ) {
     this.contract = new ethers.Contract(
-      consentAddress,
+      contractAddress,
       ContractsAbis.ConsentAbi.abi,
       providerOrSigner,
     );
   }
 
   public getContractAddress(): EVMContractAddress {
-    return EVMContractAddress(this.contract?.address || "");
+    return this.contractAddress;
   }
 
   public optIn(
@@ -167,6 +167,12 @@ export class ConsentContract implements IConsentContract {
         });
       })
       .map(() => {});
+  }
+
+  public encodeOptOut(tokenId: TokenId): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("optOut", [tokenId]),
+    );
   }
 
   public requestForData(
@@ -407,14 +413,16 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map((numberOfTokens) => numberOfTokens.toNumber());
+    ).map((numberOfTokens) => {
+      return numberOfTokens.toNumber();
+    });
   }
 
   public tokenURI(
     tokenId: TokenId,
   ): ResultAsync<TokenUri | null, ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract?.tokenURI(tokenId) as Promise<TokenUri | null>,
+      this.contract.tokenURI(tokenId) as Promise<TokenUri | null>,
       (e) => {
         return new ConsentContractError(
           "Unable to call tokenURI()",
@@ -437,7 +445,7 @@ export class ConsentContract implements IConsentContract {
     toBlock?: BlockNumber,
   ): ResultAsync<Event[], ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract?.queryFilter(eventFilter, fromBlock, toBlock) as Promise<
+      this.contract.queryFilter(eventFilter, fromBlock, toBlock) as Promise<
         Event[]
       >,
       (e) => {
@@ -450,6 +458,8 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
+  // Returns all the past token ids generated for the user
+  // Keep incase we ever want a list of previous token ids issued to the user even if they opted out
   public getConsentTokensOfAddress(
     ownerAddress: EVMAccountAddress,
   ): ResultAsync<ConsentToken[], ConsentContractError> {
@@ -457,29 +467,56 @@ export class ConsentContract implements IConsentContract {
       if (numberOfTokens === 0) {
         return okAsync([] as ConsentToken[]);
       }
-
-      return this.filters
-        .Transfer(null, ownerAddress)
-        .andThen((eventFilter) => {
-          return this.queryFilter(eventFilter);
-        })
-        .andThen((logsEvents) => {
-          return ResultUtils.combine(
-            logsEvents.map((logEvent) => {
-              return this.tokenURI(logEvent.args?.tokenId).andThen(
-                (tokenUri) => {
-                  return okAsync(
-                    new ConsentToken(
-                      ownerAddress,
-                      TokenId(logEvent.args?.tokenId?.toNumber()),
-                      tokenUri as TokenUri,
-                    ),
-                  );
-                },
+      return this.queryFilter(
+        this.filters.Transfer(null, ownerAddress),
+      ).andThen((logsEvents) => {
+        return ResultUtils.combine(
+          logsEvents.map((logEvent) => {
+            // SEAN: This is failing the second time I do it
+            return this.tokenURI(logEvent.args?.tokenId).andThen((tokenUri) => {
+              return okAsync(
+                new ConsentToken(
+                  this.contractAddress,
+                  ownerAddress,
+                  TokenId(logEvent.args?.tokenId?.toNumber()),
+                  tokenUri as TokenUri,
+                ),
               );
-            }),
-          );
-        });
+            });
+          }),
+        );
+      });
+    });
+  }
+
+  // Returns the current token id owned by the user
+  public getCurrentConsentTokenOfAddress(
+    ownerAddress: EVMAccountAddress,
+  ): ResultAsync<ConsentToken | null, ConsentContractError> {
+    return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
+      if (numberOfTokens === 0) {
+        return okAsync(null);
+      }
+      // this returns all the past Transfer events pertaining to this contract
+      return this.queryFilter(
+        this.filters.Transfer(null, ownerAddress),
+      ).andThen((logsEvents) => {
+        console.log("Transfer events log count", logsEvents.length);
+        // Get only the last Transfer event (the latest opt in token id)
+        const lastIndex = logsEvents.length - 1;
+        return this.tokenURI(logsEvents[lastIndex].args?.tokenId).andThen(
+          (tokenUri) => {
+            return okAsync(
+              new ConsentToken(
+                this.contractAddress,
+                ownerAddress,
+                TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
+                tokenUri as TokenUri,
+              ),
+            );
+          },
+        );
+      });
     });
   }
 
@@ -552,25 +589,24 @@ export class ConsentContract implements IConsentContract {
     fromBlock?: BlockNumber,
     toBlock?: BlockNumber,
   ): ResultAsync<RequestForData[], ConsentContractError> {
-    return this.filters
-      .RequestForData(requesterAddress)
-      .andThen((eventFilter) => {
-        return this.queryFilter(eventFilter, fromBlock, toBlock);
-      })
-      .andThen((logsEvents) => {
-        return ResultUtils.combine(
-          logsEvents.map((logEvent) => {
-            return okAsync(
-              new RequestForData(
-                this.getContractAddress(),
-                logEvent.args?.requester,
-                logEvent.args?.ipfsCID,
-                BlockNumber(logEvent.blockNumber),
-              ),
-            );
-          }),
-        );
-      });
+    return this.queryFilter(
+      this.filters.RequestForData(requesterAddress),
+      fromBlock,
+      toBlock,
+    ).andThen((logsEvents) => {
+      return ResultUtils.combine(
+        logsEvents.map((logEvent) => {
+          return okAsync(
+            new RequestForData(
+              this.getContractAddress(),
+              logEvent.args?.requester,
+              logEvent.args?.ipfsCID,
+              BlockNumber(logEvent.blockNumber),
+            ),
+          );
+        }),
+      );
+    });
   }
 
   public disableOpenOptIn(): ResultAsync<void, ConsentContractError> {
@@ -764,36 +800,11 @@ export class ConsentContract implements IConsentContract {
     Transfer: (
       fromAddress: EVMAccountAddress | null,
       toAddress: EVMAccountAddress | null,
-    ): ResultAsync<EventFilter, ConsentContractError> => {
-      return ResultAsync.fromPromise(
-        this.contract?.filters.Transfer(
-          fromAddress,
-          toAddress,
-        ) as Promise<EventFilter>,
-        (e) => {
-          return new ConsentContractError(
-            "Unable to call filters.Transfer()",
-            (e as IBlockchainError).reason,
-            e,
-          );
-        },
-      );
+    ): EventFilter => {
+      return this.contract.filters.Transfer(fromAddress, toAddress);
     },
-    RequestForData: (
-      ownerAddress: EVMAccountAddress,
-    ): ResultAsync<EventFilter, ConsentContractError> => {
-      return ResultAsync.fromPromise(
-        this.contract?.filters.RequestForData(
-          ownerAddress,
-        ) as Promise<EventFilter>,
-        (e) => {
-          return new ConsentContractError(
-            "Unable to call filters.RequestForData()",
-            (e as IBlockchainError).reason,
-            e,
-          );
-        },
-      );
+    RequestForData: (ownerAddress: EVMAccountAddress): EventFilter => {
+      return this.contract.filters.RequestForData(ownerAddress);
     },
   };
 }

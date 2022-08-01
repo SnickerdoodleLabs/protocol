@@ -1,8 +1,4 @@
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import { CryptoUtils, ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BigNumberString,
@@ -14,18 +10,21 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   HexString,
+  ISDQLQueryObject,
+  SDQLString,
   Signature,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
 } from "@snickerdoodlelabs/signature-verification";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import express from "express";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
-import { localChainAccounts } from "@test-harness/LocalChainAccounts";
+import { IPFSClient } from "@test-harness/IPFSClient";
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
@@ -35,7 +34,10 @@ export class InsightPlatformSimulator {
 
   protected consentContracts = new Array<EVMContractAddress>();
 
-  public constructor(protected blockchain: BlockchainStuff) {
+  public constructor(
+    protected blockchain: BlockchainStuff,
+    protected ipfs: IPFSClient,
+  ) {
     this.app = express();
 
     this.app.use(express.json());
@@ -58,6 +60,7 @@ export class InsightPlatformSimulator {
       );
 
       const value = {
+        dataWallet: dataWalletAddress,
         accountAddress: accountAddress,
         contractAddress: contractAddress,
         nonce: nonce,
@@ -94,7 +97,6 @@ export class InsightPlatformSimulator {
             data: data, // The actual bytes of the request, encoded as a hex string
           } as IMinimalForwarderRequest;
 
-          console.log("Forwarder request", forwarderRequest);
           console.log("Metatransaction signature", metatransactionSignature);
 
           // Now we need to actually execute the metatransaction
@@ -118,8 +120,39 @@ export class InsightPlatformSimulator {
     });
   }
 
-  public postQuery(): ResultAsync<void, never> {
-    return okAsync(undefined);
+  public postQuery(
+    consentContractAddress: EVMContractAddress,
+    queryText: SDQLString,
+  ): ResultAsync<void, Error | ConsentContractError> {
+    // Posting a query involves two things- 1. putting the query content into IPFS, and 2.
+    // calling requestForData on the consent contract
+
+    // The queryText needs to have the timestamp inserted
+    const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
+    queryJson.timestamp = UnixTimestamp(
+      Math.floor(new Date().getTime() / 1000),
+    );
+
+    // Convert query back to string
+    queryText = SDQLString(JSON.stringify(queryJson));
+
+    // Now we can post the query to IPFS
+    return this.ipfs
+      .postToIPFS(queryText)
+      .andThen((cid) => {
+        console.log(`Posted query content to ipfs CID ${cid}`);
+        // Need to call requestForData
+        const consentContract = this.blockchain.getConsentContract(
+          consentContractAddress,
+        );
+
+        return consentContract.requestForData(cid);
+      })
+      .map(() => {
+        console.log(
+          `Sent request for data to consent contract ${consentContractAddress}`,
+        );
+      });
   }
 
   public createCampaign(

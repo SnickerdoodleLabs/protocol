@@ -1,48 +1,38 @@
 export class SDQLSchema {
-    /**
-     * A object created from string
-     */
+  /**
+   * A object created from string
+   */
 
-    constructor(
-        readonly internalObj: Object
-    ) {}
+  constructor(readonly internalObj: Object) {}
 
-    static fromString(s: string): SDQLSchema {
-        const obj = JSON.parse(s);
-        return new SDQLSchema(obj)
-    }
+  static fromString(s: string): SDQLSchema {
+    const obj = JSON.parse(s);
+    return new SDQLSchema(obj);
+  }
 
-    public get version(): string {
-        return `${this.internalObj["version"]}`;
-    }
+  public get version(): string {
+    return `${this.internalObj["version"]}`;
+  }
 
-    public get description(): string {
-        return this.internalObj["description"];
-    }
+  public get description(): string {
+    return this.internalObj["description"];
+  }
 
-    public get business(): string {
-        return this.internalObj["business"];
-    }
+  public get business(): string {
+    return this.internalObj["business"];
+  }
 
-    getQuerySchema(): Object {
+  getQuerySchema(): Object {
+    return this.internalObj["queries"];
+  }
 
-        return this.internalObj["queries"];
-        
-    }
-
-    getReturnSchema(): {"url": string} {
-
-        return this.internalObj["returns"];
-        
-    }
-    getCompensationSchema(): Object {
-
-        return this.internalObj["compensations"];
-        
-    }
-    getLogicSchema(): Object {
-
-        return this.internalObj["logic"];
-        
-    }
+  getReturnSchema(): { url: string } {
+    return this.internalObj["returns"];
+  }
+  getCompensationSchema(): Object {
+    return this.internalObj["compensations"];
+  }
+  getLogicSchema(): Object {
+    return this.internalObj["logic"];
+  }
 }

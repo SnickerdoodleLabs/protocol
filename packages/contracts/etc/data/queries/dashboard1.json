@@ -1,0 +1,49 @@
+{
+    "version": 0.1,
+	"timestamp": <this should be populated with GMT>,
+    "description": "///This should dynamically populate",
+    "business": "/////This should dynamically populate",
+    "queries": {
+        "q1": {
+            "name": "age",
+            "return": "integer",
+        },
+        "q2": {
+            "name": "location",
+            "return": "string"
+        },
+        "q3": {
+            "name": "gender",
+            "return": "enum",
+            "enum_keys": [
+                    "female",
+                    "male",
+                    "nonbinary",
+                    "unknown"
+                ]
+        } 
+    },
+    "returns": {
+        "r1": {
+            "name": "query_response",
+            "query": "q1"
+        },
+        "r2": {
+            "name": "query_response",
+            "query": "q2"
+        },
+        "r3": {
+            "name": "query_response",
+            "query": "q3"
+        },
+        "url": "////populate with the gateway api address"
+    },
+	"compensations":{},
+    "logic": {
+        "returns": [
+            "$r1",
+            "$r2",
+            "$r3"
+        ]
+    }
+}

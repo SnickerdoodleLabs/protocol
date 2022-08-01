@@ -26,7 +26,7 @@
     "alias": "tsc-alias",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
-    "compile": "tsc --build && cd ../.. && yarn alias",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
     "docker-push": "docker push snickerdoodlelabs/protocol-test-harness:local",
     "dockerize": "docker build -t snickerdoodlelabs/protocol-test-harness:local -f Dockerfile --progress=plain ../..",
     "start": "yarn compile && npx ts-node -r tsconfig-paths/register src/index.ts"
@@ -41,6 +41,7 @@
     "ethers": "^5.6.6",
     "express": "^4.18.1",
     "inquirer": "^8.0.0",
+    "ipfs-http-client": "^55.0.0",
     "neverthrow": "^4.3.1",
     "neverthrow-result-utils": "^1.0.2",
     "reflect-metadata": "^0.1.13"

@@ -27,6 +27,8 @@ import {
   ChainId,
   ControlChainInformation,
   ConsentFactoryContractError,
+  CountryCode,
+  SDQLString,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import {
@@ -38,9 +40,9 @@ import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IPFSClient } from "@extension-onboarding/packages/test-harness/src/IPFSClient";
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
-import { CountryCode } from "@snickerdoodlelabs/objects";
 
 // https://github.com/SBoudrias/Inquirer.js
 
@@ -57,21 +59,16 @@ const accountPrivateKey = EVMPrivateKey(
 );
 
 const blockchain = new BlockchainStuff(accountPrivateKey);
+const ipfs = new IPFSClient();
 
-const simulator = new InsightPlatformSimulator(blockchain);
+const simulator = new InsightPlatformSimulator(blockchain, ipfs);
 const cryptoUtils = new CryptoUtils();
 const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.dev");
 
-const cohortInvitation = new CohortInvitation(
-  domainName,
-  EVMContractAddress("0x93fb1De05a05350b10F93b07533533709AdB3347"),
-  TokenId(BigInt(123)),
-  null,
-);
-
 const consentContracts = new Array<EVMContractAddress>();
+const optedInConsentContracts = new Array<EVMContractAddress>();
 
 let unlocked = false;
 
@@ -198,8 +195,12 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "Add Account", value: "addAccount" },
     new inquirer.Separator(),
     {
-      name: "Join Campaign",
-      value: "joinCampaign",
+      name: "Opt In to Campaign",
+      value: "optInCampaign",
+    },
+    {
+      name: "Opt Out of Campaign",
+      value: "optOutCampaign",
     },
     new inquirer.Separator(),
     { name: "Set Age", value: "setAge" },
@@ -236,8 +237,10 @@ function corePrompt(): ResultAsync<void, Error> {
         return unlockCore(blockchain.accountAddress, accountPrivateKey);
       case "addAccount":
         return addAccount(blockchain.accountAddress, accountPrivateKey);
-      case "joinCampaign":
-        return joinCampaign();
+      case "optInCampaign":
+        return optInCampaign();
+      case "optOutCampaign":
+        return optOutCampaign();
       case "setAge":
         console.log("Age is set to 15");
         return core.setAge(Age(15));
@@ -271,7 +274,7 @@ function simulatorPrompt(): ResultAsync<void, Error> {
       case "createCampaign":
         return createCampaign();
       case "post":
-        return simulator.postQuery();
+        return postQuery();
     }
     return okAsync(undefined);
   });
@@ -289,6 +292,171 @@ function createCampaign(): ResultAsync<
     })
     .map((contractAddress) => {
       consentContracts.push(contractAddress);
+    });
+}
+
+function postQuery(): ResultAsync<void, Error | ConsentContractError> {
+  return prompt([
+    {
+      type: "list",
+      name: "consentContract",
+      message: "Please select a consent contract to post a query to:",
+      choices: [
+        ...consentContracts.map((contractAddress) => {
+          return {
+            name: `Consent Contract ${contractAddress}`,
+            value: contractAddress,
+          };
+        }),
+        new inquirer.Separator(),
+        { name: "Cancel", value: "cancel" },
+      ],
+    },
+    {
+      type: "list",
+      name: "queryId",
+      message: "Please select which query to post:",
+      choices: [
+        {
+          name: `Query 1`,
+          value: 1,
+        },
+        {
+          name: `Query 2`,
+          value: 2,
+        },
+        new inquirer.Separator(),
+        { name: "Cancel", value: "cancel" },
+      ],
+    },
+  ])
+    .andThen((answers) => {
+      const contractAddress = EVMContractAddress(answers.consentContract);
+      const queryId = answers.queryId;
+      if (consentContracts.includes(contractAddress) && queryId != "cancel") {
+        // They did not pick "cancel"
+        let queryText = SDQLString("");
+        if (queryId === 1) {
+          queryText = SDQLString(
+            JSON.stringify({
+              version: 0.1,
+              description:
+                "Intractions with the Avalanche blockchain for 15-year and older individuals",
+              business: "Shrapnel",
+              queries: {
+                q1: {
+                  name: "network",
+                  return: "boolean",
+                  chain: "AVAX",
+                  contract: {
+                    networkid: "43114",
+                    address: "0x9366d30feba284e62900f6295bc28c9906f33172",
+                    function: "Transfer",
+                    direction: "from",
+                    token: "ERC20",
+                    blockrange: {
+                      start: 13001519,
+                      end: 14910334,
+                    },
+                  },
+                },
+                q2: {
+                  name: "age",
+                  return: "boolean",
+                  conditions: {
+                    ge: 15,
+                  },
+                },
+                q3: {
+                  name: "location",
+                  return: "integer",
+                },
+                q4: {
+                  name: "gender",
+                  return: "enum",
+                  enum_keys: ["female", "male", "nonbinary", "unknown"],
+                },
+                q5: {
+                  name: "url_visited_count",
+                  return: "object",
+                  object_schema: {
+                    patternProperties: {
+                      "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$":
+                        {
+                          type: "integer",
+                        },
+                    },
+                  },
+                },
+                q6: {
+                  name: "chain_transaction_count",
+                  return: "object",
+                  object_schema: {
+                    patternProperties: {
+                      "^ETH|AVAX|SOL$": {
+                        type: "integer",
+                      },
+                    },
+                  },
+                },
+              },
+              returns: {
+                r1: {
+                  name: "callback",
+                  message: "qualified",
+                },
+                r2: {
+                  name: "callback",
+                  message: "not qualified",
+                },
+                r3: {
+                  name: "query_response",
+                  query: "q3",
+                },
+                r4: {
+                  name: "query_response",
+                  query: "q4",
+                },
+                r5: {
+                  name: "query_response",
+                  query: "q5",
+                },
+                url: "https://418e-64-85-231-39.ngrok.io/insights",
+              },
+              compensations: {
+                c1: {
+                  description: "10% discount code for Starbucks",
+                  callback: "https://418e-64-85-231-39.ngrok.io/starbucks",
+                },
+                c2: {
+                  description:
+                    "participate in the draw to win a CryptoPunk NFT",
+                  callback: "https://418e-64-85-231-39.ngrok.io/cryptopunk",
+                },
+                c3: {
+                  description: "a free CrazyApesClub NFT",
+                  callback: "https://418e-64-85-231-39.ngrok.io/crazyapesclub",
+                },
+              },
+              logic: {
+                returns: ["if($q1and$q2)then$r1else$r2", "$r3", "$r4", "$r5"],
+                compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
+              },
+            }),
+          );
+        } else if (queryId === 2) {
+          console.log("Query 2 currently does not exist");
+          queryText = SDQLString("{}");
+        }
+
+        return simulator.postQuery(contractAddress, queryText);
+      }
+
+      return okAsync(undefined);
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
     });
 }
 
@@ -359,7 +527,7 @@ function addAccount(
     });
 }
 
-function joinCampaign(): ResultAsync<
+function optInCampaign(): ResultAsync<
   void,
   | Error
   | PersistenceError
@@ -372,7 +540,7 @@ function joinCampaign(): ResultAsync<
   return prompt([
     {
       type: "list",
-      name: "joinCampaign",
+      name: "optInCampaign",
       message: "Please choose a campaign to join:",
       choices: [
         ...consentContracts.map((contractAddress) => {
@@ -387,7 +555,7 @@ function joinCampaign(): ResultAsync<
     },
   ])
     .andThen((answers) => {
-      const contractAddress = EVMContractAddress(answers.joinCampaign);
+      const contractAddress = EVMContractAddress(answers.optInCampaign);
       if (consentContracts.includes(contractAddress)) {
         // They did not pick "cancel"
         // We need to make an invitation for ourselves
@@ -417,9 +585,62 @@ function joinCampaign(): ResultAsync<
               console.log(
                 `Accepted invitation to ${contractAddress}, with token Id ${tokenId}`,
               );
+              optedInConsentContracts.push(contractAddress);
             });
         });
       }
+
+      return okAsync(undefined);
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
+    });
+}
+
+function optOutCampaign(): ResultAsync<
+  void,
+  | Error
+  | PersistenceError
+  | BlockchainProviderError
+  | UninitializedError
+  | ConsentContractError
+  | AjaxError
+  | ConsentContractRepositoryError
+> {
+  return prompt([
+    {
+      type: "list",
+      name: "optOutCampaign",
+      message: "Please choose a campaign to opt out of:",
+      choices: [
+        ...optedInConsentContracts.map((contractAddress) => {
+          return {
+            name: `Consent Contract ${contractAddress}`,
+            value: contractAddress,
+          };
+        }),
+        new inquirer.Separator(),
+        { name: "Cancel", value: "cancel" },
+      ],
+    },
+  ])
+    .andThen((answers) => {
+      const contractAddress = EVMContractAddress(answers.optOutCampaign);
+      if (optedInConsentContracts.includes(contractAddress)) {
+        // They did not pick "cancel"
+        // Opt out
+        return core.leaveCohort(contractAddress).map(() => {
+          console.log(`Opted out of consent contract ${contractAddress}`);
+
+          // Remove it from the list of opted-in contracts
+          const index = optedInConsentContracts.indexOf(contractAddress, 0);
+          optedInConsentContracts.splice(index, 1);
+        });
+      }
+      console.log(
+        `optedInConsentContracts does not include ${contractAddress}`,
+      );
 
       return okAsync(undefined);
     })

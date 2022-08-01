@@ -1,8 +1,4 @@
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
   ICryptoUtilsType,
@@ -13,10 +9,8 @@ import {
   Insight,
   IpfsCID,
   Reward,
-  CohortInvitation,
   EVMContractAddress,
   Signature,
-  DomainName,
   DataWalletAddress,
   EVMAccountAddress,
   HexString,
@@ -25,16 +19,14 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { executeMetatransactionTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { ResultAsync, okAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@core/interfaces/data";
-import { BusinessConsentContract } from "@core/interfaces/objects";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities";
-import { okAsync } from "neverthrow";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -56,81 +48,25 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    returns: string 
-    ): ResultAsync<void, AjaxError> {
-      return this.configProvider
-        .getConfig()
-        .andThen((config) => {
-          const url = new URL(
-            urlJoin(
-              config.defaultInsightPlatformBaseUrl,
-              "responses"
-            )
-          );
-          return this.ajaxUtils.post<boolean>(url, {
-            consentContractId: consentContractAddress,
-            queryId: queryId,
-            dataWallet: dataWalletAddress,
-            returns: returns,
-            signature: signature,
-          });
-        })
-        .map((response) => {
-          console.log("Ajax response: " + JSON.stringify(response));
-          // return okAsync({});
-        });
-  }
-
-
-  public getBusinessConsentContracts(): ResultAsync<
-    BusinessConsentContract[],
-    AjaxError
-  > {
-    throw new Error("undefined");
-  }
-
-  public leaveCohort(
-    dataWalletAddress: DataWalletAddress,
-    consentContractAddress: EVMContractAddress,
-    signature: Signature,
+    returns: string,
   ): ResultAsync<void, AjaxError> {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
         const url = new URL(
-          urlJoin(
-            config.defaultInsightPlatformBaseUrl,
-            "cohort",
-            encodeURIComponent(consentContractAddress),
-            "leave",
-          ),
+          urlJoin(config.defaultInsightPlatformBaseUrl, "responses"),
         );
-        return this.ajaxUtils.put<boolean>(url, {
+        return this.ajaxUtils.post<boolean>(url, {
+          consentContractId: consentContractAddress,
+          queryId: queryId,
           dataWallet: dataWalletAddress,
+          returns: returns,
           signature: signature,
         });
       })
-      .map((response) => {});
-  }
-
-  public getTXTRecords(
-    domainName: DomainName,
-  ): ResultAsync<string[], AjaxError> {
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
-        const url = new URL(
-          urlJoin(
-            config.defaultInsightPlatformBaseUrl,
-            "dns",
-            encodeURIComponent(domainName),
-            "txt",
-          ),
-        );
-        return this.ajaxUtils.get<IGetTxtRecordsResponse>(url);
-      })
       .map((response) => {
-        return response.records;
+        console.log("Ajax response: " + JSON.stringify(response));
+        // return okAsync({});
       });
   }
 
@@ -147,6 +83,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       .getConfig()
       .andThen((config) => {
         const value = {
+          dataWallet: dataWalletAddress,
           accountAddress: accountAddress,
           contractAddress: contractAddress,
           nonce: nonce,
@@ -176,8 +113,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
               signature: signature,
             };
 
-            console.log("postBody", postBody);
-
             return this.ajaxUtils.post<IExecuteMetatransactionResponse>(
               url,
               postBody,
@@ -189,11 +124,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 }
 
 // Refer to documentation/openapi/Insight Platform API.yaml
-interface IGetTxtRecordsResponse {
-  records: string[];
+interface IExecuteMetatransactionResponse {
+  success: boolean;
 }
-
-interface IExecuteMetatransactionResponse {}
 
 export const IInsightPlatformRepositoryType = Symbol.for(
   "IInsightPlatformRepository",

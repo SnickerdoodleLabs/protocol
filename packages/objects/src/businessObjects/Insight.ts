@@ -6,8 +6,5 @@ export class Insight {
   //   public destinationUrl: URLString,
   //   public data: number[],
   // ) {}
-  public constructor(
-    public key: string,
-    public data: string,
-  ) {}
+  public constructor(public key: string, public data: string) {}
 }

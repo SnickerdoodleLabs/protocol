@@ -8,6 +8,7 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  ConsentFactoryContractError,
   EVMAccountAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
@@ -38,6 +39,10 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory";
 
 /**
  * This class has 2 main roles, both involving monitoring the blockchain. 1st, it listens specifically to the
@@ -60,6 +65,7 @@ export class BlockchainListener implements IBlockchainListener {
     protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
+    @inject(IContractFactoryType) protected contractFactory: IContractFactory,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
@@ -90,7 +96,10 @@ export class BlockchainListener implements IBlockchainListener {
             const chain = config.chainInformation.get(chainId);
 
             setInterval(() => {
-              this.chainBlockMined(chainId, provider, accounts);
+              this.chainBlockMined(chainId, provider, accounts).mapErr((e) => {
+                console.error(e);
+                return e;
+              });
             }, chain?.averageBlockMiningTime);
 
             return okAsync(undefined);
@@ -104,11 +113,23 @@ export class BlockchainListener implements IBlockchainListener {
     chainId: ChainId,
     provider: JsonRpcProvider,
     accounts: EVMAccountAddress[],
-  ): ResultAsync<void, BlockchainProviderError | UninitializedError> {
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | ConsentContractRepositoryError
+    | IPFSError
+    | AjaxError
+    | ConsentContractError
+    | ConsentError
+  > {
+    
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.blockchainProvider.getLatestBlock(chainId),
     ]).andThen(([config, currentBlock]) => {
+      console.debug("chainBlockMined", chainId);
       const currentBlockNumber = BlockNumber(currentBlock.number);
       const latestKnownBlockNumber =
         this.chainLatestKnownBlockNumber.get(chainId) || BlockNumber(-1);
@@ -118,9 +139,8 @@ export class BlockchainListener implements IBlockchainListener {
 
         const isControlChain = chainId === config.controlChainId;
         if (isControlChain) {
-          this.listenForConsentContractsEvents(currentBlockNumber);
+          return this.listenForConsentContractsEvents(currentBlockNumber);
         }
-        this.monitorChain(currentBlockNumber, chainId, provider, accounts);
       }
 
       return okAsync(undefined);
@@ -132,13 +152,15 @@ export class BlockchainListener implements IBlockchainListener {
   ): ResultAsync<
     void,
     | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
     | ConsentContractRepositoryError
     | IPFSError
-    | UninitializedError
     | AjaxError
     | ConsentContractError
     | ConsentError
   > {
+    console.debug("Listening for consent contract events on doodle chain");
     return this.consentContractRepository
       .getConsentContracts()
       .andThen((consentContractsMap) => {
@@ -177,14 +199,7 @@ export class BlockchainListener implements IBlockchainListener {
   ): ResultAsync<void, BlockchainProviderError> {
     // For each provider, hook up listeners or whatever, that will monitor for activity
     // on the chain for each address.
-    return ResultUtils.combine(
-      accounts.map((account) => {
-        // Hook up the listeners for this account
-        // TODO
-        // return this.monitoringService.transactionDetected(transaction);
-        return okAsync(undefined);
-      }),
-    ).map(() => {});
+    return okAsync(undefined);
   }
   /*
 

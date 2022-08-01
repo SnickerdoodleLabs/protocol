@@ -3,7 +3,9 @@ import { Observable } from "rxjs";
 
 import {
   CohortInvitation,
-  ConsentConditions, IEVMNFT, SDQLQuery
+  ConsentConditions,
+  IEVMNFT,
+  SDQLQuery,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -20,25 +22,24 @@ import {
   PersistenceError,
   QueryFormatError,
   UninitializedError,
-  UnsupportedLanguageError
+  UnsupportedLanguageError,
 } from "@objects/errors";
 import { IEVMBalance } from "@objects/interfaces/chains";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   Age,
+  CountryCode,
   DataWalletAddress,
+  DomainName,
   EmailAddressString,
-  GivenName,
-  Gender,
   EVMAccountAddress,
   EVMContractAddress,
-  IpfsCID,
-  LanguageCode,
   FamilyName,
+  Gender,
+  GivenName,
+  LanguageCode,
   Signature,
   UnixTimestamp,
-  CountryCode,
-  DomainName,
 } from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
@@ -128,7 +129,7 @@ export interface ISnickerdoodleCore {
    * @param invitation The actual invitation to the cohort
    * @param consentConditions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
    */
-   acceptInvitation(
+  acceptInvitation(
     invitation: CohortInvitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<
@@ -169,17 +170,18 @@ export interface ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
-    | BlockchainProviderError
-    | UninitializedError
-    | AjaxError
     | ConsentContractError
     | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | MinimalForwarderContractError
     | ConsentError
   >;
 
   getCohortInvitationByDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation[], Error>
+  ): ResultAsync<CohortInvitation[], Error>;
 
   getInvitationDetails(
     invitation: CohortInvitation,
@@ -192,38 +194,25 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | ConsentContractRepositoryError
     | Error
-  >
-  rejectInvitation(
-    invitation: CohortInvitation,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | ConsentError
-    | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-  > 
+  >;
 
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
   processQuery({
     consentContractAddress,
-    query
+    query,
   }: {
-    consentContractAddress: EVMContractAddress,
-    query:SDQLQuery
-}): ResultAsync<
+    consentContractAddress: EVMContractAddress;
+    query: SDQLQuery;
+  }): ResultAsync<
     void,
-    | AjaxError 
-    | UninitializedError 
-    | ConsentError 
+    | AjaxError
+    | UninitializedError
+    | ConsentError
     | IPFSError
     | QueryFormatError
     | EvaluationError
-  
   >;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;

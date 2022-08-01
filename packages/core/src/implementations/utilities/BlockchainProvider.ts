@@ -128,10 +128,16 @@ export class BlockchainProvider implements IBlockchainProvider {
   }
 
   public getLatestBlock(
-    chainId?: ChainId,
+    chainId: ChainId,
   ): ResultAsync<ethers.providers.Block, BlockchainProviderError> {
-    return this.getProvider(chainId).map(async (provider) => {
-      return await provider.getBlock("latest");
+    return this.getProvider(chainId).andThen((provider) => {
+      return ResultAsync.fromPromise(provider.getBlock("latest"), (e) => {
+        return new BlockchainProviderError(
+          chainId,
+          "Cannot retrieve latest block",
+          e,
+        );
+      });
     });
   }
 
