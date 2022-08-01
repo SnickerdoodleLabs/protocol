@@ -29,6 +29,15 @@ const CR = function () {
   }
 };
 
+const SIFT = function () {
+  const artifactPath = "./artifacts/contracts/registry/Sift.sol/Sift.json";
+  if (fs.existsSync(artifactPath)) {
+    return require("../" + artifactPath);
+  } else {
+    return null;
+  }
+};
+
 const gasSettings = async function (txCount) {
   const hre = require("hardhat");
   const [account] = await hre.ethers.getSigners();
@@ -104,10 +113,36 @@ const crumbsContract = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
     return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
-  } else if (hre.hardhatArguments.network =="localhost") {
+  } else if (hre.hardhatArguments.network == "localhost") {
     return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
   } else if (hre.hardhatArguments.network == "hardhat") {
     return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+  } else if (hre.hardhatArguments.network == "mumbai") {
+    return "";
+  } else if (hre.hardhatArguments.network == "polygon") {
+    return "";
+  } else if (hre.hardhatArguments.network == "fuji") {
+    return "";
+  } else if (hre.hardhatArguments.network == "avalanche") {
+    return "";
+  } else if (hre.hardhatArguments.network == "fantom") {
+    return "";
+  } else if (hre.hardhatArguments.network == "mainnet") {
+    return "";
+  } else {
+    return "";
+  }
+};
+
+// define some dynamic imports
+const siftContract = function () {
+  const hre = require("hardhat");
+  if (hre.hardhatArguments.network == "dev") {
+    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+  } else if (hre.hardhatArguments.network == "localhost") {
+    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+  } else if (hre.hardhatArguments.network == "hardhat") {
+    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
   } else if (hre.hardhatArguments.network == "mumbai") {
     return "";
   } else if (hre.hardhatArguments.network == "polygon") {
@@ -145,4 +180,6 @@ module.exports = {
   countryCode,
   CR,
   crumbsContract,
+  SIFT,
+  siftContract,
 };
