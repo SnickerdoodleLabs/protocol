@@ -102,7 +102,7 @@ export class BlockchainStuff {
         BaseURI(metadataCID),
         name,
       )
-      .andThen((contractAddress) => {
+      .map((contractAddress) => {
         // Got the new consent contract address
         // Create the contract wrapper
         const consentContract = new ConsentContract(
@@ -111,11 +111,7 @@ export class BlockchainStuff {
         );
         this.consentContracts.set(contractAddress, consentContract);
 
-        return ResultUtils.combine([consentContract.addDomain(domain)]).map(
-          () => {
-            return contractAddress;
-          },
-        );
+        return contractAddress;
       });
   }
 }
