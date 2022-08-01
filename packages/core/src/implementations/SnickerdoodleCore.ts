@@ -48,9 +48,7 @@ import {
   UnixTimestamp,
   UnsupportedLanguageError,
   SDQLQuery,
-
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -347,10 +345,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
     return this.profileService.getEmail();
   }
-  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, PersistenceError> {
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
     return this.profileService.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError> {
+  getLocation(): ResultAsync<CountryCode, PersistenceError> {
     return this.profileService.getLocation();
   }
   setAge(age: Age): ResultAsync<void, PersistenceError> {

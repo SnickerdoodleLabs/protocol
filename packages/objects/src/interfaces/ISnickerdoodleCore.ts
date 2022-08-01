@@ -28,8 +28,7 @@ import { IEVMBalance } from "@objects/interfaces/chains";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   Age,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
   DataWalletAddress,
   EmailAddressString,
   EVMAccountAddress,
@@ -220,8 +219,8 @@ export interface ISnickerdoodleCore {
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
   getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
 
-  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, PersistenceError>;
-  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError>;
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<CountryCode, PersistenceError>;
 
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;

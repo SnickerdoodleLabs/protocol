@@ -10,8 +10,7 @@ import {
   PersistenceError,
   SiteVisit,
   UnixTimestamp,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
   EVMPrivateKey,
   EVMAccountAddress,
   EVMContractAddress,
@@ -200,13 +199,13 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   }
 
   public setLocation(
-    location: CountryCodeLetter | CountryCodeNumber,
+    location: CountryCode,
   ): ResultAsync<void, PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.LOCATION, location);
     return okAsync(undefined);
   }
 
-  public getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError> {
+  public getLocation(): ResultAsync<CountryCode, PersistenceError> {
     return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION);
   }
 

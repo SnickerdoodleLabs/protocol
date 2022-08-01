@@ -6,8 +6,7 @@ import {
   UnixTimestamp,
   Gender,
   EmailAddressString,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -28,6 +27,6 @@ export interface IPIIService {
     email: EmailAddressString,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getEmail(): ResultAsync<EmailAddressString, SnickerDoodleCoreError>;
-  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, SnickerDoodleCoreError>;
-  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, SnickerDoodleCoreError>;
+  setLocation(location: CountryCode): ResultAsync<void, SnickerDoodleCoreError>;
+  getLocation(): ResultAsync<CountryCode, SnickerDoodleCoreError>;
 }

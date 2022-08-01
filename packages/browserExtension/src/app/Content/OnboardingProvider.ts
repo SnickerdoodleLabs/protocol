@@ -11,8 +11,7 @@ import {
 } from "@shared/constants/ports";
 import {
   Age,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -113,7 +112,7 @@ export class OnboardingProvider {
   static setEmail(email: EmailAddressString) {
     return coreGateway.setEmail(email);
   }
-  static setLocation(location: CountryCodeNumber | CountryCodeLetter) {
+  static setLocation(location: CountryCode) {
     return coreGateway.setLocation(location);
   }
   static setGender(gender: Gender) {

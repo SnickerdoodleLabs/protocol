@@ -21,8 +21,7 @@ import {
   GivenName,
   Gender,
   FamilyName,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
   URLString,
 } from "@objects/primitives";
 import { UnixTimestamp } from "@objects/businessObjects";
@@ -89,8 +88,8 @@ export interface IDataWalletPersistence {
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
   getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
 
-  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, PersistenceError>;
-  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError>;
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
+  getLocation(): ResultAsync<CountryCode, PersistenceError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected

@@ -1,8 +1,7 @@
 import "reflect-metadata";
 import {
   Age,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
   IDataWalletPersistence,
   IpfsCID,
   SDQLQuery,
@@ -23,7 +22,7 @@ import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
 const queryId = IpfsCID("Beep");
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance1SchemaStr));
-const country = CountryCodeLetter("1");
+const country = CountryCode("1");
 
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();

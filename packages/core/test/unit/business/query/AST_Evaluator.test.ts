@@ -2,8 +2,7 @@ import "reflect-metadata";
 
 import {
   Age,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
   IpfsCID,
   SDQL_Name,
   SDQL_OperatorName,
@@ -50,7 +49,7 @@ class ASTMocks {
 
     td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(
-      okAsync(CountryCodeLetter("1")),
+      okAsync(CountryCode("1")),
     );
 
     this.queryEvaluator = new QueryEvaluator(this.persistenceRepo);

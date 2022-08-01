@@ -1,8 +1,7 @@
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
   EmailAddressString,
   FamilyName,
   Gender,
@@ -28,6 +27,6 @@ export interface IPIIRepository {
     email: EmailAddressString,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getEmail(): ResultAsync<EmailAddressString, SnickerDoodleCoreError>;
-  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, SnickerDoodleCoreError>;
-  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, SnickerDoodleCoreError>;
+  setLocation(location: CountryCode): ResultAsync<void, SnickerDoodleCoreError>;
+  getLocation(): ResultAsync<CountryCode, SnickerDoodleCoreError>;
 }

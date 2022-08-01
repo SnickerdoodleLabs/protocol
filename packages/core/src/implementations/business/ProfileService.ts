@@ -5,8 +5,7 @@ import {
   UnixTimestamp,
   Gender,
   EmailAddressString,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
   Age,
   IDataWalletPersistenceType,
   IDataWalletPersistence,
@@ -52,10 +51,10 @@ export class ProfileService implements IProfileService {
   getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
     return this.dataWalletPersistence.getEmail();
   }
-  setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, PersistenceError> {
+  setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, PersistenceError> {
+  getLocation(): ResultAsync<CountryCode, PersistenceError> {
     return this.dataWalletPersistence.getLocation();
   }
   setAge(age: Age): ResultAsync<void, PersistenceError> {

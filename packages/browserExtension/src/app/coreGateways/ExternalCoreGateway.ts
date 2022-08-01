@@ -5,8 +5,7 @@ import { IExternalState } from "@shared/interfaces/states";
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import {
   Age,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -111,7 +110,7 @@ export class ExternalCoreGateway {
       gender,
     } as ISetGenderParams);
   }
-  public setLocation(location: CountryCodeLetter | CountryCodeNumber): ResultAsync<void, JsonRpcError> {
+  public setLocation(location: CountryCode): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.SET_LOCATION, {
       location,
     } as ISetLocationParams);
@@ -135,7 +134,7 @@ export class ExternalCoreGateway {
   public getGender(): ResultAsync<Gender, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_GENDER);
   }
-  public getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, JsonRpcError> {
+  public getLocation(): ResultAsync<CountryCode, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_LOCATION);
   }
 }

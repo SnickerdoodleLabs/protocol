@@ -8,8 +8,7 @@ import {
   UnixTimestamp,
   Gender,
   EmailAddressString,
-  CountryCodeLetter,
-  CountryCodeNumber,
+  CountryCode,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -57,11 +56,11 @@ export class PIIService implements IPIIService {
     return this.piiRespository.getEmail();
   }
   setLocation(
-    location: CountryCodeLetter | CountryCodeNumber,
+    location: CountryCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCodeLetter | CountryCodeNumber, SnickerDoodleCoreError> {
+  getLocation(): ResultAsync<CountryCode, SnickerDoodleCoreError> {
     return this.piiRespository.getLocation();
   }
 }
