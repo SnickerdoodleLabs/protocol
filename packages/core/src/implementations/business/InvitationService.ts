@@ -121,6 +121,7 @@ export class InvitationService implements IInvitationService {
           ]);
         })
         .map(([urls, consentContractAddresses]) => {
+          // Derive a list of domains from a list of URLs
           console.debug("urls", urls);
           console.debug("consentContractAddresses", consentContractAddresses);
 
@@ -362,14 +363,6 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | IPFSError
   > {
-    /*    return okAsync([new Invitation(domain,"asdasdas" as EVMContractAddress,TokenId(BigInt(1)),null,{
-      title: "Claim your NFT!",
-      description:
-        "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
-      image: "assets/img/crabada-item.png",
-      rewardName: "Crabada 761",
-      nftClaimedImage: "assets/img/crabada-item-claimed.png",
-    })]) */
     return this.getConsentContractAddressesFromDNS(domain)
       .andThen((contractAddresses) => {
         // Now, for each contract that the domain lists, get stuff
@@ -419,7 +412,7 @@ export class InvitationService implements IInvitationService {
                     domain,
                     consentContract.getContractAddress(),
                     tokenId,
-                    null,
+                    null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
                   ),
                   invitationDomain,
                 );
