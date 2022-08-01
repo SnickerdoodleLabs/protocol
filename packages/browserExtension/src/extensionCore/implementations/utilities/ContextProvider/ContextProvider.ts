@@ -82,6 +82,9 @@ export class ContextProvider implements IContextProvider {
       metatransactionSignatureRequest;
     return { accountAddress, contractAddress, data };
   }
+  public removePendingMetatransactionSignatureRequest(id: UUID): void {
+    this.appContext.removeMetatransactionSignatureRequestWithId(id);
+  }
   public getMetatransactionSignatureRequestById(
     id: UUID,
   ): MetatransactionSignatureRequest | undefined {

@@ -24,4 +24,5 @@ export interface IContextProvider {
   getPendingMetatransactionSignatureRequestDetails(
     id: UUID,
   ): Partial<MetatransactionSignatureRequest> | undefined;
+  removePendingMetatransactionSignatureRequest(id: UUID): void;
 }

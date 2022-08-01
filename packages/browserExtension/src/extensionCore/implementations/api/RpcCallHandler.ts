@@ -175,6 +175,8 @@ export class RpcCallHandler implements IRpcCallHandler {
           metatransactionSignature,
           nonce,
         );
+        // TODO add to history if needed
+        this.contextProvider.removePendingMetatransactionSignatureRequest(id);
         return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
       }
       case EExternalActions.GET_STATE:
