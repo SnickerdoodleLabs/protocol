@@ -84,7 +84,33 @@ core.getEvents().map(async (events) => {
   });
 
   events.onQueryPosted.subscribe((query) => {
-    console.log(`Query posted`, query);
+    console.log(
+      `Recieved query for consentContract ${query.consentContractAddress}`,
+    );
+    console.log(query.query);
+
+    prompt([
+      {
+        type: "list",
+        name: "approveQuery",
+        message: "Approve running the query?",
+        choices: [
+          { name: "Yes", value: true },
+          { name: "No", value: false },
+        ],
+      },
+    ])
+      .andThen((answers) => {
+        if (!answers.approveQuery) {
+          return okAsync(undefined);
+        }
+
+        return core.processQuery(query.consentContractAddress, query.query);
+      })
+      .mapErr((e) => {
+        console.error(e);
+        return e;
+      });
   });
 
   events.onMetatransactionSignatureRequested.subscribe(async (request) => {
@@ -149,34 +175,25 @@ core.getEvents().map(async (events) => {
 });
 
 function mainPrompt(): ResultAsync<void, Error> {
-  return ResultAsync.fromPromise(
-    inquirer.prompt([
-      {
-        type: "list",
-        name: "main",
-        message: "Please select a course of action:",
-        choices: [
-          { name: "Nothing", value: "nothing" },
-          new inquirer.Separator(),
-          { name: "Core", value: "core" },
-          new inquirer.Separator(),
-          {
-            name: "Insight Platform Simulator",
-            value: "simulator",
-          },
-          new inquirer.Separator(),
-          { name: "Exit", value: "exit", short: "e" },
-        ],
-      },
-    ]),
-    (e) => {
-      if ((e as any).isTtyError) {
-        // Prompt couldn't be rendered in the current environment
-        console.log("TtyError");
-      }
-      return e as Error;
+  return prompt([
+    {
+      type: "list",
+      name: "main",
+      message: "Please select a course of action:",
+      choices: [
+        { name: "Nothing", value: "nothing" },
+        new inquirer.Separator(),
+        { name: "Core", value: "core" },
+        new inquirer.Separator(),
+        {
+          name: "Insight Platform Simulator",
+          value: "simulator",
+        },
+        new inquirer.Separator(),
+        { name: "Exit", value: "exit", short: "e" },
+      ],
     },
-  ).andThen((answers) => {
+  ]).andThen((answers) => {
     switch (answers.main) {
       case "nothing":
         console.log("Doing nothing for 1 second");

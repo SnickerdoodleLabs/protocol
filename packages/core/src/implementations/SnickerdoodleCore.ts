@@ -326,13 +326,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.getInvitationsByDomain(domain);
   }
 
-  public processQuery({
-    consentContractAddress,
-    query,
-  }: {
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }): ResultAsync<
+  public processQuery(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+  ): ResultAsync<
     void,
     | AjaxError
     | UninitializedError
