@@ -17,7 +17,6 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
-  CountryCode,
   CrumbsContractError,
   EInvitationStatus,
   EmailAddressString,
@@ -51,6 +50,7 @@ import {
   DomainName,
   SDQLQuery,
   PageInvitation,
+  CountryCode,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";

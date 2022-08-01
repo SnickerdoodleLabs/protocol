@@ -292,4 +292,15 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       (_e) => okAsync([]),
     );
   }
+
+  // return a map of URLs
+  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>{
+    throw new Error("Method not implemented.");
+  };
+
+  // return a map of Chain Transaction Counts
+  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>{
+    throw new Error("Method not implemented.");
+  };
+
 }

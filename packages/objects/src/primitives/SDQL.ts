@@ -1,15 +1,13 @@
 import { Brand, make } from "ts-brand";
-
+import { ChainId } from "@objects/primitives/ChainId";
 import { URLString } from "@objects/primitives/URLString";
 
 //#region types
 export type SDQL_Name = Brand<string, "SDQL_Name">;
 export const SDQL_Name = make<SDQL_Name>();
 
-export type SDQL_Return = Brand<
-  string | boolean | number | Array<any> | Map<URLString, number> | null,
-  "SDQL_Return"
->;
+export type SDQL_Return = Brand<string|boolean|number|Array<any>|Map<URLString, number>|Map<ChainId, number>|null, "SDQL_Return">;
+
 export const SDQL_Return = make<SDQL_Return>();
 
 // export type SDQL_Chain = Brand<string, "SDQL_Chain">; EVMChainCode
