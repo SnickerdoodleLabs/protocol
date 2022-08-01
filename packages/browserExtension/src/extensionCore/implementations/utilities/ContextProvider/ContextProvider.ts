@@ -5,7 +5,10 @@ import { UserContext } from "@implementations/utilities/ContextProvider/UserCont
 import { SiteContext } from "@implementations/utilities/ContextProvider/SiteContext";
 import { IInternalState, IExternalState } from "@shared/interfaces/states";
 import { Subject } from "rxjs";
-import { MetatransactionSignatureRequest, UUID } from "@snickerdoodlelabs/objects";
+import {
+  MetatransactionSignatureRequest,
+  UUID,
+} from "@snickerdoodlelabs/objects";
 import { IConfigProvider } from "@shared/interfaces/configProvider";
 import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
 
@@ -23,7 +26,7 @@ export class ContextProvider implements IContextProvider {
     this.siteContext = new SiteContext();
     this.onExtensionError = new Subject();
   }
- 
+
   public getAccountContext(): AccountContext {
     return this.accountContext;
   }
@@ -69,18 +72,20 @@ export class ContextProvider implements IContextProvider {
   // TODO move it to service layer
   public getPendingMetatransactionSignatureRequestDetails(
     id: UUID,
-  ): Partial<MetatransactionSignatureRequest> {
+  ): Partial<MetatransactionSignatureRequest> | undefined {
     const metatransactionSignatureRequest =
       this.appContext.getMetatransactionSignatureRequestById(id);
     if (!metatransactionSignatureRequest) {
-      return {};
+      return undefined;
     }
     const { accountAddress, contractAddress, data } =
       metatransactionSignatureRequest;
     return { accountAddress, contractAddress, data };
   }
-  public getMetatransactionSignatureRequestById(id: UUID): MetatransactionSignatureRequest | undefined {
-   return this.appContext.getMetatransactionSignatureRequestById(id);
+  public getMetatransactionSignatureRequestById(
+    id: UUID,
+  ): MetatransactionSignatureRequest | undefined {
+    return this.appContext.getMetatransactionSignatureRequestById(id);
   }
 
   public getInternalState(): IInternalState {

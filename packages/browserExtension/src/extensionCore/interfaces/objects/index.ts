@@ -1,7 +1,5 @@
 import { JsonRpcEngine } from "json-rpc-engine";
 
-
-// Todo move it right place
 export interface IPortConnectionObject {
   engine: JsonRpcEngine;
   tabId: number | undefined;
