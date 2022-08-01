@@ -21,7 +21,6 @@ import { PublicEvents } from "@core/interfaces/objects/PublicEvents";
 export class CoreContext {
   public constructor(
     public dataWalletAddress: DataWalletAddress | null,
-    public sourceEntropy: string | null,
     public dataWalletKey: EVMPrivateKey | null,
     public unlockInProgress: boolean,
     public publicEvents: PublicEvents,
