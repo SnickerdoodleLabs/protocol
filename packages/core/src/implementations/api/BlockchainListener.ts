@@ -83,6 +83,8 @@ export class BlockchainListener implements IBlockchainListener {
      * in the wallet
      */
 
+    console.warn("BlockchainListener initializing");
+
     return ResultUtils.combine([
       this.blockchainProvider.getAllProviders(),
       this.contextProvider.getContext(),

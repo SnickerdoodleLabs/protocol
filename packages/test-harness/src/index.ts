@@ -74,6 +74,8 @@ const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
 
+
+
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
     console.log(`Added account: ${addedAccount}`);
@@ -147,6 +149,8 @@ core.getEvents().map(async (events) => {
     await mainPrompt();
   }
 });
+
+core.initializeBlockchain();
 
 function mainPrompt(): ResultAsync<void, Error> {
   return ResultAsync.fromPromise(

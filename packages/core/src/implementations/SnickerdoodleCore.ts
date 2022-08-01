@@ -135,6 +135,21 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     }
   }
 
+  public initializeBlockchain() {
+    this.initializeBlockchainProvider();
+    this.initializeBlockchainListener();
+  }
+
+  public initializeBlockchainProvider() {
+    const provider = this.iocContainer.get<IBlockchainProvider>(IBlockchainProviderType);
+    provider.initialize();
+  }
+
+  public initializeBlockchainListener() {
+    const blockchainListener = this.iocContainer.get<IBlockchainListener>(IBlockchainListenerType);
+    blockchainListener.initialize();
+  }
+
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
     const contextProvider =
       this.iocContainer.get<IContextProvider>(IContextProviderType);
