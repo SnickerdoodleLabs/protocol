@@ -202,7 +202,7 @@ AccessControl: account 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc is missing rol
 We can create crumbs:
 
 ```
-npx hardhat createCrumb --crumbid 1 --mask 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --owneraddressindex 0 --network dev
+npx hardhat createCrumb --crumbid 1 --tokenuri 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --owneraddressindex 0 --network dev
 
 /*
 
@@ -220,6 +220,65 @@ npx hardhat burnCrumb --crumbid 1 --owneraddressindex 0 --network dev
 /*
 
 Success! Crumb id 1 burnt from address 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266.
+
+*/
+```
+
+## Sift Contract Tasks
+
+We can verify urls on the Sift contract by running:
+
+```
+npx hardhat verifyURL --url www.domain.com --owner 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --owneraddressindex 0 --network dev
+
+/*
+
+Success! URL www.domain.com is now set as VERIFIED on the Sift Contract.
+
+*/
+
+```
+
+We can also mark urls on the Sift contract as malicious by running:
+
+```
+npx hardhat maliciousURL --url www.baddomain.com --owner 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --owneraddressindex 0 --network dev
+
+/*
+
+Success! URL www.baddomain.com is now marked as MALICIOUS on the Sift Contract.
+
+*/
+```
+
+To check any url's status on the contract, run the following:
+
+```
+npx hardhat checkURL --url www.domain.com --network dev
+
+/*
+
+Checked! URL www.domain.com is www.sift.com/VERIFIED.
+
+*/
+```
+
+```
+npx hardhat checkURL --url www.baddomain.com --network dev
+
+*/
+
+Checked! URL www.baddomain.com is www.sift.com/MALICIOUS.
+
+*/
+```
+
+```
+npx hardhat checkURL --url www.new.com --network dev
+
+*/
+
+Checked! URL www.new.com is NOT VERIFIED.
 
 */
 ```
