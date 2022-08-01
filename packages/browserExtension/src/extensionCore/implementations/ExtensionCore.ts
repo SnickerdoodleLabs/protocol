@@ -19,11 +19,11 @@ import {
   PortConnectionService,
   AccountService,
   PIIService,
-  CohortService,
+  InvitationService,
 } from "@implementations/business";
 import {
   IAccountService,
-  ICohortService,
+  IInvitationService,
   IPIIService,
   IPortConnectionService,
 } from "@interfaces/business";
@@ -81,7 +81,7 @@ export class ExtensionCore {
   protected accountService: IAccountService;
   protected portConnectionService: IPortConnectionService;
   protected piiService: IPIIService;
-  protected cohortService: ICohortService
+  protected cohortService: IInvitationService
 
   // Data
   protected accountRepository: IAccountRepository;
@@ -130,7 +130,7 @@ export class ExtensionCore {
     this.piiService = new PIIService(this.piiRepository);
 
     this.cohortRepository = new CohortRepository(this.core,this.errorUtils)
-    this.cohortService = new CohortService(this.cohortRepository,this.contextProvider)
+    this.cohortService = new InvitationService(this.cohortRepository,this.contextProvider)
 
     this.rpcCallHandler = new RpcCallHandler(
       this.contextProvider,

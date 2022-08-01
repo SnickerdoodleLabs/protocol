@@ -28,7 +28,7 @@ import {
 } from "@core/implementations/api";
 import {
   AccountService,
-  CohortService,
+  InvitationService,
   MonitoringService,
   ProfileService,
   QueryParsingEngine,
@@ -39,6 +39,7 @@ import {
   CrumbsRepository,
   DNSRepository,
   InsightPlatformRepository,
+  InvitationRepository,
   SDQLQueryRepository,
 } from "@core/implementations/data";
 import {
@@ -61,8 +62,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
-  ICohortService,
-  ICohortServiceType,
+  IInvitationService,
+  IInvitationServiceType,
   IMonitoringService,
   IMonitoringServiceType,
   IProfileService,
@@ -87,6 +88,8 @@ import {
   IDNSRepositoryType,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
+  IInvitationRepository,
+  IInvitationRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
@@ -127,8 +130,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(AccountService)
       .inSingletonScope();
 
-    bind<ICohortService>(ICohortServiceType)
-      .to(CohortService)
+    bind<IInvitationService>(IInvitationServiceType)
+      .to(InvitationService)
       .inSingletonScope();
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
@@ -157,6 +160,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
+      .inSingletonScope();
+    bind<IInvitationRepository>(IInvitationRepositoryType)
+      .to(InvitationRepository)
       .inSingletonScope();
 
     // Utilities

@@ -1,16 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { TypedDataField } from "@ethersproject/abstract-signer";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  ConsentContract,
   IConsentContract,
   IMinimalForwarderRequest,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
-  CohortInvitation,
+  Invitation,
   EInvitationStatus,
   UninitializedError,
   PersistenceError,
@@ -28,19 +26,21 @@ import {
   TokenUri,
   MinimalForwarderContractError,
   DomainName,
-  TokenId,
   IpfsCID,
+  IPFSError,
+  URLString,
+  PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { ICohortService } from "@core/interfaces/business";
+import { IInvitationService } from "@core/interfaces/business";
 import {
   IInsightPlatformRepositoryType,
   IConsentContractRepository,
@@ -48,6 +48,8 @@ import {
   IInsightPlatformRepository,
   IDNSRepositoryType,
   IDNSRepository,
+  IInvitationRepositoryType,
+  IInvitationRepository,
 } from "@core/interfaces/data";
 import {
   IConfigProvider,
@@ -61,7 +63,7 @@ import {
 } from "@core/interfaces/utilities/factory";
 
 @injectable()
-export class CohortService implements ICohortService {
+export class InvitationService implements IInvitationService {
   public constructor(
     @inject(IDataWalletPersistenceType)
     protected persistenceRepo: IDataWalletPersistence,
@@ -70,29 +72,17 @@ export class CohortService implements ICohortService {
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IDNSRepositoryType) protected dnsRepository: IDNSRepository,
+    @inject(IInvitationRepositoryType)
+    protected invitationRepo: IInvitationRepository,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
   ) {}
-  getInvitationDetails(
-    invitation: CohortInvitation,
-  ): ResultAsync<
-    JSON,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | PersistenceError
-    | AjaxError
-    | ConsentContractRepositoryError
-    | Error
-  > {
-    throw new Error("Method not implemented.");
-  }
 
   public checkInvitationStatus(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     EInvitationStatus,
     | PersistenceError
@@ -126,20 +116,33 @@ export class CohortService implements ICohortService {
         .andThen((contracts) => {
           const contract = contracts[0];
           return ResultUtils.combine([
-            contract.getDomains(),
-            this.dnsRepository.fetchTXTRecords(invitation.domain),
+            contract.getDomains(), // This actually returns URLs
+            this.getConsentContractAddressesFromDNS(invitation.domain),
           ]);
         })
-        .map(([domains, domainTXT]) => {
+        .map(([urls, consentContractAddresses]) => {
+          // Derive a list of domains from a list of URLs
+          console.debug("urls", urls);
+          console.debug("consentContractAddresses", consentContractAddresses);
+
+          const domains = urls.map((url) => {
+            return new URL(`http://${url}`).hostname;
+          });
+
+          console.debug("domains", domains);
+
           // The contract must include the domain
           if (!domains.includes(invitation.domain)) {
             return EInvitationStatus.Invalid;
           }
 
-          // TODO: Uncomment this when we have DNS simulation working!
-          // if (!domainTXT.includes(invitation.consentContractAddress)) {
-          //   return EInvitationStatus.Invalid;
-          // }
+          if (
+            !consentContractAddresses.includes(
+              invitation.consentContractAddress,
+            )
+          ) {
+            return EInvitationStatus.Invalid;
+          }
 
           return EInvitationStatus.New;
         });
@@ -147,7 +150,7 @@ export class CohortService implements ICohortService {
   }
 
   public acceptInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<
     void,
@@ -227,7 +230,7 @@ export class CohortService implements ICohortService {
   }
 
   public rejectInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     void,
     | UninitializedError
@@ -350,58 +353,98 @@ export class CohortService implements ICohortService {
     });
   }
 
-  public getCohortInvitationByDomain(
+  public getInvitationsByDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation[] , Error> {
- /*    return okAsync([new CohortInvitation(domain,"asdasdas" as EVMContractAddress,TokenId(BigInt(1)),null,{
-      title: "Claim your NFT!",
-      description:
-        "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
-      image: "assets/img/crabada-item.png",
-      rewardName: "Crabada 761",
-      nftClaimedImage: "assets/img/crabada-item-claimed.png",
-    })]) */
-    let cohortInvitations: CohortInvitation[];
-    this.dnsRepository.fetchTXTRecords(domain).map((result) => {
-      let provider; // ???????
-      result.map((contractAddress) => {
-        const consentContract = new ConsentContract(
-          provider,
-          contractAddress as EVMContractAddress,
-        );
-        const domains = consentContract.getDomains();
-        domains.map((res) => {
-          res.map((domain) => {
-            const ipfdsCID = consentContract.baseURI(); // ????
-            // getCID ????
-            // openSea metadata will return displayItems object or whatever it's name.Like in below
-            const displayItems = {
-              title: "Claim your NFT!",
-              description:
-                "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
-              image: "assets/img/crabada-item.png",
-              rewardName: "Crabada 761",
-              nftClaimedImage: "assets/img/crabada-item-claimed.png",
-            };
-            const tokenId = TokenId(BigInt(1)); // ??????
-
-            const cohortInvitation = new CohortInvitation(
-              domain,
-              contractAddress as EVMContractAddress,
-              tokenId,
-              null,
-              displayItems,
+  ): ResultAsync<
+    PageInvitation[],
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | IPFSError
+  > {
+    return this.getConsentContractAddressesFromDNS(domain)
+      .andThen((contractAddresses) => {
+        // Now, for each contract that the domain lists, get stuff
+        return this.contractFactory
+          .factoryConsentContracts(contractAddresses)
+          .andThen((consentContracts) => {
+            return ResultUtils.combine(
+              consentContracts.map((consentContract) => {
+                return this.getInvitationsFromConsentContract(
+                  domain,
+                  consentContract,
+                );
+              }),
             );
-            cohortInvitations.push(cohortInvitation);
           });
-        });
-        return okAsync(cohortInvitations);
+      })
+      .map((invitations) => {
+        return invitations.flat();
       });
+  }
+
+  protected getInvitationsFromConsentContract(
+    domain: DomainName,
+    consentContract: IConsentContract,
+  ): ResultAsync<PageInvitation[], ConsentContractError | IPFSError> {
+    return ResultUtils.combine([
+      consentContract.getDomains(),
+      consentContract.baseURI(),
+    ]).andThen(([invitationUrls, baseUri]) => {
+      // The baseUri is an IPFS CID
+      return this.invitationRepo
+        .getInvitationDomainByCID(IpfsCID(baseUri), domain)
+        .andThen((invitationDomain) => {
+          if (invitationDomain == null) {
+            return errAsync(
+              new IPFSError(
+                `No invitation details could be found at IPFS CID ${baseUri}`,
+              ),
+            );
+          }
+          return ResultUtils.combine(
+            invitationUrls.map((invitationUrl) => {
+              return this.cryptoUtils.getTokenId().map((tokenId) => {
+                return new PageInvitation(
+                  URLString(invitationUrl), // getDomains() is actually misnamed, it returns URLs now
+                  new Invitation(
+                    domain,
+                    consentContract.getContractAddress(),
+                    tokenId,
+                    null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
+                  ),
+                  invitationDomain,
+                );
+              });
+            }),
+          );
+        });
     });
-    return errAsync(
-      new Error(
-        `.....`,
-      ),
-    ); 
+  }
+
+  protected getConsentContractAddressesFromDNS(
+    domain: DomainName,
+  ): ResultAsync<EVMContractAddress[], AjaxError> {
+    return this.dnsRepository.fetchTXTRecords(domain).map((txtRecords) => {
+      // search for TXT records that start with consentContracts:
+      const relevantTxts = txtRecords.filter((val) => {
+        return val.startsWith("consentContracts:");
+      });
+
+      // Take those, string off the prefix, and split them to get a complete list of consent
+      // contract addresses
+      const contractAddresses = relevantTxts
+        .map((val) => {
+          const contractAddresses = val.replace(/^(consentContracts:)/, "");
+          return contractAddresses.split(",");
+        })
+        .flat()
+        .map((contractAddressString) => {
+          return EVMContractAddress(contractAddressString);
+        });
+
+      return contractAddresses;
+    });
   }
 }

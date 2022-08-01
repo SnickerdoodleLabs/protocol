@@ -1,30 +1,30 @@
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
-  CohortInvitation,
+  Invitation,
   ConsentConditions,
   EInvitationStatus,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import { Runtime } from "webextension-polyfill";
 
-export interface ICohortService {
+export interface IInvitationService {
   acceptInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     consentConditions: ConsentConditions | null,
     sender: Runtime.MessageSender | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   rejectInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     sender: Runtime.MessageSender | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  getCohortInvitationWithDomain(
+  getInvitationWithDomain(
     domain: string,
-  ): ResultAsync<CohortInvitation[], SnickerDoodleCoreError>;
+  ): ResultAsync<Invitation[], SnickerDoodleCoreError>;
   checkInvitationStatus(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
 
   getInvitationDetails(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<JSON, SnickerDoodleCoreError>;
 }

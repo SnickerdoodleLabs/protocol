@@ -2,10 +2,11 @@ import { ResultAsync } from "neverthrow";
 import { Observable } from "rxjs";
 
 import {
-  CohortInvitation,
+  Invitation,
   ConsentConditions,
   IEVMNFT,
   SDQLQuery,
+  PageInvitation,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -37,12 +38,10 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IpfsCID,
   LanguageCode,
   Signature,
   UnixTimestamp,
 } from "@objects/primitives";
-
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -113,7 +112,7 @@ export interface ISnickerdoodleCore {
    * @param invitation
    */
   checkInvitationStatus(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     EInvitationStatus,
     | BlockchainProviderError
@@ -131,8 +130,8 @@ export interface ISnickerdoodleCore {
    * @param invitation The actual invitation to the cohort
    * @param consentConditions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
    */
-   acceptInvitation(
-    invitation: CohortInvitation,
+  acceptInvitation(
+    invitation: Invitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<
     void,
@@ -151,7 +150,7 @@ export interface ISnickerdoodleCore {
    * right?)
    */
   rejectInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -181,45 +180,24 @@ export interface ISnickerdoodleCore {
     | ConsentError
   >;
 
-  getCohortInvitationByDomain(
+  getInvitationsByDomain(
     domain: DomainName,
-  ): ResultAsync<CohortInvitation[], Error>
-
-  getInvitationDetails(
-    invitation: CohortInvitation,
   ): ResultAsync<
-    JSON,
-    | BlockchainProviderError
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
+    PageInvitation[],
     | ConsentContractError
-    | ConsentContractRepositoryError
-    | Error
-  >
-  rejectInvitation(
-    invitation: CohortInvitation,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | PersistenceError
     | UninitializedError
-    | ConsentError
+    | BlockchainProviderError
     | AjaxError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-  > 
+    | IPFSError
+  >;
 
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
-  processQuery({
-    consentContractAddress,
-    query,
-  }: {
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }): ResultAsync<
+  processQuery(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+  ): ResultAsync<
     void,
     | AjaxError
     | UninitializedError
