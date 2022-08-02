@@ -16,7 +16,7 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     // the right one depending. But server workers have neither, and need to
     // use the fetch adapter.
     // These checks are a PITA
-    if (typeof window !== undefined && process == null) {
+    if (typeof window == undefined && typeof process == undefined) {
       this.instance = axios.create({
         adapter: fetchAdapter as AxiosAdapter,
       });
