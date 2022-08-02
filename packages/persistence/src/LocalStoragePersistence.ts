@@ -139,6 +139,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       ELocalStorageKey.ACCOUNT,
       Array.from(new Set([accountAddress, ...(accounts ?? [])])),
     );
+
     return okAsync(undefined);
   }
 

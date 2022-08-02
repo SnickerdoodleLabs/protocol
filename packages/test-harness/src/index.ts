@@ -247,6 +247,8 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "Get Transactions", value: "getTransactions" },
     new inquirer.Separator(),
+    { name: "Get Accounts", value: "getAccounts" },
+    new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
   ];
@@ -291,6 +293,8 @@ function corePrompt(): ResultAsync<void, Error> {
         return core
           .getTransactions(new EVMTransactionFilter())
           .map(console.log);
+      case "getAccounts":
+        return core.getAccounts().map(console.log);
     }
     return okAsync(undefined);
   });

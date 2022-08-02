@@ -151,10 +151,7 @@ export class AccountService implements IAccountService {
           // Need to add the account if this was the first time;
           // Doing it this way because I have to make sure the persistence is
           // unlocked first.
-          if (encryptedDataWalletKey == null) {
-            return this.dataWalletPersistence.addAccount(accountAddress);
-          }
-          return okAsync(undefined);
+          return this.dataWalletPersistence.addAccount(accountAddress);
         })
         .andThen(() => {
           // Need to emit some events
