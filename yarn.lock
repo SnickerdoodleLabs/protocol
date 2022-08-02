@@ -4341,13 +4341,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chrome@npm:^0.0.177":
-  version: 0.0.177
-  resolution: "@types/chrome@npm:0.0.177"
+"@types/chrome@npm:^0.0.193":
+  version: 0.0.193
+  resolution: "@types/chrome@npm:0.0.193"
   dependencies:
     "@types/filesystem": "*"
     "@types/har-format": "*"
-  checksum: 02c070e07572439cad918c76ef760eaf43358ef110b49f76a6eecea76e40b272b48048e2a335a19a2591ae7adb2a87548a40e38fcc2dca66b130bc4a0775724f
+  checksum: f01205376becff1a229443473c697b0ab42d87af00dc2a52f7a16bce2ad223875fd95ebee12ab1598f2669eb1af26953863c37aace7e87551f68ff73eaaedba5
   languageName: node
   linkType: hard
 
@@ -24516,7 +24516,7 @@ __metadata:
     "@material-ui/icons": 4.11.2
     "@octokit/core": ^3.2.4
     "@react-native-community/eslint-config": ^1.1.0
-    "@types/chrome": ^0.0.177
+    "@types/chrome": ^0.0.193
     "@types/cors": ^2.8.10
     "@types/express": ^4.17.11
     "@types/inquirer": ^8.2.1
