@@ -23,8 +23,9 @@ import {
   FamilyName,
   CountryCode,
   URLString,
+  BlockNumber,
+  UnixTimestamp,
 } from "@objects/primitives";
-import { UnixTimestamp } from "@objects/primitives";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -71,25 +72,25 @@ export interface IDataWalletPersistence {
 
   /** Google User Information */
   setAge(age: Age): ResultAsync<void, PersistenceError>;
-  getAge(): ResultAsync<Age, PersistenceError>;
+  getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
-  getGivenName(): ResultAsync<GivenName, PersistenceError>;
+  getGivenName(): ResultAsync<GivenName | null, PersistenceError>;
 
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
-  getFamilyName(): ResultAsync<FamilyName, PersistenceError>;
+  getFamilyName(): ResultAsync<FamilyName | null, PersistenceError>;
 
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
-  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError>;
 
   setGender(gender: Gender): ResultAsync<void, PersistenceError>;
-  getGender(): ResultAsync<Gender, PersistenceError>;
+  getGender(): ResultAsync<Gender | null, PersistenceError>;
 
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
-  getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
+  getEmail(): ResultAsync<EmailAddressString | null, PersistenceError>;
 
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
-  getLocation(): ResultAsync<CountryCode, PersistenceError>;
+  getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected
@@ -113,7 +114,6 @@ export interface IDataWalletPersistence {
   // return a map of Chain Transaction Counts
   getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
 
-
   getLatestTransactionForAccount(
     chainId: ChainId,
     address: EVMAccountAddress,
@@ -135,6 +135,11 @@ export interface IDataWalletPersistence {
 
   addURL(url: URLString): ResultAsync<void, PersistenceError>;
   getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>;
+
+  setLatestBlockNumber(
+    blockNumber: BlockNumber,
+  ): ResultAsync<void, PersistenceError>;
+  getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
