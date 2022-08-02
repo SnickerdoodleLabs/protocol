@@ -44,7 +44,6 @@ import {
   Signature,
   UnixTimestamp,
   PageInvitation,
-  InvitationDomain,
   ConsentConditions,
   UUID,
 } from "@snickerdoodlelabs/objects";
@@ -243,7 +242,7 @@ export class RpcCallHandler implements IRpcCallHandler {
                   pageInvitation.invitation,
                 );
                 return Object.assign(pageInvitation.domainDetails, {
-                  UUID: invitationUUID,
+                  id: invitationUUID,
                 });
               } else {
                 return undefined;

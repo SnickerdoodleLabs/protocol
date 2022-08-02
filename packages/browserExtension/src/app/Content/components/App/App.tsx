@@ -78,7 +78,7 @@ export interface IInvitationDomainWithUUID {
   image: URLString;
   rewardName: string;
   nftClaimedImage: URLString;
-  UUID: UUID;
+  id: UUID;
 }
 
 const App = () => {

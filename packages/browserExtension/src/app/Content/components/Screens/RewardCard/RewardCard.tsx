@@ -23,10 +23,10 @@ const RewardCard: React.FC<IRewardCardProps> = ({
 }: IRewardCardProps) => {
   
   const acceptInvitation = () =>{
-    coreGateway.acceptInvitation(null,invitationDomain?.UUID as UUID)
+    coreGateway.acceptInvitation(null,invitationDomain?.id as UUID)
   }
   const rejectInvitation = () =>{
-    coreGateway.rejectInvitation(invitationDomain?.UUID as UUID)
+    coreGateway.rejectInvitation(invitationDomain?.id as UUID)
   }
 
 

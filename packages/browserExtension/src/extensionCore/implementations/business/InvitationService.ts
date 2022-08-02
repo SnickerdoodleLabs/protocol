@@ -3,22 +3,14 @@ import { IInvitationRepository } from "@interfaces/data/IInvitationRepository";
 import { IContextProvider } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
-  AjaxError,
-  BlockchainProviderError,
   Invitation,
   ConsentConditions,
-  ConsentContractError,
-  ConsentContractRepositoryError,
   DomainName,
   EInvitationStatus,
-  PersistenceError,
-  UninitializedError,
   PageInvitation,
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
-import { Page } from "puppeteer";
-import { Runtime } from "webextension-polyfill";
 
 export class InvitationService implements IInvitationService {
   constructor(
