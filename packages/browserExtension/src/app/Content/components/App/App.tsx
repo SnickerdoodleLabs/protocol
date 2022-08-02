@@ -25,6 +25,10 @@ import {
   Invitation,
   DomainName,
   TokenId,
+  PageInvitation,
+  InvitationDomain,
+  UUID,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { findIndex } from "rxjs";
 
@@ -67,12 +71,23 @@ const connect = () => {
 
 connect();
 
+export interface IInvitationDomainWithUUID {
+  domain: DomainName;
+  title: string;
+  description: string;
+  image: URLString;
+  rewardName: string;
+  nftClaimedImage: URLString;
+  UUID: UUID;
+}
+
 const App = () => {
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
   const [rewardToDisplay, setRewardToDisplay] = useState<
     IRewardItem | undefined
   >();
-  const [cohortInvitation, setInvitation] = useState<Invitation>();
+  const [invitationDomain, setInvitationDomain] =
+    useState<IInvitationDomainWithUUID>();
 
   useEffect(() => {
     initiateCohort();
@@ -91,15 +106,32 @@ const App = () => {
   }, [appState]);
 
   const initiateCohort = async () => {
-    coreGateway.getInvitationsByDomain("www.shrapnel.com" as DomainName).map((invitation)=>{
-      console.log("invitation",invitation)
-    })
+    coreGateway
+      .getInvitationsByDomain(window.location.hostname as DomainName)
+      .map((result) => {
+        if (typeof result !== undefined) {
+          setInvitationDomain(result);
+          initiateRewardPopup(result);
+        }
+      });
+  };
+
+  const initiateRewardPopup = (domainDetails: InvitationDomain) => {
+    setRewardToDisplay({
+      host: domainDetails.domain,
+      title: domainDetails.title,
+      description: domainDetails.description,
+      image: domainDetails.image,
+      primaryButtonText: "Back to Game",
+      secondaryButtonText: "Claim Rewards",
+      rewardName: domainDetails.rewardName,
+      nftClaimedImage: domainDetails.nftClaimedImage,
+    });
   };
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
   };
-
 
   // Event Listeners
   const addEventListeners = () => {
@@ -167,8 +199,9 @@ const App = () => {
         return (
           <RewardCard
             rewardItem={rewardToDisplay!}
-            cohortInvitation={cohortInvitation}
+            invitationDomain={invitationDomain}
             changeAppState={changeAppState}
+            coreGateway={coreGateway}
           />
         );
       case appState === EAPP_STATE.CONNECT_WALLET:
@@ -181,8 +214,9 @@ const App = () => {
         return (
           <NftClaimed
             rewardItem={rewardToDisplay!}
-            cohortInvitation={cohortInvitation}
+            invitationDomain={invitationDomain}
             changeAppState={changeAppState}
+            coreGateway={coreGateway}
           />
         );
       default:

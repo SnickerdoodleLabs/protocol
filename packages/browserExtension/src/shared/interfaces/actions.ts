@@ -1,6 +1,7 @@
 import {
   Age,
   BigNumberString,
+  ConsentConditions,
   CountryCode,
   DomainName,
   EmailAddressString,
@@ -58,6 +59,13 @@ export interface ISetLocationParams {
 }
 export interface IGetInvitationWithDomainParams {
   domain: DomainName;
+}
+export interface IAcceptInvitationParams {
+  consentConditions: ConsentConditions;
+  id: UUID;
+}
+export interface IRejectInvitationParams {
+  id: UUID;
 }
 export interface IMetatransactionSignatureRequestCallbackParams {
   id: UUID;

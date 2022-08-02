@@ -17,6 +17,7 @@ import {
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
+import { Page } from "puppeteer";
 import { Runtime } from "webextension-polyfill";
 
 export class InvitationService implements IInvitationService {

@@ -13,20 +13,23 @@ import {
   rewardItemToClaim03Img,
 } from "../../../constants";
 import { Invitation } from "@snickerdoodlelabs/objects";
+import { IInvitationDomainWithUUID } from "../../App/App";
+import { useAppContext } from "@app/Popup/context";
+import { ExternalCoreGateway } from "@app/coreGateways";
 
 interface INftClaimedProps {
   changeAppState: (state: EAPP_STATE) => void;
   rewardItem: IRewardItem;
-  cohortInvitation: Invitation | undefined;
+  invitationDomain: IInvitationDomainWithUUID | undefined;
+  coreGateway:ExternalCoreGateway
 }
 
 const NftClaimed: React.FC<INftClaimedProps> = ({
   changeAppState,
   rewardItem,
-  cohortInvitation,
+  invitationDomain,
 }: INftClaimedProps) => {
   const modalClasses = useGenericModalStyles();
-
   const imgArr = [
     rewardItemQMarkImg,
     rewardItemToClaim01Img,

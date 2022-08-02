@@ -1,9 +1,5 @@
-import { DomainName } from "@snickerdoodlelabs/objects";
+import { DomainName, URLString } from "@snickerdoodlelabs/objects";
 import Browser from "webextension-polyfill";
-enum EAVAILABLE_HOSTS {
-  SHRAPNEL = "www.shrapnel.com",
-  CRABADA = "market.crabada.com",
-}
 
 export enum EAPP_STATE {
   INIT,
@@ -16,44 +12,15 @@ export enum EAPP_STATE {
 }
 
 export interface IRewardItem {
-  host: string;
+  host: DomainName;
   title: string;
   description: string;
-  image: string;
+  image: URLString;
   primaryButtonText: string;
   secondaryButtonText: string;
   rewardName: string;
   nftClaimedImage: string;
 }
-// TODO SHOULD BE DELETED
-/* export const REWARD_DATA: Array<IRewardItem> = [
-  {
-    host: EAVAILABLE_HOSTS.CRABADA,
-    title: "Claim your NFT!",
-    description:
-      "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
-    image: Browser.runtime.getURL("assets/img/crabada-item.png"),
-    primaryButtonText: "Claim Reward",
-    secondaryButtonText: "Back to Game",
-    rewardName: "Crabada 761",
-    nftClaimedImage: Browser.runtime.getURL(
-      "assets/img/crabada-item-claimed.png",
-    ),
-  },
-  {
-    host: EAVAILABLE_HOSTS.SHRAPNEL,
-    title: "Claim your NFT!",
-    description:
-      "Connect your wallet with the Snickerdoodle Data Wallet to gain NFTs or other rewards!",
-    image: Browser.runtime.getURL("assets/img/sharapnel-item.png"),
-    primaryButtonText: "Claim Reward",
-    secondaryButtonText: "Back to Game",
-    rewardName: "ATG-36 Helmet",
-    nftClaimedImage: Browser.runtime.getURL(
-      "assets/img/sharapnel-item-claimed.png",
-    ),
-  },
-]; */
 
 export const rewardItemQMarkImg = Browser.runtime.getURL(
   "assets/img/reward-item-qmark.png",
