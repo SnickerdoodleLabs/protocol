@@ -12,18 +12,23 @@ export class ChromeStorageUtils {
   }
 
   static write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
-    return ResultAsync.fromPromise(chrome.storage.sync.remove(key), (e) => {
-      return new PersistenceError(
-        `Cannot remove key ${key} from chrome storage`,
-        e,
-      );
-    });
+    return ResultAsync.fromPromise(
+      chrome.storage.sync.set({
+        [key]: value,
+      }),
+      (e) => {
+        return new PersistenceError(
+          `Cannot write key ${key} to chrome storage`,
+          e,
+        );
+      },
+    );
   }
 
   static read<T>(key: string): ResultAsync<T | null, PersistenceError> {
     return ResultAsync.fromPromise(chrome.storage.sync.get(key), (e) => {
       return new PersistenceError(
-        `Cannot remove key ${key} from chrome storage`,
+        `Cannot read key ${key} from chrome storage`,
         e,
       );
     }).map((vals) => {
