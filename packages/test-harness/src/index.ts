@@ -249,6 +249,10 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "Get Accounts", value: "getAccounts" },
     new inquirer.Separator(),
+    { name: "Get NFTs", value: "getNFTs" },
+    new inquirer.Separator(),
+    { name: "Get Balances", value: "getBalances" },
+    new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
   ];
@@ -290,11 +294,13 @@ function corePrompt(): ResultAsync<void, Error> {
       case "getLocation":
         return core.getLocation().map(console.log);
       case "getTransactions":
-        return core
-          .getTransactions(new EVMTransactionFilter())
-          .map(console.log);
+        return core.getTransactions().map(console.log);
       case "getAccounts":
         return core.getAccounts().map(console.log);
+      case "getNFTs":
+        return core.getAccountNFTs().map(console.log);
+      case "getBalances":
+        return core.getAccountBalances().map(console.log);
     }
     return okAsync(undefined);
   });

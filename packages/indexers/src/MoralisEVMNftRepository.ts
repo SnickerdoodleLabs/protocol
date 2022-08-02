@@ -99,7 +99,7 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
       };
     });
 
-    if (response.cursor == null) {
+    if (response.cursor == null || response.cursor == "") {
       return okAsync(items);
     }
 

@@ -373,7 +373,7 @@ export class AccountService implements IAccountService {
   }
 
   public getTranactions(
-    filter: EVMTransactionFilter,
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
     return this.dataWalletPersistence.getEVMTransactions(filter);
   }

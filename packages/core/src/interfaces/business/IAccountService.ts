@@ -57,7 +57,7 @@ export interface IAccountService {
 
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
   getTranactions(
-    filter: EVMTransactionFilter,
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 }
 

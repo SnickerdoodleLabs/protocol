@@ -408,7 +408,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   getTransactions(
-    filter: EVMTransactionFilter,
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);

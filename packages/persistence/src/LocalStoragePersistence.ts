@@ -256,18 +256,24 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   }
 
   public getEVMTransactions(
-    filter: EVMTransactionFilter,
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
     return this._checkAndRetrieveValue<EVMTransaction[]>(
       ELocalStorageKey.TRANSACTIONS,
       [],
-    ).andThen((transactions) => {
-      return okAsync(
-        transactions.filter((value) => {
-          filter.matches(value);
-        }),
-      );
-    });
+    )
+      .andThen((transactions) => {
+        if (filter == undefined || filter == null) {
+          return okAsync(transactions);
+        }
+
+        return okAsync(
+          transactions.filter((value) => {
+            filter.matches(value);
+          }),
+        );
+      })
+      .orElse((_e) => okAsync([]));
   }
 
   public getLatestTransactionForAccount(
@@ -293,6 +299,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       [],
     );
   }
+
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
     return this._checkAndRetrieveValue<IEVMNFT[]>(ELocalStorageKey.NFTS, []);
   }

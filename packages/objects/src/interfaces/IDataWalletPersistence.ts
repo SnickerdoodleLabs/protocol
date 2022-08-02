@@ -122,7 +122,7 @@ export interface IDataWalletPersistence {
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
   getEVMTransactions(
-    filter: EVMTransactionFilter,
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 
   updateAccountBalances(
