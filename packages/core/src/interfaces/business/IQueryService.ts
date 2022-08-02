@@ -1,17 +1,8 @@
 import {
-  EvaluationError,
-  SDQLQuery,
   AjaxError,
   BlockchainProviderError,
-  ConsentContractError,
-  ConsentError,
-  ConsentContractRepositoryError,
-  EVMContractAddress,
-  IpfsCID,
-  QueryFormatError,
-  UninitializedError,
-  IPFSError,
-  SDQLQueryRequest,
+  ConsentContractError, ConsentContractRepositoryError, ConsentError, EvaluationError, EVMContractAddress,
+  IpfsCID, IPFSError, QueryFormatError, SDQLQuery, UninitializedError
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -30,7 +21,8 @@ export interface IQueryService {
     | ConsentError
   >;
   processQuery(
-    queryRequest: SDQLQueryRequest
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery
   ): ResultAsync<
     void,
     | AjaxError

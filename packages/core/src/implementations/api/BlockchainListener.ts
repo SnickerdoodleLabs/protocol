@@ -197,13 +197,6 @@ export class BlockchainListener implements IBlockchainListener {
           }),
         ).map((result) => {
           console.log('consent contract result', result);
-          // if (result.isErr()) {
-          //   console.warn(`error resolving consent contracts ${result.error}`);
-          // }
-        }).mapErr((error) => {
-          
-          console.log(error.message);
-          return error;
         });
       });
   }

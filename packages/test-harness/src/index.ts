@@ -184,7 +184,6 @@ core.getEvents().map(async (events) => {
   }
 });
 
-core.initializeBlockchain();
 
 function mainPrompt(): ResultAsync<void, Error> {
   return prompt([

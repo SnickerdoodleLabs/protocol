@@ -136,20 +136,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     }
   }
 
-  public initializeBlockchain() {
-    this.initializeBlockchainProvider();
-    this.initializeBlockchainListener();
-  }
-
-  public initializeBlockchainProvider() {
-    const provider = this.iocContainer.get<IBlockchainProvider>(IBlockchainProviderType);
-    provider.initialize();
-  }
-
-  public initializeBlockchainListener() {
-    const blockchainListener = this.iocContainer.get<IBlockchainListener>(IBlockchainListenerType);
-    blockchainListener.initialize();
-  }
 
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
     const contextProvider =
@@ -333,7 +319,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    query: SDQLQuery
   ): ResultAsync<
     void,
     | AjaxError
@@ -346,7 +332,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(queryRequest);
+    return queryService.processQuery(consentContractAddress, query);
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {

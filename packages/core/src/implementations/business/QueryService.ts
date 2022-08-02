@@ -72,7 +72,7 @@ export class QueryService implements IQueryService {
 
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
+    queryId: IpfsCID
   ): ResultAsync<
     void,
     | IPFSError
@@ -148,7 +148,8 @@ export class QueryService implements IQueryService {
   // }
 
   public processQuery(
-    queryRequest: SDQLQueryRequest
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery
   ): ResultAsync<
     void,
     | AjaxError
@@ -158,12 +159,6 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | EvaluationError
   > {
-    // 1. Parse the query
-    // 2. Generate an insight(s)
-    // 3. Redeem the reward
-    // 4. Deliver the insight
-    const consentContractAddress = queryRequest.consentContractAddress;
-    const query = queryRequest.query;
 
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -193,11 +188,11 @@ export class QueryService implements IQueryService {
           query.cid,
           insights,
         ).map(() => {
-          // console.log("insight delivery api call done");
-          context.publicEvents.onQueryPosted.next({
-            consentContractAddress,
-            query,
-          });
+          console.log("insight delivery api call done");
+          // context.publicEvents.onQueryPosted.next({
+          //   consentContractAddress,
+          //   query,
+          // });
         });
       });
     });
@@ -207,6 +202,7 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     config: CoreConfig,
   ): UninitializedError | null {
+    console.log(context);
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
       return new UninitializedError("Data wallet has not been unlocked yet!");
     }
