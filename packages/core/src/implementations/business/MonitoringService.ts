@@ -19,6 +19,8 @@ import {
   AccountBalanceError,
   AccountNFTError,
   IEVMNFT,
+  IAccountNFTsType,
+  IAccountNFTs,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -37,6 +39,7 @@ export class MonitoringService implements IMonitoringService {
   public constructor(
     @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
     @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
+    @inject(IAccountNFTsType) protected accountNFTs: IAccountNFTs,
     @inject(IDataWalletPersistenceType)
     protected persistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -140,7 +143,29 @@ export class MonitoringService implements IMonitoringService {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IEVMNFT[], PersistenceError | AccountNFTError | AjaxError> {
-    throw new Error();
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.accountNFTs.getEVMNftRepository(),
+      this.accountNFTs.getSimulatorEVMNftRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+      const chainInfo = config.chainInformation.get(chainId);
+      if (chainInfo == null) {
+        this.logUtils.error(`No available chain info for chain ${chainId}`);
+        return okAsync([]);
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getTokensForAccount(chainId, accountAddress);
+        case EIndexer.Simulator:
+          return simulatorRepo.getTokensForAccount(chainId, accountAddress);
+        default:
+          this.logUtils.error(
+            `No available token repository for chain ${chainId}`,
+          );
+          return okAsync([]);
+      }
+    });
   }
 
   protected getLatestBalances(

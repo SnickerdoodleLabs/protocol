@@ -153,6 +153,8 @@ export class CovalentEVMTransactionRepository
             queryConfig,
           )
           .map((queryResult: ICovalentEVMTransactionResponse) => {
+            throw new AccountIndexingError("fsdfsgfs");
+
             const chainId = ChainId(queryResult.data.chain_id);
             const transactions = queryResult.data.items.map((tx) => {
               const busObj = new EVMTransaction(

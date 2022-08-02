@@ -7,6 +7,7 @@
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
+  DefaultAccountNFTs,
 } from "@snickerdoodlelabs/indexers";
 import {
   Age,
@@ -50,13 +51,11 @@ import {
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
-  DomainName,
   SDQLQuery,
-  PageInvitation,
-  CountryCode,
   EVMTransaction,
   EVMTransactionFilter,
-  SDQLQuery,
+  IAccountNFTs,
+  IAccountNFTsType,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -98,6 +97,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     persistence?: IDataWalletPersistence,
     accountIndexer?: IAccountIndexing,
     accountBalances?: IAccountBalances,
+    accountNFTs?: IAccountNFTs,
   ) {
     this.iocContainer = new Container();
 
@@ -140,6 +140,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer
         .bind(IAccountBalancesType)
         .to(DefaultAccountBalances)
+        .inSingletonScope();
+    }
+
+    if (accountNFTs != null) {
+      this.iocContainer.bind(IAccountNFTsType).toConstantValue(accountNFTs);
+    } else {
+      this.iocContainer
+        .bind(IAccountNFTsType)
+        .to(DefaultAccountNFTs)
         .inSingletonScope();
     }
 

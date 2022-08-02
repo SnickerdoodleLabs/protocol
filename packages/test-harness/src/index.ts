@@ -64,6 +64,9 @@ const devAccountKeys = [
   EVMPrivateKey(
     "0x1234567890123456789012345678901234567890123456789012345678901234",
   ),
+  EVMPrivateKey(
+    "cd34642d879fe59110689ff87a080aad52b383daeb5ad945fd6da20b954d2542",
+  ),
 ];
 
 const blockchain = new BlockchainStuff(devAccountKeys);
