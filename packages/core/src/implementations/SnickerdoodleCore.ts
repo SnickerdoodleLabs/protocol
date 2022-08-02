@@ -12,7 +12,7 @@ import {
   Age,
   AjaxError,
   BlockchainProviderError,
-  CohortInvitation,
+  Invitation,
   ConsentConditions,
   ConsentContractError,
   ConsentContractRepositoryError,
@@ -47,8 +47,10 @@ import {
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
+  DomainName,
   SDQLQuery,
-  CountryCode
+  PageInvitation,
+  CountryCode,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -65,8 +67,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
-  ICohortService,
-  ICohortServiceType,
+  IInvitationService,
+  IInvitationServiceType,
   IProfileService,
   IProfileServiceType,
   IQueryService,
@@ -234,7 +236,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public checkInvitationStatus(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     EInvitationStatus,
     | BlockchainProviderError
@@ -244,31 +246,33 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | ConsentContractError
     | ConsentContractRepositoryError
   > {
-    const cohortService =
-      this.iocContainer.get<ICohortService>(ICohortServiceType);
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
 
     return cohortService.checkInvitationStatus(invitation);
   }
 
   public acceptInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<
     void,
     | PersistenceError
     | UninitializedError
-    | BlockchainProviderError
     | AjaxError
+    | BlockchainProviderError
     | MinimalForwarderContractError
   > {
-    const cohortService =
-      this.iocContainer.get<ICohortService>(ICohortServiceType);
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
 
     return cohortService.acceptInvitation(invitation, consentConditions);
   }
 
   public rejectInvitation(
-    invitation: CohortInvitation,
+    invitation: Invitation,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -279,8 +283,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | ConsentContractError
     | ConsentContractRepositoryError
   > {
-    const cohortService =
-      this.iocContainer.get<ICohortService>(ICohortServiceType);
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
 
     return cohortService.rejectInvitation(invitation);
   }
@@ -297,19 +302,34 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | MinimalForwarderContractError
     | ConsentError
   > {
-    const cohortService =
-      this.iocContainer.get<ICohortService>(ICohortServiceType);
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
 
     return cohortService.leaveCohort(consentContractAddress);
   }
 
-  public processQuery({
-    consentContractAddress,
-    query,
-  }: {
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }): ResultAsync<
+  public getInvitationsByDomain(
+    domain: DomainName,
+  ): ResultAsync<
+    PageInvitation[],
+    | ConsentContractError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | IPFSError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.getInvitationsByDomain(domain);
+  }
+
+  public processQuery(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+  ): ResultAsync<
     void,
     | AjaxError
     | UninitializedError

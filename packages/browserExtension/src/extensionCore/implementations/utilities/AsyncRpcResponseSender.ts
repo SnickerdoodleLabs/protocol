@@ -19,9 +19,16 @@ export class AsyncRpcResponseSender<T, K extends Error>
         if (typeof result === typeof undefined) {
           this.res.result = DEFAULT_RPC_SUCCESS_RESULT;
         } else {
-          this.res.result = result;
+          this.res.result = this.toObject(result);
         }
         return okAsync(undefined);
       });
   }
+  toObject(result) {
+    return JSON.parse(JSON.stringify(result, (key, value) =>
+        typeof value === 'bigint'
+            ? value.toString()
+            : value // return everything else unchanged
+    ));
+}
 }

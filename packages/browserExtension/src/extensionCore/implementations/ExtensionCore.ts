@@ -19,8 +19,14 @@ import {
   PortConnectionService,
   AccountService,
   PIIService,
+  InvitationService,
 } from "@implementations/business";
-import { IAccountService, IPIIService, IPortConnectionService } from "@interfaces/business";
+import {
+  IAccountService,
+  IInvitationService,
+  IPIIService,
+  IPortConnectionService,
+} from "@interfaces/business";
 
 // Repository
 import {
@@ -30,6 +36,7 @@ import {
 } from "@implementations/data";
 import {
   IAccountRepository,
+  IInvitationRepository,
   IPIIRepository,
   IPortConnectionRepository,
 } from "@interfaces/data";
@@ -54,7 +61,7 @@ import {
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
-import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import { DomainName, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 
 // shared
@@ -63,8 +70,8 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { IConfigProvider } from "@shared/interfaces/configProvider";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 
-
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { InvitationRepository } from "./data/InvitationRepository";
 
 export class ExtensionCore {
   // snickerdooldle Core
@@ -74,11 +81,13 @@ export class ExtensionCore {
   protected accountService: IAccountService;
   protected portConnectionService: IPortConnectionService;
   protected piiService: IPIIService;
+  protected invitationService: IInvitationService
 
   // Data
   protected accountRepository: IAccountRepository;
   protected portConnectionRepository: IPortConnectionRepository;
   protected piiRepository: IPIIRepository;
+  protected invitationRepository: IInvitationRepository
 
   // Utils
   protected contextProvider: IContextProvider;
@@ -117,13 +126,17 @@ export class ExtensionCore {
     );
     this.accountService = new AccountService(this.accountRepository);
 
-    this.piiRepository = new PIIRepository(this.core, this.errorUtils)
+    this.piiRepository = new PIIRepository(this.core, this.errorUtils);
     this.piiService = new PIIService(this.piiRepository);
+
+    this.invitationRepository = new InvitationRepository(this.core,this.errorUtils)
+    this.invitationService = new InvitationService(this.invitationRepository,this.contextProvider)
 
     this.rpcCallHandler = new RpcCallHandler(
       this.contextProvider,
       this.accountService,
       this.piiService,
+      this.invitationService
     );
 
     this.rpcEngineFactory = new RpcEngineFactory(

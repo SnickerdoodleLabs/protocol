@@ -20,15 +20,4 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"), // Metatransaction Forwarder Contract
     ),
   ],
-  [
-    ChainId(1338),
-    new ChainInformation(
-      "Local Development Chain",
-      ChainId(1338),
-      true,
-      [ProviderUrl("http://localhost:8545")],
-      4000,
-      EIndexer.EVM,
-    ),
-  ],
 ]);

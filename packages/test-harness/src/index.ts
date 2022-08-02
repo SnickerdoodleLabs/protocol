@@ -7,7 +7,7 @@ import {
   AjaxError,
   BlockchainProviderError,
   CrumbsContractError,
-  CohortInvitation,
+  Invitation,
   ConsentContractError,
   ConsentContractRepositoryError,
   DomainName,
@@ -29,13 +29,14 @@ import {
   ConsentFactoryContractError,
   CountryCode,
   SDQLString,
+  PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -50,15 +51,21 @@ const persistence = new LocalStoragePersistence();
 const core = new SnickerdoodleCore(
   {
     defaultInsightPlatformBaseUrl: "http://localhost:3006",
+    dnsServerAddress: "http://localhost:3006/dns",
   } as IConfigOverrides,
   persistence,
 );
 
-const accountPrivateKey = EVMPrivateKey(
-  "0x0123456789012345678901234567890123456789012345678901234567890123",
-);
+const devAccountKeys = [
+  EVMPrivateKey(
+    "0x0123456789012345678901234567890123456789012345678901234567890123",
+  ),
+  EVMPrivateKey(
+    "0x1234567890123456789012345678901234567890123456789012345678901234",
+  ),
+];
 
-const blockchain = new BlockchainStuff(accountPrivateKey);
+const blockchain = new BlockchainStuff(devAccountKeys);
 const ipfs = new IPFSClient();
 
 const simulator = new InsightPlatformSimulator(blockchain, ipfs);
@@ -68,7 +75,7 @@ const languageCode = LanguageCode("en");
 const domainName = DomainName("snickerdoodle.dev");
 
 const consentContracts = new Array<EVMContractAddress>();
-const optedInConsentContracts = new Array<EVMContractAddress>();
+const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
 
@@ -82,14 +89,40 @@ core.getEvents().map(async (events) => {
   });
 
   events.onQueryPosted.subscribe((query) => {
-    console.log(`Query posted`, query);
+    console.log(
+      `Recieved query for consentContract ${query.consentContractAddress}`,
+    );
+    console.log(query.query);
+
+    prompt([
+      {
+        type: "list",
+        name: "approveQuery",
+        message: "Approve running the query?",
+        choices: [
+          { name: "Yes", value: true },
+          { name: "No", value: false },
+        ],
+      },
+    ])
+      .andThen((answers) => {
+        if (!answers.approveQuery) {
+          return okAsync(undefined);
+        }
+
+        return core.processQuery(query.consentContractAddress, query.query);
+      })
+      .mapErr((e) => {
+        console.error(e);
+        return e;
+      });
   });
 
   events.onMetatransactionSignatureRequested.subscribe(async (request) => {
     // This method needs to happen in nicer form in all form factors
     try {
       console.log(
-        `Metadata Transaction Requested! Signer account address: ${blockchain.accountAddress}`,
+        `Metadata Transaction Requested!`,
         `Request account address: ${request.accountAddress}`,
       );
 
@@ -117,8 +150,11 @@ core.getEvents().map(async (events) => {
         ChainId(31337),
       ) as ControlChainInformation;
 
+      // Get the wallet we are going to sign with
+      const wallet = blockchain.getWalletForAddress(request.accountAddress);
+
       const metatransactionSignature = Signature(
-        await blockchain.accountWallet._signTypedData(
+        await wallet._signTypedData(
           // This domain is critical- we have to use this and not the normal Snickerdoodle domain
           getMinimalForwarderSigningDomain(
             doodleChainConfig.chainId,
@@ -147,34 +183,25 @@ core.getEvents().map(async (events) => {
 });
 
 function mainPrompt(): ResultAsync<void, Error> {
-  return ResultAsync.fromPromise(
-    inquirer.prompt([
-      {
-        type: "list",
-        name: "main",
-        message: "Please select a course of action:",
-        choices: [
-          { name: "Nothing", value: "nothing" },
-          new inquirer.Separator(),
-          { name: "Core", value: "core" },
-          new inquirer.Separator(),
-          {
-            name: "Insight Platform Simulator",
-            value: "simulator",
-          },
-          new inquirer.Separator(),
-          { name: "Exit", value: "exit", short: "e" },
-        ],
-      },
-    ]),
-    (e) => {
-      if ((e as any).isTtyError) {
-        // Prompt couldn't be rendered in the current environment
-        console.log("TtyError");
-      }
-      return e as Error;
+  return prompt([
+    {
+      type: "list",
+      name: "main",
+      message: "Please select a course of action:",
+      choices: [
+        { name: "Nothing", value: "nothing" },
+        new inquirer.Separator(),
+        { name: "Core", value: "core" },
+        new inquirer.Separator(),
+        {
+          name: "Insight Platform Simulator",
+          value: "simulator",
+        },
+        new inquirer.Separator(),
+        { name: "Exit", value: "exit", short: "e" },
+      ],
     },
-  ).andThen((answers) => {
+  ]).andThen((answers) => {
     switch (answers.main) {
       case "nothing":
         console.log("Doing nothing for 1 second");
@@ -234,9 +261,9 @@ function corePrompt(): ResultAsync<void, Error> {
   ]).andThen((answers) => {
     switch (answers.core) {
       case "unlock":
-        return unlockCore(blockchain.accountAddress, accountPrivateKey);
+        return unlockCore();
       case "addAccount":
-        return addAccount(blockchain.accountAddress, accountPrivateKey);
+        return addAccount();
       case "optInCampaign":
         return optInCampaign();
       case "optOutCampaign":
@@ -282,7 +309,7 @@ function simulatorPrompt(): ResultAsync<void, Error> {
 
 function createCampaign(): ResultAsync<
   void,
-  ConsentFactoryContractError | ConsentContractError
+  ConsentFactoryContractError | ConsentContractError | Error
 > {
   return simulator
     .createCampaign(domainName)
@@ -460,10 +487,7 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
     });
 }
 
-function unlockCore(
-  account: EVMAccountAddress,
-  privateKey: EVMPrivateKey,
-): ResultAsync<
+function unlockCore(): ResultAsync<
   void,
   | PersistenceError
   | UnsupportedLanguageError
@@ -474,17 +498,41 @@ function unlockCore(
   | AjaxError
   | CrumbsContractError
 > {
-  // Need to get the unlock message first
-  return core
-    .getUnlockMessage(languageCode)
-    .andThen((message) => {
-      // Sign the message
-      return cryptoUtils.signMessage(message, privateKey);
-    })
-    .andThen((signature) => {
-      return core.unlock(account, signature, languageCode);
+  return prompt([
+    {
+      type: "list",
+      name: "unlockAccountSelector",
+      message: "Which account do you want to unlock with?",
+      choices: blockchain.accountWallets.map((wallet) => {
+        return {
+          name: wallet.address,
+          value: wallet,
+        };
+      }),
+    },
+  ])
+    .andThen((answers) => {
+      const wallet = answers.unlockAccountSelector as ethers.Wallet;
+      // Need to get the unlock message first
+      return core
+        .getUnlockMessage(languageCode)
+        .andThen((message) => {
+          // Sign the message
+          return cryptoUtils.signMessage(
+            message,
+            EVMPrivateKey(wallet._signingKey().privateKey),
+          );
+        })
+        .andThen((signature) => {
+          return core.unlock(
+            EVMAccountAddress(wallet.address),
+            signature,
+            languageCode,
+          );
+        });
     })
     .map(() => {
+      unlocked = true;
       console.log(`Unlocked!`);
     })
     .mapErr((e) => {
@@ -493,10 +541,7 @@ function unlockCore(
     });
 }
 
-function addAccount(
-  account: EVMAccountAddress,
-  privateKey: EVMPrivateKey,
-): ResultAsync<
+function addAccount(): ResultAsync<
   void,
   | PersistenceError
   | UnsupportedLanguageError
@@ -507,19 +552,47 @@ function addAccount(
   | AjaxError
   | CrumbsContractError
 > {
-  // Need to get the unlock message first
   return core
-    .getUnlockMessage(languageCode)
-    .andThen((message) => {
-      // Sign the message
-      return cryptoUtils.signMessage(message, privateKey);
+    .getAccounts()
+    .andThen((linkedAccounts) => {
+      console.log("Linked Accounts", linkedAccounts);
+      const addableAccounts = blockchain.accountWallets.filter((aw) => {
+        return !linkedAccounts.includes(EVMAccountAddress(aw.address));
+      });
+      return prompt([
+        {
+          type: "list",
+          name: "addAccountSelector",
+          message: "Which account do you want to add?",
+          choices: addableAccounts.map((wallet) => {
+            return {
+              name: wallet.address,
+              value: wallet,
+            };
+          }),
+        },
+      ]);
     })
-    .andThen((signature) => {
-      return core.unlock(account, signature, languageCode);
-    })
-    .map(() => {
-      console.log(`Unlocked!`);
-      unlocked = true;
+
+    .andThen((answers) => {
+      const wallet = answers.addAccountSelector as ethers.Wallet;
+      // Need to get the unlock message first
+      return core
+        .getUnlockMessage(languageCode)
+        .andThen((message) => {
+          // Sign the message
+          return cryptoUtils.signMessage(
+            message,
+            EVMPrivateKey(wallet._signingKey().privateKey),
+          );
+        })
+        .andThen((signature) => {
+          return core.addAccount(
+            EVMAccountAddress(wallet.address),
+            signature,
+            languageCode,
+          );
+        });
     })
     .mapErr((e) => {
       console.error(e);
@@ -537,60 +610,78 @@ function optInCampaign(): ResultAsync<
   | AjaxError
   | ConsentContractRepositoryError
 > {
-  return prompt([
-    {
-      type: "list",
-      name: "optInCampaign",
-      message: "Please choose a campaign to join:",
-      choices: [
-        ...consentContracts.map((contractAddress) => {
-          return {
-            name: `Consent Contract ${contractAddress}`,
-            value: contractAddress,
-          };
-        }),
-        new inquirer.Separator(),
-        { name: "Cancel", value: "cancel" },
-      ],
-    },
-  ])
-    .andThen((answers) => {
-      const contractAddress = EVMContractAddress(answers.optInCampaign);
-      if (consentContracts.includes(contractAddress)) {
-        // They did not pick "cancel"
-        // We need to make an invitation for ourselves
-        return cryptoUtils.getTokenId().andThen((tokenId) => {
-          const invitation = new CohortInvitation(
-            domainName,
-            contractAddress,
-            tokenId,
-            null,
-          );
+  return core
+    .getInvitationsByDomain(domainName)
+    .andThen((invitations) => {
+      return prompt([
+        {
+          type: "list",
+          name: "optInCampaign",
+          message: "Please choose an invitation to accept:",
+          choices: [
+            ...invitations.map((invitation) => {
+              return {
+                name: `${invitation.url}`,
+                value: invitation,
+              };
+            }),
+            new inquirer.Separator(),
+            { name: "Cancel", value: "cancel" },
+          ],
+        },
+      ]).andThen((answers) => {
+        if (answers.optInCampaign == "cancel") {
+          return okAsync(undefined);
+        }
+        const invitation = answers.optInCampaign as PageInvitation;
+
+        // Show the invitation details, like the popup would
+        console.log("Invitation details:", invitation.domainDetails);
+
+        return prompt([
+          {
+            type: "list",
+            name: "acceptInvitation",
+            message: "Accept the invitation?",
+            choices: [
+              {
+                name: "Yes",
+                value: true,
+              },
+              {
+                name: "No",
+                value: false,
+              },
+            ],
+          },
+        ]).andThen((acceptAnswers) => {
+          // You can reject the invitation
+          if (!acceptAnswers.acceptInvitation) {
+            return okAsync(undefined);
+          }
 
           return core
-            .checkInvitationStatus(invitation)
+            .checkInvitationStatus(invitation.invitation)
             .andThen((invitationStatus) => {
               if (invitationStatus != EInvitationStatus.New) {
                 return errAsync(
                   new Error(
-                    `Invalid invitation to campaign ${contractAddress}`,
+                    `Invalid invitation to campaign ${invitation.invitation.consentContractAddress}`,
                   ),
                 );
               }
 
               // Accept with no conditions
-              return core.acceptInvitation(invitation, null);
+              return core.acceptInvitation(invitation.invitation, null);
             })
             .map(() => {
               console.log(
-                `Accepted invitation to ${contractAddress}, with token Id ${tokenId}`,
+                `Accepted invitation to ${invitation.url}, with token Id ${invitation.invitation.tokenId}`,
               );
-              optedInConsentContracts.push(contractAddress);
+              acceptedInvitations.push(invitation);
             });
         });
-      }
-
-      return okAsync(undefined);
+      });
     })
     .mapErr((e) => {
       console.error(e);
@@ -614,10 +705,10 @@ function optOutCampaign(): ResultAsync<
       name: "optOutCampaign",
       message: "Please choose a campaign to opt out of:",
       choices: [
-        ...optedInConsentContracts.map((contractAddress) => {
+        ...acceptedInvitations.map((invitation) => {
           return {
-            name: `Consent Contract ${contractAddress}`,
-            value: contractAddress,
+            name: `${invitation.invitation.consentContractAddress}`,
+            value: invitation,
           };
         }),
         new inquirer.Separator(),
@@ -626,23 +717,21 @@ function optOutCampaign(): ResultAsync<
     },
   ])
     .andThen((answers) => {
-      const contractAddress = EVMContractAddress(answers.optOutCampaign);
-      if (optedInConsentContracts.includes(contractAddress)) {
-        // They did not pick "cancel"
-        // Opt out
-        return core.leaveCohort(contractAddress).map(() => {
-          console.log(`Opted out of consent contract ${contractAddress}`);
+      if (answers.optOutCampaign == "cancel") {
+        return okAsync(undefined);
+      }
+      const invitation = answers.optOutCampaign as PageInvitation;
+      return core
+        .leaveCohort(invitation.invitation.consentContractAddress)
+        .map(() => {
+          console.log(
+            `Opted out of consent contract ${invitation.invitation.consentContractAddress}`,
+          );
 
           // Remove it from the list of opted-in contracts
-          const index = optedInConsentContracts.indexOf(contractAddress, 0);
-          optedInConsentContracts.splice(index, 1);
+          const index = acceptedInvitations.indexOf(invitation, 0);
+          acceptedInvitations.splice(index, 1);
         });
-      }
-      console.log(
-        `optedInConsentContracts does not include ${contractAddress}`,
-      );
-
-      return okAsync(undefined);
     })
     .mapErr((e) => {
       console.error(e);

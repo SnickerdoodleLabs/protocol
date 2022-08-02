@@ -1,3 +1,4 @@
+import { DomainName } from "@snickerdoodlelabs/objects";
 import Browser from "webextension-polyfill";
 enum EAVAILABLE_HOSTS {
   SHRAPNEL = "www.shrapnel.com",
@@ -15,7 +16,7 @@ export enum EAPP_STATE {
 }
 
 export interface IRewardItem {
-  host: EAVAILABLE_HOSTS;
+  host: string;
   title: string;
   description: string;
   image: string;
@@ -24,8 +25,8 @@ export interface IRewardItem {
   rewardName: string;
   nftClaimedImage: string;
 }
-
-export const REWARD_DATA: Array<IRewardItem> = [
+// TODO SHOULD BE DELETED
+/* export const REWARD_DATA: Array<IRewardItem> = [
   {
     host: EAVAILABLE_HOSTS.CRABADA,
     title: "Claim your NFT!",
@@ -52,7 +53,7 @@ export const REWARD_DATA: Array<IRewardItem> = [
       "assets/img/sharapnel-item-claimed.png",
     ),
   },
-];
+]; */
 
 export const rewardItemQMarkImg = Browser.runtime.getURL(
   "assets/img/reward-item-qmark.png",

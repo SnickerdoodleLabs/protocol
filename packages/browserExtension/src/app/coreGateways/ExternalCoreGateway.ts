@@ -5,8 +5,10 @@ import { IExternalState } from "@shared/interfaces/states";
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import {
   Age,
+  Invitation,
   BigNumberString,
   CountryCode,
+  DomainName,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -21,6 +23,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   IAddAccountParams,
+  IGetInvitationWithDomainParams,
   IGetUnlockMessageParams,
   IMetatransactionSignatureRequestCallbackParams,
   ISetAgeParams,
@@ -40,6 +43,15 @@ export class ExternalCoreGateway {
   }
   public getState(): ResultAsync<IExternalState, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_STATE);
+  }
+
+  public getInvitationsByDomain(
+    domain: DomainName,
+  ): ResultAsync<Invitation, JsonRpcError> {
+    return this._handler.call(
+      EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN,
+      { domain } as IGetInvitationWithDomainParams,
+    );
   }
 
   public addAccount(

@@ -16,19 +16,18 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { localChainAccounts } from "@test-harness/LocalChainAccounts";
-const defaultConsentContractAddress = EVMContractAddress("");
 
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
   public businessSigner: ethers.Wallet;
-  public accountWallet: ethers.Wallet;
-  public accountAddress: EVMAccountAddress;
+  public accountWallets: ethers.Wallet[];
   public provider: ethers.providers.JsonRpcProvider;
   public consentFactoryContract: ConsentFactoryContract;
   public crumbsContract: CrumbsContract;
@@ -39,7 +38,7 @@ export class BlockchainStuff {
 
   public consentContracts = new Map<EVMContractAddress, ConsentContract>();
 
-  public constructor(public accountPrivateKey: EVMPrivateKey) {
+  public constructor(public devAccountKeys: EVMPrivateKey[]) {
     // Initialize a connection to the local blockchain
     this.provider = new ethers.providers.JsonRpcProvider(
       "http://localhost:8545",
@@ -56,8 +55,9 @@ export class BlockchainStuff {
       this.provider,
     );
 
-    this.accountWallet = new ethers.Wallet(accountPrivateKey, this.provider);
-    this.accountAddress = EVMAccountAddress(this.accountWallet.address);
+    this.accountWallets = devAccountKeys.map((devKey) => {
+      return new ethers.Wallet(devKey, this.provider);
+    });
 
     const doodleChain = chainConfig.get(
       ChainId(31337),
@@ -76,6 +76,18 @@ export class BlockchainStuff {
     );
   }
 
+  public getWalletForAddress(accountAddress: EVMAccountAddress): ethers.Wallet {
+    const wallet = this.accountWallets.find((wal) => {
+      return wal.address == accountAddress;
+    });
+
+    if (wallet == null) {
+      throw new Error(`No wallet found for account address ${accountAddress}`);
+    }
+
+    return wallet;
+  }
+
   public getConsentContract(
     contractAddress: EVMContractAddress,
   ): ConsentContract {
@@ -91,6 +103,7 @@ export class BlockchainStuff {
   public createConsentContract(
     name: ConsentName,
     domain: DomainName,
+    metadataCID: IpfsCID,
   ): ResultAsync<
     EVMContractAddress,
     ConsentFactoryContractError | ConsentContractError
@@ -98,10 +111,10 @@ export class BlockchainStuff {
     return this.consentFactoryContract
       .createConsent(
         this.serverAccount.accountAddress, // The server account has all the permissions to start with. We'll add the business' account later
-        BaseURI("this is a base uri"),
+        BaseURI(metadataCID),
         name,
       )
-      .andThen((contractAddress) => {
+      .map((contractAddress) => {
         // Got the new consent contract address
         // Create the contract wrapper
         const consentContract = new ConsentContract(
@@ -110,11 +123,7 @@ export class BlockchainStuff {
         );
         this.consentContracts.set(contractAddress, consentContract);
 
-        return ResultUtils.combine([consentContract.addDomain(domain)]).map(
-          () => {
-            return contractAddress;
-          },
-        );
+        return contractAddress;
       });
   }
 }

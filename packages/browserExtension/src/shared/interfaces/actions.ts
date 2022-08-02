@@ -2,6 +2,7 @@ import {
   Age,
   BigNumberString,
   CountryCode,
+  DomainName,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -55,7 +56,9 @@ export interface ISetEmailParams {
 export interface ISetLocationParams {
   location: CountryCode;
 }
-
+export interface IGetInvitationWithDomainParams {
+  domain: DomainName;
+}
 export interface IMetatransactionSignatureRequestCallbackParams {
   id: UUID;
   metatransactionSignature: Signature;

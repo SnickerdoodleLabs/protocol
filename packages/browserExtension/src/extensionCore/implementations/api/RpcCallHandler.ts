@@ -1,5 +1,9 @@
 import { IRpcCallHandler } from "@interfaces/api";
-import { IAccountService, IPIIService } from "@interfaces/business";
+import {
+  IAccountService,
+  IInvitationService,
+  IPIIService,
+} from "@interfaces/business";
 import { IContextProvider } from "@interfaces/utilities";
 import { EExternalActions, EInternalActions } from "@shared/enums";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
@@ -18,11 +22,15 @@ import {
   ISetGenderParams,
   ISetLocationParams,
   ISetEmailParams,
+  IGetInvitationWithDomainParams,
   IMetatransactionSignatureRequestCallbackParams,
 } from "@shared/interfaces/actions";
 import {
   Age,
+  Invitation,
   CountryCode,
+  DomainName,
+  EInvitationStatus,
   EmailAddressString,
   EVMAccountAddress,
   FamilyName,
@@ -50,6 +58,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected contextProvider: IContextProvider,
     protected accountService: IAccountService,
     protected piiService: IPIIService,
+    protected invitationService: IInvitationService,
   ) {}
 
   public async handleRpcCall(
@@ -179,6 +188,13 @@ export class RpcCallHandler implements IRpcCallHandler {
         this.contextProvider.removePendingMetatransactionSignatureRequest(id);
         return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
       }
+      case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
+        const { domain } = params as IGetInvitationWithDomainParams;
+        return new AsyncRpcResponseSender(
+          this.getInvitationsByDomain(domain),
+          res,
+        ).call();
+      }
       case EExternalActions.GET_STATE:
         return (res.result = this.contextProvider.getExterenalState());
 
@@ -187,6 +203,12 @@ export class RpcCallHandler implements IRpcCallHandler {
       default:
         return next();
     }
+  }
+
+  private getInvitationsByDomain(
+    domain: DomainName,
+  ): ResultAsync<any, SnickerDoodleCoreError> {
+    return this.invitationService.getInvitationByDomain(domain);
   }
 
   private unlock(

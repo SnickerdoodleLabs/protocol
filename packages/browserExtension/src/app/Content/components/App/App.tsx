@@ -6,7 +6,7 @@ import ConnectWalletPending from "../Screens/ConnectWalletPending";
 import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
 import NftClaimed from "../Screens/NftClaimed";
 import browser from "webextension-polyfill";
-import { EAPP_STATE, IRewardItem, REWARD_DATA } from "../../constants";
+import { EAPP_STATE, IRewardItem } from "../../constants";
 import Browser from "webextension-polyfill";
 import { ExternalCoreGateway } from "@app/coreGateways";
 import { IExternalState } from "@shared/interfaces/states";
@@ -21,6 +21,12 @@ import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProvide
 import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
 import { EPortNames } from "@shared/enums/ports";
+import {
+  Invitation,
+  DomainName,
+  TokenId,
+} from "@snickerdoodlelabs/objects";
+import { findIndex } from "rxjs";
 
 let coreGateway;
 let notificationEmitter;
@@ -62,15 +68,14 @@ const connect = () => {
 connect();
 
 const App = () => {
-  const [backgroundState, setBackgroundState] = useState<IExternalState>();
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
   const [rewardToDisplay, setRewardToDisplay] = useState<
     IRewardItem | undefined
   >();
+  const [cohortInvitation, setInvitation] = useState<Invitation>();
 
   useEffect(() => {
-    initiateBackgroundState();
-    initiateRewardItem();
+    initiateCohort();
     addEventListeners();
     return () => {
       removeEventListeners();
@@ -85,45 +90,16 @@ const App = () => {
     }
   }, [appState]);
 
-  const initiateBackgroundState = () => {
-    coreGateway.getState().map((state) => {
-      setBackgroundState(state);
-    });
+  const initiateCohort = async () => {
+    coreGateway.getInvitationsByDomain("www.shrapnel.com" as DomainName).map((invitation)=>{
+      console.log("invitation",invitation)
+    })
   };
-
-  const isScam = useMemo(
-    () => backgroundState?.scamList?.includes(window.location.origin),
-    [backgroundState],
-  );
-
-  const isInWhiteList = useMemo(
-    () => backgroundState?.whiteList?.includes(window.location.origin),
-    [backgroundState],
-  );
-
-  const renderScamWarning = useMemo(
-    () => (isScam ? <p>scam</p> : null),
-    [isScam],
-  );
-
-  const renderSafeUrlNotification = useMemo(
-    () => (isInWhiteList ? <p>safe url</p> : null),
-    [isInWhiteList],
-  );
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
   };
 
-  const initiateRewardItem = () => {
-    const hostname = window.location.hostname;
-    const reward = REWARD_DATA.find((i) => i.host === hostname);
-    if (reward) {
-      setTimeout(() => {
-        setRewardToDisplay(reward);
-      }, 2000);
-    }
-  };
 
   // Event Listeners
   const addEventListeners = () => {
@@ -191,6 +167,7 @@ const App = () => {
         return (
           <RewardCard
             rewardItem={rewardToDisplay!}
+            cohortInvitation={cohortInvitation}
             changeAppState={changeAppState}
           />
         );
@@ -204,6 +181,7 @@ const App = () => {
         return (
           <NftClaimed
             rewardItem={rewardToDisplay!}
+            cohortInvitation={cohortInvitation}
             changeAppState={changeAppState}
           />
         );
@@ -212,13 +190,7 @@ const App = () => {
     }
   }, [rewardToDisplay, appState]);
 
-  return (
-    <>
-      {renderSafeUrlNotification}
-      {renderScamWarning}
-      {renderComponent}
-    </>
-  );
+  return <>{renderComponent}</>;
 };
 
 export default App;
