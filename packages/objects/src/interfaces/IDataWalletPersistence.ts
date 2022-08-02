@@ -133,9 +133,6 @@ export interface IDataWalletPersistence {
   updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<void, PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 
-  addURL(url: URLString): ResultAsync<void, PersistenceError>;
-  getURLs(): ResultAsync<Map<URLString, number>, PersistenceError>;
-
   setLatestBlockNumber(
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError>;

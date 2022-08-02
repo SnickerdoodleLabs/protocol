@@ -61,7 +61,7 @@ import {
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
-import { DomainName, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 
 // shared
@@ -70,7 +70,7 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { IConfigProvider } from "@shared/interfaces/configProvider";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 
-import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { InvitationRepository } from "./data/InvitationRepository";
 
 export class ExtensionCore {
@@ -107,7 +107,7 @@ export class ExtensionCore {
   protected configProvider: IConfigProvider;
 
   constructor() {
-    this.core = new SnickerdoodleCore(undefined, new LocalStoragePersistence());
+    this.core = new SnickerdoodleCore(undefined, new ChromeStoragePersistence());
 
     this.configProvider = ConfigProvider;
 

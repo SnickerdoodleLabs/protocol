@@ -47,6 +47,7 @@ import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator
 
 // https://github.com/SBoudrias/Inquirer.js
 
+// LocalStoragePersistence does not work in the test harness, it is just a memory persistence
 const persistence = new LocalStoragePersistence();
 const core = new SnickerdoodleCore(
   {

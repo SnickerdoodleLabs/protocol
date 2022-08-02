@@ -20,7 +20,7 @@ export class ChromeStorageUtils {
     });
   }
 
-  static read<T>(key: string): ResultAsync<T, PersistenceError> {
+  static read<T>(key: string): ResultAsync<T | null, PersistenceError> {
     return ResultAsync.fromPromise(chrome.storage.sync.get(key), (e) => {
       return new PersistenceError(
         `Cannot remove key ${key} from chrome storage`,

@@ -27,6 +27,7 @@ export * from "@objects/primitives/Gender";
 export * from "@objects/primitives/HexString";
 export * from "@objects/primitives/InitializationVector";
 export * from "@objects/primitives/IpfsCID";
+export * from "@objects/primitives/JSONString";
 export * from "@objects/primitives/JsonWebToken";
 export * from "@objects/primitives/LanguageCode";
 export * from "@objects/primitives/FamilyName";
@@ -42,7 +43,6 @@ export * from "@objects/primitives/UUID";
 
 export * from "@objects/primitives/UnixTimestamp";
 export * from "@objects/primitives/EVMBlockNumber";
-
 
 export * from "@objects/primitives/SDQL";
 export * from "@objects/primitives/Version";
