@@ -262,7 +262,7 @@ describe("processQuery tests", () => {
       });
   });
 
-  test.only("processQuery success", async () => {
+  test("processQuery success", async () => {
     // const queryRequest = new SDQLQueryRequest(consentContractAddress, sdqlQuery);
   const mocks = new QueryServiceMocks();
   const queryService = mocks.factory() as QueryService; // new context
