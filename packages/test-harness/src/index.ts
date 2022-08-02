@@ -30,6 +30,7 @@ import {
   CountryCode,
   SDQLString,
   PageInvitation,
+  EVMTransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import {
@@ -241,6 +242,8 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "Get Location", value: "getLocation" },
     new inquirer.Separator(),
+    { name: "Get Transactions", value: "getTransactions" },
+    new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
   ];
@@ -281,6 +284,10 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.setLocation(CountryCode("US"));
       case "getLocation":
         return core.getLocation().map(console.log);
+      case "getTransactions":
+        return core
+          .getTransactions(new EVMTransactionFilter())
+          .map(console.log);
     }
     return okAsync(undefined);
   });

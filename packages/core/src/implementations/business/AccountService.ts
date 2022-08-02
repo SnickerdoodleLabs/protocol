@@ -13,6 +13,8 @@ import {
   DataWalletAddress,
   EVMAccountAddress,
   EVMPrivateKey,
+  EVMTransaction,
+  EVMTransactionFilter,
   ExternallyOwnedAccount,
   HexString,
   ICrumbContent,
@@ -371,5 +373,11 @@ export class AccountService implements IAccountService {
 
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
     return this.dataWalletPersistence.getAccountNFTs();
+  }
+
+  public getTranactions(
+    filter: EVMTransactionFilter,
+  ): ResultAsync<EVMTransaction[], PersistenceError> {
+    return this.dataWalletPersistence.getEVMTransactions(filter);
   }
 }
