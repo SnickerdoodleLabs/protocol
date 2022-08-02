@@ -162,19 +162,19 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentContractError
     | ConsentError
   > {
-    console.log(`listening for consent contract events ${blockNumber}`)
+    // console.log(`listening for consent contract events ${blockNumber}`)
     return this.consentContractRepository
       .getConsentContracts()
       .andThen((consentContractsMap) => {
-        console.log(`got consent contracts map ${consentContractsMap}`)
+        // console.log(`got consent contracts map ${consentContractsMap}`)
         return ResultUtils.combine(
           Array.from(consentContractsMap.values()).map((consentContract) => {
             // Only consent owners can request data
-            console.log(`querying consent contract owner for contract ${consentContract}`)
+            // console.log(`querying consent contract owner for contract ${consentContract}`)
             return consentContract
               .getConsentOwner()
               .andThen((consentOwner) => {
-                console.log(`got consentOwner ${consentOwner}`)
+                // console.log(`got consentOwner ${consentOwner}`)
                 return consentContract.getRequestForDataListByRequesterAddress(
                   consentOwner,
                   blockNumber,
@@ -182,11 +182,11 @@ export class BlockchainListener implements IBlockchainListener {
                 );
               })
               .andThen((requestForDataObjects) => {
-                console.log(`got request for data objects: ${requestForDataObjects}`)
+                // console.log(`got request for data objects: ${requestForDataObjects}`)
                 return ResultUtils.combine(
                   requestForDataObjects.map((requestForDataObject) => {
                     
-                  console.log(`calling onQueryPosted on queryService`)
+                  // console.log(`calling onQueryPosted on queryService`)
                     return this.queryService.onQueryPosted(
                       requestForDataObject.consentContractAddress,
                       requestForDataObject.requestedCID,
@@ -196,7 +196,7 @@ export class BlockchainListener implements IBlockchainListener {
               });
           }),
         ).map((result) => {
-          console.log('consent contract result', result);
+          // console.log('consent contract result', result);
         });
       });
   }
