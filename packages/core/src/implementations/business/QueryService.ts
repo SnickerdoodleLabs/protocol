@@ -202,7 +202,7 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     config: CoreConfig,
   ): UninitializedError | null {
-    console.log(context);
+    // console.log(context);
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
       return new UninitializedError("Data wallet has not been unlocked yet!");
     }
