@@ -6,8 +6,9 @@ import {
   ControlChainInformation,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
-export class CoreConfig implements IIndexerConfig {
+export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
   public constructor(
     public controlChainId: ChainId,
     public supportedChains: ChainId[],
@@ -22,6 +23,6 @@ export class CoreConfig implements IIndexerConfig {
     public accountNFTPollingIntervalMS: number,
     public covalentApiKey: string,
     public moralisApiKey: string,
-    public dnsServerAddress: URLString
+    public dnsServerAddress: URLString,
   ) {}
 }

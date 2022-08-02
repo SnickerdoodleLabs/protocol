@@ -110,7 +110,9 @@ export class MonitoringService implements IMonitoringService {
       })
       .andThen((nftArr) => {
         const nfts = nftArr.flat(2);
-        return this.persistence.updateAccountNFTs(nfts);
+        return this.persistence
+          .updateAccountNFTs(nfts)
+          .andThen((_x) => okAsync(undefined));
       });
   }
 
@@ -135,7 +137,9 @@ export class MonitoringService implements IMonitoringService {
       })
       .andThen((balancesArr) => {
         const balances = balancesArr.flat(2);
-        return this.persistence.updateAccountBalances(balances);
+        return this.persistence
+          .updateAccountBalances(balances)
+          .andThen((_x) => okAsync(undefined));
       });
   }
 

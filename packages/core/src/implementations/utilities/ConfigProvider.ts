@@ -1,5 +1,4 @@
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IIndexerConfigProvider } from "@snickerdoodlelabs/indexers";
 import {
   chainConfig,
@@ -19,7 +18,7 @@ import { IConfigProvider } from "@core/interfaces/utilities";
 export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
   protected config: CoreConfig;
 
-  public constructor(@inject(ILogUtilsType) protected logUtils: ILogUtils) {
+  public constructor() {
     const controlChainId = ChainId(31337);
     const controlChainInformation = chainConfig.get(controlChainId);
 

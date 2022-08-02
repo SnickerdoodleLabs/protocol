@@ -1,7 +1,11 @@
 import "reflect-metadata";
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { AxiosAjaxUtils, CryptoUtils, LogUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import { SnickerdoodleCore, ConfigProvider } from "@snickerdoodlelabs/core";
+import {
+  DefaultAccountBalances,
+  DefaultAccountNFTs,
+} from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
@@ -48,7 +52,13 @@ import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator
 
 // https://github.com/SBoudrias/Inquirer.js
 
-const persistence = new LocalStoragePersistence();
+const configProvider = new ConfigProvider();
+const ajaxUtils = new AxiosAjaxUtils();
+const persistence = new LocalStoragePersistence(
+  configProvider,
+  new DefaultAccountNFTs(configProvider, ajaxUtils),
+  new DefaultAccountBalances(configProvider, ajaxUtils),
+);
 const core = new SnickerdoodleCore(
   {
     defaultInsightPlatformBaseUrl: "http://localhost:3006",

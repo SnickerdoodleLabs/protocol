@@ -127,10 +127,10 @@ export interface IDataWalletPersistence {
 
   updateAccountBalances(
     balances: IEVMBalance[],
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
 
-  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<void, PersistenceError>;
+  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<IEVMNFT[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 
   addURL(url: URLString): ResultAsync<void, PersistenceError>;

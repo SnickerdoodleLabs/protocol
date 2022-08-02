@@ -29,17 +29,17 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
       }, config.accountIndexingPollingIntervalMS);
 
-      setInterval(() => {
-        this.monitoringService.pollBalances().mapErr((e) => {
-          this.logUtils.error(e);
-        });
-      }, config.accountBalancePollingIntervalMS);
+      // setInterval(() => {
+      //   this.monitoringService.pollBalances().mapErr((e) => {
+      //     this.logUtils.error(e);
+      //   });
+      // }, config.accountBalancePollingIntervalMS);
 
-      setInterval(() => {
-        this.monitoringService.pollNFTs().mapErr((e) => {
-          this.logUtils.error(e);
-        });
-      }, config.accountNFTPollingIntervalMS);
+      // setInterval(() => {
+      //   this.monitoringService.pollNFTs().mapErr((e) => {
+      //     this.logUtils.error(e);
+      //   });
+      // }, config.accountNFTPollingIntervalMS);
     });
   }
 }
