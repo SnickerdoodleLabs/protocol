@@ -4,9 +4,12 @@ interface Dictionary<T> {
 }
 export class LocalStorageUtils {
   static localStorage = (function () {
+    // If the localStorage actually exists, use that
     if (typeof window !== "undefined" && window.localStorage) {
       return window.localStorage;
     }
+
+    // If not, then we default to a "memory storage" system
     let store = {};
     return {
       getItem: function (key) {
@@ -28,9 +31,10 @@ export class LocalStorageUtils {
       },
     };
   })();
+
   static removeLocalStorage(key: string | string[]): string | string[] {
     const keys = Array.isArray(key) ? key : [key];
-    keys.forEach((k) => this.localStorage.removeItem(k));
+    keys.forEach((k) => LocalStorageUtils.localStorage.removeItem(k));
     return keys;
   }
 
@@ -40,14 +44,14 @@ export class LocalStorageUtils {
   ): Dictionary<any> {
     const keys = typeof key === "object" ? key : { [key]: value };
     Object.entries(keys).map(([k, val]) =>
-      this.localStorage.setItem(k, JSON.stringify(val)),
+      LocalStorageUtils.localStorage.setItem(k, JSON.stringify(val)),
     );
     return keys;
   }
 
   static readLocalStorage(key: string | string[]) {
     if (Array.isArray(key)) {
-      return this._fromPairs(
+      return LocalStorageUtils._fromPairs(
         key.map((k) => [
           k,
           localStorage.getItem(k) && JSON.parse(localStorage.getItem(k)!),
@@ -55,13 +59,13 @@ export class LocalStorageUtils {
       );
     }
     return (
-      this.localStorage.getItem(key) &&
-      JSON.parse(this.localStorage.getItem(key))
+      LocalStorageUtils.localStorage.getItem(key) &&
+      JSON.parse(LocalStorageUtils.localStorage.getItem(key))
     );
   }
 
   static clearLocalStorage(): void {
-    this.localStorage.clear();
+    LocalStorageUtils.localStorage.clear();
   }
 
   private static _fromPairs(pairs) {
