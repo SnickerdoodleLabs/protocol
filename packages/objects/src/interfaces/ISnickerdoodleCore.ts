@@ -212,25 +212,25 @@ export interface ISnickerdoodleCore {
 
   /** Google User Information */
   setAge(age: Age): ResultAsync<void, PersistenceError>;
-  getAge(): ResultAsync<Age, PersistenceError>;
+  getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
-  getGivenName(): ResultAsync<GivenName, PersistenceError>;
+  getGivenName(): ResultAsync<GivenName | null, PersistenceError>;
 
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
-  getFamilyName(): ResultAsync<FamilyName, PersistenceError>;
+  getFamilyName(): ResultAsync<FamilyName | null, PersistenceError>;
 
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
-  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError>;
 
   setGender(gender: Gender): ResultAsync<void, PersistenceError>;
-  getGender(): ResultAsync<Gender, PersistenceError>;
+  getGender(): ResultAsync<Gender | null, PersistenceError>;
 
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError>;
-  getEmail(): ResultAsync<EmailAddressString, PersistenceError>;
+  getEmail(): ResultAsync<EmailAddressString | null, PersistenceError>;
 
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
-  getLocation(): ResultAsync<CountryCode, PersistenceError>;
+  getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
