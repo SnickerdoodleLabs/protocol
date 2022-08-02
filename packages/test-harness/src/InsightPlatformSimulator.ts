@@ -199,7 +199,7 @@ export class InsightPlatformSimulator {
               this.blockchain.getConsentContract(contractAddress);
 
             console.log(
-              `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}`,
+              `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}, owned by ${this.blockchain.serverAccount.accountAddress}`,
             );
             this.consentContracts.push(contractAddress);
 

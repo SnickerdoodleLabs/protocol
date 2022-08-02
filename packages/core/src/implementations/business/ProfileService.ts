@@ -24,43 +24,43 @@ export class ProfileService implements IProfileService {
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setGivenName(name);
   }
-  getGivenName(): ResultAsync<GivenName, PersistenceError> {
+  getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
     return this.dataWalletPersistence.getGivenName();
   }
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setFamilyName(name);
   }
-  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
+  getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
     return this.dataWalletPersistence.getFamilyName();
   }
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
     return this.dataWalletPersistence.getBirthday();
   }
   setGender(gender: Gender): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setGender(gender);
   }
-  getGender(): ResultAsync<Gender, PersistenceError> {
+  getGender(): ResultAsync<Gender | null, PersistenceError> {
     return this.dataWalletPersistence.getGender();
   }
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setEmail(email);
   }
-  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+  getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
     return this.dataWalletPersistence.getEmail();
   }
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCode, PersistenceError> {
+  getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
     return this.dataWalletPersistence.getLocation();
   }
   setAge(age: Age): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setAge(age);
   }
-  getAge(): ResultAsync<Age, PersistenceError> {
+  getAge(): ResultAsync<Age | null, PersistenceError> {
     return this.dataWalletPersistence.getAge();
   }
 }

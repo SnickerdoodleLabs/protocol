@@ -347,43 +347,43 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     return this.profileService.setGivenName(name);
   }
-  getGivenName(): ResultAsync<GivenName, PersistenceError> {
+  getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
     return this.profileService.getGivenName();
   }
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
     return this.profileService.setFamilyName(name);
   }
-  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
+  getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
     return this.profileService.getFamilyName();
   }
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
     return this.profileService.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
     return this.profileService.getBirthday();
   }
   setGender(gender: Gender): ResultAsync<void, PersistenceError> {
     return this.profileService.setGender(gender);
   }
-  getGender(): ResultAsync<Gender, PersistenceError> {
+  getGender(): ResultAsync<Gender | null, PersistenceError> {
     return this.profileService.getGender();
   }
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
     return this.profileService.setEmail(email);
   }
-  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+  getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
     return this.profileService.getEmail();
   }
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
     return this.profileService.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCode, PersistenceError> {
+  getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
     return this.profileService.getLocation();
   }
   setAge(age: Age): ResultAsync<void, PersistenceError> {
     return this.profileService.setAge(age);
   }
-  getAge(): ResultAsync<Age, PersistenceError> {
+  getAge(): ResultAsync<Age | null, PersistenceError> {
     return this.profileService.getAge();
   }
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
