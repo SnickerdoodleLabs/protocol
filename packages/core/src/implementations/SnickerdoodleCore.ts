@@ -36,7 +36,7 @@ import {
   ISnickerdoodleCoreEvents,
   LanguageCode,
   MinimalForwarderContractError, PageInvitation, PersistenceError,
-  QueryFormatError, SDQLQueryRequest, Signature,
+  QueryFormatError, Signature,
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError
@@ -71,6 +71,7 @@ import {
   IContextProvider,
   IContextProviderType
 } from "@core/interfaces/utilities";
+import { SDQLQuery } from "@snickerdoodlelabs/objects";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -330,7 +331,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.getInvitationsByDomain(domain);
   }
 
-  public processQuery(queryRequest: SDQLQueryRequest): ResultAsync<
+  public processQuery(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+  ): ResultAsync<
     void,
     | AjaxError
     | UninitializedError

@@ -146,6 +146,15 @@ export class AccountService implements IAccountService {
           ]);
         })
         .andThen(() => {
+          // Need to add the account if this was the first time;
+          // Doing it this way because I have to make sure the persistence is
+          // unlocked first.
+          if (encryptedDataWalletKey == null) {
+            return this.dataWalletPersistence.addAccount(accountAddress);
+          }
+          return okAsync(undefined);
+        })
+        .andThen(() => {
           // Need to emit some events
           context.publicEvents.onInitialized.next(context.dataWalletAddress!);
 
@@ -296,49 +305,50 @@ export class AccountService implements IAccountService {
     | CrumbsContractError
     | AjaxError
   > {
-    return ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.loginRegistryRepo.getCrumb(accountAddress, languageCode),
-    ]).andThen(([context, existingCrumb]) => {
-      if (
-        context.dataWalletAddress == null ||
-        context.sourceEntropy == null ||
-        context.dataWalletKey == null
-      ) {
+    // Normally I would call .getContext() and .getCrumb() via .combine(),
+    // but .getCrumb() failed if the wallet is not unlocked- resulting
+    // not in an UnitializedError as I desired, but in another, more
+    // inscrutable error. So I do these inline
+    return this.contextProvider.getContext().andThen((context) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
           new UninitializedError(
-            "Must be logged in first before you can add an additional account",
+            "Core must be unlocked first before you can add an additional account",
           ),
         );
       }
 
-      if (existingCrumb != null) {
-        // There is already a crumb on chain for this account; odds are the
-        // account is already connected. If we want to be cool,
-        // we'd double check. For right now, we'll just return, and figure
-        // the job is done
-        return okAsync(undefined);
-      }
+      return this.loginRegistryRepo
+        .getCrumb(accountAddress, languageCode)
+        .andThen((existingCrumb) => {
+          if (existingCrumb != null) {
+            // There is already a crumb on chain for this account; odds are the
+            // account is already connected. If we want to be cool,
+            // we'd double check. For right now, we'll just return, and figure
+            // the job is done
+            return okAsync(undefined);
+          }
 
-      return this.dataWalletUtils
-        .deriveEncryptionKeyFromSignature(signature)
-        .andThen((encryptionKey) => {
-          // Encrypt the data wallet key with this new encryption key
-          return this.cryptoUtils.encryptString(
-            context.dataWalletKey!,
-            encryptionKey,
-          );
-        })
-        .andThen((encryptedDataWalletKey) => {
-          // Need to get a signature on the add crumb metatransaction
-          return this.addCrumbMetatransaction(
-            accountAddress,
-            context,
-            encryptedDataWalletKey,
-            languageCode,
-            context.dataWalletAddress!,
-            context.dataWalletKey!,
-          );
+          return this.dataWalletUtils
+            .deriveEncryptionKeyFromSignature(signature)
+            .andThen((encryptionKey) => {
+              // Encrypt the data wallet key with this new encryption key
+              return this.cryptoUtils.encryptString(
+                context.dataWalletKey!,
+                encryptionKey,
+              );
+            })
+            .andThen((encryptedDataWalletKey) => {
+              // Need to get a signature on the add crumb metatransaction
+              return this.addCrumbMetatransaction(
+                accountAddress,
+                context,
+                encryptedDataWalletKey,
+                languageCode,
+                context.dataWalletAddress!,
+                context.dataWalletKey!,
+              );
+            });
         })
         .andThen(() => {
           // Add the account to the data wallet

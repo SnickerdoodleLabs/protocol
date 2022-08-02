@@ -27,8 +27,7 @@ import { localChainAccounts } from "@test-harness/LocalChainAccounts";
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
   public businessSigner: ethers.Wallet;
-  public accountWallet: ethers.Wallet;
-  public accountAddress: EVMAccountAddress;
+  public accountWallets: ethers.Wallet[];
   public provider: ethers.providers.JsonRpcProvider;
   public consentFactoryContract: ConsentFactoryContract;
   public crumbsContract: CrumbsContract;
@@ -39,7 +38,7 @@ export class BlockchainStuff {
 
   public consentContracts = new Map<EVMContractAddress, ConsentContract>();
 
-  public constructor(public accountPrivateKey: EVMPrivateKey) {
+  public constructor(public devAccountKeys: EVMPrivateKey[]) {
     // Initialize a connection to the local blockchain
     this.provider = new ethers.providers.JsonRpcProvider(
       "http://localhost:8545",
@@ -56,8 +55,9 @@ export class BlockchainStuff {
       this.provider,
     );
 
-    this.accountWallet = new ethers.Wallet(accountPrivateKey, this.provider);
-    this.accountAddress = EVMAccountAddress(this.accountWallet.address);
+    this.accountWallets = devAccountKeys.map((devKey) => {
+      return new ethers.Wallet(devKey, this.provider);
+    });
 
     const doodleChain = chainConfig.get(
       ChainId(31337),
@@ -74,6 +74,18 @@ export class BlockchainStuff {
       this.serverSigner,
       doodleChain.metatransactionForwarderAddress,
     );
+  }
+
+  public getWalletForAddress(accountAddress: EVMAccountAddress): ethers.Wallet {
+    const wallet = this.accountWallets.find((wal) => {
+      return wal.address == accountAddress;
+    });
+
+    if (wallet == null) {
+      throw new Error(`No wallet found for account address ${accountAddress}`);
+    }
+
+    return wallet;
   }
 
   public getConsentContract(

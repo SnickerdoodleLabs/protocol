@@ -30,6 +30,8 @@ import {
   IPFSError,
   URLString,
   PageInvitation,
+  TokenId,
+  InvitationDomain,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,

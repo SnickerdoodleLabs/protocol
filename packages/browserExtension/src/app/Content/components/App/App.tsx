@@ -91,46 +91,15 @@ const App = () => {
   }, [appState]);
 
   const initiateCohort = async () => {
-    coreGateway
-      .getInvitationWithDomain(window.location.hostname as DomainName)
-      .map((invitation) => {
-        if (invitation != null) {
-          initiateRewardItem(invitation[0]);
-        }
-      });
+    coreGateway.getInvitationsByDomain("www.shrapnel.com" as DomainName).map((invitation)=>{
+      console.log("invitation",invitation)
+    })
   };
 
   const changeAppState = (state: EAPP_STATE) => {
     setAppState(state);
   };
 
-  const initiateRewardItem = (cohort: Invitation) => {
-    // When we pass the Cohortinvitation rpcCallHandler to App.tsx we lost proporties of invitation because of that
-    // I'm creating new one for pass it to the acceptInvitation or rejectInvitation.
-    const rewardInvitation = new Invitation(
-      cohort.domain,
-      cohort.consentContractAddress,
-      TokenId(BigInt(cohort.tokenId)),
-      cohort.businessSignature,
-    );
-    setInvitation(rewardInvitation);
-
-    const reward: IRewardItem = {
-      host: window.location.hostname,
-      title: cohort!.displayItems!.title,
-      description: cohort!.displayItems!.description,
-      image: cohort!.displayItems!.image,
-      primaryButtonText: "Claim Reward",
-      secondaryButtonText: "Back to Game",
-      rewardName: cohort!.displayItems!.rewardName,
-      nftClaimedImage: cohort!.displayItems!.nftClaimedImage,
-    };
-    if (reward) {
-      setTimeout(() => {
-        setRewardToDisplay(reward);
-      }, 2000);
-    }
-  };
 
   // Event Listeners
   const addEventListeners = () => {

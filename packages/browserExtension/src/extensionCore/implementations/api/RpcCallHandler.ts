@@ -23,6 +23,7 @@ import {
   ISetLocationParams,
   ISetEmailParams,
   IGetInvitationWithDomainParams,
+  IMetatransactionSignatureRequestCallbackParams,
 } from "@shared/interfaces/actions";
 import {
   Age,
@@ -47,15 +48,17 @@ import {
   PendingJsonRpcResponse,
 } from "json-rpc-engine";
 
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { Runtime } from "webextension-polyfill";
+import { AsyncRpcResponseSender } from "@implementations/utilities";
+import { ExtensionMetatransactionError } from "@shared/objects/errors";
 
 export class RpcCallHandler implements IRpcCallHandler {
   constructor(
     protected contextProvider: IContextProvider,
     protected accountService: IAccountService,
     protected piiService: IPIIService,
-    protected cohortService: IInvitationService,
+    protected invitationService: IInvitationService,
   ) {}
 
   public async handleRpcCall(
@@ -70,93 +73,127 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.UNLOCK: {
         const { accountAddress, signature, languageCode } =
           params as IUnlockParams;
-        return this._sendAsyncResponse(
+        return new AsyncRpcResponseSender(
           this.unlock(accountAddress, signature, languageCode),
           res,
-        );
+        ).call();
       }
       case EExternalActions.ADD_ACCOUNT: {
         const { accountAddress, signature, languageCode } =
           params as IAddAccountParams;
-        return this._sendAsyncResponse(
+        return new AsyncRpcResponseSender(
           this.addAccount(accountAddress, signature, languageCode),
           res,
-        );
+        ).call();
       }
       case EExternalActions.GET_UNLOCK_MESSAGE: {
         const { languageCode } = params as IGetUnlockMessageParams;
-        return this._sendAsyncResponse(
+        return new AsyncRpcResponseSender(
           this.getUnlockMessage(languageCode),
           res,
-        );
+        ).call();
       }
       case EExternalActions.GET_ACCOUNTS:
       case EInternalActions.GET_ACCOUNTS: {
-        return this._sendAsyncResponse(this.getAccounts(), res);
+        return new AsyncRpcResponseSender(this.getAccounts(), res).call();
       }
       case EExternalActions.GET_ACCOUNT_BALANCES:
       case EInternalActions.GET_ACCOUNT_BALANCES: {
-        return this._sendAsyncResponse(this.getAccountBalances(), res);
+        return new AsyncRpcResponseSender(
+          this.getAccountBalances(),
+          res,
+        ).call();
       }
       case EExternalActions.GET_ACCOUNT_NFTS:
       case EInternalActions.GET_ACCOUNT_NFTS: {
-        return this._sendAsyncResponse(this.getAccountNFTs(), res);
+        return new AsyncRpcResponseSender(this.getAccountNFTs(), res).call();
       }
       case EExternalActions.SET_AGE: {
         const { age } = params as ISetAgeParams;
-        return this._sendAsyncResponse(this.setAge(age), res);
+        return new AsyncRpcResponseSender(this.setAge(age), res).call();
       }
       case EExternalActions.SET_GIVEN_NAME: {
         const { givenName } = params as ISetGivenNameParams;
-        return this._sendAsyncResponse(this.setGivenName(givenName), res);
+        return new AsyncRpcResponseSender(
+          this.setGivenName(givenName),
+          res,
+        ).call();
       }
       case EExternalActions.SET_EMAIL: {
         const { email } = params as ISetEmailParams;
-        return this._sendAsyncResponse(this.setEmail(email), res);
+        return new AsyncRpcResponseSender(this.setEmail(email), res).call();
       }
       case EExternalActions.SET_FAMILY_NAME: {
         const { familyName } = params as ISetFamilyNameParams;
-        return this._sendAsyncResponse(this.setFamilyName(familyName), res);
+        return new AsyncRpcResponseSender(
+          this.setFamilyName(familyName),
+          res,
+        ).call();
       }
       case EExternalActions.SET_BIRTHDAY: {
         const { birthday } = params as ISetBirthdayParams;
-        return this._sendAsyncResponse(this.setBirthday(birthday), res);
+        return new AsyncRpcResponseSender(
+          this.setBirthday(birthday),
+          res,
+        ).call();
       }
       case EExternalActions.SET_GENDER: {
         const { gender } = params as ISetGenderParams;
-        return this._sendAsyncResponse(this.setGender(gender), res);
+        return new AsyncRpcResponseSender(this.setGender(gender), res).call();
       }
       case EExternalActions.SET_LOCATION: {
         const { location } = params as ISetLocationParams;
-        return this._sendAsyncResponse(this.setLocation(location), res);
+        return new AsyncRpcResponseSender(
+          this.setLocation(location),
+          res,
+        ).call();
       }
       case EExternalActions.GET_AGE: {
-        return this._sendAsyncResponse(this.getAge(), res);
+        return new AsyncRpcResponseSender(this.getAge(), res).call();
       }
       case EExternalActions.GET_GIVEN_NAME: {
-        return this._sendAsyncResponse(this.getGivenName(), res);
+        return new AsyncRpcResponseSender(this.getGivenName(), res).call();
       }
       case EExternalActions.GET_EMAIL: {
-        return this._sendAsyncResponse(this.getEmail(), res);
+        return new AsyncRpcResponseSender(this.getEmail(), res).call();
       }
       case EExternalActions.GET_FAMILY_NAME: {
-        return this._sendAsyncResponse(this.getFamilyName(), res);
+        return new AsyncRpcResponseSender(this.getFamilyName(), res).call();
       }
       case EExternalActions.GET_BIRTHDAY: {
-        return this._sendAsyncResponse(this.getBirthday(), res);
+        return new AsyncRpcResponseSender(this.getBirthday(), res).call();
       }
       case EExternalActions.GET_GENDER: {
-        return this._sendAsyncResponse(this.getGender(), res);
+        return new AsyncRpcResponseSender(this.getGender(), res).call();
       }
       case EExternalActions.GET_LOCATION: {
-        return this._sendAsyncResponse(this.getLocation(), res);
+        return new AsyncRpcResponseSender(this.getLocation(), res).call();
+      }
+      // TODO move it to correct place
+      case EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK: {
+        const { nonce, id, metatransactionSignature } =
+          params as IMetatransactionSignatureRequestCallbackParams;
+        const metatransactionSignatureRequest =
+          this.contextProvider.getMetatransactionSignatureRequestById(id);
+        if (!metatransactionSignatureRequest) {
+          return (res.error = new ExtensionMetatransactionError(
+            `Metatransaction could not found with key: ${id}`,
+          ));
+        }
+        metatransactionSignatureRequest.callback(
+          metatransactionSignature,
+          nonce,
+        );
+        // TODO add to history if needed
+        this.contextProvider.removePendingMetatransactionSignatureRequest(id);
+        return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
       }
       case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
         const { domain } = params as IGetInvitationWithDomainParams;
-        return this._sendAsyncResponse(
-          this.getInvitationWithDomain(domain),
+        return new AsyncRpcResponseSender(
+          this.getInvitationsByDomain(domain),
           res,
-        );
+        ).call();
       }
       case EExternalActions.GET_STATE:
         return (res.result = this.contextProvider.getExterenalState());
@@ -168,55 +205,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     }
   }
 
-  private _sendAsyncResponse = async <T, K extends Error>(
-    fn: ResultAsync<T, K>,
-    res: PendingJsonRpcResponse<unknown>,
-  ) => {
-    await fn
-      .mapErr((err) => {
-        res.error = err;
-      })
-      .map((result) => {
-        console.log("sendAsyncRes", result);
-        if (typeof result === typeof undefined) {
-          res.result = DEFAULT_RPC_SUCCESS_RESULT;
-        } else {
-          res.result = this.toObject(result);
-        }
-        return okAsync(undefined);
-      });
-  };
-  // to fix {code: -32603, message: 'Do not know how to serialize a BigInt', data: {…}}
-  toObject(obj) {
-    return JSON.parse(
-      JSON.stringify(obj, (_, v) =>
-        typeof v === "bigint" ? `${v}#bigint` : v,
-      ).replace(/"(-?\d+)#bigint"/g, (_, a) => a),
-    );
-  }
-
-  private getInvitationWithDomain(
+  private getInvitationsByDomain(
     domain: DomainName,
   ): ResultAsync<any, SnickerDoodleCoreError> {
-    return this.cohortService
-      .getInvitationWithDomain(domain)
-      .map((result) => {
-        return result.map((invitation) => {
-          if (invitation.domain === domain) {
-            return this.cohortService
-              .checkInvitationStatus(invitation)
-              .map((result: EInvitationStatus) => {
-                if (result === EInvitationStatus.New) {
-                  return invitation;
-                } else {
-                  return null;
-                }
-              });
-          } else {
-            return null;
-          }
-        });
-      });
+    return this.invitationService.getInvitationByDomain(domain);
   }
 
   private unlock(

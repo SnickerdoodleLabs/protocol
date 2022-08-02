@@ -36,7 +36,7 @@ import {
 } from "@implementations/data";
 import {
   IAccountRepository,
-  ICohortRepository,
+  IInvitationRepository,
   IPIIRepository,
   IPortConnectionRepository,
 } from "@interfaces/data";
@@ -71,7 +71,7 @@ import { IConfigProvider } from "@shared/interfaces/configProvider";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
-import { CohortRepository } from "./data/CohortRepository";
+import { InvitationRepository } from "./data/InvitationRepository";
 
 export class ExtensionCore {
   // snickerdooldle Core
@@ -81,13 +81,13 @@ export class ExtensionCore {
   protected accountService: IAccountService;
   protected portConnectionService: IPortConnectionService;
   protected piiService: IPIIService;
-  protected cohortService: IInvitationService
+  protected invitationService: IInvitationService
 
   // Data
   protected accountRepository: IAccountRepository;
   protected portConnectionRepository: IPortConnectionRepository;
   protected piiRepository: IPIIRepository;
-  protected cohortRepository: ICohortRepository
+  protected invitationRepository: IInvitationRepository
 
   // Utils
   protected contextProvider: IContextProvider;
@@ -111,10 +111,10 @@ export class ExtensionCore {
 
     this.configProvider = ConfigProvider;
 
-    this.coreListener = new CoreListener(this.core);
-    this.coreListener.initialize();
+    this.contextProvider = new ContextProvider(this.configProvider);
 
-    this.contextProvider = new ContextProvider();
+    this.coreListener = new CoreListener(this.core, this.contextProvider);
+    this.coreListener.initialize();
 
     this.accountCookieUtils = new AccountCookieUtils(this.configProvider);
     this.errorUtils = new ErrorUtils(this.contextProvider);
@@ -129,14 +129,14 @@ export class ExtensionCore {
     this.piiRepository = new PIIRepository(this.core, this.errorUtils);
     this.piiService = new PIIService(this.piiRepository);
 
-    this.cohortRepository = new CohortRepository(this.core,this.errorUtils)
-    this.cohortService = new InvitationService(this.cohortRepository,this.contextProvider)
+    this.invitationRepository = new InvitationRepository(this.core,this.errorUtils)
+    this.invitationService = new InvitationService(this.invitationRepository,this.contextProvider)
 
     this.rpcCallHandler = new RpcCallHandler(
       this.contextProvider,
       this.accountService,
       this.piiService,
-      this.cohortService
+      this.invitationService
     );
 
     this.rpcEngineFactory = new RpcEngineFactory(

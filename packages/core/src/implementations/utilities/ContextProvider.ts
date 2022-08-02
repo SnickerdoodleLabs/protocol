@@ -11,7 +11,6 @@ export class ContextProvider implements IContextProvider {
   public constructor() {
     this.context = new CoreContext(
       null, // dataWalletAddress
-      null, // sourceEntropy
       null, // dataWalletKey
       false, // unlockInProgress
       new PublicEvents(), // publicEvents

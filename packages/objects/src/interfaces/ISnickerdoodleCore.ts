@@ -41,9 +41,8 @@ import {
   GivenName,
   LanguageCode,
   Signature,
+  UnixTimestamp,
 } from "@objects/primitives";
-import { UnixTimestamp } from "@objects/primitives";
-
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -199,7 +198,10 @@ export interface ISnickerdoodleCore {
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
-  processQuery(queryRequest: SDQLQueryRequest): ResultAsync<
+  processQuery(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+  ): ResultAsync<
     void,
     | AjaxError
     | UninitializedError
