@@ -1,17 +1,32 @@
 import { Readable } from "stream";
 
 import { AjaxError, JsonWebToken } from "@snickerdoodlelabs/objects";
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosAdapter, AxiosInstance, AxiosResponse } from "axios";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
+import fetchAdapter from "@common-utils/implementations/FetchAdapter";
 import { IAxiosAjaxUtils, IRequestConfig } from "@common-utils/interfaces";
 
 @injectable()
 export class AxiosAjaxUtils implements IAxiosAjaxUtils {
+  protected instance: AxiosInstance;
+  public constructor() {
+    // Browsers have XMLHttpRequest, node has the http object. Axios will use
+    // the right one depending. But server workers have neither, and need to
+    // use the fetch adapter.
+    // These checks are a PITA
+    if (typeof window !== undefined && process == null) {
+      this.instance = axios.create({
+        adapter: fetchAdapter as AxiosAdapter,
+      });
+    }
+    this.instance = axios.create({});
+  }
+
   public get<T>(url: URL, config?: IRequestConfig): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      axios.get(url.toString(), config),
+      this.instance.get(url.toString(), config),
       (e) => new AjaxError(`Unable to get ${url}`, e),
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -30,7 +45,7 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      axios.post(url.toString(), data, config),
+      this.instance.post(url.toString(), data, config),
       (e) => new AjaxError(`Unable to post ${url}`, e),
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -49,7 +64,7 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      axios.put(url.toString(), data, config),
+      this.instance.put(url.toString(), data, config),
       (e) => new AjaxError(`Unable to put ${url}`, e),
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -61,7 +76,7 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
     return ResultAsync.fromPromise(
-      axios.delete(url.toString(), config),
+      this.instance.delete(url.toString(), config),
       (e) => new AjaxError(`Unable to delete ${url}`, e),
     ).map((response: AxiosResponse<T>) => {
       return response.data;
@@ -69,6 +84,8 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
   }
 
   public setDefaultToken(token: JsonWebToken): void {
-    axios.defaults.headers.common = { authorization: `Bearer ${token}` };
+    this.instance.defaults.headers.common = {
+      authorization: `Bearer ${token}`,
+    };
   }
 }
