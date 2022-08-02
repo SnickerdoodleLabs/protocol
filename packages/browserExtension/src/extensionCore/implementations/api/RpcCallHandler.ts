@@ -248,7 +248,7 @@ export class RpcCallHandler implements IRpcCallHandler {
   private setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setAge(age);
   }
-  private getAge(): ResultAsync<Age, SnickerDoodleCoreError> {
+  private getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
     return this.piiService.getAge();
   }
   private setGivenName(
@@ -256,7 +256,10 @@ export class RpcCallHandler implements IRpcCallHandler {
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setGivenName(name);
   }
-  private getGivenName(): ResultAsync<GivenName, SnickerDoodleCoreError> {
+  private getGivenName(): ResultAsync<
+    GivenName | null,
+    SnickerDoodleCoreError
+  > {
     return this.piiService.getGivenName();
   }
   private setFamilyName(
@@ -264,7 +267,10 @@ export class RpcCallHandler implements IRpcCallHandler {
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setFamilyName(name);
   }
-  private getFamilyName(): ResultAsync<FamilyName, SnickerDoodleCoreError> {
+  private getFamilyName(): ResultAsync<
+    FamilyName | null,
+    SnickerDoodleCoreError
+  > {
     return this.piiService.getFamilyName();
   }
   private setBirthday(
@@ -272,13 +278,16 @@ export class RpcCallHandler implements IRpcCallHandler {
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setBirthday(birthday);
   }
-  private getBirthday(): ResultAsync<UnixTimestamp, SnickerDoodleCoreError> {
+  private getBirthday(): ResultAsync<
+    UnixTimestamp | null,
+    SnickerDoodleCoreError
+  > {
     return this.piiService.getBirthday();
   }
   private setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setGender(gender);
   }
-  private getGender(): ResultAsync<Gender, SnickerDoodleCoreError> {
+  private getGender(): ResultAsync<Gender | null, SnickerDoodleCoreError> {
     return this.piiService.getGender();
   }
   private setEmail(
@@ -286,7 +295,10 @@ export class RpcCallHandler implements IRpcCallHandler {
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setEmail(email);
   }
-  private getEmail(): ResultAsync<EmailAddressString, SnickerDoodleCoreError> {
+  private getEmail(): ResultAsync<
+    EmailAddressString | null,
+    SnickerDoodleCoreError
+  > {
     return this.piiService.getEmail();
   }
   private setLocation(
@@ -294,7 +306,10 @@ export class RpcCallHandler implements IRpcCallHandler {
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setLocation(location);
   }
-  private getLocation(): ResultAsync<CountryCode, SnickerDoodleCoreError> {
+  private getLocation(): ResultAsync<
+    CountryCode | null,
+    SnickerDoodleCoreError
+  > {
     return this.piiService.getLocation();
   }
 }
