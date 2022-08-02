@@ -12,21 +12,21 @@ import { ResultAsync } from "neverthrow";
 
 export interface IPIIRepository {
   setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError>;
-  getAge(): ResultAsync<Age, SnickerDoodleCoreError>;
+  getAge(): ResultAsync<Age | null, SnickerDoodleCoreError>;
   setGivenName(name: GivenName): ResultAsync<void, SnickerDoodleCoreError>;
-  getGivenName(): ResultAsync<GivenName, SnickerDoodleCoreError>;
+  getGivenName(): ResultAsync<GivenName | null, SnickerDoodleCoreError>;
   setFamilyName(name: FamilyName): ResultAsync<void, SnickerDoodleCoreError>;
-  getFamilyName(): ResultAsync<FamilyName, SnickerDoodleCoreError>;
+  getFamilyName(): ResultAsync<FamilyName | null, SnickerDoodleCoreError>;
   setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  getBirthday(): ResultAsync<UnixTimestamp, SnickerDoodleCoreError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, SnickerDoodleCoreError>;
   setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError>;
-  getGender(): ResultAsync<Gender, SnickerDoodleCoreError>;
+  getGender(): ResultAsync<Gender | null, SnickerDoodleCoreError>;
   setEmail(
     email: EmailAddressString,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  getEmail(): ResultAsync<EmailAddressString, SnickerDoodleCoreError>;
+  getEmail(): ResultAsync<EmailAddressString | null, SnickerDoodleCoreError>;
   setLocation(location: CountryCode): ResultAsync<void, SnickerDoodleCoreError>;
-  getLocation(): ResultAsync<CountryCode, SnickerDoodleCoreError>;
+  getLocation(): ResultAsync<CountryCode | null, SnickerDoodleCoreError>;
 }

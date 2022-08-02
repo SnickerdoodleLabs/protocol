@@ -18,19 +18,19 @@ export class PIIRepository implements IPIIRepository {
     protected core: ISnickerdoodleCore,
     protected errorUtils: IErrorUtils,
   ) {}
-  setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
+  public setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setAge(age).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getAge(): ResultAsync<Age, SnickerDoodleCoreError> {
+  public getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
     return this.core.getAge().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  setGivenName(
+  public setGivenName(
     givenName: GivenName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setGivenName(givenName).mapErr((error) => {
@@ -38,13 +38,13 @@ export class PIIRepository implements IPIIRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getGivenName(): ResultAsync<GivenName, SnickerDoodleCoreError> {
+  public getGivenName(): ResultAsync<GivenName | null, SnickerDoodleCoreError> {
     return this.core.getGivenName().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  setFamilyName(
+  public setFamilyName(
     familyName: FamilyName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setFamilyName(familyName).mapErr((error) => {
@@ -52,13 +52,16 @@ export class PIIRepository implements IPIIRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getFamilyName(): ResultAsync<FamilyName, SnickerDoodleCoreError> {
+  public getFamilyName(): ResultAsync<
+    FamilyName | null,
+    SnickerDoodleCoreError
+  > {
     return this.core.getFamilyName().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  setBirthday(
+  public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setBirthday(birthday).mapErr((error) => {
@@ -66,25 +69,28 @@ export class PIIRepository implements IPIIRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getBirthday(): ResultAsync<UnixTimestamp, SnickerDoodleCoreError> {
+  public getBirthday(): ResultAsync<
+    UnixTimestamp | null,
+    SnickerDoodleCoreError
+  > {
     return this.core.getBirthday().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError> {
+  public setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setGender(gender).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getGender(): ResultAsync<Gender, SnickerDoodleCoreError> {
+  public getGender(): ResultAsync<Gender | null, SnickerDoodleCoreError> {
     return this.core.getGender().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  setEmail(
+  public setEmail(
     email: EmailAddressString,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setEmail(email).mapErr((error) => {
@@ -92,13 +98,16 @@ export class PIIRepository implements IPIIRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getEmail(): ResultAsync<EmailAddressString, SnickerDoodleCoreError> {
+  public getEmail(): ResultAsync<
+    EmailAddressString | null,
+    SnickerDoodleCoreError
+  > {
     return this.core.getEmail().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  setLocation(
+  public setLocation(
     location: CountryCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setLocation(location).mapErr((error) => {
@@ -106,7 +115,10 @@ export class PIIRepository implements IPIIRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
-  getLocation(): ResultAsync<CountryCode, SnickerDoodleCoreError> {
+  public getLocation(): ResultAsync<
+    CountryCode | null,
+    SnickerDoodleCoreError
+  > {
     return this.core.getLocation().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
