@@ -6,6 +6,7 @@ import {
   ConsentConditions,
   IEVMNFT,
   SDQLQuery,
+  SDQLQueryRequest,
   PageInvitation,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
@@ -190,7 +191,7 @@ export interface ISnickerdoodleCore {
     | AjaxError
     | IPFSError
   >;
-
+  
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
