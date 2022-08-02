@@ -1,3 +1,4 @@
+import * as http from "http";
 import { Readable } from "stream";
 
 import { AjaxError, JsonWebToken } from "@snickerdoodlelabs/objects";
@@ -16,7 +17,11 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
     // the right one depending. But server workers have neither, and need to
     // use the fetch adapter.
     // These checks are a PITA
-    if (typeof window == undefined && typeof process == undefined) {
+    if (
+      typeof window == undefined &&
+      typeof process != undefined &&
+      typeof http == undefined
+    ) {
       this.instance = axios.create({
         adapter: fetchAdapter as AxiosAdapter,
       });
