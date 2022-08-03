@@ -433,24 +433,14 @@ export class InvitationService implements IInvitationService {
     domain: DomainName,
   ): ResultAsync<EVMContractAddress[], AjaxError> {
     return this.dnsRepository.fetchTXTRecords(domain).map((txtRecords) => {
-      // search for TXT records that start with consentContracts:
-      const relevantTxts = txtRecords.filter((val) => {
-        return val.startsWith("consentContracts:");
-      });
-
-      // Take those, string off the prefix, and split them to get a complete list of consent
-      // contract addresses
-      const contractAddresses = relevantTxts
-        .map((val) => {
-          const contractAddresses = val.replace(/^(consentContracts:)/, "");
-          return contractAddresses.split(",");
+      return txtRecords
+        .map((txtRecord) => {
+          const records = txtRecord.split(",");
+          return records.map((record) =>
+            EVMContractAddress(JSON.parse(record)),
+          );
         })
-        .flat()
-        .map((contractAddressString) => {
-          return EVMContractAddress(contractAddressString);
-        });
-
-      return contractAddresses;
+        .flat();
     });
   }
 }

@@ -6,18 +6,25 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { IPFSHTTPClient } from "ipfs-http-client";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { IInvitationRepository } from "@core/interfaces/data";
-import { IIPFSProvider, IIPFSProviderType } from "@core/interfaces/utilities";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@core/interfaces/utilities";
+import {
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class InvitationRepository implements IInvitationRepository {
   protected cache = new Map<IpfsCID, InvitationDomain>();
 
   public constructor(
-    @inject(IIPFSProviderType) protected ipfsProvider: IIPFSProvider,
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
   public getInvitationDomainByCID(
@@ -30,53 +37,30 @@ export class InvitationRepository implements IInvitationRepository {
       return okAsync(cached);
     }
 
-    return this.ipfsProvider.getIFPSClient().andThen((client) => {
-      return ResultAsync.fromPromise(
-        this.getFileByCIDInternal(client, cid, domain),
-        (e) => {
-          return new IPFSError((e as Error).message, e);
-        },
-      );
-    });
-  }
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const ipfsUrl = `${config.publicIpfsNodeAddress}${cid}`;
+        return this.ajaxUtil.get<IOpenSeaMetadata>(new URL(ipfsUrl));
+      })
+      .andThen((json) => {
+        const invitationDomain = new InvitationDomain(
+          domain,
+          json?.title,
+          json?.description,
+          json?.image,
+          json?.rewardName,
+          json?.nftClaimedImage,
+        );
 
-  protected async getFileByCIDInternal(
-    client: IPFSHTTPClient,
-    cid: IpfsCID,
-    domain: DomainName,
-  ): Promise<InvitationDomain | null> {
-    // calling cat command based on JS HTTP client API docs
-    // https://github.com/ipfs/js-ipfs/tree/master/packages/ipfs-http-client
-    const result = await client.cat(cid);
-    let content = new Array<number>();
-    for await (const chunk of result) {
-      content = [...content, ...chunk];
-    }
-    // conversion of U8s to readable content
-    const raw = Buffer.from(content).toString("utf8");
+        // Cache the query
+        this.cache.set(cid, invitationDomain);
 
-    // If there is no data in IPFS for this CID, return null
-    if (raw.length == 0) {
-      return null;
-    }
-
-    const json = JSON.parse(raw) as IOpenSeaMetadata;
-
-    // Create the InvitationDomain
-    const invitationDomain = new InvitationDomain(
-      domain,
-      json.title,
-      json.description,
-      json.image,
-      json.rewardName,
-      json.nftClaimedImage,
-    );
-
-    // Cache the query
-    this.cache.set(cid, invitationDomain);
-
-    // Return the query
-    return invitationDomain;
+        return okAsync(invitationDomain);
+      })
+      .orElse((err) => {
+        return errAsync(new IPFSError((err as Error).message, err));
+      });
   }
 }
 
