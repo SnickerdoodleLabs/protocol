@@ -1,3 +1,15 @@
+import artboardImage from "@extension-onboarding/assets/images/artboard.png";
+import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
+import { countries } from "@extension-onboarding/constants/countries";
+import { useAppContext } from "@extension-onboarding/context/App";
+import {
+  googleScopes,
+  clientID,
+} from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
+import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
+import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
+import { PII } from "@extension-onboarding/services/interfaces/objects/";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 import {
   Button,
   Box,
@@ -13,21 +25,8 @@ import { Select, TextField, RadioGroup } from "formik-material-ui";
 import { gapi } from "gapi-script";
 import { ResultAsync } from "neverthrow";
 import React, { FC, useEffect, useState } from "react";
-import { GoogleLogin, GoogleLogout } from "react-google-login";
+import { GoogleLogin } from "react-google-login";
 import * as yup from "yup";
-
-import artboardImage from "@extension-onboarding/assets/images/artboard.png";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { countries } from "@extension-onboarding/constants/countries";
-import { useAppContext } from "@extension-onboarding/context/App";
-import {
-  googleScopes,
-  clientID,
-} from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
-import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
-import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { PII } from "@extension-onboarding/services/interfaces/objects/";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 

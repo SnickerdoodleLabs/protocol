@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Web3Provider } from "@ethersproject/providers";
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
+import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 import {
   EVMAccountAddress,
   ChainId,
@@ -9,22 +11,36 @@ import {
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
-import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
-
 export class MetamaskWalletProvider implements IWalletProvider {
   protected _provider;
   protected _web3Provider: Web3Provider | null = null;
 
-  constructor() {
-    this._provider = // @ts-ignore
+  constructor(protected _config: Config) {
+    this._provider = this.provider;
+  }
+
+  private get provider() {
+    return (
+      // @ts-ignore
       window?.ethereum?.providers?.find?.((provider) => provider.isMetaMask) ??
       // @ts-ignore
-      (window?.ethereum?.isMetaMask && window.ethereum);
+      (window?.ethereum?.isMetaMask && window.ethereum)
+    );
   }
-  get isInstalled(): boolean {
+
+  private updateProvider() {
+    this._provider = this.provider;
+    this._web3Provider = new ethers.providers.Web3Provider(this._provider);
+  }
+
+  public get config(): Config {
+    return this._config;
+  }
+  public get isInstalled(): boolean {
     return !!this._provider;
   }
-  connect(): ResultAsync<EVMAccountAddress, unknown> {
+
+  public connect(): ResultAsync<EVMAccountAddress, unknown> {
     if (!this._provider) {
       return errAsync(new Error("Metamask is not installed!"));
     }
@@ -50,7 +66,24 @@ export class MetamaskWalletProvider implements IWalletProvider {
         return okAsync(EVMAccountAddress(account));
       });
   }
-  getSignature(message: string): ResultAsync<Signature, unknown> {
+
+  public getWeb3Signer(): ResultAsync<
+    ethers.providers.JsonRpcSigner | undefined,
+    never
+  > {
+    if (!this._web3Provider) {
+      return okAsync(undefined);
+    }
+    return okAsync(this._web3Provider.getSigner());
+  }
+  public getWeb3Provider(): ResultAsync<Web3Provider | undefined, never> {
+    if (!this._web3Provider) {
+      return okAsync(undefined);
+    }
+    return okAsync(this._web3Provider);
+  }
+
+  public getSignature(message: string): ResultAsync<Signature, unknown> {
     if (!this._web3Provider) {
       return errAsync("Should call connect() first.");
     }
@@ -59,7 +92,36 @@ export class MetamaskWalletProvider implements IWalletProvider {
       console.log(e),
     ).map((signature) => Signature(signature));
   }
-  getChainInfo(): ResultAsync<ChainInformation, unknown> {
-    throw Error("not implemented");
+
+  public checkAndSwitchToControlChain(): ResultAsync<
+    ethers.providers.Web3Provider,
+    unknown
+  > {
+    if (!this._web3Provider) {
+      return errAsync("Should call connect() first.");
+    }
+
+    return ResultAsync.fromSafePromise(this._web3Provider.getNetwork())
+      .andThen((network) => {
+        if (network.chainId === 31337) {
+          return okAsync(undefined);
+        } else {
+          return ResultAsync.fromPromise(
+            this._web3Provider!.send("wallet_addEthereumChain", [
+              {
+                chainId: "0x7A69",
+                chainName: "Doodle Chain",
+                rpcUrls: ["http://localhost:8545"],
+              },
+            ]),
+            (e) => e,
+          ).map(() => {
+            this.updateProvider();
+          });
+        }
+      })
+      .map(() => {
+        return this._web3Provider!;
+      });
   }
 }

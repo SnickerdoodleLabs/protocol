@@ -26,14 +26,14 @@ const config = configProvider.getConfig();
 export const getProviderList = (): IProvider[] => {
   return [
     {
-      provider: new MetamaskWalletProvider(),
+      provider: new MetamaskWalletProvider(config),
       icon: MetamaskIcon,
       name: "MetaMask",
       key: EWalletProviderKeys.METAMASK,
       installationUrl: "https://metamask.io/",
     },
     {
-      provider: new PhantomWalletProvider(),
+      provider: new PhantomWalletProvider(config),
       icon: PhantomIcon,
       name: "Phantom",
       key: EWalletProviderKeys.PHANTOM,
@@ -47,7 +47,7 @@ export const getProviderList = (): IProvider[] => {
       installationUrl: "",
     },
     {
-      provider: new CoinbaseWalletProvider(),
+      provider: new CoinbaseWalletProvider(config),
       icon: CoinbaseIcon,
       name: "Coinbase",
       key: EWalletProviderKeys.COINBASE,

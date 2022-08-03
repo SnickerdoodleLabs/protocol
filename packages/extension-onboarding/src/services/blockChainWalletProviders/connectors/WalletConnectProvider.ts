@@ -1,4 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
+import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 import {
   ChainInformation,
   EVMAccountAddress,
@@ -8,17 +10,18 @@ import WalletConnect from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
 
-import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
-import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
-
 export class WalletConnectProvider implements IWalletProvider {
   protected _web3Provider: Web3Provider | null = null;
-  constructor(protected config: Config) {}
+  constructor(protected _config: Config) {}
 
-  get isInstalled(): boolean {
+  public get config(): Config {
+    return this._config;
+  }
+
+  public get isInstalled(): boolean {
     return true;
   }
-  connect(): ResultAsync<EVMAccountAddress, unknown> {
+  public connect(): ResultAsync<EVMAccountAddress, unknown> {
     localStorage.removeItem("walletconnect");
     const bridge = "https://bridge.walletconnect.org";
     const qrcode = true;
@@ -43,10 +46,23 @@ export class WalletConnectProvider implements IWalletProvider {
       return okAsync(EVMAccountAddress(account));
     });
   }
-  getChainInfo(): ResultAsync<ChainInformation, unknown> {
-    throw new Error("");
+  public getWeb3Signer(): ResultAsync<
+    ethers.providers.JsonRpcSigner | undefined,
+    never
+  > {
+    if (!this._web3Provider) {
+      return okAsync(undefined);
+    }
+    return okAsync(this._web3Provider.getSigner());
   }
-  getSignature(message: string): ResultAsync<Signature, unknown> {
+  public getWeb3Provider(): ResultAsync<Web3Provider | undefined, never> {
+    if (!this._web3Provider) {
+      return okAsync(undefined);
+    }
+    return okAsync(this._web3Provider);
+  }
+
+  public getSignature(message: string): ResultAsync<Signature, unknown> {
     if (!this._web3Provider) {
       return errAsync("Should call connect() first.");
     }
@@ -55,5 +71,8 @@ export class WalletConnectProvider implements IWalletProvider {
       signer.signMessage(new TextEncoder().encode(message)),
       (e) => console.log(e),
     ).map((signature) => Signature(signature));
+  }
+  public checkAndSwitchToControlChain(): ResultAsync<ethers.providers.Web3Provider, unknown> {
+    throw new Error("Method not implemented.");
   }
 }

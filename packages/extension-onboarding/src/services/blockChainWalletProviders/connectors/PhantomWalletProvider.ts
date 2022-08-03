@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { Web3Provider, JsonRpcSigner } from "@ethersproject/providers";
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
+import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 import {
   EVMAccountAddress,
   ChainId,
@@ -6,9 +9,8 @@ import {
   ChainInformation,
 } from "@snickerdoodlelabs/objects";
 import { PublicKey } from "@solana/web3.js";
+import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
-
-import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
 
 type DisplayEncoding = "utf8" | "hex";
 
@@ -37,14 +39,23 @@ interface PhantomProvider {
 export class PhantomWalletProvider implements IWalletProvider {
   protected _provider: PhantomProvider | null;
 
-  constructor() {
+  constructor(protected _config: Config) {
     // @ts-ignore
     this._provider = window?.solana?.isPhantom && window.solana;
   }
-  get isInstalled(): boolean {
+  public getWeb3Provider(): ResultAsync<Web3Provider | undefined, never> {
+    throw new Error("Method not implemented.");
+  }
+  public getWeb3Signer(): ResultAsync<JsonRpcSigner | undefined, never> {
+    throw new Error("Method not implemented.");
+  }
+  public get config(): Config {
+    return this._config;
+  }
+  public get isInstalled(): boolean {
     return !!this._provider;
   }
-  connect(): ResultAsync<EVMAccountAddress, unknown> {
+  public connect(): ResultAsync<EVMAccountAddress, unknown> {
     if (!this._provider) {
       return errAsync(new Error("Phantom is not installed!"));
     }
@@ -56,7 +67,7 @@ export class PhantomWalletProvider implements IWalletProvider {
       return okAsync(EVMAccountAddress(account));
     });
   }
-  getSignature(message: string): ResultAsync<Signature, unknown> {
+  public getSignature(message: string): ResultAsync<Signature, unknown> {
     if (!this._provider) {
       return errAsync("Should call connect() first.");
     }
@@ -75,7 +86,7 @@ export class PhantomWalletProvider implements IWalletProvider {
       return okAsync(Signature(signatureResult.signature));
     });
   }
-  getChainInfo(): ResultAsync<ChainInformation, unknown> {
-    throw Error("not implemented");
+  public checkAndSwitchToControlChain(): ResultAsync<ethers.providers.Web3Provider, unknown> {
+    throw new Error("Method not implemented.");
   }
 }

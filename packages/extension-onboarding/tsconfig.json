@@ -15,7 +15,13 @@
       "path": "../common-utils"
     },
     {
+      "path": "../contracts-sdk"
+    },
+    {
       "path": "../objects"
+    },
+    {
+      "path": "../signatureVerification"
     }
   ],
   "include": ["./src/**/*.ts", "./src/**/*.tsx", "index.d.ts"],

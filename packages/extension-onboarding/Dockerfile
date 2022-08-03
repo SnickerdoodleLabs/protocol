@@ -29,9 +29,6 @@ WORKDIR /app/packages/extension-onboarding
 ARG BUILD_ENV=development
 ENV __BUILD_ENV__ $BUILD_ENV
 
-ARG DOMAIN=""
-ENV __DOMAIN__ $DOMAIN
-
 ARG INFURA_ID=""
 ENV __INFURA_ID__ $INFURA_ID
 
