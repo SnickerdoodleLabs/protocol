@@ -433,9 +433,14 @@ export class InvitationService implements IInvitationService {
     domain: DomainName,
   ): ResultAsync<EVMContractAddress[], AjaxError> {
     return this.dnsRepository.fetchTXTRecords(domain).map((txtRecords) => {
-      return txtRecords.map((record) => {
-        return EVMContractAddress(JSON.parse(record));
-      });
+      return txtRecords
+        .map((txtRecord) => {
+          const records = txtRecord.split(",");
+          return records.map((record) =>
+            EVMContractAddress(JSON.parse(record)),
+          );
+        })
+        .flat();
     });
   }
 }
