@@ -1,5 +1,9 @@
 import "reflect-metadata";
-import { AxiosAjaxUtils, CryptoUtils, LogUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  AxiosAjaxUtils,
+  CryptoUtils,
+  LogUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore, ConfigProvider } from "@snickerdoodlelabs/core";
 import {
@@ -263,6 +267,10 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "Get Balances", value: "getBalances" },
     new inquirer.Separator(),
+    { name: "Get Transaction Map", value: "getTransactionMap" },
+    new inquirer.Separator(),
+    { name: "Get SiteVisit Map", value: "getSiteVisitMap" },
+    new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
   ];
@@ -311,6 +319,10 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getAccountNFTs().map(console.log);
       case "getBalances":
         return core.getAccountBalances().map(console.log);
+      case "getTransactionMap":
+        return core.getTransactionsMap().map(console.log);
+      case "getSiteVisitMap":
+        return core.getSiteVisitsMap().map(console.log);
     }
     return okAsync(undefined);
   });

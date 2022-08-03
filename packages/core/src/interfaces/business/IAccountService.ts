@@ -14,6 +14,8 @@ import {
   UnsupportedLanguageError,
   EVMTransactionFilter,
   EVMTransaction,
+  ChainId,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -59,6 +61,9 @@ export interface IAccountService {
   getTranactions(
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
+
+  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

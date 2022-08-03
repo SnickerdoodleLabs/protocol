@@ -8,6 +8,7 @@ import {
   AjaxError,
   BigNumberString,
   BlockchainProviderError,
+  ChainId,
   ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
@@ -31,6 +32,7 @@ import {
   TokenUri,
   UninitializedError,
   UnsupportedLanguageError,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -376,5 +378,19 @@ export class AccountService implements IAccountService {
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
     return this.dataWalletPersistence.getEVMTransactions(filter);
+  }
+
+  public getTransactionsMap(): ResultAsync<
+    Map<ChainId, number>,
+    PersistenceError
+  > {
+    return this.dataWalletPersistence.getTransactionsMap();
+  }
+
+  public getSiteVisitsMap(): ResultAsync<
+    Map<URLString, number>,
+    PersistenceError
+  > {
+    return this.dataWalletPersistence.getSiteVisitsMap();
   }
 }

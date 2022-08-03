@@ -56,6 +56,8 @@ import {
   EVMTransactionFilter,
   IAccountNFTs,
   IAccountNFTsType,
+  ChainId,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -425,5 +427,17 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountNFTs();
+  }
+
+  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getTransactionsMap();
+  }
+
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getSiteVisitsMap();
   }
 }

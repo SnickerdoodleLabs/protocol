@@ -439,9 +439,17 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     const savedTransactions = LocalStorageUtils.readLocalStorage(
       ELocalStorageKey.TRANSACTIONS,
     );
+
+    const existing = new Set([
+      (savedTransactions ?? []).map((tx) => tx.hash.toLowerCase()),
+    ]);
+    const newTxs = transactions.filter(
+      (tx) => !existing.has(tx.hash.toLowerCase()),
+    );
+
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.TRANSACTIONS, [
       ...(savedTransactions ?? []),
-      ...transactions,
+      ...newTxs,
     ]);
     return okAsync(undefined);
   }
@@ -454,15 +462,15 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       [],
     )
       .andThen((transactions) => {
-        if (filter == undefined || filter == null) {
+        if (filter == undefined) {
           return okAsync(transactions);
         }
 
-        return okAsync(
-          transactions.filter((value) => {
-            filter.matches(value);
-          }),
-        );
+        const filtered = transactions.filter((value) => {
+          return filter.matches(value);
+        });
+
+        return okAsync(filtered);
       })
       .orElse((_e) => okAsync([]));
   }
@@ -489,7 +497,15 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     Map<URLString, number>,
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    return this.getSiteVisits().andThen((siteVisits) => {
+      const result = new Map<URLString, number>();
+      siteVisits.forEach((siteVisit, _i, _arr) => {
+        const baseUrl = new URL(siteVisit.url).pathname;
+        baseUrl in result || (result[baseUrl] = 0);
+        result[baseUrl] += 1;
+      });
+      return okAsync(result);
+    });
   }
 
   // return a map of Chain Transaction Counts
@@ -497,7 +513,19 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    this.getLatestTransactionForAccount(
+      ChainId(42),
+      EVMAccountAddress("0xd4908f76d7dd381f7091667e5b9cf67089b7c6f8"),
+    ).map(console.log);
+
+    return this.getEVMTransactions().andThen((transactions) => {
+      const result = new Map<ChainId, number>();
+      transactions.forEach((tx, _i, _arr) => {
+        tx.chainId in result || (result[tx.chainId] = 0);
+        result[tx.chainId] += 1;
+      });
+      return okAsync(result);
+    });
   }
 
   public setLatestBlockNumber(

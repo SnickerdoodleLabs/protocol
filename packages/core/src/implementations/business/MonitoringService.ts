@@ -89,121 +89,6 @@ export class MonitoringService implements IMonitoringService {
       });
   }
 
-  public pollNFTs(): ResultAsync<
-    void,
-    PersistenceError | AjaxError | AccountNFTError
-  > {
-    return ResultUtils.combine([
-      this.persistence.getAccounts(),
-      this.configProvider.getConfig(),
-    ])
-      .andThen(([accountAddresses, config]) => {
-        return ResultUtils.combine(
-          accountAddresses.map((accountAddress) => {
-            return ResultUtils.combine(
-              config.supportedChains.map((chainId) => {
-                return this.getLatestNFTs(chainId, accountAddress);
-              }),
-            );
-          }),
-        );
-      })
-      .andThen((nftArr) => {
-        const nfts = nftArr.flat(2);
-        return this.persistence
-          .updateAccountNFTs(nfts)
-          .andThen((_x) => okAsync(undefined));
-      });
-  }
-
-  public pollBalances(): ResultAsync<
-    void,
-    PersistenceError | AccountBalanceError | AjaxError
-  > {
-    return ResultUtils.combine([
-      this.persistence.getAccounts(),
-      this.configProvider.getConfig(),
-    ])
-      .andThen(([accountAddresses, config]) => {
-        return ResultUtils.combine(
-          accountAddresses.map((accountAddress) => {
-            return ResultUtils.combine(
-              config.supportedChains.map((chainId) => {
-                return this.getLatestBalances(chainId, accountAddress);
-              }),
-            );
-          }),
-        );
-      })
-      .andThen((balancesArr) => {
-        const balances = balancesArr.flat(2);
-        return this.persistence
-          .updateAccountBalances(balances)
-          .andThen((_x) => okAsync(undefined));
-      });
-  }
-
-  protected getLatestNFTs(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMNFT[], PersistenceError | AccountNFTError | AjaxError> {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.accountNFTs.getEVMNftRepository(),
-      this.accountNFTs.getSimulatorEVMNftRepository(),
-    ]).andThen(([config, evmRepo, simulatorRepo]) => {
-      const chainInfo = config.chainInformation.get(chainId);
-      if (chainInfo == null) {
-        this.logUtils.error(`No available chain info for chain ${chainId}`);
-        return okAsync([]);
-      }
-
-      switch (chainInfo.indexer) {
-        case EIndexer.EVM:
-          return evmRepo.getTokensForAccount(chainId, accountAddress);
-        case EIndexer.Simulator:
-          return simulatorRepo.getTokensForAccount(chainId, accountAddress);
-        default:
-          this.logUtils.error(
-            `No available token repository for chain ${chainId}`,
-          );
-          return okAsync([]);
-      }
-    });
-  }
-
-  protected getLatestBalances(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<
-    IEVMBalance[],
-    PersistenceError | AccountBalanceError | AjaxError
-  > {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.accountBalances.getEVMBalanceRepository(),
-      this.accountBalances.getSimulatorEVMBalanceRepository(),
-    ]).andThen(([config, evmRepo, simulatorRepo]) => {
-      const chainInfo = config.chainInformation.get(chainId);
-      if (chainInfo == null) {
-        this.logUtils.error(`No available chain info for chain ${chainId}`);
-        return okAsync([]);
-      }
-
-      switch (chainInfo.indexer) {
-        case EIndexer.EVM:
-          return evmRepo.getBalancesForAccount(chainId, accountAddress);
-        case EIndexer.Simulator:
-          return simulatorRepo.getBalancesForAccount(chainId, accountAddress);
-        default:
-          this.logUtils.error(
-            `No available balance repository for chain ${chainId}`,
-          );
-          return okAsync([]);
-      }
-    });
-  }
-
   public siteVisited(SiteVisit: SiteVisit): ResultAsync<void, never> {
     throw new Error("Method not implemented.");
   }
@@ -231,13 +116,13 @@ export class MonitoringService implements IMonitoringService {
           return evmRepo.getEVMTransactions(
             chainId,
             accountAddress,
-            new Date(timestamp),
+            new Date(timestamp * 1000),
           );
         case EIndexer.Simulator:
           return simulatorRepo.getEVMTransactions(
             chainId,
             accountAddress,
-            new Date(timestamp),
+            new Date(timestamp * 1000),
           );
         default:
           this.logUtils.error(
