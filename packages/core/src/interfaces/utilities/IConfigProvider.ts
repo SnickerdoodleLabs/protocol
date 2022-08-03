@@ -5,7 +5,6 @@ import { CoreConfig } from "@core/interfaces/objects";
 
 export interface IConfigProvider {
   getConfig(): ResultAsync<CoreConfig, never>;
-
   setConfigOverrides(overrides: IConfigOverrides): void;
 }
 

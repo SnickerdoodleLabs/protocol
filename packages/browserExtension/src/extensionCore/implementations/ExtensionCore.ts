@@ -64,11 +64,7 @@ import {
 } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
-import {
-  DomainName,
-  IConfigOverrides,
-  ISnickerdoodleCore,
-} from "@snickerdoodlelabs/objects";
+import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 
 // shared
@@ -77,7 +73,7 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { IConfigProvider } from "@shared/interfaces/configProvider";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 
-import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { InvitationRepository } from "./data/InvitationRepository";
 import {
   DefaultAccountBalances,
@@ -117,24 +113,20 @@ export class ExtensionCore {
   protected rpcCallHandler: IRpcCallHandler;
 
   protected configProvider: IConfigProvider;
+  protected ajaxUtils: AxiosAjaxUtils;
 
   constructor() {
-    const configProvider = new CoreConfigProvider();
-    const ajaxUtils = new AxiosAjaxUtils();
-    const persistence = new LocalStoragePersistence(
-      configProvider,
-      new DefaultAccountNFTs(configProvider, ajaxUtils),
-      new DefaultAccountBalances(configProvider, ajaxUtils),
+    this.configProvider = ConfigProvider;
+    this.ajaxUtils = new AxiosAjaxUtils();
+
+    const coreConfigProvider = new CoreConfigProvider();
+    const persistence = new ChromeStoragePersistence(
+      coreConfigProvider,
+      new DefaultAccountNFTs(coreConfigProvider, this.ajaxUtils),
+      new DefaultAccountBalances(coreConfigProvider, this.ajaxUtils),
     );
 
-    this.configProvider = ConfigProvider;
-    this.core = new SnickerdoodleCore(
-      {
-        defaultInsightPlatformBaseUrl: "http://localhost:8545",
-      } as IConfigOverrides,
-      persistence,
-    );
-    this.configProvider = ConfigProvider;
+    this.core = new SnickerdoodleCore(undefined, persistence);
 
     this.contextProvider = new ContextProvider(this.configProvider);
 
