@@ -222,7 +222,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     account: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
+  ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.accountService.addAccount(account, signature, languageCode);
   }
   private getUnlockMessage(
