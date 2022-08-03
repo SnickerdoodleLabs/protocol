@@ -6,15 +6,21 @@
 
 import {
   DefaultAccountBalances,
-  DefaultAccountIndexers
+  DefaultAccountIndexers,
+  DefaultAccountNFTs,
 } from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
-  BlockchainProviderError, ConsentConditions,
+  BlockchainProviderError,
+  ConsentConditions,
   ConsentContractError,
   ConsentContractRepositoryError,
-  ConsentError, CountryCode, CrumbsContractError, DomainName, EInvitationStatus,
+  ConsentError,
+  CountryCode,
+  CrumbsContractError,
+  DomainName,
+  EInvitationStatus,
   EmailAddressString,
   EvaluationError,
   EVMAccountAddress,
@@ -31,15 +37,28 @@ import {
   IDataWalletPersistenceType,
   IEVMBalance,
   IEVMNFT,
-  InvalidSignatureError, Invitation, IPFSError,
+  InvalidSignatureError,
+  Invitation,
+  IPFSError,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   LanguageCode,
-  MinimalForwarderContractError, PageInvitation, PersistenceError,
-  QueryFormatError, Signature,
+  MinimalForwarderContractError,
+  PageInvitation,
+  PersistenceError,
+  QueryFormatError,
+  Signature,
   UninitializedError,
   UnixTimestamp,
-  UnsupportedLanguageError
+  UnsupportedLanguageError,
+  SDQLQuery,
+  EVMTransaction,
+  EVMTransactionFilter,
+  IAccountNFTs,
+  IAccountNFTsType,
+  ChainId,
+  URLString,
+  SiteVisit,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -51,7 +70,7 @@ import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
-  IBlockchainListenerType
+  IBlockchainListenerType,
 } from "@core/interfaces/api";
 import {
   IAccountService,
@@ -61,7 +80,7 @@ import {
   IProfileService,
   IProfileServiceType,
   IQueryService,
-  IQueryServiceType
+  IQueryServiceType,
 } from "@core/interfaces/business";
 import {
   IBlockchainProvider,
@@ -69,9 +88,8 @@ import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
-  IContextProviderType
+  IContextProviderType,
 } from "@core/interfaces/utilities";
-import { SDQLQuery } from "@snickerdoodlelabs/objects";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -82,6 +100,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     persistence?: IDataWalletPersistence,
     accountIndexer?: IAccountIndexing,
     accountBalances?: IAccountBalances,
+    accountNFTs?: IAccountNFTs,
   ) {
     this.iocContainer = new Container();
 
@@ -127,6 +146,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
+    if (accountNFTs != null) {
+      this.iocContainer.bind(IAccountNFTsType).toConstantValue(accountNFTs);
+    } else {
+      this.iocContainer
+        .bind(IAccountNFTsType)
+        .to(DefaultAccountNFTs)
+        .inSingletonScope();
+    }
+
     // Setup the config
     if (configOverrides != null) {
       const configProvider =
@@ -135,7 +163,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
   }
-
 
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
     const contextProvider =
@@ -319,7 +346,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
-    query: SDQLQuery
+    query: SDQLQuery,
   ): ResultAsync<
     void,
     | AjaxError
@@ -383,6 +410,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccounts();
   }
 
+  getTransactions(
+    filter?: EVMTransactionFilter,
+  ): ResultAsync<EVMTransaction[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getTranactions(filter);
+  }
+
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
@@ -393,5 +428,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountNFTs();
+  }
+
+  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getTransactionsMap();
+  }
+
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getSiteVisitsMap();
+  }
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getSiteVisits();
+  }
+  addSiteVisits(siteVisits: SiteVisit[],):  ResultAsync<void, PersistenceError> {
+  const accountService =
+    this.iocContainer.get<IAccountService>(IAccountServiceType);
+  return accountService.addSiteVisits(siteVisits);
   }
 }

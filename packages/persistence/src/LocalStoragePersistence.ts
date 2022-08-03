@@ -20,9 +20,24 @@ import {
   IEVMNFT,
   EVMTransactionFilter,
   BlockNumber,
+  IAccountNFTsType,
+  IAccountNFTs,
+  IAccountBalancesType,
+  IAccountBalances,
+  EIndexer,
+  AccountNFTError,
+  AjaxError,
+  AccountBalanceError,
 } from "@snickerdoodlelabs/objects";
 import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
-import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
+import { inject } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
+import {
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "./IPersistenceConfigProvider";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -36,7 +51,9 @@ enum ELocalStorageKey {
   EMAIL = "SD_Email",
   LOCATION = "SD_Location",
   BALANCES = "SD_Balances",
+  BALANCES_LAST_UPDATE = "SD_Balances_lastUpdate",
   NFTS = "SD_NFTs",
+  NFTS_LAST_UPDATE = "SD_NFTs_lastUpdate",
   URLs = "SD_URLs",
   CLICKS = "SD_CLICKS",
   REJECTED_COHORTS = "SD_RejectedCohorts",
@@ -44,6 +61,14 @@ enum ELocalStorageKey {
 }
 
 export class LocalStoragePersistence implements IDataWalletPersistence {
+  public constructor(
+    @inject(IPersistenceConfigProviderType)
+    protected configProvider: IPersistenceConfigProvider,
+    @inject(IAccountNFTsType)
+    protected accountNFTs: IAccountNFTs,
+    @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
+  ) {}
+
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
     defaultVal: T,
@@ -112,21 +137,30 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-    const savedSiteVisits = LocalStorageUtils.readLocalStorage(
+
+    let savedSiteVisits = LocalStorageUtils.readLocalStorage(
       ELocalStorageKey.SITE_VISITS,
     );
-    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.SITE_VISITS, [
-      ...(savedSiteVisits ?? []),
-      siteVisits,
-    ]);
+    if (savedSiteVisits == null){
+      savedSiteVisits = [];
+    }
+    var totalVisits = savedSiteVisits.concat(siteVisits);
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.SITE_VISITS, savedSiteVisits.concat(siteVisits));
     return okAsync(undefined);
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
-    return this._checkAndRetrieveValue<SiteVisit[]>(
+    /*
+    const checkVal = this._checkAndRetrieveValue<SiteVisit[]>(
       ELocalStorageKey.SITE_VISITS,
       [],
     );
+    */
+    const savedSiteVisits = LocalStorageUtils.readLocalStorage(
+      ELocalStorageKey.SITE_VISITS,
+    );
+    //console.log("savedSiteVisits: ", savedSiteVisits);
+    return okAsync(savedSiteVisits);
   }
 
   public addAccount(
@@ -139,6 +173,7 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
       ELocalStorageKey.ACCOUNT,
       Array.from(new Set([accountAddress, ...(accounts ?? [])])),
     );
+
     return okAsync(undefined);
   }
 
@@ -211,13 +246,6 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION, null);
   }
 
-  public updateAccountBalances(
-    balances: IEVMBalance[],
-  ): ResultAsync<void, PersistenceError> {
-    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.BALANCES, balances);
-    return okAsync(undefined);
-  }
-
   public addURL(url: URLString): ResultAsync<void, PersistenceError> {
     const urls = LocalStorageUtils.readLocalStorage(ELocalStorageKey.URLs);
     LocalStorageUtils.writeLocalStorage(
@@ -234,11 +262,184 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     );
   }
 
+  public updateAccountBalances(
+    balances: IEVMBalance[],
+  ): ResultAsync<IEVMBalance[], PersistenceError> {
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.BALANCES, balances);
+    LocalStorageUtils.writeLocalStorage(
+      ELocalStorageKey.BALANCES_LAST_UPDATE,
+      new Date().getTime(),
+    );
+    return okAsync(balances);
+  }
+
+  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this._checkAndRetrieveValue<number>(
+        ELocalStorageKey.BALANCES_LAST_UPDATE,
+        0,
+      ),
+    ]).andThen(([config, lastUpdate]) => {
+      const currTime = new Date().getTime();
+      if (currTime - lastUpdate < config.accountBalancePollingIntervalMS) {
+        return this._checkAndRetrieveValue<IEVMBalance[]>(
+          ELocalStorageKey.BALANCES,
+          [],
+        );
+      }
+
+      return this.pollBalances().mapErr(
+        (e) => new PersistenceError(`${e.name}: ${e.message}`),
+      );
+    });
+  }
+
+  private pollBalances(): ResultAsync<
+    IEVMBalance[],
+    PersistenceError | AccountBalanceError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this.getAccounts(),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([accountAddresses, config]) => {
+        return ResultUtils.combine(
+          accountAddresses.map((accountAddress) => {
+            return ResultUtils.combine(
+              config.supportedChains.map((chainId) => {
+                return this.getLatestBalances(chainId, accountAddress);
+              }),
+            );
+          }),
+        );
+      })
+      .andThen((balancesArr) => {
+        const balances = balancesArr.flat(2);
+        return this.updateAccountBalances(balances);
+      });
+  }
+
+  private getLatestBalances(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    IEVMBalance[],
+    PersistenceError | AccountBalanceError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.accountBalances.getEVMBalanceRepository(),
+      this.accountBalances.getSimulatorEVMBalanceRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+      const chainInfo = config.chainInformation.get(chainId);
+      if (chainInfo == null) {
+        return errAsync(
+          new AccountBalanceError(
+            `No available chain info for chain ${chainId}`,
+          ),
+        );
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getBalancesForAccount(chainId, accountAddress);
+        case EIndexer.Simulator:
+          return simulatorRepo.getBalancesForAccount(chainId, accountAddress);
+        default:
+          return errAsync(
+            new AccountBalanceError(
+              `No available balance repository for chain ${chainId}`,
+            ),
+          );
+      }
+    });
+  }
+
   public updateAccountNFTs(
     nfts: IEVMNFT[],
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<IEVMNFT[], PersistenceError> {
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.NFTS, nfts);
-    return okAsync(undefined);
+    LocalStorageUtils.writeLocalStorage(
+      ELocalStorageKey.NFTS_LAST_UPDATE,
+      new Date().getTime(),
+    );
+    return okAsync(nfts);
+  }
+
+  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this._checkAndRetrieveValue<number>(ELocalStorageKey.NFTS_LAST_UPDATE, 0),
+    ]).andThen(([config, lastUpdate]) => {
+      const currTime = new Date().getTime();
+      if (currTime - lastUpdate < config.accountNFTPollingIntervalMS) {
+        return this._checkAndRetrieveValue<IEVMNFT[]>(
+          ELocalStorageKey.NFTS,
+          [],
+        );
+      }
+
+      return this.pollNFTs().mapErr(
+        (e) => new PersistenceError(`${e.name}: ${e.message}`),
+      );
+    });
+  }
+
+  private pollNFTs(): ResultAsync<
+    IEVMNFT[],
+    PersistenceError | AjaxError | AccountNFTError
+  > {
+    return ResultUtils.combine([
+      this.getAccounts(),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([accountAddresses, config]) => {
+        return ResultUtils.combine(
+          accountAddresses.map((accountAddress) => {
+            return ResultUtils.combine(
+              config.supportedChains.map((chainId) => {
+                return this.getLatestNFTs(chainId, accountAddress);
+              }),
+            );
+          }),
+        );
+      })
+      .andThen((nftArr) => {
+        const nfts = nftArr.flat(2);
+        return this.updateAccountNFTs(nfts);
+      });
+  }
+
+  private getLatestNFTs(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<IEVMNFT[], PersistenceError | AccountNFTError | AjaxError> {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.accountNFTs.getEVMNftRepository(),
+      this.accountNFTs.getSimulatorEVMNftRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+      const chainInfo = config.chainInformation.get(chainId);
+      if (chainInfo == null) {
+        return errAsync(
+          new AccountNFTError(`No available chain info for chain ${chainId}`),
+        );
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getTokensForAccount(chainId, accountAddress);
+        case EIndexer.Simulator:
+          return simulatorRepo.getTokensForAccount(chainId, accountAddress);
+        default:
+          return errAsync(
+            new AccountNFTError(
+              `No available token repository for chain ${chainId}`,
+            ),
+          );
+      }
+    });
   }
 
   public addEVMTransactions(
@@ -247,26 +448,40 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     const savedTransactions = LocalStorageUtils.readLocalStorage(
       ELocalStorageKey.TRANSACTIONS,
     );
+
+    const existing = new Set([
+      (savedTransactions ?? []).map((tx) => tx.hash.toLowerCase()),
+    ]);
+    const newTxs = transactions.filter(
+      (tx) => !existing.has(tx.hash.toLowerCase()),
+    );
+
     LocalStorageUtils.writeLocalStorage(ELocalStorageKey.TRANSACTIONS, [
       ...(savedTransactions ?? []),
-      ...transactions,
+      ...newTxs,
     ]);
     return okAsync(undefined);
   }
 
   public getEVMTransactions(
-    filter: EVMTransactionFilter,
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
     return this._checkAndRetrieveValue<EVMTransaction[]>(
       ELocalStorageKey.TRANSACTIONS,
       [],
-    ).andThen((transactions) => {
-      return okAsync(
-        transactions.filter((value) => {
-          filter.matches(value);
-        }),
-      );
-    });
+    )
+      .andThen((transactions) => {
+        if (filter == undefined) {
+          return okAsync(transactions);
+        }
+
+        const filtered = transactions.filter((value) => {
+          return filter.matches(value);
+        });
+
+        return okAsync(filtered);
+      })
+      .orElse((_e) => okAsync([]));
   }
 
   public getLatestTransactionForAccount(
@@ -286,22 +501,31 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this._checkAndRetrieveValue<IEVMBalance[]>(
-      ELocalStorageKey.BALANCES,
-      [],
-    );
-  }
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this._checkAndRetrieveValue<IEVMNFT[]>(ELocalStorageKey.NFTS, []);
-  }
-
   // return a map of URLs
   public getSiteVisitsMap(): ResultAsync<
     Map<URLString, number>,
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    return this.getSiteVisits().andThen((siteVisits) => {
+      const result = new Map<URLString, number>();
+      siteVisits.forEach((siteVisit, _i, _arr) => {
+        /*
+        console.log("siteVisit: ", siteVisit);
+        console.log("_i: ", _i);
+        console.log("_arr: ", _arr); 
+        */    
+        // const baseUrl = new URL(siteVisit.url).pathname;
+        let url = siteVisit.url;
+        //console.log("url: ", url);     
+        //let urlval = new URL(url);
+        let baseUrl = URLString(url);
+        //console.log("path: ", baseUrl);
+        baseUrl in result || (result[baseUrl] = 0);
+        //console.log("baseUrl: ", baseUrl);
+        result[baseUrl] += 1;
+      });
+      return okAsync(result);
+    });
   }
 
   // return a map of Chain Transaction Counts
@@ -309,7 +533,19 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    this.getLatestTransactionForAccount(
+      ChainId(42),
+      EVMAccountAddress("0xd4908f76d7dd381f7091667e5b9cf67089b7c6f8"),
+    ).map(console.log);
+
+    return this.getEVMTransactions().andThen((transactions) => {
+      const result = new Map<ChainId, number>();
+      transactions.forEach((tx, _i, _arr) => {
+        tx.chainId in result || (result[tx.chainId] = 0);
+        result[tx.chainId] += 1;
+      });
+      return okAsync(result);
+    });
   }
 
   public setLatestBlockNumber(

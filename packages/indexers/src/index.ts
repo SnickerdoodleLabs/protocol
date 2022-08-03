@@ -5,3 +5,4 @@ export * from "@indexers/IIndexerConfig";
 export * from "@indexers/IIndexerConfigProvider";
 export * from "@indexers/MoralisEVMNftRepository";
 export * from "@indexers/SimulatorEVMTransactionRepository";
+export * from "@indexers/DefaultAccountNFTs";
