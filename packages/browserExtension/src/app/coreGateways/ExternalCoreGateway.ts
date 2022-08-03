@@ -152,25 +152,25 @@ export class ExternalCoreGateway {
     } as ISetLocationParams);
   }
 
-  public getAge(): ResultAsync<Age, JsonRpcError> {
+  public getAge(): ResultAsync<Age | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_AGE);
   }
-  public getFamilyName(): ResultAsync<FamilyName, JsonRpcError> {
+  public getFamilyName(): ResultAsync<FamilyName | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_FAMILY_NAME);
   }
-  public getGivenName(): ResultAsync<GivenName, JsonRpcError> {
+  public getGivenName(): ResultAsync<GivenName | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_GIVEN_NAME);
   }
-  public getBirtday(): ResultAsync<UnixTimestamp, JsonRpcError> {
+  public getBirtday(): ResultAsync<UnixTimestamp | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_BIRTHDAY);
   }
-  public getEmail(): ResultAsync<EmailAddressString, JsonRpcError> {
+  public getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_EMAIL);
   }
-  public getGender(): ResultAsync<Gender, JsonRpcError> {
+  public getGender(): ResultAsync<Gender | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_GENDER);
   }
-  public getLocation(): ResultAsync<CountryCode, JsonRpcError> {
+  public getLocation(): ResultAsync<CountryCode | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_LOCATION);
   }
   public metatransactionSignatureRequestCallback(

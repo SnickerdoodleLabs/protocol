@@ -30,8 +30,6 @@ import {
   IPFSError,
   URLString,
   PageInvitation,
-  TokenId,
-  InvitationDomain,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -54,6 +52,8 @@ import {
   IInvitationRepository,
 } from "@core/interfaces/data";
 import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -81,6 +81,8 @@ export class InvitationService implements IInvitationService {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IBlockchainProviderType)
+    protected blockchainProvider: IBlockchainProvider,
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
     @inject(IBlockchainProviderType)

@@ -6,19 +6,15 @@
 
 import {
   DefaultAccountBalances,
-  DefaultAccountIndexers,
+  DefaultAccountIndexers
 } from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
-  BlockchainProviderError,
-  Invitation,
-  ConsentConditions,
+  BlockchainProviderError, ConsentConditions,
   ConsentContractError,
   ConsentContractRepositoryError,
-  ConsentError,
-  CrumbsContractError,
-  EInvitationStatus,
+  ConsentError, CountryCode, CrumbsContractError, DomainName, EInvitationStatus,
   EmailAddressString,
   EvaluationError,
   EVMAccountAddress,
@@ -35,22 +31,15 @@ import {
   IDataWalletPersistenceType,
   IEVMBalance,
   IEVMNFT,
-  InvalidSignatureError,
-  IPFSError,
+  InvalidSignatureError, Invitation, IPFSError,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   LanguageCode,
-  MinimalForwarderContractError,
-  PersistenceError,
-  QueryFormatError,
-  Signature,
+  MinimalForwarderContractError, PageInvitation, PersistenceError,
+  QueryFormatError, Signature,
   UninitializedError,
   UnixTimestamp,
-  UnsupportedLanguageError,
-  DomainName,
-  SDQLQuery,
-  PageInvitation,
-  CountryCode,
+  UnsupportedLanguageError
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -62,7 +51,7 @@ import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
-  IBlockchainListenerType,
+  IBlockchainListenerType
 } from "@core/interfaces/api";
 import {
   IAccountService,
@@ -72,7 +61,7 @@ import {
   IProfileService,
   IProfileServiceType,
   IQueryService,
-  IQueryServiceType,
+  IQueryServiceType
 } from "@core/interfaces/business";
 import {
   IBlockchainProvider,
@@ -80,8 +69,9 @@ import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
-  IContextProviderType,
+  IContextProviderType
 } from "@core/interfaces/utilities";
+import { SDQLQuery } from "@snickerdoodlelabs/objects";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -145,6 +135,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       configProvider.setConfigOverrides(configOverrides);
     }
   }
+
 
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
     const contextProvider =
@@ -328,7 +319,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    query: SDQLQuery
   ): ResultAsync<
     void,
     | AjaxError
@@ -347,43 +338,43 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     return this.profileService.setGivenName(name);
   }
-  getGivenName(): ResultAsync<GivenName, PersistenceError> {
+  getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
     return this.profileService.getGivenName();
   }
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
     return this.profileService.setFamilyName(name);
   }
-  getFamilyName(): ResultAsync<FamilyName, PersistenceError> {
+  getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
     return this.profileService.getFamilyName();
   }
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
     return this.profileService.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<UnixTimestamp, PersistenceError> {
+  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
     return this.profileService.getBirthday();
   }
   setGender(gender: Gender): ResultAsync<void, PersistenceError> {
     return this.profileService.setGender(gender);
   }
-  getGender(): ResultAsync<Gender, PersistenceError> {
+  getGender(): ResultAsync<Gender | null, PersistenceError> {
     return this.profileService.getGender();
   }
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
     return this.profileService.setEmail(email);
   }
-  getEmail(): ResultAsync<EmailAddressString, PersistenceError> {
+  getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
     return this.profileService.getEmail();
   }
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
     return this.profileService.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCode, PersistenceError> {
+  getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
     return this.profileService.getLocation();
   }
   setAge(age: Age): ResultAsync<void, PersistenceError> {
     return this.profileService.setAge(age);
   }
-  getAge(): ResultAsync<Age, PersistenceError> {
+  getAge(): ResultAsync<Age | null, PersistenceError> {
     return this.profileService.getAge();
   }
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {

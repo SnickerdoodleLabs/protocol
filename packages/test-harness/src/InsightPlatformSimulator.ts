@@ -169,11 +169,12 @@ export class InsightPlatformSimulator {
   }
 
   public createCampaign(
-    domain: DomainName,
+    domains: DomainName[],
   ): ResultAsync<
     EVMContractAddress,
     ConsentFactoryContractError | ConsentContractError | Error
   > {
+    const [domain, domain2] = domains;
     return this.ipfs
       .postToIPFS(
         JSON.stringify({
@@ -199,18 +200,21 @@ export class InsightPlatformSimulator {
               this.blockchain.getConsentContract(contractAddress);
 
             console.log(
-              `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}`,
+              `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}, owned by ${this.blockchain.serverAccount.accountAddress}`,
             );
             this.consentContracts.push(contractAddress);
 
             // Add a few URLs
             // We need to do this
             return consentContract
-              .addDomain(`${domain}/url/1`)
+              .addDomain(domain)
               .andThen(() => {
-                return consentContract.addDomain(`${domain}/url/2`);
+                return consentContract.addDomain(domain2);
               })
               .map(() => {
+                console.log(
+                  `Added domains to consent contract address ${contractAddress}`,
+                );
                 return contractAddress;
               });
           });

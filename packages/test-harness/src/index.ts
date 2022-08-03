@@ -72,7 +72,8 @@ const simulator = new InsightPlatformSimulator(blockchain, ipfs);
 const cryptoUtils = new CryptoUtils();
 const languageCode = LanguageCode("en");
 
-const domainName = DomainName("snickerdoodle.dev");
+const domainName = DomainName("snickerdoodle.com");
+const domainName2 = DomainName("snickerdoodle.com/blog");
 
 const consentContracts = new Array<EVMContractAddress>();
 const acceptedInvitations = new Array<PageInvitation>();
@@ -312,7 +313,7 @@ function createCampaign(): ResultAsync<
   ConsentFactoryContractError | ConsentContractError | Error
 > {
   return simulator
-    .createCampaign(domainName)
+    .createCampaign([domainName, domainName2])
     .mapErr((e) => {
       console.error(e);
       return e;

@@ -20,6 +20,7 @@ import {
   URLString,
   IEVMNFT,
   EVMTransactionFilter,
+  BlockNumber,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -259,12 +260,27 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
   }
 
   // return a map of URLs
-  public getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>{
+  public getSiteVisitsMap(): ResultAsync<
+    Map<URLString, number>,
+    PersistenceError
+  > {
     throw new Error("Method not implemented.");
-  };
+  }
 
   // return a map of Chain Transaction Counts
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>{
+  public getTransactionsMap(): ResultAsync<
+    Map<ChainId, number>,
+    PersistenceError
+  > {
     throw new Error("Method not implemented.");
-  };
+  }
+
+  public setLatestBlockNumber(
+    blockNumber: BlockNumber,
+  ): ResultAsync<void, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  public getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
 }

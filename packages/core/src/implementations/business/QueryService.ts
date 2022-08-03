@@ -20,6 +20,7 @@ import {
   EVMPrivateKey,
   DataWalletAddress,
   SDQLQuery,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
@@ -71,7 +72,7 @@ export class QueryService implements IQueryService {
 
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
+    queryId: IpfsCID
   ): ResultAsync<
     void,
     | IPFSError
@@ -125,10 +126,12 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          context.publicEvents.onQueryPosted.next({
-            consentContractAddress: consentContractAddress,
-            query: query,
-          });
+          const queryRequest = new SDQLQueryRequest(consentContractAddress, query);
+          // context.publicEvents.onQueryPosted.next({
+          //   consentContractAddress: consentContractAddress,
+          //   query: query,
+          // });
+          context.publicEvents.onQueryPosted.next(queryRequest);
 
           return okAsync(undefined);
         });
@@ -146,7 +149,7 @@ export class QueryService implements IQueryService {
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
+    query: SDQLQuery
   ): ResultAsync<
     void,
     | AjaxError
@@ -156,10 +159,6 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | EvaluationError
   > {
-    // 1. Parse the query
-    // 2. Generate an insight(s)
-    // 3. Redeem the reward
-    // 4. Deliver the insight
 
     return ResultUtils.combine([
       this.contextProvider.getContext(),
@@ -189,11 +188,11 @@ export class QueryService implements IQueryService {
           query.cid,
           insights,
         ).map(() => {
-          // console.log("insight delivery api call done");
-          context.publicEvents.onQueryPosted.next({
-            consentContractAddress,
-            query,
-          });
+          console.log("insight delivery api call done");
+          // context.publicEvents.onQueryPosted.next({
+          //   consentContractAddress,
+          //   query,
+          // });
         });
       });
     });
@@ -203,6 +202,7 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     config: CoreConfig,
   ): UninitializedError | null {
+    // console.log(context);
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
       return new UninitializedError("Data wallet has not been unlocked yet!");
     }

@@ -4,17 +4,13 @@ import {
   EVMContractAddress,
   EVMTransaction,
   ISnickerdoodleCoreEvents,
-  MetatransactionSignatureRequest,
-  SDQLQuery,
+  MetatransactionSignatureRequest, SDQLQueryRequest
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
 export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onInitialized: Subject<DataWalletAddress>;
-  public onQueryPosted: Subject<{
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }>;
+  public onQueryPosted: Subject<SDQLQueryRequest>;
   public onAccountAdded: Subject<EVMAccountAddress>;
   public onCohortJoined: Subject<EVMContractAddress>;
   public onCohortLeft: Subject<EVMContractAddress>;
