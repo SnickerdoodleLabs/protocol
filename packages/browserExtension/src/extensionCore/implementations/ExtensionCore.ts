@@ -61,7 +61,7 @@ import {
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
-import { DomainName, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 
 // shared
@@ -70,8 +70,12 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { IConfigProvider } from "@shared/interfaces/configProvider";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 
-import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { InvitationRepository } from "./data/InvitationRepository";
+import { DefaultAccountBalances, DefaultAccountNFTs } from "@snickerdoodlelabs/indexers";
+import { AxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
+
+import { ConfigProvider as CoreConfigProvider } from "@snickerdoodlelabs/core";
 
 export class ExtensionCore {
   // snickerdooldle Core
@@ -105,11 +109,20 @@ export class ExtensionCore {
   protected rpcCallHandler: IRpcCallHandler;
 
   protected configProvider: IConfigProvider;
+  protected ajaxUtils: AxiosAjaxUtils;
 
   constructor() {
-    this.core = new SnickerdoodleCore(undefined, new LocalStoragePersistence());
-
     this.configProvider = ConfigProvider;
+    this.ajaxUtils = new AxiosAjaxUtils();
+
+    const coreConfigProvider = new CoreConfigProvider()
+    const persistence = new ChromeStoragePersistence(
+      coreConfigProvider,
+      new DefaultAccountNFTs(coreConfigProvider, this.ajaxUtils),
+      new DefaultAccountBalances(coreConfigProvider, this.ajaxUtils),
+    );
+
+    this.core = new SnickerdoodleCore(undefined, persistence);
 
     this.contextProvider = new ContextProvider(this.configProvider);
 
