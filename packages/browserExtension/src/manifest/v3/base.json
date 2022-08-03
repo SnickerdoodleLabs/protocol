@@ -1,59 +1,31 @@
 {
-    "manifest_version": 3,
-    "name": "Data-Wallet",
-    "description": "Snickerdoodle's Data Wallet",
-    "options_page": "options.html",
-    "background": {
-      "service_worker": "background.bundle.js"
-    },
-    "action": {
-      "default_icon": "icon-34.png"
-    },
-    "oauth2": {
-      "client_id": "1055144164647-mfcem81s96av4o1gi6mrmcrqfmbrj5i4.apps.googleusercontent.com",
-      "scopes": [
-        "profile email",
-        "https://www.googleapis.com/auth/contacts",
-        "https://www.googleapis.com/auth/contacts.readonly",
-        "https://www.googleapis.com/auth/directory.readonly",
-        "https://www.googleapis.com/auth/profile.agerange.read",
-        "https://www.googleapis.com/auth/profile.emails.read",
-        "https://www.googleapis.com/auth/profile.language.read",
-        "https://www.googleapis.com/auth/user.addresses.read",
-        "https://www.googleapis.com/auth/user.birthday.read",
-        "https://www.googleapis.com/auth/user.emails.read",
-        "https://www.googleapis.com/auth/user.gender.read",
-        "https://www.googleapis.com/auth/user.organization.read",
-        "https://www.googleapis.com/auth/user.phonenumbers.read",
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/userinfo.profile"
-  
-  
-      ]
-    },
-  
-    "host_permissions": [
-    ],
-  
-    "permissions": [
-      "cookies",
-      "tabs",
-      "storage",
-      "activeTab",
-      "identity",
-      "identity.email"
-    ],
-    "icons": {
-      "128": "icon-128.png"
-    },
-    "content_scripts": [{
+  "manifest_version": 3,
+  "name": "Data-Wallet",
+  "description": "Snickerdoodle's Data Wallet",
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.bundle.js"
+  },
+  "action": {
+    "default_icon": "icon-34.png"
+  },
+  "host_permissions": [],
+
+  "permissions": ["cookies", "tabs", "storage", "activeTab"],
+  "icons": {
+    "128": "icon-128.png"
+  },
+  "content_scripts": [
+    {
       "matches": ["http://*/*", "https://*/*", "<all_urls>"],
       "js": ["contentScript.bundle.js"],
       "css": ["content.styles.css"],
       "run_at": "document_end"
-    }],
-    "devtools_page": "devtools.html",
-    "web_accessible_resources": [{
+    }
+  ],
+  "devtools_page": "devtools.html",
+  "web_accessible_resources": [
+    {
       "resources": [
         "content.styles.css",
         "icon-128.png",
@@ -63,5 +35,6 @@
         "assets/*"
       ],
       "matches": ["<all_urls>"]
-    }]
-  }
+    }
+  ]
+}

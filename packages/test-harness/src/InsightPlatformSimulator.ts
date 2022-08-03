@@ -241,11 +241,12 @@ export class InsightPlatformSimulator {
   }
 
   public createCampaign(
-    domain: DomainName,
+    domains: DomainName[],
   ): ResultAsync<
     EVMContractAddress,
     ConsentFactoryContractError | ConsentContractError | Error
   > {
+    const [domain, domain2] = domains;
     return this.ipfs
       .postToIPFS(
         JSON.stringify({
@@ -283,13 +284,14 @@ export class InsightPlatformSimulator {
             // Add a few URLs
             // We need to do this
             return consentContract
-              .addDomain(`${domain}/url/1`)
+              .addDomain(domain)
               .andThen(() => {
-                console.log("addDomained this domain: ", domain);
-
-                return consentContract.addDomain(`${domain}/url/2`);
+                return consentContract.addDomain(domain2);
               })
               .map(() => {
+                console.log(
+                  `Added domains to consent contract address ${contractAddress}`,
+                );
                 return contractAddress;
               });
           });

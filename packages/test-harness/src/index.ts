@@ -97,14 +97,13 @@ const simulator = new InsightPlatformSimulator(blockchain, ipfs);
 const cryptoUtils = new CryptoUtils();
 const languageCode = LanguageCode("en");
 
-const domainName = DomainName("snickerdoodle.dev");
+const domainName = DomainName("snickerdoodle.com");
+const domainName2 = DomainName("snickerdoodle.com/blog");
 
 const consentContracts = new Array<EVMContractAddress>();
 const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
-
-
 
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
@@ -209,7 +208,6 @@ core.getEvents().map(async (events) => {
   }
 });
 
-
 function mainPrompt(): ResultAsync<void, Error> {
   return prompt([
     {
@@ -312,7 +310,7 @@ function corePrompt(): ResultAsync<void, Error> {
       choices: choices,
     },
   ]).andThen((answers) => {
-    let sites : SiteVisit[] = [];
+    const sites: SiteVisit[] = [];
 
     switch (answers.core) {
       case "unlock":
@@ -356,11 +354,19 @@ function corePrompt(): ResultAsync<void, Error> {
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
       case "addSiteVisit - google":
-        sites[0] = new SiteVisit(URLString("www.google.com"), UnixTimestamp(100), UnixTimestamp(1000));
-        return core.addSiteVisits(sites).map(console.log); 
+        sites[0] = new SiteVisit(
+          URLString("www.google.com"),
+          UnixTimestamp(100),
+          UnixTimestamp(1000),
+        );
+        return core.addSiteVisits(sites).map(console.log);
       case "addSiteVisit - facebook":
-        sites[0] = new SiteVisit(URLString("www.facebook.com"), UnixTimestamp(100), UnixTimestamp(1000));
-        return core.addSiteVisits(sites).map(console.log);  
+        sites[0] = new SiteVisit(
+          URLString("www.facebook.com"),
+          UnixTimestamp(100),
+          UnixTimestamp(1000),
+        );
+        return core.addSiteVisits(sites).map(console.log);
     }
     return okAsync(undefined);
   });
@@ -395,7 +401,7 @@ function createCampaign(): ResultAsync<
   ConsentFactoryContractError | ConsentContractError | Error
 > {
   return simulator
-    .createCampaign(domainName)
+    .createCampaign([domainName, domainName2])
     .mapErr((e) => {
       console.error(e);
       return e;

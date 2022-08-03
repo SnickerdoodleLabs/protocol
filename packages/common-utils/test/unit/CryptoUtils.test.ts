@@ -36,6 +36,21 @@ describe("CryptoUtils tests", () => {
     expect(nonce.length).toBe(64);
   });
 
+  test("getTokenId returns a bigInt", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    // Act
+    const result = await utils.getTokenId();
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const tokenId = result._unsafeUnwrap();
+    expect(tokenId).toBeGreaterThanOrEqual(0);
+  });
+
   test("deriveAESKeyFromSignature returns 32 bytes as 44 characters of base64", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();

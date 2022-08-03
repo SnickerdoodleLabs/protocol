@@ -51,22 +51,12 @@ export class AccountRepository implements IAccountRepository {
     account: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
+  ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core
       .addAccount(account, signature, languageCode)
       .mapErr((error) => {
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      })
-      .andThen(() => {
-        return this.accountCookieUtils.writeAccountInfoToCookie(
-          account,
-          signature,
-          languageCode,
-        );
-      })
-      .mapErr((error) => {
         this.errorUtils.emit(error);
-        return error;
+        return new SnickerDoodleCoreError((error as Error).message, error);
       });
   }
 

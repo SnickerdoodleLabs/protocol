@@ -37,7 +37,16 @@ export class CryptoUtils implements ICryptoUtils {
   }
 
   public getTokenId(): ResultAsync<TokenId, never> {
-    return okAsync(TokenId(BigInt(Crypto.randomInt(281474976710655))));
+    const buf = Crypto.randomBytes(8);
+    const hex = buf.toString("hex");
+    const bigInt = BigInt(`0x${hex}`);
+
+    return okAsync(TokenId(bigInt));
+
+    // This older implementation I'm leaving as a comment. It's very clean, but does not
+    // work in a service worker, because the polyfills available do not support randomInt().
+    // Ye be warned.
+    //return okAsync(TokenId(BigInt(Crypto.randomInt(281474976710655))));
   }
 
   public deriveAESKeyFromSignature(

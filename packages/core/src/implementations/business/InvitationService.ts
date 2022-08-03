@@ -30,8 +30,6 @@ import {
   IPFSError,
   URLString,
   PageInvitation,
-  TokenId,
-  InvitationDomain,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -54,6 +52,8 @@ import {
   IInvitationRepository,
 } from "@core/interfaces/data";
 import {
+  IBlockchainProvider,
+  IBlockchainProviderType,
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
@@ -79,6 +79,8 @@ export class InvitationService implements IInvitationService {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(IBlockchainProviderType)
+    protected blockchainProvider: IBlockchainProvider,
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
   ) {}
@@ -365,25 +367,27 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | IPFSError
   > {
-    return this.getConsentContractAddressesFromDNS(domain)
-      .andThen((contractAddresses) => {
-        // Now, for each contract that the domain lists, get stuff
-        return this.contractFactory
-          .factoryConsentContracts(contractAddresses)
-          .andThen((consentContracts) => {
-            return ResultUtils.combine(
-              consentContracts.map((consentContract) => {
-                return this.getInvitationsFromConsentContract(
-                  domain,
-                  consentContract,
-                );
-              }),
-            );
-          });
-      })
-      .map((invitations) => {
-        return invitations.flat();
-      });
+    return this.blockchainProvider.initialize().andThen(() => {
+      return this.getConsentContractAddressesFromDNS(domain)
+        .andThen((contractAddresses) => {
+          // Now, for each contract that the domain lists, get stuff
+          return this.contractFactory
+            .factoryConsentContracts(contractAddresses)
+            .andThen((consentContracts) => {
+              return ResultUtils.combine(
+                consentContracts.map((consentContract) => {
+                  return this.getInvitationsFromConsentContract(
+                    domain,
+                    consentContract,
+                  );
+                }),
+              );
+            });
+        })
+        .map((invitations) => {
+          return invitations.flat();
+        });
+    });
   }
 
   protected getInvitationsFromConsentContract(

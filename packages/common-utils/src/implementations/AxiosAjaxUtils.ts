@@ -21,8 +21,9 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
       this.instance = axios.create({
         adapter: fetchAdapter as AxiosAdapter,
       });
+    } else {
+      this.instance = axios.create({});
     }
-    this.instance = axios.create({});
   }
 
   public get<T>(url: URL, config?: IRequestConfig): ResultAsync<T, AjaxError> {
