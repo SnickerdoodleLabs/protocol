@@ -1,11 +1,10 @@
-import { EVMEvent } from "./EVMEvent";
-
+import { EVMEvent } from "@objects/businessObjects";
 import {
   ChainId,
   EVMAccountAddress,
   BigNumberString,
+  UnixTimestamp,
 } from "@objects/primitives";
-import { UnixTimestamp } from "@objects/primitives";
 
 /**
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to
@@ -45,10 +44,10 @@ export class EVMTransactionFilter {
       this.chainIDs = new Set(chainIDs);
     }
     if (hashes != undefined) {
-      this.hashes = new Set(hashes);
+      this.hashes = new Set(hashes.map((x) => x.toLowerCase()));
     }
     if (addresses != undefined) {
-      this.addresses = new Set(addresses);
+      this.addresses = new Set(addresses.map((x) => x.toLowerCase()));
     }
   }
 
@@ -56,7 +55,7 @@ export class EVMTransactionFilter {
     if (this.chainIDs != undefined && !this.chainIDs.has(tx.chainId)) {
       return false;
     }
-    if (this.hashes != undefined && !this.hashes.has(tx.hash)) {
+    if (this.hashes != undefined && !this.hashes.has(tx.hash.toLowerCase())) {
       return false;
     }
 
@@ -68,7 +67,8 @@ export class EVMTransactionFilter {
     }
 
     if (this.addresses != undefined) {
-      const txaddrs = [...(tx.to ?? []), ...(tx.from ?? [])];
+      const txaddrs = Array.from(this._getDescendants(tx));
+
       if (txaddrs.length == 0) {
         return false;
       }
@@ -79,5 +79,20 @@ export class EVMTransactionFilter {
     }
 
     return true;
+  }
+
+  private _getDescendants(obj): Set<EVMAccountAddress> {
+    let result = new Set<EVMAccountAddress>();
+    for (const [key, value] of Object.entries(obj)) {
+      if (value && typeof value === "object") {
+        result = new Set([...result, ...this._getDescendants(value)]);
+      } else {
+        if (typeof value === "string") {
+          result.add(EVMAccountAddress(value));
+        }
+      }
+    }
+
+    return result;
   }
 }

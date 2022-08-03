@@ -12,6 +12,11 @@ import {
   Signature,
   UninitializedError,
   UnsupportedLanguageError,
+  EVMTransactionFilter,
+  EVMTransaction,
+  ChainId,
+  URLString,
+  SiteVisit,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -54,6 +59,14 @@ export interface IAccountService {
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
 
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getTranactions(
+    filter?: EVMTransactionFilter,
+  ): ResultAsync<EVMTransaction[], PersistenceError>;
+
+  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
+  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

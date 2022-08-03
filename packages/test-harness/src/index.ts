@@ -1,7 +1,15 @@
 import "reflect-metadata";
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  AxiosAjaxUtils,
+  CryptoUtils,
+  LogUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import { SnickerdoodleCore, ConfigProvider } from "@snickerdoodlelabs/core";
+import {
+  DefaultAccountBalances,
+  DefaultAccountNFTs,
+} from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
@@ -30,6 +38,11 @@ import {
   CountryCode,
   SDQLString,
   PageInvitation,
+  EVMTransactionFilter,
+  SiteVisit,
+  URLString,
+  UnixTimestamp,
+  Gender,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import {
@@ -44,10 +57,17 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { IPFSClient } from "@extension-onboarding/packages/test-harness/src/IPFSClient";
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
+import { ConsentContractRepository } from "@core/implementations/data";
 
 // https://github.com/SBoudrias/Inquirer.js
 
-const persistence = new LocalStoragePersistence();
+const configProvider = new ConfigProvider();
+const ajaxUtils = new AxiosAjaxUtils();
+const persistence = new LocalStoragePersistence(
+  configProvider,
+  new DefaultAccountNFTs(configProvider, ajaxUtils),
+  new DefaultAccountBalances(configProvider, ajaxUtils),
+);
 const core = new SnickerdoodleCore(
   {
     defaultInsightPlatformBaseUrl: "http://localhost:3006",
@@ -62,6 +82,9 @@ const devAccountKeys = [
   ),
   EVMPrivateKey(
     "0x1234567890123456789012345678901234567890123456789012345678901234",
+  ),
+  EVMPrivateKey(
+    "cd34642d879fe59110689ff87a080aad52b383daeb5ad945fd6da20b954d2542",
   ),
 ];
 
@@ -226,18 +249,43 @@ function corePrompt(): ResultAsync<void, Error> {
       name: "Opt In to Campaign",
       value: "optInCampaign",
     },
+    new inquirer.Separator(),
     {
       name: "Opt Out of Campaign",
       value: "optOutCampaign",
     },
     new inquirer.Separator(),
-    { name: "Set Age", value: "setAge" },
+    { name: "Set Age to 15", value: "setAge to 15" },
+    new inquirer.Separator(),
+    { name: "Set Age to 0", value: "setAge to 0" },
     new inquirer.Separator(),
     { name: "Get Age", value: "getAge" },
     new inquirer.Separator(),
     { name: "Set Location", value: "setLocation" },
     new inquirer.Separator(),
     { name: "Get Location", value: "getLocation" },
+    new inquirer.Separator(),
+    { name: "Set Gender", value: "setGender" },
+    new inquirer.Separator(),
+    { name: "Get Gender", value: "getGender" },
+    new inquirer.Separator(),
+    { name: "Get Transactions", value: "getTransactions" },
+    new inquirer.Separator(),
+    { name: "Get Accounts", value: "getAccounts" },
+    new inquirer.Separator(),
+    { name: "Get NFTs", value: "getNFTs" },
+    new inquirer.Separator(),
+    { name: "Get Balances", value: "getBalances" },
+    new inquirer.Separator(),
+    { name: "Get Transaction Map", value: "getTransactionMap" },
+    new inquirer.Separator(),
+    { name: "Add Site Visit - Google ", value: "addSiteVisit - google" },
+    new inquirer.Separator(),
+    { name: "Add Site Visit - Facebook", value: "addSiteVisit - facebook" },
+    new inquirer.Separator(),
+    { name: "Get SiteVisit Map", value: "getSiteVisitMap" },
+    new inquirer.Separator(),
+    { name: "Get SiteVisits Array", value: "getSiteVisits" },
     new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
@@ -260,6 +308,8 @@ function corePrompt(): ResultAsync<void, Error> {
       choices: choices,
     },
   ]).andThen((answers) => {
+    const sites: SiteVisit[] = [];
+
     switch (answers.core) {
       case "unlock":
         return unlockCore();
@@ -269,16 +319,52 @@ function corePrompt(): ResultAsync<void, Error> {
         return optInCampaign();
       case "optOutCampaign":
         return optOutCampaign();
-      case "setAge":
+      case "setAge to 15":
         console.log("Age is set to 15");
         return core.setAge(Age(15));
+      case "setAge to 0":
+        console.log("Age is set to 0");
+        return core.setAge(Age(0));
       case "getAge":
         return core.getAge().map(console.log);
+      case "setGender":
+        console.log("Gender is set to male");
+        return core.setGender(Gender("male"));
+      case "getAge":
+        return core.getGender().map(console.log);
       case "setLocation":
         console.log("Location Country Code is US");
         return core.setLocation(CountryCode("US"));
       case "getLocation":
         return core.getLocation().map(console.log);
+      case "getTransactions":
+        return core.getTransactions().map(console.log);
+      case "getAccounts":
+        return core.getAccounts().map(console.log);
+      case "getNFTs":
+        return core.getAccountNFTs().map(console.log);
+      case "getBalances":
+        return core.getAccountBalances().map(console.log);
+      case "getTransactionMap":
+        return core.getTransactionsMap().map(console.log);
+      case "getSiteVisitMap":
+        return core.getSiteVisitsMap().map(console.log);
+      case "getSiteVisits":
+        return core.getSiteVisits().map(console.log);
+      case "addSiteVisit - google":
+        sites[0] = new SiteVisit(
+          URLString("www.google.com"),
+          UnixTimestamp(100),
+          UnixTimestamp(1000),
+        );
+        return core.addSiteVisits(sites).map(console.log);
+      case "addSiteVisit - facebook":
+        sites[0] = new SiteVisit(
+          URLString("www.facebook.com"),
+          UnixTimestamp(100),
+          UnixTimestamp(1000),
+        );
+        return core.addSiteVisits(sites).map(console.log);
     }
     return okAsync(undefined);
   });

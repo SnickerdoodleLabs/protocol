@@ -4,7 +4,8 @@ export interface IConfigOverrides {
   controlChainId?: ChainId;
   supportedChains?: ChainId[];
   providerAddress?: URLString;
-  ipfsNodeAddress?: URLString;
+  privateIpfsNodeAddress?: URLString;
+  publicIpfsNodeAddress?: URLString;
   defaultInsightPlatformBaseUrl?: URLString;
   accountIndexingPollingIntervalMS?: number;
   accountBalancePollingIntervalMS?: number;

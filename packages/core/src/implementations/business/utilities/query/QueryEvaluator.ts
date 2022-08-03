@@ -57,9 +57,6 @@ export class QueryEvaluator implements IQueryEvaluator {
         let hash = "";
         let startTime = q.contract.blockrange.start;
         let endTime = q.contract.blockrange.end;
-        console.log("Address: ", address)
-        console.log("Start Time: ", startTime)
-        console.log("End Time: ", endTime)
 
         let filter = new EVMTransactionFilter(
             [chainId],
@@ -72,6 +69,7 @@ export class QueryEvaluator implements IQueryEvaluator {
         return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
             (transactions) =>
             {
+                console.log("Network Query Result: ", transactions)
                 if (transactions == null){
                     return okAsync(SDQL_Return(false));
                 }
