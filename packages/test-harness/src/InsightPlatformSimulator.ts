@@ -54,7 +54,7 @@ export class InsightPlatformSimulator {
       res.send({
         Answer: this.consentContracts.map((contractAddress) => {
           return {
-            data: `consentContracts:${contractAddress}`,
+            data: `"${contractAddress}"`,
           };
         }),
       });

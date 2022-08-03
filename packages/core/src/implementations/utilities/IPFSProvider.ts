@@ -30,7 +30,7 @@ export class IPFSProvider implements IIPFSProvider {
     });
 
     return this.configProvider.getConfig().andThen((config) => {
-      const nodeUrl = config.ipfsNodeAddress;
+      const nodeUrl = config.privateIpfsNodeAddress;
       const client = safeCreate({ url: nodeUrl });
       return client;
     });
