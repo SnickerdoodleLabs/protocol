@@ -39,7 +39,7 @@ export class AccountService implements IAccountService {
     account: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
+  ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.accountRepository.addAccount(account, signature, languageCode);
   }
 
