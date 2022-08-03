@@ -508,6 +508,9 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   > {
     return this.getSiteVisits().andThen((siteVisits) => {
       const result = new Map<URLString, number>();
+      if (siteVisits == null){
+        return okAsync(result)
+      }
       siteVisits.forEach((siteVisit, _i, _arr) => {
         /*
         console.log("siteVisit: ", siteVisit);
