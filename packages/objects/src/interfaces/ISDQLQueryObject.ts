@@ -63,7 +63,9 @@ export interface ISDQLQueryConditions {
 }
 
 export interface ISDQLHasObject {
-  patternProperties: number;
+  patternProperties: {
+    [url: string]: number;
+  };
 }
 
 export interface ISDQLReturnProperties {
