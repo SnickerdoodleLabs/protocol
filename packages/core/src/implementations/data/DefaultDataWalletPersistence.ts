@@ -227,13 +227,13 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
 
   public updateAccountBalances(
     balances: IEVMBalance[],
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<IEVMBalance[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
   public updateAccountNFTs(
     nfts: IEVMNFT[],
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<IEVMNFT[], PersistenceError> {
     throw new Error("Method not implemented.");
   }
 

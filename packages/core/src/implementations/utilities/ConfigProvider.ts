@@ -1,5 +1,4 @@
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
-import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IIndexerConfigProvider } from "@snickerdoodlelabs/indexers";
 import {
   chainConfig,
@@ -19,7 +18,7 @@ import { IConfigProvider } from "@core/interfaces/utilities";
 export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
   protected config: CoreConfig;
 
-  public constructor(@inject(ILogUtilsType) protected logUtils: ILogUtils) {
+  public constructor() {
     const controlChainId = ChainId(31337);
     const controlChainInformation = chainConfig.get(controlChainId);
 
@@ -38,7 +37,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [], //TODO: supported chains
+      [ChainId(42), ChainId(43113)], //supported chains (kovan, fuji)
       URLString("http://localhost:8545"),
       chainConfig,
       controlChainInformation,
@@ -48,8 +47,8 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
-      "covalent api key",
-      "moralis api key",
+      "ckey_ee277e2a0e9542838cf30325665", // covalent api key
+      "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"),
     );
   }

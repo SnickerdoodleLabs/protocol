@@ -122,15 +122,15 @@ export interface IDataWalletPersistence {
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
   getEVMTransactions(
-    filter: EVMTransactionFilter,
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 
   updateAccountBalances(
     balances: IEVMBalance[],
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
 
-  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<void, PersistenceError>;
+  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<IEVMNFT[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 
   setLatestBlockNumber(

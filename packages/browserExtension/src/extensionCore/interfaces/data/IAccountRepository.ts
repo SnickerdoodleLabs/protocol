@@ -17,7 +17,7 @@ export interface IAccountRepository {
     account: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError>;
+  ): ResultAsync<void, SnickerDoodleCoreError>;
   unlock(
     account: EVMAccountAddress,
     signature: Signature,

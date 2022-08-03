@@ -8,11 +8,14 @@ import {
   AjaxError,
   BigNumberString,
   BlockchainProviderError,
+  ChainId,
   ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
   EVMAccountAddress,
   EVMPrivateKey,
+  EVMTransaction,
+  EVMTransactionFilter,
   ExternallyOwnedAccount,
   HexString,
   ICrumbContent,
@@ -25,10 +28,12 @@ import {
   MetatransactionSignatureRequest,
   PersistenceError,
   Signature,
+  SiteVisit,
   TokenId,
   TokenUri,
   UninitializedError,
   UnsupportedLanguageError,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -149,10 +154,7 @@ export class AccountService implements IAccountService {
           // Need to add the account if this was the first time;
           // Doing it this way because I have to make sure the persistence is
           // unlocked first.
-          if (encryptedDataWalletKey == null) {
-            return this.dataWalletPersistence.addAccount(accountAddress);
-          }
-          return okAsync(undefined);
+          return this.dataWalletPersistence.addAccount(accountAddress);
         })
         .andThen(() => {
           // Need to emit some events
@@ -371,5 +373,33 @@ export class AccountService implements IAccountService {
 
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
     return this.dataWalletPersistence.getAccountNFTs();
+  }
+
+  public getTranactions(
+    filter?: EVMTransactionFilter,
+  ): ResultAsync<EVMTransaction[], PersistenceError> {
+    return this.dataWalletPersistence.getEVMTransactions(filter);
+  }
+
+  public getTransactionsMap(): ResultAsync<
+    Map<ChainId, number>,
+    PersistenceError
+  > {
+    return this.dataWalletPersistence.getTransactionsMap();
+  }
+
+  public getSiteVisitsMap(): ResultAsync<
+    Map<URLString, number>,
+    PersistenceError
+  > {
+    return this.dataWalletPersistence.getSiteVisitsMap();
+  }
+  public addSiteVisits(
+    siteVisits: SiteVisit[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.addSiteVisits(siteVisits);
+  }
+  public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+    return this.dataWalletPersistence.getSiteVisits();
   }
 }

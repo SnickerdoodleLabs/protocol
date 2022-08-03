@@ -14,53 +14,69 @@ import { ResultAsync } from "neverthrow";
 
 export class PIIService implements IPIIService {
   constructor(protected piiRespository: IPIIRepository) {}
-  
-  setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
+
+  public setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setAge(age);
   }
-  getAge(): ResultAsync<Age, SnickerDoodleCoreError> {
+  public getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
     return this.piiRespository.getAge();
   }
-  setGivenName(name: GivenName): ResultAsync<void, SnickerDoodleCoreError> {
+  public setGivenName(
+    name: GivenName,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setGivenName(name);
   }
-  getGivenName(): ResultAsync<GivenName, SnickerDoodleCoreError> {
+  public getGivenName(): ResultAsync<GivenName | null, SnickerDoodleCoreError> {
     return this.piiRespository.getGivenName();
   }
-  setFamilyName(name: FamilyName): ResultAsync<void, SnickerDoodleCoreError> {
+  public setFamilyName(
+    name: FamilyName,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setFamilyName(name);
   }
-  getFamilyName(): ResultAsync<FamilyName, SnickerDoodleCoreError> {
+  public getFamilyName(): ResultAsync<
+    FamilyName | null,
+    SnickerDoodleCoreError
+  > {
     return this.piiRespository.getFamilyName();
   }
-  setBirthday(
+  public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<UnixTimestamp, SnickerDoodleCoreError> {
+  public getBirthday(): ResultAsync<
+    UnixTimestamp | null,
+    SnickerDoodleCoreError
+  > {
     return this.piiRespository.getBirthday();
   }
-  setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError> {
+  public setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setGender(gender);
   }
-  getGender(): ResultAsync<Gender, SnickerDoodleCoreError> {
+  public getGender(): ResultAsync<Gender | null, SnickerDoodleCoreError> {
     return this.piiRespository.getGender();
   }
-  setEmail(
+  public setEmail(
     email: EmailAddressString,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setEmail(email);
   }
-  getEmail(): ResultAsync<EmailAddressString, SnickerDoodleCoreError> {
+  public getEmail(): ResultAsync<
+    EmailAddressString | null,
+    SnickerDoodleCoreError
+  > {
     return this.piiRespository.getEmail();
   }
-  setLocation(
+  public setLocation(
     location: CountryCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setLocation(location);
   }
-  getLocation(): ResultAsync<CountryCode, SnickerDoodleCoreError> {
+  public getLocation(): ResultAsync<
+    CountryCode | null,
+    SnickerDoodleCoreError
+  > {
     return this.piiRespository.getLocation();
   }
 }
