@@ -20,18 +20,12 @@ import {
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
-  insightDeliveryTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
-import { ResultAsync, okAsync, errAsync, Result } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-
+import { ResultAsync, errAsync } from "neverthrow";
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { IPFSClient } from "@test-harness/IPFSClient";
-import { IConsentContractRepository, IConsentContractRepositoryType } from "@core/interfaces/data";
-import { inject } from "inversify";
-
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
@@ -269,8 +263,6 @@ export class InsightPlatformSimulator {
             cid,
           )
           .andThen((contractAddress) => {
-            console.log("BEAT CREATE CONSENT CONTRACT!");
-
             const consentContract =
               this.blockchain.getConsentContract(contractAddress);
 
@@ -278,8 +270,6 @@ export class InsightPlatformSimulator {
               `Created consent contract address ${contractAddress} for business account adddress ${this.blockchain.businessAccount.accountAddress}, owned by ${this.blockchain.serverAccount.accountAddress}`,
             );
             this.consentContracts.push(contractAddress);
-
-            console.log("consent contracts this domain: ", this.consentContracts);
 
             // Add a few URLs
             // We need to do this

@@ -96,8 +96,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       comp_results.push(result);
     }
 
-    //console.log("insight_results: ", insight_results);
-    //console.log("comp_results: ", comp_results);
     const resultList = [insight_results, comp_results];
 
     return ResultUtils.combine(insight_results).andThen((insighResults) => {
