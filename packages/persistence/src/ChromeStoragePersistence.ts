@@ -21,9 +21,24 @@ import {
   EVMTransactionFilter,
   BlockNumber,
   JSONString,
+  IAccountBalances,
+  IAccountBalancesType,
+  IAccountNFTs,
+  IAccountNFTsType,
+  AccountNFTError,
+  AjaxError,
+  EIndexer,
+  AccountBalanceError,
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
-import { okAsync, ResultAsync } from "neverthrow";
+import { inject } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
+import {
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "./IPersistenceConfigProvider";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -37,7 +52,9 @@ enum ELocalStorageKey {
   EMAIL = "SD_Email",
   LOCATION = "SD_Location",
   BALANCES = "SD_Balances",
+  BALANCES_LAST_UPDATE = "SD_Balances_lastUpdate",
   NFTS = "SD_NFTs",
+  NFTS_LAST_UPDATE = "SD_NFTs_lastUpdate",
   URLs = "SD_URLs",
   CLICKS = "SD_CLICKS",
   REJECTED_COHORTS = "SD_RejectedCohorts",
@@ -45,6 +62,14 @@ enum ELocalStorageKey {
 }
 
 export class ChromeStoragePersistence implements IDataWalletPersistence {
+  public constructor(
+    @inject(IPersistenceConfigProviderType)
+    protected configProvider: IPersistenceConfigProvider,
+    @inject(IAccountNFTsType)
+    protected accountNFTs: IAccountNFTs,
+    @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
+  ) {}
+
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
     defaultVal: T,
@@ -217,42 +242,192 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
 
   public updateAccountBalances(
     balances: IEVMBalance[],
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<IEVMBalance[], PersistenceError> {
     return ChromeStorageUtils.write(
       ELocalStorageKey.BALANCES,
       JSON.stringify(balances),
-    );
+    ).andThen(() => {
+      return ChromeStorageUtils.write(
+        ELocalStorageKey.BALANCES_LAST_UPDATE,
+        new Date().getTime(),
+      ).andThen(() => {
+        return okAsync(balances);
+      });
+    });
   }
 
   public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
-    return ChromeStorageUtils.read<JSONString>(ELocalStorageKey.BALANCES).map(
-      (balances) => {
-        if (balances == null) {
-          return [];
-        }
-        return JSON.parse(balances) as IEVMBalance[];
-      },
-    );
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this._checkAndRetrieveValue<number>(
+        ELocalStorageKey.BALANCES_LAST_UPDATE,
+        0,
+      ),
+    ]).andThen(([config, lastUpdate]) => {
+      const currTime = new Date().getTime();
+      if (currTime - lastUpdate < config.accountBalancePollingIntervalMS) {
+        return this._checkAndRetrieveValue<IEVMBalance[]>(
+          ELocalStorageKey.BALANCES,
+          [],
+        );
+      }
+
+      return this.pollBalances().mapErr(
+        (e) => new PersistenceError(`${e.name}: ${e.message}`),
+      );
+    });
+  }
+
+  private pollBalances(): ResultAsync<
+    IEVMBalance[],
+    PersistenceError | AccountBalanceError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this.getAccounts(),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([accountAddresses, config]) => {
+        return ResultUtils.combine(
+          accountAddresses.map((accountAddress) => {
+            return ResultUtils.combine(
+              config.supportedChains.map((chainId) => {
+                return this.getLatestBalances(chainId, accountAddress);
+              }),
+            );
+          }),
+        );
+      })
+      .andThen((balancesArr) => {
+        const balances = balancesArr.flat(2);
+        return this.updateAccountBalances(balances);
+      });
+  }
+
+  private getLatestBalances(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    IEVMBalance[],
+    PersistenceError | AccountBalanceError | AjaxError
+  > {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.accountBalances.getEVMBalanceRepository(),
+      this.accountBalances.getSimulatorEVMBalanceRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+      const chainInfo = config.chainInformation.get(chainId);
+      if (chainInfo == null) {
+        return errAsync(
+          new AccountBalanceError(
+            `No available chain info for chain ${chainId}`,
+          ),
+        );
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getBalancesForAccount(chainId, accountAddress);
+        case EIndexer.Simulator:
+          return simulatorRepo.getBalancesForAccount(chainId, accountAddress);
+        default:
+          return errAsync(
+            new AccountBalanceError(
+              `No available balance repository for chain ${chainId}`,
+            ),
+          );
+      }
+    });
   }
 
   public updateAccountNFTs(
     nfts: IEVMNFT[],
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<IEVMNFT[], PersistenceError> {
     return ChromeStorageUtils.write(
       ELocalStorageKey.NFTS,
       JSON.stringify(nfts),
-    );
+    ).andThen(() => {
+      return ChromeStorageUtils.write(
+        ELocalStorageKey.NFTS_LAST_UPDATE,
+        new Date().getTime(),
+      ).andThen(() => {
+        return okAsync(nfts);
+      });
+    });
   }
 
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
-    return ChromeStorageUtils.read<JSONString>(ELocalStorageKey.NFTS).map(
-      (json) => {
-        if (json == null) {
-          return [];
-        }
-        return JSON.parse(json) as IEVMNFT[];
-      },
-    );
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this._checkAndRetrieveValue<number>(ELocalStorageKey.NFTS_LAST_UPDATE, 0),
+    ]).andThen(([config, lastUpdate]) => {
+      const currTime = new Date().getTime();
+      if (currTime - lastUpdate < config.accountNFTPollingIntervalMS) {
+        return this._checkAndRetrieveValue<IEVMNFT[]>(
+          ELocalStorageKey.NFTS,
+          [],
+        );
+      }
+
+      return this.pollNFTs().mapErr(
+        (e) => new PersistenceError(`${e.name}: ${e.message}`),
+      );
+    });
+  }
+
+  private pollNFTs(): ResultAsync<
+    IEVMNFT[],
+    PersistenceError | AjaxError | AccountNFTError
+  > {
+    return ResultUtils.combine([
+      this.getAccounts(),
+      this.configProvider.getConfig(),
+    ])
+      .andThen(([accountAddresses, config]) => {
+        return ResultUtils.combine(
+          accountAddresses.map((accountAddress) => {
+            return ResultUtils.combine(
+              config.supportedChains.map((chainId) => {
+                return this.getLatestNFTs(chainId, accountAddress);
+              }),
+            );
+          }),
+        );
+      })
+      .andThen((nftArr) => {
+        const nfts = nftArr.flat(2);
+        return this.updateAccountNFTs(nfts);
+      });
+  }
+
+  private getLatestNFTs(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<IEVMNFT[], PersistenceError | AccountNFTError | AjaxError> {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.accountNFTs.getEVMNftRepository(),
+      this.accountNFTs.getSimulatorEVMNftRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+      const chainInfo = config.chainInformation.get(chainId);
+      if (chainInfo == null) {
+        return errAsync(
+          new AccountNFTError(`No available chain info for chain ${chainId}`),
+        );
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getTokensForAccount(chainId, accountAddress);
+        case EIndexer.Simulator:
+          return simulatorRepo.getTokensForAccount(chainId, accountAddress);
+        default:
+          return errAsync(
+            new AccountNFTError(
+              `No available token repository for chain ${chainId}`,
+            ),
+          );
+      }
+    });
   }
 
   public addEVMTransactions(
@@ -273,13 +448,16 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
   }
 
   public getEVMTransactions(
-    filter: EVMTransactionFilter,
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
     return this._checkAndRetrieveValue<JSONString>(
       ELocalStorageKey.TRANSACTIONS,
       JSONString("[]"),
     ).map((json) => {
       const transactions = JSON.parse(json) as EVMTransaction[];
+      if (filter == undefined) {
+        return transactions;
+      }
 
       return transactions.filter((value) => {
         filter.matches(value);
@@ -309,7 +487,16 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
     Map<URLString, number>,
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    return this.getSiteVisits().andThen((siteVisits) => {
+      const result = new Map<URLString, number>();
+      siteVisits.forEach((siteVisit, _i, _arr) => {
+        const url = siteVisit.url;
+        const baseUrl = URLString(url);
+        baseUrl in result || (result[baseUrl] = 0);
+        result[baseUrl] += 1;
+      });
+      return okAsync(result);
+    });
   }
 
   // return a map of Chain Transaction Counts
@@ -317,7 +504,14 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-    throw new Error("Method not implemented.");
+    return this.getEVMTransactions().andThen((transactions) => {
+      const result = new Map<ChainId, number>();
+      transactions.forEach((tx, _i, _arr) => {
+        tx.chainId in result || (result[tx.chainId] = 0);
+        result[tx.chainId] += 1;
+      });
+      return okAsync(result);
+    });
   }
 
   public setLatestBlockNumber(

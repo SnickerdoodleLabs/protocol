@@ -137,15 +137,17 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-
     let savedSiteVisits = LocalStorageUtils.readLocalStorage(
       ELocalStorageKey.SITE_VISITS,
     );
-    if (savedSiteVisits == null){
+    if (savedSiteVisits == null) {
       savedSiteVisits = [];
     }
-    var totalVisits = savedSiteVisits.concat(siteVisits);
-    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.SITE_VISITS, savedSiteVisits.concat(siteVisits));
+    const totalVisits = savedSiteVisits.concat(siteVisits);
+    LocalStorageUtils.writeLocalStorage(
+      ELocalStorageKey.SITE_VISITS,
+      savedSiteVisits.concat(siteVisits),
+    );
     return okAsync(undefined);
   }
 
@@ -513,12 +515,12 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
         console.log("siteVisit: ", siteVisit);
         console.log("_i: ", _i);
         console.log("_arr: ", _arr); 
-        */    
+        */
         // const baseUrl = new URL(siteVisit.url).pathname;
-        let url = siteVisit.url;
-        //console.log("url: ", url);     
+        const url = siteVisit.url;
+        //console.log("url: ", url);
         //let urlval = new URL(url);
-        let baseUrl = URLString(url);
+        const baseUrl = URLString(url);
         //console.log("path: ", baseUrl);
         baseUrl in result || (result[baseUrl] = 0);
         //console.log("baseUrl: ", baseUrl);
@@ -533,11 +535,6 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-    this.getLatestTransactionForAccount(
-      ChainId(42),
-      EVMAccountAddress("0xd4908f76d7dd381f7091667e5b9cf67089b7c6f8"),
-    ).map(console.log);
-
     return this.getEVMTransactions().andThen((transactions) => {
       const result = new Map<ChainId, number>();
       transactions.forEach((tx, _i, _arr) => {
