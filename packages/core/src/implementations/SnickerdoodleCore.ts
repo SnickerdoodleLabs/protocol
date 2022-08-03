@@ -58,6 +58,7 @@ import {
   IAccountNFTsType,
   ChainId,
   URLString,
+  SiteVisit,
 } from "@snickerdoodlelabs/objects";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -439,5 +440,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisitsMap();
+  }
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getSiteVisits();
+  }
+  addSiteVisits(siteVisits: SiteVisit[],):  ResultAsync<void, PersistenceError> {
+  const accountService =
+    this.iocContainer.get<IAccountService>(IAccountServiceType);
+  return accountService.addSiteVisits(siteVisits);
   }
 }

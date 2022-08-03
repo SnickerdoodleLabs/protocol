@@ -175,9 +175,13 @@ export class QueryService implements IQueryService {
       //   );
       // }
       return this.queryParsingEngine.handleQuery(query).andThen((maps) => {
+        console.log("QueryParsingEngine HandleQuery");
         const maps2 = maps as [InsightString[], EligibleReward[]];
         const insights = maps2[0];
         const rewards = maps2[1];
+        console.log("insights: ", insights);
+        console.log("rewards: ", rewards);
+
 
         // console.log(insights, rewards);
 

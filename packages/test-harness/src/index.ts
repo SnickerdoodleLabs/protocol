@@ -39,6 +39,10 @@ import {
   SDQLString,
   PageInvitation,
   EVMTransactionFilter,
+  SiteVisit,
+  URLString,
+  UnixTimestamp,
+  Gender,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import {
@@ -246,6 +250,7 @@ function corePrompt(): ResultAsync<void, Error> {
       name: "Opt In to Campaign",
       value: "optInCampaign",
     },
+    new inquirer.Separator(),
     {
       name: "Opt Out of Campaign",
       value: "optOutCampaign",
@@ -259,6 +264,10 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "Get Location", value: "getLocation" },
     new inquirer.Separator(),
+    { name: "Set Gender", value: "setGender" },
+    new inquirer.Separator(),
+    { name: "Get Gender", value: "getGender" },
+    new inquirer.Separator(),
     { name: "Get Transactions", value: "getTransactions" },
     new inquirer.Separator(),
     { name: "Get Accounts", value: "getAccounts" },
@@ -269,7 +278,13 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "Get Transaction Map", value: "getTransactionMap" },
     new inquirer.Separator(),
+    { name: "Add Site Visit - Google ", value: "addSiteVisit - google" },
+    new inquirer.Separator(),
+    { name: "Add Site Visit - Facebook", value: "addSiteVisit - facebook" },
+    new inquirer.Separator(),
     { name: "Get SiteVisit Map", value: "getSiteVisitMap" },
+    new inquirer.Separator(),
+    { name: "Get SiteVisits Array", value: "getSiteVisits" },
     new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
@@ -292,6 +307,8 @@ function corePrompt(): ResultAsync<void, Error> {
       choices: choices,
     },
   ]).andThen((answers) => {
+    let sites : SiteVisit[] = [];
+
     switch (answers.core) {
       case "unlock":
         return unlockCore();
@@ -306,6 +323,11 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.setAge(Age(15));
       case "getAge":
         return core.getAge().map(console.log);
+      case "setGender":
+        console.log("Gender is set to male");
+        return core.setGender(Gender("male"));
+      case "getAge":
+        return core.getGender().map(console.log);
       case "setLocation":
         console.log("Location Country Code is US");
         return core.setLocation(CountryCode("US"));
@@ -323,6 +345,14 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getTransactionsMap().map(console.log);
       case "getSiteVisitMap":
         return core.getSiteVisitsMap().map(console.log);
+      case "getSiteVisits":
+        return core.getSiteVisits().map(console.log);
+      case "addSiteVisit - google":
+        sites[0] = new SiteVisit(URLString("www.google.com"), UnixTimestamp(100), UnixTimestamp(1000));
+        return core.addSiteVisits(sites).map(console.log); 
+      case "addSiteVisit - facebook":
+        sites[0] = new SiteVisit(URLString("www.facebook.com"), UnixTimestamp(100), UnixTimestamp(1000));
+        return core.addSiteVisits(sites).map(console.log);  
     }
     return okAsync(undefined);
   });

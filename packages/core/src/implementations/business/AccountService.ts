@@ -28,6 +28,7 @@ import {
   MetatransactionSignatureRequest,
   PersistenceError,
   Signature,
+  SiteVisit,
   TokenId,
   TokenUri,
   UninitializedError,
@@ -392,5 +393,13 @@ export class AccountService implements IAccountService {
     PersistenceError
   > {
     return this.dataWalletPersistence.getSiteVisitsMap();
+  }
+  public addSiteVisits(
+    siteVisits: SiteVisit[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.addSiteVisits(siteVisits);
+  }
+  public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
+    return this.dataWalletPersistence.getSiteVisits();
   }
 }

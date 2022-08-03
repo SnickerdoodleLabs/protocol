@@ -137,21 +137,30 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-    const savedSiteVisits = LocalStorageUtils.readLocalStorage(
+
+    let savedSiteVisits = LocalStorageUtils.readLocalStorage(
       ELocalStorageKey.SITE_VISITS,
     );
-    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.SITE_VISITS, [
-      ...(savedSiteVisits ?? []),
-      siteVisits,
-    ]);
+    if (savedSiteVisits == null){
+      savedSiteVisits = [];
+    }
+    var totalVisits = savedSiteVisits.concat(siteVisits);
+    LocalStorageUtils.writeLocalStorage(ELocalStorageKey.SITE_VISITS, savedSiteVisits.concat(siteVisits));
     return okAsync(undefined);
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
-    return this._checkAndRetrieveValue<SiteVisit[]>(
+    /*
+    const checkVal = this._checkAndRetrieveValue<SiteVisit[]>(
       ELocalStorageKey.SITE_VISITS,
       [],
     );
+    */
+    const savedSiteVisits = LocalStorageUtils.readLocalStorage(
+      ELocalStorageKey.SITE_VISITS,
+    );
+    //console.log("savedSiteVisits: ", savedSiteVisits);
+    return okAsync(savedSiteVisits);
   }
 
   public addAccount(
@@ -500,8 +509,19 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     return this.getSiteVisits().andThen((siteVisits) => {
       const result = new Map<URLString, number>();
       siteVisits.forEach((siteVisit, _i, _arr) => {
-        const baseUrl = new URL(siteVisit.url).pathname;
+        /*
+        console.log("siteVisit: ", siteVisit);
+        console.log("_i: ", _i);
+        console.log("_arr: ", _arr); 
+        */    
+        // const baseUrl = new URL(siteVisit.url).pathname;
+        let url = siteVisit.url;
+        //console.log("url: ", url);     
+        //let urlval = new URL(url);
+        let baseUrl = URLString(url);
+        //console.log("path: ", baseUrl);
         baseUrl in result || (result[baseUrl] = 0);
+        //console.log("baseUrl: ", baseUrl);
         result[baseUrl] += 1;
       });
       return okAsync(result);
