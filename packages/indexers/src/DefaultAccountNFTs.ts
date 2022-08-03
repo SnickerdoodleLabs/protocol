@@ -11,13 +11,12 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { MoralisEVMNftRepository } from "./MoralisEVMNftRepository";
-
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider";
+import { MoralisEVMNftRepository } from "@indexers/MoralisEVMNftRepository";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository";
 
 @injectable()
