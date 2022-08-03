@@ -70,10 +70,14 @@ export class InsightPlatformSimulator {
     });
 
 
-    this.app.post("/insights/responses", (req, res) => {
-      console.log("Sending to Insight Responses");
-      const consentContractId = EVMContractAddress(req.body.EVMContractAddress);
-      const queryId = IpfsCID(req.body.queyrId);
+    this.app.post("/responses", (req, res) => {
+      //console.log("Sending to Insight Responses");
+      //console.log("Req is this: ", req.body);
+      //console.log("req.body.consentContractId: ", req.body.consentContractId);
+      const newConsentContract = req.body.consentContractId;
+      const consentContractId = EVMContractAddress(req.body.consentContractId);
+      //console.log("consentContractId: ", consentContractId);
+      const queryId = IpfsCID(req.body.queryId);
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
       const returns = JSON.stringify(req.body.returns);
       const signature = Signature(req.body.signature);
@@ -85,18 +89,25 @@ export class InsightPlatformSimulator {
         returns
       }
 
+      res.send("Insights received successfully!");
+      /*
       return this.cryptoUtils
       .verifyTypedData(snickerdoodleSigningDomain, insightDeliveryTypes, value, signature)
       .andThen((verificationAddress) => {
+        console.log("verificationAddress: ", verificationAddress);
         if (verificationAddress !== dataWallet) {
 					//return okAsync(false);
+          console.log("In bad wallet: ");
           res.send("Error: Type Data Not Verified");
 				}
 				return okAsync(null);
       })
       .andThen( () => {
+        console.log("from promise 1: ");
+
         return ResultAsync.fromPromise(this.blockchain.getConsentContract(consentContractId) as unknown as Promise<ConsentContract>,
         (e) => {
+          console.log("from promise 2: ");
           return new ConsentContractError(
             "Unable to call getConsentContract()",
             (e as ConsentContractError).reason,
@@ -104,16 +115,20 @@ export class InsightPlatformSimulator {
           );
         })
       }).andThen( (contract) => {
+        console.log("contract: ", contract);
         return contract.getConsentTokensOfAddress(dataWallet);
       }).andThen((tokens) => {
+        console.log("tokens: ", tokens);
 				if (tokens.length > 0) {
           return okAsync(null);
 				}
+        console.log("tokens error: ");
         res.send("Error: Wallet has no Consent Tokens");
         return errAsync(" Wallet has no Consent Tokens");
 			}).map(() => {
         res.send("Insights received successfully!");
       });
+      */
     })
 
 
@@ -242,6 +257,7 @@ export class InsightPlatformSimulator {
         }),
       )
       .andThen((cid) => {
+        console.log("INSIDE SIMULATOR POST QUERY!");
         // Need to create a consent contract
         return this.blockchain
           .createConsentContract(
@@ -252,6 +268,8 @@ export class InsightPlatformSimulator {
             cid,
           )
           .andThen((contractAddress) => {
+            console.log("BEAT CREATE CONSENT CONTRACT!");
+
             const consentContract =
               this.blockchain.getConsentContract(contractAddress);
 
@@ -260,11 +278,15 @@ export class InsightPlatformSimulator {
             );
             this.consentContracts.push(contractAddress);
 
+            console.log("consent contracts this domain: ", this.consentContracts);
+
             // Add a few URLs
             // We need to do this
             return consentContract
               .addDomain(`${domain}/url/1`)
               .andThen(() => {
+                console.log("addDomained this domain: ", domain);
+
                 return consentContract.addDomain(`${domain}/url/2`);
               })
               .map(() => {

@@ -104,19 +104,19 @@ export class AST_Evaluator {
      * it calls the right function to evaluate one and return the value
      */
 
-    console.log("LOOKIE HERE!: YOUR VALUE IS HERE!");
+    //console.log("LOOKIE HERE!: YOUR VALUE IS HERE!");
     if (TypeChecker.isPrimitiveExpr(expr)) {
-      console.log("TypeChecker.isPrimitiveExpr(expr)");
+      //console.log("TypeChecker.isPrimitiveExpr(expr)");
       const val = SDQL_Return((expr as AST_Expr).source as SDQL_Return);
       return okAsync(val);
     } else {
-      console.log("ELSE STATEMENT");
+      //console.log("ELSE STATEMENT");
       const evaluator = this.expMap.get(expr.constructor);
-      console.log("evaluator: ", evaluator);
+      //console.log("evaluator: ", evaluator);
 
       if (evaluator) {
         const val = evaluator.apply(this, [expr]); // Always returns ResultAsync
-        console.log("val: ", val);
+        //console.log("val: ", val);
         return val;
       } else {
         return errAsync(new EvalNotImplementedError(typeof expr));

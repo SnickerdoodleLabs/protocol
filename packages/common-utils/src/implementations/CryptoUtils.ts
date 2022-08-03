@@ -91,6 +91,16 @@ export class CryptoUtils implements ICryptoUtils {
     value: Record<string, unknown>,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
+    console.log("Domain: ", domain);
+    console.log("types: ", types);
+    console.log("value: ", value);
+    console.log("signature: ", signature);
+    console.log("ethers.utils.verifyTypedData(domain, types, value, signature): ", ethers.utils.verifyTypedData(domain, types, value, signature));
+    console.log("EVMAccountAddress(ethers.utils.verifyTypedData(domain, types, value, signature)): ", EVMAccountAddress(
+      ethers.utils.verifyTypedData(domain, types, value, signature),
+    ));
+
+
     return okAsync(
       EVMAccountAddress(
         ethers.utils.verifyTypedData(domain, types, value, signature),
