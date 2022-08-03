@@ -58,6 +58,8 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
+  IBlockchainProvider,
+  IBlockchainProviderType,
 } from "@core/interfaces/utilities";
 import {
   IContractFactory,
@@ -81,6 +83,8 @@ export class InvitationService implements IInvitationService {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
+    @inject(IBlockchainProviderType)
+    protected blockchainProvider: IBlockchainProvider,
   ) {}
 
   public checkInvitationStatus(
@@ -365,25 +369,27 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | IPFSError
   > {
-    return this.getConsentContractAddressesFromDNS(domain)
-      .andThen((contractAddresses) => {
-        // Now, for each contract that the domain lists, get stuff
-        return this.contractFactory
-          .factoryConsentContracts(contractAddresses)
-          .andThen((consentContracts) => {
-            return ResultUtils.combine(
-              consentContracts.map((consentContract) => {
-                return this.getInvitationsFromConsentContract(
-                  domain,
-                  consentContract,
-                );
-              }),
-            );
-          });
-      })
-      .map((invitations) => {
-        return invitations.flat();
-      });
+    return this.blockchainProvider.initialize().andThen(() => {
+      return this.getConsentContractAddressesFromDNS(domain)
+        .andThen((contractAddresses) => {
+          // Now, for each contract that the domain lists, get stuff
+          return this.contractFactory
+            .factoryConsentContracts(contractAddresses)
+            .andThen((consentContracts) => {
+              return ResultUtils.combine(
+                consentContracts.map((consentContract) => {
+                  return this.getInvitationsFromConsentContract(
+                    domain,
+                    consentContract,
+                  );
+                }),
+              );
+            });
+        })
+        .map((invitations) => {
+          return invitations.flat();
+        });
+    });
   }
 
   protected getInvitationsFromConsentContract(

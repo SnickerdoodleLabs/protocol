@@ -31,6 +31,7 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { findIndex } from "rxjs";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 
 let coreGateway;
 let notificationEmitter;
@@ -107,9 +108,10 @@ const App = () => {
 
   const initiateCohort = async () => {
     coreGateway
-      .getInvitationsByDomain(window.location.hostname as DomainName)
+      .getInvitationsByDomain("snickerdoodle-protocol.snickerdoodle.dev" as DomainName)
       .map((result) => {
-        if (typeof result !== undefined) {
+        console.log("res",result)
+        if (result !== DEFAULT_RPC_SUCCESS_RESULT) {
           setInvitationDomain(result);
           initiateRewardPopup(result);
         }

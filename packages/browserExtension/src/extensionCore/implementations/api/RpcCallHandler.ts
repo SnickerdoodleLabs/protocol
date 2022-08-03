@@ -46,6 +46,7 @@ import {
   PageInvitation,
   ConsentConditions,
   UUID,
+  InvitationDomain,
 } from "@snickerdoodlelabs/objects";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -53,7 +54,7 @@ import {
   PendingJsonRpcResponse,
 } from "json-rpc-engine";
 
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { Runtime } from "webextension-polyfill";
 import { AsyncRpcResponseSender } from "@implementations/utilities";
 import { ExtensionMetatransactionError } from "@shared/objects/errors";
@@ -201,9 +202,9 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
       case EExternalActions.ACCEPT_INVITATION: {
-        const { consentConditions,id } = params as IAcceptInvitationParams;
+        const { consentConditions, id } = params as IAcceptInvitationParams;
         return new AsyncRpcResponseSender(
-          this.acceptInvitation(consentConditions,id),
+          this.acceptInvitation(consentConditions, id),
           res,
         ).call();
       }
@@ -224,10 +225,38 @@ export class RpcCallHandler implements IRpcCallHandler {
     }
   }
 
-  private getInvitationsByDomain(
-    domain: DomainName,
-  ): ResultAsync<any, SnickerDoodleCoreError> {
+  private getInvitationsByDomain(domain: DomainName): ResultAsync<(InvitationDomain & {
+    id: UUID;
+}) | undefined, SnickerDoodleCoreError> {
     return this.invitationService
+      .getInvitationByDomain(domain)
+      .andThen((pageInvitations) => {
+        console.log("pageInvitations",pageInvitations);
+        const pageInvitation = pageInvitations.find(
+          (value) => value.domainDetails.domain === domain,
+        );
+        if (pageInvitation) {
+          return this.invitationService
+            .checkInvitationStatus(pageInvitation.invitation)
+            .andThen((invitationStatus) => {
+              console.log("invitationStatus",invitationStatus);
+              if (invitationStatus === EInvitationStatus.New) {
+                const invitationUUID = this.contextProvider.addInvitation(
+                  pageInvitation.invitation,
+                );
+                return okAsync(Object.assign(pageInvitation.domainDetails, {
+                  id: invitationUUID,
+                }));
+              } else {
+                return okAsync(undefined);
+              }
+            });
+        } else {
+          return okAsync(undefined);
+        }
+      });
+
+    /*  return this.invitationService
       .getInvitationByDomain(domain)
       .map((pageInvitations: PageInvitation[]) => {
         const pageInvitation = pageInvitations.find(
@@ -251,20 +280,23 @@ export class RpcCallHandler implements IRpcCallHandler {
         } else {
           return undefined;
         }
-      });
+      }); */
   }
   private acceptInvitation(
     consentConditions: ConsentConditions | null,
-    id:UUID
+    id: UUID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-   const invitation = this.contextProvider.getInvitation(id) as Invitation;
-   return this.invitationService.acceptInvitation(invitation,consentConditions);
+    const invitation = this.contextProvider.getInvitation(id) as Invitation;
+    return this.invitationService.acceptInvitation(
+      invitation,
+      consentConditions,
+    );
   }
   private rejectInvitation(
-    id:UUID
+    id: UUID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-   const invitation = this.contextProvider.getInvitation(id) as Invitation;
-   return this.invitationService.rejectInvitation(invitation);
+    const invitation = this.contextProvider.getInvitation(id) as Invitation;
+    return this.invitationService.rejectInvitation(invitation);
   }
 
   private unlock(

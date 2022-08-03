@@ -61,7 +61,11 @@ import {
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
-import { DomainName, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import {
+  DomainName,
+  IConfigOverrides,
+  ISnickerdoodleCore,
+} from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 
 // shared
@@ -81,13 +85,13 @@ export class ExtensionCore {
   protected accountService: IAccountService;
   protected portConnectionService: IPortConnectionService;
   protected piiService: IPIIService;
-  protected invitationService: IInvitationService
+  protected invitationService: IInvitationService;
 
   // Data
   protected accountRepository: IAccountRepository;
   protected portConnectionRepository: IPortConnectionRepository;
   protected piiRepository: IPIIRepository;
-  protected invitationRepository: IInvitationRepository
+  protected invitationRepository: IInvitationRepository;
 
   // Utils
   protected contextProvider: IContextProvider;
@@ -107,8 +111,15 @@ export class ExtensionCore {
   protected configProvider: IConfigProvider;
 
   constructor() {
-    this.core = new SnickerdoodleCore(undefined, new LocalStoragePersistence());
+    const persistence = new LocalStoragePersistence();
 
+    this.configProvider = ConfigProvider;
+    this.core = new SnickerdoodleCore(
+      {
+        defaultInsightPlatformBaseUrl: "http://localhost:8545",
+      } as IConfigOverrides,
+      persistence,
+    );
     this.configProvider = ConfigProvider;
 
     this.contextProvider = new ContextProvider(this.configProvider);
@@ -129,14 +140,20 @@ export class ExtensionCore {
     this.piiRepository = new PIIRepository(this.core, this.errorUtils);
     this.piiService = new PIIService(this.piiRepository);
 
-    this.invitationRepository = new InvitationRepository(this.core,this.errorUtils)
-    this.invitationService = new InvitationService(this.invitationRepository,this.contextProvider)
+    this.invitationRepository = new InvitationRepository(
+      this.core,
+      this.errorUtils,
+    );
+    this.invitationService = new InvitationService(
+      this.invitationRepository,
+      this.contextProvider,
+    );
 
     this.rpcCallHandler = new RpcCallHandler(
       this.contextProvider,
       this.accountService,
       this.piiService,
-      this.invitationService
+      this.invitationService,
     );
 
     this.rpcEngineFactory = new RpcEngineFactory(
