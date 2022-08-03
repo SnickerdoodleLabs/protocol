@@ -42,6 +42,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       chainConfig,
       controlChainInformation,
       URLString("http://localhost:5001/api/v0"),
+      URLString("https://ipfs.io/ipfs/"),
       URLString("http://localhost:3006"),
       snickerdoodleSigningDomain,
       5000, // polling interval indexing,
@@ -64,8 +65,10 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       overrides.supportedChains ?? this.config.supportedChains;
     this.config.providerAddress =
       overrides.providerAddress ?? this.config.providerAddress;
-    this.config.ipfsNodeAddress =
-      overrides.ipfsNodeAddress ?? this.config.ipfsNodeAddress;
+    this.config.privateIpfsNodeAddress =
+      overrides.privateIpfsNodeAddress ?? this.config.privateIpfsNodeAddress;
+    this.config.publicIpfsNodeAddress =
+      overrides.publicIpfsNodeAddress ?? this.config.publicIpfsNodeAddress;
     this.config.defaultInsightPlatformBaseUrl =
       overrides.defaultInsightPlatformBaseUrl ??
       this.config.defaultInsightPlatformBaseUrl;
