@@ -91,8 +91,6 @@ const devAccountKeys = [
 const blockchain = new BlockchainStuff(devAccountKeys);
 const ipfs = new IPFSClient();
 
-
-//const consentContractRepo = new ConsentContractRepository();
 const simulator = new InsightPlatformSimulator(blockchain, ipfs);
 const cryptoUtils = new CryptoUtils();
 const languageCode = LanguageCode("en");

@@ -252,7 +252,6 @@ export class InsightPlatformSimulator {
         }),
       )
       .andThen((cid) => {
-        console.log("INSIDE SIMULATOR POST QUERY!");
         // Need to create a consent contract
         return this.blockchain
           .createConsentContract(

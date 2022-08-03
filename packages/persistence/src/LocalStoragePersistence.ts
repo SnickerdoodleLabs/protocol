@@ -533,9 +533,6 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-
-    console.log("Transactions Map!");
-    
     this.getLatestTransactionForAccount(
       ChainId(42),
       EVMAccountAddress("0xd4908f76d7dd381f7091667e5b9cf67089b7c6f8"),
