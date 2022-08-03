@@ -1,5 +1,5 @@
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
-import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import { CryptoUtils, ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { ConsentContract, IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BigNumberString,
   ConsentContractError,
@@ -10,6 +10,7 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   HexString,
+  IpfsCID,
   ISDQLQueryObject,
   SDQLString,
   Signature,
@@ -19,14 +20,18 @@ import {
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
+  insightDeliveryTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
-import { ResultAsync, okAsync, errAsync } from "neverthrow";
+import { ResultAsync, okAsync, errAsync, Result } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { IPFSClient } from "@test-harness/IPFSClient";
+import { IConsentContractRepository, IConsentContractRepositoryType } from "@core/interfaces/data";
+import { inject } from "inversify";
+
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
@@ -39,6 +44,10 @@ export class InsightPlatformSimulator {
   public constructor(
     protected blockchain: BlockchainStuff,
     protected ipfs: IPFSClient,
+/*
+    @inject(IConsentContractRepositoryType) 
+    protected consentContractsRepository: IConsentContractRepository,
+    */
   ) {
     this.app = express();
 
@@ -59,6 +68,54 @@ export class InsightPlatformSimulator {
         }),
       });
     });
+
+
+    this.app.post("/insights/responses", (req, res) => {
+      console.log("Sending to Insight Responses");
+      const consentContractId = EVMContractAddress(req.body.EVMContractAddress);
+      const queryId = IpfsCID(req.body.queyrId);
+      const dataWallet = EVMAccountAddress(req.body.dataWallet);
+      const returns = JSON.stringify(req.body.returns);
+      const signature = Signature(req.body.signature);
+
+      const value = {
+        consentContractId,
+        queryId,
+        dataWallet,
+        returns
+      }
+
+      return this.cryptoUtils
+      .verifyTypedData(snickerdoodleSigningDomain, insightDeliveryTypes, value, signature)
+      .andThen((verificationAddress) => {
+        if (verificationAddress !== dataWallet) {
+					//return okAsync(false);
+          res.send("Error: Type Data Not Verified");
+				}
+				return okAsync(null);
+      })
+      .andThen( () => {
+        return ResultAsync.fromPromise(this.blockchain.getConsentContract(consentContractId) as unknown as Promise<ConsentContract>,
+        (e) => {
+          return new ConsentContractError(
+            "Unable to call getConsentContract()",
+            (e as ConsentContractError).reason,
+            e,
+          );
+        })
+      }).andThen( (contract) => {
+        return contract.getConsentTokensOfAddress(dataWallet);
+      }).andThen((tokens) => {
+				if (tokens.length > 0) {
+          return okAsync(null);
+				}
+        res.send("Error: Wallet has no Consent Tokens");
+        return errAsync(" Wallet has no Consent Tokens");
+			}).map(() => {
+        res.send("Insights received successfully!");
+      });
+    })
+
 
     this.app.post("/metatransaction", (req, res) => {
       // Gather all the parameters

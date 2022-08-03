@@ -57,6 +57,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { IPFSClient } from "@extension-onboarding/packages/test-harness/src/IPFSClient";
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
+import { ConsentContractRepository } from "@core/implementations/data";
 
 // https://github.com/SBoudrias/Inquirer.js
 
@@ -90,6 +91,8 @@ const devAccountKeys = [
 const blockchain = new BlockchainStuff(devAccountKeys);
 const ipfs = new IPFSClient();
 
+
+//const consentContractRepo = new ConsentContractRepository();
 const simulator = new InsightPlatformSimulator(blockchain, ipfs);
 const cryptoUtils = new CryptoUtils();
 const languageCode = LanguageCode("en");
@@ -256,7 +259,9 @@ function corePrompt(): ResultAsync<void, Error> {
       value: "optOutCampaign",
     },
     new inquirer.Separator(),
-    { name: "Set Age", value: "setAge" },
+    { name: "Set Age to 15", value: "setAge to 15" },
+    new inquirer.Separator(),
+    { name: "Set Age to 0", value: "setAge to 0" },
     new inquirer.Separator(),
     { name: "Get Age", value: "getAge" },
     new inquirer.Separator(),
@@ -318,9 +323,12 @@ function corePrompt(): ResultAsync<void, Error> {
         return optInCampaign();
       case "optOutCampaign":
         return optOutCampaign();
-      case "setAge":
+      case "setAge to 15":
         console.log("Age is set to 15");
         return core.setAge(Age(15));
+      case "setAge to 0":
+        console.log("Age is set to 0");
+        return core.setAge(Age(0));
       case "getAge":
         return core.getAge().map(console.log);
       case "setGender":
