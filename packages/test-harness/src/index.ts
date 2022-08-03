@@ -72,14 +72,13 @@ const simulator = new InsightPlatformSimulator(blockchain, ipfs);
 const cryptoUtils = new CryptoUtils();
 const languageCode = LanguageCode("en");
 
-const domainName = DomainName("snickerdoodle.dev");
+const domainName = DomainName("snickerdoodle.com");
+const domainName2 = DomainName("snickerdoodle.com/blog");
 
 const consentContracts = new Array<EVMContractAddress>();
 const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
-
-
 
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
@@ -183,7 +182,6 @@ core.getEvents().map(async (events) => {
     await mainPrompt();
   }
 });
-
 
 function mainPrompt(): ResultAsync<void, Error> {
   return prompt([
@@ -315,7 +313,7 @@ function createCampaign(): ResultAsync<
   ConsentFactoryContractError | ConsentContractError | Error
 > {
   return simulator
-    .createCampaign(domainName)
+    .createCampaign([domainName, domainName2])
     .mapErr((e) => {
       console.error(e);
       return e;
