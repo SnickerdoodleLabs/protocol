@@ -1,8 +1,4 @@
-import { Err, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-
-import { EVMEvent } from "./EVMEvent";
-
+import { EVMEvent } from "@objects/businessObjects";
 import {
   ChainId,
   EVMAccountAddress,
