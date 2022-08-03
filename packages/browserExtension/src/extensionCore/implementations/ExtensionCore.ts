@@ -58,7 +58,10 @@ import {
 } from "@implementations/api";
 
 // core package
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import {
+  SnickerdoodleCore,
+  ConfigProvider as CoreConfigProvider,
+} from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
 import {
@@ -76,6 +79,11 @@ import ConfigProvider from "@shared/utils/ConfigProvider";
 
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { InvitationRepository } from "./data/InvitationRepository";
+import {
+  DefaultAccountBalances,
+  DefaultAccountNFTs,
+} from "@snickerdoodlelabs/indexers";
+import { AxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 
 export class ExtensionCore {
   // snickerdooldle Core
@@ -111,7 +119,13 @@ export class ExtensionCore {
   protected configProvider: IConfigProvider;
 
   constructor() {
-    const persistence = new LocalStoragePersistence();
+    const configProvider = new CoreConfigProvider();
+    const ajaxUtils = new AxiosAjaxUtils();
+    const persistence = new LocalStoragePersistence(
+      configProvider,
+      new DefaultAccountNFTs(configProvider, ajaxUtils),
+      new DefaultAccountBalances(configProvider, ajaxUtils),
+    );
 
     this.configProvider = ConfigProvider;
     this.core = new SnickerdoodleCore(

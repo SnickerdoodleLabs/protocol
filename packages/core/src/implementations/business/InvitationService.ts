@@ -58,8 +58,6 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-  IBlockchainProvider,
-  IBlockchainProviderType,
 } from "@core/interfaces/utilities";
 import {
   IContractFactory,
@@ -85,8 +83,6 @@ export class InvitationService implements IInvitationService {
     protected blockchainProvider: IBlockchainProvider,
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
-    @inject(IBlockchainProviderType)
-    protected blockchainProvider: IBlockchainProvider,
   ) {}
 
   public checkInvitationStatus(
