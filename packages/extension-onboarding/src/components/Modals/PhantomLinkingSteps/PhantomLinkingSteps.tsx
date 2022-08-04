@@ -8,7 +8,8 @@ import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
 const PhantomLinkingSteps: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
-  const { onPrimaryButtonClick,customProps } = modalState;
+  const { onPrimaryButtonClick, customProps } = modalState;
+  const { accountAddress } = customProps;
 
   const classes = useStyles();
   return (
@@ -18,7 +19,19 @@ const PhantomLinkingSteps: FC = () => {
           Account Already Linked
         </Typography>
         <Box bgcolor="#FFF3DF" mt={6} p={1.25}>
-          <Typography>{`You have already linked the ${customProps?.accountAddress} account.`}</Typography>
+          <Typography className={classes.description}>
+            You have already linked the
+            <span className={classes.accountTxt}>
+              {accountAddress
+                ? " " +
+                  accountAddress.slice(0, 5) +
+                  "................" +
+                  accountAddress.slice(-4) +
+                  " "
+                : " "}
+            </span>
+            account.
+          </Typography>
         </Box>
         <Box mt={3}>
           <Typography className={classes.description}>
@@ -35,7 +48,7 @@ const PhantomLinkingSteps: FC = () => {
             </Box>
           </Box>
         </Box>
-        <Box display="flex" justifyContent="flex-end"  mt={5}>
+        <Box display="flex" justifyContent="flex-end" mt={5}>
           <PrimaryButton
             onClick={() => {
               onPrimaryButtonClick();

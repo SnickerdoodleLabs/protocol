@@ -1,4 +1,5 @@
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { EModalSelectors } from "@extension-onboarding/components/Modals/";
 import WalletProviderItem from "@extension-onboarding/components/WalletProviders/WalletProviderItem";
 import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviders.style";
 import {
@@ -45,7 +46,7 @@ const WalletProviders: FC = () => {
   const [loading, setIsloading] = useState(false);
   const [selectedProviderKey, setSelectedProviderKey] =
     useState<EWalletProviderKeys>();
-  const { setAlert } = useLayoutContext();
+  const { setAlert, setModal } = useLayoutContext();
 
   useEffect(() => {
     window.sdlDataWallet.on(
@@ -151,7 +152,7 @@ const WalletProviders: FC = () => {
           message: ALERT_MESSAGES.ACCOUNT_ADDED,
           severity: EAlertSeverity.SUCCESS,
         });
-      })
+      });
   };
 
   const { detectedProviders, unDetectedProviders, walletConnect } =
@@ -179,8 +180,6 @@ const WalletProviders: FC = () => {
       );
     }, [providerList.length]);
 
-  console.log(walletConnect?.provider.config);
-
   const onProviderConnectClick = useCallback(
     (providerObj: IProvider) => {
       setSelectedProviderKey(providerObj.key);
@@ -198,6 +197,12 @@ const WalletProviders: FC = () => {
                   return window.sdlDataWallet.unlock(account, signature);
                 }
                 return window.sdlDataWallet.addAccount(account, signature);
+              } else {
+                setModal({
+                  modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
+                  onPrimaryButtonClick: () => {},
+                  customProps: { accountAddress: account },
+                });
               }
               return okAsync(undefined);
             });
