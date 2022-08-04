@@ -10,6 +10,8 @@ The Snickerdoodle Protocol (the *Protocol*) is a decentralized platform for priv
 
 The Snickerdoodle Protocol consists of *on-chain* and *off-chain* components. The on-chain component of the protocol consists of a series of [Solidity](https://soliditylang.org/) contracts contained in the [contracts package](/packages/contracts/README.md). The main functions of the on-chain protocol are governance, auditable consent tracking, and querying the DW network for insights. The off-chain part of the protocol is primarily characterized by the [Snickerdoodle Core](/packages/core/README.md), which is a typescript package that can be leveraged as the kernel for implementing a data wallet application in a variety of different form factors (i.e. a [browser extension](/packages/browserExtension/README.md), a mobile application, [headless runtime](/packages/test-harness/README.md), etc.). 
 
+![Data Wallet](/documentation/images/datawallet-architecture.png)
+
 The visualization of insights returned from the DW network requires that a consumer implement an insight aggregation service. Snickerdoodle Labs provides a turn-key SaaS platform for broadcasting, aggregating, and visualizing insights returned from the DW network. However, as the protocol is open and extensible, consumers may implement their own insight aggregation service. 
 
 ## Getting Started
