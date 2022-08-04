@@ -43,6 +43,7 @@ import {
   URLString,
   UnixTimestamp,
   Gender,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import {
@@ -112,11 +113,15 @@ core.getEvents().map(async (events) => {
     console.log(`Initialized with address ${dataWalletAddress}`);
   });
 
-  events.onQueryPosted.subscribe((query) => {
+  events.onQueryPosted.subscribe((queryRequest: SDQLQueryRequest) => {
     console.log(
-      `Recieved query for consentContract ${query.consentContractAddress}`,
+      `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
     );
-    console.log(query.query);
+
+
+    let queryPretty = JSON.stringify(JSON.parse(queryRequest.query.query),null,2); 
+    console.log(queryPretty);
+    // console.log(queryRequest.query);
 
     prompt([
       {
@@ -134,7 +139,7 @@ core.getEvents().map(async (events) => {
           return okAsync(undefined);
         }
 
-        return core.processQuery(query.consentContractAddress, query.query);
+        return core.processQuery(queryRequest.consentContractAddress, queryRequest.query);
       })
       .mapErr((e) => {
         console.error(e);
