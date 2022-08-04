@@ -1,62 +1,35 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
-  artboard: {
-    marginTop: "100px",
-    marginLeft: "20px",
+  bgImage: {
+    position: "absolute",
+    top: -50,
+    zIndex: -1,
+    left: 0,
+    right: 0,
+    marginLeft: "auto",
+    marginRight: "auto",
   },
-  googleButton: {
-    width: "330px !important",
-    height: "52px !important",
-    border: "1px solid #D9D9D9 !important",
-    borderRadius: "8px !important",
-    fontFamily: "'Space Grotesk', sans-serif !important",
-    fontSize: "14px !important",
-    fontWeight: 500,
-    color: "black !important",
-    letterSpacing: "1px !important",
-    justifyContent: "center",
+  content: {
+    left: 0,
+    right: 0,
   },
-  authorizeText: {
-    marginTop: "40px",
-    color: "#232039",
-    fontFamily: "'Space Grotesk'",
-    fontSize: "18px",
+  logo: {
+    width: 385,
   },
-  selectInput: {
-    width: "330px",
-    height: "55px",
-    border: "1px solid #D9D9D9",
-    borderRadius: "8px",
-    paddingLeft: "25px",
-    color: "#929292",
-  },
-  textInput: {
-    border: "1px solid #D9D9D9",
-    width: "330px",
-    height: "55px",
-    borderRadius: "8px",
-    paddingLeft: "25px",
-    color: "#929292",
-  },
-  buildYourProfileText: {
+  title: {
     fontSize: "36px",
+    lineHeight: "52px",
     fontWeight: 400,
     fontStyle: "italic",
-    fontFamily: " 'Shrikhand', cursive ",
-    marginTop: "100px",
+    fontFamily: "Shrikhand, cursive ",
   },
-  infoText: {
+ 
+  description: {
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 400,
-    fontSize: "18px",
+    fontSize: 20,
+    color: "#232039",
+    letterSpacing: "0.035em",
   },
-  buttonContainer: {
-    display: "flex",
-    justifyContent:"flex-end",
-    margin:20
-  },
-  iconText:{
-    paddingLeft: "10px" 
-  }
 }));

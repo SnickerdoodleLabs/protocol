@@ -13,6 +13,8 @@ import {
   Signature,
   UUID,
   BigNumberString,
+  IEVMBalance,
+  IEVMNFT,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -49,6 +51,9 @@ export interface ISdlDataWallet extends EventEmitter {
     metatransactionSignature: Signature,
     nonce: BigNumberString,
   ): ResultAsync<void, unknown>;
+  getAccounts(): ResultAsync<EVMAccountAddress[], unknown>;
+  getAccountBalances(): ResultAsync<IEVMBalance[], unknown>;
+  getAccountNFTs(): ResultAsync<IEVMNFT[], unknown>;
 }
 
 export interface IWindowWithSdlDataWallet extends Window {

@@ -84,19 +84,10 @@ const WalletProviders: FC = () => {
         if (!_web3Provider.getSigner()) {
           return errAsync(undefined);
         }
-
-        provider.getWeb3Provider().andThen((res) => {
-          console.log("coming from next call", res?.getSigner());
-          console.log("coming from next call", res?.getNetwork());
-          return okAsync(undefined);
-        });
-
-        console.log("check for exist one", _web3Provider.getNetwork());
-
         return ResultAsync.fromPromise(
           new MinimalForwarderContract(
             _web3Provider.getSigner(),
-            EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"),
+            provider.config.controlChain.metatransactionForwarderAddress,
           ).getNonce(pendingMetatransaction.data.accountAddress),
           (e) => {
             console.log(e);
@@ -122,10 +113,8 @@ const WalletProviders: FC = () => {
               .getSigner()
               ._signTypedData(
                 getMinimalForwarderSigningDomain(
-                  ChainId(31337),
-                  EVMContractAddress(
-                    "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-                  ),
+                  provider.config.controlChain.chainId,
+                  provider.config.controlChain.metatransactionForwarderAddress,
                 ),
                 forwardRequestTypes,
                 value,
@@ -147,60 +136,22 @@ const WalletProviders: FC = () => {
               });
           });
         });
-      });
-    // // @ts-ignore
-    // const currentChainInfo = await provider.getProvider().getNetwork();
-    // if (currentChainInfo.chainId != 31337) {
-    //   // @ts-ignore
-    //   await window.ethereum.request({
-    //     method: "wallet_addEthereumChain",
-    //     params: [
-    //       {
-    //         chainId: "0x7A69",
-    //         chainName: "Doodle Chain",
-    //         rpcUrls: ["http://localhost:8545"],
-    //       },
-    //     ],
-    //   });
-    // }
-    // // @ts-ignore
-    // const nonceResult = await new MinimalForwarderContract(
-    //   // @ts-ignore
-    //   provider.getSigner(),
-    //   EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"),
-    // ).getNonce(pendingMetatransaction.data.accountAddress);
-
-    // if (nonceResult.isErr()) {
-    //   console.log(nonceResult.error);
-    //   return null;
-    // }
-    // const nonce = nonceResult.value;
-
-    // const value = {
-    //   to: pendingMetatransaction.data.contractAddress,
-    //   from: pendingMetatransaction.data.accountAddress,
-    //   value: BigNumber.from(0),
-    //   gas: BigNumber.from(1000000),
-    //   nonce: BigNumber.from(nonce),
-    //   data: HexString(pendingMetatransaction.data.data),
-    // } as IMinimalForwarderRequest;
-
-    // const signature = await provider
-    //   // @ts-ignore
-    //   .getSigner()
-    //   ._signTypedData(
-    //     getMinimalForwarderSigningDomain(
-    //       ChainId(31337),
-    //       EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"),
-    //     ),
-    //     forwardRequestTypes,
-    //     value,
-    //   );
-    // return window.sdlDataWallet.metatransactionSignatureRequestCallback(
-    //   pendingMetatransaction.key,
-    //   signature,
-    //   nonce,
-    // );
+      })
+      .map(() => {
+        // use it for metadata
+        localStorage.setItem(
+          `${pendingMetatransaction.data.accountAddress}`,
+          providerObj.key,
+        );
+        addAccount({
+          accountAddress: pendingMetatransaction.data.accountAddress,
+          providerKey: providerObj.key,
+        });
+        setAlert({
+          message: ALERT_MESSAGES.ACCOUNT_ADDED,
+          severity: EAlertSeverity.SUCCESS,
+        });
+      })
   };
 
   const { detectedProviders, unDetectedProviders, walletConnect } =
@@ -228,6 +179,8 @@ const WalletProviders: FC = () => {
       );
     }, [providerList.length]);
 
+  console.log(walletConnect?.provider.config);
+
   const onProviderConnectClick = useCallback(
     (providerObj: IProvider) => {
       setSelectedProviderKey(providerObj.key);
@@ -241,18 +194,9 @@ const WalletProviders: FC = () => {
                   (linkedAccount) => linkedAccount.accountAddress === account,
                 )
               ) {
-                addAccount({
-                  key: providerObj.key,
-                  accountAddress: account,
-                  name: providerObj.name,
-                });
                 if (!linkedAccounts.length) {
                   return window.sdlDataWallet.unlock(account, signature);
                 }
-                setAlert({
-                  message: ALERT_MESSAGES.ACCOUNT_ADDED,
-                  severity: EAlertSeverity.SUCCESS,
-                });
                 return window.sdlDataWallet.addAccount(account, signature);
               }
               return okAsync(undefined);

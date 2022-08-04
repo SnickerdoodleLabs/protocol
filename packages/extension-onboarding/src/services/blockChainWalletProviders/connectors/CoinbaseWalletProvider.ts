@@ -89,20 +89,16 @@ export class CoinbaseWalletProvider implements IWalletProvider {
 
     return ResultAsync.fromSafePromise(this._web3Provider.getNetwork())
       .andThen((network) => {
-        if (network.chainId === 31337) {
+        if (network.chainId == this.config.controlChain.chainId) {
           return okAsync(undefined);
         } else {
           return ResultAsync.fromPromise(
             this._web3Provider!.send("wallet_addEthereumChain", [
               {
-                chainId: "0x7A69",
-                chainName: "Doodle Chain",
-                rpcUrls: ["http://localhost:8545"],
-
-                nativeCurrency: { name: "ONE", symbol: "ONE" },
-                iconUrls: [
-                  "https://icodrops.com/wp-content/uploads/2021/06/SnickerdoodleLabs_logo.jpeg",
-                ],
+                chainId: `0x${this.config.controlChain.chainId.toString(16)}`,
+                chainName: this.config.controlChain.name,
+                rpcUrls: this.config.controlChain.providerUrls,
+                nativeCurrency: { name: 'DOODLE', decimals: 18, symbol: 'DOODLE' },
               },
             ]),
             (e) => e,

@@ -107,6 +107,22 @@ module.exports = {
       process: "process/browser",
     }),
     new webpack.DefinePlugin({
+      __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
+      __CONTROL_CHAIN_NAME__: JSON.stringify(
+        process.env.__CONTROL_CHAIN_NAME__ || "Local Doodle Chain",
+      ),
+
+      __CONTROL_CHAIN_ID__: JSON.stringify(
+        process.env.__CONTROL_CHAIN_ID__ || "31337",
+      ),
+      __CONTROL_CHAIN_PROVIDER_URLS__: JSON.stringify(
+        process.env.__CONTROL_CHAIN_PROVIDER_URLS__ || "http://localhost:8545",
+      ),
+
+      __CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS__: JSON.stringify(
+        process.env.__CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS__ ||
+          "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      ),
       __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
       __INFURA_ID__: JSON.stringify(
         process.env.__BUILD_ENV__ === "PROD"

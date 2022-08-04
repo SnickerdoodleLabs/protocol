@@ -21,7 +21,7 @@ const WalletProviderItem: FC<IWalletProviderItemProps> = ({
 
   const accountCount = useMemo(() => {
     return linkedAccounts.reduce((acc, value) => {
-      if (value.key === provider.key) {
+      if (value.providerKey === provider.key) {
         return (acc = acc + 1);
       }
       return acc;

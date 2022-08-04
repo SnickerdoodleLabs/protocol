@@ -5,6 +5,7 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import PersonalData from "./components/PersonalData";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewData/ViewData.style";
 import ChainData from "./components/ChainData";
+import { countries } from "@extension-onboarding/constants/countries";
 
 const ViewData: FC = () => {
   const { changeStepperStatus, linkedAccounts, getUserObject } =
@@ -21,7 +22,7 @@ const ViewData: FC = () => {
             cannot be shared with any other party unless you approve it!
           </p>
 
-          <Box display="flex" alignItems="center">
+          <Box display="flex" alignItems="flex-start">
             <Box
               style={{
                 border: "1px solid #ECECEC",
@@ -41,7 +42,7 @@ const ViewData: FC = () => {
               />
               <Box className={classes.divider}></Box>
               <PersonalData
-                title="BIRTHDAY"
+                title="Date of Birth"
                 information={getUserObject()?.date_of_birth}
               />
               <Box className={classes.divider}></Box>
@@ -57,7 +58,12 @@ const ViewData: FC = () => {
               <Box className={classes.divider}></Box>
               <PersonalData
                 title="COUNTRY"
-                information={getUserObject()?.country_code || "United States"}
+                information={
+                  countries.find(
+                    (country) =>
+                      country.code == getUserObject()?.country_code ?? "US",
+                  )?.name
+                }
               />
             </Box>
 
@@ -75,21 +81,16 @@ const ViewData: FC = () => {
               <Typography className={classes.cardTitle}>
                 On-chain Info
               </Typography>
-              {linkedAccounts.map((account,index) => {
+              {linkedAccounts.map((account, index) => {
                 return (
                   <Box>
-                    <ChainData
-                      account={{
-                        name: account.name,
-                        accountAddress: account.accountAddress,
-                        key: account.key,
-                      }}
-                    />
-                  {index+1 !== linkedAccounts.length && <Box className={classes.dividerChainData} />} 
+                    <ChainData account={account} />
+                    {index + 1 !== linkedAccounts.length && (
+                      <Box className={classes.dividerChainData} />
+                    )}
                   </Box>
                 );
               })}
-
             </Box>
           </Box>
         </Box>

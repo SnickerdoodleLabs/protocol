@@ -11,24 +11,29 @@ import {
   IProvider,
 } from "@extension-onboarding/services/blockChainWalletProviders";
 import { PII } from "@extension-onboarding/services/interfaces/objects";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
+import { ResultAsync } from "neverthrow";
 
 export interface ILinkedAccount {
-  name: string;
-  key: string;
-  accountAddress: string;
-  signature?: string; // TODO shouldn't be undefined
+  providerKey: EWalletProviderKeys;
+  accountAddress: EVMAccountAddress;
 }
 
 export interface IAppContext {
   linkedAccounts: ILinkedAccount[];
   providerList: IProvider[];
-  addAccount: (account: ILinkedAccount) => void;
+  getUserAccounts(): ResultAsync<void, unknown>;
+  addAccount(account: ILinkedAccount): void;
   deleteAccount: (account: ILinkedAccount) => void;
   addUserObject: (account: PII) => void;
   getUserObject: () => PII | undefined;
   changeStepperStatus: (status: string) => void;
   stepperStatus: number;
 }
+
+declare const window: IWindowWithSdlDataWallet;
 
 const AppContext = createContext<IAppContext>({} as IAppContext);
 
@@ -60,12 +65,28 @@ export const AppContextProvider: FC = ({ children }) => {
       const providerList = getProviderList();
       setProviderList(providerList);
       setIsLoading(false);
+      getUserAccounts();
     }, 500);
   };
 
-  const addAccount = (account: ILinkedAccount) => {
-    setLinkedAccounts((prevState) => [...prevState, account]);
+  const getUserAccounts = () => {
+    return window.sdlDataWallet.getAccounts().map((accounts) => {
+      console.log(accounts);
+      const _accounts: ILinkedAccount[] = accounts.map(
+        (account) =>
+          ({
+            accountAddress: account,
+            providerKey: localStorage.getItem(`${account}`),
+          } as ILinkedAccount),
+      );
+      setLinkedAccounts((prev) => [..._accounts]);
+    });
   };
+
+  const addAccount = (account: ILinkedAccount) => {
+    setLinkedAccounts((prev) => [...prev, account]);
+  };
+
   const deleteAccount = (account: ILinkedAccount) => {
     const accounts = linkedAccounts.filter((acc) => acc !== account);
     setLinkedAccounts(accounts);
@@ -93,6 +114,7 @@ export const AppContextProvider: FC = ({ children }) => {
       value={{
         providerList,
         linkedAccounts,
+        getUserAccounts,
         addAccount,
         getUserObject,
         deleteAccount,

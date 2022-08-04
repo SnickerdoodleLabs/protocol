@@ -32,13 +32,13 @@ export const getProviderList = (): IProvider[] => {
       key: EWalletProviderKeys.METAMASK,
       installationUrl: "https://metamask.io/",
     },
-    {
-      provider: new PhantomWalletProvider(config),
-      icon: PhantomIcon,
-      name: "Phantom",
-      key: EWalletProviderKeys.PHANTOM,
-      installationUrl: "https://phantom.app/download",
-    },
+    // {
+    //   provider: new PhantomWalletProvider(config),
+    //   icon: PhantomIcon,
+    //   name: "Phantom",
+    //   key: EWalletProviderKeys.PHANTOM,
+    //   installationUrl: "https://phantom.app/download",
+    // },
     {
       provider: new WalletConnectProvider(config),
       icon: WalleConnectIcon,

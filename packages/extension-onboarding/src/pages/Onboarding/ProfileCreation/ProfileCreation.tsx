@@ -270,7 +270,7 @@ const ProfileCreation: FC = () => {
                         <Box ml={3}>
                           <Box>
                             <FormLabel className={classes.formLabel}>
-                              Date of Birthday
+                              Date of Birth
                             </FormLabel>
                           </Box>
                           <Field

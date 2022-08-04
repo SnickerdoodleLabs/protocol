@@ -3,17 +3,13 @@ import React, { FC, useMemo } from "react";
 
 import tickIcon from "@extension-onboarding/assets/icons/tick.svg";
 import { useStyles } from "@extension-onboarding/components/AccountsCard/components/AccountCardItem/AccountCardItem.style";
-import { useAppContext } from "@extension-onboarding/context/App";
+import { useAppContext, ILinkedAccount } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 
 interface IAccountCardItemProps {
   // TODO write correct interface
-  account: {
-    key: string;
-    accountAddress: string;
-    name: string;
-  };
+  account: ILinkedAccount
 }
 
 const ChainData: FC<IAccountCardItemProps> = ({
@@ -28,7 +24,7 @@ const ChainData: FC<IAccountCardItemProps> = ({
   };
 
   const providerObject = useMemo(
-    () => providerList.find((provider) => provider.key === account.key),
+    () => providerList.find((provider) => provider.key === account.providerKey),
     [providerList, account],
   );
 
@@ -48,18 +44,6 @@ const ChainData: FC<IAccountCardItemProps> = ({
         </Typography>
       </Box>
       <Box className={classes.linkAccountContainer}>
-      <Button
-          onClick={() => {
-            setModal({
-              modalSelector: EModalSelectors.ACCOUNT_UNLINKED,
-              onPrimaryButtonClick
-            });
-          }}
-        style={{color:"#8079B4",fontSize:12,fontWeight:500}}
-        >
-          Unlink Account
-        </Button>
-
         <Button
           onClick={() => {
             setModal({
