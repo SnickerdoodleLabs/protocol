@@ -58,7 +58,10 @@ import {
 } from "@implementations/api";
 
 // core package
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import {
+  SnickerdoodleCore,
+  ConfigProvider as CoreConfigProvider,
+} from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
 import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
@@ -72,10 +75,11 @@ import ConfigProvider from "@shared/utils/ConfigProvider";
 
 import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { InvitationRepository } from "./data/InvitationRepository";
-import { DefaultAccountBalances, DefaultAccountNFTs } from "@snickerdoodlelabs/indexers";
+import {
+  DefaultAccountBalances,
+  DefaultAccountNFTs,
+} from "@snickerdoodlelabs/indexers";
 import { AxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
-
-import { ConfigProvider as CoreConfigProvider } from "@snickerdoodlelabs/core";
 
 export class ExtensionCore {
   // snickerdooldle Core
@@ -85,13 +89,13 @@ export class ExtensionCore {
   protected accountService: IAccountService;
   protected portConnectionService: IPortConnectionService;
   protected piiService: IPIIService;
-  protected invitationService: IInvitationService
+  protected invitationService: IInvitationService;
 
   // Data
   protected accountRepository: IAccountRepository;
   protected portConnectionRepository: IPortConnectionRepository;
   protected piiRepository: IPIIRepository;
-  protected invitationRepository: IInvitationRepository
+  protected invitationRepository: IInvitationRepository;
 
   // Utils
   protected contextProvider: IContextProvider;
@@ -115,7 +119,7 @@ export class ExtensionCore {
     this.configProvider = ConfigProvider;
     this.ajaxUtils = new AxiosAjaxUtils();
 
-    const coreConfigProvider = new CoreConfigProvider()
+    const coreConfigProvider = new CoreConfigProvider();
     const persistence = new ChromeStoragePersistence(
       coreConfigProvider,
       new DefaultAccountNFTs(coreConfigProvider, this.ajaxUtils),
@@ -142,14 +146,20 @@ export class ExtensionCore {
     this.piiRepository = new PIIRepository(this.core, this.errorUtils);
     this.piiService = new PIIService(this.piiRepository);
 
-    this.invitationRepository = new InvitationRepository(this.core,this.errorUtils)
-    this.invitationService = new InvitationService(this.invitationRepository,this.contextProvider)
+    this.invitationRepository = new InvitationRepository(
+      this.core,
+      this.errorUtils,
+    );
+    this.invitationService = new InvitationService(
+      this.invitationRepository,
+      this.contextProvider,
+    );
 
     this.rpcCallHandler = new RpcCallHandler(
       this.contextProvider,
       this.accountService,
       this.piiService,
-      this.invitationService
+      this.invitationService,
     );
 
     this.rpcEngineFactory = new RpcEngineFactory(

@@ -6,6 +6,7 @@ import { SiteContext } from "@implementations/utilities/ContextProvider/SiteCont
 import { IInternalState, IExternalState } from "@shared/interfaces/states";
 import { Subject } from "rxjs";
 import {
+  Invitation,
   MetatransactionSignatureRequest,
   UUID,
 } from "@snickerdoodlelabs/objects";
@@ -89,6 +90,12 @@ export class ContextProvider implements IContextProvider {
     id: UUID,
   ): MetatransactionSignatureRequest | undefined {
     return this.appContext.getMetatransactionSignatureRequestById(id);
+  }
+  public addInvitation(invitation: Invitation): UUID {
+    return this.appContext.addInvitation(invitation);
+  }
+  public getInvitation(id: UUID): Invitation | undefined {
+    return this.appContext.getInvitation(id);
   }
 
   public getInternalState(): IInternalState {

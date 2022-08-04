@@ -4,6 +4,7 @@ import { v4 } from "uuid";
 import { PORT_NOTIFICATION } from "@shared/constants/ports";
 import { okAsync } from "neverthrow";
 import {
+  Invitation,
   MetatransactionSignatureRequest,
   URLString,
   UUID,
@@ -28,12 +29,13 @@ export class AppContext {
       UUID,
       MetatransactionSignatureRequest
     > = new Map(),
+    protected pendingInvitation: Map<UUID, Invitation> = new Map(),
     protected pendingActions: any[] = [],
     protected proccesingAction: any = null,
     protected pendingCohortInvititaitions: Map<
-    string,
-    MetatransactionSignatureRequest
-  > = new Map(),
+      string,
+      MetatransactionSignatureRequest
+    > = new Map(),
   ) {}
 
   public setNotificationOpen(
@@ -52,6 +54,17 @@ export class AppContext {
     this.notificationWindowId = null;
     this.currentNotificationPath = null;
   }
+  public addInvitation(invitation: Invitation): UUID {
+    const id = v4();
+    this.pendingInvitation.set(UUID(id), invitation);
+    return UUID(id);
+  }
+  public getInvitation(id: UUID) {
+  return this.pendingInvitation.get(id);
+  }
+  public removeInvitation(id: UUID) {
+    this.pendingInvitation.delete(id);
+    }
 
   // TODO find smart way to idendify requests
   public addMetatransactionSignatureRequest(
@@ -70,7 +83,7 @@ export class AppContext {
   }
 
   public getMetatransactionSignatureRequestById(id: UUID) {
-   return this.pendingMetatransactionSignatureRequests.get(id);
+    return this.pendingMetatransactionSignatureRequests.get(id);
   }
 
   public async displayPopupNotification(path?: string, cb?: () => void) {
@@ -139,7 +152,10 @@ export class AppContext {
     return Object.values((this.connections[origin] as IPortConnection) ?? {});
   }
 
-  public notifyConnectionPort(rpcEngine: JsonRpcEngine, notification: MTSRNotification) {
+  public notifyConnectionPort(
+    rpcEngine: JsonRpcEngine,
+    notification: MTSRNotification,
+  ) {
     rpcEngine.emit(PORT_NOTIFICATION, notification);
   }
 

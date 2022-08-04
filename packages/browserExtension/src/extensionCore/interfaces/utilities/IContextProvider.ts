@@ -3,6 +3,7 @@ import { AppContext } from "@implementations/utilities/ContextProvider/AppContex
 import { UserContext } from "@implementations/utilities/ContextProvider/UserContext";
 import { IInternalState, IExternalState } from "@shared/interfaces/states";
 import {
+  Invitation,
   MetatransactionSignatureRequest,
   UUID,
 } from "@snickerdoodlelabs/objects";
@@ -25,4 +26,6 @@ export interface IContextProvider {
     id: UUID,
   ): Partial<MetatransactionSignatureRequest> | undefined;
   removePendingMetatransactionSignatureRequest(id: UUID): void;
+  addInvitation(invitation: Invitation): UUID;
+  getInvitation(id: UUID): Invitation | undefined;
 }

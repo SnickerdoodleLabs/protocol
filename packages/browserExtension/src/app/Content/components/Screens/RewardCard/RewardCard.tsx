@@ -4,27 +4,43 @@ import { Box, Typography } from "@material-ui/core";
 import Modal, { useGenericModalStyles } from "../../Modals/Modal";
 
 import { EAPP_STATE, IRewardItem } from "../../../constants";
-import { Invitation } from "@snickerdoodlelabs/objects";
+import { Invitation, UUID } from "@snickerdoodlelabs/objects";
+import { IInvitationDomainWithUUID } from "../../App/App";
+import { ExternalCoreGateway } from "@app/coreGateways";
 
 interface IRewardCardProps {
   changeAppState: (state: EAPP_STATE) => void;
   rewardItem: IRewardItem;
-  cohortInvitation: Invitation | undefined;
+  invitationDomain: IInvitationDomainWithUUID | undefined;
+  coreGateway:ExternalCoreGateway
 }
 
 const RewardCard: React.FC<IRewardCardProps> = ({
   changeAppState,
   rewardItem,
-  cohortInvitation,
+  invitationDomain,
+  coreGateway
 }: IRewardCardProps) => {
+  
+  const acceptInvitation = () =>{
+    coreGateway.acceptInvitation(null,invitationDomain?.id as UUID)
+  }
+  const rejectInvitation = () =>{
+    coreGateway.rejectInvitation(invitationDomain?.id as UUID)
+  }
+
+
+
   const modalClasses = useGenericModalStyles();
 
   const onPrimaryButtonClick = () => {
     changeAppState(EAPP_STATE.CONNECT_WALLET);
+    acceptInvitation();
   };
 
   const onSecondaryButtonClick = () => {
     changeAppState(EAPP_STATE.DISMISSED);
+    rejectInvitation();
   };
 
   return (

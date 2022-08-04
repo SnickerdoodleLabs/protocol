@@ -20,12 +20,15 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
+  ConsentConditions,
 } from "@snickerdoodlelabs/objects";
 import {
+  IAcceptInvitationParams,
   IAddAccountParams,
   IGetInvitationWithDomainParams,
   IGetUnlockMessageParams,
   IMetatransactionSignatureRequestCallbackParams,
+  IRejectInvitationParams,
   ISetAgeParams,
   ISetBirthdayParams,
   ISetEmailParams,
@@ -37,6 +40,7 @@ import {
 } from "@shared/interfaces/actions";
 
 export class ExternalCoreGateway {
+  [x: string]: any;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -51,6 +55,23 @@ export class ExternalCoreGateway {
     return this._handler.call(
       EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN,
       { domain } as IGetInvitationWithDomainParams,
+    );
+  }
+  public acceptInvitation(
+    consentConditions: ConsentConditions | null,
+    id:UUID
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(
+      EExternalActions.ACCEPT_INVITATION,
+      { consentConditions,id } as IAcceptInvitationParams,
+    );
+  }
+  public rejectInvitation(
+    id:UUID
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(
+      EExternalActions.REJECT_INVITATION,
+      {id } as IRejectInvitationParams,
     );
   }
 

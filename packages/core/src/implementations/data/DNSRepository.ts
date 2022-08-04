@@ -4,7 +4,7 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { AjaxError, DomainName } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { urlJoinP } from "url-join-ts";
 
 import { IDNSRepository } from "@core/interfaces/data/IDNSRepository";
@@ -20,7 +20,7 @@ export class DNSRepository implements IDNSRepository {
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
-  public fetchTXTRecords(domain: DomainName): ResultAsync<string[], AjaxError> {
+  public fetchTXTRecords(domain: DomainName): ResultAsync<string[], AjaxError > {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
@@ -32,12 +32,16 @@ export class DNSRepository implements IDNSRepository {
         );
         return this.ajaxUtil.get<IGetTxtRecordsResponse>(url, {
           headers: { Accept: "application/dns-json" },
-        });
+        })
       })
       .map((response) => {
+        console.log("fetchTxt",response);
         return response.Answer.map((txtRecord) => {
           return txtRecord.data;
         });
+      }).orElse((error) => {
+        console.log('error from fetchTXTRecords', error)
+        return errAsync(error);
       });
   }
 
