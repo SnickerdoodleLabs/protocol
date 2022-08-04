@@ -1,7 +1,10 @@
 import artboardImage from "@extension-onboarding/assets/images/artboard.png";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
+import { ALERT_MESSAGES } from "@extension-onboarding/constants";
 import { countries } from "@extension-onboarding/constants/countries";
 import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import {
   googleScopes,
   clientID,
@@ -33,6 +36,8 @@ declare const window: IWindowWithSdlDataWallet;
 const ProfileCreation: FC = () => {
   const apiGateway = new ApiGateway();
   const { changeStepperStatus, addUserObject } = useAppContext();
+  const { setAlert } = useLayoutContext();
+  const [isGoogleButtonVisible, setGoogleButtonVisible] = useState(true);
   const [formValues, setFormValues] = useState<PII>(new PII());
 
   // TODO move below to right place
@@ -170,6 +175,11 @@ const ProfileCreation: FC = () => {
       res?.googleId,
     ).map((res) => {
       setFormValues(res);
+      setGoogleButtonVisible(false);
+      setAlert({
+        message: ALERT_MESSAGES.PROFILE_FILLED_WITH_GOOGLE_DATA,
+        severity: EAlertSeverity.SUCCESS,
+      });
     });
   };
   const onFailure = (res) => {
@@ -187,9 +197,7 @@ const ProfileCreation: FC = () => {
     <Box mt={15}>
       <Box display="flex">
         <Box width={700}>
-          <Typography className={classes.title}>
-            Built for All Chains
-          </Typography>
+          <Typography className={classes.title}>Built your Profile</Typography>
           <Box mb={5} mt={4}>
             <Typography className={classes.description}>
               This information is for your data wallet. No one has access to
@@ -197,6 +205,24 @@ const ProfileCreation: FC = () => {
               <br></br> or any other information in your data wallet unless you
               choose to <br></br> share it with them!
             </Typography>
+            {isGoogleButtonVisible && (
+              <>
+                <Box mt={5} mb={2}>
+                  <Typography className={classes.socialLoginTitle}>
+                    Build your Profile by Linking your Data from Google
+                  </Typography>
+                </Box>
+                <GoogleLogin
+                  clientId={clientID}
+                  className={classes.googleButton}
+                  buttonText="Link your data from Google"
+                  onSuccess={onSuccess}
+                  onFailure={onFailure}
+                  cookiePolicy={"single_host_origin"}
+                  isSignedIn={false}
+                />
+              </>
+            )}
           </Box>
 
           <Box>
@@ -359,21 +385,6 @@ const ProfileCreation: FC = () => {
                           </Box>
                         </Box>
                       </Box>
-
-                      <Box mt={5} mb={2}>
-                        <Typography className={classes.socialLoginTitle}>
-                          Or Build your Profile by Linking your Data from Google
-                        </Typography>
-                      </Box>
-                      <GoogleLogin
-                        clientId={clientID}
-                        className={classes.googleButton}
-                        buttonText="Link your data from Google"
-                        onSuccess={onSuccess}
-                        onFailure={onFailure}
-                        cookiePolicy={"single_host_origin"}
-                        isSignedIn={false}
-                      />
                     </Form>
                   );
                 }}

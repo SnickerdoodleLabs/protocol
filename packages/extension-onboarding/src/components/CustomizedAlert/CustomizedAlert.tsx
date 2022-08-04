@@ -37,9 +37,10 @@ const CustomizedAlert: FC<ICustomizedAlertProps> = ({
 
   return (
     <Snackbar
-      // TransitionComponent={(props) => <Slide {...props} direction="left" />}
-      autoHideDuration={15000}
+      TransitionComponent={(props) => <Slide {...props} direction="down" />}
+      autoHideDuration={5000}
       open={true}
+      className={classes.container}
       onClose={handleClose}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
     >
