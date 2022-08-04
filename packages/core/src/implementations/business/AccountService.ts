@@ -111,60 +111,78 @@ export class AccountService implements IAccountService {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.loginRegistryRepo.getCrumb(accountAddress, languageCode),
-    ]).andThen(([context, encryptedDataWalletKey]) => {
-      // You can't unlock if we're already unlocked!
-      if (context.dataWalletAddress != null || context.unlockInProgress) {
-        // TODO: Need to consider the error type here, I'm getting lazy
-        return errAsync(
-          new InvalidSignatureError("Unlock already in progress!"),
-        );
-      }
+    ])
+      .andThen(([context, encryptedDataWalletKey]) => {
+        // You can't unlock if we're already unlocked!
+        if (context.dataWalletAddress != null || context.unlockInProgress) {
+          // TODO: Need to consider the error type here, I'm getting lazy
+          return errAsync(
+            new InvalidSignatureError("Unlock already in progress!"),
+          );
+        }
 
-      // Need to update the context
-      context.unlockInProgress = true;
-      return this.contextProvider
-        .setContext(context)
-        .andThen(() => {
-          if (encryptedDataWalletKey == null) {
-            // We're trying to unlock for the first time!
-            return this.createDataWallet(
-              accountAddress,
-              signature,
-              languageCode,
-              context,
+        // Need to update the context
+        context.unlockInProgress = true;
+        return this.contextProvider
+          .setContext(context)
+          .andThen(() => {
+            if (encryptedDataWalletKey == null) {
+              // We're trying to unlock for the first time!
+              return this.createDataWallet(
+                accountAddress,
+                signature,
+                languageCode,
+                context,
+              );
+            }
+            return this.unlockExistingWallet(encryptedDataWalletKey, signature);
+          })
+          .andThen((account) => {
+            // The account address in account is just a generic EVMAccountAddress,
+            // we need to cast it to a DataWalletAddress, since in this case, that's
+            // what it is.
+            context.dataWalletAddress = DataWalletAddress(
+              account.accountAddress,
             );
-          }
-          return this.unlockExistingWallet(encryptedDataWalletKey, signature);
-        })
-        .andThen((account) => {
-          // The account address in account is just a generic EVMAccountAddress,
-          // we need to cast it to a DataWalletAddress, since in this case, that's
-          // what it is.
-          context.dataWalletAddress = DataWalletAddress(account.accountAddress);
-          context.dataWalletKey = account.privateKey;
-          context.unlockInProgress = false;
+            context.dataWalletKey = account.privateKey;
+            context.unlockInProgress = false;
 
-          // We can update the context and provide the key to the persistence in one step
-          return ResultUtils.combine([
-            this.dataWalletPersistence.unlock(account.privateKey),
-            this.contextProvider.setContext(context),
-          ]);
-        })
-        .andThen(() => {
-          // Need to add the account if this was the first time;
-          // Doing it this way because I have to make sure the persistence is
-          // unlocked first.
-          return this.dataWalletPersistence.addAccount(accountAddress);
-        })
-        .andThen(() => {
-          // Need to emit some events
-          context.publicEvents.onInitialized.next(context.dataWalletAddress!);
+            // We can update the context and provide the key to the persistence in one step
+            return ResultUtils.combine([
+              this.dataWalletPersistence.unlock(account.privateKey),
+              this.contextProvider.setContext(context),
+            ]);
+          })
+          .andThen(() => {
+            // Need to add the account if this was the first time;
+            // Doing it this way because I have to make sure the persistence is
+            // unlocked first.
+            return this.dataWalletPersistence.addAccount(accountAddress);
+          })
+          .andThen(() => {
+            // Need to emit some events
+            context.publicEvents.onInitialized.next(context.dataWalletAddress!);
 
-          // Placeholder for any action we want to do to verify the account
-          // is in the data wallet or other sanity checking
-          return okAsync(undefined);
-        });
-    });
+            // Placeholder for any action we want to do to verify the account
+            // is in the data wallet or other sanity checking
+            return okAsync(undefined);
+          });
+      })
+      .orElse((e) => {
+        // Any error in this process will cause me to revert the context
+        return this.contextProvider
+          .getContext()
+          .andThen((context) => {
+            context.dataWalletAddress = null;
+            context.dataWalletKey = null;
+            context.unlockInProgress = false;
+
+            return this.contextProvider.setContext(context);
+          })
+          .andThen(() => {
+            return errAsync(e);
+          });
+      });
   }
 
   protected createDataWallet(
@@ -183,10 +201,12 @@ export class AccountService implements IAccountService {
       this.dataWalletUtils.createDataWalletKey(),
       this.dataWalletUtils.deriveEncryptionKeyFromSignature(signature),
     ]).andThen(([dataWalletKey, encryptionKey]) => {
+      console.warn(`TEST: encryptionKey: ${encryptionKey}, dataWalletKey: ${dataWalletKey}`);
       // Encrypt the data wallet key
       return this.cryptoUtils
         .encryptString(dataWalletKey, encryptionKey)
         .andThen((encryptedDataWallet) => {
+          console.warn(`TEST: encryptedDataWallet`, encryptedDataWallet);
           const dataWalletAddress = DataWalletAddress(
             this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
               dataWalletKey,
@@ -281,12 +301,14 @@ export class AccountService implements IAccountService {
     return this.dataWalletUtils
       .deriveEncryptionKeyFromSignature(signature)
       .andThen((encryptionKey) => {
+        console.warn(`TEST: encryptionKey: ${encryptionKey}, encryptedDataWalletKey:`, encryptedDataWalletKey);
         return this.cryptoUtils.decryptAESEncryptedString(
           encryptedDataWalletKey,
           encryptionKey,
         );
       })
       .map((dataWalletKey) => {
+        
         const key = EVMPrivateKey(dataWalletKey);
         return new ExternallyOwnedAccount(
           this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(key),
