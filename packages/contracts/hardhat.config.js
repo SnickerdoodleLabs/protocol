@@ -31,6 +31,9 @@ const key = process.env.ETH_PRIVATE_KEY;
 // if no private key is found in .env, use the public known mnemonic
 const accounts = key ? [key] : { mnemonic };
 
+// we want to use a different chain id locally vs remotely
+const chainid = (process.env.NETWORK === 'local') ? 31338 : 31337;
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -59,10 +62,18 @@ module.exports = {
   },
   networks: {
     hardhat: {
+      chainId: chainid,
       mining: {
         auto: true,
         interval: 5000,
       },
+    },
+    local: {
+      accounts: accounts,
+      chainId: 31338,
+      url: "http://127.0.0.1:8569",
+      gas: 6000000,
+      gasPrice: 8000000000,
     },
     dev: {
       accounts: accounts,
