@@ -220,14 +220,24 @@ export class RpcCallHandler implements IRpcCallHandler {
 
       case EInternalActions.GET_STATE:
         return (res.result = this.contextProvider.getInternalState());
+      case EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED: {
+        return new AsyncRpcResponseSender(
+          this.accountService.isDataWalletAddressInitialized(),
+          res,
+        ).call();
+      }
       default:
         return next();
     }
   }
 
-  private getInvitationsByDomain(domain: DomainName): ResultAsync<(InvitationDomain & {
-    id: UUID;
-}) | undefined, SnickerDoodleCoreError> {
+  private getInvitationsByDomain(domain: DomainName): ResultAsync<
+    | (InvitationDomain & {
+        id: UUID;
+      })
+    | undefined,
+    SnickerDoodleCoreError
+  > {
     return this.invitationService
       .getInvitationByDomain(domain)
       .andThen((pageInvitations) => {
@@ -244,9 +254,11 @@ export class RpcCallHandler implements IRpcCallHandler {
                 const invitationUUID = this.contextProvider.addInvitation(
                   pageInvitation.invitation,
                 );
-                return okAsync(Object.assign(pageInvitation.domainDetails, {
-                  id: invitationUUID,
-                }));
+                return okAsync(
+                  Object.assign(pageInvitation.domainDetails, {
+                    id: invitationUUID,
+                  }),
+                );
               } else {
                 return okAsync(undefined);
               }

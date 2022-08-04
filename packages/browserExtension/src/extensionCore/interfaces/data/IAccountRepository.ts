@@ -30,4 +30,5 @@ export interface IAccountRepository {
   getAccounts(): ResultAsync<EVMAccountAddress[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], SnickerDoodleCoreError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError>;
+  isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 }

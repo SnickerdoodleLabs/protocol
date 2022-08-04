@@ -4064,6 +4064,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/utils@workspace:packages/utils"
   dependencies:
+    "@snickerdoodlelabs/objects": "workspace:^"
     inversify: ^5.1.1
     neverthrow: ^4.2.2
   languageName: unknown

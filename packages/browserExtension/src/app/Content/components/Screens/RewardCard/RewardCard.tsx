@@ -12,30 +12,29 @@ interface IRewardCardProps {
   changeAppState: (state: EAPP_STATE) => void;
   rewardItem: IRewardItem;
   invitationDomain: IInvitationDomainWithUUID | undefined;
-  coreGateway:ExternalCoreGateway
+  coreGateway: ExternalCoreGateway;
 }
 
 const RewardCard: React.FC<IRewardCardProps> = ({
   changeAppState,
   rewardItem,
   invitationDomain,
-  coreGateway
+  coreGateway,
 }: IRewardCardProps) => {
-  
-  const acceptInvitation = () =>{
-    coreGateway.acceptInvitation(null,invitationDomain?.id as UUID)
-  }
-  const rejectInvitation = () =>{
-    coreGateway.rejectInvitation(invitationDomain?.id as UUID)
-  }
-
-
+  const acceptInvitation = () => {
+    return coreGateway.acceptInvitation(null, invitationDomain?.id as UUID);
+  };
+  const rejectInvitation = () => {
+    coreGateway.rejectInvitation(invitationDomain?.id as UUID);
+  };
 
   const modalClasses = useGenericModalStyles();
 
   const onPrimaryButtonClick = () => {
-    changeAppState(EAPP_STATE.CONNECT_WALLET);
-    acceptInvitation();
+    acceptInvitation().map(() => {
+      console.log("acceptInvitation returned void");
+      changeAppState(EAPP_STATE.DISMISSED);
+    });
   };
 
   const onSecondaryButtonClick = () => {

@@ -16,13 +16,25 @@ Thank you open source contributors!
 
 You must have npm and node installed on your machine.
 
+Go to:
+''cd packages/browserExtension/''
+
 To install,
-''npm install''
+''yarn install''
 
 To run
-''npm start''
+''yarn build''
+''yarn start''
 
 - This will build the project into 'build' directory.
 - Open Chrome and visit chrome://extensions
 - Make sure 'developer' mode is on
 - Click on 'Load unpacked' and choose 'build' directory to load the extension in chrome browser.
+
+# How to Run the onboarding pages (the spa):
+
+Go to:
+''cd packages/browserExtension/''
+
+To run
+''yarn start''

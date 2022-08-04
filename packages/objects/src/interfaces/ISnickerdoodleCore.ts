@@ -191,7 +191,7 @@ export interface ISnickerdoodleCore {
     | AjaxError
     | IPFSError
   >;
-  
+
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
@@ -209,6 +209,8 @@ export interface ISnickerdoodleCore {
   >;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
+
+  isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 
   /** Google User Information */
   setAge(age: Age): ResultAsync<void, PersistenceError>;
