@@ -1,4 +1,4 @@
-import {Box } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import React, { useState } from "react";
 
 import ProfileCreation from "./ProfileCreation";
@@ -34,7 +34,7 @@ export default function Onboarding() {
   return (
     <Box display="flex" justifyContent="center">
       <Box>
-          <img src={snickerDoodleLogo} />
+        {progressValue !== 0 && <img src={snickerDoodleLogo} />}
         {progressValue === 0 ? (
           ""
         ) : (

@@ -72,7 +72,38 @@ export class WalletConnectProvider implements IWalletProvider {
       (e) => console.log(e),
     ).map((signature) => Signature(signature));
   }
-  public checkAndSwitchToControlChain(): ResultAsync<ethers.providers.Web3Provider, unknown> {
-    throw new Error("Method not implemented.");
+  public checkAndSwitchToControlChain(): ResultAsync<
+    ethers.providers.Web3Provider,
+    unknown
+  > {
+    if (!this._web3Provider) {
+      return errAsync("Should call connect() first.");
+    }
+
+    return ResultAsync.fromSafePromise(this._web3Provider.getNetwork())
+      .andThen((network) => {
+        if (network.chainId == this.config.controlChain.chainId) {
+          return okAsync(undefined);
+        } else {
+          return ResultAsync.fromPromise(
+            this._web3Provider!.send("wallet_addEthereumChain", [
+              {
+                chainId: `0x${this.config.controlChain.chainId.toString(16)}`,
+                chainName: this.config.controlChain.name,
+                rpcUrls: this.config.controlChain.providerUrls,
+                nativeCurrency: {
+                  name: "DOODLE",
+                  decimals: 18,
+                  symbol: "DOODLE",
+                },
+              },
+            ]),
+            (e) => e,
+          ).map(() => {});
+        }
+      })
+      .map(() => {
+        return this._web3Provider!;
+      });
   }
 }
