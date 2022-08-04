@@ -3,9 +3,7 @@ import { ChainId, URLString } from "@objects/primitives";
 export interface IConfigOverrides {
   controlChainId?: ChainId;
   supportedChains?: ChainId[];
-  providerAddress?: URLString;
-  privateIpfsNodeAddress?: URLString;
-  publicIpfsNodeAddress?: URLString;
+  ipfsFetchBaseUrl?: URLString;
   defaultInsightPlatformBaseUrl?: URLString;
   accountIndexingPollingIntervalMS?: number;
   accountBalancePollingIntervalMS?: number;

@@ -171,7 +171,7 @@ core.getEvents().map(async (events) => {
 
       // Get the chain info for the doodle chain
       const doodleChainConfig = chainConfig.get(
-        ChainId(31337),
+        ChainId(31338),
       ) as ControlChainInformation;
 
       // Get the wallet we are going to sign with

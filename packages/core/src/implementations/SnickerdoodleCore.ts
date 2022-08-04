@@ -60,6 +60,7 @@ import {
   URLString,
   SiteVisit,
 } from "@snickerdoodlelabs/objects";
+import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -116,7 +117,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     } else {
       this.iocContainer
         .bind(IDataWalletPersistenceType)
-        .to(DefaultDataWalletPersistence)
+        .to(ChromeStoragePersistence)
         .inSingletonScope();
     }
     this.profileService =
@@ -446,9 +447,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisits();
   }
-  addSiteVisits(siteVisits: SiteVisit[],):  ResultAsync<void, PersistenceError> {
-  const accountService =
-    this.iocContainer.get<IAccountService>(IAccountServiceType);
-  return accountService.addSiteVisits(siteVisits);
+  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.addSiteVisits(siteVisits);
   }
 }

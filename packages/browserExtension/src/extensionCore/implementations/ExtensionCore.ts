@@ -59,12 +59,11 @@ import {
 
 // core package
 import {
-  SnickerdoodleCore,
-  ConfigProvider as CoreConfigProvider,
+  SnickerdoodleCore
 } from "@snickerdoodlelabs/core";
 
 // snickerdoodleobjects
-import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import { ChainId, IConfigOverrides, ISnickerdoodleCore, URLString } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 
 // shared
@@ -73,13 +72,7 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { IConfigProvider } from "@shared/interfaces/configProvider";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 
-import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { InvitationRepository } from "./data/InvitationRepository";
-import {
-  DefaultAccountBalances,
-  DefaultAccountNFTs,
-} from "@snickerdoodlelabs/indexers";
-import { AxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 
 export class ExtensionCore {
   // snickerdooldle Core
@@ -113,20 +106,21 @@ export class ExtensionCore {
   protected rpcCallHandler: IRpcCallHandler;
 
   protected configProvider: IConfigProvider;
-  protected ajaxUtils: AxiosAjaxUtils;
 
   constructor() {
     this.configProvider = ConfigProvider;
-    this.ajaxUtils = new AxiosAjaxUtils();
 
-    const coreConfigProvider = new CoreConfigProvider();
-    const persistence = new ChromeStoragePersistence(
-      coreConfigProvider,
-      new DefaultAccountNFTs(coreConfigProvider, this.ajaxUtils),
-      new DefaultAccountBalances(coreConfigProvider, this.ajaxUtils),
-    );
+    const coreConfig = {
+      controlChainId: ChainId(31337),
+      supportedChains: [ChainId(42), ChainId(43113)], // Matches default, kovan and fuji
+      ipfsFetchBaseUrl: URLString("https://ipfs.snickerdoodle.dev/ipfs"),
+      defaultInsightPlatformBaseUrl: URLString("https://insight-api.dev.snickerdoodle.dev"),
+  // We'll want non-default values for these very soon
+  // covalentApiKey?: string; 
+  // moralisApiKey?: string;
+    } as IConfigOverrides;
 
-    this.core = new SnickerdoodleCore(undefined, persistence);
+    this.core = new SnickerdoodleCore(coreConfig);
 
     this.contextProvider = new ContextProvider(this.configProvider);
 

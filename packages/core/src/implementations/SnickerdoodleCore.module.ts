@@ -47,7 +47,6 @@ import {
   ConfigProvider,
   ContextProvider,
   DataWalletUtils,
-  IPFSProvider,
 } from "@core/implementations/utilities";
 import {
   ContractFactory,
@@ -102,8 +101,6 @@ import {
   IContextProviderType,
   IDataWalletUtils,
   IDataWalletUtilsType,
-  IIPFSProvider,
-  IIPFSProviderType,
 } from "@core/interfaces/utilities";
 import {
   IContractFactory,
@@ -187,7 +184,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
-    bind<IIPFSProvider>(IIPFSProviderType).to(IPFSProvider).inSingletonScope();
 
     // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)

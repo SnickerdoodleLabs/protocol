@@ -7,7 +7,7 @@ services:
     ports:
       - 8545:8569
     environment:
-      NETWORK: dev
+      NETWORK: local
     image: 'snickerdoodlelabs/devchain:latest'
 
   # extension-onboarding:

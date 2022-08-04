@@ -12,11 +12,9 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
   public constructor(
     public controlChainId: ChainId,
     public supportedChains: ChainId[],
-    public providerAddress: URLString,
     public chainInformation: Map<ChainId, ChainInformation>,
     public controlChainInformation: ControlChainInformation,
-    public privateIpfsNodeAddress: URLString,
-    public publicIpfsNodeAddress: URLString,
+    public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public snickerdoodleProtocolDomain: TypedDataDomain,
     public accountIndexingPollingIntervalMS: number,

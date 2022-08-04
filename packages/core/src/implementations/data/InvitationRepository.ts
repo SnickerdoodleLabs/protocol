@@ -1,4 +1,8 @@
 import {
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   DomainName,
   InvitationDomain,
   IpfsCID,
@@ -7,16 +11,13 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { urlJoin } from "url-join-ts";
 
 import { IInvitationRepository } from "@core/interfaces/data";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities";
-import {
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
-} from "@snickerdoodlelabs/common-utils";
 
 @injectable()
 export class InvitationRepository implements IInvitationRepository {
@@ -40,7 +41,7 @@ export class InvitationRepository implements IInvitationRepository {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
-        const ipfsUrl = `${config.publicIpfsNodeAddress}${cid}`;
+        const ipfsUrl = urlJoin(config.ipfsFetchBaseUrl, cid);
         return this.ajaxUtil.get<IOpenSeaMetadata>(new URL(ipfsUrl));
       })
       .andThen((json) => {
