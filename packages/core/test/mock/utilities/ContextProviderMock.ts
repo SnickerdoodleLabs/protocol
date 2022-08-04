@@ -37,7 +37,6 @@ export class ContextProviderMock implements IContextProvider {
     } else {
       this.context = new CoreContext(
         dataWalletAddress,
-        null,
         dataWalletKey,
         false,
         this.publicEvents,
