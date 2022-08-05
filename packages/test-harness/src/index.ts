@@ -1,8 +1,7 @@
 import "reflect-metadata";
 import {
   AxiosAjaxUtils,
-  CryptoUtils,
-  LogUtils,
+  CryptoUtils
 } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore, ConfigProvider } from "@snickerdoodlelabs/core";
@@ -59,7 +58,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { IPFSClient } from "@extension-onboarding/packages/test-harness/src/IPFSClient";
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
-import { ConsentContractRepository } from "@core/implementations/data";
 
 // https://github.com/SBoudrias/Inquirer.js
 
@@ -121,8 +119,11 @@ core.getEvents().map(async (events) => {
       `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
     );
 
-
-    let queryPretty = JSON.stringify(JSON.parse(queryRequest.query.query),null,2); 
+    const queryPretty = JSON.stringify(
+      JSON.parse(queryRequest.query.query),
+      null,
+      2,
+    );
     console.log(queryPretty);
     // console.log(queryRequest.query);
 
@@ -142,7 +143,10 @@ core.getEvents().map(async (events) => {
           return okAsync(undefined);
         }
 
-        return core.processQuery(queryRequest.consentContractAddress, queryRequest.query);
+        return core.processQuery(
+          queryRequest.consentContractAddress,
+          queryRequest.query,
+        );
       })
       .mapErr((e) => {
         console.error(e);
@@ -179,7 +183,7 @@ core.getEvents().map(async (events) => {
 
       // Get the chain info for the doodle chain
       const doodleChainConfig = chainConfig.get(
-        ChainId(31337),
+        ChainId(31338),
       ) as ControlChainInformation;
 
       // Get the wallet we are going to sign with
@@ -257,47 +261,36 @@ function corePrompt(): ResultAsync<void, Error> {
       name: "Opt In to Campaign",
       value: "optInCampaign",
     },
-    new inquirer.Separator(),
     {
       name: "Opt Out of Campaign",
       value: "optOutCampaign",
     },
     new inquirer.Separator(),
     { name: "Set Age to 15", value: "setAge to 15" },
-    new inquirer.Separator(),
     { name: "Set Age to 0", value: "setAge to 0" },
-    new inquirer.Separator(),
     { name: "Get Age", value: "getAge" },
-    new inquirer.Separator(),
     { name: "Set Location", value: "setLocation" },
-    new inquirer.Separator(),
     { name: "Get Location", value: "getLocation" },
-    new inquirer.Separator(),
     { name: "Set Gender", value: "setGender" },
-    new inquirer.Separator(),
     { name: "Get Gender", value: "getGender" },
-    new inquirer.Separator(),
     { name: "Get Transactions", value: "getTransactions" },
-    new inquirer.Separator(),
     { name: "Get Accounts", value: "getAccounts" },
-    new inquirer.Separator(),
     { name: "Get NFTs", value: "getNFTs" },
-    new inquirer.Separator(),
     { name: "Get Balances", value: "getBalances" },
-    new inquirer.Separator(),
     { name: "Get Transaction Map", value: "getTransactionMap" },
-    new inquirer.Separator(),
-    { name: "Add EVM Transaction - Google", value: "addEVMTransaction - google" },
-    new inquirer.Separator(),
-    { name: "Add EVM Transaction - Query's Network", value: "addEVMTransaction - Query's Network" },
-    new inquirer.Separator(),
-    { name: "Add Site Visit - Google ", value: "addSiteVisit - google" },
-    new inquirer.Separator(),
-    { name: "Add Site Visit - Facebook", value: "addSiteVisit - facebook" },
-    new inquirer.Separator(),
     { name: "Get SiteVisit Map", value: "getSiteVisitMap" },
-    new inquirer.Separator(),
     { name: "Get SiteVisits Array", value: "getSiteVisits" },
+    new inquirer.Separator(),
+    {
+      name: "Add EVM Transaction - Google",
+      value: "addEVMTransaction - google",
+    },
+    {
+      name: "Add EVM Transaction - Query's Network",
+      value: "addEVMTransaction - Query's Network",
+    },
+    { name: "Add Site Visit - Google ", value: "addSiteVisit - google" },
+    { name: "Add Site Visit - Facebook", value: "addSiteVisit - facebook" },
     new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
@@ -375,7 +368,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          null
+          null,
         );
         return core.addEVMTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
@@ -390,7 +383,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          null
+          null,
         );
         return core.addEVMTransactions(transactions).map(console.log);
       case "addSiteVisit - google":
@@ -599,7 +592,13 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                 },
               },
               logic: {
-                returns: ["if($q1and$q2)then$r1else$r2", "$r3", "$r4", "$r5", "$r6"],
+                returns: [
+                  "if($q1and$q2)then$r1else$r2",
+                  "$r3",
+                  "$r4",
+                  "$r5",
+                  "$r6",
+                ],
                 compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
               },
             }),

@@ -1,12 +1,17 @@
 import {
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   IpfsCID,
   SDQLQuery,
   SDQLString,
-  IPFSError,
+  AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { IPFSHTTPClient } from "ipfs-http-client";
 import { ResultAsync } from "neverthrow";
+import { urlJoin } from "url-join-ts";
 
 import { ISDQLQueryRepository } from "@core/interfaces/data";
 import {
@@ -14,8 +19,6 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-  IIPFSProvider,
-  IIPFSProviderType,
 } from "@core/interfaces/utilities";
 
 @injectable()
@@ -25,7 +28,7 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
   public constructor(
     @inject(IConfigProviderType) public configProvider: IConfigProvider,
     @inject(IContextProviderType) public contextProvider: IContextProvider,
-    @inject(IIPFSProviderType) protected ipfsProvider: IIPFSProvider,
+    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {
     // Singelton - eager initialization
     // can use as a cache; this.cache - return map
@@ -38,57 +41,28 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
   // multiple calls of ipfs in parallel with multiple pieces of content
   // easier in parallel than proper for loop
   // resultutils.combine is how you combine resultasyncs - usually functional notation of cids, uses .map for each value of cids, return copy cache value
-  public getByCID(cid: IpfsCID): ResultAsync<SDQLQuery | null, IPFSError> {
-    return this.ipfsProvider.getIFPSClient().andThen((client) => {
-      return ResultAsync.fromPromise(
-        this.getFileByCIDInternal(client, cid),
-        (e) => {
-          return new IPFSError((e as Error).message, e);
-        },
-      );
-    });
-  }
+  public getByCID(cid: IpfsCID): ResultAsync<SDQLQuery | null, AjaxError> {
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const ipfsUrl = urlJoin(config.ipfsFetchBaseUrl, cid);
+        return this.ajaxUtils.get<SDQLString>(new URL(ipfsUrl));
+      })
+      .map((sdql) => {
+        // If there is no data in IPFS for this CID, return null
+        if (sdql.length == 0) {
+          return null;
+        }
 
-  // public getByCIDs(
-  //     cids: IpfsCID[],
-  // ): ResultAsync<Map<IpfsCID, SDQLQuery>, IPFSError> {
-  //     return this.ipfsProvider.getIFPSClient().andThen((client) => {
-  //         return ResultAsync.fromPromise(
-  //             this.getFileByCIDInternal(client, cid),
-  //             (e) => {
-  //                 return new IPFSError((e as Error).message, e);
-  //             },
-  //         );
-  //     });
-  // }
+        // Create the query
+        const query = new SDQLQuery(cid, sdql);
 
-  protected async getFileByCIDInternal(
-    client: IPFSHTTPClient,
-    cid: IpfsCID,
-  ): Promise<SDQLQuery | null> {
-    // calling cat command based on JS HTTP client API docs
-    // https://github.com/ipfs/js-ipfs/tree/master/packages/ipfs-http-client
-    const result = await client.cat(cid);
-    let content = new Array<number>();
-    for await (const chunk of result) {
-      content = [...content, ...chunk];
-    }
-    // conversion of U8s to readable content
-    const raw = SDQLString(Buffer.from(content).toString("utf8"));
+        // Cache the query
+        this.queryCache.set(cid, query);
 
-    // If there is no data in IPFS for this CID, return null
-    if (raw.length == 0) {
-      return null;
-    }
-
-    // Create the query
-    const query = new SDQLQuery(cid, raw);
-
-    // Cache the query
-    this.queryCache.set(cid, query);
-
-    // Return the query
-    return query;
+        // Return the query
+        return query;
+      });
   }
 }
 

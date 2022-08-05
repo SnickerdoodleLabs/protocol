@@ -60,6 +60,7 @@ import {
   URLString,
   SiteVisit,
 } from "@snickerdoodlelabs/objects";
+import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -93,7 +94,6 @@ import {
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
-  protected profileService: IProfileService;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -116,11 +116,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     } else {
       this.iocContainer
         .bind(IDataWalletPersistenceType)
-        .to(DefaultDataWalletPersistence)
+        .to(ChromeStoragePersistence)
         .inSingletonScope();
     }
-    this.profileService =
-      this.iocContainer.get<IProfileService>(IProfileServiceType);
 
     // If an Account Indexer is provided, hook it up. If not we'll use the default.
     if (accountIndexer != null) {
@@ -372,46 +370,74 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
-    return this.profileService.setGivenName(name);
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.setGivenName(name);
   }
   getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
-    return this.profileService.getGivenName();
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.getGivenName();
   }
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    return this.profileService.setFamilyName(name);
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.setFamilyName(name);
   }
   getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
-    return this.profileService.getFamilyName();
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.getFamilyName();
   }
   setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
-    return this.profileService.setBirthday(birthday);
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.setBirthday(birthday);
   }
   getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
-    return this.profileService.getBirthday();
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.getBirthday();
   }
   setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    return this.profileService.setGender(gender);
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.setGender(gender);
   }
   getGender(): ResultAsync<Gender | null, PersistenceError> {
-    return this.profileService.getGender();
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.getGender();
   }
   setEmail(email: EmailAddressString): ResultAsync<void, PersistenceError> {
-    return this.profileService.setEmail(email);
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.setEmail(email);
   }
   getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
-    return this.profileService.getEmail();
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.getEmail();
   }
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError> {
-    return this.profileService.setLocation(location);
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.setLocation(location);
   }
   getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
-    return this.profileService.getLocation();
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.getLocation();
   }
   setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.profileService.setAge(age);
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.setAge(age);
   }
   getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.profileService.getAge();
+    const profileService =
+      this.iocContainer.get<IProfileService>(IProfileServiceType);
+    return profileService.getAge();
   }
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
     const accountService =
@@ -461,7 +487,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addSiteVisits(siteVisits);
   }
 
-  public addEVMTransactions(transactions: EVMTransaction[]): ResultAsync<void, PersistenceError> {
+  public addEVMTransactions(
+    transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEVMTransactions(transactions);

@@ -19,7 +19,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
   protected config: CoreConfig;
 
   public constructor() {
-    const controlChainId = ChainId(31337);
+    const controlChainId = ChainId(31338);
     const controlChainInformation = chainConfig.get(controlChainId);
 
     if (controlChainInformation == null) {
@@ -38,13 +38,11 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
     this.config = new CoreConfig(
       controlChainId,
       [ChainId(42), ChainId(43113)], //supported chains (kovan, fuji)
-      URLString("http://127.0.0.1:8545"),
       chainConfig,
       controlChainInformation,
-      URLString("http://localhost:5001/api/v0"),
-      URLString("https://ipfs.io/ipfs/"),
-      URLString("http://localhost:3006"),
-      snickerdoodleSigningDomain,
+      URLString("http://localhost:8080/ipfs"), // ipfsFetchBaseUrl
+      URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
+      snickerdoodleSigningDomain, // snickerdoodleProtocolDomain
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
@@ -63,12 +61,8 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
       overrides.controlChainId ?? this.config.controlChainId;
     this.config.supportedChains =
       overrides.supportedChains ?? this.config.supportedChains;
-    this.config.providerAddress =
-      overrides.providerAddress ?? this.config.providerAddress;
-    this.config.privateIpfsNodeAddress =
-      overrides.privateIpfsNodeAddress ?? this.config.privateIpfsNodeAddress;
-    this.config.publicIpfsNodeAddress =
-      overrides.publicIpfsNodeAddress ?? this.config.publicIpfsNodeAddress;
+    this.config.ipfsFetchBaseUrl =
+      overrides.ipfsFetchBaseUrl ?? this.config.ipfsFetchBaseUrl;
     this.config.defaultInsightPlatformBaseUrl =
       overrides.defaultInsightPlatformBaseUrl ??
       this.config.defaultInsightPlatformBaseUrl;

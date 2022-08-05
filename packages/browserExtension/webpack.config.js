@@ -1,17 +1,19 @@
-const webpack = require("webpack");
 const path = require("path");
-const fileSystem = require("fs-extra");
-const { merge } = require("webpack-merge");
-const env = require("./utils/env");
+
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const fileSystem = require("fs-extra");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+const webpack = require("webpack");
+const { merge } = require("webpack-merge");
+
+const env = require("./utils/env");
+
 const configFilePath = require.resolve("./tsconfig.json");
 const argon2 = require("argon2");
-
 
 var alias = {
   "react-dom": "@hot-loader/react-dom",
@@ -145,6 +147,19 @@ var options = {
         process.env.__MANIFEST_VERSION__ || "v3",
       ),
       __PLATFORM__: JSON.stringify(process.env.__PLATFORM__ || "chrome"),
+      __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
+      __SUPPORTED_CHAINS__: JSON.stringify(process.env.__SUPPORTED_CHAINS__),
+      __IPFS_FETCH_BASE_URL__: JSON.stringify(
+        process.env.__IPFS_FETCH_BASE_URL__,
+      ),
+      __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: JSON.stringify(
+        process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
+      ),
+      __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
+      __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
+      __DNS_SERVER_ADDRESS__: JSON.stringify(
+        process.env.__DNS_SERVER_ADDRESS__,
+      ),
     }),
     new CopyWebpackPlugin({
       patterns: [

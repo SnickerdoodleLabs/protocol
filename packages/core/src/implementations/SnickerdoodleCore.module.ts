@@ -18,6 +18,10 @@ import {
   IEVMTransactionRepository,
   IEVMTransactionRepositoryType,
 } from "@snickerdoodlelabs/objects";
+import {
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "@snickerdoodlelabs/persistence";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -47,7 +51,6 @@ import {
   ConfigProvider,
   ContextProvider,
   DataWalletUtils,
-  IPFSProvider,
 } from "@core/implementations/utilities";
 import {
   ContractFactory,
@@ -102,8 +105,6 @@ import {
   IContextProviderType,
   IDataWalletUtils,
   IDataWalletUtilsType,
-  IIPFSProvider,
-  IIPFSProviderType,
 } from "@core/interfaces/utilities";
 import {
   IContractFactory,
@@ -154,7 +155,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,
     );
-    bind<IDNSRepository>(IDNSRepositoryType).to(DNSRepository);
+    bind<IDNSRepository>(IDNSRepositoryType)
+      .to(DNSRepository)
+      .inSingletonScope();
     bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
       .to(CovalentEVMTransactionRepository)
       .inSingletonScope();
@@ -166,11 +169,13 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Utilities
-
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
     bind<IIndexerConfigProvider>(IIndexerConfigProviderType)
+      .to(ConfigProvider)
+      .inSingletonScope();
+    bind<IPersistenceConfigProvider>(IPersistenceConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
     bind<IContextProvider>(IContextProviderType)
@@ -187,7 +192,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
-    bind<IIPFSProvider>(IIPFSProviderType).to(IPFSProvider).inSingletonScope();
 
     // Utilites/factory
     bind<IContractFactory>(IContractFactoryType)

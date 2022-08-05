@@ -42,7 +42,7 @@ export class BlockchainStuff {
     // Initialize a connection to the local blockchain
     this.provider = new ethers.providers.JsonRpcProvider(
       "http://localhost:8545",
-      31337,
+      31338,
     );
     // We'll use account 0
     this.serverSigner = new ethers.Wallet(
@@ -60,7 +60,7 @@ export class BlockchainStuff {
     });
 
     const doodleChain = chainConfig.get(
-      ChainId(31337),
+      ChainId(31338),
     ) as ControlChainInformation;
     this.consentFactoryContract = new ConsentFactoryContract(
       this.serverSigner,
