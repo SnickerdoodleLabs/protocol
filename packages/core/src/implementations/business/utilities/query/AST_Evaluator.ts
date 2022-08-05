@@ -90,9 +90,17 @@ export class AST_Evaluator {
       return errAsync(new EvaluationError("undefined expression"));
     }
     if (TypeChecker.isValue(expr)) {
+
       return okAsync(expr);
+
+    } else if (TypeChecker.isQuery(expr)) {
+
+      return this.evalQuery(expr);
+
     } else {
+
       return this.evalExpr(expr);
+
     }
   }
 
@@ -109,10 +117,12 @@ export class AST_Evaluator {
       return okAsync(val);
     } else {
       const evaluator = this.expMap.get(expr.constructor);
+      
       if (evaluator) {
         const val = evaluator.apply(this, [expr]); // Always returns ResultAsync
         return val;
       } else {
+        
         return errAsync(new EvalNotImplementedError(typeof expr));
       }
     }
@@ -128,6 +138,7 @@ export class AST_Evaluator {
     return condResult.andThen(
       (val): ResultAsync<SDQL_Return, EvaluationError> => {
         if (val == true) {
+          
           const trueResult = this.evalExpr(eef.trueExpr);
           // console.log('trueResult', trueResult);
 
@@ -135,6 +146,7 @@ export class AST_Evaluator {
           // console.log('trueResult', trueResult);
           return trueResult;
         } else {
+          
           if (eef.falseExpr) {
             return this.evalExpr(eef.falseExpr);
           }
@@ -145,43 +157,12 @@ export class AST_Evaluator {
       },
     );
 
-    // condResult.then((x) => {
-
-    //     if (x.isErr()) {
-    //         throw new EvaluationError(`if ${eef.name} did not resolve to a value`);
-    //         // return errAsync(new EvaluationError(`if ${eef.name} did not resolve to a value`));
-    //     }
-    //     // if (x.isErr()) {
-    //     //     return errAsync(new EvaluationError(`if ${eef.name} did not resolve to a value`));
-    //     // } else if (x.value) {
-    //     //     return this.evalExpr(eef.trueExpr)
-    //     // }
-
-    // });
-
-    // condResult.then((res: Result<SDQL_Return, Error>) => {
-    //     if (res.isErr()) {
-    //         return errAsync(new EvaluationError(`if ${eef.name} did not resolve to a value`));
-    //     } else {
-    //         return res;
-    //     }
-    // })
-
-    // if (condResult) {
-    //     return this.evalExpr(eef.trueExpr)
-    // } else {
-
-    //     if (eef.falseExpr)
-    //         return this.evalExpr(eef.falseExpr)
-
-    // }
-
-    // return errAsync(new EvaluationError(`if ${eef.name} did not resolve to a value`));
   }
 
   public evalConditionExpr(
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
+    
     const condResult: ResultAsync<SDQL_Return, EvaluationError> | null = null;
     if (TypeChecker.isQuery(expr.source)) {
       // return this.evalQuery(expr.source as AST_Query).andThen(
@@ -191,18 +172,11 @@ export class AST_Evaluator {
       //     }
       // );
       return this.evalQuery(expr.source as AST_Query);
+
     } else if (TypeChecker.isOperator(expr.source)) {
+
       return this.evalOperator(expr.source as Operator);
-      // condResult = this.evalOperator(expr.source as Operator);
-      // return okAsync(condResult);
-      /*
-            return this.evalOperator(expr.source as Operator).andThen(
-                (val: ResultAsync<SDQL_Return, EvaluationError>) =>
-                {
-                    return okAsync(val);
-                }
-            );
-            */
+      
     } else {
       return errAsync<SDQL_Return, EvaluationError>(
         new TypeError("Condition has wrong type"),
@@ -216,6 +190,7 @@ export class AST_Evaluator {
     /**
      * It sends the query to the Query Repository
      */
+    
     return this.queryRepository.get(this.cid, q);
   }
 
@@ -232,46 +207,6 @@ export class AST_Evaluator {
     }
   }
 
-  // public async evalAnd(cond: ConditionAnd): Promise<ResultAsync<SDQL_Return, EvaluationError>> {
-
-  //     // console.log(this);
-  //     const left = await this.evalAny(cond.lval);
-  //     if (left.isErr()) {
-  //         return errAsync(new EvaluationError(cond.name));
-  //     }
-
-  //     // left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
-  //     //     if (lval == false) {
-  //     //         return okAsync(SDQL_Return(false));
-  //     //     } else {
-  //     //         const right = this.evalAny(cond.rval);
-  //     //         return right.andThen((rval): ResultAsync<SDQL_Return, EvaluationError> => {
-
-  //     //             if (rval == false) {
-  //     //                 return okAsync(SDQL_Return(false));
-  //     //             } else {
-  //     //                 return okAsync(SDQL_Return(true));
-  //     //             }
-  //     //         });
-  //     //     }
-  //     // });
-
-  //     if (left.value == false) {
-  //         return left;
-  //     }
-
-  //     const right = await this.evalAny(cond.rval);
-  //     if (right.isErr()) {
-  //         return errAsync(new EvaluationError(cond.name));
-  //     }
-
-  //     if (right.value == false) {
-  //         return right;
-  //     }
-
-  //     // console.log('evalAnd', `left is ${left} and right is ${right}`);
-  //     return okAsync(SDQL_Return(left.value && right.value)) ;
-  // }
   public evalAnd(
     cond: ConditionAnd,
   ): ResultAsync<SDQL_Return, EvaluationError> {
@@ -279,12 +214,17 @@ export class AST_Evaluator {
     const left = this.evalAny(cond.lval);
 
     return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
+
       if (lval == false) {
+
         return okAsync(SDQL_Return(false));
+
       } else {
+
         const right = this.evalAny(cond.rval);
         return right.andThen(
           (rval): ResultAsync<SDQL_Return, EvaluationError> => {
+
             if (rval == false) {
               return okAsync(SDQL_Return(false));
             } else {
@@ -292,6 +232,7 @@ export class AST_Evaluator {
             }
           },
         );
+
       }
     });
   }
