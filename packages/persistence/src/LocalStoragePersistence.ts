@@ -540,6 +540,9 @@ export class LocalStoragePersistence implements IDataWalletPersistence {
   > {
     return this.getEVMTransactions().andThen((transactions) => {
       const result = new Map<ChainId, number>();
+      if (transactions == null){
+        return okAsync(result)
+      }
       transactions.forEach((tx, _i, _arr) => {
         tx.chainId in result || (result[tx.chainId] = 0);
         result[tx.chainId] += 1;

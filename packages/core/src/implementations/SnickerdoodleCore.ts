@@ -446,9 +446,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisits();
   }
-  addSiteVisits(siteVisits: SiteVisit[],):  ResultAsync<void, PersistenceError> {
+  addSiteVisits(siteVisits: SiteVisit[]):  ResultAsync<void, PersistenceError> {
   const accountService =
     this.iocContainer.get<IAccountService>(IAccountServiceType);
   return accountService.addSiteVisits(siteVisits);
+  }
+
+  public addEVMTransactions(transactions: EVMTransaction[]): ResultAsync<void, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.addEVMTransactions(transactions);
   }
 }
