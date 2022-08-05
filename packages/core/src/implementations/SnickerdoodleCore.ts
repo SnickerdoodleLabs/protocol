@@ -362,6 +362,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return queryService.processQuery(consentContractAddress, query);
   }
 
+  public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
+    const contextProvider =
+      this.iocContainer.get<IContextProvider>(IContextProviderType);
+
+    return contextProvider.getContext().map((context) => {
+      return !!context.dataWalletAddress;
+    });
+  }
+
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     return this.profileService.setGivenName(name);
   }
@@ -446,10 +455,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisits();
   }
-  addSiteVisits(siteVisits: SiteVisit[]):  ResultAsync<void, PersistenceError> {
-  const accountService =
-    this.iocContainer.get<IAccountService>(IAccountServiceType);
-  return accountService.addSiteVisits(siteVisits);
+  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.addSiteVisits(siteVisits);
   }
 
   public addEVMTransactions(transactions: EVMTransaction[]): ResultAsync<void, PersistenceError> {

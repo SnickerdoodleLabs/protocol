@@ -1,18 +1,22 @@
-import { IErrorListener } from "@interfaces/api";
-import { IContextProvider } from "@interfaces/utilities";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-export class ErrorListener implements IErrorListener{
-    constructor(protected contextProvider: IContextProvider){}
+import { IErrorListener } from "@interfaces/api";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 
-    public initialize(): ResultAsync<void, never> {
-        const errorSubject = this.contextProvider.getErrorSubject()
-        errorSubject.subscribe(this.onExtensionError.bind(this))
-        return okAsync(undefined)
-    }
+@injectable()
+export class ErrorListener implements IErrorListener {
+  constructor(
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
+  ) {}
 
-    private onExtensionError(error: Error){
-        console.log(error)
-    }
+  public initialize(): ResultAsync<void, never> {
+    const errorSubject = this.contextProvider.getErrorSubject();
+    errorSubject.subscribe(this.onExtensionError.bind(this));
+    return okAsync(undefined);
+  }
 
+  private onExtensionError(error: Error) {
+    console.log(error);
+  }
 }

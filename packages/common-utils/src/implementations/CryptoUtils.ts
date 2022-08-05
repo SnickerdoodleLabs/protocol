@@ -16,11 +16,12 @@ import {
   SHA256Hash,
   HexString,
   TokenId,
+  Base64String,
 } from "@snickerdoodlelabs/objects";
 import argon2 from "argon2";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { ICryptoUtils } from "@common-utils/interfaces";
 
@@ -30,10 +31,11 @@ export class CryptoUtils implements ICryptoUtils {
 
   constructor() {}
 
-  public getNonce(nonceSize = 64): ResultAsync<string, never> {
-    return okAsync(
+  public getNonce(nonceSize = 64): ResultAsync<Base64String, never> {
+    const baseString = Base64String(
       Crypto.randomBytes(nonceSize).toString("base64").slice(0, nonceSize),
     );
+    return okAsync(baseString);
   }
 
   public getTokenId(): ResultAsync<TokenId, never> {
@@ -113,17 +115,24 @@ export class CryptoUtils implements ICryptoUtils {
   ): ResultAsync<AESEncryptedString, never> {
     return this.getNonce(16).map((nonce) => {
       const iv = InitializationVector(nonce);
+      try {
+        const cipher = Crypto.createCipheriv(
+          this.cipherAlgorithm,
+          Buffer.from(encryptionKey, "base64"),
+          iv,
+        );
 
-      const cipher = Crypto.createCipheriv(
-        this.cipherAlgorithm,
-        Buffer.from(encryptionKey, "base64"),
-        iv,
-      );
-
-      // Encrypt the message
-      let encryptedData = cipher.update(secret, "utf-8", "base64");
-      encryptedData += cipher.final("base64");
-      return new AESEncryptedString(EncryptedString(encryptedData), iv);
+        // Encrypt the message
+        let encryptedData = cipher.update(secret, "utf8", "base64");
+        encryptedData += cipher.final("base64");
+        return new AESEncryptedString(EncryptedString(encryptedData), iv);
+      } catch (e) {
+        // This is not ideal error handling, but is better than nothing. At least
+        // we will get some logs
+        console.error(`Error while encrypting string!`);
+        console.error(e);
+        return new AESEncryptedString(EncryptedString("THIS IS AN ERROR"), iv);
+      }
     });
   }
 
@@ -131,17 +140,25 @@ export class CryptoUtils implements ICryptoUtils {
     encrypted: AESEncryptedString,
     encryptionKey: AESKey,
   ): ResultAsync<string, never> {
-    // The decipher function
-    const decipher = Crypto.createDecipheriv(
-      this.cipherAlgorithm,
-      Buffer.from(encryptionKey, "base64"),
-      encrypted.initializationVector,
-    );
+    try {
+      // The decipher function
+      const decipher = Crypto.createDecipheriv(
+        this.cipherAlgorithm,
+        Buffer.from(encryptionKey, "base64"),
+        encrypted.initializationVector,
+      );
 
-    // decrypt the message
-    let decryptedData = decipher.update(encrypted.data, "base64", "utf-8");
-    decryptedData += decipher.final("utf8");
-    return okAsync(decryptedData);
+      // decrypt the message
+      let decryptedData = decipher.update(encrypted.data, "base64", "utf8");
+      decryptedData += decipher.final("utf8");
+      return okAsync(decryptedData);
+    } catch (e) {
+      // This is not ideal error handling, but is better than nothing. At least
+      // we will get some logs
+      console.error(`Error while deciphering encrypted string!`);
+      console.error(e);
+      return okAsync("THIS IS AN ERROR");
+    }
   }
 
   // public generateKeyPair(): ResultAsync<void, never> {

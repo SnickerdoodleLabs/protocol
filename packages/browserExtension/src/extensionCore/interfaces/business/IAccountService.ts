@@ -1,4 +1,7 @@
-import { SnickerDoodleCoreError, ExtensionCookieError } from "@shared/objects/errors";
+import {
+  SnickerDoodleCoreError,
+  ExtensionCookieError,
+} from "@shared/objects/errors";
 import {
   EVMAccountAddress,
   IEVMBalance,
@@ -21,8 +24,13 @@ export interface IAccountService {
     languageCode: LanguageCode,
     calledWithCookie?: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError>;
-  getUnlockMessage(languageCode: LanguageCode): ResultAsync<string, SnickerDoodleCoreError>;
+  getUnlockMessage(
+    languageCode: LanguageCode,
+  ): ResultAsync<string, SnickerDoodleCoreError>;
   getAccounts(): ResultAsync<EVMAccountAddress[], SnickerDoodleCoreError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], SnickerDoodleCoreError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError>;
+  isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 }
+
+export const IAccountServiceType = Symbol.for("IAccountService");

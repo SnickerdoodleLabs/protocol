@@ -30,3 +30,5 @@ export interface IPIIRepository {
   setLocation(location: CountryCode): ResultAsync<void, SnickerDoodleCoreError>;
   getLocation(): ResultAsync<CountryCode | null, SnickerDoodleCoreError>;
 }
+
+export const IPIIRepositoryType = Symbol.for("IPIIRepository");

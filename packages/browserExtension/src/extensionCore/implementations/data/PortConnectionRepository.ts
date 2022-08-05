@@ -1,26 +1,37 @@
-import { Runtime } from "webextension-polyfill";
+import { URLString } from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync } from "neverthrow";
+import ObjectMultiplex from "obj-multiplex";
+import pump from "pump";
+import { Runtime } from "webextension-polyfill";
+
 import { IPortConnectionRepository } from "@interfaces/data";
-import { IContextProvider } from "@interfaces/utilities";
-import { IRpcEngineFactory } from "@interfaces/utilities/factory";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+import {
+  IRpcEngineFactory,
+  IRpcEngineFactoryType,
+} from "@interfaces/utilities/factory";
 import {
   INTERNAL_PORTS,
   CONTENT_SCRIPT_SUBSTREAM,
   ONBOARDING_PROVIDER_SUBSTREAM,
   EXTERNAL_PORTS,
 } from "@shared/constants/ports";
-import { URLString } from "@snickerdoodlelabs/objects";
-import PortStream from "extension-port-stream";
-import ObjectMultiplex from "obj-multiplex";
-import pump from "pump";
-import endOfStream from "end-of-stream";
 import { EPortNames } from "@shared/enums/ports";
-import { IConfigProvider } from "@shared/interfaces/configProvider";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@shared/interfaces/configProvider";
+
+@injectable()
 export class PortConnectionRepository implements IPortConnectionRepository {
   constructor(
-    protected contextProvider: IContextProvider,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(IRpcEngineFactoryType)
     protected rpcEngineFactory: IRpcEngineFactory,
-    protected configProvider: IConfigProvider
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
   public connectRemote(remotePort: Runtime.Port) {
@@ -54,8 +65,8 @@ export class PortConnectionRepository implements IPortConnectionRepository {
   private _setupExternalConnection(remotePort: Runtime.Port) {
     const url = new URL(remotePort!.sender!.url!);
     const { origin } = url;
-    const onboardingUrl = this.configProvider.getConfig().onboardingUrl
-;    const { origin: onboardingUrlOrigin } = new URL(onboardingUrl);
+    const onboardingUrl = this.configProvider.getConfig().onboardingUrl;
+    const { origin: onboardingUrlOrigin } = new URL(onboardingUrl);
 
     const portStream = new PortStream(remotePort);
     // create multiplex to enable substreams

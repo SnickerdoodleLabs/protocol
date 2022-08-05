@@ -5,6 +5,7 @@
     "declaration": false,
     "declarationMap": false,
     "baseUrl": "./src/",
+    "outDir": "./dist",
     "paths": {
       "@interfaces/*": [
         "./extensionCore/interfaces/*"

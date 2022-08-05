@@ -99,6 +99,8 @@ const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.com");
 const domainName2 = DomainName("snickerdoodle.com/blog");
+const domainName3 = DomainName("snickerdoodle-protocol.snickerdoodle.dev");
+const domainName4 = DomainName("snickerdoodle-protocol.snickerdoodle.com");
 
 const consentContracts = new Array<EVMContractAddress>();
 const acceptedInvitations = new Array<PageInvitation>();
@@ -439,7 +441,7 @@ function createCampaign(): ResultAsync<
   ConsentFactoryContractError | ConsentContractError | Error
 > {
   return simulator
-    .createCampaign([domainName, domainName2])
+    .createCampaign([domainName, domainName2, domainName3, domainName4])
     .mapErr((e) => {
       console.error(e);
       return e;

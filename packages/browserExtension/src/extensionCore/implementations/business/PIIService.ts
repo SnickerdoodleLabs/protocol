@@ -1,6 +1,3 @@
-import { IPIIService } from "@interfaces/business";
-import { IPIIRepository } from "@interfaces/data";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
   GivenName,
@@ -10,10 +7,18 @@ import {
   EmailAddressString,
   CountryCode,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
+import { IPIIService } from "@interfaces/business";
+import { IPIIRepository, IPIIRepositoryType } from "@interfaces/data";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
+
+@injectable()
 export class PIIService implements IPIIService {
-  constructor(protected piiRespository: IPIIRepository) {}
+  constructor(
+    @inject(IPIIRepositoryType) protected piiRespository: IPIIRepository,
+  ) {}
 
   public setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setAge(age);

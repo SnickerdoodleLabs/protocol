@@ -19,3 +19,5 @@ export interface IAccountCookieUtils {
     ExtensionCookieError
   >;
 }
+
+export const IAccountCookieUtilsType = Symbol.for("IAccountCookieUtils");

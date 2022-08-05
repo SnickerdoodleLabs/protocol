@@ -12,7 +12,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       "Local Doodle Chain",
       ChainId(31337),
       true,
-      [ProviderUrl("http://localhost:8545")],
+      [ProviderUrl("http://127.0.0.1:8545")],
       4000,
       EIndexer.Simulator,
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Consent Contract Factory

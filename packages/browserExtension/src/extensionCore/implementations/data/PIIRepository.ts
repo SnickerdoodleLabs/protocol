@@ -1,6 +1,3 @@
-import { IPIIRepository } from "@interfaces/data";
-import { IErrorUtils } from "@interfaces/utilities";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
   GivenName,
@@ -10,13 +7,20 @@ import {
   EmailAddressString,
   CountryCode,
   ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
+import { IPIIRepository } from "@interfaces/data";
+import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
+
+@injectable()
 export class PIIRepository implements IPIIRepository {
   constructor(
-    protected core: ISnickerdoodleCore,
-    protected errorUtils: IErrorUtils,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
   public setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setAge(age).mapErr((error) => {

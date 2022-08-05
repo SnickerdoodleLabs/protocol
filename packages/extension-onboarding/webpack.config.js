@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
@@ -5,9 +6,14 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const configFilePath = require.resolve("./tsconfig.json");
+const argon2 = require("argon2");
+const fileSystem = require("fs-extra");
 
 /** @type import('webpack').Configuration */
 module.exports = {
+  externals: {
+    argon2: argon2,
+  },
   context: __dirname,
   mode: process.env.__BUILD_ENV__ === "PROD" ? "production" : "development",
   entry: path.join(__dirname, "src/index.tsx"),
@@ -101,7 +107,33 @@ module.exports = {
       process: "process/browser",
     }),
     new webpack.DefinePlugin({
+      __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
+      __CONTROL_CHAIN_NAME__: JSON.stringify(
+        process.env.__CONTROL_CHAIN_NAME__ || "Local Doodle Chain",
+      ),
+
+      __CONTROL_CHAIN_ID__: JSON.stringify(
+        process.env.__CONTROL_CHAIN_ID__ || "31337",
+      ),
+      __CONTROL_CHAIN_PROVIDER_URLS__: JSON.stringify(
+        process.env.__CONTROL_CHAIN_PROVIDER_URLS__ || "http://localhost:8545",
+      ),
+
+      __CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS__: JSON.stringify(
+        process.env.__CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS__ ||
+          "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      ),
       __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
+      __INFURA_ID__: JSON.stringify(
+        process.env.__BUILD_ENV__ === "PROD"
+          ? process.env.__INFURA_ID__
+          : fileSystem.readJsonSync("./development.json").DEV_INFURA_ID,
+      ),
+      __GAPI_CLIENT_ID__: JSON.stringify(
+        process.env.__BUILD_ENV__ === "PROD"
+          ? process.env.__GAPI_CLIENT_ID__
+          : fileSystem.readJsonSync("./development.json").DEV_GAPI_CLIENT_ID,
+      ),
     }),
   ],
 };

@@ -2,10 +2,9 @@
   "extends": "./tsconfig.build.json",
   "files": [],
   "references": [
-    // I want to investigate this later
-    // {
-    //   "path": "packages/browserExtension"
-    // },
+    {
+      "path": "packages/browserExtension"
+    },
     {
       "path": "packages/common-utils"
     },
