@@ -23,6 +23,7 @@ export interface ILinkedAccount {
 
 export interface IAppContext {
   linkedAccounts: ILinkedAccount[];
+  isSDLDataWalletDetected: boolean;
   providerList: IProvider[];
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: ILinkedAccount): void;
@@ -43,6 +44,8 @@ export const AppContextProvider: FC = ({ children }) => {
   const [stepperStatus, setStepperStatus] = useState(0);
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
   const [userObject, setUserObject] = useState<PII>();
+  const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
+    useState<boolean>(false);
   useEffect(() => {
     document.addEventListener(
       "SD_WALLET_EXTENSION_CONNECTED",
@@ -61,6 +64,7 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const onWalletConnected = () => {
     // Phantom wallet can not initiate window phantom object at time
+    setSDLDataWalletDetected(true);
     setTimeout(() => {
       const providerList = getProviderList();
       setProviderList(providerList);
@@ -113,6 +117,7 @@ export const AppContextProvider: FC = ({ children }) => {
     <AppContext.Provider
       value={{
         providerList,
+        isSDLDataWalletDetected,
         linkedAccounts,
         getUserAccounts,
         addAccount,
