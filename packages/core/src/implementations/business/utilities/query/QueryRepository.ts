@@ -33,12 +33,15 @@ export class QueryRepository implements IQueryRepository {
 
     // 2. Evaluate and cache, then return
 
+    // return okAsync(SDQL_Return(false));
+
     const val = this.queryValuator.eval(q);
+    return val;
     // console.log("Query repository", q);
 
-    return this.queryValuator.eval(q).andThen((returnVal: SDQL_Return) => {
-      return okAsync(returnVal);
-    });
+    // return this.queryValuator.eval(q).andThen((returnVal: SDQL_Return) => {
+    //   return okAsync(returnVal);
+    // });
     //this.save(cid, q, val)
     //return val;
   }

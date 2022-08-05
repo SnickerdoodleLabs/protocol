@@ -24,6 +24,7 @@ export class TypeChecker {
      */
     return !(
       expr instanceof AST_Expr ||
+      TypeChecker.isQuery ||
       TypeChecker.isOperator(expr) ||
       TypeChecker.isCommand(expr)
     );

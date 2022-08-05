@@ -321,7 +321,9 @@ export class ExprParser {
       expList[0],
       expList[1],
     );
-    return new AST_ConditionExpr(SDQL_Name(id), condition);
+    const and = new AST_ConditionExpr(SDQL_Name(id), condition);
+    // console.log('and constructed to', and);
+    return and;
   }
 
   createOr(expList: Array<any>, token: Token): AST_ConditionExpr {

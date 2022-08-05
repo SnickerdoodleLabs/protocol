@@ -65,6 +65,11 @@ export class QueryEvaluator implements IQueryEvaluator {
             startTime,
             endTime
         );
+        console.log("Filter chainId: ", filter.chainIDs);
+        console.log("Filter addresses: ", filter.addresses);
+        console.log("Filter hashes: ", filter.hashes);
+        console.log("Filter startTime: ", filter.startTime);
+        console.log("Filter endTime: ", filter.endTime);
 
         return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
             (transactions) =>
@@ -172,11 +177,7 @@ export class QueryEvaluator implements IQueryEvaluator {
                     }
                 );
             case "chain_transaction_count":
-                // console.log("Tracking the result: ", result);
-                let obj = q.patternProperties;
-                let key = Object.keys(obj)[0];
-                console.log("Key: ", key);
-
+ 
                 return this.dataWalletPersistence.getTransactionsMap().andThen( 
                     (transactionsMap) => 
                     {
