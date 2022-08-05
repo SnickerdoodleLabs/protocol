@@ -1,15 +1,3 @@
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import WalletProviderItem from "@extension-onboarding/components/WalletProviders/WalletProviderItem";
-import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviders.style";
-import {
-  ALERT_MESSAGES,
-  EWalletProviderKeys,
-} from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 import { Box, Typography } from "@material-ui/core";
 import {
   IMinimalForwarderRequest,
@@ -36,6 +24,19 @@ import React, {
   useMemo,
   useState,
 } from "react";
+
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { EModalSelectors } from "@extension-onboarding/components/Modals/";
+import WalletProviderItem from "@extension-onboarding/components/WalletProviders/WalletProviderItem";
+import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviders.style";
+import {
+  ALERT_MESSAGES,
+  EWalletProviderKeys,
+} from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -194,6 +195,9 @@ const WalletProviders: FC = () => {
                 )
               ) {
                 if (!linkedAccounts.length) {
+                  console.log(
+                    "No existing linked accounts, calling sdlDataWallet.unlock()",
+                  );
                   return window.sdlDataWallet.unlock(account, signature);
                 }
                 return window.sdlDataWallet.addAccount(account, signature);

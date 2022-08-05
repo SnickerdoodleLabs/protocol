@@ -1,6 +1,3 @@
-import { IInvitationRepository } from "@interfaces/data/IInvitationRepository";
-import { IErrorUtils } from "@interfaces/utilities";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   ConsentConditions,
@@ -8,13 +5,20 @@ import {
   EInvitationStatus,
   ISnickerdoodleCore,
   PageInvitation,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
+import { IInvitationRepository } from "@interfaces/data/IInvitationRepository";
+import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
+
+@injectable()
 export class InvitationRepository implements IInvitationRepository {
   constructor(
-    protected core: ISnickerdoodleCore,
-    protected errorUtils: IErrorUtils,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
   public getInvitationsByDomain(

@@ -3,14 +3,23 @@ import {
   Signature,
   LanguageCode,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import Browser from "webextension-polyfill";
-import { IUnlockParams } from "@shared/interfaces/actions";
+
 import { IAccountCookieUtils } from "@interfaces/utilities";
+import { IUnlockParams } from "@shared/interfaces/actions";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@shared/interfaces/configProvider";
 import { ExtensionCookieError } from "@shared/objects/errors";
-import { IConfigProvider } from "@shared/interfaces/configProvider";
+
+@injectable()
 export class AccountCookieUtils implements IAccountCookieUtils {
-  constructor(protected configProvider: IConfigProvider) {}
+  constructor(
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+  ) {}
 
   public writeAccountInfoToCookie(
     account: EVMAccountAddress,

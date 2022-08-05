@@ -1,12 +1,20 @@
-import { BrowserUtils } from "@enviroment/shared/utils";
-import { IExtensionListener } from "@interfaces/api";
-import { IConfigProvider } from "@shared/interfaces/configProvider";
-import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { Action, Tabs } from "webextension-polyfill";
 
+import { BrowserUtils } from "@enviroment/shared/utils";
+import { IExtensionListener } from "@interfaces/api";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@shared/interfaces/configProvider";
+import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+
+@injectable()
 export class ExtensionListener implements IExtensionListener {
-  constructor(protected configProvider: IConfigProvider) {}
+  constructor(
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+  ) {}
   public initialize(): ResultAsync<void, never> {
     BrowserUtils.browserAction.onClicked.addListener(
       this.handleExtensionIconClick.bind(this),

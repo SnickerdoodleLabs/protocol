@@ -1,32 +1,3 @@
-import { IRpcCallHandler } from "@interfaces/api";
-import {
-  IAccountService,
-  IInvitationService,
-  IPIIService,
-} from "@interfaces/business";
-import { IContextProvider } from "@interfaces/utilities";
-import { EExternalActions, EInternalActions } from "@shared/enums";
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
-import {
-  SnickerDoodleCoreError,
-  ExtensionCookieError,
-} from "@shared/objects/errors";
-import {
-  IUnlockParams,
-  IGetUnlockMessageParams,
-  IAddAccountParams,
-  ISetAgeParams,
-  ISetGivenNameParams,
-  ISetFamilyNameParams,
-  ISetBirthdayParams,
-  ISetGenderParams,
-  ISetLocationParams,
-  ISetEmailParams,
-  IGetInvitationWithDomainParams,
-  IMetatransactionSignatureRequestCallbackParams,
-  IAcceptInvitationParams,
-  IRejectInvitationParams,
-} from "@shared/interfaces/actions";
 import {
   Age,
   Invitation,
@@ -48,22 +19,57 @@ import {
   UUID,
   InvitationDomain,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
   JsonRpcRequest,
   PendingJsonRpcResponse,
 } from "json-rpc-engine";
-
 import { okAsync, ResultAsync } from "neverthrow";
 import { Runtime } from "webextension-polyfill";
-import { AsyncRpcResponseSender } from "@implementations/utilities";
-import { ExtensionMetatransactionError } from "@shared/objects/errors";
 
+import { AsyncRpcResponseSender } from "@implementations/utilities";
+import { IRpcCallHandler } from "@interfaces/api";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IPIIService,
+  IPIIServiceType,
+} from "@interfaces/business";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
+import { EExternalActions, EInternalActions } from "@shared/enums";
+import {
+  IUnlockParams,
+  IGetUnlockMessageParams,
+  IAddAccountParams,
+  ISetAgeParams,
+  ISetGivenNameParams,
+  ISetFamilyNameParams,
+  ISetBirthdayParams,
+  ISetGenderParams,
+  ISetLocationParams,
+  ISetEmailParams,
+  IGetInvitationWithDomainParams,
+  IMetatransactionSignatureRequestCallbackParams,
+  IAcceptInvitationParams,
+  IRejectInvitationParams,
+} from "@shared/interfaces/actions";
+import {
+  SnickerDoodleCoreError,
+  ExtensionCookieError,
+  ExtensionMetatransactionError,
+} from "@shared/objects/errors";
+
+@injectable()
 export class RpcCallHandler implements IRpcCallHandler {
   constructor(
-    protected contextProvider: IContextProvider,
-    protected accountService: IAccountService,
-    protected piiService: IPIIService,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(IAccountServiceType) protected accountService: IAccountService,
+    @inject(IPIIServiceType) protected piiService: IPIIService,
+    @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
   ) {}
 
@@ -241,7 +247,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.invitationService
       .getInvitationByDomain(domain)
       .andThen((pageInvitations) => {
-        console.log("pageInvitations",pageInvitations);
+        console.log("pageInvitations", pageInvitations);
         const pageInvitation = pageInvitations.find(
           (value) => value.domainDetails.domain === domain,
         );
@@ -249,7 +255,7 @@ export class RpcCallHandler implements IRpcCallHandler {
           return this.invitationService
             .checkInvitationStatus(pageInvitation.invitation)
             .andThen((invitationStatus) => {
-              console.log("invitationStatus",invitationStatus);
+              console.log("invitationStatus", invitationStatus);
               if (invitationStatus === EInvitationStatus.New) {
                 const invitationUUID = this.contextProvider.addInvitation(
                   pageInvitation.invitation,

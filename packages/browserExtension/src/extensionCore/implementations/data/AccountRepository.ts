@@ -1,24 +1,34 @@
-import { IAccountRepository } from "@interfaces/data";
-import { IAccountCookieUtils, IErrorUtils } from "@interfaces/utilities";
-import {
-  SnickerDoodleCoreError,
-  ExtensionCookieError,
-} from "@shared/objects/errors";
 import {
   EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
   ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
-
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { IAccountRepository } from "@interfaces/data";
+import {
+  IAccountCookieUtils,
+  IAccountCookieUtilsType,
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@interfaces/utilities";
+import {
+  SnickerDoodleCoreError,
+  ExtensionCookieError,
+} from "@shared/objects/errors";
+
+@injectable()
 export class AccountRepository implements IAccountRepository {
   constructor(
-    protected core: ISnickerdoodleCore,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IAccountCookieUtilsType)
     protected accountCookieUtils: IAccountCookieUtils,
-    protected errorUtils: IErrorUtils,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
   public getAccounts(): ResultAsync<
     EVMAccountAddress[],

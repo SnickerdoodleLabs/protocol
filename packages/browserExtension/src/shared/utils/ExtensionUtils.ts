@@ -7,8 +7,8 @@ export class ExtensionUtils {
     if (!lastError) {
       return undefined;
     }
-    // @ts-ignore
-    if (lastError?.stack && lastError.message) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((lastError as any).stack && lastError.message) {
       return lastError;
     }
     return new Error(lastError.message);

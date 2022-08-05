@@ -1,12 +1,21 @@
-import { PortConnectionUtils } from "@enviroment/manifest3/utils";
-import { IPortConnectionListener } from "@interfaces/api";
-import { IPortConnectionService } from "@interfaces/business";
-import { VersionUtils } from "@shared/utils/VersionUtils";
+import { inject, injectable } from "inversify";
 import { okAsync } from "neverthrow";
 import Browser, { Runtime } from "webextension-polyfill";
 
+import { PortConnectionUtils } from "@enviroment/manifest3/utils";
+import { IPortConnectionListener } from "@interfaces/api";
+import {
+  IPortConnectionService,
+  IPortConnectionServiceType,
+} from "@interfaces/business";
+import { VersionUtils } from "@shared/utils/VersionUtils";
+
+@injectable()
 export class PortConnectionListener implements IPortConnectionListener {
-  constructor(protected portConnectionService: IPortConnectionService) {}
+  constructor(
+    @inject(IPortConnectionServiceType)
+    protected portConnectionService: IPortConnectionService,
+  ) {}
 
   public initialize() {
     Browser.runtime.onConnect.addListener((port) => {

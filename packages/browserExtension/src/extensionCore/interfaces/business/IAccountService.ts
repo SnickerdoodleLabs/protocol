@@ -32,3 +32,5 @@ export interface IAccountService {
   getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 }
+
+export const IAccountServiceType = Symbol.for("IAccountService");

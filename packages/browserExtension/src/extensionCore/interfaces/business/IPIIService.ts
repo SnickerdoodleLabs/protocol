@@ -30,3 +30,5 @@ export interface IPIIService {
   setLocation(location: CountryCode): ResultAsync<void, SnickerDoodleCoreError>;
   getLocation(): ResultAsync<CountryCode | null, SnickerDoodleCoreError>;
 }
+
+export const IPIIServiceType = Symbol.for("IPIIService");

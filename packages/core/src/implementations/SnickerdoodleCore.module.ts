@@ -20,8 +20,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ContainerModule, interfaces } from "inversify";
 
-import { QueryEvaluator, QueryRepository } from "./business/utilities/query";
-
 import {
   AccountIndexerPoller,
   BlockchainListener,
@@ -31,7 +29,9 @@ import {
   InvitationService,
   MonitoringService,
   ProfileService,
+  QueryEvaluator,
   QueryParsingEngine,
+  QueryRepository,
   QueryService,
 } from "@core/implementations/business";
 import {

@@ -35,10 +35,6 @@ import {
   UnsupportedLanguageError,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import {
-  forwardRequestTypes,
-  snickerdoodleSigningDomain,
-} from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -201,7 +197,9 @@ export class AccountService implements IAccountService {
       this.dataWalletUtils.createDataWalletKey(),
       this.dataWalletUtils.deriveEncryptionKeyFromSignature(signature),
     ]).andThen(([dataWalletKey, encryptionKey]) => {
-      console.warn(`TEST: encryptionKey: ${encryptionKey}, dataWalletKey: ${dataWalletKey}`);
+      console.warn(
+        `TEST: encryptionKey: ${encryptionKey}, dataWalletKey: ${dataWalletKey}`,
+      );
       // Encrypt the data wallet key
       return this.cryptoUtils
         .encryptString(dataWalletKey, encryptionKey)
@@ -301,14 +299,16 @@ export class AccountService implements IAccountService {
     return this.dataWalletUtils
       .deriveEncryptionKeyFromSignature(signature)
       .andThen((encryptionKey) => {
-        console.warn(`TEST: encryptionKey: ${encryptionKey}, encryptedDataWalletKey:`, encryptedDataWalletKey);
+        console.warn(
+          `TEST: encryptionKey: ${encryptionKey}, encryptedDataWalletKey:`,
+          encryptedDataWalletKey,
+        );
         return this.cryptoUtils.decryptAESEncryptedString(
           encryptedDataWalletKey,
           encryptionKey,
         );
       })
       .map((dataWalletKey) => {
-        
         const key = EVMPrivateKey(dataWalletKey);
         return new ExternallyOwnedAccount(
           this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(key),
