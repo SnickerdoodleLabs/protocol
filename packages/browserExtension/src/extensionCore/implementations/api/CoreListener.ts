@@ -55,6 +55,7 @@ export class CoreListener implements ICoreListener {
   private onMetatransactionSignatureRequested(
     metatransactionSignatureRequest: MetatransactionSignatureRequest,
   ) {
+    console.log(`onMetatransactionSignatureRequested from Core for account ${metatransactionSignatureRequest.accountAddress}`);
     this.contextProvider.notifyPortsWithIncomingMetatransactionSignatureRequest(
       metatransactionSignatureRequest,
     );

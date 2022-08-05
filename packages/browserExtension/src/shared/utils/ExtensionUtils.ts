@@ -2,14 +2,14 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import browser, { Tabs, Windows } from "webextension-polyfill";
 
 export class ExtensionUtils {
-  public static checkForError = () => {
+  public static checkForError(): Error | null {
     const { lastError } = browser.runtime;
     if (!lastError) {
-      return undefined;
+      return null;
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((lastError as any).stack && lastError.message) {
-      return lastError;
+      return lastError as Error;
     }
     return new Error(lastError.message);
   };
@@ -18,8 +18,8 @@ export class ExtensionUtils {
     browser.runtime.reload();
   };
 
-  public static openTab = (options: Tabs.CreateCreatePropertiesType) => {
-    return ResultAsync.fromSafePromise(browser.tabs.create(options)).andThen(
+  public static openTab(options: Tabs.CreateCreatePropertiesType): ResultAsync<browser.Tabs.Tab, Error> {
+    return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(browser.tabs.create(options)).andThen(
       (newTab) => {
         const error = ExtensionUtils.checkForError();
         if (error) {
@@ -140,8 +140,8 @@ export class ExtensionUtils {
     });
   };
 
-  public static getAllTabsOnWindow = (windowId: number) => {
-    return ResultAsync.fromSafePromise(
+  public static getAllTabsOnWindow(windowId: number): ResultAsync<Tabs.Tab[], Error> {
+    return ResultAsync.fromSafePromise<Tabs.Tab[], never>(
       browser.tabs.query({ windowId }),
     ).andThen((tabs) => {
       const error = ExtensionUtils.checkForError();
@@ -165,8 +165,8 @@ export class ExtensionUtils {
     );
   };
 
-  public static switchToTab = (tabId: number | undefined) => {
-    return ResultAsync.fromSafePromise(
+  public static switchToTab(tabId: number | undefined): ResultAsync<browser.Tabs.Tab, Error> {
+    return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(
       browser.tabs.update(tabId, { highlighted: true }),
     ).andThen((tab) => {
       const err = ExtensionUtils.checkForError();

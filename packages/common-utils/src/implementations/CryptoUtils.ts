@@ -123,7 +123,7 @@ export class CryptoUtils implements ICryptoUtils {
         );
 
         // Encrypt the message
-        let encryptedData = cipher.update(secret, "utf-8", "base64");
+        let encryptedData = cipher.update(secret, "utf8", "base64");
         encryptedData += cipher.final("base64");
         return new AESEncryptedString(EncryptedString(encryptedData), iv);
       } catch (e) {
@@ -149,7 +149,7 @@ export class CryptoUtils implements ICryptoUtils {
       );
 
       // decrypt the message
-      let decryptedData = decipher.update(encrypted.data, "base64", "utf-8");
+      let decryptedData = decipher.update(encrypted.data, "base64", "utf8");
       decryptedData += decipher.final("utf8");
       return okAsync(decryptedData);
     } catch (e) {

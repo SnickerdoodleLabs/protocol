@@ -109,11 +109,21 @@ export class AccountService implements IAccountService {
       this.loginRegistryRepo.getCrumb(accountAddress, languageCode),
     ])
       .andThen(([context, encryptedDataWalletKey]) => {
-        // You can't unlock if we're already unlocked!
-        if (context.dataWalletAddress != null || context.unlockInProgress) {
-          // TODO: Need to consider the error type here, I'm getting lazy
+        // If we're already in the process of unlocking
+        if (context.unlockInProgress) {
           return errAsync(
-            new InvalidSignatureError("Unlock already in progress!"),
+            new InvalidSignatureError(
+              "Unlock already in progress, please wait for it to complete.",
+            ),
+          );
+        }
+
+        // You can't unlock if we're already unlocked!
+        if (context.dataWalletAddress != null) {
+          return errAsync(
+            new InvalidSignatureError(
+              `Data wallet ${context.dataWalletAddress} is already unlocked!`,
+            ),
           );
         }
 

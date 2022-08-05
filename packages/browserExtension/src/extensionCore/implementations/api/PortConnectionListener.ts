@@ -19,20 +19,24 @@ export class PortConnectionListener implements IPortConnectionListener {
 
   public initialize() {
     Browser.runtime.onConnect.addListener((port) => {
-      if (VersionUtils.isManifest3) {
-        PortConnectionUtils.autoDisconnectWrapper(
-          port,
-          this.handlePortConnectionRequest.bind(this),
-        );
-      } else {
-        this.handlePortConnectionRequest(port);
+      try {
+        if (VersionUtils.isManifest3) {
+          PortConnectionUtils.autoDisconnectWrapper(
+            port,
+            this.handlePortConnectionRequest.bind(this),
+          )
+        } else {
+          this.handlePortConnectionRequest(port);
+        }
+      }
+      catch(e) {
+        console.debug("Error in runtime.onConnect() after calling PortConnectionUtils.autoDisconnectWrapper()", e);
       }
     });
     return okAsync(undefined);
   }
 
   private handlePortConnectionRequest(port: Runtime.Port) {
-    this.portConnectionService.connectRemote(port);
-    return okAsync(undefined);
+    return this.portConnectionService.connectRemote(port);
   }
 }

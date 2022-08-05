@@ -17,7 +17,14 @@ export class ExtensionListener implements IExtensionListener {
   ) {}
   public initialize(): ResultAsync<void, never> {
     BrowserUtils.browserAction.onClicked.addListener(
-      this.handleExtensionIconClick.bind(this),
+      (
+        tab: Tabs.Tab,
+        info: Action.OnClickData | undefined,
+      ) => {
+        this.handleExtensionIconClick(tab, info).mapErr((e) => {
+          console.error("Error while handling extensionIconClick", e);
+        });
+      }
     );
     return okAsync(undefined);
   }
@@ -25,22 +32,23 @@ export class ExtensionListener implements IExtensionListener {
   private handleExtensionIconClick(
     tab: Tabs.Tab,
     info: Action.OnClickData | undefined,
-  ) {
+  ): ResultAsync<void, Error> {
+    console.debug("Icon clicked");
     const config = this.configProvider.getConfig();
     if (tab.windowId) {
-      ExtensionUtils.getAllTabsOnWindow(tab.windowId).andThen((tabs) => {
+      return ExtensionUtils.getAllTabsOnWindow(tab.windowId).andThen((tabs) => {
         const onboardingTab = tabs.find(
           (tab) =>
             new URL(tab.url || "").origin ===
             new URL(config.onboardingUrl).origin,
         );
         if (onboardingTab) {
-          return ExtensionUtils.switchToTab(onboardingTab.id);
+          return ExtensionUtils.switchToTab(onboardingTab.id).map(() => {});
         }
-        return ExtensionUtils.openTab({ url: config.onboardingUrl });
+        return ExtensionUtils.openTab({ url: config.onboardingUrl }).map(() => {});
       });
     } else {
-      ExtensionUtils.openTab({ url: config.onboardingUrl });
+      return ExtensionUtils.openTab({ url: config.onboardingUrl }).map(() => {});
     }
     // when the below method is called onClick event not gonna fired again this can be called after onboarding is completed
   }
