@@ -1,0 +1,4 @@
+InsightPlatformProtocol:
+  Image:
+    Repo: "us-central1-docker.pkg.dev/snickerdoodle-insight-stackdev/insight-platform/protocol"
+    Tag: "dc4759043166d30867e2a550ab04e05e6c9cb27e"
