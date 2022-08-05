@@ -62,4 +62,8 @@ export class AccountService implements IAccountService {
   ): ResultAsync<string, SnickerDoodleCoreError> {
     return this.accountRepository.getUnlockMessage(languageCode);
   }
+
+  public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
+    return this.accountRepository.isDataWalletAddressInitialized();
+  }
 }

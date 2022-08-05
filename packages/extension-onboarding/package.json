@@ -13,7 +13,7 @@
     "dockerize": "docker build -t snickerdoodlelabs/extension-onboarding:local -f Dockerfile --progress=plain ../..",
     "postCompile": "npx webpack",
     "prepare": "yarn build",
-    "start": "webpack serve --config webpack.config.js --mode development",
+    "start": "npx webpack serve --config webpack.config.js --mode development",
     "test": "echo \"Error: no test specified\" && exit 0"
   },
   "types": "dist/index.d.ts",

@@ -94,4 +94,8 @@ export class AccountRepository implements IAccountRepository {
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
   }
+
+  public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
+    return this.core.isDataWalletAddressInitialized();
+  }
 }

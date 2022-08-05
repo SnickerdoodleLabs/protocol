@@ -108,12 +108,25 @@ const App = () => {
 
   const initiateCohort = async () => {
     coreGateway
-      .getInvitationsByDomain("snickerdoodle-protocol.snickerdoodle.dev" as DomainName)
-      .map((result) => {
-        console.log("res",result)
-        if (result !== DEFAULT_RPC_SUCCESS_RESULT) {
-          setInvitationDomain(result);
-          initiateRewardPopup(result);
+      .isDataWalletAddressInitialized()
+      .andThen((dataWalletAddressInitialized) => {
+        if (dataWalletAddressInitialized) {
+          const host = window.location.hostname;
+          let domainName;
+          if (host.startsWith("www.")) {
+            domainName = DomainName(
+              host.replace("www.", "snickerdoodle-protocol."),
+            );
+          } else {
+            domainName = DomainName(`snickerdoodle-protocol.${host}`);
+          }
+
+          coreGateway.getInvitationsByDomain(domainName).map((result) => {
+            if (result !== DEFAULT_RPC_SUCCESS_RESULT) {
+              setInvitationDomain(result);
+              initiateRewardPopup(result);
+            }
+          });
         }
       });
   };
@@ -124,8 +137,8 @@ const App = () => {
       title: domainDetails.title,
       description: domainDetails.description,
       image: domainDetails.image,
-      primaryButtonText: "Back to Game",
-      secondaryButtonText: "Claim Rewards",
+      primaryButtonText: "Claim Rewards",
+      secondaryButtonText: "Back to Game",
       rewardName: domainDetails.rewardName,
       nftClaimedImage: domainDetails.nftClaimedImage,
     });
