@@ -67,8 +67,7 @@ export class ExtensionCore {
     // Make the core directly injectable
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
 
-    // TODO enable again once the unlock method on core is complated
-    //this.tryUnlock();
+    this.tryUnlock();
   }
 
   public initialize(): ResultAsync<void, never> {
