@@ -1,6 +1,7 @@
-# Query Execution Plan
+# SDQL Execution Plan
 
 ## Data Flow
+
 ```mermaid
 
 graph TD;

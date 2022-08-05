@@ -36,11 +36,14 @@ import {
 } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
 import { SDQLQueryRequest } from "@snickerdoodlelabs/objects";
+import { avalance1SchemaStr } from "./query/avalanche1.data";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
 const queryContent = SDQLString("Hello world!");
-const sdqlQuery = new SDQLQuery(queryId, queryContent);
+// const sdqlQuery = new SDQLQuery(queryId, queryContent);
+
+const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance1SchemaStr));
 
 const insights: InsightString[] = [
   InsightString("Hello1"),

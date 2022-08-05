@@ -75,13 +75,14 @@ export const testCoreConfig = new CoreConfig(
   URLString("ipfs node address"),
   // uncomment following line to test locally
   URLString("http://localhost:3000/v0"),
-  // URLString("http://insight-platform"),
+  URLString("http://insight-platform"),
   snickerdoodleSigningDomain,
   5000, // polling interval indexing,
   5000, // polling interval balance
   5000, // polling interval NFT
   "covalent api key",
   "moralis api key",
+  URLString("http://dnsServerAddress"),
 );
 
 // #endregion

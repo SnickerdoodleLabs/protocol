@@ -434,4 +434,10 @@ export class AccountService implements IAccountService {
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     return this.dataWalletPersistence.getSiteVisits();
   }
+
+  public addEVMTransactions(
+    transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.addEVMTransactions(transactions);
+  }
 }
