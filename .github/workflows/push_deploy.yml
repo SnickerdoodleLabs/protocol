@@ -56,10 +56,13 @@ jobs:
     - name: Publish protocol
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
-        
 
-#    Get the GKE credentials so we can deploy to the cluster
-    - name: Set up GKE credentials & Deploy protocol
+    - name: Deploy to GCR
       run: |-
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
-        kubectl set image deployment/insight-platform-insight-platform-protocol-deployment insight-platform-protocol=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+        cd infra/app/stacks/snickerdoodle-stack-kubernetes
+      
+        helm upgrade --reuse-values --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA
