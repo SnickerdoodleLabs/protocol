@@ -1,114 +1,65 @@
-// Utils
 import {
-  IAccountCookieUtils,
-  IContextProvider,
-  IErrorUtils,
-} from "@interfaces/utilities";
-import {
-  AccountCookieUtils,
-  ContextProvider,
-  ErrorUtils,
-} from "@implementations/utilities";
-
-// Utils / Factory
-import { IRpcEngineFactory } from "@interfaces/utilities/factory";
-import { RpcEngineFactory } from "@implementations/utilities/factory";
-
-// Business
-import {
-  PortConnectionService,
-  AccountService,
-  PIIService,
-  InvitationService,
-} from "@implementations/business";
-import {
-  IAccountService,
-  IInvitationService,
-  IPIIService,
-  IPortConnectionService,
-} from "@interfaces/business";
-
-// Repository
-import {
-  PortConnectionRepository,
-  AccountRepository,
-  PIIRepository,
-} from "@implementations/data";
-import {
-  IAccountRepository,
-  IInvitationRepository,
-  IPIIRepository,
-  IPortConnectionRepository,
-} from "@interfaces/data";
-
-// API
-import {
-  ICoreListener,
-  IErrorListener,
-  IExtensionListener,
-  IPortConnectionListener,
-  IRpcCallHandler,
-} from "@interfaces/api";
-import {
-  CoreListener,
-  ErrorListener,
-  ExtensionListener,
-  PortConnectionListener,
-  RpcCallHandler,
-} from "@implementations/api";
-
-// core package
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   SnickerdoodleCore
 } from "@snickerdoodlelabs/core";
+import {
+  DefaultAccountBalances,
+  DefaultAccountNFTs,
+} from "@snickerdoodlelabs/indexers";
+import {
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
+} from "@snickerdoodlelabs/objects";
+import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { Container } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
-// snickerdoodleobjects
-import { ChainId, IConfigOverrides, ISnickerdoodleCore, URLString } from "@snickerdoodlelabs/objects";
-import { okAsync } from "neverthrow";
-
-// shared
+import { extensionCoreModule } from "@implementations/ExtensionCore.module";
+import {
+  ICoreListener,
+  ICoreListenerType,
+  IErrorListener,
+  IErrorListenerType,
+  IExtensionListener,
+  IExtensionListenerType,
+  IPortConnectionListener,
+  IPortConnectionListenerType,
+} from "@interfaces/api";
+import { IAccountService, IAccountServiceType } from "@interfaces/business";
+import {
+  IAccountCookieUtils,
+  IAccountCookieUtilsType,
+} from "@interfaces/utilities";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@shared/interfaces/configProvider";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
-// shared - config
-import { IConfigProvider } from "@shared/interfaces/configProvider";
-import ConfigProvider from "@shared/utils/ConfigProvider";
-
-import { InvitationRepository } from "./data/InvitationRepository";
 
 export class ExtensionCore {
+  protected iocContainer: Container;
+
   // snickerdooldle Core
   protected core: ISnickerdoodleCore;
 
-  // Business
-  protected accountService: IAccountService;
-  protected portConnectionService: IPortConnectionService;
-  protected piiService: IPIIService;
-  protected invitationService: IInvitationService;
-
-  // Data
-  protected accountRepository: IAccountRepository;
-  protected portConnectionRepository: IPortConnectionRepository;
-  protected piiRepository: IPIIRepository;
-  protected invitationRepository: IInvitationRepository;
-
-  // Utils
-  protected contextProvider: IContextProvider;
-  protected accountCookieUtils: IAccountCookieUtils;
-  protected errorUtils: IErrorUtils;
-
-  // Factory
-  protected rpcEngineFactory: IRpcEngineFactory;
-
-  // API
-  protected coreListener: ICoreListener;
-  protected errorListener: IErrorListener;
-  protected extensionListener: IExtensionListener;
-  protected portConnectionListener: IPortConnectionListener;
-  protected rpcCallHandler: IRpcCallHandler;
-
-  protected configProvider: IConfigProvider;
-
   constructor() {
-    this.configProvider = ConfigProvider;
+    this.iocContainer = new Container();
+
+    // Elaborate syntax to demonstrate that we can use multiple modules
+    this.iocContainer.load(...[extensionCoreModule]);
+
+    const ajaxUtils =
+      this.iocContainer.get<IAxiosAjaxUtils>(IAxiosAjaxUtilsType);
+    const coreConfigProvider = new CoreConfigProvider();
+    const persistence = new ChromeStoragePersistence(
+      coreConfigProvider,
+      new DefaultAccountNFTs(coreConfigProvider, ajaxUtils),
+      new DefaultAccountBalances(coreConfigProvider, ajaxUtils),
+    );
 
     const coreConfig = {
       controlChainId: ChainId(31337),
@@ -122,76 +73,45 @@ export class ExtensionCore {
 
     this.core = new SnickerdoodleCore(coreConfig);
 
-    this.contextProvider = new ContextProvider(this.configProvider);
+    // Make the core directly injectable
+    this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
 
-    this.coreListener = new CoreListener(this.core, this.contextProvider);
-    this.coreListener.initialize();
+    this.tryUnlock();
+  }
 
-    this.accountCookieUtils = new AccountCookieUtils(this.configProvider);
-    this.errorUtils = new ErrorUtils(this.contextProvider);
-
-    this.accountRepository = new AccountRepository(
-      this.core,
-      this.accountCookieUtils,
-      this.errorUtils,
+  public initialize(): ResultAsync<void, never> {
+    const coreListener =
+      this.iocContainer.get<ICoreListener>(ICoreListenerType);
+    const extensionListener = this.iocContainer.get<IExtensionListener>(
+      IExtensionListenerType,
     );
-    this.accountService = new AccountService(this.accountRepository);
-
-    this.piiRepository = new PIIRepository(this.core, this.errorUtils);
-    this.piiService = new PIIService(this.piiRepository);
-
-    this.invitationRepository = new InvitationRepository(
-      this.core,
-      this.errorUtils,
-    );
-    this.invitationService = new InvitationService(
-      this.invitationRepository,
-      this.contextProvider,
-    );
-
-    this.rpcCallHandler = new RpcCallHandler(
-      this.contextProvider,
-      this.accountService,
-      this.piiService,
-      this.invitationService,
-    );
-
-    this.rpcEngineFactory = new RpcEngineFactory(
-      this.contextProvider,
-      this.rpcCallHandler,
-    );
-
-    this.portConnectionRepository = new PortConnectionRepository(
-      this.contextProvider,
-      this.rpcEngineFactory,
-      this.configProvider,
-    );
-
-    this.portConnectionService = new PortConnectionService(
-      this.portConnectionRepository,
-    );
-
-    this.extensionListener = new ExtensionListener(this.configProvider);
-    this.extensionListener.initialize();
-
-    this.errorListener = new ErrorListener(this.contextProvider);
-    this.errorListener.initialize();
-
-    this.portConnectionListener = new PortConnectionListener(
-      this.portConnectionService,
-    );
-    this.portConnectionListener.initialize();
-
-    // TODO enable again once the unlock method on core is complated
-    //this.tryUnlock();
+    const errorListener =
+      this.iocContainer.get<IErrorListener>(IErrorListenerType);
+    const portConnectionListener =
+      this.iocContainer.get<IPortConnectionListener>(
+        IPortConnectionListenerType,
+      );
+    return ResultUtils.combine([
+      coreListener.initialize(),
+      extensionListener.initialize(),
+      errorListener.initialize(),
+      portConnectionListener.initialize(),
+    ]).map(() => {});
   }
 
   private tryUnlock() {
-    this.accountCookieUtils.readAccountInfoFromCookie().andThen((values) => {
-      const config = this.configProvider.getConfig();
+    const accountCookieUtils = this.iocContainer.get<IAccountCookieUtils>(
+      IAccountCookieUtilsType,
+    );
+    const configProvider =
+      this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountCookieUtils.readAccountInfoFromCookie().andThen((values) => {
+      const config = configProvider.getConfig();
       if (values?.length) {
         const { accountAddress, signature, languageCode } = values[0];
-        return this.accountService
+        return accountService
           .unlock(accountAddress, signature, languageCode, true)
           .mapErr((e) => {
             ExtensionUtils.openTab({ url: config.onboardingUrl });

@@ -25,6 +25,7 @@ yarn npm publish --access public
 ## Troubleshooting 
 
 ### Run Errors
+
 If you are running into compile and run errors with the stack. Almost all of them boil down to either cleaning out the `node_modules` folder and reinstalling everything.
 Use `yarn clean`, `yarn clean-node`, `yarn install`, and `yarn compile` at the root as a first goto to strange import-related errors. 
 
@@ -43,8 +44,20 @@ Sometimes `tsc` will let you get away with doing this incorrectly, but `Jest`, `
 The error messages for `tsc`, particularly when doing `yarn test` and using `Jest` seem to be very bad, and even completely misleading at times. Check your `import` statements if you see something really intractable.
 
 ### Pull Request, Merge, or Rebase Errors
+
 After doing rebases or merges, make sure to do a `yarn install` before you create a PR. The `yarn.lock` file has been the victim of a few bad merges because it is simply impossible to review that hunk of junk in the context of a PR. 
 It's quite possible/likely that Github's auto-merge of a PR is the actual culprit, but we can minimize issues by taking this extra step.
 
 This goes along with other pre-PR hygiene. Make sure to both `yarn compile`, `yarn dockerize`, `yarn test`, and `yarn format` before you create a PR with your code, to make sure everything is as legit as can be. 
 I also recommend doing a code review on your own PR before you send it to other people. That's what I do at least most of the time, and especially for big PRs. You can look at your changes and often catch stuff.
+
+### IPFS Troubles
+
+Snickerdoodle Protocol uses IPFS as its [content addressable network](https://www.wikiwand.com/en/Content-addressable_network) of choice. The most common error developers face when 
+using IPFS, in our experience, is mixing up the ADMIN api and GATEWAY apis. 
+
+The ADMIN api is hosted on port 5001 and is used for pinning assets to the IPFS network. The IPFS HTTP client only works with this api (on port 5001), it is not useful for fetching 
+existing assets from the GATEWAY api. This port must not be exposed to the internet otherwise malicious actors will gain control of your IPFS node. 
+
+The GATEWAY api is hosted on port 8080 and is intended to be exposed to the internet. It is a simple HTTP server and assets can be retrieved by a simple `fetch` or `GET` from this 
+port. It is this port where you should be retrieving assets from (i.e from `https://myipfshost:8080/ipfs/Qm....`).

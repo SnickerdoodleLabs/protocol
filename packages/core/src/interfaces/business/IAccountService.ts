@@ -67,6 +67,7 @@ export interface IAccountService {
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
+  addEVMTransactions(transactions: EVMTransaction[]): ResultAsync<void, PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

@@ -1,7 +1,8 @@
-import { IAsyncRpcResponseSender } from "@interfaces/utilities/IAsyncRpcResponseSender";
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { PendingJsonRpcResponse } from "json-rpc-engine";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { IAsyncRpcResponseSender } from "@interfaces/utilities/IAsyncRpcResponseSender";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 
 export class AsyncRpcResponseSender<T, K extends Error>
   implements IAsyncRpcResponseSender
@@ -24,11 +25,13 @@ export class AsyncRpcResponseSender<T, K extends Error>
         return okAsync(undefined);
       });
   }
-  toObject(result) {
-    return JSON.parse(JSON.stringify(result, (key, value) =>
-        typeof value === 'bigint'
-            ? value.toString()
-            : value // return everything else unchanged
-    ));
-}
+
+  public toObject(result) {
+    return JSON.parse(
+      JSON.stringify(
+        result,
+        (key, value) => (typeof value === "bigint" ? value.toString() : value), // return everything else unchanged
+      ),
+    );
+  }
 }

@@ -1,7 +1,3 @@
-import { IInvitationService } from "@interfaces/business";
-import { IInvitationRepository } from "@interfaces/data/IInvitationRepository";
-import { IContextProvider } from "@interfaces/utilities";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   ConsentConditions,
@@ -10,12 +6,23 @@ import {
   PageInvitation,
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
+import { IInvitationService } from "@interfaces/business";
+import {
+  IInvitationRepository,
+  IInvitationRepositoryType,
+} from "@interfaces/data/IInvitationRepository";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
+
+@injectable()
 export class InvitationService implements IInvitationService {
   constructor(
+    @inject(IInvitationRepositoryType)
     protected invitationRepository: IInvitationRepository,
-    protected contexProvider: IContextProvider,
+    @inject(IContextProviderType) protected contexProvider: IContextProvider,
   ) {}
 
   public getInvitationByDomain(

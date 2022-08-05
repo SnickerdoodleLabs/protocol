@@ -43,6 +43,8 @@ import {
   URLString,
   UnixTimestamp,
   Gender,
+  SDQLQueryRequest,
+  EVMTransaction,
 } from "@snickerdoodlelabs/objects";
 import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
 import {
@@ -97,6 +99,8 @@ const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.com");
 const domainName2 = DomainName("snickerdoodle.com/blog");
+const domainName3 = DomainName("snickerdoodle-protocol.snickerdoodle.dev");
+const domainName4 = DomainName("snickerdoodle-protocol.snickerdoodle.com");
 
 const consentContracts = new Array<EVMContractAddress>();
 const acceptedInvitations = new Array<PageInvitation>();
@@ -112,11 +116,15 @@ core.getEvents().map(async (events) => {
     console.log(`Initialized with address ${dataWalletAddress}`);
   });
 
-  events.onQueryPosted.subscribe((query) => {
+  events.onQueryPosted.subscribe((queryRequest: SDQLQueryRequest) => {
     console.log(
-      `Recieved query for consentContract ${query.consentContractAddress}`,
+      `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
     );
-    console.log(query.query);
+
+
+    let queryPretty = JSON.stringify(JSON.parse(queryRequest.query.query),null,2); 
+    console.log(queryPretty);
+    // console.log(queryRequest.query);
 
     prompt([
       {
@@ -134,7 +142,7 @@ core.getEvents().map(async (events) => {
           return okAsync(undefined);
         }
 
-        return core.processQuery(query.consentContractAddress, query.query);
+        return core.processQuery(queryRequest.consentContractAddress, queryRequest.query);
       })
       .mapErr((e) => {
         console.error(e);
@@ -279,6 +287,10 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "Get Transaction Map", value: "getTransactionMap" },
     new inquirer.Separator(),
+    { name: "Add EVM Transaction - Google", value: "addEVMTransaction - google" },
+    new inquirer.Separator(),
+    { name: "Add EVM Transaction - Query's Network", value: "addEVMTransaction - Query's Network" },
+    new inquirer.Separator(),
     { name: "Add Site Visit - Google ", value: "addSiteVisit - google" },
     new inquirer.Separator(),
     { name: "Add Site Visit - Facebook", value: "addSiteVisit - facebook" },
@@ -309,7 +321,7 @@ function corePrompt(): ResultAsync<void, Error> {
     },
   ]).andThen((answers) => {
     const sites: SiteVisit[] = [];
-
+    const transactions: EVMTransaction[] = [];
     switch (answers.core) {
       case "unlock":
         return unlockCore();
@@ -351,6 +363,36 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
+      case "addEVMTransaction - Query's Network":
+        transactions[0] = new EVMTransaction(
+          ChainId(43114),
+          "",
+          UnixTimestamp(100),
+          null,
+          null,
+          EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
+          null,
+          null,
+          null,
+          null,
+          null
+        );
+        return core.addEVMTransactions(transactions).map(console.log);
+      case "addEVMTransaction - google":
+        transactions[0] = new EVMTransaction(
+          ChainId(1),
+          "",
+          UnixTimestamp(100),
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        );
+        return core.addEVMTransactions(transactions).map(console.log);
       case "addSiteVisit - google":
         sites[0] = new SiteVisit(
           URLString("www.google.com"),
@@ -399,7 +441,7 @@ function createCampaign(): ResultAsync<
   ConsentFactoryContractError | ConsentContractError | Error
 > {
   return simulator
-    .createCampaign([domainName, domainName2])
+    .createCampaign([domainName, domainName2, domainName3, domainName4])
     .mapErr((e) => {
       console.error(e);
       return e;
@@ -535,6 +577,10 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   name: "query_response",
                   query: "q5",
                 },
+                r6: {
+                  name: "query_response",
+                  query: "q6",
+                },
                 url: "https://418e-64-85-231-39.ngrok.io/insights",
               },
               compensations: {
@@ -553,7 +599,7 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                 },
               },
               logic: {
-                returns: ["if($q1and$q2)then$r1else$r2", "$r3", "$r4", "$r5"],
+                returns: ["if($q1and$q2)then$r1else$r2", "$r3", "$r4", "$r5", "$r6"],
                 compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
               },
             }),

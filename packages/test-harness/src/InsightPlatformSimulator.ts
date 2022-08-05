@@ -1,5 +1,12 @@
-import { CryptoUtils, ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import { ConsentContract, IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
+import {
+  CryptoUtils,
+  ILogUtils,
+  ILogUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
+  ConsentContract,
+  IMinimalForwarderRequest,
+} from "@snickerdoodlelabs/contracts-sdk";
 import {
   BigNumberString,
   ConsentContractError,
@@ -26,6 +33,7 @@ import express from "express";
 import { ResultAsync, errAsync } from "neverthrow";
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { IPFSClient } from "@test-harness/IPFSClient";
+import { ResultUtils } from "neverthrow-result-utils";
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
@@ -37,11 +45,10 @@ export class InsightPlatformSimulator {
 
   public constructor(
     protected blockchain: BlockchainStuff,
-    protected ipfs: IPFSClient,
-/*
+    protected ipfs: IPFSClient /*
     @inject(IConsentContractRepositoryType) 
     protected consentContractsRepository: IConsentContractRepository,
-    */
+    */,
   ) {
     this.app = express();
 
@@ -63,7 +70,6 @@ export class InsightPlatformSimulator {
       });
     });
 
-
     this.app.post("/responses", (req, res) => {
       //console.log("Sending to Insight Responses");
       //console.log("Req is this: ", req.body);
@@ -80,8 +86,8 @@ export class InsightPlatformSimulator {
         consentContractId,
         queryId,
         dataWallet,
-        returns
-      }
+        returns,
+      };
 
       res.send("Insights received successfully!");
       /*
@@ -123,8 +129,7 @@ export class InsightPlatformSimulator {
         res.send("Insights received successfully!");
       });
       */
-    })
-
+    });
 
     this.app.post("/metatransaction", (req, res) => {
       // Gather all the parameters
@@ -240,11 +245,10 @@ export class InsightPlatformSimulator {
     EVMContractAddress,
     ConsentFactoryContractError | ConsentContractError | Error
   > {
-    const [domain, domain2] = domains;
     return this.ipfs
       .postToIPFS(
         JSON.stringify({
-          title: `${domain} title`,
+          title: `${domains[0]} title`,
           description: "description",
           image: URLString("http://example.com/image.png"),
           rewardName: "rewardName",
@@ -258,7 +262,7 @@ export class InsightPlatformSimulator {
             ConsentName(
               `Snackerdoodle Test Harness ${this.consentContracts.length + 1}`,
             ),
-            domain,
+            domains[0],
             cid,
           )
           .andThen((contractAddress) => {
@@ -272,17 +276,14 @@ export class InsightPlatformSimulator {
 
             // Add a few URLs
             // We need to do this
-            return consentContract
-              .addDomain(domain)
-              .andThen(() => {
-                return consentContract.addDomain(domain2);
-              })
-              .map(() => {
-                console.log(
-                  `Added domains to consent contract address ${contractAddress}`,
-                );
-                return contractAddress;
-              });
+            return ResultUtils.executeSerially(
+              domains.map((domain) => () => consentContract.addDomain(domain)),
+            ).map(() => {
+              console.log(
+                `Added domains to consent contract address ${contractAddress}`,
+              );
+              return contractAddress;
+            });
           });
       });
   }

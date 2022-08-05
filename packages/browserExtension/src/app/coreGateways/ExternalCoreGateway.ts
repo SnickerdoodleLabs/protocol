@@ -59,20 +59,17 @@ export class ExternalCoreGateway {
   }
   public acceptInvitation(
     consentConditions: ConsentConditions | null,
-    id:UUID
+    id: UUID,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(
-      EExternalActions.ACCEPT_INVITATION,
-      { consentConditions,id } as IAcceptInvitationParams,
-    );
+    return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
+      consentConditions,
+      id,
+    } as IAcceptInvitationParams);
   }
-  public rejectInvitation(
-    id:UUID
-  ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(
-      EExternalActions.REJECT_INVITATION,
-      {id } as IRejectInvitationParams,
-    );
+  public rejectInvitation(id: UUID): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.REJECT_INVITATION, {
+      id,
+    } as IRejectInvitationParams);
   }
 
   public addAccount(
@@ -185,6 +182,11 @@ export class ExternalCoreGateway {
         metatransactionSignature,
         nonce,
       } as IMetatransactionSignatureRequestCallbackParams,
+    );
+  }
+  public isDataWalletAddressInitialized(): ResultAsync<boolean, JsonRpcError> {
+    return this._handler.call(
+      EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED,
     );
   }
 }

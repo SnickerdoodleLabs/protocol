@@ -1,14 +1,8 @@
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
-  AjaxError,
-  BlockchainProviderError,
   Invitation,
   ConsentConditions,
-  ConsentContractError,
-  ConsentContractRepositoryError,
   EInvitationStatus,
-  PersistenceError,
-  UninitializedError,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -29,3 +23,5 @@ export interface IInvitationRepository {
     invitation: Invitation,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 }
+
+export const IInvitationRepositoryType = Symbol.for("IInvitationRepository");

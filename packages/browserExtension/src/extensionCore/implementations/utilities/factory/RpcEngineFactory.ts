@@ -1,20 +1,22 @@
-import { IContextProvider } from "@interfaces/utilities";
-import { IRpcEngineFactory } from "@interfaces/utilities/factory";
-import { Runtime } from "webextension-polyfill";
-import endOfStream from "end-of-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createEngineStream } from "json-rpc-middleware-stream";
-import pump from "pump";
-import { err, ok } from "neverthrow";
-import { EPortNames } from "@shared/enums/ports";
 import { URLString } from "@snickerdoodlelabs/objects";
-import { createAsyncMiddleware } from "json-rpc-engine";
-import { IRpcCallHandler } from "@interfaces/api";
+import endOfStream from "end-of-stream";
+import { inject, injectable } from "inversify";
+import { JsonRpcEngine, createAsyncMiddleware } from "json-rpc-engine";
+import { createEngineStream } from "json-rpc-middleware-stream";
+import { err, ok } from "neverthrow";
+import pump from "pump";
+import { Runtime } from "webextension-polyfill";
 
+import { IRpcCallHandler, IRpcCallHandlerType } from "@interfaces/api";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+import { IRpcEngineFactory } from "@interfaces/utilities/factory";
+import { EPortNames } from "@shared/enums/ports";
+
+@injectable()
 export class RpcEngineFactory implements IRpcEngineFactory {
   constructor(
-    protected contextProvider: IContextProvider,
-    protected rpcCallHandler: IRpcCallHandler,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(IRpcCallHandlerType) protected rpcCallHandler: IRpcCallHandler,
   ) {}
 
   public createRrpcEngine(
@@ -27,7 +29,12 @@ export class RpcEngineFactory implements IRpcEngineFactory {
     // add middleware for handling rpc events
     rpcEngine.push(
       createAsyncMiddleware(async (req, res, next) => {
-        await this.rpcCallHandler.handleRpcCall(req, res, next, remotePort.sender );
+        await this.rpcCallHandler.handleRpcCall(
+          req,
+          res,
+          next,
+          remotePort.sender,
+        );
       }),
     );
     // create rpc stream duplex

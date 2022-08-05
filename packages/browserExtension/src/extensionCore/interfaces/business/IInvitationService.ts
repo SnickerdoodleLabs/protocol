@@ -31,3 +31,5 @@ export interface IInvitationService {
     domain: DomainName,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError>;
 }
+
+export const IInvitationServiceType = Symbol.for("IInvitationService");
