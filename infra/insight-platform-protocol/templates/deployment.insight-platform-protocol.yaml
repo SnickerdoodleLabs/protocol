@@ -1,0 +1,38 @@
+apiVersion: apps/v1 #  for k8s versions before 1.9.0 use apps/v1beta2  and before 1.8.0 use extensions/v1beta1
+kind: Deployment
+metadata:
+  name: insight-platform-insight-platform-protocol-deployment
+  labels:
+    app: insight-platform-protocol
+    tier: backend
+spec:
+  selector:
+    matchLabels:
+      app: insight-platform-protocol
+      tier: backend
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: insight-platform-protocol
+        tier: backend
+    spec:
+      imagePullSecrets:
+      - name: artifact-registry
+      containers:
+      - name: insight-platform-protocol
+        image: {{ .Values.InsightPlatformProtocol.Image.Repo}}:{{ .Values.InsightPlatformProtocol.Image.Tag }}
+        imagePullPolicy: Always
+        env:
+          # Moleculer config
+          - name: NETWORK
+            value: dev
+            # valueFrom:
+            #   configMapKeyRef:
+            #     name: insight-platform-insight-platform-protocol-config
+            #     key: namespace
+
+        ports:
+        - containerPort: 80
