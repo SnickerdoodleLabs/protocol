@@ -1,10 +1,3 @@
-import { IAccountService } from "@interfaces/business";
-import { IAccountRepository } from "@interfaces/data";
-import {
-  SnickerDoodleCoreError,
-  ExtensionCookieError,
-} from "@shared/objects/errors";
-
 import {
   EVMAccountAddress,
   IEVMBalance,
@@ -12,10 +5,22 @@ import {
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
-
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+
+import { IAccountService } from "@interfaces/business";
+import { IAccountRepository, IAccountRepositoryType } from "@interfaces/data";
+import {
+  SnickerDoodleCoreError,
+  ExtensionCookieError,
+} from "@shared/objects/errors";
+
+@injectable()
 export class AccountService implements IAccountService {
-  constructor(protected accountRepository: IAccountRepository) {}
+  constructor(
+    @inject(IAccountRepositoryType)
+    protected accountRepository: IAccountRepository,
+  ) {}
 
   public getAccounts(): ResultAsync<
     EVMAccountAddress[],

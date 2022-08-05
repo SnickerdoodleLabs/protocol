@@ -4,17 +4,21 @@ import {
   EVMContractAddress,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
+  ISnickerdoodleCoreType,
   MetatransactionSignatureRequest,
   SDQLQuery,
 } from "@snickerdoodlelabs/objects";
-import { ICoreListener } from "@interfaces/api";
+import { inject, injectable } from "inversify";
 import { ok, okAsync, ResultAsync } from "neverthrow";
-import { IContextProvider } from "@interfaces/utilities";
 
+import { ICoreListener } from "@interfaces/api";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+
+@injectable()
 export class CoreListener implements ICoreListener {
   constructor(
-    protected core: ISnickerdoodleCore,
-    protected contextProvider: IContextProvider,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -51,6 +55,7 @@ export class CoreListener implements ICoreListener {
   private onMetatransactionSignatureRequested(
     metatransactionSignatureRequest: MetatransactionSignatureRequest,
   ) {
+    console.log(`onMetatransactionSignatureRequested from Core for account ${metatransactionSignatureRequest.accountAddress}`);
     this.contextProvider.notifyPortsWithIncomingMetatransactionSignatureRequest(
       metatransactionSignatureRequest,
     );

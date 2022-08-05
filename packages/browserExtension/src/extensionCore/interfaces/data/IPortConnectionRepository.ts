@@ -4,3 +4,5 @@ import { Runtime } from "webextension-polyfill";
 export interface IPortConnectionRepository {
     connectRemote(remotePort: Runtime.Port): ResultAsync<void, never>
 }
+
+export const IPortConnectionRepositoryType = Symbol.for("IPortConnectionRepository");

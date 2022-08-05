@@ -13,3 +13,5 @@ export interface IRpcCallHandler {
     sender: Runtime.MessageSender | undefined
   ): void;
 }
+
+export const IRpcCallHandlerType = Symbol.for("IRpcCallHandler");

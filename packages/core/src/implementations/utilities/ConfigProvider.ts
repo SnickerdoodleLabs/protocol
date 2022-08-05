@@ -38,7 +38,7 @@ export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
     this.config = new CoreConfig(
       controlChainId,
       [ChainId(42), ChainId(43113)], //supported chains (kovan, fuji)
-      URLString("http://localhost:8545"),
+      URLString("http://127.0.0.1:8545"),
       chainConfig,
       controlChainInformation,
       URLString("http://localhost:5001/api/v0"),

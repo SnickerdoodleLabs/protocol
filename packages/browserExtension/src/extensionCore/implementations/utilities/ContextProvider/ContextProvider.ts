@@ -1,18 +1,24 @@
-import { IContextProvider } from "@interfaces/utilities";
-import { AccountContext } from "@implementations/utilities/ContextProvider/AccountContext";
-import { AppContext } from "@implementations/utilities/ContextProvider/AppContext";
-import { UserContext } from "@implementations/utilities/ContextProvider/UserContext";
-import { SiteContext } from "@implementations/utilities/ContextProvider/SiteContext";
-import { IInternalState, IExternalState } from "@shared/interfaces/states";
-import { Subject } from "rxjs";
 import {
   Invitation,
   MetatransactionSignatureRequest,
   UUID,
 } from "@snickerdoodlelabs/objects";
-import { IConfigProvider } from "@shared/interfaces/configProvider";
+import { inject, injectable } from "inversify";
+import { Subject } from "rxjs";
+
+import { AccountContext } from "@implementations/utilities/ContextProvider/AccountContext";
+import { AppContext } from "@implementations/utilities/ContextProvider/AppContext";
+import { SiteContext } from "@implementations/utilities/ContextProvider/SiteContext";
+import { UserContext } from "@implementations/utilities/ContextProvider/UserContext";
+import { IContextProvider } from "@interfaces/utilities";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@shared/interfaces/configProvider";
+import { IInternalState, IExternalState } from "@shared/interfaces/states";
 import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
 
+@injectable()
 export class ContextProvider implements IContextProvider {
   protected accountContext: AccountContext;
   protected appContext: AppContext;
@@ -20,7 +26,9 @@ export class ContextProvider implements IContextProvider {
   protected siteContext: SiteContext;
   protected onExtensionError: Subject<Error>;
 
-  constructor(protected configProvider: IConfigProvider) {
+  constructor(
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+  ) {
     this.accountContext = new AccountContext(() => {});
     this.appContext = new AppContext();
     this.userContext = new UserContext();
@@ -62,6 +70,7 @@ export class ContextProvider implements IContextProvider {
       this.appContext.getActiveRpcConnectionObjectsByOrigin(SPAOrigin);
 
     if (SPAConnections.length) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const _this = this;
       SPAConnections.forEach((connection) => {
         _this.appContext.notifyConnectionPort(connection.engine, notification);
