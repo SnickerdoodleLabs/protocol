@@ -22,11 +22,11 @@ export class AccountCookieUtils implements IAccountCookieUtils {
   ) {}
 
   public writeAccountInfoToCookie(
-    account: EVMAccountAddress,
+    accountAddress: EVMAccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
   ): ResultAsync<void, ExtensionCookieError> {
-    const _value = { account, signature, languageCode };
+    const _value = { accountAddress, signature, languageCode };
     const date = new Date();
     date.setFullYear(date.getFullYear() + 1);
     return this._getAccountCookie()
