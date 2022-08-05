@@ -3889,7 +3889,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/contracts-sdk@workspace:packages/contracts-sdk"
   dependencies:
-    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/objects": ^0.0.7
     ethers: ^5.6.6
     inversify: ^5.1.1
     neverthrow: ^4.3.1
@@ -4006,7 +4006,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/objects@>=0.0.1, @snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
+"@snickerdoodlelabs/objects@>=0.0.1, @snickerdoodlelabs/objects@^0.0.7, @snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
   dependencies:
