@@ -107,33 +107,19 @@ module.exports = {
       process: "process/browser",
     }),
     new webpack.DefinePlugin({
-      __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
       __CONTROL_CHAIN_NAME__: JSON.stringify(
-        process.env.__CONTROL_CHAIN_NAME__ || "Local Doodle Chain",
+        process.env.__CONTROL_CHAIN_NAME__,
       ),
-
-      __CONTROL_CHAIN_ID__: JSON.stringify(
-        process.env.__CONTROL_CHAIN_ID__ || "31337",
-      ),
+      __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
       __CONTROL_CHAIN_PROVIDER_URLS__: JSON.stringify(
-        process.env.__CONTROL_CHAIN_PROVIDER_URLS__ || "http://localhost:8545",
+        process.env.__CONTROL_CHAIN_PROVIDER_URLS__,
       ),
-
       __CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS__: JSON.stringify(
-        process.env.__CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS__ ||
-          "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        process.env.__CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS__,
       ),
       __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
-      __INFURA_ID__: JSON.stringify(
-        process.env.__BUILD_ENV__ === "PROD"
-          ? process.env.__INFURA_ID__
-          : fileSystem.readJsonSync("./development.json").DEV_INFURA_ID,
-      ),
-      __GAPI_CLIENT_ID__: JSON.stringify(
-        process.env.__BUILD_ENV__ === "PROD"
-          ? process.env.__GAPI_CLIENT_ID__
-          : fileSystem.readJsonSync("./development.json").DEV_GAPI_CLIENT_ID,
-      ),
+      __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
+      __GAPI_CLIENT_ID__: JSON.stringify(process.env.__GAPI_CLIENT_ID__),
     }),
   ],
 };

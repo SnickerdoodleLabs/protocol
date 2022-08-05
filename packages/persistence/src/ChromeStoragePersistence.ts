@@ -31,7 +31,7 @@ import {
   AccountBalanceError,
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -61,6 +61,7 @@ enum ELocalStorageKey {
   LATEST_BLOCK = "SD_LatestBlock",
 }
 
+@injectable()
 export class ChromeStoragePersistence implements IDataWalletPersistence {
   public constructor(
     @inject(IPersistenceConfigProviderType)

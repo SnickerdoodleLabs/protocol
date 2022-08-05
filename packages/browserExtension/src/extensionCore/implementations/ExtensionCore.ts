@@ -1,19 +1,11 @@
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-import {
-  SnickerdoodleCore
-} from "@snickerdoodlelabs/core";
-import {
-  DefaultAccountBalances,
-  DefaultAccountNFTs,
-} from "@snickerdoodlelabs/indexers";
-import {
+  ChainId,
+  IConfigOverrides,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
+  URLString,
 } from "@snickerdoodlelabs/objects";
-import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -52,23 +44,18 @@ export class ExtensionCore {
     // Elaborate syntax to demonstrate that we can use multiple modules
     this.iocContainer.load(...[extensionCoreModule]);
 
-    const ajaxUtils =
-      this.iocContainer.get<IAxiosAjaxUtils>(IAxiosAjaxUtilsType);
-    const coreConfigProvider = new CoreConfigProvider();
-    const persistence = new ChromeStoragePersistence(
-      coreConfigProvider,
-      new DefaultAccountNFTs(coreConfigProvider, ajaxUtils),
-      new DefaultAccountBalances(coreConfigProvider, ajaxUtils),
-    );
+    const configProvider =
+      this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+    const config = configProvider.getConfig();
 
     const coreConfig = {
-      controlChainId: ChainId(31337),
-      supportedChains: [ChainId(42), ChainId(43113)], // Matches default, kovan and fuji
-      ipfsFetchBaseUrl: URLString("https://ipfs.snickerdoodle.dev/ipfs"),
-      defaultInsightPlatformBaseUrl: URLString("https://insight-api.dev.snickerdoodle.dev"),
-  // We'll want non-default values for these very soon
-  // covalentApiKey?: string; 
-  // moralisApiKey?: string;
+      controlChainId: config.controlChainId,
+      supportedChains: config.supportedChains,
+      ipfsFetchBaseUrl: config.ipfsFetchBaseUrl,
+      defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
+      covalentApiKey: config.covalentApiKey,
+      moralisApiKey: config.moralisApiKey,
+      dnsServerAddress: config.dnsServerAddress,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(coreConfig);

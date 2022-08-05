@@ -89,7 +89,7 @@ export class BlockchainProvider implements IBlockchainProvider {
         return errAsync(
           new BlockchainProviderError(
             config.controlChainId,
-            `Couldn not find a provider for chainId ${config.controlChainId}`,
+            `Could not find a provider for chainId ${config.controlChainId}`,
           ),
         );
       }

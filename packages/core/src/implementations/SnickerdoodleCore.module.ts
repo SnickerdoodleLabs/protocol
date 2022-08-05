@@ -18,6 +18,10 @@ import {
   IEVMTransactionRepository,
   IEVMTransactionRepositoryType,
 } from "@snickerdoodlelabs/objects";
+import {
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "@snickerdoodlelabs/persistence";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -151,7 +155,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,
     );
-    bind<IDNSRepository>(IDNSRepositoryType).to(DNSRepository);
+    bind<IDNSRepository>(IDNSRepositoryType)
+      .to(DNSRepository)
+      .inSingletonScope();
     bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
       .to(CovalentEVMTransactionRepository)
       .inSingletonScope();
@@ -163,11 +169,13 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Utilities
-
     bind<IConfigProvider>(IConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
     bind<IIndexerConfigProvider>(IIndexerConfigProviderType)
+      .to(ConfigProvider)
+      .inSingletonScope();
+    bind<IPersistenceConfigProvider>(IPersistenceConfigProviderType)
       .to(ConfigProvider)
       .inSingletonScope();
     bind<IContextProvider>(IContextProviderType)
