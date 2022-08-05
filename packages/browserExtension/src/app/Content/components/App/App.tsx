@@ -111,16 +111,22 @@ const App = () => {
       .isDataWalletAddressInitialized()
       .andThen((dataWalletAddressInitialized) => {
         if (dataWalletAddressInitialized) {
-          coreGateway
-            .getInvitationsByDomain(
-              "snickerdoodle-protocol.snickerdoodle.dev" as DomainName,
-            )
-            .map((result) => {
-              if (result !== DEFAULT_RPC_SUCCESS_RESULT) {
-                setInvitationDomain(result);
-                initiateRewardPopup(result);
-              }
-            });
+          const host = window.location.hostname;
+          let domainName;
+          if (host.startsWith("www.")) {
+            domainName = DomainName(
+              host.replace("www.", "snickerdoodle-protocol."),
+            );
+          } else {
+            domainName = DomainName(`snickerdoodle-protocol.${host}`);
+          }
+
+          coreGateway.getInvitationsByDomain(domainName).map((result) => {
+            if (result !== DEFAULT_RPC_SUCCESS_RESULT) {
+              setInvitationDomain(result);
+              initiateRewardPopup(result);
+            }
+          });
         }
       });
   };
