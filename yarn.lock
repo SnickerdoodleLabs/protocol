@@ -4045,6 +4045,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/utils@workspace:packages/utils"
   dependencies:
+    "@snickerdoodlelabs/objects": "workspace:^"
     inversify: ^5.1.1
     neverthrow: ^4.2.2
   languageName: unknown
@@ -8976,6 +8977,13 @@ __metadata:
   version: 1.0.3
   resolution: "chrome-trace-event@npm:1.0.3"
   checksum: cb8b1fc7e881aaef973bd0c4a43cd353c2ad8323fb471a041e64f7c2dd849cde4aad15f8b753331a32dda45c973f032c8a03b8177fc85d60eaa75e91e08bfb97
+  languageName: node
+  linkType: hard
+
+"chrome-types@npm:^0.1.131":
+  version: 0.1.131
+  resolution: "chrome-types@npm:0.1.131"
+  checksum: 22068cc002eb19aa26a5571371181bb8c7d7f5ddf14dbc8422eb7b9f9f21f92f19773a9995d36a9d99baba31e287d6ed6768189951028924a32fd8d366e415e9
   languageName: node
   linkType: hard
 
@@ -24549,6 +24557,7 @@ __metadata:
     buffer: ^6.0.3
     case-sensitive-paths-webpack-plugin: ^2.3.0
     chai: ^4.3.4
+    chrome-types: ^0.1.131
     clean-webpack-plugin: ^3.0.0
     concurrently: ^5.3.0
     copy-webpack-plugin: ^7.0.0
@@ -24596,6 +24605,7 @@ __metadata:
     sass-loader: ^11.1.1
     solidity-coverage: ^0.7.9
     solium: ^1.2.5
+    sorted-btree: ^1.8.0
     source-map-loader: ^2.0.0
     stream-browserify: ^3.0.0
     stream-http: ^3.1.1
@@ -24859,6 +24869,13 @@ __metadata:
   version: 1.0.1
   resolution: "sort-scripts@npm:1.0.1"
   checksum: c80717fdef17e7ba7f992cab98640edeedb5804a8b4efc67ba802ba4e2c1acd874b2a46bf707a028a932171f8a2d7f111b3dd015f94ca72a6ce2f1481ced7584
+  languageName: node
+  linkType: hard
+
+"sorted-btree@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "sorted-btree@npm:1.8.0"
+  checksum: 1a264c1363347eb4a0622cc4872dd6add859e4013ff7beaf3acc8fa1501e00546782781b7e291e208005be6b61bb24f4836b9b285cb14f13bfe86b90d41d3406
   languageName: node
   linkType: hard
 

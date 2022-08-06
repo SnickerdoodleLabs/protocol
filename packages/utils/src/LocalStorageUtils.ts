@@ -1,8 +1,13 @@
+import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
+
+import { IStorageUtils } from "@utils/IStorageUtils";
+
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 interface Dictionary<T> {
   [key: string]: T;
 }
-export class LocalStorageUtils {
+export class LocalStorageUtils implements IStorageUtils {
   static localStorage = (function () {
     // If the localStorage actually exists, use that
     if (typeof window !== "undefined" && window.localStorage) {
@@ -78,5 +83,21 @@ export class LocalStorageUtils {
       result[pair[0]] = pair[1];
     }
     return result;
+  }
+
+  public remove(key: string | string[]): ResultAsync<void, PersistenceError> {
+    return this.remove(key);
+  }
+
+  public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
+    return this.write(key, value);
+  }
+
+  public read<T>(key: string): ResultAsync<T | null, PersistenceError> {
+    return this.read(key);
+  }
+
+  public clear(): ResultAsync<void, PersistenceError> {
+    return this.clear();
   }
 }

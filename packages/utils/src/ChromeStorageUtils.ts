@@ -1,8 +1,10 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export class ChromeStorageUtils {
-  static remove(key: string | string[]): ResultAsync<void, PersistenceError> {
+import { IStorageUtils } from "@utils/IStorageUtils";
+
+export class ChromeStorageUtils implements IStorageUtils {
+  public remove(key: string | string[]): ResultAsync<void, PersistenceError> {
     return ResultAsync.fromPromise(chrome.storage.sync.remove(key), (e) => {
       return new PersistenceError(
         `Cannot remove key ${key} from chrome storage`,
@@ -11,7 +13,7 @@ export class ChromeStorageUtils {
     });
   }
 
-  static write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
+  public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
     return ResultAsync.fromPromise(
       chrome.storage.sync.set({
         [key]: value,
@@ -25,7 +27,7 @@ export class ChromeStorageUtils {
     );
   }
 
-  static read<T>(key: string): ResultAsync<T | null, PersistenceError> {
+  public read<T>(key: string): ResultAsync<T | null, PersistenceError> {
     return ResultAsync.fromPromise(chrome.storage.sync.get(key), (e) => {
       return new PersistenceError(
         `Cannot read key ${key} from chrome storage`,
@@ -36,7 +38,7 @@ export class ChromeStorageUtils {
     });
   }
 
-  static clear(): ResultAsync<void, PersistenceError> {
+  public clear(): ResultAsync<void, PersistenceError> {
     return ResultAsync.fromPromise(chrome.storage.sync.clear(), (e) => {
       return new PersistenceError(`Cannot clear chrome storage`, e);
     });
