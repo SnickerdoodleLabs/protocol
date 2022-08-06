@@ -1,0 +1,58 @@
+import { IEVMBalance } from "@snickerdoodlelabs/objects";
+import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
+import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
+import { useStyles } from "@extension-onboarding/components/BalanceItem/BalanceItem.style";
+import { Box, Typography } from "@material-ui/core";
+import React, { FC } from "react";
+
+export interface IBalanceItemProps {
+  item: IEVMBalance;
+  currency?: number;
+}
+
+const BalanceItem: FC<IBalanceItemProps> = ({
+  item,
+  currency = 0,
+}: IBalanceItemProps) => {
+  const classes = useStyles();
+  const getImage = () => {
+    switch (item.ticker) {
+      case "ETH":
+        return ethereumCircle;
+      case "AVAX":
+        return avaxCircle;
+      default:
+        return "";
+    }
+  };
+
+  const getTokenName = () => {
+    switch (item.ticker) {
+      case "ETH":
+        return "Ethereum";
+      case "AVAX":
+        return "AVAX";
+      default:
+        return "";
+    }
+  };
+  return (
+    <Box display="flex" mt={4} position="relative">
+      <Box>
+        <img className={classes.icon} src={getImage()} />
+      </Box>
+      <Box ml={2} mt={0.5}>
+        <Typography className={classes.name}>{getTokenName()}</Typography>
+        <Typography className={classes.balance}>
+          {item.balance} {item.ticker} - ${currency}
+        </Typography>
+      </Box>
+      <Box className={classes.usdBalanceWrapper}>
+        <Typography className={classes.usdBalance}>
+          ${parseInt(item.balance) * currency}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
+export default BalanceItem;
