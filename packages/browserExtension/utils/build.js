@@ -9,7 +9,7 @@ process.env.__CONTROL_CHAIN_ID__ = 31337;
 process.env.__SUPPORTED_CHAINS__ = "42,43113";
 process.env.__IPFS_FETCH_BASE_URL__ = "https://ipfs.snickerdoodle.dev/ipfs";
 process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ =
-  "https://insight-api.dev.snickerdoodle.dev";
+  "https://insight-api.dev.snickerdoodle.dev/v0/";
 process.env.__COVALENT_API_KEY__ = "";
 process.env.__MORALIS_API_KEY__ = "";
 process.env.__DNS_SERVER_ADDRESS__ = "";
