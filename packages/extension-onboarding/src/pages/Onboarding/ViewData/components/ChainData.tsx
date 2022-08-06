@@ -3,13 +3,16 @@ import React, { FC, useMemo } from "react";
 
 import tickIcon from "@extension-onboarding/assets/icons/tick.svg";
 import { useStyles } from "@extension-onboarding/components/AccountsCard/components/AccountCardItem/AccountCardItem.style";
-import { useAppContext, ILinkedAccount } from "@extension-onboarding/context/App";
+import {
+  useAppContext,
+  ILinkedAccount,
+} from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 
 interface IAccountCardItemProps {
   // TODO write correct interface
-  account: ILinkedAccount
+  account: ILinkedAccount;
 }
 
 const ChainData: FC<IAccountCardItemProps> = ({
@@ -22,6 +25,7 @@ const ChainData: FC<IAccountCardItemProps> = ({
   const onPrimaryButtonClick = () => {
     deleteAccount(account);
   };
+  const { changeStepperStatus, setViewDetailsAccountAddress } = useAppContext();
 
   const providerObject = useMemo(
     () => providerList.find((provider) => provider.key === account.providerKey),
@@ -46,10 +50,8 @@ const ChainData: FC<IAccountCardItemProps> = ({
       <Box className={classes.linkAccountContainer}>
         <Button
           onClick={() => {
-            setModal({
-              modalSelector: EModalSelectors.ACCOUNT_UNLINKED,
-              onPrimaryButtonClick
-            });
+            setViewDetailsAccountAddress(account.accountAddress);
+            changeStepperStatus("next");
           }}
           className={classes.linkAccountButton}
         >

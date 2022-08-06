@@ -32,6 +32,8 @@ export interface IAppContext {
   getUserObject: () => PII | undefined;
   changeStepperStatus: (status: string) => void;
   stepperStatus: number;
+  viewDetailsAccountAddress: EVMAccountAddress | undefined;
+  setViewDetailsAccountAddress: (accountAddress: EVMAccountAddress) => void;
 }
 
 declare const window: IWindowWithSdlDataWallet;
@@ -44,6 +46,8 @@ export const AppContextProvider: FC = ({ children }) => {
   const [stepperStatus, setStepperStatus] = useState(0);
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
   const [userObject, setUserObject] = useState<PII>();
+  const [viewDetailsAccountAddress, setViewDetailsAccountAddress] =
+    useState<EVMAccountAddress>();
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
   useEffect(() => {
@@ -126,6 +130,8 @@ export const AppContextProvider: FC = ({ children }) => {
         stepperStatus,
         changeStepperStatus,
         addUserObject,
+        viewDetailsAccountAddress,
+        setViewDetailsAccountAddress,
       }}
     >
       {children}

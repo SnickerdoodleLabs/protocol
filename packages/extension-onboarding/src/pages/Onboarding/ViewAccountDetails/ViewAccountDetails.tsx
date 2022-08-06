@@ -29,7 +29,6 @@ export interface IAccountBalanceObject {
 export interface IAccountTickerObject {
   [id: TickerSymbol]: IEVMBalance[];
 }
-
 const ViewAccountDetails: FC = () => {
   // TODO
   const currencies = {
@@ -37,14 +36,14 @@ const ViewAccountDetails: FC = () => {
     AVAX: 24.22,
   };
 
-  const { linkedAccounts } = useAppContext();
+  const { linkedAccounts, viewDetailsAccountAddress } = useAppContext();
   const [accountBalances, setAccountBalances] =
     useState<IAccountBalanceObject>();
   const [accountNFTs, setAccountNFTs] = useState<any>();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [accountSelect, setAccountSelect] = useState(
-    linkedAccounts[0].accountAddress,
+  const [accountSelect, setAccountSelect] = useState<EVMAccountAddress>(
+    viewDetailsAccountAddress ?? linkedAccounts[0].accountAddress,
   );
   const [chainSelect, setChainSelect] = useState("ETH");
 
