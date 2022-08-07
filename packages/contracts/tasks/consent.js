@@ -1,167 +1,198 @@
 const { task } = require("hardhat/config.js");
 const {
-  consentContract,
+  logTXDetails,
   consentFactory,
   CC,
   CCFactory,
 } = require("./constants.js");
 
-task("checkBalanceOf", "Check balance of user")
-.addParam("useraddress", "address of the users account")
-.addParam("contractaddress", "address of the consent contract")
-.setAction(async (taskArgs) => {
-  const useraccount = taskArgs.useraddress;
-  const contractaddress = taskArgs.contractaddress;
-  const accounts = await hre.ethers.getSigners();
+task("checkBalanceOf", "Check balance of an address given a ERC721 address")
+  .addParam("useraddress", "address of the users account")
+  .addParam("contractaddress", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const useraccount = taskArgs.useraddress;
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
 
-  // attach the first signer account to the consent contract handle
-  const consentContractHandle = new hre.ethers.Contract(
-    contractaddress,
-    CC().abi,
-    accounts[0],
-  );
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider
+    );
 
-  const owner = await consentContractHandle
-    .balanceOf(useraccount);
-  console.log("Token balance is:", owner);
-});
+    await consentContractHandle
+      .balanceOf(useraccount).then((result) => {
+        console.log("ERC721 balance is:", result.toString());
+      });
+
+  });
 
 task("optIn", "Opt in to a consent contract")
-.addParam("contractaddress", "address of the consent contract")
-.addParam("tokenid", "token id to use for the optin token")
-.setAction(async (taskArgs) => {
-  const contractaddress = taskArgs.contractaddress;
-  const tokenid = taskArgs.tokenid;
-  const accounts = await hre.ethers.getSigners();
+  .addParam("contractaddress", "address of the consent contract")
+  .addParam("tokenid", "token id to use for the optin token")
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const tokenid = taskArgs.tokenid;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
-  // attach the first signer account to the consent contract handle
-  const consentContractHandle = new hre.ethers.Contract(
-    contractaddress,
-    CC().abi,
-    accounts[0],
-  );
 
-  const txrct = await consentContractHandle.optIn(tokenid, "www.uri.com/1");
-  console.log(txrct);
-});
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      account
+    );
+
+    await consentContractHandle.optIn(tokenid, "")
+      .then((txresponse) => {
+        return txresponse.wait()
+      }).then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
 
 task("getTrustedForwarder", "returns the trusted forwarder address of a consent contract")
-.addParam("contractaddress", "address of the consent contract")
-.setAction(async (taskArgs) => {
-  const contractaddress = taskArgs.contractaddress;
-  const accounts = await hre.ethers.getSigners();
+  .addParam("contractaddress", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
 
-  // attach the first signer account to the consent contract handle
-  const consentContractHandle = new hre.ethers.Contract(
-    contractaddress,
-    CC().abi,
-    accounts[0],
-  );
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider
+    );
 
-  const tf = await consentContractHandle.trustedForwarder();
-  console.log("The Trusted Forwarder address is:", tf);
-});
+    await consentContractHandle.trustedForwarder().then((tfAddress) => {
+      console.log("Trusted Forwarder Address:", tfAddress);
+    });
+  });
 
 task("setTrustedForwarder", "sets the trusted forwarder address of a consent contract")
-.addParam("contractaddress", "address of the consent contract")
-.addParam("trustedforwarder", "address to use as the trusted forwarder")
-.setAction(async (taskArgs) => {
-  const contractaddress = taskArgs.contractaddress;
-  const trustedforwarder = taskArgs.trustedforwarder;
-  const accounts = await hre.ethers.getSigners();
+  .addParam("contractaddress", "address of the consent contract")
+  .addParam("trustedforwarder", "address to use as the trusted forwarder")
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const trustedforwarder = taskArgs.trustedforwarder;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
-  // attach the first signer account to the consent contract handle
-  const consentContractHandle = new hre.ethers.Contract(
-    contractaddress,
-    CC().abi,
-    accounts[0],
-  );
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      account
+    );
 
-  console.log("Attempting to set tf to:", trustedforwarder);
-  const txrct = await consentContractHandle.setTrustedForwarder(trustedforwarder);
-  const tf = await consentContractHandle.trustedForwarder();
-  console.log("The Trusted Forwarder address is:", tf);
-});
+    console.log("Attempting to set tf to:", trustedforwarder);
+    await consentContractHandle.setTrustedForwarder(trustedforwarder)
+      .then((txresponse) => {
+        return txresponse.wait();
+      })
+      .then((txrct) => {
+        return logTXDetails(txrct);
+      })
+      .then(() => {
+        return consentContractHandle.trustedForwarder();
+      })
+      .then((tfAddress) => {
+        console.log("New Trusted Forwarder Address:", tfAddress);
+      });
+  });
 
 task("checkOwnerOf", "Check balance of user")
-.addParam("tokenid", "token to get sus on")
-.addParam("contractaddress", "address of the consent contract")
-.setAction(async (taskArgs) => {
-  const tokenid = taskArgs.tokenid;
-  const contractaddress = taskArgs.contractaddress;
-  const accounts = await hre.ethers.getSigners();
+  .addParam("tokenid", "token to get sus on")
+  .addParam("contractaddress", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const tokenid = taskArgs.tokenid;
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
 
-  // attach the first signer account to the consent contract handle
-  const consentContractHandle = new hre.ethers.Contract(
-    contractaddress,
-    CC().abi,
-    accounts[0],
-  );
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider
+    );
 
-  const owner = await consentContractHandle
-    .connect(accounts[0])
-    .ownerOf(tokenid);
-  console.log("Token belongs to:", owner);
-});
+    await consentContractHandle.ownerOf(tokenid)
+      .then((result) => {
+        console.log("Token belongs to:", result)
+      });
+  });
 
 task("getConsentContractDomains", "Returns list of URLs associated with a Consent Contract.")
-.addParam("address", "address of the consent contract")
-.setAction(async (taskArgs) => {
-  const address = taskArgs.address;
-  const accounts = await hre.ethers.getSigners();
+  .addParam("address", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const address = taskArgs.address;
+    const provider = await hre.ethers.provider;
 
-  const consentContractHandle = new hre.ethers.Contract(
-    address,
-    CC().abi,
-    accounts[0]
-  );
+    const consentContractHandle = new hre.ethers.Contract(
+      address,
+      CC().abi,
+      provider
+    );
 
-  const urls = await consentContractHandle.getDomains();
-  console.log("URLS registered with this CC:", urls)
-
-});
+    await consentContractHandle.getDomains()
+      .then((urls) => {
+        console.log("Registered URLS:", urls)
+      });
+  });
 
 task("addConsentContractDomain", "Add a new URL to a Consent Contract.")
-.addParam("address", "address of the consent contract")
-.addParam("url", "URL to add to the Consent Contract")
-.setAction(async (taskArgs) => {
-  const address = taskArgs.address;
-  const url = taskArgs.url;
-  const accounts = await hre.ethers.getSigners();
+  .addParam("address", "address of the consent contract")
+  .addParam("url", "URL to add to the Consent Contract")
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
+  .setAction(async (taskArgs) => {
+    const address = taskArgs.address;
+    const url = taskArgs.url;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
-  const consentContractHandle = new hre.ethers.Contract(
-    address,
-    CC().abi,
-    accounts[0]
-  );
+    const consentContractHandle = new hre.ethers.Contract(
+      address,
+      CC().abi,
+      account
+    );
 
-  const txrctp = await consentContractHandle.addDomain(url);
-  console.log(txrctp)
-});
+    consentContractHandle.addDomain(url)
+      .then((txResponse) => {
+        return txResponse;
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
 
 task("getUserConsentContracts", "Check which constract a user has opted in to.")
-.addParam("user", "address of the user")
-.setAction(async (taskArgs) => {
-  const useraddress = taskArgs.user;
-  const accounts = await hre.ethers.getSigners();
+  .addParam("user", "address of the user")
+  .setAction(async (taskArgs) => {
+    const useraddress = taskArgs.user;
+    const provider = await hre.ethers.provider;
 
-  // attach the first signer account to the consent contract handle
-  const consentContractFactorHandle = new hre.ethers.Contract(
-    consentFactory(),
-    CCFactory().abi,
-    accounts[0],
-  );
+    // attach the first signer account to the consent contract handle
+    const consentContractFactorHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      provider
+    );
 
-  const numCCs = await consentContractFactorHandle
-  .connect(accounts[0])
-  .getUserConsentAddressesCount(useraddress);
-  console.log("User has this many CCs:", numCCs)
-
-  const myCCs = await consentContractFactorHandle
-  .connect(accounts[0])
-  .getUserConsentAddressesByIndex(useraddress, 0, numCCs);
-  console.log(myCCs);
-});
+    await consentContractFactorHandle
+      .getUserConsentAddressesCount(useraddress)
+      .then((numCCs) => {
+        return consentContractFactorHandle.getUserConsentAddressesByIndex(useraddress, 0, numCCs);
+      }).then((myCCs) => {
+        console.log("User is opted into:", myCCs);
+      });
+  });
 
 task(
   "createConsentContract",
@@ -170,34 +201,38 @@ task(
   .addParam("owneraddress", "Target consent address.")
   .addParam("baseuri", "Base uri of the consent contract.")
   .addParam("name", "Name of the consent contract.")
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
-    const accounts = await hre.ethers.getSigners();
     const owner = taskArgs.owneraddress;
+    const baseUri = taskArgs.baseuri;
+    const consentContractName = taskArgs.name;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
     // attach the first signer account to the consent contract handle
     const consentFactoryContractHandle = new hre.ethers.Contract(
       consentFactory(),
       CCFactory().abi,
-      accounts[0],
+      account
     );
 
     console.log("");
 
     await consentFactoryContractHandle
-      .connect(accounts[0])
-      .createConsent(taskArgs.owneraddress, taskArgs.baseuri, taskArgs.name)
-      .then((tx) => tx.wait());
-
-    console.log("Owner of Consent deployed :", taskArgs.owneraddress);
-
-    const deployedBeaconProxyConsentAddress = await consentFactoryContractHandle
-      .connect(accounts[0])
-      .getUserDeployedConsentsByIndex(taskArgs.owneraddress, 0, 5);
-
-    console.log(
-      "Deployed BeaconProxy Consent address :",
-      deployedBeaconProxyConsentAddress[0],
-    );
-    console.log("");
+      .createConsent(owner, baseUri, consentContractName)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      })
+      .then(() => {
+        return consentFactoryContractHandle.getUserDeployedConsentsByIndex(taskArgs.owneraddress, 0, 5);
+      })
+      .then((myCCs) => {
+        console.log("Concent Contracts owned by this account:", myCCs)
+      });
   });
 
 task(
@@ -205,42 +240,40 @@ task(
   "Submits a transaction to the mock consent contract to emit RequestForData event.",
 )
   .addParam("consentaddress", "Target consent address.")
-  .addParam(
-    "owneraddressindex",
-    "Index or owner address of the connected wallet to generate Signer object to sign the tx.",
-  )
   .addParam("cid", "IPFS multihash of SDQL query.")
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
     const multihash = taskArgs.cid;
+    const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
     // attach the first signer account to the consent contract handle
     const consentContractHandle = new hre.ethers.Contract(
       taskArgs.consentaddress,
       CC().abi,
-      accounts[taskArgs.owneraddressindex],
+      account
     );
 
-    await consentContractHandle
-      .connect(accounts[taskArgs.owneraddressindex])
-      .requestForData(multihash)
-      .then((tx) => tx.wait());
-
-    console.log("");
-    console.log("Data request was successful!");
-    console.log("");
+    await consentContractHandle.requestForData(multihash)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      })
   });
 
 task("checkConsentsDeployedByOwner", "")
   .addParam("owneraddress", "Address of data requester.")
   .setAction(async (taskArgs) => {
-    const accounts = await hre.ethers.getSigners();
+    const provider = await hre.ethers.provider;
 
     // attach the first signer account to the consent factory contract handle
     const consentFactoryContractHandle = new hre.ethers.Contract(
       consentFactory(),
       CCFactory().abi,
-      accounts[0],
+      provider
     );
 
     // declare the filter parameters of the event of interest
@@ -416,51 +449,10 @@ task("revokeRole", "Revokes a specific role on the consent contract.")
     console.log("");
     console.log(
       "Address " +
-        taskArgs.address +
-        " has been revoked of role " +
-        taskArgs.role,
+      taskArgs.address +
+      " has been revoked of role " +
+      taskArgs.role,
     );
 
     console.log("");
   });
-
-task("getConsentTokens", "").setAction(async (taskArgs) => {
-  const accounts = await hre.ethers.getSigners();
-
-  const consentContractHandle = new hre.ethers.Contract(
-    consentContract(),
-    CC().abi,
-    accounts[1],
-  );
-
-  const numberOfTokens = await consentContractHandle.balanceOf(
-    accounts[1].address,
-  );
-
-  console.log("Token balance is:", numberOfTokens);
-  console.log("accounts[1].address", accounts[1].address);
-
-  console.log(taskArgs.owneraddress);
-  // declare the filter parameters of the event of interest
-  const logs = await consentContractHandle.filters.Transfer(
-    null,
-    "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-  );
-
-  console.log("logs", logs);
-
-  // generate log with query's results
-  const _logs = await consentContractHandle.queryFilter(logs);
-
-  for (let index = 0; index < _logs.length; index++) {
-    const element = _logs[index];
-    console.log("element: ", element);
-    console.log("");
-    console.log("index: ", index);
-    console.log("tokenId: ", element.args.tokenId);
-
-    const tokenURI = await consentContractHandle.tokenURI(element.args.tokenId);
-    console.log("tokenURI: ", index, "   ", tokenURI);
-    console.log("");
-  }
-});
