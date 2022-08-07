@@ -63,8 +63,8 @@ I also recommend doing a code review on your own PR before you send it to other 
 
 ### IPFS Troubles
 
-Snickerdoodle Protocol uses IPFS as its [content addressable network](https://www.wikiwand.com/en/Content-addressable_network) of choice. The most common error developers face when 
-using IPFS, in our experience, is mixing up the **ADMIN** api and **GATEWAY** apis. 
+Snickerdoodle Protocol uses [IPFS](https://ipfs.io) as its [content addressable network](https://www.wikiwand.com/en/Content-addressable_network) of choice. The most common error developers face when 
+using IPFS, in our experience, is mixing up the [**ADMIN**](https://docs.ipfs.tech/reference/kubo/rpc/#rpc-commands) api and [**GATEWAY**](https://docs.ipfs.tech/reference/http/gateway/) apis. 
 
 The *ADMIN* api is hosted on port `5001` and is used for pinning assets to the IPFS network. The IPFS HTTP client only works with this api (on port `5001`), it is not useful for fetching 
 existing assets from the GATEWAY api. This port must not be exposed to the internet otherwise malicious actors will gain control of your IPFS node. 
