@@ -104,6 +104,41 @@ task("checkOwnerOf", "Check balance of user")
   console.log("Token belongs to:", owner);
 });
 
+task("getConsentContractDomains", "Returns list of URLs associated with a Consent Contract.")
+.addParam("address", "address of the consent contract")
+.setAction(async (taskArgs) => {
+  const address = taskArgs.address;
+  const accounts = await hre.ethers.getSigners();
+
+  const consentContractHandle = new hre.ethers.Contract(
+    address,
+    CC().abi,
+    accounts[0]
+  );
+
+  const urls = await consentContractHandle.getDomains();
+  console.log("URLS registered with this CC:", urls)
+
+});
+
+task("addConsentContractDomain", "Add a new URL to a Consent Contract.")
+.addParam("address", "address of the consent contract")
+.addParam("url", "URL to add to the Consent Contract")
+.setAction(async (taskArgs) => {
+  const address = taskArgs.address;
+  const url = taskArgs.url;
+  const accounts = await hre.ethers.getSigners();
+
+  const consentContractHandle = new hre.ethers.Contract(
+    address,
+    CC().abi,
+    accounts[0]
+  );
+
+  const txrctp = await consentContractHandle.addDomain(url);
+  console.log(txrctp)
+});
+
 task("getUserConsentContracts", "Check which constract a user has opted in to.")
 .addParam("user", "address of the user")
 .setAction(async (taskArgs) => {

@@ -5,6 +5,10 @@
 * [Getting Started](/documentation/GETTINGSTARTED.md)
 
 ## Developer Docs
+* [Core](/packages/core/README.md)
+* [Browser Extension](/packages/browserExtension/README.md)
+* [Onboarding SPA](/packages/extension-onboarding/README.md)
+* [Test Harness](/packages/test-harness/README.md)
 * [Contracts](/packages/contracts/README.md)
     * [Deployments](/packages/contracts/DEPLOYMENTS.md)
     * [CLI Tasks](/packages/contracts/tasks/README.md)
@@ -26,9 +30,6 @@
 * [SDQL](/documentation/sdql/README.md)
     * [Execution Diagrams](/documentation/sdql/Execution-Plan.md)
     * [SDQL Examples](/documentation/sdql/EXAMPLES.md)
-* [Core](/packages/core/README.md)
-* [Browser Extension](/packages/browserExtension/README.md)
-* [Test Harness](/packages/test-harness/README.md)
 * [Indexers](/packages/indexers/README.md)
     * [src](/packages/indexers/src/README.md)
     * [test](/packages/indexers/test/README.md)
