@@ -28,7 +28,7 @@ task("checkBalanceOf", "Check balance of an address given a ERC721 address")
 
   });
 
-task("optIn", "Opt in to a consent contract")
+task("optIn", "Opt in to a Consent Contract")
   .addParam("contractaddress", "address of the consent contract")
   .addParam("tokenid", "token id to use for the optin token")
   .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
@@ -264,9 +264,10 @@ task(
       })
   });
 
-task("checkConsentsDeployedByOwner", "")
+task("checkConsentContractByRole", "")
   .addParam("owneraddress", "Address of data requester.")
   .setAction(async (taskArgs) => {
+    const owneraddress = taskArgs.owneraddress;
     const provider = await hre.ethers.provider;
 
     // attach the first signer account to the consent factory contract handle
@@ -276,25 +277,44 @@ task("checkConsentsDeployedByOwner", "")
       provider
     );
 
-    // declare the filter parameters of the event of interest
-    const logs = await consentFactoryContractHandle.filters.ConsentDeployed(
-      taskArgs.owneraddress,
-    );
+    // Construct the Role byte arrays
+    const DEFAULT_ADMIN_ROLE = hre.ethers.utils.keccak256(hre.ethers.utils.toUtf8Bytes("0"));
+    const PAUSER_ROLE = hre.ethers.utils.keccak256(hre.ethers.utils.toUtf8Bytes("PAUSER_ROLE"));
+    const SIGNER_ROLE = hre.ethers.utils.keccak256(hre.ethers.utils.toUtf8Bytes("SIGNER_ROLE"));
+    const REQUESTER_ROLE = hre.ethers.utils.keccak256(hre.ethers.utils.toUtf8Bytes("REQUESTER_ROLE"));
 
-    // generate log with query's results
-    const _logs = await consentFactoryContractHandle.queryFilter(logs);
+    // Query the roles
+    await consentFactoryContractHandle.getUserRoleAddressesCount(owneraddress, DEFAULT_ADMIN_ROLE)
+      .then((DACount) => {
+        return consentFactoryContractHandle.getUserRoleAddressesCountByIndex(owneraddress, DEFAULT_ADMIN_ROLE, 0, DACount)
+      })
+      .then((DAList) => {
+        console.log("DEFAULT_ADMIN_ROLE Membership:", DAList)
+      })
 
-    // print each event's arguments
-    _logs.forEach((log, index) => {
-      console.log("");
-      console.log("Deployment count: ", index + 1);
-      console.log("  Owner address: ", log.args.owner);
-      console.log(
-        "  Address of the deployed Consent BeaconProxy:",
-        log.args.consentAddress,
-      );
-    });
-    console.log("");
+    await consentFactoryContractHandle.getUserRoleAddressesCount(owneraddress, PAUSER_ROLE)
+      .then((DACount) => {
+        return consentFactoryContractHandle.getUserRoleAddressesCountByIndex(owneraddress, PAUSER_ROLE, 0, DACount)
+      })
+      .then((DAList) => {
+        console.log("PAUSER_ROLE Membership:", DAList)
+      })
+
+    await consentFactoryContractHandle.getUserRoleAddressesCount(owneraddress, SIGNER_ROLE)
+      .then((DACount) => {
+        return consentFactoryContractHandle.getUserRoleAddressesCountByIndex(owneraddress, SIGNER_ROLE, 0, DACount)
+      })
+      .then((DAList) => {
+        console.log("SIGNER_ROLE Membership:", DAList)
+      })
+
+    await consentFactoryContractHandle.getUserRoleAddressesCount(owneraddress, REQUESTER_ROLE)
+      .then((DACount) => {
+        return consentFactoryContractHandle.getUserRoleAddressesCountByIndex(owneraddress, REQUESTER_ROLE, 0, DACount)
+      })
+      .then((DAList) => {
+        console.log("REQUESTER_ROLE Membership:", DAList)
+      })
   });
 
 task(
@@ -383,36 +403,33 @@ task(
 
 task("grantRole", "Grant specific role on the consent contract.")
   .addParam("consentaddress", "Target consent address.")
-  .addParam(
-    "owneraddressindex",
-    "Index or owner address of the connected wallet to generate Signer object to sign the tx.",
-  )
-  .addParam("address", "Address to grant role to.")
+  .addParam("grantee", "Address to grant role to.")
   .addParam("role", "Role to grant")
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
-    const roleBytes = ethers.utils.id(taskArgs.role);
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
-    const accounts = await hre.ethers.getSigners();
+    const roleBytes = ethers.utils.id(taskArgs.role);
+    const grantee = taskArgs.grantee;
+    const consentaddress = taskArgs.consentaddress;
+
 
     // attach the first signer account to the consent contract handle
     const consentContractHandle = new hre.ethers.Contract(
-      taskArgs.consentaddress,
+      consentaddress,
       CC().abi,
-      accounts[taskArgs.owneraddressindex],
+      account
     );
 
-    await consentContractHandle
-      .connect(accounts[taskArgs.owneraddressindex])
-      .grantRole(roleBytes, taskArgs.address);
-
-    console.log("");
-    console.log("Consent address:", taskArgs.consentaddress);
-    console.log("");
-    console.log(
-      "Address " + taskArgs.address + " has been granted role " + taskArgs.role,
-    );
-
-    console.log("");
+    await consentContractHandle.grantRole(roleBytes, grantee)
+    .then((txResponse) => {
+      return txResponse.wait();
+    })
+    .then((txrct) => {
+      logTXDetails(txrct);
+    });
   });
 
 // Task to revoke roles on consent contract
@@ -422,37 +439,31 @@ task("grantRole", "Grant specific role on the consent contract.")
 
 task("revokeRole", "Revokes a specific role on the consent contract.")
   .addParam("consentaddress", "Target consent address.")
-  .addParam(
-    "owneraddressindex",
-    "Index or owner address of the connected wallet to generate Signer object to sign the tx.",
-  )
-  .addParam("address", "Address to grant role to.")
+  .addParam("revokee", "Address to revoke role from.")
   .addParam("role", "Role to grant")
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
-    const roleBytes = ethers.utils.id(taskArgs.role);
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
-    const accounts = await hre.ethers.getSigners();
+    const roleBytes = ethers.utils.id(taskArgs.role);
+    const revokee = taskArgs.revokee;
+    const consentaddress = taskArgs.consentaddress;
+
 
     // attach the first signer account to the consent contract handle
     const consentContractHandle = new hre.ethers.Contract(
-      taskArgs.consentaddress,
+      consentaddress,
       CC().abi,
-      accounts[taskArgs.owneraddressindex],
+      account
     );
 
-    await consentContractHandle
-      .connect(accounts[taskArgs.owneraddressindex])
-      .revokeRole(roleBytes, taskArgs.address);
-
-    console.log("");
-    console.log("Consent address:", taskArgs.consentaddress);
-    console.log("");
-    console.log(
-      "Address " +
-      taskArgs.address +
-      " has been revoked of role " +
-      taskArgs.role,
-    );
-
-    console.log("");
+    await consentContractHandle.revokeRole(roleBytes, revokee)
+    .then((txResponse) => {
+      return txResponse.wait();
+    })
+    .then((txrct) => {
+      logTXDetails(txrct);
+    });
   });
