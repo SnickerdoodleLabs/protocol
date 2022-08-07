@@ -1,6 +1,4 @@
-const { gasSettings } = require("./constants.js");
-
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
+task("accounts", "Prints the list of accounts for configured HD Wallet", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
 
   for (const account of accounts) {
@@ -13,30 +11,32 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
-task("account", "Prints the first account.")
-  .addParam("number", "which account number on the HD wallet to look at.")
+task("accountBalance", "Prints the first account.")
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
+    const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
-    const slot = taskArgs.number;
+    const account = accounts[accountnumber];
 
-    let accountBalance = await accounts[slot].getBalance();
+    let accountBalance = await account.getBalance();
     console.log(
-      accounts[slot].address,
+      account.address,
       "balance:",
       hre.ethers.utils.formatEther(accountBalance),
     );
   });
 
 task("transactionCount", "Get the nonce of the current account.")
-  .addParam("accountnumber", "Which HD account to query")
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
-    const acntnmbr = taskArgs.accountnumber;
+    const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
-    const txCount = await accounts[acntnmbr].getTransactionCount();
+    const txCount = await account.getTransactionCount();
 
     console.log("Transaction count is:", txCount);
-    console.log("Account Address:", accounts[acntnmbr].address);
+    console.log("Account Address:", account.address);
   });
 
 task("getTransaction", "Get transaction details.")
