@@ -4,6 +4,7 @@ import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
 import { useStyles } from "@extension-onboarding/components/BalanceItem/BalanceItem.style";
 import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
+import { ethers } from "ethers";
 
 export interface IBalanceItemProps {
   item: IEVMBalance;
@@ -44,12 +45,12 @@ const BalanceItem: FC<IBalanceItemProps> = ({
       <Box ml={2} mt={0.5}>
         <Typography className={classes.name}>{getTokenName()}</Typography>
         <Typography className={classes.balance}>
-          {item.balance} {item.ticker} - ${currency}
+          {ethers.utils.formatUnits(item.balance)} {item.ticker} - ${currency}
         </Typography>
       </Box>
       <Box className={classes.usdBalanceWrapper}>
         <Typography className={classes.usdBalance}>
-          ${parseInt(item.balance) * currency}
+          ${parseInt(ethers.utils.formatUnits(item.balance)) * currency}
         </Typography>
       </Box>
     </Box>

@@ -21,6 +21,7 @@ import {
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 import BalanceItem from "@extension-onboarding/components/BalanceItem/";
+import { ethers } from "ethers";
 
 declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
@@ -207,7 +208,7 @@ const ViewAccountDetails: FC = () => {
               {accountBalances?.[accountSelect].reduce((acc, balanceItem) => {
                 acc =
                   acc +
-                  parseInt(balanceItem.balance) *
+                  parseInt(ethers.utils.formatUnits(balanceItem.balance)) *
                     currencies[balanceItem.ticker];
                 return acc;
               }, 0)}
