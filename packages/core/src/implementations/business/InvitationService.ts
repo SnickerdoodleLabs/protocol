@@ -126,14 +126,18 @@ export class InvitationService implements IInvitationService {
         })
         .map(([urls, consentContractAddresses]) => {
           // Derive a list of domains from a list of URLs
-          console.debug("urls", urls);
-          console.debug("consentContractAddresses", consentContractAddresses);
+          console.log("urls", urls);
+          console.log("consentContractAddresses", consentContractAddresses);
+          console.log("invitation.domain", invitation.domain);
 
           const domains = urls.map((url) => {
+            if (url.includes("https://") || url.includes("http://")) {
+              return new URL(url).hostname;
+            }
             return new URL(`http://${url}`).hostname;
           });
 
-          console.debug("domains", domains);
+          console.log("domains", domains);
 
           // The contract must include the domain
           if (!domains.includes(invitation.domain)) {
