@@ -134,11 +134,11 @@ export class InsightPlatformSimulator {
     this.app.post("/metatransaction", (req, res) => {
       // Gather all the parameters
       const accountAddress = EVMAccountAddress(req.body.accountAddress);
-      const dataWalletAddress = DataWalletAddress(req.body.dataWallet);
+      const dataWalletAddress = DataWalletAddress(req.body.dataWalletAddress);
       const contractAddress = EVMContractAddress(req.body.contractAddress);
       const nonce = BigNumberString(req.body.nonce);
       const data = HexString(req.body.data);
-      const signature = Signature(req.body.signature);
+      const signature = Signature(req.body.requestSignature);
       const metatransactionSignature = Signature(
         req.body.metatransactionSignature,
       );
