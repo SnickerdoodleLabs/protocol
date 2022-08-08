@@ -10,6 +10,12 @@ import {
   AjaxError,
   ConsentContractRepositoryError,
   ConsentFactoryContractError,
+  ConsentConditions,
+  HexString,
+  TokenId,
+  TokenUri,
+  URLString,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -60,6 +66,38 @@ export class ConsentContractRepository implements IConsentContractRepository {
         return consentContract.getConsentTokensOfAddress(ownerAddress);
       },
     );
+  }
+
+  public getInvitationUrls(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    URLString[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return contract.getDomains();
+      })
+      .map((domains) => {
+        return domains.map((domain) => {
+          return URLString(domain);
+        });
+      });
+  }
+
+  public getMetadataCID(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return contract.baseURI();
+      })
+      .map((baseURI) => {
+        return IpfsCID(baseURI);
+      });
   }
 
   public getCurrentConsentToken(
@@ -150,6 +188,24 @@ export class ConsentContractRepository implements IConsentContractRepository {
       return consentFactoryContract.getOptedInConsentContractAddressForAccount(
         EVMAccountAddress(context.dataWalletAddress),
       );
+    });
+  }
+
+  public encodeOptIn(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    consentConditions: ConsentConditions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
+    return this.getConsentContract(consentContractAddress).map((contract) => {
+      return contract.encodeOptIn(tokenId, TokenUri("ConsentConditionsGoHere"));
+    });
+  }
+  public encodeOptOut(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
+    return this.getConsentContract(consentContractAddress).map((contract) => {
+      return contract.encodeOptOut(tokenId);
     });
   }
 

@@ -44,6 +44,7 @@ import {
   DNSRepository,
   InsightPlatformRepository,
   InvitationRepository,
+  MetatransactionForwarderRepository,
   SDQLQueryRepository,
 } from "@core/implementations/data";
 import {
@@ -93,6 +94,8 @@ import {
   IInsightPlatformRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
+  IMetatransactionForwarderRepository,
+  IMetatransactionForwarderRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data";
@@ -155,6 +158,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,
     );
+    bind<IMetatransactionForwarderRepository>(
+      IMetatransactionForwarderRepositoryType,
+    ).to(MetatransactionForwarderRepository);
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
       .inSingletonScope();

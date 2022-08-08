@@ -1,8 +1,10 @@
 import { IConfigOverrides } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { controlChainInformation, testCoreConfig } from "../mocks";
-
+import {
+  controlChainInformation,
+  testCoreConfig,
+} from "@core-tests/mock/mocks/commonValues";
 import { CoreConfig } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
 
