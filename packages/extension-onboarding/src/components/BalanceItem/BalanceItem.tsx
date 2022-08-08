@@ -50,7 +50,7 @@ const BalanceItem: FC<IBalanceItemProps> = ({
       </Box>
       <Box className={classes.usdBalanceWrapper}>
         <Typography className={classes.usdBalance}>
-          ${parseInt(ethers.utils.formatUnits(item.balance)) * currency}
+          ${(parseFloat(ethers.utils.formatUnits(item.balance)) * currency).toFixed(2)}
         </Typography>
       </Box>
     </Box>

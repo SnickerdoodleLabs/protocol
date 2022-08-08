@@ -205,13 +205,15 @@ const ViewAccountDetails: FC = () => {
               }}
             >
               ${" "}
-              {accountBalances?.[accountSelect].reduce((acc, balanceItem) => {
-                acc =
-                  acc +
-                  parseInt(ethers.utils.formatUnits(balanceItem.balance)) *
-                    currencies[balanceItem.ticker];
-                return acc;
-              }, 0)}
+              {accountBalances?.[accountSelect]
+                .reduce((acc, balanceItem) => {
+                  acc =
+                    acc +
+                    parseFloat(ethers.utils.formatUnits(balanceItem.balance)) *
+                      (currencies[balanceItem.ticker] ?? 1);
+                  return acc;
+                }, 0)
+                .toFixed(2)}
             </Typography>
           </Box>
         </Box>
@@ -361,7 +363,7 @@ const ViewAccountDetails: FC = () => {
                   <BalanceItem
                     key={index}
                     item={balanceItem}
-                    currency={currencies[balanceItem.ticker]}
+                    currency={currencies[balanceItem.ticker] ?? 1}
                   />
                 );
               })
