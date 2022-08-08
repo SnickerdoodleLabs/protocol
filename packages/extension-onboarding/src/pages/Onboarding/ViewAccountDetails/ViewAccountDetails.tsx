@@ -393,7 +393,7 @@ const ViewAccountDetails: FC = () => {
         <PrimaryButton
           type="submit"
           onClick={() => {
-            // TODO ADD CLOSE WINDOW
+            window.sdlDataWallet.closeTab();
           }}
         >
           Close
