@@ -138,7 +138,7 @@ const App = () => {
       description: domainDetails.description,
       image: domainDetails.image,
       primaryButtonText: "Claim Rewards",
-      secondaryButtonText: "Back to Game",
+      secondaryButtonText: "Reject Rewards",
       rewardName: domainDetails.rewardName,
       nftClaimedImage: domainDetails.nftClaimedImage,
     });
