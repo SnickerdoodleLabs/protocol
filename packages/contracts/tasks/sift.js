@@ -1,84 +1,75 @@
-const { SIFT, siftContract } = require("./constants.js");
+const { SIFT, siftContract, logTXDetails } = require("./constants.js");
 
 task("verifyURL", "Verifies a url on the Sift contract")
   .addParam("url", "Domain to verify")
   .addParam("owner", "Address to mint the Sift token to")
-  .addParam(
-    "owneraddressindex",
-    "Index or owner address of the connected wallet to generate Signer object to sign the tx.",
-  )
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
+    const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
-    const signingAccount = accounts[taskArgs.owneraddressindex];
+    const url = taskArgs.url;
+    const urlOwner = taskArgs.owner;
 
     // attach the first signer account to the consent contract handle
     const siftContractHandle = new hre.ethers.Contract(
       siftContract(),
       SIFT().abi,
-      signingAccount,
+      account
     );
 
-    await siftContractHandle
-      .connect(signingAccount)
-      .verifyURL(taskArgs.url, taskArgs.owner);
-
-    console.log("");
-    console.log(
-      "Success! URL " +
-        taskArgs.url +
-        " is now set as VERIFIED on the Sift Contract.",
-    );
-    console.log("");
+    await siftContractHandle.verifyURL(url, urlOwner)
+    .then((txResponse) => {
+      return txResponse.wait()
+    })
+    .then((txrct) => {
+      logTXDetails(txrct);
+    });
   });
 
 task("maliciousURL", "Sets a url as malicious on the Sift contract")
   .addParam("url", "Domain to set as malicious")
   .addParam("owner", "Address to mint the Sift token to")
-  .addParam(
-    "owneraddressindex",
-    "Index or owner address of the connected wallet to generate Signer object to sign the tx.",
-  )
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
+    const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
-    const signingAccount = accounts[taskArgs.owneraddressindex];
+    const url = taskArgs.url;
+    const urlOwner = taskArgs.owner;
 
     // attach the first signer account to the consent contract handle
     const siftContractHandle = new hre.ethers.Contract(
       siftContract(),
       SIFT().abi,
-      signingAccount,
+      account
     );
 
-    await siftContractHandle
-      .connect(signingAccount)
-      .maliciousURL(taskArgs.url, taskArgs.owner);
-
-    console.log("");
-    console.log(
-      "Success! URL " +
-        taskArgs.url +
-        " is now marked as MALICIOUS on the Sift Contract.",
-    );
-    console.log("");
+    await siftContractHandle.maliciousURL(urlOwner, urlOwner)
+    .then((txResponse) => {
+      return txResponse.wait()
+    })
+    .then((txrct) => {
+      logTXDetails(txrct);
+    });
   });
 
 task("checkURL", "Checks a url on the Sift Contract")
   .addParam("url", "Domain to check")
   .setAction(async (taskArgs) => {
-    const accounts = await hre.ethers.getSigners();
+    const provider = await hre.ethers.provider;
 
     // attach the first signer account to the consent contract handle
     const siftContractHandle = new hre.ethers.Contract(
       siftContract(),
       SIFT().abi,
-      accounts[0],
+      provider
     );
 
-    const result = await siftContractHandle.checkURL(taskArgs.url);
-
-    console.log("");
-    console.log("Checked! URL " + taskArgs.url + " is " + result + ".");
-    console.log("");
+    await siftContractHandle.checkURL(taskArgs.url)
+    .then((result) => {
+      console.log("Checked! URL " + taskArgs.url + " is " + result + ".");
+    });
   });
