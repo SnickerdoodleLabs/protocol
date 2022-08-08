@@ -125,7 +125,7 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
     ).andThen((saved) => {
       return ChromeStorageUtils.write(ELocalStorageKey.REJECTED_COHORTS, [
         ...(saved ?? []),
-        consentContractAddresses,
+        ...consentContractAddresses,
       ]);
     });
   }

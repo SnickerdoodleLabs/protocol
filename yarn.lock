@@ -3898,7 +3898,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/contracts-sdk@workspace:packages/contracts-sdk"
   dependencies:
-    "@snickerdoodlelabs/objects": ^0.0.7
+    "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
     neverthrow: ^4.3.1
@@ -3966,7 +3966,6 @@ __metadata:
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    ipfs-http-client: ^55.0.0
     neverthrow: ^4.3.1
     neverthrow-result-utils: ^1.0.2
     reflect-metadata: ^0.1.13
@@ -4025,7 +4024,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/objects@>=0.0.1, @snickerdoodlelabs/objects@^0.0.7, @snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
+"@snickerdoodlelabs/objects@>=0.0.1, @snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
   dependencies:
