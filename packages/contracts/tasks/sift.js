@@ -20,12 +20,12 @@ task("verifyURL", "Verifies a url on the Sift contract")
     );
 
     await siftContractHandle.verifyURL(url, urlOwner)
-    .then((txResponse) => {
-      return txResponse.wait()
-    })
-    .then((txrct) => {
-      logTXDetails(txrct);
-    });
+      .then((txResponse) => {
+        return txResponse.wait()
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 task("maliciousURL", "Sets a url as malicious on the Sift contract")
@@ -48,12 +48,12 @@ task("maliciousURL", "Sets a url as malicious on the Sift contract")
     );
 
     await siftContractHandle.maliciousURL(urlOwner, urlOwner)
-    .then((txResponse) => {
-      return txResponse.wait()
-    })
-    .then((txrct) => {
-      logTXDetails(txrct);
-    });
+      .then((txResponse) => {
+        return txResponse.wait()
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 task("checkURL", "Checks a url on the Sift Contract")
@@ -69,7 +69,7 @@ task("checkURL", "Checks a url on the Sift Contract")
     );
 
     await siftContractHandle.checkURL(taskArgs.url)
-    .then((result) => {
-      console.log("Checked! URL " + taskArgs.url + " is " + result + ".");
-    });
+      .then((result) => {
+        console.log("Checked! URL " + taskArgs.url + " is " + result + ".");
+      });
   });
