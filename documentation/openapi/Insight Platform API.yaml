@@ -79,7 +79,7 @@ paths:
             schema:
               type: object
               properties:
-                dataWallet:
+                dataWalletAddress:
                   description: The address of the data wallet
                   type: string
                   format: ethereum-account-address
@@ -99,7 +99,7 @@ paths:
                 metatransactionSignature:
                   description: The signature for the metatransaction data. It must be a Minimal Forwarder request, and signed by the executing account address. That is often the data wallet key, but could be an EOA in some cases.
                   type: hex-string
-                signature:
+                requestSignature:
                   description: This is a signature for the actual API call. You must sign all properties in the post body except for signature. This is used to validate that the metatransaction request is actually coming from the data wallet. An invalid metatransaction would also fail, but this is a second level.
                   type: string
                   format: hex-string
