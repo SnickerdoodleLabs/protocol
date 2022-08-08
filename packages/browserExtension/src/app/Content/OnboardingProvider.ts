@@ -142,6 +142,9 @@ export class OnboardingProvider extends EventEmitter {
       nonce,
     );
   }
+  public closeTab() {
+    return coreGateway.closeTab();
+  }
 }
 
 export default new OnboardingProvider();

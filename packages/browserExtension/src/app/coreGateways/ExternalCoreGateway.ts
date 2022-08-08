@@ -189,4 +189,7 @@ export class ExternalCoreGateway {
       EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED,
     );
   }
+  public closeTab(): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.CLOSE_TAB);
+  }
 }

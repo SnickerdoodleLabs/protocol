@@ -62,6 +62,7 @@ import {
   ExtensionCookieError,
   ExtensionMetatransactionError,
 } from "@shared/objects/errors";
+import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -220,6 +221,10 @@ export class RpcCallHandler implements IRpcCallHandler {
           this.rejectInvitation(id),
           res,
         ).call();
+      }
+      case EExternalActions.CLOSE_TAB: {
+        sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
+        return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
       }
       case EExternalActions.GET_STATE:
         return (res.result = this.contextProvider.getExterenalState());

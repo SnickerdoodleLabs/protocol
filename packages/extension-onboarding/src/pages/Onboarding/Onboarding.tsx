@@ -11,6 +11,7 @@ import OnboardingWelcome from "./OnboardingWelcome";
 import ViewData from "@extension-onboarding/pages/Onboarding/ViewData/ViewData";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/Onboarding.style";
 import ProgressBar from "@extension-onboarding/components/ProgressBar/ProgressBar";
+import ViewAccountDetails from "./ViewAccountDetails";
 
 export default function Onboarding() {
   const { stepperStatus } = useAppContext();
@@ -26,6 +27,7 @@ export default function Onboarding() {
       <AccountLinking />,
       <ProfileCreation />,
       <ViewData />,
+      <ViewAccountDetails />,
     ];
     return stateArray[value];
   };
@@ -35,7 +37,7 @@ export default function Onboarding() {
     <Box display="flex" justifyContent="center">
       <Box>
         {progressValue !== 0 && <img src={snickerDoodleLogo} />}
-        {progressValue === 0 ? (
+        {progressValue === 0 || 4 ? (
           ""
         ) : (
           <ProgressBar progressStatus={progressValue} />

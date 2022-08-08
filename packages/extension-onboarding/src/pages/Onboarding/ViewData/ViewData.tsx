@@ -61,7 +61,7 @@ const ViewData: FC = () => {
                 information={
                   countries.find(
                     (country) =>
-                      country.code == getUserObject()?.country_code ?? "US",
+                      country.code === (getUserObject()?.country_code || "US"),
                   )?.name
                 }
               />

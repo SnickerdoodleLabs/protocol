@@ -143,7 +143,7 @@ const App = () => {
         ),
       ),
       primaryButtonText: "Claim Rewards",
-      secondaryButtonText: "Back to Game",
+      secondaryButtonText: "Reject Rewards",
       rewardName: domainDetails.rewardName,
       nftClaimedImage: URLString(
         domainDetails.nftClaimedImage.replace(
