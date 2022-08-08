@@ -104,13 +104,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
             );
 
             const postBody = {
-              dataWallet: dataWalletAddress,
+              dataWalletAddress: dataWalletAddress,
               accountAddress: accountAddress,
               contractAddress: contractAddress,
               nonce: nonce,
               data: data,
               metatransactionSignature: metatransactionSignature,
-              signature: signature,
+              requestSignature: signature,
             };
 
             return this.ajaxUtils.post<IExecuteMetatransactionResponse>(

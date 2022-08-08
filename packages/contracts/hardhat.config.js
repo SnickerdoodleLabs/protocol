@@ -82,6 +82,13 @@ module.exports = {
       gas: 6000000,
       gasPrice: 8000000000,
     },
+    doodle: {
+      accounts: accounts,
+      chainId: 31337,
+      url: "https://doodlechain.snickerdoodle.dev",
+      gas: 6000000,
+      gasPrice: 8000000000,
+    },
     subnet: {
       accounts: accounts,
       chainId: 36,

@@ -46,8 +46,11 @@ export const AppContextProvider: FC = ({ children }) => {
   const [stepperStatus, setStepperStatus] = useState(0);
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
   const [userObject, setUserObject] = useState<PII>();
+
   const [viewDetailsAccountAddress, setViewDetailsAccountAddress] =
     useState<EVMAccountAddress>();
+
+
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
   useEffect(() => {
