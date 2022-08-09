@@ -87,7 +87,7 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
     const items: IEVMNFT[] = response.result.map((token) => {
       return {
         contract: EVMContractAddress(token.token_address),
-        tokenId: TokenId(BigInt(token.token_id)),
+        tokenId: BigNumberString(token.token_id),
         contractType: token.contract_type,
         owner: EVMAccountAddress(token.owner_of),
         tokenUri: TokenUri(token.token_uri),

@@ -10,7 +10,7 @@ import {
 
 export interface IEVMNFT {
   contract: EVMContractAddress;
-  tokenId: TokenId;
+  tokenId: BigNumberString;
   contractType: string;
   owner: EVMAccountAddress;
   tokenUri: TokenUri;
