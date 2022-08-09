@@ -35,6 +35,10 @@ export const useStyles = makeStyles((theme) => ({
     background: "rgba(253, 243, 225, 0.5)",
     border: "1px solid  #ECECEC",
   },
+  cardBackground2: {
+    background: "rgba(253, 243, 225, 0.5)",
+    border: "1px solid  #ECECEC",
+  },
   cardTokenText: {
     fontFamily: "Space Grotesk",
     color: "#5D5A74",
@@ -83,4 +87,5 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 22,
     fontWeight: 700,
   },
+  
 }));
