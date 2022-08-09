@@ -163,9 +163,12 @@ task("addConsentContractDomain", "Add a new URL to a Consent Contract.")
       account
     );
 
+    console.log("Is this doing anything?")
+
     consentContractHandle.addDomain(url)
       .then((txResponse) => {
-        return txResponse;
+        console.log(txResponse)
+        return txResponse.wait();
       })
       .then((txrct) => {
         logTXDetails(txrct);
@@ -324,35 +327,34 @@ task(
   .addParam("consentaddress", "Target consent address.")
   .addParam("owneraddress", "Address of data requester.")
   .setAction(async (taskArgs) => {
-    const accounts = await hre.ethers.getSigners();
+    const consentAddress = taskArgs.consentaddress;
+    const provider = await hre.ethers.provider;
 
     // attach the first signer account to the consent contract handle
     const consentContractHandle = new hre.ethers.Contract(
       taskArgs.consentaddress,
       CC().abi,
-      accounts[3],
+      provider
     );
 
     // declare the filter parameters of the event of interest
-    const logs = await consentContractHandle.filters.RequestForData(
+    const filter = await consentContractHandle.filters.RequestForData(
       taskArgs.owneraddress,
-    );
+    )
 
-    // generate log with query's results
-    const _logs = await consentContractHandle.queryFilter(logs);
-
-    console.log("");
-    console.log("Queried address:", taskArgs.consentaddress);
-
-    // print each event's arguments
-    _logs.forEach((log, index) => {
-      console.log("");
-      console.log("Request number: ", index + 1);
-      console.log("  Owner address: ", log.args.requester);
-      console.log("  Requested CID:", log.args.ipfsCID);
-    });
-
-    console.log("");
+    await consentContractHandle.queryFilter(filter)
+      .then((result) => {
+        console.log("");
+        console.log("Queried address:", consentAddress);
+        // print each event's arguments
+        result.forEach((log, index) => {
+          console.log("");
+          console.log("Request number: ", index + 1);
+          console.log("  Owner address: ", log.args.requester);
+          console.log("  Requested CID:", log.args.ipfsCID);
+        });
+        console.log("");
+      });
   });
 
 task(
@@ -372,28 +374,29 @@ task(
     );
 
     // declare the filter parameters of the event of interest
-    const logs = await consentContractHandle.filters.RequestForData(
+    const filter = await consentContractHandle.filters.RequestForData(
       null,
       taskArgs.cidhex,
     );
 
     // generate log with query's results
-    const _logs = await consentContractHandle.queryFilter(logs);
+    await consentContractHandle.queryFilter(filter)
+      .then((result) => {
+        console.log(result);
 
-    console.log(_logs);
+        console.log("");
+        console.log("Queried address:", taskArgs.consentaddress);
 
-    console.log("");
-    console.log("Queried address:", taskArgs.consentaddress);
+        // print each event's arguments
+        result.forEach((log, index) => {
+          console.log("");
+          console.log("Request number: ", index + 1);
+          console.log("  Owner address: ", log.args.requester);
+          console.log("  Requested CID:", log.args.ipfsCID);
+        });
 
-    // print each event's arguments
-    _logs.forEach((log, index) => {
-      console.log("");
-      console.log("Request number: ", index + 1);
-      console.log("  Owner address: ", log.args.requester);
-      console.log("  Requested CID:", log.args.ipfsCID);
-    });
-
-    console.log("");
+        console.log("");
+      });
   });
 
 // Task to revoke roles on consent contract
@@ -424,12 +427,12 @@ task("grantRole", "Grant specific role on the consent contract.")
     );
 
     await consentContractHandle.grantRole(roleBytes, grantee)
-    .then((txResponse) => {
-      return txResponse.wait();
-    })
-    .then((txrct) => {
-      logTXDetails(txrct);
-    });
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 // Task to revoke roles on consent contract
@@ -460,10 +463,10 @@ task("revokeRole", "Revokes a specific role on the consent contract.")
     );
 
     await consentContractHandle.revokeRole(roleBytes, revokee)
-    .then((txResponse) => {
-      return txResponse.wait();
-    })
-    .then((txrct) => {
-      logTXDetails(txrct);
-    });
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
