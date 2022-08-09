@@ -139,8 +139,14 @@ export class InvitationService implements IInvitationService {
 
           console.log("domains", domains);
 
+          // We need to remove the subdomain so it would match with the saved domains in the blockchain
+          const domainStr = invitation.domain.replace(
+            "snickerdoodle-protocol.",
+            "",
+          );
+
           // The contract must include the domain
-          if (!domains.includes(invitation.domain)) {
+          if (!domains.includes(domainStr)) {
             return EInvitationStatus.Invalid;
           }
 

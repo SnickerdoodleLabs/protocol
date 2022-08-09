@@ -1,84 +1,72 @@
-const { CR, crumbsContract, consentFactory } = require("./constants.js");
+const { CR, crumbsContract, logTXDetails } = require("./constants.js");
 
 task("createCrumb", "Creates a crumb")
   .addParam("crumbid", "Desired crumb Id")
   .addParam("tokenuri", "String of JSON object to set as token URI")
-  .addParam(
-    "owneraddressindex",
-    "Index or owner address of the connected wallet to generate Signer object to sign the tx.",
-  )
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
+    const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
 
-    const signingAccount = accounts[taskArgs.owneraddressindex];
+    const crumbID = taskArgs.crumbid;
+    const tokenURI = taskArgs.tokenuri;
 
     // attach the first signer account to the consent contract handle
     const crumbsContractHandle = new hre.ethers.Contract(
       crumbsContract(),
       CR().abi,
-      signingAccount,
+      account
     );
 
-    await crumbsContractHandle
-      .connect(signingAccount)
-      .createCrumb(taskArgs.crumbid, taskArgs.tokenuri);
-
-    console.log("");
-    console.log(
-      "Success! Crumb id " +
-        taskArgs.crumbid +
-        " created for address " +
-        signingAccount.address +
-        ".",
-    );
-    console.log("");
+    await crumbsContractHandle.createCrumb(crumbID, tokenURI)
+      .then((txResponse) => {
+        return txResponse;
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 task("burnCrumb", "Burns a crumb")
   .addParam("crumbid", "Desired crumb Id")
-  .addParam(
-    "owneraddressindex",
-    "Index or owner address of the connected wallet to generate Signer object to sign the tx.",
-  )
+  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
   .setAction(async (taskArgs) => {
+    const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
-
-    signingAccount = accounts[taskArgs.owneraddressindex];
+    const account = accounts[accountnumber];
 
     // attach the first signer account to the consent contract handle
     const crumbsContractHandle = new hre.ethers.Contract(
       crumbsContract(),
       CR().abi,
-      signingAccount,
+      account
     );
 
-    await crumbsContractHandle.connect(signingAccount).burn(taskArgs.crumbid);
-
-    console.log("");
-    console.log(
-      "Success! Crumb id " +
-        taskArgs.crumbid +
-        " burnt from address " +
-        signingAccount.address +
-        ".",
-    );
-    console.log("");
+    await crumbsContractHandle.connect(signingAccount).burn(taskArgs.crumbid)
+      .then((txResponse) => {
+        return txResponse;
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 task("numberOfCrumbs", "Check number of crumbs an account has")
-.addParam("useraddress", "address of the users account")
-.setAction(async (taskArgs) => {
-  const useraccount = taskArgs.useraddress;
-  const accounts = await hre.ethers.getSigners();
+  .addParam("address", "address of the users account")
+  .setAction(async (taskArgs) => {
+    const useraccount = taskArgs.address;
+    const provider = await hre.ethers.provider;
 
-  // attach the first signer account to the consent contract handle
-  const consentContractHandle = new hre.ethers.Contract(
-    crumbsContract(),
-    CR().abi,
-    accounts[0],
-  );
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      crumbsContract(),
+      CR().abi,
+      provider
+    );
 
-  const owner = await consentContractHandle
-    .balanceOf(useraccount);
-  console.log("Token balance is:", owner);
-});
+    await consentContractHandle.balanceOf(useraccount)
+      .then((result) => {
+        console.log("This address has ", result.toString(), " crumbs");
+      });
+  });

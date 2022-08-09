@@ -35,7 +35,7 @@ export class SimulatorEVMTransactionRepository
     for (let i = 0; i < num; i++) {
       const item: IEVMNFT = {
         contract: EVMContractAddress("EVMContractAddress#" + i),
-        tokenId: TokenId(BigInt(Math.floor(Math.random() * 1000))),
+        tokenId: BigNumberString(`${Math.floor(Math.random() * 1000)}`),
         contractType: "erc721",
         owner: accountAddress,
         metadata: "metadata",
