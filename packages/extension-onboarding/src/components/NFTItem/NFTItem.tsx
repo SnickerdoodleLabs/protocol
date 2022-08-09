@@ -12,14 +12,18 @@ export interface INFTItemProps {
 
 const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
   const classes = useStyles();
-  const test = JSON.parse(item.metadata);
+  const parsedMetaData = JSON.parse(item.metadata);
 
   return (
     <Box display="flex" justifyContent="space-between" mt={2}>
       <Box>
         <img
-          style={{ width: "175px", height: "175px" }}
-          src={test.image.replace("ipfs://", "https://ipfs.io/ipfs/")}
+          width={175}
+          height={175}
+          src={parsedMetaData?.image.replace(
+            "ipfs://",
+            "https://ipfs.io/ipfs/",
+          )}
         />
       </Box>
     </Box>

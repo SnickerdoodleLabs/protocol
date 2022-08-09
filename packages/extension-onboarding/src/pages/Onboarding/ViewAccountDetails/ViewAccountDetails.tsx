@@ -105,21 +105,12 @@ const ViewAccountDetails: FC = () => {
   return (
     <Box>
       <Box>
-        <h3 className={classes.buildYourProfileText}>Account Details</h3>
+        <h3 className={classes.title}>Account Details</h3>
       </Box>
       <Box display="flex">
-        <Box display="flex" alignItems="center" style={{ width: "50px" }}>
+        <Box display="flex" alignItems="center" width={50}>
           <Box>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#232039",
-                fontSize: 16,
-                fontWeight: 500,
-              }}
-            >
-              Accounts
-            </Typography>
+            <Typography className={classes.subTitle}>Accounts</Typography>
             <Select
               className={classes.selectAccount}
               fullWidth
@@ -153,16 +144,7 @@ const ViewAccountDetails: FC = () => {
           </Box>
 
           <Box ml={3}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#232039",
-                fontSize: 16,
-                fontWeight: 500,
-              }}
-            >
-              Chains
-            </Typography>
+            <Typography className={classes.subTitle}>Chains</Typography>
             <Select
               className={classes.selectChain}
               variant="outlined"
@@ -191,32 +173,11 @@ const ViewAccountDetails: FC = () => {
           width={270}
           height={100}
           borderRadius={8}
-          style={{ background: "#F1F0F6", border: "1px solid  #ECECEC" }}
+          className={classes.cardBackground2}
         >
           <Box m={2}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 16,
-                fontWeight: 700,
-                lineHeight: "20px",
-                letterSpacing: "0.25px",
-              }}
-            >
-              Net Worth
-            </Typography>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 34,
-                fontWeight: 400,
-                lineHeight: "36px",
-                letterSpacing: "0.25px",
-                paddingTop: 8,
-              }}
-            >
+            <Typography className={classes.cardTitle}>Net Worth</Typography>
+            <Typography className={classes.cardDescription}>
               ${" "}
               {accountBalances?.[accountSelect]
                 .reduce((acc, balanceItem) => {
@@ -235,32 +196,13 @@ const ViewAccountDetails: FC = () => {
           height={100}
           borderRadius={8}
           ml={3}
-          style={{ background: "#F1F0F6", border: "1px solid  #ECECEC" }}
+          className={classes.cardBackground2}
         >
           <Box m={2}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 16,
-                fontWeight: 700,
-                lineHeight: "20px",
-                letterSpacing: "0.25px",
-              }}
-            >
+            <Typography className={classes.cardTokenText}>
               Number of Tokens
             </Typography>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 34,
-                fontWeight: 400,
-                lineHeight: "36px",
-                letterSpacing: "0.25px",
-                paddingTop: 8,
-              }}
-            >
+            <Typography className={classes.cardDescription}>
               {accountBalances?.[accountSelect].length}
             </Typography>
           </Box>
@@ -270,37 +212,13 @@ const ViewAccountDetails: FC = () => {
           height={100}
           borderRadius={8}
           ml={3}
-          style={{
-            background: "rgba(253, 243, 225, 0.5)",
-            border: "1px solid  #ECECEC",
-          }}
+          className={classes.cardBackground}
         >
           <Box m={2}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 16,
-                fontWeight: 700,
-                lineHeight: "20px",
-                letterSpacing: "0.25px",
-              }}
-            >
+            <Typography className={classes.cardTokenText}>
               Number of Collections
             </Typography>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 34,
-                fontWeight: 400,
-                lineHeight: "36px",
-                letterSpacing: "0.25px",
-                paddingTop: 8,
-              }}
-            >
-              0
-            </Typography>
+            <Typography className={classes.cardDescription}>0</Typography>
           </Box>
         </Box>
         <Box
@@ -308,37 +226,13 @@ const ViewAccountDetails: FC = () => {
           height={100}
           borderRadius={8}
           ml={3}
-          style={{
-            background: "rgba(253, 243, 225, 0.5)",
-            border: "1px solid  #ECECEC",
-          }}
+          className={classes.cardBackground}
         >
           <Box m={2}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 16,
-                fontWeight: 700,
-                lineHeight: "20px",
-                letterSpacing: "0.25px",
-              }}
-            >
+            <Typography className={classes.cardTokenText}>
               Number of NFTs
             </Typography>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 34,
-                fontWeight: 400,
-                lineHeight: "36px",
-                letterSpacing: "0.25px",
-                paddingTop: 8,
-              }}
-            >
-              0
-            </Typography>
+            <Typography className={classes.cardDescription}>0</Typography>
           </Box>
         </Box>
       </Box>
@@ -351,16 +245,7 @@ const ViewAccountDetails: FC = () => {
           style={{ border: "1px solid #ECECEC" }}
         >
           <Box m={3}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#232039",
-                fontSize: 22,
-                fontWeight: 700,
-              }}
-            >
-              Your Tokens
-            </Typography>
+            <Typography className={classes.tokenText}>Your Tokens</Typography>
             {isLoading ? (
               <Box
                 display="flex"
@@ -393,16 +278,7 @@ const ViewAccountDetails: FC = () => {
           style={{ border: "1px solid #ECECEC" }}
         >
           <Box m={3}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#232039",
-                fontSize: 22,
-                fontWeight: 700,
-              }}
-            >
-              Your NFTs
-            </Typography>
+            <Typography className={classes.tokenText}>Your NFTs</Typography>
             <Box
               display="flex"
               justifyContent="space-between"

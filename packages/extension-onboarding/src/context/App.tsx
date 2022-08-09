@@ -86,7 +86,7 @@ export const AppContextProvider: FC = ({ children }) => {
         (account) =>
           ({
             accountAddress: account,
-            providerKey: localStorage.getItem(`${account}`),
+            providerKey: localStorage.getItem(`${account}`) ?? null,
           } as ILinkedAccount),
       );
       setLinkedAccounts((prev) =>
