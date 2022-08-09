@@ -1,6 +1,9 @@
 # Getting Started
 
 The Protocol repository is structured as a [monorepo](https://en.wikipedia.org/wiki/Monorepo) and uses [yarn](https://yarnpkg.com/) for package development and management.
+The best place to get a feel for the code base is to start in the [Test Harness](/packages/test-harness/README.md) package. This small package demonstrates how the 
+[core](/packages/core/README.md) package, [smart contracts](/packages/contracts/README.md), and aggregator service work together. From there explore the 
+[browser extension](/packages/browserExtension/README.md) package and associated [onboarding pages](/packages/extension-onboarding/README.md) webapp. 
 
 ## Requirements
 
