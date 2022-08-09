@@ -64,4 +64,18 @@ export const useStyles = makeStyles((theme) => ({
     letterSpacing: "1px !important",
     justifyContent: "center",
   },
+  selectInput: {
+    width: 330,
+    height: 55,
+    border: "1px solid #D9D9D9",
+    borderRadius: 8,
+    fontSize: 14,
+    fontWeight: 500,
+    "& .MuiSelect-nativeInput": {
+      color: "#000 !important",
+    },
+    "& .MuiSelect-select:focus": {
+      backgroundColor: "#fff !important",
+    },
+  },
 }));

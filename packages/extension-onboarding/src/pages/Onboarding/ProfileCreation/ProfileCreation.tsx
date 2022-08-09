@@ -22,9 +22,16 @@ import {
   Typography,
   MenuItem,
 } from "@material-ui/core";
+import {
+  DatePicker,
+  KeyboardDatePicker,
+  MuiPickersUtilsProvider,
+} from "@material-ui/pickers";
 import { Age, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Select, TextField, RadioGroup } from "formik-material-ui";
+
+import DateFnsUtils from "@date-io/date-fns";
 import { gapi } from "gapi-script";
 import { ResultAsync } from "neverthrow";
 import React, { FC, useEffect, useState } from "react";
@@ -152,8 +159,9 @@ const ProfileCreation: FC = () => {
       .nullable(),
     date_of_birth: yup
       .date()
-      .required("Date of Birthday is required")
-      .typeError("Please enter valid Date of Birthday!")
+      .max(new Date(), "Please enter valid Date!")
+      .required("Date of Birth is required")
+      .typeError("Please enter valid Date!")
       .nullable(),
     gender: yup.string().required("Gender is required").nullable(),
   });
@@ -299,16 +307,44 @@ const ProfileCreation: FC = () => {
                               Date of Birth
                             </FormLabel>
                           </Box>
-                          <Field
-                            className={classes.input}
-                            component={TextField}
-                            variant="outlined"
-                            fullWidth
-                            name="date_of_birth"
-                            type="text"
-                            placeholder="Date of Birth"
-                            value={values.date_of_birth}
-                          />
+                          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                            <KeyboardDatePicker
+                              className={classes.input}
+                              required
+                              clearable
+                              autoOk
+                              variant="inline"
+                              placeholder="Date of Birth (MM/DD/YYYY)"
+                              inputVariant="outlined"
+                              format="MM/dd/yyyy"
+                              id="date-picker-inline"
+                              invalidDateMessage=""
+                              maxDateMessage=""
+                              minDateMessage=""
+                              onError={(e) => console.log(e)}
+                              value={values.date_of_birth}
+                              onChange={(date, value) => {
+                                setFieldValue(
+                                  "date_of_birth",
+                                  date?.toString() === "Invalid Date"
+                                    ? date
+                                    : value,
+                                  true,
+                                );
+                              }}
+                              KeyboardButtonProps={{
+                                "aria-label": "change date",
+                              }}
+                            />
+                            <ErrorMessage
+                              children={(errorMessage: string) => (
+                                <Typography className={classes.errorMessage}>
+                                  {errorMessage}
+                                </Typography>
+                              )}
+                              name="date_of_birth"
+                            />
+                          </MuiPickersUtilsProvider>
                         </Box>
                       </Box>
                       <Box display="flex" mt={3}>
@@ -319,13 +355,19 @@ const ProfileCreation: FC = () => {
                             </FormLabel>
                           </Box>
                           <Field
-                            className={classes.input}
+                            className={classes.selectInput}
                             component={Select}
                             variant="outlined"
                             fullWidth
                             name="country_code"
                             placeholder="Country"
-                            value={values.country_code || "US"}
+                            value={
+                              values.country_code ||
+                              (() => {
+                                setFieldValue("country_code", "US");
+                                return "US";
+                              })()
+                            }
                           >
                             <MenuItem selected value="US">
                               United States
