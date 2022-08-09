@@ -63,8 +63,8 @@ const ViewAccountDetails: FC = () => {
     }
   }, [accountBalances]);
 
-  const initiliaze = async () => {
-    await window.sdlDataWallet
+  const initiliaze = () => {
+    window.sdlDataWallet
       .getAccountBalances()
       .map((result) => {
         const structeredBalances = result.reduce((acc, item) => {
@@ -203,7 +203,7 @@ const ViewAccountDetails: FC = () => {
               Number of Tokens
             </Typography>
             <Typography className={classes.cardDescription}>
-              {accountBalances?.[accountSelect].length}
+              {accountBalances?.[accountSelect]?.length ?? 0}
             </Typography>
           </Box>
         </Box>
@@ -234,7 +234,7 @@ const ViewAccountDetails: FC = () => {
             </Typography>
             <Typography className={classes.cardDescription}>
               {" "}
-              {accountNFTs?.[accountSelect].length}
+              {accountNFTs?.[accountSelect]?.length ?? 0}
             </Typography>
           </Box>
         </Box>
@@ -288,7 +288,7 @@ const ViewAccountDetails: FC = () => {
               flexWrap="wrap"
               mt={2}
             >
-              {accountNFTs?.[accountSelect].map((nftItem, index) => {
+              {accountNFTs?.[accountSelect]?.map((nftItem, index) => {
                 return <NFTItem key={index} item={nftItem} />;
               })}
             </Box>
