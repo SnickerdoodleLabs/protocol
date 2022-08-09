@@ -232,7 +232,10 @@ const ViewAccountDetails: FC = () => {
             <Typography className={classes.cardTokenText}>
               Number of NFTs
             </Typography>
-            <Typography className={classes.cardDescription}>0</Typography>
+            <Typography className={classes.cardDescription}>
+              {" "}
+              {accountNFTs?.[accountSelect].length}
+            </Typography>
           </Box>
         </Box>
       </Box>
