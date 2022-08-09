@@ -37,7 +37,7 @@ export default function Onboarding() {
     <Box display="flex" justifyContent="center">
       <Box>
         {progressValue !== 0 && <img src={snickerDoodleLogo} />}
-        {progressValue === 0 || 4 ? (
+        {progressValue === 0 || progressValue === 4 ? (
           ""
         ) : (
           <ProgressBar progressStatus={progressValue} />
