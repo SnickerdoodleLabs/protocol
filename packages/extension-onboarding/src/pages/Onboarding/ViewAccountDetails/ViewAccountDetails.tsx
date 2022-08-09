@@ -11,22 +11,27 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewAccountDetails/ViewAccountDetails.style";
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
-import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import {
   EVMAccountAddress,
   IEVMBalance,
+  IEVMNFT,
   TickerSymbol,
 } from "@snickerdoodlelabs/objects";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 import BalanceItem from "@extension-onboarding/components/BalanceItem/";
 import { ethers } from "ethers";
+import NFTItem from "@extension-onboarding/components/NFTItem";
 
 declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
   [id: EVMAccountAddress]: IEVMBalance[];
 }
+export interface IAccountNFTsObject {
+  [id: EVMAccountAddress]: IEVMNFT[];
+}
+
 export interface IAccountTickerObject {
   [id: TickerSymbol]: IEVMBalance[];
 }
@@ -74,7 +79,15 @@ const ViewAccountDetails: FC = () => {
       })
       .andThen(() => {
         return window.sdlDataWallet.getAccountNFTs().map((result) => {
-          setAccountNFTs(result);
+          const structeredNFTs = result.reduce((acc, item) => {
+            if (acc[item.owner]) {
+              acc[item.owner] = [...acc[item.owner], item];
+            } else {
+              acc[item.owner] = [item];
+            }
+            return acc;
+          }, {} as IAccountNFTsObject);
+          setAccountNFTs(structeredNFTs);
         });
       });
   };
@@ -373,7 +386,8 @@ const ViewAccountDetails: FC = () => {
 
         <Box
           width={580}
-          height={536}
+          minHeight={536}
+          height="100%"
           borderRadius={8}
           ml={5}
           style={{ border: "1px solid #ECECEC" }}
@@ -389,6 +403,16 @@ const ViewAccountDetails: FC = () => {
             >
               Your NFTs
             </Typography>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              flexWrap="wrap"
+              mt={2}
+            >
+              {accountNFTs?.[accountSelect].map((nftItem, index) => {
+                return <NFTItem key={index} item={nftItem} />;
+              })}
+            </Box>
           </Box>
         </Box>
       </Box>

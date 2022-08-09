@@ -50,7 +50,6 @@ export const AppContextProvider: FC = ({ children }) => {
   const [viewDetailsAccountAddress, setViewDetailsAccountAddress] =
     useState<EVMAccountAddress>();
 
-
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
   useEffect(() => {
@@ -90,7 +89,11 @@ export const AppContextProvider: FC = ({ children }) => {
             providerKey: localStorage.getItem(`${account}`),
           } as ILinkedAccount),
       );
-      setLinkedAccounts((prev) => [..._accounts]);
+      setLinkedAccounts((prev) =>
+        [...new Set(_accounts.map((o) => JSON.stringify(o)))].map((s) =>
+          JSON.parse(s),
+        ),
+      );
     });
   };
 
