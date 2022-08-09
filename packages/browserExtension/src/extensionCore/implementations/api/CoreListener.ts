@@ -3,12 +3,12 @@ import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 import {
   DataWalletAddress,
   EVMAccountAddress,
-  EVMContractAddress,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   MetatransactionSignatureRequest,
   SDQLQueryRequest,
+  SDQLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ok, okAsync, ResultAsync } from "neverthrow";
@@ -43,7 +43,22 @@ export class CoreListener implements ICoreListener {
   }
 
   private onQueryPosted(request: SDQLQueryRequest) {
-    this.core.processQuery(request.consentContractAddress, request.query);
+    // @TODO - remove once ipfs issue is resolved
+    const getStringQuery = () => {
+      const queryObjOrStr = request.query.query;
+      let queryString: SDQLString;
+      if (typeof queryObjOrStr === "object") {
+        queryString = JSON.stringify(queryObjOrStr) as SDQLString;
+      } else {
+        queryString = queryObjOrStr;
+      }
+      return queryString;
+    };
+
+    this.core.processQuery(request.consentContractAddress, {
+      cid: request.query.cid,
+      query: getStringQuery(),
+    });
   }
 
   // Todo move logic to correct place
