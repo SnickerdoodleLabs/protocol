@@ -1,5 +1,6 @@
 import { IEVMBalance } from "@snickerdoodlelabs/objects";
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
+import usdcCircle from "@extension-onboarding/assets/icons/usdc-circle.png";
 import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
 import { useStyles } from "@extension-onboarding/components/BalanceItem/BalanceItem.style";
 import { Box, Typography } from "@material-ui/core";
@@ -22,8 +23,10 @@ const BalanceItem: FC<IBalanceItemProps> = ({
         return ethereumCircle;
       case "AVAX":
         return avaxCircle;
+      case "USDC":
+        return usdcCircle;
       default:
-        return "";
+        return usdcCircle;
     }
   };
 
@@ -33,6 +36,8 @@ const BalanceItem: FC<IBalanceItemProps> = ({
         return "Ethereum";
       case "AVAX":
         return "AVAX";
+      case "USDC":
+        return "USDC";
       default:
         return "";
     }
@@ -50,7 +55,10 @@ const BalanceItem: FC<IBalanceItemProps> = ({
       </Box>
       <Box className={classes.usdBalanceWrapper}>
         <Typography className={classes.usdBalance}>
-          ${(parseFloat(ethers.utils.formatUnits(item.balance)) * currency).toFixed(2)}
+          $
+          {(
+            parseFloat(ethers.utils.formatUnits(item.balance)) * currency
+          ).toFixed(2)}
         </Typography>
       </Box>
     </Box>
