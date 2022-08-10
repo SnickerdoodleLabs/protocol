@@ -411,7 +411,7 @@ const ProfileCreation: FC = () => {
                                 label="Male"
                               />
                               <FormControlLabel
-                                value="non-binary"
+                                value="nonbinary"
                                 control={<Radio />}
                                 label="Non-Binary"
                               />
