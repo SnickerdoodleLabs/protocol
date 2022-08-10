@@ -796,6 +796,20 @@ export class ConsentContract implements IConsentContract {
       .map(() => {});
   }
 
+  // Get the number of opted in addresses
+  public totalSupply(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.totalSupply() as Promise<number>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call totalSupply()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
   public filters = {
     Transfer: (
       fromAddress: EVMAccountAddress | null,
