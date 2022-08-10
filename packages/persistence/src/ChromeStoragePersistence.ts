@@ -172,10 +172,10 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
     return ChromeStorageUtils.read<EVMContractAddress[]>(
       ELocalStorageKey.ACCOUNT,
     ).andThen((saved) => {
-      return ChromeStorageUtils.write(ELocalStorageKey.ACCOUNT, [
-        ...(saved ?? []),
-        accountAddress,
-      ]);
+      return ChromeStorageUtils.write(
+        ELocalStorageKey.ACCOUNT,
+        Array.from(new Set([...(saved ?? []), accountAddress])),
+      );
     });
   }
 
