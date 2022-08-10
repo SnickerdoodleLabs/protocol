@@ -1,13 +1,15 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import P from "pino";
 import { resolve } from "postmate";
 
 import { IStorageUtils } from "@utils/IStorageUtils";
 
 export interface StoreInfo {
   name: string;
-  keyPath?: string;
+  keyPath: string;
+  autoIncrement?: boolean;
   indexBy?: [string, boolean][];
 }
 
@@ -38,10 +40,10 @@ export class IndexeDBUtils {
       request.onupgradeneeded = (event: Event) => {
         const db = request.result;
         schema.forEach((storeInfo) => {
-          const keyPathObj: IDBObjectStoreParameters =
-            storeInfo.keyPath == undefined
-              ? { autoIncrement: true }
-              : { keyPath: storeInfo.keyPath };
+          const keyPathObj: IDBObjectStoreParameters = {
+            autoIncrement: storeInfo.autoIncrement ?? false,
+            keyPath: storeInfo.keyPath,
+          };
           const objectStore = db.createObjectStore(storeInfo.name, keyPathObj);
           storeInfo.indexBy?.forEach(([name, unique]) => {
             objectStore.createIndex(name, name, { unique: unique });
@@ -56,8 +58,23 @@ export class IndexeDBUtils {
     ).andThen((db) => {
       this._db = db;
       this._initialized = true;
-      return okAsync(this._db);
+      return this.persist().andThen((persisted) => {
+        console.log("Local storage persisted: " + persisted);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return okAsync(this._db!);
+      });
     });
+  }
+
+  public persist(): ResultAsync<boolean, PersistenceError> {
+    if (!(navigator.storage && navigator.storage.persist)) {
+      return okAsync(false);
+    }
+
+    return ResultAsync.fromPromise(
+      navigator.storage.persist(),
+      (e) => new PersistenceError(JSON.stringify(e)),
+    );
   }
 
   private getObjectStore(
@@ -164,14 +181,23 @@ export class IndexeDBUtils {
     });
   }
 
-  public getCursor<T>(
+  public getCursor(
     name: string,
+    indexName?: string,
     query?: IDBValidKey | IDBKeyRange | null | undefined,
     direction?: IDBCursorDirection | undefined,
+    mode?: IDBTransactionMode,
   ): ResultAsync<IDBCursorWithValue, PersistenceError> {
     return this.initialize().andThen((db) => {
-      return this.getObjectStore(name, "readonly").andThen((store) => {
-        const request = store.openCursor(query, direction);
+      return this.getObjectStore(name, mode ?? "readonly").andThen((store) => {
+        let request: IDBRequest<IDBCursorWithValue | null>;
+        if (indexName == undefined) {
+          request = store.openCursor(query, direction);
+        } else {
+          const index: IDBIndex = store.index(indexName);
+          request = index.openCursor(query, direction);
+        }
+
         const promise = new Promise(function (resolve, reject) {
           request.onsuccess = (event) => {
             resolve(request.result);
@@ -185,6 +211,69 @@ export class IndexeDBUtils {
           promise,
           (e) => e as PersistenceError,
         ).andThen((cursor) => okAsync(cursor as IDBCursorWithValue));
+      });
+    });
+  }
+
+  public getAll<T>(
+    name: string,
+    indexName?: string,
+  ): ResultAsync<T[], PersistenceError> {
+    return this.initialize().andThen((db) => {
+      return this.getObjectStore(name, "readonly").andThen((store) => {
+        let request: IDBRequest<any[]>;
+        if (indexName == undefined) {
+          request = store.getAll();
+        } else {
+          const index: IDBIndex = store.index(indexName);
+          request = index.getAll();
+        }
+
+        const promise = new Promise<T[]>(function (resolve, reject) {
+          request.onsuccess = (event) => {
+            resolve(request.result);
+          };
+          request.onerror = (event) => {
+            reject(new PersistenceError("error reading from object store"));
+          };
+        });
+
+        return ResultAsync.fromPromise(promise, (e) => e as PersistenceError);
+      });
+    });
+  }
+
+  public getAllKeys<T>(
+    name: string,
+    indexName?: string,
+    query?: IDBValidKey | IDBKeyRange | null | undefined,
+    count?: number | undefined,
+  ): ResultAsync<T[], PersistenceError> {
+    return this.initialize().andThen((db) => {
+      return this.getObjectStore(name, "readonly").andThen((store) => {
+        let request: IDBRequest<any[]>;
+        if (indexName == undefined) {
+          request = store.getAllKeys(query, count);
+        } else {
+          const index: IDBIndex = store.index(indexName);
+          request = index.getAllKeys(query, count);
+        }
+
+        const promise = new Promise<T[]>(function (resolve, reject) {
+          request.onsuccess = (event) => {
+            resolve(request.result);
+          };
+          request.onerror = (event) => {
+            reject(new PersistenceError("error reading from object store"));
+          };
+        });
+
+        return ResultAsync.fromPromise(
+          promise,
+          (e) => e as PersistenceError,
+        ).andThen((keys) => {
+          return okAsync(keys as T[]);
+        });
       });
     });
   }

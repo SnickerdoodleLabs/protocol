@@ -33,9 +33,13 @@ import {
   IAccountIndexingType,
   IAccountIndexing,
 } from "@snickerdoodlelabs/objects";
-import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
+import {
+  IStorageUtils,
+  IStorageUtilsType,
+  IndexeDBUtils,
+} from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import {
@@ -66,13 +70,24 @@ enum ELocalStorageKey {
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
+  private indexedDB = new IndexeDBUtils("SD_Wallet", [
+    {
+      name: ELocalStorageKey.TRANSACTIONS,
+      keyPath: "hash",
+      indexBy: [
+        ["timestamp", false],
+        ["chainId", false],
+        ["value", false],
+      ],
+    },
+  ]);
+
   public constructor(
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
     @inject(IAccountNFTsType)
     protected accountNFTs: IAccountNFTs,
     @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
-    @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
   ) {}
 
@@ -435,53 +450,53 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils
-      .read<JSONString>(ELocalStorageKey.TRANSACTIONS)
-      .andThen((json) => {
-        const arr = JSON.parse(json ?? "[]") as EVMTransaction[];
-
-        const updated = [...arr, ...transactions];
-
-        return this.storageUtils.write(
+    return ResultUtils.combine(
+      transactions.map((tx) => {
+        return this.indexedDB.putObject<EVMTransaction>(
           ELocalStorageKey.TRANSACTIONS,
-          JSON.stringify(updated),
+          tx,
         );
-      });
+      }),
+    ).andThen(() => okAsync(undefined));
   }
 
   public getEVMTransactions(
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
-    return this._checkAndRetrieveValue<JSONString>(
-      ELocalStorageKey.TRANSACTIONS,
-      JSONString("[]"),
-    ).map((json) => {
-      const transactions = JSON.parse(json) as EVMTransaction[];
-      if (filter == undefined) {
-        return transactions;
-      }
+    return this.indexedDB
+      .getAll<EVMTransaction>(ELocalStorageKey.TRANSACTIONS)
+      .andThen((transactions) => {
+        if (filter == undefined) {
+          return okAsync(transactions);
+        }
 
-      return transactions.filter((value) => {
-        filter.matches(value);
+        return okAsync(
+          transactions.filter((value) => {
+            filter.matches(value);
+          }),
+        );
       });
-    });
   }
 
   public getLatestTransactionForAccount(
     chainId: ChainId,
     address: EVMAccountAddress,
   ): ResultAsync<EVMTransaction | null, PersistenceError> {
-    return this.getEVMTransactions(
-      new EVMTransactionFilter([chainId], [address]),
-    ).map((transactions) => {
-      if (transactions.length == 0) {
-        return null;
-      }
+    const filter = new EVMTransactionFilter([chainId], [address]);
+    return this.indexedDB
+      .getCursor(ELocalStorageKey.TRANSACTIONS, "timestamp", undefined, "prev")
+      .andThen((cursor) => {
+        while (cursor) {
+          const tx = cursor.value as EVMTransaction;
+          if (filter.matches(tx)) {
+            return okAsync(tx);
+          }
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const tip = transactions.sort((a, b) => a.timestamp - b.timestamp).pop()!;
-      return tip;
-    });
+          cursor.continue();
+        }
+
+        return okAsync(null);
+      });
   }
 
   // return a map of URLs
@@ -506,14 +521,32 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-    return this.getEVMTransactions().andThen((transactions) => {
-      const result = new Map<ChainId, number>();
-      transactions.forEach((tx, _i, _arr) => {
-        tx.chainId in result || (result[tx.chainId] = 0);
-        result[tx.chainId] += 1;
+    return this.configProvider
+      .getConfig()
+      .andThen((config) => {
+        const chains = Array.from(config.chainInformation.keys());
+        return ResultUtils.combine(
+          chains.map((chain) => {
+            return this.indexedDB
+              .getAllKeys(
+                ELocalStorageKey.TRANSACTIONS,
+                "chainId",
+                IDBKeyRange.only(chain),
+              )
+              .andThen((keys) => {
+                return okAsync([chain, keys.length]);
+              });
+          }),
+        );
+      })
+      .andThen((result) => {
+        const returnVal = new Map<ChainId, number>();
+        for (const elem in result) {
+          const [chain, num] = elem;
+          returnVal[chain] = num;
+        }
+        return okAsync(returnVal);
       });
-      return okAsync(result);
-    });
   }
 
   public setLatestBlockNumber(
