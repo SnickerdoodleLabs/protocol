@@ -41,7 +41,12 @@ const CustomizedAlert: FC<ICustomizedAlertProps> = ({
       autoHideDuration={5000}
       open={true}
       className={classes.container}
-      onClose={handleClose}
+      onClose={(event, reason) => {
+        if (reason === "clickaway") {
+          return;
+        }
+        handleClose();
+      }}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
     >
       <Box px={5} py={2} bgcolor={SEVERITY_COLORS[severity]} zIndex={9999}>
