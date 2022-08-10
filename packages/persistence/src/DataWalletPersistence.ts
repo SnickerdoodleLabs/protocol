@@ -507,6 +507,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         }
       };
 
+      request.onerror = (event) => {
+        reject(new PersistenceError("error reading cursor: " + event.target));
+      };
+
       return okAsync(null);
     });
 
