@@ -1,8 +1,12 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export class ChromeStorageUtils {
-  public remove(key: string | string[]): ResultAsync<void, PersistenceError> {
+import { IStorageUtils } from "./IStorageUtils";
+
+export class ChromeStorageUtils implements IStorageUtils {
+  public remove<T = any>(
+    key: string | string[],
+  ): ResultAsync<void, PersistenceError> {
     return ResultAsync.fromPromise(chrome.storage.sync.remove(key), (e) => {
       return new PersistenceError(
         `Cannot remove key ${key} from chrome storage, ${e}`,

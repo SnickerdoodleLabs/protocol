@@ -8,7 +8,9 @@ interface Dictionary<T> {
   [key: string]: T;
 }
 export class LocalStorageUtils implements IStorageUtils {
-  public remove(key: string | string[]): ResultAsync<void, PersistenceError> {
+  public remove<T = any>(
+    key: string | string[],
+  ): ResultAsync<void, PersistenceError> {
     const keys = Array.isArray(key) ? key : [key];
     keys.forEach((k) => LocalStorageUtils.localStorage.removeItem(k));
     return okAsync(undefined);
