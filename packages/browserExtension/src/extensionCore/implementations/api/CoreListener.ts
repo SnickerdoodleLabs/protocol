@@ -1,18 +1,17 @@
+import { ICoreListener } from "@interfaces/api";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 import {
   DataWalletAddress,
   EVMAccountAddress,
-  EVMContractAddress,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   MetatransactionSignatureRequest,
-  SDQLQuery,
+  SDQLQueryRequest,
+  SDQLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ok, okAsync, ResultAsync } from "neverthrow";
-
-import { ICoreListener } from "@interfaces/api";
-import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 
 @injectable()
 export class CoreListener implements ICoreListener {
@@ -43,19 +42,29 @@ export class CoreListener implements ICoreListener {
     return okAsync(undefined);
   }
 
-  private onQueryPosted(query: {
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }) {
-    console.log("onQueryPosted", query);
-    return okAsync(undefined);
+  private onQueryPosted(request: SDQLQueryRequest) {
+    // @TODO - remove once ipfs issue is resolved
+    const getStringQuery = () => {
+      const queryObjOrStr = request.query.query;
+      let queryString: SDQLString;
+      if (typeof queryObjOrStr === "object") {
+        queryString = JSON.stringify(queryObjOrStr) as SDQLString;
+      } else {
+        queryString = queryObjOrStr;
+      }
+      return queryString;
+    };
+
+    this.core.processQuery(request.consentContractAddress, {
+      cid: request.query.cid,
+      query: getStringQuery(),
+    });
   }
 
   // Todo move logic to correct place
   private onMetatransactionSignatureRequested(
     metatransactionSignatureRequest: MetatransactionSignatureRequest,
   ) {
-    console.log(`onMetatransactionSignatureRequested from Core for account ${metatransactionSignatureRequest.accountAddress}`);
     this.contextProvider.notifyPortsWithIncomingMetatransactionSignatureRequest(
       metatransactionSignatureRequest,
     );
