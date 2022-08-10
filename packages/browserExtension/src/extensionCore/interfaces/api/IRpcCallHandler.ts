@@ -10,7 +10,7 @@ export interface IRpcCallHandler {
     req: JsonRpcRequest<unknown>,
     res: PendingJsonRpcResponse<unknown>,
     next: AsyncJsonRpcEngineNextCallback,
-    sender: Runtime.MessageSender | undefined
+    sender: Runtime.MessageSender | undefined,
   ): void;
 }
 

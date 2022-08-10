@@ -1,21 +1,22 @@
-import { JsonRpcEngine } from "json-rpc-engine";
-import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
-import { v4 } from "uuid";
-import { PORT_NOTIFICATION } from "@shared/constants/ports";
-import { okAsync } from "neverthrow";
 import {
   Invitation,
   MetatransactionSignatureRequest,
   URLString,
   UUID,
 } from "@snickerdoodlelabs/objects";
-import { EPortNames } from "@shared/enums/ports";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { okAsync } from "neverthrow";
+import { v4 } from "uuid";
+
 import {
   IPortConnection,
   IPortConnectionObject,
   IPortConnections,
 } from "@interfaces/objects";
+import { PORT_NOTIFICATION } from "@shared/constants/ports";
+import { EPortNames } from "@shared/enums/ports";
 import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
+import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
 
 export class AppContext {
   constructor(
@@ -60,11 +61,11 @@ export class AppContext {
     return UUID(id);
   }
   public getInvitation(id: UUID) {
-  return this.pendingInvitation.get(id);
+    return this.pendingInvitation.get(id);
   }
   public removeInvitation(id: UUID) {
     this.pendingInvitation.delete(id);
-    }
+  }
 
   // TODO find smart way to idendify requests
   public addMetatransactionSignatureRequest(

@@ -46,7 +46,6 @@ export class AxiosAjaxUtils implements IAxiosAjaxUtils {
       | URLSearchParams,
     config?: IRequestConfig,
   ): ResultAsync<T, AjaxError> {
-
     return ResultAsync.fromPromise(
       this.instance.post(url.toString(), data, config),
       (e) => new AjaxError(`Unable to post ${url}`, e),

@@ -1,16 +1,16 @@
 import {
-  SnickerDoodleCoreError,
-  ExtensionCookieError,
-} from "@shared/objects/errors";
-import {
   EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
   LanguageCode,
   Signature,
 } from "@snickerdoodlelabs/objects";
-
 import { ResultAsync } from "neverthrow";
+
+import {
+  SnickerDoodleCoreError,
+  ExtensionCookieError,
+} from "@shared/objects/errors";
 
 export interface IAccountService {
   addAccount(

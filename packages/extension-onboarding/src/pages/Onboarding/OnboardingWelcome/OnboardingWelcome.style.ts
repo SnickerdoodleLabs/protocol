@@ -24,7 +24,7 @@ export const useStyles = makeStyles((theme) => ({
     fontStyle: "italic",
     fontFamily: "Shrikhand, cursive ",
   },
- 
+
   description: {
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 400,

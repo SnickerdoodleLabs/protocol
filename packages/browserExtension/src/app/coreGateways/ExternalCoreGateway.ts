@@ -1,8 +1,3 @@
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
-import { EExternalActions } from "@shared/enums";
-import { IExternalState } from "@shared/interfaces/states";
-import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import {
   Age,
   Invitation,
@@ -22,6 +17,11 @@ import {
   UUID,
   ConsentConditions,
 } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
+
+import CoreHandler from "@app/coreGateways/handler/CoreHandler";
+import { EExternalActions } from "@shared/enums";
 import {
   IAcceptInvitationParams,
   IAddAccountParams,
@@ -38,6 +38,7 @@ import {
   ISetLocationParams,
   IUnlockParams,
 } from "@shared/interfaces/actions";
+import { IExternalState } from "@shared/interfaces/states";
 
 export class ExternalCoreGateway {
   [x: string]: any;

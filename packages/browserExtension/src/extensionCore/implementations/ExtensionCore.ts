@@ -1,4 +1,16 @@
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import { AxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  ConfigProvider,
+  SnickerdoodleCore,
+  ConfigProvider as CoreConfigProvider,
+} from "@snickerdoodlelabs/core";
+import {
+  DefaultAccountBalances,
+  DefaultAccountNFTs,
+  IIndexerConfig,
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@snickerdoodlelabs/indexers";
 import {
   ChainId,
   IConfigOverrides,
@@ -6,6 +18,12 @@ import {
   ISnickerdoodleCoreType,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import {
+  DataWalletPersistence,
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "@snickerdoodlelabs/persistence";
+import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -57,8 +75,19 @@ export class ExtensionCore {
       moralisApiKey: config.moralisApiKey,
       dnsServerAddress: config.dnsServerAddress,
     } as IConfigOverrides;
+    const ajax = new AxiosAjaxUtils();
 
-    this.core = new SnickerdoodleCore(coreConfig);
+    const coreConfigProvider = new CoreConfigProvider();
+    coreConfigProvider.setConfigOverrides(coreConfig);
+
+    const persistence = new DataWalletPersistence(
+      coreConfigProvider,
+      new DefaultAccountNFTs(coreConfigProvider, ajax),
+      new DefaultAccountBalances(coreConfigProvider, ajax),
+      new ChromeStorageUtils(),
+    );
+
+    this.core = new SnickerdoodleCore(coreConfig, persistence);
 
     // Make the core directly injectable
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);

@@ -21,15 +21,16 @@ export class IndexeDBUtils {
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
     if (this._initialized) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return okAsync(this._db!);
     }
 
-    if (!window.indexedDB) {
+    if (!indexedDB) {
       return errAsync(new PersistenceError("indexed db not supported"));
     }
 
     const schema = this.schema;
-    const request = window.indexedDB.open(this.name);
+    const request = indexedDB.open(this.name);
     const promise = new Promise<IDBDatabase>(function (resolve, reject) {
       request.onsuccess = (_ev) => {
         resolve(request.result);
@@ -121,7 +122,11 @@ export class IndexeDBUtils {
             resolve(undefined);
           };
           request.onerror = (event) => {
-            reject(new PersistenceError("error updating object store"));
+            reject(
+              new PersistenceError(
+                "error updating object store: " + event.target,
+              ),
+            );
           };
         });
 
@@ -187,7 +192,7 @@ export class IndexeDBUtils {
     query?: IDBValidKey | IDBKeyRange | null | undefined,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
-  ): ResultAsync<IDBCursorWithValue, PersistenceError> {
+  ): ResultAsync<IDBRequest<IDBCursorWithValue | null>, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, mode ?? "readonly").andThen((store) => {
         let request: IDBRequest<IDBCursorWithValue | null>;
@@ -198,19 +203,7 @@ export class IndexeDBUtils {
           request = index.openCursor(query, direction);
         }
 
-        const promise = new Promise(function (resolve, reject) {
-          request.onsuccess = (event) => {
-            resolve(request.result);
-          };
-          request.onerror = (event) => {
-            reject(new PersistenceError("error reading from object store"));
-          };
-        });
-
-        return ResultAsync.fromPromise(
-          promise,
-          (e) => e as PersistenceError,
-        ).andThen((cursor) => okAsync(cursor as IDBCursorWithValue));
+        return okAsync(request);
       });
     });
   }

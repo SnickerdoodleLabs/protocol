@@ -1,3 +1,4 @@
+import { CoreConfig } from "@snickerdoodlelabs/core/src/interfaces/objects";
 import { ChainId, URLString } from "@snickerdoodlelabs/objects";
 
 import { EManifestVersion, EPlatform } from "@shared/enums/config";

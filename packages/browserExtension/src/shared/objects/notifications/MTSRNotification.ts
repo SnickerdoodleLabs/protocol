@@ -1,11 +1,12 @@
-import { ENotificationTypes } from "@shared/enums/notification";
-import { BaseNotification } from "@shared/objects/notifications/BaseNotification";
 import {
   EVMAccountAddress,
   EVMContractAddress,
   HexString,
   UUID,
 } from "@snickerdoodlelabs/objects";
+
+import { ENotificationTypes } from "@shared/enums/notification";
+import { BaseNotification } from "@shared/objects/notifications/BaseNotification";
 
 export class MTSRNotification extends BaseNotification {
   constructor(

@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Web3Provider } from "@ethersproject/providers";
-import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
-import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
-import {
-  EVMAccountAddress,
-  Signature,
-} from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
+
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
+import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 
 export class MetamaskWalletProvider implements IWalletProvider {
   protected _provider;
@@ -123,7 +121,11 @@ export class MetamaskWalletProvider implements IWalletProvider {
                 chainId: `0x${this.config.controlChain.chainId.toString(16)}`,
                 chainName: this.config.controlChain.name,
                 rpcUrls: this.config.controlChain.providerUrls,
-                nativeCurrency: { name: 'DOODLE', decimals: 18, symbol: 'DOODLE' },
+                nativeCurrency: {
+                  name: "DOODLE",
+                  decimals: 18,
+                  symbol: "DOODLE",
+                },
               },
             ]),
             (e) => e,

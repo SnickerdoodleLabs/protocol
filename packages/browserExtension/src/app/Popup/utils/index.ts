@@ -1,9 +1,9 @@
-import { JsonRpcEngine } from "json-rpc-engine";
-import { Runtime } from "webextension-polyfill";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import pump from "pump";
 import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { err, ok } from "neverthrow";
+import pump from "pump";
+import { Runtime } from "webextension-polyfill";
 
 // TODO add docstring
 export const createBackgroundConnectors = (port: Runtime.Port) => {

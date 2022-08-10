@@ -485,18 +485,32 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     const filter = new EVMTransactionFilter([chainId], [address]);
     return this.indexedDB
       .getCursor(ELocalStorageKey.TRANSACTIONS, "timestamp", undefined, "prev")
-      .andThen((cursor) => {
-        while (cursor) {
+      .andThen((request) => this._getNextMatchingTx(request, filter));
+  }
+
+  private _getNextMatchingTx(
+    request: IDBRequest<IDBCursorWithValue | null>,
+    filter: EVMTransactionFilter,
+  ): ResultAsync<EVMTransaction | null, PersistenceError> {
+    const promise = new Promise<EVMTransaction | null>((resolve, reject) => {
+      request.onsuccess = (event) => {
+        const cursor = request.result;
+        if (cursor) {
           const tx = cursor.value as EVMTransaction;
           if (filter.matches(tx)) {
-            return okAsync(tx);
+            resolve(tx);
+          } else {
+            cursor.continue();
           }
-
-          cursor.continue();
+        } else {
+          resolve(null);
         }
+      };
 
-        return okAsync(null);
-      });
+      return okAsync(null);
+    });
+
+    return ResultAsync.fromPromise(promise, (e) => e as PersistenceError);
   }
 
   // return a map of URLs

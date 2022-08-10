@@ -8,7 +8,6 @@ import {
 } from "@core/implementations/business/utilities/query";
 
 describe("Tokenizer", () => {
-
   test("12 is a number", function () {
     const tokenizer = new Tokenizer("12");
 

@@ -31,9 +31,10 @@ import {
 import { BigNumber } from "ethers";
 import express from "express";
 import { ResultAsync, errAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { IPFSClient } from "@test-harness/IPFSClient";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export class InsightPlatformSimulator {
   protected app: express.Express;

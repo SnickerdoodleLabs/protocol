@@ -1,4 +1,3 @@
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   ConsentConditions,
@@ -6,6 +5,8 @@ import {
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IInvitationRepository {
   getInvitationsByDomain(
