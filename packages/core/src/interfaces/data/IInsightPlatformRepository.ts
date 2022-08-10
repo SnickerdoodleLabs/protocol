@@ -1,3 +1,4 @@
+import { InsightString } from "@core/interfaces/objects";
 import {
   AjaxError,
   Insight,
@@ -23,7 +24,7 @@ export interface IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    returns: string,
+    returns: InsightString[],
   ): ResultAsync<void, AjaxError>;
 
   executeMetatransaction(

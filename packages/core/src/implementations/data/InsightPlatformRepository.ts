@@ -27,6 +27,7 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities";
+import { InsightString } from "@core/interfaces/objects";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -48,13 +49,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    returns: string,
+    returns: InsightString[],
   ): ResultAsync<void, AjaxError> {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
         const url = new URL(
-          urlJoin(config.defaultInsightPlatformBaseUrl, "responses"),
+          urlJoin(config.defaultInsightPlatformBaseUrl, "insights/responses"),
         );
         return this.ajaxUtils.post<boolean>(url, {
           consentContractId: consentContractAddress,
