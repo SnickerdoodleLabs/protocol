@@ -263,6 +263,11 @@ export interface IConsentContract {
     address: EVMAccountAddress,
   ): ResultAsync<void, ConsentContractError>;
 
+  /**
+   * Get the number of opted in addresses
+   */
+  totalSupply(): ResultAsync<number, ConsentContractError>;
+
   filters: IConsentContractFilters;
 }
 
