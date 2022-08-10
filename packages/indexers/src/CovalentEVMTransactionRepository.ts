@@ -177,6 +177,7 @@ export class CovalentEVMTransactionRepository
                   ? BigNumberString(tx.fees_paid.toString())
                   : null,
                 null,
+                EVMAccountAddress(accountAddress),
               );
 
               if (tx.log_events != null) {

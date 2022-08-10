@@ -1,5 +1,5 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IStorageUtils } from "@utils/IStorageUtils";
 
@@ -99,5 +99,9 @@ export class LocalStorageUtils implements IStorageUtils {
 
   public clear(): ResultAsync<void, PersistenceError> {
     return this.clear();
+  }
+
+  public getMaxDocumentSize(): ResultAsync<number, never> {
+    return okAsync(-1);
   }
 }

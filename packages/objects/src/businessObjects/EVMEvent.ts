@@ -1,3 +1,5 @@
+import * as serialijse from "serialijse";
+
 import { ChainId, EVMAccountAddress } from "@objects/primitives";
 
 export class EVMEvent {
@@ -27,3 +29,5 @@ export class EVMEvent {
     } | null,
   ) {}
 }
+
+serialijse.declarePersistable(EVMEvent);

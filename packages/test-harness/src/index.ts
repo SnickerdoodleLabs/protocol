@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { ConsentContractRepository } from "@core/implementations/data";
 import {
   AxiosAjaxUtils,
   CryptoUtils,
@@ -44,11 +45,12 @@ import {
   UnixTimestamp,
   Gender,
 } from "@snickerdoodlelabs/objects";
-import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { DataWalletPersistence } from "@snickerdoodlelabs/persistence";
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
+import { LocalStorageUtils, Serializer } from "@snickerdoodlelabs/utils";
 import { BigNumber, ethers } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -57,16 +59,17 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { IPFSClient } from "@extension-onboarding/packages/test-harness/src/IPFSClient";
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
-import { ConsentContractRepository } from "@core/implementations/data";
 
 // https://github.com/SBoudrias/Inquirer.js
 
 const configProvider = new ConfigProvider();
 const ajaxUtils = new AxiosAjaxUtils();
-const persistence = new LocalStoragePersistence(
+const persistence = new DataWalletPersistence(
   configProvider,
+  new LocalStorageUtils(),
   new DefaultAccountNFTs(configProvider, ajaxUtils),
   new DefaultAccountBalances(configProvider, ajaxUtils),
+  new Serializer(),
 );
 const core = new SnickerdoodleCore(
   {

@@ -1,3 +1,5 @@
+import * as serialijse from "serialijse";
+
 import { EVMEvent } from "@objects/businessObjects";
 import {
   ChainId,
@@ -25,10 +27,16 @@ export class EVMTransaction {
     public gasOffered: BigNumberString | null,
     public feesPaid: BigNumberString | null,
     public events: EVMEvent[] | null,
+    public associatedAccount: EVMAccountAddress,
   ) {}
 }
+serialijse.declarePersistable(EVMTransaction);
 
-export class EVMTransactionFilter {
+export interface IFilter<T> {
+  matches(obj: T): boolean;
+}
+
+export class EVMTransactionFilter implements IFilter<EVMTransaction> {
   public chainIDs?: Set<ChainId>;
   public hashes?: Set<string>;
   public addresses?: Set<string>;

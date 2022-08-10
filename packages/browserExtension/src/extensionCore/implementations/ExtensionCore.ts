@@ -73,7 +73,7 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { IConfigProvider } from "@shared/interfaces/configProvider";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 
-import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { DataWalletPersistence } from "@snickerdoodlelabs/persistence";
 import { InvitationRepository } from "./data/InvitationRepository";
 import {
   DefaultAccountBalances,
@@ -120,7 +120,7 @@ export class ExtensionCore {
     this.ajaxUtils = new AxiosAjaxUtils();
 
     const coreConfigProvider = new CoreConfigProvider();
-    const persistence = new ChromeStoragePersistence(
+    const persistence = new DataWalletPersistence(
       coreConfigProvider,
       new DefaultAccountNFTs(coreConfigProvider, this.ajaxUtils),
       new DefaultAccountBalances(coreConfigProvider, this.ajaxUtils),

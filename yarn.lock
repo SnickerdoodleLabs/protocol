@@ -9330,6 +9330,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"collections@npm:^5.1.13":
+  version: 5.1.13
+  resolution: "collections@npm:5.1.13"
+  dependencies:
+    weak-map: ~1.0.x
+  checksum: 7609509de3c06e4e9172feb845a5b0b1a1fa9f70d1c51b38640b0e4be1f4b7bbb912023e65fe3837246b45e0423c06d3fb29bd26dc205d7defbb0b4564f4e513
+  languageName: node
+  linkType: hard
+
 "color-convert@npm:^1.9.0":
   version: 1.9.3
   resolution: "color-convert@npm:1.9.3"
@@ -24147,6 +24156,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"serialijse@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "serialijse@npm:0.3.0"
+  dependencies:
+    buffer: ^6.0.3
+    object-assign: ^4.1.1
+    zlib: 1.0.5
+  dependenciesMeta:
+    buffer:
+      optional: true
+    object-assign:
+      optional: true
+    zlib:
+      optional: true
+  checksum: db68880881853131184d8451fd8d7985989fb323e9ae8ff4ad8be02e58490ead1b08d0e9cb47650949f22dea4ad30946b4a7bef49a50b7b2be45b5c6f1121af1
+  languageName: node
+  linkType: hard
+
 "serialize-javascript@npm:6.0.0, serialize-javascript@npm:^6.0.0":
   version: 6.0.0
   resolution: "serialize-javascript@npm:6.0.0"
@@ -24559,6 +24586,7 @@ __metadata:
     chai: ^4.3.4
     chrome-types: ^0.1.131
     clean-webpack-plugin: ^3.0.0
+    collections: ^5.1.13
     concurrently: ^5.3.0
     copy-webpack-plugin: ^7.0.0
     copyfiles: ^2.3.0
@@ -24603,6 +24631,7 @@ __metadata:
     randomstring: ^1.1.5
     rimraf: ^3.0.2
     sass-loader: ^11.1.1
+    serialijse: ^0.3.0
     solidity-coverage: ^0.7.9
     solium: ^1.2.5
     sorted-btree: ^1.8.0
@@ -27604,6 +27633,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"weak-map@npm:~1.0.x":
+  version: 1.0.8
+  resolution: "weak-map@npm:1.0.8"
+  checksum: ce030b3c6b1a461bda6eac88b3b3be57245ce26330c6ddb98d821d85c0636117ca94693ef8292407066fd367740ec6a1ef6cd9027111453d7ced43f4f78b327a
+  languageName: node
+  linkType: hard
+
 "web3-bzz@npm:1.2.11":
   version: 1.2.11
   resolution: "web3-bzz@npm:1.2.11"
@@ -29419,5 +29455,12 @@ __metadata:
     property-expr: ^2.0.4
     toposort: ^2.0.2
   checksum: 43a16786b47cc910fed4891cebdd89df6d6e31702e9462e8f969c73eac88551ce750732608012201ea6b93802c8847cb0aa27b5d57370640f4ecf30f9f97d4b0
+  languageName: node
+  linkType: hard
+
+"zlib@npm:1.0.5":
+  version: 1.0.5
+  resolution: "zlib@npm:1.0.5"
+  checksum: 5ef5693a1deb70f65845424f5ecce1ee956e50320aa438126759fd28ec8a25ae876acb3b179b4f5050427e7e0dfcd9e45bdae23f055b2d732bc2fe1dbe4da169
   languageName: node
   linkType: hard

@@ -1,5 +1,5 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IStorageUtils } from "@utils/IStorageUtils";
 
@@ -42,5 +42,9 @@ export class ChromeStorageUtils implements IStorageUtils {
     return ResultAsync.fromPromise(chrome.storage.sync.clear(), (e) => {
       return new PersistenceError(`Cannot clear chrome storage`, e);
     });
+  }
+
+  public getMaxDocumentSize(): ResultAsync<number, never> {
+    return okAsync(4096);
   }
 }

@@ -29,23 +29,32 @@ import {
   AjaxError,
   EIndexer,
   AccountBalanceError,
+  SerializationError,
 } from "@snickerdoodlelabs/objects";
 import {
   ChromeStorageUtils,
+  ISerializer,
+  ISerializerType,
   IStorageUtils,
   IStorageUtilsType,
+  Serializer,
 } from "@snickerdoodlelabs/utils";
 import { inject } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { TransactionsTableInfo } from "./Tables";
+
+import { IndexedTable } from "@persistence/db";
 import { ELocalStorageKey } from "@persistence/ELocalStorageKey";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider";
 
-export class ChromeStoragePersistence implements IDataWalletPersistence {
+export class DataWalletPersistence implements IDataWalletPersistence {
+  private _transactionsTable: IndexedTable<EVMTransaction>;
+
   public constructor(
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
@@ -54,7 +63,14 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
     @inject(IAccountNFTsType)
     protected accountNFTs: IAccountNFTs,
     @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
-  ) {}
+    @inject(ISerializerType) protected serializer: ISerializer,
+  ) {
+    this._transactionsTable = new IndexedTable(
+      this.storageUtils,
+      TransactionsTableInfo,
+      this.serializer,
+    );
+  }
 
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
@@ -236,6 +252,11 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
           .write(ELocalStorageKey.BALANCES_LAST_UPDATE, new Date().getTime())
           .andThen(() => {
             return okAsync(balances);
+          })
+          .orElse((err) => {
+            // silently fail on caching errors
+            console.log(err);
+            return okAsync(balances);
           });
       });
   }
@@ -333,6 +354,11 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
           .write(ELocalStorageKey.NFTS_LAST_UPDATE, new Date().getTime())
           .andThen(() => {
             return okAsync(nfts);
+          })
+          .orElse((err) => {
+            // silently fail on caching errors
+            console.log(err);
+            return okAsync(nfts);
           });
       });
   }
@@ -415,18 +441,9 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
   public addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils
-      .read<JSONString>(ELocalStorageKey.TRANSACTIONS)
-      .andThen((json) => {
-        const arr = JSON.parse(json ?? "[]") as EVMTransaction[];
-
-        const updated = [...arr, ...transactions];
-
-        return this.storageUtils.write(
-          ELocalStorageKey.TRANSACTIONS,
-          JSON.stringify(updated),
-        );
-      });
+    return this._transactionsTable.addRecords(transactions).mapErr((err) => {
+      return new PersistenceError(`${err}: ${err.message}`);
+    });
   }
 
   public getEVMTransactions(
@@ -451,17 +468,13 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
     chainId: ChainId,
     address: EVMAccountAddress,
   ): ResultAsync<EVMTransaction | null, PersistenceError> {
-    return this.getEVMTransactions(
-      new EVMTransactionFilter([chainId], [address]),
-    ).map((transactions) => {
-      if (transactions.length == 0) {
-        return null;
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const tip = transactions.sort((a, b) => a.timestamp - b.timestamp).pop()!;
-      return tip;
-    });
+    return this._transactionsTable
+      .getFirstMatch(
+        "timestamp",
+        new EVMTransactionFilter([chainId], [address]),
+        true,
+      )
+      .mapErr((err) => new PersistenceError(`${err}: ${err.message}`));
   }
 
   // return a map of URLs
@@ -486,14 +499,18 @@ export class ChromeStoragePersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-    return this.getEVMTransactions().andThen((transactions) => {
-      const result = new Map<ChainId, number>();
-      transactions.forEach((tx, _i, _arr) => {
-        tx.chainId in result || (result[tx.chainId] = 0);
-        result[tx.chainId] += 1;
+    return this._transactionsTable
+      .getHistogram("chainId")
+      .andThen((hist) => {
+        const result = new Map<ChainId, number>();
+        hist.forEach((v, k) => {
+          result[ChainId(k)] = v;
+        }, undefined);
+        return okAsync(result);
+      })
+      .mapErr((err) => {
+        return new PersistenceError(`${err}: ${err.message}`);
       });
-      return okAsync(result);
-    });
   }
 
   public setLatestBlockNumber(

@@ -2,3 +2,5 @@ export * from "@extension-onboarding/packages/persistence/src/DataWalletPersiste
 export * from "@persistence/IPersistenceConfig";
 export * from "@persistence/IPersistenceConfigProvider";
 export * from "@persistence/ELocalStorageKey";
+
+export * from "@persistence/db";

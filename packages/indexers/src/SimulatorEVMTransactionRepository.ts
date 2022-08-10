@@ -98,6 +98,7 @@ export class SimulatorEVMTransactionRepository
         null,
         null,
         null,
+        accountAddress,
       );
     }
     return okAsync(result);

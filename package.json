@@ -175,6 +175,8 @@
   },
   "dependencies": {
     "chrome-types": "^0.1.131",
+    "collections": "^5.1.13",
+    "serialijse": "^0.3.0",
     "sorted-btree": "^1.8.0"
   }
 }
