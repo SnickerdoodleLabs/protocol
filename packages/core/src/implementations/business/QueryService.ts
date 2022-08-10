@@ -223,13 +223,11 @@ export class QueryService implements IQueryService {
     void,
     AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
   > {
-    const returns = JSON.stringify(insights);
-
     const signableData = this.createSignable(
       context,
       consentContractAddress,
       queryId,
-      returns,
+      JSON.stringify(insights),
     );
 
     return this.cryptoUtils
@@ -247,7 +245,7 @@ export class QueryService implements IQueryService {
           consentContractAddress,
           queryId,
           signature,
-          returns,
+          insights,
         );
 
         // console.log('res', res);

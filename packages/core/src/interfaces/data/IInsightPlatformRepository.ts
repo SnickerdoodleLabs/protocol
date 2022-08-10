@@ -12,6 +12,7 @@ import {
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+import { InsightString } from "../objects";
 
 export interface IInsightPlatformRepository {
   claimReward(
@@ -23,7 +24,7 @@ export interface IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
     signature: Signature,
-    returns: string,
+    returns: InsightString[],
   ): ResultAsync<void, AjaxError>;
 
   executeMetatransaction(
