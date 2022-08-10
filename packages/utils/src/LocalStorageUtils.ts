@@ -90,15 +90,17 @@ export class LocalStorageUtils implements IStorageUtils {
   }
 
   public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
-    return this.write(key, value);
+    return okAsync(LocalStorageUtils.writeLocalStorage(key, value)).andThen(
+      () => okAsync(undefined),
+    );
   }
 
   public read<T>(key: string): ResultAsync<T | null, PersistenceError> {
-    return this.read(key);
+    return okAsync(LocalStorageUtils.readLocalStorage(key));
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
-    return this.clear();
+    return okAsync(LocalStorageUtils.clearLocalStorage());
   }
 
   public getMaxDocumentSize(): ResultAsync<number, never> {

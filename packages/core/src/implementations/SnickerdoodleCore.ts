@@ -60,6 +60,7 @@ import {
   URLString,
   SiteVisit,
 } from "@snickerdoodlelabs/objects";
+import { ISerializerType, Serializer } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -106,6 +107,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // Elaborate syntax to demonstrate that we can use multiple modules
     this.iocContainer.load(...[snickerdoodleCoreModule]);
+
+    this.iocContainer.bind(ISerializerType).toConstantValue(new Serializer());
 
     // If persistence is provided, we need to hook it up. If it is not, we will use the default
     // persistence.
@@ -446,9 +449,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getSiteVisits();
   }
-  addSiteVisits(siteVisits: SiteVisit[],):  ResultAsync<void, PersistenceError> {
-  const accountService =
-    this.iocContainer.get<IAccountService>(IAccountServiceType);
-  return accountService.addSiteVisits(siteVisits);
+  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.addSiteVisits(siteVisits);
   }
 }
