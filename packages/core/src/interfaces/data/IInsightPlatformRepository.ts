@@ -1,3 +1,4 @@
+import { InsightString } from "@core/interfaces/objects";
 import {
   AjaxError,
   Insight,
@@ -12,7 +13,6 @@ import {
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { InsightString } from "../objects";
 
 export interface IInsightPlatformRepository {
   claimReward(
