@@ -11,22 +11,27 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewAccountDetails/ViewAccountDetails.style";
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
-import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import {
   EVMAccountAddress,
   IEVMBalance,
+  IEVMNFT,
   TickerSymbol,
 } from "@snickerdoodlelabs/objects";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 import BalanceItem from "@extension-onboarding/components/BalanceItem/";
 import { ethers } from "ethers";
+import NFTItem from "@extension-onboarding/components/NFTItem";
 
 declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
   [id: EVMAccountAddress]: IEVMBalance[];
 }
+export interface IAccountNFTsObject {
+  [id: EVMAccountAddress]: IEVMNFT[];
+}
+
 export interface IAccountTickerObject {
   [id: TickerSymbol]: IEVMBalance[];
 }
@@ -58,8 +63,8 @@ const ViewAccountDetails: FC = () => {
     }
   }, [accountBalances]);
 
-  const initiliaze = async () => {
-    await window.sdlDataWallet
+  const initiliaze = () => {
+    window.sdlDataWallet
       .getAccountBalances()
       .map((result) => {
         const structeredBalances = result.reduce((acc, item) => {
@@ -74,7 +79,15 @@ const ViewAccountDetails: FC = () => {
       })
       .andThen(() => {
         return window.sdlDataWallet.getAccountNFTs().map((result) => {
-          setAccountNFTs(result);
+          const structeredNFTs = result.reduce((acc, item) => {
+            if (acc[item.owner]) {
+              acc[item.owner] = [...acc[item.owner], item];
+            } else {
+              acc[item.owner] = [item];
+            }
+            return acc;
+          }, {} as IAccountNFTsObject);
+          setAccountNFTs(structeredNFTs);
         });
       });
   };
@@ -92,21 +105,12 @@ const ViewAccountDetails: FC = () => {
   return (
     <Box>
       <Box>
-        <h3 className={classes.buildYourProfileText}>Account Details</h3>
+        <h3 className={classes.title}>Account Details</h3>
       </Box>
       <Box display="flex">
-        <Box display="flex" alignItems="center" style={{ width: "50px" }}>
+        <Box display="flex" alignItems="center" width={50}>
           <Box>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#232039",
-                fontSize: 16,
-                fontWeight: 500,
-              }}
-            >
-              Accounts
-            </Typography>
+            <Typography className={classes.subTitle}>Accounts</Typography>
             <Select
               className={classes.selectAccount}
               fullWidth
@@ -140,16 +144,7 @@ const ViewAccountDetails: FC = () => {
           </Box>
 
           <Box ml={3}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#232039",
-                fontSize: 16,
-                fontWeight: 500,
-              }}
-            >
-              Chains
-            </Typography>
+            <Typography className={classes.subTitle}>Chains</Typography>
             <Select
               className={classes.selectChain}
               variant="outlined"
@@ -178,40 +173,21 @@ const ViewAccountDetails: FC = () => {
           width={270}
           height={100}
           borderRadius={8}
-          style={{ background: "#F1F0F6", border: "1px solid  #ECECEC" }}
+          className={classes.cardBackground2}
         >
           <Box m={2}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 16,
-                fontWeight: 700,
-                lineHeight: "20px",
-                letterSpacing: "0.25px",
-              }}
-            >
-              Net Worth
-            </Typography>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 34,
-                fontWeight: 400,
-                lineHeight: "36px",
-                letterSpacing: "0.25px",
-                paddingTop: 8,
-              }}
-            >
+            <Typography className={classes.cardTitle}>Net Worth</Typography>
+            <Typography className={classes.cardDescription}>
               ${" "}
-              {accountBalances?.[accountSelect].reduce((acc, balanceItem) => {
-                acc =
-                  acc +
-                  parseInt(ethers.utils.formatUnits(balanceItem.balance)) *
-                    currencies[balanceItem.ticker];
-                return acc;
-              }, 0)}
+              {accountBalances?.[accountSelect]
+                .reduce((acc, balanceItem) => {
+                  acc =
+                    acc +
+                    parseFloat(ethers.utils.formatUnits(balanceItem.balance)) *
+                      (currencies[balanceItem.ticker] ?? 1);
+                  return acc;
+                }, 0)
+                .toFixed(2)}
             </Typography>
           </Box>
         </Box>
@@ -220,33 +196,14 @@ const ViewAccountDetails: FC = () => {
           height={100}
           borderRadius={8}
           ml={3}
-          style={{ background: "#F1F0F6", border: "1px solid  #ECECEC" }}
+          className={classes.cardBackground2}
         >
           <Box m={2}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 16,
-                fontWeight: 700,
-                lineHeight: "20px",
-                letterSpacing: "0.25px",
-              }}
-            >
+            <Typography className={classes.cardTokenText}>
               Number of Tokens
             </Typography>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 34,
-                fontWeight: 400,
-                lineHeight: "36px",
-                letterSpacing: "0.25px",
-                paddingTop: 8,
-              }}
-            >
-              {accountBalances?.[accountSelect].length}
+            <Typography className={classes.cardDescription}>
+              {accountBalances?.[accountSelect]?.length ?? 0}
             </Typography>
           </Box>
         </Box>
@@ -255,37 +212,13 @@ const ViewAccountDetails: FC = () => {
           height={100}
           borderRadius={8}
           ml={3}
-          style={{
-            background: "rgba(253, 243, 225, 0.5)",
-            border: "1px solid  #ECECEC",
-          }}
+          className={classes.cardBackground}
         >
           <Box m={2}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 16,
-                fontWeight: 700,
-                lineHeight: "20px",
-                letterSpacing: "0.25px",
-              }}
-            >
+            <Typography className={classes.cardTokenText}>
               Number of Collections
             </Typography>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 34,
-                fontWeight: 400,
-                lineHeight: "36px",
-                letterSpacing: "0.25px",
-                paddingTop: 8,
-              }}
-            >
-              0
-            </Typography>
+            <Typography className={classes.cardDescription}>0</Typography>
           </Box>
         </Box>
         <Box
@@ -293,36 +226,15 @@ const ViewAccountDetails: FC = () => {
           height={100}
           borderRadius={8}
           ml={3}
-          style={{
-            background: "rgba(253, 243, 225, 0.5)",
-            border: "1px solid  #ECECEC",
-          }}
+          className={classes.cardBackground}
         >
           <Box m={2}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 16,
-                fontWeight: 700,
-                lineHeight: "20px",
-                letterSpacing: "0.25px",
-              }}
-            >
+            <Typography className={classes.cardTokenText}>
               Number of NFTs
             </Typography>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#5D5A74",
-                fontSize: 34,
-                fontWeight: 400,
-                lineHeight: "36px",
-                letterSpacing: "0.25px",
-                paddingTop: 8,
-              }}
-            >
-              0
+            <Typography className={classes.cardDescription}>
+              {" "}
+              {accountNFTs?.[accountSelect]?.length ?? 0}
             </Typography>
           </Box>
         </Box>
@@ -336,16 +248,7 @@ const ViewAccountDetails: FC = () => {
           style={{ border: "1px solid #ECECEC" }}
         >
           <Box m={3}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#232039",
-                fontSize: 22,
-                fontWeight: 700,
-              }}
-            >
-              Your Tokens
-            </Typography>
+            <Typography className={classes.tokenText}>Your Tokens</Typography>
             {isLoading ? (
               <Box
                 display="flex"
@@ -361,7 +264,7 @@ const ViewAccountDetails: FC = () => {
                   <BalanceItem
                     key={index}
                     item={balanceItem}
-                    currency={currencies[balanceItem.ticker]}
+                    currency={currencies[balanceItem.ticker] ?? 1}
                   />
                 );
               })
@@ -371,22 +274,24 @@ const ViewAccountDetails: FC = () => {
 
         <Box
           width={580}
-          height={536}
+          minHeight={536}
+          height="100%"
           borderRadius={8}
           ml={5}
           style={{ border: "1px solid #ECECEC" }}
         >
           <Box m={3}>
-            <Typography
-              style={{
-                fontFamily: "Space Grotesk",
-                color: "#232039",
-                fontSize: 22,
-                fontWeight: 700,
-              }}
+            <Typography className={classes.tokenText}>Your NFTs</Typography>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              flexWrap="wrap"
+              mt={2}
             >
-              Your NFTs
-            </Typography>
+              {accountNFTs?.[accountSelect]?.map((nftItem, index) => {
+                return <NFTItem key={index} item={nftItem} />;
+              })}
+            </Box>
           </Box>
         </Box>
       </Box>
