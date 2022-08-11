@@ -11,9 +11,8 @@ const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
   const classes = useStyles();
 
   const nftImages = useMemo((): string[] => {
-    const regexpImage = /(\"image.*?\":\s*?\"(\s*?.*?\s*?)\")/;
-    const regexpUrl =
-      /(https?|ipfs):\/\/([-A-Z0-9.]+)(\/[-A-Z0-9+&@#\/%=~_|!:,.;]*)/i;
+    const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
+    const regexpUrl = /(https?|ipfs)/i;
     const splittedData = item.metadata?.split(regexpImage);
     const extractedImages: string[] = [];
     splittedData?.forEach((key) => {
