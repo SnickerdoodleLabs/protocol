@@ -14,9 +14,9 @@ const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
     const regexpImage = /(\"image.*?\":\s*?\"(\s*?.*?\s*?)\")/;
     const regexpUrl =
       /(https?|ipfs):\/\/([-A-Z0-9.]+)(\/[-A-Z0-9+&@#\/%=~_|!:,.;]*)/i;
-    const splittedData = item.metadata.split(regexpImage);
+    const splittedData = item.metadata?.split(regexpImage);
     const extractedImages: string[] = [];
-    splittedData.forEach((key) => {
+    splittedData?.forEach((key) => {
       if (regexpImage.test(key)) {
         const imageUrl = key.match(regexpImage)?.[2];
         if (imageUrl && regexpUrl.test(imageUrl)) {
