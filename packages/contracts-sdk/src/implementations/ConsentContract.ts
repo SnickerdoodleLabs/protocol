@@ -465,14 +465,17 @@ export class ConsentContract implements IConsentContract {
   ): ResultAsync<ConsentToken[], ConsentContractError> {
     return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
       if (numberOfTokens === 0) {
-        return okAsync([] as ConsentToken[]);
+        return okAsync([]);
       }
       return this.queryFilter(
         this.filters.Transfer(null, ownerAddress),
       ).andThen((logsEvents) => {
         return ResultUtils.combine(
           logsEvents.map((logEvent) => {
-            // SEAN: This is failing the second time I do it
+            if (logEvent.args == null || logEvent.args.tokenId == null) {
+              return okAsync(null);
+            }
+
             return this.tokenURI(logEvent.args?.tokenId).andThen((tokenUri) => {
               return okAsync(
                 new ConsentToken(
@@ -484,7 +487,11 @@ export class ConsentContract implements IConsentContract {
               );
             });
           }),
-        );
+        ).map((consentTokens) => {
+          return consentTokens.filter(
+            (consentToken) => consentToken != null,
+          ) as ConsentToken[];
+        });
       });
     });
   }

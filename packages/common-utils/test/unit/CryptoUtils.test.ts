@@ -51,6 +51,24 @@ describe("CryptoUtils tests", () => {
     expect(tokenId).toBeGreaterThanOrEqual(0);
   });
 
+  test("generated tokenId as a big number and call toNumber()", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    // Act
+    const result = await utils.getTokenId();
+    const tokenId = result._unsafeUnwrap();
+    const bigNumber = BigNumber.from(tokenId);
+    const tokenIdNumber = bigNumber.toNumber();
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    expect(typeof tokenIdNumber).toBe("number");
+    expect(tokenId).toBeGreaterThanOrEqual(0);
+  });
+
   test("deriveAESKeyFromSignature returns 32 bytes as 44 characters of base64", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
