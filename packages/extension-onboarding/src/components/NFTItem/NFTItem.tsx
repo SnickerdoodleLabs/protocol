@@ -1,10 +1,7 @@
-import { IEVMBalance, IEVMNFT } from "@snickerdoodlelabs/objects";
-import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
-import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
+import { IEVMNFT } from "@snickerdoodlelabs/objects";
 import { useStyles } from "@extension-onboarding/components/BalanceItem/BalanceItem.style";
-import { Box, Typography } from "@material-ui/core";
-import React, { FC } from "react";
-import { ethers } from "ethers";
+import { Box } from "@material-ui/core";
+import React, { FC, useMemo } from "react";
 
 export interface INFTItemProps {
   item: IEVMNFT;
@@ -12,21 +9,38 @@ export interface INFTItemProps {
 
 const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
   const classes = useStyles();
-  const parsedMetaData = JSON.parse(item.metadata);
+
+  const nftImages = useMemo((): string[] => {
+    const regexpImage = /(\"image.*?\":\s*?\"(\s*?.*?\s*?)\")/;
+    const regexpUrl =
+      /(https?|ipfs):\/\/([-A-Z0-9.]+)(\/[-A-Z0-9+&@#\/%=~_|!:,.;]*)/i;
+    const splittedData = item.metadata.split(regexpImage);
+    const extractedImages: string[] = [];
+    splittedData.forEach((key) => {
+      if (regexpImage.test(key)) {
+        const imageUrl = key.match(regexpImage)?.[2];
+        if (imageUrl && regexpUrl.test(imageUrl)) {
+          extractedImages.push(imageUrl);
+        }
+      }
+    });
+    return extractedImages;
+  }, [JSON.stringify(item)]);
 
   return (
-    <Box display="flex" justifyContent="space-between" mt={2}>
-      <Box>
-        <img
-          width={175}
-          height={175}
-          src={parsedMetaData?.image.replace(
-            "ipfs://",
-            "https://ipfs.io/ipfs/",
-          )}
-        />
-      </Box>
-    </Box>
+    <>
+      {nftImages.length ? (
+        <Box display="flex" justifyContent="space-between" mt={2}>
+          <Box>
+            <img
+              width={175}
+              height={175}
+              src={nftImages[0].replace("ipfs://", "https://ipfs.io/ipfs/")}
+            />
+          </Box>
+        </Box>
+      ) : null}
+    </>
   );
 };
 export default NFTItem;
