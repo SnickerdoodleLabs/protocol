@@ -21,7 +21,6 @@ export const useGenericModalStyles = makeStyles((theme) =>
       display: "flex",
       minHeight: "50vh",
       flexDirection: "column",
-      alignItems: "center",
       padding: "unset",
     },
     image: {

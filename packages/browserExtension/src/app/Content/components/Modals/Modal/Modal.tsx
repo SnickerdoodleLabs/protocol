@@ -1,4 +1,3 @@
-import React, { FC, ReactNode } from "react";
 import {
   Box,
   Button,
@@ -7,6 +6,7 @@ import {
   IconButton,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import React, { FC, ReactNode } from "react";
 
 import { useGenericModalStyles } from "../Modal.style";
 
@@ -145,17 +145,6 @@ const Modal: FC<IModalProps> = ({
           justifyContent="center"
         >
           {topContent && topContent}
-          {/* <img className={modalClasses.image} src={image} alt="logo" />
-          <Box
-            padding="3px 12px"
-            bgcolor="rgba(255, 255, 255, 0.5)"
-            borderRadius={4}
-            mt={0.75}
-          >
-            <Typography variant="body1" align="center">
-              {rewardName}
-            </Typography>
-          </Box> */}
         </Box>
         <Box
           bgcolor="#FDF3E1"
@@ -165,16 +154,6 @@ const Modal: FC<IModalProps> = ({
           padding="36px 48px"
         >
           {bottomContent && bottomContent}
-          {/* <Typography
-            className={modalClasses.title}
-            variant="h4"
-            align="center"
-          >
-            {title}
-          </Typography>
-          <Typography variant="body1" align="center">
-            {description}
-          </Typography> */}
           <Box display="flex" mt="auto" justifyContent="space-between">
             {onSecondaryButtonClick && (
               <Button

@@ -1,37 +1,27 @@
-import React, { useEffect, useMemo, useState } from "react";
-
-import RewardCard from "../Screens/RewardCard";
-import ConnectWallet from "../Screens/ConnectWallet";
-import ConnectWalletPending from "../Screens/ConnectWalletPending";
-import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
-import NftClaimed from "../Screens/NftClaimed";
-import browser from "webextension-polyfill";
-import { EAPP_STATE, IRewardItem } from "../../constants";
-import Browser from "webextension-polyfill";
-import { ExternalCoreGateway } from "@app/coreGateways";
-import { IExternalState } from "@shared/interfaces/states";
-import pump from "pump";
-import ObjectMultiplex from "obj-multiplex";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
-import ConfigProvider from "@shared/utils/ConfigProvider";
+import RewardCard from "@app/Content/components/Screens/RewardCard";
 import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
-import { VersionUtils } from "@shared/utils/VersionUtils";
-import endOfStream from "end-of-stream";
+import { ExternalCoreGateway } from "@app/coreGateways";
+import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { EPortNames } from "@shared/enums/ports";
+import ConfigProvider from "@shared/utils/ConfigProvider";
+import { VersionUtils } from "@shared/utils/VersionUtils";
 import {
-  Invitation,
   DomainName,
-  TokenId,
-  PageInvitation,
   InvitationDomain,
   UUID,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { findIndex } from "rxjs";
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import ObjectMultiplex from "obj-multiplex";
+import pump from "pump";
+import React, { useEffect, useMemo, useState } from "react";
+import Browser from "webextension-polyfill";
+
+import { EAPP_STATE, IRewardItem } from "../../constants";
 
 let coreGateway;
 let notificationEmitter;
@@ -84,27 +74,13 @@ export interface IInvitationDomainWithUUID {
 
 const App = () => {
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
-  const [rewardToDisplay, setRewardToDisplay] = useState<
-    IRewardItem | undefined
-  >();
+  const [rewardToDisplay, setRewardToDisplay] = useState<IRewardItem>();
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
 
   useEffect(() => {
     initiateCohort();
-    addEventListeners();
-    return () => {
-      removeEventListeners();
-    };
   }, []);
-
-  useEffect(() => {
-    if (appState === EAPP_STATE.CONNECT_WALLET_SUCCESS) {
-      setTimeout(() => {
-        setAppState(EAPP_STATE.FREE_NFT_CLAIMED);
-      }, 1000);
-    }
-  }, [appState]);
 
   const initiateCohort = async () => {
     coreGateway
@@ -158,86 +134,15 @@ const App = () => {
     setAppState(state);
   };
 
-  // Event Listeners
-  const addEventListeners = () => {
-    document.addEventListener(
-      "SD_WALLET_CONNECTION_COMPLETED",
-      onWalletConnectionCompleted,
-    );
-
-    document.addEventListener(
-      "SD_WALLET_CONNECTION_PENDING",
-      onWalletConnectionPending,
-    );
-  };
-
-  const removeEventListeners = () => {
-    document.removeEventListener(
-      "SD_WALLET_CONNECTION_COMPLETED",
-      onWalletConnectionCompleted,
-    );
-
-    document.removeEventListener(
-      "SD_WALLET_CONNECTION_PENDING",
-      onWalletConnectionPending,
-    );
-  };
-
-  // Event handlers
-  const onWalletConnectionCompleted = async (e: Event) => {
-    // @ts-ignore
-    const { accounts, signature, chainId } = e.detail;
-    browser.storage.sync.set(
-      {
-        onChainData: {
-          accountAddress: accounts[0],
-          signatureValue: signature,
-          chainId: chainId,
-          timestamp: new Date(),
-        },
-      },
-      // function () {
-      //   console.log("Value is set to" + accounts);
-      // },
-    );
-    browser.runtime.sendMessage({
-      message: "cardData",
-      onChainData: {
-        accountAddress: accounts[0],
-        signatureValue: signature,
-        chainId: chainId,
-        timestamp: new Date(),
-      },
-    });
-    setAppState(EAPP_STATE.CONNECT_WALLET_SUCCESS);
-  };
-
-  const onWalletConnectionPending = (e: Event) => {
-    setAppState(EAPP_STATE.CONNECT_WALLET_PENDING);
-  };
-
   const renderComponent = useMemo(() => {
     switch (true) {
-      case !rewardToDisplay || appState === EAPP_STATE.DISMISSED:
+      case !rewardToDisplay ||
+        appState === EAPP_STATE.DISMISSED ||
+        appState === EAPP_STATE.COMPLETED:
         return null;
-      case appState === EAPP_STATE.INIT:
+      case appState === EAPP_STATE.INIT && !!rewardToDisplay:
         return (
           <RewardCard
-            rewardItem={rewardToDisplay!}
-            invitationDomain={invitationDomain}
-            changeAppState={changeAppState}
-            coreGateway={coreGateway}
-          />
-        );
-      case appState === EAPP_STATE.CONNECT_WALLET:
-        return <ConnectWallet changeAppState={changeAppState} />;
-      case appState === EAPP_STATE.CONNECT_WALLET_PENDING:
-        return <ConnectWalletPending changeAppState={changeAppState} />;
-      case appState === EAPP_STATE.CONNECT_WALLET_SUCCESS:
-        return <ConnectWalletSuccess changeAppState={changeAppState} />;
-      case appState === EAPP_STATE.FREE_NFT_CLAIMED:
-        return (
-          <NftClaimed
             rewardItem={rewardToDisplay!}
             invitationDomain={invitationDomain}
             changeAppState={changeAppState}

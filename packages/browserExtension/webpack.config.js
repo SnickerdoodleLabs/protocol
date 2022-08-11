@@ -49,7 +49,7 @@ var options = {
     options: path.join(__dirname, "src", "app", "Options", "index.jsx"),
     popup: path.join(__dirname, "src", "app", "Popup", "index.jsx"),
     background: path.join(__dirname, "src", "extensionCore", "index.ts"),
-    contentScript: path.join(__dirname, "src", "app", "Content", "index.js"),
+    contentScript: path.join(__dirname, "src", "app", "Content", "index.tsx"),
     "injectables/onboarding": path.join(
       __dirname,
       "src",

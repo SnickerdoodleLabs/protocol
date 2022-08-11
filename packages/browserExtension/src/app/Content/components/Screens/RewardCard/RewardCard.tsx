@@ -25,21 +25,25 @@ const RewardCard: React.FC<IRewardCardProps> = ({
     return coreGateway.acceptInvitation(null, invitationDomain?.id as UUID);
   };
   const rejectInvitation = () => {
-    coreGateway.rejectInvitation(invitationDomain?.id as UUID);
+    return coreGateway.rejectInvitation(invitationDomain?.id as UUID);
   };
 
   const modalClasses = useGenericModalStyles();
 
   const onPrimaryButtonClick = () => {
     acceptInvitation().map(() => {
-      console.log("acceptInvitation returned void");
-      changeAppState(EAPP_STATE.DISMISSED);
+      changeAppState(EAPP_STATE.COMPLETED);
     });
   };
 
   const onSecondaryButtonClick = () => {
+    rejectInvitation().map(() => {
+      changeAppState(EAPP_STATE.DISMISSED);
+    });
+  };
+
+  const onCloseButtonClick = () => {
     changeAppState(EAPP_STATE.DISMISSED);
-    rejectInvitation();
   };
 
   return (
@@ -48,7 +52,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
       primaryButtonText={rewardItem.primaryButtonText}
       onPrimaryButtonClick={onPrimaryButtonClick}
       onSecondaryButtonClick={onSecondaryButtonClick}
-      onCloseButtonClick={onSecondaryButtonClick}
+      onCloseButtonClick={onCloseButtonClick}
       topContent={
         <>
           <img
