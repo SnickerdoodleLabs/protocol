@@ -208,7 +208,7 @@ export class AST_Evaluator {
         return okAsync(SDQL_Return(false));
       } else {
         return this.evalAny(cond.rval).andThen((rval) => {
-          return okAsync(SDQL_Return(rval == false));
+          return okAsync(rval);
         });
       }
     });
