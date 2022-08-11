@@ -29,7 +29,7 @@ const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
 
   return (
     <>
-      {nftImages.length ? (
+      {nftImages?.length ? (
         <Box display="flex" justifyContent="space-between" mt={2}>
           <Box>
             <img
