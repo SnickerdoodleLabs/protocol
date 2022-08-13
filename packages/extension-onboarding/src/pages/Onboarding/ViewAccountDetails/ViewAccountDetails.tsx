@@ -298,7 +298,7 @@ const ViewAccountDetails: FC = () => {
           width={580}
           height={536}
           borderRadius={8}
-          style={{ border: "1px solid #ECECEC" }}
+          border="1px solid #ECECEC"
         >
           <Box m={3}>
             <Typography className={classes.tokenText}>Your Tokens</Typography>
@@ -335,14 +335,11 @@ const ViewAccountDetails: FC = () => {
           height="100%"
           borderRadius={8}
           ml={5}
-          style={{ border: "1px solid #ECECEC" }}
+          border="1px solid #ECECEC"
         >
           <Box m={3}>
             <Typography className={classes.tokenText}>Your NFTs</Typography>
-            <Grid
-              container
-              style={{ display: "flex", marginTop: "16px", gap: 10 }}
-            >
+            <Grid container className={classes.nftContainer}>
               {accountNFTs?.[accountSelect]?.map((nftItem, index) => {
                 if (nftItem.chain.toString() === chainSelect) {
                   return <NFTItem key={index} item={nftItem} />;
