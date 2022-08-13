@@ -1,6 +1,7 @@
 import {
   Box,
   CircularProgress,
+  Grid,
   MenuItem,
   Select,
   Typography,
@@ -11,6 +12,8 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewAccountDetails/ViewAccountDetails.style";
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
+import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
+import polygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import {
   EVMAccountAddress,
@@ -51,7 +54,7 @@ const ViewAccountDetails: FC = () => {
   const [accountSelect, setAccountSelect] = useState<EVMAccountAddress>(
     viewDetailsAccountAddress ?? linkedAccounts[0].accountAddress,
   );
-  const [chainSelect, setChainSelect] = useState("ETH");
+  const [chainSelect, setChainSelect] = useState("1");
 
   useEffect(() => {
     initiliaze();
@@ -154,13 +157,63 @@ const ViewAccountDetails: FC = () => {
               value={chainSelect}
               onChange={handleChainChange}
             >
-              <MenuItem value="ETH">
+              <MenuItem value="1">
                 <Box display="flex">
                   <Box>
-                    <img width={40} height={40} src={ethereumCircle} />
+                    <img width={35} height={35} src={ethereumCircle} />
                   </Box>
                   <Typography className={classes.accountAddressText}>
-                    Ethereum
+                    Ethereum Mainnet
+                  </Typography>
+                </Box>
+              </MenuItem>
+              <MenuItem value="42">
+                <Box display="flex">
+                  <Box>
+                    <img width={35} height={35} src={ethereumCircle} />
+                  </Box>
+                  <Typography className={classes.accountAddressText}>
+                    Ethereum Kovan
+                  </Typography>
+                </Box>
+              </MenuItem>
+              <MenuItem value="43113">
+                <Box display="flex">
+                  <Box>
+                    <img width={35} height={35} src={avaxCircle} />
+                  </Box>
+                  <Typography className={classes.accountAddressText}>
+                    Avalanche Fuji
+                  </Typography>
+                </Box>
+              </MenuItem>
+              <MenuItem value="43114">
+                <Box display="flex">
+                  <Box>
+                    <img width={35} height={35} src={avaxCircle} />
+                  </Box>
+                  <Typography className={classes.accountAddressText}>
+                    Avalanche Mainnet
+                  </Typography>
+                </Box>
+              </MenuItem>
+              <MenuItem value="137">
+                <Box display="flex">
+                  <Box>
+                    <img width={35} height={35} src={polygonCircle} />
+                  </Box>
+                  <Typography className={classes.accountAddressText}>
+                    Polygon Mainnet
+                  </Typography>
+                </Box>
+              </MenuItem>
+              <MenuItem value="80001">
+                <Box display="flex">
+                  <Box>
+                    <img width={35} height={35} src={polygonCircle} />
+                  </Box>
+                  <Typography className={classes.accountAddressText}>
+                    Polygon Mumbai
                   </Typography>
                 </Box>
               </MenuItem>
@@ -260,13 +313,17 @@ const ViewAccountDetails: FC = () => {
               </Box>
             ) : (
               accountBalances?.[accountSelect].map((balanceItem, index) => {
-                return (
-                  <BalanceItem
-                    key={index}
-                    item={balanceItem}
-                    currency={currencies[balanceItem.ticker] ?? 1}
-                  />
-                );
+                if (balanceItem.chainId.toString() === chainSelect) {
+                  return (
+                    <BalanceItem
+                      key={index}
+                      item={balanceItem}
+                      currency={currencies[balanceItem.ticker] ?? 1}
+                    />
+                  );
+                } else {
+                  return null;
+                }
               })
             )}
           </Box>
@@ -282,16 +339,18 @@ const ViewAccountDetails: FC = () => {
         >
           <Box m={3}>
             <Typography className={classes.tokenText}>Your NFTs</Typography>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              flexWrap="wrap"
-              mt={2}
+            <Grid
+              container
+              style={{ display: "flex", marginTop: "16px", gap: 10 }}
             >
               {accountNFTs?.[accountSelect]?.map((nftItem, index) => {
-                return <NFTItem key={index} item={nftItem} />;
+                if (nftItem.chain.toString() === chainSelect) {
+                  return <NFTItem key={index} item={nftItem} />;
+                } else {
+                  return null;
+                }
               })}
-            </Box>
+            </Grid>
           </Box>
         </Box>
       </Box>
