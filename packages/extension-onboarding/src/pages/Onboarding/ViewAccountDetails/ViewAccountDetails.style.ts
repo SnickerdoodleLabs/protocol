@@ -87,5 +87,9 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 22,
     fontWeight: 700,
   },
-  
+  nftContainer: {
+    display: "flex",
+    marginTop: "16px",
+    gap: 10,
+  },
 }));
