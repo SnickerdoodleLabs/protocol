@@ -36,7 +36,7 @@ export const useStyles = makeStyles((theme) => ({
     border: "1px solid  #ECECEC",
   },
   cardBackground2: {
-    background: "rgba(253, 243, 225, 0.5)",
+    background: "rgba(185, 182, 211, 0.2)",
     border: "1px solid  #ECECEC",
   },
   cardTokenText: {
@@ -58,7 +58,7 @@ export const useStyles = makeStyles((theme) => ({
     background: "none",
   },
   selectChain: {
-    width: 220,
+    width: 240,
     height: 55,
     border: "1px solid #D9D9D9",
     borderRadius: 8,
@@ -70,7 +70,7 @@ export const useStyles = makeStyles((theme) => ({
 
   accountAddressText: {
     paddingLeft: "4px",
-    paddingTop: "10px",
+    paddingTop: "7px",
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 500,
     fontSize: "16px",
@@ -87,5 +87,9 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 22,
     fontWeight: 700,
   },
-  
+  nftContainer: {
+    display: "flex",
+    marginTop: "16px",
+    gap: 10,
+  },
 }));
