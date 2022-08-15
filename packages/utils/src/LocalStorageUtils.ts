@@ -1,7 +1,7 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { IStorageUtils } from "./IStorageUtils";
+import { IStorageUtils } from "@utils/IStorageUtils";
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 interface Dictionary<T> {

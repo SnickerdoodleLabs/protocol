@@ -30,11 +30,7 @@ import {
   EIndexer,
   AccountBalanceError,
 } from "@snickerdoodlelabs/objects";
-import {
-  IStorageUtils,
-  IStorageUtilsType,
-  IndexeDBUtils,
-} from "@snickerdoodlelabs/utils";
+import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -42,7 +38,12 @@ import { ResultUtils } from "neverthrow-result-utils";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
-} from "./IPersistenceConfigProvider";
+} from "@persistence/IPersistenceConfigProvider";
+import {
+  IVolatileStorageTable,
+  IVolatileStorageFactory,
+  IVolatileStorageFactoryType,
+} from "@persistence/volatile";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -67,17 +68,7 @@ enum ELocalStorageKey {
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
-  private indexedDB = new IndexeDBUtils("SD_Wallet", [
-    {
-      name: ELocalStorageKey.TRANSACTIONS,
-      keyPath: "hash",
-      indexBy: [
-        ["timestamp", false],
-        ["chainId", false],
-        ["value", false],
-      ],
-    },
-  ]);
+  private txStore?: IVolatileStorageTable;
 
   public constructor(
     @inject(IPersistenceConfigProviderType)
@@ -85,14 +76,39 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IAccountNFTsType)
     protected accountNFTs: IAccountNFTs,
     @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
-    @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
-  ) {}
+    @inject(IStorageUtilsType) protected persistentStorageUtils: IStorageUtils,
+    @inject(IVolatileStorageFactoryType)
+    protected volatileStorageFactory: IVolatileStorageFactory,
+  ) {
+    this.txStore = undefined;
+  }
+
+  private _getTxStore(): ResultAsync<IVolatileStorageTable, PersistenceError> {
+    if (this.txStore != undefined) {
+      return okAsync(this.txStore);
+    }
+
+    return this.volatileStorageFactory.getStore({
+      name: "SD_Wallet",
+      schema: [
+        {
+          name: ELocalStorageKey.TRANSACTIONS,
+          keyPath: "hash",
+          indexBy: [
+            ["timestamp", false],
+            ["chainId", false],
+            ["value", false],
+          ],
+        },
+      ],
+    });
+  }
 
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
     defaultVal: T,
   ): ResultAsync<T, PersistenceError> {
-    return this.storageUtils.read<T>(key).map((val) => {
+    return this.persistentStorageUtils.read<T>(key).map((val) => {
       return val ?? defaultVal;
     });
   }
@@ -111,14 +127,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
-    return this.storageUtils
+    return this.persistentStorageUtils
       .read<JSONString>(ELocalStorageKey.CLICKS)
       .andThen((savedClicksJSON) => {
         const savedClicks = JSON.parse(savedClicksJSON ?? "[]") as ClickData[];
 
         const updated = [...savedClicks, click];
 
-        return this.storageUtils.write(
+        return this.persistentStorageUtils.write(
           ELocalStorageKey.CLICKS,
           JSON.stringify(updated),
         );
@@ -137,13 +153,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addRejectedCohorts(
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils
+    return this.persistentStorageUtils
       .read<EVMContractAddress[]>(ELocalStorageKey.REJECTED_COHORTS)
       .andThen((saved) => {
-        return this.storageUtils.write(ELocalStorageKey.REJECTED_COHORTS, [
-          ...(saved ?? []),
-          ...consentContractAddresses,
-        ]);
+        return this.persistentStorageUtils.write(
+          ELocalStorageKey.REJECTED_COHORTS,
+          [...(saved ?? []), ...consentContractAddresses],
+        );
       });
   }
 
@@ -160,7 +176,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils
+    return this.persistentStorageUtils
       .read<JSONString>(ELocalStorageKey.SITE_VISITS)
       .andThen((savedSiteVisitsJSON) => {
         const savedClicks = JSON.parse(
@@ -169,7 +185,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
         const updated = [...savedClicks, ...siteVisits];
 
-        return this.storageUtils.write(
+        return this.persistentStorageUtils.write(
           ELocalStorageKey.SITE_VISITS,
           JSON.stringify(updated),
         );
@@ -186,10 +202,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils
+    return this.persistentStorageUtils
       .read<EVMContractAddress[]>(ELocalStorageKey.ACCOUNT)
       .andThen((saved) => {
-        return this.storageUtils.write(
+        return this.persistentStorageUtils.write(
           ELocalStorageKey.ACCOUNT,
           Array.from(new Set([...(saved ?? []), accountAddress])),
         );
@@ -197,7 +213,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.storageUtils.write(ELocalStorageKey.AGE, age);
+    return this.persistentStorageUtils.write(ELocalStorageKey.AGE, age);
   }
 
   public getAge(): ResultAsync<Age | null, PersistenceError> {
@@ -205,7 +221,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
-    return this.storageUtils.write(ELocalStorageKey.FIRST_NAME, name);
+    return this.persistentStorageUtils.write(ELocalStorageKey.FIRST_NAME, name);
   }
 
   public getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
@@ -213,7 +229,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    return this.storageUtils.write(ELocalStorageKey.LAST_NAME, name);
+    return this.persistentStorageUtils.write(ELocalStorageKey.LAST_NAME, name);
   }
 
   public getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
@@ -223,7 +239,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils.write(ELocalStorageKey.BIRTHDAY, birthday);
+    return this.persistentStorageUtils.write(
+      ELocalStorageKey.BIRTHDAY,
+      birthday,
+    );
   }
 
   public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
@@ -231,7 +250,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    return this.storageUtils.write(ELocalStorageKey.GENDER, gender);
+    return this.persistentStorageUtils.write(ELocalStorageKey.GENDER, gender);
   }
 
   public getGender(): ResultAsync<Gender | null, PersistenceError> {
@@ -241,7 +260,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setEmail(
     email: EmailAddressString,
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils.write(ELocalStorageKey.EMAIL, email);
+    return this.persistentStorageUtils.write(ELocalStorageKey.EMAIL, email);
   }
 
   public getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
@@ -251,7 +270,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setLocation(
     location: CountryCode,
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils.write(ELocalStorageKey.LOCATION, location);
+    return this.persistentStorageUtils.write(
+      ELocalStorageKey.LOCATION,
+      location,
+    );
   }
 
   public getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
@@ -261,10 +283,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.storageUtils
+    return this.persistentStorageUtils
       .write(ELocalStorageKey.BALANCES, JSON.stringify(balances))
       .andThen(() => {
-        return this.storageUtils
+        return this.persistentStorageUtils
           .write(ELocalStorageKey.BALANCES_LAST_UPDATE, new Date().getTime())
           .andThen(() => {
             return okAsync(balances);
@@ -358,10 +380,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateAccountNFTs(
     nfts: IEVMNFT[],
   ): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.storageUtils
+    return this.persistentStorageUtils
       .write(ELocalStorageKey.NFTS, JSON.stringify(nfts))
       .andThen(() => {
-        return this.storageUtils
+        return this.persistentStorageUtils
           .write(ELocalStorageKey.NFTS_LAST_UPDATE, new Date().getTime())
           .andThen(() => {
             return okAsync(nfts);
@@ -447,32 +469,36 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    return ResultUtils.combine(
-      transactions.map((tx) => {
-        return this.indexedDB.putObject<EVMTransaction>(
-          ELocalStorageKey.TRANSACTIONS,
-          tx,
-        );
-      }),
-    ).andThen(() => okAsync(undefined));
+    return this._getTxStore().andThen((txStore) => {
+      return ResultUtils.combine(
+        transactions.map((tx) => {
+          return txStore.putObject<EVMTransaction>(
+            ELocalStorageKey.TRANSACTIONS,
+            tx,
+          );
+        }),
+      ).andThen(() => okAsync(undefined));
+    });
   }
 
   public getEVMTransactions(
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
-    return this.indexedDB
-      .getAll<EVMTransaction>(ELocalStorageKey.TRANSACTIONS)
-      .andThen((transactions) => {
-        if (filter == undefined) {
-          return okAsync(transactions);
-        }
+    return this._getTxStore().andThen((txStore) => {
+      return txStore
+        .getAll<EVMTransaction>(ELocalStorageKey.TRANSACTIONS)
+        .andThen((transactions) => {
+          if (filter == undefined) {
+            return okAsync(transactions);
+          }
 
-        return okAsync(
-          transactions.filter((value) => {
-            filter.matches(value);
-          }),
-        );
-      });
+          return okAsync(
+            transactions.filter((value) => {
+              filter.matches(value);
+            }),
+          );
+        });
+    });
   }
 
   public getLatestTransactionForAccount(
@@ -480,9 +506,16 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     address: EVMAccountAddress,
   ): ResultAsync<EVMTransaction | null, PersistenceError> {
     const filter = new EVMTransactionFilter([chainId], [address]);
-    return this.indexedDB
-      .getCursor(ELocalStorageKey.TRANSACTIONS, "timestamp", undefined, "prev")
-      .andThen((request) => this._getNextMatchingTx(request, filter));
+    return this._getTxStore().andThen((txStore) => {
+      return txStore
+        .getCursor(
+          ELocalStorageKey.TRANSACTIONS,
+          "timestamp",
+          undefined,
+          "prev",
+        )
+        .andThen((request) => this._getNextMatchingTx(request, filter));
+    });
   }
 
   private _getNextMatchingTx(
@@ -536,13 +569,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-    return this.configProvider
-      .getConfig()
-      .andThen((config) => {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this._getTxStore(),
+    ])
+      .andThen(([config, txStore]) => {
         const chains = Array.from(config.chainInformation.keys());
         return ResultUtils.combine(
           chains.map((chain) => {
-            return this.indexedDB
+            return txStore
               .getAllKeys(
                 ELocalStorageKey.TRANSACTIONS,
                 "chainId",
@@ -567,7 +602,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setLatestBlockNumber(
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError> {
-    return this.storageUtils.write(ELocalStorageKey.LATEST_BLOCK, blockNumber);
+    return this.persistentStorageUtils.write(
+      ELocalStorageKey.LATEST_BLOCK,
+      blockNumber,
+    );
   }
 
   public getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError> {

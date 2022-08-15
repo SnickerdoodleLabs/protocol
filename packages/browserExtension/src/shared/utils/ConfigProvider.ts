@@ -1,6 +1,4 @@
-import { IIndexerConfigProvider } from "@snickerdoodlelabs/indexers";
 import { ChainId, URLString } from "@snickerdoodlelabs/objects";
-import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 
 import { EPlatform, EManifestVersion } from "@shared/enums/config";
 import { IConfigProvider } from "@shared/interfaces/configProvider";

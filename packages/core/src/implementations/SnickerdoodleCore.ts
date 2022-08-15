@@ -103,7 +103,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public constructor(
     configOverrides?: IConfigOverrides,
-    storage?: IStorageUtils,
     accountIndexer?: IAccountIndexing,
     accountBalances?: IAccountBalances,
     accountNFTs?: IAccountNFTs,
@@ -122,15 +121,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer
         .bind(IStorageUtilsType)
         .to(LocalStorageUtils)
-        .inSingletonScope();
-    }
-
-    if (storage != null) {
-      this.iocContainer.bind(IStorageUtilsType).toConstantValue(storage);
-    } else {
-      this.iocContainer
-        .bind(IStorageUtilsType)
-        .to(ChromeStorageUtils)
         .inSingletonScope();
     }
 

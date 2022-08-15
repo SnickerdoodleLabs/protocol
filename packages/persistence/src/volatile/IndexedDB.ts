@@ -1,23 +1,30 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import P from "pino";
-import { resolve } from "postmate";
 
-import { IStorageUtils } from "@utils/IStorageUtils";
+import { IVolatileStorageFactory } from "@persistence/volatile/IVolatileStorageFactory";
+import {
+  VolatileTableConfig,
+  IVolatileStorageTable,
+  VolatileTableIndex,
+} from "@persistence/volatile/IVolatileStorageTable";
 
-export interface StoreInfo {
-  name: string;
-  keyPath: string;
-  autoIncrement?: boolean;
-  indexBy?: [string, boolean][];
+export class IndexedDBFactory implements IVolatileStorageFactory {
+  getStore(
+    config: VolatileTableConfig,
+  ): ResultAsync<IVolatileStorageTable, PersistenceError> {
+    return okAsync(new IndexedDB(config.name, config.schema));
+  }
 }
 
-export class IndexeDBUtils {
+export class IndexedDB implements IVolatileStorageTable {
   private _db?: IDBDatabase;
   private _initialized = false;
 
-  public constructor(public name: string, private schema: StoreInfo[]) {}
+  public constructor(
+    public name: string,
+    private schema: VolatileTableIndex[],
+  ) {}
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
     if (this._initialized) {
