@@ -69,9 +69,12 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 
 - `SOL`: the Solana network
 - `1`: the Ethereum Mainnet
-- `4`: the Ethereum Testnet (Rineby)
+- `4`: the Ethereum Testnet (Rinkeby)
+- `42`: the Ethereum Testnet (Kovan)
 - `43114`: the Avalance Mainnet
 - `43113`: the Avalance Testnet (Fuji)
+- `137`: Polygon Mainnet
+- `80001`: Polygon Testnet (Mumbai)
 - `*`: all supported networks
 
 #### chain
