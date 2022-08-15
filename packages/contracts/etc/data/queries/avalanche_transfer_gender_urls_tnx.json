@@ -84,6 +84,10 @@
             "name": "query_response",
             "query": "q5"
         },
+        "r6": {
+            "name": "query_response",
+            "query": "q6"
+        },
         "url": "https://418e-64-85-231-39.ngrok.io/insights"
     },
     "compensations": {
@@ -105,7 +109,8 @@
             "if($q1and$q2)then$r1else$r2",
             "$r3",
             "$r4",
-            "$r5"
+            "$r5", 
+            "$r6"
         ],
         "compensations": [
             "if$q1then$c1",
