@@ -62,6 +62,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { DataWalletPersistence } from "@snickerdoodlelabs/persistence";
 import {
+  ChromeStorageUtils,
   IStorageUtils,
   IStorageUtilsType,
   LocalStorageUtils,
@@ -102,7 +103,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public constructor(
     configOverrides?: IConfigOverrides,
-    persistence?: IDataWalletPersistence,
+    storage?: IStorageUtils,
     accountIndexer?: IAccountIndexing,
     accountBalances?: IAccountBalances,
     accountNFTs?: IAccountNFTs,
@@ -124,16 +125,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    if (persistence != null) {
-      this.iocContainer
-        .bind(IDataWalletPersistenceType)
-        .toConstantValue(persistence);
+    if (storage != null) {
+      this.iocContainer.bind(IStorageUtilsType).toConstantValue(storage);
     } else {
       this.iocContainer
-        .bind(IDataWalletPersistenceType)
-        .to(DefaultDataWalletPersistence)
+        .bind(IStorageUtilsType)
+        .to(ChromeStorageUtils)
         .inSingletonScope();
     }
+
+    this.iocContainer
+      .bind(IDataWalletPersistenceType)
+      .to(DataWalletPersistence)
+      .inSingletonScope();
 
     // If an Account Indexer is provided, hook it up. If not we'll use the default.
     if (accountIndexer != null) {

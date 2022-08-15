@@ -29,9 +29,6 @@ import {
   AjaxError,
   EIndexer,
   AccountBalanceError,
-  AccountIndexingError,
-  IAccountIndexingType,
-  IAccountIndexing,
 } from "@snickerdoodlelabs/objects";
 import {
   IStorageUtils,

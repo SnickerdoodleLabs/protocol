@@ -58,22 +58,10 @@ import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
 
 // https://github.com/SBoudrias/Inquirer.js
-
-const configProvider = new ConfigProvider();
-const ajaxUtils = new AxiosAjaxUtils();
-const persistence = new DataWalletPersistence(
-  configProvider,
-  new DefaultAccountNFTs(configProvider, ajaxUtils),
-  new DefaultAccountBalances(configProvider, ajaxUtils),
-  new LocalStorageUtils(),
-);
-const core = new SnickerdoodleCore(
-  {
-    defaultInsightPlatformBaseUrl: "http://localhost:3006",
-    dnsServerAddress: "http://localhost:3006/dns",
-  } as IConfigOverrides,
-  persistence,
-);
+const core = new SnickerdoodleCore({
+  defaultInsightPlatformBaseUrl: "http://localhost:3006",
+  dnsServerAddress: "http://localhost:3006/dns",
+} as IConfigOverrides);
 
 const devAccountKeys = [
   EVMPrivateKey(

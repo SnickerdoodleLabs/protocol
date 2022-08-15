@@ -77,17 +77,7 @@ export class ExtensionCore {
     } as IConfigOverrides;
     const ajax = new AxiosAjaxUtils();
 
-    const coreConfigProvider = new CoreConfigProvider();
-    coreConfigProvider.setConfigOverrides(coreConfig);
-
-    const persistence = new DataWalletPersistence(
-      coreConfigProvider,
-      new DefaultAccountNFTs(coreConfigProvider, ajax),
-      new DefaultAccountBalances(coreConfigProvider, ajax),
-      new ChromeStorageUtils(),
-    );
-
-    this.core = new SnickerdoodleCore(coreConfig, persistence);
+    this.core = new SnickerdoodleCore(coreConfig);
 
     // Make the core directly injectable
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
