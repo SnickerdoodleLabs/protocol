@@ -669,9 +669,9 @@ describe("QueryEvaluator: ", () => {
         let hash = "";
         let startTime = networkQuery.contract.blockrange.start;
         let endTime = networkQuery.contract.blockrange.end;
-        console.log("Address: ", address)
-        console.log("Start Time: ", startTime)
-        console.log("End Time: ", endTime)
+        // console.log("Address: ", address)
+        // console.log("Start Time: ", startTime)
+        // console.log("End Time: ", endTime)
         let filter = new EVMTransactionFilter(
             [chainId],
             [address],
@@ -696,7 +696,7 @@ describe("QueryEvaluator: ", () => {
         )
         const result = await repo.eval(networkQuery);
         // console.log("Age is: ", result["value"]);
-        console.log(result)
+        // console.log(result)
         expect(result).toBeDefined();
         expect(result["value"]).toBe(true);
     })
@@ -726,9 +726,9 @@ describe("QueryEvaluator: ", () => {
         let hash = "";
         let startTime = networkQuery.contract.blockrange.start;
         let endTime = networkQuery.contract.blockrange.end;
-        console.log("Address: ", address)
-        console.log("Start Time: ", startTime)
-        console.log("End Time: ", endTime)
+        // console.log("Address: ", address)
+        // console.log("Start Time: ", startTime)
+        // console.log("End Time: ", endTime)
         let filter = new EVMTransactionFilter(
             [chainId],
             [address],
@@ -741,7 +741,7 @@ describe("QueryEvaluator: ", () => {
         )
         const result = await repo.eval(networkQuery);
         // console.log("Age is: ", result["value"]);
-        console.log(result)
+        // console.log(result)
         expect(result).toBeDefined();
         expect(result["value"]).toBe(false);
     })
@@ -761,7 +761,7 @@ describe("Return URLs Map", () => {
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(propertyQuery);
-        console.log("URLs is: ", result["value"]);
+        // console.log("URLs is: ", result["value"]);
         expect(result["value"]).toEqual(
             new Map<URLString, number>([
                 [URLString("www.snickerdoodlelabs.io"), 10]
@@ -787,7 +787,7 @@ describe("Return Chain Transaction Count", () => {
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(propertyQuery);
-        console.log("URLs is: ", result["value"]);
+        // console.log("URLs is: ", result["value"]);
         expect(result["value"]).toEqual(            
         new Map<ChainId, number>([
             [ChainId(1), 10]

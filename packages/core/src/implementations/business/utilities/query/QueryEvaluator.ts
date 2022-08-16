@@ -65,16 +65,16 @@ export class QueryEvaluator implements IQueryEvaluator {
             startTime,
             endTime
         );
-        console.log("Filter chainId: ", filter.chainIDs);
-        console.log("Filter addresses: ", filter.addresses);
-        console.log("Filter hashes: ", filter.hashes);
-        console.log("Filter startTime: ", filter.startTime);
-        console.log("Filter endTime: ", filter.endTime);
+        // console.log("Filter chainId: ", filter.chainIDs);
+        // console.log("Filter addresses: ", filter.addresses);
+        // console.log("Filter hashes: ", filter.hashes);
+        // console.log("Filter startTime: ", filter.startTime);
+        // console.log("Filter endTime: ", filter.endTime);
 
         return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
             (transactions) =>
             {
-                console.log("Network Query Result: ", transactions)
+                // console.log("Network Query Result: ", transactions)
                 if (transactions == null){
                     return okAsync(SDQL_Return(false));
                 }
