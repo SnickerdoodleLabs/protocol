@@ -101,6 +101,19 @@ export class MetamaskWalletProvider implements IWalletProvider {
 
     return ResultAsync.fromSafePromise(this._web3Provider.getNetwork())
       .andThen((network) => {
+        console.log("current network", network);
+        console.log(
+          "metatransaction address",
+          this.config.controlChain.metatransactionForwarderAddress,
+        );
+        console.log(
+          "doodle chain id",
+          `0x${this.config.controlChain.chainId.toString(16)}`,
+        );
+        console.log(
+          "doddle chain provider url",
+          this.config.controlChain.providerUrls,
+        );
         if (network.chainId == this.config.controlChain.chainId) {
           return okAsync(undefined);
         } else {
