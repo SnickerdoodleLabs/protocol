@@ -1,33 +1,22 @@
 import {
-  Age,
-  CountryCode,
-  Gender,
-  IDataWalletPersistence,
-  SDQL_Return,
-  IDataWalletPersistenceType,
-  PersistenceError,
-  EvalNotImplementedError,
+    Age,
+    CountryCode, EvalNotImplementedError, Gender,
+    IDataWalletPersistence, IDataWalletPersistenceType,
+    PersistenceError, SDQL_Return
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { IQueryEvaluator } from "@core/interfaces/business/utilities";
-import { EVMTransactionFilter } from "@snickerdoodlelabs/objects";
-import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
-import { UnixTimestamp } from "@snickerdoodlelabs/objects";
 import {
-  AST_NetworkQuery,
-  AST_PropertyQuery,
-  AST_Query,
-  Condition,
-  ConditionGE,
-  ConditionIn,
-  ConditionG,
-  ConditionL,
-  ConditionLE,
-  ConditionE,
-  AST_Expr,
+    AST_BalanceQuery, AST_Expr, AST_NetworkQuery,
+    AST_PropertyQuery,
+    AST_Query,
+    Condition, ConditionE, ConditionG, ConditionGE,
+    ConditionIn, ConditionL,
+    ConditionLE
 } from "@core/interfaces/objects";
+import { EVMAccountAddress, EVMTransactionFilter } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -43,11 +32,17 @@ export class QueryEvaluator implements IQueryEvaluator {
     // All the switch statements here
     //console.log("Constructor: ", query.constructor);
         switch (query.constructor) {
-        case AST_NetworkQuery:
-            return this.evalNetworkQuery(query as AST_NetworkQuery);
+            case AST_NetworkQuery:
+                return this.evalNetworkQuery(query as AST_NetworkQuery);
+        case AST_BalanceQuery:
+            return this.evalBalanceQuery(query as AST_BalanceQuery);
         default:
             return this.evalPropertyQuery(query as AST_PropertyQuery);
         }
+    }
+
+    public evalBalanceQuery(q: AST_BalanceQuery): ResultAsync<SDQL_Return, PersistenceError> {
+        return errAsync(new PersistenceError("evalBalanceQuery not implemented"))
     }
    
     public evalNetworkQuery(q: AST_NetworkQuery): ResultAsync<SDQL_Return, PersistenceError> {
