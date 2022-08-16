@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TypedDataField } from "@ethersproject/abstract-signer";
 import {
   ICryptoUtils,
@@ -72,7 +73,7 @@ export class QueryService implements IQueryService {
 
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID
+    queryId: IpfsCID,
   ): ResultAsync<
     void,
     | IPFSError
@@ -126,7 +127,10 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          const queryRequest = new SDQLQueryRequest(consentContractAddress, query);
+          const queryRequest = new SDQLQueryRequest(
+            consentContractAddress,
+            query,
+          );
           // context.publicEvents.onQueryPosted.next({
           //   consentContractAddress: consentContractAddress,
           //   query: query,
@@ -149,7 +153,7 @@ export class QueryService implements IQueryService {
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
-    query: SDQLQuery
+    query: SDQLQuery,
   ): ResultAsync<
     void,
     | AjaxError
@@ -159,7 +163,6 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | EvaluationError
   > {
-
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
@@ -181,7 +184,6 @@ export class QueryService implements IQueryService {
         const rewards = maps2[1];
         console.log("insights: ", insights);
         console.log("rewards: ", rewards);
-
 
         // console.log(insights, rewards);
 
@@ -235,7 +237,7 @@ export class QueryService implements IQueryService {
         config.snickerdoodleProtocolDomain,
         insightDeliveryTypes,
         signableData,
-        context.dataWalletKey as EVMPrivateKey,
+        context.dataWalletKey!,
       )
       .andThen((signature) => {
         // console.log('signature', signature);

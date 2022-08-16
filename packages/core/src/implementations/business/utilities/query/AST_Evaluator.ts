@@ -90,17 +90,11 @@ export class AST_Evaluator {
       return errAsync(new EvaluationError("undefined expression"));
     }
     if (TypeChecker.isValue(expr)) {
-
       return okAsync(expr);
-
     } else if (TypeChecker.isQuery(expr)) {
-
       return this.evalQuery(expr);
-
     } else {
-
       return this.evalExpr(expr);
-
     }
   }
 
@@ -117,12 +111,11 @@ export class AST_Evaluator {
       return okAsync(val);
     } else {
       const evaluator = this.expMap.get(expr.constructor);
-      
+
       if (evaluator) {
         const val = evaluator.apply(this, [expr]); // Always returns ResultAsync
         return val;
       } else {
-        
         return errAsync(new EvalNotImplementedError(typeof expr));
       }
     }
@@ -138,7 +131,6 @@ export class AST_Evaluator {
     return condResult.andThen(
       (val): ResultAsync<SDQL_Return, EvaluationError> => {
         if (val == true) {
-          
           const trueResult = this.evalExpr(eef.trueExpr);
           // console.log('trueResult', trueResult);
 
@@ -146,7 +138,6 @@ export class AST_Evaluator {
           // console.log('trueResult', trueResult);
           return trueResult;
         } else {
-          
           if (eef.falseExpr) {
             return this.evalExpr(eef.falseExpr);
           }
@@ -156,13 +147,11 @@ export class AST_Evaluator {
         }
       },
     );
-
   }
 
   public evalConditionExpr(
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
-    
     const condResult: ResultAsync<SDQL_Return, EvaluationError> | null = null;
     if (TypeChecker.isQuery(expr.source)) {
       // return this.evalQuery(expr.source as AST_Query).andThen(
@@ -172,11 +161,8 @@ export class AST_Evaluator {
       //     }
       // );
       return this.evalQuery(expr.source as AST_Query);
-
     } else if (TypeChecker.isOperator(expr.source)) {
-
       return this.evalOperator(expr.source as Operator);
-      
     } else {
       return errAsync<SDQL_Return, EvaluationError>(
         new TypeError("Condition has wrong type"),
@@ -190,7 +176,7 @@ export class AST_Evaluator {
     /**
      * It sends the query to the Query Repository
      */
-    
+
     return this.queryRepository.get(this.cid, q);
   }
 
@@ -203,7 +189,11 @@ export class AST_Evaluator {
     if (evaluator) {
       return evaluator.apply(this, [op]);
     } else {
-      throw new Error("No operator evaluator defined for " + op.constructor);
+      return errAsync(
+        new EvaluationError(
+          "No operator evaluator defined for " + op.constructor,
+        ),
+      );
     }
   }
 
@@ -213,26 +203,13 @@ export class AST_Evaluator {
     // console.log(this);
     const left = this.evalAny(cond.lval);
 
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
-
+    return left.andThen((lval) => {
       if (lval == false) {
-
         return okAsync(SDQL_Return(false));
-
       } else {
-
-        const right = this.evalAny(cond.rval);
-        return right.andThen(
-          (rval): ResultAsync<SDQL_Return, EvaluationError> => {
-
-            if (rval == false) {
-              return okAsync(SDQL_Return(false));
-            } else {
-              return okAsync(SDQL_Return(true));
-            }
-          },
-        );
-
+        return this.evalAny(cond.rval).andThen((rval) => {
+          return okAsync(rval);
+        });
       }
     });
   }

@@ -65,49 +65,61 @@ class ASTMocks {
   }
 }
 
-// const queryRepository = new QueryRepository();
-// const astEvaluator = AST_Factories.makeAST_Evaluator(IpfsCID("000"), null, queryRepository);
-// const queryFactories = new QueryFactories();
-const mocks = new ASTMocks();
-const astEvaluator = mocks.factory();
-
 // #region Conditions
-
 describe("Conditions", () => {
   test("boolean true and true is true", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const and = new ConditionAnd(SDQL_OperatorName("And1"), true, true);
 
+    // Act
     const result = await astEvaluator.evalOperator(and);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(true);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeTruthy();
   });
 
   test("boolean true and false is false", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const and = new ConditionAnd(SDQL_OperatorName("And1"), true, false);
 
+    // Act
     const result = await astEvaluator.evalOperator(and);
 
-    // expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(false);
-    } else {
-      console.log(result);
-    }
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeFalsy();
   });
 
   test("boolean false and true is false", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const and = new ConditionAnd(SDQL_OperatorName("And1"), false, true);
 
+    // Act
     const result = await astEvaluator.evalOperator(and);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(false);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeFalsy();
   });
 
   test("SDQL_Return true and true is true", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const and = new ConditionAnd(
       SDQL_OperatorName("And1"),
       SDQL_Return(true),
@@ -116,104 +128,154 @@ describe("Conditions", () => {
 
     // console.log("SDQL_Return type", typeof SDQL_Return(true));
 
+    // Act
     const result = await astEvaluator.evalOperator(and);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(true);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeTruthy();
   });
 
   test("1 is in [2, 1, 3]", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const condIn = new ConditionIn(
       SDQL_OperatorName("In1"),
       new AST_Expr(SDQL_Name("number"), 1),
       [2, 1, 3],
     );
+
+    // Act
     const result = await astEvaluator.evalOperator(condIn);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(true);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeTruthy();
   });
 
   test("1 not in [2, 3]", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const condIn = new ConditionIn(
       SDQL_OperatorName("In1"),
       new AST_Expr(SDQL_Name("number"), 1),
       [2, 3],
     );
+
+    // Act
     const result = await astEvaluator.evalOperator(condIn);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(false);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeFalsy();
   });
 
   test("apple is in ['apple', 'banana', 'orange']", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const condIn = new ConditionIn(
       SDQL_OperatorName("In1"),
       new AST_Expr(SDQL_Name("string"), "apple"),
       ["apple", "banana", "orange"],
     );
+
+    // Act
     const result = await astEvaluator.evalOperator(condIn);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(true);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeTruthy();
   });
 
   test("apple not in ['banana', 'orange']", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const condIn = new ConditionIn(
       SDQL_OperatorName("In1"),
       new AST_Expr(SDQL_Name("string"), "apple"),
       ["banana", "orange"],
     );
+
+    // Act
     const result = await astEvaluator.evalOperator(condIn);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(false);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeFalsy();
   });
 
   test("1 < 2", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const cond = new ConditionL(
       SDQL_OperatorName("In1"),
       1,
       new AST_Expr(SDQL_Name("number"), 2),
     );
+
+    // Act
     const result = await astEvaluator.evalOperator(cond);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(true);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+
+    expect(value).toBeTruthy();
   });
 
   test("3 >= 2", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const cond = new ConditionGE(
       SDQL_OperatorName("In1"),
       3,
       new AST_Expr(SDQL_Name("number"), 2),
     );
+
+    // Act
     const result = await astEvaluator.evalOperator(cond);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      expect(result.value).toBe(true);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeTruthy();
   });
 
   test("2 >= 2", async () => {
+    // Arrange
+    const mocks = new ASTMocks();
+    const astEvaluator = mocks.factory();
+
     const cond = new ConditionGE(
       SDQL_OperatorName("In1"),
       2,
       new AST_Expr(SDQL_Name("number"), 2),
     );
+
+    // Act
     const result = await astEvaluator.evalOperator(cond);
-    expect(result.isOk()).toBe(true);
-    if (result.isOk()) {
-      // console.log(result);
-      // console.log(result.value);
-      expect(result.value).toBe(true);
-    }
+
+    // Assert
+    expect(result.isOk()).toBeTruthy();
+    const value = result._unsafeUnwrap();
+    expect(value).toBeTruthy();
   });
 });
 
@@ -221,6 +283,10 @@ describe("Conditions", () => {
 
 // #region IF Command
 describe("IF Command: evalIf()", () => {
+  // Arrange
+  const mocks = new ASTMocks();
+  const astEvaluator = mocks.factory();
+
   const r1 = new AST_ReturnExpr(
     SDQL_Name("r1"),
     new AST_Return(SDQL_Name("callback"), "qualified"),
@@ -241,7 +307,7 @@ describe("IF Command: evalIf()", () => {
     );
 
     const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBe(true);
+    expect(result.isOk()).toBeTruthy();
     if (result.isOk()) {
       expect(result.value).toEqual((r1.source as AST_Return).message);
     }
@@ -257,7 +323,7 @@ describe("IF Command: evalIf()", () => {
     );
 
     const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBe(true);
+    expect(result.isOk()).toBeTruthy();
     if (result.isOk()) {
       expect(result.value).toEqual((r2.source as AST_Return).message);
     }
@@ -273,7 +339,7 @@ describe("IF Command: evalIf()", () => {
     );
 
     const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBe(true);
+    expect(result.isOk()).toBeTruthy();
     if (result.isOk()) {
       expect(result.value).toEqual((r2.source as AST_Return).message);
     }
@@ -289,7 +355,7 @@ describe("IF Command: evalIf()", () => {
     );
 
     const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBe(true);
+    expect(result.isOk()).toBeTruthy();
     if (result.isOk()) {
       expect(result.value).toEqual((r2.source as AST_Return).message);
     }
@@ -306,7 +372,7 @@ describe("IF Command: evalIf()", () => {
     );
 
     const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBe(true);
+    expect(result.isOk()).toBeTruthy();
     if (result.isOk()) {
       expect(result.value).toEqual((r1.source as AST_Return).message);
     }
@@ -323,7 +389,7 @@ describe("IF Command: evalIf()", () => {
     );
 
     const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBe(true);
+    expect(result.isOk()).toBeTruthy();
     if (result.isOk()) {
       expect(result.value).toEqual((r1.source as AST_Return).message);
     }
@@ -340,7 +406,7 @@ describe("IF Command: evalIf()", () => {
     );
 
     const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBe(true);
+    expect(result.isOk()).toBeTruthy();
     if (result.isOk()) {
       expect(result.value).toEqual((r1.source as AST_Return).message);
     }
@@ -357,7 +423,7 @@ describe("IF Command: evalIf()", () => {
     );
 
     const result = await astEvaluator.evalIf(commandIf);
-    expect(result.isOk()).toBe(true);
+    expect(result.isOk()).toBeTruthy();
     if (result.isOk()) {
       expect(result.value).toEqual((r2.source as AST_Return).message);
     }

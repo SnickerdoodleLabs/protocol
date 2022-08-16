@@ -4,10 +4,6 @@ import {
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  IConsentContract,
-  IMinimalForwarderRequest,
-} from "@snickerdoodlelabs/contracts-sdk";
-import {
   Invitation,
   EInvitationStatus,
   UninitializedError,
@@ -23,18 +19,11 @@ import {
   AjaxError,
   EVMAccountAddress,
   BigNumberString,
-  TokenUri,
   MinimalForwarderContractError,
   DomainName,
-  IpfsCID,
   IPFSError,
-  URLString,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
-import {
-  forwardRequestTypes,
-  getMinimalForwarderSigningDomain,
-} from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -50,19 +39,14 @@ import {
   IDNSRepository,
   IInvitationRepositoryType,
   IInvitationRepository,
+  IMetatransactionForwarderRepositoryType,
+  IMetatransactionForwarderRepository,
 } from "@core/interfaces/data";
+import { MetatransactionRequest } from "@core/interfaces/objects";
 import {
-  IBlockchainProvider,
-  IBlockchainProviderType,
-  IConfigProvider,
-  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -76,13 +60,10 @@ export class InvitationService implements IInvitationService {
     @inject(IDNSRepositoryType) protected dnsRepository: IDNSRepository,
     @inject(IInvitationRepositoryType)
     protected invitationRepo: IInvitationRepository,
+    @inject(IMetatransactionForwarderRepositoryType)
+    protected forwarderRepo: IMetatransactionForwarderRepository,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-    @inject(IBlockchainProviderType)
-    protected blockchainProvider: IBlockchainProvider,
-    @inject(IContractFactoryType)
-    protected contractFactory: IContractFactory,
   ) {}
 
   public checkInvitationStatus(
@@ -115,51 +96,42 @@ export class InvitationService implements IInvitationService {
       }
 
       // Not rejected or already in the cohort, we need to verify the invitation
-      return this.contractFactory
-        .factoryConsentContracts([invitation.consentContractAddress])
-        .andThen((contracts) => {
-          const contract = contracts[0];
-          return ResultUtils.combine([
-            contract.getDomains(), // This actually returns URLs
-            this.getConsentContractAddressesFromDNS(invitation.domain),
-          ]);
-        })
-        .map(([urls, consentContractAddresses]) => {
-          // Derive a list of domains from a list of URLs
-          console.log("urls", urls);
-          console.log("consentContractAddresses", consentContractAddresses);
-          console.log("invitation.domain", invitation.domain);
+      return ResultUtils.combine([
+        this.consentRepo.getInvitationUrls(invitation.consentContractAddress),
+        this.getConsentContractAddressesFromDNS(invitation.domain),
+      ]).map(([urls, consentContractAddresses]) => {
+        // Derive a list of domains from a list of URLs
+        console.log("urls", urls);
+        console.log("consentContractAddresses", consentContractAddresses);
+        console.log("invitation.domain", invitation.domain);
 
-          const domains = urls.map((url) => {
-            if (url.includes("https://") || url.includes("http://")) {
-              return new URL(url).hostname;
-            }
-            return new URL(`http://${url}`).hostname;
-          });
-
-          console.log("domains", domains);
-
-          // We need to remove the subdomain so it would match with the saved domains in the blockchain
-          const domainStr = invitation.domain.replace(
-            "snickerdoodle-protocol.",
-            "",
-          );
-
-          // The contract must include the domain
-          if (!domains.includes(domainStr)) {
-            return EInvitationStatus.Invalid;
+        const domains = urls.map((url) => {
+          if (url.includes("https://") || url.includes("http://")) {
+            return new URL(url).hostname;
           }
-
-          if (
-            !consentContractAddresses.includes(
-              invitation.consentContractAddress,
-            )
-          ) {
-            return EInvitationStatus.Invalid;
-          }
-
-          return EInvitationStatus.New;
+          return new URL(`http://${url}`).hostname;
         });
+
+        console.log("domains", domains);
+
+        // We need to remove the subdomain so it would match with the saved domains in the blockchain
+        const domainStr = invitation.domain.replace(
+          "snickerdoodle-protocol.",
+          "",
+        );
+
+        // The contract must include the domain
+        if (!domains.includes(domainStr)) {
+          return EInvitationStatus.Invalid;
+        }
+        if (
+          !consentContractAddresses.includes(invitation.consentContractAddress)
+        ) {
+          return EInvitationStatus.Invalid;
+        }
+
+        return EInvitationStatus.New;
+      });
     });
   }
 
@@ -176,49 +148,34 @@ export class InvitationService implements IInvitationService {
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-      this.contractFactory.factoryConsentContracts([
-        invitation.consentContractAddress,
-      ]),
-      this.contractFactory.factoryMinimalForwarderContract(),
-    ]).andThen(([config, context, [consentContract], minimalForwarder]) => {
+    return this.contextProvider.getContext().andThen((context) => {
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
           new UninitializedError("Data wallet has not been unlocked yet!"),
         );
       }
 
-      // Encode the call to the consent contract
-      const callData = consentContract.encodeOptIn(
-        invitation.tokenId,
-        TokenUri("ConsentConditionsGoHere"),
-      );
-
-      return minimalForwarder
-        .getNonce(EVMAccountAddress(context.dataWalletAddress))
-        .andThen((nonce) => {
+      return ResultUtils.combine([
+        this.consentRepo.encodeOptIn(
+          invitation.consentContractAddress,
+          invitation.tokenId,
+          consentConditions,
+        ),
+        this.forwarderRepo.getNonce(),
+      ])
+        .andThen(([callData, nonce]) => {
           // We need to take the types, and send it to the account signer
-          const value = {
-            to: invitation.consentContractAddress, // Contract address for the metatransaction
-            from: EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
-            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(1000000), // The amount of gas to pay.
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-            data: callData, // The actual bytes of the request, encoded as a hex string
-          } as IMinimalForwarderRequest;
+          const request = new MetatransactionRequest(
+            invitation.consentContractAddress, // Contract address for the metatransaction
+            EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
+            BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+            BigNumber.from(1000000), // The amount of gas to pay.
+            BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+            callData, // The actual bytes of the request, encoded as a hex string
+          );
 
-          return this.cryptoUtils
-            .signTypedData(
-              getMinimalForwarderSigningDomain(
-                config.controlChainId,
-                config.controlChainInformation.metatransactionForwarderAddress,
-              ),
-              forwardRequestTypes,
-              value,
-              context.dataWalletKey!,
-            )
+          return this.forwarderRepo
+            .signMetatransactionRequest(request, context.dataWalletKey!)
             .andThen((metatransactionSignature) => {
               // Got the signature for the metatransaction, now we can execute it.
               // .executeMetatransaction will sign everything and have the server run
@@ -287,12 +244,7 @@ export class InvitationService implements IInvitationService {
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this.contextProvider.getContext(),
-      this.contractFactory.factoryConsentContracts([consentContractAddress]),
-      this.contractFactory.factoryMinimalForwarderContract(),
-    ]).andThen(([config, context, [consentContract], minimalForwarder]) => {
+    return this.contextProvider.getContext().andThen((context) => {
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
           new UninitializedError("Data wallet has not been unlocked yet!"),
@@ -317,33 +269,26 @@ export class InvitationService implements IInvitationService {
             );
           }
 
-          // Encode the call to the consent contract
-          const callData = consentContract.encodeOptOut(consentToken.tokenId);
+          // Encode the call to the consent contract and get the nonce for the forwarder
+          return ResultUtils.combine([
+            this.consentRepo.encodeOptOut(
+              consentContractAddress,
+              consentToken.tokenId,
+            ),
+            this.forwarderRepo.getNonce(),
+          ])
+            .andThen(([callData, nonce]) => {
+              const request = new MetatransactionRequest(
+                consentContractAddress, // Contract address for the metatransaction
+                EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
+                BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+                BigNumber.from(1000000), // The amount of gas to pay.
+                BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+                callData, // The actual bytes of the request, encoded as a hex string
+              );
 
-          return minimalForwarder
-            .getNonce(EVMAccountAddress(context.dataWalletAddress!))
-            .andThen((nonce) => {
-              // We need to take the types, and send it to the account signer
-              const value = {
-                to: consentContractAddress, // Contract address for the metatransaction
-                from: EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
-                value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-                gas: BigNumber.from(1000000), // The amount of gas to pay.
-                nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-                data: callData, // The actual bytes of the request, encoded as a hex string
-              } as IMinimalForwarderRequest;
-
-              return this.cryptoUtils
-                .signTypedData(
-                  getMinimalForwarderSigningDomain(
-                    config.controlChainId,
-                    config.controlChainInformation
-                      .metatransactionForwarderAddress,
-                  ),
-                  forwardRequestTypes,
-                  value,
-                  context.dataWalletKey!,
-                )
+              return this.forwarderRepo
+                .signMetatransactionRequest(request, context.dataWalletKey!)
                 .andThen((metatransactionSignature) => {
                   // Got the signature for the metatransaction, now we can execute it.
                   // .executeMetatransaction will sign everything and have the server run
@@ -377,45 +322,44 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | IPFSError
   > {
-    return this.blockchainProvider.initialize().andThen(() => {
-      return this.getConsentContractAddressesFromDNS(domain)
-        .andThen((contractAddresses) => {
-          // Now, for each contract that the domain lists, get stuff
-          return this.contractFactory
-            .factoryConsentContracts(contractAddresses)
-            .andThen((consentContracts) => {
-              return ResultUtils.combine(
-                consentContracts.map((consentContract) => {
-                  return this.getInvitationsFromConsentContract(
-                    domain,
-                    consentContract,
-                  );
-                }),
-              );
-            });
-        })
-        .map((invitations) => {
-          return invitations.flat();
-        });
-    });
+    return this.getConsentContractAddressesFromDNS(domain)
+      .andThen((contractAddresses) => {
+        return ResultUtils.combine(
+          contractAddresses.map((consentContractAddress) => {
+            return this.getInvitationsFromConsentContract(
+              domain,
+              consentContractAddress,
+            );
+          }),
+        );
+      })
+      .map((invitations) => {
+        return invitations.flat();
+      });
   }
 
   protected getInvitationsFromConsentContract(
     domain: DomainName,
-    consentContract: IConsentContract,
-  ): ResultAsync<PageInvitation[], ConsentContractError | IPFSError> {
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    PageInvitation[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | IPFSError
+  > {
     return ResultUtils.combine([
-      consentContract.getDomains(),
-      consentContract.baseURI(),
-    ]).andThen(([invitationUrls, baseUri]) => {
+      this.consentRepo.getInvitationUrls(consentContractAddress),
+      this.consentRepo.getMetadataCID(consentContractAddress),
+    ]).andThen(([invitationUrls, ipfsCID]) => {
       // The baseUri is an IPFS CID
       return this.invitationRepo
-        .getInvitationDomainByCID(IpfsCID(baseUri), domain)
+        .getInvitationDomainByCID(ipfsCID, domain)
         .andThen((invitationDomain) => {
           if (invitationDomain == null) {
             return errAsync(
               new IPFSError(
-                `No invitation details could be found at IPFS CID ${baseUri}`,
+                `No invitation details could be found at IPFS CID ${ipfsCID}`,
               ),
             );
           }
@@ -423,10 +367,10 @@ export class InvitationService implements IInvitationService {
             invitationUrls.map((invitationUrl) => {
               return this.cryptoUtils.getTokenId().map((tokenId) => {
                 return new PageInvitation(
-                  URLString(invitationUrl), // getDomains() is actually misnamed, it returns URLs now
+                  invitationUrl, // getDomains() is actually misnamed, it returns URLs now
                   new Invitation(
                     domain,
-                    consentContract.getContractAddress(),
+                    consentContractAddress,
                     tokenId,
                     null, // getInvitationsByDomain() is only for public invitations, so will never have a business signature
                   ),
