@@ -38,6 +38,7 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `gender`: access to the gender of the DW user
 - `url_visited_count`: accesses the number of times urls are visited by DW user
 - `chain_transaction_count`: accesses the number of transactions by the DW user per chain
+- `balance`: accesses the balance of the DW user per chain
 
 #### return (required)
 
@@ -47,6 +48,8 @@ The return sub-keyword specifies the object type that will be returned by a quer
 - `integer`: returns an integer object related to the referenced attribute
 - `enum`: returns an enum related to the referenced attributed. The enum keys are specified under `enum_keys` sub-keyword
 - `object`: returns an object to describe the referenced attributed. The object schema is specified in `object_schema` sub-keyword
+- `array`: returns an array to describe the referenced attributed. The array items are specified in `array_items` sub-keyword
+
 
 #### conditions
 
@@ -60,6 +63,19 @@ Conditions are used in conjunction with the `boolean` return type. A conditions 
 - `g`: is the attribute greater than an object
 - `has`: does the attribute include a set of objects
 
+#### networkid
+
+This sub-keyword is used in conjunction with the `balance` attribute type. This sub-keyword allows for the specification of which layer 1 protocols a balance query should be run against. The following *networkid* are supported:
+
+- `SOL`: the Solana network
+- `1`: the Ethereum Mainnet
+- `4`: the Ethereum Testnet (Rinkeby)
+- `42`: the Ethereum Testnet (Kovan)
+- `43114`: the Avalance Mainnet
+- `43113`: the Avalance Testnet (Fuji)
+- `137`: Polygon Mainnet
+- `80001`: Polygon Testnet (Mumbai)
+- `*`: all supported networks
 
 #### chain
 
@@ -83,7 +99,15 @@ The contract sub-keyword is used in conjunction with the `network` sub-keyword. 
 The enum_keys sub-keyword is used in conjunction with the `enum` attribute type. Listing the keys that the attribute type supports.
 
 #### object_schema
-The object_schema sub-keyword is used in conjunction with the `object` attribute type. Specifying the schema of the object including the properties and patternProperties (properties with regex formatted keys) that the attribute type supports.
+The object_schema sub-keyword is used in conjunction with the `object` attribute type. Specifying the schema of the object including the properties, patternProperties (properties with regex formatted keys), and required properties of the object.
+
+#### array_items
+The array_items sub-keyword is used in conjunction with the `array` attribute type. Specifying the items of the array. The following *array_items* are supported:
+- `boolean`: an array of booleans  
+- `integer`: an array of integers  
+- `object`: an array of objects described with `object_schema`
+- `array`: an array of arrays
+- `number`: an array of numbers 
 
 ### [returns](/documentation/sdql/sdql-v0.0.1.schema.json#L191)
 
