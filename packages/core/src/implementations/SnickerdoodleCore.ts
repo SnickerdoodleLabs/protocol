@@ -13,7 +13,7 @@ import {
   Age,
   AjaxError,
   BlockchainProviderError,
-  ConsentConditions,
+  DataPermissions,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
@@ -62,12 +62,11 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
+  IndexedDBFactory,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
 } from "@snickerdoodlelabs/persistence";
 import {
-  ChromeStorageUtils,
-  IndexedDBFactory,
   IStorageUtils,
   IStorageUtilsType,
   LocalStorageUtils,
@@ -76,7 +75,6 @@ import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { DefaultDataWalletPersistence } from "@core/implementations/data";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import {
   IAccountIndexerPoller,
@@ -297,7 +295,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -310,7 +308,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IInvitationServiceType,
     );
 
-    return cohortService.acceptInvitation(invitation, consentConditions);
+    return cohortService.acceptInvitation(invitation, dataPermissions);
   }
 
   public rejectInvitation(

@@ -1,6 +1,6 @@
 import {
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   EInvitationStatus,
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
@@ -18,7 +18,7 @@ export interface IInvitationRepository {
 
   acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   rejectInvitation(
     invitation: Invitation,

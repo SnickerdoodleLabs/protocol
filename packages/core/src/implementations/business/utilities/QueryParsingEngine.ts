@@ -6,6 +6,7 @@ import {
   SDQLQuery,
   SDQL_Return,
   URLString,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -49,6 +50,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   public handleQuery(
     query: SDQLQuery,
+    dataPermissions: DataPermissions,
   ): ResultAsync<
     [InsightString[], EligibleReward[]],
     EvaluationError | QueryFormatError

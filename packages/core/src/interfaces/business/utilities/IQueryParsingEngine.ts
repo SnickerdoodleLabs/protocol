@@ -1,4 +1,5 @@
 import {
+  DataPermissions,
   EligibleReward,
   EvaluationError,
   QueryFormatError,
@@ -11,6 +12,7 @@ import { InsightString } from "@core/interfaces/objects";
 export interface IQueryParsingEngine {
   handleQuery(
     query: SDQLQuery,
+    dataPermissions: DataPermissions,
   ): ResultAsync<
     [InsightString[], EligibleReward[]],
     EvaluationError | QueryFormatError

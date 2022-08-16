@@ -1,6 +1,6 @@
 import {
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   EInvitationStatus,
   PageInvitation,
   DomainName,
@@ -17,7 +17,7 @@ export interface IInvitationService {
 
   acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 
   rejectInvitation(
