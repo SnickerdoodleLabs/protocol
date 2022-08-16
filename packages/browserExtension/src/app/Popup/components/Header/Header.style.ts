@@ -7,5 +7,5 @@ export const useStyles = makeStyles((theme) => ({
   logo: {
     height: 26.63,
     width: "auto",
-  }
+  },
 }));

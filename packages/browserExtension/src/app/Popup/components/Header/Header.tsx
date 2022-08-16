@@ -8,7 +8,10 @@ const Header: FC = () => {
 
   return (
     <Box className={classes.container} py={4} pl={5}>
-      <img className={classes.logo} src={Browser.runtime.getURL("assets/img/sdHorizontalLogo.svg")} />
+      <img
+        className={classes.logo}
+        src={Browser.runtime.getURL("assets/img/sdHorizontalLogo.svg")}
+      />
     </Box>
   );
 };

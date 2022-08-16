@@ -40,17 +40,17 @@ const Home: FC = () => {
   }, [JSON.stringify(userInfo), isLoading]);
 
   const getBasicUserInfo = () => {
-    ResultUtils.combine([
-      coreGateway.getGivenName(),
-      coreGateway.getFamilyName(),
-      coreGateway.getEmail(),
-    ])
+    coreGateway
+      .getGivenName()
+      .andThen((givenName) =>
+        coreGateway.getFamilyName().andThen((familyName) =>
+          coreGateway.getEmail().map((email) => {
+            setUserInfo({ givenName, familyName, email });
+          }),
+        ),
+      )
       .mapErr((e) => {
         setIsLoading(false);
-        return e;
-      })
-      .map(([givenName, familyName, email]) => {
-        setUserInfo({ givenName, familyName, email });
       });
   };
 
