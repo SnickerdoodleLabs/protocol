@@ -164,12 +164,15 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_AGE: {
         return new AsyncRpcResponseSender(this.getAge(), res).call();
       }
+      case EInternalActions.GET_GIVEN_NAME: 
       case EExternalActions.GET_GIVEN_NAME: {
         return new AsyncRpcResponseSender(this.getGivenName(), res).call();
       }
+      case EInternalActions.GET_EMAIL:
       case EExternalActions.GET_EMAIL: {
         return new AsyncRpcResponseSender(this.getEmail(), res).call();
       }
+      case EInternalActions.GET_FAMILY_NAME: 
       case EExternalActions.GET_FAMILY_NAME: {
         return new AsyncRpcResponseSender(this.getFamilyName(), res).call();
       }
@@ -231,6 +234,7 @@ export class RpcCallHandler implements IRpcCallHandler {
 
       case EInternalActions.GET_STATE:
         return (res.result = this.contextProvider.getInternalState());
+      case EInternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED:
       case EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED: {
         return new AsyncRpcResponseSender(
           this.accountService.isDataWalletAddressInitialized(),

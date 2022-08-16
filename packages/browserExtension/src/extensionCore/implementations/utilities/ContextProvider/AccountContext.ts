@@ -1,19 +1,19 @@
-import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
+import { DataWalletAddress } from "@snickerdoodlelabs/objects";
 
 export class AccountContext {
-  private onInitialized: () => void;
+  private onInitialized: (dataWalletAddress: DataWalletAddress) => void;
   constructor(
-    onInitialized: () => void,
-    protected account: EVMAccountAddress | null = null,
+    onInitialized: (dataWalletAddress: DataWalletAddress) => void,
+    protected account: DataWalletAddress | null = null,
     protected initialized: boolean = false,
   ) {
     this.onInitialized = onInitialized;
   }
 
-  public initialize(account: EVMAccountAddress) {
+  public initialize(account: DataWalletAddress) {
     this.account = account;
     this.initialized = true;
-    this.onInitialized?.();
+    this.onInitialized?.(account);
   }
 
   public getAccount() {

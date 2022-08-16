@@ -17,6 +17,7 @@ import { PORT_NOTIFICATION } from "@shared/constants/ports";
 import { EPortNames } from "@shared/enums/ports";
 import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
 import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
+import { AccountInitializedNotification } from "@shared/objects/notifications/AccountInitializedNotification";
 
 export class AppContext {
   constructor(
@@ -160,7 +161,9 @@ export class AppContext {
     rpcEngine.emit(PORT_NOTIFICATION, notification);
   }
 
-  public notifyAllConnections(notification: MTSRNotification) {
+  public notifyAllConnections(
+    notification: MTSRNotification | AccountInitializedNotification,
+  ) {
     Object.values(this.connections).forEach((conns) => {
       Object.keys(conns).forEach((connId) => {
         conns[connId] &&
