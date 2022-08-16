@@ -36,7 +36,7 @@ export interface IConsentContract {
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
 
-  encodeOptIn(tokenId: TokenId, agreementURI: TokenUri): HexString;
+  encodeOptIn(tokenId: TokenId, agreementURI: TokenUri): HexString; // TODO: add data permissions param
 
   /**
    * Create a consent token with providing the business signature
