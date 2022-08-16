@@ -1,1 +1,1 @@
-export * from '@shared/enums/actions';
+export * from "@shared/enums/actions";

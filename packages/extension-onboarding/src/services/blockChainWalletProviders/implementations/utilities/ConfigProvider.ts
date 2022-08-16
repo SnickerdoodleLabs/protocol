@@ -1,12 +1,12 @@
-import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
-import { ChainInformation } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects/ChainInformation";
-
-import { IConfigProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/utilities";
 import {
   ChainId,
   EVMContractAddress,
   ProviderUrl,
 } from "@snickerdoodlelabs/objects";
+
+import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
+import { ChainInformation } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects/ChainInformation";
+import { IConfigProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/utilities";
 
 declare const __INFURA_ID__: string;
 declare const __CONTROL_CHAIN_NAME__: string;

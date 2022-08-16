@@ -3,6 +3,11 @@ import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import { ConfigProvider } from "@snickerdoodlelabs/core";
+import {
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "@snickerdoodlelabs/persistence";
 import { ContainerModule, interfaces } from "inversify";
 
 import {

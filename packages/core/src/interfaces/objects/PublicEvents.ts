@@ -4,7 +4,8 @@ import {
   EVMContractAddress,
   EVMTransaction,
   ISnickerdoodleCoreEvents,
-  MetatransactionSignatureRequest, SDQLQueryRequest
+  MetatransactionSignatureRequest,
+  SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 

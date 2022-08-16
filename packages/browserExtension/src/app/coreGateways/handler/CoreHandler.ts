@@ -8,9 +8,9 @@ export default class CoreHandler {
     return ResultAsync.fromPromise<T, K>(
       new Promise((resolve, reject) => {
         const requestObject = this._createRequestObject(method, params);
-        this.rpcEngine.handle(requestObject, async (error,result ) => {
-          console.log("callRes",result);
-          console.log("callErr",error);
+        this.rpcEngine.handle(requestObject, async (error, result) => {
+          console.log("callRes", result);
+          console.log("callErr", error);
           if (error) {
             return reject(error);
           }
@@ -18,12 +18,12 @@ export default class CoreHandler {
           return resolve(result.result);
         });
       }),
-      (e) => (e as K),
+      (e) => e as K,
     );
   }
 
   private _createRequestObject(method, params?): JsonRpcRequest<unknown> {
-    let requestObject = { id: Date.now(), jsonrpc: "2.0" as "2.0", method };
+    let requestObject = { id: Date.now(), jsonrpc: "2.0" as const, method };
     if (params) {
       requestObject = Object.assign(requestObject, { params: params });
     }

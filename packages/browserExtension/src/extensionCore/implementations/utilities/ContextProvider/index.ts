@@ -1,1 +1,1 @@
-export * from '@implementations/utilities/ContextProvider/ContextProvider';
+export * from "@implementations/utilities/ContextProvider/ContextProvider";

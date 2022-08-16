@@ -2,7 +2,9 @@ import { ResultAsync } from "neverthrow";
 import { Runtime } from "webextension-polyfill";
 
 export interface IPortConnectionRepository {
-    connectRemote(remotePort: Runtime.Port): ResultAsync<void, never>
+  connectRemote(remotePort: Runtime.Port): ResultAsync<void, never>;
 }
 
-export const IPortConnectionRepositoryType = Symbol.for("IPortConnectionRepository");
+export const IPortConnectionRepositoryType = Symbol.for(
+  "IPortConnectionRepository",
+);

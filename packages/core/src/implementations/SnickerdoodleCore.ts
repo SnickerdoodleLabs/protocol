@@ -60,7 +60,18 @@ import {
   URLString,
   SiteVisit,
 } from "@snickerdoodlelabs/objects";
-import { ChromeStoragePersistence } from "@snickerdoodlelabs/persistence";
+import {
+  DataWalletPersistence,
+  IVolatileStorageFactory,
+  IVolatileStorageFactoryType,
+} from "@snickerdoodlelabs/persistence";
+import {
+  ChromeStorageUtils,
+  IndexedDBFactory,
+  IStorageUtils,
+  IStorageUtilsType,
+  LocalStorageUtils,
+} from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -97,10 +108,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public constructor(
     configOverrides?: IConfigOverrides,
-    persistence?: IDataWalletPersistence,
     accountIndexer?: IAccountIndexing,
     accountBalances?: IAccountBalances,
     accountNFTs?: IAccountNFTs,
+    storageUtils?: IStorageUtils,
+    volatileStorage?: IVolatileStorageFactory,
   ) {
     this.iocContainer = new Container();
 
@@ -109,14 +121,28 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     // If persistence is provided, we need to hook it up. If it is not, we will use the default
     // persistence.
-    if (persistence != null) {
-      this.iocContainer
-        .bind(IDataWalletPersistenceType)
-        .toConstantValue(persistence);
+    if (storageUtils != null) {
+      this.iocContainer.bind(IStorageUtilsType).toConstantValue(storageUtils);
     } else {
       this.iocContainer
-        .bind(IDataWalletPersistenceType)
-        .to(ChromeStoragePersistence)
+        .bind(IStorageUtilsType)
+        .to(LocalStorageUtils)
+        .inSingletonScope();
+    }
+
+    this.iocContainer
+      .bind(IDataWalletPersistenceType)
+      .to(DataWalletPersistence)
+      .inSingletonScope();
+
+    if (volatileStorage != null) {
+      this.iocContainer
+        .bind(IVolatileStorageFactoryType)
+        .toConstantValue(volatileStorage);
+    } else {
+      this.iocContainer
+        .bind(IVolatileStorageFactoryType)
+        .to(IndexedDBFactory)
         .inSingletonScope();
     }
 

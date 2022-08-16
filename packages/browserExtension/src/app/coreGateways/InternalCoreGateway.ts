@@ -1,15 +1,14 @@
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
-
-import { EInternalActions } from "@shared/enums";
-
-import { IInternalState } from "@shared/interfaces/states";
-import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import {
   EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
 } from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
+
+import CoreHandler from "@app/coreGateways/handler/CoreHandler";
+import { EInternalActions } from "@shared/enums";
+import { IInternalState } from "@shared/interfaces/states";
 
 export class InternalCoreGateway {
   protected _handler: CoreHandler;

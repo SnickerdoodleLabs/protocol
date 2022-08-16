@@ -1,8 +1,5 @@
 import "reflect-metadata";
-import {
-  AxiosAjaxUtils,
-  CryptoUtils
-} from "@snickerdoodlelabs/common-utils";
+import { AxiosAjaxUtils, CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore, ConfigProvider } from "@snickerdoodlelabs/core";
 import {
@@ -45,11 +42,12 @@ import {
   SDQLQueryRequest,
   EVMTransaction,
 } from "@snickerdoodlelabs/objects";
-import { LocalStoragePersistence } from "@snickerdoodlelabs/persistence";
+import { DataWalletPersistence } from "@snickerdoodlelabs/persistence";
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
+import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { BigNumber, ethers } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -60,21 +58,10 @@ import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
 
 // https://github.com/SBoudrias/Inquirer.js
-
-const configProvider = new ConfigProvider();
-const ajaxUtils = new AxiosAjaxUtils();
-const persistence = new LocalStoragePersistence(
-  configProvider,
-  new DefaultAccountNFTs(configProvider, ajaxUtils),
-  new DefaultAccountBalances(configProvider, ajaxUtils),
-);
-const core = new SnickerdoodleCore(
-  {
-    defaultInsightPlatformBaseUrl: "http://localhost:3006",
-    dnsServerAddress: "http://localhost:3006/dns",
-  } as IConfigOverrides,
-  persistence,
-);
+const core = new SnickerdoodleCore({
+  defaultInsightPlatformBaseUrl: "http://localhost:3006",
+  dnsServerAddress: "http://localhost:3006/dns",
+} as IConfigOverrides);
 
 const devAccountKeys = [
   EVMPrivateKey(

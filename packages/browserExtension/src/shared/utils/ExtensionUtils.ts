@@ -12,23 +12,25 @@ export class ExtensionUtils {
       return lastError as Error;
     }
     return new Error(lastError.message);
-  };
+  }
 
   public static reloadPage = () => {
     browser.runtime.reload();
   };
 
-  public static openTab(options: Tabs.CreateCreatePropertiesType): ResultAsync<browser.Tabs.Tab, Error> {
-    return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(browser.tabs.create(options)).andThen(
-      (newTab) => {
-        const error = ExtensionUtils.checkForError();
-        if (error) {
-          return errAsync(error);
-        }
-        return okAsync(newTab);
-      },
-    );
-  };
+  public static openTab(
+    options: Tabs.CreateCreatePropertiesType,
+  ): ResultAsync<browser.Tabs.Tab, Error> {
+    return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(
+      browser.tabs.create(options),
+    ).andThen((newTab) => {
+      const error = ExtensionUtils.checkForError();
+      if (error) {
+        return errAsync(error);
+      }
+      return okAsync(newTab);
+    });
+  }
 
   public static openWindow: (
     options: Windows.CreateCreateDataType,
@@ -140,7 +142,9 @@ export class ExtensionUtils {
     });
   };
 
-  public static getAllTabsOnWindow(windowId: number): ResultAsync<Tabs.Tab[], Error> {
+  public static getAllTabsOnWindow(
+    windowId: number,
+  ): ResultAsync<Tabs.Tab[], Error> {
     return ResultAsync.fromSafePromise<Tabs.Tab[], never>(
       browser.tabs.query({ windowId }),
     ).andThen((tabs) => {
@@ -150,7 +154,7 @@ export class ExtensionUtils {
       }
       return okAsync(tabs);
     });
-  };
+  }
 
   public static getCurrentTab = () => {
     return ResultAsync.fromSafePromise(browser.tabs.getCurrent()).andThen(
@@ -165,7 +169,9 @@ export class ExtensionUtils {
     );
   };
 
-  public static switchToTab(tabId: number | undefined): ResultAsync<browser.Tabs.Tab, Error> {
+  public static switchToTab(
+    tabId: number | undefined,
+  ): ResultAsync<browser.Tabs.Tab, Error> {
     return ResultAsync.fromSafePromise<browser.Tabs.Tab, never>(
       browser.tabs.update(tabId, { highlighted: true }),
     ).andThen((tab) => {
@@ -176,7 +182,7 @@ export class ExtensionUtils {
         return okAsync(tab);
       }
     });
-  };
+  }
 
   public static closeTab = (tabId: number | number[]) => {
     return ResultAsync.fromSafePromise(browser.tabs.remove(tabId)).andThen(
