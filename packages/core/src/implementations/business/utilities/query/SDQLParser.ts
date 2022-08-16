@@ -25,6 +25,8 @@ import {
   SDQLSchema,
 } from "@core/interfaces/objects";
 
+import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+
 export class SDQLParser {
   context: Map<string, any> = new Map();
   queries: Map<SDQL_Name, AST_Query> = new Map();
@@ -35,7 +37,11 @@ export class SDQLParser {
 
   exprParser: ExprParser | null = null;
 
-  constructor(readonly cid: IpfsCID, readonly schema: SDQLSchema) {
+  constructor(
+    readonly cid: IpfsCID, 
+    readonly schema: SDQLSchema,
+    readonly queryObjectFactory: IQueryObjectFactory
+    ) {
     this.returns = null;
     this.exprParser = new ExprParser(this.context);
   }
@@ -90,6 +96,11 @@ export class SDQLParser {
           // console.log(`${qName} is a network query`);
           queries.push(AST_NetworkQuery.fromSchema(name, schema));
           break;
+
+        case "balance":
+          queries.push(this.queryObjectFactory.toBalanceQuery(name, schema));
+          break;
+          
         default:
           // console.log(`${qName} is a property query`);
           queries.push(AST_PropertyQuery.fromSchema(name, schema));

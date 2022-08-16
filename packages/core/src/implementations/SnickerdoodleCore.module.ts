@@ -34,6 +34,7 @@ import {
   MonitoringService,
   ProfileService,
   QueryEvaluator,
+  QueryObjectFactory,
   QueryParsingEngine,
   QueryRepository,
   QueryService,
@@ -114,6 +115,8 @@ import {
   IContractFactoryType,
   IQueryFactories,
   IQueryFactoriesType,
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
 } from "@core/interfaces/utilities/factory";
 
 export const snickerdoodleCoreModule = new ContainerModule(
@@ -213,8 +216,12 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(QueryRepository)
       .inSingletonScope();
 
-    bind<IQueryFactories>(IQueryFactoriesType)
+      bind<IQueryFactories>(IQueryFactoriesType)
       .to(QueryFactories)
       .inSingletonScope();
+
+      bind<IQueryObjectFactory>(IQueryObjectFactoryType)
+        .to(QueryObjectFactory)
+        .inSingletonScope();
   },
 );

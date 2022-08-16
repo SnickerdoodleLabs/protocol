@@ -4,6 +4,9 @@ import { AST_Contract } from "./AST_Contract";
 import { AST_Query } from "./AST_Query";
 
 export class AST_NetworkQuery extends AST_Query {
+  /**
+   * @param name - the key of the query from schema, e.g., q1, q2, a3 ...
+   */
   constructor(
     name: SDQL_Name,
     readonly returnType: "string" | "boolean" | "integer" | "number" | "list",
