@@ -8,7 +8,7 @@ export abstract class AST_Query {
       | "boolean"
       | "integer"
       | "number"
-      | "list"
+      | "array"
       | "object"
       | "enum",
   ) {

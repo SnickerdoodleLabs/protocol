@@ -3,7 +3,7 @@ import { IpfsCID, SDQL_Name } from "@objects/primitives";
 
 import { avalance1SchemaStr } from "./avalanche1.data";
 
-import { SDQLParser } from "@core/implementations/business/utilities/query";
+import { QueryObjectFactory, SDQLParser } from "@core/implementations/business/utilities/query";
 import {
   AST_Compensation,
   AST_ConditionExpr,
@@ -24,7 +24,7 @@ import {
 
 describe("SDQLParser on avalanche", () => {
   const schema = SDQLSchema.fromString(avalance1SchemaStr);
-  const parser = new SDQLParser(IpfsCID("0"), schema);
+  const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
 
   const ast = parser.buildAST();
   // parser.parse();

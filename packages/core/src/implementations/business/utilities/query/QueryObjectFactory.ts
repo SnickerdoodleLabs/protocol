@@ -1,3 +1,5 @@
+
+import "reflect-metadata";
 import { AST_NetworkQuery, AST_PropertyQuery } from "@core/interfaces/objects";
 import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
 import { Condition, ConditionG, ConditionGE, ConditionIn, ConditionL } from "@core/interfaces/objects/SDQL/condition";
@@ -71,12 +73,20 @@ export class QueryObjectFactory implements IQueryObjectFactory {
 
     public toBalanceQuery(name: SDQL_Name, schema: any): AST_BalanceQuery {
 
-        const conditions = this.parseConditions(schema.conditions);
+        let conditions = new Array<Condition>();
+        if (schema.conditions) {
+            conditions = this.parseConditions(schema.conditions);
+        }
+
+        let networkId: ChainId | null = null;
+        if (schema.networkid != "*") {
+            networkId = ChainId(parseInt(schema.networkid))
+        }
     
         return new AST_BalanceQuery(
           name,
           schema.return,
-          ChainId(schema.networkid),
+          networkId,
           conditions
         );
         

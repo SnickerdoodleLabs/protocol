@@ -9,7 +9,7 @@ export class AST_NetworkQuery extends AST_Query {
    */
   constructor(
     name: SDQL_Name,
-    readonly returnType: "string" | "boolean" | "integer" | "number" | "list",
+    readonly returnType: "string" | "boolean" | "integer" | "number" | "array",
     readonly chain: EVMChainCode,
     readonly contract: AST_Contract,
   ) {

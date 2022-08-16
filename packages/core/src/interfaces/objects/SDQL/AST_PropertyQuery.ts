@@ -12,7 +12,7 @@ export class AST_PropertyQuery extends AST_Query {
     
     constructor(
         readonly name: SDQL_Name,
-        readonly returnType: "string" | "boolean" | "integer" | "number" | "list" | "enum" | "object",
+        readonly returnType: "string" | "boolean" | "integer" | "number" | "array" | "enum" | "object",
         readonly property: string,
         readonly conditions: Array<Condition>,
         // for reading gender
