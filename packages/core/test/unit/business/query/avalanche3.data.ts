@@ -176,3 +176,21 @@ export const avalance3SchemaStr = `
     }
 }
 `
+
+// [
+//     { 
+//         networkId: 1,
+//         address: 0x234523442....
+//         balance: 11
+//     },
+//     { 
+//         networkId: 1,
+//         address: 0x0000....
+//         balance: 11
+//     },
+//     { 
+//         networkId: 1,
+//         address: 0x3454354....
+//         balance: 11
+//     }
+// ]
