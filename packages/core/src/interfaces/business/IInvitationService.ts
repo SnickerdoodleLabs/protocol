@@ -2,7 +2,7 @@ import {
   AjaxError,
   BlockchainProviderError,
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
@@ -34,7 +34,7 @@ export interface IInvitationService {
 
   acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError

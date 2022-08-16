@@ -22,6 +22,7 @@ import {
   DataWalletAddress,
   SDQLQuery,
   SDQLQueryRequest,
+  ConsentToken,
 } from "@snickerdoodlelabs/objects";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
@@ -169,53 +170,61 @@ export class QueryService implements IQueryService {
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
-    ]).andThen(([context, config]) => {
-      const err = this.validateContextConfig(context, config);
-      if (err) {
-        return errAsync(err);
-      }
+      this.consentContractRepository.getCurrentConsentToken(
+        consentContractAddress,
+      ),
+    ]).andThen(([context, config, consentToken]) => {
+      return this.validateContextConfig(context, config, consentToken).andThen(
+        () => {
+          return this.queryParsingEngine
+            .handleQuery(query, consentToken!.dataPermissions)
+            .andThen((maps) => {
+              console.log("QueryParsingEngine HandleQuery");
+              const maps2 = maps as [InsightString[], EligibleReward[]];
+              const insights = maps2[0];
+              const rewards = maps2[1];
+              console.log("insights: ", insights);
+              console.log("rewards: ", rewards);
 
-      // if (context.dataWalletAddress == null || context.dataWalletKey == null) {
-      //   return errAsync(
-      //     new UninitializedError("Data wallet has not been unlocked yet!"),
-      //   );
-      // }
-      return this.queryParsingEngine.handleQuery(query).andThen((maps) => {
-        // console.log("QueryParsingEngine HandleQuery");
-        const maps2 = maps as [InsightString[], EligibleReward[]];
-        const insights = maps2[0];
-        const rewards = maps2[1];
-        console.log("insights: ", insights);
-        // console.log("rewards: ", rewards);
+              // console.log(insights, rewards);
 
-        // console.log(insights, rewards);
-
-        return this.deliverInsights(
-          context,
-          config,
-          consentContractAddress,
-          query.cid,
-          insights,
-        ).map(() => {
-          console.log("insight delivery api call done");
-          // context.publicEvents.onQueryPosted.next({
-          //   consentContractAddress,
-          //   query,
-          // });
-        });
-      });
+              return this.deliverInsights(
+                context,
+                config,
+                consentContractAddress,
+                query.cid,
+                insights,
+              ).map(() => {
+                console.log("insight delivery api call done");
+                // context.publicEvents.onQueryPosted.next({
+                //   consentContractAddress,
+                //   query,
+                // });
+              });
+            });
+        },
+      );
     });
   }
 
   public validateContextConfig(
     context: CoreContext,
     config: CoreConfig,
-  ): UninitializedError | null {
+    consentToken: ConsentToken | null,
+  ): ResultAsync<void, UninitializedError | ConsentError> {
     // console.log(context);
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
-      return new UninitializedError("Data wallet has not been unlocked yet!");
+      return errAsync(
+        new UninitializedError("Data wallet has not been unlocked yet!"),
+      );
     }
-    return null;
+
+    if (consentToken == null) {
+      return errAsync(
+        new ConsentError(`Data wallet is not opted in to the contract!`),
+      );
+    }
+    return okAsync(undefined);
   }
 
   public deliverInsights(

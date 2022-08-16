@@ -15,9 +15,9 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
-  ConsentConditions,
   EVMContractAddress,
   IOpenSeaMetadata,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -62,11 +62,11 @@ export class ExternalCoreGateway {
     );
   }
   public acceptInvitation(
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
     id: UUID,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
-      consentConditions,
+      dataPermissions,
       id,
     } as IAcceptInvitationParams);
   }

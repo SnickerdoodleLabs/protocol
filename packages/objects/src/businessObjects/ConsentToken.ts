@@ -1,3 +1,4 @@
+import { DataPermissions } from "@objects/businessObjects/DataPermissions";
 import {
   EVMAccountAddress,
   EVMContractAddress,
@@ -11,5 +12,6 @@ export class ConsentToken {
     public ownerAddress: EVMAccountAddress,
     public tokenId: TokenId,
     public tokenUri: TokenUri,
+    public dataPermissions: DataPermissions,
   ) {}
 }

@@ -1,7 +1,7 @@
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   EInvitationStatus,
   PageInvitation,
   EVMContractAddress,
@@ -18,7 +18,7 @@ export interface IInvitationRepository {
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
   acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   rejectInvitation(
     invitation: Invitation,

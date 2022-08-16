@@ -8,7 +8,7 @@ import {
   EInvitationStatus,
   UninitializedError,
   PersistenceError,
-  ConsentConditions,
+  DataPermissions,
   ConsentError,
   EVMContractAddress,
   IDataWalletPersistenceType,
@@ -139,7 +139,7 @@ export class InvitationService implements IInvitationService {
 
   public acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -161,7 +161,7 @@ export class InvitationService implements IInvitationService {
         this.consentRepo.encodeOptIn(
           invitation.consentContractAddress,
           invitation.tokenId,
-          consentConditions,
+          dataPermissions,
         ),
         this.forwarderRepo.getNonce(),
       ])
@@ -255,10 +255,7 @@ export class InvitationService implements IInvitationService {
 
       // We need to find your opt-in token
       return this.consentRepo
-        .getCurrentConsentToken(
-          consentContractAddress,
-          EVMAccountAddress(context.dataWalletAddress),
-        )
+        .getCurrentConsentToken(consentContractAddress)
         .andThen((consentToken) => {
           console.log(consentToken);
 
