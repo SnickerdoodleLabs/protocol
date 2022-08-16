@@ -64,10 +64,10 @@ import {
   DataWalletPersistence,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
+  IndexedDBFactory,
 } from "@snickerdoodlelabs/persistence";
 import {
   ChromeStorageUtils,
-  IndexedDBFactory,
   IStorageUtils,
   IStorageUtilsType,
   LocalStorageUtils,
