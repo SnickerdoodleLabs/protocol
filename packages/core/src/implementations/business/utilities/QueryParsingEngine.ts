@@ -59,7 +59,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     const rewards: EligibleReward[] = [];
 
     const schemaString = query.query;
-    // const schema = new SDQLSchema(query.query);
+    
     const cid: IpfsCID = query.cid;
 
     const sdqlParser = this.queryFactories.makeParser(cid, schemaString);
