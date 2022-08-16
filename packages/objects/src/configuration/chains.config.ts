@@ -12,7 +12,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       "Dev Env Doodle Chain",
       ChainId(31337),
       true,
-      [ProviderUrl("https://doodlechain.snickerdoodle.dev")],
+      [ProviderUrl("https://doodlechain.dev.snickerdoodle.dev")],
       4000,
       EIndexer.Simulator,
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Consent Contract Factory
