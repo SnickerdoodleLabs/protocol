@@ -60,7 +60,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     const rewards: EligibleReward[] = [];
 
     const schemaString = query.query;
-    // const schema = new SDQLSchema(query.query);
+    
     const cid: IpfsCID = query.cid;
 
     const sdqlParser = this.queryFactories.makeParser(cid, schemaString);
@@ -72,29 +72,23 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       ast,
       this.queryRepository,
     );
-    // console.log("line 59", "made ast and evaluator");
+    
 
     const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
     const comp_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
 
     for (const returnStr of ast.logic.returns.keys()) {
-      // console.log("line 62", returnStr);
-      //console.log("returnStr: ", returnStr);
-      //console.log("returnStr-returns: ", ast.logic.returns.get(returnStr));
+      
       const result = astEvaluator.evalAny(ast.logic.returns.get(returnStr));
-
-      //console.log("Result: ", okAsync(result));
       insight_results.push(result);
+
     }
 
     for (const compStr of ast.logic.compensations.keys()) {
-      // console.log("line 62", returnStr);
-      //console.log("compStr: ", compStr);
-      //console.log("compStr-returns: ", ast.logic.compensations.get(compStr));
+      
       const result = astEvaluator.evalAny(ast.logic.compensations.get(compStr));
-
-      //console.log("Result: ", okAsync(result));
       comp_results.push(result);
+      
     }
 
     const resultList = [insight_results, comp_results];
