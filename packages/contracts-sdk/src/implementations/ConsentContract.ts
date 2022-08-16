@@ -74,6 +74,7 @@ export class ConsentContract implements IConsentContract {
       .map(() => {});
   }
 
+  // TODO: add data permissions param
   public encodeOptIn(tokenId: TokenId, agreementURI: TokenUri): HexString {
     return HexString(
       this.contract.interface.encodeFunctionData("optIn", [

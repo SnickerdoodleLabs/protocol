@@ -202,7 +202,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
     return this.getConsentContract(consentContractAddress).map((contract) => {
-      return contract.encodeOptIn(tokenId, TokenUri("ConsentConditionsGoHere"));
+      return contract.encodeOptIn(tokenId, TokenUri("ConsentConditionsGoHere")); // TODO: add data permissions param
     });
   }
   public encodeOptOut(
