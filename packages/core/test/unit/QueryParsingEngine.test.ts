@@ -2,6 +2,7 @@ import "reflect-metadata";
 import {
   Age,
   CountryCode,
+  DataPermissions,
   Gender,
   IDataWalletPersistence,
   IpfsCID,
@@ -68,7 +69,7 @@ describe("Testing order of results", () => {
     const engine = mocks.factory();
 
     await engine
-      .handleQuery(sdqlQuery)
+      .handleQuery(sdqlQuery, new DataPermissions(0xffffffff))
       .andThen(([insights, rewards]) => {
         console.log(insights);
         // return okAsync(0);

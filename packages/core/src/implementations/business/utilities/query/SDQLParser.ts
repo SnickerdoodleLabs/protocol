@@ -7,6 +7,7 @@ import {
   Version,
   DuplicateIdInSchema,
   ReturnNotImplementedError,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 
 import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
@@ -26,12 +27,16 @@ import {
 } from "@core/interfaces/objects";
 
 export class SDQLParser {
+
   context: Map<string, any> = new Map();
   queries: Map<SDQL_Name, AST_Query> = new Map();
   returns: AST_Returns | null;
   compensations: Map<SDQL_Name, AST_Compensation> = new Map();
+  yarn 
   logicReturns: Map<string, AST_Expr | Command> = new Map();
   logicCompensations: Map<string, AST_Expr | Command> = new Map();
+  returnPermissions: Map<string, DataPermissions> = new Map();
+  compenstationPermissions: Map<string, DataPermissions> = new Map();
 
   exprParser: ExprParser | null = null;
 

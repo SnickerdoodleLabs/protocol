@@ -12,8 +12,8 @@ export class AST_Logic {
   constructor(
     readonly returns: Map<string, AST_Expr | Command>,
     readonly compensations: Map<string, AST_Expr | Command>,
-    readonly returnPermissions: Map<string, DataPermissions>,
-    readonly compenstationPermissions: Map<string, DataPermissions>,
+    // readonly returnPermissions: Map<string, DataPermissions>,
+    // readonly compenstationPermissions: Map<string, DataPermissions>,
   ) {}
 
 }
