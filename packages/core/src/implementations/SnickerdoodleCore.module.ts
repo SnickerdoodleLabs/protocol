@@ -118,6 +118,8 @@ import {
   IQueryObjectFactory,
   IQueryObjectFactoryType,
 } from "@core/interfaces/utilities/factory";
+import { IBalanceQueryEvaluator, IBalanceQueryEvaluatorType } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { BalanceQueryEvaluator } from "./business/utilities/query/BalanceQueryEvaluator";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -210,6 +212,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
     // Query instances
     bind<IQueryEvaluator>(IQueryEvaluatorType)
       .to(QueryEvaluator)
+      .inSingletonScope();
+
+    bind<IBalanceQueryEvaluator>(IBalanceQueryEvaluatorType)
+      .to(BalanceQueryEvaluator)
       .inSingletonScope();
 
     bind<IQueryRepository>(IQueryRepositoryType)

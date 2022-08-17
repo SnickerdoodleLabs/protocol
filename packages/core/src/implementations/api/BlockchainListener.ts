@@ -48,16 +48,20 @@ export class BlockchainListener implements IBlockchainListener {
   constructor(
     @inject(IMonitoringServiceType)
     protected monitoringService: IMonitoringService,
-    @inject(IQueryServiceType) protected queryService: IQueryService,
+    @inject(IQueryServiceType) 
+    protected queryService: IQueryService,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
-    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-    @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IConfigProviderType) 
+    protected configProvider: IConfigProvider,
+    @inject(IContextProviderType) 
+    protected contextProvider: IContextProvider,
+    @inject(ILogUtilsType) 
+    protected logUtils: ILogUtils,
   ) {}
 
   public initialize(): ResultAsync<

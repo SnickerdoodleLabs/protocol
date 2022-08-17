@@ -702,17 +702,22 @@ function unlockCore(): ResultAsync<
   ])
     .andThen((answers) => {
       const wallet = answers.unlockAccountSelector as ethers.Wallet;
+      console.log("Line: ", 705)
       // Need to get the unlock message first
       return core
         .getUnlockMessage(languageCode)
         .andThen((message) => {
           // Sign the message
+          console.log("Line: ", 700)
+
           return cryptoUtils.signMessage(
             message,
             EVMPrivateKey(wallet._signingKey().privateKey),
           );
         })
         .andThen((signature) => {
+          console.log("Line: ", 405)
+
           return core.unlock(
             EVMAccountAddress(wallet.address),
             signature,

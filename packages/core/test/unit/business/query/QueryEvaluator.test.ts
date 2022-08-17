@@ -41,6 +41,7 @@ import {
 } from "@core/interfaces/objects";
 import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
 import { AST_Contract } from "@core/interfaces/objects/SDQL/AST_Contract";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -67,6 +68,8 @@ const conditionsGEandL = [
 
 class QueryEvaluatorMocks {
     public dataWalletPersistence = td.object<IDataWalletPersistence>();
+    public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
+
 
     public URLmap = new Map<URLString, number>([
         [URLString("www.snickerdoodlelabs.io"), 10],
@@ -128,7 +131,7 @@ class QueryEvaluatorMocks {
   }
     
     public factory() {
-      return new QueryEvaluator(this.dataWalletPersistence);
+      return new QueryEvaluator(this.dataWalletPersistence, this.balanceQueryEvaluator);
     }
 }
 
@@ -949,4 +952,19 @@ describe("BalanceQueryEvaluator", () => {
         console.log("Map is: ", result["value"]);
         expect(result["value"].length).toEqual(4)  
     })
+    test("Return Query Balance Array - All Chain Id's AND No Conditions", async () => {
+      const balanceQuery = new AST_BalanceQuery(
+          SDQL_Name("q7"),
+          "array",
+          null,
+          [],
+      )
+      // >= 20 and < 30
+      const mocks = new QueryEvaluatorMocks();
+      const repo = mocks.factory();
+      const result = await repo.eval(balanceQuery);
+
+      console.log("Map is: ", result["value"]);
+      expect(result["value"].length).toEqual(4)  
+  })
 })

@@ -231,19 +231,28 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   > {
     // Get all of our indexers and initialize them
     // TODO
+    console.log("Line: 91")
+
     const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
       IBlockchainProviderType,
     );
+    console.log("Line: 054")
+
     const accountIndexerPoller = this.iocContainer.get<IAccountIndexerPoller>(
       IAccountIndexerPollerType,
     );
+    console.log("Line: 04");
 
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-    const blockchainListener = this.iocContainer.get<IBlockchainListener>(
-      IBlockchainListenerType,
-    );
+    console.log("Line: 294");
+
+
+    const blockchainListener = 
+    this.iocContainer.get<IBlockchainListener>( IBlockchainListenerType);
+
+    console.log("Line: 1309132")
 
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])

@@ -7,12 +7,9 @@ import {
   IpfsCID,
   SDQLQuery,
   SDQLString,
-  SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import td from "testdouble";
-
-import { avalance1SchemaStr } from "./business/query/avalanche1.data";
 
 import {
   QueryEvaluator,
@@ -21,10 +18,10 @@ import {
   QueryRepository,
 } from "@core/implementations/business";
 import { QueryFactories } from "@core/implementations/utilities/factory";
-import { IQueryFactories, IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { avalance2SchemaStr } from "./business/query/avalanche2.data";
-import { assert } from "chai";
-import { finalize } from "rxjs";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryObjectFactory";
 
 const queryId = IpfsCID("Beep");
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance2SchemaStr));
@@ -32,6 +29,8 @@ const country = CountryCode("1");
 
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
+  public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
+
   protected queryObjectFactory: IQueryObjectFactory;
   protected queryFactories: IQueryFactories;
   //   protected queryRepository = td.object<IQueryRepository>();
@@ -56,7 +55,7 @@ class QueryParsingMocks {
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo);
+    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator);
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }
 
