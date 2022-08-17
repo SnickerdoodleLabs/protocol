@@ -68,7 +68,7 @@ export class IndexedDB implements IVolatileStorageTable {
       this._db = db;
       this._initialized = true;
       return this.persist().andThen((persisted) => {
-        console.log("Local storage persisted: " + persisted);
+        //console.log("Local storage persisted: " + persisted);
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return okAsync(this._db!);
       });

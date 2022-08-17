@@ -19,19 +19,20 @@ import {
 import { IEVMBalance } from "@snickerdoodlelabs/objects";
 import { EVMAccountAddress, EVMTransactionFilter } from "@snickerdoodlelabs/objects";
 import { BalanceQueryEvaluator } from "./BalanceQueryEvaluator";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
     constructor(
         @inject(IDataWalletPersistenceType)
         protected dataWalletPersistence: IDataWalletPersistence,
+        protected balanceQueryEvaluator: IBalanceQueryEvaluator
     ) {
         
     }
 
     protected age: Age = Age(0);
     protected location: CountryCode = CountryCode("12345");
-    protected balanceQueryEval: BalanceQueryEvaluator = new BalanceQueryEvaluator(this.dataWalletPersistence);
 
     public eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
     // All the switch statements here
@@ -40,27 +41,10 @@ export class QueryEvaluator implements IQueryEvaluator {
             case AST_NetworkQuery:
                 return this.evalNetworkQuery(query as AST_NetworkQuery);
         case AST_BalanceQuery:
-            return this.evalBalanceQuery(query as AST_BalanceQuery);
+            return this.balanceQueryEvaluator.evalConditions(query as AST_BalanceQuery);
         default:
             return this.evalPropertyQuery(query as AST_PropertyQuery);
         }
-    }
-
-    public evalBalanceQuery(q: AST_BalanceQuery): ResultAsync<SDQL_Return, PersistenceError> {
-
-        return this.dataWalletPersistence.getAccountBalances().andThen( (balances) => {
-            console.log("balances 1: ", balances);
-            if (q.networkId == null){
-                return okAsync(balances);
-            }
-            return okAsync(balances.filter((balance) => balance.chainId == q.networkId));
-            //return okAsync(SDQL_Return(networkBalances));
-          }
-        ).andThen( (networkBalances) => {
-            console.log("balances 2: ", networkBalances);
-            return okAsync(this.balanceQueryEval.evalConditions(q.conditions, networkBalances));
-        })
-        //return errAsync(new PersistenceError("evalBalanceQuery not implemented"))
     }
    
     public evalNetworkQuery(q: AST_NetworkQuery): ResultAsync<SDQL_Return, PersistenceError> {
