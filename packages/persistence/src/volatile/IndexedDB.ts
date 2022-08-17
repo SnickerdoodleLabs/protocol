@@ -8,7 +8,8 @@ import {
   IVolatileStorageTable,
   VolatileTableIndex,
 } from "@persistence/volatile/IVolatileStorageTable";
-
+import { injectable } from "inversify";
+@injectable()
 export class IndexedDBFactory implements IVolatileStorageFactory {
   getStore(
     config: VolatileTableConfig,
