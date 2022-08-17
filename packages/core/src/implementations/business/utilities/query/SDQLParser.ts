@@ -10,6 +10,7 @@ import {
   ParserError,
   QueryFormatError,
   MissingTokenConstructorError,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 
 import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
@@ -32,12 +33,16 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
 
 export class SDQLParser {
+
   context: Map<string, any> = new Map();
   queries: Map<SDQL_Name, AST_Query> = new Map();
   returns: AST_Returns | null;
   compensations: Map<SDQL_Name, AST_Compensation> = new Map();
+  yarn 
   logicReturns: Map<string, AST_Expr | Command> = new Map();
   logicCompensations: Map<string, AST_Expr | Command> = new Map();
+  returnPermissions: Map<string, DataPermissions> = new Map();
+  compenstationPermissions: Map<string, DataPermissions> = new Map();
 
   exprParser: ExprParser | null = null;
 
