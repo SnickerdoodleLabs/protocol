@@ -1,15 +1,5 @@
-import { ExternalCoreGateway } from "@app/coreGateways";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
-import ObjectMultiplex from "obj-multiplex";
-import {
-  ONBOARDING_PROVIDER_SUBSTREAM,
-  ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
-  CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
-  PORT_NOTIFICATION,
-} from "@shared/constants/ports";
+import { EventEmitter } from "events";
+
 import {
   Age,
   BigNumberString,
@@ -24,7 +14,19 @@ import {
   UnixTimestamp,
   UUID,
 } from "@snickerdoodlelabs/objects";
-import { EventEmitter } from "events";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import ObjectMultiplex from "obj-multiplex";
+import LocalMessageStream from "post-message-stream";
+import pump from "pump";
+
+import { ExternalCoreGateway } from "@app/coreGateways";
+import {
+  ONBOARDING_PROVIDER_SUBSTREAM,
+  ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
+  CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
+  PORT_NOTIFICATION,
+} from "@shared/constants/ports";
 import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
 
 let coreGateway: ExternalCoreGateway;

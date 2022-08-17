@@ -1,7 +1,6 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
-
   buildYourProfileText: {
     fontSize: "36px",
     fontWeight: 400,
@@ -14,12 +13,12 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 400,
     fontSize: "18px",
   },
-  buttonContainer:{
+  buttonContainer: {
     display: "flex",
-    justifyContent:"flex-end",
-    margin:20
+    justifyContent: "flex-end",
+    margin: 20,
   },
-  cardTitle:{
+  cardTitle: {
     paddingLeft: "24px",
     paddingTop: "10px",
     fontFamily: "'Space Grotesk', sans-serif",
@@ -27,18 +26,18 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: "20px",
     paddingBottom: "12px",
   },
-  divider:{
+  divider: {
     border: "1px solid #ECECEC",
-    width:"calc(100%-48px)",
-    marginLeft:"24px",
-    marginRight:"24px"
+    width: "calc(100%-48px)",
+    marginLeft: "24px",
+    marginRight: "24px",
   },
-  dividerChainData:{
+  dividerChainData: {
     border: "1px solid #ECECEC",
-    width:"calc(100%-48px)",
-    marginLeft:"24px",
-    marginRight:"24px",
-    marginTop:"16px",
-    marginBottom:"16px"
-  }
+    width: "calc(100%-48px)",
+    marginLeft: "24px",
+    marginRight: "24px",
+    marginTop: "16px",
+    marginBottom: "16px",
+  },
 }));

@@ -151,7 +151,6 @@ export class BlockchainListener implements IBlockchainListener {
               .andThen((requestForDataObjects) => {
                 return ResultUtils.combine(
                   requestForDataObjects.map((requestForDataObject) => {
-                    
                     return this.queryService.onQueryPosted(
                       requestForDataObject.consentContractAddress,
                       requestForDataObject.requestedCID,
@@ -160,8 +159,7 @@ export class BlockchainListener implements IBlockchainListener {
                 );
               });
           }),
-        ).map((result) => {
-        });
+        ).map((result) => {});
       });
   }
 }

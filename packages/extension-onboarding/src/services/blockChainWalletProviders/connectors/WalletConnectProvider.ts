@@ -1,6 +1,4 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
-import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 import {
   ChainInformation,
   EVMAccountAddress,
@@ -9,6 +7,9 @@ import {
 import WalletConnect from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
+
+import { IWalletProvider } from "@extension-onboarding/services/blockChainWalletProviders/interfaces";
+import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 
 export class WalletConnectProvider implements IWalletProvider {
   protected _web3Provider: Web3Provider | null = null;

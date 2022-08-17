@@ -1,10 +1,10 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
- icon: {
+  icon: {
     with: 64,
-    height:64,
- },
+    height: 64,
+  },
   name: {
     fontFamily: "Space Grotesk",
     color: "#5D5A74",
@@ -33,6 +33,5 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 500,
     padding: "5px 20px 5px 20px",
     textAlign: "center",
-  }
- 
+  },
 }));

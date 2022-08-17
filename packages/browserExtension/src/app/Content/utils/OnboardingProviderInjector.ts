@@ -1,7 +1,8 @@
-import Browser from "webextension-polyfill";
+import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
 import pump from "pump";
-import ObjectMultiplex from "obj-multiplex";
+import Browser from "webextension-polyfill";
+
 import {
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,

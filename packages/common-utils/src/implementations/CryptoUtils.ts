@@ -39,7 +39,7 @@ export class CryptoUtils implements ICryptoUtils {
   }
 
   public getTokenId(): ResultAsync<TokenId, never> {
-    const buf = Crypto.randomBytes(8);
+    const buf = Crypto.randomBytes(4);
     const hex = buf.toString("hex");
     const bigInt = BigInt(`0x${hex}`);
 

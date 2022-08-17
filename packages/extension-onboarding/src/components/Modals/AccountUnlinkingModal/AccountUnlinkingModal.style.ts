@@ -4,7 +4,7 @@ export const useStyles = makeStyles((theme) => ({
   container: {
     "& .MuiDialog-paper": {
       borderRadius: 12,
-      maxWidth:720
+      maxWidth: 720,
     },
   },
   title: {

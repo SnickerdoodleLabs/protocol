@@ -4,4 +4,6 @@ export interface IPortConnectionListener {
   initialize(): ResultAsync<void, never>;
 }
 
-export const IPortConnectionListenerType = Symbol.for("IPortConnectionListener");
+export const IPortConnectionListenerType = Symbol.for(
+  "IPortConnectionListener",
+);

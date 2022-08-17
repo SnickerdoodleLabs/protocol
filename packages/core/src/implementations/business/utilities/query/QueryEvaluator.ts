@@ -133,6 +133,9 @@ export class QueryEvaluator implements IQueryEvaluator {
                     (location) => 
                     {
                         switch(q.returnType){
+                            case "string": 
+                                result = SDQL_Return(location);
+                                return okAsync(result);
                             case "boolean":
                                 // console.log("Property: Location, Return Type: Boolean");
                                 // console.log("Before conditions: ", result);

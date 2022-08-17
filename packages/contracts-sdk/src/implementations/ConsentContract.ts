@@ -14,7 +14,7 @@ import {
   BaseURI,
   HexString,
 } from "@snickerdoodlelabs/objects";
-import { ethers, EventFilter, Event, BigNumber, Bytes } from "ethers";
+import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -465,14 +465,17 @@ export class ConsentContract implements IConsentContract {
   ): ResultAsync<ConsentToken[], ConsentContractError> {
     return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
       if (numberOfTokens === 0) {
-        return okAsync([] as ConsentToken[]);
+        return okAsync([]);
       }
       return this.queryFilter(
         this.filters.Transfer(null, ownerAddress),
       ).andThen((logsEvents) => {
         return ResultUtils.combine(
           logsEvents.map((logEvent) => {
-            // SEAN: This is failing the second time I do it
+            if (logEvent.args == null || logEvent.args.tokenId == null) {
+              return okAsync(null);
+            }
+
             return this.tokenURI(logEvent.args?.tokenId).andThen((tokenUri) => {
               return okAsync(
                 new ConsentToken(
@@ -484,7 +487,11 @@ export class ConsentContract implements IConsentContract {
               );
             });
           }),
-        );
+        ).map((consentTokens) => {
+          return consentTokens.filter(
+            (consentToken) => consentToken != null,
+          ) as ConsentToken[];
+        });
       });
     });
   }
@@ -799,7 +806,7 @@ export class ConsentContract implements IConsentContract {
   // Get the number of opted in addresses
   public totalSupply(): ResultAsync<number, ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract.totalSupply() as Promise<number>,
+      this.contract.totalSupply() as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
           "Unable to call totalSupply()",
@@ -807,7 +814,7 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    );
+    ).map((totalSupply) => totalSupply.toNumber());
   }
 
   public filters = {

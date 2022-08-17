@@ -18,13 +18,13 @@ export const useStyles = makeStyles((theme) => ({
     width: 385,
   },
   title: {
-    fontSize: "36px",
+    fontSize: "35px",
     lineHeight: "52px",
     fontWeight: 400,
     fontStyle: "italic",
     fontFamily: "Shrikhand, cursive ",
   },
- 
+
   description: {
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 400,

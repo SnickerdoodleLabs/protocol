@@ -1,1 +1,1 @@
-export * from "@extension-onboarding/services/implementations/data/PIIRepository"
+export * from "@extension-onboarding/services/implementations/data/PIIRepository";

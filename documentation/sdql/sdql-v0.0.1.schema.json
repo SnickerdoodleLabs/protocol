@@ -30,7 +30,8 @@
                                 "browsing_history",
                                 "gender",
                                 "url_visited_count",
-                                "chain_transaction_count"
+                                "chain_transaction_count",
+                                "balance"
                             ]
                         },
                         "return": {
@@ -39,14 +40,30 @@
                                 "boolean",
                                 "integer",
                                 "object",
-                                "enum"
+                                "enum",
+                                "array"
                             ]
                         },
                         "chain": {
                             "type": "string",
                             "enum": [
                                 "ETH",
-                                "AVAX"
+                                "AVAX",
+                                "SOL"
+                            ]
+                        },
+                        "networkid":{
+                            "type": "string",
+                            "enum": [
+                                "1",
+                                "4",
+                                "42",
+                                "43114",
+                                "43113",
+                                "137",
+                                "80001",
+                                "SOL", 
+                                "*"
                             ]
                         },
                         "contract": {
@@ -158,8 +175,32 @@
                                 },
                                 "patternProperties": {
                                     "type": "object"
+                                },
+                                "required": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
                                 }
                             }
+                        },
+                        "array_items": {
+                            "type": "object",
+                            "properties":{
+                                "type":{
+                                    "type": "string",
+                                    "enum": [
+                                        "boolean",
+                                        "integer",
+                                        "object",
+                                        "array",
+                                        "number"
+                                    ]
+                                }
+                            },
+                            "required": [
+                                "type"
+                            ]
                         }
                     },
                     "required": [
@@ -190,7 +231,7 @@
                                         {
                                             "const": "chain_transaction_count"
                                         }
-                                    ]                                
+                                    ]
                                 },
                                 "return": {
                                     "const": "object"
@@ -198,6 +239,20 @@
                             },
                             "required": [
                                 "object_schema"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "balance"    
+                                },
+                                "return": {
+                                    "const": "array"
+                                }
+                            },
+                            "required": [
+                                "array_items",
+                                "networkid"
                             ]
                         },
                         {
@@ -226,6 +281,15 @@
                                         },
                                         {
                                             "const": "location"
+                                        },
+                                        {
+                                            "const": "balance"
+                                        },
+                                        {
+                                            "const": "browsing_history"
+                                        },
+                                        {
+                                            "const": "network"
                                         }
                                     ]
                                 }
@@ -250,19 +314,6 @@
                                     "const": "integer"
                                 }
                             }
-                        },
-                        {
-                            "properties": {
-                                "name": {
-                                    "const": "browsing_history"
-                                },
-                                "return": {
-                                    "const": "boolean"
-                                }
-                            },
-                            "required": [
-                                "conditions"
-                            ]
                         }
                     ]
                 }

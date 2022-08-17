@@ -1,7 +1,8 @@
-import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 import { EVMAccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
+
+import { Config } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects";
 
 export interface IWalletProvider {
   isInstalled: boolean;
@@ -16,5 +17,8 @@ export interface IWalletProvider {
     ethers.providers.JsonRpcSigner | undefined,
     never
   >;
-  checkAndSwitchToControlChain(): ResultAsync<ethers.providers.Web3Provider, unknown>;
+  checkAndSwitchToControlChain(): ResultAsync<
+    ethers.providers.Web3Provider,
+    unknown
+  >;
 }

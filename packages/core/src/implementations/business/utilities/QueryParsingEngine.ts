@@ -75,7 +75,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
     const comp_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
 
-
     for (const returnStr of ast.logic.returns.keys()) {
       // console.log("line 62", returnStr);
       //console.log("returnStr: ", returnStr);
@@ -115,6 +114,5 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         rewards,
       ]);
     });
-    
   }
 }

@@ -42,15 +42,19 @@ class QueryParsingMocks {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryFactories = new QueryFactories(this.queryObjectFactory);
 
-    td.when(this.persistenceRepo.getGender()).thenReturn(okAsync(Gender('female')));
+    td.when(this.persistenceRepo.getGender()).thenReturn(
+      okAsync(Gender("female")),
+    );
     td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(okAsync(country));
 
-    td.when(this.persistenceRepo.getSiteVisitsMap())
-    .thenReturn(okAsync(new Map()));
+    td.when(this.persistenceRepo.getSiteVisitsMap()).thenReturn(
+      okAsync(new Map()),
+    );
 
-    td.when(this.persistenceRepo.getEVMTransactions(td.matchers.anything()))
-      .thenReturn(okAsync([]));
+    td.when(
+      this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
 
     this.queryEvaluator = new QueryEvaluator(this.persistenceRepo);
     this.queryRepository = new QueryRepository(this.queryEvaluator);
@@ -66,15 +70,23 @@ describe("Testing order of results", () => {
   test("avalance 2 logics", async () => {
     const engine = mocks.factory();
 
-    await engine.handleQuery(sdqlQuery).andThen(([insights, rewards]) => {
-      // console.log(insights);
-      // return okAsync(0);
-      // expect(insights).toEqual(["qualified", country]);
-      expect(insights).toEqual(["not qualified", country, 'female', new Map()]);
-      return okAsync(insights);
-    }).mapErr((e) => {
-      // console.log(e);
-      fail(e.message);
-    });
+    await engine
+      .handleQuery(sdqlQuery)
+      .andThen(([insights, rewards]) => {
+        console.log(insights);
+        // return okAsync(0);
+        // expect(insights).toEqual(["qualified", country]);
+        expect(insights).toEqual([
+          "not qualified",
+          country,
+          "female",
+          new Map(),
+        ]);
+        return okAsync(insights);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
   });
 });

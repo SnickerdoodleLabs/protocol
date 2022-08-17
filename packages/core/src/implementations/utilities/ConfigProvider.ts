@@ -7,6 +7,7 @@ import {
   IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -15,7 +16,12 @@ import { CoreConfig } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
 
 @injectable()
-export class ConfigProvider implements IConfigProvider, IIndexerConfigProvider {
+export class ConfigProvider
+  implements
+    IConfigProvider,
+    IIndexerConfigProvider,
+    IPersistenceConfigProvider
+{
   protected config: CoreConfig;
 
   public constructor() {

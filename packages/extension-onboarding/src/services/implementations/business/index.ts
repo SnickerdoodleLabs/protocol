@@ -1,1 +1,1 @@
-export * from "@extension-onboarding/services/implementations/business/PIIService"
+export * from "@extension-onboarding/services/implementations/business/PIIService";

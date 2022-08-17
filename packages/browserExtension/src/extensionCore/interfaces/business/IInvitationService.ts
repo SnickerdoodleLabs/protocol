@@ -1,4 +1,3 @@
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   ConsentConditions,
@@ -8,6 +7,8 @@ import {
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IInvitationService {
   checkInvitationStatus(

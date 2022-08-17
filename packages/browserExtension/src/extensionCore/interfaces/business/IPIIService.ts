@@ -1,4 +1,3 @@
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
   GivenName,
@@ -9,6 +8,8 @@ import {
   CountryCode,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IPIIService {
   setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError>;
