@@ -1,4 +1,5 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { IStorageUtils } from "@utils/IStorageUtils";
@@ -7,6 +8,7 @@ import { IStorageUtils } from "@utils/IStorageUtils";
 interface Dictionary<T> {
   [key: string]: T;
 }
+@injectable()
 export class LocalStorageUtils implements IStorageUtils {
   public remove<T = any>(
     key: string | string[],
