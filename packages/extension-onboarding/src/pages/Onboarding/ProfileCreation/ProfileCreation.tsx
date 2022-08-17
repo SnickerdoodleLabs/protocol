@@ -1,3 +1,4 @@
+import DateFnsUtils from "@date-io/date-fns";
 import artboardImage from "@extension-onboarding/assets/images/artboard.png";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
@@ -10,9 +11,7 @@ import {
   clientID,
 } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
-import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 import {
   Button,
   Box,
@@ -23,129 +22,31 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import {
-  DatePicker,
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { Age, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Select, TextField, RadioGroup } from "formik-material-ui";
-
-import DateFnsUtils from "@date-io/date-fns";
 import { gapi } from "gapi-script";
-import { ResultAsync } from "neverthrow";
 import React, { FC, useEffect, useState } from "react";
 import { GoogleLogin } from "react-google-login";
 import * as yup from "yup";
 
-declare const window: IWindowWithSdlDataWallet;
-
 const ProfileCreation: FC = () => {
-  const apiGateway = new ApiGateway();
-  const { changeStepperStatus, addUserObject } = useAppContext();
+  const { changeStepperStatus, addUserObject, apiGateway, dataWalletGateway } =
+    useAppContext();
   const { setAlert } = useLayoutContext();
   const [isGoogleButtonVisible, setGoogleButtonVisible] = useState(true);
   const [formValues, setFormValues] = useState<PII>(new PII());
 
-  // TODO move below to right place
-
   const getDataFromWallet = async () => {
-    const convertToSafePromise = <T, K>(
-      fn: ResultAsync<T, K>,
-    ): Promise<T | null> => {
-      return fn.unwrapOr(null);
-    };
-    const [
-      age,
-      given_name,
-      family_name,
-      email,
-      birthday,
-      country_code,
-      gender,
-    ] = [
-      await convertToSafePromise(window.sdlDataWallet.getAge()),
-      await convertToSafePromise(window.sdlDataWallet.getGivenName()),
-      await convertToSafePromise(window.sdlDataWallet.getFamilyName()),
-      await convertToSafePromise(window.sdlDataWallet.getEmail()),
-      await convertToSafePromise(window.sdlDataWallet.getBirthday()),
-      await convertToSafePromise(window.sdlDataWallet.getLocation()),
-      await convertToSafePromise(window.sdlDataWallet.getGender()),
-    ];
-    setFormValues(
-      new PII(
-        given_name,
-        family_name,
-        email,
-        birthday ? new Date(birthday * 1000).toLocaleDateString() : null,
-        country_code,
-        null,
-        null,
-        gender,
-      ),
-    );
+    const profileInfo = await dataWalletGateway.profileService.getProfile();
+    setFormValues(profileInfo);
   };
 
   const sendDataToWallet = async (values: Partial<PII>) => {
-    const convertToSafePromise = <T, K>(
-      fn: ResultAsync<T, K>,
-    ): Promise<T | undefined> => {
-      return fn.unwrapOr(undefined);
-    };
-    const res = [
-      ...(values.given_name
-        ? [
-            await convertToSafePromise(
-              window.sdlDataWallet.setGivenName(values.given_name),
-            ),
-          ]
-        : []),
-      ...(values.family_name
-        ? [
-            await convertToSafePromise(
-              window.sdlDataWallet.setFamilyName(values.family_name),
-            ),
-          ]
-        : []),
-      ...(values.email_address
-        ? [
-            await convertToSafePromise(
-              window.sdlDataWallet.setEmail(values.email_address),
-            ),
-          ]
-        : []),
-      ...(values.date_of_birth
-        ? [
-            await convertToSafePromise(
-              window.sdlDataWallet.setBirthday(
-                (+new Date(values.date_of_birth) / 1000) as UnixTimestamp,
-              ),
-            ),
-            await convertToSafePromise(
-              window.sdlDataWallet.setAge(
-                Age(
-                  new Date().getFullYear() -
-                    new Date(values.date_of_birth).getFullYear(),
-                ),
-              ),
-            ),
-          ]
-        : []),
-      ...(values.gender
-        ? [
-            await convertToSafePromise(
-              window.sdlDataWallet.setGender(values.gender),
-            ),
-          ]
-        : []),
-      ...(values.country_code
-        ? [
-            await convertToSafePromise(
-              window.sdlDataWallet.setLocation(values.country_code),
-            ),
-          ]
-        : []),
-    ];
+    await dataWalletGateway.profileService.setProfile(values);
   };
 
   const schema = yup.object().shape({
@@ -194,10 +95,9 @@ const ProfileCreation: FC = () => {
     console.log("googleResFail", res);
   };
 
-  const onFormSubmit = (values: PII) => {
-    sendDataToWallet(values);
+  const onFormSubmit = async (values: PII) => {
+    await sendDataToWallet(values);
     changeStepperStatus("next");
-    addUserObject(values);
   };
 
   const classes = useStyles();

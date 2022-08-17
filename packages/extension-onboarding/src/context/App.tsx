@@ -15,6 +15,8 @@ import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 import { ResultAsync } from "neverthrow";
+import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
+import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
 
 export interface ILinkedAccount {
   providerKey: EWalletProviderKeys;
@@ -22,6 +24,8 @@ export interface ILinkedAccount {
 }
 
 export interface IAppContext {
+  apiGateway: ApiGateway;
+  dataWalletGateway: DataWalletGateway;
   linkedAccounts: ILinkedAccount[];
   isSDLDataWalletDetected: boolean;
   providerList: IProvider[];
@@ -126,6 +130,8 @@ export const AppContextProvider: FC = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        apiGateway: new ApiGateway(),
+        dataWalletGateway: new DataWalletGateway(),
         providerList,
         isSDLDataWalletDetected,
         linkedAccounts,

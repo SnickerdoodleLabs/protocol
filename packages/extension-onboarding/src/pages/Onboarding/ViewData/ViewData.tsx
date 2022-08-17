@@ -1,15 +1,14 @@
-import { Box, Grid, Typography } from "@material-ui/core";
-import React, { FC } from "react";
+import PersonalInfoCard from "@extension-onboarding/components/PersonalInfoCard";
+import AccountsCard from "@extension-onboarding/components/AccountsCard";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { useAppContext } from "@extension-onboarding/context/App";
-import PersonalData from "./components/PersonalData";
+import ChainData from "@extension-onboarding/pages/Onboarding/ViewData/components/ChainData";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewData/ViewData.style";
-import ChainData from "./components/ChainData";
-import { countries } from "@extension-onboarding/constants/countries";
+import { Box, Typography } from "@material-ui/core";
+import React, { FC } from "react";
 
 const ViewData: FC = () => {
-  const { changeStepperStatus, linkedAccounts, getUserObject } =
-    useAppContext();
+  const { changeStepperStatus } = useAppContext();
 
   const classes = useStyles();
   return (
@@ -23,50 +22,7 @@ const ViewData: FC = () => {
           </p>
 
           <Box display="flex" alignItems="flex-start">
-            <Box
-              style={{
-                border: "1px solid #ECECEC",
-                width: "500px",
-                height: "400px",
-                borderRadius: 8,
-              }}
-            >
-              <Typography className={classes.cardTitle}>
-                Personal Info
-              </Typography>
-              <PersonalData
-                title="FULL NAME"
-                information={`${getUserObject()?.given_name} ${
-                  getUserObject()?.family_name
-                }`}
-              />
-              <Box className={classes.divider}></Box>
-              <PersonalData
-                title="Date of Birth"
-                information={getUserObject()?.date_of_birth}
-              />
-              <Box className={classes.divider}></Box>
-              <PersonalData
-                title="GENDER"
-                information={getUserObject()?.gender}
-              />
-              <Box className={classes.divider}></Box>
-              <PersonalData
-                title="EMAIL"
-                information={getUserObject()?.email_address}
-              />
-              <Box className={classes.divider}></Box>
-              <PersonalData
-                title="COUNTRY"
-                information={
-                  countries.find(
-                    (country) =>
-                      country.code === (getUserObject()?.country_code || "US"),
-                  )?.name
-                }
-              />
-            </Box>
-
+            <PersonalInfoCard />
             <Box
               style={{
                 border: "1px solid #ECECEC",
@@ -81,16 +37,10 @@ const ViewData: FC = () => {
               <Typography className={classes.cardTitle}>
                 On-chain Info
               </Typography>
-              {linkedAccounts.map((account, index) => {
-                return (
-                  <Box>
-                    <ChainData account={account} />
-                    {index + 1 !== linkedAccounts.length && (
-                      <Box className={classes.dividerChainData} />
-                    )}
-                  </Box>
-                );
-              })}
+              <AccountsCard
+                onButtonClick={console.log}
+                buttonText="VIEW DETAILS"
+              />
             </Box>
           </Box>
         </Box>
