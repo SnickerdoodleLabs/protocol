@@ -21,8 +21,12 @@ const AccountLinking: FC = () => {
           </p>
           <WalletProviders />
         </Box>
-
         <Box className={classes.yourLinkedAccountContainer}>
+          <Box mb={2} mt={7}>
+            <Typography className={classes.sectionTitle}>
+              Your Linked Accounts
+            </Typography>
+          </Box>
           <AccountsCard />
         </Box>
       </Box>

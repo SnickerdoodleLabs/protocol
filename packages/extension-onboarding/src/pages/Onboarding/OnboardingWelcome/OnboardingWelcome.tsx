@@ -5,6 +5,7 @@ import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/OnboardingWelcome/OnboardingWelcome.style";
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal/ViewDetailsModal";
 
 const OnboardingWelcome: FC = () => {
   const { changeStepperStatus, isSDLDataWalletDetected } = useAppContext();
@@ -40,6 +41,7 @@ const OnboardingWelcome: FC = () => {
           <Typography className={classes.description}>
             Snickerdoodle Data Wallet works with all of your favorite chains.{" "}
           </Typography>
+
         </Box>
         <Box mt={3}>
           {isSDLDataWalletDetected ? (
@@ -51,6 +53,7 @@ const OnboardingWelcome: FC = () => {
             >
               Get Started
             </PrimaryButton>
+            
           ) : checkTimeOutEnded ? (
             <Box justifyContent="center">
               <Typography className={classes.description}>
@@ -61,6 +64,7 @@ const OnboardingWelcome: FC = () => {
                 <PrimaryButton type="submit" onClick={() => {}}>
                   Please Install
                 </PrimaryButton>
+  
               </Box>
             </Box>
           ) : (

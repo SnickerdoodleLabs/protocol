@@ -222,7 +222,7 @@ const WalletProviders: FC = () => {
         <Typography className={classes.sectionTitle}>Your Wallets</Typography>
       )}
       {detectedProviders.map((provider) => (
-        <Box mt={2} key={provider.key}>
+        <Box mt={2} mb={2} key={provider.key}>
           <WalletProviderItem
             onConnectClick={() => {
               onProviderConnectClick(provider);

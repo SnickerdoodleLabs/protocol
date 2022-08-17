@@ -35,4 +35,9 @@ export const useStyles = makeStyles((theme) => ({
     justifyContent: "flex-end",
     margin: 20,
   },
+  sectionTitle: {
+    fontFamily: "Space Grotesk, sans-serif",
+    fontWeight: 700,
+    fontSize: 20,
+  },
 }));

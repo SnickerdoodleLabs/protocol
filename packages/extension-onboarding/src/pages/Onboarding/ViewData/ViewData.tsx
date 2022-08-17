@@ -6,10 +6,13 @@ import ChainData from "@extension-onboarding/pages/Onboarding/ViewData/component
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewData/ViewData.style";
 import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
-
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+declare const window: IWindowWithSdlDataWallet;
 const ViewData: FC = () => {
   const { changeStepperStatus } = useAppContext();
-
+  const { setModal } = useLayoutContext();
   const classes = useStyles();
   return (
     <Box>
@@ -23,23 +26,26 @@ const ViewData: FC = () => {
 
           <Box display="flex" alignItems="flex-start">
             <PersonalInfoCard />
-            <Box
-              style={{
-                border: "1px solid #ECECEC",
-                width: "685px",
-                minHeight: "400px",
-                height: "100%",
-                borderRadius: 8,
-                marginLeft: "24px",
-                paddingBottom: "16px",
-              }}
-            >
-              <Typography className={classes.cardTitle}>
-                On-chain Info
-              </Typography>
+
+            <Box ml={3}>
               <AccountsCard
-                onButtonClick={console.log}
+                onButtonClick={(account) => {
+                  setModal({
+                    modalSelector: EModalSelectors.VIEW_ACCOUNT_DETAILS,
+                    customProps: { account },
+                    onPrimaryButtonClick: () => {},
+                  });
+                }}
                 buttonText="VIEW DETAILS"
+                topContent={
+                  <Box>
+                    <Typography className={classes.cardTitle}>
+                      On-chain Info
+                    </Typography>
+                  </Box>
+                }
+                width={650}
+                useDivider
               />
             </Box>
           </Box>
@@ -49,7 +55,7 @@ const ViewData: FC = () => {
         <PrimaryButton
           type="submit"
           onClick={() => {
-            changeStepperStatus("next");
+            window.sdlDataWallet.closeTab();
           }}
         >
           Finish

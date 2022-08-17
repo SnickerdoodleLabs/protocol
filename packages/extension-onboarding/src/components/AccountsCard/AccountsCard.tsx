@@ -27,12 +27,7 @@ const AccountCard = ({
   const { linkedAccounts } = useAppContext();
 
   return (
-    <Box
-      className={classes.container}
-      {...(width && {
-        width,
-      })}
-    >
+    <Box className={classes.container} width={width ? width : 430}>
       {topContent && topContent}
       {linkedAccounts?.length ? (
         linkedAccounts?.map?.((account, index) => (

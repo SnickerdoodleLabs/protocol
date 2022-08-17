@@ -12,6 +12,7 @@ import CustomizedAlert, {
 import AccountUnlinkingModal from "@extension-onboarding/components/Modals/AccountUnlinkingModal";
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal/ViewDetailsModal";
 
 export interface IAlert {
   message: string | null;
@@ -52,6 +53,8 @@ export const LayoutProvider: FC = ({ children }) => {
         return <AccountUnlinkingModal />;
       case modalState.modalSelector === EModalSelectors.PHANTOM_LINKING_STEPS:
         return <PhantomLinkingSteps />;
+      case modalState.modalSelector === EModalSelectors.VIEW_ACCOUNT_DETAILS:
+        return <ViewDetailsModal />;
 
       default:
         return null;
