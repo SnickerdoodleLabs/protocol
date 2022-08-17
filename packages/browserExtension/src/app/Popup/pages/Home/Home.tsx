@@ -1,15 +1,15 @@
 import React, { FC, useEffect, useState } from "react";
-import { Box, Button, LinearProgress, Typography } from "@material-ui/core";
+import { Box, LinearProgress, Typography } from "@material-ui/core";
 import { useStyles } from "@app/Popup/pages/Home/Home.style";
 import { useAppContext } from "@app/Popup/context";
-import { ResultUtils } from "neverthrow-result-utils";
-import { okAsync } from "neverthrow";
 import {
   EmailAddressString,
   FamilyName,
   GivenName,
 } from "@snickerdoodlelabs/objects";
 import Browser from "webextension-polyfill";
+import { PRIVACY_POLICY_URL, SPA_PATHS } from "@app/Popup/constants";
+import LinkCard from "@app/Popup/pages/Home/components/LinkCard";
 
 interface IUserInfo {
   givenName: GivenName | null;
@@ -54,40 +54,6 @@ const Home: FC = () => {
       });
   };
 
-  interface IItemProps {
-    navigateTo: string;
-    icon: string;
-    title: string;
-  }
-  const NavigatorItem = ({ navigateTo, icon, title }: IItemProps) => {
-    const navigate = () => {
-      window.open(
-        `${config.getConfig().onboardingUrl}?${navigateTo}`,
-        "_blank",
-      );
-    };
-    return (
-      <Box
-        onClick={navigate}
-        mt={3}
-        display="flex"
-        alignItems="center"
-        height="60px"
-        borderRadius={8}
-        border=" 1px solid #ECECEC"
-      >
-        <Box ml={1}>
-          <img src={icon} />
-        </Box>
-
-        <Typography>{title}</Typography>
-        <Box mr={2} marginLeft="auto">
-          <img src={Browser.runtime.getURL("assets/icons/arrow.svg")} />
-        </Box>
-      </Box>
-    );
-  };
-
   return (
     <Box px={4}>
       <Box mt={5}>
@@ -109,18 +75,18 @@ const Home: FC = () => {
       </Box>
       <Box mt={5}>
         <Typography className={classes.title}>Manage Your Data</Typography>
-        <NavigatorItem
-          navigateTo="profile"
+        <LinkCard
+          navigateTo={SPA_PATHS.profile}
           icon={Browser.runtime.getURL("assets/icons/profile.svg")}
           title="Personal Info"
         />
-        <NavigatorItem
-          navigateTo="on-chain"
+        <LinkCard
+          navigateTo={SPA_PATHS.onChain}
           icon={Browser.runtime.getURL("assets/icons/on-chain.svg")}
           title="On Chain Info"
         />
-        <NavigatorItem
-          navigateTo="rewards"
+        <LinkCard
+          navigateTo={SPA_PATHS.rewards}
           icon={Browser.runtime.getURL("assets/icons/reward.svg")}
           title="Rewards"
         />
@@ -129,10 +95,7 @@ const Home: FC = () => {
         <Typography
           className={classes.link}
           onClick={() => {
-            window.open(
-              "https://policy.snickerdoodle.com/snickerdoodle-labs-data-privacy-policy",
-              "_blank",
-            );
+            window.open(PRIVACY_POLICY_URL, "_blank");
           }}
         >
           Privacy Policy
