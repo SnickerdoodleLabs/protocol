@@ -1,4 +1,5 @@
 import {
+  DataWalletAddress,
   Invitation,
   MetatransactionSignatureRequest,
   UUID,
@@ -17,6 +18,8 @@ import {
 } from "@shared/interfaces/configProvider";
 import { IInternalState, IExternalState } from "@shared/interfaces/states";
 import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
+import { AccountInitializedNotification } from "@shared/objects/notifications/AccountInitializedNotification";
+import { v4 } from "uuid";
 
 @injectable()
 export class ContextProvider implements IContextProvider {
@@ -29,7 +32,9 @@ export class ContextProvider implements IContextProvider {
   constructor(
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {
-    this.accountContext = new AccountContext(() => {});
+    this.accountContext = new AccountContext(
+      this.onAccountContextInitialized.bind(this),
+    );
     this.appContext = new AppContext();
     this.userContext = new UserContext();
     this.siteContext = new SiteContext();
@@ -109,16 +114,13 @@ export class ContextProvider implements IContextProvider {
 
   public getInternalState(): IInternalState {
     return {
-      walletAccount: this.accountContext.getAccount(),
-      userConnectedAccounts: this.userContext.getAccounts(),
-      pendingActions: this.appContext.getPendingActions(),
-      name: this.userContext.getName(),
-      email: this.userContext.getEmail(),
+      dataWalletAddress: this.accountContext.getAccount(),
     };
   }
 
   public getExterenalState(): IExternalState {
     return {
+      dataWalletAddress: this.accountContext.getAccount(),
       scamList: this.siteContext.getScamList(),
       whiteList: this.siteContext.getWhiteList(),
     };
@@ -128,7 +130,13 @@ export class ContextProvider implements IContextProvider {
     return this.onExtensionError;
   }
 
-  public setAccountContext() {
-    console.log("not implemented");
+  public setAccountContext(dataWalletAddress: DataWalletAddress): void {
+    this.accountContext.initialize(dataWalletAddress);
+  }
+
+  private onAccountContextInitialized(dataWalletAddress: DataWalletAddress) {
+    this.appContext.notifyAllConnections(
+      new AccountInitializedNotification({ dataWalletAddress }, UUID(v4())),
+    );
   }
 }
