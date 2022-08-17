@@ -535,6 +535,36 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                     },
                   },
                 },
+                q7: {
+                  name: "balance",
+                  networkid: "1",
+                  conditions: {
+                      ge: 10
+                  },
+                  return: "array",
+                  array_items: {
+                      type: "object",
+                      object_schema: {
+                          properties: {
+                              networkid: {
+                                  type: "integer"
+                              },
+                              address: {
+                                  type: "string",
+                                  pattern: "^0x[a-fA-F0-9]{40}$"
+                              },
+                              balance: {
+                                  type: "boolean"
+                              }
+                          },
+                          required: [
+                              "networkid",
+                              "address",
+                              "balance"
+                          ]
+                      }
+                  }
+                },
               },
               returns: {
                 r1: {
@@ -561,6 +591,10 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   name: "query_response",
                   query: "q6",
                 },
+                r7: {
+                  name: "query_response",
+                  query: "q7",
+                },
                 url: "https://418e-64-85-231-39.ngrok.io/insights",
               },
               compensations: {
@@ -585,6 +619,7 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   "$r4",
                   "$r5",
                   "$r6",
+                  "$r7",
                 ],
                 compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
               },

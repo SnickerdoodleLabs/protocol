@@ -922,7 +922,16 @@ describe("BalanceQueryEvaluator", () => {
         const result = await repo.eval(balanceQuery);
 
         console.log("Map is: ", result["value"]);
-        expect(result["value"][0]["balance"]).toEqual("25")  
+        console.log("Balance is: ", result["value"][0]["balance"]);
+        console.log("Ticker is: ", result["value"][0]["ticker"]);
+        console.log("ChainId is: ", result["value"][0]["chainId"]);
+        console.log("accountAddress is: ", result["value"][0]["accountAddress"]);
+
+        expect(result["value"][0]["balance"]).toEqual("25")
+        expect(result["value"][0]["ticker"]).toEqual("ETH")  
+        expect(result["value"][0]["chainId"]).toEqual(1)  
+        expect(result["value"][0]["accountAddress"]).toEqual("GOOD2")  
+  
         expect(result["value"].length).toEqual(1)  
     })
     test("Return Query Balance Array - All Chain Id's AND No Conditions", async () => {
