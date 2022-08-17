@@ -50,7 +50,10 @@ export class QueryEvaluator implements IQueryEvaluator {
 
         return this.dataWalletPersistence.getAccountBalances().andThen( (balances) => {
             console.log("balances 1: ", balances);
-            return okAsync(balances.filter((balance) => balance.chainId == q.networkId))
+            if (q.networkId == null){
+                return okAsync(balances);
+            }
+            return okAsync(balances.filter((balance) => balance.chainId == q.networkId));
             //return okAsync(SDQL_Return(networkBalances));
           }
         ).andThen( (networkBalances) => {

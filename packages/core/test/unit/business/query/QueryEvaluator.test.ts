@@ -909,9 +909,7 @@ describe("Return Chain Transaction Count", () => {
 
 
 describe("BalanceQueryEvaluator", () => {
-    test("Return Query Balance Array", async () => {
-
-
+    test("Return Query Balance Array - 1 Chain ID, 20 <= x < 30", async () => {
         const balanceQuery = new AST_BalanceQuery(
             SDQL_Name("q7"),
             "array",
@@ -919,12 +917,27 @@ describe("BalanceQueryEvaluator", () => {
             conditionsGEandL,
         )
         // >= 20 and < 30
-
         const mocks = new QueryEvaluatorMocks();
         const repo = mocks.factory();
         const result = await repo.eval(balanceQuery);
 
         console.log("Map is: ", result["value"]);
         expect(result["value"][0]["balance"]).toEqual("25")  
+        expect(result["value"].length).toEqual(1)  
+    })
+    test("Return Query Balance Array - All Chain Id's AND No Conditions", async () => {
+        const balanceQuery = new AST_BalanceQuery(
+            SDQL_Name("q7"),
+            "array",
+            null,
+            [],
+        )
+        // >= 20 and < 30
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(balanceQuery);
+
+        console.log("Map is: ", result["value"]);
+        expect(result["value"].length).toEqual(4)  
     })
 })
