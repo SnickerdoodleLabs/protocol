@@ -1,10 +1,10 @@
 import "reflect-metadata";
 
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
-import { Age, ChainId, 
+import { Age, BigNumberString, ChainId, 
     CountryCode,
-    EVMAccountAddress, EVMChainCode, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken, Gender, SDQL_Name, SDQL_OperatorName, URLString } from "@objects/primitives";
-import { EVMBlockRange } from "@snickerdoodlelabs/objects";
+    EVMAccountAddress, EVMChainCode, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken, Gender, SDQL_Name, SDQL_OperatorName, TickerSymbol, URLString } from "@objects/primitives";
+import { EVMBlockRange, IEVMBalance } from "@snickerdoodlelabs/objects";
 import { UnixTimestamp } from "@objects/primitives";
 import { EVMTransaction, EVMTransactionFilter, IDataWalletPersistence } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
@@ -20,6 +20,7 @@ import {
   ConditionL,
   ConditionLE,
 } from "@core/interfaces/objects";
+import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -54,6 +55,45 @@ class QueryEvaluatorMocks {
     public transactionsMap = new Map<ChainId, number>([
         [ChainId(1), 10]
     ]);
+/*
+    IEVMBalance IEVMBalance {
+        ticker: TickerSymbol;
+        chainId: ChainId;
+        accountAddress: EVMAccountAddress;
+        balance: BigNumberString;
+      }
+    evmB1 = IEVMBalance()
+*/
+
+
+    public accountBalances = new Array<IEVMBalance>(
+        {
+            ticker: TickerSymbol("ETH"),
+            chainId: ChainId(1),
+            accountAddress: EVMAccountAddress("GOOD1"),
+            balance: BigNumberString("18")
+        },
+        {
+            ticker: TickerSymbol("ETH"),
+            chainId: ChainId(1),
+            accountAddress: EVMAccountAddress("GOOD2"),
+            balance: BigNumberString("25")
+        },
+        {
+            ticker: TickerSymbol("BLAH"),
+            chainId: ChainId(901398),
+            accountAddress: EVMAccountAddress("BAD"),
+            balance: BigNumberString("26")
+        },
+        {
+            ticker: TickerSymbol("ETH"),
+            chainId: ChainId(1),
+            accountAddress: EVMAccountAddress("GOOD3"),
+            balance: BigNumberString("36")
+        },
+
+    );
+    
 
     public constructor() {  
         this.dataWalletPersistence.setAge(Age(25));
@@ -80,6 +120,11 @@ class QueryEvaluatorMocks {
         td.when(this.dataWalletPersistence.getTransactionsMap())
         .thenReturn(
             okAsync(this.transactionsMap),
+        );
+
+        td.when(this.dataWalletPersistence.getAccountBalances())
+        .thenReturn(
+            okAsync(this.accountBalances),
         );
 
         
@@ -793,5 +838,27 @@ describe("Return Chain Transaction Count", () => {
             [ChainId(1), 10]
         ])
         )
+    })
+})
+
+
+describe("BalanceQueryEvaluator", () => {
+    test("Return Query Balance Array", async () => {
+
+
+        const balanceQuery = new AST_BalanceQuery(
+            SDQL_Name("q7"),
+            "array",
+            ChainId(1),
+            conditionsGEandL,
+        )
+        // >= 20 and < 30
+
+        const mocks = new QueryEvaluatorMocks();
+        const repo = mocks.factory();
+        const result = await repo.eval(balanceQuery);
+
+        console.log("Map is: ", result["value"]);
+        expect(result["value"][0]["balance"]).toEqual("25")  
     })
 })

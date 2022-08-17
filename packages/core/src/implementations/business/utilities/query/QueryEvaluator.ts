@@ -16,17 +16,22 @@ import {
     ConditionIn, ConditionL,
     ConditionLE
 } from "@core/interfaces/objects";
+import { IEVMBalance } from "@snickerdoodlelabs/objects";
 import { EVMAccountAddress, EVMTransactionFilter } from "@snickerdoodlelabs/objects";
+import { BalanceQueryEvaluator } from "./BalanceQueryEvaluator";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
     constructor(
         @inject(IDataWalletPersistenceType)
         protected dataWalletPersistence: IDataWalletPersistence,
-    ) {}
+    ) {
+        
+    }
 
     protected age: Age = Age(0);
     protected location: CountryCode = CountryCode("12345");
+    protected balanceQueryEval: BalanceQueryEvaluator = new BalanceQueryEvaluator(this.dataWalletPersistence);
 
     public eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
     // All the switch statements here
@@ -42,7 +47,17 @@ export class QueryEvaluator implements IQueryEvaluator {
     }
 
     public evalBalanceQuery(q: AST_BalanceQuery): ResultAsync<SDQL_Return, PersistenceError> {
-        return errAsync(new PersistenceError("evalBalanceQuery not implemented"))
+
+        return this.dataWalletPersistence.getAccountBalances().andThen( (balances) => {
+            console.log("balances 1: ", balances);
+            return okAsync(balances.filter((balance) => balance.chainId == q.networkId))
+            //return okAsync(SDQL_Return(networkBalances));
+          }
+        ).andThen( (networkBalances) => {
+            console.log("balances 2: ", networkBalances);
+            return okAsync(this.balanceQueryEval.evalConditions(q.conditions, networkBalances));
+        })
+        //return errAsync(new PersistenceError("evalBalanceQuery not implemented"))
     }
    
     public evalNetworkQuery(q: AST_NetworkQuery): ResultAsync<SDQL_Return, PersistenceError> {
