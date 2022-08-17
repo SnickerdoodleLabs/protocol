@@ -1,4 +1,6 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
+import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -9,6 +11,7 @@ import {
   VolatileTableIndex,
 } from "@persistence/volatile/IVolatileStorageTable";
 
+@injectable()
 export class IndexedDBFactory implements IVolatileStorageFactory {
   getStore(
     config: VolatileTableConfig,
@@ -32,12 +35,10 @@ export class IndexedDB implements IVolatileStorageTable {
       return okAsync(this._db!);
     }
 
-    if (!indexedDB) {
-      return errAsync(new PersistenceError("indexed db not supported"));
-    }
+    const idb = this._getIDBFactory();
 
     const schema = this.schema;
-    const request = indexedDB.open(this.name);
+    const request = idb.open(this.name);
     const promise = new Promise<IDBDatabase>(function (resolve, reject) {
       request.onsuccess = (_ev) => {
         resolve(request.result);
@@ -74,8 +75,18 @@ export class IndexedDB implements IVolatileStorageTable {
     });
   }
 
+  private _getIDBFactory(): IDBFactory {
+    if (typeof indexedDB === "undefined") {
+      return fakeIndexedDB;
+    }
+    return indexedDB;
+  }
+
   public persist(): ResultAsync<boolean, PersistenceError> {
-    if (!(navigator.storage && navigator.storage.persist)) {
+    if (
+      typeof navigator === "undefined" ||
+      !(navigator.storage && navigator.storage.persist)
+    ) {
       return okAsync(false);
     }
 
