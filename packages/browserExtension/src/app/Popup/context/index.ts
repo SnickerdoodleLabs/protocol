@@ -1,2 +1,1 @@
-// TODO alias
-export * from "./App";
+export * from "@app/Popup/context/App";
