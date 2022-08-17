@@ -6,7 +6,7 @@
 
 graph TD;
     DW["Data Wallet Repository"]-->QR["Query Repository #40;Cache#41;"];
-    QR-->ASTE["AST Evaluator"];
+    QR-->ASTE["AST Evaluator"]-->Results["Results to the insight platform"];
     
 ```
 
@@ -14,13 +14,20 @@ graph TD;
 
 ```mermaid
 flowchart TD;
-    QP["Query Service"]--AST-->ASTE["AST Evaluator"]--Query-->QR["Query Repository #40;Cache#41;"];
+    QP["Query Service"]--handleQuery-->QPE["Query Parsing Engine"]--query schema-->SDQLParser["SDQLParser"];
+    
+    SDQLParser["SDQLParser"]--AST-->ASTE["AST Evaluator"]--Query-->QR["Query Repository #40;Cache#41;"];
     QR --> Cache{"In cache?"}
     Cache -- Yes --> QR
     Cache -- No --> QEVAL["Query Evaluator"] --> DW["Data Wallet Repository"]
     QEVAL --Data --> QR
 ```
 
+## Three phases of execution
+```mermaid
+flowchart TD
+    A["Build ast from a query schema"]--AST-->B["Evaluate logic and compensation expressions"]--insighs and rewards-->C["Deliver insights and rewards"];
+```
 
 ## AST
 
