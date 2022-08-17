@@ -30,7 +30,7 @@ flowchart TD
 ```
 
 ## AST
-
+ASTs are objects that can be executed.
 ### Examples
 1. **if($q1and$q2and$q3)then$r1else$r2**
 
