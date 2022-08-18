@@ -234,6 +234,11 @@ export class RpcCallHandler implements IRpcCallHandler {
 
       case EInternalActions.GET_STATE:
         return (res.result = this.contextProvider.getInternalState());
+      // TODO move it to correct place
+      case EExternalActions.GET_DATA_WALLET_ADDRESS:
+        return (res.result = this.contextProvider
+          .getAccountContext()
+          .getAccount());
       case EInternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED:
       case EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED: {
         return new AsyncRpcResponseSender(
