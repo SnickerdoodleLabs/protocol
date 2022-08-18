@@ -77,7 +77,13 @@ export class ExtensionCore {
     } as IConfigOverrides;
     const ajax = new AxiosAjaxUtils();
 
-    this.core = new SnickerdoodleCore(coreConfig);
+    this.core = new SnickerdoodleCore(
+      coreConfig,
+      undefined,
+      undefined,
+      undefined,
+      new ChromeStorageUtils(),
+    );
 
     // Make the core directly injectable
     this.iocContainer.bind(ISnickerdoodleCoreType).toConstantValue(this.core);
