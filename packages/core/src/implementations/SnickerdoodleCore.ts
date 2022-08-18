@@ -62,9 +62,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
+  IndexedDBFactory,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
-  IndexedDBFactory,
 } from "@snickerdoodlelabs/persistence";
 import {
   ChromeStorageUtils,
