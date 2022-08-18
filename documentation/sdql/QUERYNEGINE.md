@@ -19,7 +19,7 @@ graph TD;
     QR[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>Query Service</a>]
     ASTE[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>AST Evaluator</a>]
     PL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/persistence/src/DataWalletPersistence.ts'>Persistence Layer</a>]
-    AS["Aggregation Service"]
+    AS[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/README.md#high-level-architecture'>Aggregation Service</a>]
     CC-->|requestForData event|DW;
     DW-->|detect requestForData & CID|QR;
     QR-->|parse query contents|ASTE-->|permissioned access|PL;
