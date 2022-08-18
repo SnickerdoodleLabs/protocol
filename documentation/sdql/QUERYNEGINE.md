@@ -42,7 +42,7 @@ function to the aggregation url specified the query's SDQL JSON file.
 flowchart TD;
     QP[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>Query Service</a>]
     ASTE[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>AST Evaluator</a>]
-    QR[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/utilities/query/QueryRepository.ts'>Query Repository (Cache)</a>]
+    QR[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/utilities/query/QueryRepository.ts'>Query Repository - Cache</a>]
     QEVAL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/utilities/query/QueryEvaluator.ts'>Query Evaluator</a>]
     PL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/persistence/src/DataWalletPersistence.ts'>Persistence Layer</a>]
     QP-- parsing -->ASTE-- tokenization -->QR;
