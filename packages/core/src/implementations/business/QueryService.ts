@@ -66,9 +66,12 @@ export class QueryService implements IQueryService {
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
-    @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IContextProviderType) 
+    protected contextProvider: IContextProvider,
+    @inject(IConfigProviderType) 
+    protected configProvider: IConfigProvider,
+    @inject(ICryptoUtilsType) 
+    protected cryptoUtils: ICryptoUtils,
   ) {}
 
   public onQueryPosted(

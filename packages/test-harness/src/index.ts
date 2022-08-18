@@ -106,12 +106,16 @@ core.getEvents().map(async (events) => {
       `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
     );
 
+    let val = queryRequest.query.query;
+    console.log("Val: ", val);
+    /*
     const queryPretty = JSON.stringify(
-      JSON.parse(queryRequest.query.query),
+      (queryRequest.query.query),
       null,
       2,
     );
     console.log(queryPretty);
+    */
     // console.log(queryRequest.query);
 
     prompt([

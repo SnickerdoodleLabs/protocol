@@ -46,7 +46,7 @@ export class ConfigProvider
       [ChainId(42), ChainId(43113)], //supported chains (kovan, fuji)
       chainConfig,
       controlChainInformation,
-      URLString("http://localhost:8080/ipfs"), // ipfsFetchBaseUrl
+      URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
       snickerdoodleSigningDomain, // snickerdoodleProtocolDomain
       5000, // polling interval indexing,

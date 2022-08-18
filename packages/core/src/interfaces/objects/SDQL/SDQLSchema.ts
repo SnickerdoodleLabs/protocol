@@ -6,8 +6,9 @@ export class SDQLSchema {
   constructor(readonly internalObj: Object) {}
 
   static fromString(s: string): SDQLSchema {
-    const obj = JSON.parse(s);
-    return new SDQLSchema(obj);
+    console.log("S: ", s)
+    //const obj = JSON.parse(s);
+    return new SDQLSchema(s);
   }
 
   public get version(): string {

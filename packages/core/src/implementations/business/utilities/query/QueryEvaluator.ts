@@ -19,13 +19,14 @@ import {
 import { IEVMBalance } from "@snickerdoodlelabs/objects";
 import { EVMAccountAddress, EVMTransactionFilter } from "@snickerdoodlelabs/objects";
 import { BalanceQueryEvaluator } from "./BalanceQueryEvaluator";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IBalanceQueryEvaluator, IBalanceQueryEvaluatorType } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
     constructor(
         @inject(IDataWalletPersistenceType)
         protected dataWalletPersistence: IDataWalletPersistence,
+        @inject(IBalanceQueryEvaluatorType)
         protected balanceQueryEvaluator: IBalanceQueryEvaluator
     ) {
         
