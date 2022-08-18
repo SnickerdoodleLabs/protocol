@@ -49,6 +49,7 @@ export class CoreListener implements ICoreListener {
   }
 
   private onAccountAdded(account: EVMAccountAddress) {
+    this.contextProvider.addAccount(account);
     console.log("onAccountAdded", account);
     return okAsync(undefined);
   }
