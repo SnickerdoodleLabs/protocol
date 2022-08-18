@@ -15,10 +15,10 @@ in the associated consent contract). The primary components of the Query Service
 ```mermaid
 
 graph TD;
-    DW[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/core/src/implementations/SnickerdoodleCore.ts'>Snickerdoodle Core Service</a>]
-    QR[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/core/src/implementations/business/QueryService.ts'>Query Service</a>]
-    ASTE[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/core/src/implementations/business/QueryService.ts'>AST Evaluator</a>]
-    PL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/persistence/src/DataWalletPersistence.ts'>Persistence Layer</a>]
+    DW[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/SnickerdoodleCore.ts'>Snickerdoodle Core Service</a>]
+    QR[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>Query Service</a>]
+    ASTE[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>AST Evaluator</a>]
+    PL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/persistence/src/DataWalletPersistence.ts'>Persistence Layer</a>]
     DW-->|detect requestForData & CID|QR;
     QR-->|parse query contents|ASTE-->|permissioned access|PL;
     
@@ -40,11 +40,16 @@ function to the aggregation url specified the query's SDQL JSON file.
 
 ```mermaid
 flowchart TD;
-    QP["Query Service"]--AST-->ASTE["AST Evaluator"]--Query-->QR["Query Repository #40;Cache#41;"];
+    QP[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>Query Service</a>]
+    ASTE[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>AST Evaluator</a>]
+    QR[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/utilities/query/QueryRepository.ts'>Query Repository #40;Cache#41;</a>]
+    QEVAL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/utilities/query/QueryEvaluator.ts'>Query Evaluator</a>]
+    PL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/persistence/src/DataWalletPersistence.ts'>Persistence Layer</a>]
+    QP-- parsing -->ASTE-- tokenization -->QR;
     QR --> Cache{"In cache?"}
     Cache -- Yes --> QR
-    Cache -- No --> QEVAL["Query Evaluator"] --> DW["Data Wallet Repository"]
-    QEVAL --Data --> QR
+    Cache -- No --> QEVAL -- permissions --> PL
+    QEVAL -- Data --> QR
 ```
 
 
