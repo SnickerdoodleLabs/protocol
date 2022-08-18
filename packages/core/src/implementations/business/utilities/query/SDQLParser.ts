@@ -65,6 +65,8 @@ export class SDQLParser {
     this.parseCompensations();
 
     this.parseLogic();
+
+    this.parsePermissions();
   }
 
   buildAST(): AST {
@@ -185,15 +187,6 @@ export class SDQLParser {
     );
   }
 
-  // private parseLogicReturns(logicSchema: Array<string>): Map<string, AST_Expr> {
-  //     let lrs = new Map<string, AST_Expr>();
-  //     for (let expStr of logicSchema) {
-  //         let exp = this.parseExpString(expStr);
-  //         lrs.set(expStr, exp)
-
-  //     }
-  //     return lrs;
-  // }
 
   private parseLogicExpressions(
     expressions: Array<string>,
@@ -207,5 +200,17 @@ export class SDQLParser {
     return lrs;
   }
 
+  private parsePermissions() {
+    const logicSchema = this.schema.getLogicSchema();
+    this.returnPermissions = this.parseLogicPermissions(logicSchema['returns']);
+    this.compenstationPermissions = this.parseLogicPermissions(logicSchema['compensations']);
+
+  }
+
+  private parseLogicPermissions(
+    expressions: Array<string>,
+  ): Map<string, DataPermissions> {
+    return new Map();
+  }
   // #endregion
 }
