@@ -11,6 +11,7 @@ import { ResultAsync } from "neverthrow";
 import React, {
   createContext,
   FC,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -61,7 +62,7 @@ export const AppContextProvider: FC = ({ children }) => {
     }
   }, [isLoading]);
 
-  const onWalletConnected = () => {
+  const onWalletConnected = useCallback(() => {
     // Phantom wallet can not initiate window phantom object at time
     setSDLDataWalletDetected(true);
     setTimeout(() => {
@@ -70,7 +71,7 @@ export const AppContextProvider: FC = ({ children }) => {
       setIsLoading(false);
       getUserAccounts();
     }, 500);
-  };
+  }, []);
 
   const getUserAccounts = () => {
     return window.sdlDataWallet.getAccounts().map((accounts) => {
