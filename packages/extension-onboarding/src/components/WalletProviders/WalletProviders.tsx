@@ -136,16 +136,6 @@ const WalletProviders: FC = () => {
               });
           });
         });
-      })
-      .map(() => {
-        addAccount({
-          accountAddress: pendingMetatransaction.data.accountAddress,
-          providerKey: providerObj.key,
-        });
-        setAlert({
-          message: ALERT_MESSAGES.ACCOUNT_ADDED,
-          severity: EAlertSeverity.SUCCESS,
-        });
       });
   };
 

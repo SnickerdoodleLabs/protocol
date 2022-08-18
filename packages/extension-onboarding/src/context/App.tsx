@@ -1,4 +1,9 @@
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import {
+  ALERT_MESSAGES,
+  EWalletProviderKeys,
+} from "@extension-onboarding/constants";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import {
   getProviderList,
   IProvider,
@@ -6,7 +11,10 @@ import {
 import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
 import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
+import {
+  DataWalletAddress,
+  EVMAccountAddress,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import React, {
   createContext,
@@ -20,6 +28,11 @@ import React, {
 export interface ILinkedAccount {
   providerKey: EWalletProviderKeys;
   accountAddress: EVMAccountAddress;
+}
+
+export enum EAppModes {
+  ONBOARDING_FLOW = "ONBOARDING_FLOW",
+  AUTHENTICATED_FLOW = "AUTHENTICATED_FLOW",
 }
 
 export interface IAppContext {
@@ -45,6 +58,9 @@ export const AppContextProvider: FC = ({ children }) => {
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
+  const [appMode, setAppMode] = useState<EAppModes>();
+  const { setAlert } = useLayoutContext();
+  console.log({ appMode });
 
   useEffect(() => {
     document.addEventListener(
@@ -62,14 +78,75 @@ export const AppContextProvider: FC = ({ children }) => {
     }
   }, [isLoading]);
 
+  useEffect(() => {
+    if (isSDLDataWalletDetected) {
+    }
+  }, [isSDLDataWalletDetected]);
+
+  const checkDataWalletAddressAndInitializeApp = () => {
+    window?.sdlDataWallet?.getDataWalletAddress().map((dataWalletAddress) => {
+      if (dataWalletAddress) {
+        getUserAccounts();
+        subscribeToAccountAdding();
+        if (
+          sessionStorage.getItem("appMode") ===
+          EAppModes.ONBOARDING_FLOW.toString()
+        ) {
+          setAppMode(EAppModes.ONBOARDING_FLOW);
+        } else {
+          setAppMode(EAppModes.AUTHENTICATED_FLOW);
+        }
+      } else {
+        subscribeToAccountInitiating();
+        subscribeToAccountAdding();
+        sessionStorage.setItem("appMode", EAppModes.ONBOARDING_FLOW.toString());
+        setAppMode(EAppModes.ONBOARDING_FLOW);
+      }
+    });
+  };
+
+  const subscribeToAccountAdding = () => {
+    window?.sdlDataWallet?.on("onAccountAdded", onAccountAdded);
+  };
+
+  const subscribeToAccountInitiating = () => {
+    window?.sdlDataWallet?.on("onAccountInitialized", onAccountInitialized);
+  };
+
+  const onAccountInitialized = (notification: {
+    data: { dataWalletAddress: DataWalletAddress };
+  }) => {
+    getUserAccounts().map(() => {
+      setAlert({
+        message: ALERT_MESSAGES.ACCOUNT_ADDED,
+        severity: EAlertSeverity.SUCCESS,
+      });
+    });
+  };
+
+  const onAccountAdded = (notification: {
+    data: { accountAddress: EVMAccountAddress };
+  }) => {
+    addAccount({
+      accountAddress: notification.data.accountAddress,
+      providerKey:
+        localStorage.getItem(`${notification.data.accountAddress}`) ?? null,
+    } as ILinkedAccount);
+    setAlert({
+      message: ALERT_MESSAGES.ACCOUNT_ADDED,
+      severity: EAlertSeverity.SUCCESS,
+    });
+  };
+
   const onWalletConnected = useCallback(() => {
     // Phantom wallet can not initiate window phantom object at time
     setSDLDataWalletDetected(true);
+    checkDataWalletAddressAndInitializeApp();
     setTimeout(() => {
+      checkDataWalletAddressAndInitializeApp();
       const providerList = getProviderList();
       setProviderList(providerList);
       setIsLoading(false);
-      getUserAccounts();
     }, 500);
   }, []);
 
