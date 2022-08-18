@@ -5,7 +5,7 @@ import {
 } from "@extension-onboarding/services/blockChainWalletProviders";
 import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
 import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import React, {
