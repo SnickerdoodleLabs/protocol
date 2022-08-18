@@ -16,7 +16,7 @@ import {
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
-import { InsightString } from "@core/interfaces/objects";
+import { AST, InsightString } from "@core/interfaces/objects";
 import {
   IQueryFactories,
   IQueryFactoriesType,
@@ -54,7 +54,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     EvaluationError | QueryFormatError
   > {
     const insights: Array<InsightString> = [];
-    const insightMap: Map<string, SDQL_Return | string> = new Map();
     const rewards: EligibleReward[] = [];
 
     const schemaString = query.query;
@@ -62,57 +61,53 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     const cid: IpfsCID = query.cid;
 
     const sdqlParser = this.queryFactories.makeParser(cid, schemaString);
-    const logicSchema = sdqlParser.schema.getLogicSchema();
-    const ast = sdqlParser.buildAST();
+    // const ast = sdqlParser.buildAST();
+    return sdqlParser.buildAST().andThen((ast:AST) => {
 
-    const astEvaluator = this.queryFactories.makeAstEvaluator(
-      cid,
-      ast,
-      this.queryRepository,
-    );
-    // console.log("line 59", "made ast and evaluator");
-
-    const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
-    const comp_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
-
-    for (const returnStr of ast.logic.returns.keys()) {
-      // console.log("line 62", returnStr);
-      //console.log("returnStr: ", returnStr);
-      //console.log("returnStr-returns: ", ast.logic.returns.get(returnStr));
-      const result = astEvaluator.evalAny(ast.logic.returns.get(returnStr));
-
-      //console.log("Result: ", okAsync(result));
-      insight_results.push(result);
-    }
-
-    for (const compStr of ast.logic.compensations.keys()) {
-      // console.log("line 62", returnStr);
-      //console.log("compStr: ", compStr);
-      //console.log("compStr-returns: ", ast.logic.compensations.get(compStr));
-      const result = astEvaluator.evalAny(ast.logic.compensations.get(compStr));
-
-      //console.log("Result: ", okAsync(result));
-      comp_results.push(result);
-    }
-
-    const resultList = [insight_results, comp_results];
-
-    return ResultUtils.combine(insight_results).andThen((insighResults) => {
-      // console.log(insighResults);
-
-      for (const sdqlR of insighResults) {
-        insights.push(InsightString(sdqlR as string));
+      const astEvaluator = this.queryFactories.makeAstEvaluator(
+        cid,
+        ast,
+        this.queryRepository,
+      );
+      
+  
+      const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
+      const comp_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
+  
+      for (const returnStr of ast.logic.returns.keys()) {
+        
+        const result = astEvaluator.evalAny(ast.logic.returns.get(returnStr));
+        insight_results.push(result);
+  
       }
-      /*
-      for (const sdqlR of insighResults) {
-        rewards.push(new EligibleReward(sdqlR as string, URLString(sdqlR as string)));
+  
+      for (const compStr of ast.logic.compensations.keys()) {
+        
+        const result = astEvaluator.evalAny(ast.logic.compensations.get(compStr));
+        comp_results.push(result);
+        
       }
-      */
+  
+      const resultList = [insight_results, comp_results];
+  
+      return ResultUtils.combine(insight_results).andThen((insighResults) => {
+        // console.log(insighResults);
+  
+        for (const sdqlR of insighResults) {
+          insights.push(InsightString(sdqlR as string));
+        }
+        /*
+        for (const sdqlR of insighResults) {
+          rewards.push(new EligibleReward(sdqlR as string, URLString(sdqlR as string)));
+        }
+        */
+  
+        return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([
+          insights,
+          rewards,
+        ]);
+      });
+    })
 
-      return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([
-        insights,
-        rewards,
-      ]);
-    });
   }
 }

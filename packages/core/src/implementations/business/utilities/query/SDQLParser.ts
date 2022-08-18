@@ -7,6 +7,7 @@ import {
   Version,
   DuplicateIdInSchema,
   ReturnNotImplementedError,
+  ParserError,
 } from "@snickerdoodlelabs/objects";
 
 import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
@@ -24,6 +25,7 @@ import {
   Command,
   SDQLSchema,
 } from "@core/interfaces/objects";
+import { okAsync, ResultAsync } from "neverthrow";
 
 export class SDQLParser {
   context: Map<string, any> = new Map();
@@ -62,17 +64,19 @@ export class SDQLParser {
     this.parseLogic();
   }
 
-  buildAST(): AST {
+  buildAST(): ResultAsync<AST, ParserError> {
     this.parse();
 
-    return new AST(
-      Version(this.schema["version"]),
-      this.schema["description"],
-      this.schema["business"],
-      this.queries,
-      this.returns,
-      this.compensations,
-      new AST_Logic(this.logicReturns, this.logicCompensations),
+    return okAsync(
+      new AST(
+        Version(this.schema["version"]),
+        this.schema["description"],
+        this.schema["business"],
+        this.queries,
+        this.returns,
+        this.compensations,
+        new AST_Logic(this.logicReturns, this.logicCompensations),
+      )
     );
   }
 
