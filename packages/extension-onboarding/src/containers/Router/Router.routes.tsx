@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import Onboarding from "@extension-onboarding/pages/Onboarding";
+import Details from "@extension-onboarding/pages/Details";
 
 interface IRoute {
   path: string;
@@ -23,7 +24,7 @@ export const OnboardingRoutes: IRoute[] = [
 export const AuthRequiredRoutes: IRoute[] = [
   {
     path: EPaths.HOME,
-    component: <p>testing</p>,
+    component: <Details />,
     name: "Home",
   },
 ];
