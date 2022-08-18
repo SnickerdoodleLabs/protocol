@@ -1,5 +1,5 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
-import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
+import { indexedDB as fakeIndexedDB, IDBKeyRange } from "fake-indexeddb";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -69,7 +69,7 @@ export class IndexedDB implements IVolatileStorageTable {
       this._db = db;
       this._initialized = true;
       return this.persist().andThen((persisted) => {
-        console.log("Local storage persisted: " + persisted);
+        // console.log("Local storage persisted: " + persisted);
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return okAsync(this._db!);
       });
