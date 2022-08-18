@@ -93,7 +93,7 @@ export class SDQLParser {
             .andThen(() => {
 
               return this.parseLogic();
-
+              
             });
 
           });
@@ -303,11 +303,26 @@ export class SDQLParser {
     return lrs;
   }
 
+<<<<<<< HEAD
   public parseExpString(expStr: string): AST_Expr | Command {
     return this.exprParser!.parse(expStr);
     // if (this.exprParser) return this.exprParser.parse(expStr);
     // throw new Error("Expression Parser not found.");
   }
 
+=======
+  private parsePermissions() {
+    const logicSchema = this.schema.getLogicSchema();
+    this.returnPermissions = this.parseLogicPermissions(logicSchema['returns']);
+    this.compenstationPermissions = this.parseLogicPermissions(logicSchema['compensations']);
+
+  }
+
+  private parseLogicPermissions(
+    expressions: Array<string>,
+  ): Map<string, DataPermissions> {
+    return new Map();
+  }
+>>>>>>> Update SDQLParser.ts
   // #endregion
 }
