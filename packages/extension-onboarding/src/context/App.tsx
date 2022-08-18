@@ -44,6 +44,7 @@ export interface IAppContext {
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: ILinkedAccount): void;
   changeStepperStatus: (status: string) => void;
+  appMode: EAppModes | undefined;
   stepperStatus: number;
 }
 
@@ -190,6 +191,7 @@ export const AppContextProvider: FC = ({ children }) => {
         isSDLDataWalletDetected,
         linkedAccounts,
         getUserAccounts,
+        appMode,
         addAccount,
         stepperStatus,
         changeStepperStatus,
