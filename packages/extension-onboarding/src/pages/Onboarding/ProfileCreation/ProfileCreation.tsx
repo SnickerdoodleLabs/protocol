@@ -5,7 +5,7 @@ import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { ALERT_MESSAGES } from "@extension-onboarding/constants";
 import { countries } from "@extension-onboarding/constants/countries";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
   googleScopes,
   clientID,
@@ -35,7 +35,7 @@ import * as yup from "yup";
 const ProfileCreation: FC = () => {
   const { changeStepperStatus, apiGateway, dataWalletGateway } =
     useAppContext();
-  const { setAlert } = useLayoutContext();
+  const { setAlert } = useNotificationContext();
   const [isGoogleButtonVisible, setGoogleButtonVisible] = useState(true);
   const [formValues, setFormValues] = useState<PII>(new PII());
 

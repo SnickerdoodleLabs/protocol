@@ -45,7 +45,7 @@ const WalletProviders: FC = () => {
   const [loading, setIsloading] = useState(false);
   const [selectedProviderKey, setSelectedProviderKey] =
     useState<EWalletProviderKeys>();
-  const { setAlert, setModal } = useLayoutContext();
+  const { setModal } = useLayoutContext();
 
   useEffect(() => {
     window.sdlDataWallet.on(

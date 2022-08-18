@@ -3,7 +3,7 @@ import {
   ALERT_MESSAGES,
   EWalletProviderKeys,
 } from "@extension-onboarding/constants";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
   getProviderList,
   IProvider,
@@ -60,7 +60,7 @@ export const AppContextProvider: FC = ({ children }) => {
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
   const [appMode, setAppMode] = useState<EAppModes>();
-  const { setAlert } = useLayoutContext();
+  const { setAlert } = useNotificationContext();
   console.log({ appMode });
 
   useEffect(() => {
