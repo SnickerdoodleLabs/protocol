@@ -1,5 +1,6 @@
 import {
   DataWalletAddress,
+  EVMAccountAddress,
   Invitation,
   MetatransactionSignatureRequest,
   UUID,
@@ -19,6 +20,7 @@ import {
 import { IInternalState, IExternalState } from "@shared/interfaces/states";
 import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
 import { AccountInitializedNotification } from "@shared/objects/notifications/AccountInitializedNotification";
+import { AccountAddedNotification } from "@shared/objects/notifications/AccountAddedNotification";
 import { v4 } from "uuid";
 
 @injectable()
@@ -129,6 +131,13 @@ export class ContextProvider implements IContextProvider {
   public getErrorSubject(): Subject<Error> {
     return this.onExtensionError;
   }
+
+  // TODO move it to service layer
+  public addAccount = (accountAddress: EVMAccountAddress) => {
+    this.appContext.notifyAllConnections(
+      new AccountAddedNotification({ accountAddress }, UUID(v4())),
+    );
+  };
 
   public setAccountContext(dataWalletAddress: DataWalletAddress): void {
     this.accountContext.initialize(dataWalletAddress);
