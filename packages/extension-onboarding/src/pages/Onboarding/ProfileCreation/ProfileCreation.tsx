@@ -25,7 +25,6 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
-import { Age, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Select, TextField, RadioGroup } from "formik-material-ui";
 import { gapi } from "gapi-script";
@@ -34,7 +33,7 @@ import { GoogleLogin } from "react-google-login";
 import * as yup from "yup";
 
 const ProfileCreation: FC = () => {
-  const { changeStepperStatus, addUserObject, apiGateway, dataWalletGateway } =
+  const { changeStepperStatus, apiGateway, dataWalletGateway } =
     useAppContext();
   const { setAlert } = useLayoutContext();
   const [isGoogleButtonVisible, setGoogleButtonVisible] = useState(true);

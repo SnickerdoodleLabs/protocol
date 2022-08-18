@@ -1,6 +1,18 @@
+import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
+import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
+import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
+import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
+import polygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
+import BalanceItem from "@extension-onboarding/components/BalanceItem/";
+import { useStyles } from "@extension-onboarding/components/Modals/ViewDetailsModal/ViewDetailsModal.style";
+import NFTItem from "@extension-onboarding/components/NFTItem";
+import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
 import {
   Box,
-  Button,
   CircularProgress,
   Grid,
   MenuItem,
@@ -8,27 +20,13 @@ import {
   Select,
   Typography,
 } from "@material-ui/core";
-import React, { FC, useEffect, useState } from "react";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { useAppContext } from "@extension-onboarding/context/App";
-import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
-import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
-import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
-import polygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
-import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import {
   EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
-  TickerSymbol,
 } from "@snickerdoodlelabs/objects";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
-import BalanceItem from "@extension-onboarding/components/BalanceItem/";
 import { ethers } from "ethers";
-import NFTItem from "@extension-onboarding/components/NFTItem";
-import { useStyles } from "@extension-onboarding/components/Modals/ViewDetailsModal/ViewDetailsModal.style";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import React, { FC, useEffect, useState } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
@@ -36,10 +34,6 @@ export interface IAccountBalanceObject {
 }
 export interface IAccountNFTsObject {
   [id: EVMAccountAddress]: IEVMNFT[];
-}
-
-export interface IAccountTickerObject {
-  [id: TickerSymbol]: IEVMBalance[];
 }
 
 const ViewDetailsModal: FC = () => {
@@ -52,30 +46,41 @@ const ViewDetailsModal: FC = () => {
     AVAX: 24.22,
   };
 
-  const { linkedAccounts, viewDetailsAccountAddress } = useAppContext();
+  const { linkedAccounts } = useAppContext();
   const [accountBalances, setAccountBalances] =
     useState<IAccountBalanceObject>();
-  const [accountNFTs, setAccountNFTs] = useState<any>();
+  const [accountNFTs, setAccountNFTs] = useState<IAccountNFTsObject>();
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isBalancesLoading, setIsBalancesLoading] = useState(true);
+  const [isNFTsLoading, setIsNFTsLoading] = useState(true);
   const [accountSelect, setAccountSelect] = useState<EVMAccountAddress>(
     account?.accountAddress,
   );
   const [chainSelect, setChainSelect] = useState("1");
 
   useEffect(() => {
-    initiliaze();
+    initializeBalances();
+    initializeNfts();
   }, []);
 
   useEffect(() => {
     if (accountBalances) {
-      setIsLoading(false);
+      setIsBalancesLoading(false);
     }
-  }, [accountBalances]);
+  }, [JSON.stringify(accountBalances)]);
 
-  const initiliaze = () => {
+  useEffect(() => {
+    if (accountNFTs) {
+      setIsNFTsLoading(false);
+    }
+  }, [JSON.stringify(accountNFTs)]);
+
+  const initializeBalances = async () => {
     window.sdlDataWallet
       .getAccountBalances()
+      .mapErr((e) => {
+        setIsBalancesLoading(false);
+      })
       .map((result) => {
         const structeredBalances = result.reduce((acc, item) => {
           if (acc[item.accountAddress]) {
@@ -86,19 +91,25 @@ const ViewDetailsModal: FC = () => {
           return acc;
         }, {} as IAccountBalanceObject);
         setAccountBalances(structeredBalances);
+      });
+  };
+
+  const initializeNfts = () => {
+    window.sdlDataWallet
+      .getAccountNFTs()
+      .mapErr((e) => {
+        setIsNFTsLoading(false);
       })
-      .andThen(() => {
-        return window.sdlDataWallet.getAccountNFTs().map((result) => {
-          const structeredNFTs = result.reduce((acc, item) => {
-            if (acc[item.owner]) {
-              acc[item.owner] = [...acc[item.owner], item];
-            } else {
-              acc[item.owner] = [item];
-            }
-            return acc;
-          }, {} as IAccountNFTsObject);
-          setAccountNFTs(structeredNFTs);
-        });
+      .map((result) => {
+        const structeredNFTs = result.reduce((acc, item) => {
+          if (acc[item.owner]) {
+            acc[item.owner] = [...acc[item.owner], item];
+          } else {
+            acc[item.owner] = [item];
+          }
+          return acc;
+        }, {} as IAccountNFTsObject);
+        setAccountNFTs(structeredNFTs);
       });
   };
 
@@ -125,11 +136,11 @@ const ViewDetailsModal: FC = () => {
           display="flex"
           justifyContent="center"
           style={{
+            overflowY: "scroll",
             width: "100%",
             height: "100%",
             position: "absolute",
             background: "white",
-            padding: 4,
           }}
         >
           <Box>
@@ -151,7 +162,10 @@ const ViewDetailsModal: FC = () => {
                   >
                     {linkedAccounts.map((account, index) => {
                       return (
-                        <MenuItem value={account.accountAddress}>
+                        <MenuItem
+                          key={account.accountAddress}
+                          value={account.accountAddress}
+                        >
                           <Box display="flex">
                             <Box>
                               {account.providerKey ===
@@ -335,7 +349,7 @@ const ViewDetailsModal: FC = () => {
                   <Typography className={classes.tokenText}>
                     Your Tokens
                   </Typography>
-                  {isLoading ? (
+                  {isBalancesLoading ? (
                     <Box
                       display="flex"
                       alignItems="center"
@@ -363,30 +377,40 @@ const ViewDetailsModal: FC = () => {
                   )}
                 </Box>
               </Box>
-
-              <Box
-                width={580}
-                minHeight={536}
-                height="100%"
-                borderRadius={8}
-                ml={5}
-                border="1px solid #ECECEC"
-              >
-                <Box m={3}>
-                  <Typography className={classes.tokenText}>
-                    Your NFTs
-                  </Typography>
-                  <Grid container className={classes.nftContainer}>
-                    {accountNFTs?.[accountSelect]?.map((nftItem, index) => {
-                      if (nftItem.chain.toString() === chainSelect) {
-                        return <NFTItem key={index} item={nftItem} />;
-                      } else {
-                        return null;
-                      }
-                    })}
-                  </Grid>
+              {isNFTsLoading ? (
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  mt={10}
+                >
+                  <CircularProgress />
                 </Box>
-              </Box>
+              ) : (
+                <Box
+                  width={580}
+                  minHeight={536}
+                  height="100%"
+                  borderRadius={8}
+                  ml={5}
+                  border="1px solid #ECECEC"
+                >
+                  <Box m={3}>
+                    <Typography className={classes.tokenText}>
+                      Your NFTs
+                    </Typography>
+                    <Grid container className={classes.nftContainer}>
+                      {accountNFTs?.[accountSelect]?.map((nftItem, index) => {
+                        if (nftItem.chain.toString() === chainSelect) {
+                          return <NFTItem key={index} item={nftItem} />;
+                        } else {
+                          return null;
+                        }
+                      })}
+                    </Grid>
+                  </Box>
+                </Box>
+              )}
             </Box>
             <Box className={classes.buttonContainer}>
               <PrimaryButton type="submit" onClick={closeModal}>

@@ -1,3 +1,13 @@
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import {
+  getProviderList,
+  IProvider,
+} from "@extension-onboarding/services/blockChainWalletProviders";
+import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
+import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
+import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 import React, {
   createContext,
   FC,
@@ -5,18 +15,6 @@ import React, {
   useEffect,
   useState,
 } from "react";
-
-import {
-  getProviderList,
-  IProvider,
-} from "@extension-onboarding/services/blockChainWalletProviders";
-import { PII } from "@extension-onboarding/services/interfaces/objects";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
-import { ResultAsync } from "neverthrow";
-import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGateway";
-import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
 
 export interface ILinkedAccount {
   providerKey: EWalletProviderKeys;
@@ -31,13 +29,8 @@ export interface IAppContext {
   providerList: IProvider[];
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: ILinkedAccount): void;
-  deleteAccount: (account: ILinkedAccount) => void;
-  addUserObject: (account: PII) => void;
-  getUserObject: () => PII | undefined;
   changeStepperStatus: (status: string) => void;
   stepperStatus: number;
-  viewDetailsAccountAddress: EVMAccountAddress | undefined;
-  setViewDetailsAccountAddress: (accountAddress: EVMAccountAddress) => void;
 }
 
 declare const window: IWindowWithSdlDataWallet;
@@ -49,13 +42,9 @@ export const AppContextProvider: FC = ({ children }) => {
   const [providerList, setProviderList] = useState<IProvider[]>([]);
   const [stepperStatus, setStepperStatus] = useState(0);
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
-  const [userObject, setUserObject] = useState<PII>();
-
-  const [viewDetailsAccountAddress, setViewDetailsAccountAddress] =
-    useState<EVMAccountAddress>();
-
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
+
   useEffect(() => {
     document.addEventListener(
       "SD_WALLET_EXTENSION_CONNECTED",
@@ -105,11 +94,6 @@ export const AppContextProvider: FC = ({ children }) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
 
-  const deleteAccount = (account: ILinkedAccount) => {
-    const accounts = linkedAccounts.filter((acc) => acc !== account);
-    setLinkedAccounts(accounts);
-  };
-
   // TODO Change Stepper System
   const changeStepperStatus = (status) => {
     if (status === "next") {
@@ -117,14 +101,6 @@ export const AppContextProvider: FC = ({ children }) => {
     } else {
       setStepperStatus(stepperStatus - 1);
     }
-  };
-
-  const addUserObject = (user: PII) => {
-    console.log("userObject", user);
-    setUserObject(user);
-  };
-  const getUserObject = () => {
-    return userObject;
   };
 
   return (
@@ -137,13 +113,8 @@ export const AppContextProvider: FC = ({ children }) => {
         linkedAccounts,
         getUserAccounts,
         addAccount,
-        getUserObject,
-        deleteAccount,
         stepperStatus,
         changeStepperStatus,
-        addUserObject,
-        viewDetailsAccountAddress,
-        setViewDetailsAccountAddress,
       }}
     >
       {children}

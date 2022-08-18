@@ -1,14 +1,14 @@
-import PersonalInfoCard from "@extension-onboarding/components/PersonalInfoCard";
 import AccountsCard from "@extension-onboarding/components/AccountsCard";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import PersonalInfoCard from "@extension-onboarding/components/PersonalInfoCard";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { useAppContext } from "@extension-onboarding/context/App";
-import ChainData from "@extension-onboarding/pages/Onboarding/ViewData/components/ChainData";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewData/ViewData.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
+
 declare const window: IWindowWithSdlDataWallet;
 const ViewData: FC = () => {
   const { changeStepperStatus } = useAppContext();
