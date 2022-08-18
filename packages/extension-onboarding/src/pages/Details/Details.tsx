@@ -4,6 +4,7 @@ import OnChainInfo from "@extension-onboarding/pages/Details/screens/OnChainIfo"
 import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
 import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import { useParams, useLocation } from "react-router-dom";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -39,8 +40,11 @@ function a11yProps(index: any) {
 }
 
 const Details = () => {
+  const { search } = useLocation();
+  const b = new URLSearchParams(search).get("screen");
   const classes = useStyles();
-  const [value, setValue] = React.useState(0);
+
+  const [value, setValue] = React.useState(b === "on-chain" ? 1 : 0);
   // eslint-disable-next-line @typescript-eslint/ban-types
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue);
@@ -64,7 +68,7 @@ const Details = () => {
         <OnChainInfo />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        Item Three
+        Comming Soon
       </TabPanel>
       ;
     </Box>

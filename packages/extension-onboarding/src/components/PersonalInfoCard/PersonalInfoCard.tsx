@@ -4,9 +4,15 @@ import { countries } from "@extension-onboarding/constants/countries";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { PII } from "@extension-onboarding/services/interfaces/objects";
 import { Box, Typography } from "@material-ui/core";
-import React, { useEffect, useState } from "react";
+import EditIcon from "@material-ui/icons/Edit";
 
-const PersonalInfoCard = ({}) => {
+import React, { useEffect, useState, ReactNode } from "react";
+
+interface IPersonalInfoCardProps {
+  topRightContent?: ReactNode;
+}
+
+const PersonalInfoCard = ({ topRightContent }: IPersonalInfoCardProps) => {
   const [profile, setProfile] = useState<PII>(new PII());
   useEffect(() => {
     fillProfileData();
@@ -22,7 +28,10 @@ const PersonalInfoCard = ({}) => {
   const classes = useStyles();
   return (
     <Box className={classes.container}>
-      <Typography className={classes.cardTitle}>Personal Info</Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography className={classes.cardTitle}>Personal Info</Typography>
+        {topRightContent && topRightContent}
+      </Box>
       <CardItem
         title="FULL NAME"
         information={`${profile?.given_name} ${profile?.family_name}`}
