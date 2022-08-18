@@ -2,7 +2,7 @@
 
 The Query Service (QS) is an integral component of the Snickerdoodle Protocol [Core package](/packages/core/README.md). The QS responsible for 
 processing queries emitted from consent contracts that the Data Wallet user has opted in to (i.e. the user's Data Wallet address has a non-zero balance
-in the associated consent contract). The primary components of the Query Service are as follows:
+in the associated consent contract). The primary components of the Query Service of interest to contributers are:
 
 - [QueryService.ts](/packages/core/src/implementations/business/QueryService.ts)
 - [QueryParsingEngine.ts](/packages/core/src/implementations/business/utilities/QueryParsingEngine.ts)
@@ -15,8 +15,12 @@ in the associated consent contract). The primary components of the Query Service
 ```mermaid
 
 graph TD;
-    DW["Snickerdoodle Core Service"]-->|detect requestForData|QR["Query Service"];
-    QR-->|parse query contents|ASTE["AST Evaluator"]-->|permissioned access|PL["Persistence Layer"];
+    DW["Snickerdoodle Core Service" <a href='/packages/core/README.md'>link</a>]
+    QR["Query Service"]
+    ASTE["AST Evaluator"]
+    PL["Persistence Layer"]
+    DW-->|detect requestForData & CID|QR;
+    QR-->|parse query contents|ASTE-->|permissioned access|PL;
     
 ```
 
