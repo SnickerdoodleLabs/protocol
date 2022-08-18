@@ -160,7 +160,7 @@ const ViewDetailsModal: FC = () => {
                     value={accountSelect}
                     onChange={handleAccountChange}
                   >
-                    {linkedAccounts.map((account, index) => {
+                    {linkedAccounts?.map((account, index) => {
                       return (
                         <MenuItem
                           key={account.accountAddress}

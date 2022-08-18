@@ -32,4 +32,8 @@ export const useStyles = makeStyles((theme) => ({
     color: "#232039",
     letterSpacing: "0.035em",
   },
+  mobileStepper: {
+    width: 400,
+    background:"white"
+  },
 }));
