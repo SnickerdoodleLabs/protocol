@@ -15,10 +15,10 @@ in the associated consent contract). The primary components of the Query Service
 ```mermaid
 
 graph TD;
-    DW[<b>Snickerdoodle Core Service</b> <a href='/packages/core/README.md'>link</a>]
-    QR["Query Service"]
-    ASTE["AST Evaluator"]
-    PL["Persistence Layer"]
+    DW[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/core/src/implementations/SnickerdoodleCore.ts'>Snickerdoodle Core Service</a>]
+    QR[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/core/src/implementations/business/QueryService.ts'>Query Service</a>]
+    ASTE[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/core/src/implementations/business/QueryService.ts'>AST Evaluator</a>]
+    PL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/persistence/src/DataWalletPersistence.ts'>Persistence Layer</a>]
     DW-->|detect requestForData & CID|QR;
     QR-->|parse query contents|ASTE-->|permissioned access|PL;
     
