@@ -1,5 +1,6 @@
 import { ICoreListener } from "@interfaces/api";
 import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+import { BrowserUtils } from "@enviroment/shared/utils";
 import {
   DataWalletAddress,
   EVMAccountAddress,
@@ -12,6 +13,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ok, okAsync, ResultAsync } from "neverthrow";
+import Browser from "webextension-polyfill";
 
 @injectable()
 export class CoreListener implements ICoreListener {
@@ -33,11 +35,21 @@ export class CoreListener implements ICoreListener {
     return okAsync(undefined);
   }
   private onInitialized(dataWalletAddress: DataWalletAddress) {
+    // @TODO move it to right place
+    BrowserUtils.browserAction.getPopup({}).then((popup) => {
+      if (!popup) {
+        BrowserUtils.browserAction.setPopup({
+          popup: Browser.runtime.getURL("popup.html"),
+        });
+      }
+    });
+    this.contextProvider.setAccountContext(dataWalletAddress);
     console.log("onInitialized", dataWalletAddress);
     return okAsync(undefined);
   }
 
   private onAccountAdded(account: EVMAccountAddress) {
+    this.contextProvider.addAccount(account);
     console.log("onAccountAdded", account);
     return okAsync(undefined);
   }

@@ -193,4 +193,10 @@ export class ExternalCoreGateway {
   public closeTab(): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.CLOSE_TAB);
   }
+  public getDataWalletAddress(): ResultAsync<
+    EVMAccountAddress | null,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);
+  }
 }

@@ -1,11 +1,16 @@
 import { InternalCoreGateway } from "@app/coreGateways";
 import React, { FC, useContext, useState, useEffect } from "react";
-import {  PORT_NOTIFICATION } from "@shared/constants/ports";
+import { PORT_NOTIFICATION } from "@shared/constants/ports";
 import Browser from "webextension-polyfill";
 import { createBackgroundConnectors } from "@app/Popup/utils";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
-import { IInternalState } from "@shared/interfaces/states";
+import config from "@shared/utils/ConfigProvider";
+import { IConfigProvider } from "@shared/interfaces/configProvider";
 import { EPortNames } from "@shared/enums/ports";
+import { DataWalletAddress, JSONString } from "@snickerdoodlelabs/objects";
+import { AccountInitializedNotification } from "@shared/objects/notifications/AccountInitializedNotification";
+import { ENotificationTypes } from "@shared/enums/notification";
+import { IInternalState } from "@shared/interfaces/states";
 
 const portName = !window.location.hash
   ? EPortNames.SD_POPUP
@@ -27,10 +32,11 @@ if (connectors.isOk()) {
 }
 
 interface IAppContext {
+  config: IConfigProvider;
+  appState: IInternalState | null | undefined,
   closeCurrentTab: () => void;
   coreGateway: InternalCoreGateway;
   windowType: EPortNames;
-  appState: IInternalState | undefined;
   initialized: boolean;
 }
 
@@ -38,7 +44,8 @@ const AppContext = React.createContext<IAppContext>({} as IAppContext);
 
 export const AppContextProvider: FC = ({ children }) => {
   const [initialized, setInitialized] = useState<boolean>(false);
-  const [appState, setAppState] = useState<IInternalState>();
+  const [appState, setAppState] =
+    useState<IInternalState | null>();
   useEffect(() => {
     getInitialState();
     subscribeNotifications();
@@ -49,22 +56,22 @@ export const AppContextProvider: FC = ({ children }) => {
     if (appState && initialized === false) {
       setInitialized(true);
     }
-  }, [appState, initialized]);
+  }, [JSON.stringify(appState), initialized]);
 
   const getInitialState = () => {
-    coreGateway.getState().map((state) => {
-      return setAppState(state);
+    coreGateway.getState().map((state: IInternalState) => {
+      setAppState(state);
     });
   };
 
   const subscribeNotifications = () => {
     notificationEmitter.on(PORT_NOTIFICATION, handleNotification);
   };
-  // TODO add notification types
-  const handleNotification = (notification: any) => {
+
+  const handleNotification = (notification: AccountInitializedNotification) => {
     switch (notification.type) {
-      case "state_update":
-        setAppState(notification.data);
+      case ENotificationTypes.ACCOUNT_INITIALIZED:
+        setAppState((prev)=>({...prev, dataWalletAddress: notification.data.dataWalletAddress}));
         break;
       default:
         console.log("notification", notification.data);
@@ -74,6 +81,7 @@ export const AppContextProvider: FC = ({ children }) => {
   return (
     <AppContext.Provider
       value={{
+        config,
         closeCurrentTab:
           portName !== EPortNames.SD_POPUP
             ? ExtensionUtils.closeCurrenTab

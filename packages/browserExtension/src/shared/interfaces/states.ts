@@ -1,14 +1,11 @@
-import { EVMAccountAddress } from "@snickerdoodlelabs/objects";
+import { DataWalletAddress } from "@snickerdoodlelabs/objects";
 
 export interface IInternalState {
-  walletAccount: EVMAccountAddress | null;
-  userConnectedAccounts: EVMAccountAddress[];
-  pendingActions: any[];
-  name: string | null;
-  email: string | null;
+  dataWalletAddress: DataWalletAddress | null;
 }
 
 export interface IExternalState {
+  dataWalletAddress: DataWalletAddress | null;
   scamList: string[];
   whiteList: string[];
 }

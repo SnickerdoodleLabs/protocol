@@ -1,4 +1,6 @@
 import {
+  DataWalletAddress,
+  EVMAccountAddress,
   Invitation,
   MetatransactionSignatureRequest,
   UUID,
@@ -29,6 +31,8 @@ export interface IContextProvider {
   removePendingMetatransactionSignatureRequest(id: UUID): void;
   addInvitation(invitation: Invitation): UUID;
   getInvitation(id: UUID): Invitation | undefined;
+  setAccountContext(dataWalletAddress: DataWalletAddress): void;
+  addAccount(accountAddress: EVMAccountAddress): void;
 }
 
 export const IContextProviderType = Symbol.for("IContextProvider");
