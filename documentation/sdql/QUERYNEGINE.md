@@ -12,11 +12,6 @@ in the associated consent contract). The primary components of the Query Service
 
 ## Data Flow
 
-Processing a network query begins with the detection, by an instance of the core package, of a `requestForData` event emitted from a consent contract. The event data includes 
-an IPFS [CID](https://proto.school/anatomy-of-a-cid/01/) pointing to a [SDQL](/documentation/sdql/README.md) JSON file on the IPFS network containing the query to be executed. 
-
-The query CID is then passed into the Query Service via a call to `processQuery`. 
-
 ```mermaid
 
 graph TD;
@@ -24,6 +19,18 @@ graph TD;
     QR-->|parse query contents|ASTE["AST Evaluator"]-->|permissioned access|PL["Persistence Layer"];
     
 ```
+
+Processing a network query begins with the detection, by an instance of the core package, of a `requestForData` event emitted from a consent contract. The event data includes 
+an IPFS [CID](https://proto.school/anatomy-of-a-cid/01/) pointing to a [SDQL](/documentation/sdql/README.md) JSON file pinned to the IPFS network containing the query to be 
+executed. The query CID is then passed into the Query Service via a call to `processQuery`. 
+
+The call to `processQuery` then creates two separate abstract syntax tree (AST) objects: one for the SDQL `logic` block, and one for the `compensations` block. Each of these 
+blocks can themselves reference one or more `query` or `compensation` definitions respectively. The ASTs are ultimately evaluated against the data wallet's
+[persistence layer](/packages/persistence/README.md) consistent with user-specified permissions, i.e. if a `query` specification requires access to the `location` attribute of a 
+user, the user must have consented to this access by indicating their consent in the associated consent contract. 
+
+Finally, after data has been accessed at the persistence layer level, the `processQuery` function delivers a cryptographically signed data payload, vai the `deliverInsights`
+function to the aggregation url specified the query's SDQL JSON file. 
 
 ## Process - Schema to Execution
 
