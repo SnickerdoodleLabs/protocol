@@ -15,7 +15,7 @@ in the associated consent contract). The primary components of the Query Service
 ```mermaid
 
 graph TD;
-    DW["Snickerdoodle Core Service" <a href='/packages/core/README.md'>link</a>]
+    DW[<b>Snickerdoodle Core Service</b> <a href='/packages/core/README.md'>link</a>]
     QR["Query Service"]
     ASTE["AST Evaluator"]
     PL["Persistence Layer"]
