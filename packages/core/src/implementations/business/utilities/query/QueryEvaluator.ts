@@ -42,7 +42,7 @@ export class QueryEvaluator implements IQueryEvaluator {
             case AST_NetworkQuery:
                 return this.evalNetworkQuery(query as AST_NetworkQuery);
         case AST_BalanceQuery:
-            return this.balanceQueryEvaluator.evalConditions(query as AST_BalanceQuery);
+            return this.balanceQueryEvaluator.eval(query as AST_BalanceQuery);
         default:
             return this.evalPropertyQuery(query as AST_PropertyQuery);
         }

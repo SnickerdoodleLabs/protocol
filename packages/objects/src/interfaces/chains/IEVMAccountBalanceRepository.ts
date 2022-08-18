@@ -12,7 +12,13 @@ export interface IEVMBalance {
   ticker: TickerSymbol;
   chainId: ChainId;
   accountAddress: EVMAccountAddress;
-  balance: BigNumberString;
+  balance: BigNumberString; // TODO replace with a BigNumber type
+}
+
+export interface ITokenBalance {
+  networkId: ChainId,
+  address: EVMAccountAddress, // This is the token contract address
+  balance: BigNumberString; // TODO replace with a BigNumber type
 }
 
 export interface IEVMAccountBalanceRepository {
