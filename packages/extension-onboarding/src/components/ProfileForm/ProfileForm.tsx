@@ -51,14 +51,14 @@ const ProfileForm: FC<ProfileFormProps> = ({
   };
 
   const schema = yup.object().shape({
-    given_name: yup.string().required("First Name is required").nullable(),
+  /*   given_name: yup.string().required("First Name is required").nullable(),
     family_name: yup.string().required("Last Name is required").nullable(),
     email_address: yup
       .string()
       .email()
       .required("Email Address is required")
       .typeError("Please enter valid Email Address!")
-      .nullable(),
+      .nullable(), */
     date_of_birth: yup
       .date()
       .max(new Date(), "Please enter valid Date!")
@@ -132,7 +132,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
           {({ handleSubmit, values, setFieldValue }) => {
             return (
               <Form noValidate onSubmit={handleSubmit} id="profile-create-form">
-                <Box display="flex">
+                {/*          <Box display="flex">
                   <Box>
                     <Typography className={classes.formLabel}>
                       First Name
@@ -162,9 +162,9 @@ const ProfileForm: FC<ProfileFormProps> = ({
                       value={values.family_name}
                     />
                   </Box>
-                </Box>
+                </Box> */}
                 <Box display="flex" mt={3}>
-                  <Box>
+                  {/*     <Box>
                     <Typography className={classes.formLabel}>
                       Email Address
                     </Typography>
@@ -178,8 +178,8 @@ const ProfileForm: FC<ProfileFormProps> = ({
                       placeholder="Email Address"
                       value={values.email_address}
                     />
-                  </Box>
-                  <Box ml={3}>
+                  </Box> */}
+                  <Box /* ml={3} */>
                     <Typography className={classes.formLabel}>
                       Date of Birth
                     </Typography>
@@ -221,7 +221,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
                     </MuiPickersUtilsProvider>
                   </Box>
                 </Box>
-                <Box display="flex" mt={3}>
+                <Box /* display="flex" */ mt={3}>
                   <Box>
                     <Typography className={classes.formLabel}>
                       Country
@@ -251,7 +251,8 @@ const ProfileForm: FC<ProfileFormProps> = ({
                       ))}
                     </Field>
                   </Box>
-                  <Box ml={3}>
+                 {/* todo delete mt */}
+                  <Box /* ml={3} */ mt={3}>
                     <Typography className={classes.formLabel}>
                       Gender
                     </Typography>

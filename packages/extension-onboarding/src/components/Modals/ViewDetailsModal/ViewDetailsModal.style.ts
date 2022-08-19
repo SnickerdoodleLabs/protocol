@@ -6,7 +6,6 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 400,
     fontStyle: "italic",
     fontFamily: " 'Shrikhand', cursive ",
-    marginTop: "100px",
   },
   subTitle: {
     fontFamily: "Space Grotesk",

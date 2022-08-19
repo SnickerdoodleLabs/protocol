@@ -32,17 +32,17 @@ const PersonalInfoCard = ({ topRightContent }: IPersonalInfoCardProps) => {
         <Typography className={classes.cardTitle}>Personal Info</Typography>
         {topRightContent && topRightContent}
       </Box>
-      <CardItem
+    {/*   <CardItem
         title="FULL NAME"
         information={`${profile?.given_name} ${profile?.family_name}`}
       />
-      <Box className={classes.divider}></Box>
+      <Box className={classes.divider}></Box> */}
       <CardItem title="Date of Birth" information={profile?.date_of_birth} />
       <Box className={classes.divider}></Box>
       <CardItem title="GENDER" information={profile?.gender} />
       <Box className={classes.divider}></Box>
-      <CardItem title="EMAIL" information={profile?.email_address} />
-      <Box className={classes.divider}></Box>
+    {/*   <CardItem title="EMAIL" information={profile?.email_address} />
+      <Box className={classes.divider}></Box> */}
       <CardItem
         title="COUNTRY"
         information={

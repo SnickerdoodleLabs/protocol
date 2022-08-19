@@ -11,10 +11,12 @@ import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import {
   Box,
   CircularProgress,
   Grid,
+  IconButton,
   MenuItem,
   Modal,
   Select,
@@ -27,6 +29,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import React, { FC, useEffect, useState } from "react";
+
+import CloseIcon from "@material-ui/icons/Close";
 
 declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
@@ -144,8 +148,19 @@ const ViewDetailsModal: FC = () => {
           }}
         >
           <Box>
-            <Box>
+            <Box pt={8}>
+              <img src={snickerDoodleLogo} />
+            </Box>
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mt={1}
+            >
               <h3 className={classes.title}>Account Details</h3>
+              <IconButton onClick={closeModal}>
+                <CloseIcon fontSize="large" />
+              </IconButton>
             </Box>
             <Box display="flex">
               <Box display="flex" alignItems="center" width={50}>
