@@ -1,4 +1,4 @@
-import leftImage from "@extension-onboarding/assets/images/initial-page-left.png";
+import welcome1Right from "@extension-onboarding/assets/images/welcome-sc1-right.png";
 import welcome1 from "@extension-onboarding/assets/images/welcome-sc1.svg";
 import welcome2 from "@extension-onboarding/assets/images/welcome-sc2.svg";
 import welcome3Right from "@extension-onboarding/assets/images/welcome-sc3-right.svg";
@@ -66,7 +66,7 @@ const OnboardingWelcome: FC = () => {
             <Grid item md={5}>
               <Box height="100vh" display="flex" bgcolor="#F8D798">
                 <Box width="70%" margin="auto">
-                  <img style={{ width: "100%" }} src={leftImage} />
+                  <img style={{ width: "100%" }} src={welcome1Right} />
                 </Box>
               </Box>
             </Grid>
