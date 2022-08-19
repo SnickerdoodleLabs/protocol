@@ -1,28 +1,30 @@
-# Snickerdoodle's Data Wallet
+![Core](https://github.com/SnickerdoodleLabs/Snickerdoodle-Theme-Light/blob/main/snickerdoodle_horizontal_notab.png?raw=true)
 
-This repository was bootstrapped using
-https://github.com/lxieyang/chrome-extension-boilerplate-react
-Thank you open source contributors!
+# Browser Extension
 
-# How to install this Chrome Extension in your browser?
+## Package Contents
 
-- Download [This ZIP](https://drive.google.com/file/d/1P3HQDbiG2QAbNaIiPNj87ZXsO2y8AHWz/view?usp=sharing) file
-- Unzip the file in directory of your choosing.
-- Open Chrome Browser and visit URL chrome://extensions
-- Make sure developer Mode is on
-- Click on ‘Load unpacked’ and choose the unzipped directory ‘data-wallet’.
+- [src](/packages/browserExtension/src/): source code for the browser extension which instantiates and instance of the Core package
+- [utils](/packages/browserExtension/utils/): scripts and configs for building the browser extension bundle
 
-# How to Install and Run this repository
+## Summary
 
-You must have npm and node installed on your machine.
+![Data Wallet Logic Layers](/documentation/images/datawallet-architecture.png)
 
-To install,
-''npm install''
+The package bundles the Core package as a browser extension form-factor which is used in conjunction with the [onboarding]() [SPA]() which itself also functions as the 
+primary user interface of the Snickerdoodle protocol. This repository was bootstrapped using [Chrome Extension Boilerplate](https://github.com/lxieyang/chrome-extension-boilerplate-react).
 
-To run
-''npm start''
+## Local Development
 
-- This will build the project into 'build' directory.
-- Open Chrome and visit chrome://extensions
-- Make sure 'developer' mode is on
-- Click on 'Load unpacked' and choose 'build' directory to load the extension in chrome browser.
+First build the extension:
+
+```shell
+cd /packages/browserExtension/
+yarn install
+yarn build
+```
+
+This will create a folder called `build`. Open Chrome Browser, visit URL [`chrome://extensions`](chrome://exentions), and enable developer Mode. Next,
+click on ‘Load unpacked’ and choose the `/build` directory that was just created.
+
+Once you have installed the extension, you will need to run the [onboarding pages application](/packages/extension-onboarding/README.md). 

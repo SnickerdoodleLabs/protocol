@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "jsx": "react",
+    "target": "es5",
+    "module": "commonjs",
+    "lib": ["es5", "es6", "dom"]
+  },
+
+  "references": [
+    {
+      "path": "../common-utils"
+    },
+    {
+      "path": "../contracts-sdk"
+    },
+    {
+      "path": "../objects"
+    },
+    {
+      "path": "../signatureVerification"
+    }
+  ],
+  "include": ["./src/**/*.ts", "./src/**/*.tsx", "index.d.ts"],
+  "exclude": ["node_modules"]
+}

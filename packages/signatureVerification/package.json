@@ -1,0 +1,46 @@
+{
+  "name": "@snickerdoodlelabs/signature-verification",
+  "version": "0.0.3",
+  "description": "Verification type definitions for insight platform calls",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/signature-verification#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
+  "keywords": [
+    "Blockchain",
+    "Snickerdoodle"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo",
+    "!test",
+    "!src",
+    "!tsconfig.json"
+  ],
+  "scripts": {
+    "alias": "tsc-alias",
+    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "tsc --build && cd ../.. && yarn alias",
+    "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
+    "test": "echo \"No tests specified yet\" && exit 0"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "ethers": "^5.6.6",
+    "neverthrow": "^4.3.1",
+    "ts-brand": "^0.0.2"
+  }
+}

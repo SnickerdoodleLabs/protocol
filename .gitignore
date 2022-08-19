@@ -25,3 +25,33 @@ build/
 out/linecounter.json
 out/linecounter.txt
 *.ipfs
+
+# Yarn 2 recommendations, no PNP: https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+node_modules
+.env
+coverage
+coverage.json
+typechain
+package-lock.json
+
+#Hardhat files
+cache
+artifacts
+
+#For MacOS
+**/.DS_Store
+
+#Personal
+notes
+Qm*
+
+# We don't need to track upgrades until testnet or mainnet deployment
+.openzeppelin/

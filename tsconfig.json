@@ -3,16 +3,37 @@
   "files": [],
   "references": [
     {
+      "path": "packages/browserExtension"
+    },
+    {
+      "path": "packages/common-utils"
+    },
+    {
+      "path": "packages/extension-onboarding"
+    },
+    {
+      "path": "packages/contracts-sdk"
+    },
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/indexers"
+    },
+    {
       "path": "packages/objects"
     },
-    // {
-    //   "path": "packages/utils"
-    // },
-    // {
-    //   "path": "packages/browserExtension"
-    // },
-    // {
-    //   "path": "packages/queryEngine"
-    // },
+    {
+      "path": "packages/persistence"
+    },
+    {
+      "path": "packages/signatureVerification"
+    },
+    {
+      "path": "packages/test-harness"
+    },
+    {
+      "path": "packages/utils"
+    }
   ]
 }

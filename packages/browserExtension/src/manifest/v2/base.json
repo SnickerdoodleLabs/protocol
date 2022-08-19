@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "Data-Wallet",
+  "description": "Snickerdoodle's Data Wallet",
+  "options_page": "options.html",
+  "background": {
+    "scripts": ["background.bundle.js"],
+    "persistent": true
+  },
+  "permissions": ["cookies", "tabs", "storage", "activeTab"],
+  "browser_action": {
+    "default_icon": "assets/appIcons/small.png"
+  },
+  "web_accessible_resources": [
+    "content.styles.css",
+    "shadowScript.js",
+    "injectables/*",
+    "assets/*",
+    "<all_urls>"
+  ],
+  "icons": {
+    "128":  "assets/appIcons/big.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+      "js": ["contentScript.bundle.js"],
+      "css": ["content.styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "devtools_page": "devtools.html"
+}

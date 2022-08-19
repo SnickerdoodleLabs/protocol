@@ -1,0 +1,150 @@
+openapi: 3.0.3
+info:
+  title: Insight Platform Required API
+  description: Every insight platform that wants to be compatible with the Snickerdoodle Protocol (SDP) and the Snickerdoodle Core (SDC) must implement this API. All API paths will be appended to an undefined base URL, such as https://insight.example.com/v0/snickerdoodle, by the SDC
+  termsOfService: https://snickerdoodlelabs.io/terms/
+  contact:
+    name: API Support
+    url: https://snickerdoodlelabs.io/support
+    email: support@snickerdoodlelabs.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: '0.1'
+servers:
+  - url: https://development.snickerdoodlelabs.io/v1
+    description: Development server
+  - url: https://staging.snickerdoodlelabs.io/v1
+    description: Staging server
+  - url: https://api.snickerdoodlelabs.io/v1
+    description: Production server
+    
+paths:
+  /responses:
+    post:
+      tags:
+        - responses
+      description: Responses to the subqueries with the business, data wallet, query and signiture metadata
+      requestBody:
+        description: The actual response to a query
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                consentContractId:
+                  type: string
+                  format: ethereum-contract-address
+                queryId:
+                  type: string
+                  format: IPFS-CID
+                dataWallet:
+                  type: string
+                  format: snickerdoodle-account-address
+                returns:
+                  description: Each logic return is formatted as a string, with JSON data inside it
+                  type: array
+                  items:
+                    type: string
+                signature:
+                  type: string
+                  format: hex-string
+              required:
+                - consentContractId
+                - queryId
+                - dataWallet
+                - returns
+                - signature
+      responses:
+        200:
+          description: Returns true
+          content:
+            application/json:
+              schema:
+                type: boolean
+        400:
+          $ref: '#/components/responses/InvalidError'
+          
+  /metatransaction:
+    post:
+      tags:
+        - metatransaction
+      description: Executes a metatransaction for a data wallet. 
+      requestBody:
+        description: Data required to verify the request to leave the campaign
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dataWalletAddress:
+                  description: The address of the data wallet
+                  type: string
+                  format: ethereum-account-address
+                accountAddress:
+                  type: string
+                  format: ethereum-account-address
+                contractAddress:
+                  type: string
+                  format: ethereum-contract-address
+                nonce:
+                  type: string
+                  format: big-number-string
+                data:
+                  description: The hex-encoded string of the transaction data.
+                  type: string
+                  format: hex-string
+                metatransactionSignature:
+                  description: The signature for the metatransaction data. It must be a Minimal Forwarder request, and signed by the executing account address. That is often the data wallet key, but could be an EOA in some cases.
+                  type: hex-string
+                requestSignature:
+                  description: This is a signature for the actual API call. You must sign all properties in the post body except for signature. This is used to validate that the metatransaction request is actually coming from the data wallet. An invalid metatransaction would also fail, but this is a second level.
+                  type: string
+                  format: hex-string
+      responses:
+        200:
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: boolean
+        400:
+          $ref: '#/components/responses/InvalidError'
+        401:
+          $ref: '#/components/responses/SpecificUnsupportedError'
+        403:
+          $ref: '#/components/responses/UnsupportedError'
+          
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  responses:
+    InvalidError:
+      description: Data is invalid
+    SpecificUnsupportedError:
+      description: This method is not supported for this particular data wallet, consent contract, or combination of both. For example, when the insight platform is performing lazy transactions, not all consent contracts may support it.
+    UnsupportedError:
+      description: This method is unsupported by the insight platform. The SDC will need to use an alternate method.
+      
+  schemas:
+    SubqueryReturn:
+      type: object
+      properties:
+        subquery:
+          type: string
+        data:
+          type: array
+          items:
+            type: number
+            format: double
+      required:
+        - subquery
+        - data

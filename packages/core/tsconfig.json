@@ -1,0 +1,32 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "references": [
+    {
+      "path": "../common-utils"
+    },
+    {
+      "path": "../contracts-sdk"
+    },
+    {
+      "path": "../indexers"
+    },
+    {
+      "path": "../objects"
+    },
+    {
+      "path": "../persistence"
+    },
+    {
+      "path": "../signatureVerification"
+    }
+  ],
+  "include": [
+    "./src/**/*.ts" ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+#app-container {
+  width: 357px;
+  height: 600px;
+  max-width: 357px;
+  max-height: 600px;
+}

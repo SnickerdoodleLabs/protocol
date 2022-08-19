@@ -1,0 +1,58 @@
+FROM node:16 AS builder
+
+WORKDIR /app
+
+# Install all the yarn stuff
+COPY .yarn .yarn
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY packages/browserExtension/package.json ./packages/browserExtension/
+COPY packages/cinnamon/package.json ./packages/cinnamon/
+COPY packages/common-utils/package.json ./packages/common-utils/
+COPY packages/contracts/package.json ./packages/contracts/
+COPY packages/contracts-sdk/package.json ./packages/contracts-sdk/
+COPY packages/core/package.json ./packages/core/
+COPY packages/extension-onboarding/package.json ./packages/extension-onboarding/
+COPY packages/indexers/package.json ./packages/indexers/
+COPY packages/objects/package.json ./packages/objects/
+COPY packages/persistence/package.json ./packages/persistence/
+COPY packages/signatureVerification/package.json ./packages/signatureVerification/
+COPY packages/test-harness/package.json ./packages/test-harness/
+COPY packages/utils/package.json ./packages/utils/
+RUN yarn install --network-timeout 60000
+
+# Now build the code
+COPY . .
+RUN yarn compile
+
+WORKDIR /app/packages/extension-onboarding
+
+ARG BUILD_ENV=development
+ENV __BUILD_ENV__ $BUILD_ENV
+
+ARG INFURA_ID=""
+ENV __INFURA_ID__ $INFURA_ID
+
+ARG GAPI_CLIENT_ID=""
+ENV __GAPI_CLIENT_ID__ $GAPI_CLIENT_ID
+
+ARG CONTROL_CHAIN_NAME=""
+ENV  __CONTROL_CHAIN_NAME__ $CONTROL_CHAIN_NAME
+
+ARG CONTROL_CHAIN_ID=""
+ENV  __CONTROL_CHAIN_ID__ $CONTROL_CHAIN_ID
+
+ARG CONTROL_CHAIN_PROVIDER_URLS=""
+ENV  __CONTROL_CHAIN_PROVIDER_URLS__ $CONTROL_CHAIN_PROVIDER_URLS
+
+ARG CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS=""
+ENV  __CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS__ $CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS
+
+
+RUN yarn build
+
+FROM nginx:latest AS server
+
+# Copy over the dist files
+COPY --from=builder /app/packages/extension-onboarding/dist/bundle /usr/share/nginx/html
+COPY --from=builder /app/packages/extension-onboarding/nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder /app/packages/extension-onboarding/default.conf /etc/nginx/conf.d/default.conf

@@ -1,32 +1,42 @@
 version: "3.4"
 
 services:
-  blockchain:
-    image: hypernetlabs/eth-provider:local
+  doodlechain:
+    container_name: doodlechain
+    env_file: docker-compose.env
     ports:
-      - 8545:8545
+      - 8545:8569
     environment:
-      MNEMONIC: "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat"
-      CHAIN_ID: "1337"
+      NETWORK: local
+    image: 'snickerdoodlelabs/devchain:latest'
 
-  user-dashboard:
-    image: hypernetlabs/hypernet-protocol-user-dashboard:local
-    ports: 
-      - 8080:80
-    depends_on:
-      - blockchain
-
+  # extension-onboarding:
+  #   image: snickerdoodlelabs/extension-onboarding:local
+  #   ports:
+  #     - 8080:80
+  #   volumes:
+  #     - ./packages/extension-onboarding:/app/packages/extension-onboarding
+  #   networks:
+  #     - internal
+      
   ipfs:
-    image: ipfs/go-ipfs:release
+    image: ipfs/go-ipfs:latest
     ports:
-      - "4021:4001" # Swarm
-      - "5021:5001" # Api
-      - "8088:8080" # Gateway
+      - 4001:4001 # Swarm
+      - 5001:5001 # Api
+      - 8080:8080 # Gateway
     volumes:
       - ./.ipfs/ipfs0:/data/ipfs
       - ./.ipfs/export:/export
-      - ./packages/development/ipfs-provider/start_ipfs:/start_ipfs
-    entrypoint: ["/sbin/tini", "--", "/start_ipfs"]
+      - ./scripts/start_ipfs.sh:/start_ipfs
+    entrypoint: ["/sbin/tini", "--", "start_ipfs"]
     command: ["daemon", "--migrate=true", "--agent-version-suffix=docker"]
-    environment:
-      ACCESS_CONTROL_ALLOW_ORIGIN: "[\"*\"]"
+    env_file: docker-compose.env
+    networks:
+      - internal
+
+networks:
+  internal:
+
+volumes:
+  data:

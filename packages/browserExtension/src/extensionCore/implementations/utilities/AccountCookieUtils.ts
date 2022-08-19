@@ -1,0 +1,90 @@
+import {
+  EVMAccountAddress,
+  Signature,
+  LanguageCode,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
+import Browser from "webextension-polyfill";
+
+import { IAccountCookieUtils } from "@interfaces/utilities";
+import { IUnlockParams } from "@shared/interfaces/actions";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@shared/interfaces/configProvider";
+import { ExtensionCookieError } from "@shared/objects/errors";
+
+@injectable()
+export class AccountCookieUtils implements IAccountCookieUtils {
+  constructor(
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+  ) {}
+
+  public writeAccountInfoToCookie(
+    accountAddress: EVMAccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+  ): ResultAsync<void, ExtensionCookieError> {
+    const _value = { accountAddress, signature, languageCode };
+    const date = new Date();
+    date.setFullYear(date.getFullYear() + 1);
+    return this._getAccountCookie()
+      .andThen((cookie) => {
+        let value = JSON.stringify([_value]);
+        if (cookie?.value) {
+          value = JSON.stringify(
+            Array.from(new Set([...JSON.parse(cookie.value), _value])),
+          );
+        }
+        if (!Browser.cookies) {
+          return errAsync(
+            new ExtensionCookieError("Cookie Permissions not granted"),
+          );
+        }
+        return ResultAsync.fromPromise(
+          Browser.cookies.set({
+            // TODO add onboarding url once its published
+            url: this.configProvider.getConfig().accountCookieUrl,
+            expirationDate: date.getTime() / 1000,
+            name: "account-info",
+            value,
+            httpOnly: true,
+          }),
+          (e) => new ExtensionCookieError("Unable to set cookie"),
+        );
+      })
+      .map(() => {});
+  }
+
+  public readAccountInfoFromCookie(): ResultAsync<
+    IUnlockParams[],
+    ExtensionCookieError
+  > {
+    return this._getAccountCookie().andThen((cookie) => {
+      if (!cookie?.value) {
+        return okAsync([]);
+      }
+      return okAsync(JSON.parse(cookie.value) as IUnlockParams[]);
+    });
+  }
+
+  private _getAccountCookie(): ResultAsync<
+    Browser.Cookies.Cookie,
+    ExtensionCookieError
+  > {
+    if (!Browser.cookies) {
+      return errAsync(
+        new ExtensionCookieError("Cookie Permissions not granted"),
+      );
+    }
+    return ResultAsync.fromPromise(
+      Browser.cookies.get({
+        name: "account-info",
+        // TODO add onboarding url once its published
+        url: this.configProvider.getConfig().accountCookieUrl,
+      }),
+      (e) => new ExtensionCookieError("Unable to get cookie"),
+    );
+  }
+}

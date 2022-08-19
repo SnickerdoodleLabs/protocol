@@ -1,0 +1,68 @@
+name: Build and Push to GCR
+
+on:
+  push:
+    branches: main
+
+
+env:
+  GITHUB_SHA: ${{ github.sha }} 
+  GITHUB_REF: ${{ github.ref }} 
+  IMAGE: insight-platform
+  REGISTRY_HOSTNAME: gcr.io
+  GAR_LOCATION: us-central1
+  GKE_CLUSTER: sdl-cluster-prod-qkppf
+  GKE_ZONE: us-central1-a
+  PROJECT_ID: snickerdoodle-insight-stackdev
+
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, and Publish
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Setup gcloud CLI
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.PROD_GCP_CREDENTIALS }}'
+        
+
+    - name: Docker configuration
+      run: |-
+        gcloud --quiet auth configure-docker $GAR_LOCATION-docker.pkg.dev
+        
+    - name: Build protocol
+      run: |-
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA" \
+          --build-arg DOMAIN="datawallet.snickerdoodle.com" \
+          --build-arg CONTROL_CHAIN_ID=31337 \
+          --build-arg CONTROL_CHAIN_PROVIDER_URLS=https://doodlechain.snickerdoodle.com \
+          --build-arg CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3 \
+          --build-arg BUILD_ENV=development \
+          --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
+          --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
+          --build-arg CONTROL_CHAIN_NAME="Development Doodlechain" \
+          -f ./packages/extension-onboarding/Dockerfile \
+          .
+  
+    # Push the Docker image to Google Artifact Registry
+    - name: Publish protocol
+      run: |-
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
+
+    - name: Deploy to GCR
+      run: |-
+        gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+        cd infra/
+      
+        helm upgrade --reuse-values --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol 
