@@ -43,6 +43,8 @@ import {
   IVolatileStorageTable,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
+  IndexedDBCursor,
+  IVolatileCursor,
 } from "@persistence/volatile";
 
 enum ELocalStorageKey {
@@ -508,43 +510,26 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     const filter = new EVMTransactionFilter([chainId], [address]);
     return this._getTxStore().andThen((txStore) => {
       return txStore
-        .getCursor(
+        .getCursor<EVMTransaction>(
           ELocalStorageKey.TRANSACTIONS,
           "timestamp",
           undefined,
           "prev",
         )
-        .andThen((request) => this._getNextMatchingTx(request, filter));
+        .andThen((cursor) => this._getNextMatchingTx(cursor, filter));
     });
   }
 
   private _getNextMatchingTx(
-    request: IDBRequest<IDBCursorWithValue | null>,
+    cursor: IVolatileCursor<EVMTransaction>,
     filter: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction | null, PersistenceError> {
-    const promise = new Promise<EVMTransaction | null>((resolve, reject) => {
-      request.onsuccess = (event) => {
-        const cursor = request.result;
-        if (cursor) {
-          const tx = cursor.value as EVMTransaction;
-          if (filter.matches(tx)) {
-            resolve(tx);
-          } else {
-            cursor.continue();
-          }
-        } else {
-          resolve(null);
-        }
-      };
-
-      request.onerror = (event) => {
-        reject(new PersistenceError("error reading cursor: " + event.target));
-      };
-
-      return okAsync(null);
+    return cursor.nextValue().andThen((val) => {
+      if (!val || filter.matches(val)) {
+        return okAsync(val);
+      }
+      return this._getNextMatchingTx(cursor, filter);
     });
-
-    return ResultAsync.fromPromise(promise, (e) => e as PersistenceError);
   }
 
   // return a map of URLs

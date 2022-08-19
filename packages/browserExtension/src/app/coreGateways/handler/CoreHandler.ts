@@ -1,5 +1,6 @@
 import { JsonRpcEngine, JsonRpcRequest } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
+import { v4 } from "uuid";
 
 export default class CoreHandler {
   constructor(protected rpcEngine: JsonRpcEngine) {}
@@ -23,7 +24,7 @@ export default class CoreHandler {
   }
 
   private _createRequestObject(method, params?): JsonRpcRequest<unknown> {
-    let requestObject = { id: Date.now(), jsonrpc: "2.0" as const, method };
+    let requestObject = { id: v4(), jsonrpc: "2.0" as const, method };
     if (params) {
       requestObject = Object.assign(requestObject, { params: params });
     }

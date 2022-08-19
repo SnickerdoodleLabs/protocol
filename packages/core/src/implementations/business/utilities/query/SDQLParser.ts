@@ -7,6 +7,9 @@ import {
   Version,
   DuplicateIdInSchema,
   ReturnNotImplementedError,
+  ParserError,
+  QueryFormatError,
+  MissingTokenConstructorError,
 } from "@snickerdoodlelabs/objects";
 
 import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
@@ -24,6 +27,7 @@ import {
   Command,
   SDQLSchema,
 } from "@core/interfaces/objects";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 export class SDQLParser {
   context: Map<string, any> = new Map();
@@ -48,149 +52,235 @@ export class SDQLParser {
     this.context.set(name, val);
   }
 
-  private parse() {
+  private parse(): ResultAsync<
+    void, 
+    ParserError 
+    | DuplicateIdInSchema 
+    | QueryFormatError
+    | MissingTokenConstructorError
+    > {
     // const queries = this.parseQueries();
-    this.parseQueries();
+   
+    // this.parseQueries();
 
-    this.returns = new AST_Returns(
-      URLString(this.schema.getReturnSchema().url),
-    );
-    this.parseReturns();
+    // this.returns = new AST_Returns(
+    //   URLString(this.schema.getReturnSchema().url),
+    // );
+    // this.parseReturns();
 
-    this.parseCompensations();
+    // this.parseCompensations();
 
-    this.parseLogic();
+    // this.parseLogic();
+
+    return this.parseQueries()
+      .andThen(() => {
+
+        return this.parseReturns()
+          .andThen(() => {
+
+            return this.parseCompensations()
+            .andThen(() => {
+
+              return this.parseLogic();
+
+            });
+
+          });
+      })
   }
 
-  buildAST(): AST {
-    this.parse();
+  buildAST(): ResultAsync<
+    AST, 
+    ParserError 
+    | DuplicateIdInSchema 
+    | QueryFormatError
+    | MissingTokenConstructorError
+    > {
 
-    return new AST(
-      Version(this.schema["version"]),
-      this.schema["description"],
-      this.schema["business"],
-      this.queries,
-      this.returns,
-      this.compensations,
-      new AST_Logic(this.logicReturns, this.logicCompensations),
-    );
+    return this.parse()
+      .andThen(() => {
+
+        return okAsync(
+          new AST(
+            Version(this.schema["version"]),
+            this.schema["description"],
+            this.schema["business"],
+            this.queries,
+            this.returns,
+            this.compensations,
+            new AST_Logic(this.logicReturns, this.logicCompensations),
+          )
+        );
+        
+      });
+
   }
 
   // #region non-logic
-  private parseQueries() {
-    const querySchema = this.schema.getQuerySchema();
-    const queries = new Array<any>();
-    for (const qName in querySchema) {
-      // console.log(`parsing query ${qName}`);
-      const name = SDQL_Name(qName);
-      const schema = querySchema[qName];
+  private parseQueries(): ResultAsync<void, DuplicateIdInSchema | QueryFormatError> {
 
-      switch (schema.name) {
-        case "network":
-          // console.log(`${qName} is a network query`);
-          queries.push(AST_NetworkQuery.fromSchema(name, schema));
-          break;
-        default:
-          // console.log(`${qName} is a property query`);
-          queries.push(AST_PropertyQuery.fromSchema(name, schema));
-          break;
+    try {
+
+      const querySchema = this.schema.getQuerySchema();
+      const queries = new Array<any>();
+      for (const qName in querySchema) {
+        // console.log(`parsing query ${qName}`);
+        const name = SDQL_Name(qName);
+        const schema = querySchema[qName];
+  
+        switch (schema.name) {
+          case "network":
+            // console.log(`${qName} is a network query`);
+            queries.push(AST_NetworkQuery.fromSchema(name, schema));
+            break;
+          default:
+            // console.log(`${qName} is a property query`);
+            queries.push(AST_PropertyQuery.fromSchema(name, schema));
+            break;
+        }
       }
-    }
+  
+      for (const query of queries) {
+        this.saveInContext(query.name, query);
+        this.queries.set(query.name, query);
+      }
 
-    for (const query of queries) {
-      this.saveInContext(query.name, query);
-      this.queries.set(query.name, query);
+      return okAsync(undefined);
+      
+    } catch (err) {
+      if (err instanceof DuplicateIdInSchema)  {
+        return errAsync(err as DuplicateIdInSchema);
+      }
+      if (err instanceof QueryFormatError) {
+        return errAsync(err as QueryFormatError);
+      }
+      return errAsync(new QueryFormatError(JSON.stringify(err)));
     }
 
     // return queries;
   }
 
-  private parseReturns() {
-    const returnsSchema = this.schema.getReturnSchema();
-    const returns = new Array<AST_ReturnExpr>();
+  private parseReturns(): ResultAsync<void, DuplicateIdInSchema | QueryFormatError> {
+    
+    try {
 
-    for (const rName in returnsSchema) {
-      // console.log(`parsing return ${rName}`);
+      const returnsSchema = this.schema.getReturnSchema();
+      const returns = new Array<AST_ReturnExpr>();
 
-      const name = SDQL_Name(rName);
-      const schema = returnsSchema[rName];
+      for (const rName in returnsSchema) {
+        // console.log(`parsing return ${rName}`);
 
-      if (typeof schema === "string") {
-        continue;
+        const name = SDQL_Name(rName);
+        const schema = returnsSchema[rName];
+
+        if (typeof schema === "string") {
+          continue;
+        }
+
+        if ("query" in schema) {
+          // console.log(`${rName} is a query`);
+          const returnExpr = new AST_ReturnExpr(
+            name,
+            this.context.get(SDQL_Name(schema.query)),
+          );
+
+          returns.push(returnExpr);
+        } else if ("message" in schema) {
+          // console.log(`${rName} is a message`);
+          const returnExpr = new AST_ReturnExpr(
+            name,
+            new AST_Return(schema.name, schema.message),
+          );
+
+          returns.push(returnExpr);
+        } else {
+          throw new ReturnNotImplementedError(rName);
+        }
       }
 
-      if ("query" in schema) {
-        // console.log(`${rName} is a query`);
-        const returnExpr = new AST_ReturnExpr(
-          name,
-          this.context.get(SDQL_Name(schema.query)),
-        );
+      this.returns = new AST_Returns(
+        URLString(returnsSchema.url),
+      );
 
-        returns.push(returnExpr);
-      } else if ("message" in schema) {
-        // console.log(`${rName} is a message`);
-        const returnExpr = new AST_ReturnExpr(
-          name,
-          new AST_Return(schema.name, schema.message),
-        );
-
-        returns.push(returnExpr);
-      } else {
-        throw new ReturnNotImplementedError(rName);
+      for (const r of returns) {
+        this.saveInContext(r.name, r);
+        this.returns.expressions.set(r.name, r);
       }
-    }
 
-    for (const r of returns) {
-      this.saveInContext(r.name, r);
-      this.returns?.expressions.set(r.name, r);
+      return okAsync(undefined);
+
+    } catch (err) {
+      if (err instanceof DuplicateIdInSchema)  {
+        return errAsync(err as DuplicateIdInSchema);
+      }
+      if (err instanceof QueryFormatError) {
+        return errAsync(err as QueryFormatError);
+      }
+      return errAsync(new QueryFormatError(JSON.stringify(err)));
     }
   }
 
-  private parseCompensations() {
-    const compensationSchema = this.schema.getCompensationSchema();
+  private parseCompensations(): ResultAsync<void, DuplicateIdInSchema | QueryFormatError> {
+    try {
 
-    for (const cName in compensationSchema) {
-      // console.log(`parsing compensation ${cName}`);
+      const compensationSchema = this.schema.getCompensationSchema();
 
-      const name = SDQL_Name(cName);
-      const schema = compensationSchema[cName];
-      const compensation = new AST_Compensation(
-        name,
-        schema.description,
-        URLString(schema.callback),
-      );
+      for (const cName in compensationSchema) {
+        // console.log(`parsing compensation ${cName}`);
 
-      this.compensations.set(compensation.name, compensation);
-      this.saveInContext(cName, compensation);
+        const name = SDQL_Name(cName);
+        const schema = compensationSchema[cName];
+        const compensation = new AST_Compensation(
+          name,
+          schema.description,
+          URLString(schema.callback),
+        );
+
+        this.compensations.set(compensation.name, compensation);
+        this.saveInContext(cName, compensation);
+      }
+      
+      return okAsync(undefined);
+
+    } catch (err) {
+      if (err instanceof DuplicateIdInSchema)  {
+        return errAsync(err as DuplicateIdInSchema);
+      }
+      if (err instanceof QueryFormatError) {
+        return errAsync(err as QueryFormatError);
+      }
+      return errAsync(new QueryFormatError(JSON.stringify(err)));
     }
   }
   // #endregion
 
   // #region Logic
-  public parseExpString(expStr: string): AST_Expr | Command {
-    if (this.exprParser) return this.exprParser.parse(expStr);
-    throw new Error("Expression Parser not found.");
+
+  private parseLogic(): ResultAsync<void, ParserError | MissingTokenConstructorError | QueryFormatError> {
+
+    try {
+
+      const logicSchema = this.schema.getLogicSchema();
+      this.logicReturns = this.parseLogicExpressions(logicSchema["returns"]);
+      this.logicCompensations = this.parseLogicExpressions(
+        logicSchema["compensations"],
+      );
+
+      return okAsync(undefined);
+
+    } catch (err) {
+      if (err instanceof ParserError)  {
+        return errAsync(err as ParserError);
+      }
+      if (err instanceof MissingTokenConstructorError) {
+        return errAsync(err as MissingTokenConstructorError);
+      }
+      return errAsync(new QueryFormatError(JSON.stringify(err)));
+    }
   }
 
-  private parseLogic() {
-    const logicSchema = this.schema.getLogicSchema();
-    this.logicReturns = this.parseLogicExpressions(logicSchema["returns"]);
-    this.logicCompensations = this.parseLogicExpressions(
-      logicSchema["compensations"],
-    );
-  }
 
-  // private parseLogicReturns(logicSchema: Array<string>): Map<string, AST_Expr> {
-  //     let lrs = new Map<string, AST_Expr>();
-  //     for (let expStr of logicSchema) {
-  //         let exp = this.parseExpString(expStr);
-  //         lrs.set(expStr, exp)
-
-  //     }
-  //     return lrs;
-  // }
-
-  private parseLogicExpressions(
+  private parseLogicExpressions (
     expressions: Array<string>,
   ): Map<string, AST_Expr | Command> {
     // console.log('expressions', expressions);
@@ -200,6 +290,12 @@ export class SDQLParser {
       lrs.set(expStr, exp);
     }
     return lrs;
+  }
+
+  public parseExpString(expStr: string): AST_Expr | Command {
+    return this.exprParser!.parse(expStr);
+    // if (this.exprParser) return this.exprParser.parse(expStr);
+    // throw new Error("Expression Parser not found.");
   }
 
   // #endregion

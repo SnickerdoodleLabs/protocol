@@ -147,6 +147,9 @@ export class OnboardingProvider extends EventEmitter {
   public closeTab() {
     return coreGateway.closeTab();
   }
+  public getDataWalletAddress() {
+    return coreGateway.getDataWalletAddress();
+  }
 }
 
 export default new OnboardingProvider();

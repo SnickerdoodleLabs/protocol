@@ -66,6 +66,8 @@ export class MonitoringService implements IMonitoringService {
                 return this.persistence
                   .getLatestTransactionForAccount(chainId, accountAddress)
                   .andThen((tx) => {
+                    console.log("latest tx", tx);
+
                     // TODO: Determine cold start timestamp
                     let startTime = UnixTimestamp(0);
                     if (tx != null && tx.timestamp != null) {

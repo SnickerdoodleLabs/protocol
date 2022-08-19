@@ -21,6 +21,14 @@ export class ParserError extends Error {
   }
 }
 
+
+export class MissingTokenConstructorError extends Error {
+  constructor(name: string) {
+    super(`No Token type constructor defined for ${name}`);
+  }
+}
+
+
 export class MissingRequiredFieldError extends Error {
   constructor(name: string) {
     super(`${name} not implemented`);
@@ -48,3 +56,5 @@ export class ReturnNotImplementedError extends Error {
 export class ParsingError extends Error {}
 
 export class InvalidRegularExpression extends Error {}
+
+
