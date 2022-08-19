@@ -63,8 +63,26 @@ export class ConfigProvider
   }
 
   public setConfigOverrides(overrides: IConfigOverrides): void {
+    // Change the control chain, have to have new control chain info
     this.config.controlChainId =
       overrides.controlChainId ?? this.config.controlChainId;
+
+    const controlChainInformation = chainConfig.get(this.config.controlChainId);
+
+    if (controlChainInformation == null) {
+      throw new Error(
+        `Invalid configuration! No ChainInformation exists for control chain ${this.config.controlChainId}`,
+      );
+    }
+
+    if (!(controlChainInformation instanceof ControlChainInformation)) {
+      throw new Error(
+        `Invalid configuration! Control chain ${controlChainInformation} is not a ControlChainInformation`,
+      );
+    }
+    this.config.controlChainInformation = controlChainInformation;
+
+    // The rest of the config is easier
     this.config.supportedChains =
       overrides.supportedChains ?? this.config.supportedChains;
     this.config.ipfsFetchBaseUrl =

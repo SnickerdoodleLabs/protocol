@@ -20,7 +20,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { localChainAccounts } from "@test-harness/LocalChainAccounts";
 

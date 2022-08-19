@@ -1,17 +1,12 @@
 import "reflect-metadata";
-import { AxiosAjaxUtils, CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
-import { SnickerdoodleCore, ConfigProvider } from "@snickerdoodlelabs/core";
-import {
-  DefaultAccountBalances,
-  DefaultAccountNFTs,
-} from "@snickerdoodlelabs/indexers";
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   Age,
   AjaxError,
   BlockchainProviderError,
   CrumbsContractError,
-  Invitation,
   ConsentContractError,
   ConsentContractRepositoryError,
   DomainName,
@@ -23,7 +18,6 @@ import {
   InvalidSignatureError,
   LanguageCode,
   PersistenceError,
-  TokenId,
   UninitializedError,
   UnsupportedLanguageError,
   Signature,
@@ -34,7 +28,6 @@ import {
   CountryCode,
   SDQLString,
   PageInvitation,
-  EVMTransactionFilter,
   SiteVisit,
   URLString,
   UnixTimestamp,
@@ -42,12 +35,10 @@ import {
   SDQLQueryRequest,
   EVMTransaction,
 } from "@snickerdoodlelabs/objects";
-import { DataWalletPersistence } from "@snickerdoodlelabs/persistence";
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { BigNumber, ethers } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
