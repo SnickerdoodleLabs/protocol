@@ -3,7 +3,7 @@ const { SIFT, siftContract, logTXDetails } = require("./constants.js");
 task("verifyURL", "Verifies a url on the Sift contract")
   .addParam("url", "Domain to verify")
   .addParam("owner", "Address to mint the Sift token to")
-  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
+  .addParam("accountnumber", "integer referencing the account to use in the configured HD Wallet")
   .setAction(async (taskArgs) => {
     const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
@@ -47,7 +47,7 @@ task("maliciousURL", "Sets a url as malicious on the Sift contract")
       account
     );
 
-    await siftContractHandle.maliciousURL(urlOwner, urlOwner)
+    await siftContractHandle.maliciousURL(url, urlOwner)
       .then((txResponse) => {
         return txResponse.wait()
       })
