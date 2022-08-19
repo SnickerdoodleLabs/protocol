@@ -51,6 +51,11 @@ jobs:
           --build-arg CONTROL_CHAIN_NAME="Development Doodlechain" \
           -f ./packages/extension-onboarding/Dockerfile \
           .
+    # Push the Docker image to Google Artifact Registry
+    - name: Publish protocol
+      run: |-
+        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
+
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
@@ -64,10 +69,6 @@ jobs:
       with:
         credentials_json: '${{ secrets.PROD_GCP_CREDENTIALS }}'
         
-    # Push the Docker image to Google Artifact Registry
-    - name: Publish protocol
-      run: |-
-        docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
 
     - name: Deploy to GCR
       run: |-
