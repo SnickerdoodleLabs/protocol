@@ -55,7 +55,12 @@ export class ExprParser {
     return nextId;
   }
 
+  // #region building ast
   parse(exprStr: string): AST_Expr | Command {
+    /**
+     * Builds a AST expression or a command from the input string
+     */
+   
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
     const ast = this.tokensToAst(tokens);
@@ -352,4 +357,21 @@ export class ExprParser {
     const id = this.getNextId(token.val);
     return new Command_IF(SDQL_Name(id), trueExpr, falseExpr, conditionExpr);
   }
+  // #endregion 
+
+  // #region parse dependencies only
+  getDependencyNames(exprStr: string): Array<string> {
+    
+    const tokenizer = new Tokenizer(exprStr);
+    const tokens = tokenizer.all();
+
+    return tokens.map(token => {
+      if (token.type == TokenType.query) {
+        return token.val;
+      }
+      
+    }).filter(token => token !== undefined);
+
+  }
+  // #endregion
 }

@@ -339,17 +339,30 @@ describe("Postfix expressions", () => {
 });
 
 describe("Postfix to AST", () => {
+
+  
   const schema = SDQLSchema.fromString(avalance1SchemaStr);
   const parser = new SDQLParser(IpfsCID("0"), schema);
-  parser.buildAST();
-  const context = parser.context;
+  let context: Map<string, any> | null = null;
+
+  beforeAll(async () => {
+
+    const astRes = await parser.buildAST();
+    if (astRes.isOk()) {
+      context = parser.context;
+    } else {
+      fail(astRes.error.message);
+    }
+  
+  });
+  
 
   test("$r2", () => {
     const postFix = [new Token(TokenType.query, "$r2", 0)];
-    const exprParser = new ExprParser(context);
+    const exprParser = new ExprParser(context!);
     const expr = exprParser.buildAstFromPostfix(postFix);
     // console.log(expr);
-    expect(expr).toEqual(context.get("r2"));
+    expect(expr).toEqual(context!.get("r2"));
   });
 
   test("$q1$q2andq3or to ast", () => {
@@ -362,7 +375,7 @@ describe("Postfix to AST", () => {
     ];
 
     // console.log(context.keys());
-    const exprParser = new ExprParser(context);
+    const exprParser = new ExprParser(context!);
 
     const expr = exprParser.buildAstFromPostfix(postFix) as AST_ConditionExpr;
     // console.log(expr);
@@ -377,9 +390,9 @@ describe("Postfix to AST", () => {
     );
     const and = (or.lval as AST_ConditionExpr).source as ConditionAnd;
 
-    expect(and.lval).toEqual(context.get("q1"));
-    expect(and.rval).toEqual(context.get("q2"));
-    expect(or.rval).toEqual(context.get("q3"));
+    expect(and.lval).toEqual(context!.get("q1"));
+    expect(and.rval).toEqual(context!.get("q2"));
+    expect(or.rval).toEqual(context!.get("q3"));
   });
 
   test("$q1, $r1, if", () => {
@@ -388,7 +401,7 @@ describe("Postfix to AST", () => {
       new Token(TokenType.return, "$r1", 15),
       new Token(TokenType.if, "if", 0),
     ];
-    const exprParser = new ExprParser(context);
+    const exprParser = new ExprParser(context!);
     const expr = exprParser.buildAstFromPostfix(postFix);
     // console.log(expr);
 
@@ -400,12 +413,12 @@ describe("Postfix to AST", () => {
 
     const rExp = ifCommand.trueExpr as AST_ReturnExpr;
     expect(rExp.source.constructor).toBe(AST_Return);
-    expect(rExp).toEqual(context.get("r1"));
+    expect(rExp).toEqual(context!.get("r1"));
 
     const condExp = ifCommand.conditionExpr as AST_ConditionExpr;
     expect(condExp.source.constructor).toBe(AST_NetworkQuery);
 
-    expect(condExp.source).toEqual(context.get("q1"));
+    expect(condExp.source).toEqual(context!.get("q1"));
   });
 
   test("$q1, $q2, and, $r1, if", () => {
@@ -416,7 +429,7 @@ describe("Postfix to AST", () => {
       new Token(TokenType.return, "$r1", 15),
       new Token(TokenType.if, "if", 0),
     ];
-    const exprParser = new ExprParser(context);
+    const exprParser = new ExprParser(context!);
     const expr = exprParser.buildAstFromPostfix(postFix);
     // console.log(expr);
 
@@ -428,14 +441,14 @@ describe("Postfix to AST", () => {
 
     const rExp = ifCommand.trueExpr as AST_ReturnExpr;
     expect(rExp.source.constructor).toBe(AST_Return);
-    expect(rExp).toEqual(context.get("r1"));
+    expect(rExp).toEqual(context!.get("r1"));
 
     const condExp = ifCommand.conditionExpr as AST_ConditionExpr;
     expect(condExp.source.constructor).toBe(ConditionAnd);
 
     const and = condExp.source as ConditionAnd;
-    expect(and.lval).toEqual(context.get("q1"));
-    expect(and.rval).toEqual(context.get("q2"));
+    expect(and.lval).toEqual(context!.get("q1"));
+    expect(and.rval).toEqual(context!.get("q2"));
   });
 
   test("$q1, $q2, and, $r1, $r3 if", () => {
@@ -447,7 +460,7 @@ describe("Postfix to AST", () => {
       new Token(TokenType.return, "$r3", 22),
       new Token(TokenType.if, "if", 0),
     ];
-    const exprParser = new ExprParser(context);
+    const exprParser = new ExprParser(context!);
     const expr = exprParser.buildAstFromPostfix(postFix);
     // console.log(expr);
 
@@ -456,21 +469,32 @@ describe("Postfix to AST", () => {
     expect(ifCommand.conditionExpr.constructor).toBe(AST_ConditionExpr);
     expect(ifCommand.trueExpr.constructor).toBe(AST_ReturnExpr);
     expect(ifCommand.falseExpr?.constructor).toBe(AST_ReturnExpr);
-    expect(ifCommand.trueExpr).toEqual(context.get("r1"));
-    expect(ifCommand.falseExpr).toEqual(context.get("r3"));
+    expect(ifCommand.trueExpr).toEqual(context!.get("r1"));
+    expect(ifCommand.falseExpr).toEqual(context!.get("r3"));
 
     const rExp1 = ifCommand.trueExpr as AST_ReturnExpr;
     expect(rExp1.source.constructor).toBe(AST_Return);
 
     const rExp2 = ifCommand.falseExpr as AST_ReturnExpr;
     expect(rExp2.source.constructor).toBe(AST_PropertyQuery);
-    expect(rExp2.source).toEqual(context.get("q3"));
+    expect(rExp2.source).toEqual(context!.get("q3"));
 
     const condExp = ifCommand.conditionExpr as AST_ConditionExpr;
     expect(condExp.source.constructor).toBe(ConditionAnd);
 
     const and = condExp.source as ConditionAnd;
-    expect(and.lval).toEqual(context.get("q1"));
-    expect(and.rval).toEqual(context.get("q2"));
+    expect(and.lval).toEqual(context!.get("q1"));
+    expect(and.rval).toEqual(context!.get("q2"));
+  });
+
+  test.only("dependencies", () => {
+
+    const exprParser = new ExprParser(context!);
+    const expr = "if($q1and$q2)then$r1else$r2";
+    const dependencies = exprParser.getDependencyNames(expr);
+
+    console.log(dependencies)
+    fail("incomplete");
   });
 });
+
