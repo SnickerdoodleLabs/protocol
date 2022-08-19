@@ -58,7 +58,7 @@ jobs:
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
 
     # Setup gcloud CLI
-    - id: 'auth prod'
+    - id: 'auth'
       uses: 'google-github-actions/auth@v0'
       with:
         credentials_json: '${{ secrets.PROD_GCP_CREDENTIALS }}'
