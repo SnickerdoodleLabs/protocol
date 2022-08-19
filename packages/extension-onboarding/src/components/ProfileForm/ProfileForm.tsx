@@ -1,7 +1,5 @@
 import DateFnsUtils from "@date-io/date-fns";
-import artboardImage from "@extension-onboarding/assets/images/artboard.png";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { ALERT_MESSAGES } from "@extension-onboarding/constants";
 import { countries } from "@extension-onboarding/constants/countries";
 import { useAppContext } from "@extension-onboarding/context/App";
@@ -38,8 +36,7 @@ interface ProfileFormProps {
 const ProfileForm: FC<ProfileFormProps> = ({
   onSubmitted,
 }: ProfileFormProps) => {
-  const { changeStepperStatus, apiGateway, dataWalletGateway } =
-    useAppContext();
+  const { apiGateway, dataWalletGateway } = useAppContext();
   const { setAlert } = useNotificationContext();
   const [isGoogleButtonVisible, setGoogleButtonVisible] = useState(true);
   const [formValues, setFormValues] = useState<PII>(new PII());
@@ -106,234 +103,201 @@ const ProfileForm: FC<ProfileFormProps> = ({
 
   const classes = useStyles();
   return (
-    <Box mt={15}>
-      <Box display="flex">
-        <Box width={700}>
-          <Box mb={5} mt={4}>
-            {isGoogleButtonVisible && (
-              <>
-                <Box mt={5} mb={2}>
-                  <Typography className={classes.socialLoginTitle}>
-                    Build your Profile by Linking your Data from Google
-                  </Typography>
-                </Box>
-                <GoogleLogin
-                  clientId={clientID}
-                  className={classes.googleButton}
-                  buttonText="Link your data from Google"
-                  onSuccess={onSuccess}
-                  onFailure={onFailure}
-                  cookiePolicy={"single_host_origin"}
-                  isSignedIn={false}
-                />
-              </>
-            )}
-          </Box>
-
-          <Box>
-            <Box>
-              <Formik
-                initialValues={formValues}
-                onSubmit={onFormSubmit}
-                enableReinitialize
-                validationSchema={schema}
-              >
-                {({ handleSubmit, values, setFieldValue }) => {
-                  return (
-                    <Form
-                      noValidate
-                      onSubmit={handleSubmit}
-                      id="profile-create-form"
-                    >
-                      <Box display="flex">
-                        <Box>
-                          <Box>
-                            <FormLabel className={classes.formLabel}>
-                              First Name
-                            </FormLabel>
-                          </Box>
-                          <Field
-                            className={classes.input}
-                            component={TextField}
-                            variant="outlined"
-                            name="given_name"
-                            type="text"
-                            placeholder="First Name"
-                            required
-                            value={values.given_name}
-                          />
-                        </Box>
-                        <Box ml={3}>
-                          <Box>
-                            <FormLabel className={classes.formLabel}>
-                              Last Name
-                            </FormLabel>
-                          </Box>
-                          <Field
-                            className={classes.input}
-                            component={TextField}
-                            variant="outlined"
-                            name="family_name"
-                            type="text"
-                            placeholder="Last Name"
-                            value={values.family_name}
-                          />
-                        </Box>
-                      </Box>
-                      <Box display="flex" mt={3}>
-                        <Box>
-                          <Box>
-                            <FormLabel className={classes.formLabel}>
-                              Email Address
-                            </FormLabel>
-                          </Box>
-                          <Field
-                            className={classes.input}
-                            component={TextField}
-                            variant="outlined"
-                            fullWidth
-                            name="email_address"
-                            type="email"
-                            placeholder="Email Address"
-                            value={values.email_address}
-                          />
-                        </Box>
-                        <Box ml={3}>
-                          <Box>
-                            <FormLabel className={classes.formLabel}>
-                              Date of Birth
-                            </FormLabel>
-                          </Box>
-                          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                            <KeyboardDatePicker
-                              className={classes.input}
-                              required
-                              clearable
-                              autoOk
-                              variant="inline"
-                              placeholder="Date of Birth (MM/DD/YYYY)"
-                              inputVariant="outlined"
-                              format="MM/dd/yyyy"
-                              id="date-picker-inline"
-                              invalidDateMessage=""
-                              maxDateMessage=""
-                              minDateMessage=""
-                              onError={(e) => console.log(e)}
-                              value={values.date_of_birth}
-                              onChange={(date, value) => {
-                                setFieldValue(
-                                  "date_of_birth",
-                                  date?.toString() === "Invalid Date"
-                                    ? date
-                                    : value,
-                                  true,
-                                );
-                              }}
-                              KeyboardButtonProps={{
-                                "aria-label": "change date",
-                              }}
-                            />
-                            <ErrorMessage
-                              children={(errorMessage: string) => (
-                                <Typography className={classes.errorMessage}>
-                                  {errorMessage}
-                                </Typography>
-                              )}
-                              name="date_of_birth"
-                            />
-                          </MuiPickersUtilsProvider>
-                        </Box>
-                      </Box>
-                      <Box display="flex" mt={3}>
-                        <Box>
-                          <Box>
-                            <FormLabel className={classes.formLabel}>
-                              Country
-                            </FormLabel>
-                          </Box>
-                          <Field
-                            className={classes.selectInput}
-                            component={Select}
-                            variant="outlined"
-                            fullWidth
-                            name="country_code"
-                            placeholder="Country"
-                            value={
-                              values.country_code ||
-                              (() => {
-                                setFieldValue("country_code", "US");
-                                return "US";
-                              })()
-                            }
-                          >
-                            <MenuItem selected value="US">
-                              United States
-                            </MenuItem>
-                            {countries.map((country) => (
-                              <MenuItem key={country.code} value={country.code}>
-                                {country.name}
-                              </MenuItem>
-                            ))}
-                          </Field>
-                        </Box>
-
-                        <Box ml={3}>
-                          <Box>
-                            <FormLabel className={classes.formLabel}>
-                              Gender
-                            </FormLabel>
-                          </Box>
-                          <Box mt={1}>
-                            <Field
-                              component={RadioGroup}
-                              row
-                              required
-                              name="gender"
-                              value={values.gender}
-                              onChange={(event) => {
-                                setFieldValue(
-                                  "gender",
-                                  event.currentTarget.value,
-                                );
-                              }}
-                            >
-                              <FormControlLabel
-                                value="female"
-                                control={<Radio />}
-                                label="Female"
-                              />
-                              <FormControlLabel
-                                value="male"
-                                control={<Radio />}
-                                label="Male"
-                              />
-                              <FormControlLabel
-                                value="nonbinary"
-                                control={<Radio />}
-                                label="Non-Binary"
-                              />
-                            </Field>
-                            <ErrorMessage
-                              children={(errorMessage: string) => (
-                                <Typography className={classes.errorMessage}>
-                                  {errorMessage}
-                                </Typography>
-                              )}
-                              name="gender"
-                            />
-                          </Box>
-                        </Box>
-                      </Box>
-                    </Form>
-                  );
-                }}
-              </Formik>
+    <Box>
+      <Box mb={5} mt={4}>
+        {isGoogleButtonVisible && (
+          <Box my={5}>
+            <Box mb={2}>
+              <Typography className={classes.socialLoginTitle}>
+                Build your Profile by Linking your Data from Google
+              </Typography>
             </Box>
+            <GoogleLogin
+              clientId={clientID}
+              className={classes.googleButton}
+              buttonText="Link your data from Google"
+              onSuccess={onSuccess}
+              onFailure={onFailure}
+              cookiePolicy={"single_host_origin"}
+              isSignedIn={false}
+            />
           </Box>
-        </Box>
-        <Box className={classes.artboardImageContainer}></Box>
+        )}
+        <Formik
+          initialValues={formValues}
+          onSubmit={onFormSubmit}
+          enableReinitialize
+          validationSchema={schema}
+        >
+          {({ handleSubmit, values, setFieldValue }) => {
+            return (
+              <Form noValidate onSubmit={handleSubmit} id="profile-create-form">
+                <Box display="flex">
+                  <Box>
+                    <Typography className={classes.formLabel}>
+                      First Name
+                    </Typography>
+                    <Field
+                      className={classes.input}
+                      component={TextField}
+                      variant="outlined"
+                      name="given_name"
+                      type="text"
+                      placeholder="First Name"
+                      required
+                      value={values.given_name}
+                    />
+                  </Box>
+                  <Box ml={3}>
+                    <Typography className={classes.formLabel}>
+                      Last Name
+                    </Typography>
+                    <Field
+                      className={classes.input}
+                      component={TextField}
+                      variant="outlined"
+                      name="family_name"
+                      type="text"
+                      placeholder="Last Name"
+                      value={values.family_name}
+                    />
+                  </Box>
+                </Box>
+                <Box display="flex" mt={3}>
+                  <Box>
+                    <Typography className={classes.formLabel}>
+                      Email Address
+                    </Typography>
+                    <Field
+                      className={classes.input}
+                      component={TextField}
+                      variant="outlined"
+                      fullWidth
+                      name="email_address"
+                      type="email"
+                      placeholder="Email Address"
+                      value={values.email_address}
+                    />
+                  </Box>
+                  <Box ml={3}>
+                    <Typography className={classes.formLabel}>
+                      Date of Birth
+                    </Typography>
+                    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                      <KeyboardDatePicker
+                        className={classes.input}
+                        required
+                        clearable
+                        autoOk
+                        variant="inline"
+                        placeholder="Date of Birth (MM/DD/YYYY)"
+                        inputVariant="outlined"
+                        format="MM/dd/yyyy"
+                        id="date-picker-inline"
+                        invalidDateMessage=""
+                        maxDateMessage=""
+                        minDateMessage=""
+                        onError={(e) => console.log(e)}
+                        value={values.date_of_birth}
+                        onChange={(date, value) => {
+                          setFieldValue(
+                            "date_of_birth",
+                            date?.toString() === "Invalid Date" ? date : value,
+                            true,
+                          );
+                        }}
+                        KeyboardButtonProps={{
+                          "aria-label": "change date",
+                        }}
+                      />
+                      <ErrorMessage
+                        children={(errorMessage: string) => (
+                          <Typography className={classes.errorMessage}>
+                            {errorMessage}
+                          </Typography>
+                        )}
+                        name="date_of_birth"
+                      />
+                    </MuiPickersUtilsProvider>
+                  </Box>
+                </Box>
+                <Box display="flex" mt={3}>
+                  <Box>
+                    <Typography className={classes.formLabel}>
+                      Country
+                    </Typography>
+                    <Field
+                      className={classes.selectInput}
+                      component={Select}
+                      variant="outlined"
+                      fullWidth
+                      name="country_code"
+                      placeholder="Country"
+                      value={
+                        values.country_code ||
+                        (() => {
+                          setFieldValue("country_code", "US");
+                          return "US";
+                        })()
+                      }
+                    >
+                      <MenuItem selected value="US">
+                        United States
+                      </MenuItem>
+                      {countries.map((country) => (
+                        <MenuItem key={country.code} value={country.code}>
+                          {country.name}
+                        </MenuItem>
+                      ))}
+                    </Field>
+                  </Box>
+                  <Box ml={3}>
+                    <Typography className={classes.formLabel}>
+                      Gender
+                    </Typography>
+                    <Box mt={1}>
+                      <Field
+                        component={RadioGroup}
+                        row
+                        required
+                        name="gender"
+                        value={values.gender}
+                        onChange={(event) => {
+                          setFieldValue("gender", event.currentTarget.value);
+                        }}
+                      >
+                        <FormControlLabel
+                          value="female"
+                          control={<Radio />}
+                          label="Female"
+                        />
+                        <FormControlLabel
+                          value="male"
+                          control={<Radio />}
+                          label="Male"
+                        />
+                        <FormControlLabel
+                          value="nonbinary"
+                          control={<Radio />}
+                          label="Non-Binary"
+                        />
+                      </Field>
+                      <ErrorMessage
+                        children={(errorMessage: string) => (
+                          <Typography className={classes.errorMessage}>
+                            {errorMessage}
+                          </Typography>
+                        )}
+                        name="gender"
+                      />
+                    </Box>
+                  </Box>
+                </Box>
+              </Form>
+            );
+          }}
+        </Formik>
       </Box>
-      <Box className={classes.buttonContainer}></Box>
     </Box>
   );
 };

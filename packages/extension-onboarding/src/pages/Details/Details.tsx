@@ -1,15 +1,15 @@
-import React from "react";
+import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import { useStyles } from "@extension-onboarding/pages/Details/Details.style";
 import OnChainInfo from "@extension-onboarding/pages/Details/screens/OnChainIfo";
 import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
-import { Box, Tab, Tabs, Typography } from "@material-ui/core";
-import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import { useParams, useLocation } from "react-router-dom";
+import { Box, Tab, Tabs } from "@material-ui/core";
+import React from "react";
+import { useLocation } from "react-router-dom";
 
 interface TabPanelProps {
   children?: React.ReactNode;
-  index: any;
-  value: any;
+  index: number;
+  value: number;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -23,54 +23,46 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box p={3} display="flex" justifyContent="center">
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && <Box>{children}</Box>}
     </div>
   );
 }
 
-function a11yProps(index: any) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
+const screens = {
+  "on-chain": 1,
+  profile: 0,
+  rewards: 2,
+};
 
 const Details = () => {
   const { search } = useLocation();
-  const b = new URLSearchParams(search).get("screen");
   const classes = useStyles();
+  const screen = new URLSearchParams(search).get("screen");
 
-  const [value, setValue] = React.useState(b === "on-chain" ? 1 : 0);
+  const [currentScreenIndex, setCurrentScreenIndex] = React.useState(
+    screen != undefined && screens[screen] != undefined ? screens[screen] : 0,
+  );
   // eslint-disable-next-line @typescript-eslint/ban-types
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setValue(newValue);
+    setCurrentScreenIndex(newValue);
   };
   return (
-    <Box mt={8} px={15} className={classes.container}>
+    <Box pt={8} px={15} className={classes.container}>
       <img src={snickerDoodleLogo} />
-      <Tabs
-        value={value}
-        onChange={handleChange}
-        aria-label="simple tabs example"
-      >
-        <Tab disableTouchRipple label="Personal Info" {...a11yProps(0)} />
-        <Tab disableTouchRipple label="On-chain Info" {...a11yProps(1)} />
-        <Tab disableTouchRipple label="Rewards" {...a11yProps(2)} />
-      </Tabs>
-      <TabPanel value={value} index={0}>
+      <Box mb={5}>
+        <Tabs value={currentScreenIndex} onChange={handleChange}>
+          <Tab disableTouchRipple label="Personal Info" />
+          <Tab disableTouchRipple label="On-chain Info" />
+          <Tab disableTouchRipple label="Rewards" />
+        </Tabs>
+      </Box>
+      <TabPanel value={currentScreenIndex} index={0}>
         <PersonalInfo />
       </TabPanel>
-      <TabPanel value={value} index={1}>
+      <TabPanel value={currentScreenIndex} index={1}>
         <OnChainInfo />
       </TabPanel>
-      <TabPanel value={value} index={2}>
-        Comming Soon
-      </TabPanel>
-      ;
+      <TabPanel value={currentScreenIndex} index={2}></TabPanel>
     </Box>
   );
 };

@@ -3,7 +3,7 @@ import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/OnChainIfo/OnChainInfo.style";
-import { Box, Typography } from "@material-ui/core";
+import { Box, Grid, Typography } from "@material-ui/core";
 import React, { FC } from "react";
 
 const OnChainInfo: FC = () => {
@@ -11,17 +11,19 @@ const OnChainInfo: FC = () => {
   const { setModal } = useLayoutContext();
   return (
     <Box>
-      <Box display="flex">
-        <Box>
-          <h3 className={classes.linkCryptoText}>On Chain Info</h3>
-          <p className={classes.manageText}>
-            Manage all your personal data from your Snickerdoodle Data Wallet.
-          </p>
+      <Box mb={5}>
+        <Typography className={classes.title}>On Chain Info</Typography>
+        <Typography className={classes.description}>
+          Manage all your personal data from your Snickerdoodle Data Wallet.
+        </Typography>
+      </Box>
+      <Grid container spacing={2}>
+        <Grid item sm={7}>
           <WalletProviders />
-        </Box>
-        <Box className={classes.yourLinkedAccountContainer}>
-          <Box mb={2} mt={7}>
-            <Typography className={classes.sectionTitle}>
+        </Grid>
+        <Grid item sm={5}>
+          <Box mb={2}>
+            <Typography className={classes.itemTitle}>
               Your Linked Accounts
             </Typography>
           </Box>
@@ -35,8 +37,8 @@ const OnChainInfo: FC = () => {
             }}
             buttonText="VIEW DETAILS"
           />
-        </Box>
-      </Box>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

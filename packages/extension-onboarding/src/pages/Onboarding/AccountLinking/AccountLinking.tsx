@@ -1,4 +1,4 @@
-import { Box, Button, makeStyles, Typography } from "@material-ui/core";
+import { Box, Button, Grid, makeStyles, Typography } from "@material-ui/core";
 import React, { FC } from "react";
 
 import AccountsCard from "@extension-onboarding/components/AccountsCard";
@@ -13,23 +13,23 @@ const AccountLinking: FC = () => {
   const classes = useStyles();
   return (
     <Box>
-      <Box display="flex">
-        <Box>
-          <h3 className={classes.linkCryptoText}>Link your Crypto Accounts</h3>
-          <p className={classes.manageText}>
-            Manage all your personal data from your Snickerdoodle Data Wallet.
-          </p>
+      <h3 className={classes.linkCryptoText}>Link your Crypto Accounts</h3>
+      <p className={classes.manageText}>
+        Manage all your personal data from your Snickerdoodle Data Wallet.
+      </p>
+      <Grid container spacing={2}>
+        <Grid item sm={7}>
           <WalletProviders />
-        </Box>
-        <Box className={classes.yourLinkedAccountContainer}>
-          <Box mb={2} mt={7}>
+        </Grid>
+        <Grid item sm={5}>
+          <Box mb={2}>
             <Typography className={classes.sectionTitle}>
               Your Linked Accounts
             </Typography>
           </Box>
           <AccountsCard />
-        </Box>
-      </Box>
+        </Grid>
+      </Grid>
       <Box className={classes.buttonContainer}>
         <Button
           onClick={() => {

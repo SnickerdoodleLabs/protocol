@@ -1,94 +1,78 @@
 import PersonalInfoCard from "@extension-onboarding/components/PersonalInfoCard";
+import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import ProfileForm from "@extension-onboarding/components/ProfileForm/ProfileForm";
-import { Box, Button, IconButton, Typography } from "@material-ui/core";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/PersonalInfo/Personalnfo.style";
+import { Box, Button, Grid, Typography } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import React, { FC, useMemo, useState } from "react";
+
 enum EMode {
   DISPLAY,
   EDIT,
 }
-
 const PersonalInfo: FC = () => {
   const [mode, setMode] = useState<EMode>(EMode.DISPLAY);
+  const classes = useStyles();
 
   const component = useMemo(() => {
     switch (mode) {
       case EMode.DISPLAY:
         return (
           <>
-            <Box>
-              <Box display="flex">
-                <Box>
-                  <Box>
-                    <Typography
-                      style={{
-                        fontFamily: "Shrikhand",
-                        fontSize: 36,
-                        fontWeight: 400,
-                        color: "#232039",
-                      }}
-                    >
-                      Personal Info
-                    </Typography>
-                  </Box>
-                  <Box my={4}>
-                    <Typography
-                      style={{
-                        fontFamily: "Space Grotesk",
-                        fontWeight: 400,
-                        fontSize: 18,
-                        lineHeight: "23px",
-                      }}
-                    >
-                      This information is for your data wallet. No one has
-                      access to this
-                      <br></br> or any other information in your data wallet
-                      unless you choose to <br></br> share it with them!
-                    </Typography>
-                  </Box>
-                  <PersonalInfoCard
-                    topRightContent={
-                      <Button
-                        style={{
-                          fontFamily: "Space Grotesk",
-                          fontSize: 16,
-                          fontWeight: 500,
-                          color: "#8079B4",
-                        }}
-                        onClick={() => {
-                          setMode(EMode.EDIT);
-                        }}
-                        startIcon={<EditIcon />}
-                      >
-                        Edit
-                      </Button>
-                    }
-                  />
-                </Box>
-              </Box>
+            <Typography className={classes.title}>Personal Info</Typography>
+            <Box my={4}>
+              <Typography className={classes.description}>
+                This information is for your data wallet. No one has access to
+                this
+                <br></br> or any other information in your data wallet unless
+                you choose to <br></br> share it with them!
+              </Typography>
             </Box>
+            <Grid container>
+              <Grid item sm={8}>
+                <PersonalInfoCard
+                  topRightContent={
+                    <Button
+                      className={classes.editButton}
+                      onClick={() => {
+                        setMode(EMode.EDIT);
+                      }}
+                      startIcon={<EditIcon />}
+                    >
+                      Edit
+                    </Button>
+                  }
+                />
+              </Grid>
+            </Grid>
           </>
         );
 
       case EMode.EDIT:
         return (
-          <>
-            <ProfileForm
-              onSubmitted={() => {
-                setMode(EMode.DISPLAY);
-              }}
-            />
-            <Button
-              onClick={() => {
-                setMode(EMode.DISPLAY);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" form="profile-create-form">
-              Submit
-            </Button>
-          </>
+          <Grid container>
+            <Grid item sm={8}>
+              <ProfileForm
+                onSubmitted={() => {
+                  setMode(EMode.DISPLAY);
+                }}
+              />
+              <Box display="flex" alignItems="center">
+                <Box marginLeft="auto" mr={3}>
+                  <Button
+                    onClick={() => {
+                      setMode(EMode.DISPLAY);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+                <PrimaryButton type="submit" form="profile-create-form">
+                  Submit
+                </PrimaryButton>
+              </Box>
+            </Grid>
+          </Grid>
         );
     }
   }, [mode]);

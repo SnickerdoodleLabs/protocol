@@ -3,7 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 export const useStyles = makeStyles((theme) => ({
   container: {
     border: "1px solid #ECECEC",
-    width: "500px",
     height: "400px",
     borderRadius: 8,
   },

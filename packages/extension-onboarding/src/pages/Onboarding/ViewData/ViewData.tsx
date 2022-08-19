@@ -6,7 +6,7 @@ import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewData/ViewData.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, Typography } from "@material-ui/core";
+import { Box, Grid, Typography } from "@material-ui/core";
 import React, { FC } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
@@ -16,7 +16,7 @@ const ViewData: FC = () => {
   const classes = useStyles();
   return (
     <Box>
-      <Box display="flex">
+      <Box>
         <Box>
           <h3 className={classes.buildYourProfileText}>View your Data</h3>
           <p className={classes.infoText}>
@@ -24,10 +24,11 @@ const ViewData: FC = () => {
             cannot be shared with any other party unless you approve it!
           </p>
 
-          <Box display="flex" alignItems="flex-start">
-            <PersonalInfoCard />
-
-            <Box ml={3}>
+          <Grid container spacing={2}>
+            <Grid item sm={5}>
+              <PersonalInfoCard />
+            </Grid>
+            <Grid item sm={7}>
               <AccountsCard
                 onButtonClick={(account) => {
                   setModal({
@@ -44,11 +45,10 @@ const ViewData: FC = () => {
                     </Typography>
                   </Box>
                 }
-                width={650}
                 useDivider
               />
-            </Box>
-          </Box>
+            </Grid>
+          </Grid>
         </Box>
       </Box>
       <Box className={classes.buttonContainer}>

@@ -2,7 +2,6 @@ import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleL
 import ProgressBar from "@extension-onboarding/components/ProgressBar/ProgressBar";
 import { useAppContext } from "@extension-onboarding/context/App";
 import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking/AccountLinking";
-import { useStyles } from "@extension-onboarding/pages/Onboarding/Onboarding.style";
 import OnboardingWelcome from "@extension-onboarding/pages/Onboarding/OnboardingWelcome";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
 import ViewData from "@extension-onboarding/pages/Onboarding/ViewData/ViewData";
@@ -27,18 +26,17 @@ export default function Onboarding() {
     return stateArray[value];
   };
 
-  const classes = useStyles();
   return (
-    <Box display="flex" justifyContent="center">
-      <Box>
-        {progressValue !== 0 && <img src={snickerDoodleLogo} />}
-        {progressValue === 0 || progressValue === 4 ? (
-          ""
-        ) : (
+    <Box>
+      {progressValue === 0 ? (
+        returnState(progressValue)
+      ) : (
+        <Box bgcolor="#fff" py={8} px={15}>
+          <img src={snickerDoodleLogo} />
           <ProgressBar progressStatus={progressValue} />
-        )}
-        {returnState(progressValue)}
-      </Box>
+          {returnState(progressValue)}
+        </Box>
+      )}
     </Box>
   );
 }

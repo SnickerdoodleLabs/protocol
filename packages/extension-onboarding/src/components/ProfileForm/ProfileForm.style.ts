@@ -40,7 +40,6 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: 1.66,
     letterSpacing: "0.03333em",
   },
-  artboardImageContainer: {},
   buttonContainer: {
     display: "flex",
     justifyContent: "flex-end",

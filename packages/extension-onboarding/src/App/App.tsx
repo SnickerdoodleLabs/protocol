@@ -1,8 +1,15 @@
+import { useStyles } from "@extension-onboarding/App/App.style";
 import MainContainer from "@extension-onboarding/containers/MainContainer";
+import { Box } from "@material-ui/core";
 import React from "react";
 
 const App = () => {
-  return <MainContainer />;
+  const classes = useStyles();
+  return (
+    <Box className={classes.appWrapper}>
+      <MainContainer />
+    </Box>
+  );
 };
 
 export default App;

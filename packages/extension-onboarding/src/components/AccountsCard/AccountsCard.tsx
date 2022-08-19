@@ -13,7 +13,6 @@ interface IAccountCardProps {
   onButtonClick?: ((account: ILinkedAccount) => void) | null;
   buttonText?: string;
   topContent?: ReactNode;
-  width?: number;
 }
 
 const AccountCard = ({
@@ -21,13 +20,12 @@ const AccountCard = ({
   onButtonClick = null,
   buttonText,
   topContent,
-  width,
 }: IAccountCardProps) => {
   const classes = useStyles();
   const { linkedAccounts } = useAppContext();
 
   return (
-    <Box className={classes.container} width={width ? width : 430}>
+    <Box className={classes.container}>
       {topContent && topContent}
       {linkedAccounts?.length ? (
         linkedAccounts?.map?.((account, index) => (
