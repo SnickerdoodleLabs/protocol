@@ -55,7 +55,9 @@ const AppContext = createContext<IAppContext>({} as IAppContext);
 export const AppContextProvider: FC = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [providerList, setProviderList] = useState<IProvider[]>([]);
-  const [stepperStatus, setStepperStatus] = useState(0);
+  const [stepperStatus, setStepperStatus] = useState(
+    parseInt(sessionStorage.getItem("onboardingCurrentScreenIndex") ?? "0"),
+  );
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
@@ -176,8 +178,16 @@ export const AppContextProvider: FC = ({ children }) => {
   // TODO Change Stepper System
   const changeStepperStatus = (status) => {
     if (status === "next") {
+      sessionStorage.setItem(
+        "onboardingCurrentScreenIndex",
+        `${stepperStatus + 1}`,
+      );
       setStepperStatus(stepperStatus + 1);
     } else {
+      sessionStorage.setItem(
+        "onboardingCurrentScreenIndex",
+        `${stepperStatus - 1}`,
+      );
       setStepperStatus(stepperStatus - 1);
     }
   };
