@@ -85,7 +85,12 @@ export class SDQLParser {
             return this.parseCompensations()
             .andThen(() => {
 
-              return this.parseLogic();
+              return this.parseLogic()
+                .andThen(() => {
+                  
+                  return this.parsePermissions();
+
+                });
 
             });
 
@@ -295,11 +300,18 @@ export class SDQLParser {
     }
     return lrs;
   }
+  
+  public parseExpString(expStr: string): AST_Expr | Command {
+    return this.exprParser!.parse(expStr);
+    // if (this.exprParser) return this.exprParser.parse(expStr);
+    // throw new Error("Expression Parser not found.");
+  }
 
-  private parsePermissions() {
+  private parsePermissions(): ResultAsync<void, ParserError> {
     const logicSchema = this.schema.getLogicSchema();
     this.returnPermissions = this.parseLogicPermissions(logicSchema['returns']);
     this.compenstationPermissions = this.parseLogicPermissions(logicSchema['compensations']);
+    return okAsync(undefined);
 
   }
 
@@ -307,11 +319,6 @@ export class SDQLParser {
     expressions: Array<string>,
   ): Map<string, DataPermissions> {
     return new Map();
-  }
-  public parseExpString(expStr: string): AST_Expr | Command {
-    return this.exprParser!.parse(expStr);
-    // if (this.exprParser) return this.exprParser.parse(expStr);
-    // throw new Error("Expression Parser not found.");
   }
 
   // #endregion
