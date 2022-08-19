@@ -1,9 +1,6 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Web3Provider } from "@ethersproject/providers";
-import {
-  ChainInformation,
-  EVMAccountAddress,
-  Signature,
-} from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import WalletConnect from "@walletconnect/web3-provider";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
@@ -93,9 +90,9 @@ export class WalletConnectProvider implements IWalletProvider {
                 chainName: this.config.controlChain.name,
                 rpcUrls: this.config.controlChain.providerUrls,
                 nativeCurrency: {
-                  name: "DOODLE",
-                  decimals: 18,
-                  symbol: "DOODLE",
+                  name: this.config.controlChain.nativeCurrency.name,
+                  decimals: this.config.controlChain.nativeCurrency.decimals,
+                  symbol: this.config.controlChain.nativeCurrency.symbol,
                 },
               },
             ]),

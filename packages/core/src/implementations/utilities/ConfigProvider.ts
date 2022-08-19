@@ -1,4 +1,3 @@
-import { TypedDataDomain } from "@ethersproject/abstract-signer";
 import { IIndexerConfigProvider } from "@snickerdoodlelabs/indexers";
 import {
   chainConfig,
@@ -9,7 +8,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { CoreConfig } from "@core/interfaces/objects";

@@ -1,5 +1,8 @@
-import { ChainInformation } from "@extension-onboarding/services/blockChainWalletProviders/interfaces/objects/ChainInformation";
+import { ControlChainInformation } from "@snickerdoodlelabs/objects";
 
 export class Config {
-  constructor(public infuraId: string, public controlChain: ChainInformation) {}
+  constructor(
+    public infuraId: string,
+    public controlChain: ControlChainInformation,
+  ) {}
 }
