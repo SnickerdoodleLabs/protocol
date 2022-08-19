@@ -6,7 +6,6 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 400,
     fontStyle: "italic",
     fontFamily: " 'Shrikhand', cursive ",
-    marginTop: "100px",
   },
   subTitle: {
     fontFamily: "Space Grotesk",
@@ -80,6 +79,7 @@ export const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "flex-end",
     margin: 20,
+    paddingBottom: 80,
   },
   tokenText: {
     fontFamily: "Space Grotesk",

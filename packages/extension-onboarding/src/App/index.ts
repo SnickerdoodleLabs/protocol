@@ -1,1 +1,1 @@
-export { default } from "./App";
+export { default } from "@extension-onboarding/App/App";

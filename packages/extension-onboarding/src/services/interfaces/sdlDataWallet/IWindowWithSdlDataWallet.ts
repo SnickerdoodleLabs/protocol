@@ -54,7 +54,8 @@ export interface ISdlDataWallet extends EventEmitter {
   getAccounts(): ResultAsync<EVMAccountAddress[], unknown>;
   getAccountBalances(): ResultAsync<IEVMBalance[], unknown>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], unknown>;
-  closeTab(): void;
+  closeTab(): ResultAsync<void, unknown>;
+  getDataWalletAddress(): ResultAsync<EVMAccountAddress | null, undefined>;
 }
 
 export interface IWindowWithSdlDataWallet extends Window {

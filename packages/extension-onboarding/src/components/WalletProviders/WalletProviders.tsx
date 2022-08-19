@@ -1,3 +1,15 @@
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
+import { EModalSelectors } from "@extension-onboarding/components/Modals/";
+import WalletProviderItem from "@extension-onboarding/components/WalletProviders/WalletProviderItem";
+import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviders.style";
+import {
+  ALERT_MESSAGES,
+  EWalletProviderKeys,
+} from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Typography } from "@material-ui/core";
 import {
   IMinimalForwarderRequest,
@@ -13,8 +25,7 @@ import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import { BigNumber, ethers } from "ethers";
-import e, { request } from "express";
+import { BigNumber } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import React, {
   FC,
@@ -25,19 +36,6 @@ import React, {
   useState,
 } from "react";
 
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import WalletProviderItem from "@extension-onboarding/components/WalletProviders/WalletProviderItem";
-import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviders.style";
-import {
-  ALERT_MESSAGES,
-  EWalletProviderKeys,
-} from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/sdlDataWallet/interfaces/IWindowWithSdlDataWallet";
-
 declare const window: IWindowWithSdlDataWallet;
 
 const WalletProviders: FC = () => {
@@ -47,7 +45,7 @@ const WalletProviders: FC = () => {
   const [loading, setIsloading] = useState(false);
   const [selectedProviderKey, setSelectedProviderKey] =
     useState<EWalletProviderKeys>();
-  const { setAlert, setModal } = useLayoutContext();
+  const { setModal } = useLayoutContext();
 
   useEffect(() => {
     window.sdlDataWallet.on(
@@ -138,21 +136,6 @@ const WalletProviders: FC = () => {
               });
           });
         });
-      })
-      .map(() => {
-        // use it for metadata
-        localStorage.setItem(
-          `${pendingMetatransaction.data.accountAddress}`,
-          providerObj.key,
-        );
-        addAccount({
-          accountAddress: pendingMetatransaction.data.accountAddress,
-          providerKey: providerObj.key,
-        });
-        setAlert({
-          message: ALERT_MESSAGES.ACCOUNT_ADDED,
-          severity: EAlertSeverity.SUCCESS,
-        });
       });
   };
 
@@ -194,6 +177,9 @@ const WalletProviders: FC = () => {
                   (linkedAccount) => linkedAccount.accountAddress === account,
                 )
               ) {
+                // use it for metadata
+                localStorage.setItem(`${account}`, providerObj.key);
+
                 if (!linkedAccounts.length) {
                   console.log(
                     "No existing linked accounts, calling sdlDataWallet.unlock()",
@@ -222,7 +208,7 @@ const WalletProviders: FC = () => {
         <Typography className={classes.sectionTitle}>Your Wallets</Typography>
       )}
       {detectedProviders.map((provider) => (
-        <Box mt={2} key={provider.key}>
+        <Box mt={2} mb={2} key={provider.key}>
           <WalletProviderItem
             onConnectClick={() => {
               onProviderConnectClick(provider);
