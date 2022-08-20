@@ -84,25 +84,29 @@ class QueryEvaluatorMocks {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
-            balance: BigNumberString("18")
+            balance: BigNumberString("18"),
+            contractAddress: EVMContractAddress("9dkj13nd"),
         },
         {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
-            balance: BigNumberString("25")
+            balance: BigNumberString("25"),
+            contractAddress: EVMContractAddress("0pemc726"),
         },
         {
             ticker: TickerSymbol("BLAH"),
             chainId: ChainId(901398),
             accountAddress: EVMAccountAddress("BAD"),
-            balance: BigNumberString("26")
+            balance: BigNumberString("26"),
+            contractAddress: EVMContractAddress("lp20xk3c"),
         },
         {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
-            balance: BigNumberString("36")
+            balance: BigNumberString("36"),
+            contractAddress: EVMContractAddress("m12s93io"),
         },
 
     );
@@ -924,7 +928,7 @@ describe("BalanceQueryEvaluator", () => {
         const repo = mocks.factory();
         const result = await repo.eval(balanceQuery);
 
-        console.log("Map is: ", result["value"]);
+        console.log("Map is: ", result);
         console.log("Balance is: ", result["value"][0]["balance"]);
         console.log("Ticker is: ", result["value"][0]["ticker"]);
         console.log("ChainId is: ", result["value"][0]["chainId"]);

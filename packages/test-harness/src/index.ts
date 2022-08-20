@@ -257,6 +257,8 @@ function corePrompt(): ResultAsync<void, Error> {
       value: "optOutCampaign",
     },
     new inquirer.Separator(),
+    { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
+    { name: "Add AccountBalance - SOL", value: "Add AccountBalance - SOL" },
     { name: "Set Age to 15", value: "setAge to 15" },
     { name: "Set Age to 0", value: "setAge to 0" },
     { name: "Get Age", value: "getAge" },
@@ -541,7 +543,7 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                 },
                 q7: {
                   name: "balance",
-                  networkid: "1",
+                  networkid: "42",
                   conditions: {
                       ge: 10
                   },
@@ -706,13 +708,11 @@ function unlockCore(): ResultAsync<
   ])
     .andThen((answers) => {
       const wallet = answers.unlockAccountSelector as ethers.Wallet;
-      console.log("Line: ", 705)
       // Need to get the unlock message first
       return core
         .getUnlockMessage(languageCode)
         .andThen((message) => {
           // Sign the message
-          console.log("Line: ", 700)
 
           return cryptoUtils.signMessage(
             message,
@@ -720,7 +720,6 @@ function unlockCore(): ResultAsync<
           );
         })
         .andThen((signature) => {
-          console.log("Line: ", 405)
 
           return core.unlock(
             EVMAccountAddress(wallet.address),
