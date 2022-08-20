@@ -1,13 +1,12 @@
 import {
-  SDQL_Name,
-  SDQL_OperatorName,
-  ParserError,
+  MissingTokenConstructorError, ParserError, SDQL_Name,
+  SDQL_OperatorName
 } from "@snickerdoodlelabs/objects";
 
 import {
   Token,
   Tokenizer,
-  TokenType,
+  TokenType
 } from "@core/implementations/business/utilities/query/Tokenizer";
 import {
   AST_Compensation,
@@ -18,7 +17,7 @@ import {
   Command,
   Command_IF,
   ConditionAnd,
-  ConditionOr,
+  ConditionOr
 } from "@core/interfaces/objects";
 
 export class ExprParser {
@@ -282,7 +281,7 @@ export class ExprParser {
     if (evaluator) {
       return evaluator.apply(this, [expList, token]);
     } else {
-      throw new Error("No constructor defined for " + token.type);
+      throw new MissingTokenConstructorError("No Token type constructor defined for " + token.type);
     }
   }
 

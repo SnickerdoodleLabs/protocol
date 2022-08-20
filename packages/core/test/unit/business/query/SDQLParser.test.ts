@@ -5,6 +5,7 @@ import { avalance1SchemaStr } from "./avalanche1.data";
 
 import { QueryObjectFactory, SDQLParser } from "@core/implementations/business/utilities/query";
 import {
+  AST,
   AST_Compensation,
   AST_ConditionExpr,
   AST_NetworkQuery,
@@ -17,17 +18,23 @@ import {
   ConditionGE,
   SDQLSchema,
 } from "@core/interfaces/objects/SDQL";
-// import { AST_Compensation } from "businessObjects/SDQL/AST_Compensation";
-// import { SDQLSchema } from "businessObjects/SDQL/SDQLSchema";
-// import { IpfsCID, SDQL_Name } from "primitives";
-// import { AST_Factories } from "businessObjects/SDQL/AST_Factories";
 
 describe("SDQLParser on avalanche", () => {
-  const schema = SDQLSchema.fromString(avalance1SchemaStr);
-  const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
 
-  const ast = parser.buildAST();
-  // parser.parse();
+  const schema = SDQLSchema.fromString(avalance1SchemaStr);
+  const parser = new SDQLParser(IpfsCID("0"), schema);
+  let ast: null | AST = null;
+
+  beforeAll(async () => {
+
+    const astRes = await parser.buildAST();
+    if (astRes.isOk()) {
+      ast = astRes.value;
+    } else {
+      fail(astRes.error.message);
+    }
+  
+  });
 
   describe("Checking queries", () => {
     test("q1 is a network query on AVAX", () => {
@@ -168,12 +175,11 @@ describe("SDQLParser on avalanche", () => {
   });
   describe("AST validation", () => {
     test("meta check", () => {
-      // console.log(ast);
-      expect(ast.version).toBe("0.1");
-      expect(ast.description).toBe(
+      expect(ast!.version).toBe("0.1");
+      expect(ast!.description).toBe(
         "Interactions with the Avalanche blockchain for 15-year and older individuals",
       );
-      expect(ast.business).toBe("Shrapnel");
+      expect(ast!.business).toBe("Shrapnel");
     });
   });
 });

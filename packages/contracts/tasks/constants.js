@@ -81,7 +81,7 @@ const consentFactory = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "";
+    return "0xC44C9B4375ab43D7974252c37bccb41F99910fA5";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
@@ -109,7 +109,7 @@ const crumbsContract = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "";
+    return "0x97464F3547510fb430448F5216eC7D8e71D7C4eF";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
@@ -138,7 +138,7 @@ const siftContract = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "";
+    return "0x82721EB9786255fA45BFf58c82Bc7Ae4210B9c72";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {

@@ -1,74 +1,129 @@
-import { Box, CircularProgress, Typography } from "@material-ui/core";
-import React, { FC, useEffect, useState } from "react";
-import artboardImage from "@extension-onboarding/assets/images/initial-page-bg.svg";
+import welcome1Right from "@extension-onboarding/assets/images/welcome-sc1-right.png";
+import welcome1 from "@extension-onboarding/assets/images/welcome-sc1.svg";
+import welcome2 from "@extension-onboarding/assets/images/welcome-sc2.svg";
+import welcome3Right from "@extension-onboarding/assets/images/welcome-sc3-right.svg";
+import welcome3 from "@extension-onboarding/assets/images/welcome-sc3.svg";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/OnboardingWelcome/OnboardingWelcome.style";
-import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import { Box, Button, Grid, Hidden, MobileStepper } from "@material-ui/core";
+import { KeyboardArrowLeft, KeyboardArrowRight } from "@material-ui/icons";
+import React, { FC, useState } from "react";
 
 const OnboardingWelcome: FC = () => {
-  const { changeStepperStatus, isSDLDataWalletDetected } = useAppContext();
-  const [checkTimeOutEnded, setCheckTimeOutEnded] = useState<boolean>(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setCheckTimeOutEnded(true);
-    }, 4000);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, []);
-
+  const { changeStepperStatus } = useAppContext();
+  const [screenIndex, setScreenIndex] = useState<number>(0);
   const classes = useStyles();
+  const handleNext = () => {
+    setScreenIndex((prevActiveStep) => prevActiveStep + 1);
+  };
+  const handleBack = () => {
+    setScreenIndex((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const stepper = (
+    <MobileStepper
+      variant="dots"
+      steps={3}
+      position="static"
+      activeStep={screenIndex}
+      className={classes.mobileStepper}
+      nextButton={
+        <Button size="small" onClick={handleNext}>
+          Next
+          <KeyboardArrowRight />
+        </Button>
+      }
+      backButton={
+        <Button size="small" onClick={handleBack} disabled={screenIndex === 0}>
+          <KeyboardArrowLeft />
+          Back
+        </Button>
+      }
+    />
+  );
+
   return (
     <>
-      <Box
-        marginTop="45%"
-        display="flex"
-        alignItems="center"
-        flexDirection="column"
-      >
-        <Box>
-          <img src={snickerDoodleLogo} className={classes.logo} />
-        </Box>
-        <Box mt={3}>
-          <Typography className={classes.title}>
-            Built for All Chains
-          </Typography>
-        </Box>
-        <Box mt={1}>
-          <Typography className={classes.description}>
-            Snickerdoodle Data Wallet works with all of your favorite chains.{" "}
-          </Typography>
-        </Box>
-        <Box mt={3}>
-          {isSDLDataWalletDetected ? (
-            <PrimaryButton
-              type="submit"
-              onClick={() => {
-                changeStepperStatus("next");
-              }}
+      {screenIndex === 0 && (
+        <Grid container>
+          <Grid item xs={12} md={7}>
+            <Box
+              height="100vh"
+              pl={15}
+              pr={6}
+              display="flex"
+              flexDirection="column"
+              bgcolor="#fff"
             >
-              Get Started
-            </PrimaryButton>
-          ) : checkTimeOutEnded ? (
-            <Box justifyContent="center">
-              <Typography className={classes.description}>
-                We could not detect Snickerdoodle Data Wallet extension please
-                install first
-              </Typography>
-              <Box mt={3} display="flex" justifyContent="center">
-                <PrimaryButton type="submit" onClick={() => {}}>
-                  Please Install
+              <Box marginY="auto">
+                <img style={{ width: "100%" }} src={welcome1} />
+                <Box mt={5}>{stepper}</Box>
+              </Box>
+            </Box>
+          </Grid>
+          <Hidden smDown>
+            <Grid item md={5}>
+              <Box height="100vh" display="flex" bgcolor="#F8D798">
+                <Box width="70%" margin="auto">
+                  <img style={{ width: "100%" }} src={welcome1Right} />
+                </Box>
+              </Box>
+            </Grid>
+          </Hidden>
+        </Grid>
+      )}
+      {screenIndex === 1 && (
+        <Box
+          height="100vh"
+          px={15}
+          display="flex"
+          flexDirection="column"
+          bgcolor="#fff"
+        >
+          <Box marginY="auto">
+            <img style={{ width: "100%" }} src={welcome2} />
+            <Box mt={5} display="flex" justifyContent="center">
+              {stepper}
+            </Box>
+          </Box>
+        </Box>
+      )}
+      {screenIndex === 2 && (
+        <Grid container>
+          <Grid item xs={12} md={7}>
+            <Box
+              height="100vh"
+              pl={15}
+              pr={6}
+              display="flex"
+              flexDirection="column"
+              bgcolor="#fff"
+            >
+              <Box marginY="auto">
+                <img style={{ width: "100%" }} src={welcome3} />
+                <PrimaryButton
+                  type="submit"
+                  onClick={() => {
+                    changeStepperStatus("next");
+                  }}
+                >
+                  Get Started
                 </PrimaryButton>
               </Box>
             </Box>
-          ) : (
-            <CircularProgress />
-          )}
-        </Box>
-      </Box>
-      <img src={artboardImage} className={classes.bgImage} />
+          </Grid>
+          <Hidden smDown>
+            <Grid item md={5}>
+              <Box height="100vh" display="flex" bgcolor="#F8D798">
+                <Box width="70%" margin="auto">
+                  <img style={{ width: "100%" }} src={welcome3Right} />
+                </Box>
+              </Box>
+            </Grid>
+          </Hidden>
+        </Grid>
+      )}
     </>
   );
 };

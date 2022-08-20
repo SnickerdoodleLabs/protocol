@@ -1,1 +1,1 @@
-export * from "@extension-onboarding/pages/Onboarding/Onboarding";
+export { default } from "@extension-onboarding/pages/Onboarding/Onboarding";

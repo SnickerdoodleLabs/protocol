@@ -22,13 +22,13 @@ export interface IVolatileStorageTable {
     name: string,
     key: string,
   ): ResultAsync<T | null, PersistenceError>;
-  getCursor(
+  getCursor<T>(
     name: string,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange | null | undefined,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
-  ): ResultAsync<IDBRequest<IDBCursorWithValue | null>, PersistenceError>;
+  ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
   getAll<T>(
     name: string,
     indexName?: string,
@@ -36,7 +36,11 @@ export interface IVolatileStorageTable {
   getAllKeys<T>(
     name: string,
     indexName?: string,
-    query?: IDBValidKey | IDBKeyRange | null | undefined,
+    query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError>;
+}
+
+export interface IVolatileCursor<T> {
+  nextValue(): ResultAsync<T | null, PersistenceError>;
 }
