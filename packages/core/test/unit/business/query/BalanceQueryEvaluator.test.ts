@@ -151,17 +151,7 @@ describe("BalanceQueryEvaluator", () => {
         const result = await repo.eval(balanceQuery);
 
         console.log("Output is: ", result["value"]);
-        // console.log("Balance is: ", result["value"][0]["balance"]);
-        // console.log("Ticker is: ", result["value"][0]["ticker"]);
-        // console.log("ChainId is: ", result["value"][0]["chainId"]);
-        // console.log("accountAddress is: ", result["value"][0]["accountAddress"]);
-
-        // expect(result["value"][0]["balance"]).toEqual("25")
-        // expect(result["value"][0]["ticker"]).toEqual("ETH")  
-        // expect(result["value"][0]["chainId"]).toEqual(1)  
-        // expect(result["value"][0]["accountAddress"]).toEqual("GOOD2")  
   
-        expect(result["value"].length).toEqual(4)  
     })
     test("All Chains, no limits", async () => {
         const balanceQuery = new AST_BalanceQuery(
