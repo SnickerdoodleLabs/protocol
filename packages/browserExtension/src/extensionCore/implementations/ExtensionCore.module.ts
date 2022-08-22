@@ -2,6 +2,9 @@ import {
   AxiosAjaxUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  TimeUtils,
+  ITimeUtils,
+  ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import { ConfigProvider } from "@snickerdoodlelabs/core";
 import {
@@ -11,6 +14,7 @@ import {
 import { ContainerModule, interfaces } from "inversify";
 
 import {
+  BrowserTabListener,
   CoreListener,
   ErrorListener,
   ExtensionListener,
@@ -22,12 +26,14 @@ import {
   AccountService,
   PIIService,
   InvitationService,
+  UserSiteInteractionService,
 } from "@implementations/business";
 import {
   PortConnectionRepository,
   AccountRepository,
   PIIRepository,
   InvitationRepository,
+  UserSiteInteractionRepository,
 } from "@implementations/data";
 import {
   AccountCookieUtils,
@@ -36,6 +42,8 @@ import {
 } from "@implementations/utilities";
 import { RpcEngineFactory } from "@implementations/utilities/factory";
 import {
+  IBrowserTabListener,
+  IBrowserTabListenerType,
   ICoreListener,
   ICoreListenerType,
   IErrorListener,
@@ -56,6 +64,8 @@ import {
   IPIIServiceType,
   IPortConnectionService,
   IPortConnectionServiceType,
+  IUserSiteInteractionService,
+  IUserSiteInteractionServiceType,
 } from "@interfaces/business";
 import {
   IAccountRepository,
@@ -66,6 +76,8 @@ import {
   IPIIRepositoryType,
   IPortConnectionRepository,
   IPortConnectionRepositoryType,
+  IUserSiteInteractionRepository,
+  IUserSiteInteractionRepositoryType,
 } from "@interfaces/data";
 import {
   IAccountCookieUtils,
@@ -93,6 +105,9 @@ export const extensionCoreModule = new ContainerModule(
     _rebind: interfaces.Rebind,
   ) => {
     // API
+    bind<IBrowserTabListener>(IBrowserTabListenerType)
+      .to(BrowserTabListener)
+      .inSingletonScope();
     bind<ICoreListener>(ICoreListenerType).to(CoreListener).inSingletonScope();
     bind<IErrorListener>(IErrorListenerType)
       .to(ErrorListener)
@@ -118,6 +133,9 @@ export const extensionCoreModule = new ContainerModule(
       .to(PortConnectionService)
       .inSingletonScope();
     bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
+    bind<IUserSiteInteractionService>(IUserSiteInteractionServiceType)
+      .to(UserSiteInteractionService)
+      .inSingletonScope();
 
     // Data
     bind<IAccountRepository>(IAccountRepositoryType)
@@ -132,6 +150,9 @@ export const extensionCoreModule = new ContainerModule(
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
       .inSingletonScope();
+    bind<IUserSiteInteractionRepository>(IUserSiteInteractionRepositoryType)
+      .to(UserSiteInteractionRepository)
+      .inSingletonScope();
 
     // Utilities
     bind<IContextProvider>(IContextProviderType)
@@ -145,6 +166,7 @@ export const extensionCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
 
     // Utilities/Factory
     bind<IRpcEngineFactory>(IRpcEngineFactoryType)

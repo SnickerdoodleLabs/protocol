@@ -1,3 +1,4 @@
+export * from "@interfaces/api/IBrowserTabListener";
 export * from "@interfaces/api/ICoreListener";
 export * from "@interfaces/api/IErrorListener";
 export * from "@interfaces/api/IExtensionListener";
