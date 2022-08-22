@@ -106,12 +106,16 @@ core.getEvents().map(async (events) => {
       `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
     );
 
+    let val = queryRequest.query.query;
+    console.log("Val: ", val);
+    /*
     const queryPretty = JSON.stringify(
-      JSON.parse(queryRequest.query.query),
+      (queryRequest.query.query),
       null,
       2,
     );
     console.log(queryPretty);
+    */
     // console.log(queryRequest.query);
 
     prompt([
@@ -253,6 +257,8 @@ function corePrompt(): ResultAsync<void, Error> {
       value: "optOutCampaign",
     },
     new inquirer.Separator(),
+    { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
+    { name: "Add AccountBalance - SOL", value: "Add AccountBalance - SOL" },
     { name: "Set Age to 15", value: "setAge to 15" },
     { name: "Set Age to 0", value: "setAge to 0" },
     { name: "Get Age", value: "getAge" },
@@ -535,6 +541,66 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                     },
                   },
                 },
+                q7: {
+                  name: "balance",
+                  networkid: "42",
+                  conditions: {
+                      ge: 10
+                  },
+                  return: "array",
+                  array_items: {
+                      type: "object",
+                      object_schema: {
+                          properties: {
+                              networkid: {
+                                  type: "integer"
+                              },
+                              address: {
+                                  type: "string",
+                                  pattern: "^0x[a-fA-F0-9]{40}$"
+                              },
+                              balance: {
+                                  type: "number"
+                              }
+                          },
+                          required: [
+                              "networkid",
+                              "address",
+                              "balance"
+                          ]
+                      }
+                  }
+                },
+                q8: {
+                  name: "balance",
+                  networkid: "*",
+                  conditions: {
+                      ge: 10
+                  },
+                  return: "array",
+                  array_items: {
+                      type: "object",
+                      object_schema: {
+                          properties: {
+                              networkid: {
+                                  type: "integer"
+                              },
+                              address: {
+                                  type: "string",
+                                  pattern: "^0x[a-fA-F0-9]{40}$"
+                              },
+                              balance: {
+                                  type: "number"
+                              }
+                          },
+                          required: [
+                              "networkid",
+                              "address",
+                              "balance"
+                          ]
+                      }
+                  }
+                },
               },
               returns: {
                 r1: {
@@ -561,6 +627,14 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   name: "query_response",
                   query: "q6",
                 },
+                r7: {
+                  name: "query_response",
+                  query: "q7",
+                },
+                r8: {
+                  name: "query_response",
+                  query: "q8",
+                },
                 url: "https://418e-64-85-231-39.ngrok.io/insights",
               },
               compensations: {
@@ -585,6 +659,8 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   "$r4",
                   "$r5",
                   "$r6",
+                  "$r7",
+                  "$r8",
                 ],
                 compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
               },
@@ -637,12 +713,14 @@ function unlockCore(): ResultAsync<
         .getUnlockMessage(languageCode)
         .andThen((message) => {
           // Sign the message
+
           return cryptoUtils.signMessage(
             message,
             EVMPrivateKey(wallet._signingKey().privateKey),
           );
         })
         .andThen((signature) => {
+
           return core.unlock(
             EVMAccountAddress(wallet.address),
             signature,

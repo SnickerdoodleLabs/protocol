@@ -3,7 +3,7 @@ import { IpfsCID, SDQL_Name } from "@objects/primitives";
 
 import { avalance1SchemaStr } from "./avalanche1.data";
 
-import { SDQLParser } from "@core/implementations/business/utilities/query";
+import { QueryObjectFactory, SDQLParser } from "@core/implementations/business/utilities/query";
 import {
   AST,
   AST_Compensation,

@@ -9,6 +9,7 @@ export abstract class AST_Query {
       | "integer"
       | "number"
       | "list"
+      | "array"
       | "object"
       | "enum",
   ) {

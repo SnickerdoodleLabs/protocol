@@ -66,9 +66,12 @@ export class QueryService implements IQueryService {
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
-    @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
-    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IContextProviderType) 
+    protected contextProvider: IContextProvider,
+    @inject(IConfigProviderType) 
+    protected configProvider: IConfigProvider,
+    @inject(ICryptoUtilsType) 
+    protected cryptoUtils: ICryptoUtils,
   ) {}
 
   public onQueryPosted(
@@ -178,12 +181,12 @@ export class QueryService implements IQueryService {
       //   );
       // }
       return this.queryParsingEngine.handleQuery(query).andThen((maps) => {
-        console.log("QueryParsingEngine HandleQuery");
+        // console.log("QueryParsingEngine HandleQuery");
         const maps2 = maps as [InsightString[], EligibleReward[]];
         const insights = maps2[0];
         const rewards = maps2[1];
         console.log("insights: ", insights);
-        console.log("rewards: ", rewards);
+        // console.log("rewards: ", rewards);
 
         // console.log(insights, rewards);
 
