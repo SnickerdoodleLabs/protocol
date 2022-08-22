@@ -144,7 +144,6 @@ export const AppContextProvider: FC = ({ children }) => {
   const onWalletConnected = useCallback(() => {
     // Phantom wallet can not initiate window phantom object at time
     setSDLDataWalletDetected(true);
-    checkDataWalletAddressAndInitializeApp();
     setTimeout(() => {
       checkDataWalletAddressAndInitializeApp();
       const providerList = getProviderList();

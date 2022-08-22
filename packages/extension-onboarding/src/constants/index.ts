@@ -11,3 +11,6 @@ export enum EWalletProviderKeys {
   WALLET_CONNECT = "walletConnect",
   COINBASE = "coinbase",
 }
+
+export const DOWNLOAD_URL =
+  "https://chrome.google.com/webstore/detail/data-wallet/eakgkbblgjcanmmalnebjolplnlijmkc";

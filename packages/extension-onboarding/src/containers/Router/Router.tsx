@@ -1,10 +1,10 @@
+import InitialScreen from "@extension-onboarding/containers/Router/InitialScreen";
 import {
   OnboardingRoutes,
   AuthRequiredRoutes,
   EPaths,
 } from "@extension-onboarding/containers/Router/Router.routes";
 import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
-import { Box, CircularProgress } from "@material-ui/core";
 import React, { FC, useMemo } from "react";
 import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 
@@ -26,9 +26,7 @@ const Router: FC = () => {
   return (
     <>
       {!appMode ? (
-        <Box display="flex" alignItems="center" justifyContent="center">
-          <CircularProgress />
-        </Box>
+        <InitialScreen />
       ) : (
         <BrowserRouter>
           <Routes>

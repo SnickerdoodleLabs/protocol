@@ -41,9 +41,10 @@ const ProfileForm: FC<ProfileFormProps> = ({
   const [isGoogleButtonVisible, setGoogleButtonVisible] = useState(true);
   const [formValues, setFormValues] = useState<PII>(new PII());
 
-  const getDataFromWallet = async () => {
-    const profileInfo = await dataWalletGateway.profileService.getProfile();
-    setFormValues(profileInfo);
+  const getDataFromWallet = () => {
+    dataWalletGateway.profileService.getProfile().map((profileInfo) => {
+      setFormValues(profileInfo);
+    });
   };
 
   const sendDataToWallet = async (values: Partial<PII>) => {
@@ -251,7 +252,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
                       ))}
                     </Field>
                   </Box>
-                 {/* todo delete mt */}
+                  {/* todo delete mt */}
                   <Box /* ml={3} */ mt={3}>
                     <Typography className={classes.formLabel}>
                       Gender

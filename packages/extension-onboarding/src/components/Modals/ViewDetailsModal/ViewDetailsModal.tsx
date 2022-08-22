@@ -1,6 +1,7 @@
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
+import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
 import polygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
 import BalanceItem from "@extension-onboarding/components/BalanceItem/";
@@ -11,7 +12,6 @@ import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import {
   Box,
   CircularProgress,
@@ -22,6 +22,7 @@ import {
   Select,
   Typography,
 } from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
 import {
   EVMAccountAddress,
   IEVMBalance,
@@ -29,8 +30,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import React, { FC, useEffect, useState } from "react";
-
-import CloseIcon from "@material-ui/icons/Close";
 
 declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
@@ -392,28 +391,28 @@ const ViewDetailsModal: FC = () => {
                   )}
                 </Box>
               </Box>
-              {isNFTsLoading ? (
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  mt={10}
-                >
-                  <CircularProgress />
-                </Box>
-              ) : (
-                <Box
-                  width={580}
-                  minHeight={536}
-                  height="100%"
-                  borderRadius={8}
-                  ml={5}
-                  border="1px solid #ECECEC"
-                >
-                  <Box m={3}>
-                    <Typography className={classes.tokenText}>
-                      Your NFTs
-                    </Typography>
+              <Box
+                width={580}
+                minHeight={536}
+                height="100%"
+                borderRadius={8}
+                ml={5}
+                border="1px solid #ECECEC"
+              >
+                <Box m={3}>
+                  <Typography className={classes.tokenText}>
+                    Your NFTs
+                  </Typography>
+                  {isNFTsLoading ? (
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      mt={10}
+                    >
+                      <CircularProgress />
+                    </Box>
+                  ) : (
                     <Grid container className={classes.nftContainer}>
                       {accountNFTs?.[accountSelect]?.map((nftItem, index) => {
                         if (nftItem.chain.toString() === chainSelect) {
@@ -423,14 +422,12 @@ const ViewDetailsModal: FC = () => {
                         }
                       })}
                     </Grid>
-                  </Box>
+                  )}
                 </Box>
-              )}
+              </Box>
             </Box>
             <Box className={classes.buttonContainer}>
-              <PrimaryButton type="submit" onClick={closeModal}>
-                Close
-              </PrimaryButton>
+              <PrimaryButton onClick={closeModal}>Close</PrimaryButton>
             </Box>
           </Box>
         </Box>
