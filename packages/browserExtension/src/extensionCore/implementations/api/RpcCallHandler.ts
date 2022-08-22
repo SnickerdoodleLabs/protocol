@@ -56,6 +56,7 @@ import {
   IMetatransactionSignatureRequestCallbackParams,
   IAcceptInvitationParams,
   IRejectInvitationParams,
+  IGetInvitationsMetadata,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -185,6 +186,12 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_LOCATION: {
         return new AsyncRpcResponseSender(this.getLocation(), res).call();
       }
+      case EExternalActions.GET_INVITATIONS_METADATA: {
+        return new AsyncRpcResponseSender(
+          this.getInvitationsMetadata(),
+          res,
+        ).call();
+      }
       // TODO move it to correct place
       case EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK: {
         const { nonce, id, metatransactionSignature } =
@@ -287,33 +294,15 @@ export class RpcCallHandler implements IRpcCallHandler {
           return okAsync(undefined);
         }
       });
-
-    /*  return this.invitationService
-      .getInvitationByDomain(domain)
-      .map((pageInvitations: PageInvitation[]) => {
-        const pageInvitation = pageInvitations.find(
-          (value) => value.domainDetails.domain === domain,
-        );
-        if (pageInvitation) {
-          return this.invitationService
-            .checkInvitationStatus(pageInvitation.invitation)
-            .map((status) => {
-              if (status === EInvitationStatus.New) {
-                const invitationUUID = this.contextProvider.addInvitation(
-                  pageInvitation.invitation,
-                );
-                return Object.assign(pageInvitation.domainDetails, {
-                  id: invitationUUID,
-                });
-              } else {
-                return undefined;
-              }
-            });
-        } else {
-          return undefined;
-        }
-      }); */
   }
+
+  private getInvitationsMetadata(): ResultAsync<
+    IGetInvitationsMetadata,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationService.getInvitationsMetadata();
+  }
+
   private acceptInvitation(
     consentConditions: ConsentConditions | null,
     id: UUID,

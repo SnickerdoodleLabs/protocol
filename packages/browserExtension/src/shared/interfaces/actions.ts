@@ -13,6 +13,7 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -71,4 +72,9 @@ export interface IMetatransactionSignatureRequestCallbackParams {
   id: UUID;
   metatransactionSignature: Signature;
   nonce: BigNumberString;
+}
+
+export interface IGetInvitationsMetadata {
+  accepted: IOpenSeaMetadata[];
+  rejected: IOpenSeaMetadata[];
 }

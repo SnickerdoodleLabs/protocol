@@ -133,6 +133,9 @@ export class OnboardingProvider extends EventEmitter {
   public setGender(gender: Gender) {
     return coreGateway.setGender(gender);
   }
+  public getInvitationsMetada() {
+    return coreGateway.getInvitationsMetadata();
+  }
   public metatransactionSignatureRequestCallback(
     id: UUID,
     metatransactionSignature: Signature,

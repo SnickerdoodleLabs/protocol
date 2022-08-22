@@ -1,3 +1,11 @@
+import { IInvitationService } from "@interfaces/business";
+import {
+  IInvitationRepository,
+  IInvitationRepositoryType,
+} from "@interfaces/data/IInvitationRepository";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+import { IGetInvitationsMetadata } from "@shared/interfaces/actions";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   ConsentConditions,
@@ -7,15 +15,7 @@ import {
   EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-
-import { IInvitationService } from "@interfaces/business";
-import {
-  IInvitationRepository,
-  IInvitationRepositoryType,
-} from "@interfaces/data/IInvitationRepository";
-import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
+import { ResultAsync } from "neverthrow";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -51,6 +51,14 @@ export class InvitationService implements IInvitationService {
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.rejectInvitation(invitation);
   }
+
+  public getInvitationsMetadata(): ResultAsync<
+    IGetInvitationsMetadata,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationRepository.getInvitationsMetadata();
+  }
+
   public leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError> {

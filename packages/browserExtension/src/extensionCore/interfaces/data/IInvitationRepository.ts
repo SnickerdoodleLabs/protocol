@@ -1,3 +1,5 @@
+import { IGetInvitationsMetadata } from "@shared/interfaces/actions";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   ConsentConditions,
@@ -5,8 +7,6 @@ import {
   PageInvitation,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IInvitationRepository {
   getInvitationsByDomain(
@@ -23,6 +23,10 @@ export interface IInvitationRepository {
   rejectInvitation(
     invitation: Invitation,
   ): ResultAsync<void, SnickerDoodleCoreError>;
+  getInvitationsMetadata(): ResultAsync<
+    IGetInvitationsMetadata,
+    SnickerDoodleCoreError
+  >;
 }
 
 export const IInvitationRepositoryType = Symbol.for("IInvitationRepository");

@@ -1,3 +1,7 @@
+import { IInvitationRepository } from "@interfaces/data/IInvitationRepository";
+import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
+import { IGetInvitationsMetadata } from "@shared/interfaces/actions";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   ConsentConditions,
@@ -9,10 +13,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-
-import { IInvitationRepository } from "@interfaces/data/IInvitationRepository";
-import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class InvitationRepository implements IInvitationRepository {
@@ -57,5 +58,21 @@ export class InvitationRepository implements IInvitationRepository {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
+  }
+  public getInvitationsMetadata(): ResultAsync<
+    IGetInvitationsMetadata,
+    SnickerDoodleCoreError
+  > {
+    return ResultUtils.combine([
+      this.core.getAcceptedInvitationsMetadata(),
+      this.core.getRejectedInvitationsMetadata(),
+    ])
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      })
+      .map(([rejected, accepted]) => {
+        return { rejected, accepted };
+      });
   }
 }

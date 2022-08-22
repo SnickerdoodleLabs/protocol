@@ -9,6 +9,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
+import { IGetInvitationsMetadata } from "@shared/interfaces/actions";
 
 export interface IInvitationService {
   checkInvitationStatus(
@@ -31,6 +32,11 @@ export interface IInvitationService {
   getInvitationByDomain(
     domain: DomainName,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError>;
+
+  getInvitationsMetadata(): ResultAsync<
+    IGetInvitationsMetadata,
+    SnickerDoodleCoreError
+  >;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");

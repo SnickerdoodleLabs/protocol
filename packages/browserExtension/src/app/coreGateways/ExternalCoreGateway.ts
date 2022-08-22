@@ -25,6 +25,7 @@ import { EExternalActions } from "@shared/enums";
 import {
   IAcceptInvitationParams,
   IAddAccountParams,
+  IGetInvitationsMetadata,
   IGetInvitationWithDomainParams,
   IGetUnlockMessageParams,
   IMetatransactionSignatureRequestCallbackParams,
@@ -71,6 +72,13 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.REJECT_INVITATION, {
       id,
     } as IRejectInvitationParams);
+  }
+
+  public getInvitationsMetadata(): ResultAsync<
+    IGetInvitationsMetadata,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_INVITATIONS_METADATA);
   }
 
   public addAccount(
