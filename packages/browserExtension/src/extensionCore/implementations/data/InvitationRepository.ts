@@ -71,7 +71,7 @@ export class InvitationRepository implements IInvitationRepository {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
       })
-      .map(([rejected, accepted]) => {
+      .map(([accepted, rejected]) => {
         return { rejected, accepted };
       });
   }
