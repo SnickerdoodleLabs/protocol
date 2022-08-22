@@ -6,7 +6,6 @@ import {
   ConsentConditions,
   IEVMNFT,
   SDQLQuery,
-  SDQLQueryRequest,
   PageInvitation,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
@@ -16,6 +15,7 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  ConsentFactoryContractError,
   CrumbsContractError,
   EvaluationError,
   InvalidSignatureError,
@@ -43,6 +43,7 @@ import {
   Signature,
   UnixTimestamp,
 } from "@objects/primitives";
+import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -189,6 +190,24 @@ export interface ISnickerdoodleCore {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | IPFSError
+  >;
+
+  getAcceptedInvitationsMetadata(): ResultAsync<
+    IOpenSeaMetadata[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | IPFSError
+  >;
+
+  getRejectedInvitationsMetadata(): ResultAsync<
+    IOpenSeaMetadata[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | PersistenceError
     | IPFSError
   >;
 

@@ -23,6 +23,8 @@ import {
   DomainName,
   IPFSError,
   PageInvitation,
+  ConsentFactoryContractError,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -335,6 +337,58 @@ export class InvitationService implements IInvitationService {
       })
       .map((invitations) => {
         return invitations.flat();
+      });
+  }
+
+  public getAcceptedInvitationsMetadata(): ResultAsync<
+    IOpenSeaMetadata[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | IPFSError
+  > {
+    return this.consentRepo
+      .getConsentContracts()
+      .andThen((consentContracts) => {
+        return ResultUtils.combine(
+          Array.from(consentContracts.keys()).map((contractAddress) => {
+            return this.consentRepo.getMetadataCID(contractAddress);
+          }),
+        );
+      })
+      .andThen((ipfsCIDs) => {
+        return ResultUtils.combine(
+          ipfsCIDs.map((ipfsCID) => {
+            return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+          }),
+        );
+      });
+  }
+
+  public getRejectedInvitationsMetadata(): ResultAsync<
+    IOpenSeaMetadata[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | PersistenceError
+    | IPFSError
+  > {
+    return this.persistenceRepo
+      .getRejectedCohorts()
+      .andThen((contractAddresses) => {
+        return ResultUtils.combine(
+          contractAddresses.map((contractAddress) => {
+            return this.consentRepo.getMetadataCID(contractAddress);
+          }),
+        );
+      })
+      .andThen((ipfsCIDs) => {
+        return ResultUtils.combine(
+          ipfsCIDs.map((ipfsCID) => {
+            return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+          }),
+        );
       });
   }
 
