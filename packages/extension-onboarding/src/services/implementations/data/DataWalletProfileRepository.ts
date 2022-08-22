@@ -2,32 +2,35 @@ import { IDataWalletProfileRepository } from "@extension-onboarding/services/int
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { convertToSafePromise } from "@extension-onboarding/utils/ResultUtils";
-import { Age, UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { Age, Gender, UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { ok, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 declare const window: IWindowWithSdlDataWallet;
 
 export class DataWalletProfileRepository
   implements IDataWalletProfileRepository
 {
-  public async getProfile(): Promise<PII> {
-    const [given_name, family_name, email, birthday, country_code, gender] = [
-      await convertToSafePromise(window.sdlDataWallet.getGivenName()),
-      await convertToSafePromise(window.sdlDataWallet.getFamilyName()),
-      await convertToSafePromise(window.sdlDataWallet.getEmail()),
-      await convertToSafePromise(window.sdlDataWallet.getBirthday()),
-      await convertToSafePromise(window.sdlDataWallet.getLocation()),
-      await convertToSafePromise(window.sdlDataWallet.getGender()),
-    ];
-    return new PII(
-      given_name,
-      family_name,
-      email,
-      birthday ? new Date(birthday * 1000).toLocaleDateString() : null,
-      country_code,
-      null,
-      null,
-      gender,
-    );
+  public getProfile(): ResultAsync<PII, unknown> {
+    return ResultUtils.combine([
+      // below okAsync is used to skip type error coming from neverthrow find a smart way
+      // tried defining global window d.ts no success
+      okAsync("skip-type-error"),
+      window.sdlDataWallet.getBirthday(),
+      window.sdlDataWallet.getLocation(),
+      window.sdlDataWallet.getGender(),
+    ]).map(([_, birthday, country_code, gender]) => {
+      return new PII(
+        null,
+        null,
+        null,
+        birthday ? new Date(birthday * 1000).toLocaleDateString() : null,
+        country_code,
+        null,
+        null,
+        gender,
+      );
+    });
   }
 
   public async setProfile(values: Partial<PII>): Promise<void> {

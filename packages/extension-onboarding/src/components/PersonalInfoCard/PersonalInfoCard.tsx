@@ -19,11 +19,10 @@ const PersonalInfoCard = ({ topRightContent }: IPersonalInfoCardProps) => {
   }, []);
   const { dataWalletGateway } = useAppContext();
 
-  const fillProfileData = async () => {
-    try {
-      const profileInfo = await dataWalletGateway.profileService.getProfile();
+  const fillProfileData = () => {
+    dataWalletGateway.profileService.getProfile().map((profileInfo) => {
       setProfile(profileInfo);
-    } catch (e) {}
+    });
   };
   const classes = useStyles();
   return (
@@ -32,7 +31,7 @@ const PersonalInfoCard = ({ topRightContent }: IPersonalInfoCardProps) => {
         <Typography className={classes.cardTitle}>Personal Info</Typography>
         {topRightContent && topRightContent}
       </Box>
-    {/*   <CardItem
+      {/*   <CardItem
         title="FULL NAME"
         information={`${profile?.given_name} ${profile?.family_name}`}
       />
@@ -41,7 +40,7 @@ const PersonalInfoCard = ({ topRightContent }: IPersonalInfoCardProps) => {
       <Box className={classes.divider}></Box>
       <CardItem title="GENDER" information={profile?.gender} />
       <Box className={classes.divider}></Box>
-    {/*   <CardItem title="EMAIL" information={profile?.email_address} />
+      {/*   <CardItem title="EMAIL" information={profile?.email_address} />
       <Box className={classes.divider}></Box> */}
       <CardItem
         title="COUNTRY"
