@@ -129,26 +129,12 @@ export class ExprParser {
 
         case TokenType.then:
         case TokenType.else:
-          // pop until if
-          // console.log("stack before", stack);
-          // popped = this.popToType(stack, token, TokenType.if);
-          // console.log("popped", popped);
-          // console.log("stack after", stack);
-          // postFix.push(...popped);
-          // stack.push(token);
+          
           popped = this.popBefore(stack, token, TokenType.if); // condition output
           postFix.push(...popped);
 
           break;
 
-        // case TokenType.else:
-        //     console.log("stack before", stack);
-        //     popped = this.popToType(stack, token, TokenType.then);
-        //     console.log("popped", popped);
-        //     console.log("stack after", stack);
-        //     postFix.push(...popped);
-        //     stack.push(token);
-        //     break;
       }
     }
 
@@ -251,19 +237,14 @@ export class ExprParser {
 
     for (const token of postFix) {
       if (exprTypes.includes(token.type)) {
+
         const executable = this.getExecutableFromContext(token);
         expList.push(executable);
+
       } else {
+
         // we have a operator type
         const newExp: any = this.createExp(expList, token);
-        // switch(token.type) {
-        //     case TokenType.and:
-        //         newExp = this.createAnd(expList[0], expList[1], token);
-        //         break;
-        //     case TokenType.or:
-        //         newExp = this.createOr(expList[0], expList[1], token);
-        //         break;
-        // }
 
         if (!newExp) {
           throw new ParserError(
@@ -273,12 +254,12 @@ export class ExprParser {
         } else {
           expList = [newExp];
         }
+
       }
     }
 
     return expList.pop();
 
-    // throw new Error("Not implemented yet");
   }
 
   createExp(expList, token: Token): AST_Expr {
@@ -360,15 +341,48 @@ export class ExprParser {
   // #endregion 
 
   // #region parse dependencies only
-  getDependencyNames(exprStr: string): Array<string> {
+  // getDependencyNames(exprStr: string): Array<string> {
+    
+  //   const tokenizer = new Tokenizer(exprStr);
+  //   const tokens = tokenizer.all();
+
+  //   return tokens.map(token => {
+  //     if (token.type == TokenType.query) {
+
+  //       return token.val.substring(1);
+
+  //     } else if (token.type == TokenType.return) {
+  //       // return can have nested queries.
+  //       return token.val.substring(1);
+        
+  //     }
+      
+  //   }).filter(token => token !== undefined);
+
+  // }
+
+  
+  getDependencies(exprStr: string): Array<AST_Query | undefined> {
     
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
 
     return tokens.map(token => {
       if (token.type == TokenType.query) {
-        return token.val;
+
+        // return token.val.substring(1);
+        return this.getExecutableFromContext(token) as AST_Query;
+
+      } else if (token.type == TokenType.return) {
+        // return can have nested queries.
+        
+        const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
+        if (r.source instanceof AST_Query) {
+          return r.source;
+        }
+        
       }
+      return undefined;
       
     }).filter(token => token !== undefined);
 

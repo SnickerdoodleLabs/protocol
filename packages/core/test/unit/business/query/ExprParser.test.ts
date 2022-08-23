@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { IpfsCID } from "@objects/primitives";
+import { IpfsCID, SDQL_Name } from "@objects/primitives";
 
 import { avalance1SchemaStr } from "./avalanche1.data";
 
@@ -15,6 +15,7 @@ import {
   AST_ConditionExpr,
   AST_NetworkQuery,
   AST_PropertyQuery,
+  AST_Query,
   AST_Return,
   AST_ReturnExpr,
   Command_IF,
@@ -487,14 +488,23 @@ describe("Postfix to AST", () => {
     expect(and.rval).toEqual(context!.get("q2"));
   });
 
-  test.only("dependencies", () => {
+  test.only("dependencies if($q1and$q2)then$r1else$r2 is q1, q2", () => {
 
     const exprParser = new ExprParser(context!);
     const expr = "if($q1and$q2)then$r1else$r2";
-    const dependencies = exprParser.getDependencyNames(expr);
+    const dependencies = exprParser.getDependencies(expr);
+    // const expectedDependencies = ['q1', 'q2'];
 
-    console.log(dependencies)
-    fail("incomplete");
+    // console.log(dependencies)
+    // expect(dependencies).toEqual(expectedDependencies);
+    expect(dependencies.length).toBe(2);
+
+    const q1 = dependencies[0] as AST_Query;
+    expect(q1.name).toBe(SDQL_Name("q1"));
+
+    const q2 = dependencies[1] as AST_Query;
+    expect(q2.name).toBe(SDQL_Name("q2"));
+    
   });
 });
 
