@@ -1,34 +1,30 @@
-import PersonalInfoCard from "@extension-onboarding/components/PersonalInfoCard";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import ProfileForm from "@extension-onboarding/components/ProfileForm/ProfileForm";
+import RewardItem from "@extension-onboarding/pages/Details/screens/RewardsInfo/components/RewardItem";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardsInfo/RewardsInfo.style";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Typography,
-} from "@material-ui/core";
-import EditIcon from "@material-ui/icons/Edit";
-import React, { FC, useEffect, useMemo, useState } from "react";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
-import RewardItem from "./components/RewardItem";
+import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
+import {
+  EVMContractAddress,
+  IOpenSeaMetadata,
+} from "@snickerdoodlelabs/objects";
+import React, { FC, useEffect, useState } from "react";
+
 declare const window: IWindowWithSdlDataWallet;
 
 const RewardsInfo: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [rewardMetaData, setRewardMetaData] = useState<{
-    accepted: IOpenSeaMetadata[];
-    rejected: IOpenSeaMetadata[];
-  }>();
+  const [rewardMetaData, setRewardMetaData] =
+    useState<Record<EVMContractAddress, IOpenSeaMetadata>>();
+
+  useEffect(() => {
+    getInvitations();
+  }, []);
 
   useEffect(() => {
     setIsLoading(false);
   }, [JSON.stringify(rewardMetaData)]);
 
   const getInvitations = () => {
-    window.sdlDataWallet
+    return window.sdlDataWallet
       .getInvitationsMetadata()
       .mapErr((e) => {
         setIsLoading(false);
@@ -38,9 +34,16 @@ const RewardsInfo: FC = () => {
       });
   };
 
-  useEffect(() => {
-    getInvitations();
-  }, []);
+  const onLeaveClick = (consentContractAddress: EVMContractAddress) => {
+    setIsLoading(true);
+    window.sdlDataWallet
+      .leaveCohort(consentContractAddress)
+      .mapErr((e) => {
+        setIsLoading(false);
+      })
+      .andThen(() => getInvitations());
+  };
+
   const classes = useStyles();
 
   return (
@@ -54,9 +57,16 @@ const RewardsInfo: FC = () => {
         </Box>
       ) : (
         <Grid container spacing={2}>
-          {rewardMetaData?.accepted?.map((metadata, index) => (
-            <RewardItem key={index} rewardItem={metadata} />
-          ))}
+          {rewardMetaData &&
+            Object.keys(rewardMetaData)?.map((key, index) => (
+              <RewardItem
+                onLeaveClick={() => {
+                  onLeaveClick(key as EVMContractAddress);
+                }}
+                key={index}
+                rewardItem={rewardMetaData[key]}
+              />
+            ))}
         </Grid>
       )}
     </Box>
