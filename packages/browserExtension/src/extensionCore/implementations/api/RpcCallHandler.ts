@@ -18,6 +18,8 @@ import {
   ConsentConditions,
   UUID,
   InvitationDomain,
+  EVMContractAddress,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -56,6 +58,7 @@ import {
   IMetatransactionSignatureRequestCallbackParams,
   IAcceptInvitationParams,
   IRejectInvitationParams,
+  ILeaveCohortParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -63,6 +66,7 @@ import {
   ExtensionMetatransactionError,
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import { mapToObj } from "@shared/utils/objectUtils";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -185,6 +189,19 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_LOCATION: {
         return new AsyncRpcResponseSender(this.getLocation(), res).call();
       }
+      case EExternalActions.GET_INVITATIONS_METADATA: {
+        return new AsyncRpcResponseSender(
+          this.getInvitationsMetadata(),
+          res,
+        ).call();
+      }
+      case EExternalActions.LEAVE_COHORT: {
+        const { consentContractAddress } = params as ILeaveCohortParams;
+        return new AsyncRpcResponseSender(
+          this.leaveCohort(consentContractAddress),
+          res,
+        ).call();
+      }
       // TODO move it to correct place
       case EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK: {
         const { nonce, id, metatransactionSignature } =
@@ -287,33 +304,24 @@ export class RpcCallHandler implements IRpcCallHandler {
           return okAsync(undefined);
         }
       });
-
-    /*  return this.invitationService
-      .getInvitationByDomain(domain)
-      .map((pageInvitations: PageInvitation[]) => {
-        const pageInvitation = pageInvitations.find(
-          (value) => value.domainDetails.domain === domain,
-        );
-        if (pageInvitation) {
-          return this.invitationService
-            .checkInvitationStatus(pageInvitation.invitation)
-            .map((status) => {
-              if (status === EInvitationStatus.New) {
-                const invitationUUID = this.contextProvider.addInvitation(
-                  pageInvitation.invitation,
-                );
-                return Object.assign(pageInvitation.domainDetails, {
-                  id: invitationUUID,
-                });
-              } else {
-                return undefined;
-              }
-            });
-        } else {
-          return undefined;
-        }
-      }); */
   }
+
+  private getInvitationsMetadata(): ResultAsync<
+    Record<EVMContractAddress, IOpenSeaMetadata>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationService.getInvitationsMetadata().map((res) => {
+      // since Map obj can not sent via rpc call we are converting to record
+      return mapToObj(res);
+    });
+  }
+
+  private leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.invitationService.leaveCohort(consentContractAddress);
+  }
+
   private acceptInvitation(
     consentConditions: ConsentConditions | null,
     id: UUID,

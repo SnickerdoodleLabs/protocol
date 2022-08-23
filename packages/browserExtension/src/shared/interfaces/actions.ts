@@ -13,6 +13,7 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -71,4 +72,8 @@ export interface IMetatransactionSignatureRequestCallbackParams {
   id: UUID;
   metatransactionSignature: Signature;
   nonce: BigNumberString;
+}
+
+export interface ILeaveCohortParams {
+  consentContractAddress: EVMContractAddress;
 }
