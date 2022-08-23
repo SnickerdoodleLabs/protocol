@@ -48,6 +48,11 @@ export class ExprParser {
     this.tokenToExpMap.set(TokenType.and, this.createAnd);
     this.tokenToExpMap.set(TokenType.or, this.createOr);
     this.tokenToExpMap.set(TokenType.if, this.createIf);
+    
+    if (!this.context.has("dependencies")) {
+      this.context.set("dependencies", new Map<string, Set<AST_Query>>());
+    }
+
   }
   private getNextId(name: string) {
     this.id++;
@@ -60,20 +65,19 @@ export class ExprParser {
     /**
      * Builds a AST expression or a command from the input string
      */
-   
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
     const ast = this.tokensToAst(tokens);
     return ast;
   }
 
-  tokensToAst(tokens): AST_Expr | Command {
+  tokensToAst(tokens: Token[]): AST_Expr | Command {
     const postFix: Array<Token> = this.infixToPostFix(tokens);
     const ast = this.buildAstFromPostfix(postFix);
     return ast;
   }
   // #region infix to postfix
-  infixToPostFix(infix): Array<Token> {
+  infixToPostFix(infix: Token[]): Array<Token> {
     const stack: Array<Token> = [];
     const postFix: Array<Token> = [];
     for (const token of infix) {
@@ -221,10 +225,7 @@ export class ExprParser {
   // #endregion
 
   buildAstFromPostfix(postFix: Array<Token>): AST_Expr | Command {
-    // exp1, exp2, op
-    // exp1, exp2, if
-    // exp1, exp2, exp3 if
-
+ 
     const exprTypes: Array<TokenType> = [
       TokenType.query,
       TokenType.return,
@@ -232,7 +233,7 @@ export class ExprParser {
       TokenType.number,
       TokenType.string,
     ];
-    // const expList: Array<AST_Expr | AST_Query | AST_Compensation | AST_ReturnExpr> = [];
+
     let expList: Array<any> = [];
 
     for (const token of postFix) {
@@ -261,6 +262,7 @@ export class ExprParser {
     return expList.pop();
 
   }
+
 
   createExp(expList, token: Token): AST_Expr {
     const evaluator = this.tokenToExpMap.get(token.type);
@@ -341,28 +343,9 @@ export class ExprParser {
   // #endregion 
 
   // #region parse dependencies only
-  // getDependencyNames(exprStr: string): Array<string> {
-    
-  //   const tokenizer = new Tokenizer(exprStr);
-  //   const tokens = tokenizer.all();
-
-  //   return tokens.map(token => {
-  //     if (token.type == TokenType.query) {
-
-  //       return token.val.substring(1);
-
-  //     } else if (token.type == TokenType.return) {
-  //       // return can have nested queries.
-  //       return token.val.substring(1);
-        
-  //     }
-      
-  //   }).filter(token => token !== undefined);
-
-  // }
 
   
-  getDependencies(exprStr: string): Array<AST_Query | undefined> {
+  getDependencies(exprStr: string): AST_Query[] {
     
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
@@ -384,7 +367,8 @@ export class ExprParser {
       }
       return undefined;
       
-    }).filter(token => token !== undefined);
+    }).filter(token => token !== undefined) as AST_Query[];
+    
 
   }
   // #endregion
