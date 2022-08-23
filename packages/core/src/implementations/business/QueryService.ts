@@ -174,17 +174,18 @@ export class QueryService implements IQueryService {
         consentContractAddress,
       ),
     ]).andThen(([context, config, consentToken]) => {
+      
       return this.validateContextConfig(context as CoreContext, config, consentToken).andThen(
         () => {
           return this.queryParsingEngine
             .handleQuery(query, consentToken!.dataPermissions)
             .andThen((maps) => {
-              console.log("QueryParsingEngine HandleQuery");
+              // console.log("QueryParsingEngine HandleQuery");
               const maps2 = maps as [InsightString[], EligibleReward[]];
               const insights = maps2[0];
               const rewards = maps2[1];
-              console.log("insights: ", insights);
-              console.log("rewards: ", rewards);
+              // console.log("insights: ", insights);
+              // console.log("rewards: ", rewards);
 
               // console.log(insights, rewards);
 

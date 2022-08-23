@@ -105,6 +105,10 @@ class QueryServiceMocks {
       ),
     ).thenReturn(okAsync(true));
 
+    td.when(
+      this.consentContractRepo.getCurrentConsentToken(consentContractAddress)
+    ).thenReturn(okAsync(this.consentToken));
+
     td.when(this.queryParsingEngine.handleQuery(sdqlQuery, new DataPermissions(0xffffffff))).thenReturn(
       okAsync([insights, rewards]),
     );
@@ -266,7 +270,7 @@ describe("processQuery tests", () => {
       });
   });
 
-  test.only("processQuery success", async () => {
+  test("processQuery success", async () => {
     // const queryRequest = new SDQLQueryRequest(consentContractAddress, sdqlQuery);
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
