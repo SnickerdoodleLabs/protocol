@@ -94,7 +94,10 @@ export class SDQLParser {
             return this.parseCompensations()
             .andThen(() => {
 
-              return this.parseLogic();
+              return this.parseLogic()
+              .andThen(() => {
+                return this.parsePermissions();
+              });
               
             });
 

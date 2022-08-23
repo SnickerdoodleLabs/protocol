@@ -10,6 +10,8 @@ describe("SDQLSchema with Avalanche", () => {
   const logicSchema = sdqlSchema.getLogicSchema();
 
   test("avalance has 3 query schema", () => {
+    // console.log(sdqlSchema);
+    // console.log(querySchema);
     expect(Object.keys(querySchema).length).toBe(3);
   });
 

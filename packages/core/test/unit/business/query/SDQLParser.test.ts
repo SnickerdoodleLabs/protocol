@@ -22,7 +22,7 @@ import {
 describe("SDQLParser on avalanche", () => {
 
   const schema = SDQLSchema.fromString(avalance1SchemaStr);
-  const parser = new SDQLParser(IpfsCID("0"), schema);
+  const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
   let ast: null | AST = null;
 
   beforeAll(async () => {
