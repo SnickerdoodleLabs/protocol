@@ -150,7 +150,7 @@ describe("BalanceQueryEvaluator", () => {
         const repo = mocks.factory();
         const result = await repo.eval(balanceQuery);
 
-        console.log("Output is: ", result["value"]);
+        // console.log("Output is: ", result["value"]);
   
     })
     test("All Chains, no limits", async () => {
@@ -165,6 +165,6 @@ describe("BalanceQueryEvaluator", () => {
         const repo = mocks.factory();
         const result = await repo.eval(balanceQuery);
 
-        console.log("Output is: ", result["value"]);   
+        // console.log("Output is: ", result["value"]);   
     })
 })

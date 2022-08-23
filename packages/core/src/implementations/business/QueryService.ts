@@ -174,7 +174,7 @@ export class QueryService implements IQueryService {
         consentContractAddress,
       ),
     ]).andThen(([context, config, consentToken]) => {
-      return this.validateContextConfig(context, config, consentToken).andThen(
+      return this.validateContextConfig(context as CoreContext, config, consentToken).andThen(
         () => {
           return this.queryParsingEngine
             .handleQuery(query, consentToken!.dataPermissions)

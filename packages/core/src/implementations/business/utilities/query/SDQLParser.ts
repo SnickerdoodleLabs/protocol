@@ -18,6 +18,7 @@ import {
 import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
 import {
   AST,
+  AST_BalanceQuery,
   AST_Compensation,
   AST_Expr,
   AST_Logic,
@@ -315,11 +316,20 @@ export class SDQLParser {
   }
 
 
-  private parsePermissions(): ResultAsync<void, ParserError> {
-    const logicSchema = this.schema.getLogicSchema();
-    this.returnPermissions = this.parseLogicPermissions(logicSchema['returns']);
-    this.compenstationPermissions = this.parseLogicPermissions(logicSchema['compensations']);
-    return okAsync(undefined);
+  private parsePermissions(): ResultAsync<void, ParserError | MissingWalletDataTypeError> {
+
+    try {
+
+      const logicSchema = this.schema.getLogicSchema();
+      this.returnPermissions = this.parseLogicPermissions(logicSchema['returns']);
+      this.compenstationPermissions = this.parseLogicPermissions(logicSchema['compensations']);
+      return okAsync(undefined);
+
+    }  catch (err) {
+
+      return errAsync(err as MissingWalletDataTypeError);
+
+    }
 
   }
 
@@ -336,13 +346,14 @@ export class SDQLParser {
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
 
-    let flags = 0; // we will or the flags
-    for (const query of queries) {
-      const flag = this.getQueryPermissionFlag(query);
-      flags |= flag;
-    }
 
-    return new DataPermissions(flags);
+      let flags = 0; // we will or the flags
+      for (const query of queries) {
+        const flag = this.getQueryPermissionFlag(query);
+        flags |= flag;
+      }
+  
+      return new DataPermissions(flags);
 
   }
 
@@ -350,11 +361,39 @@ export class SDQLParser {
     switch (query.constructor) {
       case AST_NetworkQuery:
         return EWalletDataType.EVMTransactions;
+      case AST_BalanceQuery:
+        return EWalletDataType.AccountBalances;
+      case AST_PropertyQuery:
+        const propQuery = query as AST_PropertyQuery;
+        switch (propQuery.property) {
+          case 'age':
+            return EWalletDataType.Age;
+          case 'gender':
+            return EWalletDataType.Gender;
+          case 'givenName':
+            return EWalletDataType.GivenName;
+          case 'familyName':
+            return EWalletDataType.FamilyName;
+          case 'birthday':
+            return EWalletDataType.Birthday;
+          case 'email':
+            return EWalletDataType.Email;
+          case 'location':
+            return EWalletDataType.Location;
+          case 'browsing_history':
+            return EWalletDataType.SiteVisits;
+          case 'url_visited_count':
+            return EWalletDataType.SiteVisits;
+          case 'chain_transaction_count':
+            return EWalletDataType.EVMTransactions;
+          default:
+            throw new MissingWalletDataTypeError(propQuery.property);
+        }
       default:
         throw new MissingWalletDataTypeError(query.constructor.name);
     }
   }
-
+  
 
   // #endregion
 }

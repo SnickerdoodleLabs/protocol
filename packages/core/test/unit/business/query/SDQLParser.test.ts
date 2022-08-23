@@ -18,6 +18,7 @@ import {
   ConditionGE,
   SDQLSchema,
 } from "@core/interfaces/objects/SDQL";
+import { DataPermissions, EWalletDataType } from "@snickerdoodlelabs/objects";
 
 describe("SDQLParser on avalanche", () => {
 
@@ -172,7 +173,8 @@ describe("SDQLParser on avalanche", () => {
 
       expect(eef.trueExpr).toEqual(parser.context.get("c1"));
     });
-  });
+  }); 
+
   describe("AST validation", () => {
     test("meta check", () => {
       expect(ast!.version).toBe("0.1");
@@ -180,6 +182,26 @@ describe("SDQLParser on avalanche", () => {
         "Interactions with the Avalanche blockchain for 15-year and older individuals",
       );
       expect(ast!.business).toBe("Shrapnel");
+    });
+  });
+
+  describe("Dependency validation", () => {
+    test("if($q1and$q2)then$r1else$r2 -> q1, q2", () => {
+
+      // console.log(parser.returnPermissions);
+      const permissions = parser.returnPermissions.get("if($q1and$q2)then$r1else$r2")
+      const expectedFlags = EWalletDataType.EVMTransactions | EWalletDataType.Age;
+      expect(permissions!.eq(expectedFlags)).toBeTruthy();
+
+    });
+
+    test("$r3 -> q3", () => {
+
+      // console.log(parser.returnPermissions);
+      const permissions = parser.returnPermissions.get("$r3")
+      const expectedFlags = EWalletDataType.Location;
+      expect(permissions!.eq(expectedFlags)).toBeTruthy();
+
     });
   });
 });
