@@ -30,6 +30,8 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { extensionCoreModule } from "@implementations/ExtensionCore.module";
 import {
+  IBrowserTabListener,
+  IBrowserTabListenerType,
   ICoreListener,
   ICoreListenerType,
   IErrorListener,
@@ -92,6 +94,9 @@ export class ExtensionCore {
   }
 
   public initialize(): ResultAsync<void, never> {
+    const browserTabListener = this.iocContainer.get<IBrowserTabListener>(
+      IBrowserTabListenerType,
+    );
     const coreListener =
       this.iocContainer.get<ICoreListener>(ICoreListenerType);
     const extensionListener = this.iocContainer.get<IExtensionListener>(
@@ -105,6 +110,7 @@ export class ExtensionCore {
       );
     return ResultUtils.combine([
       coreListener.initialize(),
+      browserTabListener.initialize(),
       extensionListener.initialize(),
       errorListener.initialize(),
       portConnectionListener.initialize(),

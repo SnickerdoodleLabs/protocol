@@ -7,6 +7,7 @@ import {
   IEVMNFT,
   SDQLQuery,
   PageInvitation,
+  SiteVisit,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -252,6 +253,9 @@ export interface ISnickerdoodleCore {
 
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
+
+  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
