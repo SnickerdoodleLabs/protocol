@@ -11,6 +11,8 @@ import {
   QueryFormatError,
   MissingTokenConstructorError,
   DataPermissions,
+  EWalletDataType,
+  MissingWalletDataTypeError,
 } from "@snickerdoodlelabs/objects";
 
 import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
@@ -309,19 +311,8 @@ export class SDQLParser {
     // throw new Error("Expression Parser not found.");
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  public parseExpString(expStr: string): AST_Expr | Command {
-    return this.exprParser!.parse(expStr);
-    // if (this.exprParser) return this.exprParser.parse(expStr);
-    // throw new Error("Expression Parser not found.");
-  }
 
-=======
-  private parsePermissions() {
-=======
   private parsePermissions(): ResultAsync<void, ParserError> {
->>>>>>> wip dependencies
     const logicSchema = this.schema.getLogicSchema();
     this.returnPermissions = this.parseLogicPermissions(logicSchema['returns']);
     this.compenstationPermissions = this.parseLogicPermissions(logicSchema['compensations']);
@@ -332,12 +323,35 @@ export class SDQLParser {
   private parseLogicPermissions(
     expressions: Array<string>,
   ): Map<string, DataPermissions> {
-    return new Map();
+    const permMap = new Map();
+    for (const expression of expressions) {
+      const queryDeps = this.exprParser!.getDependencies(expression);
+      permMap.set(expression, this.queriesToDataPermission(queryDeps));
+    }
+    return permMap;
   }
-<<<<<<< HEAD
->>>>>>> Update SDQLParser.ts
-=======
 
->>>>>>> wip dependencies
+  public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
+
+    let flags = 0; // we will or the flags
+    for (const query of queries) {
+      const flag = this.getQueryPermissionFlag(query);
+      flags |= flag;
+    }
+
+    return new DataPermissions(flags);
+
+  }
+
+  public getQueryPermissionFlag(query: AST_Query): number {
+    switch (query.constructor) {
+      case AST_NetworkQuery:
+        return EWalletDataType.EVMTransactions;
+      default:
+        throw new MissingWalletDataTypeError(query.constructor.name);
+    }
+  }
+
+
   // #endregion
 }
