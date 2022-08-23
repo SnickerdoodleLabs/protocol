@@ -77,7 +77,6 @@ export class ExtensionCore {
       moralisApiKey: config.moralisApiKey,
       dnsServerAddress: config.dnsServerAddress,
     } as IConfigOverrides;
-    const ajax = new AxiosAjaxUtils();
 
     this.core = new SnickerdoodleCore(
       coreConfig,

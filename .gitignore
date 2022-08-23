@@ -15,6 +15,7 @@ packages/*/temp.txt
 packages/*/src/*.d.ts
 packages/*/coverage
 packages/*/yarn-error.log
+packages/*/build-*
 *.swp
 *.swo
 */yarn-error.log

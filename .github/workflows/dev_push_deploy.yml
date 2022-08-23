@@ -43,12 +43,9 @@ jobs:
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA" \
           --build-arg DOMAIN="extension.dev.snickerdoodle.dev" \
           --build-arg CONTROL_CHAIN_ID=31337 \
-          --build-arg CONTROL_CHAIN_PROVIDER_URLS=https://doodlechain.dev.snickerdoodle.dev \
-          --build-arg CONTROL_CHAIN_METATRANSACTION_FORWARDER_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3 \
           --build-arg BUILD_ENV=development \
           --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
-          --build-arg CONTROL_CHAIN_NAME="Development Doodlechain" \
           -f ./packages/extension-onboarding/Dockerfile \
           .
   

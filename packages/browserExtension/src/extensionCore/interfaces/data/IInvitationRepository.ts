@@ -1,12 +1,13 @@
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   ConsentConditions,
   EInvitationStatus,
   PageInvitation,
+  EVMContractAddress,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IInvitationRepository {
   getInvitationsByDomain(
@@ -15,13 +16,19 @@ export interface IInvitationRepository {
   checkInvitationStatus(
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
-
   acceptInvitation(
     invitation: Invitation,
     consentConditions: ConsentConditions | null,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   rejectInvitation(
     invitation: Invitation,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+  getInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    SnickerDoodleCoreError
+  >;
+  leaveCohort(
+    consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError>;
 }
 
