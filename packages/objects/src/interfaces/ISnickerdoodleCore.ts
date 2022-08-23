@@ -194,7 +194,7 @@ export interface ISnickerdoodleCore {
   >;
 
   getAcceptedInvitationsMetadata(): ResultAsync<
-    IOpenSeaMetadata[],
+    Map<EVMContractAddress, IOpenSeaMetadata>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
@@ -203,7 +203,7 @@ export interface ISnickerdoodleCore {
   >;
 
   getRejectedInvitationsMetadata(): ResultAsync<
-    IOpenSeaMetadata[],
+    Map<EVMContractAddress, IOpenSeaMetadata>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentContractError

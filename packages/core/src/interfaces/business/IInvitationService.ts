@@ -82,7 +82,7 @@ export interface IInvitationService {
   >;
 
   getAcceptedInvitationsMetadata(): ResultAsync<
-    IOpenSeaMetadata[],
+    Map<EVMContractAddress, IOpenSeaMetadata>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
@@ -91,7 +91,7 @@ export interface IInvitationService {
   >;
 
   getRejectedInvitationsMetadata(): ResultAsync<
-    IOpenSeaMetadata[],
+    Map<EVMContractAddress, IOpenSeaMetadata>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentContractError
