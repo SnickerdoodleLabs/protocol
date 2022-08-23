@@ -18,9 +18,16 @@ config.mode = "production";
 webpack(config, function (err) {
   if (err) throw err;
 
+  const envBuildPath = path.join(__dirname, `../build-${buildEnv}`)
+
+  // Remove the existing build
+  fs.rmSync(envBuildPath, { recursive: true, force: true });
+  
   // move the build directory to the output location
-  fs.move(path.join(__dirname, "../build"), path.join(__dirname, `../build-${buildEnv}`), function (err) {
+  fs.move(path.join(__dirname, "../build"), envBuildPath, function (err) {
     if (err) throw err;
+
+    fs.remove
   });
 });
 
