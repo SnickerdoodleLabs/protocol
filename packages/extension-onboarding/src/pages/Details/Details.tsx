@@ -5,6 +5,7 @@ import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalIn
 import { Box, Tab, Tabs } from "@material-ui/core";
 import React from "react";
 import { useLocation } from "react-router-dom";
+import RewardsInfo from "@extension-onboarding/pages/Details//screens/RewardsInfo";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -62,7 +63,9 @@ const Details = () => {
       <TabPanel value={currentScreenIndex} index={1}>
         <OnChainInfo />
       </TabPanel>
-      <TabPanel value={currentScreenIndex} index={2}></TabPanel>
+      <TabPanel value={currentScreenIndex} index={2}>
+        <RewardsInfo />
+      </TabPanel>
     </Box>
   );
 };
