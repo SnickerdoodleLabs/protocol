@@ -207,14 +207,10 @@ export class AccountService implements IAccountService {
       this.dataWalletUtils.createDataWalletKey(),
       this.dataWalletUtils.deriveEncryptionKeyFromSignature(signature),
     ]).andThen(([dataWalletKey, encryptionKey]) => {
-      console.warn(
-        `TEST: encryptionKey: ${encryptionKey}, dataWalletKey: ${dataWalletKey}`,
-      );
       // Encrypt the data wallet key
       return this.cryptoUtils
         .encryptString(dataWalletKey, encryptionKey)
         .andThen((encryptedDataWallet) => {
-          console.warn(`TEST: encryptedDataWallet`, encryptedDataWallet);
           const dataWalletAddress = DataWalletAddress(
             this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
               dataWalletKey,
@@ -309,10 +305,6 @@ export class AccountService implements IAccountService {
     return this.dataWalletUtils
       .deriveEncryptionKeyFromSignature(signature)
       .andThen((encryptionKey) => {
-        console.warn(
-          `TEST: encryptionKey: ${encryptionKey}, encryptedDataWalletKey:`,
-          encryptedDataWalletKey,
-        );
         return this.cryptoUtils.decryptAESEncryptedString(
           encryptedDataWalletKey,
           encryptionKey,
