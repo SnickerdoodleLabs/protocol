@@ -59,6 +59,8 @@ import {
   ChainId,
   URLString,
   SiteVisit,
+  IOpenSeaMetadata,
+  ConsentFactoryContractError,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -76,7 +78,6 @@ import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { DefaultDataWalletPersistence } from "@core/implementations/data";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import {
   IAccountIndexerPoller,
@@ -243,10 +244,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-
-    const blockchainListener = 
-    this.iocContainer.get<IBlockchainListener>( IBlockchainListenerType);
-
+    const blockchainListener = this.iocContainer.get<IBlockchainListener>(
+      IBlockchainListenerType,
+    );
 
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])
@@ -369,6 +369,36 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     );
 
     return cohortService.getInvitationsByDomain(domain);
+  }
+
+  public getAcceptedInvitationsMetadata(): ResultAsync<
+    IOpenSeaMetadata[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | IPFSError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.getAcceptedInvitationsMetadata();
+  }
+
+  public getRejectedInvitationsMetadata(): ResultAsync<
+    IOpenSeaMetadata[],
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | PersistenceError
+    | IPFSError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.getRejectedInvitationsMetadata();
   }
 
   public processQuery(
