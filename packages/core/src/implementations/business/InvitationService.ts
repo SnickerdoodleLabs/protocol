@@ -341,7 +341,7 @@ export class InvitationService implements IInvitationService {
   }
 
   public getAcceptedInvitationsMetadata(): ResultAsync<
-    IOpenSeaMetadata[],
+    Map<EVMContractAddress, IOpenSeaMetadata>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
@@ -350,24 +350,37 @@ export class InvitationService implements IInvitationService {
   > {
     return this.consentRepo
       .getConsentContracts()
-      .andThen((consentContracts) => {
+      .andThen((consentContractAddresses) => {
         return ResultUtils.combine(
-          Array.from(consentContracts.keys()).map((contractAddress) => {
-            return this.consentRepo.getMetadataCID(contractAddress);
+          Array.from(consentContractAddresses.keys()).map((contractAddress) => {
+            return this.consentRepo
+              .getMetadataCID(contractAddress)
+              .andThen((ipfsCID) => {
+                return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+              })
+              .map((openSeaMetadata) => {
+                return {
+                  contractAddress,
+                  openSeaMetadata,
+                };
+              });
           }),
         );
       })
-      .andThen((ipfsCIDs) => {
-        return ResultUtils.combine(
-          ipfsCIDs.map((ipfsCID) => {
-            return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+      .map((addressesWithMetadatas) => {
+        return new Map(
+          addressesWithMetadatas.map((addressWithMetadata) => {
+            return [
+              addressWithMetadata.contractAddress,
+              addressWithMetadata.openSeaMetadata,
+            ];
           }),
         );
       });
   }
 
   public getRejectedInvitationsMetadata(): ResultAsync<
-    IOpenSeaMetadata[],
+    Map<EVMContractAddress, IOpenSeaMetadata>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentContractError
@@ -376,19 +389,31 @@ export class InvitationService implements IInvitationService {
   > {
     return this.persistenceRepo
       .getRejectedCohorts()
-      .andThen((contractAddresses) => {
+      .andThen((consentContractAddresses) => {
         return ResultUtils.combine(
-          contractAddresses.map((contractAddress) => {
-            return this.consentRepo.getMetadataCID(contractAddress);
+          consentContractAddresses.map((contractAddress) => {
+            return this.consentRepo
+              .getMetadataCID(contractAddress)
+              .andThen((ipfsCID) => {
+                return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+              })
+              .map((openSeaMetadata) => {
+                return {
+                  contractAddress,
+                  openSeaMetadata,
+                };
+              });
           }),
-        );
-      })
-      .andThen((ipfsCIDs) => {
-        return ResultUtils.combine(
-          ipfsCIDs.map((ipfsCID) => {
-            return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
-          }),
-        );
+        ).map((addressesWithMetadatas) => {
+          return new Map(
+            addressesWithMetadatas.map((addressWithMetadata) => {
+              return [
+                addressWithMetadata.contractAddress,
+                addressWithMetadata.openSeaMetadata,
+              ];
+            }),
+          );
+        });
       });
   }
 
