@@ -3,17 +3,21 @@ import React, { FC, useMemo } from "react";
 
 import tickIcon from "@extension-onboarding/assets/icons/tick.svg";
 import { useStyles } from "@extension-onboarding/components/AccountsCard/components/AccountCardItem/AccountCardItem.style";
-import { useAppContext, ILinkedAccount } from "@extension-onboarding/context/App";
+import {
+  useAppContext,
+  ILinkedAccount,
+} from "@extension-onboarding/context/App";
 
 interface IAccountCardItemProps {
-  // TODO write correct interface
-  account: ILinkedAccount
-  onUnlockClick: () => void;
+  account: ILinkedAccount;
+  onButtonClick?: () => void;
+  buttonText?: string;
 }
 
 const AccountCardItem: FC<IAccountCardItemProps> = ({
   account,
-  onUnlockClick,
+  onButtonClick,
+  buttonText,
 }: IAccountCardItemProps) => {
   const classes = useStyles();
   const { providerList } = useAppContext();
@@ -39,9 +43,11 @@ const AccountCardItem: FC<IAccountCardItemProps> = ({
         </Typography>
       </Box>
       <Box className={classes.linkAccountContainer}>
-        {/* <Button onClick={onUnlockClick} className={classes.linkAccountButton}>
-          Unlink Account
-        </Button> */}
+        {onButtonClick && (
+          <Button onClick={onButtonClick} className={classes.linkAccountButton}>
+            {buttonText}
+          </Button>
+        )}
       </Box>
     </Box>
   );

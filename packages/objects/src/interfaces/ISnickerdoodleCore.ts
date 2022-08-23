@@ -6,8 +6,8 @@ import {
   ConsentConditions,
   IEVMNFT,
   SDQLQuery,
-  SDQLQueryRequest,
   PageInvitation,
+  SiteVisit,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -16,6 +16,7 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
+  ConsentFactoryContractError,
   CrumbsContractError,
   EvaluationError,
   InvalidSignatureError,
@@ -43,6 +44,7 @@ import {
   Signature,
   UnixTimestamp,
 } from "@objects/primitives";
+import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -192,6 +194,24 @@ export interface ISnickerdoodleCore {
     | IPFSError
   >;
 
+  getAcceptedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | IPFSError
+  >;
+
+  getRejectedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | PersistenceError
+    | IPFSError
+  >;
+
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
   // re-checked, of course (trust nobody!).
@@ -233,6 +253,9 @@ export interface ISnickerdoodleCore {
 
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
+
+  addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
+  getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;

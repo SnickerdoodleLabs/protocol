@@ -1,51 +1,53 @@
-import { Box, Typography } from "@material-ui/core";
-import React, { FC, useCallback } from "react";
-
 import { useStyles } from "@extension-onboarding/components/AccountsCard/AccountsCard.style";
 import AccountCardItem from "@extension-onboarding/components/AccountsCard/components/AccountCardItem";
 import EmptyContent from "@extension-onboarding/components/AccountsCard/components/EmptyContent";
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import {
   useAppContext,
   ILinkedAccount,
 } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { Box } from "@material-ui/core";
+import React, { Fragment, ReactNode } from "react";
 
-const AccountCard: FC = () => {
+interface IAccountCardProps {
+  useDivider?: boolean;
+  onButtonClick?: ((account: ILinkedAccount) => void) | null;
+  buttonText?: string;
+  topContent?: ReactNode;
+}
+
+const AccountCard = ({
+  useDivider = false,
+  onButtonClick = null,
+  buttonText,
+  topContent,
+}: IAccountCardProps) => {
   const classes = useStyles();
-  const { linkedAccounts, deleteAccount } = useAppContext();
-  const { setModal } = useLayoutContext();
+  const { linkedAccounts } = useAppContext();
 
-  const onUnlinkClick = useCallback(
-    (account: ILinkedAccount) => {
-      setModal({
-        modalSelector: EModalSelectors.ACCOUNT_UNLINKED,
-        onPrimaryButtonClick: () => {
-          deleteAccount(account);
-        },
-      });
-    },
-    [linkedAccounts],
-  );
   return (
-    <>
-      <Typography className={classes.title}>Your Linked Account</Typography>
-      <Box mt={5} className={classes.container}>
-        {linkedAccounts?.length ? (
-          linkedAccounts?.map?.((account) => (
+    <Box className={classes.container}>
+      {topContent && topContent}
+      {linkedAccounts?.length ? (
+        linkedAccounts?.map?.((account, index) => (
+          <Fragment key={account.accountAddress}>
             <AccountCardItem
-              onUnlockClick={() => {
-                onUnlinkClick(account);
-              }}
-              key={account.accountAddress}
+              {...(onButtonClick && {
+                onButtonClick: () => {
+                  onButtonClick(account);
+                },
+              })}
               account={account}
+              buttonText={buttonText}
             />
-          ))
-        ) : (
-          <EmptyContent />
-        )}
-      </Box>
-    </>
+            {useDivider && index + 1 !== linkedAccounts.length && (
+              <Box className={classes.divider} />
+            )}
+          </Fragment>
+        ))
+      ) : (
+        <EmptyContent />
+      )}
+    </Box>
   );
 };
 

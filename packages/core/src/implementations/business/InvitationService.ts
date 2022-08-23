@@ -23,6 +23,8 @@ import {
   DomainName,
   IPFSError,
   PageInvitation,
+  ConsentFactoryContractError,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -335,6 +337,83 @@ export class InvitationService implements IInvitationService {
       })
       .map((invitations) => {
         return invitations.flat();
+      });
+  }
+
+  public getAcceptedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | IPFSError
+  > {
+    return this.consentRepo
+      .getConsentContracts()
+      .andThen((consentContractAddresses) => {
+        return ResultUtils.combine(
+          Array.from(consentContractAddresses.keys()).map((contractAddress) => {
+            return this.consentRepo
+              .getMetadataCID(contractAddress)
+              .andThen((ipfsCID) => {
+                return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+              })
+              .map((openSeaMetadata) => {
+                return {
+                  contractAddress,
+                  openSeaMetadata,
+                };
+              });
+          }),
+        );
+      })
+      .map((addressesWithMetadatas) => {
+        return new Map(
+          addressesWithMetadatas.map((addressWithMetadata) => {
+            return [
+              addressWithMetadata.contractAddress,
+              addressWithMetadata.openSeaMetadata,
+            ];
+          }),
+        );
+      });
+  }
+
+  public getRejectedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | PersistenceError
+    | IPFSError
+  > {
+    return this.persistenceRepo
+      .getRejectedCohorts()
+      .andThen((consentContractAddresses) => {
+        return ResultUtils.combine(
+          consentContractAddresses.map((contractAddress) => {
+            return this.consentRepo
+              .getMetadataCID(contractAddress)
+              .andThen((ipfsCID) => {
+                return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+              })
+              .map((openSeaMetadata) => {
+                return {
+                  contractAddress,
+                  openSeaMetadata,
+                };
+              });
+          }),
+        ).map((addressesWithMetadatas) => {
+          return new Map(
+            addressesWithMetadatas.map((addressWithMetadata) => {
+              return [
+                addressWithMetadata.contractAddress,
+                addressWithMetadata.openSeaMetadata,
+              ];
+            }),
+          );
+        });
       });
   }
 

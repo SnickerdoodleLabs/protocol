@@ -8,6 +8,7 @@ export * from "@core/interfaces/objects/SDQL/Command_IF";
 export * from "@core/interfaces/objects/SDQL/AST_Query";
 export * from "@core/interfaces/objects/SDQL/AST_NetworkQuery";
 export * from "@core/interfaces/objects/SDQL/AST_PropertyQuery";
+export * from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
 export * from "@core/interfaces/objects/SDQL/AST_BoolExpr";
 export * from "@core/interfaces/objects/SDQL/AST_ReturnExpr";
 export * from "@core/interfaces/objects/SDQL/AST_Return";

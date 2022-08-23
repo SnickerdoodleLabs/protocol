@@ -17,6 +17,7 @@ import {
   IEVMBalance,
   AccountBalanceError,
   TickerSymbol,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -228,6 +229,7 @@ export class CovalentEVMTransactionRepository
               chainId: chainId,
               accountAddress: accountAddress,
               balance: tokenInfo.balance,
+              contractAddress: EVMContractAddress(tokenInfo.contract_address)
             };
           });
         });

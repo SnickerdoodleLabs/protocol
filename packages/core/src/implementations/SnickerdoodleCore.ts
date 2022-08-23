@@ -59,6 +59,8 @@ import {
   ChainId,
   URLString,
   SiteVisit,
+  IOpenSeaMetadata,
+  ConsentFactoryContractError,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -76,7 +78,6 @@ import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { DefaultDataWalletPersistence } from "@core/implementations/data";
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
 import {
   IAccountIndexerPoller,
@@ -231,9 +232,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   > {
     // Get all of our indexers and initialize them
     // TODO
+
     const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
       IBlockchainProviderType,
     );
+
     const accountIndexerPoller = this.iocContainer.get<IAccountIndexerPoller>(
       IAccountIndexerPollerType,
     );
@@ -366,6 +369,36 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     );
 
     return cohortService.getInvitationsByDomain(domain);
+  }
+
+  public getAcceptedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | IPFSError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.getAcceptedInvitationsMetadata();
+  }
+
+  public getRejectedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | PersistenceError
+    | IPFSError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.getRejectedInvitationsMetadata();
   }
 
   public processQuery(
