@@ -16,6 +16,7 @@ import {
   IEVMBalance,
   IEVMNFT,
   IOpenSeaMetadata,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -58,9 +59,12 @@ export interface ISdlDataWallet extends EventEmitter {
   closeTab(): ResultAsync<void, unknown>;
   getDataWalletAddress(): ResultAsync<EVMAccountAddress | null, undefined>;
   getInvitationsMetadata(): ResultAsync<
-    { accepted: IOpenSeaMetadata[]; rejected: IOpenSeaMetadata[] },
+    Record<EVMContractAddress, IOpenSeaMetadata>,
     undefined
   >;
+  leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, unknown>;
 }
 
 export interface IWindowWithSdlDataWallet extends Window {

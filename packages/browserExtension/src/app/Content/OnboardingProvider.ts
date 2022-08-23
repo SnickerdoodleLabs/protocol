@@ -6,6 +6,7 @@ import {
   CountryCode,
   EmailAddressString,
   EVMAccountAddress,
+  EVMContractAddress,
   FamilyName,
   Gender,
   GivenName,
@@ -135,6 +136,9 @@ export class OnboardingProvider extends EventEmitter {
   }
   public getInvitationsMetadata() {
     return coreGateway.getInvitationsMetadata();
+  }
+  public leaveCohort(consentContractAddress: EVMContractAddress) {
+    return coreGateway.leaveCohort(consentContractAddress);
   }
   public metatransactionSignatureRequestCallback(
     id: UUID,

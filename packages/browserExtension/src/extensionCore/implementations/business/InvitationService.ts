@@ -4,7 +4,6 @@ import {
   IInvitationRepositoryType,
 } from "@interfaces/data/IInvitationRepository";
 import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
-import { IGetInvitationsMetadata } from "@shared/interfaces/actions";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
@@ -13,6 +12,7 @@ import {
   EInvitationStatus,
   PageInvitation,
   EVMContractAddress,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -53,7 +53,7 @@ export class InvitationService implements IInvitationService {
   }
 
   public getInvitationsMetadata(): ResultAsync<
-    IGetInvitationsMetadata,
+    Map<EVMContractAddress, IOpenSeaMetadata>,
     SnickerDoodleCoreError
   > {
     return this.invitationRepository.getInvitationsMetadata();
@@ -62,6 +62,6 @@ export class InvitationService implements IInvitationService {
   public leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.invitationRepository.leaveCohort(consentContractAddress);
   }
 }

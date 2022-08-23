@@ -1,6 +1,5 @@
 import { IInvitationRepository } from "@interfaces/data/IInvitationRepository";
 import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
-import { IGetInvitationsMetadata } from "@shared/interfaces/actions";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
@@ -10,10 +9,11 @@ import {
   ISnickerdoodleCore,
   PageInvitation,
   ISnickerdoodleCoreType,
+  IOpenSeaMetadata,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class InvitationRepository implements IInvitationRepository {
@@ -60,19 +60,20 @@ export class InvitationRepository implements IInvitationRepository {
     });
   }
   public getInvitationsMetadata(): ResultAsync<
-    IGetInvitationsMetadata,
+    Map<EVMContractAddress, IOpenSeaMetadata>,
     SnickerDoodleCoreError
   > {
-    return ResultUtils.combine([
-      this.core.getAcceptedInvitationsMetadata(),
-      this.core.getRejectedInvitationsMetadata(),
-    ])
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      })
-      .map(([accepted, rejected]) => {
-        return { rejected, accepted };
-      });
+    return this.core.getAcceptedInvitationsMetadata().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+  public leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core.leaveCohort(consentContractAddress).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
   }
 }

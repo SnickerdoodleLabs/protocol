@@ -13,7 +13,7 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
-  IOpenSeaMetadata,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -74,7 +74,6 @@ export interface IMetatransactionSignatureRequestCallbackParams {
   nonce: BigNumberString;
 }
 
-export interface IGetInvitationsMetadata {
-  accepted: IOpenSeaMetadata[];
-  rejected: IOpenSeaMetadata[];
+export interface ILeaveCohortParams {
+  consentContractAddress: EVMContractAddress;
 }

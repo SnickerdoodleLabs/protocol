@@ -1,10 +1,11 @@
-import { IGetInvitationsMetadata } from "@shared/interfaces/actions";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   ConsentConditions,
   EInvitationStatus,
   PageInvitation,
+  EVMContractAddress,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -15,7 +16,6 @@ export interface IInvitationRepository {
   checkInvitationStatus(
     invitation: Invitation,
   ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError>;
-
   acceptInvitation(
     invitation: Invitation,
     consentConditions: ConsentConditions | null,
@@ -24,9 +24,12 @@ export interface IInvitationRepository {
     invitation: Invitation,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getInvitationsMetadata(): ResultAsync<
-    IGetInvitationsMetadata,
+    Map<EVMContractAddress, IOpenSeaMetadata>,
     SnickerDoodleCoreError
   >;
+  leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
 }
 
 export const IInvitationRepositoryType = Symbol.for("IInvitationRepository");

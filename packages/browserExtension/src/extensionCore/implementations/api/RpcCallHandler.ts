@@ -18,6 +18,8 @@ import {
   ConsentConditions,
   UUID,
   InvitationDomain,
+  EVMContractAddress,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -56,7 +58,7 @@ import {
   IMetatransactionSignatureRequestCallbackParams,
   IAcceptInvitationParams,
   IRejectInvitationParams,
-  IGetInvitationsMetadata,
+  ILeaveCohortParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -64,6 +66,7 @@ import {
   ExtensionMetatransactionError,
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import { mapToObj } from "@shared/utils/objectUtils";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -192,6 +195,13 @@ export class RpcCallHandler implements IRpcCallHandler {
           res,
         ).call();
       }
+      case EExternalActions.LEAVE_COHORT: {
+        const { consentContractAddress } = params as ILeaveCohortParams;
+        return new AsyncRpcResponseSender(
+          this.leaveCohort(consentContractAddress),
+          res,
+        ).call();
+      }
       // TODO move it to correct place
       case EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK: {
         const { nonce, id, metatransactionSignature } =
@@ -297,10 +307,19 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private getInvitationsMetadata(): ResultAsync<
-    IGetInvitationsMetadata,
+    Record<EVMContractAddress, IOpenSeaMetadata>,
     SnickerDoodleCoreError
   > {
-    return this.invitationService.getInvitationsMetadata();
+    return this.invitationService.getInvitationsMetadata().map((res) => {
+      // since Map obj can not sent via rpc call we are converting to record
+      return mapToObj(res);
+    });
+  }
+
+  private leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.invitationService.leaveCohort(consentContractAddress);
   }
 
   private acceptInvitation(

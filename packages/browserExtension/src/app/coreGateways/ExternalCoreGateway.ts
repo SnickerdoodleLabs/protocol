@@ -16,6 +16,8 @@ import {
   UnixTimestamp,
   UUID,
   ConsentConditions,
+  EVMContractAddress,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -25,9 +27,9 @@ import { EExternalActions } from "@shared/enums";
 import {
   IAcceptInvitationParams,
   IAddAccountParams,
-  IGetInvitationsMetadata,
   IGetInvitationWithDomainParams,
   IGetUnlockMessageParams,
+  ILeaveCohortParams,
   IMetatransactionSignatureRequestCallbackParams,
   IRejectInvitationParams,
   ISetAgeParams,
@@ -75,10 +77,18 @@ export class ExternalCoreGateway {
   }
 
   public getInvitationsMetadata(): ResultAsync<
-    IGetInvitationsMetadata,
+    Record<EVMContractAddress, IOpenSeaMetadata>,
     JsonRpcError
   > {
     return this._handler.call(EExternalActions.GET_INVITATIONS_METADATA);
+  }
+
+  public leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.LEAVE_COHORT, {
+      consentContractAddress,
+    } as ILeaveCohortParams);
   }
 
   public addAccount(
