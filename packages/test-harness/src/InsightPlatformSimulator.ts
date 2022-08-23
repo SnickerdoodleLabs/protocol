@@ -177,7 +177,7 @@ export class InsightPlatformSimulator {
             to: contractAddress, // Contract address for the metatransaction
             from: accountAddress, // EOA to run the transaction as
             value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(1000000), // The amount of gas to pay.
+            gas: BigNumber.from(10000000), // The amount of gas to pay.
             nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
             data: data, // The actual bytes of the request, encoded as a hex string
           } as IMinimalForwarderRequest;
