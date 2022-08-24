@@ -166,10 +166,6 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | EvaluationError
   > {
-<<<<<<< HEAD
-    
-=======
->>>>>>> Formatted
     console.log(
       `Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,
     );
