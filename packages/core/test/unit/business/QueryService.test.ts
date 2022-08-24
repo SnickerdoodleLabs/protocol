@@ -260,7 +260,7 @@ describe("processQuery tests", () => {
     await queryService
       .processQuery(consentContractAddress, sdqlQuery)
       .andThen((result) => {
-        console.log("result", result);
+        //console.log("result", result);
         expect(result).toBeUndefined();
         // expect(result.isOk()).toBeTruthy();
         return okAsync(true);

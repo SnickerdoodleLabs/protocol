@@ -156,7 +156,7 @@ describe("BalanceQueryEvaluator", () => {
         const balanceQuery = new AST_BalanceQuery(
             SDQL_Name("q7"),
             "array",
-            "*",
+            null, // * - for all, use null
             [],
         )
         // >= 20 and < 30
