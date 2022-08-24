@@ -299,7 +299,6 @@ describe("QueryEvaluator checking age boolean: L", () => {
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
     const result = await repo.eval(propertyQuery);
-    // console.log(result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -336,7 +335,6 @@ describe("QueryEvaluator checking age boolean: L", () => {
     expect(result["value"]).toBe(true);
   });
 });
-// console.log(result["value"]);
 
 describe("QueryEvaluator checking age boolean: GE", () => {
   test("EvalPropertyQuery: when age is 25 >= 20, returns true", async () => {
@@ -498,7 +496,6 @@ describe("QueryEvaluator checking age boolean: L", () => {
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
     const result = await repo.eval(propertyQuery);
-    // console.log(result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -531,7 +528,6 @@ describe("QueryEvaluator checking age boolean: L", () => {
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
     const result = await repo.eval(propertyQuery);
-    // console.log(result["value"]);
 
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
@@ -743,9 +739,7 @@ describe("QueryEvaluator: ", () => {
         const hash = "";
         const startTime = networkQuery.contract.blockrange.start;
         const endTime = networkQuery.contract.blockrange.end;
-        console.log("Address: ", address);
-        console.log("Start Time: ", startTime);
-        console.log("End Time: ", endTime);
+
         const filter = new EVMTransactionFilter(
         [chainId],
         [address],
@@ -772,7 +766,6 @@ describe("QueryEvaluator: ", () => {
         );
         const result = await repo.eval(networkQuery);
         // console.log("Age is: ", result["value"]);
-        console.log(result);
         expect(result).toBeDefined();
         expect(result["value"]).toBe(true);
     });
@@ -845,9 +838,7 @@ describe("Network Query Testing: ", () => {
     const hash = "";
     const startTime = networkQuery.contract.blockrange.start;
     const endTime = networkQuery.contract.blockrange.end;
-    console.log("Address: ", address);
-    console.log("Start Time: ", startTime);
-    console.log("End Time: ", endTime);
+
     const filter = new EVMTransactionFilter(
       [chainId],
       [address],
@@ -860,7 +851,6 @@ describe("Network Query Testing: ", () => {
     );
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);
-    console.log(result);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
@@ -928,11 +918,6 @@ describe("BalanceQueryEvaluator", () => {
         const repo = mocks.factory();
         const result = await repo.eval(balanceQuery);
 
-        console.log("Map is: ", result);
-        console.log("Balance is: ", result["value"][0]["balance"]);
-        console.log("Ticker is: ", result["value"][0]["ticker"]);
-        console.log("ChainId is: ", result["value"][0]["chainId"]);
-        console.log("accountAddress is: ", result["value"][0]["accountAddress"]);
 
         expect(result["value"][0]["balance"]).toEqual("25")
         expect(result["value"][0]["ticker"]).toEqual("ETH")  
@@ -953,7 +938,6 @@ describe("BalanceQueryEvaluator", () => {
         const repo = mocks.factory();
         const result = await repo.eval(balanceQuery);
 
-        console.log("Map is: ", result["value"]);
         expect(result["value"].length).toEqual(4)  
     })
     test("Return Query Balance Array - All Chain Id's AND No Conditions", async () => {
@@ -968,7 +952,6 @@ describe("BalanceQueryEvaluator", () => {
       const repo = mocks.factory();
       const result = await repo.eval(balanceQuery);
 
-      console.log("Map is: ", result["value"]);
       expect(result["value"].length).toEqual(4)  
   })
 })
