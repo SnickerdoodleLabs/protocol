@@ -8,6 +8,7 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
   IPFSError,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -62,8 +63,22 @@ export class InvitationRepository implements IInvitationRepository {
       .getConfig()
       .andThen((config) => {
         const ipfsUrl = urlJoin(config.ipfsFetchBaseUrl, cid);
-        return this.ajaxUtil.get<IOpenSeaMetadata>(new URL(ipfsUrl));
+        return this.ajaxUtil
+          .get<IOpenSeaMetadata>(new URL(ipfsUrl))
+          .map((metadata) => {
+            metadata.image = URLString(
+              metadata.image?.replace("ipfs://", config.ipfsFetchBaseUrl) ?? "",
+            );
+            metadata.nftClaimedImage = URLString(
+              metadata.nftClaimedImage?.replace(
+                "ipfs://",
+                config.ipfsFetchBaseUrl,
+              ) ?? "",
+            );
+            return metadata;
+          });
       })
+
       .orElse((err) => {
         return errAsync(new IPFSError((err as Error).message, err));
       });
