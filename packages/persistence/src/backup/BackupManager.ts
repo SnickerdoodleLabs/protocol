@@ -32,7 +32,7 @@ export interface IDataWalletBackup {
 }
 
 export type FieldMap = { [key: string]: [object, number] };
-export type TableMap = { [key: string]: { [key: string]: object } };
+export type TableMap = { [key: string]: object[] };
 
 export class BackupBlob {
   public constructor(public fields: FieldMap, public records: TableMap) {}
@@ -64,15 +64,14 @@ export class BackupManager {
     this.tableUpdates = {};
     this.fieldUpdates = {};
     this.numUpdates = 0;
-    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = {}));
+    this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
   }
 
   public addRecord(
     tableName: string,
-    key: string,
     value: object,
   ): ResultAsync<void, PersistenceError> {
-    this.tableUpdates[tableName][key] = value;
+    this.tableUpdates[tableName].push(value);
     this.numUpdates += 1;
     return this.volatile.putObject(tableName, value);
   }
@@ -152,9 +151,8 @@ export class BackupManager {
               Object.keys(unpacked.records).map((tableName) => {
                 const table = unpacked.records[tableName];
                 return ResultUtils.combine(
-                  Object.keys(table).map((key) => {
-                    const value = table[key];
-                    return this.volatile.putObject(key, value);
+                  table.map((value) => {
+                    return this.volatile.putObject(tableName, value);
                   }),
                 );
               }),

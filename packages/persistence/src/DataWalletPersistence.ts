@@ -196,8 +196,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this._getObjectStore().andThen((store) => {
-        return store.putObject<ClickData>(ELocalStorageKey.CLICKS, click);
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.addRecord(ELocalStorageKey.CLICKS, click);
       });
     });
   }
@@ -241,13 +241,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this._getObjectStore().andThen((store) => {
+      return this._getBackupManager().andThen((backupManager) => {
         return ResultUtils.combine(
           siteVisits.map((visit) => {
-            return store.putObject<SiteVisit>(
-              ELocalStorageKey.SITE_VISITS,
-              visit,
-            );
+            return backupManager.addRecord(ELocalStorageKey.SITE_VISITS, visit);
           }),
         ).andThen(() => okAsync(undefined));
       });
@@ -580,13 +577,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this._getObjectStore().andThen((txStore) => {
+      return this._getBackupManager().andThen((backupManager) => {
         return ResultUtils.combine(
           transactions.map((tx) => {
-            return txStore.putObject<EVMTransaction>(
-              ELocalStorageKey.TRANSACTIONS,
-              tx,
-            );
+            return backupManager.addRecord(ELocalStorageKey.TRANSACTIONS, tx);
           }),
         ).andThen(() => okAsync(undefined));
       });
