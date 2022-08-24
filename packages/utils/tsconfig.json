@@ -9,6 +9,6 @@
 			"path": "../objects"
 		}
 	],
-	"include": ["./src/**/*.ts"],
+	"include": ["./src/**/*.ts", "../persistence/src/volatile/IndexedDBUtils.ts"],
 	"exclude": ["node_modules"]
 }
