@@ -150,14 +150,13 @@ describe("BalanceQueryEvaluator", () => {
         const repo = mocks.factory();
         const result = await repo.eval(balanceQuery);
 
-        // console.log("Output is: ", result["value"]);
   
     })
     test("All Chains, no limits", async () => {
         const balanceQuery = new AST_BalanceQuery(
             SDQL_Name("q7"),
             "array",
-            null,
+            "*",
             [],
         )
         // >= 20 and < 30
@@ -165,6 +164,5 @@ describe("BalanceQueryEvaluator", () => {
         const repo = mocks.factory();
         const result = await repo.eval(balanceQuery);
 
-        // console.log("Output is: ", result["value"]);   
     })
 })

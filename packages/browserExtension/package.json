@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn build-dev",
-    "build-dev": "__CONTROL_CHAIN_ID__=31337 __ONBOARDING_URL__='https://extension.dev.snickerdoodle.dev/' __ACCOUNT_COOKIE_URL__='https://snickerdoodlelabs.io/' __SUPPORTED_CHAINS__='42,43113' __IPFS_FETCH_BASE_URL__='https://ipfs.dev.snickerdoodle.dev/ipfs/' __DEFAULT_INSIGHT_PLATFORM_BASE_URL__='https://insight-api.dev.snickerdoodle.dev/v0/' __COVALENT_API_KEY__='' __MORALIS_API_KEY__='' __DNS_SERVER_ADDRESS__='' node utils/build.js dev",
+    "build-dev": "__CONTROL_CHAIN_ID__=31337 __ONBOARDING_URL__='https://datawallet.dev.snickerdoodle.dev/' __ACCOUNT_COOKIE_URL__='https://snickerdoodlelabs.io/' __SUPPORTED_CHAINS__='42,43113' __IPFS_FETCH_BASE_URL__='https://ipfs.dev.snickerdoodle.dev/ipfs/' __DEFAULT_INSIGHT_PLATFORM_BASE_URL__='https://insight-api.dev.snickerdoodle.dev/v0/' __COVALENT_API_KEY__='' __MORALIS_API_KEY__='' __DNS_SERVER_ADDRESS__='' node utils/build.js dev",
     "build-prod": "__CONTROL_CHAIN_ID__=43113 __ONBOARDING_URL__='https://datawallet.snickerdoodle.com/' __ACCOUNT_COOKIE_URL__='https://snickerdoodlelabs.io/' __SUPPORTED_CHAINS__='42,43113' __IPFS_FETCH_BASE_URL__='https://ipfs.snickerdoodle.com/ipfs/' __DEFAULT_INSIGHT_PLATFORM_BASE_URL__='https://insight-api.snickerdoodle.com/v0/' __COVALENT_API_KEY__='' __MORALIS_API_KEY__='' __DNS_SERVER_ADDRESS__=''  node utils/build.js prod",
     "build:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/build.js",
     "start": "node utils/webserver.js",

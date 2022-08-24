@@ -171,7 +171,7 @@ export class InvitationService implements IInvitationService {
             invitation.consentContractAddress, // Contract address for the metatransaction
             EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
             BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            BigNumber.from(1000000), // The amount of gas to pay.
+            BigNumber.from(10000000), // The amount of gas to pay.
             BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
             callData, // The actual bytes of the request, encoded as a hex string
           );
@@ -281,7 +281,7 @@ export class InvitationService implements IInvitationService {
                 consentContractAddress, // Contract address for the metatransaction
                 EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
                 BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-                BigNumber.from(1000000), // The amount of gas to pay.
+                BigNumber.from(10000000), // The amount of gas to pay.
                 BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
                 callData, // The actual bytes of the request, encoded as a hex string
               );
