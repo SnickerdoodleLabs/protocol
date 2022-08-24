@@ -138,6 +138,26 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             ["value", false],
           ],
         },
+        {
+          name: ELocalStorageKey.SITE_VISITS,
+          keyPath: "id",
+          autoIncrement: true,
+          indexBy: [
+            ["url", false],
+            ["startTime", false],
+            ["endTime", false],
+          ],
+        },
+        {
+          name: ELocalStorageKey.CLICKS,
+          keyPath: "id",
+          autoIncrement: true,
+          indexBy: [
+            ["url", false],
+            ["timestamp", false],
+            ["element", false],
+          ],
+        },
       ],
     });
   }
@@ -176,30 +196,16 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils
-        .read<JSONString>(ELocalStorageKey.CLICKS)
-        .andThen((savedClicksJSON) => {
-          const savedClicks = JSON.parse(
-            savedClicksJSON ?? "[]",
-          ) as ClickData[];
-
-          const updated = [...savedClicks, click];
-
-          return this.persistentStorageUtils.write(
-            ELocalStorageKey.CLICKS,
-            JSON.stringify(updated),
-          );
-        });
+      return this._getObjectStore().andThen((store) => {
+        return store.putObject<ClickData>(ELocalStorageKey.CLICKS, click);
+      });
     });
   }
 
   public getClicks(): ResultAsync<ClickData[], PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this._checkAndRetrieveValue<JSONString>(
-        ELocalStorageKey.CLICKS,
-        JSONString("[]"),
-      ).map((json) => {
-        return JSON.parse(json) as ClickData[];
+      return this._getObjectStore().andThen((store) => {
+        return store.getAll<ClickData>(ELocalStorageKey.CLICKS);
       });
     });
   }
@@ -235,29 +241,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils
-        .read<JSONString>(ELocalStorageKey.SITE_VISITS)
-        .andThen((savedSiteVisitsJSON) => {
-          const savedClicks = JSON.parse(
-            savedSiteVisitsJSON ?? "[]",
-          ) as SiteVisit[];
-
-          const updated = [...savedClicks, ...siteVisits];
-
-          return this.persistentStorageUtils.write(
-            ELocalStorageKey.SITE_VISITS,
-            JSON.stringify(updated),
-          );
-        });
+      return this._getObjectStore().andThen((store) => {
+        return ResultUtils.combine(
+          siteVisits.map((visit) => {
+            return store.putObject<SiteVisit>(
+              ELocalStorageKey.SITE_VISITS,
+              visit,
+            );
+          }),
+        ).andThen(() => okAsync(undefined));
+      });
     });
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this._checkAndRetrieveValue<SiteVisit[]>(
-        ELocalStorageKey.SITE_VISITS,
-        [],
-      );
+      return this._getObjectStore().andThen((store) => {
+        return store.getAll<SiteVisit>(ELocalStorageKey.SITE_VISITS);
+      });
     });
   }
 
