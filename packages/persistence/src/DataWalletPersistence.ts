@@ -79,6 +79,7 @@ enum ELocalStorageKey {
 export class DataWalletPersistence implements IDataWalletPersistence {
   private objectStore?: IVolatileStorageTable;
   private backupManager?: BackupManager;
+
   private unlockPromise: Promise<EVMPrivateKey>;
   private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
 
