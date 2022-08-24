@@ -56,6 +56,7 @@ export class CoreListener implements ICoreListener {
   }
 
   private onQueryPosted(request: SDQLQueryRequest) {
+
     console.log(
       `onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
     );
@@ -84,6 +85,7 @@ export class CoreListener implements ICoreListener {
         );
         console.error(e);
       });
+      
   }
 
   // Todo move logic to correct place
