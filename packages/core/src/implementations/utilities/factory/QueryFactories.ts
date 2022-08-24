@@ -17,7 +17,7 @@ export class QueryFactories {
   ) {}
 
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {
-    const schema = SDQLSchema.fromString(schemaString);
+    const schema = SDQLSchema.fromString(SDQLString(schemaString));
     return new SDQLParser(cid, schema, this.queryObjectFactory);
   }
 
