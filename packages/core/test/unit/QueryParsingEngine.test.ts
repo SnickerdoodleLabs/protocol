@@ -3,6 +3,7 @@ import {
   Age,
   CountryCode,
   DataPermissions,
+  EWalletDataType,
   Gender,
   IDataWalletPersistence,
   IpfsCID,
@@ -67,13 +68,13 @@ class QueryParsingMocks {
 
 describe("Testing order of results", () => {
   const mocks = new QueryParsingMocks();
-  test("avalance 2 logics", async () => {
+  test("No null insight with all permissions given", async () => {
     const engine = mocks.factory();
 
     await engine
       .handleQuery(sdqlQuery, new DataPermissions(0xffffffff))
       .andThen(([insights, rewards]) => {
-        console.log(insights);
+        // console.log(insights);
         // return okAsync(0);
         // expect(insights).toEqual(["qualified", country]);
         expect(insights).toEqual([
@@ -83,6 +84,66 @@ describe("Testing order of results", () => {
           new Map(),
         ]);
         return okAsync(insights);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+});
+
+describe.only("Tests with data permissions", () => {
+  
+  const mocks = new QueryParsingMocks();
+  const engine = mocks.factory();
+  /**
+   * Plan, create a data permission object
+  */
+
+  test("avalance 2 first insight is null when age permission is not given", async () => {
+    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
+    const flags = EWalletDataType.EVMTransactions;
+    const givenPermissions = new DataPermissions(flags);
+
+    await engine.handleQuery(sdqlQuery, givenPermissions)
+      .andThen(([insights, rewards]) => {
+        // console.log(insights);
+        expect(insights[0]).toBeNull();
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+
+  test("avalance 2 first insight is null when network permission is not given", async () => {
+    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
+    const flags = EWalletDataType.Age;
+    const givenPermissions = new DataPermissions(flags);
+
+    await engine.handleQuery(sdqlQuery, givenPermissions)
+      .andThen(([insights, rewards]) => {
+        // console.log(insights);
+        expect(insights[0]).toBeNull();
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+
+  test("avalance 2 first insight is not null when network and age permissions are given", async () => {
+    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
+    const flags = EWalletDataType.Age | EWalletDataType.EVMTransactions;
+    const givenPermissions = new DataPermissions(flags);
+
+    await engine.handleQuery(sdqlQuery, givenPermissions)
+      .andThen(([insights, rewards]) => {
+        console.log(insights);
+        expect(insights[0] !== null).toBeTruthy();
+        return okAsync(undefined);
       })
       .mapErr((e) => {
         console.log(e);

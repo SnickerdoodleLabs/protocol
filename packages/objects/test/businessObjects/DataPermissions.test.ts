@@ -18,11 +18,13 @@ describe("DataPermissions bitwise operation tests", () => {
   });
   
   test("0x0000000b does not contain c, 4", () => {
+
     const dp1 = new DataPermissions(0x0000000b);
     const dp2 = new DataPermissions(0x0000000c);
     const dp3 = new DataPermissions(0x00000004);
     expect(dp1.contains(dp2)).toBeFalsy();
     expect(dp1.contains(dp3)).toBeFalsy();
+    
   });
 
 })
