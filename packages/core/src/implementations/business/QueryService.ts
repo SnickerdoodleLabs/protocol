@@ -66,11 +66,11 @@ export class QueryService implements IQueryService {
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
-    @inject(IContextProviderType) 
+    @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
-    @inject(IConfigProviderType) 
+    @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
-    @inject(ICryptoUtilsType) 
+    @inject(ICryptoUtilsType)
     protected cryptoUtils: ICryptoUtils,
   ) {}
 
@@ -166,7 +166,9 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | EvaluationError
   > {
-    console.log(`Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`);
+    console.log(
+      `Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,
+    );
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),

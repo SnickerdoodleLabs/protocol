@@ -97,7 +97,7 @@ core.getEvents().map(async (events) => {
       `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
     );
 
-    let val = queryRequest.query.query;
+    const val = queryRequest.query.query;
     console.log("Val: ", val);
     /*
     const queryPretty = JSON.stringify(
@@ -535,61 +535,53 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   name: "balance",
                   networkid: "42",
                   conditions: {
-                      ge: 10
+                    ge: 10,
                   },
                   return: "array",
                   array_items: {
-                      type: "object",
-                      object_schema: {
-                          properties: {
-                              networkid: {
-                                  type: "integer"
-                              },
-                              address: {
-                                  type: "string",
-                                  pattern: "^0x[a-fA-F0-9]{40}$"
-                              },
-                              balance: {
-                                  type: "number"
-                              }
-                          },
-                          required: [
-                              "networkid",
-                              "address",
-                              "balance"
-                          ]
-                      }
-                  }
+                    type: "object",
+                    object_schema: {
+                      properties: {
+                        networkid: {
+                          type: "integer",
+                        },
+                        address: {
+                          type: "string",
+                          pattern: "^0x[a-fA-F0-9]{40}$",
+                        },
+                        balance: {
+                          type: "number",
+                        },
+                      },
+                      required: ["networkid", "address", "balance"],
+                    },
+                  },
                 },
                 q8: {
                   name: "balance",
                   networkid: "*",
                   conditions: {
-                      ge: 10
+                    ge: 10,
                   },
                   return: "array",
                   array_items: {
-                      type: "object",
-                      object_schema: {
-                          properties: {
-                              networkid: {
-                                  type: "integer"
-                              },
-                              address: {
-                                  type: "string",
-                                  pattern: "^0x[a-fA-F0-9]{40}$"
-                              },
-                              balance: {
-                                  type: "number"
-                              }
-                          },
-                          required: [
-                              "networkid",
-                              "address",
-                              "balance"
-                          ]
-                      }
-                  }
+                    type: "object",
+                    object_schema: {
+                      properties: {
+                        networkid: {
+                          type: "integer",
+                        },
+                        address: {
+                          type: "string",
+                          pattern: "^0x[a-fA-F0-9]{40}$",
+                        },
+                        balance: {
+                          type: "number",
+                        },
+                      },
+                      required: ["networkid", "address", "balance"],
+                    },
+                  },
                 },
               },
               returns: {
@@ -710,7 +702,6 @@ function unlockCore(): ResultAsync<
           );
         })
         .andThen((signature) => {
-
           return core.unlock(
             EVMAccountAddress(wallet.address),
             signature,
