@@ -207,8 +207,6 @@ function mainPrompt(): ResultAsync<void, Error> {
       name: "main",
       message: "Please select a course of action:",
       choices: [
-        { name: "Nothing", value: "nothing" },
-        new inquirer.Separator(),
         { name: "Core", value: "core" },
         new inquirer.Separator(),
         {
@@ -216,6 +214,7 @@ function mainPrompt(): ResultAsync<void, Error> {
           value: "simulator",
         },
         new inquirer.Separator(),
+        { name: "Nothing", value: "nothing" },
         { name: "Exit", value: "exit", short: "e" },
       ],
     },

@@ -55,6 +55,9 @@ export class CoreListener implements ICoreListener {
   }
 
   private onQueryPosted(request: SDQLQueryRequest) {
+    console.log(`onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`);
+    console.debug(request.query.query)
+    
     // @TODO - remove once ipfs issue is resolved
     const getStringQuery = () => {
       const queryObjOrStr = request.query.query;
@@ -70,6 +73,10 @@ export class CoreListener implements ICoreListener {
     this.core.processQuery(request.consentContractAddress, {
       cid: request.query.cid,
       query: getStringQuery(),
+    })
+    .mapErr((e) => {
+      console.error(`Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`);
+      console.error(e);
     });
   }
 
