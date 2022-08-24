@@ -72,7 +72,7 @@ describe("Testing order of results", () => {
     await engine
       .handleQuery(sdqlQuery)
       .andThen(([insights, rewards]) => {
-        console.log(insights);
+        //console.log(insights);
         // return okAsync(0);
         // expect(insights).toEqual(["qualified", country]);
         expect(insights).toEqual([
