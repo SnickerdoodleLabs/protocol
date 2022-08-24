@@ -78,6 +78,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   
       for (const returnStr of ast.logic.returns.keys()) {
         
+        const permissions = ast.logic.getReturnPermissions(returnStr);
         const result = astEvaluator.evalAny(ast.logic.returns.get(returnStr));
         insight_results.push(result);
   

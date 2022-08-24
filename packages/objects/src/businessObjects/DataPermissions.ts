@@ -10,9 +10,18 @@ export class DataPermissions {
     
   }
 
+  public getFlags(): number {
+    return this.flags
+  }
+
   public eq(otherFlags: number): boolean {
     return this.flags === otherFlags;
   }
+
+  public contains(other: DataPermissions): boolean {
+    return (this.flags & other.getFlags()) == other.flags;
+  }
+
 
   public get Age(): boolean {
     return (this.flags & EWalletDataType.Age) > 0;

@@ -125,7 +125,12 @@ export class SDQLParser {
             this.queries,
             this.returns,
             this.compensations,
-            new AST_Logic(this.logicReturns, this.logicCompensations),
+            new AST_Logic(
+              this.logicReturns, 
+              this.logicCompensations,
+              this.returnPermissions,
+              this.compenstationPermissions
+              ),
           )
         );
         
