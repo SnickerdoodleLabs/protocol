@@ -217,10 +217,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return this.persistentStorageUtils
         .read<EVMContractAddress[]>(ELocalStorageKey.REJECTED_COHORTS)
         .andThen((saved) => {
-          return this.persistentStorageUtils.write(
-            ELocalStorageKey.REJECTED_COHORTS,
-            [...(saved ?? []), ...consentContractAddresses],
-          );
+          return this._getBackupManager().andThen((backupManager) => {
+            return backupManager.updateField(
+              ELocalStorageKey.REJECTED_COHORTS,
+              [...(saved ?? []), ...consentContractAddresses],
+            );
+          });
         });
     });
   }
@@ -266,17 +268,21 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return this.persistentStorageUtils
         .read<EVMContractAddress[]>(ELocalStorageKey.ACCOUNT)
         .andThen((saved) => {
-          return this.persistentStorageUtils.write(
-            ELocalStorageKey.ACCOUNT,
-            Array.from(new Set([...(saved ?? []), accountAddress])),
-          );
+          return this._getBackupManager().andThen((backupManager) => {
+            return backupManager.updateField(
+              ELocalStorageKey.ACCOUNT,
+              Array.from(new Set([...(saved ?? []), accountAddress])),
+            );
+          });
         });
     });
   }
 
   public setAge(age: Age): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils.write(ELocalStorageKey.AGE, age);
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.updateField(ELocalStorageKey.AGE, age);
+      });
     });
   }
 
@@ -288,10 +294,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils.write(
-        ELocalStorageKey.FIRST_NAME,
-        name,
-      );
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.updateField(ELocalStorageKey.FIRST_NAME, name);
+      });
     });
   }
 
@@ -303,10 +308,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils.write(
-        ELocalStorageKey.LAST_NAME,
-        name,
-      );
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.updateField(ELocalStorageKey.LAST_NAME, name);
+      });
     });
   }
 
@@ -320,10 +324,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     birthday: UnixTimestamp,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils.write(
-        ELocalStorageKey.BIRTHDAY,
-        birthday,
-      );
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.updateField(ELocalStorageKey.BIRTHDAY, birthday);
+      });
     });
   }
 
@@ -335,7 +338,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public setGender(gender: Gender): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils.write(ELocalStorageKey.GENDER, gender);
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.updateField(ELocalStorageKey.GENDER, gender);
+      });
     });
   }
 
@@ -349,7 +354,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     email: EmailAddressString,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils.write(ELocalStorageKey.EMAIL, email);
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.updateField(ELocalStorageKey.EMAIL, email);
+      });
     });
   }
 
@@ -363,10 +370,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     location: CountryCode,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils.write(
-        ELocalStorageKey.LOCATION,
-        location,
-      );
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.updateField(ELocalStorageKey.LOCATION, location);
+      });
     });
   }
 
@@ -700,10 +706,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this.persistentStorageUtils.write(
-        ELocalStorageKey.LATEST_BLOCK,
-        blockNumber,
-      );
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.updateField(
+          ELocalStorageKey.LATEST_BLOCK,
+          blockNumber,
+        );
+      });
     });
   }
 
