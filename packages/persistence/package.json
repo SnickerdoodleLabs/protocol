@@ -29,13 +29,14 @@
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "compile": "tsc --build && cd ../.. && yarn alias",
     "test": "yarn test:ci",
-    "test:ci": "jest --runInBand --coverage --passWithNoTests",
-    "test:watch": "jest --watch --color --detectOpenHandles"
+    "test:ci": "npx jest --runInBand --coverage --passWithNoTests",
+    "test:watch": "npx jest --watch --color --detectOpenHandles"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
     "@snickerdoodlelabs/objects": ">=0.0.1",
     "@snickerdoodlelabs/utils": ">=0.0.1",
+    "bloom-filters": "^3.0.0",
     "inversify": "^5.1.1",
     "neverthrow": "^4.2.2"
   }

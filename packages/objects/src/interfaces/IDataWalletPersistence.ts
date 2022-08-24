@@ -4,7 +4,6 @@ import { IEVMBalance } from "./chains";
 
 import {
   ClickData,
-  ClickFilter,
   EVMTransaction,
   EVMTransactionFilter,
   IEVMNFT,
