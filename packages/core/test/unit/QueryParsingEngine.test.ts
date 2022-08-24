@@ -141,8 +141,42 @@ describe.only("Tests with data permissions", () => {
 
     await engine.handleQuery(sdqlQuery, givenPermissions)
       .andThen(([insights, rewards]) => {
-        console.log(insights);
+        // console.log(insights);
         expect(insights[0] !== null).toBeTruthy();
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+
+  test("all null when no permissions are given", async () => {
+    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
+    const flags = 0;
+    const givenPermissions = new DataPermissions(flags);
+
+    await engine.handleQuery(sdqlQuery, givenPermissions)
+      .andThen(([insights, rewards]) => {
+        // console.log(insights);
+        expect(insights).toEqual([null, null, null, null])
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+
+  test("avalance 2 4th insight not null when siteVisits given", async () => {
+    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
+    const flags = EWalletDataType.SiteVisits;
+    const givenPermissions = new DataPermissions(flags);
+
+    await engine.handleQuery(sdqlQuery, givenPermissions)
+      .andThen(([insights, rewards]) => {
+        // console.log(insighyarts);
+        expect(insights[3] !== null).toBeTruthy();
         return okAsync(undefined);
       })
       .mapErr((e) => {
