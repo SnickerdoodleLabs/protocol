@@ -49,7 +49,6 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
                     balance: BigNumber.from("0"),
                 };
             })
-            // console.log("TokenBalances: ", tokenBalances)
             return okAsync(tokenBalances);
         }
         ).andThen( (balanceArray) => {
@@ -68,32 +67,31 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
             //console.log("Condition: ", condition);
             //console.log("balanceArray: ", balanceArray);
             let val: BigNumber = BigNumber.from(0);
-            // console.log("Val: ", val.toNumber());
             switch (condition.constructor) {
                 case ConditionGE:
                     val = BigNumber.from((condition as ConditionGE).rval);
-                    // console.log("val: ", val.toNumber());
+                    //console.log("val: ", val.toNumber());
                     balanceArray = balanceArray.filter((balance) => BigNumber.from((balance.balance)).toNumber() >= val.toNumber());
-                    // console.log("BalanceArray: ", balanceArray);
+                    //console.log("BalanceArray: ", balanceArray);
                     break;
                 case ConditionG:
                     val = BigNumber.from((condition as ConditionG).rval);
-                    // console.log("val: ", val.toNumber());
+                    //console.log("val: ", val.toNumber());
                     balanceArray = balanceArray.filter((balance) => BigNumber.from((balance.balance)).toNumber() > val.toNumber());
                     break;
                 case ConditionL:
                     val = BigNumber.from((condition as ConditionL).rval);
-                    // console.log("val: ", val.toNumber());
+                    //console.log("val: ", val.toNumber());
                     balanceArray = balanceArray.filter((balance) => BigNumber.from((balance.balance)).toNumber() < val.toNumber());
                     break;
                 case ConditionE:
                     val = BigNumber.from((condition as ConditionE).rval);
-                    // console.log("val: ", val.toNumber());
+                    //console.log("val: ", val.toNumber());
                     balanceArray = balanceArray.filter((balance) => BigNumber.from((balance.balance)).toNumber() == val.toNumber());
                     break;
                 case ConditionLE:
                     val = BigNumber.from((condition as ConditionLE).rval);
-                    // console.log("val: ", val.toNumber());
+                    //console.log("val: ", val.toNumber());
                     balanceArray = balanceArray.filter((balance) => BigNumber.from((balance.balance)).toNumber() <= val.toNumber());
                     break;
 

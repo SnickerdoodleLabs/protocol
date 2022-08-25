@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { IpfsCID, SDQL_Name } from "@objects/primitives";
+import { IpfsCID, SDQLString, SDQL_Name } from "@objects/primitives";
 
 import { avalance1SchemaStr } from "./avalanche1.data";
 
@@ -22,7 +22,7 @@ import { DataPermissions, EWalletDataType } from "@snickerdoodlelabs/objects";
 
 describe("SDQLParser on avalanche", () => {
 
-  const schema = SDQLSchema.fromString(avalance1SchemaStr);
+  const schema = SDQLSchema.fromString(SDQLString(avalance1SchemaStr));
   const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
   let ast: null | AST = null;
 

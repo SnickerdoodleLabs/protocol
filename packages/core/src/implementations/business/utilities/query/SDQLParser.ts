@@ -203,7 +203,7 @@ export class SDQLParser {
           // console.log(`${rName} is a query`);
           const returnExpr = new AST_ReturnExpr(
             name,
-            this.context.get(SDQL_Name(schema.query)),
+            this.context.get(SDQL_Name(schema.query!)),
           );
 
           returns.push(returnExpr);
@@ -211,7 +211,7 @@ export class SDQLParser {
           // console.log(`${rName} is a message`);
           const returnExpr = new AST_ReturnExpr(
             name,
-            new AST_Return(schema.name, schema.message),
+            new AST_Return(SDQL_Name(schema.name), schema.message!),
           );
 
           returns.push(returnExpr);
@@ -283,9 +283,9 @@ export class SDQLParser {
     try {
 
       const logicSchema = this.schema.getLogicSchema();
-      this.logicReturns = this.parseLogicExpressions(logicSchema["returns"]);
+      this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
       this.logicCompensations = this.parseLogicExpressions(
-        logicSchema["compensations"],
+        logicSchema.compensations
       );
 
       return okAsync(undefined);

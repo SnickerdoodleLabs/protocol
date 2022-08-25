@@ -6,6 +6,7 @@ import { avalance1SchemaStr } from "./avalanche1.data";
 
 import {
   ExprParser,
+  QueryObjectFactory,
   SDQLParser,
   Token,
   Tokenizer,
@@ -23,6 +24,9 @@ import {
   ConditionOr,
   SDQLSchema,
 } from "@core/interfaces/objects/SDQL";
+import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+import td from "testdouble";
+
 // import { ExprParser } from "businessObjects/SDQL/ExprParser";
 // import { Token, Tokenizer, TokenType } from "businessObjects/SDQL/Tokenizer";
 // import { IpfsCID } from "primitives";
@@ -343,7 +347,7 @@ describe("Postfix to AST", () => {
 
   
   const schema = SDQLSchema.fromString(avalance1SchemaStr);
-  const parser = new SDQLParser(IpfsCID("0"), schema);
+  const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
   let context: Map<string, any> | null = null;
 
   beforeAll(async () => {
