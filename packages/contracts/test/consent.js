@@ -569,6 +569,23 @@ describe("Consent", () => {
     });
   });
 
+  describe("setQueryHorizon", function () {
+    it("Allows DEFAULT_ADMIN_ROLE to update the query horizon variable.", async function () {
+      // set the query horizon block number which is used for setting the oldest block to search for requestForData events
+      await consent.connect(user1).setQueryHorizon(10101);
+
+      expect(await consent.queryHorizon()).to.eq(10101);
+    });
+
+    it("Does not allow address without DEFAULT_ADMIN_ROLE to update the baseURI", async function () {
+      await expect(
+        consent.connect(accounts[2]).setBaseURI("www.newURI.com"),
+      ).to.revertedWith(
+        `AccessControl: account ${accounts[2].address.toLowerCase()} is missing role ${defaultAdminRoleBytes}`,
+      );
+    });
+  });
+
   describe("setTrustedForwarder", function () {
     it("Allows DEFAULT_ADMIN_ROLE to update the trusted forwarder address.", async function () {
       // set trusted forwarder address

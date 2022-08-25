@@ -276,10 +276,9 @@ task("addConsentContractDomain", "Add a new URL to a Consent Contract.")
 
     console.log("Is this doing anything?");
 
-    consentContractHandle
+    await consentContractHandle
       .addDomain(url)
       .then((txResponse) => {
-        console.log(txResponse);
         return txResponse.wait();
       })
       .then((txrct) => {
