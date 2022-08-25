@@ -34,9 +34,9 @@
   },
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/objects": ">=0.0.1",
-    "@snickerdoodlelabs/utils": ">=0.0.1",
-    "bloom-filters": "^3.0.0",
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/utils": "workspace:^",
     "inversify": "^5.1.1",
     "neverthrow": "^4.2.2"
   }

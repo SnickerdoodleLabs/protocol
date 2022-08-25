@@ -21,6 +21,7 @@ import {
   IEVMNFT,
   EVMTransactionFilter,
   BlockNumber,
+  IDataWalletBackup,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -281,6 +282,15 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
     throw new Error("Method not implemented.");
   }
   public getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+
+  public dumpBackup(): ResultAsync<string, PersistenceError> {
+    throw new Error("Method not implemented.");
+  }
+  public restoreBackup(
+    backup: IDataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 }

@@ -4994,6 +4994,7 @@ __metadata:
     inquirer: ^8.0.0
     inversify: ^5.1.1
     ipfs-http-client: ^55.0.0
+    lzutf8: ^0.6.3
     neverthrow: ^4.3.1
     neverthrow-result-utils: ^1.0.2
     reflect-metadata: ^0.1.13
@@ -5093,9 +5094,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/persistence@workspace:packages/persistence"
   dependencies:
-    "@snickerdoodlelabs/objects": ">=0.0.1"
-    "@snickerdoodlelabs/utils": ">=0.0.1"
-    bloom-filters: ^3.0.0
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/utils": "workspace:^"
     inversify: ^5.1.1
     neverthrow: ^4.2.2
   languageName: unknown
@@ -5112,7 +5113,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/utils@>=0.0.1, @snickerdoodlelabs/utils@workspace:packages/utils":
+"@snickerdoodlelabs/utils@workspace:^, @snickerdoodlelabs/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/utils@workspace:packages/utils"
   dependencies:
@@ -8944,13 +8945,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-arraybuffer@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "base64-arraybuffer@npm:1.0.2"
-  checksum: 15e6400d2d028bf18be4ed97702b11418f8f8779fb8c743251c863b726638d52f69571d4cc1843224da7838abef0949c670bde46936663c45ad078e89fee5c62
-  languageName: node
-  linkType: hard
-
 "base64-js@npm:^1.3.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
@@ -9173,23 +9167,6 @@ __metadata:
   dependencies:
     browser-readablestream-to-it: ^1.0.3
   checksum: e7fbebe5bd7b8187a4a88203639777456596a0cc68372e7b2dbcfbae6dea2b80e2a89522140039b538140bc3e3a6b1e90d1778e725eb8899070f799e61591751
-  languageName: node
-  linkType: hard
-
-"bloom-filters@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "bloom-filters@npm:3.0.0"
-  dependencies:
-    base64-arraybuffer: ^1.0.2
-    is-buffer: ^2.0.5
-    lodash: ^4.17.15
-    lodash.eq: ^4.0.0
-    lodash.indexof: ^4.0.5
-    long: ^5.2.0
-    reflect-metadata: ^0.1.13
-    seedrandom: ^3.0.5
-    xxhashjs: ^0.2.2
-  checksum: 12b7408bab5ce850e810088ce9fd218b9b9b41cb9386d7c9da21112fa91b65d523251e503483e54c71fc4aede3d9c5443df03aba4ad49a38552b38b68433e6a5
   languageName: node
   linkType: hard
 
@@ -11587,13 +11564,6 @@ __metadata:
     source-map-support: ^0.5.19
     underscore: ^1.8.3
   checksum: 0c662f263e81c314c4c14bb92c606f8ddf17fa7a167f1bc6a1a969126ff88ec98671439fb63cabc9af53580fb5c837fe93ffd9d49a7a8c30d8bb34d265d53426
-  languageName: node
-  linkType: hard
-
-"cuint@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "cuint@npm:0.2.2"
-  checksum: b8127a93a7f16ce120ffcb22108014327c9808b258ee20e7dbb4c6740d7cb0f0c12d18a054eb716b0f2470090666abaae8a082d3cd5ef0e94fa447dd155842c4
   languageName: node
   linkType: hard
 
@@ -18102,7 +18072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-buffer@npm:^2.0.5, is-buffer@npm:~2.0.3":
+"is-buffer@npm:~2.0.3":
   version: 2.0.5
   resolution: "is-buffer@npm:2.0.5"
   checksum: 764c9ad8b523a9f5a32af29bdf772b08eb48c04d2ad0a7240916ac2688c983bf5f8504bf25b35e66240edeb9d9085461f9b5dae1f3d2861c6b06a65fe983de42
@@ -20753,24 +20723,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.eq@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "lodash.eq@npm:4.0.0"
-  checksum: c46d45b8da669151cdf4fcb996056c8847c1c32723fa3c60ef87433ee41b01b8e1ee615c4c433b6f27391fa9c1793ad6d892dd30bac4c9c3508be3fa5f3d5def
-  languageName: node
-  linkType: hard
-
 "lodash.get@npm:^4.4.2":
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
   checksum: e403047ddb03181c9d0e92df9556570e2b67e0f0a930fcbbbd779370972368f5568e914f913e93f3b08f6d492abc71e14d4e9b7a18916c31fa04bd2306efe545
-  languageName: node
-  linkType: hard
-
-"lodash.indexof@npm:^4.0.5":
-  version: 4.0.5
-  resolution: "lodash.indexof@npm:4.0.5"
-  checksum: 4f3ead786c2941f18f1ef250459bcc6182ac00f04e76a2b94d3933349c879cd4b79444d59b0de835ad93d7b01626c1bc8ee55d7776879f099c0617d896a29f28
   languageName: node
   linkType: hard
 
@@ -20912,13 +20868,6 @@ __metadata:
   version: 4.0.0
   resolution: "long@npm:4.0.0"
   checksum: 16afbe8f749c7c849db1f4de4e2e6a31ac6e617cead3bdc4f9605cb703cd20e1e9fc1a7baba674ffcca57d660a6e5b53a9e236d7b25a295d3855cca79cc06744
-  languageName: node
-  linkType: hard
-
-"long@npm:^5.2.0":
-  version: 5.2.0
-  resolution: "long@npm:5.2.0"
-  checksum: 37aa4e67b9c3eebc6d9d675adcc9d06f06059ca268922a71273de389746bf07f0ff282f9e604d17fdf84c4149099b44e936ea2b621a6c4759a216621afa97efd
   languageName: node
   linkType: hard
 
@@ -21102,6 +21051,15 @@ __metadata:
   bin:
     lz-string: bin/bin.js
   checksum: 54e31238a61a84d8f664d9860a9fba7310c5b97a52c444f80543069bc084815eff40b8d4474ae1d93992fdf6c252dca37cf27f6adbeb4dbc3df2f3ac773d0e61
+  languageName: node
+  linkType: hard
+
+"lzutf8@npm:^0.6.3":
+  version: 0.6.3
+  resolution: "lzutf8@npm:0.6.3"
+  dependencies:
+    readable-stream: ^4.0.0
+  checksum: 0ef942e003daaefaec7ed7af73b0f93a758cf3b9b1943c9ca8048a45f6b9da7c03db12958b8d5aeb81bc7ecb159d2a1e3dd49de9fecf70518764c6c8644d0b48
   languageName: node
   linkType: hard
 
@@ -26799,13 +26757,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"seedrandom@npm:^3.0.5":
-  version: 3.0.5
-  resolution: "seedrandom@npm:3.0.5"
-  checksum: 728b56bc3bc1b9ddeabd381e449b51cb31bdc0aa86e27fcd0190cea8c44613d5bcb2f6bb63ed79f78180cbe791c20b8ec31a9627f7b7fc7f476fd2bdb7e2da9f
-  languageName: node
-  linkType: hard
-
 "seek-bzip@npm:^1.0.5":
   version: 1.0.6
   resolution: "seek-bzip@npm:1.0.6"
@@ -32314,15 +32265,6 @@ __metadata:
   dependencies:
     object-keys: ~0.4.0
   checksum: a8b79f31502c163205984eaa2b196051cd2fab0882b49758e30f2f9018255bc6c462e32a090bf3385d1bda04755ad8cc0052a09e049b0038f49eb9b950d9c447
-  languageName: node
-  linkType: hard
-
-"xxhashjs@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "xxhashjs@npm:0.2.2"
-  dependencies:
-    cuint: ^0.2.2
-  checksum: cf6baf05bafe5651dbf108008bafdb1ebe972f65228633f00b56c49d7a1e614a821fe3345c4eb27462994c7c954d982eae05871be6a48146f30803dd87f3c3b6
   languageName: node
   linkType: hard
 

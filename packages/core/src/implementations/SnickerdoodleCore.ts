@@ -61,6 +61,7 @@ import {
   SiteVisit,
   IOpenSeaMetadata,
   ConsentFactoryContractError,
+  IDataWalletBackup,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -552,5 +553,21 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEVMTransactions(transactions);
+  }
+
+  public dumpBackup(): ResultAsync<string, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.dumpBackup();
+  }
+
+  public restoreBackup(
+    backup: IDataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.restoreBackup(backup);
   }
 }

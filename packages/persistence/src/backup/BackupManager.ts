@@ -1,42 +1,21 @@
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AESEncryptedString,
+  BackupBlob,
   DataWalletAddress,
   EVMAccountAddress,
   EVMPrivateKey,
+  FieldMap,
+  IDataWalletBackup,
   PersistenceError,
   Signature,
+  TableMap,
 } from "@snickerdoodlelabs/objects";
-import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
-import { inject, injectable } from "inversify";
-import * as Hash from "ipfs-only-hash";
-import { compress, decompress } from "lz-string";
+import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IVolatileStorageTable } from "@persistence/volatile/";
-
-export interface IDataWalletBackupHeader {
-  hash: string;
-  timestamp: number;
-  signature: string;
-  accountAddress: string; // not sure if we should include this
-}
-
-export interface IDataWalletBackup {
-  header: IDataWalletBackupHeader;
-  blob: AESEncryptedString;
-}
-
-export type FieldMap = { [key: string]: [object, number] };
-export type TableMap = { [key: string]: object[] };
-
-export class BackupBlob {
-  public constructor(public fields: FieldMap, public records: TableMap) {}
-}
 
 export class BackupManager {
   private fieldUpdates: FieldMap = {};
@@ -131,16 +110,19 @@ export class BackupManager {
           return ResultUtils.combine(
             Object.keys(unpacked.fields).map((fieldName) => {
               const [value, timestamp] = unpacked.fields[fieldName];
-              if (timestamp > this.fieldHistory[fieldName]) {
+              if (
+                !(fieldName in this.fieldHistory) ||
+                timestamp > this.fieldHistory[fieldName]
+              ) {
                 if (this.fieldUpdates.hasOwnProperty(fieldName)) {
                   if (timestamp > this.fieldUpdates[fieldName][1]) {
-                    this.persistent.write(fieldName, value);
                     this.fieldHistory[fieldName] = timestamp;
                     delete this.fieldUpdates[fieldName];
+                    return this.persistent.write(fieldName, value);
                   }
                 } else {
-                  this.persistent.write(fieldName, value);
                   this.fieldHistory[fieldName] = timestamp;
+                  return this.persistent.write(fieldName, value);
                 }
               }
 
@@ -175,8 +157,7 @@ export class BackupManager {
         return this.cryptoUtils
           .decryptAESEncryptedString(blob, aesKey)
           .andThen((unencrypted) => {
-            const decompressed: string = decompress(unencrypted);
-            return okAsync(JSON.parse(decompressed) as BackupBlob);
+            return okAsync(JSON.parse(unencrypted) as BackupBlob);
           });
       });
   }
@@ -214,11 +195,11 @@ export class BackupManager {
     const rawBlob = JSON.stringify(
       new BackupBlob(this.fieldUpdates, this.tableUpdates),
     );
-    const compressed = compress(rawBlob);
+
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        return this.cryptoUtils.encryptString(compressed, aesKey);
+        return this.cryptoUtils.encryptString(rawBlob, aesKey);
       });
   }
 
@@ -229,11 +210,10 @@ export class BackupManager {
     });
   }
 
-  private _getContentHash(blob): ResultAsync<string, PersistenceError> {
-    return ResultAsync.fromPromise(
-      Hash.of(blob),
-      (e) => new PersistenceError("error hashing blob"),
-    );
+  private _getContentHash(
+    blob: AESEncryptedString,
+  ): ResultAsync<string, PersistenceError> {
+    return this.cryptoUtils.hashStringArgon2(JSON.stringify(blob));
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {

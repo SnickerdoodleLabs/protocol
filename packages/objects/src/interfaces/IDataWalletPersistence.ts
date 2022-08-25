@@ -10,6 +10,7 @@ import {
   SiteVisit,
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
+import { IDataWalletBackup } from "@objects/interfaces";
 import {
   Age,
   EmailAddressString,
@@ -136,6 +137,9 @@ export interface IDataWalletPersistence {
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError>;
   getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError>;
+
+  dumpBackup(): ResultAsync<string, PersistenceError>;
+  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

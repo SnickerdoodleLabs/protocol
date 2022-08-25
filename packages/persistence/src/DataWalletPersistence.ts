@@ -24,7 +24,6 @@ import {
   IEVMNFT,
   EVMTransactionFilter,
   BlockNumber,
-  JSONString,
   IAccountBalances,
   IAccountBalancesType,
   IAccountNFTs,
@@ -33,6 +32,7 @@ import {
   AjaxError,
   EIndexer,
   AccountBalanceError,
+  IDataWalletBackup,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { IDBKeyRange } from "fake-indexeddb";
@@ -40,8 +40,7 @@ import { inject, injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BackupManager } from "./backup";
-
+import { BackupManager } from "@persistence/backup";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
@@ -50,7 +49,6 @@ import {
   IVolatileStorageTable,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
-  IndexedDBCursor,
   IVolatileCursor,
 } from "@persistence/volatile";
 
@@ -109,7 +107,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return this._getObjectStore().andThen((store) => {
         this.backupManager = new BackupManager(
           key,
-          [ELocalStorageKey.TRANSACTIONS],
+          [
+            ELocalStorageKey.TRANSACTIONS,
+            ELocalStorageKey.SITE_VISITS,
+            ELocalStorageKey.CLICKS,
+          ],
           store,
           this.cryptoUtils,
           this.persistentStorageUtils,
@@ -722,6 +724,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         ELocalStorageKey.LATEST_BLOCK,
         BlockNumber(-1),
       );
+    });
+  }
+
+  public dumpBackup(): ResultAsync<string, PersistenceError> {
+    return this._getBackupManager().andThen((backupManager) =>
+      backupManager.dump().andThen((backup) => okAsync(JSON.stringify(backup))),
+    );
+  }
+
+  public restoreBackup(
+    backup: IDataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
+    return this._getBackupManager().andThen((backupManager) => {
+      return backupManager.restore(backup);
     });
   }
 }

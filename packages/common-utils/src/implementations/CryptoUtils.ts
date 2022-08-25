@@ -84,7 +84,6 @@ export class CryptoUtils implements ICryptoUtils {
         32,
         "sha256",
       );
-​
       return AESKey(keyBuffer.toString("base64"));
     });
   }
