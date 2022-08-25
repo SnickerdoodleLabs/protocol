@@ -40,6 +40,8 @@ import { inject, injectable } from "inversify";
 import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { ICloudStorage, ICloudStorageType } from "./cloud/ICloudStorage";
+
 import { BackupManager } from "@persistence/backup";
 import {
   IPersistenceConfigProvider,
@@ -91,6 +93,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IVolatileStorageFactoryType)
     protected volatileStorageFactory: IVolatileStorageFactory,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(ICloudStorageType) protected cloudStorage: ICloudStorage,
   ) {
     this.objectStore = undefined;
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
@@ -739,5 +742,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this._getBackupManager().andThen((backupManager) => {
       return backupManager.restore(backup);
     });
+  }
+
+  public pollBackups(): ResultAsync<void, PersistenceError> {
+    return this.cloudStorage
+      .lastRestore()
+      .andThen((startTime) => {
+        return this.cloudStorage.pollBackups(startTime).andThen((backups) => {
+          return ResultUtils.combine(
+            backups.map((backup) => {
+              return this.restoreBackup(backup);
+            }),
+          );
+        });
+      })
+      .andThen((_) => okAsync(undefined));
   }
 }

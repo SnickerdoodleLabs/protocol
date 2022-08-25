@@ -140,6 +140,7 @@ export interface IDataWalletPersistence {
 
   dumpBackup(): ResultAsync<string, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  pollBackups(): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

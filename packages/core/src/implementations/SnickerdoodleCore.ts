@@ -5,6 +5,11 @@
  */
 
 import {
+  ICloudStorage,
+  ICloudStorageType,
+  DefaultCloudStorage,
+} from "@persistence/cloud";
+import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
   DefaultAccountNFTs,
@@ -115,6 +120,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     accountNFTs?: IAccountNFTs,
     storageUtils?: IStorageUtils,
     volatileStorage?: IVolatileStorageFactory,
+    cloudStorage?: ICloudStorage,
   ) {
     this.iocContainer = new Container();
 
@@ -136,6 +142,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       .bind(IDataWalletPersistenceType)
       .to(DataWalletPersistence)
       .inSingletonScope();
+
+    if (cloudStorage != null) {
+      this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
+    } else {
+      this.iocContainer
+        .bind(ICloudStorageType)
+        .to(DefaultCloudStorage)
+        .inSingletonScope();
+    }
 
     if (volatileStorage != null) {
       this.iocContainer
