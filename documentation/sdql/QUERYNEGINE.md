@@ -44,12 +44,26 @@ function to the aggregation url specified the query's SDQL JSON file.
 
 ```mermaid
 flowchart TD;
-    QP[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>Query Service</a>]
+    QS[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>Query Service</a>]
+    QPE[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/core/src/implementations/business/utilities/QueryParsingEngine.ts'>Query Parsing Engine</a>]
     ASTE[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/QueryService.ts'>AST Evaluator</a>]
     QR[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/utilities/query/QueryRepository.ts'>Query Repository - Cache</a>]
     QEVAL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/core/src/implementations/business/utilities/query/QueryEvaluator.ts'>Query Evaluator</a>]
     PL[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/develop/packages/persistence/src/DataWalletPersistence.ts'>Persistence Layer</a>]
-    QP-- parsing -->ASTE-- tokenization -->QR;
+    IP[<a href='https://github.com/SnickerdoodleLabs/protocol/blob/feature/query-engine-docs/packages/core/src/implementations/data/InsightPlatformRepository.ts'>Insight Platform</a>]
+
+    
+    QS--"1. SDQLQuery"-->QPE;
+    QPE--"[insights, rewards]"-->QS;
+    QS--2. deliver insights--> IP;
+
+    QPE-- 1.1. query schema --> SDQLParser--ASTs and required permissions-->QPE;
+    QPE--"1.2. (logic expression, ast)"-->Permission{"Has permission \n on queries needed?"}
+    Permission--yes-->ASTE--1. query objects -->QR;
+    Permission--"no (null result)"-->Result;
+    ASTE--2. result -->Result;
+    Result-->QPE;
+    
     QR --> Cache{"In cache?"}
     Cache -- Yes --> QR
     Cache -- No --> QEVAL -- permissions --> PL
