@@ -20,8 +20,11 @@ import { okAsync } from "neverthrow";
 import td from "testdouble";
 
 import {
+  ConditionE,
+  ConditionG,
   ConditionGE,
   ConditionL,
+  ConditionLE,
 } from "@core/interfaces/objects";
 import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
@@ -31,10 +34,18 @@ const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 20),
   new ConditionL(SDQL_OperatorName("l"), null, 30),
 ];
+const conditionsGandLE = [
+  new ConditionG(SDQL_OperatorName("g"), null, 20),
+  new ConditionLE(SDQL_OperatorName("le"), null, 30),
+];
 
 const conditionsGE = [
     new ConditionGE(SDQL_OperatorName("ge"), null, 10),
 ];
+const conditionsE = [
+  new ConditionE(SDQL_OperatorName("e"), null, 29),
+];
+
 
 class BalanceQueryEvaluatorMocks {
     public dataWalletPersistence = td.object<IDataWalletPersistence>();
@@ -138,31 +149,61 @@ class BalanceQueryEvaluatorMocks {
 }
 
 describe("BalanceQueryEvaluator", () => {
-    test("Return Query Balance Array - 1 Chain ID, 20 <= x < 30", async () => {
-        const balanceQuery = new AST_BalanceQuery(
-            SDQL_Name("q7"),
-            "array",
-            ChainId(1),
-            conditionsGE,
-        )
-        // >= 20 and < 30
-        const mocks = new BalanceQueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(balanceQuery);
+  test("(Chain ID: *) & (All Balances)", async () => {
+    const balanceQuery = new AST_BalanceQuery(
+        SDQL_Name("q7"),
+        "array",
+        null, // * - for all, use null
+        [],
+    )
+    // >= 20 and < 30
+    const mocks = new BalanceQueryEvaluatorMocks();
+    const repo = mocks.factory();
+    const result = await repo.eval(balanceQuery);
+    console.log(result);
+    expect(result["value"].length).toEqual(4)
+  })
 
-  
-    })
-    test("All Chains, no limits", async () => {
-        const balanceQuery = new AST_BalanceQuery(
-            SDQL_Name("q7"),
-            "array",
-            null, // * - for all, use null
-            [],
-        )
-        // >= 20 and < 30
-        const mocks = new BalanceQueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(balanceQuery);
-
-    })
+  test("(Chain ID: 1) & (20 <= Balance < 30)", async () => {
+      const balanceQuery = new AST_BalanceQuery(
+          SDQL_Name("q7"),
+          "array",
+          ChainId(1),
+          conditionsGEandL,
+      )
+      // >= 20 and < 30
+      const mocks = new BalanceQueryEvaluatorMocks();
+      const repo = mocks.factory();
+      const result = await repo.eval(balanceQuery);
+      console.log(result);
+      expect(result["value"].length).toEqual(2)
+  })
+  test("(Chain ID: 1) & (20 < Balance <= 30)", async () => {
+    const balanceQuery = new AST_BalanceQuery(
+        SDQL_Name("q7"),
+        "array",
+        ChainId(1), // * - for all, use null
+        conditionsGandLE,
+    )
+    // >= 20 and < 30
+    const mocks = new BalanceQueryEvaluatorMocks();
+    const repo = mocks.factory();
+    const result = await repo.eval(balanceQuery);
+    console.log(result);
+    expect(result["value"].length).toEqual(2)
+  })
+  test("(Chain ID: 1) & (Balance == 29)", async () => {
+    const balanceQuery = new AST_BalanceQuery(
+        SDQL_Name("q7"),
+        "array",
+        ChainId(1), // * - for all, use null
+        conditionsE,
+    )
+    // >= 20 and < 30
+    const mocks = new BalanceQueryEvaluatorMocks();
+    const repo = mocks.factory();
+    const result = await repo.eval(balanceQuery);
+    console.log(result);
+    expect(result["value"].length).toEqual(1)
+  })
 })
