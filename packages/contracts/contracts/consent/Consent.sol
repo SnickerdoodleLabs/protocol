@@ -226,6 +226,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /* SETTERS */
 
     function setQueryHorizon(uint queryHorizon_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(queryHorizon_ > queryHorizon, "New horizon must be strictly later than current horizon.");
         queryHorizon = queryHorizon_;
     }
 

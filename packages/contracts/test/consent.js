@@ -572,14 +572,16 @@ describe("Consent", () => {
   describe("setQueryHorizon", function () {
     it("Allows DEFAULT_ADMIN_ROLE to update the query horizon variable.", async function () {
       // set the query horizon block number which is used for setting the oldest block to search for requestForData events
+      expect(consent.connect(user1).setQueryHorizon(0)).to.revertedWith("New horizon must be strictly later than current horizon.");
+
       await consent.connect(user1).setQueryHorizon(10101);
 
       expect(await consent.queryHorizon()).to.eq(10101);
     });
 
-    it("Does not allow address without DEFAULT_ADMIN_ROLE to update the baseURI", async function () {
+    it("Does not allow address without DEFAULT_ADMIN_ROLE to update the query horizon variable", async function () {
       await expect(
-        consent.connect(accounts[2]).setBaseURI("www.newURI.com"),
+        consent.connect(accounts[2]).setQueryHorizon(101010),
       ).to.revertedWith(
         `AccessControl: account ${accounts[2].address.toLowerCase()} is missing role ${defaultAdminRoleBytes}`,
       );
