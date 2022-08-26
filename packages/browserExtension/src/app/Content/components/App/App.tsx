@@ -17,10 +17,7 @@ import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
-import {
-  DomainName,
-  URLString,
-} from "@snickerdoodlelabs/objects";
+import { DomainName, URLString } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useMemo, useState } from "react";
 import ConnectWallet from "../Screens/ConnectWallet";
 import ConnectWalletPending from "../Screens/ConnectWalletPending";
@@ -79,7 +76,7 @@ const App = () => {
 
   useEffect(() => {
     if (rewardToDisplay) {
-      setRewardToDisplay(undefined);
+      emptyReward();
     }
     initiateCohort();
   }, [_path]);
@@ -142,6 +139,10 @@ const App = () => {
     setAppState(state);
   };
 
+  const emptyReward = () => {
+    setRewardToDisplay(undefined);
+  };
+
   const renderComponent = useMemo(() => {
     switch (true) {
       case !rewardToDisplay || appState === EAPP_STATE.DISMISSED:
@@ -149,9 +150,9 @@ const App = () => {
       case appState === EAPP_STATE.INIT:
         return (
           <RewardCard
+            emptyReward={emptyReward}
             rewardItem={rewardToDisplay!}
             invitationDomain={invitationDomain}
-            changeAppState={changeAppState}
             coreGateway={coreGateway}
           />
         );
