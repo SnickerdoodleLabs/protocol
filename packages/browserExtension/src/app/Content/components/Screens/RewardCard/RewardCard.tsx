@@ -4,9 +4,10 @@ import { Box, Typography } from "@material-ui/core";
 import Modal, { useGenericModalStyles } from "../../Modals/Modal";
 
 import { EAPP_STATE, IRewardItem } from "../../../constants";
-import { Invitation, UUID } from "@snickerdoodlelabs/objects";
-import { IInvitationDomainWithUUID } from "../../App/App";
+import { UUID } from "@snickerdoodlelabs/objects";
+
 import { ExternalCoreGateway } from "@app/coreGateways";
+import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
 
 interface IRewardCardProps {
   changeAppState: (state: EAPP_STATE) => void;
