@@ -285,7 +285,7 @@ export class RpcCallHandler implements IRpcCallHandler {
         const pageInvitation = pageInvitations.find((value) => {
           const incomingUrl = value.url.replace(/^https?:\/\//, "");
           const incomingUrlInfo = parse(incomingUrl);
-          if (!incomingUrlInfo.subdomain) {
+          if (!incomingUrlInfo.subdomain && parse(url).subdomain) {
             return (
               `${DEFAULT_SUBDOMAIN}.${incomingUrl.replace(/\/$/, "")}` === url
             );
