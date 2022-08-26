@@ -136,21 +136,11 @@ const App = () => {
       host: domainDetails.domain,
       title: domainDetails.title,
       description: domainDetails.description,
-      image: URLString(
-        domainDetails.image.replace(
-          "ipfs://",
-          ConfigProvider.getConfig().ipfsFetchBaseUrl,
-        ),
-      ),
+      image: domainDetails.image,
       primaryButtonText: "Claim Rewards",
       secondaryButtonText: "Reject Rewards",
       rewardName: domainDetails.rewardName,
-      nftClaimedImage: URLString(
-        domainDetails.nftClaimedImage.replace(
-          "ipfs://",
-          ConfigProvider.getConfig().ipfsFetchBaseUrl,
-        ),
-      ),
+      nftClaimedImage: domainDetails.nftClaimedImage,
     });
   };
 
