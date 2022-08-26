@@ -66,11 +66,11 @@ export class QueryService implements IQueryService {
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IConsentContractRepositoryType)
     protected consentContractRepository: IConsentContractRepository,
-    @inject(IContextProviderType) 
+    @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
-    @inject(IConfigProviderType) 
+    @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
-    @inject(ICryptoUtilsType) 
+    @inject(ICryptoUtilsType)
     protected cryptoUtils: ICryptoUtils,
   ) {}
 
@@ -166,6 +166,7 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | EvaluationError
   > {
+    //console.log(`Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,);
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
@@ -185,7 +186,7 @@ export class QueryService implements IQueryService {
         const maps2 = maps as [InsightString[], EligibleReward[]];
         const insights = maps2[0];
         const rewards = maps2[1];
-        console.log("insights: ", insights);
+        //console.log("insights: ", insights);
         // console.log("rewards: ", rewards);
 
         // console.log(insights, rewards);
@@ -197,7 +198,7 @@ export class QueryService implements IQueryService {
           query.cid,
           insights,
         ).map(() => {
-          console.log("insight delivery api call done");
+          // console.log("insight delivery api call done");
           // context.publicEvents.onQueryPosted.next({
           //   consentContractAddress,
           //   query,

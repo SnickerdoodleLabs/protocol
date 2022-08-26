@@ -1,26 +1,9 @@
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { EModalSelectors } from "@extension-onboarding/components/Modals/";
-import WalletProviderItem from "@extension-onboarding/components/WalletProviders/WalletProviderItem";
-import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviders.style";
-import {
-  ALERT_MESSAGES,
-  EWalletProviderKeys,
-} from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Typography } from "@material-ui/core";
 import {
   IMinimalForwarderRequest,
   MinimalForwarderContract,
 } from "@snickerdoodlelabs/contracts-sdk";
-import {
-  ChainId,
-  EVMContractAddress,
-  HexString,
-  Signature,
-} from "@snickerdoodlelabs/objects";
+import { HexString, Signature } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
@@ -35,6 +18,15 @@ import React, {
   useMemo,
   useState,
 } from "react";
+
+import { EModalSelectors } from "@extension-onboarding/components/Modals/";
+import WalletProviderItem from "@extension-onboarding/components/WalletProviders/WalletProviderItem";
+import { useStyles } from "@extension-onboarding/components/WalletProviders/WalletProviders.style";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 

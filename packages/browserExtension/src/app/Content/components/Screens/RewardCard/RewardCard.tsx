@@ -4,19 +4,20 @@ import { Box, Typography } from "@material-ui/core";
 import Modal, { useGenericModalStyles } from "../../Modals/Modal";
 
 import { EAPP_STATE, IRewardItem } from "../../../constants";
-import { Invitation, UUID } from "@snickerdoodlelabs/objects";
-import { IInvitationDomainWithUUID } from "../../App/App";
+import { UUID } from "@snickerdoodlelabs/objects";
+
 import { ExternalCoreGateway } from "@app/coreGateways";
+import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
 
 interface IRewardCardProps {
-  changeAppState: (state: EAPP_STATE) => void;
+  emptyReward: () => void;
   rewardItem: IRewardItem;
   invitationDomain: IInvitationDomainWithUUID | undefined;
   coreGateway: ExternalCoreGateway;
 }
 
 const RewardCard: React.FC<IRewardCardProps> = ({
-  changeAppState,
+  emptyReward,
   rewardItem,
   invitationDomain,
   coreGateway,
@@ -24,22 +25,19 @@ const RewardCard: React.FC<IRewardCardProps> = ({
   const acceptInvitation = () => {
     return coreGateway.acceptInvitation(null, invitationDomain?.id as UUID);
   };
-  const rejectInvitation = () => {
-    coreGateway.rejectInvitation(invitationDomain?.id as UUID);
-  };
 
   const modalClasses = useGenericModalStyles();
 
   const onPrimaryButtonClick = () => {
     acceptInvitation().map(() => {
-      console.log("acceptInvitation returned void");
-      changeAppState(EAPP_STATE.DISMISSED);
+      emptyReward();
     });
   };
 
   const onSecondaryButtonClick = () => {
-    changeAppState(EAPP_STATE.DISMISSED);
-    rejectInvitation();
+    coreGateway.rejectInvitation(invitationDomain?.id as UUID).map(() => {
+      emptyReward();
+    });
   };
 
   return (
@@ -48,7 +46,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
       primaryButtonText={rewardItem.primaryButtonText}
       onPrimaryButtonClick={onPrimaryButtonClick}
       onSecondaryButtonClick={onSecondaryButtonClick}
-      onCloseButtonClick={onSecondaryButtonClick}
+      onCloseButtonClick={emptyReward}
       topContent={
         <>
           <img

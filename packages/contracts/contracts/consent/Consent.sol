@@ -88,7 +88,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         consentFactoryInstance = IConsentFactory(consentFactoryAddress);
 
         // set trusted forwarder
-        trustedForwarder = 0x5FbDB2315678afecb367f032d93F642f64180aa3; 
+        trustedForwarder = 0xF7c6dC708550D89558110cAecD20a8A6a184427E; 
 
         // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping 
         super._grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
