@@ -30,6 +30,10 @@ export interface ICryptoUtils {
     evmKey: EVMPrivateKey,
   ): ResultAsync<AESKey, never>;
 
+  deriveCeramicSeedFromEVMPrivateKey(
+    evmKey: EVMPrivateKey,
+  ): ResultAsync<Uint8Array, never>;
+
   createEthereumPrivateKey(): ResultAsync<EVMPrivateKey, never>;
   getEthereumAccountAddressFromPrivateKey(
     privateKey: EVMPrivateKey,

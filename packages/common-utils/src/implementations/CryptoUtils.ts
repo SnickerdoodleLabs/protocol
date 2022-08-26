@@ -88,6 +88,24 @@ export class CryptoUtils implements ICryptoUtils {
     });
   }
 
+  public deriveCeramicSeedFromEVMPrivateKey(
+    evmKey: EVMPrivateKey,
+  ): ResultAsync<Uint8Array, never> {
+    return this.signMessage("VarunWasHere", evmKey).map((signature) => {
+      // An EVMPrivateKey is a hex string. We should convert it to a buffer
+      const sourceEntropy = Buffer.from(evmKey, "hex");
+      const saltBuffer = Buffer.from(signature, "hex");
+      const keyBuffer = Crypto.pbkdf2Sync(
+        sourceEntropy,
+        saltBuffer,
+        100,
+        32,
+        "sha256",
+      );
+      return new Uint8Array(keyBuffer.buffer);
+    });
+  }
+
   public createAESKey(): ResultAsync<AESKey, never> {
     return okAsync(AESKey(Crypto.randomBytes(32).toString("base64")));
   }
