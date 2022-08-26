@@ -4905,6 +4905,7 @@ __metadata:
     react-router-dom: ^6.3.0
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
+    tldts: ^5.7.89
     uuid: ^8.3.2
     webextension-polyfill: ^0.9.0
   languageName: unknown
@@ -5001,6 +5002,7 @@ __metadata:
     neverthrow-result-utils: ^1.0.2
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
+    tldts: ^5.7.89
     url-join-ts: ^1.0.5
     uuid: ^8.3.0
   languageName: unknown
@@ -28948,6 +28950,24 @@ __metadata:
   version: 1.0.3
   resolution: "tiny-warning@npm:1.0.3"
   checksum: da62c4acac565902f0624b123eed6dd3509bc9a8d30c06e017104bedcf5d35810da8ff72864400ad19c5c7806fc0a8323c68baf3e326af7cb7d969f846100d71
+  languageName: node
+  linkType: hard
+
+"tldts-core@npm:^5.7.89":
+  version: 5.7.89
+  resolution: "tldts-core@npm:5.7.89"
+  checksum: 691b65bb0d6879e2a9918fd49811761c7f1c52286116bdd68ab4134d1ba356363cd6248d801f99b7ecbff7ee03b3086d69ba7d16006dc3d49b5fcf61a8e6776d
+  languageName: node
+  linkType: hard
+
+"tldts@npm:^5.7.89":
+  version: 5.7.89
+  resolution: "tldts@npm:5.7.89"
+  dependencies:
+    tldts-core: ^5.7.89
+  bin:
+    tldts: bin/cli.js
+  checksum: 300572a35c5e31e6fc56bb2be25ed5235a0ee13d387b1e01620e6b88119e03647626175ce05951bb6818a717cd4c92b13a74eda815b14c75e2345eeeda7923c2
   languageName: node
   linkType: hard
 
