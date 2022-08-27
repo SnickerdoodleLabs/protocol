@@ -1,9 +1,6 @@
-import React from "react";
-import { Box, Typography } from "@material-ui/core";
-
-import SuccessModal, { useGenericModalStyles } from "../../Modals/SuccessModal";
-import Browser from "webextension-polyfill";
-
+import SuccessModal, {
+  useGenericModalStyles,
+} from "@app/Content/components/Modals/SuccessModal";
 import {
   EAPP_STATE,
   IRewardItem,
@@ -11,17 +8,18 @@ import {
   rewardItemToClaim01Img,
   rewardItemToClaim02Img,
   rewardItemToClaim03Img,
-} from "../../../constants";
-import { Invitation } from "@snickerdoodlelabs/objects";
-import { IInvitationDomainWithUUID } from "../../App/App";
-import { useAppContext } from "@app/Popup/context";
+} from "@app/Content/constants";
 import { ExternalCoreGateway } from "@app/coreGateways";
+import { Box, Typography } from "@material-ui/core";
+import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
+import React from "react";
+import Browser from "webextension-polyfill";
 
 interface INftClaimedProps {
   changeAppState: (state: EAPP_STATE) => void;
   rewardItem: IRewardItem;
   invitationDomain: IInvitationDomainWithUUID | undefined;
-  coreGateway:ExternalCoreGateway
+  coreGateway: ExternalCoreGateway;
 }
 
 const NftClaimed: React.FC<INftClaimedProps> = ({
