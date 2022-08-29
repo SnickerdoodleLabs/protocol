@@ -139,7 +139,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
       this.contextProvider.getContext(),
     ])
       .andThen(([consentContract, context]) => {
-        console.log("consentContract", consentContract);
+        // console.log("consentContract", consentContract);
         // We will use the data wallet address if another address is not provided
         if (address == null) {
           if (context.dataWalletAddress == null) {
