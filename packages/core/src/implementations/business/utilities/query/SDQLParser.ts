@@ -10,11 +10,13 @@ import {
   ParserError,
   QueryFormatError,
   MissingTokenConstructorError,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 
 import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
 import {
   AST,
+  AST_BalanceQuery,
   AST_Compensation,
   AST_Expr,
   AST_Logic,
@@ -42,10 +44,10 @@ export class SDQLParser {
   exprParser: ExprParser | null = null;
 
   constructor(
-    readonly cid: IpfsCID, 
+    readonly cid: IpfsCID,
     readonly schema: SDQLSchema,
-    readonly queryObjectFactory: IQueryObjectFactory
-    ) {
+    readonly queryObjectFactory: IQueryObjectFactory,
+  ) {
     this.returns = null;
     this.exprParser = new ExprParser(this.context);
   }
@@ -59,14 +61,14 @@ export class SDQLParser {
   }
 
   private parse(): ResultAsync<
-    void, 
-    ParserError 
-    | DuplicateIdInSchema 
+    void,
+    | ParserError
+    | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
-    > {
+  > {
     // const queries = this.parseQueries();
-   
+
     // this.parseQueries();
 
     // this.returns = new AST_Returns(
@@ -78,66 +80,66 @@ export class SDQLParser {
 
     // this.parseLogic();
 
-    return this.parseQueries()
-      .andThen(() => {
-
-        return this.parseReturns()
-          .andThen(() => {
-
-            return this.parseCompensations()
-            .andThen(() => {
-
-              return this.parseLogic();
-
-            });
-
-          });
-      })
+    return this.parseQueries().andThen(() => {
+      return this.parseReturns().andThen(() => {
+        return this.parseCompensations().andThen(() => {
+          return this.parseLogic();
+        });
+      });
+    });
   }
 
   buildAST(): ResultAsync<
-    AST, 
-    ParserError 
-    | DuplicateIdInSchema 
+    AST,
+    | ParserError
+    | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
-    > {
-
-    return this.parse()
-      .andThen(() => {
-
-        return okAsync(
-          new AST(
-            Version(this.schema["version"]),
-            this.schema["description"],
-            this.schema["business"],
-            this.queries,
-            this.returns,
-            this.compensations,
-            new AST_Logic(this.logicReturns, this.logicCompensations),
-          )
-        );
-        
-      });
-
+  > {
+    return this.parse().andThen(() => {
+      return okAsync(
+        new AST(
+          Version(this.schema["version"]),
+          this.schema["description"],
+          this.schema["business"],
+          this.queries,
+          this.returns,
+          this.compensations,
+          new AST_Logic(this.logicReturns, this.logicCompensations),
+        ),
+      );
+    });
   }
 
   // #region non-logic
-  private parseQueries(): ResultAsync<void, DuplicateIdInSchema | QueryFormatError> {
-
+  private parseQueries(): ResultAsync<
+    void,
+    DuplicateIdInSchema | QueryFormatError
+  > {
     try {
-
       const querySchema = this.schema.getQuerySchema();
-      const queries = new Array<any>();
+      const queries = new Array<
+        AST_NetworkQuery | AST_BalanceQuery | AST_PropertyQuery
+      >();
       for (const qName in querySchema) {
         // console.log(`parsing query ${qName}`);
         const name = SDQL_Name(qName);
         const schema = querySchema[qName];
-  
+
         switch (schema.name) {
           case "network":
             // console.log(`${qName} is a network query`);
             queries.push(AST_NetworkQuery.fromSchema(name, schema));
+            break;
+          case "balance":
+            queries.push(
+              new AST_BalanceQuery(
+                name,
+                schema.return as "array",
+                schema.chain ? ChainId(Number(schema.chain)) : null,
+                [], // TODO: Handle conditions properly
+              ),
+            );
             break;
           default:
             // console.log(`${qName} is a property query`);
@@ -145,16 +147,15 @@ export class SDQLParser {
             break;
         }
       }
-  
+
       for (const query of queries) {
         this.saveInContext(query.name, query);
         this.queries.set(query.name, query);
       }
 
       return okAsync(undefined);
-      
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema)  {
+      if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
       }
       if (err instanceof QueryFormatError) {
@@ -166,10 +167,11 @@ export class SDQLParser {
     // return queries;
   }
 
-  private parseReturns(): ResultAsync<void, DuplicateIdInSchema | QueryFormatError> {
-    
+  private parseReturns(): ResultAsync<
+    void,
+    DuplicateIdInSchema | QueryFormatError
+  > {
     try {
-
       const returnsSchema = this.schema.getReturnSchema();
       const returns = new Array<AST_ReturnExpr>();
 
@@ -204,9 +206,7 @@ export class SDQLParser {
         }
       }
 
-      this.returns = new AST_Returns(
-        URLString(returnsSchema.url),
-      );
+      this.returns = new AST_Returns(URLString(returnsSchema.url));
 
       for (const r of returns) {
         this.saveInContext(r.name, r);
@@ -214,9 +214,8 @@ export class SDQLParser {
       }
 
       return okAsync(undefined);
-
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema)  {
+      if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
       }
       if (err instanceof QueryFormatError) {
@@ -226,9 +225,11 @@ export class SDQLParser {
     }
   }
 
-  private parseCompensations(): ResultAsync<void, DuplicateIdInSchema | QueryFormatError> {
+  private parseCompensations(): ResultAsync<
+    void,
+    DuplicateIdInSchema | QueryFormatError
+  > {
     try {
-
       const compensationSchema = this.schema.getCompensationSchema();
 
       for (const cName in compensationSchema) {
@@ -245,11 +246,10 @@ export class SDQLParser {
         this.compensations.set(compensation.name, compensation);
         this.saveInContext(cName, compensation);
       }
-      
-      return okAsync(undefined);
 
+      return okAsync(undefined);
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema)  {
+      if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
       }
       if (err instanceof QueryFormatError) {
@@ -262,20 +262,20 @@ export class SDQLParser {
 
   // #region Logic
 
-  private parseLogic(): ResultAsync<void, ParserError | MissingTokenConstructorError | QueryFormatError> {
-
+  private parseLogic(): ResultAsync<
+    void,
+    ParserError | MissingTokenConstructorError | QueryFormatError
+  > {
     try {
-
       const logicSchema = this.schema.getLogicSchema();
       this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
       this.logicCompensations = this.parseLogicExpressions(
-        logicSchema.compensations
+        logicSchema.compensations,
       );
 
       return okAsync(undefined);
-
     } catch (err) {
-      if (err instanceof ParserError)  {
+      if (err instanceof ParserError) {
         return errAsync(err as ParserError);
       }
       if (err instanceof MissingTokenConstructorError) {
@@ -285,8 +285,7 @@ export class SDQLParser {
     }
   }
 
-
-  private parseLogicExpressions (
+  private parseLogicExpressions(
     expressions: Array<string>,
   ): Map<string, AST_Expr | Command> {
     // console.log('expressions', expressions);

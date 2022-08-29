@@ -144,6 +144,10 @@ export class AccountService implements IAccountService {
             return this.unlockExistingWallet(encryptedDataWalletKey, signature);
           })
           .andThen((account) => {
+            console.log(
+              "Data wallet address initialized: ",
+              account.accountAddress,
+            );
             // The account address in account is just a generic EVMAccountAddress,
             // we need to cast it to a DataWalletAddress, since in this case, that's
             // what it is.
