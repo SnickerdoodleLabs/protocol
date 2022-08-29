@@ -14,7 +14,7 @@ RUN curl -sSfL https://raw.githubusercontent.com/ava-labs/avalanche-cli/main/scr
 ENV PATH="${PATH}:/root/bin"
 
 # create the snickerdoodle subnet configs
-RUN avalanche subnet create snickerdoodle --evm --genesis /root/subnets/local/snickerdoodle_local_genesis.json 
+RUN avalanche subnet create snickerdoodle --latest --evm --genesis /root/subnets/local/snickerdoodle_local_genesis.json 
 
 # install contracts package dependencies
 RUN npm install
