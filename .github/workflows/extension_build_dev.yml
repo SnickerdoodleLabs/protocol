@@ -8,14 +8,20 @@ jobs:
   build_extension:
     name: Setup, Build, and Publish
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x]
+
     steps:
-
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Docker configuration
-      run: |-
-        cd packages/browserExtension
-        ls
-        yarn build-dev
-        ls
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: |-
+          cd packages/browserExtension
+          ls
+          npm ci
+          yarn build-dev
+          ls
