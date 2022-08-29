@@ -6,7 +6,7 @@ export const avalance1SchemaStr = `
     "queries": {
         "q1": {
             "name": "network",
-            "return": "boolean",
+            "return": "object",
             "chain": "AVAX",
             "contract": {
                 "networkid": "43114",

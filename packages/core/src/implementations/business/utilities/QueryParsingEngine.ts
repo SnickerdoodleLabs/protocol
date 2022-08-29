@@ -22,7 +22,7 @@ import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
-import { AST_Evaluator } from "./query/AST_Evaluator";
+import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
 
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
@@ -101,49 +101,43 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   }
 
-  private evalCompensations(ast: AST, dataPermissions: DataPermissions, astEvaluator: AST_Evaluator) {
+  private evalCompensations(ast: AST, dataPermissions: DataPermissions, astEvaluator: AST_Evaluator): ResultAsync<SDQL_Return, EvaluationError>[] {
 
-    const comp_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
-    
-    for (const compStr of ast.logic.compensations.keys()) {
+    return [...ast.logic.compensations.keys()].map((compStr) => {
 
-      const requiredPermissions = ast.logic.getCompensationPermissions(compStr);
-      if (dataPermissions.contains(requiredPermissions)) {
+        const requiredPermissions = ast.logic.getCompensationPermissions(compStr);
+        if (dataPermissions.contains(requiredPermissions)) {
+  
+          return astEvaluator.evalAny(ast.logic.compensations.get(compStr));
+  
+        } else {
 
-        const result = astEvaluator.evalAny(ast.logic.compensations.get(compStr));
-        comp_results.push(result);
+          return okAsync(SDQL_Return(null));
 
-      } else {
-        comp_results.push(okAsync(SDQL_Return(null)));
-      }
+        }
 
-
-    }
-    return comp_results;
+    });
 
   }
 
-  private evalReturns(ast: AST, dataPermissions: DataPermissions, astEvaluator: AST_Evaluator) {
+  private evalReturns(ast: AST, dataPermissions: DataPermissions, astEvaluator: AST_Evaluator): ResultAsync<SDQL_Return, EvaluationError>[] {
 
-    const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = [];
 
-    for (const returnStr of ast.logic.returns.keys()) {
+      return [...ast.logic.returns.keys()].map((returnStr) => {
 
-      const requiredPermissions = ast.logic.getReturnPermissions(returnStr);
-      // console.log("returnStr", returnStr);
-      // console.log("requiredPermissions", requiredPermissions);
-      // console.log("given permissions", dataPermissions);
-      if (dataPermissions.contains(requiredPermissions)) {
+        const requiredPermissions = ast.logic.getReturnPermissions(returnStr);
+        // console.log(requiredPermissions);
+        if (dataPermissions.contains(requiredPermissions)) {
+  
+          return astEvaluator.evalAny(ast.logic.returns.get(returnStr));
+  
+        } else {
 
-        const result = astEvaluator.evalAny(ast.logic.returns.get(returnStr));
-        insight_results.push(result);
+          return okAsync(SDQL_Return(null));
 
-      } else {
-        insight_results.push(okAsync(SDQL_Return(null)));
-      }
+        }
 
-    }
-    return insight_results;
-
+    });
+    
   }
 }
