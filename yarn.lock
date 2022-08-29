@@ -5275,10 +5275,18 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/persistence@workspace:packages/persistence"
   dependencies:
+    "@ceramicnetwork/blockchain-utils-linking": ^2.0.10
+    "@ceramicnetwork/http-client": ^2.3.3
+    "@glazed/datamodel": ^0.3.1
+    "@glazed/did-datastore": ^0.3.2
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/utils": "workspace:^"
+    dids: ^3.3.0
     inversify: ^5.1.1
+    ipfs-only-hash: ^4.0.0
+    key-did-provider-ed25519: ^2.0.1
+    key-did-resolver: ^2.1.0
     neverthrow: ^4.2.2
   languageName: unknown
   linkType: soft
@@ -21512,15 +21520,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lz-string@npm:^1.4.4":
-  version: 1.4.4
-  resolution: "lz-string@npm:1.4.4"
-  bin:
-    lz-string: bin/bin.js
-  checksum: 54e31238a61a84d8f664d9860a9fba7310c5b97a52c444f80543069bc084815eff40b8d4474ae1d93992fdf6c252dca37cf27f6adbeb4dbc3df2f3ac773d0e61
-  languageName: node
-  linkType: hard
-
 "lzutf8@npm:^0.6.3":
   version: 0.6.3
   resolution: "lzutf8@npm:0.6.3"
@@ -27805,12 +27804,8 @@ __metadata:
     "@babel/preset-env": ^7.16.11
     "@babel/preset-react": ^7.16.7
     "@babel/runtime": ^7.8.4
-    "@ceramicnetwork/blockchain-utils-linking": ^2.0.10
-    "@ceramicnetwork/http-client": ^2.3.3
     "@cucumber/cucumber": ^7.0.0
-    "@glazed/datamodel": ^0.3.1
     "@glazed/devtools": ^0.2.0
-    "@glazed/did-datastore": ^0.3.2
     "@material-ui/core": 4.12.3
     "@material-ui/icons": 4.11.2
     "@octokit/core": ^3.2.4
@@ -27853,7 +27848,6 @@ __metadata:
     copyfiles: ^2.3.0
     css-loader: ^5.0.1
     cucumber-tsflow: ^4.0.0-rc.1
-    dids: ^3.3.0
     env-cmd: ^10.1.0
     eslint: ^8.8.0
     eslint-config-prettier: ^7.2.0
@@ -27879,13 +27873,9 @@ __metadata:
     https-browserify: ^1.0.0
     husky: ^5.0.9
     image-webpack-loader: ^7.0.1
-    ipfs-only-hash: ^4.0.0
     jest: ^26.4.2
     jest-when: ^3.0.1
-    key-did-provider-ed25519: ^2.0.1
-    key-did-resolver: ^2.1.0
     lint-staged: ">=10"
-    lz-string: ^1.4.4
     merge-jsons-webpack-plugin: ^2.0.1
     metro-react-native-babel-preset: ^0.59.0
     monaco-editor-webpack-plugin: 2.0.0

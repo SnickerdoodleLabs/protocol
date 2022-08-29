@@ -176,16 +176,5 @@
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.4",
     "webpack-merge": "^5.8.0"
-  },
-  "dependencies": {
-    "@ceramicnetwork/blockchain-utils-linking": "^2.0.10",
-    "@ceramicnetwork/http-client": "^2.3.3",
-    "@glazed/datamodel": "^0.3.1",
-    "@glazed/did-datastore": "^0.3.2",
-    "dids": "^3.3.0",
-    "ipfs-only-hash": "^4.0.0",
-    "key-did-provider-ed25519": "^2.0.1",
-    "key-did-resolver": "^2.1.0",
-    "lz-string": "^1.4.4"
   }
 }
