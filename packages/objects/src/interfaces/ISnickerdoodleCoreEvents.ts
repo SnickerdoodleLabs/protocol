@@ -10,5 +10,6 @@ export interface ISnickerdoodleCoreEvents {
   onInitialized: Observable<DataWalletAddress>;
   onQueryPosted: Observable<SDQLQueryRequest>;
   onAccountAdded: Observable<EVMAccountAddress>;
+  onAccountRemoved: Observable<EVMAccountAddress>;
   onMetatransactionSignatureRequested: Observable<MetatransactionSignatureRequest>;
 }

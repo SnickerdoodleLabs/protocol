@@ -13,6 +13,7 @@ import {
   UninitializedError,
   CrumbsContractError,
   ICrumbContent,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -88,6 +89,17 @@ export class CrumbsRepository implements ICrumbsRepository {
           return new AESEncryptedString(languageCrumb.d, languageCrumb.iv);
         });
       });
+    });
+  }
+
+  public getCrumbTokenId(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    TokenId | null,
+    UninitializedError | BlockchainProviderError | CrumbsContractError
+  > {
+    return this.getCrumbsContract().andThen((contract) => {
+      return contract.addressToCrumbId(accountAddress);
     });
   }
 

@@ -57,6 +57,14 @@ export interface IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError>;
 
   /**
+   * This method removes an ethereum account from the data wallet.
+   * @param accountAddress
+   */
+  removeAccount(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, PersistenceError>;
+
+  /**
    * This method returns all the Ethereum accounts that are registered in the data wallet.
    */
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;

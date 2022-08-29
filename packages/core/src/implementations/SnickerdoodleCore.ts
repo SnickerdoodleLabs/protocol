@@ -61,6 +61,8 @@ import {
   SiteVisit,
   IOpenSeaMetadata,
   ConsentFactoryContractError,
+  MetatransactionSignatureRequest,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -278,6 +280,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
     return accountService.addAccount(accountAddress, signature, languageCode);
+  }
+
+  public getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidParametersError
+  > {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    return accountService.getUnlinkAccountRequest(accountAddress);
   }
 
   public checkInvitationStatus(

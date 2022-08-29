@@ -206,11 +206,33 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
     return this.persistentStorageUtils
-      .read<EVMContractAddress[]>(ELocalStorageKey.ACCOUNT)
+      .read<EVMAccountAddress[]>(ELocalStorageKey.ACCOUNT)
       .andThen((saved) => {
         return this.persistentStorageUtils.write(
           ELocalStorageKey.ACCOUNT,
           Array.from(new Set([...(saved ?? []), accountAddress])),
+        );
+      });
+  }
+
+  public removeAccount(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, PersistenceError> {
+    return this.persistentStorageUtils
+      .read<EVMAccountAddress[]>(ELocalStorageKey.ACCOUNT)
+      .andThen((saved) => {
+        if (saved == null) {
+          return okAsync(undefined);
+        }
+
+        const index = saved.indexOf(accountAddress, 0);
+        if (index > -1) {
+          saved.splice(index, 1);
+        }
+
+        return this.persistentStorageUtils.write(
+          ELocalStorageKey.ACCOUNT,
+          saved,
         );
       });
   }

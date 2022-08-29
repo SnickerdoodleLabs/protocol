@@ -64,6 +64,8 @@ export interface ICrumbsContract {
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, CrumbsContractError>;
 
+  encodeBurnCrumb(crumbId: TokenId): HexString;
+
   getContract(): ethers.Contract;
 }
 

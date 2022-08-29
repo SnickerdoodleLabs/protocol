@@ -86,7 +86,11 @@ export class DefaultDataWalletPersistence implements IDataWalletPersistence {
       */
       //return okAsync(undefined);
     });
+  }
 
+  public removeAccount(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, PersistenceError> {
     throw new Error("Method not implemented.");
   }
 
