@@ -134,7 +134,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
       this.contextProvider.getContext(),
     ])
       .andThen(([consentContract, context]) => {
-        console.log("consentContract", consentContract);
         // We will use the data wallet address if another address is not provided
         if (address == null) {
           if (context.dataWalletAddress == null) {
@@ -145,12 +144,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
             );
           }
           address = EVMAccountAddress(context.dataWalletAddress);
-          console.log("debug address: ", address);
         }
         return consentContract.balanceOf(address);
       })
       .map((numberOfTokens) => {
-        console.log("debug numberOfTokens: ", numberOfTokens);
         return numberOfTokens > 0;
       });
   }
