@@ -66,7 +66,7 @@ class QueryParsingMocks {
   }
 }
 
-describe.only("Testing order of results", () => {
+describe("Testing order of results", () => {
   const mocks = new QueryParsingMocks();
   test("No null insight with all permissions given", async () => {
     const engine = mocks.factory();
@@ -74,9 +74,9 @@ describe.only("Testing order of results", () => {
     await engine
       .handleQuery(sdqlQuery, new DataPermissions(0xffffffff))
       .andThen(([insights, rewards]) => {
-        console.log(insights);
+        // console.log(insights);
         expect(insights).toEqual([
-          "not qualified",
+          "not qualified", // as network query is false
           country,
           "female",
           new Map(),

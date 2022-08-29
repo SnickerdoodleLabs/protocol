@@ -73,7 +73,7 @@ export class QueryEvaluator implements IQueryEvaluator {
             return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
                 (transactions) =>
                 {
-                    console.log("Network Query Result: ", transactions)
+                    // console.log("Network Query Result: ", transactions)
                     if (transactions == null){
                         return okAsync(SDQL_Return({
                             networkId: chainId,
@@ -101,7 +101,7 @@ export class QueryEvaluator implements IQueryEvaluator {
             return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
                 (transactions) =>
                 {
-                    console.log("Network Query Result: ", transactions)
+                    // console.log("Network Query Result: ", transactions)
                     if (transactions == null){
                         return okAsync(SDQL_Return(false));
                     }
