@@ -11,9 +11,7 @@ const {
 task(
   "getConsentBeacon",
   "Check the address of the Consent Contract Beacon implementation.",
-).setAction(async (taskArgs) => {
-  const useraccount = taskArgs.useraddress;
-  const contractaddress = taskArgs.contractaddress;
+).setAction(async () => {
   const provider = await hre.ethers.provider;
 
   // attach the first signer account to the consent contract handle
@@ -87,6 +85,24 @@ task("checkBalanceOf", "Check balance of an address given a ERC721 address")
 
     await consentContractHandle.balanceOf(useraccount).then((result) => {
       console.log("ERC721 balance is:", result.toString());
+    });
+  });
+
+task("getBaseURI", "Check the baseURI parameter of a consent contract")
+  .addParam("contractaddress", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider,
+    );
+
+    await consentContractHandle.baseURI().then((baseURI) => {
+      console.log("baseURI is:", baseURI);
     });
   });
 

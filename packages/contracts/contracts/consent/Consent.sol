@@ -42,12 +42,12 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev Trusted forwarder address for meta-transactions 
     address public trustedForwarder;
 
-    /// @dev Oldest block that should be scanned for requestForData events
-    uint public queryHorizon; 
-
     /// @dev Array of trusted domains
     string[] domains;
 
+    /// @dev Oldest block that should be scanned for requestForData events 
+    uint public queryHorizon; 
+    
     /* EVENTS */ 
 
     /// @notice Emitted when a request for data is made
