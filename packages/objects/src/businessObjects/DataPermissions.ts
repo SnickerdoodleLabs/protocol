@@ -1,4 +1,4 @@
-import { EWalletDataType } from "../enum";
+import { EWalletDataType } from "@objects/enum/EWalletDataType";
 
 /**
  * DataPermissions represent the rules to follow when processing queries for a particular
