@@ -6,6 +6,7 @@ import { avalance1SchemaStr } from "./avalanche1.data";
 import { QueryObjectFactory, SDQLParser } from "@core/implementations/business/utilities/query";
 import {
   AST,
+  AST_BalanceQuery,
   AST_Compensation,
   AST_ConditionExpr,
   AST_NetworkQuery,
@@ -73,6 +74,12 @@ describe("SDQLParser on avalanche", () => {
       expect(q3 instanceof AST_PropertyQuery).toBeTruthy();
       expect(q3.property).toBe("location");
       expect(q3.returnType).toBe("integer");
+    });
+
+    test("q4 is a balance query", () => {
+      const q4 = parser.context.get("q4");
+      // console.log(q4);
+      expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
     });
   });
 

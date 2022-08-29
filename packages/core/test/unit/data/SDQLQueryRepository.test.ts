@@ -20,9 +20,11 @@ import { ISDQLQueryRepository } from "@core/interfaces/data";
 import { IContextProvider, IConfigProvider } from "@core/interfaces/utilities";
 
 const sdqlContent = "Phoebe";
+// const sdqlContent2 = {a: "a", b: "b", c: "c"};
 const cidString = IpfsCID("QmeFACA648aPXQp4sP5R6sgJon4wggUhatY61Ras2WWJLF");
 
 const sqdlQuery = new SDQLQuery(cidString, SDQLString(sdqlContent));
+// const sqdlQuery2 = new SDQLQuery(cidString, SDQLString(sdqlContent2));
 
 class SDQLQueryRepositoryMocks {
   public contextProvider: IContextProvider;
