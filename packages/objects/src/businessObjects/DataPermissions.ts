@@ -6,7 +6,7 @@ import { EWalletDataType } from "../enum";
  * token itself in the Token URI.
  */
 export class DataPermissions {
-  public constructor(protected flags: number) {
+  public constructor(readonly flags: number) {
     
   }
 
