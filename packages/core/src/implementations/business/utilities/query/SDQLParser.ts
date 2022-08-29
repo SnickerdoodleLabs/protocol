@@ -131,16 +131,11 @@ export class SDQLParser {
             // console.log(`${qName} is a network query`);
             queries.push(AST_NetworkQuery.fromSchema(name, schema));
             break;
+            
           case "balance":
-            queries.push(
-              new AST_BalanceQuery(
-                name,
-                schema.return as "array",
-                schema.chain ? ChainId(Number(schema.chain)) : null,
-                [], // TODO: Handle conditions properly
-              ),
-            );
+            queries.push(this.queryObjectFactory.toBalanceQuery(name, schema));
             break;
+            
           default:
             // console.log(`${qName} is a property query`);
             queries.push(AST_PropertyQuery.fromSchema(name, schema));
