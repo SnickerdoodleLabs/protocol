@@ -41,7 +41,11 @@ const RewardsInfo: FC = () => {
       .mapErr((e) => {
         setIsLoading(false);
       })
-      .andThen(() => getInvitations());
+      .map(() => {
+        const metadata = { ...rewardMetaData };
+        delete metadata[consentContractAddress];
+        setRewardMetaData(metadata);
+      });
   };
 
   const classes = useStyles();

@@ -21,10 +21,10 @@ const RewardItem: FC<IRewardItemProps> = ({ rewardItem, onLeaveClick }) => {
         border="1px solid #D9D9D9"
         borderRadius={8}
       >
-        <Box mx="auto" p={2} minHeight="120">
+        <Box mx="auto" p={2} width="calc(100% - 32px)">
           <img
             width="100%"
-            style={{ aspectRatio: "4/3" }}
+            style={{ aspectRatio: "4/3", objectFit: "cover" }}
             src={rewardItem.image}
           />
         </Box>

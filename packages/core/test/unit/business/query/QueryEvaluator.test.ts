@@ -904,7 +904,7 @@ describe("Return Chain Transaction Count", () => {
     })
 })
 
-
+/*
 describe("BalanceQueryEvaluator", () => {
     test("Return Query Balance Array - 1 Chain ID, 20 <= x < 30", async () => {
         const balanceQuery = new AST_BalanceQuery(
@@ -955,3 +955,4 @@ describe("BalanceQueryEvaluator", () => {
       expect(result["value"].length).toEqual(4)  
   })
 })
+*/

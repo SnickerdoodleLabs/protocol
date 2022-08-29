@@ -55,7 +55,7 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
         }
 
         // Create the query
-        const query = new SDQLQuery(cid, sdql);
+        const query = new SDQLQuery(cid, SDQLString(JSON.stringify(sdql)));
 
         // Cache the query
         this.queryCache.set(cid, query);
