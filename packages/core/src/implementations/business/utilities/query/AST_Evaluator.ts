@@ -251,6 +251,10 @@ export class AST_Evaluator {
     if (TypeChecker.isQuery(expr.source)) {
       //return this.evalQuery((expr.source) as AST_Query);
       // console.log(this);
+      const qResult = this.evalQuery(expr.source as AST_Query);
+      if (qResult === undefined) {
+        console.log("got undefined for", expr);
+      }
       return this.evalQuery(expr.source as AST_Query).andThen((val) => {
         return okAsync(val);
       });

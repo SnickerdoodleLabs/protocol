@@ -20,6 +20,7 @@ import { IEVMBalance } from "@snickerdoodlelabs/objects";
 import { EVMAccountAddress, EVMTransactionFilter } from "@snickerdoodlelabs/objects";
 import { BalanceQueryEvaluator } from "./BalanceQueryEvaluator";
 import { IBalanceQueryEvaluator, IBalanceQueryEvaluatorType } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -36,15 +37,21 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected location: CountryCode = CountryCode("12345");
 
     public eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError> {
-    // All the switch statements here
-    //console.log("Constructor: ", query.constructor);
+        // All the switch statements here
+        // if (query.name == SDQL_Name('q7')) {
+
+        //     console.log("Constructor: ", query.constructor);
+        // }
         switch (query.constructor) {
             case AST_NetworkQuery:
                 return this.evalNetworkQuery(query as AST_NetworkQuery);
-        case AST_BalanceQuery:
-            return this.balanceQueryEvaluator.eval(query as AST_BalanceQuery);
-        default:
-            return this.evalPropertyQuery(query as AST_PropertyQuery);
+            case AST_BalanceQuery:
+                // console.log("Got a balance query", query.name);
+                return this.balanceQueryEvaluator.eval(query as AST_BalanceQuery);
+                // console.log("Balance query val", val);
+                // return val
+            default:
+                return this.evalPropertyQuery(query as AST_PropertyQuery);
         }
     }
    

@@ -166,20 +166,6 @@ describe("processQuery tests", () => {
     });
   });
 
-  // test("no error if dataWallet and address are present", async () => {
-  //   await ResultUtils.combine([
-  //     mocks.contextProvider.getContext(),
-  //     mocks.configProvider.getConfig(),
-  //   ]).andThen(([context, config]) => {
-  //     const res = queryService.validateContextConfig(
-  //       context as CoreContext,
-  //       config as CoreConfig,
-  //     );
-  //     expect(res).toBeNull();
-  //     return okAsync(true);
-  //   });
-  // });
-
   test("error if dataWalletAddress missing in context", async () => {
     await ResultUtils.combine([
       mocks.contextProvider.getContext(),
@@ -271,11 +257,9 @@ describe("processQuery tests", () => {
   });
 
   test("processQuery success", async () => {
-    // const queryRequest = new SDQLQueryRequest(consentContractAddress, sdqlQuery);
+    
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    // queryService.
-    // copyContext.dataWalletKey = null;
 
 
     await queryService
@@ -290,11 +274,5 @@ describe("processQuery tests", () => {
         console.log(err);
         fail();
       });
-    // await queryService
-    //   .processQuery(consentContractAddress, sdqlQuery)
-    //   .then((result) => {
-    //     console.log('result', result);
-    //     expect(result.isOk()).toBeTruthy();
-    //   });
   });
 });

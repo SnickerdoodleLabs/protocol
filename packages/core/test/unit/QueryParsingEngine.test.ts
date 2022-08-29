@@ -1,14 +1,20 @@
 import "reflect-metadata";
 import {
   Age,
+  BigNumberString,
+  ChainId,
   CountryCode,
   DataPermissions,
+  EVMAccountAddress,
+  EVMContractAddress,
   EWalletDataType,
   Gender,
   IDataWalletPersistence,
+  IEVMBalance,
   IpfsCID,
   SDQLQuery,
   SDQLString,
+  TickerSymbol,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import td from "testdouble";
@@ -24,14 +30,17 @@ import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { avalance2SchemaStr } from "./business/query/avalanche2.data";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryObjectFactory";
+import { avalance4SchemaStr } from "./business/query/avalanche4.data";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 
 const queryId = IpfsCID("Beep");
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance2SchemaStr));
+const sdqlQuery4 = new SDQLQuery(queryId, SDQLString(avalance4SchemaStr));
 const country = CountryCode("1");
 
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
-  public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
+  public balanceQueryEvaluator = new BalanceQueryEvaluator(this.persistenceRepo);
 
   protected queryObjectFactory: IQueryObjectFactory;
   protected queryFactories: IQueryFactories;
@@ -56,6 +65,15 @@ class QueryParsingMocks {
     td.when(
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
+
+    td.when(
+      this.persistenceRepo.getAccountBalances(),
+    ).thenReturn(okAsync([]));
+    
+    
+    td.when(
+      this.persistenceRepo.getTransactionsMap(),
+    ).thenReturn(okAsync(new Map()));
 
     this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator);
     this.queryRepository = new QueryRepository(this.queryEvaluator);
@@ -182,4 +200,31 @@ describe("Tests with data permissions", () => {
         fail(e.message);
       });
   });
+});
+
+describe.only("Testing avalance 4", () => {
+
+  test("avalance 4", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
+
+    // console.log(sdqlQuery4);
+
+    await engine.handleQuery(sdqlQuery4, new DataPermissions(0xffffffff))
+      .andThen(([insights, rewards]) => {
+
+        // console.log("Why not printed")
+
+        // console.log('insights', insights);
+        expect(insights.length > 0).toBeTruthy();
+        return okAsync(undefined);
+
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+
+  });
+
 });

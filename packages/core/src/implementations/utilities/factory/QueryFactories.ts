@@ -5,12 +5,15 @@ import { AST_Evaluator, SDQLParser } from "@core/implementations/business";
 import { IQueryRepository } from "@core/interfaces/business/utilities";
 import { AST, SDQLSchema } from "@core/interfaces/objects";
 import {
+  IQueryFactories,
   IQueryObjectFactory,
   IQueryObjectFactoryType,
 } from "@core/interfaces/utilities/factory";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { QueryFormatError } from "@snickerdoodlelabs/objects";
 
 @injectable()
-export class QueryFactories {
+export class QueryFactories implements IQueryFactories {
   constructor(
     @inject(IQueryObjectFactoryType)
     readonly queryObjectFactory: IQueryObjectFactory,
@@ -19,6 +22,19 @@ export class QueryFactories {
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {
     const schema = SDQLSchema.fromString(SDQLString(schemaString));
     return new SDQLParser(cid, schema, this.queryObjectFactory);
+  }
+
+  makePerserAsync(cid: IpfsCID, schemaString: SDQLString): ResultAsync<SDQLParser, QueryFormatError> {
+    try {
+
+      const schema = SDQLSchema.fromString(SDQLString(schemaString));
+      return okAsync(new SDQLParser(cid, schema, this.queryObjectFactory));
+
+    } catch (e) {
+
+      return errAsync(new QueryFormatError((e as Error).message));
+
+    }
   }
 
   makeAstEvaluator(

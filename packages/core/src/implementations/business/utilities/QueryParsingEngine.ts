@@ -51,7 +51,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     EvaluationError | QueryFormatError
   > {
 
-    // console.log('QueryParsingEngine.handleQuery');
+    console.log('QueryParsingEngine.handleQuery');
 
     const insights: Array<InsightString> = [];
     const rewards: EligibleReward[] = [];
@@ -59,48 +59,44 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     const schemaString = query.query;
     
     const cid: IpfsCID = query.cid;
+    // return okAsync([insights, rewards]);
+    // return okAsync([[],[]]);
+    return this.queryFactories.makePerserAsync(cid, schemaString)
+      .andThen((sdqlParser) => {
 
-    // console.log('QueryParsingEngine.handleQuery schemaString', schemaString);
-
-    const sdqlParser = this.queryFactories.makeParser(cid, schemaString);
-    // const ast = sdqlParser.buildAST();
-    return sdqlParser.buildAST().andThen((ast:AST) => {
-
-      console.log('QueryParsingEngine.handleQuery evaluating');
-
-      const astEvaluator = this.queryFactories.makeAstEvaluator(
-        cid,
-        ast,
-        this.queryRepository,
-      );
+        // return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([insights, rewards]);
+        return sdqlParser.buildAST().andThen((ast:AST) => {
+          // console.log(sdqlParser)
+          
+          const astEvaluator = this.queryFactories.makeAstEvaluator(
+            cid,
+            ast,
+            this.queryRepository,
+          );
+          
       
-  
-      const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = this.evalReturns(ast, dataPermissions, astEvaluator);
-  
-      // const comp_results: ResultAsync<SDQL_Return, EvaluationError>[] = this.evalCompensations(ast, dataPermissions, astEvaluator);
+          const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = this.evalReturns(ast, dataPermissions, astEvaluator);
+          // const combined = ResultUtils.combine(insight_results);
+          // console.log(combined);
+          
+          return ResultUtils.combine(insight_results).andThen((insighResults) => {
+            console.log(insighResults);
+      
+            for (const sdqlR of insighResults) {
+              insights.push(InsightString(sdqlR as string));
+            }
+      
+            return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([
+              insights,
+              rewards,
+            ]);
+          })
+          
+          // return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([insights, rewards]);
 
-      console.log(insight_results);
-    
-      return ResultUtils.combine(insight_results).andThen((insighResults) => {
-        console.log(insighResults);
-  
-        for (const sdqlR of insighResults) {
-          insights.push(InsightString(sdqlR as string));
-        }
-  
-        console.log('QueryParsingEngine.handleQuery returning results');
+        });
 
-        return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([
-          insights,
-          rewards,
-        ]);
-      })
-      // .mapErr((err) => {
-      //   console.log("QueryParsingEngine.handleQuery error", err);
-      //   return new EvaluationError("Error resolving results");
-      //   // return errAsync(err as EvaluationError | QueryFormatError);
-      // });
-    })
+      });
 
   }
 
@@ -129,7 +125,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return [...ast.logic.returns.keys()].map((returnStr) => {
 
         const requiredPermissions = ast.logic.getReturnPermissions(returnStr);
-        console.log(requiredPermissions);
+        // console.log(requiredPermissions);
         if (dataPermissions.contains(requiredPermissions)) {
   
           return astEvaluator.evalAny(ast.logic.returns.get(returnStr));
