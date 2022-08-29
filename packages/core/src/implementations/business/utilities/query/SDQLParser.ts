@@ -34,10 +34,11 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
 
 export class SDQLParser {
 
-  context: Map<string, any> = new Map();
+  context: Map<string, ParserContextDataTypes> = new Map();
   queries: Map<SDQL_Name, AST_Query> = new Map();
   returns: AST_Returns | null;
   compensations: Map<SDQL_Name, AST_Compensation> = new Map();
@@ -58,7 +59,8 @@ export class SDQLParser {
     this.exprParser = new ExprParser(this.context);
   }
 
-  private saveInContext(name: any, val: any): void {
+  private saveInContext(name: string, val: ParserContextDataTypes): void {
+
     if (this.context.get(name)) {
       throw new DuplicateIdInSchema(name);
     }
@@ -206,7 +208,7 @@ export class SDQLParser {
           // console.log(`${rName} is a query`);
           const returnExpr = new AST_ReturnExpr(
             name,
-            this.context.get(SDQL_Name(schema.query!)),
+            this.context.get(SDQL_Name(schema.query!)) as AST_Query | AST_Return,
           );
 
           returns.push(returnExpr);

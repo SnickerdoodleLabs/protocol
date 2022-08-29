@@ -19,6 +19,7 @@ import {
   ConditionAnd,
   ConditionOr
 } from "@core/interfaces/objects";
+import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
 
 export class ExprParser {
   /**
@@ -31,7 +32,7 @@ export class ExprParser {
   id = 0;
   tokenToExpMap: Map<TokenType, Function> = new Map();
 
-  constructor(readonly context: Map<string, any>) {
+  constructor(readonly context: Map<string, ParserContextDataTypes>) {
     this.precedence.set(
       TokenType.parenthesisClose,
       [
@@ -234,7 +235,7 @@ export class ExprParser {
       TokenType.string,
     ];
 
-    let expList: Array<any> = [];
+    let expList: Array<ParserContextDataTypes> = [];
 
     for (const token of postFix) {
       if (exprTypes.includes(token.type)) {
@@ -259,7 +260,11 @@ export class ExprParser {
       }
     }
 
-    return expList.pop();
+    // const expr = expList.pop() as AST_Expr | Command;
+
+    
+
+    return expList.pop() as AST_Expr | Command;
 
   }
 
@@ -275,7 +280,7 @@ export class ExprParser {
 
   getExecutableFromContext(
     token: Token,
-  ): AST_Expr | AST_Query | AST_Compensation | AST_ReturnExpr {
+  ): ParserContextDataTypes {
     let nameStr = "";
     switch (token.type) {
       case TokenType.query:

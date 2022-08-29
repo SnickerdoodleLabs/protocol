@@ -83,8 +83,7 @@ export class AST_Evaluator {
       const evaluator = this.expMap.get(expr.constructor);
 
       if (evaluator) {
-        const val = evaluator.apply(this, [expr]); // Always returns ResultAsync
-        return val;
+        return evaluator.apply(this, [expr]); // Always returns ResultAsync
       } else {
         return errAsync(new EvalNotImplementedError(typeof expr));
       }
@@ -92,18 +91,11 @@ export class AST_Evaluator {
   }
 
   public evalIf(eef: Command_IF): ResultAsync<SDQL_Return, EvaluationError> {
-    // 1. evaluate conditionExpr
-    // 2. if true, evaluate TrueExpr
-    // 3. if false, evaluate FalseExpr
-
-    // 1. we need the value here.
-    const condResult = this.evalConditionExpr(eef.conditionExpr);
-    return condResult.andThen(
+ 
+    return this.evalConditionExpr(eef.conditionExpr).andThen(
       (val): ResultAsync<SDQL_Return, EvaluationError> => {
         if (val == true) {
-
-          const trueResult = this.evalExpr(eef.trueExpr);
-          return trueResult;
+          return this.evalExpr(eef.trueExpr);
 
         } else {
 
@@ -123,7 +115,6 @@ export class AST_Evaluator {
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
 
-    const condResult: ResultAsync<SDQL_Return, EvaluationError> | null = null;
     if (TypeChecker.isQuery(expr.source)) {
       
       return this.evalQuery(expr.source as AST_Query);
@@ -170,10 +161,8 @@ export class AST_Evaluator {
   public evalAnd(
     cond: ConditionAnd,
   ): ResultAsync<SDQL_Return, EvaluationError> {
-    // console.log(this);
-    const left = this.evalAny(cond.lval);
 
-    return left.andThen((lval) => {
+    return this.evalAny(cond.lval).andThen((lval) => {
       if (lval == false) {
         return okAsync(SDQL_Return(false));
       } else {
@@ -185,9 +174,8 @@ export class AST_Evaluator {
   }
 
   public evalOr(cond: ConditionOr): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
-
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
+    
+    return this.evalAny(cond.lval).andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
       if (lval == true) {
         return okAsync(SDQL_Return(true));
       } else {
@@ -206,9 +194,8 @@ export class AST_Evaluator {
   }
 
   public evalIn(cond: ConditionIn): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
 
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
+    return this.evalAny(cond.lval).andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
       const right = this.evalAny(cond.rvals);
       return right.andThen(
         (rvals): ResultAsync<SDQL_Return, EvaluationError> => {
@@ -221,8 +208,8 @@ export class AST_Evaluator {
   }
 
   public evalGE(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
+    
+    return this.evalAny(cond.lval).andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
       const right = this.evalAny(cond.rval);
       return right.andThen(
         (rval): ResultAsync<SDQL_Return, EvaluationError> => {
@@ -233,8 +220,8 @@ export class AST_Evaluator {
   }
 
   public evalG(cond: ConditionG): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
+    
+    return this.evalAny(cond.lval).andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
       const right = this.evalAny(cond.rval);
       return right.andThen(
         (rval): ResultAsync<SDQL_Return, EvaluationError> => {
@@ -245,8 +232,8 @@ export class AST_Evaluator {
   }
 
   public evalL(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
+    
+    return this.evalAny(cond.lval).andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
       const right = this.evalAny(cond.rval);
       return right.andThen(
         (rval): ResultAsync<SDQL_Return, EvaluationError> => {
