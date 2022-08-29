@@ -167,7 +167,7 @@ export class QueryService implements IQueryService {
     | QueryFormatError
     | EvaluationError
   > {
-    //console.log(`Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,);
+    console.log(`QueryService.processQuery: Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,);
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),

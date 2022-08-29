@@ -126,7 +126,7 @@ export class AST_Evaluator {
     } else {
 
       return errAsync<SDQL_Return, EvaluationError>(
-        new TypeError("Condition has wrong type"),
+        new EvaluationError("Condition has wrong type"),
       );
       
     }

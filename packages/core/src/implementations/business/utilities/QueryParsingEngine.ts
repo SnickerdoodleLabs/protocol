@@ -1,28 +1,22 @@
 import {
-  EvaluationError,
-  QueryFormatError,
-  EligibleReward,
-  IpfsCID,
-  SDQLQuery,
-  SDQL_Return,
-  URLString,
-  DataPermissions,
+  DataPermissions, EligibleReward, EvaluationError, IpfsCID, QueryFormatError, SDQLQuery,
+  SDQL_Return
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
 import {
   IQueryParsingEngine,
   IQueryRepository,
-  IQueryRepositoryType,
+  IQueryRepositoryType
 } from "@core/interfaces/business/utilities";
 import { AST, InsightString } from "@core/interfaces/objects";
 import {
   IQueryFactories,
-  IQueryFactoriesType,
+  IQueryFactoriesType
 } from "@core/interfaces/utilities/factory";
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
 
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
@@ -53,9 +47,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    [InsightString[], EligibleReward[]],
+    [InsightString[], EligibleReward[]] | never,
     EvaluationError | QueryFormatError
   > {
+
+    // console.log('QueryParsingEngine.handleQuery');
+
     const insights: Array<InsightString> = [];
     const rewards: EligibleReward[] = [];
 
@@ -63,9 +60,13 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     
     const cid: IpfsCID = query.cid;
 
+    // console.log('QueryParsingEngine.handleQuery schemaString', schemaString);
+
     const sdqlParser = this.queryFactories.makeParser(cid, schemaString);
     // const ast = sdqlParser.buildAST();
     return sdqlParser.buildAST().andThen((ast:AST) => {
+
+      console.log('QueryParsingEngine.handleQuery evaluating');
 
       const astEvaluator = this.queryFactories.makeAstEvaluator(
         cid,
@@ -76,27 +77,29 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   
       const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = this.evalReturns(ast, dataPermissions, astEvaluator);
   
-      const comp_results: ResultAsync<SDQL_Return, EvaluationError>[] = this.evalCompensations(ast, dataPermissions, astEvaluator);
-  
-      // const resultList = [insight_results, comp_results];
-  
+      // const comp_results: ResultAsync<SDQL_Return, EvaluationError>[] = this.evalCompensations(ast, dataPermissions, astEvaluator);
+
+      console.log(insight_results);
+    
       return ResultUtils.combine(insight_results).andThen((insighResults) => {
-        // console.log(insighResults);
+        console.log(insighResults);
   
         for (const sdqlR of insighResults) {
           insights.push(InsightString(sdqlR as string));
         }
-        /*
-        for (const sdqlR of insighResults) {
-          rewards.push(new EligibleReward(sdqlR as string, URLString(sdqlR as string)));
-        }
-        */
   
+        console.log('QueryParsingEngine.handleQuery returning results');
+
         return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([
           insights,
           rewards,
         ]);
-      });
+      })
+      // .mapErr((err) => {
+      //   console.log("QueryParsingEngine.handleQuery error", err);
+      //   return new EvaluationError("Error resolving results");
+      //   // return errAsync(err as EvaluationError | QueryFormatError);
+      // });
     })
 
   }
@@ -126,7 +129,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return [...ast.logic.returns.keys()].map((returnStr) => {
 
         const requiredPermissions = ast.logic.getReturnPermissions(returnStr);
-        // console.log(requiredPermissions);
+        console.log(requiredPermissions);
         if (dataPermissions.contains(requiredPermissions)) {
   
           return astEvaluator.evalAny(ast.logic.returns.get(returnStr));

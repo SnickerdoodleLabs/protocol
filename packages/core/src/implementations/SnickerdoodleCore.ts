@@ -396,6 +396,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
+      // console.log("core.processQuery")
     return queryService.processQuery(consentContractAddress, query);
   }
 
