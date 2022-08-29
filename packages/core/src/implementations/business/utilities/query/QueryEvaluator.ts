@@ -69,32 +69,53 @@ export class QueryEvaluator implements IQueryEvaluator {
         // console.log("Filter startTime: ", filter.startTime);
         // console.log("Filter endTime: ", filter.endTime);
 
-        return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
-            (transactions) =>
-            {
-                console.log("Network Query Result: ", transactions)
-                if (transactions == null){
+        if (q.returnType == "object"){
+            return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
+                (transactions) =>
+                {
+                    console.log("Network Query Result: ", transactions)
+                    if (transactions == null){
+                        return okAsync(SDQL_Return({
+                            networkId: chainId,
+                            address: address,
+                            return: false,
+                        }));
+                    }
+                    if (transactions.length == 0){
+                        return okAsync(SDQL_Return({
+                            networkId: chainId,
+                            address: address,
+                            return: false,
+                        }));
+                    }
+    
                     return okAsync(SDQL_Return({
                         networkId: chainId,
                         address: address,
-                        return: false,
+                        return: true,
                     }));
                 }
-                if (transactions.length == 0){
-                    return okAsync(SDQL_Return({
-                        networkId: chainId,
-                        address: address,
-                        return: false,
-                    }));
+            ) 
+        }
+        else if (q.returnType == "boolean"){
+            return this.dataWalletPersistence.getEVMTransactions(filter).andThen(
+                (transactions) =>
+                {
+                    console.log("Network Query Result: ", transactions)
+                    if (transactions == null){
+                        return okAsync(SDQL_Return(false));
+                    }
+                    if (transactions.length == 0){
+                        return okAsync(SDQL_Return(false));
+                    }
+    
+                    return okAsync(SDQL_Return(true));
                 }
+            ) 
+        }
 
-                return okAsync(SDQL_Return({
-                    networkId: chainId,
-                    address: address,
-                    return: true,
-                }));
-            }
-        ) 
+        return okAsync(SDQL_Return(false));
+        
     } 
 
     public evalPropertyQuery(q: AST_PropertyQuery): ResultAsync<SDQL_Return, PersistenceError> { 
