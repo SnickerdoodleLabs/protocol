@@ -22,5 +22,8 @@ jobs:
       - run: |-
           cd packages/browserExtension
           yarn
-          yarn build-prod
-          ls
+          yarn build-dev
+      - uses: actions/upload-artifact@v3
+        with:
+          name: extension
+          path: packages/browserExtension/dist
