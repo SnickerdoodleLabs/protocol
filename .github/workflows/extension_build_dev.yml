@@ -1,0 +1,21 @@
+name: Build and Push to GCR
+
+on:
+  push:
+    branches: devops/*
+
+jobs:
+  build_extension:
+    name: Setup, Build, and Publish
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Docker configuration
+      run: |-
+        cd packages/browserExtension
+        ls
+        yarn build-dev
+        ls
