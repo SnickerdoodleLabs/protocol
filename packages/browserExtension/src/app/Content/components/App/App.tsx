@@ -1,39 +1,31 @@
-import React, { useEffect, useMemo, useState } from "react";
+import usePath from "@app/Content/hooks/usePath";
+import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
+import { ExternalCoreGateway } from "@app/coreGateways";
+import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
+import { EPortNames } from "@shared/enums/ports";
 
-import RewardCard from "../Screens/RewardCard";
-import ConnectWallet from "../Screens/ConnectWallet";
-import ConnectWalletPending from "../Screens/ConnectWalletPending";
 import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
 import NftClaimed from "../Screens/NftClaimed";
-import browser from "webextension-polyfill";
 import { EAPP_STATE, IRewardItem } from "../../constants";
 import Browser from "webextension-polyfill";
-import { ExternalCoreGateway } from "@app/coreGateways";
-import { IExternalState } from "@shared/interfaces/states";
 import pump from "pump";
 import ObjectMultiplex from "obj-multiplex";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
 import ConfigProvider from "@shared/utils/ConfigProvider";
-import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
 import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
-import { EPortNames } from "@shared/enums/ports";
-import {
-  Invitation,
-  DomainName,
-  TokenId,
-  PageInvitation,
-  InvitationDomain,
-  UUID,
-  URLString,
-} from "@snickerdoodlelabs/objects";
-import { findIndex } from "rxjs";
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
+import { DomainName, URLString } from "@snickerdoodlelabs/objects";
+import React, { useEffect, useMemo, useState } from "react";
+import ConnectWallet from "../Screens/ConnectWallet";
+import ConnectWalletPending from "../Screens/ConnectWalletPending";
+import RewardCard from "../Screens/RewardCard";
+import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
+import { parse } from "tldts";
 
-let coreGateway;
+let coreGateway: ExternalCoreGateway;
 let notificationEmitter;
 
 const connect = () => {
@@ -72,16 +64,6 @@ const connect = () => {
 
 connect();
 
-export interface IInvitationDomainWithUUID {
-  domain: DomainName;
-  title: string;
-  description: string;
-  image: URLString;
-  rewardName: string;
-  nftClaimedImage: URLString;
-  id: UUID;
-}
-
 const App = () => {
   const [appState, setAppState] = useState<EAPP_STATE>(EAPP_STATE.INIT);
   const [rewardToDisplay, setRewardToDisplay] = useState<
@@ -90,13 +72,14 @@ const App = () => {
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
 
+  const _path = usePath();
+
   useEffect(() => {
+    if (rewardToDisplay) {
+      emptyReward();
+    }
     initiateCohort();
-    addEventListeners();
-    return () => {
-      removeEventListeners();
-    };
-  }, []);
+  }, [_path]);
 
   useEffect(() => {
     if (appState === EAPP_STATE.CONNECT_WALLET_SUCCESS) {
@@ -109,20 +92,18 @@ const App = () => {
   const initiateCohort = async () => {
     coreGateway
       .isDataWalletAddressInitialized()
-      .andThen((dataWalletAddressInitialized) => {
+      .map((dataWalletAddressInitialized) => {
         if (dataWalletAddressInitialized) {
-          const host = window.location.hostname;
-          let domainName;
-          if (host.startsWith("www.")) {
-            domainName = DomainName(
-              host.replace("www.", "snickerdoodle-protocol."),
-            );
-          } else {
-            domainName = DomainName(`snickerdoodle-protocol.${host}`);
-          }
-
-          coreGateway.getInvitationsByDomain(domainName).map((result) => {
-            if (result !== DEFAULT_RPC_SUCCESS_RESULT) {
+          const path = window.location.pathname;
+          const urlInfo = parse(window.location.href);
+          const domain = urlInfo.domain;
+          const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
+          const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
+          coreGateway.getInvitationsByDomain(domainName, url).map((result) => {
+            if (
+              result !== DEFAULT_RPC_SUCCESS_RESULT &&
+              typeof result !== "string"
+            ) {
               setInvitationDomain(result);
               initiateRewardPopup(result);
             }
@@ -131,26 +112,16 @@ const App = () => {
       });
   };
 
-  const initiateRewardPopup = (domainDetails: InvitationDomain) => {
+  const initiateRewardPopup = (domainDetails: IInvitationDomainWithUUID) => {
     setRewardToDisplay({
       host: domainDetails.domain,
       title: domainDetails.title,
       description: domainDetails.description,
-      image: URLString(
-        domainDetails.image.replace(
-          "ipfs://",
-          ConfigProvider.getConfig().ipfsFetchBaseUrl,
-        ),
-      ),
+      image: domainDetails.image,
       primaryButtonText: "Claim Rewards",
       secondaryButtonText: "Reject Rewards",
       rewardName: domainDetails.rewardName,
-      nftClaimedImage: URLString(
-        domainDetails.nftClaimedImage.replace(
-          "ipfs://",
-          ConfigProvider.getConfig().ipfsFetchBaseUrl,
-        ),
-      ),
+      nftClaimedImage: domainDetails.nftClaimedImage,
     });
   };
 
@@ -158,62 +129,8 @@ const App = () => {
     setAppState(state);
   };
 
-  // Event Listeners
-  const addEventListeners = () => {
-    document.addEventListener(
-      "SD_WALLET_CONNECTION_COMPLETED",
-      onWalletConnectionCompleted,
-    );
-
-    document.addEventListener(
-      "SD_WALLET_CONNECTION_PENDING",
-      onWalletConnectionPending,
-    );
-  };
-
-  const removeEventListeners = () => {
-    document.removeEventListener(
-      "SD_WALLET_CONNECTION_COMPLETED",
-      onWalletConnectionCompleted,
-    );
-
-    document.removeEventListener(
-      "SD_WALLET_CONNECTION_PENDING",
-      onWalletConnectionPending,
-    );
-  };
-
-  // Event handlers
-  const onWalletConnectionCompleted = async (e: Event) => {
-    // @ts-ignore
-    const { accounts, signature, chainId } = e.detail;
-    browser.storage.sync.set(
-      {
-        onChainData: {
-          accountAddress: accounts[0],
-          signatureValue: signature,
-          chainId: chainId,
-          timestamp: new Date(),
-        },
-      },
-      // function () {
-      //   console.log("Value is set to" + accounts);
-      // },
-    );
-    browser.runtime.sendMessage({
-      message: "cardData",
-      onChainData: {
-        accountAddress: accounts[0],
-        signatureValue: signature,
-        chainId: chainId,
-        timestamp: new Date(),
-      },
-    });
-    setAppState(EAPP_STATE.CONNECT_WALLET_SUCCESS);
-  };
-
-  const onWalletConnectionPending = (e: Event) => {
-    setAppState(EAPP_STATE.CONNECT_WALLET_PENDING);
+  const emptyReward = () => {
+    setRewardToDisplay(undefined);
   };
 
   const renderComponent = useMemo(() => {
@@ -223,9 +140,9 @@ const App = () => {
       case appState === EAPP_STATE.INIT:
         return (
           <RewardCard
+            emptyReward={emptyReward}
             rewardItem={rewardToDisplay!}
             invitationDomain={invitationDomain}
-            changeAppState={changeAppState}
             coreGateway={coreGateway}
           />
         );

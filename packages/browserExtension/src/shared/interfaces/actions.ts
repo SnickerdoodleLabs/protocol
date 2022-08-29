@@ -14,6 +14,7 @@ import {
   UnixTimestamp,
   UUID,
   EVMContractAddress,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -60,6 +61,7 @@ export interface ISetLocationParams {
 }
 export interface IGetInvitationWithDomainParams {
   domain: DomainName;
+  path: string;
 }
 export interface IAcceptInvitationParams {
   dataPermissions: DataPermissions;
@@ -76,4 +78,14 @@ export interface IMetatransactionSignatureRequestCallbackParams {
 
 export interface ILeaveCohortParams {
   consentContractAddress: EVMContractAddress;
+}
+
+export interface IInvitationDomainWithUUID {
+  domain: DomainName;
+  title: string;
+  description: string;
+  image: URLString;
+  rewardName: string;
+  nftClaimedImage: URLString;
+  id: UUID;
 }

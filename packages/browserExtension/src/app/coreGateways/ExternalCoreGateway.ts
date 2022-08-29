@@ -1,3 +1,24 @@
+import CoreHandler from "@app/coreGateways/handler/CoreHandler";
+import { EExternalActions } from "@shared/enums";
+import {
+  IAcceptInvitationParams,
+  IAddAccountParams,
+  IGetInvitationWithDomainParams,
+  IGetUnlockMessageParams,
+  IInvitationDomainWithUUID,
+  ILeaveCohortParams,
+  IMetatransactionSignatureRequestCallbackParams,
+  IRejectInvitationParams,
+  ISetAgeParams,
+  ISetBirthdayParams,
+  ISetEmailParams,
+  ISetFamilyNameParams,
+  ISetGenderParams,
+  ISetGivenNameParams,
+  ISetLocationParams,
+  IUnlockParams,
+} from "@shared/interfaces/actions";
+import { IExternalState } from "@shared/interfaces/states";
 import {
   Age,
   Invitation,
@@ -22,27 +43,6 @@ import {
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
-import CoreHandler from "@app/coreGateways/handler/CoreHandler";
-import { EExternalActions } from "@shared/enums";
-import {
-  IAcceptInvitationParams,
-  IAddAccountParams,
-  IGetInvitationWithDomainParams,
-  IGetUnlockMessageParams,
-  ILeaveCohortParams,
-  IMetatransactionSignatureRequestCallbackParams,
-  IRejectInvitationParams,
-  ISetAgeParams,
-  ISetBirthdayParams,
-  ISetEmailParams,
-  ISetFamilyNameParams,
-  ISetGenderParams,
-  ISetGivenNameParams,
-  ISetLocationParams,
-  IUnlockParams,
-} from "@shared/interfaces/actions";
-import { IExternalState } from "@shared/interfaces/states";
-
 export class ExternalCoreGateway {
   [x: string]: any;
   protected _handler: CoreHandler;
@@ -55,10 +55,11 @@ export class ExternalCoreGateway {
 
   public getInvitationsByDomain(
     domain: DomainName,
-  ): ResultAsync<Invitation, JsonRpcError> {
+    path: string,
+  ): ResultAsync<IInvitationDomainWithUUID | string, JsonRpcError> {
     return this._handler.call(
       EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN,
-      { domain } as IGetInvitationWithDomainParams,
+      { domain, path } as IGetInvitationWithDomainParams,
     );
   }
   public acceptInvitation(

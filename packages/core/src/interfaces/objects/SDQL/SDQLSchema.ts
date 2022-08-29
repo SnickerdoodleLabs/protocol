@@ -12,10 +12,12 @@ export class SDQLSchema {
    * A object created from string
    */
 
-  constructor(readonly internalObj: ISDQLQueryObject) {}
+  constructor(readonly internalObj: ISDQLQueryObject) {
+    // console.log("internalObj: " + internalObj)
+  }
 
-  static fromString(s: string): SDQLSchema {
-    return new SDQLSchema(JSON.parse(s));
+  static fromString(s: SDQLString): SDQLSchema {
+    return new SDQLSchema(JSON.parse(s)  as ISDQLQueryObject);
   }
 
   public get version(): string {

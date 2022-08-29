@@ -17,6 +17,7 @@ export type SDQL_Return = Brand<
   | Map<ChainId, number>
   | IEVMBalance[]
   | ITokenBalance[]
+  | Object
   | null,
   "SDQL_Return"
 >;

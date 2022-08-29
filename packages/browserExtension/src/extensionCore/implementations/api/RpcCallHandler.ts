@@ -59,6 +59,7 @@ import {
   IAcceptInvitationParams,
   IRejectInvitationParams,
   ILeaveCohortParams,
+  IInvitationDomainWithUUID,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -67,6 +68,8 @@ import {
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
+import { parse } from "tldts";
+import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -222,9 +225,9 @@ export class RpcCallHandler implements IRpcCallHandler {
         return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
       }
       case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
-        const { domain } = params as IGetInvitationWithDomainParams;
+        const { domain, path } = params as IGetInvitationWithDomainParams;
         return new AsyncRpcResponseSender(
-          this.getInvitationsByDomain(domain),
+          this.getInvitationsByDomain(domain, path),
           res,
         ).call();
       }
@@ -268,20 +271,27 @@ export class RpcCallHandler implements IRpcCallHandler {
     }
   }
 
-  private getInvitationsByDomain(domain: DomainName): ResultAsync<
-    | (InvitationDomain & {
-        id: UUID;
-      })
-    | undefined,
+  private getInvitationsByDomain(
+    domain: DomainName,
+    url: string,
+  ): ResultAsync<
+    IInvitationDomainWithUUID | undefined,
     SnickerDoodleCoreError
   > {
     return this.invitationService
       .getInvitationByDomain(domain)
       .andThen((pageInvitations) => {
         console.log("pageInvitations", pageInvitations);
-        const pageInvitation = pageInvitations.find(
-          (value) => value.domainDetails.domain === domain,
-        );
+        const pageInvitation = pageInvitations.find((value) => {
+          const incomingUrl = value.url.replace(/^https?:\/\//, "");
+          const incomingUrlInfo = parse(incomingUrl);
+          if (!incomingUrlInfo.subdomain && parse(url).subdomain) {
+            return (
+              `${DEFAULT_SUBDOMAIN}.${incomingUrl.replace(/\/$/, "")}` === url
+            );
+          }
+          return incomingUrl.replace(/\/$/, "") === url;
+        });
         if (pageInvitation) {
           return this.invitationService
             .checkInvitationStatus(pageInvitation.invitation)

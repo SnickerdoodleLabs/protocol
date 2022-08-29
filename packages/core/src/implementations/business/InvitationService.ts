@@ -49,6 +49,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
+import { getDomain } from "tldts";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -107,21 +108,19 @@ export class InvitationService implements IInvitationService {
         console.log("consentContractAddresses", consentContractAddresses);
         console.log("invitation.domain", invitation.domain);
 
-        const domains = urls.map((url) => {
-          if (url.includes("https://") || url.includes("http://")) {
-            return new URL(url).hostname;
-          }
-          return new URL(`http://${url}`).hostname;
-        });
+        const domains = urls
+          .map((url) => {
+            if (url.includes("https://") || url.includes("http://")) {
+              return new URL(url).href;
+            }
+            return new URL(`http://${url}`).href;
+          })
+          .map((href) => getDomain(href));
 
         console.log("domains", domains);
 
         // We need to remove the subdomain so it would match with the saved domains in the blockchain
-        const domainStr = invitation.domain.replace(
-          "snickerdoodle-protocol.",
-          "",
-        );
-
+        const domainStr = getDomain(invitation.domain);
         // The contract must include the domain
         if (!domains.includes(domainStr)) {
           return EInvitationStatus.Invalid;
@@ -465,10 +464,10 @@ export class InvitationService implements IInvitationService {
     return this.dnsRepository.fetchTXTRecords(domain).map((txtRecords) => {
       return txtRecords
         .map((txtRecord) => {
-          const records = txtRecord.split(",");
-          return records.map((record) =>
-            EVMContractAddress(JSON.parse(record)),
-          );
+          const records = JSON.parse(txtRecord)
+            .split(",")
+            .map((r) => r.trim());
+          return records.map((record) => EVMContractAddress(record));
         })
         .flat();
     });
