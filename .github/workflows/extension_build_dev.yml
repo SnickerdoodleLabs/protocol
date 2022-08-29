@@ -25,5 +25,5 @@ jobs:
           cd dist && ls
       - uses: actions/upload-artifact@v3
         with:
-          name: extension
-          path: packages/browserExtension/dist
+          name: dev-extension.zip
+          path: packages/browserExtension/build-dev
