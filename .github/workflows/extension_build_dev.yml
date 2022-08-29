@@ -22,7 +22,3 @@ jobs:
       - run: |-
           cd packages/browserExtension
           yarn
-          ls
-          npm i
-          yarn build-dev
-          ls
