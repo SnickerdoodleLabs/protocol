@@ -11,9 +11,7 @@ const {
 task(
   "getConsentBeacon",
   "Check the address of the Consent Contract Beacon implementation.",
-).setAction(async (taskArgs) => {
-  const useraccount = taskArgs.useraddress;
-  const contractaddress = taskArgs.contractaddress;
+).setAction(async () => {
   const provider = await hre.ethers.provider;
 
   // attach the first signer account to the consent contract handle
@@ -23,25 +21,29 @@ task(
     provider,
   );
   let beaconHandle;
-  await factoryHandle.beaconAddress().then((beacon) => {
-    console.log("Beacon address is:", beacon);
-    return beacon;
-  }).then((beacon) => {
-    beaconHandle = new hre.ethers.Contract(
-      beacon,
-      BEACON().abi,
-      provider
-    );
-    return beaconHandle.implementation();
-  }).then((implementation) => {
-    console.log("Implementation address is:", implementation);
-    return beaconHandle.owner();
-  }).then((beaconOwner) => {
-    console.log("Beacon Owner is:", beaconOwner);
-  });
+  await factoryHandle
+    .beaconAddress()
+    .then((beacon) => {
+      console.log("Beacon address is:", beacon);
+      return beacon;
+    })
+    .then((beacon) => {
+      beaconHandle = new hre.ethers.Contract(beacon, BEACON().abi, provider);
+      return beaconHandle.implementation();
+    })
+    .then((implementation) => {
+      console.log("Implementation address is:", implementation);
+      return beaconHandle.owner();
+    })
+    .then((beaconOwner) => {
+      console.log("Beacon Owner is:", beaconOwner);
+    });
 });
 
-task("setConsentImplementation", "Set a new address for the UpgradableBeacon implementation.")
+task(
+  "setConsentImplementation",
+  "Set a new address for the UpgradableBeacon implementation.",
+)
   .addParam("implementation", "address of the implementation")
   .addParam(
     "accountnumber",
@@ -70,6 +72,54 @@ task("setConsentImplementation", "Set a new address for the UpgradableBeacon imp
       });
   });
 
+task("getQueryHorizon", "Check the blocknumber of the consent contracts query horizon")
+  .addParam("contractaddress", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider,
+    );
+
+    await consentContractHandle.queryHorizon().then((queryHorizon) => {
+      console.log("Query Horizon is:", queryHorizon.toString());
+    });
+  });
+
+  task("setQueryHorizon", "Set the blocknumber of the consent contracts query horizon")
+  .addParam("blocknumber", "The earliest block number to check for requestForData events")
+  .addParam("contractaddress", "address of the consent contract")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const blocknumber = taskArgs.blocknumber;
+    const contractaddress = taskArgs.contractaddress;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      account,
+    );
+
+    await consentContractHandle.setQueryHorizon(blocknumber)
+    .then((txresponse) => {
+      return txresponse.wait();
+    })
+    .then((txrct) => {
+      logTXDetails(txrct);
+    });
+  });
+
 task("checkBalanceOf", "Check balance of an address given a ERC721 address")
   .addParam("useraddress", "address of the users account")
   .addParam("contractaddress", "address of the consent contract")
@@ -87,6 +137,24 @@ task("checkBalanceOf", "Check balance of an address given a ERC721 address")
 
     await consentContractHandle.balanceOf(useraccount).then((result) => {
       console.log("ERC721 balance is:", result.toString());
+    });
+  });
+
+task("getBaseURI", "Check the baseURI parameter of a consent contract")
+  .addParam("contractaddress", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider,
+    );
+
+    await consentContractHandle.baseURI().then((baseURI) => {
+      console.log("baseURI is:", baseURI);
     });
   });
 
@@ -276,10 +344,9 @@ task("addConsentContractDomain", "Add a new URL to a Consent Contract.")
 
     console.log("Is this doing anything?");
 
-    consentContractHandle
+    await consentContractHandle
       .addDomain(url)
       .then((txResponse) => {
-        console.log(txResponse);
         return txResponse.wait();
       })
       .then((txrct) => {

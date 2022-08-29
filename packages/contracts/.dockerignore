@@ -1,0 +1,9 @@
+.env
+README.md
+node_modules/*
+artifacts/*
+cache/*
+.openzeppelin/*
+docs/*
+etc/*
+test/*

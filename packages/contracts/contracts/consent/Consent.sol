@@ -45,6 +45,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev Array of trusted domains
     string[] domains;
 
+    /// @dev Oldest block that should be scanned for requestForData events 
+    uint public queryHorizon; 
+    
     /* EVENTS */ 
 
     /// @notice Emitted when a request for data is made
@@ -89,6 +92,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         // set trusted forwarder
         trustedForwarder = 0xF7c6dC708550D89558110cAecD20a8A6a184427E; 
+
+        // set the queryHorizon to be the current block number;
+        queryHorizon = block.number;
 
         // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping 
         super._grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
@@ -218,6 +224,11 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// price for data request (calculates based on number of tokens minted (opt-ed in))
 
     /* SETTERS */
+
+    function setQueryHorizon(uint queryHorizon_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(queryHorizon_ > queryHorizon, "New horizon must be strictly later than current horizon.");
+        queryHorizon = queryHorizon_;
+    }
 
     /// @notice Set the trusted forwarder address 
     /// @param trustedForwarder_ Address of the trusted forwarder 
