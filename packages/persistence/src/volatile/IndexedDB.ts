@@ -141,7 +141,6 @@ export class IndexedDB implements IVolatileStorageTable {
             resolve(undefined);
           };
           request.onerror = (event) => {
-            console.log(name, obj, event.target);
             reject(
               new PersistenceError(
                 "error updating object store: " + event.target,

@@ -37,12 +37,14 @@ import {
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { IDBKeyRange } from "fake-indexeddb";
 import { inject, injectable } from "inversify";
-import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { ICloudStorage, ICloudStorageType } from "./cloud/ICloudStorage";
-
 import { BackupManager } from "@persistence/backup";
+import {
+  ICloudStorage,
+  ICloudStorageType,
+} from "@persistence/cloud/ICloudStorage";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
@@ -107,7 +109,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     }
 
     return this.waitForUnlock().andThen((key) => {
-      return this._getObjectStore().andThen((store) => {
+      return this._getObjectStore().map((store) => {
         this.backupManager = new BackupManager(
           key,
           [
@@ -119,7 +121,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           this.cryptoUtils,
           this.persistentStorageUtils,
         );
-        return okAsync(this.backupManager);
+        return this.backupManager;
       });
     });
   }
@@ -254,7 +256,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           siteVisits.map((visit) => {
             return backupManager.addRecord(ELocalStorageKey.SITE_VISITS, visit);
           }),
-        ).andThen(() => okAsync(undefined));
+        ).map(() => {});
       });
     });
   }
@@ -730,9 +732,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public dumpBackup(): ResultAsync<string, PersistenceError> {
+  public dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError> {
     return this._getBackupManager().andThen((backupManager) =>
-      backupManager.dump().andThen((backup) => okAsync(JSON.stringify(backup))),
+      backupManager.dump(),
     );
   }
 
@@ -765,7 +767,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               return backupManager.getNumUpdates().andThen((numUpdates) => {
                 if (numUpdates >= config.backupChunkSizeTarget) {
                   return backupManager.dump().andThen((backup) => {
-                    return this.cloudStorage.putBackup(backup);
+                    return this.cloudStorage
+                      .putBackup(backup)
+                      .andThen(() => okAsync(backupManager.clear()));
                   });
                 }
                 return okAsync(undefined);

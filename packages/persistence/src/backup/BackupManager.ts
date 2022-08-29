@@ -10,6 +10,7 @@ import {
   PersistenceError,
   Signature,
   TableMap,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -36,10 +37,10 @@ export class BackupManager {
     this.accountAddr = DataWalletAddress(
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
     );
-    this._clear();
+    this.clear();
   }
 
-  private _clear(): void {
+  public clear(): void {
     this.tableUpdates = {};
     this.fieldUpdates = {};
     this.numUpdates = 0;
@@ -78,14 +79,13 @@ export class BackupManager {
           const backup: IDataWalletBackup = {
             header: {
               hash: hash,
-              timestamp: timestamp,
+              timestamp: UnixTimestamp(timestamp),
               signature: sig,
               accountAddress: this.accountAddr,
             },
             blob: blob,
           };
 
-          this._clear();
           this.restored.add(backup.header.hash);
           return okAsync(backup);
         });
@@ -134,6 +134,7 @@ export class BackupManager {
                 const table = unpacked.records[tableName];
                 return ResultUtils.combine(
                   table.map((value) => {
+                    // TODO: figure out how to dedup records from chunk here
                     return this.volatile.putObject(tableName, value);
                   }),
                 );
@@ -141,9 +142,8 @@ export class BackupManager {
             );
           });
         })
-        .andThen((_) => {
+        .map((_) => {
           this.restored.add(backup.header.hash);
-          return okAsync(undefined);
         });
     });
   }
@@ -154,18 +154,17 @@ export class BackupManager {
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        return this.cryptoUtils
-          .decryptAESEncryptedString(blob, aesKey)
-          .andThen((unencrypted) => {
-            return okAsync(JSON.parse(unencrypted) as BackupBlob);
-          });
+        return this.cryptoUtils.decryptAESEncryptedString(blob, aesKey);
+      })
+      .map((unencrypted) => {
+        return JSON.parse(unencrypted) as BackupBlob;
       });
   }
 
   private _generateBackupSignature(
     hash: string,
     timestamp: number,
-  ): ResultAsync<Signature, PersistenceError> {
+  ): ResultAsync<Signature, never> {
     return this.cryptoUtils.signMessage(
       this._generateSignatureMessage(hash, timestamp),
       this.privateKey,

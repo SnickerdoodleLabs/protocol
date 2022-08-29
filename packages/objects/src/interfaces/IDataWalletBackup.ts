@@ -1,8 +1,11 @@
+import { Brand, make } from "ts-brand";
+
 import { AESEncryptedString } from "@objects/businessObjects";
+import { UnixTimestamp } from "@objects/primitives";
 
 export interface IDataWalletBackupHeader {
   hash: string;
-  timestamp: number;
+  timestamp: UnixTimestamp;
   signature: string;
   accountAddress: string; // not sure if we should include this
 }

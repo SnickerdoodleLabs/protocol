@@ -7,7 +7,7 @@
 import {
   ICloudStorage,
   ICloudStorageType,
-  DefaultCloudStorage,
+  NullCloudStorage,
 } from "@persistence/cloud";
 import {
   DefaultAccountBalances,
@@ -148,7 +148,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
-        .to(DefaultCloudStorage)
+        .to(NullCloudStorage)
         .inSingletonScope();
     }
 
@@ -570,7 +570,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEVMTransactions(transactions);
   }
 
-  public dumpBackup(): ResultAsync<string, PersistenceError> {
+  public dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );

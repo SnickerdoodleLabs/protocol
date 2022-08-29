@@ -138,7 +138,7 @@ export interface IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError>;
   getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError>;
 
-  dumpBackup(): ResultAsync<string, PersistenceError>;
+  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
 }

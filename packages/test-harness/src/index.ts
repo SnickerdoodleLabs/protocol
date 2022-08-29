@@ -406,7 +406,7 @@ function corePrompt(): ResultAsync<void, Error> {
         const backup: IDataWalletBackup = {
           header: {
             hash: "$argon2id$v=19$m=4096,t=3,p=1$ChlKcS/rZO9dhyS9h+YiHA$yAqqsYNGAhfRMWMU0FmITwKmrw3kIEZcmG2RwJW25gA",
-            timestamp: 1661451654712,
+            timestamp: UnixTimestamp(1661451654712),
             signature:
               "0x91b3f61b2d1a7da6dc8a8a74037351b4f7d8c09b9844c004828dd9de7da7977e69e7350a13d324df050ace9bb625530e00884a94acc7ec307270ce4488225c4a1c",
             accountAddress: "0xF7e191Dbebb9450835Cb5768eeE7622FCfF57208",

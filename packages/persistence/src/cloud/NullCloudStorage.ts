@@ -8,7 +8,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage";
 
 @injectable()
-export class DefaultCloudStorage implements ICloudStorage {
+export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, IDataWalletBackup>();
   protected _lastRestore = 0;
 

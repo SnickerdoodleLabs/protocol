@@ -1,2 +1,2 @@
 export * from "@persistence/cloud/ICloudStorage";
-export * from "@persistence/cloud/DefaultCloudStorage";
+export * from "@persistence/cloud/NullCloudStorage";

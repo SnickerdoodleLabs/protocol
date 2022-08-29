@@ -1670,7 +1670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ceramicnetwork/streamid@npm:^2.0.0, @ceramicnetwork/streamid@npm:^2.3.2":
+"@ceramicnetwork/streamid@npm:^2.0.0, @ceramicnetwork/streamid@npm:^2.1.0, @ceramicnetwork/streamid@npm:^2.3.2":
   version: 2.3.2
   resolution: "@ceramicnetwork/streamid@npm:2.3.2"
   dependencies:
@@ -2624,6 +2624,18 @@ __metadata:
   version: 0.2.0
   resolution: "@glazed/did-datastore-model@npm:0.2.0"
   checksum: c5b0f7f3f9dbdc929559172d633a24ef6dc89aeeffceb45ab1d9a26f99327045c2243bf6a317fbd18daf4f067fac4f8540ff13504da39870b2b8773ac7d12eab
+  languageName: node
+  linkType: hard
+
+"@glazed/did-datastore@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "@glazed/did-datastore@npm:0.3.2"
+  dependencies:
+    "@ceramicnetwork/streamid": ^2.1.0
+    "@glazed/constants": ^0.2.0
+    "@glazed/datamodel": ^0.3.1
+    "@glazed/tile-loader": ^0.2.1
+  checksum: 2d6d99468d7c84dadf4e710f0638cca5b8455565b573e018f34af9a8a8d6da0c7133d85c124877123bfe765bd23a0c8a861e5a06b999d9ed2fd7defb35776ff7
   languageName: node
   linkType: hard
 
@@ -27798,6 +27810,7 @@ __metadata:
     "@cucumber/cucumber": ^7.0.0
     "@glazed/datamodel": ^0.3.1
     "@glazed/devtools": ^0.2.0
+    "@glazed/did-datastore": ^0.3.2
     "@material-ui/core": 4.12.3
     "@material-ui/icons": 4.11.2
     "@octokit/core": ^3.2.4
