@@ -83,6 +83,19 @@ const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
 
+// find all errors
+import process from 'node:process';
+process
+  .on('unhandledRejection', (reason, p) => {
+    console.error(reason, 'Unhandled Rejection at Promise', p);
+    process.exit(1);
+  })
+  .on('uncaughtException', err => {
+    console.error(err, 'Uncaught Exception thrown');
+    process.exit(1);
+  });
+
+
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
     console.log(`Added account: ${addedAccount}`);
