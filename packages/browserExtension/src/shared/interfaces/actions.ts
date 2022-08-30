@@ -15,6 +15,7 @@ import {
   UUID,
   EVMContractAddress,
   URLString,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -78,6 +79,10 @@ export interface IMetatransactionSignatureRequestCallbackParams {
 
 export interface ILeaveCohortParams {
   consentContractAddress: EVMContractAddress;
+}
+
+export interface IGetInvitationMetadataByCIDParams {
+  ipfsCID: IpfsCID;
 }
 
 export interface IInvitationDomainWithUUID {

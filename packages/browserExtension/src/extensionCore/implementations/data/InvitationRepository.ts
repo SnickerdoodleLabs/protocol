@@ -11,6 +11,7 @@ import {
   ISnickerdoodleCoreType,
   IOpenSeaMetadata,
   EVMContractAddress,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -21,6 +22,24 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
+
+  public getAcceptedInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    SnickerDoodleCoreError
+  > {
+    return this.core.getAcceptedInvitationsCID().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+  public getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
+    return this.core.getInvitationMetadataByCID(ipfsCID).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
 
   public getInvitationsByDomain(
     domain: DomainName,
@@ -55,15 +74,6 @@ export class InvitationRepository implements IInvitationRepository {
     invitation: Invitation,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.rejectInvitation(invitation).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
-  public getInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
-    SnickerDoodleCoreError
-  > {
-    return this.core.getAcceptedInvitationsMetadata().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
     });
