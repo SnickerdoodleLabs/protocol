@@ -1,13 +1,16 @@
 import {
-  MissingTokenConstructorError, ParserError, SDQL_Name,
-  SDQL_OperatorName
+  MissingTokenConstructorError,
+  ParserError,
+  SDQL_Name,
+  SDQL_OperatorName,
 } from "@snickerdoodlelabs/objects";
 
 import {
   Token,
   Tokenizer,
-  TokenType
+  TokenType,
 } from "@core/implementations/business/utilities/query/Tokenizer";
+import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
 import {
   AST_Compensation,
   AST_ConditionExpr,
@@ -17,9 +20,9 @@ import {
   Command,
   Command_IF,
   ConditionAnd,
-  ConditionOr
+  ConditionOr,
 } from "@core/interfaces/objects";
-import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
+import e from "cors";
 
 export class ExprParser {
   /**
@@ -49,11 +52,10 @@ export class ExprParser {
     this.tokenToExpMap.set(TokenType.and, this.createAnd);
     this.tokenToExpMap.set(TokenType.or, this.createOr);
     this.tokenToExpMap.set(TokenType.if, this.createIf);
-    
+
     if (!this.context.has("dependencies")) {
       this.context.set("dependencies", new Map<string, Set<AST_Query>>());
     }
-
   }
   private getNextId(name: string) {
     this.id++;
@@ -125,21 +127,21 @@ export class ExprParser {
           // console.log("stack after", stack);
           const parenthesisOpen = stack.pop();
           if (parenthesisOpen?.type != TokenType.parenthesisOpen) {
-            throw new ParserError(
+            const e = new ParserError(
               token.position,
               "No matching opening parenthesis for this",
             );
+            console.log(e);
+            throw e;
           }
           break;
 
         case TokenType.then:
         case TokenType.else:
-          
           popped = this.popBefore(stack, token, TokenType.if); // condition output
           postFix.push(...popped);
 
           break;
-
       }
     }
 
@@ -192,10 +194,12 @@ export class ExprParser {
       }
     }
 
-    throw new ParserError(
+    const err = new ParserError(
       token.position,
       `Missing matching ${toType} for ${token.type}`,
     );
+    console.error(err);
+    throw err;
   }
 
   popBefore(
@@ -218,15 +222,16 @@ export class ExprParser {
       }
     }
 
-    throw new ParserError(
+    const err = new ParserError(
       token.position,
       `Missing matching ${toType} for ${token.type}`,
     );
+    console.error(err);
+    throw err;
   }
   // #endregion
 
   buildAstFromPostfix(postFix: Array<Token>): AST_Expr | Command {
- 
     const exprTypes: Array<TokenType> = [
       TokenType.query,
       TokenType.return,
@@ -239,48 +244,44 @@ export class ExprParser {
 
     for (const token of postFix) {
       if (exprTypes.includes(token.type)) {
-
         const executable = this.getExecutableFromContext(token);
         expList.push(executable);
-
       } else {
-
         // we have a operator type
         const newExp: any = this.createExp(expList, token);
 
         if (!newExp) {
-          throw new ParserError(
+          const err = new ParserError(
             token.position,
             `Could not convert to ast ${token.val}`,
           );
+          console.error(err);
+          throw err;
         } else {
           expList = [newExp];
         }
-
       }
     }
 
     // const expr = expList.pop() as AST_Expr | Command;
 
-    
-
     return expList.pop() as AST_Expr | Command;
-
   }
-
 
   createExp(expList, token: Token): AST_Expr {
     const evaluator = this.tokenToExpMap.get(token.type);
     if (evaluator) {
       return evaluator.apply(this, [expList, token]);
     } else {
-      throw new MissingTokenConstructorError("No Token type constructor defined for " + token.type);
+      const err = new MissingTokenConstructorError(
+        "No Token type constructor defined for " + token.type,
+      );
+      console.error(err);
+      throw err;
     }
   }
 
-  getExecutableFromContext(
-    token: Token,
-  ): ParserContextDataTypes {
+  getExecutableFromContext(token: Token): ParserContextDataTypes {
     let nameStr = "";
     switch (token.type) {
       case TokenType.query:
@@ -289,18 +290,22 @@ export class ExprParser {
         nameStr = token.val.substring(1);
         break;
       default:
-        throw new ParserError(
+        const err = new ParserError(
           token.position,
           `invalid executable type for ${token.val}`,
         );
+        console.error(err);
+        throw err;
     }
 
     const executable = this.context.get(nameStr);
     if (!executable) {
-      throw new ParserError(
+      const err = new ParserError(
         token.position,
         `no executable for token ${token.val} in the context`,
       );
+      console.error(err);
+      throw err;
     }
 
     return executable;
@@ -345,36 +350,30 @@ export class ExprParser {
     const id = this.getNextId(token.val);
     return new Command_IF(SDQL_Name(id), trueExpr, falseExpr, conditionExpr);
   }
-  // #endregion 
+  // #endregion
 
   // #region parse dependencies only
 
-  
   getDependencies(exprStr: string): AST_Query[] {
-    
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
 
-    return tokens.map(token => {
-      if (token.type == TokenType.query) {
+    return tokens
+      .map((token) => {
+        if (token.type == TokenType.query) {
+          // return token.val.substring(1);
+          return this.getExecutableFromContext(token) as AST_Query;
+        } else if (token.type == TokenType.return) {
+          // return can have nested queries.
 
-        // return token.val.substring(1);
-        return this.getExecutableFromContext(token) as AST_Query;
-
-      } else if (token.type == TokenType.return) {
-        // return can have nested queries.
-        
-        const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
-        if (r.source instanceof AST_Query) {
-          return r.source;
+          const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
+          if (r.source instanceof AST_Query) {
+            return r.source;
+          }
         }
-        
-      }
-      return undefined;
-      
-    }).filter(token => token !== undefined) as AST_Query[];
-    
-
+        return undefined;
+      })
+      .filter((token) => token !== undefined) as AST_Query[];
   }
   // #endregion
 }

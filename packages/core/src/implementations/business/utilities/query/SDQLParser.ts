@@ -59,7 +59,9 @@ export class SDQLParser {
 
   private saveInContext(name: string, val: ParserContextDataTypes): void {
     if (this.context.get(name)) {
-      throw new DuplicateIdInSchema(name);
+      const err = new DuplicateIdInSchema(name);
+      console.error(err);
+      throw err;
     }
 
     this.context.set(name, val);
@@ -211,7 +213,9 @@ export class SDQLParser {
 
           returns.push(returnExpr);
         } else {
-          throw new ReturnNotImplementedError(rName);
+          const err = new ReturnNotImplementedError(rName);
+          console.error(err);
+          throw err;
         }
       }
 
@@ -381,10 +385,14 @@ export class SDQLParser {
           case "chain_transaction_count":
             return EWalletDataType.EVMTransactions;
           default:
-            throw new MissingWalletDataTypeError(propQuery.property);
+            const err = new MissingWalletDataTypeError(propQuery.property);
+            console.error(err);
+            throw err;
         }
       default:
-        throw new MissingWalletDataTypeError(query.constructor.name);
+        const err = new MissingWalletDataTypeError(query.constructor.name);
+        console.error(err);
+        throw err;
     }
   }
 

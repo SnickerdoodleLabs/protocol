@@ -1,4 +1,4 @@
-import { Operator } from "../Operator";
+import { Operator } from "@core/interfaces/objects/SDQL/Operator";
 
 export abstract class Condition extends Operator {
   /**

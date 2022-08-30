@@ -80,13 +80,13 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     balanceArray: ITokenBalance[],
   ): ResultAsync<ITokenBalance[], never> {
     for (const condition of query.conditions) {
-      //console.log("Condition: ", condition);
-      //console.log("balanceArray: ", balanceArray);
+      // console.log("Condition: ", condition);
+      // console.log("balanceArray: ", balanceArray);
       let val: BigNumber = BigNumber.from(0);
       switch (condition.constructor) {
         case ConditionGE:
           val = BigNumber.from((condition as ConditionGE).rval);
-          //console.log("val: ", val.toNumber());
+          // console.log("val: ", val.toNumber());
           balanceArray = balanceArray.filter(
             (balance) =>
               BigNumber.from(balance.balance).toNumber() >= val.toNumber(),
@@ -127,6 +127,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           break;
 
         default:
+          console.error("EvalNotImplementedError");
           throw new EvalNotImplementedError(condition.constructor.name);
       }
     }

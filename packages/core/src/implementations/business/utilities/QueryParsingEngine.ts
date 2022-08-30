@@ -1,6 +1,11 @@
 import {
-  DataPermissions, EligibleReward, EvaluationError, IpfsCID, QueryFormatError, SDQLQuery,
-  SDQL_Return
+  DataPermissions,
+  EligibleReward,
+  EvaluationError,
+  IpfsCID,
+  QueryFormatError,
+  SDQLQuery,
+  SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -10,12 +15,12 @@ import { AST_Evaluator } from "@core/implementations/business/utilities/query/AS
 import {
   IQueryParsingEngine,
   IQueryRepository,
-  IQueryRepositoryType
+  IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
 import { AST, InsightString } from "@core/interfaces/objects";
 import {
   IQueryFactories,
-  IQueryFactoriesType
+  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
 
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
@@ -50,95 +55,70 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     [InsightString[], EligibleReward[]] | never,
     EvaluationError | QueryFormatError
   > {
+    console.log("QueryParsingEngine.handleQuery");
 
-    console.log('QueryParsingEngine.handleQuery');
-
-    const insights: Array<InsightString> = [];
     const rewards: EligibleReward[] = [];
-
     const schemaString = query.query;
-    
     const cid: IpfsCID = query.cid;
-    // return okAsync([insights, rewards]);
-    // return okAsync([[],[]]);
-    return this.queryFactories.makePerserAsync(cid, schemaString)
+
+    return this.queryFactories
+      .makeParserAsync(cid, schemaString)
       .andThen((sdqlParser) => {
+        return sdqlParser.buildAST();
+      })
+      .andThen((ast: AST) => {
+        const astEvaluator = this.queryFactories.makeAstEvaluator(
+          cid,
+          ast,
+          this.queryRepository,
+        );
 
-        // return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([insights, rewards]);
-        return sdqlParser.buildAST().andThen((ast:AST) => {
-          // console.log(sdqlParser)
-          
-          const astEvaluator = this.queryFactories.makeAstEvaluator(
-            cid,
-            ast,
-            this.queryRepository,
+        return ResultUtils.combine(
+          this.evalReturns(ast, dataPermissions, astEvaluator),
+        ).andThen((insightResults) => {
+          console.log(insightResults);
+
+          const insights = insightResults.map((sdqlR) => {
+            return InsightString(sdqlR as string);
+          });
+
+          return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
+            [insights, rewards],
           );
-          
-      
-          const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = this.evalReturns(ast, dataPermissions, astEvaluator);
-          // const combined = ResultUtils.combine(insight_results);
-          // console.log(combined);
-
-          console.log('insight_results', insight_results);
-          
-          return ResultUtils.combine(insight_results).andThen((insighResults) => {
-            console.log(insighResults);
-      
-            for (const sdqlR of insighResults) {
-              insights.push(InsightString(sdqlR as string));
-            }
-      
-            return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([
-              insights,
-              rewards,
-            ]);
-          })
-          
-          // return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([insights, rewards]);
-
         });
 
+        // return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([insights, rewards]);
       });
-
   }
 
-  private evalCompensations(ast: AST, dataPermissions: DataPermissions, astEvaluator: AST_Evaluator): ResultAsync<SDQL_Return, EvaluationError>[] {
-
+  private evalCompensations(
+    ast: AST,
+    dataPermissions: DataPermissions,
+    astEvaluator: AST_Evaluator,
+  ): ResultAsync<SDQL_Return, EvaluationError>[] {
     return [...ast.logic.compensations.keys()].map((compStr) => {
-
-        const requiredPermissions = ast.logic.getCompensationPermissions(compStr);
-        if (dataPermissions.contains(requiredPermissions)) {
-  
-          return astEvaluator.evalAny(ast.logic.compensations.get(compStr));
-  
-        } else {
-
-          return okAsync(SDQL_Return(null));
-
-        }
-
+      const requiredPermissions = ast.logic.getCompensationPermissions(compStr);
+      if (dataPermissions.contains(requiredPermissions)) {
+        return astEvaluator.evalAny(ast.logic.compensations.get(compStr));
+      } else {
+        return okAsync(SDQL_Return(null));
+      }
     });
-
   }
 
-  private evalReturns(ast: AST, dataPermissions: DataPermissions, astEvaluator: AST_Evaluator): ResultAsync<SDQL_Return, EvaluationError>[] {
-
-
-      return [...ast.logic.returns.keys()].map((returnStr) => {
-
-        const requiredPermissions = ast.logic.getReturnPermissions(returnStr);
-        // console.log(requiredPermissions);
-        if (dataPermissions.contains(requiredPermissions)) {
-  
-          return astEvaluator.evalAny(ast.logic.returns.get(returnStr));
-  
-        } else {
-
-          return okAsync(SDQL_Return(null));
-
-        }
-
+  private evalReturns(
+    ast: AST,
+    dataPermissions: DataPermissions,
+    astEvaluator: AST_Evaluator,
+  ): ResultAsync<SDQL_Return, EvaluationError>[] {
+    return [...ast.logic.returns.keys()].map((returnStr) => {
+      const requiredPermissions = ast.logic.getReturnPermissions(returnStr);
+      // console.log(requiredPermissions);
+      if (dataPermissions.contains(requiredPermissions)) {
+        return astEvaluator.evalAny(ast.logic.returns.get(returnStr));
+      } else {
+        return okAsync(SDQL_Return(null));
+      }
     });
-    
   }
 }
