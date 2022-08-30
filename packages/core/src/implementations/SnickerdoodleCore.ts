@@ -67,6 +67,7 @@ import {
   IOpenSeaMetadata,
   ConsentFactoryContractError,
   IDataWalletBackup,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -365,34 +366,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.getInvitationsByDomain(domain);
   }
 
-  public getAcceptedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
+  public getAcceptedInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
-    | ConsentContractError
-    | IPFSError
   > {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.getAcceptedInvitationsMetadata();
+    return cohortService.getAcceptedInvitationsCID();
   }
-
-  public getRejectedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | PersistenceError
-    | IPFSError
-  > {
+  public getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, IPFSError> {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.getRejectedInvitationsMetadata();
+    return cohortService.getInvitationMetadataByCID(ipfsCID);
   }
 
   public processQuery(
