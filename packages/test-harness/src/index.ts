@@ -108,34 +108,39 @@ core.getEvents().map(async (events) => {
     console.log(queryPretty);
     */
     // console.log(queryRequest.query);
+    try {
 
-    prompt([
-      {
-        type: "list",
-        name: "approveQuery",
-        message: "Approve running the query?",
-        choices: [
-          { name: "Yes", value: true },
-          { name: "No", value: false },
-        ],
-      },
-    ])
-      .andThen((answers) => {
-        if (!answers.approveQuery) {
-          return okAsync(undefined);
-        }
+      prompt([
+          {
+            type: "list",
+            name: "approveQuery",
+            message: "Approve running the query?",
+            choices: [
+              { name: "Yes", value: true },
+              { name: "No", value: false },
+            ],
+          },
+        ])
+          .andThen((answers) => {
+            if (!answers.approveQuery) {
+              return okAsync(undefined);
+            }
+    
+            return core.processQuery(
+              queryRequest.consentContractAddress,
+              queryRequest.query,
+            );
+          })
+          .mapErr((e) => {
+            console.error(e);
+            return e;
+          });
+    } catch (e) {
+      console.error(e);
+    }
 
-        return core.processQuery(
-          queryRequest.consentContractAddress,
-          queryRequest.query,
-        );
-      })
-      .mapErr((e) => {
-        console.error(e);
-        return e;
-      });
   });
-
+  
   events.onMetatransactionSignatureRequested.subscribe(async (request) => {
     // This method needs to happen in nicer form in all form factors
     try {

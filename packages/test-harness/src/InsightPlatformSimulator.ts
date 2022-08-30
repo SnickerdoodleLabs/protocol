@@ -72,8 +72,8 @@ export class InsightPlatformSimulator {
     });
 
     this.app.post("/insights/responses", (req, res) => {
-      //console.log("Sending to Insight Responses");
-      //console.log("Req is this: ", req.body);
+      console.log("Sending to Insight Responses");
+      console.log("Req is this: ", req.body);
       //console.log("req.body.consentContractId: ", req.body.consentContractId);
       const newConsentContract = req.body.consentContractId;
       const consentContractId = EVMContractAddress(req.body.consentContractId);

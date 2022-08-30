@@ -78,6 +78,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           const insight_results: ResultAsync<SDQL_Return, EvaluationError>[] = this.evalReturns(ast, dataPermissions, astEvaluator);
           // const combined = ResultUtils.combine(insight_results);
           // console.log(combined);
+
+          console.log('insight_results', insight_results);
           
           return ResultUtils.combine(insight_results).andThen((insighResults) => {
             console.log(insighResults);
