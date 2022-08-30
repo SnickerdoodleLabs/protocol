@@ -135,7 +135,7 @@ export class IndexedDB implements IVolatileStorageTable {
   ): ResultAsync<void, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readwrite").andThen((store) => {
-        const request = store.add(obj);
+        const request = store.put(obj);
         const promise = new Promise(function (resolve, reject) {
           request.onsuccess = (event) => {
             resolve(undefined);

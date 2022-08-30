@@ -97,50 +97,37 @@ core.getEvents().map(async (events) => {
       `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
     );
 
-    const val = queryRequest.query.query;
-    console.log("Val: ", val);
-    /*
-    const queryPretty = JSON.stringify(
-      (queryRequest.query.query),
-      null,
-      2,
-    );
-    console.log(queryPretty);
-    */
-    // console.log(queryRequest.query);
     try {
-
       prompt([
-          {
-            type: "list",
-            name: "approveQuery",
-            message: "Approve running the query?",
-            choices: [
-              { name: "Yes", value: true },
-              { name: "No", value: false },
-            ],
-          },
-        ])
-          .andThen((answers) => {
-            if (!answers.approveQuery) {
-              return okAsync(undefined);
-            }
-    
-            return core.processQuery(
-              queryRequest.consentContractAddress,
-              queryRequest.query,
-            );
-          })
-          .mapErr((e) => {
-            console.error(e);
-            return e;
-          });
+        {
+          type: "list",
+          name: "approveQuery",
+          message: "Approve running the query?",
+          choices: [
+            { name: "Yes", value: true },
+            { name: "No", value: false },
+          ],
+        },
+      ])
+        .andThen((answers) => {
+          if (!answers.approveQuery) {
+            return okAsync(undefined);
+          }
+
+          return core.processQuery(
+            queryRequest.consentContractAddress,
+            queryRequest.query,
+          );
+        })
+        .mapErr((e) => {
+          console.error(e);
+          return e;
+        });
     } catch (e) {
       console.error(e);
     }
-
   });
-  
+
   events.onMetatransactionSignatureRequested.subscribe(async (request) => {
     // This method needs to happen in nicer form in all form factors
     try {
@@ -654,8 +641,80 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
             }),
           );
         } else if (queryId === 2) {
-          console.log("Query 2 currently does not exist");
-          queryText = SDQLString("{}");
+          queryText = SDQLString(
+            JSON.stringify({
+              version: 0.1,
+              timestamp: "<this should be populated with GMT>",
+              description: "///This should dynamically populate",
+              business: "/////This should dynamically populate",
+              queries: {
+                q1: {
+                  name: "url_visited_count",
+                  return: "object",
+                  object_schema: {
+                    patternProperties: {
+                      "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$":
+                        {
+                          type: "integer",
+                        },
+                    },
+                  },
+                },
+                q2: {
+                  name: "chain_transaction_count",
+                  return: "object",
+                  object_schema: {
+                    patternProperties: {
+                      "^ETH|AVAX|SOL$": {
+                        type: "integer",
+                      },
+                    },
+                  },
+                },
+                q3: {
+                  name: "balance",
+                  networkid: "*",
+                  return: "array",
+                  array_items: {
+                    type: "object",
+                    object_schema: {
+                      properties: {
+                        address: {
+                          type: "string",
+                        },
+                        networkId: {
+                          type: "integer",
+                        },
+                        balance: {
+                          type: "number",
+                        },
+                      },
+                      required: ["networkId", "balance"],
+                    },
+                  },
+                },
+              },
+              returns: {
+                r1: {
+                  name: "query_response",
+                  query: "q1",
+                },
+                r2: {
+                  name: "query_response",
+                  query: "q2",
+                },
+                r3: {
+                  name: "query_response",
+                  query: "q3",
+                },
+                url: "/////This should dynamically populate",
+              },
+              logic: {
+                returns: ["$r1", "$r2", "$r3"],
+                compensations: [],
+              },
+            }),
+          );
         }
 
         return simulator.postQuery(contractAddress, queryText);

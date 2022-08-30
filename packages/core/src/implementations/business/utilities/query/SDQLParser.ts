@@ -14,8 +14,10 @@ import {
   EWalletDataType,
   MissingWalletDataTypeError,
 } from "@snickerdoodlelabs/objects";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
+import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
 import {
   AST,
   AST_BalanceQuery,
@@ -31,18 +33,14 @@ import {
   Command,
   SDQLSchema,
 } from "@core/interfaces/objects";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
 import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
-import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
 
 export class SDQLParser {
-
   context: Map<string, ParserContextDataTypes> = new Map();
   queries: Map<SDQL_Name, AST_Query> = new Map();
   returns: AST_Returns | null;
   compensations: Map<SDQL_Name, AST_Compensation> = new Map();
-  yarn 
+  yarn;
   logicReturns: Map<string, AST_Expr | Command> = new Map();
   logicCompensations: Map<string, AST_Expr | Command> = new Map();
   returnPermissions: Map<string, DataPermissions> = new Map();
@@ -51,16 +49,15 @@ export class SDQLParser {
   exprParser: ExprParser | null = null;
 
   constructor(
-    readonly cid: IpfsCID, 
+    readonly cid: IpfsCID,
     readonly schema: SDQLSchema,
-    readonly queryObjectFactory: IQueryObjectFactory
-    ) {
+    readonly queryObjectFactory: IQueryObjectFactory,
+  ) {
     this.returns = null;
     this.exprParser = new ExprParser(this.context);
   }
 
   private saveInContext(name: string, val: ParserContextDataTypes): void {
-
     if (this.context.get(name)) {
       throw new DuplicateIdInSchema(name);
     }
@@ -69,14 +66,14 @@ export class SDQLParser {
   }
 
   private parse(): ResultAsync<
-    void, 
-    ParserError 
-    | DuplicateIdInSchema 
+    void,
+    | ParserError
+    | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
-    > {
+  > {
     // const queries = this.parseQueries();
-   
+
     // this.parseQueries();
 
     // this.returns = new AST_Returns(
@@ -88,94 +85,84 @@ export class SDQLParser {
 
     // this.parseLogic();
 
-    return this.parseQueries()
-      .andThen(() => {
-
-        return this.parseReturns()
-          .andThen(() => {
-
-            return this.parseCompensations()
-            .andThen(() => {
-
-              return this.parseLogic()
-              .andThen(() => {
-                return this.parsePermissions();
-              });
-              
-            });
-
+    return this.parseQueries().andThen(() => {
+      return this.parseReturns().andThen(() => {
+        return this.parseCompensations().andThen(() => {
+          return this.parseLogic().andThen(() => {
+            return this.parsePermissions();
           });
-      })
+        });
+      });
+    });
   }
 
   buildAST(): ResultAsync<
-    AST, 
-    ParserError 
-    | DuplicateIdInSchema 
+    AST,
+    | ParserError
+    | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
-    > {
-
-    return this.parse()
-      .andThen(() => {
-
-        return okAsync(
-          new AST(
-            Version(this.schema["version"]),
-            this.schema["description"],
-            this.schema["business"],
-            this.queries,
-            this.returns,
-            this.compensations,
-            new AST_Logic(
-              this.logicReturns, 
-              this.logicCompensations,
-              this.returnPermissions,
-              this.compenstationPermissions
-              ),
-          )
-        );
-        
-      });
-
+  > {
+    return this.parse().andThen(() => {
+      return okAsync(
+        new AST(
+          Version(this.schema["version"]),
+          this.schema["description"],
+          this.schema["business"],
+          this.queries,
+          this.returns,
+          this.compensations,
+          new AST_Logic(
+            this.logicReturns,
+            this.logicCompensations,
+            this.returnPermissions,
+            this.compenstationPermissions,
+          ),
+        ),
+      );
+    });
   }
 
   // #region non-logic
-  private parseQueries(): ResultAsync<void, DuplicateIdInSchema | QueryFormatError> {
-
+  private parseQueries(): ResultAsync<
+    void,
+    DuplicateIdInSchema | QueryFormatError
+  > {
     try {
-
       const querySchema = this.schema.getQuerySchema();
-      const queries = new Array<any>();
+      const queries = new Array<
+        AST_NetworkQuery | AST_BalanceQuery | AST_PropertyQuery
+      >();
       for (const qName in querySchema) {
         // console.log(`parsing query ${qName}`);
         const name = SDQL_Name(qName);
         const schema = querySchema[qName];
-  
+
         switch (schema.name) {
           case "network":
             // console.log(`${qName} is a network query`);
             queries.push(AST_NetworkQuery.fromSchema(name, schema));
             break;
+
           case "balance":
             queries.push(this.queryObjectFactory.toBalanceQuery(name, schema));
             break;
+
           default:
             // console.log(`${qName} is a property query`);
             queries.push(AST_PropertyQuery.fromSchema(name, schema));
             break;
         }
       }
-  
+
       for (const query of queries) {
         this.saveInContext(query.name, query);
         this.queries.set(query.name, query);
       }
 
       return okAsync(undefined);
-      
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema)  {
+      if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
       }
       if (err instanceof QueryFormatError) {
@@ -187,10 +174,11 @@ export class SDQLParser {
     // return queries;
   }
 
-  private parseReturns(): ResultAsync<void, DuplicateIdInSchema | QueryFormatError> {
-    
+  private parseReturns(): ResultAsync<
+    void,
+    DuplicateIdInSchema | QueryFormatError
+  > {
     try {
-
       const returnsSchema = this.schema.getReturnSchema();
       const returns = new Array<AST_ReturnExpr>();
 
@@ -208,7 +196,9 @@ export class SDQLParser {
           // console.log(`${rName} is a query`);
           const returnExpr = new AST_ReturnExpr(
             name,
-            this.context.get(SDQL_Name(schema.query!)) as AST_Query | AST_Return,
+            this.context.get(SDQL_Name(schema.query!)) as
+              | AST_Query
+              | AST_Return,
           );
 
           returns.push(returnExpr);
@@ -225,9 +215,7 @@ export class SDQLParser {
         }
       }
 
-      this.returns = new AST_Returns(
-        URLString(returnsSchema.url),
-      );
+      this.returns = new AST_Returns(URLString(returnsSchema.url));
 
       for (const r of returns) {
         this.saveInContext(r.name, r);
@@ -235,9 +223,8 @@ export class SDQLParser {
       }
 
       return okAsync(undefined);
-
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema)  {
+      if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
       }
       if (err instanceof QueryFormatError) {
@@ -247,9 +234,11 @@ export class SDQLParser {
     }
   }
 
-  private parseCompensations(): ResultAsync<void, DuplicateIdInSchema | QueryFormatError> {
+  private parseCompensations(): ResultAsync<
+    void,
+    DuplicateIdInSchema | QueryFormatError
+  > {
     try {
-
       const compensationSchema = this.schema.getCompensationSchema();
 
       for (const cName in compensationSchema) {
@@ -266,11 +255,10 @@ export class SDQLParser {
         this.compensations.set(compensation.name, compensation);
         this.saveInContext(cName, compensation);
       }
-      
-      return okAsync(undefined);
 
+      return okAsync(undefined);
     } catch (err) {
-      if (err instanceof DuplicateIdInSchema)  {
+      if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
       }
       if (err instanceof QueryFormatError) {
@@ -283,20 +271,20 @@ export class SDQLParser {
 
   // #region Logic
 
-  private parseLogic(): ResultAsync<void, ParserError | MissingTokenConstructorError | QueryFormatError> {
-
+  private parseLogic(): ResultAsync<
+    void,
+    ParserError | MissingTokenConstructorError | QueryFormatError
+  > {
     try {
-
       const logicSchema = this.schema.getLogicSchema();
       this.logicReturns = this.parseLogicExpressions(logicSchema.returns);
       this.logicCompensations = this.parseLogicExpressions(
-        logicSchema.compensations
+        logicSchema.compensations,
       );
 
       return okAsync(undefined);
-
     } catch (err) {
-      if (err instanceof ParserError)  {
+      if (err instanceof ParserError) {
         return errAsync(err as ParserError);
       }
       if (err instanceof MissingTokenConstructorError) {
@@ -306,8 +294,7 @@ export class SDQLParser {
     }
   }
 
-
-  private parseLogicExpressions (
+  private parseLogicExpressions(
     expressions: Array<string>,
   ): Map<string, AST_Expr | Command> {
     // console.log('expressions', expressions);
@@ -318,29 +305,29 @@ export class SDQLParser {
     }
     return lrs;
   }
-  
+
   public parseExpString(expStr: string): AST_Expr | Command {
     return this.exprParser!.parse(expStr);
     // if (this.exprParser) return this.exprParser.parse(expStr);
     // throw new Error("Expression Parser not found.");
   }
 
-
-  private parsePermissions(): ResultAsync<void, ParserError | MissingWalletDataTypeError> {
-
+  private parsePermissions(): ResultAsync<
+    void,
+    ParserError | MissingWalletDataTypeError
+  > {
     try {
-
       const logicSchema = this.schema.getLogicSchema();
-      this.returnPermissions = this.parseLogicPermissions(logicSchema['returns']);
-      this.compenstationPermissions = this.parseLogicPermissions(logicSchema['compensations']);
+      this.returnPermissions = this.parseLogicPermissions(
+        logicSchema["returns"],
+      );
+      this.compenstationPermissions = this.parseLogicPermissions(
+        logicSchema["compensations"],
+      );
       return okAsync(undefined);
-
-    }  catch (err) {
-
+    } catch (err) {
       return errAsync(err as MissingWalletDataTypeError);
-
     }
-
   }
 
   private parseLogicPermissions(
@@ -355,16 +342,13 @@ export class SDQLParser {
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
+    let flags = 0; // we will or the flags
+    for (const query of queries) {
+      const flag = this.getQueryPermissionFlag(query);
+      flags |= flag;
+    }
 
-
-      let flags = 0; // we will or the flags
-      for (const query of queries) {
-        const flag = this.getQueryPermissionFlag(query);
-        flags |= flag;
-      }
-  
-      return new DataPermissions(flags);
-
+    return new DataPermissions(flags);
   }
 
   public getQueryPermissionFlag(query: AST_Query): number {
@@ -376,25 +360,25 @@ export class SDQLParser {
       case AST_PropertyQuery:
         const propQuery = query as AST_PropertyQuery;
         switch (propQuery.property) {
-          case 'age':
+          case "age":
             return EWalletDataType.Age;
-          case 'gender':
+          case "gender":
             return EWalletDataType.Gender;
-          case 'givenName':
+          case "givenName":
             return EWalletDataType.GivenName;
-          case 'familyName':
+          case "familyName":
             return EWalletDataType.FamilyName;
-          case 'birthday':
+          case "birthday":
             return EWalletDataType.Birthday;
-          case 'email':
+          case "email":
             return EWalletDataType.Email;
-          case 'location':
+          case "location":
             return EWalletDataType.Location;
-          case 'browsing_history':
+          case "browsing_history":
             return EWalletDataType.SiteVisits;
-          case 'url_visited_count':
+          case "url_visited_count":
             return EWalletDataType.SiteVisits;
-          case 'chain_transaction_count':
+          case "chain_transaction_count":
             return EWalletDataType.EVMTransactions;
           default:
             throw new MissingWalletDataTypeError(propQuery.property);
@@ -403,7 +387,6 @@ export class SDQLParser {
         throw new MissingWalletDataTypeError(query.constructor.name);
     }
   }
-  
 
   // #endregion
 }
