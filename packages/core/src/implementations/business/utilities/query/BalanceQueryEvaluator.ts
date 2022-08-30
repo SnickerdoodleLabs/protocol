@@ -8,6 +8,7 @@ import {
   ITokenBalance,
   PersistenceError,
   SDQL_Return,
+  TickerSymbol,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -46,11 +47,13 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       .andThen((excessValues) => {
         let tokenBalances: ITokenBalance[] = [];
         let newToken: ITokenBalance = {
+          ticker: TickerSymbol("ETH"),
           networkId: ChainId(1),
           address: EVMContractAddress(""),
           balance: BigNumber.from("0"),
         };
         excessValues.forEach((object) => {
+          newToken["ticker"] = object.ticker;
           newToken["networkId"] = object.chainId;
           newToken["address"] = object.contractAddress;
           newToken["balance"] = BigNumber.from(object.balance);
@@ -58,6 +61,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
           // refresh newToken so new info can be pushed in
           newToken = {
+            ticker: TickerSymbol("ETH"),
             networkId: ChainId(1),
             address: EVMContractAddress(""),
             balance: BigNumber.from("0"),
@@ -139,6 +143,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     balanceArray: ITokenBalance[],
   ): ResultAsync<ITokenBalance[], PersistenceError> {
     let obj: ITokenBalance = {
+      ticker: TickerSymbol("ETH"),
       balance: BigNumber.from("0"),
       networkId: ChainId(0),
       address: EVMContractAddress("0"),
@@ -157,6 +162,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         balanceMap.set(d.address, obj);
       } else {
         balanceMap.set(d.address, {
+          ticker: d.ticker,
           balance: d.balance,
           networkId: d.networkId,
           address: d.address,
@@ -167,6 +173,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     let returnedArray: ITokenBalance[] = [];
     balanceMap.forEach((element, key) => {
       returnedArray.push({
+        ticker: element.ticker,
         address: key,
         balance: element.balance,
         networkId: element.networkId,
