@@ -2,6 +2,7 @@ import { Brand, make } from "ts-brand";
 
 import { ChainId } from "@objects/primitives/ChainId";
 import { URLString } from "@objects/primitives/URLString";
+import { IEVMBalance, ITokenBalance } from "@objects/interfaces";
 
 //#region types
 export type SDQL_Name = Brand<string, "SDQL_Name">;
@@ -14,6 +15,9 @@ export type SDQL_Return = Brand<
   | Array<any>
   | Map<URLString, number>
   | Map<ChainId, number>
+  | IEVMBalance[]
+  | ITokenBalance[]
+  | Object
   | null,
   "SDQL_Return"
 >;

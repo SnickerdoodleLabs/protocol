@@ -75,7 +75,7 @@ module.exports = {
     doodle: {
       accounts: accounts,
       chainId: 31337,
-      url: "https://doodlechain.snickerdoodle.dev",
+      url: "https://doodlechain.snickerdoodle.com",
       gas: 6000000,
       gasPrice: 8000000000,
     },

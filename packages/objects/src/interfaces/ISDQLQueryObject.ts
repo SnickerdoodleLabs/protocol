@@ -18,9 +18,7 @@ export interface ISDQLQueryObject {
   compensations: {
     [compensationObjects: string]: ISDQLCompensations;
   };
-  logic: {
-    [logicObjects: string]: ISDQLLogicObjects;
-  };
+  logic: ISDQLLogicObjects;
 }
 export interface ISDQLQueryClause {
   name: string;

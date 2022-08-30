@@ -13,6 +13,8 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
+  EVMContractAddress,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -59,6 +61,7 @@ export interface ISetLocationParams {
 }
 export interface IGetInvitationWithDomainParams {
   domain: DomainName;
+  path: string;
 }
 export interface IAcceptInvitationParams {
   consentConditions: ConsentConditions;
@@ -71,4 +74,18 @@ export interface IMetatransactionSignatureRequestCallbackParams {
   id: UUID;
   metatransactionSignature: Signature;
   nonce: BigNumberString;
+}
+
+export interface ILeaveCohortParams {
+  consentContractAddress: EVMContractAddress;
+}
+
+export interface IInvitationDomainWithUUID {
+  domain: DomainName;
+  title: string;
+  description: string;
+  image: URLString;
+  rewardName: string;
+  nftClaimedImage: URLString;
+  id: UUID;
 }

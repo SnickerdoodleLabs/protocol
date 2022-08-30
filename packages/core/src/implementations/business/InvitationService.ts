@@ -23,6 +23,8 @@ import {
   DomainName,
   IPFSError,
   PageInvitation,
+  ConsentFactoryContractError,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -47,6 +49,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
+import { getDomain } from "tldts";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -105,21 +108,19 @@ export class InvitationService implements IInvitationService {
         console.log("consentContractAddresses", consentContractAddresses);
         console.log("invitation.domain", invitation.domain);
 
-        const domains = urls.map((url) => {
-          if (url.includes("https://") || url.includes("http://")) {
-            return new URL(url).hostname;
-          }
-          return new URL(`http://${url}`).hostname;
-        });
+        const domains = urls
+          .map((url) => {
+            if (url.includes("https://") || url.includes("http://")) {
+              return new URL(url).href;
+            }
+            return new URL(`http://${url}`).href;
+          })
+          .map((href) => getDomain(href));
 
         console.log("domains", domains);
 
         // We need to remove the subdomain so it would match with the saved domains in the blockchain
-        const domainStr = invitation.domain.replace(
-          "snickerdoodle-protocol.",
-          "",
-        );
-
+        const domainStr = getDomain(invitation.domain);
         // The contract must include the domain
         if (!domains.includes(domainStr)) {
           return EInvitationStatus.Invalid;
@@ -169,7 +170,7 @@ export class InvitationService implements IInvitationService {
             invitation.consentContractAddress, // Contract address for the metatransaction
             EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
             BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            BigNumber.from(1000000), // The amount of gas to pay.
+            BigNumber.from(10000000), // The amount of gas to pay.
             BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
             callData, // The actual bytes of the request, encoded as a hex string
           );
@@ -282,7 +283,7 @@ export class InvitationService implements IInvitationService {
                 consentContractAddress, // Contract address for the metatransaction
                 EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
                 BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-                BigNumber.from(1000000), // The amount of gas to pay.
+                BigNumber.from(10000000), // The amount of gas to pay.
                 BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
                 callData, // The actual bytes of the request, encoded as a hex string
               );
@@ -338,6 +339,83 @@ export class InvitationService implements IInvitationService {
       });
   }
 
+  public getAcceptedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | IPFSError
+  > {
+    return this.consentRepo
+      .getConsentContracts()
+      .andThen((consentContractAddresses) => {
+        return ResultUtils.combine(
+          Array.from(consentContractAddresses.keys()).map((contractAddress) => {
+            return this.consentRepo
+              .getMetadataCID(contractAddress)
+              .andThen((ipfsCID) => {
+                return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+              })
+              .map((openSeaMetadata) => {
+                return {
+                  contractAddress,
+                  openSeaMetadata,
+                };
+              });
+          }),
+        );
+      })
+      .map((addressesWithMetadatas) => {
+        return new Map(
+          addressesWithMetadatas.map((addressWithMetadata) => {
+            return [
+              addressWithMetadata.contractAddress,
+              addressWithMetadata.openSeaMetadata,
+            ];
+          }),
+        );
+      });
+  }
+
+  public getRejectedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | PersistenceError
+    | IPFSError
+  > {
+    return this.persistenceRepo
+      .getRejectedCohorts()
+      .andThen((consentContractAddresses) => {
+        return ResultUtils.combine(
+          consentContractAddresses.map((contractAddress) => {
+            return this.consentRepo
+              .getMetadataCID(contractAddress)
+              .andThen((ipfsCID) => {
+                return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+              })
+              .map((openSeaMetadata) => {
+                return {
+                  contractAddress,
+                  openSeaMetadata,
+                };
+              });
+          }),
+        ).map((addressesWithMetadatas) => {
+          return new Map(
+            addressesWithMetadatas.map((addressWithMetadata) => {
+              return [
+                addressWithMetadata.contractAddress,
+                addressWithMetadata.openSeaMetadata,
+              ];
+            }),
+          );
+        });
+      });
+  }
+
   protected getInvitationsFromConsentContract(
     domain: DomainName,
     consentContractAddress: EVMContractAddress,
@@ -389,10 +467,10 @@ export class InvitationService implements IInvitationService {
     return this.dnsRepository.fetchTXTRecords(domain).map((txtRecords) => {
       return txtRecords
         .map((txtRecord) => {
-          const records = txtRecord.split(",");
-          return records.map((record) =>
-            EVMContractAddress(JSON.parse(record)),
-          );
+          const records = JSON.parse(txtRecord)
+            .split(",")
+            .map((r) => r.trim());
+          return records.map((record) => EVMContractAddress(record));
         })
         .flat();
     });

@@ -13,7 +13,10 @@ const LinkCard = ({ navigateTo, icon, title }: ILinkCardProps) => {
   const { config } = useAppContext();
   const classes = useStyles();
   const navigate = () => {
-    window.open(`${config.getConfig().onboardingUrl}?${navigateTo}`, "_blank");
+    window.open(
+      `${config.getConfig().onboardingUrl}?screen=${navigateTo}`,
+      "_blank",
+    );
   };
   return (
     <Box

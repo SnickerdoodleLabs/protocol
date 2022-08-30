@@ -2,7 +2,6 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   accountBoxContainer: {
-    width: "680px",
     height: "80px",
     border: "1px solid #ECECEC",
     borderRadius: "12px",

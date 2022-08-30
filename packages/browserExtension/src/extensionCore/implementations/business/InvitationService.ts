@@ -1,14 +1,3 @@
-import {
-  Invitation,
-  ConsentConditions,
-  DomainName,
-  EInvitationStatus,
-  PageInvitation,
-  EVMContractAddress,
-} from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-
 import { IInvitationService } from "@interfaces/business";
 import {
   IInvitationRepository,
@@ -16,6 +5,17 @@ import {
 } from "@interfaces/data/IInvitationRepository";
 import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
+import {
+  Invitation,
+  ConsentConditions,
+  DomainName,
+  EInvitationStatus,
+  PageInvitation,
+  EVMContractAddress,
+  IOpenSeaMetadata,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
+import { ResultAsync } from "neverthrow";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -51,9 +51,17 @@ export class InvitationService implements IInvitationService {
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.rejectInvitation(invitation);
   }
+
+  public getInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationRepository.getInvitationsMetadata();
+  }
+
   public leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    throw new Error("Method not implemented.");
+    return this.invitationRepository.leaveCohort(consentContractAddress);
   }
 }

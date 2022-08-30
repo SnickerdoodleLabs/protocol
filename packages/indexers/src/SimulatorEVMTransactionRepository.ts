@@ -62,6 +62,7 @@ export class SimulatorEVMTransactionRepository
         chainId: chainId,
         accountAddress: accountAddress,
         balance: BigNumberString(Math.floor(Math.random() * 1000) + ""),
+        contractAddress: EVMContractAddress(Math.floor(Math.random() * 4) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 4)))
       };
       result.push(item);
     }

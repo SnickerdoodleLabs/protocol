@@ -1,11 +1,12 @@
 import "reflect-metadata";
 
-import { IpfsCID } from "@objects/primitives";
+import { IpfsCID, SDQLString } from "@objects/primitives";
 
 import { avalance1SchemaStr } from "./avalanche1.data";
 
 import {
   ExprParser,
+  QueryObjectFactory,
   SDQLParser,
   Token,
   Tokenizer,
@@ -22,6 +23,9 @@ import {
   ConditionOr,
   SDQLSchema,
 } from "@core/interfaces/objects/SDQL";
+import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+import td from "testdouble";
+
 // import { ExprParser } from "businessObjects/SDQL/ExprParser";
 // import { Token, Tokenizer, TokenType } from "businessObjects/SDQL/Tokenizer";
 // import { IpfsCID } from "primitives";
@@ -339,8 +343,10 @@ describe("Postfix expressions", () => {
 });
 
 describe("Postfix to AST", () => {
-  const schema = SDQLSchema.fromString(avalance1SchemaStr);
-  const parser = new SDQLParser(IpfsCID("0"), schema);
+  const schema = SDQLSchema.fromString(SDQLString(avalance1SchemaStr));
+  let queryObjectFactory = td.object<IQueryObjectFactory>();
+
+  const parser = new SDQLParser(IpfsCID("0"), schema, queryObjectFactory);
   parser.buildAST();
   const context = parser.context;
 

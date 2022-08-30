@@ -4,3 +4,4 @@ export * from "@core/implementations/business/utilities/query/QueryRepository";
 export * from "@core/implementations/business/utilities/query/Tokenizer";
 export * from "@core/implementations/business/utilities/query/ExprParser";
 export * from "@core/implementations/business/utilities/query/SDQLParser";
+export * from "@core/implementations/business/utilities/query/QueryObjectFactory";

@@ -7,23 +7,21 @@ import {
   IpfsCID,
   SDQLQuery,
   SDQLString,
-  SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { assert } from "chai";
 import { okAsync } from "neverthrow";
-import { finalize } from "rxjs";
 import td from "testdouble";
-
-import { avalance1SchemaStr } from "./business/query/avalanche1.data";
-import { avalance2SchemaStr } from "./business/query/avalanche2.data";
 
 import {
   QueryEvaluator,
+  QueryObjectFactory,
   QueryParsingEngine,
   QueryRepository,
 } from "@core/implementations/business";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { avalance2SchemaStr } from "./business/query/avalanche2.data";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryObjectFactory";
 
 const queryId = IpfsCID("Beep");
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance2SchemaStr));
@@ -31,13 +29,17 @@ const country = CountryCode("1");
 
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
+  public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
+
+  protected queryObjectFactory: IQueryObjectFactory;
   protected queryFactories: IQueryFactories;
   //   protected queryRepository = td.object<IQueryRepository>();
   protected queryRepository: QueryRepository;
   protected queryEvaluator: QueryEvaluator;
 
   public constructor() {
-    this.queryFactories = new QueryFactories();
+    this.queryObjectFactory = new QueryObjectFactory();
+    this.queryFactories = new QueryFactories(this.queryObjectFactory);
 
     td.when(this.persistenceRepo.getGender()).thenReturn(
       okAsync(Gender("female")),
@@ -53,7 +55,7 @@ class QueryParsingMocks {
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo);
+    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator);
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }
 
@@ -70,7 +72,7 @@ describe("Testing order of results", () => {
     await engine
       .handleQuery(sdqlQuery)
       .andThen(([insights, rewards]) => {
-        console.log(insights);
+        //console.log(insights);
         // return okAsync(0);
         // expect(insights).toEqual(["qualified", country]);
         expect(insights).toEqual([

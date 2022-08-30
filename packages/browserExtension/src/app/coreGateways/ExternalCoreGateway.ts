@@ -1,3 +1,24 @@
+import CoreHandler from "@app/coreGateways/handler/CoreHandler";
+import { EExternalActions } from "@shared/enums";
+import {
+  IAcceptInvitationParams,
+  IAddAccountParams,
+  IGetInvitationWithDomainParams,
+  IGetUnlockMessageParams,
+  IInvitationDomainWithUUID,
+  ILeaveCohortParams,
+  IMetatransactionSignatureRequestCallbackParams,
+  IRejectInvitationParams,
+  ISetAgeParams,
+  ISetBirthdayParams,
+  ISetEmailParams,
+  ISetFamilyNameParams,
+  ISetGenderParams,
+  ISetGivenNameParams,
+  ISetLocationParams,
+  IUnlockParams,
+} from "@shared/interfaces/actions";
+import { IExternalState } from "@shared/interfaces/states";
 import {
   Age,
   Invitation,
@@ -16,29 +37,11 @@ import {
   UnixTimestamp,
   UUID,
   ConsentConditions,
+  EVMContractAddress,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
-
-import CoreHandler from "@app/coreGateways/handler/CoreHandler";
-import { EExternalActions } from "@shared/enums";
-import {
-  IAcceptInvitationParams,
-  IAddAccountParams,
-  IGetInvitationWithDomainParams,
-  IGetUnlockMessageParams,
-  IMetatransactionSignatureRequestCallbackParams,
-  IRejectInvitationParams,
-  ISetAgeParams,
-  ISetBirthdayParams,
-  ISetEmailParams,
-  ISetFamilyNameParams,
-  ISetGenderParams,
-  ISetGivenNameParams,
-  ISetLocationParams,
-  IUnlockParams,
-} from "@shared/interfaces/actions";
-import { IExternalState } from "@shared/interfaces/states";
 
 export class ExternalCoreGateway {
   [x: string]: any;
@@ -52,10 +55,11 @@ export class ExternalCoreGateway {
 
   public getInvitationsByDomain(
     domain: DomainName,
-  ): ResultAsync<Invitation, JsonRpcError> {
+    path: string,
+  ): ResultAsync<IInvitationDomainWithUUID | string, JsonRpcError> {
     return this._handler.call(
       EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN,
-      { domain } as IGetInvitationWithDomainParams,
+      { domain, path } as IGetInvitationWithDomainParams,
     );
   }
   public acceptInvitation(
@@ -71,6 +75,21 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.REJECT_INVITATION, {
       id,
     } as IRejectInvitationParams);
+  }
+
+  public getInvitationsMetadata(): ResultAsync<
+    Record<EVMContractAddress, IOpenSeaMetadata>,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_INVITATIONS_METADATA);
+  }
+
+  public leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.LEAVE_COHORT, {
+      consentContractAddress,
+    } as ILeaveCohortParams);
   }
 
   public addAccount(
@@ -192,5 +211,11 @@ export class ExternalCoreGateway {
   }
   public closeTab(): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.CLOSE_TAB);
+  }
+  public getDataWalletAddress(): ResultAsync<
+    EVMAccountAddress | null,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);
   }
 }

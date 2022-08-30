@@ -144,6 +144,10 @@ export class AccountService implements IAccountService {
             return this.unlockExistingWallet(encryptedDataWalletKey, signature);
           })
           .andThen((account) => {
+            console.log(
+              "Data wallet address initialized: ",
+              account.accountAddress,
+            );
             // The account address in account is just a generic EVMAccountAddress,
             // we need to cast it to a DataWalletAddress, since in this case, that's
             // what it is.
@@ -207,14 +211,10 @@ export class AccountService implements IAccountService {
       this.dataWalletUtils.createDataWalletKey(),
       this.dataWalletUtils.deriveEncryptionKeyFromSignature(signature),
     ]).andThen(([dataWalletKey, encryptionKey]) => {
-      console.warn(
-        `TEST: encryptionKey: ${encryptionKey}, dataWalletKey: ${dataWalletKey}`,
-      );
       // Encrypt the data wallet key
       return this.cryptoUtils
         .encryptString(dataWalletKey, encryptionKey)
         .andThen((encryptedDataWallet) => {
-          console.warn(`TEST: encryptedDataWallet`, encryptedDataWallet);
           const dataWalletAddress = DataWalletAddress(
             this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
               dataWalletKey,
@@ -309,10 +309,6 @@ export class AccountService implements IAccountService {
     return this.dataWalletUtils
       .deriveEncryptionKeyFromSignature(signature)
       .andThen((encryptionKey) => {
-        console.warn(
-          `TEST: encryptionKey: ${encryptionKey}, encryptedDataWalletKey:`,
-          encryptedDataWalletKey,
-        );
         return this.cryptoUtils.decryptAESEncryptedString(
           encryptedDataWalletKey,
           encryptionKey,

@@ -7,6 +7,15 @@ const logTXDetails = (txrct) => {
   console.log("Gas Used:", txrct.gasUsed.toString());
 };
 
+const BEACON = function () {
+  const artifactPath = "./artifacts/\@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol/UpgradeableBeacon.json";
+  if (fs.existsSync(artifactPath)) {
+    return require("../" + artifactPath);
+  } else {
+    return null;
+  }
+};
+
 // dynamic artifact imports to prevent error when contracts are not compiled
 const CC = function () {
   const artifactPath = "./artifacts/contracts/consent/Consent.sol/Consent.json";
@@ -63,6 +72,36 @@ const gasSettings = async function (txCount) {
   return gs;
 };
 
+// returns deployment address of the Consent Contract Beacon Contract
+const consentBeacon = function () {
+  const hre = require("hardhat");
+  if (hre.hardhatArguments.network == "dev") {
+    return "";
+  } else if (hre.hardhatArguments.network == "localhost") {
+    return "";
+  } else if (hre.hardhatArguments.network == "doodle") {
+    return "";
+  } else if (hre.hardhatArguments.network == "hardhat") {
+    return "";
+  } else if (hre.hardhatArguments.network == "rinkeby") {
+    return "";
+  } else if (hre.hardhatArguments.network == "mumbai") {
+    return "";
+  } else if (hre.hardhatArguments.network == "polygon") {
+    return "";
+  } else if (hre.hardhatArguments.network == "fuji") {
+    return "0xaF5Df6017f28486647b1B621412cCf556E2c5860";
+  } else if (hre.hardhatArguments.network == "avalanche") {
+    return "";
+  } else if (hre.hardhatArguments.network == "fantom") {
+    return "";
+  } else if (hre.hardhatArguments.network == "mainnet") {
+    return "";
+  } else {
+    return "";
+  }
+};
+
 // returns deployment address of the Consent Contract Factory
 const consentFactory = function () {
   const hre = require("hardhat");
@@ -81,7 +120,7 @@ const consentFactory = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "";
+    return "0xC44C9B4375ab43D7974252c37bccb41F99910fA5";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
@@ -109,7 +148,7 @@ const crumbsContract = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "";
+    return "0x97464F3547510fb430448F5216eC7D8e71D7C4eF";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
@@ -138,7 +177,7 @@ const siftContract = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "";
+    return "0x82721EB9786255fA45BFf58c82Bc7Ae4210B9c72";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
@@ -164,10 +203,12 @@ const countryCode = function () {
 
 module.exports = {
   logTXDetails,
+  BEACON,
   CC,
   CCFactory,
   CR,
   SIFT,
+  consentBeacon,
   consentFactory,
   gasSettings,
   countryCode,

@@ -1,45 +1,37 @@
-import "reflect-metadata";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  AjaxError,
-  DataWalletAddress,
-  EligibleReward,
+  AjaxError, EligibleReward,
   EVMAccountAddress,
-  EVMContractAddress,
-  EVMPrivateKey,
-  IpfsCID,
+  EVMContractAddress, IpfsCID,
   SDQLQuery,
   SDQLString,
   Signature,
-  UninitializedError,
+  UninitializedError
 } from "@snickerdoodlelabs/objects";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import "reflect-metadata";
 import td from "testdouble";
 
 import {
-  dataWalletAddress,
-  testCoreConfig,
-  dataWalletKey,
+  dataWalletAddress, dataWalletKey, testCoreConfig
 } from "@core-tests/mock/mocks";
 import {
-  ContextProviderMock,
-  ConfigProviderMock,
+  ConfigProviderMock, ContextProviderMock
 } from "@core-tests/mock/utilities";
 import { avalance1SchemaStr } from "@core-tests/unit/business/query/avalanche1.data";
 import { QueryService } from "@core/implementations/business";
-import { IQueryService } from "@core/interfaces/business";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
 import {
   IConsentContractRepository,
   IInsightPlatformRepository,
-  ISDQLQueryRepository,
+  ISDQLQueryRepository
 } from "@core/interfaces/data";
 import {
   CoreConfig,
   CoreContext,
-  InsightString,
+  InsightString
 } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
 
@@ -81,7 +73,7 @@ class QueryServiceMocks {
         consentContractAddress,
         queryId,
         td.matchers.anything(),
-        JSON.stringify(insights),
+        insights,
       ),
     ).thenReturn(okAsync(0).map((result) => {})); // success
 
@@ -91,7 +83,7 @@ class QueryServiceMocks {
         consentContractAddress,
         queryId,
         td.matchers.anything(),
-        JSON.stringify(insightsError),
+        insightsError,
 
         // )).thenReturn({}); // success
       ),
@@ -268,7 +260,7 @@ describe("processQuery tests", () => {
     await queryService
       .processQuery(consentContractAddress, sdqlQuery)
       .andThen((result) => {
-        console.log("result", result);
+        //console.log("result", result);
         expect(result).toBeUndefined();
         // expect(result.isOk()).toBeTruthy();
         return okAsync(true);

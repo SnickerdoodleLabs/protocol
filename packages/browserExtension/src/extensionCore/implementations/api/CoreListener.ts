@@ -1,6 +1,3 @@
-import { ICoreListener } from "@interfaces/api";
-import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
-import { BrowserUtils } from "@enviroment/shared/utils";
 import {
   DataWalletAddress,
   EVMAccountAddress,
@@ -14,6 +11,10 @@ import {
 import { inject, injectable } from "inversify";
 import { ok, okAsync, ResultAsync } from "neverthrow";
 import Browser from "webextension-polyfill";
+
+import { BrowserUtils } from "@enviroment/shared/utils";
+import { ICoreListener } from "@interfaces/api";
+import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 
 @injectable()
 export class CoreListener implements ICoreListener {
@@ -49,11 +50,18 @@ export class CoreListener implements ICoreListener {
   }
 
   private onAccountAdded(account: EVMAccountAddress) {
+    this.contextProvider.addAccount(account);
     console.log("onAccountAdded", account);
     return okAsync(undefined);
   }
 
   private onQueryPosted(request: SDQLQueryRequest) {
+    
+    console.log(
+      `onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+    );
+    console.debug(request.query.query);
+
     // @TODO - remove once ipfs issue is resolved
     const getStringQuery = () => {
       const queryObjOrStr = request.query.query;
@@ -66,10 +74,17 @@ export class CoreListener implements ICoreListener {
       return queryString;
     };
 
-    this.core.processQuery(request.consentContractAddress, {
-      cid: request.query.cid,
-      query: getStringQuery(),
-    });
+    this.core
+      .processQuery(request.consentContractAddress, {
+        cid: request.query.cid,
+        query: getStringQuery(),
+      })
+      .mapErr((e) => {
+        console.error(
+          `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+        );
+        console.error(e);
+      });
   }
 
   // Todo move logic to correct place

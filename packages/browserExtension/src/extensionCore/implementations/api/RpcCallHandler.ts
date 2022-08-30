@@ -18,6 +18,8 @@ import {
   ConsentConditions,
   UUID,
   InvitationDomain,
+  EVMContractAddress,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -56,6 +58,8 @@ import {
   IMetatransactionSignatureRequestCallbackParams,
   IAcceptInvitationParams,
   IRejectInvitationParams,
+  ILeaveCohortParams,
+  IInvitationDomainWithUUID,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -63,6 +67,9 @@ import {
   ExtensionMetatransactionError,
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import { mapToObj } from "@shared/utils/objectUtils";
+import { parse } from "tldts";
+import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -185,6 +192,19 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_LOCATION: {
         return new AsyncRpcResponseSender(this.getLocation(), res).call();
       }
+      case EExternalActions.GET_INVITATIONS_METADATA: {
+        return new AsyncRpcResponseSender(
+          this.getInvitationsMetadata(),
+          res,
+        ).call();
+      }
+      case EExternalActions.LEAVE_COHORT: {
+        const { consentContractAddress } = params as ILeaveCohortParams;
+        return new AsyncRpcResponseSender(
+          this.leaveCohort(consentContractAddress),
+          res,
+        ).call();
+      }
       // TODO move it to correct place
       case EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK: {
         const { nonce, id, metatransactionSignature } =
@@ -205,9 +225,9 @@ export class RpcCallHandler implements IRpcCallHandler {
         return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
       }
       case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
-        const { domain } = params as IGetInvitationWithDomainParams;
+        const { domain, path } = params as IGetInvitationWithDomainParams;
         return new AsyncRpcResponseSender(
-          this.getInvitationsByDomain(domain),
+          this.getInvitationsByDomain(domain, path),
           res,
         ).call();
       }
@@ -234,6 +254,11 @@ export class RpcCallHandler implements IRpcCallHandler {
 
       case EInternalActions.GET_STATE:
         return (res.result = this.contextProvider.getInternalState());
+      // TODO move it to correct place
+      case EExternalActions.GET_DATA_WALLET_ADDRESS:
+        return (res.result = this.contextProvider
+          .getAccountContext()
+          .getAccount());
       case EInternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED:
       case EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED: {
         return new AsyncRpcResponseSender(
@@ -246,20 +271,27 @@ export class RpcCallHandler implements IRpcCallHandler {
     }
   }
 
-  private getInvitationsByDomain(domain: DomainName): ResultAsync<
-    | (InvitationDomain & {
-        id: UUID;
-      })
-    | undefined,
+  private getInvitationsByDomain(
+    domain: DomainName,
+    url: string,
+  ): ResultAsync<
+    IInvitationDomainWithUUID | undefined,
     SnickerDoodleCoreError
   > {
     return this.invitationService
       .getInvitationByDomain(domain)
       .andThen((pageInvitations) => {
         console.log("pageInvitations", pageInvitations);
-        const pageInvitation = pageInvitations.find(
-          (value) => value.domainDetails.domain === domain,
-        );
+        const pageInvitation = pageInvitations.find((value) => {
+          const incomingUrl = value.url.replace(/^https?:\/\//, "");
+          const incomingUrlInfo = parse(incomingUrl);
+          if (!incomingUrlInfo.subdomain && parse(url).subdomain) {
+            return (
+              `${DEFAULT_SUBDOMAIN}.${incomingUrl.replace(/\/$/, "")}` === url
+            );
+          }
+          return incomingUrl.replace(/\/$/, "") === url;
+        });
         if (pageInvitation) {
           return this.invitationService
             .checkInvitationStatus(pageInvitation.invitation)
@@ -282,33 +314,24 @@ export class RpcCallHandler implements IRpcCallHandler {
           return okAsync(undefined);
         }
       });
-
-    /*  return this.invitationService
-      .getInvitationByDomain(domain)
-      .map((pageInvitations: PageInvitation[]) => {
-        const pageInvitation = pageInvitations.find(
-          (value) => value.domainDetails.domain === domain,
-        );
-        if (pageInvitation) {
-          return this.invitationService
-            .checkInvitationStatus(pageInvitation.invitation)
-            .map((status) => {
-              if (status === EInvitationStatus.New) {
-                const invitationUUID = this.contextProvider.addInvitation(
-                  pageInvitation.invitation,
-                );
-                return Object.assign(pageInvitation.domainDetails, {
-                  id: invitationUUID,
-                });
-              } else {
-                return undefined;
-              }
-            });
-        } else {
-          return undefined;
-        }
-      }); */
   }
+
+  private getInvitationsMetadata(): ResultAsync<
+    Record<EVMContractAddress, IOpenSeaMetadata>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationService.getInvitationsMetadata().map((res) => {
+      // since Map obj can not sent via rpc call we are converting to record
+      return mapToObj(res);
+    });
+  }
+
+  private leaveCohort(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.invitationService.leaveCohort(consentContractAddress);
+  }
+
   private acceptInvitation(
     consentConditions: ConsentConditions | null,
     id: UUID,

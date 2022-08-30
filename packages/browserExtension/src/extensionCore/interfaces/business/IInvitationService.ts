@@ -5,10 +5,11 @@ import {
   PageInvitation,
   DomainName,
   EVMContractAddress,
+  IOpenSeaMetadata,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";;
 
 export interface IInvitationService {
   checkInvitationStatus(
@@ -31,6 +32,11 @@ export interface IInvitationService {
   getInvitationByDomain(
     domain: DomainName,
   ): ResultAsync<PageInvitation[], SnickerDoodleCoreError>;
+
+  getInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    SnickerDoodleCoreError
+  >;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");

@@ -14,6 +14,8 @@ import {
   UninitializedError,
   PageInvitation,
   IPFSError,
+  IOpenSeaMetadata,
+  ConsentFactoryContractError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -76,6 +78,24 @@ export interface IInvitationService {
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
+    | IPFSError
+  >;
+
+  getAcceptedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | IPFSError
+  >;
+
+  getRejectedInvitationsMetadata(): ResultAsync<
+    Map<EVMContractAddress, IOpenSeaMetadata>,
+    | UninitializedError
+    | BlockchainProviderError
+    | ConsentContractError
+    | PersistenceError
     | IPFSError
   >;
 }

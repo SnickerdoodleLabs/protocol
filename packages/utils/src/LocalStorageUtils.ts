@@ -8,6 +8,7 @@ import { IStorageUtils } from "@utils/IStorageUtils";
 interface Dictionary<T> {
   [key: string]: T;
 }
+
 @injectable()
 export class LocalStorageUtils implements IStorageUtils {
   public remove<T = any>(

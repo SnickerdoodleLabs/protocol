@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Web3Provider } from "@ethersproject/providers";
 import { EVMAccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -17,9 +17,7 @@ export class MetamaskWalletProvider implements IWalletProvider {
 
   private get provider() {
     return (
-      // @ts-ignore
       window?.ethereum?.providers?.find?.((provider) => provider.isMetaMask) ??
-      // @ts-ignore
       (window?.ethereum?.isMetaMask && window.ethereum)
     );
   }
@@ -122,9 +120,9 @@ export class MetamaskWalletProvider implements IWalletProvider {
                 chainName: this.config.controlChain.name,
                 rpcUrls: this.config.controlChain.providerUrls,
                 nativeCurrency: {
-                  name: "DOODLE",
-                  decimals: 18,
-                  symbol: "DOODLE",
+                  name: this.config.controlChain.nativeCurrency.name,
+                  decimals: this.config.controlChain.nativeCurrency.decimals,
+                  symbol: this.config.controlChain.nativeCurrency.symbol,
                 },
               },
             ]),

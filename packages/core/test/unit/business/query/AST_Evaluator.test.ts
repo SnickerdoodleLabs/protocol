@@ -29,7 +29,9 @@ import {
   ConditionL,
   ConditionOr,
 } from "@core/interfaces/objects";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { IQueryFactories, IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 
 // const ast = new AST(
 //     Version("0.1"),
@@ -39,20 +41,24 @@ import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
 class ASTMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
+  public queryObjectFactory = td.object<IQueryObjectFactory>();
+
   public queryFactories: IQueryFactories;
   //   protected queryRepository = td.object<IQueryRepository>();
   public queryRepository: QueryRepository;
   public queryEvaluator: QueryEvaluator;
+  public balanceQueryEvaluator: IBalanceQueryEvaluator;
 
   public constructor() {
-    this.queryFactories = new QueryFactories();
+    this.queryFactories = new QueryFactories(this.queryObjectFactory);
+    this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.persistenceRepo);
 
     td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(
       okAsync(CountryCode("1")),
     );
 
-    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo);
+    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator);
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }
 

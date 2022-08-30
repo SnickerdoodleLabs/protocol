@@ -1,17 +1,12 @@
 import "reflect-metadata";
-import { AxiosAjaxUtils, CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
-import { SnickerdoodleCore, ConfigProvider } from "@snickerdoodlelabs/core";
-import {
-  DefaultAccountBalances,
-  DefaultAccountNFTs,
-} from "@snickerdoodlelabs/indexers";
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
   Age,
   AjaxError,
   BlockchainProviderError,
   CrumbsContractError,
-  Invitation,
   ConsentContractError,
   ConsentContractRepositoryError,
   DomainName,
@@ -23,7 +18,6 @@ import {
   InvalidSignatureError,
   LanguageCode,
   PersistenceError,
-  TokenId,
   UninitializedError,
   UnsupportedLanguageError,
   Signature,
@@ -34,7 +28,6 @@ import {
   CountryCode,
   SDQLString,
   PageInvitation,
-  EVMTransactionFilter,
   SiteVisit,
   URLString,
   UnixTimestamp,
@@ -42,12 +35,10 @@ import {
   SDQLQueryRequest,
   EVMTransaction,
 } from "@snickerdoodlelabs/objects";
-import { DataWalletPersistence } from "@snickerdoodlelabs/persistence";
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import { LocalStorageUtils } from "@snickerdoodlelabs/utils";
 import { BigNumber, ethers } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -92,6 +83,19 @@ const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
 
+// find all errors
+import process from 'node:process';
+process
+  .on('unhandledRejection', (reason, p) => {
+    console.error(reason, 'Unhandled Rejection at Promise', p);
+    process.exit(1);
+  })
+  .on('uncaughtException', err => {
+    console.error(err, 'Uncaught Exception thrown');
+    process.exit(1);
+  });
+
+
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
     console.log(`Added account: ${addedAccount}`);
@@ -106,13 +110,14 @@ core.getEvents().map(async (events) => {
       `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
     );
 
+    /*
     const queryPretty = JSON.stringify(
-      JSON.parse(queryRequest.query.query),
+      (queryRequest.query.query),
       null,
       2,
     );
     console.log(queryPretty);
-    // console.log(queryRequest.query);
+    */
 
     prompt([
       {
@@ -163,7 +168,7 @@ core.getEvents().map(async (events) => {
         to: request.contractAddress, // Contract address for the metatransaction
         from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
         value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-        gas: BigNumber.from(1000000), // The amount of gas to pay.
+        gas: BigNumber.from(10000000), // The amount of gas to pay.
         nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
         data: request.data, // The actual bytes of the request, encoded as a hex string
       } as IMinimalForwarderRequest;
@@ -212,8 +217,6 @@ function mainPrompt(): ResultAsync<void, Error> {
       name: "main",
       message: "Please select a course of action:",
       choices: [
-        { name: "Nothing", value: "nothing" },
-        new inquirer.Separator(),
         { name: "Core", value: "core" },
         new inquirer.Separator(),
         {
@@ -221,6 +224,7 @@ function mainPrompt(): ResultAsync<void, Error> {
           value: "simulator",
         },
         new inquirer.Separator(),
+        { name: "Nothing", value: "nothing" },
         { name: "Exit", value: "exit", short: "e" },
       ],
     },
@@ -253,6 +257,8 @@ function corePrompt(): ResultAsync<void, Error> {
       value: "optOutCampaign",
     },
     new inquirer.Separator(),
+    { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
+    { name: "Add AccountBalance - SOL", value: "Add AccountBalance - SOL" },
     { name: "Set Age to 15", value: "setAge to 15" },
     { name: "Set Age to 0", value: "setAge to 0" },
     { name: "Get Age", value: "getAge" },
@@ -535,6 +541,58 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                     },
                   },
                 },
+                q7: {
+                  name: "balance",
+                  networkid: "42",
+                  conditions: {
+                    ge: 10,
+                  },
+                  return: "array",
+                  array_items: {
+                    type: "object",
+                    object_schema: {
+                      properties: {
+                        networkid: {
+                          type: "integer",
+                        },
+                        address: {
+                          type: "string",
+                          pattern: "^0x[a-fA-F0-9]{40}$",
+                        },
+                        balance: {
+                          type: "number",
+                        },
+                      },
+                      required: ["networkid", "address", "balance"],
+                    },
+                  },
+                },
+                q8: {
+                  name: "balance",
+                  networkid: "*",
+                  conditions: {
+                    ge: 10,
+                  },
+                  return: "array",
+                  array_items: {
+                    type: "object",
+                    object_schema: {
+                      properties: {
+                        networkid: {
+                          type: "integer",
+                        },
+                        address: {
+                          type: "string",
+                          pattern: "^0x[a-fA-F0-9]{40}$",
+                        },
+                        balance: {
+                          type: "number",
+                        },
+                      },
+                      required: ["networkid", "address", "balance"],
+                    },
+                  },
+                },
               },
               returns: {
                 r1: {
@@ -561,6 +619,14 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   name: "query_response",
                   query: "q6",
                 },
+                r7: {
+                  name: "query_response",
+                  query: "q7",
+                },
+                r8: {
+                  name: "query_response",
+                  query: "q8",
+                },
                 url: "https://418e-64-85-231-39.ngrok.io/insights",
               },
               compensations: {
@@ -585,14 +651,88 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   "$r4",
                   "$r5",
                   "$r6",
+                  "$r7",
+                  "$r8",
                 ],
                 compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
               },
             }),
           );
         } else if (queryId === 2) {
-          console.log("Query 2 currently does not exist");
-          queryText = SDQLString("{}");
+          queryText = SDQLString(
+            JSON.stringify({
+              version: 0.1,
+              timestamp: "<this should be populated with GMT>",
+              description: "///This should dynamically populate",
+              business: "/////This should dynamically populate",
+              queries: {
+                q1: {
+                  name: "url_visited_count",
+                  return: "object",
+                  object_schema: {
+                    patternProperties: {
+                      "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$":
+                        {
+                          type: "integer",
+                        },
+                    },
+                  },
+                },
+                q2: {
+                  name: "chain_transaction_count",
+                  return: "object",
+                  object_schema: {
+                    patternProperties: {
+                      "^ETH|AVAX|SOL$": {
+                        type: "integer",
+                      },
+                    },
+                  },
+                },
+                q3: {
+                  name: "balance",
+                  networkid: "*",
+                  return: "array",
+                  array_items: {
+                    type: "object",
+                    object_schema: {
+                      properties: {
+                        address: {
+                          type: "string",
+                        },
+                        networkId: {
+                          type: "integer",
+                        },
+                        balance: {
+                          type: "number",
+                        },
+                      },
+                      required: ["networkId", "balance"],
+                    },
+                  },
+                },
+              },
+              returns: {
+                r1: {
+                  name: "query_response",
+                  query: "q1",
+                },
+                r2: {
+                  name: "query_response",
+                  query: "q2",
+                },
+                r3: {
+                  name: "query_response",
+                  query: "q3",
+                },
+                url: "/////This should dynamically populate",
+              },
+              logic: {
+                returns: ["$r1", "$r2", "$r3"],
+                compensations: [],
+              },
+            }),
+          );
         }
 
         return simulator.postQuery(contractAddress, queryText);
@@ -637,6 +777,7 @@ function unlockCore(): ResultAsync<
         .getUnlockMessage(languageCode)
         .andThen((message) => {
           // Sign the message
+
           return cryptoUtils.signMessage(
             message,
             EVMPrivateKey(wallet._signingKey().privateKey),

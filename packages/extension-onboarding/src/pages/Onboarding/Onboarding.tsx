@@ -1,17 +1,12 @@
-import { Box } from "@material-ui/core";
-import React, { useState } from "react";
-
-import ProfileCreation from "./ProfileCreation";
-import AccountLinking from "./AccountLinking/AccountLinking";
-
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import { useEffect } from "react";
-import { useAppContext } from "@extension-onboarding/context/App";
-import OnboardingWelcome from "./OnboardingWelcome";
-import ViewData from "@extension-onboarding/pages/Onboarding/ViewData/ViewData";
-import { useStyles } from "@extension-onboarding/pages/Onboarding/Onboarding.style";
 import ProgressBar from "@extension-onboarding/components/ProgressBar/ProgressBar";
-import ViewAccountDetails from "./ViewAccountDetails";
+import { useAppContext } from "@extension-onboarding/context/App";
+import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking/AccountLinking";
+import OnboardingWelcome from "@extension-onboarding/pages/Onboarding/OnboardingWelcome";
+import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
+import ViewData from "@extension-onboarding/pages/Onboarding/ViewData/ViewData";
+import { Box } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
 
 export default function Onboarding() {
   const { stepperStatus } = useAppContext();
@@ -27,23 +22,21 @@ export default function Onboarding() {
       <AccountLinking />,
       <ProfileCreation />,
       <ViewData />,
-      <ViewAccountDetails />,
     ];
     return stateArray[value];
   };
 
-  const classes = useStyles();
   return (
-    <Box display="flex" justifyContent="center">
-      <Box>
-        {progressValue !== 0 && <img src={snickerDoodleLogo} />}
-        {progressValue === 0 || progressValue === 4 ? (
-          ""
-        ) : (
+    <Box>
+      {progressValue === 0 ? (
+        returnState(progressValue)
+      ) : (
+        <Box bgcolor="#fff" py={8} px={15}>
+          <img src={snickerDoodleLogo} />
           <ProgressBar progressStatus={progressValue} />
-        )}
-        {returnState(progressValue)}
-      </Box>
+          {returnState(progressValue)}
+        </Box>
+      )}
     </Box>
   );
 }
