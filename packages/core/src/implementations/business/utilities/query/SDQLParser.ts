@@ -34,9 +34,10 @@ import {
   SDQLSchema,
 } from "@core/interfaces/objects";
 import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+import { ResultUtils } from "neverthrow-result-utils";
 
 export class SDQLParser {
-  
+
   public context = new Map<string, ParserContextDataTypes>();
   public queries = new Map<SDQL_Name, AST_Query>();
   public returns: AST_Returns | null;
@@ -44,7 +45,7 @@ export class SDQLParser {
   public logicReturns = new Map<string, AST_Expr | Command>();
   public logicCompensations = new Map<string, AST_Expr | Command>();
   public returnPermissions = new Map<string, DataPermissions>();
-  public compenstationPermissions = new Map<string, DataPermissions>();
+  public compensationPermissions = new Map<string, DataPermissions>();
 
   public exprParser: ExprParser | null = null;
 
@@ -87,6 +88,14 @@ export class SDQLParser {
 
     // this.parseLogic();
 
+    // return ResultUtils.executeSerially<void([
+    //   this.parseQueries(),
+    //   this.parseReturns(),
+    //   this.parseCompensations(),
+    //   this.parseLogic(),
+    //   this.parsePermissions()
+    // ]);
+
     return this.parseQueries().andThen(() => {
       return this.parseReturns().andThen(() => {
         return this.parseCompensations().andThen(() => {
@@ -118,7 +127,7 @@ export class SDQLParser {
             this.logicReturns,
             this.logicCompensations,
             this.returnPermissions,
-            this.compenstationPermissions,
+            this.compensationPermissions,
           ),
         ),
       );
@@ -156,6 +165,8 @@ export class SDQLParser {
             break;
         }
       }
+
+      // return okAsync(queries
 
       for (const query of queries) {
         this.saveInContext(query.name, query);
@@ -325,7 +336,7 @@ export class SDQLParser {
       this.returnPermissions = this.parseLogicPermissions(
         logicSchema["returns"],
       );
-      this.compenstationPermissions = this.parseLogicPermissions(
+      this.compensationPermissions = this.parseLogicPermissions(
         logicSchema["compensations"],
       );
       return okAsync(undefined);
@@ -355,40 +366,14 @@ export class SDQLParser {
     return new DataPermissions(flags);
   }
 
-  public getQueryPermissionFlag(query: AST_Query): number {
+  public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
     switch (query.constructor) {
       case AST_NetworkQuery:
         return EWalletDataType.EVMTransactions;
       case AST_BalanceQuery:
         return EWalletDataType.AccountBalances;
       case AST_PropertyQuery:
-        const propQuery = query as AST_PropertyQuery;
-        switch (propQuery.property) {
-          case "age":
-            return EWalletDataType.Age;
-          case "gender":
-            return EWalletDataType.Gender;
-          case "givenName":
-            return EWalletDataType.GivenName;
-          case "familyName":
-            return EWalletDataType.FamilyName;
-          case "birthday":
-            return EWalletDataType.Birthday;
-          case "email":
-            return EWalletDataType.Email;
-          case "location":
-            return EWalletDataType.Location;
-          case "browsing_history":
-            return EWalletDataType.SiteVisits;
-          case "url_visited_count":
-            return EWalletDataType.SiteVisits;
-          case "chain_transaction_count":
-            return EWalletDataType.EVMTransactions;
-          default:
-            const err = new MissingWalletDataTypeError(propQuery.property);
-            console.error(err);
-            throw err;
-        }
+        return this.getPropertyQueryPermissionFlag(query);
       default:
         const err = new MissingWalletDataTypeError(query.constructor.name);
         console.error(err);
@@ -396,5 +381,35 @@ export class SDQLParser {
     }
   }
 
+
+  private getPropertyQueryPermissionFlag(query: AST_Query) {
+    const propQuery = query as AST_PropertyQuery;
+    switch (propQuery.property) {
+      case "age":
+        return EWalletDataType.Age;
+      case "gender":
+        return EWalletDataType.Gender;
+      case "givenName":
+        return EWalletDataType.GivenName;
+      case "familyName":
+        return EWalletDataType.FamilyName;
+      case "birthday":
+        return EWalletDataType.Birthday;
+      case "email":
+        return EWalletDataType.Email;
+      case "location":
+        return EWalletDataType.Location;
+      case "browsing_history":
+        return EWalletDataType.SiteVisits;
+      case "url_visited_count":
+        return EWalletDataType.SiteVisits;
+      case "chain_transaction_count":
+        return EWalletDataType.EVMTransactions;
+      default:
+        const err = new MissingWalletDataTypeError(propQuery.property);
+        console.error(err);
+        throw err;
+    }
+  }
   // #endregion
 }
