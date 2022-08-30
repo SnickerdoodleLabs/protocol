@@ -40,7 +40,6 @@ export class SDQLParser {
   queries: Map<SDQL_Name, AST_Query> = new Map();
   returns: AST_Returns | null;
   compensations: Map<SDQL_Name, AST_Compensation> = new Map();
-  yarn;
   logicReturns: Map<string, AST_Expr | Command> = new Map();
   logicCompensations: Map<string, AST_Expr | Command> = new Map();
   returnPermissions: Map<string, DataPermissions> = new Map();
