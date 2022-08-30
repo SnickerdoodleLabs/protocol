@@ -1,14 +1,41 @@
+import BrokenImageIcon from "@material-ui/icons/BrokenImage";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardsInfo/components/RewardItem/RewardItem.style";
-import { Box, Grid, Typography } from "@material-ui/core";
-import { IOpenSeaMetadata } from "@snickerdoodlelabs/objects";
-import React, { FC } from "react";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { Box, Grid, Icon, Typography } from "@material-ui/core";
+import { Skeleton } from "@material-ui/lab";
+import { IOpenSeaMetadata, IpfsCID } from "@snickerdoodlelabs/objects";
+import React, { FC, useEffect, useState } from "react";
 
+declare const window: IWindowWithSdlDataWallet;
 interface IRewardItemProps {
-  rewardItem: IOpenSeaMetadata;
+  rewardCID: IpfsCID;
   onLeaveClick: () => void;
 }
-const RewardItem: FC<IRewardItemProps> = ({ rewardItem, onLeaveClick }) => {
+const RewardItem: FC<IRewardItemProps> = ({ rewardCID, onLeaveClick }) => {
+  const [rewardItem, setRewardItem] = useState<IOpenSeaMetadata>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const classes = useStyles();
+
+  useEffect(() => {
+    getRewardItem();
+  }, []);
+
+  useEffect(() => {
+    if (rewardItem) {
+      setIsLoading(false);
+    }
+  }, [JSON.stringify(rewardItem)]);
+
+  const getRewardItem = () => {
+    window.sdlDataWallet
+      .getInvitationMetadataByCID(rewardCID)
+      .map((metadata) => {
+        setRewardItem(metadata);
+      })
+      .mapErr((e) => {
+        setIsLoading(false);
+      });
+  };
 
   return (
     <Grid item xs={12} sm={3}>
@@ -22,16 +49,30 @@ const RewardItem: FC<IRewardItemProps> = ({ rewardItem, onLeaveClick }) => {
         borderRadius={8}
       >
         <Box mx="auto" p={2} width="calc(100% - 32px)">
-          <img
-            width="100%"
-            style={{ aspectRatio: "4/3", objectFit: "cover" }}
-            src={rewardItem.image}
-          />
+          {rewardItem ? (
+            <img className={classes.image} src={rewardItem.image} />
+          ) : isLoading ? (
+            <Box className={classes.imageLoader}>
+              <Skeleton variant="rect" width="100%" height="100%" />
+            </Box>
+          ) : (
+            <Box className={classes.imageLoader}>
+              <BrokenImageIcon className={classes.brokenImageIcon} />
+            </Box>
+          )}
         </Box>
 
         <Box>
           <Typography className={classes.name}>
-            {rewardItem.rewardName}
+            {rewardItem ? (
+              rewardItem.rewardName
+            ) : isLoading ? (
+              <Box px={2}>
+                <Skeleton />
+              </Box>
+            ) : (
+              " "
+            )}
           </Typography>
         </Box>
         <Box mt={1} mb={2}>

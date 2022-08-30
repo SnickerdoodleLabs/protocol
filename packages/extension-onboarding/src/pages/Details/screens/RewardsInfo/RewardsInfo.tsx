@@ -2,18 +2,15 @@ import RewardItem from "@extension-onboarding/pages/Details/screens/RewardsInfo/
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardsInfo/RewardsInfo.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
-import {
-  EVMContractAddress,
-  IOpenSeaMetadata,
-} from "@snickerdoodlelabs/objects";
+import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 
 const RewardsInfo: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [rewardMetaData, setRewardMetaData] =
-    useState<Record<EVMContractAddress, IOpenSeaMetadata>>();
+  const [rewardContractAddressesWithCID, setRewardContractAddressesWithCID] =
+    useState<Record<EVMContractAddress, IpfsCID>>();
 
   useEffect(() => {
     getInvitations();
@@ -21,16 +18,16 @@ const RewardsInfo: FC = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  }, [JSON.stringify(rewardMetaData)]);
+  }, [JSON.stringify(rewardContractAddressesWithCID)]);
 
   const getInvitations = () => {
     return window.sdlDataWallet
-      .getInvitationsMetadata()
+      .getAcceptedInvitationsCID()
       .mapErr((e) => {
         setIsLoading(false);
       })
       .map((metaData) => {
-        setRewardMetaData(metaData);
+        setRewardContractAddressesWithCID(metaData);
       });
   };
 
@@ -42,9 +39,9 @@ const RewardsInfo: FC = () => {
         setIsLoading(false);
       })
       .map(() => {
-        const metadata = { ...rewardMetaData };
+        const metadata = { ...rewardContractAddressesWithCID };
         delete metadata[consentContractAddress];
-        setRewardMetaData(metadata);
+        setRewardContractAddressesWithCID(metadata);
       });
   };
 
@@ -61,14 +58,14 @@ const RewardsInfo: FC = () => {
         </Box>
       ) : (
         <Grid container spacing={2}>
-          {rewardMetaData &&
-            Object.keys(rewardMetaData)?.map((key, index) => (
+          {rewardContractAddressesWithCID &&
+            Object.keys(rewardContractAddressesWithCID)?.map((key, index) => (
               <RewardItem
                 onLeaveClick={() => {
                   onLeaveClick(key as EVMContractAddress);
                 }}
                 key={index}
-                rewardItem={rewardMetaData[key]}
+                rewardCID={rewardContractAddressesWithCID[key]}
               />
             ))}
         </Grid>
