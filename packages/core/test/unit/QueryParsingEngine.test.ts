@@ -202,11 +202,13 @@ describe("Tests with data permissions", () => {
   });
 });
 
-describe.only("Testing avalance 4", () => {
+describe("Testing avalance 4", () => {
 
   test("avalance 4", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
+
+    const expectedInsights = ['not qualified', '1', 'female', new Map(), new Map(), [], []]; // 7 return expressions
 
     // console.log(sdqlQuery4);
 
@@ -216,6 +218,7 @@ describe.only("Testing avalance 4", () => {
         // console.log("Why not printed")
 
         // console.log('insights', insights);
+        expect(insights).toEqual(expectedInsights);
         expect(insights.length > 0).toBeTruthy();
         return okAsync(undefined);
 

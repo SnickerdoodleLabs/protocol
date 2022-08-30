@@ -36,18 +36,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryRepository: IQueryRepository,
   ) {}
 
-  /**
-   * public handleQuery(cid, schemaString): {"returns":
-   *                                                {"orignalExp": value, "$r3": vallue},
-   *                                         "compensations":{}...
-   *                                        }
-   * {
-   * 1. create the SDQLParser and ast
-   * 2. iterate over ast.logic.returns and evaluate every returnAST (astEvaluator.evalAny(returnAST))
-   * 3. iterate over ast.logic.compensations and evaluate every compensationAST.
-   * }
-   */
-
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
@@ -55,7 +43,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     [InsightString[], EligibleReward[]] | never,
     EvaluationError | QueryFormatError
   > {
-    console.log("QueryParsingEngine.handleQuery");
+    // console.log("QueryParsingEngine.handleQuery");
 
     const rewards: EligibleReward[] = [];
     const schemaString = query.query;
@@ -76,7 +64,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         return ResultUtils.combine(
           this.evalReturns(ast, dataPermissions, astEvaluator),
         ).andThen((insightResults) => {
-          console.log(insightResults);
+          // console.log('insightResults', insightResults);
 
           const insights = insightResults.map((sdqlR) => {
             return InsightString(sdqlR as string);
