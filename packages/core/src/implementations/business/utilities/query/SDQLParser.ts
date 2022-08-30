@@ -36,16 +36,17 @@ import {
 import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
 
 export class SDQLParser {
-  context: Map<string, ParserContextDataTypes> = new Map();
-  queries: Map<SDQL_Name, AST_Query> = new Map();
-  returns: AST_Returns | null;
-  compensations: Map<SDQL_Name, AST_Compensation> = new Map();
-  logicReturns: Map<string, AST_Expr | Command> = new Map();
-  logicCompensations: Map<string, AST_Expr | Command> = new Map();
-  returnPermissions: Map<string, DataPermissions> = new Map();
-  compenstationPermissions: Map<string, DataPermissions> = new Map();
+  
+  public context = new Map<string, ParserContextDataTypes>();
+  public queries = new Map<SDQL_Name, AST_Query>();
+  public returns: AST_Returns | null;
+  public compensations = new Map<SDQL_Name, AST_Compensation>();
+  public logicReturns = new Map<string, AST_Expr | Command>();
+  public logicCompensations = new Map<string, AST_Expr | Command>();
+  public returnPermissions = new Map<string, DataPermissions>();
+  public compenstationPermissions = new Map<string, DataPermissions>();
 
-  exprParser: ExprParser | null = null;
+  public exprParser: ExprParser | null = null;
 
   constructor(
     readonly cid: IpfsCID,

@@ -29,9 +29,9 @@ export class ExprParser {
    * IF ::= "if" WS Condition "then" WS Expr "else" WS Expr
    */
 
-  precedence: Map<TokenType, Array<TokenType>> = new Map();
-  id = 0;
-  tokenToExpMap: Map<TokenType, Function> = new Map();
+  protected precedence: Map<TokenType, Array<TokenType>> = new Map();
+  protected id = 0;
+  protected tokenToExpMap: Map<TokenType, Function> = new Map();
 
   constructor(readonly context: Map<string, ParserContextDataTypes>) {
     this.precedence.set(
@@ -363,7 +363,7 @@ export class ExprParser {
       if (token.type == TokenType.query) {
         
         deps.push(this.getExecutableFromContext(token) as AST_Query);
-        
+
       } else if (token.type == TokenType.return) {
 
         const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
