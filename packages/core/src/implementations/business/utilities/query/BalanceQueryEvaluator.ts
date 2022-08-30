@@ -39,8 +39,11 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         if (query.networkId == null) {
           return okAsync(balances);
         }
+
+        const networkBalances =  balances.filter((balance) => balance.chainId == query.networkId);
+        // console.log('networkBalances', networkBalances);
         return okAsync(
-          balances.filter((balance) => balance.chainId == query.networkId),
+          networkBalances
         );
       })
       .andThen((excessValues) => {
@@ -87,10 +90,11 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       switch (condition.constructor) {
         case ConditionGE:
           val = BigNumber.from((condition as ConditionGE).rval);
-          //console.log("val: ", val.toNumber());
+          // console.log("val: ", val);
+          // console.log("balanceArray: ", balanceArray);
           balanceArray = balanceArray.filter(
             (balance) =>
-              BigNumber.from(balance.balance).toNumber() >= val.toNumber(),
+              BigNumber.from(balance.balance).gte(val),
           );
           //console.log("BalanceArray: ", balanceArray);
           break;
@@ -99,7 +103,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           //console.log("val: ", val.toNumber());
           balanceArray = balanceArray.filter(
             (balance) =>
-              BigNumber.from(balance.balance).toNumber() > val.toNumber(),
+              BigNumber.from(balance.balance).gt(val),
           );
           break;
         case ConditionL:
@@ -107,7 +111,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           //console.log("val: ", val.toNumber());
           balanceArray = balanceArray.filter(
             (balance) =>
-              BigNumber.from(balance.balance).toNumber() < val.toNumber(),
+              BigNumber.from(balance.balance).lt(val),
           );
           break;
         case ConditionE:
@@ -115,7 +119,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           //console.log("val: ", val.toNumber());
           balanceArray = balanceArray.filter(
             (balance) =>
-              BigNumber.from(balance.balance).toNumber() == val.toNumber(),
+              BigNumber.from(balance.balance).eq(val),
           );
           break;
         case ConditionLE:
@@ -123,7 +127,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           //console.log("val: ", val.toNumber());
           balanceArray = balanceArray.filter(
             (balance) =>
-              BigNumber.from(balance.balance).toNumber() <= val.toNumber(),
+              BigNumber.from(balance.balance).lte(val),
           );
           break;
 
@@ -151,9 +155,8 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         if (getObject !== undefined) {
           obj = getObject;
         }
-        obj.balance = BigNumber.from(
-          obj.balance.toNumber() + d.balance.toNumber(),
-        );
+        obj.balance = obj.balance.add(d.balance);
+
         balanceMap.set(d.address, obj);
       } else {
         balanceMap.set(d.address, {
