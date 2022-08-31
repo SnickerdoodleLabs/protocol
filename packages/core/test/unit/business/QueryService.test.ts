@@ -204,7 +204,7 @@ describe("processQuery tests", () => {
   });
 
   test("deliverInsights success", async () => {
-    mocks.contextProvider
+     await mocks.contextProvider
       .getContext()
       .andThen((context) => {
         // const copyContext:CoreContext = {...(context as CoreContext)};
@@ -219,16 +219,55 @@ describe("processQuery tests", () => {
           insights,
         );
       })
-      .then((result) => {
+      .then(() => {
         // console.log('result', result);
-        expect(result.isOk()).toBeTruthy();
+        // expect(result.isOk()).toBeTruthy();
       });
 
     // expect(r).toBeUndefined();
   });
 
+  test.only("deliverInsights success data ", async () => {
+
+    const results = [
+      InsightString('a'), InsightString('b')
+    ]
+    td.when(
+      mocks.insightPlatformRepo.deliverInsights(
+        td.matchers.anything(),
+        consentContractAddress,
+        queryId,
+        td.matchers.anything(),
+        results,
+      ),
+    ).thenReturn(okAsync(0).map((result) => {})); // success
+
+
+    await mocks.contextProvider
+      .getContext()
+      .andThen((context) => {
+        // const copyContext:CoreContext = {...(context as CoreContext)};
+        // copyContext.dataWalletKey = mocks.dataWalletKey;
+        // copyContext.dataWalletAddress = mocks.dataWalletAddress;
+
+        return queryService.deliverInsights(
+          context,
+          testCoreConfig,
+          consentContractAddress,
+          queryId,
+          results,
+        );
+      })
+      .mapErr((err) => {
+        fail(err.message)
+      });
+    // expect(r).toBeUndefined();
+  });
+
+
+
   test("deliverInsights fail", async () => {
-    ResultUtils.combine([
+    await ResultUtils.combine([
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig(),
     ])

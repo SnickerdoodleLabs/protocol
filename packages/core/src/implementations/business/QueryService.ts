@@ -253,6 +253,14 @@ export class QueryService implements IQueryService {
           signature,
           insights,
         );
+        // comment out this to capture the request data to insight platform
+        console.log({
+          consentContractId: consentContractAddress,
+          queryId: queryId,
+          dataWallet: context.dataWalletAddress as DataWalletAddress,
+          returns: insights,
+          signature: signature,
+        })
 
         // console.log('res', res);
         return res;
