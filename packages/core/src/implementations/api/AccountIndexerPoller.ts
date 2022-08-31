@@ -29,6 +29,12 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
       }, config.accountIndexingPollingIntervalMS);
 
+      setInterval(() => {
+        this.monitoringService.pollBackups().mapErr((e) => {
+          this.logUtils.error(e);
+        });
+      }, config.dataWalletBackupIntervalMS);
+
       // setInterval(() => {
       //   this.monitoringService.pollBalances().mapErr((e) => {
       //     this.logUtils.error(e);

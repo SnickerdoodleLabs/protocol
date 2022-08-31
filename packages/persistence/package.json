@@ -29,14 +29,23 @@
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "compile": "tsc --build && cd ../.. && yarn alias",
     "test": "yarn test:ci",
-    "test:ci": "jest --runInBand --coverage --passWithNoTests",
-    "test:watch": "jest --watch --color --detectOpenHandles"
+    "test:ci": "npx jest --runInBand --coverage --passWithNoTests",
+    "test:watch": "npx jest --watch --color --detectOpenHandles"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/objects": ">=0.0.1",
-    "@snickerdoodlelabs/utils": ">=0.0.1",
+    "@ceramicnetwork/blockchain-utils-linking": "^2.0.10",
+    "@ceramicnetwork/http-client": "^2.3.3",
+    "@glazed/datamodel": "^0.3.1",
+    "@glazed/did-datastore": "^0.3.2",
+    "@snickerdoodlelabs/common-utils": "workspace:^",
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/utils": "workspace:^",
+    "dids": "^3.3.0",
     "inversify": "^5.1.1",
+    "ipfs-only-hash": "^4.0.0",
+    "key-did-provider-ed25519": "^2.0.1",
+    "key-did-resolver": "^2.1.0",
     "neverthrow": "^4.2.2"
   }
 }
