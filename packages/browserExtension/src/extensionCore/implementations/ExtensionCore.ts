@@ -80,10 +80,9 @@ export class ExtensionCore {
 
     this.core = new SnickerdoodleCore(
       coreConfig,
-      undefined,
-      undefined,
-      undefined,
       new ChromeStorageUtils(),
+      undefined,
+      undefined,
     );
 
     // Make the core directly injectable
