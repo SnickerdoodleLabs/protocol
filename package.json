@@ -47,7 +47,8 @@
     "prepare-for-publish": "cd packages/objects && yarn build && cd ../gateway-connector && yarn build && cd ../utils && yarn build && cd ../hypernet-core && yarn build && cd ../web-ui && yarn build && cd ../web-integration && yarn build && cd ../",
     "setup-windows": "yarn install --global --production windows-build-tools",
     "start": "docker-compose up",
-    "test": "yarn workspaces foreach -p run test"
+    "test": "yarn workspaces foreach -p run test",
+    "initCeramic": "npx run scripts/ceramic_init.mjs"
   },
   "husky": {
     "hooks": {
@@ -69,6 +70,7 @@
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
     "@babel/runtime": "^7.8.4",
+    "@ceramicstudio/idx-tools": "^0.11.0",
     "@cucumber/cucumber": "^7.0.0",
     "@glazed/devtools": "^0.2.0",
     "@material-ui/core": "4.12.3",

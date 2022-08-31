@@ -5,7 +5,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface ICloudStorage {
-  putBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  putBackup(backup: IDataWalletBackup): ResultAsync<string, PersistenceError>;
   pollBackups(
     startTime: number,
   ): ResultAsync<IDataWalletBackup[], PersistenceError>;
