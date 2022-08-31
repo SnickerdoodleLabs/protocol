@@ -1,11 +1,32 @@
 {
     "version": 0.1,
+    "timestamp": "8-31-2022 14:31:14",
+    "expiry": "9-31-2022 14:31:14",
     "description": "NFT received on the Ethereum blockchain by US residents who visted Facebook and Crabada",
     "business": "Shrapnel",
     "queries": {
         "q1": {
             "name": "network",
-            "return": "boolean",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },   
             "chain": "ETH",
             "contract": {
                 "networkid": "1",
@@ -31,11 +52,10 @@
         "q3": {
             "name": "browsing_history",
             "return": "boolean",
-            "conditions":
-            {
-                "has":{
-                    "https://www.crabada.com":30,
-                    "https://www.facebook.com":5                
+            "conditions": {
+                "has": {
+                    "https://www.crabada.com": 30,
+                    "https://www.facebook.com": 5
                 }
             }
         }
@@ -51,18 +71,24 @@
         },
         "url": "https://418e-64-85-231-39.ngrok.io/insights"
     },
-    "compensations":{
-        "c1":{
+    "compensations": {
+        "c1": {
             "description": "10% discount code for Starbucks",
             "callback": "https://418e-64-85-231-39.ngrok.io/starbucks"
         },
-        "c2":{
+        "c2": {
             "description": "participate in the draw to win a CryptoPunk NFT",
             "callback": "https://418e-64-85-231-39.ngrok.io/cryptopunkdraw"
         }
     },
-    "logic":{
-        "returns": ["if($q1and$q2and$q3)then$r1else$r2"],
-        "compensations": ["if$q1then$c1", "if$q2then$c2", "if$q3then$c2"]
+    "logic": {
+        "returns": [
+            "if($q1and$q2and$q3)then$r1else$r2"
+        ],
+        "compensations": [
+            "if$q1then$c1",
+            "if$q2then$c2",
+            "if$q3then$c2"
+        ]
     }
 }

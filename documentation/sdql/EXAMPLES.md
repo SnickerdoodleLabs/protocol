@@ -7,12 +7,33 @@ This example queries transaction history on the Avalanche mainnet for an ERC-20 
 ```
 {
     "version": 0.1,
+    "timestamp": "8-31-2022 14:31:14",
+    "expiry" : "9-31-2022 14:31:14",
     "description": "Interactions with the Avalanche blockchain for 15-year and older individuals",
     "business": "Shrapnel",
     "queries": {
         "q1": {
             "name": "network",
-            "return": "boolean",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },   
             "chain": "AVAX",
             "contract": {
                 "networkid": "43114",
@@ -81,12 +102,33 @@ This query determines if a US-based user has received and ERC-721 token on the E
 ```
 {
     "version": 0.1,
+   "timestamp": "8-31-2022 14:31:14",
+    "expiry" : "9-31-2022 14:31:14",
     "description": "NFT received on the Ethereum blockchain by US residents",
     "business": "Shrapnel",
     "queries": {
         "q1": {
             "name": "network",
-            "return": "boolean",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },   
             "chain": "ETH",
             "contract": {
                 "networkid": "1",
