@@ -18,4 +18,20 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 10,
     color: "red",
   },
+  image: {
+    width: "100%",
+    aspectRatio: "4/3",
+    objectFit: "cover",
+  },
+  imageLoader: {
+    width: "100%",
+    aspectRatio: "4/3",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  brokenImageIcon: {
+    fontSize: 60,
+    color: "#D9D9D9",
+  },
 }));

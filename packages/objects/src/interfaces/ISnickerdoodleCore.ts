@@ -40,6 +40,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  IpfsCID,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -194,23 +195,17 @@ export interface ISnickerdoodleCore {
     | IPFSError
   >;
 
-  getAcceptedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
+  getAcceptedInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
     | ConsentContractError
-    | IPFSError
   >;
 
-  getRejectedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | PersistenceError
-    | IPFSError
-  >;
+  getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
 
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
