@@ -134,6 +134,47 @@ export class SDQLParser {
     });
   }
 
+  // #region schema validation
+  public validateSchema(schema: SDQLSchema): ResultAsync<void, QueryFormatError> {
+    
+    if (schema["version"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing version"));
+    }
+    if (schema["timestamp"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing timestamp"));
+    }
+    if (schema["expiry"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing expiry"));
+    }
+    if (schema["description"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing description"));
+    }
+    if (schema["business"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing business"));
+    }
+    if (schema["queries"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing queries"));
+    }
+    if (schema["compensations"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing compensations"));
+    }
+    if (schema["returns"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing returns"));
+    }
+    if (schema["logic"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing logic"));
+    }
+    if (schema["logic"]["returns"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing logic->returns"));
+    }
+
+    if (schema["logic"]["compensations"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing logic->compensations"));
+    }
+
+    return okAsync(undefined);
+  }
+
   // #region non-logic
   private parseQueries(): ResultAsync<
     void,
@@ -412,4 +453,6 @@ export class SDQLParser {
     }
   }
   // #endregion
+
+
 }
