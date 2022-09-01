@@ -47,6 +47,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /// @dev Oldest block that should be scanned for requestForData events 
     uint public queryHorizon; 
+
+    /// @dev mapping from token id to consent token permissions
+    mapping(uint256 => bytes32) public agreementFlagsArray;
     
     /* EVENTS */ 
 
@@ -113,8 +116,8 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @notice Allows any user to opt in to sharing their data
     /// @dev Mints user a Consent token
     /// @param tokenId User's Consent token id to mint against
-    /// @param agreementURI User's Consent token uri containing agreement flags
-    function optIn(uint256 tokenId, string memory agreementURI)
+    /// @param agreementFlags User's Consent token flag indicating their data permissioning settings
+    function optIn(uint256 tokenId, bytes32 agreementFlags)
         external
         whenNotPaused
         whenNotDisabled
@@ -124,7 +127,8 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         /// mint the consent token and set its agreement uri
         _safeMint(_msgSender(), tokenId);
-        _setTokenURI(tokenId, agreementURI);
+
+        _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
         /// increase total supply count
         totalSupply++;
@@ -138,11 +142,11 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev The function is called with the signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @param agreementFlags User's Consent token uri containing agreement flags
     /// @param signature Owner's signature to agree with user opt in
     function restrictedOptIn (
         uint256 tokenId, 
-        string memory agreementURI,
+        bytes32 agreementFlags,
         bytes memory signature
         )
         external
@@ -153,13 +157,13 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         
         /// check the signature against the payload
         require(
-            _isValidSignature(_msgSender(), tokenId, agreementURI, signature),
+            _isValidSignature(_msgSender(), tokenId, agreementFlags, signature),
             "Consent: Contract owner did not sign this message"
         );
 
         /// mint the consent token and set its uri
         _safeMint(_msgSender(), tokenId);
-        _setTokenURI(tokenId, agreementURI);
+        _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
         /// increase total supply count
         totalSupply++;
@@ -173,11 +177,11 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev The function is called with the a signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @param agreementFlags User's Consent token uri containing agreement flags
     /// @param signature Owner's signature to agree with user opt in
     function anonymousRestrictedOptIn (
         uint256 tokenId, 
-        string memory agreementURI,
+        bytes32 agreementFlags,
         bytes memory signature
         )
         external
@@ -189,13 +193,13 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// check the signature against the payload
         /// Any account possessing the signature and payload can call this method
         require(
-            _isValidSignature(tokenId, agreementURI, signature),
+            _isValidSignature(tokenId, agreementFlags, signature),
             "Consent: Contract owner did not sign this message"
         );
 
         /// mint the consent token and set its uri
         _safeMint(_msgSender(), tokenId);
-        _setTokenURI(tokenId, agreementURI);
+        _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
         /// increase total supply count before interaction
         totalSupply++;
@@ -334,21 +338,33 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /* INTERNAL FUNCTIONS */ 
 
+    function _updateCounterAndTokenFlags(uint256 tokenId, bytes32 agreementFlags) internal {
+
+        /// set the data access permissions for the user
+        agreementFlagsArray[tokenId] = agreementFlags;
+
+        /// TODO: Kernighan’s Algorithm to count number of sets bits in an integer
+        /// and then update the cost to call requestForData
+    }
+
+    /// TODO: combine these Signature Validation functions in a single function that takes
+    /// a calldata packet
+
     /// @notice Verify that a signature is valid
     /// @param user Address of the user calling the function
     /// @param tokenId Token id to be tied to current user
-    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @param agreementFlags User's Consent token uri containing agreement flags
     /// @param signature Signature of approved user's message hash 
     /// @return Boolean of whether signature is valid
     function _isValidSignature(
         address user,
         uint256 tokenId,
-        string memory agreementURI,
+        bytes32 agreementFlags,
         bytes memory signature
     ) internal view returns (bool) {
 
         // convert the payload to a 32 byte hash
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, tokenId, agreementURI)));
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, tokenId, agreementFlags)));
         
         // retrieve the signature's signer 
         address signer = ECDSAUpgradeable.recover(hash, signature);
@@ -361,17 +377,17 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /// @notice Verify that a signature is valid (doesn't check for recipient account)
     /// @param tokenId Token id to be tied to current user
-    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @param agreementFlags User's Consent token uri containing agreement flags
     /// @param signature Signature of approved user's message hash 
     /// @return Boolean of whether signature is valid
     function _isValidSignature(
         uint256 tokenId,
-        string memory agreementURI,
+        bytes32 agreementFlags,
         bytes memory signature
     ) internal view returns (bool) {
 
         // convert the payload to a 32 byte hash
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementURI)));
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementFlags)));
         
         // retrieve the signature's signer 
         address signer = ECDSAUpgradeable.recover(hash, signature);
@@ -421,6 +437,8 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         /// remove user's consent contract to ConsentFactory
         consentFactoryInstance.removeUserConsents(_msgSender());
+
+        _updateCounterAndTokenFlags(tokenId, bytes32(0));
 
         super._burn(tokenId);
     }
