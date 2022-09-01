@@ -28,7 +28,7 @@ import {
   EVMContractAddress, EVMTransaction,
   EVMTransactionFilter, FamilyName,
   Gender,
-  GivenName, IAccountBalancesType, IAccountIndexingType, IAccountNFTsType, IConfigOverrides, IDataWalletBackup, IDataWalletPersistenceType,
+  GivenName, IAccountBalancesType, IAccountIndexingType, IAccountNFTsType, IConfigOverrides, IDataWalletBackup, IDataWalletPersistence, IDataWalletPersistenceType,
   IEVMBalance,
   IEVMNFT,
   InvalidSignatureError,
