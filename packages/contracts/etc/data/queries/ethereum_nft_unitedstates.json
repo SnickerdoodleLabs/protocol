@@ -1,32 +1,13 @@
 {
     "version": 0.1,
-    "timestamp": "8-31-2022 14:31:14",
-    "expiry": "9-31-2022 14:31:14",
-    "description": "NFT received on the Ethereum blockchain by US residents who visted Facebook and Crabada",
+    "timestamp": "2021-11-13T20:20:39",
+    "expiry": "2022-11-13T20:20:39",
+    "description": "Target US residents who received an NFT on the Ethereum blockchain and visted Uniswap and Crabada",
     "business": "Shrapnel",
     "queries": {
         "q1": {
             "name": "network",
-            "return": "object",
-            "object_schema": {
-                "properties": {
-                    "networkid": {
-                        "type": "integer"
-                    },
-                    "address": {
-                        "type": "string",
-                        "pattern": "^0x[a-fA-F0-9]{40}$"
-                    },
-                    "return": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "networkid",
-                    "address",
-                    "return"
-                ]
-            },   
+            "return": "boolean",
             "chain": "ETH",
             "contract": {
                 "networkid": "1",
@@ -45,7 +26,7 @@
             "return": "boolean",
             "conditions": {
                 "in": [
-                    840
+                    "US"
                 ]
             }
         },
@@ -55,7 +36,7 @@
             "conditions": {
                 "has": {
                     "https://www.crabada.com": 30,
-                    "https://www.facebook.com": 5
+                    "https://www.uniswap.org": 5
                 }
             }
         }

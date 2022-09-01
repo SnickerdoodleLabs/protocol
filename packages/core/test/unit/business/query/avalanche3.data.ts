@@ -1,8 +1,6 @@
 export const avalance3SchemaStr = `
 {
     "version": 0.1,
-    "timestamp": "8-31-2022 14:31:14",
-    "expiry" : "9-31-2022 14:31:14",
     "description": "Intractions with the Avalanche blockchain for 15-year and older individuals",
     "business": "Shrapnel",
     "queries": {
@@ -50,7 +48,8 @@ export const avalance3SchemaStr = `
         },
         "q3": {
             "name": "location",
-            "return": "integer"
+            "return": "string",
+            "string_pattern": "^([A-Z]){2}$"        
         },
         "q4": {
             "name": "balance",

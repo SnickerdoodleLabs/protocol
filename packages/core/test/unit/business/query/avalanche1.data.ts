@@ -1,16 +1,14 @@
 export const avalance1SchemaStr = `
 {
     "version": 0.1,
-    "timestamp": "8-31-2022 14:31:14",
-    "expiry" : "9-31-2022 14:31:14",
     "description": "Interactions with the Avalanche blockchain for 15-year and older individuals",
     "business": "Shrapnel",
     "queries": {
         "q1": {
             "name": "network",
-            "return": "object",
-            "object_schema": {
-                "properties": {
+            "return":   "object",
+            "object_schema":   {
+                  "properties": {
                     "networkid": {
                         "type": "integer"
                     },
@@ -19,12 +17,12 @@ export const avalance1SchemaStr = `
                         "pattern": "^0x[a-fA-F0-9]{40}$"
                     },
                     "return": {
-                        "type": "boolean"
+                        "type":   "boolean"
                     }
                 },
-                "required": [
+                "required":   [
                     "networkid",
-                    "address",
+                    "address",  
                     "return"
                 ]
             },   
@@ -50,37 +48,8 @@ export const avalance1SchemaStr = `
         },
         "q3":{
             "name": "location",
-            "return": "integer"
-        },
-        "q4": {
-            "name": "balance",
-            "networkid": "1",
-            "conditions": {
-                "ge": 10
-            },
-            "return": "array",
-            "array_items": {
-                "type": "object",
-                "object_schema": {
-                    "properties": {
-                        "networkid": {
-                            "type": "integer"
-                        },
-                        "address": {
-                            "type": "string",
-                            "pattern": "^0x[a-fA-F0-9]{40}$"
-                        },
-                        "balance": {
-                            "type": "boolean"
-                        }
-                    },
-                    "required": [
-                        "networkid",
-                        "address",
-                        "balance"
-                    ]
-                }
-            }
+            "return": "string",
+            "string_pattern": "^([A-Z]){2}$"
         }
     },
     "returns": {

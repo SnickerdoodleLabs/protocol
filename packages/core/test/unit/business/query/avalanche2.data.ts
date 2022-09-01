@@ -6,7 +6,26 @@ export const avalance2SchemaStr = `
    "queries":{
       "q1":{
          "name":"network",
-         "return":"boolean",
+         "return": "object",
+         "object_schema": {
+             "properties": {
+                 "networkid": {
+                     "type": "integer"
+                 },
+                 "address": {
+                     "type": "string",
+                     "pattern": "^0x[a-fA-F0-9]{40}$"
+                 },
+                 "return": {
+                     "type": "boolean"
+                 }
+             },
+             "required": [
+                 "networkid",
+                 "address",
+                 "return"
+             ]
+         }, 
          "chain":"AVAX",
          "contract":{
             "networkid":"43114",
@@ -28,8 +47,9 @@ export const avalance2SchemaStr = `
          }
       },
       "q3":{
-         "name":"location",
-         "return":"integer"
+         "name": "location",
+         "return": "string",
+         "string_pattern": "^([A-Z]){2}$"   
       },
       "q4":{
          "name":"gender",

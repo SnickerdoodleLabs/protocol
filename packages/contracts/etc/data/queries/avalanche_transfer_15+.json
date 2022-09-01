@@ -1,32 +1,13 @@
 {
     "version": 0.1,
-    "timestamp": "8-31-2022 14:31:14",
-    "expiry" : "9-31-2022 14:31:14",
-    "description": "Intractions with the Avalanche blockchain for 15-year and older individuals",
+    "timestamp": "2021-11-13T20:20:39",
+    "expiry" : "2022-11-13T20:20:39",
+    "description": "Targeting 15-year and older individuals who have interactions with the Avalanche blockchain, querying location",
     "business": "Shrapnel",
     "queries": {
         "q1": {
             "name": "network",
-            "return": "object",
-            "object_schema": {
-                "properties": {
-                    "networkid": {
-                        "type": "integer"
-                    },
-                    "address": {
-                        "type": "string",
-                        "pattern": "^0x[a-fA-F0-9]{40}$"
-                    },
-                    "return": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "networkid",
-                    "address",
-                    "return"
-                ]
-            },         
+            "return": "boolean",    
             "chain": "AVAX",
             "contract": {
                 "networkid": "43114",
@@ -49,7 +30,8 @@
         },
         "q3":{
             "name": "location",
-            "return": "integer"
+            "return": "string",
+            "string_pattern": "^([A-Z]){2}$"        
         }
     },
     "returns": {
