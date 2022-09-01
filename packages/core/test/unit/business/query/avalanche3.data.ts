@@ -29,7 +29,8 @@ export const avalance3SchemaStr = `
         },
         "q3": {
             "name": "location",
-            "return": "integer"
+            "return": "string",
+            "string_pattern": "^([A-Z]){2}$"        
         },
         "q4": {
             "name": "balance",
