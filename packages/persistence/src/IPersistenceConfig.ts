@@ -5,4 +5,5 @@ export interface IPersistenceConfig {
   accountBalancePollingIntervalMS: number;
   accountNFTPollingIntervalMS: number;
   chainInformation: Map<ChainId, ChainInformation>;
+  backupChunkSizeTarget: number;
 }

@@ -3,6 +3,7 @@ import { EExternalActions } from "@shared/enums";
 import {
   IAcceptInvitationParams,
   IAddAccountParams,
+  IGetInvitationMetadataByCIDParams,
   IGetInvitationWithDomainParams,
   IGetUnlockMessageParams,
   IInvitationDomainWithUUID,
@@ -36,15 +37,15 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
+  ConsentConditions,
   EVMContractAddress,
   IOpenSeaMetadata,
-  DataPermissions,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
-  [x: string]: any;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -63,11 +64,11 @@ export class ExternalCoreGateway {
     );
   }
   public acceptInvitation(
-    dataPermissions: DataPermissions | null,
+    consentConditions: ConsentConditions | null,
     id: UUID,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
-      dataPermissions,
+      consentConditions,
       id,
     } as IAcceptInvitationParams);
   }
@@ -77,11 +78,19 @@ export class ExternalCoreGateway {
     } as IRejectInvitationParams);
   }
 
-  public getInvitationsMetadata(): ResultAsync<
-    Record<EVMContractAddress, IOpenSeaMetadata>,
+  public getAcceptedInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
     JsonRpcError
   > {
-    return this._handler.call(EExternalActions.GET_INVITATIONS_METADATA);
+    return this._handler.call(EExternalActions.GET_ACCEPTED_INVITATIONS_CID);
+  }
+
+  public getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_INVITATION_METADATA_BY_CID, {
+      ipfsCID,
+    } as IGetInvitationMetadataByCIDParams);
   }
 
   public leaveCohort(

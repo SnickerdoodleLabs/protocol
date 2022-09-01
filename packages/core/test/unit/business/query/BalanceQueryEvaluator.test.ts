@@ -231,9 +231,12 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
+    expect(result["value"][0].ticker).toEqual('ETH');
     expect(result["value"][0].address).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
     expect(result["value"][0].balance).toEqual(BigNumber.from("70"));
+
+    // TODO this is conceptually incorrect as different contract address will have different ticket symbols.
   })
 
 
@@ -270,10 +273,12 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(2);
+    expect(result["value"][0].ticker).toEqual('ETH');
     expect(result["value"][0].address).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
     expect(result["value"][0].balance).toEqual(BigNumber.from("9"));
 
+    expect(result["value"][1].ticker).toEqual('SOL');
     expect(result["value"][1].address).toEqual('Contract 2');
     expect(result["value"][1].networkId).toEqual(2);
     expect(result["value"][1].balance).toEqual(BigNumber.from("44"));
@@ -312,6 +317,7 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
+    expect(result["value"][0].ticker).toEqual('ETH');
     expect(result["value"][0].address).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
     expect(result["value"][0].balance).toEqual(BigNumber.from("53"));

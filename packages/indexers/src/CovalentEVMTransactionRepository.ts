@@ -229,7 +229,7 @@ export class CovalentEVMTransactionRepository
               chainId: chainId,
               accountAddress: accountAddress,
               balance: tokenInfo.balance,
-              contractAddress: EVMContractAddress(tokenInfo.contract_address)
+              contractAddress: EVMContractAddress(tokenInfo.contract_address),
             };
           });
         });

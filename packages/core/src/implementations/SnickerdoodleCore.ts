@@ -5,6 +5,11 @@
  */
 
 import {
+  ICloudStorage,
+  ICloudStorageType,
+  NullCloudStorage
+} from "@persistence/cloud";
+import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
   DefaultAccountNFTs
@@ -23,16 +28,11 @@ import {
   EVMContractAddress, EVMTransaction,
   EVMTransactionFilter, FamilyName,
   Gender,
-  GivenName,
-  IAccountBalances,
-  IAccountBalancesType,
-  IAccountIndexing,
-  IAccountIndexingType, IAccountNFTs,
-  IAccountNFTsType, IConfigOverrides, IDataWalletPersistenceType,
+  GivenName, IAccountBalancesType, IAccountIndexingType, IAccountNFTsType, IConfigOverrides, IDataWalletBackup, IDataWalletPersistenceType,
   IEVMBalance,
   IEVMNFT,
   InvalidSignatureError,
-  Invitation, IOpenSeaMetadata, IPFSError,
+  Invitation, IOpenSeaMetadata, IpfsCID, IPFSError,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   LanguageCode,
@@ -89,11 +89,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public constructor(
     configOverrides?: IConfigOverrides,
-    accountIndexer?: IAccountIndexing,
-    accountBalances?: IAccountBalances,
-    accountNFTs?: IAccountNFTs,
     storageUtils?: IStorageUtils,
     volatileStorage?: IVolatileStorageFactory,
+    cloudStorage?: ICloudStorage,
   ) {
     this.iocContainer = new Container();
 
@@ -116,6 +114,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       .to(DataWalletPersistence)
       .inSingletonScope();
 
+    if (cloudStorage != null) {
+      this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
+    } else {
+      this.iocContainer
+        .bind(ICloudStorageType)
+        .to(NullCloudStorage)
+        .inSingletonScope();
+    }
+
     if (volatileStorage != null) {
       this.iocContainer
         .bind(IVolatileStorageFactoryType)
@@ -127,38 +134,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    // If an Account Indexer is provided, hook it up. If not we'll use the default.
-    if (accountIndexer != null) {
-      this.iocContainer
-        .bind(IAccountIndexingType)
-        .toConstantValue(accountIndexer);
-    } else {
-      this.iocContainer
-        .bind(IAccountIndexingType)
-        .to(DefaultAccountIndexers)
-        .inSingletonScope();
-    }
+    this.iocContainer
+      .bind(IAccountIndexingType)
+      .to(DefaultAccountIndexers)
+      .inSingletonScope();
 
-    // If an Account Balances is provided, hook it up. If not we'll use the default.
-    if (accountBalances != null) {
-      this.iocContainer
-        .bind(IAccountBalancesType)
-        .toConstantValue(accountBalances);
-    } else {
-      this.iocContainer
-        .bind(IAccountBalancesType)
-        .to(DefaultAccountBalances)
-        .inSingletonScope();
-    }
+    this.iocContainer
+      .bind(IAccountBalancesType)
+      .to(DefaultAccountBalances)
+      .inSingletonScope();
 
-    if (accountNFTs != null) {
-      this.iocContainer.bind(IAccountNFTsType).toConstantValue(accountNFTs);
-    } else {
-      this.iocContainer
-        .bind(IAccountNFTsType)
-        .to(DefaultAccountNFTs)
-        .inSingletonScope();
-    }
+    this.iocContainer
+      .bind(IAccountNFTsType)
+      .to(DefaultAccountNFTs)
+      .inSingletonScope();
 
     // Setup the config
     if (configOverrides != null) {
@@ -351,34 +340,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.getInvitationsByDomain(domain);
   }
 
-  public getAcceptedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
+  public getAcceptedInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | ConsentContractError
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
-    | ConsentContractError
-    | IPFSError
   > {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.getAcceptedInvitationsMetadata();
+    return cohortService.getAcceptedInvitationsCID();
   }
-
-  public getRejectedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | PersistenceError
-    | IPFSError
-  > {
+  public getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, IPFSError> {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.getRejectedInvitationsMetadata();
+    return cohortService.getInvitationMetadataByCID(ipfsCID);
   }
 
   public processQuery(
@@ -533,5 +515,21 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEVMTransactions(transactions);
+  }
+
+  public dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.dumpBackup();
+  }
+
+  public restoreBackup(
+    backup: IDataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.restoreBackup(backup);
   }
 }
