@@ -507,13 +507,30 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
           queryText = SDQLString(
             JSON.stringify({
               version: 0.1,
+              timestamp: "2021-11-13T20:20:39",
+              expiry: "2022-11-13T20:20:39",
               description:
-                "Intractions with the Avalanche blockchain for 15-year and older individuals",
+                "For 15-year and older individuals, querying intractions with the Avalanche blockchain, location, gender, urls visited and chain transaction count",
               business: "Shrapnel",
               queries: {
                 q1: {
                   name: "network",
-                  return: "boolean",
+                  return: "object",
+                  object_schema: {
+                      properties: {
+                          networkid: {
+                              type: "integer"
+                          },
+                          address: {
+                              type: "string",
+                              pattern: "^0x[a-fA-F0-9]{40}$"
+                          },
+                          return: {
+                              type: "boolean"
+                          }
+                      },
+                      required: ["networkid", "address", "return"]
+                  },   
                   chain: "AVAX",
                   contract: {
                     networkid: "43114",
@@ -535,8 +552,9 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   },
                 },
                 q3: {
-                  name: "location",
-                  return: "integer",
+                  "name": "location",
+                  "return": "string",
+                  "string_pattern": "^([A-Z]){2}$"        
                 },
                 q4: {
                   name: "gender",
@@ -652,6 +670,10 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
                   name: "query_response",
                   query: "q8",
                 },
+                r9: {
+                  name: "query_response",
+                  query: "q1",
+                },
                 url: "https://418e-64-85-231-39.ngrok.io/insights",
               },
               compensations: {
@@ -671,15 +693,16 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
               },
               logic: {
                 returns: [
-                  "if($q1and$q2)then$r1else$r2",
+                  "if$q2then$r1else$r2",
                   "$r3",
                   "$r4",
                   "$r5",
                   "$r6",
                   "$r7",
                   "$r8",
+                  "$r9"
                 ],
-                compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
+                compensations: ["if$q1then$c1","if$q2then$c2", "if$q3then$c3", "if$q4then$c2", "if$q5then$c2", "if$q6then$c2","if$q7then$c2","if$q8then$c2"],
               },
             }),
           );
