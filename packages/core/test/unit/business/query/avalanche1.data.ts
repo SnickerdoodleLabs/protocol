@@ -31,6 +31,14 @@ export const avalance1SchemaStr = `
             "name": "location",
             "return": "string",
             "string_pattern": "^([A-Z]){2}$"
+        },
+        "q4": {
+            "name": "balance",
+            "networkid": "1",
+            "conditions": {
+                "ge": 10
+            },
+            "return": "array"
         }
     },
     "returns": {

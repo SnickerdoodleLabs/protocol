@@ -73,7 +73,7 @@ describe("SDQLParser on avalanche", () => {
       const q3 = parser.context.get("q3") as AST_PropertyQuery;
       expect(q3 instanceof AST_PropertyQuery).toBeTruthy();
       expect(q3.property).toBe("location");
-      expect(q3.returnType).toBe("integer");
+      expect(q3.returnType).toBe("string");
     });
 
     test("q4 is a balance query", () => {
