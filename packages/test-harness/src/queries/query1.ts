@@ -1,5 +1,7 @@
 export const query1 = {
   version: 0.1,
+  timestamp: "2021-11-13T20:20:39",
+  expiry: "2022-11-13T20:20:39",
   description:
     "Intractions with the Avalanche blockchain for 15-year and older individuals",
   business: "Shrapnel",

@@ -1,6 +1,7 @@
 export const query2 = {
   version: 0.1,
-  timestamp: "<this should be populated with GMT>",
+  timestamp: "2021-11-13T20:20:39",
+  expiry: "2022-11-13T20:20:39",
   description: "///This should dynamically populate",
   business: "/////This should dynamically populate",
   queries: {
