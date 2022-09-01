@@ -59,7 +59,7 @@ export class SDQLSchema {
     return this.getReturnSchema()
   }
 
-  public get compenstations(): {
+  public get compensations(): {
     [compensationObjects: string]: ISDQLCompensations;
   } {
     return this.getCompensationSchema();

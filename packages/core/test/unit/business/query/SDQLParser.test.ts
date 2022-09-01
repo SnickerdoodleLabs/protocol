@@ -40,7 +40,7 @@ describe("SDQLParser on avalanche", () => {
   });
 
   describe("Checking queries", () => {
-    test.only("q1 is a network query on AVAX", () => {
+    test("q1 is a network query on AVAX", () => {
       const q1 = parser.context.get("q1") as AST_NetworkQuery;
       // console.log(q1.contract);
       expect(q1 instanceof AST_NetworkQuery).toBeTruthy();
