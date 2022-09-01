@@ -1,17 +1,17 @@
 const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
 
-async function getSignature(owner, address, tokenId, agreementURI) {
-  let msgHash; 
+async function getSignature(owner, address, tokenId, agreementFlags) {
+  let msgHash;
   if (address === null) {
     msgHash = ethers.utils.solidityKeccak256(
-      ["uint256", "string"],
-      [tokenId, agreementURI],
+      ["uint256", "bytes32"],
+      [tokenId, agreementFlags],
     );
   } else {
     msgHash = ethers.utils.solidityKeccak256(
-      ["address", "uint256", "string"],
-      [address, tokenId, agreementURI],
+      ["address", "uint256", "bytes32"],
+      [address, tokenId, agreementFlags],
     );
   }
 
@@ -33,6 +33,8 @@ describe("Consent", () => {
   const requesterRoleBytes = ethers.utils.id("REQUESTER_ROLE");
   const pauserRoleBytes = ethers.utils.id("PAUSER_ROLE");
   const defaultAdminRoleBytes = ethers.utils.formatBytes32String(0); //bytes for DEFAULT_ADMIN_ROLE on the contract is 0 by default
+  const sampleAgreementFlag1 = ethers.utils.formatBytes32String("1");
+  const sampleAgreementFlag2 = ethers.utils.formatBytes32String("2");
 
   beforeEach(async () => {
     // get a list of signers the tests can use
@@ -59,7 +61,7 @@ describe("Consent", () => {
     // create a consent contract
     await consentFactory
       .connect(owner)
-      .createConsent(user1.address, "www.user1uri.com", "USER1");
+      .createConsent(user1.address, "www.user1uri.com/", "USER1");
 
     const deployedConsentAddressArray =
       await consentFactory.getUserDeployedConsentsByIndex(user1.address, 0, 5);
@@ -70,7 +72,7 @@ describe("Consent", () => {
   describe("optIn", function () {
     it("Allows any address to opt-in.", async function () {
       // call opt in
-      await consent.connect(accounts[1]).optIn(1, "www.uri.com/1");
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
 
       // check token balance of the account has 1
       expect(await consent.balanceOf(accounts[1].address)).to.eq(1);
@@ -78,10 +80,10 @@ describe("Consent", () => {
 
     it("Does not allows address to opt-in twice.", async function () {
       // call opt in
-      await consent.connect(accounts[1]).optIn(1, "www.uri.com/1");
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
 
       await expect(
-        consent.connect(accounts[1]).optIn(1, "www.uri.com/1"),
+        consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1),
       ).to.revertedWith("Consent: User has already opted in");
 
       // check token balance of the account has 1
@@ -92,7 +94,7 @@ describe("Consent", () => {
       // disable open opt ins
       await consent.connect(accounts[1]).disableOpenOptIn();
 
-      await expect(consent.optIn(1, "www.uri.com/1")).to.revertedWith(
+      await expect(consent.optIn(1, sampleAgreementFlag1)).to.revertedWith(
         "Consent: Open opt-ins are currently disabled",
       );
     });
@@ -101,18 +103,18 @@ describe("Consent", () => {
       // pause the contract
       await consent.connect(accounts[1]).pause();
 
-      await expect(consent.optIn(1, "www.uri.com/1")).to.revertedWith(
+      await expect(consent.optIn(1, sampleAgreementFlag1)).to.revertedWith(
         "Pausable: paused",
       );
     });
 
     it("Does not allow opt-ins with an existent token id.", async function () {
       // call opt in
-      await consent.connect(accounts[1]).optIn(1, "www.uri.com/1");
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
 
       // call opt in with another account but using the same token it
       await expect(
-        consent.connect(accounts[2]).optIn(1, "www.uri.com/1"),
+        consent.connect(accounts[2]).optIn(1, sampleAgreementFlag1),
       ).to.revertedWith("ERC721: token already minted");
     });
   });
@@ -125,13 +127,13 @@ describe("Consent", () => {
         user1,
         accounts[2].address.toLowerCase(),
         1,
-        "www.uri.com/1",
+        sampleAgreementFlag1,
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
         .connect(accounts[2])
-        .restrictedOptIn(1, "www.uri.com/1", sig);
+        .restrictedOptIn(1, sampleAgreementFlag1, sig);
     });
 
     it("Does not allows user to opt-in twice even if signed for", async function () {
@@ -141,7 +143,7 @@ describe("Consent", () => {
         user1,
         accounts[2].address.toLowerCase(),
         1,
-        "www.uri.com/1",
+        sampleAgreementFlag1,
       );
 
       // user1 who is the owner signs user 2's address
@@ -150,17 +152,19 @@ describe("Consent", () => {
         user1,
         accounts[2].address.toLowerCase(),
         2,
-        "www.uri.com/1",
+        sampleAgreementFlag1,
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
         .connect(accounts[2])
-        .restrictedOptIn(1, "www.uri.com/1", sig);
+        .restrictedOptIn(1, sampleAgreementFlag1, sig);
 
       // User 2 tries to now call restricted opt in again with second business signature
       await expect(
-        consent.connect(accounts[2]).restrictedOptIn(2, "www.uri.com/1", sig2),
+        consent
+          .connect(accounts[2])
+          .restrictedOptIn(2, sampleAgreementFlag1, sig2),
       ).to.revertedWith("Consent: User has already opted in");
     });
 
@@ -171,12 +175,14 @@ describe("Consent", () => {
         user1,
         accounts[2].address.toLowerCase(),
         1,
-        "www.uri.com/1",
+        sampleAgreementFlag1,
       );
 
       // User 10 tries to call restricted opt in using signature the business entity signed for User 1
       await expect(
-        consent.connect(accounts[10]).restrictedOptIn(1, "www.uri.com/1", sig),
+        consent
+          .connect(accounts[10])
+          .restrictedOptIn(1, sampleAgreementFlag1, sig),
       ).to.revertedWith("Consent: Contract owner did not sign this message");
     });
 
@@ -187,7 +193,7 @@ describe("Consent", () => {
         user1,
         accounts[2].address.toLowerCase(),
         1,
-        "www.uri.com/1",
+        sampleAgreementFlag1,
       );
 
       // pause the contract
@@ -195,7 +201,9 @@ describe("Consent", () => {
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await expect(
-        consent.connect(accounts[2]).restrictedOptIn(1, "www.uri.com/1", sig),
+        consent
+          .connect(accounts[2])
+          .restrictedOptIn(1, sampleAgreementFlag1, sig),
       ).to.revertedWith("Pausable: paused");
     });
 
@@ -206,24 +214,26 @@ describe("Consent", () => {
         user1,
         accounts[2].address.toLowerCase(),
         1,
-        "www.uri.com/1",
+        sampleAgreementFlag1,
       );
 
       let sig3 = await getSignature(
         user1,
         accounts[3].address.toLowerCase(),
         1,
-        "www.uri.com/1",
+        sampleAgreementFlag1,
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
         .connect(accounts[2])
-        .restrictedOptIn(1, "www.uri.com/1", sig);
+        .restrictedOptIn(1, sampleAgreementFlag1, sig);
 
       // User 2 tried to call again with the same token id
       await expect(
-        consent.connect(accounts[3]).restrictedOptIn(1, "www.uri.com/1", sig3),
+        consent
+          .connect(accounts[3])
+          .restrictedOptIn(1, sampleAgreementFlag1, sig3),
       ).to.revertedWith("ERC721: token already minted");
     });
 
@@ -234,121 +244,96 @@ describe("Consent", () => {
         user1,
         accounts[2].address.toLowerCase(),
         1,
-        "www.uri.com/1",
+        sampleAgreementFlag1,
       );
 
       // User 2 tries to call restricted opt in again with another token Id
       await expect(
-        consent.connect(accounts[2]).restrictedOptIn(2, "www.uri.com/1", sig),
+        consent
+          .connect(accounts[2])
+          .restrictedOptIn(2, sampleAgreementFlag1, sig),
       ).to.revertedWith("Consent: Contract owner did not sign this message");
     });
   });
 
   describe("anonymousRestrictedOptIn", function () {
     it("Allows a user who as a signed payload to opt-in", async function () {
-      let sig = await getSignature(
-        user1,
-        null,
-        1,
-        "www.uri.com/1",
-      );
+      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
         .connect(accounts[2])
-        .anonymousRestrictedOptIn(1, "www.uri.com/1", sig);
+        .anonymousRestrictedOptIn(1, sampleAgreementFlag1, sig);
     });
 
     it("Does not allows user to opt-in twice even if signed for", async function () {
       // user1 who is the owner signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(
-        user1,
-        null,
-        1,
-        "www.uri.com/1",
-      );
+      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
 
       // user1 who is the owner signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig2 = await getSignature(
-        user1,
-        null,
-        2,
-        "www.uri.com/2",
-      );
+      let sig2 = await getSignature(user1, null, 2, sampleAgreementFlag2);
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
         .connect(accounts[2])
-        .anonymousRestrictedOptIn(1, "www.uri.com/1", sig);
+        .anonymousRestrictedOptIn(1, sampleAgreementFlag1, sig);
 
       // User 2 tries to now call restricted opt in again with second business signature
       await expect(
-        consent.connect(accounts[2]).anonymousRestrictedOptIn(2, "www.uri.com/2", sig2),
+        consent
+          .connect(accounts[2])
+          .anonymousRestrictedOptIn(2, sampleAgreementFlag2, sig2),
       ).to.revertedWith("Consent: User has already opted in");
     });
 
     it("Does not allow opt-ins when function is paused.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(
-        user1,
-        null,
-        1,
-        "www.uri.com/1",
-      );
+      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
 
       // pause the contract
       await consent.connect(user1).pause();
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await expect(
-        consent.connect(accounts[2]).anonymousRestrictedOptIn(1, "www.uri.com/1", sig),
+        consent
+          .connect(accounts[2])
+          .anonymousRestrictedOptIn(1, sampleAgreementFlag1, sig),
       ).to.revertedWith("Pausable: paused");
     });
 
     it("Does not allow restricted opt-ins with an existent token id.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(
-        user1,
-        null,
-        1,
-        "www.uri.com/1",
-      );
+      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
 
-      let sig3 = await getSignature(
-        user1,
-        null,
-        1,
-        "www.uri.com/2",
-      );
+      let sig3 = await getSignature(user1, null, 1, sampleAgreementFlag2);
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
         .connect(accounts[2])
-        .anonymousRestrictedOptIn(1, "www.uri.com/1", sig);
+        .anonymousRestrictedOptIn(1, sampleAgreementFlag1, sig);
 
       // User 2 tried to call again with the same token id
       await expect(
-        consent.connect(accounts[3]).anonymousRestrictedOptIn(1, "www.uri.com/2", sig3),
+        consent
+          .connect(accounts[3])
+          .anonymousRestrictedOptIn(1, sampleAgreementFlag2, sig3),
       ).to.revertedWith("ERC721: token already minted");
     });
 
     it("Does not allow approved user to call restricted opt-ins with a different token id.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(
-        user1,
-        null,
-        1,
-        "www.uri.com/1",
-      );
+      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
 
       // User 2 tries to call restricted opt in again with another token Id
       await expect(
-        consent.connect(accounts[2]).restrictedOptIn(2, "www.uri.com/1", sig),
+        consent
+          .connect(accounts[2])
+          .restrictedOptIn(2, sampleAgreementFlag1, sig),
       ).to.revertedWith("Consent: Contract owner did not sign this message");
     });
   });
@@ -356,7 +341,7 @@ describe("Consent", () => {
   describe("optOut", function () {
     it("Allows any address to opt-out after opting-in.", async function () {
       // call opt in
-      await consent.connect(accounts[1]).optIn(1, "www.uri.com/1");
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
 
       // call opt out
       await consent.connect(accounts[1]).optOut(1);
@@ -370,7 +355,7 @@ describe("Consent", () => {
 
     it("Does not allow an address to opt-out another user's token.", async function () {
       // call opt in
-      await consent.connect(accounts[1]).optIn(1, "www.uri.com/1");
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
 
       // call opt out with another account that does not own the token
       await expect(consent.connect(accounts[2]).optOut(1)).to.revertedWith(
@@ -412,23 +397,23 @@ describe("Consent", () => {
 
     it("Does not allow token owner to transfer Consent token after opting-in.", async function () {
       // call opt in
-      await consent.connect(accounts[1]).optIn(1, "www.uri.com/1");
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
 
       // check token balance of the account has 1
       await expect(
         consent
           .connect(accounts[1])
-        ["safeTransferFrom(address,address,uint256)"](
-          accounts[1].address,
-          accounts[2].address,
-          1,
-        ),
+          ["safeTransferFrom(address,address,uint256)"](
+            accounts[1].address,
+            accounts[2].address,
+            1,
+          ),
       ).to.revertedWith("Consent: Consent tokens are non-transferrable");
     });
 
     it("Does not allow contract owner/any other address to transfer Consent token after opting-in.", async function () {
       // call opt in
-      await consent.connect(accounts[1]).optIn(1, "www.uri.com/1");
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
 
       // check token balance of the account has 1
       await expect(
@@ -443,11 +428,11 @@ describe("Consent", () => {
       await expect(
         consent
           .connect(accounts[2])
-        ["safeTransferFrom(address,address,uint256)"](
-          accounts[1].address,
-          accounts[2].address,
-          1,
-        ),
+          ["safeTransferFrom(address,address,uint256)"](
+            accounts[1].address,
+            accounts[2].address,
+            1,
+          ),
       ).to.revertedWith("ERC721: caller is not token owner nor approved");
     });
   });
@@ -455,7 +440,7 @@ describe("Consent", () => {
   describe("burn", function () {
     it("Allow token owner to burn their Consent token after opting-in.", async function () {
       // call opt in
-      await consent.connect(accounts[1]).optIn(1, "www.uri.com/1");
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
 
       // call burn
       await consent.connect(accounts[1]).burn(1);
@@ -469,7 +454,7 @@ describe("Consent", () => {
 
     it("Does not allow others to burn a user's Consent token.", async function () {
       // call opt in
-      await consent.connect(accounts[1]).optIn(1, "www.uri.com/1");
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
 
       // call burn with admin
       await expect(consent.burn(1)).to.revertedWith("");
@@ -514,7 +499,7 @@ describe("Consent", () => {
       // disable open opt ins
       await consent.connect(user1).disableOpenOptIn();
 
-      await expect(consent.optIn(1, "www.uri.com/1")).to.revertedWith(
+      await expect(consent.optIn(1, sampleAgreementFlag1)).to.revertedWith(
         "Consent: Open opt-ins are currently disabled",
       );
     });
@@ -533,14 +518,14 @@ describe("Consent", () => {
       // disable open opt ins
       await consent.connect(user1).disableOpenOptIn();
 
-      await expect(consent.optIn(1, "www.uri.com/1")).to.revertedWith(
+      await expect(consent.optIn(1, sampleAgreementFlag1)).to.revertedWith(
         "Consent: Open opt-ins are currently disabled",
       );
 
       // enable open opt ins
       await consent.connect(user1).enableOpenOptIn();
 
-      await consent.optIn(1, "www.uri.com/1");
+      await consent.optIn(1, sampleAgreementFlag1);
     });
 
     it("Does not allows address without PAUSER_ROLE to enable open opt-in.", async function () {
@@ -572,7 +557,9 @@ describe("Consent", () => {
   describe("setQueryHorizon", function () {
     it("Allows DEFAULT_ADMIN_ROLE to update the query horizon variable.", async function () {
       // set the query horizon block number which is used for setting the oldest block to search for requestForData events
-      expect(consent.connect(user1).setQueryHorizon(0)).to.revertedWith("New horizon must be strictly later than current horizon.");
+      expect(consent.connect(user1).setQueryHorizon(0)).to.revertedWith(
+        "New horizon must be strictly later than current horizon.",
+      );
 
       await consent.connect(user1).setQueryHorizon(10101);
 
@@ -613,14 +600,16 @@ describe("Consent", () => {
 
   describe("tokenURI", function () {
     it("Returns the correct token uri", async function () {
-      // call opt in
-      await consent
-        .connect(accounts[1])
-        .optIn(1, "/age?=1/location?=0/gender?=0");
-
-      expect(await consent.tokenURI(1)).to.eq(
-        "www.user1uri.com/age?=1/location?=0/gender?=0",
+      const agreementFlags = ethers.utils.formatBytes32String(
+        "/age?=1/location?=0/gender?=0",
       );
+
+      // call opt in
+      await consent.connect(accounts[1]).optIn(1, agreementFlags);
+
+      const baseUri = await consent.connect(accounts[1]).baseURI();
+
+      expect(await consent.tokenURI(1)).to.eq(baseUri + "1");
     });
   });
 
