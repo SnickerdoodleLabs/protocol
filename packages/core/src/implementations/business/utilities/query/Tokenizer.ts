@@ -56,7 +56,7 @@ export class Tokenizer {
         this.position,
         "cannot parse empty expressions",
       );
-      console.error(err);
+      // console.error(err);
       throw err;
     }
     this.validateRules();
@@ -74,7 +74,7 @@ export class Tokenizer {
   next() {
     if (!this.hasNext()) {
       const err = new ParserError(this.position, "no more tokens");
-      console.error(err);
+      // console.error(err);
       throw err;
     }
     for (const rule of rules) {
@@ -110,7 +110,7 @@ export class Tokenizer {
     }
 
     const err = new ParserError(this.position, "No matching tokens found");
-    console.error(err);
+    // console.error(err);
     throw err;
   }
 
@@ -127,7 +127,7 @@ export class Tokenizer {
       const rexp = rule[0];
       if (rexp.sticky != true) {
         const err = new InvalidRegularExpression(`${rexp} is not sticky`);
-        console.error(err);
+        // console.error(err);
         throw err;
       }
     }
