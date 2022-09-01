@@ -5,6 +5,7 @@ import {
   ISDQLReturnProperties,
   ISDQLCompensations,
   ISDQLLogicObjects,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
 export class SDQLSchema {
@@ -24,12 +25,48 @@ export class SDQLSchema {
     return `${this.internalObj.version}`;
   }
 
+  public get timestamp(): UnixTimestamp | undefined { 
+    if (!this.internalObj.timestamp) {
+      return undefined;
+    }
+    return UnixTimestamp(Date.parse(this.internalObj.timestamp));
+  }
+
+  public  get expiry(): UnixTimestamp | undefined {
+    if (!this.internalObj.expiry) {
+      return undefined;
+    }
+    return UnixTimestamp(Date.parse(this.internalObj.expiry));
+  }
+
   public get description(): string {
     return this.internalObj.description;
   }
 
   public get business(): string {
     return this.internalObj.business;
+  }
+
+  public get queries():{
+    [queryId: string]: ISDQLQueryClause;
+  }  {
+    return this.getQuerySchema();
+  }
+  public get returns (): {
+    [returnsObject: string]: ISDQLReturnProperties;
+    url: any;
+  } {
+    return this.getReturnSchema()
+  }
+
+  public get compenstations(): {
+    [compensationObjects: string]: ISDQLCompensations;
+  } {
+    return this.getCompensationSchema();
+  }
+
+  public get logic():  ISDQLLogicObjects {
+    return this.getLogicSchema()
   }
 
   getQuerySchema(): {

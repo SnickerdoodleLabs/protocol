@@ -114,24 +114,27 @@ export class SDQLParser {
     | QueryFormatError
     | MissingTokenConstructorError
   > {
-    return this.parse().andThen(() => {
-      return okAsync(
-        new AST(
-          Version(this.schema["version"]),
-          this.schema["description"],
-          this.schema["business"],
-          this.queries,
-          this.returns,
-          this.compensations,
-          new AST_Logic(
-            this.logicReturns,
-            this.logicCompensations,
-            this.returnPermissions,
-            this.compensationPermissions,
-          ),
-        ),
-      );
-    });
+    return this.validateSchema(this.schema)
+      .andThen(() => {
+        return this.parse().andThen(() => {
+         return okAsync(
+           new AST(
+             Version(this.schema["version"]),
+             this.schema["description"],
+             this.schema["business"],
+             this.queries,
+             this.returns,
+             this.compensations,
+             new AST_Logic(
+               this.logicReturns,
+               this.logicCompensations,
+               this.returnPermissions,
+               this.compensationPermissions,
+             ),
+           ),
+         );
+       });
+      });
   }
 
   // #region schema validation
