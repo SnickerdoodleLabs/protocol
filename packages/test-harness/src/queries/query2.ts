@@ -7,15 +7,7 @@ export const query2 = {
   queries: {
     q1: {
       name: "url_visited_count",
-      return: "object",
-      object_schema: {
-        patternProperties: {
-          "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$":
-            {
-              type: "integer",
-            },
-        },
-      },
+      return: "object"      
     },
     q2: {
       name: "chain_transaction_count",

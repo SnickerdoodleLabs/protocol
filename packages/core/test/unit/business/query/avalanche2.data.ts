@@ -31,8 +31,7 @@ export const avalance2SchemaStr = `
       },
       "q3":{
          "name": "location",
-         "return": "string",
-         "string_pattern": "^([A-Z]){2}$"   
+         "return": "string" 
       },
       "q4":{
          "name":"gender",
