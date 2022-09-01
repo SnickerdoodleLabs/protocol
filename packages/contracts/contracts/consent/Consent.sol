@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+// TODO to remove ERC721URIStorageUpgradeable before audit as we no longer use token URi to store agreements
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
@@ -18,7 +20,7 @@ import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.
 /// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
 /// @dev It is also compatible with OZ's meta-transaction library
 
-contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable {
+contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable {
 
     /// @dev Interface for ConsentFactory
     address consentFactoryAddress;
@@ -83,6 +85,7 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
     function initialize(address consentOwner, string memory baseURI_, string memory name, address _contractFactoryAddress) initializer public {
         
         __ERC721_init(name, "CONSENT");
+        __ERC721URIStorage_init();
         __Pausable_init();
         __AccessControl_init();
         __ERC721Burnable_init();
@@ -191,7 +194,7 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
         /// check the signature against the payload
         /// Any account possessing the signature and payload can call this method
         require(
-            _isValidSignature(tokenId, agreementFlags, signature),
+            _isValidSignature(address(0), tokenId, agreementFlags, signature),
             "Consent: Contract owner did not sign this message"
         );
 
@@ -342,6 +345,14 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
         agreementFlagsArray[tokenId] = agreementFlags;
 
         /// TODO: Kernighan’s Algorithm to count number of sets bits in an integer
+        /* uint256 count = 0;
+        uint256 num = uint256(agreementFlags);
+        while (num > 0)
+        {
+            count += num & 1;
+            num >>= 1;
+        } */
+        //return count;
         /// and then update the cost to call requestForData
     }
 
@@ -361,31 +372,14 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
         bytes memory signature
     ) internal view returns (bool) {
 
-        // convert the payload to a 32 byte hash
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, tokenId, agreementFlags)));
-        
-        // retrieve the signature's signer 
-        address signer = ECDSAUpgradeable.recover(hash, signature);
-
-        require(signer != address(0), "Consent: Signer cannot be 0 address.");
-
-        // check if the recovered signature has the SIGNER_ROLE
-        return hasRole(SIGNER_ROLE, signer);
-    }
-
-    /// @notice Verify that a signature is valid (doesn't check for recipient account)
-    /// @param tokenId Token id to be tied to current user
-    /// @param agreementFlags User's Consent token uri containing agreement flags
-    /// @param signature Signature of approved user's message hash 
-    /// @return Boolean of whether signature is valid
-    function _isValidSignature(
-        uint256 tokenId,
-        bytes32 agreementFlags,
-        bytes memory signature
-    ) internal view returns (bool) {
+        bytes32 hash;
 
         // convert the payload to a 32 byte hash
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementFlags)));
+        if (user == address(0)) {
+            hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementFlags)));
+        } else {
+            hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, tokenId, agreementFlags)));
+        }
         
         // retrieve the signature's signer 
         address signer = ECDSAUpgradeable.recover(hash, signature);
@@ -428,7 +422,7 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
 
     function _burn(uint256 tokenId)
         internal
-        override(ERC721Upgradeable)
+        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
     {   
         /// decrease total supply count
         totalSupply--;
@@ -444,7 +438,7 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
     function tokenURI(uint256 tokenId)
         public
         view
-        override(ERC721Upgradeable)
+        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
         returns (string memory)
     {
         return super.tokenURI(tokenId);
