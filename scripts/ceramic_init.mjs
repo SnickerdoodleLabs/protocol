@@ -50,28 +50,13 @@ const BackupSchema = {
 const BackupIndexSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
   title: "BackupIndex",
-  type: "object",
-  properties: {
-    backups: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          id: {
-            $ref: "#/definitions/CeramicStreamId",
-          },
-          timestamp: {
-            type: "integer",
-          },
-        },
+  type: "array",
+  items: {
+    type: "object",
+    properties: {
+      id: {
+        type: "string",
       },
-    },
-  },
-  definitions: {
-    CeramicStreamId: {
-      type: "string",
-      pattern: "^ceramic://.+(\\\\?version=.+)?",
-      maxLength: 150,
     },
   },
 };

@@ -747,34 +747,30 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public pollBackups(): ResultAsync<void, PersistenceError> {
     return this.cloudStorage
-      .lastRestore()
-      .andThen((startTime) => {
-        return this.cloudStorage
-          .pollBackups(startTime)
-          .andThen((backups) => {
-            return ResultUtils.combine(
-              backups.map((backup) => {
-                return this.restoreBackup(backup);
-              }),
-            );
-          })
-          .andThen((_) => {
-            return ResultUtils.combine([
-              this._getBackupManager(),
-              this.configProvider.getConfig(),
-            ]).andThen(([backupManager, config]) => {
-              return backupManager.getNumUpdates().andThen((numUpdates) => {
-                if (numUpdates >= config.backupChunkSizeTarget) {
-                  return backupManager.dump().andThen((backup) => {
-                    return this.cloudStorage
-                      .putBackup(backup)
-                      .andThen(() => okAsync(backupManager.clear()));
-                  });
-                }
-                return okAsync(undefined);
+      .pollBackups()
+      .andThen((backups) => {
+        return ResultUtils.combine(
+          backups.map((backup) => {
+            return this.restoreBackup(backup);
+          }),
+        );
+      })
+      .andThen((_) => {
+        return ResultUtils.combine([
+          this._getBackupManager(),
+          this.configProvider.getConfig(),
+        ]).andThen(([backupManager, config]) => {
+          return backupManager.getNumUpdates().andThen((numUpdates) => {
+            if (numUpdates >= config.backupChunkSizeTarget) {
+              return backupManager.dump().andThen((backup) => {
+                return this.cloudStorage
+                  .putBackup(backup)
+                  .andThen(() => okAsync(backupManager.clear()));
               });
-            });
+            }
+            return okAsync(undefined);
           });
+        });
       })
       .andThen((_) => okAsync(undefined));
   }

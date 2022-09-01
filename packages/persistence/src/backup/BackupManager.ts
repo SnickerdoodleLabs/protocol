@@ -24,7 +24,6 @@ export class BackupManager {
   private numUpdates = 0;
   private accountAddr: DataWalletAddress;
 
-  private restored: Set<string> = new Set();
   private fieldHistory: Map<string, number> = new Map();
 
   public constructor(
@@ -86,7 +85,6 @@ export class BackupManager {
             blob: blob,
           };
 
-          this.restored.add(backup.header.hash);
           return okAsync(backup);
         });
       });
@@ -99,10 +97,6 @@ export class BackupManager {
     return this._verifyBackupSignature(backup).andThen((valid) => {
       if (!valid) {
         return errAsync(new PersistenceError("invalid backup signature"));
-      }
-
-      if (backup.header.hash in this.restored) {
-        return errAsync(new PersistenceError("backup already restored"));
       }
 
       return this._unpackBlob(backup.blob)
@@ -142,9 +136,7 @@ export class BackupManager {
             );
           });
         })
-        .map((_) => {
-          this.restored.add(backup.header.hash);
-        });
+        .map((_) => undefined);
     });
   }
 

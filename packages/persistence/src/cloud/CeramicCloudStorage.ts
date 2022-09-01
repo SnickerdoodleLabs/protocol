@@ -1,8 +1,7 @@
 import { CeramicClient } from "@ceramicnetwork/http-client";
-import { StreamID } from "@ceramicnetwork/streamid";
-import { IDX } from "@ceramicstudio/idx";
 import { DataModel } from "@glazed/datamodel";
 import { DIDDataStore } from "@glazed/did-datastore";
+import { TileLoader } from "@glazed/tile-loader";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   EVMPrivateKey,
@@ -15,6 +14,7 @@ import { injectable } from "inversify";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICloudStorage } from "@persistence/cloud";
 
@@ -31,19 +31,28 @@ const modelAliases = {
   tiles: {},
 };
 
-type BackupItem = {
-  id: string;
-  timestamp: number;
-};
+type BackupIndex = { id: string }[];
 
-type BackupIndex = {
-  backups: Array<BackupItem>;
+type ModelTypes = {
+  schemas: {
+    Backup: IDataWalletBackup;
+    BackupIndex: BackupIndex;
+  };
+  definitions: {
+    backups: "BackupIndex";
+  };
+  tiles: Record<string, never>;
 };
 
 @injectable()
 export class CeramicCloudStorage implements ICloudStorage {
-  private _lastRestore = 0;
   private _ceramic?: CeramicClient;
+
+  private _loader?: TileLoader;
+  private _dataStore?: DIDDataStore<ModelTypes>;
+  private _dataModel?: DataModel<ModelTypes>;
+
+  private _restored: Set<string> = new Set();
 
   public constructor(
     protected _privateKey: EVMPrivateKey,
@@ -81,59 +90,98 @@ export class CeramicCloudStorage implements ICloudStorage {
     ).andThen((_) => okAsync(did));
   }
 
-  private _getIDX(
-    ceramic: CeramicClient,
-  ): ResultAsync<BackupIndex, PersistenceError> {
-    // Create the IDX instance with the definitions aliases from the config
-    const idx = new IDX({ ceramic: ceramic, aliases: modelAliases });
+  private _init(): ResultAsync<
+    {
+      store: DIDDataStore<ModelTypes>;
+      model: DataModel<ModelTypes>;
+      loader: TileLoader;
+    },
+    PersistenceError
+  > {
+    return this._getCeramic().andThen((ceramic) => {
+      if (
+        this._dataStore != undefined &&
+        this._dataModel != undefined &&
+        this._loader != undefined
+      ) {
+        return okAsync({
+          store: this._dataStore,
+          model: this._dataModel,
+          loader: this._loader,
+        });
+      }
 
-    // Load the existing notes
-    return ResultAsync.fromPromise(
-      idx.get<BackupIndex>("backups"),
-      (e) => e as PersistenceError,
-    ).map((index) => index ?? { backups: [] });
-    return okAsync({ backups: [] });
+      this._loader = new TileLoader({ ceramic });
+      this._dataModel = new DataModel({
+        loader: this._loader,
+        aliases: modelAliases,
+      });
+      this._dataStore = new DIDDataStore({
+        ceramic,
+        loader: this._loader,
+        model: this._dataModel,
+      });
+
+      return okAsync({
+        store: this._dataStore,
+        model: this._dataModel,
+        loader: this._loader,
+      });
+    });
   }
 
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
-    return this._getCeramic().andThen((ceramic) => {
-      const model = new DataModel({
-        ceramic: ceramic,
-        aliases: modelAliases,
-      });
-
+    return this._init().andThen(({ store, model }) => {
       return ResultAsync.fromPromise(
-        model.createTile("DataWalletBackup", backup),
+        model.createTile("Backup", backup),
         (e) => e as PersistenceError,
-      ).map((tileDoc) => tileDoc.id.toString());
+      ).andThen((doc) => {
+        const id = doc.id.toUrl();
+        return ResultAsync.fromPromise(
+          store.get("backups"),
+          (e) => e as PersistenceError,
+        ).andThen((backups) => {
+          return ResultAsync.fromPromise(
+            store.set("backups", [...(backups ?? []), { id: id }]),
+            (e) => e as PersistenceError,
+          ).map((_) => id);
+        });
+      });
     });
-    throw new Error("not implemented");
   }
 
-  public pollBackups(
-    startTime: number,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
-    // this._getCeramic().andThen((ceramic) => {
-    //   const model = new DataModel({
-    //     ceramic: ceramic,
-    //     aliases: modelAliases,
-    //   });
-    //   const store = new DIDDataStore({
-    //     ceramic: ceramic,
-    //     model: model,
-    //   });
-
-    //   store.set;
-
-    //   model.set();
-    // });
-
-    throw new Error("Method not implemented.");
+  public pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return this._getBackupIndex().andThen((backups) => {
+      const recent = backups.map((record) => record.id);
+      const found = [...recent].filter((x) => this._restored.has(x));
+      return ResultUtils.combine(
+        found.map((backupID) => this._getBackup(backupID)),
+      ).map((fetched) => {
+        this._restored = new Set(recent);
+        return fetched;
+      });
+    });
   }
 
-  public lastRestore(): ResultAsync<number, PersistenceError> {
-    return okAsync(this._lastRestore);
+  private _getBackup(
+    id: string,
+  ): ResultAsync<IDataWalletBackup, PersistenceError> {
+    return this._init().andThen(({ loader }) => {
+      return ResultAsync.fromPromise(
+        loader.load<IDataWalletBackup>(id),
+        (e) => e as PersistenceError,
+      ).map((tileDoc) => tileDoc.content);
+    });
+  }
+
+  private _getBackupIndex(): ResultAsync<BackupIndex, PersistenceError> {
+    return this._init().andThen(({ store }) => {
+      return ResultAsync.fromPromise(
+        store.get("backups"),
+        (e) => e as PersistenceError,
+      ).map((backups) => backups ?? []);
+    });
   }
 }
