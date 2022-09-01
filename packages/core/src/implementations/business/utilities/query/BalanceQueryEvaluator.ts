@@ -48,26 +48,16 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       })
       .andThen((excessValues) => {
         const tokenBalances: ITokenBalance[] = [];
-        let newToken: ITokenBalance = {
-          ticker: TickerSymbol("ETH"),
-          networkId: ChainId(1),
-          address: EVMContractAddress(""),
-          balance: BigNumber.from("0"),
-        };
+
         excessValues.forEach((object) => {
-          newToken["ticker"] = object.ticker;
-          newToken["networkId"] = object.chainId;
-          newToken["address"] = object.contractAddress;
-          newToken["balance"] = BigNumber.from(object.balance);
+          const newToken:ITokenBalance = {
+            ticker: object.ticker,
+            networkId: object.chainId,
+            address: object.contractAddress,
+            balance: BigNumber.from(object.balance)
+          };
           tokenBalances.push(newToken);
 
-          // refresh newToken so new info can be pushed in
-          newToken = {
-            ticker: TickerSymbol("ETH"),
-            networkId: ChainId(1),
-            address: EVMContractAddress(""),
-            balance: BigNumber.from("0"),
-          };
         });
         return okAsync(tokenBalances);
       })
