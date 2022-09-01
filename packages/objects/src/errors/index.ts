@@ -20,3 +20,5 @@ export * from "@objects/errors/QueryFormatError";
 export * from "@objects/errors/UninitializedError";
 export * from "@objects/errors/UnsupportedLanguageError";
 export * from "@objects/errors/sdqlExceptions";
+export * from "@objects/errors/MissingWalletDataTypeError";
+export * from "@objects/errors/PermissionError";

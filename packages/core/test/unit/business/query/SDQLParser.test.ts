@@ -6,6 +6,7 @@ import { avalance1SchemaStr } from "./avalanche1.data";
 import { QueryObjectFactory, SDQLParser } from "@core/implementations/business/utilities/query";
 import {
   AST,
+  AST_BalanceQuery,
   AST_Compensation,
   AST_ConditionExpr,
   AST_NetworkQuery,
@@ -18,6 +19,7 @@ import {
   ConditionGE,
   SDQLSchema,
 } from "@core/interfaces/objects/SDQL";
+import { DataPermissions, EWalletDataType } from "@snickerdoodlelabs/objects";
 
 describe("SDQLParser on avalanche", () => {
 
@@ -38,7 +40,7 @@ describe("SDQLParser on avalanche", () => {
 
   describe("Checking queries", () => {
     test("q1 is a network query on AVAX", () => {
-      const q1 = parser.context.get("q1");
+      const q1 = parser.context.get("q1") as AST_NetworkQuery;
       // console.log(q1.contract);
       expect(q1 instanceof AST_NetworkQuery).toBeTruthy();
       expect(q1.returnType).toBe("boolean");
@@ -55,44 +57,50 @@ describe("SDQLParser on avalanche", () => {
     });
 
     test("q2 is a conditional age query", () => {
-      const q2 = parser.context.get("q2");
+      const q2 = parser.context.get("q2") as AST_PropertyQuery;
       expect(q2 instanceof AST_PropertyQuery).toBeTruthy();
       expect(q2.property).toBe("age");
       expect(q2.returnType).toBe("boolean");
       expect(q2.conditions.length == 1);
 
-      const c1 = q2.conditions[0];
+      const c1 = q2.conditions[0] as ConditionGE;
       expect(c1 instanceof ConditionGE).toBeTruthy();
       expect(c1.lval).toBeNull();
       expect(c1.rval).toBe(15);
     });
 
     test("q3 is a location query", () => {
-      const q3 = parser.context.get("q3");
+      const q3 = parser.context.get("q3") as AST_PropertyQuery;
       expect(q3 instanceof AST_PropertyQuery).toBeTruthy();
       expect(q3.property).toBe("location");
       expect(q3.returnType).toBe("integer");
+    });
+
+    test("q4 is a balance query", () => {
+      const q4 = parser.context.get("q4");
+      // console.log(q4);
+      expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
     });
   });
 
   describe("Checking return queries", () => {
     test("r1 is a return qualified message", () => {
-      const r = parser.context.get("r1");
+      const r = parser.context.get("r1") as AST_ReturnExpr;
       expect(r instanceof AST_ReturnExpr).toBeTruthy();
       expect(r.source instanceof AST_Return).toBeTruthy();
       expect(r.source.name).toBe("callback");
-      expect(r.source.message).toBe("qualified");
+      expect((r.source as AST_Return).message).toBe("qualified");
     });
     test("r2 is a return not qualified message", () => {
-      const r = parser.context.get("r2");
+      const r = parser.context.get("r2") as AST_ReturnExpr;
       expect(r instanceof AST_ReturnExpr).toBeTruthy();
       expect(r.source instanceof AST_Return).toBeTruthy();
       expect(r.source.name).toBe("callback");
-      expect(r.source.message).toBe("not qualified");
+      expect((r.source as AST_Return).message).toBe("not qualified");
     });
 
     test("r3 is a query_response", () => {
-      const r = parser.context.get("r3");
+      const r = parser.context.get("r3") as AST_ReturnExpr;
       expect(r instanceof AST_ReturnExpr).toBeTruthy();
       expect(r.source instanceof AST_Query).toBeTruthy();
       expect(r.source.name).toBe("q3");
@@ -101,9 +109,9 @@ describe("SDQLParser on avalanche", () => {
 
   describe("Checking compensations", () => {
     test("it has 3 compensations (c1, c2, c3) with descriptions and callback", () => {
-      const c1 = parser.context.get("c1");
-      const c2 = parser.context.get("c2");
-      const c3 = parser.context.get("c3");
+      const c1 = parser.context.get("c1") as AST_Compensation;
+      const c2 = parser.context.get("c2") as AST_Compensation;
+      const c3 = parser.context.get("c3") as AST_Compensation;
       expect(c1 instanceof AST_Compensation).toBeTruthy();
       expect(c2 instanceof AST_Compensation).toBeTruthy();
       expect(c3 instanceof AST_Compensation).toBeTruthy();
@@ -172,7 +180,8 @@ describe("SDQLParser on avalanche", () => {
 
       expect(eef.trueExpr).toEqual(parser.context.get("c1"));
     });
-  });
+  }); 
+
   describe("AST validation", () => {
     test("meta check", () => {
       expect(ast!.version).toBe("0.1");
@@ -180,6 +189,26 @@ describe("SDQLParser on avalanche", () => {
         "Interactions with the Avalanche blockchain for 15-year and older individuals",
       );
       expect(ast!.business).toBe("Shrapnel");
+    });
+  });
+
+  describe("Dependency validation", () => {
+    test("if($q1and$q2)then$r1else$r2 -> q1, q2", () => {
+
+      // console.log(parser.returnPermissions);
+      const permissions = parser.returnPermissions.get("if($q1and$q2)then$r1else$r2")
+      const expectedFlags = EWalletDataType.EVMTransactions | EWalletDataType.Age;
+      expect(permissions!.eq(expectedFlags)).toBeTruthy();
+
+    });
+
+    test("$r3 -> q3", () => {
+
+      // console.log(parser.returnPermissions);
+      const permissions = parser.returnPermissions.get("$r3")
+      const expectedFlags = EWalletDataType.Location;
+      expect(permissions!.eq(expectedFlags)).toBeTruthy();
+
     });
   });
 });

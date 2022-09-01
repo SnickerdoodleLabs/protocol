@@ -52,7 +52,7 @@ describe("Tokenizer", () => {
     );
   });
 
-  test.only("if($q1and$q2)then$r1else$r2", function () {
+  test("if($q1and$q2)then$r1else$r2", function () {
     const tokenizer = new Tokenizer("if($q1and$q2)then$r1else$r2");
     expect(tokenizer.hasNext()).toBe(true);
 

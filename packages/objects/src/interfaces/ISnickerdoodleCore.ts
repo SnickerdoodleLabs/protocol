@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 
 import {
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   IEVMNFT,
   SDQLQuery,
   PageInvitation,
@@ -132,11 +132,11 @@ export interface ISnickerdoodleCore {
    * Note that this is different than reject invitation, which will not opt you out of the
    * cohort
    * @param invitation The actual invitation to the cohort
-   * @param consentConditions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
+   * @param dataPermissions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
    */
   acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError

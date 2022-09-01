@@ -37,7 +37,7 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
-  ConsentConditions,
+  DataPermissions,
   EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
@@ -64,11 +64,11 @@ export class ExternalCoreGateway {
     );
   }
   public acceptInvitation(
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
     id: UUID,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
-      consentConditions,
+      dataPermissions,
       id,
     } as IAcceptInvitationParams);
   }

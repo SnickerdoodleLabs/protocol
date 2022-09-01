@@ -34,6 +34,10 @@ import {
   InsightString
 } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
+import { DataPermissions } from "@snickerdoodlelabs/objects";
+import { ConsentToken } from "@snickerdoodlelabs/objects";
+import { TokenId } from "@snickerdoodlelabs/objects";
+import { TokenUri } from "@snickerdoodlelabs/objects";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
@@ -57,6 +61,7 @@ class QueryServiceMocks {
   public contextProvider: ContextProviderMock;
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
+  public consentToken = new ConsentToken(consentContractAddress, EVMAccountAddress(dataWalletAddress), TokenId(BigInt(0)), TokenUri("my-token"), new DataPermissions(0xffffffff));
 
   public constructor() {
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
@@ -100,7 +105,11 @@ class QueryServiceMocks {
       ),
     ).thenReturn(okAsync(true));
 
-    td.when(this.queryParsingEngine.handleQuery(sdqlQuery)).thenReturn(
+    td.when(
+      this.consentContractRepo.getCurrentConsentToken(consentContractAddress)
+    ).thenReturn(okAsync(this.consentToken));
+
+    td.when(this.queryParsingEngine.handleQuery(sdqlQuery, new DataPermissions(0xffffffff))).thenReturn(
       okAsync([insights, rewards]),
     );
 
@@ -157,33 +166,25 @@ describe("processQuery tests", () => {
     });
   });
 
-  // test("no error if dataWallet and address are present", async () => {
-  //   await ResultUtils.combine([
-  //     mocks.contextProvider.getContext(),
-  //     mocks.configProvider.getConfig(),
-  //   ]).andThen(([context, config]) => {
-  //     const res = queryService.validateContextConfig(
-  //       context as CoreContext,
-  //       config as CoreConfig,
-  //     );
-  //     expect(res).toBeNull();
-  //     return okAsync(true);
-  //   });
-  // });
-
   test("error if dataWalletAddress missing in context", async () => {
     await ResultUtils.combine([
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig(),
     ]).andThen(([context, config]) => {
+
       const copyContext: CoreContext = { ...(context as CoreContext) };
       copyContext.dataWalletAddress = null;
-      const res = queryService.validateContextConfig(
+      return queryService.validateContextConfig(
         copyContext,
         config as CoreConfig,
-      );
-      expect(res).toBeInstanceOf(UninitializedError);
-      return okAsync(true);
+        mocks.consentToken,
+      ).andThen(() => {
+        fail();
+      }).orElse((err) => {
+        expect(err.constructor).toBe(UninitializedError);
+        return errAsync(err);
+      });
+
     });
   });
 
@@ -192,14 +193,19 @@ describe("processQuery tests", () => {
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig(),
     ]).andThen(([context, config]) => {
+
       const copyContext: CoreContext = { ...(context as CoreContext) };
       copyContext.dataWalletKey = null;
-      const res = queryService.validateContextConfig(
+      return queryService.validateContextConfig(
         copyContext,
         config as CoreConfig,
-      );
-      expect(res).toBeInstanceOf(UninitializedError);
-      return okAsync(true);
+        mocks.consentToken,
+      ).andThen(() => {
+        fail();
+      }).orElse((err) => {
+        expect(err.constructor).toBe(UninitializedError);
+        return errAsync(err);
+      });
     });
   });
 
@@ -251,11 +257,10 @@ describe("processQuery tests", () => {
   });
 
   test("processQuery success", async () => {
-    // const queryRequest = new SDQLQueryRequest(consentContractAddress, sdqlQuery);
+    
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    // queryService.
-    // copyContext.dataWalletKey = null;
+
 
     await queryService
       .processQuery(consentContractAddress, sdqlQuery)
@@ -264,12 +269,10 @@ describe("processQuery tests", () => {
         expect(result).toBeUndefined();
         // expect(result.isOk()).toBeTruthy();
         return okAsync(true);
+      })
+      .orElse((err) => {
+        console.log(err);
+        fail();
       });
-    // await queryService
-    //   .processQuery(consentContractAddress, sdqlQuery)
-    //   .then((result) => {
-    //     console.log('result', result);
-    //     expect(result.isOk()).toBeTruthy();
-    //   });
   });
 });

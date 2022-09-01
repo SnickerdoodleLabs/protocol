@@ -1,7 +1,7 @@
 import {
   Age,
   BigNumberString,
-  ConsentConditions,
+  DataPermissions,
   CountryCode,
   DomainName,
   EmailAddressString,
@@ -65,7 +65,7 @@ export interface IGetInvitationWithDomainParams {
   path: string;
 }
 export interface IAcceptInvitationParams {
-  consentConditions: ConsentConditions;
+  dataPermissions: DataPermissions;
   id: UUID;
 }
 export interface IRejectInvitationParams {

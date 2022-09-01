@@ -15,7 +15,7 @@ import {
   Signature,
   UnixTimestamp,
   PageInvitation,
-  ConsentConditions,
+  DataPermissions,
   UUID,
   InvitationDomain,
   EVMContractAddress,
@@ -241,9 +241,9 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
       case EExternalActions.ACCEPT_INVITATION: {
-        const { consentConditions, id } = params as IAcceptInvitationParams;
+        const { dataPermissions, id } = params as IAcceptInvitationParams;
         return new AsyncRpcResponseSender(
-          this.acceptInvitation(consentConditions, id),
+          this.acceptInvitation(dataPermissions, id),
           res,
         ).call();
       }
@@ -347,13 +347,13 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private acceptInvitation(
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
     id: UUID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     const invitation = this.contextProvider.getInvitation(id) as Invitation;
     return this.invitationService.acceptInvitation(
       invitation,
-      consentConditions,
+      dataPermissions,
     );
   }
   private rejectInvitation(

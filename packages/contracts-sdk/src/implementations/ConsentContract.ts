@@ -13,6 +13,7 @@ import {
   DomainName,
   BaseURI,
   HexString,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -73,6 +74,7 @@ export class ConsentContract implements IConsentContract {
       .map(() => {});
   }
 
+  // TODO: add data permissions param
   public encodeOptIn(tokenId: TokenId, agreementURI: TokenUri): HexString {
     return HexString(
       this.contract.interface.encodeFunctionData("optIn", [
@@ -483,6 +485,8 @@ export class ConsentContract implements IConsentContract {
                   ownerAddress,
                   TokenId(logEvent.args?.tokenId?.toNumber()),
                   tokenUri as TokenUri,
+                  // TODO: DataPermissions
+                  new DataPermissions(0xffffffff),
                 ),
               );
             });
@@ -519,6 +523,8 @@ export class ConsentContract implements IConsentContract {
                 ownerAddress,
                 TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
                 tokenUri as TokenUri,
+                // TODO: DataPermissions
+                new DataPermissions(0xffffffff),
               ),
             );
           },

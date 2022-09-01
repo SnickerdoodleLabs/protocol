@@ -3,7 +3,7 @@ import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   DomainName,
   EInvitationStatus,
   ISnickerdoodleCore,
@@ -61,10 +61,10 @@ export class InvitationRepository implements IInvitationRepository {
 
   public acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core
-      .acceptInvitation(invitation, consentConditions)
+      .acceptInvitation(invitation, dataPermissions)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);

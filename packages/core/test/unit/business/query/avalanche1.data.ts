@@ -30,6 +30,36 @@ export const avalance1SchemaStr = `
         "q3":{
             "name": "location",
             "return": "integer"
+        },
+        "q4": {
+            "name": "balance",
+            "networkid": "1",
+            "conditions": {
+                "ge": 10
+            },
+            "return": "array",
+            "array_items": {
+                "type": "object",
+                "object_schema": {
+                    "properties": {
+                        "networkid": {
+                            "type": "integer"
+                        },
+                        "address": {
+                            "type": "string",
+                            "pattern": "^0x[a-fA-F0-9]{40}$"
+                        },
+                        "balance": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "networkid",
+                        "address",
+                        "balance"
+                    ]
+                }
+            }
         }
     },
     "returns": {

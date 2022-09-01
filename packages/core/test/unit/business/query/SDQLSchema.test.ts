@@ -1,16 +1,19 @@
 import { avalance1SchemaStr } from "./avalanche1.data";
 
 import { SDQLSchema } from "@core/interfaces/objects/SDQL";
+import { SDQLString } from "@snickerdoodlelabs/objects";
 
 describe("SDQLSchema with Avalanche", () => {
-  const sdqlSchema = SDQLSchema.fromString(avalance1SchemaStr);
+  const sdqlSchema = SDQLSchema.fromString(SDQLString(avalance1SchemaStr));
   const querySchema = sdqlSchema.getQuerySchema();
   const returnSchema = sdqlSchema.getReturnSchema();
   const compensationSchema = sdqlSchema.getCompensationSchema();
   const logicSchema = sdqlSchema.getLogicSchema();
 
-  test("avalance has 3 query schema", () => {
-    expect(Object.keys(querySchema).length).toBe(3);
+  test("avalance has 4 query schema", () => {
+    // console.log(sdqlSchema);
+    // console.log(querySchema);
+    expect(Object.keys(querySchema).length).toBe(4);
   });
 
   test("avalance q1 is a network query", () => {

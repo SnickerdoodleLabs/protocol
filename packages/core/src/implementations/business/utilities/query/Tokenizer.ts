@@ -52,7 +52,12 @@ export class Tokenizer {
   private _hasNext = true;
   constructor(readonly exprStr: string, readonly debug: boolean = false) {
     if (this.exprStr.length == 0) {
-      throw new ParserError(this.position, "cannot parse empty expressions");
+      const err = new ParserError(
+        this.position,
+        "cannot parse empty expressions",
+      );
+      // console.error(err);
+      throw err;
     }
     this.validateRules();
   }
@@ -68,7 +73,9 @@ export class Tokenizer {
 
   next() {
     if (!this.hasNext()) {
-      throw new ParserError(this.position, "no more tokens");
+      const err = new ParserError(this.position, "no more tokens");
+      // console.error(err);
+      throw err;
     }
     for (const rule of rules) {
       const rexp = rule[0];
@@ -102,7 +109,9 @@ export class Tokenizer {
       // if false, do nothing
     }
 
-    throw new ParserError(this.position, "No matching tokens found");
+    const err = new ParserError(this.position, "No matching tokens found");
+    // console.error(err);
+    throw err;
   }
 
   all(): Array<Token> {
@@ -117,7 +126,9 @@ export class Tokenizer {
     for (const rule of rules) {
       const rexp = rule[0];
       if (rexp.sticky != true) {
-        throw new InvalidRegularExpression(`${rexp} is not sticky`);
+        const err = new InvalidRegularExpression(`${rexp} is not sticky`);
+        // console.error(err);
+        throw err;
       }
     }
   }

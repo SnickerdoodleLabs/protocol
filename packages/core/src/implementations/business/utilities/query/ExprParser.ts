@@ -1,5 +1,7 @@
 import {
-  MissingTokenConstructorError, ParserError, SDQL_Name,
+  MissingTokenConstructorError,
+  ParserError,
+  SDQL_Name,
   SDQL_OperatorName
 } from "@snickerdoodlelabs/objects";
 
@@ -8,8 +10,8 @@ import {
   Tokenizer,
   TokenType
 } from "@core/implementations/business/utilities/query/Tokenizer";
+import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
 import {
-  AST_Compensation,
   AST_ConditionExpr,
   AST_Expr,
   AST_Query,
@@ -27,11 +29,11 @@ export class ExprParser {
    * IF ::= "if" WS Condition "then" WS Expr "else" WS Expr
    */
 
-  precedence: Map<TokenType, Array<TokenType>> = new Map();
-  id = 0;
-  tokenToExpMap: Map<TokenType, Function> = new Map();
+  protected precedence: Map<TokenType, Array<TokenType>> = new Map();
+  protected id = 0;
+  protected tokenToExpMap: Map<TokenType, Function> = new Map();
 
-  constructor(readonly context: Map<string, any>) {
+  constructor(readonly context: Map<string, ParserContextDataTypes>) {
     this.precedence.set(
       TokenType.parenthesisClose,
       [
@@ -48,6 +50,10 @@ export class ExprParser {
     this.tokenToExpMap.set(TokenType.and, this.createAnd);
     this.tokenToExpMap.set(TokenType.or, this.createOr);
     this.tokenToExpMap.set(TokenType.if, this.createIf);
+
+    if (!this.context.has("dependencies")) {
+      this.context.set("dependencies", new Map<string, Set<AST_Query>>());
+    }
   }
   private getNextId(name: string) {
     this.id++;
@@ -55,20 +61,24 @@ export class ExprParser {
     return nextId;
   }
 
+  // #region building ast
   parse(exprStr: string): AST_Expr | Command {
+    /**
+     * Builds a AST expression or a command from the input string
+     */
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
     const ast = this.tokensToAst(tokens);
     return ast;
   }
 
-  tokensToAst(tokens): AST_Expr | Command {
+  tokensToAst(tokens: Token[]): AST_Expr | Command {
     const postFix: Array<Token> = this.infixToPostFix(tokens);
     const ast = this.buildAstFromPostfix(postFix);
     return ast;
   }
   // #region infix to postfix
-  infixToPostFix(infix): Array<Token> {
+  infixToPostFix(infix: Token[]): Array<Token> {
     const stack: Array<Token> = [];
     const postFix: Array<Token> = [];
     for (const token of infix) {
@@ -115,35 +125,21 @@ export class ExprParser {
           // console.log("stack after", stack);
           const parenthesisOpen = stack.pop();
           if (parenthesisOpen?.type != TokenType.parenthesisOpen) {
-            throw new ParserError(
+            const e = new ParserError(
               token.position,
               "No matching opening parenthesis for this",
             );
+            console.log(e);
+            throw e;
           }
           break;
 
         case TokenType.then:
         case TokenType.else:
-          // pop until if
-          // console.log("stack before", stack);
-          // popped = this.popToType(stack, token, TokenType.if);
-          // console.log("popped", popped);
-          // console.log("stack after", stack);
-          // postFix.push(...popped);
-          // stack.push(token);
           popped = this.popBefore(stack, token, TokenType.if); // condition output
           postFix.push(...popped);
 
           break;
-
-        // case TokenType.else:
-        //     console.log("stack before", stack);
-        //     popped = this.popToType(stack, token, TokenType.then);
-        //     console.log("popped", popped);
-        //     console.log("stack after", stack);
-        //     postFix.push(...popped);
-        //     stack.push(token);
-        //     break;
       }
     }
 
@@ -196,10 +192,12 @@ export class ExprParser {
       }
     }
 
-    throw new ParserError(
+    const err = new ParserError(
       token.position,
       `Missing matching ${toType} for ${token.type}`,
     );
+    console.error(err);
+    throw err;
   }
 
   popBefore(
@@ -222,18 +220,16 @@ export class ExprParser {
       }
     }
 
-    throw new ParserError(
+    const err = new ParserError(
       token.position,
       `Missing matching ${toType} for ${token.type}`,
     );
+    console.error(err);
+    throw err;
   }
   // #endregion
 
   buildAstFromPostfix(postFix: Array<Token>): AST_Expr | Command {
-    // exp1, exp2, op
-    // exp1, exp2, if
-    // exp1, exp2, exp3 if
-
     const exprTypes: Array<TokenType> = [
       TokenType.query,
       TokenType.return,
@@ -241,8 +237,8 @@ export class ExprParser {
       TokenType.number,
       TokenType.string,
     ];
-    // const expList: Array<AST_Expr | AST_Query | AST_Compensation | AST_ReturnExpr> = [];
-    let expList: Array<any> = [];
+
+    let expList: Array<ParserContextDataTypes> = [];
 
     for (const token of postFix) {
       if (exprTypes.includes(token.type)) {
@@ -251,29 +247,23 @@ export class ExprParser {
       } else {
         // we have a operator type
         const newExp: any = this.createExp(expList, token);
-        // switch(token.type) {
-        //     case TokenType.and:
-        //         newExp = this.createAnd(expList[0], expList[1], token);
-        //         break;
-        //     case TokenType.or:
-        //         newExp = this.createOr(expList[0], expList[1], token);
-        //         break;
-        // }
 
         if (!newExp) {
-          throw new ParserError(
+          const err = new ParserError(
             token.position,
             `Could not convert to ast ${token.val}`,
           );
+          console.error(err);
+          throw err;
         } else {
           expList = [newExp];
         }
       }
     }
 
-    return expList.pop();
+    // const expr = expList.pop() as AST_Expr | Command;
 
-    // throw new Error("Not implemented yet");
+    return expList.pop() as AST_Expr | Command;
   }
 
   createExp(expList, token: Token): AST_Expr {
@@ -281,13 +271,15 @@ export class ExprParser {
     if (evaluator) {
       return evaluator.apply(this, [expList, token]);
     } else {
-      throw new MissingTokenConstructorError("No Token type constructor defined for " + token.type);
+      const err = new MissingTokenConstructorError(
+        "No Token type constructor defined for " + token.type,
+      );
+      console.error(err);
+      throw err;
     }
   }
 
-  getExecutableFromContext(
-    token: Token,
-  ): AST_Expr | AST_Query | AST_Compensation | AST_ReturnExpr {
+  getExecutableFromContext(token: Token): ParserContextDataTypes {
     let nameStr = "";
     switch (token.type) {
       case TokenType.query:
@@ -296,18 +288,22 @@ export class ExprParser {
         nameStr = token.val.substring(1);
         break;
       default:
-        throw new ParserError(
+        const err = new ParserError(
           token.position,
           `invalid executable type for ${token.val}`,
         );
+        console.error(err);
+        throw err;
     }
 
     const executable = this.context.get(nameStr);
     if (!executable) {
-      throw new ParserError(
+      const err = new ParserError(
         token.position,
         `no executable for token ${token.val} in the context`,
       );
+      console.error(err);
+      throw err;
     }
 
     return executable;
@@ -352,4 +348,35 @@ export class ExprParser {
     const id = this.getNextId(token.val);
     return new Command_IF(SDQL_Name(id), trueExpr, falseExpr, conditionExpr);
   }
+  // #endregion
+
+  // #region parse dependencies only
+
+  getDependencies(exprStr: string): AST_Query[] {
+    const tokenizer = new Tokenizer(exprStr);
+    const tokens = tokenizer.all();
+
+    const deps:AST_Query[] = [];
+
+    tokens.reduce((deps, token) => {
+      
+      if (token.type == TokenType.query) {
+        
+        deps.push(this.getExecutableFromContext(token) as AST_Query);
+
+      } else if (token.type == TokenType.return) {
+
+        const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
+        if (r.source instanceof AST_Query) {
+          deps.push(r.source);
+        }
+      }
+      return deps;
+
+    }, deps);
+
+    return deps;
+
+  }
+  // #endregion
 }

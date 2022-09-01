@@ -7,78 +7,52 @@
 import {
   ICloudStorage,
   ICloudStorageType,
-  NullCloudStorage,
+  NullCloudStorage
 } from "@persistence/cloud";
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
-  DefaultAccountNFTs,
+  DefaultAccountNFTs
 } from "@snickerdoodlelabs/indexers";
 import {
   Age,
   AjaxError,
-  BlockchainProviderError,
-  ConsentConditions,
-  ConsentContractError,
+  BlockchainProviderError, ChainId, ConsentContractError,
   ConsentContractRepositoryError,
-  ConsentError,
-  CountryCode,
-  CrumbsContractError,
-  DomainName,
+  ConsentError, ConsentFactoryContractError, CountryCode,
+  CrumbsContractError, DataPermissions, DomainName,
   EInvitationStatus,
   EmailAddressString,
   EvaluationError,
   EVMAccountAddress,
-  EVMContractAddress,
-  FamilyName,
+  EVMContractAddress, EVMTransaction,
+  EVMTransactionFilter, FamilyName,
   Gender,
-  GivenName,
-  IAccountBalances,
-  IAccountBalancesType,
-  IAccountIndexing,
-  IAccountIndexingType,
-  IConfigOverrides,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
+  GivenName, IAccountBalancesType, IAccountIndexingType, IAccountNFTsType, IConfigOverrides, IDataWalletBackup, IDataWalletPersistence, IDataWalletPersistenceType,
   IEVMBalance,
   IEVMNFT,
   InvalidSignatureError,
-  Invitation,
-  IPFSError,
+  Invitation, IOpenSeaMetadata, IpfsCID, IPFSError,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   LanguageCode,
   MinimalForwarderContractError,
   PageInvitation,
   PersistenceError,
-  QueryFormatError,
-  Signature,
-  UninitializedError,
+  QueryFormatError, SDQLQuery, Signature, SiteVisit, UninitializedError,
   UnixTimestamp,
-  UnsupportedLanguageError,
-  SDQLQuery,
-  EVMTransaction,
-  EVMTransactionFilter,
-  IAccountNFTs,
-  IAccountNFTsType,
-  ChainId,
-  URLString,
-  SiteVisit,
-  IOpenSeaMetadata,
-  ConsentFactoryContractError,
-  IDataWalletBackup,
-  IpfsCID,
+  UnsupportedLanguageError, URLString
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
   IndexedDBFactory,
   IVolatileStorageFactory,
-  IVolatileStorageFactoryType,
+  IVolatileStorageFactoryType
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
   IStorageUtilsType,
-  LocalStorageUtils,
+  LocalStorageUtils
 } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -89,7 +63,7 @@ import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
-  IBlockchainListenerType,
+  IBlockchainListenerType
 } from "@core/interfaces/api";
 import {
   IAccountService,
@@ -99,7 +73,7 @@ import {
   IProfileService,
   IProfileServiceType,
   IQueryService,
-  IQueryServiceType,
+  IQueryServiceType
 } from "@core/interfaces/business";
 import {
   IBlockchainProvider,
@@ -107,7 +81,7 @@ import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
-  IContextProviderType,
+  IContextProviderType
 } from "@core/interfaces/utilities";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
@@ -295,7 +269,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -308,7 +282,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IInvitationServiceType,
     );
 
-    return cohortService.acceptInvitation(invitation, consentConditions);
+    return cohortService.acceptInvitation(invitation, dataPermissions);
   }
 
   public rejectInvitation(
@@ -404,6 +378,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
+      // console.log("core.processQuery")
     return queryService.processQuery(consentContractAddress, query);
   }
 

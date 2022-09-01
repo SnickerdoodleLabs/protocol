@@ -4,12 +4,12 @@ import {
   EVMContractAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
   ITokenBalance,
   PersistenceError,
   SDQL_Return,
   TickerSymbol,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -22,7 +22,6 @@ import {
   ConditionL,
   ConditionLE,
 } from "@core/interfaces/objects";
-import { BigNumber } from "ethers";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
@@ -41,14 +40,14 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           return okAsync(balances);
         }
 
-        const networkBalances =  balances.filter((balance) => balance.chainId == query.networkId);
-        // console.log('networkBalances', networkBalances);
-        return okAsync(
-          networkBalances
+        const networkBalances = balances.filter(
+          (balance) => balance.chainId == query.networkId,
         );
+        // console.log('networkBalances', networkBalances);
+        return okAsync(networkBalances);
       })
       .andThen((excessValues) => {
-        let tokenBalances: ITokenBalance[] = [];
+        const tokenBalances: ITokenBalance[] = [];
         let newToken: ITokenBalance = {
           ticker: TickerSymbol("ETH"),
           networkId: ChainId(1),
@@ -87,55 +86,51 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     query: AST_BalanceQuery,
     balanceArray: ITokenBalance[],
   ): ResultAsync<ITokenBalance[], never> {
-    for (let condition of query.conditions) {
-      //console.log("Condition: ", condition);
-      //console.log("balanceArray: ", balanceArray);
+    for (const condition of query.conditions) {
+      // console.log("Condition: ", condition);
+      // console.log("balanceArray: ", balanceArray);
       let val: BigNumber = BigNumber.from(0);
       switch (condition.constructor) {
         case ConditionGE:
           val = BigNumber.from((condition as ConditionGE).rval);
           // console.log("val: ", val);
           // console.log("balanceArray: ", balanceArray);
-          balanceArray = balanceArray.filter(
-            (balance) =>
-              BigNumber.from(balance.balance).gte(val),
+          balanceArray = balanceArray.filter((balance) =>
+            BigNumber.from(balance.balance).gte(val),
           );
           //console.log("BalanceArray: ", balanceArray);
           break;
         case ConditionG:
           val = BigNumber.from((condition as ConditionG).rval);
           //console.log("val: ", val.toNumber());
-          balanceArray = balanceArray.filter(
-            (balance) =>
-              BigNumber.from(balance.balance).gt(val),
+          balanceArray = balanceArray.filter((balance) =>
+            BigNumber.from(balance.balance).gt(val),
           );
           break;
         case ConditionL:
           val = BigNumber.from((condition as ConditionL).rval);
           //console.log("val: ", val.toNumber());
-          balanceArray = balanceArray.filter(
-            (balance) =>
-              BigNumber.from(balance.balance).lt(val),
+          balanceArray = balanceArray.filter((balance) =>
+            BigNumber.from(balance.balance).lt(val),
           );
           break;
         case ConditionE:
           val = BigNumber.from((condition as ConditionE).rval);
           //console.log("val: ", val.toNumber());
-          balanceArray = balanceArray.filter(
-            (balance) =>
-              BigNumber.from(balance.balance).eq(val),
+          balanceArray = balanceArray.filter((balance) =>
+            BigNumber.from(balance.balance).eq(val),
           );
           break;
         case ConditionLE:
           val = BigNumber.from((condition as ConditionLE).rval);
           //console.log("val: ", val.toNumber());
-          balanceArray = balanceArray.filter(
-            (balance) =>
-              BigNumber.from(balance.balance).lte(val),
+          balanceArray = balanceArray.filter((balance) =>
+            BigNumber.from(balance.balance).lte(val),
           );
           break;
 
         default:
+          console.error("EvalNotImplementedError");
           throw new EvalNotImplementedError(condition.constructor.name);
       }
     }
@@ -152,11 +147,11 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       networkId: ChainId(0),
       address: EVMContractAddress("0"),
     };
-    let balanceMap = new Map<EVMContractAddress, ITokenBalance>();
+    const balanceMap = new Map<EVMContractAddress, ITokenBalance>();
 
     balanceArray.forEach((d) => {
       if (balanceMap.has(d.address)) {
-        let getObject = balanceMap.get(d.address);
+        const getObject = balanceMap.get(d.address);
         if (getObject !== undefined) {
           obj = getObject;
         }
@@ -173,7 +168,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       }
     });
 
-    let returnedArray: ITokenBalance[] = [];
+    const returnedArray: ITokenBalance[] = [];
     balanceMap.forEach((element, key) => {
       returnedArray.push({
         ticker: element.ticker,

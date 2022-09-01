@@ -26,26 +26,13 @@ import {
   TypeChecker,
 } from "@core/interfaces/objects";
 
-// TODO introduce dependency injection
-
 export class AST_Evaluator {
   /**
    * @remarks This class should not be instantiated directly. Use the AST_Factories instead.
    */
 
-  // readonly queryRepository: QueryRepository = new QueryRepository();
-  // readonly exprMap: Map<AST_Expr.name
-  //                     | typeof AST_Query
-  //                     | typeof Condition
-  //                     | typeof Command_IF,
-  //                     Function> = new Map<AST_Expr.name
-  //                                     | typeof AST_Query
-  //                                     | typeof Condition
-  //                                     | typeof Command_IF,
-  //                                     Function>();
-
-  readonly operatorMap = new Map<any, Function>();
-  readonly expMap = new Map<any, Function>();
+  readonly operatorMap = new Map<Function, Function>();
+  readonly expMap = new Map<Function, Function>();
 
   constructor(
     readonly cid: IpfsCID,
@@ -62,22 +49,6 @@ export class AST_Evaluator {
     this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
     this.expMap.set(AST_ReturnExpr, this.evalReturnExpr);
     this.expMap.set(Operator, this.evalOperator);
-  }
-
-  postConstructor() {
-    /**
-     * This function must be called after construction. Otherwise the object will not be initialized correctly.
-     */
-    // this.operatorMap.set(ConditionAnd, this.evalAnd)
-    // this.operatorMap.set(ConditionOr, this.evalOr)
-    // this.operatorMap.set(ConditionIn, this.evalIn)
-    // this.operatorMap.set(ConditionGE, this.evalGE)
-    // this.operatorMap.set(ConditionL, this.evalL)
-    // this.expMap.set(Command_IF, this.evalIf);
-    // this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
-    // this.expMap.set(AST_ReturnExpr, this.evalReturnExpr);
-    // this.expMap.set(Operator, this.evalOperator);
-    // this.expMap.set(isPrimitiveExpr, this.evalPrimitiveExpr);
   }
 
   public eval(): ResultAsync<SDQL_Return, EvaluationError> {
@@ -113,8 +84,7 @@ export class AST_Evaluator {
       const evaluator = this.expMap.get(expr.constructor);
 
       if (evaluator) {
-        const val = evaluator.apply(this, [expr]); // Always returns ResultAsync
-        return val;
+        return evaluator.apply(this, [expr]); // Always returns ResultAsync
       } else {
         return errAsync(new EvalNotImplementedError(typeof expr));
       }
@@ -122,21 +92,10 @@ export class AST_Evaluator {
   }
 
   public evalIf(eef: Command_IF): ResultAsync<SDQL_Return, EvaluationError> {
-    // 1. evaluate conditionExpr
-    // 2. if true, evaluate TrueExpr
-    // 3. if false, evaluate FalseExpr
-
-    // 1. we need the value here.
-    const condResult = this.evalConditionExpr(eef.conditionExpr);
-    return condResult.andThen(
+    return this.evalConditionExpr(eef.conditionExpr).andThen(
       (val): ResultAsync<SDQL_Return, EvaluationError> => {
         if (val == true) {
-          const trueResult = this.evalExpr(eef.trueExpr);
-          // console.log('trueResult', trueResult);
-
-          // return trueResult.andThen((val) => okAsync(val));
-          // console.log('trueResult', trueResult);
-          return trueResult;
+          return this.evalExpr(eef.trueExpr);
         } else {
           if (eef.falseExpr) {
             return this.evalExpr(eef.falseExpr);
@@ -152,22 +111,14 @@ export class AST_Evaluator {
   public evalConditionExpr(
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
-    const condResult: ResultAsync<SDQL_Return, EvaluationError> | null = null;
     if (TypeChecker.isQuery(expr.source)) {
-      // return this.evalQuery(expr.source as AST_Query).andThen(
-      //     (val: ResultAsync<SDQL_Return, EvaluationError>) =>
-      //     {
-      //         return okAsync(val);
-      //     }
-      // );
       return this.evalQuery(expr.source as AST_Query);
     } else if (TypeChecker.isOperator(expr.source)) {
       return this.evalOperator(expr.source as Operator);
     } else {
       return errAsync<SDQL_Return, EvaluationError>(
-        new TypeError("Condition has wrong type"),
+        new EvaluationError("Condition has wrong type"),
       );
-      // throw new TypeError("If condition has wrong type");
     }
   }
 
@@ -200,10 +151,7 @@ export class AST_Evaluator {
   public evalAnd(
     cond: ConditionAnd,
   ): ResultAsync<SDQL_Return, EvaluationError> {
-    // console.log(this);
-    const left = this.evalAny(cond.lval);
-
-    return left.andThen((lval) => {
+    return this.evalAny(cond.lval).andThen((lval) => {
       if (lval == false) {
         return okAsync(SDQL_Return(false));
       } else {
@@ -215,75 +163,78 @@ export class AST_Evaluator {
   }
 
   public evalOr(cond: ConditionOr): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
-
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
-      if (lval == true) {
-        return okAsync(SDQL_Return(true));
-      } else {
-        const right = this.evalAny(cond.rval);
-        return right.andThen(
-          (rval): ResultAsync<SDQL_Return, EvaluationError> => {
-            if (rval == true) {
-              return okAsync(SDQL_Return(true));
-            } else {
-              return okAsync(SDQL_Return(false));
-            }
-          },
-        );
-      }
-    });
+    return this.evalAny(cond.lval).andThen(
+      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+        if (lval == true) {
+          return okAsync(SDQL_Return(true));
+        } else {
+          const right = this.evalAny(cond.rval);
+          return right.andThen(
+            (rval): ResultAsync<SDQL_Return, EvaluationError> => {
+              if (rval == true) {
+                return okAsync(SDQL_Return(true));
+              } else {
+                return okAsync(SDQL_Return(false));
+              }
+            },
+          );
+        }
+      },
+    );
   }
 
   public evalIn(cond: ConditionIn): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
-
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
-      const right = this.evalAny(cond.rvals);
-      return right.andThen(
-        (rvals): ResultAsync<SDQL_Return, EvaluationError> => {
-          // console.log('left', lval);
-          // console.log('right', rvals);
-          return okAsync(SDQL_Return((rvals as Array<any>).includes(lval)));
-        },
-      );
-    });
+    return this.evalAny(cond.lval).andThen(
+      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+        const right = this.evalAny(cond.rvals);
+        return right.andThen(
+          (rvals): ResultAsync<SDQL_Return, EvaluationError> => {
+            // console.log('left', lval);
+            // console.log('right', rvals);
+            return okAsync(SDQL_Return((rvals as Array<any>).includes(lval)));
+          },
+        );
+      },
+    );
   }
 
   public evalGE(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
-      const right = this.evalAny(cond.rval);
-      return right.andThen(
-        (rval): ResultAsync<SDQL_Return, EvaluationError> => {
-          return okAsync(SDQL_Return(lval >= rval));
-        },
-      );
-    });
+    return this.evalAny(cond.lval).andThen(
+      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+        const right = this.evalAny(cond.rval);
+        return right.andThen(
+          (rval): ResultAsync<SDQL_Return, EvaluationError> => {
+            return okAsync(SDQL_Return(lval >= rval));
+          },
+        );
+      },
+    );
   }
 
   public evalG(cond: ConditionG): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
-      const right = this.evalAny(cond.rval);
-      return right.andThen(
-        (rval): ResultAsync<SDQL_Return, EvaluationError> => {
-          return okAsync(SDQL_Return(lval > rval));
-        },
-      );
-    });
+    return this.evalAny(cond.lval).andThen(
+      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+        const right = this.evalAny(cond.rval);
+        return right.andThen(
+          (rval): ResultAsync<SDQL_Return, EvaluationError> => {
+            return okAsync(SDQL_Return(lval > rval));
+          },
+        );
+      },
+    );
   }
 
   public evalL(cond: ConditionGE): ResultAsync<SDQL_Return, EvaluationError> {
-    const left = this.evalAny(cond.lval);
-    return left.andThen((lval): ResultAsync<SDQL_Return, EvaluationError> => {
-      const right = this.evalAny(cond.rval);
-      return right.andThen(
-        (rval): ResultAsync<SDQL_Return, EvaluationError> => {
-          return okAsync(SDQL_Return(lval < rval));
-        },
-      );
-    });
+    return this.evalAny(cond.lval).andThen(
+      (lval): ResultAsync<SDQL_Return, EvaluationError> => {
+        const right = this.evalAny(cond.rval);
+        return right.andThen(
+          (rval): ResultAsync<SDQL_Return, EvaluationError> => {
+            return okAsync(SDQL_Return(lval < rval));
+          },
+        );
+      },
+    );
   }
 
   //#endregion
@@ -294,6 +245,10 @@ export class AST_Evaluator {
     if (TypeChecker.isQuery(expr.source)) {
       //return this.evalQuery((expr.source) as AST_Query);
       // console.log(this);
+      const qResult = this.evalQuery(expr.source as AST_Query);
+      if (qResult === undefined) {
+        console.log("got undefined for", expr);
+      }
       return this.evalQuery(expr.source as AST_Query).andThen((val) => {
         return okAsync(val);
       });
@@ -301,6 +256,7 @@ export class AST_Evaluator {
 
     return this.evalReturn((expr as AST_ReturnExpr).source as AST_Return);
   }
+
   public evalReturn(r: AST_Return): ResultAsync<SDQL_Return, EvaluationError> {
     return okAsync(SDQL_Return(r.message));
   }

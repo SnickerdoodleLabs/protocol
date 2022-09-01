@@ -4,11 +4,10 @@ import {
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-
-import { QueryEvaluator } from "./QueryEvaluator";
+import { ResultAsync } from "neverthrow";
 
 import {
+  IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryRepository,
 } from "@core/interfaces/business/utilities";
@@ -22,7 +21,7 @@ export class QueryRepository implements IQueryRepository {
   constructor(
     // readonly queryValuator: QueryEvaluator
     @inject(IQueryEvaluatorType)
-    readonly queryValuator: QueryEvaluator,
+    readonly queryValuator: IQueryEvaluator,
   ) {
     // this.dataWalletPersistence = new LocalStoragePersistence();
     // this.queryValuator = new QueryEvaluator(this.dataWalletPersistence);

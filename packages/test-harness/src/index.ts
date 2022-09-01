@@ -109,45 +109,40 @@ core.getEvents().map(async (events) => {
     console.log(`Initialized with address ${dataWalletAddress}`);
   });
 
-  events.onQueryPosted.subscribe((queryRequest: SDQLQueryRequest) => {
+  events.onQueryPosted.subscribe(async (queryRequest: SDQLQueryRequest) => {
     console.log(
-      `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
+      `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
     );
 
-    /*
-    const queryPretty = JSON.stringify(
-      (queryRequest.query.query),
-      null,
-      2,
-    );
-    console.log(queryPretty);
-    */
+    try {
+      await prompt([
+        {
+          type: "list",
+          name: "approveQuery",
+          message: "Approve running the query?",
+          choices: [
+            { name: "Yes", value: true },
+            { name: "No", value: false },
+          ],
+        },
+      ])
+        .andThen((answers) => {
+          if (!answers.approveQuery) {
+            return okAsync(undefined);
+          }
 
-    prompt([
-      {
-        type: "list",
-        name: "approveQuery",
-        message: "Approve running the query?",
-        choices: [
-          { name: "Yes", value: true },
-          { name: "No", value: false },
-        ],
-      },
-    ])
-      .andThen((answers) => {
-        if (!answers.approveQuery) {
-          return okAsync(undefined);
-        }
-
-        return core.processQuery(
-          queryRequest.consentContractAddress,
-          queryRequest.query,
-        );
-      })
-      .mapErr((e) => {
-        console.error(e);
-        return e;
-      });
+          return core.processQuery(
+            queryRequest.consentContractAddress,
+            queryRequest.query,
+          );
+        })
+        .mapErr((e) => {
+          console.error(e);
+          return e;
+        });
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   events.onMetatransactionSignatureRequested.subscribe(async (request) => {

@@ -17,8 +17,6 @@ export class SDQLSchema {
   }
 
   static fromString(s: SDQLString): SDQLSchema {
-    //console.log("S: ", s)
-    //const obj = JSON.parse(s);
     return new SDQLSchema(JSON.parse(s)  as ISDQLQueryObject);
   }
 

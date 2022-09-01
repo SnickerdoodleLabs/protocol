@@ -7,7 +7,7 @@ import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   DomainName,
   EInvitationStatus,
   PageInvitation,
@@ -51,11 +51,11 @@ export class InvitationService implements IInvitationService {
 
   public acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.acceptInvitation(
       invitation,
-      consentConditions,
+      dataPermissions,
     );
   }
   public rejectInvitation(

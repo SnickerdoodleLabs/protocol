@@ -224,7 +224,7 @@ describe("BalanceQueryEvaluator", () => {
             balance: BigNumberString("30"),
             contractAddress: EVMContractAddress("Contract 1"),
         }
-    ))
+      ))
     )
     const repo = mocks.factory();
 

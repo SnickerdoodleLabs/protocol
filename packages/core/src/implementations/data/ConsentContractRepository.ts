@@ -10,7 +10,7 @@ import {
   AjaxError,
   ConsentContractRepositoryError,
   ConsentFactoryContractError,
-  ConsentConditions,
+  DataPermissions,
   HexString,
   TokenId,
   TokenUri,
@@ -102,7 +102,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
   public getCurrentConsentToken(
     consentContractAddress: EVMContractAddress,
-    ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     ConsentToken | null,
     | ConsentContractError
@@ -111,11 +110,17 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | AjaxError
   > {
-    return this.getConsentContract(consentContractAddress).andThen(
-      (consentContract) => {
-        return consentContract.getCurrentConsentTokenOfAddress(ownerAddress);
-      },
-    );
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.getConsentContract(consentContractAddress),
+    ]).andThen(([context, consentContract]) => {
+      if (context.dataWalletAddress == null) {
+        return errAsync(new UninitializedError());
+      }
+      return consentContract.getCurrentConsentTokenOfAddress(
+        EVMAccountAddress(context.dataWalletAddress),
+      );
+    });
   }
 
   public isAddressOptedIn(
@@ -191,10 +196,10 @@ export class ConsentContractRepository implements IConsentContractRepository {
   public encodeOptIn(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
     return this.getConsentContract(consentContractAddress).map((contract) => {
-      return contract.encodeOptIn(tokenId, TokenUri("ConsentConditionsGoHere"));
+      return contract.encodeOptIn(tokenId, TokenUri("ConsentConditionsGoHere")); // TODO: add data permissions param
     });
   }
   public encodeOptOut(
