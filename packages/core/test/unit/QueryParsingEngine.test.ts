@@ -97,7 +97,7 @@ describe("Testing order of results", () => {
           "not qualified", // as network query is false
           country,
           "female",
-          new Map(),
+          "{}",
         ]);
         return okAsync(insights);
       })
@@ -124,7 +124,7 @@ describe("Tests with data permissions", () => {
     await engine.handleQuery(sdqlQuery, givenPermissions)
       .andThen(([insights, rewards]) => {
         // console.log(insights);
-        expect(insights[0]).toBeNull();
+        expect(insights[0]).toBe("");
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -141,7 +141,7 @@ describe("Tests with data permissions", () => {
     await engine.handleQuery(sdqlQuery, givenPermissions)
       .andThen(([insights, rewards]) => {
         // console.log(insights);
-        expect(insights[0]).toBeNull();
+        expect(insights[0]).toBe("");
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -158,7 +158,7 @@ describe("Tests with data permissions", () => {
     await engine.handleQuery(sdqlQuery, givenPermissions)
       .andThen(([insights, rewards]) => {
         // console.log(insights);
-        expect(insights[0] !== null).toBeTruthy();
+        expect(insights[0] !== "").toBeTruthy();
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -175,7 +175,7 @@ describe("Tests with data permissions", () => {
     await engine.handleQuery(sdqlQuery, givenPermissions)
       .andThen(([insights, rewards]) => {
         // console.log(insights);
-        expect(insights).toEqual([null, null, null, null])
+        expect(insights).toEqual(["", "", "", ""])
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -192,7 +192,7 @@ describe("Tests with data permissions", () => {
     await engine.handleQuery(sdqlQuery, givenPermissions)
       .andThen(([insights, rewards]) => {
         // console.log(insighyarts);
-        expect(insights[3] !== null).toBeTruthy();
+        expect(insights[3] !== "").toBeTruthy();
         return okAsync(undefined);
       })
       .mapErr((e) => {
@@ -208,7 +208,7 @@ describe("Testing avalance 4", () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
 
-    const expectedInsights = ['not qualified', '1', 'female', new Map(), new Map(), [], []]; // 7 return expressions
+    const expectedInsights = ['not qualified', '1', 'female', "{}", "{}", "[]", "[]"]; // 7 return expressions
 
     // console.log(sdqlQuery4);
 
