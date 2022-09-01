@@ -7,7 +7,7 @@
     "queries": {
         "q1": {
             "name": "network",
-            "return": "boolean",    
+            "return": "boolean",
             "chain": "AVAX",
             "contract": {
                 "networkid": "43114",

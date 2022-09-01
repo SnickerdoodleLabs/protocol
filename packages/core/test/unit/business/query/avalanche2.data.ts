@@ -6,26 +6,7 @@ export const avalance2SchemaStr = `
    "queries":{
       "q1":{
          "name":"network",
-         "return": "object",
-         "object_schema": {
-             "properties": {
-                 "networkid": {
-                     "type": "integer"
-                 },
-                 "address": {
-                     "type": "string",
-                     "pattern": "^0x[a-fA-F0-9]{40}$"
-                 },
-                 "return": {
-                     "type": "boolean"
-                 }
-             },
-             "required": [
-                 "networkid",
-                 "address",
-                 "return"
-             ]
-         }, 
+         "return": "boolean",
          "chain":"AVAX",
          "contract":{
             "networkid":"43114",
