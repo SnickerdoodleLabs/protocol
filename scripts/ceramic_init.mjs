@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { writeFile } from "fs";
+import { writeFile } from "node:fs/promises";
 
 import { CeramicClient } from "@ceramicnetwork/http-client";
-import { createDefinition, publishSchema } from "@ceramicstudio/idx-tools";
+import { ModelManager } from "@glazed/devtools";
 import { DID } from "dids";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
@@ -50,13 +50,28 @@ const BackupSchema = {
 const BackupIndexSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
   title: "BackupIndex",
-  type: "array",
-  items: {
-    type: "object",
-    properties: {
-      id: {
-        type: "string",
+  type: "object",
+  properties: {
+    backups: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          id: {
+            $ref: "#/definitions/CeramicStreamId",
+          },
+          timestamp: {
+            type: "integer",
+          },
+        },
       },
+    },
+  },
+  definitions: {
+    CeramicStreamId: {
+      type: "string",
+      pattern: "^ceramic://.+(\\\\?version=.+)?",
+      maxLength: 150,
     },
   },
 };
@@ -76,33 +91,42 @@ async function run() {
   // Authenticate the Ceramic instance with the provider
   await ceramic.did.authenticate();
 
+  // Create a manager for the model
+  const manager = new ModelManager({ ceramic });
+
   // Publish the two schemas
   const [backupSchema, backupIndexSchema] = await Promise.all([
-    publishSchema(ceramic, { content: BackupSchema }),
-    publishSchema(ceramic, { content: BackupIndexSchema }),
+    manager.createSchema(ceramic, { content: BackupSchema }),
+    manager.createSchema(ceramic, { content: BackupIndexSchema }),
   ]);
 
   // Create the definition using the created schema ID
-  const backupsDefinition = await createDefinition(ceramic, {
+  const backupsDefinition = await manager.createDefinition(ceramic, {
     name: "backupIndex",
     description: "SDL Data Wallet Backup Index",
-    schema: backupIndexSchema.commitId.toUrl(),
+    schema: manager.getSchemaURL(backupIndexSchema),
   });
 
-  // Write config to JSON file
-  const config = {
+  // Write model to JSON file
+  const aliases = await manager.deploy();
+  const modelAliases = {
     definitions: {
-      backups: backupsDefinition.id.toString(),
+      backupIndex: backupsDefinition,
     },
     schemas: {
-      Backup: backupSchema.commitId.toUrl(),
-      BackupIndex: backupIndexSchema.commitId.toUrl(),
+      Backup: manager.getSchemaURL(backupSchema),
+      BackupIndex: manager.getSchemaURL(backupIndexSchema),
     },
+    tiles: {},
   };
-  console.log(config);
-  // await writeFile("./src/config.json", JSON.stringify(config));
-  // console.log("Config written to src/config.json file:", config);
-  process.exit(0);
+  console.log(modelAliases);
+
+  // for some reason this does not work
+  // await writeFile(
+  //   "./model.json",
+  //   `export const aliases = ${JSON.stringify(aliases)}`,
+  // );
+  console.log("Model aliases written to model,json", aliases);
 }
 
 run().catch(console.error);

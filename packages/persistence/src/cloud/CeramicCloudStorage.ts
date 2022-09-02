@@ -2,47 +2,28 @@ import { CeramicClient } from "@ceramicnetwork/http-client";
 import { DataModel } from "@glazed/datamodel";
 import { DIDDataStore } from "@glazed/did-datastore";
 import { TileLoader } from "@glazed/tile-loader";
-import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
+  BackupIndex,
   EVMPrivateKey,
   IDataWalletBackup,
+  ModelTypes,
   PersistenceError,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { DID } from "dids";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import {
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "../IPersistenceConfigProvider";
+
 import { ICloudStorage } from "@persistence/cloud";
-
-const modelAliases = {
-  definitions: {
-    backups: "kjzl6cwe1jw14886embcxqtwtbak30ygn1rzxf4o3p6bur5qts753kdd77ujshw",
-  },
-  schemas: {
-    Backup:
-      "ceramic://k3y52l7qbv1frym2l76mi7q0vc33wwuoxj968heukosypztxi1fejg2n0kdhk9wxs",
-    BackupIndex:
-      "ceramic://k3y52l7qbv1frykabczj1wy7f9sy3u49lwxfu73582sonuwbw3t0r6dfyqk15vaww",
-  },
-  tiles: {},
-};
-
-type BackupIndex = { id: string }[];
-
-type ModelTypes = {
-  schemas: {
-    Backup: IDataWalletBackup;
-    BackupIndex: BackupIndex;
-  };
-  definitions: {
-    backups: "BackupIndex";
-  };
-  tiles: Record<string, never>;
-};
 
 @injectable()
 export class CeramicCloudStorage implements ICloudStorage {
@@ -54,29 +35,54 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   private _restored: Set<string> = new Set();
 
+  private _unlockPromise: Promise<EVMPrivateKey>;
+  private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
+    null;
+
   public constructor(
-    protected _privateKey: EVMPrivateKey,
-    protected _nodeURL: URLString,
-    protected _cryptoUtils: CryptoUtils,
-  ) {}
+    @inject(IPersistenceConfigProviderType)
+    protected _configProvider: IPersistenceConfigProvider,
+    @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils,
+  ) {
+    this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
+      this._resolveUnlock = resolve;
+    });
+  }
+
+  protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
+    return ResultAsync.fromSafePromise(this._unlockPromise);
+  }
+
+  public unlock(
+    derivedKey: EVMPrivateKey,
+  ): ResultAsync<void, PersistenceError> {
+    // Store the result
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this._resolveUnlock!(derivedKey);
+    return okAsync(undefined);
+  }
 
   private _getCeramic(): ResultAsync<CeramicClient, PersistenceError> {
     if (this._ceramic) {
       return okAsync(this._ceramic);
     }
 
-    this._ceramic = new CeramicClient(this._nodeURL);
-    return this._cryptoUtils
-      .deriveCeramicSeedFromEVMPrivateKey(this._privateKey)
-      .andThen((seed) => {
-        console.log(new TextDecoder().decode(seed));
-        return this._authenticateDID(seed).andThen((did) => {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          this._ceramic!.did = did;
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          return okAsync(this._ceramic!);
-        });
+    return this._configProvider.getConfig().andThen((config) => {
+      this._ceramic = new CeramicClient(config.ceramicNodeURL);
+      return this.waitForUnlock().andThen((privateKey) => {
+        return this._cryptoUtils
+          .deriveCeramicSeedFromEVMPrivateKey(privateKey)
+          .andThen((seed) => {
+            console.log(new TextDecoder().decode(seed));
+            return this._authenticateDID(seed).andThen((did) => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              this._ceramic!.did = did;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              return okAsync(this._ceramic!);
+            });
+          });
       });
+    });
   }
 
   private _authenticateDID(
@@ -98,7 +104,10 @@ export class CeramicCloudStorage implements ICloudStorage {
     },
     PersistenceError
   > {
-    return this._getCeramic().andThen((ceramic) => {
+    return ResultUtils.combine([
+      this._getCeramic(),
+      this._configProvider.getConfig(),
+    ]).andThen(([ceramic, config]) => {
       if (
         this._dataStore != undefined &&
         this._dataModel != undefined &&
@@ -114,7 +123,7 @@ export class CeramicCloudStorage implements ICloudStorage {
       this._loader = new TileLoader({ ceramic });
       this._dataModel = new DataModel({
         loader: this._loader,
-        aliases: modelAliases,
+        aliases: config.ceramicModelAliases,
       });
       this._dataStore = new DIDDataStore({
         ceramic,
@@ -140,11 +149,11 @@ export class CeramicCloudStorage implements ICloudStorage {
       ).andThen((doc) => {
         const id = doc.id.toUrl();
         return ResultAsync.fromPromise(
-          store.get("backups"),
+          store.get("backupIndex"),
           (e) => e as PersistenceError,
         ).andThen((backups) => {
           return ResultAsync.fromPromise(
-            store.set("backups", [...(backups ?? []), { id: id }]),
+            store.set("backupIndex", [...(backups ?? []), { id: id }]),
             (e) => e as PersistenceError,
           ).map((_) => id);
         });
@@ -179,7 +188,7 @@ export class CeramicCloudStorage implements ICloudStorage {
   private _getBackupIndex(): ResultAsync<BackupIndex, PersistenceError> {
     return this._init().andThen(({ store }) => {
       return ResultAsync.fromPromise(
-        store.get("backups"),
+        store.get("backupIndex"),
         (e) => e as PersistenceError,
       ).map((backups) => backups ?? []);
     });

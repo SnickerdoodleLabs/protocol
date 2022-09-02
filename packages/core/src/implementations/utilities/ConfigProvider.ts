@@ -14,6 +14,20 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { CoreConfig } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
 
+const modelAliases = {
+  definitions: {
+    backupIndex:
+      "kjzl6cwe1jw1486yn4lzaisae3u7dx4nt2ubjsgxmv5bex7aotbsy194ackmvbx",
+  },
+  schemas: {
+    Backup:
+      "ceramic://k3y52l7qbv1frya9z15oyatn66xpixjcsb8zfp8hiyfdblffqyajv5qhrzmfri5mo",
+    BackupIndex:
+      "ceramic://k3y52l7qbv1frxqvdyuck1d7episbc6zoyup5q5bvdpwa8iso5jn2fflq8wz5a77k",
+  },
+  tiles: {},
+};
+
 @injectable()
 export class ConfigProvider
   implements
@@ -56,6 +70,8 @@ export class ConfigProvider
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"),
+      modelAliases,
+      URLString("https://ceramic-clay.3boxlabs.com"),
     );
   }
 

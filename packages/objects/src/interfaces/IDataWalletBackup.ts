@@ -21,3 +21,16 @@ export type TableMap = { [key: string]: object[] };
 export class BackupBlob {
   public constructor(public fields: FieldMap, public records: TableMap) {}
 }
+
+export type BackupIndex = { id: string }[];
+
+export type ModelTypes = {
+  schemas: {
+    Backup: IDataWalletBackup;
+    BackupIndex: BackupIndex;
+  };
+  definitions: {
+    backupIndex: "BackupIndex";
+  };
+  tiles: Record<string, never>;
+};
