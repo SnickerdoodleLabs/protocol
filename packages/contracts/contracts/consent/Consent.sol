@@ -156,9 +156,11 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// if user has opted in before, revert
         require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
         
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(_msgSender(), tokenId, agreementFlags)));
+
         /// check the signature against the payload
         require(
-            _isValidSignature(_msgSender(), tokenId, agreementFlags, signature),
+            _isValidSignature(hash, signature),
             "Consent: Contract owner did not sign this message"
         );
 
@@ -191,10 +193,11 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// if user has opted in before, revert
         require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
         
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementFlags)));
         /// check the signature against the payload
         /// Any account possessing the signature and payload can call this method
         require(
-            _isValidSignature(address(0), tokenId, agreementFlags, signature),
+            _isValidSignature(hash, signature),
             "Consent: Contract owner did not sign this message"
         );
 
@@ -227,6 +230,18 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         emit RequestForData(_msgSender(), ipfsCID, ipfsCID);
     }
     /// price for data request (calculates based on number of tokens minted (opt-ed in))
+
+    /// @notice Allows user to update their agreement flags
+    /// @param tokenId Token id being updated 
+    /// @param newAgreementFlags User's new agreement flag 
+    /// TODO : check if we're taking agreement flag type or the whole agreement flag? 
+    /// we can update based on the agreement flag array's index if we want to target specific agreement type to change 
+    function updateAgreementFlags(uint256 tokenId, bytes32 newAgreementFlags) external {
+        /// update the data access permissions for the user
+        agreementFlagsArray[tokenId] = agreementFlags;
+
+        //or call _updateCounterAndTokenFlags(tokenId, agreementFlags);? 
+    }
 
     /* SETTERS */
 
@@ -360,27 +375,14 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// a calldata packet
 
     /// @notice Verify that a signature is valid
-    /// @param user Address of the user calling the function
-    /// @param tokenId Token id to be tied to current user
-    /// @param agreementFlags User's Consent token uri containing agreement flags
+    /// @param hash Hashed message containing user address (if restricted opt in), token id and agreementFlags
     /// @param signature Signature of approved user's message hash 
     /// @return Boolean of whether signature is valid
     function _isValidSignature(
-        address user,
-        uint256 tokenId,
-        bytes32 agreementFlags,
+        bytes32 hash,
         bytes memory signature
     ) internal view returns (bool) {
-
-        bytes32 hash;
-
-        // convert the payload to a 32 byte hash
-        if (user == address(0)) {
-            hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementFlags)));
-        } else {
-            hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, tokenId, agreementFlags)));
-        }
-        
+     
         // retrieve the signature's signer 
         address signer = ECDSAUpgradeable.recover(hash, signature);
 
