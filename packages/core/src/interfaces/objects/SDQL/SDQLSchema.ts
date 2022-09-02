@@ -29,14 +29,34 @@ export class SDQLSchema {
     if (!this.internalObj.timestamp) {
       return undefined;
     }
+    // if (this.internalObj.timestamp[this.internalObj.timestamp.length - 1] != "Z") {
+    //   this.internalObj.timestamp = this.internalObj.timestamp + 'Z';
+    // }
+
     return UnixTimestamp(Date.parse(this.internalObj.timestamp));
   }
 
-  public  get expiry(): UnixTimestamp | undefined {
+  public get expiry(): UnixTimestamp | undefined {
     if (!this.internalObj.expiry) {
       return undefined;
     }
-    return UnixTimestamp(Date.parse(this.internalObj.expiry));
+
+    // if (this.internalObj.expiry[this.internalObj.expiry.length - 1] != "Z") {
+    //   this.internalObj.expiry = this.internalObj.expiry + 'Z';
+    // }
+
+    const timestamp = Date.parse(this.internalObj.expiry);
+    // console.log(`expiry: ${this.internalObj.expiry} converted to timestamp ${timestamp}`);
+    return UnixTimestamp(timestamp);
+  }
+
+  public isExpired(): boolean {
+    const expiry = this.expiry! as number;
+    // console.log("current gmt timestamp", Date.now() );
+    // console.log("expiry gmt timestamp", this.expiry! );
+    // console.log("current gmt time", new Date().toISOString());
+    // console.log("expiry gmt time", new Date(expiry).toISOString());
+    return Date.now() > expiry;
   }
 
   public get description(): string {

@@ -12,11 +12,12 @@ import {
   IDataWalletPersistence,
   IEVMBalance,
   IpfsCID,
+  QueryExpiredError,
   SDQLQuery,
   SDQLString,
   TickerSymbol,
 } from "@snickerdoodlelabs/objects";
-import { okAsync } from "neverthrow";
+import { errAsync, okAsync } from "neverthrow";
 import td from "testdouble";
 
 import {
@@ -32,8 +33,10 @@ import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/quer
 import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryObjectFactory";
 import { avalance4SchemaStr } from "./business/query/avalanche4.data";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+import { avalance1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
 
 const queryId = IpfsCID("Beep");
+const sdqlQueryExpired = new SDQLQuery(queryId, SDQLString(avalance1ExpiredSchemaStr));
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryId, SDQLString(avalance4SchemaStr));
 const country = CountryCode("1");
@@ -83,6 +86,24 @@ class QueryParsingMocks {
     return new QueryParsingEngine(this.queryFactories, this.queryRepository);
   }
 }
+
+describe("single Tests", () => {
+  test("Expired query must return QueryExpiredError", async () => {
+    
+  const mocks = new QueryParsingMocks();
+  const engine = mocks.factory();
+
+  await engine.handleQuery(sdqlQueryExpired, new DataPermissions(0xffffffff))
+    .andThen(([insights, rewards]) => {
+      fail("Expired query was executed!");
+      return errAsync(new Error(`Expired query was executed!`));
+    })
+    .mapErr((err) => {
+      expect(err.constructor).toBe(QueryExpiredError);
+    });
+  });
+
+});
 
 describe("Testing order of results", () => {
   const mocks = new QueryParsingMocks();
@@ -231,3 +252,5 @@ describe("Testing avalance 4", () => {
   });
 
 });
+
+

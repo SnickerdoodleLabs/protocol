@@ -13,6 +13,7 @@ import {
   DataPermissions,
   EWalletDataType,
   MissingWalletDataTypeError,
+  QueryExpiredError,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
@@ -113,8 +114,9 @@ export class SDQLParser {
     | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
+    | QueryExpiredError
   > {
-    return this.validateSchema(this.schema)
+    return this.validateSchema(this.schema, this.cid)
       .andThen(() => {
         return this.parse().andThen(() => {
          return okAsync(
@@ -138,45 +140,66 @@ export class SDQLParser {
   }
 
   // #region schema validation
-  public validateSchema(schema: SDQLSchema): ResultAsync<void, QueryFormatError> {
+  public validateSchema(schema: SDQLSchema, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
     
     if (schema["version"] === undefined) {
       return errAsync(new QueryFormatError("schema missing version"));
     }
+    
     if (schema["timestamp"] === undefined) {
       return errAsync(new QueryFormatError("schema missing timestamp"));
+    } else if (isNaN(schema["timestamp"])) {
+      return errAsync(new QueryFormatError("Invalid timestamp date format"));
     }
+
+    return this.validateExpiry(schema, cid)
+      .andThen(() => {
+
+        if (schema["description"] === undefined) {
+          return errAsync(new QueryFormatError("schema missing description"));
+        }
+        if (schema["business"] === undefined) {
+          return errAsync(new QueryFormatError("schema missing business"));
+        }
+        if (schema["queries"] === undefined) {
+          return errAsync(new QueryFormatError("schema missing queries"));
+        }
+        if (schema["compensations"] === undefined) {
+          return errAsync(new QueryFormatError("schema missing compensations"));
+        }
+        if (schema["returns"] === undefined) {
+          return errAsync(new QueryFormatError("schema missing returns"));
+        }
+        if (schema["logic"] === undefined) {
+          return errAsync(new QueryFormatError("schema missing logic"));
+        }
+        if (schema["logic"]["returns"] === undefined) {
+          return errAsync(new QueryFormatError("schema missing logic->returns"));
+        }
+    
+        if (schema["logic"]["compensations"] === undefined) {
+          return errAsync(new QueryFormatError("schema missing logic->compensations"));
+        }
+    
+        return okAsync(undefined);
+        
+      });
+
+  }
+
+  public validateExpiry(schema: SDQLSchema, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+
     if (schema["expiry"] === undefined) {
       return errAsync(new QueryFormatError("schema missing expiry"));
+    } else if (isNaN(schema["expiry"])) {
+      return errAsync(new QueryFormatError("Invalid expiry date format"));
+    } else if (schema.isExpired()) {
+      return errAsync(new QueryExpiredError("Tried to execute an expired query", cid));
     }
-    if (schema["description"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing description"));
-    }
-    if (schema["business"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing business"));
-    }
-    if (schema["queries"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing queries"));
-    }
-    if (schema["compensations"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing compensations"));
-    }
-    if (schema["returns"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing returns"));
-    }
-    if (schema["logic"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing logic"));
-    }
-    if (schema["logic"]["returns"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing logic->returns"));
-    }
-
-    if (schema["logic"]["compensations"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing logic->compensations"));
-    }
-
     return okAsync(undefined);
+
   }
+  // #endregion
 
   // #region non-logic
   private parseQueries(): ResultAsync<
