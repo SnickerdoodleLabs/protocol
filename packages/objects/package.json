@@ -34,7 +34,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "jest"
+    "test": "npx jest"
   },
   "types": "dist/index.d.ts",
   "dependencies": {

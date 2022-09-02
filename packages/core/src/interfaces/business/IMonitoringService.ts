@@ -18,7 +18,8 @@ export interface IMonitoringService {
     void,
     PersistenceError | AccountIndexingError | AjaxError
   >;
-  siteVisited(siteVisit: SiteVisit): ResultAsync<void, never>;
+  pollBackups(): ResultAsync<void, PersistenceError>;
+  siteVisited(siteVisit: SiteVisit): ResultAsync<void, PersistenceError>;
 }
 
 export const IMonitoringServiceType = Symbol.for("IMonitoringService");

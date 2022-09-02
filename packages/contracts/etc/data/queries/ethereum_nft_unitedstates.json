@@ -1,6 +1,8 @@
 {
     "version": 0.1,
-    "description": "NFT received on the Ethereum blockchain by US residents who visted Facebook and Crabada",
+    "timestamp": "2021-11-13T20:20:39",
+    "expiry": "2022-11-13T20:20:39",
+    "description": "Target US residents who received an NFT on the Ethereum blockchain and visted Uniswap and Crabada",
     "business": "Shrapnel",
     "queries": {
         "q1": {
@@ -24,18 +26,17 @@
             "return": "boolean",
             "conditions": {
                 "in": [
-                    840
+                    "US"
                 ]
             }
         },
         "q3": {
             "name": "browsing_history",
             "return": "boolean",
-            "conditions":
-            {
-                "has":{
-                    "https://www.crabada.com":30,
-                    "https://www.facebook.com":5                
+            "conditions": {
+                "has": {
+                    "https://www.crabada.com": 30,
+                    "https://www.uniswap.org": 5
                 }
             }
         }
@@ -51,18 +52,24 @@
         },
         "url": "https://418e-64-85-231-39.ngrok.io/insights"
     },
-    "compensations":{
-        "c1":{
+    "compensations": {
+        "c1": {
             "description": "10% discount code for Starbucks",
             "callback": "https://418e-64-85-231-39.ngrok.io/starbucks"
         },
-        "c2":{
+        "c2": {
             "description": "participate in the draw to win a CryptoPunk NFT",
             "callback": "https://418e-64-85-231-39.ngrok.io/cryptopunkdraw"
         }
     },
-    "logic":{
-        "returns": ["if($q1and$q2and$q3)then$r1else$r2"],
-        "compensations": ["if$q1then$c1", "if$q2then$c2", "if$q3then$c2"]
+    "logic": {
+        "returns": [
+            "if($q1and$q2and$q3)then$r1else$r2"
+        ],
+        "compensations": [
+            "if$q1then$c1",
+            "if$q2then$c2",
+            "if$q3then$c2"
+        ]
     }
 }

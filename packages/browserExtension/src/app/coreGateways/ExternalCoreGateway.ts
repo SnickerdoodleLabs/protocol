@@ -1,24 +1,3 @@
-import CoreHandler from "@app/coreGateways/handler/CoreHandler";
-import { EExternalActions } from "@shared/enums";
-import {
-  IAcceptInvitationParams,
-  IAddAccountParams,
-  IGetInvitationWithDomainParams,
-  IGetUnlockMessageParams,
-  IInvitationDomainWithUUID,
-  ILeaveCohortParams,
-  IMetatransactionSignatureRequestCallbackParams,
-  IRejectInvitationParams,
-  ISetAgeParams,
-  ISetBirthdayParams,
-  ISetEmailParams,
-  ISetFamilyNameParams,
-  ISetGenderParams,
-  ISetGivenNameParams,
-  ISetLocationParams,
-  IUnlockParams,
-} from "@shared/interfaces/actions";
-import { IExternalState } from "@shared/interfaces/states";
 import {
   Age,
   Invitation,
@@ -36,15 +15,38 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
+  DataPermissions,
   EVMContractAddress,
   IOpenSeaMetadata,
-  DataPermissions,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
+import CoreHandler from "@app/coreGateways/handler/CoreHandler";
+import { EExternalActions } from "@shared/enums";
+import {
+  IAcceptInvitationParams,
+  IAddAccountParams,
+  IGetInvitationMetadataByCIDParams,
+  IGetInvitationWithDomainParams,
+  IGetUnlockMessageParams,
+  IInvitationDomainWithUUID,
+  ILeaveCohortParams,
+  IMetatransactionSignatureRequestCallbackParams,
+  IRejectInvitationParams,
+  ISetAgeParams,
+  ISetBirthdayParams,
+  ISetEmailParams,
+  ISetFamilyNameParams,
+  ISetGenderParams,
+  ISetGivenNameParams,
+  ISetLocationParams,
+  IUnlockParams,
+} from "@shared/interfaces/actions";
+import { IExternalState } from "@shared/interfaces/states";
+
 export class ExternalCoreGateway {
-  [x: string]: any;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -77,11 +79,19 @@ export class ExternalCoreGateway {
     } as IRejectInvitationParams);
   }
 
-  public getInvitationsMetadata(): ResultAsync<
-    Record<EVMContractAddress, IOpenSeaMetadata>,
+  public getAcceptedInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
     JsonRpcError
   > {
-    return this._handler.call(EExternalActions.GET_INVITATIONS_METADATA);
+    return this._handler.call(EExternalActions.GET_ACCEPTED_INVITATIONS_CID);
+  }
+
+  public getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_INVITATION_METADATA_BY_CID, {
+      ipfsCID,
+    } as IGetInvitationMetadataByCIDParams);
   }
 
   public leaveCohort(

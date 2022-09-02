@@ -5,6 +5,14 @@
             "type": "number",
             "minimum": 0
         },
+        "timestamp": {
+            "type": "string",
+            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})$"
+        },
+        "expiry": {
+            "type": "string",
+            "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})$"
+        },
         "description": {
             "type": "string",
             "minLength": 5,
@@ -41,7 +49,8 @@
                                 "integer",
                                 "object",
                                 "enum",
-                                "array"
+                                "array",
+                                "string"
                             ]
                         },
                         "chain": {
@@ -52,17 +61,14 @@
                                 "SOL"
                             ]
                         },
-                        "networkid":{
+                        "networkid": {
                             "type": "string",
                             "enum": [
                                 "1",
                                 "4",
-                                "42",
                                 "43114",
                                 "43113",
-                                "137",
-                                "80001",
-                                "SOL", 
+                                "SOL",
                                 "*"
                             ]
                         },
@@ -186,8 +192,8 @@
                         },
                         "array_items": {
                             "type": "object",
-                            "properties":{
-                                "type":{
+                            "properties": {
+                                "type": {
                                     "type": "string",
                                     "enum": [
                                         "boolean",
@@ -201,6 +207,9 @@
                             "required": [
                                 "type"
                             ]
+                        },
+                        "string_pattern": {
+                            "type": "string"
                         }
                     },
                     "required": [
@@ -244,7 +253,7 @@
                         {
                             "properties": {
                                 "name": {
-                                    "const": "balance"    
+                                    "const": "balance"
                                 },
                                 "return": {
                                     "const": "array"
@@ -253,6 +262,21 @@
                             "required": [
                                 "array_items",
                                 "networkid"
+                            ]
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "network"
+                                },
+                                "return": {
+                                    "const": "object"
+                                }
+                            },
+                            "required": [
+                                "chain",
+                                "contract",
+                                "object_schema"
                             ]
                         },
                         {
@@ -283,13 +307,7 @@
                                             "const": "location"
                                         },
                                         {
-                                            "const": "balance"
-                                        },
-                                        {
                                             "const": "browsing_history"
-                                        },
-                                        {
-                                            "const": "network"
                                         }
                                     ]
                                 }
@@ -301,19 +319,25 @@
                         {
                             "properties": {
                                 "name": {
-                                    "anyOf": [
-                                        {
-                                            "const": "age"
-                                        },
-                                        {
-                                            "const": "location"
-                                        }
-                                    ]
+                                    "const": "age"
                                 },
                                 "return": {
                                     "const": "integer"
                                 }
                             }
+                        },
+                        {
+                            "properties": {
+                                "name": {
+                                    "const": "location"
+                                },
+                                "return": {
+                                    "const": "string"
+                                }
+                            },
+                            "required": [
+                                "string_pattern"
+                            ]
                         }
                     ]
                 }
@@ -424,6 +448,8 @@
     },
     "required": [
         "version",
+        "timestamp",
+        "expiry",
         "description",
         "business",
         "queries",

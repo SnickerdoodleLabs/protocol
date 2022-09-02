@@ -89,8 +89,10 @@ export class MonitoringService implements IMonitoringService {
       });
   }
 
-  public siteVisited(SiteVisit: SiteVisit): ResultAsync<void, never> {
-    throw new Error("Method not implemented.");
+  public siteVisited(
+    siteVisit: SiteVisit,
+  ): ResultAsync<void, PersistenceError> {
+    return this.persistence.addSiteVisits([siteVisit]);
   }
 
   protected getLatestTransactions(
@@ -131,5 +133,9 @@ export class MonitoringService implements IMonitoringService {
           return okAsync([]);
       }
     });
+  }
+
+  public pollBackups(): ResultAsync<void, PersistenceError> {
+    return this.persistence.pollBackups();
   }
 }

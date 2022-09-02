@@ -10,6 +10,7 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { BaseOf } from "ts-brand";
 
 import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
 import {
@@ -22,7 +23,6 @@ import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
-
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 @injectable()
@@ -66,9 +66,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         ).andThen((insightResults) => {
           // console.log('insightResults', insightResults);
 
-          const insights = insightResults.map((sdqlR) => {
-            return InsightString(sdqlR as string);
-          });
+          const insights = insightResults.map(this.SDQLReturnToInsightString);
 
           return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
             [insights, rewards],
@@ -77,6 +75,18 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
         // return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>([insights, rewards]);
       });
+  }
+
+  protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {
+    const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
+
+    if (typeof actualTypeData == "string") {
+      return InsightString(actualTypeData);
+    } else if (actualTypeData == null) {
+      return InsightString("");
+    } else {
+      return InsightString(JSON.stringify(actualTypeData));
+    }
   }
 
   private evalCompensations(
