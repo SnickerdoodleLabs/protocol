@@ -826,6 +826,23 @@ export class ConsentContract implements IConsentContract {
       .map(() => {});
   }
 
+  public getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.hasRole(ConsentRoles[role], address) as Promise<BlockNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call hasRole()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
+  public setQueryHorizon(
+    blockNumber: BlockNumber,
+  ): ResultAsync<void, ConsentContractError>;
+
   // Get the number of opted in addresses
   public totalSupply(): ResultAsync<number, ConsentContractError> {
     return ResultAsync.fromPromise(
