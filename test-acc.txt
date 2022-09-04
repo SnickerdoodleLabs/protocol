@@ -1,2 +1,0 @@
-delete it after test
-deleted token
