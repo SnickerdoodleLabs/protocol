@@ -141,41 +141,18 @@ export class SDQLParser {
 
   // #region schema validation
   public validateSchema(schema: SDQLSchema, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    
     return ResultUtils.combine([
       this.validateMeta(schema),
       this.validateTimeStampExpiry(schema, cid),
       this.validateQuery(schema),
       this.validateReturns(schema),
       this.validateCompenstations(schema),
-      this.validateReturns(schema)
+      this.validateReturns(schema),
+      this.validateLogic(schema)
     ])
     .andThen(() => {
       return okAsync(undefined);
     });
-
-    // return this.validateExpiry(schema, cid)
-    //   .andThen(() => {
-
-    //     // if (schema.description === undefined) {
-    //     //   return errAsync(new QueryFormatError("schema missing description"));
-    //     // }
-    //     // if (schema.business === undefined) {
-    //     //   return errAsync(new QueryFormatError("schema missing business"));
-    //     // }
-    //     if (schema.queries === undefined) {
-    //       return errAsync(new QueryFormatError("schema missing queries"));
-    //     }
-    //     if (schema.compensations === undefined) {
-    //       return errAsync(new QueryFormatError("schema missing compensations"));
-    //     }
-    //     if (schema.returns === undefined) {
-    //       return errAsync(new QueryFormatError("schema missing returns"));
-    //     }
-
-    //     return this.validateLogic(schema);
-        
-    //   });
 
   }
 

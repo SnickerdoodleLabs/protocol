@@ -8,7 +8,7 @@ import {
   SDQLSchema
 } from "@core/interfaces/objects/SDQL";
 import { QueryFormatError } from "@snickerdoodlelabs/objects";
-import { okAsync } from "neverthrow";
+import { errAsync, okAsync } from "neverthrow";
   
   const cid = IpfsCID("0");
   
@@ -164,7 +164,7 @@ import { okAsync } from "neverthrow";
         });
 
     });
-    test.only("missing timezone fix", async () => {
+    test("missing timezone fix", async () => {
       
       const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
         version: 0.1,
@@ -322,7 +322,8 @@ import { okAsync } from "neverthrow";
 
       await parser.validateSchema(schema, cid)
         .andThen(() => {
-          fail("didn't return error")
+          // fail("didn't return error")
+          return errAsync(new Error("didn't return error"))
         })
         .mapErr((err) => {
           expect(err.constructor).toBe(QueryFormatError)
