@@ -15,24 +15,54 @@ export class SDQLSchema {
 
   constructor(readonly internalObj: ISDQLQueryObject) {
     // console.log("internalObj: " + internalObj)
+    this.fixDateFormats();
   }
 
   static fromString(s: SDQLString): SDQLSchema {
     return new SDQLSchema(JSON.parse(s)  as ISDQLQueryObject);
   }
 
-  public get version(): string {
+  public get version(): string | undefined {
+    if (!this.internalObj.version) {
+      return undefined;
+    }
     return `${this.internalObj.version}`;
+  }
+
+  public fixDateFormats() {
+
+    console.log("timestamp fixing");
+
+    if (this.internalObj.timestamp) {
+      this.internalObj.timestamp = this.fixDateFormat(this.internalObj.timestamp);
+    }
+
+    if (this.internalObj.expiry) {
+      this.internalObj.expiry = this.fixDateFormat(this.internalObj.expiry);
+    }
+
+
+  }
+  public fixDateFormat(isoDate: string): string {
+    // Adds time zone if missing
+    // 1. check if has time zone in +- format
+    if (isoDate.includes("+") || isoDate.includes("-")) {
+      return isoDate;
+    } 
+    
+    isoDate = isoDate.toUpperCase();
+
+    if (isoDate[isoDate.length - 1] != "Z") {
+      isoDate = isoDate + "Z";
+    }
+
+    return isoDate;
   }
 
   public get timestamp(): UnixTimestamp | undefined { 
     if (!this.internalObj.timestamp) {
       return undefined;
     }
-    // if (this.internalObj.timestamp[this.internalObj.timestamp.length - 1] != "Z") {
-    //   this.internalObj.timestamp = this.internalObj.timestamp + 'Z';
-    // }
-
     return UnixTimestamp(Date.parse(this.internalObj.timestamp));
   }
 
@@ -40,10 +70,6 @@ export class SDQLSchema {
     if (!this.internalObj.expiry) {
       return undefined;
     }
-
-    // if (this.internalObj.expiry[this.internalObj.expiry.length - 1] != "Z") {
-    //   this.internalObj.expiry = this.internalObj.expiry + 'Z';
-    // }
 
     const timestamp = Date.parse(this.internalObj.expiry);
     // console.log(`expiry: ${this.internalObj.expiry} converted to timestamp ${timestamp}`);

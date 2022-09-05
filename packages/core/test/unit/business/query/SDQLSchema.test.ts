@@ -43,4 +43,17 @@ describe("SDQLSchema with Avalanche", () => {
   test("avalance has 2 logic schema", () => {
     expect(Object.keys(logicSchema).length).toBe(2);
   });
+
+  test.only("date fix", () => {
+    const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      version: 0.1,
+      description:
+        "Intractions with the Avalanche blockchain for 15-year and older individuals",
+      business: "Shrapnel",
+      timestamp: "2021-11-13T20:20:39",
+      expiry: "2023-11-13T20:20:39+00:00",
+    })));
+    expect(schema.internalObj.timestamp).toBe("2021-11-13T20:20:39Z")
+    expect(schema.internalObj.expiry).toBe("2023-11-13T20:20:39+00:00")
+  })
 });
