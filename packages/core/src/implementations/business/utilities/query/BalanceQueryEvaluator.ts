@@ -1,4 +1,5 @@
 import {
+  BigNumberString,
   ChainId,
   EvalNotImplementedError,
   EVMContractAddress,
@@ -50,14 +51,13 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         const tokenBalances: ITokenBalance[] = [];
 
         excessValues.forEach((object) => {
-          const newToken:ITokenBalance = {
+          const newToken: ITokenBalance = {
             ticker: object.ticker,
             networkId: object.chainId,
             address: object.contractAddress,
-            balance: BigNumber.from(object.balance)
+            balance: object.balance,
           };
           tokenBalances.push(newToken);
-
         });
         return okAsync(tokenBalances);
       })
@@ -133,7 +133,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
   ): ResultAsync<ITokenBalance[], PersistenceError> {
     let obj: ITokenBalance = {
       ticker: TickerSymbol("ETH"),
-      balance: BigNumber.from("0"),
+      balance: BigNumberString(BigNumber.from("0").toString()),
       networkId: ChainId(0),
       address: EVMContractAddress("0"),
     };
@@ -145,7 +145,9 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         if (getObject !== undefined) {
           obj = getObject;
         }
-        obj.balance = obj.balance.add(d.balance);
+        obj.balance = BigNumberString(
+          BigNumber.from(obj.balance).add(d.balance).toString(),
+        );
 
         balanceMap.set(d.address, obj);
       } else {
