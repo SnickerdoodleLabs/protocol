@@ -53,6 +53,9 @@ describe("SDQLSchema with Avalanche", () => {
       timestamp: "2021-11-13T20:20:39",
       expiry: "2023-11-13T20:20:39+00:00",
     })));
+
+    expect(schema.fixDateFormat("2000-11-13T20:20:39")).toBe("2000-11-13T20:20:39Z")
+
     expect(schema.internalObj.timestamp).toBe("2021-11-13T20:20:39Z")
     expect(schema.internalObj.expiry).toBe("2023-11-13T20:20:39+00:00")
   })

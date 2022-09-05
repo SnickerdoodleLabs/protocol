@@ -31,8 +31,6 @@ export class SDQLSchema {
 
   public fixDateFormats() {
 
-    console.log("timestamp fixing");
-
     if (this.internalObj.timestamp) {
       this.internalObj.timestamp = this.fixDateFormat(this.internalObj.timestamp);
     }
@@ -46,7 +44,7 @@ export class SDQLSchema {
   public fixDateFormat(isoDate: string): string {
     // Adds time zone if missing
     // 1. check if has time zone in +- format
-    if (isoDate.includes("+") || isoDate.includes("-")) {
+    if (isoDate.includes("+", 10) || isoDate.includes("-", 10)) {
       return isoDate;
     } 
     
