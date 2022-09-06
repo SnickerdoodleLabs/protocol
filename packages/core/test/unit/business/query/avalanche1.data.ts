@@ -63,11 +63,41 @@ export const avalance1SchemaStr = `
         },
         "c2":{
             "description": "participate in the draw to win a CryptoPunk NFT",
-            "callback": "https://418e-64-85-231-39.ngrok.io/cryptopunk"
+            "callback": "https://reward-api/rewardId",
+            "parameters": {
+                "recipientAddress": {
+                    type:...,
+                    required: true,
+                    mappedType: "walletAddress"
+                },
+                "productId": {
+                    type: number,
+                    required: true,
+                    values: [urls]
+                    mappedType: "productId"
+                },
+                "shippingAddress": {
+                    type: string,
+                    required: true,
+                    mappedType: "shippingAddress"
+                },
+                "param1": type,
+
+            }
         },
         "c3":{
             "description": "a free CrazyApesClub NFT",
-            "callback": "https://418e-64-85-231-39.ngrok.io/crazyapesclub"
+            "callback": "https://reward-api/rewardId",
+            "parameters": {
+                "recipientAddress": {
+                    type:...,
+                    required: true,
+                    mappedType: "walletAddress"
+                },
+                "param1": type,
+                "param2": type
+
+            }
         }
     },
     "logic":{
