@@ -25,6 +25,13 @@ export interface ITokenBalance {
   balance: BigNumber;
 }
 
+export interface ITokenBalanceDTO {
+  ticker: TickerSymbol;
+  networkId: ChainId;
+  address: EVMContractAddress; // This is the token contract address
+  balance: BigNumberString;
+}
+
 export interface IEVMAccountBalanceRepository {
   getBalancesForAccount(
     chainId: ChainId,

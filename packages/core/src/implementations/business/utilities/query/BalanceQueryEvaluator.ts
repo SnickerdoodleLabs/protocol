@@ -7,6 +7,7 @@ import {
   IDataWalletPersistenceType,
   IEVMBalance,
   ITokenBalance,
+  ITokenBalanceDTO,
   PersistenceError,
   SDQL_Return,
   TickerSymbol,
@@ -127,7 +128,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
   public combineContractValues(
     query: AST_BalanceQuery,
     balanceArray: ITokenBalance[],
-  ): ResultAsync<ITokenBalance[], PersistenceError> {
+  ): ResultAsync<ITokenBalanceDTO[], PersistenceError> {
 
     const balanceMap = new Map<EVMContractAddress, ITokenBalance>();
 
@@ -151,17 +152,16 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       }
     });
 
-    const returnedArray: ITokenBalance[] = [];
+    const returnedArray: ITokenBalanceDTO[] = [];
     balanceMap.forEach((element, key) => {
       returnedArray.push({
         ticker: element.ticker,
         address: key,
-        balance: element.balance,
+        balance: BigNumberString(element.balance.toString()),
         networkId: element.networkId,
       });
     });
 
     return okAsync(returnedArray);
   }
-  // public evalConditions()
 }
