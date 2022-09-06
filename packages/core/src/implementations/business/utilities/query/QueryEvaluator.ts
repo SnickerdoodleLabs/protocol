@@ -32,6 +32,7 @@ import {
   ConditionL,
   ConditionLE,
 } from "@core/interfaces/objects";
+import { INetworkQueryEvaluator, INetworkQueryEvaluatorType } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -40,6 +41,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IBalanceQueryEvaluatorType)
     protected balanceQueryEvaluator: IBalanceQueryEvaluator,
+    @inject(INetworkQueryEvaluatorType)
+    protected networkQueryEvaluator: INetworkQueryEvaluator,
   ) {}
 
   protected age: Age = Age(0);
@@ -54,7 +57,7 @@ export class QueryEvaluator implements IQueryEvaluator {
     //     console.log("Constructor: ", query.constructor);
     // }
     if (query instanceof AST_NetworkQuery) {
-      return this.evalNetworkQuery(query);
+      return this.networkQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
       return this.balanceQueryEvaluator.eval(query);
     } else if (query instanceof AST_PropertyQuery) {
@@ -66,80 +69,6 @@ export class QueryEvaluator implements IQueryEvaluator {
         `Unknown query type in QueryEvaluator.eval, ${query.name}`,
       ),
     );
-  }
-
-  public evalNetworkQuery(
-    q: AST_NetworkQuery,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
-    const result = SDQL_Return(false);
-    const chainId = q.contract.networkId;
-    const address = q.contract.address as EVMAccountAddress;
-    const hash = "";
-    const startTime = q.contract.blockrange.start;
-    const endTime = q.contract.blockrange.end;
-
-    const filter = new EVMTransactionFilter(
-      [chainId],
-      [address],
-      [hash],
-      startTime,
-      endTime,
-    );
-    // console.log("Filter chainId: ", filter.chainIDs);
-    // console.log("Filter addresses: ", filter.addresses);
-    // console.log("Filter hashes: ", filter.hashes);
-    // console.log("Filter startTime: ", filter.startTime);
-    // console.log("Filter endTime: ", filter.endTime);
-
-    if (q.returnType == "object") {
-      return this.dataWalletPersistence
-        .getEVMTransactions(filter)
-        .andThen((transactions) => {
-          // console.log("Network Query Result: ", transactions)
-          if (transactions == null) {
-            return okAsync(
-              SDQL_Return({
-                networkId: chainId,
-                address: address,
-                return: false,
-              }),
-            );
-          }
-          if (transactions.length == 0) {
-            return okAsync(
-              SDQL_Return({
-                networkId: chainId,
-                address: address,
-                return: false,
-              }),
-            );
-          }
-
-          return okAsync(
-            SDQL_Return({
-              networkId: chainId,
-              address: address,
-              return: true,
-            }),
-          );
-        });
-    } else if (q.returnType == "boolean") {
-      return this.dataWalletPersistence
-        .getEVMTransactions(filter)
-        .andThen((transactions) => {
-          // console.log("Network Query Result: ", transactions)
-          if (transactions == null) {
-            return okAsync(SDQL_Return(false));
-          }
-          if (transactions.length == 0) {
-            return okAsync(SDQL_Return(false));
-          }
-
-          return okAsync(SDQL_Return(true));
-        });
-    }
-
-    return okAsync(SDQL_Return(false));
   }
 
   public evalPropertyQuery(
