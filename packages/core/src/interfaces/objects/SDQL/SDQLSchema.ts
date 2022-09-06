@@ -6,6 +6,7 @@ import {
   ISDQLCompensations,
   ISDQLLogicObjects,
   UnixTimestamp,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 
 export class SDQLSchema {

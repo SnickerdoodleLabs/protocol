@@ -1,0 +1,47 @@
+{
+  "name": "@snickerdoodlelabs/query-parsing",
+  "version": "0.0.1",
+  "description": "Utilitites for parsing and understanding SDQL Queries",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnickerdoodleLabs/protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
+  },
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/queryParsing#readme",
+  "author": "Golam Muktadir <muktadir@snickerdoodlelabs.io>",
+  "keywords": [
+    "Snickerdoodle",
+    "SDQL"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "!dist/test",
+    "!dist/tsconfig.tsbuildinfo",
+    "!test",
+    "!src",
+    "!tsconfig.json"
+  ],
+  "scripts": {
+    "alias": "tsc-alias",
+    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
+    "build": "yarn clean && yarn compile",
+    "clean": "npx rimraf dist tsconfig.tsbuildinfo",
+    "compile": "tsc --build && cd ../.. && yarn alias",
+    "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
+    "prepare": "yarn build",
+    "prepublish": "yarn build",
+    "test": "npx jest --runInBand --coverage --passWithNoTests"
+  },
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@snickerdoodlelabs/objects": "workspace:^",
+    "ethers": "^5.6.6",
+    "inversify": "^5.1.1",
+    "neverthrow": "^4.3.1",
+    "neverthrow-result-utils": "^1.0.2"
+  }
+}

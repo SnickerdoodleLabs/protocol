@@ -1,6 +1,10 @@
 // This is where Zara's definition will come in. This file should contain all the relevant
 // interfaces from the JSON schema of the query
-import { EVMContractAddress, UnixTimestamp } from "@objects/primitives";
+import {
+  EVMContractAddress,
+  UnixTimestamp,
+  URLString,
+} from "@objects/primitives";
 export interface ISDQLQueryObject {
   version: string;
   timestamp: string;
@@ -63,7 +67,7 @@ export interface ISDQLQueryConditions {
 
 export interface ISDQLHasObject {
   patternProperties: {
-    [url: string]: number;
+    [url: URLString]: number;
   };
 }
 
