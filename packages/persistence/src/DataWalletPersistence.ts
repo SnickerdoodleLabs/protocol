@@ -1,8 +1,4 @@
 import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@extension-onboarding/packages/common-utils/dist";
-import {
   URLString,
   Age,
   ClickData,
@@ -55,6 +51,7 @@ import {
   IVolatileStorageFactoryType,
   IVolatileCursor,
 } from "@persistence/volatile";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
