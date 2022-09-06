@@ -34,6 +34,7 @@ import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryOb
 import { avalance4SchemaStr } from "./business/query/avalanche4.data";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { avalance1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
+import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 
 const queryId = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(queryId, SDQLString(avalance1ExpiredSchemaStr));
@@ -44,6 +45,8 @@ const country = CountryCode("1");
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = new BalanceQueryEvaluator(this.persistenceRepo);
+  public networkQueryEvaluator = new NetworkQueryEvaluator(this.persistenceRepo);
+
 
   protected queryObjectFactory: IQueryObjectFactory;
   protected queryFactories: IQueryFactories;
@@ -78,7 +81,7 @@ class QueryParsingMocks {
       this.persistenceRepo.getTransactionsMap(),
     ).thenReturn(okAsync(new Map()));
 
-    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator);
+    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator, this.networkQueryEvaluator);
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }
 
