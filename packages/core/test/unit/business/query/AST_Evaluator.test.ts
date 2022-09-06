@@ -32,6 +32,8 @@ import {
 import { IQueryFactories, IQueryObjectFactory } from "@core/interfaces/utilities/factory";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
+import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 
 // const ast = new AST(
 //     Version("0.1"),
@@ -48,17 +50,20 @@ class ASTMocks {
   public queryRepository: QueryRepository;
   public queryEvaluator: QueryEvaluator;
   public balanceQueryEvaluator: IBalanceQueryEvaluator;
+  public networkQueryEvaluator: INetworkQueryEvaluator;
 
   public constructor() {
     this.queryFactories = new QueryFactories(this.queryObjectFactory);
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.persistenceRepo);
+    this.networkQueryEvaluator = new NetworkQueryEvaluator(this.persistenceRepo);
+
 
     td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(
       okAsync(CountryCode("1")),
     );
 
-    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator);
+    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator, this.networkQueryEvaluator);
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }
 

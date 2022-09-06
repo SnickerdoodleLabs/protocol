@@ -178,17 +178,17 @@ describe("BalanceQueryEvaluator", () => {
 
     const result = await repo.eval(balanceQuery);
     //console.log(result);
-    expect(result["value"][0].address).toEqual('Contract 1');
-    expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("15"));
+    expect(result["value"][0]["address"]).toEqual('Contract 1');
+    expect(result["value"][0]["networkId"]).toEqual(1);
+    expect(result["value"][0]["balance"]).toEqual("15");
 
-    expect(result["value"][1].address).toEqual('Contract 2');
+    expect(result["value"][1]["address"]).toEqual('Contract 2');
     expect(result["value"][1].networkId).toEqual(2);
-    expect(result["value"][1].balance).toEqual(BigNumber.from("25"));
+    expect(result["value"][1]["balance"]).toEqual("25");
 
-    expect(result["value"][2].address).toEqual('Contract 3');
+    expect(result["value"][2]["address"]).toEqual('Contract 3');
     expect(result["value"][2].networkId).toEqual(3);
-    expect(result["value"][2].balance).toEqual(BigNumber.from("30"));
+    expect(result["value"][2]["balance"]).toEqual("30");
 
   })
 
@@ -233,9 +233,9 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].ticker).toEqual('ETH');
-    expect(result["value"][0].address).toEqual('Contract 1');
+    expect(result["value"][0]["address"]).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("70"));
+    expect(result["value"][0]["balance"]).toEqual("70");
 
     // TODO this is conceptually incorrect as different contract address will have different ticket symbols.
   })
@@ -275,14 +275,14 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(2);
     expect(result["value"][0].ticker).toEqual('ETH');
-    expect(result["value"][0].address).toEqual('Contract 1');
+    expect(result["value"][0]["address"]).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("9"));
+    expect(result["value"][0]["balance"]).toEqual("9");
 
     expect(result["value"][1].ticker).toEqual('SOL');
-    expect(result["value"][1].address).toEqual('Contract 2');
+    expect(result["value"][1]["address"]).toEqual('Contract 2');
     expect(result["value"][1].networkId).toEqual(2);
-    expect(result["value"][1].balance).toEqual(BigNumber.from("44"));
+    expect(result["value"][1]["balance"]).toEqual("44");
   })
 
 
@@ -319,9 +319,9 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].ticker).toEqual('ETH');
-    expect(result["value"][0].address).toEqual('Contract 1');
+    expect(result["value"][0]["address"]).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("53"));
+    expect(result["value"][0]["balance"]).toEqual("53");
   })
 
 
@@ -359,9 +359,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual('Contract 1');
+    expect(result["value"][0]["address"]).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("9"));
+    expect(result["value"][0]["balance"]).toEqual("9");
   })
   
   test("Only Accept ChainId(1) EVMBalances - Same ContractAddresses", async () => {
@@ -417,7 +417,7 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("50"));
+    expect(result["value"][0]["balance"]).toEqual("50");
 
   })
 
@@ -461,17 +461,17 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(3);
-    expect(result["value"][0].address).toEqual('Contract 1');
+    expect(result["value"][0]["address"]).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("23"));
+    expect(result["value"][0]["balance"]).toEqual("23");
 
-    expect(result["value"][1].address).toEqual('Contract 2');
+    expect(result["value"][1]["address"]).toEqual('Contract 2');
     expect(result["value"][1].networkId).toEqual(1);
-    expect(result["value"][1].balance).toEqual(BigNumber.from("25"));
+    expect(result["value"][1]["balance"]).toEqual("25");
 
-    expect(result["value"][2].address).toEqual('Contract 3');
+    expect(result["value"][2]["address"]).toEqual('Contract 3');
     expect(result["value"][2].networkId).toEqual(1);
-    expect(result["value"][2].balance).toEqual(BigNumber.from("27"));
+    expect(result["value"][2]["balance"]).toEqual("27");
 })
 
 test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () => {
@@ -514,9 +514,9 @@ test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () =
   const result = await repo.eval(balanceQuery);
   //console.log(result);
   expect(result["value"].length).toEqual(1);
-  expect(result["value"][0].address).toEqual('Contract 2');
+  expect(result["value"][0]["address"]).toEqual('Contract 2');
   expect(result["value"][0].networkId).toEqual(1);
-  expect(result["value"][0].balance).toEqual(BigNumber.from("25"));
+  expect(result["value"][0]["balance"]).toEqual("25");
 })
 
 
@@ -564,9 +564,9 @@ test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () =
       const result = await repo.eval(balanceQuery);
       //console.log(result);
       expect(result["value"].length).toEqual(1);
-      expect(result["value"][0].address).toEqual('Contract 1');
+      expect(result["value"][0]["address"]).toEqual('Contract 1');
       expect(result["value"][0].networkId).toEqual(1);
-      expect(result["value"][0].balance).toEqual(BigNumber.from("75"));
+      expect(result["value"][0]["balance"]).toEqual("75");
   })
 
 
@@ -610,9 +610,9 @@ test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () =
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual('Contract 1');
+    expect(result["value"][0]["address"]).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("50"));
+    expect(result["value"][0]["balance"]).toEqual("50");
 })
 
 
@@ -681,17 +681,17 @@ test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () =
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(3);
-    expect(result["value"][0].address).toEqual('Contract 1');
+    expect(result["value"][0]["address"]).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("29"));
+    expect(result["value"][0]["balance"]).toEqual("29");
 
-    expect(result["value"][1].address).toEqual('Contract 2');
+    expect(result["value"][1]["address"]).toEqual('Contract 2');
     expect(result["value"][1].networkId).toEqual(1);
-    expect(result["value"][1].balance).toEqual(BigNumber.from("24"));
+    expect(result["value"][1]["balance"]).toEqual("24");
 
-    expect(result["value"][2].address).toEqual('Contract 3');
+    expect(result["value"][2]["address"]).toEqual('Contract 3');
     expect(result["value"][2].networkId).toEqual(1);
-    expect(result["value"][2].balance).toEqual(BigNumber.from("23"));
+    expect(result["value"][2]["balance"]).toEqual("23");
 
 
   })
@@ -773,9 +773,9 @@ test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () =
     const result = await repo.eval(balanceQuery);
     // console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual('Contract 2');
+    expect(result["value"][0]["address"]).toEqual('Contract 2');
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("29"));
+    expect(result["value"][0]["balance"]).toEqual("29");
   })
 
   test("(Chain ID: 1) & (Balance == 29) - multiple occurences", async () => {
@@ -825,9 +825,9 @@ test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () =
     const result = await repo.eval(balanceQuery);
     // console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual('Contract 2');
+    expect(result["value"][0]["address"]).toEqual('Contract 2');
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("58"));
+    expect(result["value"][0]["balance"]).toEqual("58");
   })
 
 
