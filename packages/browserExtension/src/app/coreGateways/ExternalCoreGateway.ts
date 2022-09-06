@@ -18,8 +18,10 @@ import {
   ISetGivenNameParams,
   ISetLocationParams,
   IUnlockParams,
+  ICheckURLParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
   Invitation,
@@ -226,5 +228,12 @@ export class ExternalCoreGateway {
     JsonRpcError
   > {
     return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);
+  }
+  public checkURL(
+    domain: DomainName,
+  ): ResultAsync<string, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.CHECK_URL, {
+      domain,
+    } as ICheckURLParams);
   }
 }

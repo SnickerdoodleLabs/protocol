@@ -24,6 +24,7 @@ import {
   MinimalForwarderContractError,
   PersistenceError,
   QueryFormatError,
+  SiftContractError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
@@ -43,6 +44,7 @@ import {
   IpfsCID,
   LanguageCode,
   Signature,
+  TokenUri,
   UnixTimestamp,
 } from "@objects/primitives";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
@@ -206,6 +208,13 @@ export interface ISnickerdoodleCore {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+
+  checkURL(
+    domain: DomainName,
+  ): ResultAsync<
+    TokenUri,
+    BlockchainProviderError | UninitializedError | SiftContractError
+  >;
 
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be

@@ -62,6 +62,7 @@ import {
   ILeaveCohortParams,
   IInvitationDomainWithUUID,
   IGetInvitationMetadataByCIDParams,
+  ICheckURLParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -72,6 +73,8 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
 import { parse } from "tldts";
 import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
+import { ISiftContractRepositoryType } from "@snickerdoodlelabs/core/src/interfaces/data";
+import { IScamFilterService } from "@interfaces/business/IScamFilterService";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -81,6 +84,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IPIIServiceType) protected piiService: IPIIService,
     @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
+    @inject(ISiftContractRepositoryType)
+    protected scamFilterService: IScamFilterService,
   ) {}
 
   public async handleRpcCall(
@@ -254,6 +259,10 @@ export class RpcCallHandler implements IRpcCallHandler {
           res,
         ).call();
       }
+      case EExternalActions.CHECK_URL: {
+        const { domain } = params as ICheckURLParams;
+        return new AsyncRpcResponseSender(this.checkURL(domain), res).call();
+      }
       case EExternalActions.CLOSE_TAB: {
         sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
         return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
@@ -361,6 +370,11 @@ export class RpcCallHandler implements IRpcCallHandler {
   ): ResultAsync<void, SnickerDoodleCoreError> {
     const invitation = this.contextProvider.getInvitation(id) as Invitation;
     return this.invitationService.rejectInvitation(invitation);
+  }
+  private checkURL(
+    domain: DomainName,
+  ): ResultAsync<string, SnickerDoodleCoreError> {
+    return this.scamFilterService.checkURL(domain);
   }
 
   private unlock(

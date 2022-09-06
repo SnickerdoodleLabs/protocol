@@ -1,5 +1,5 @@
 import { ICrumbsRepository } from "@core/interfaces/data";
-import { ISiftContractRepository } from "@core/interfaces/data/";
+import { ISiftContractRepository } from "@core/interfaces/data/ISiftContractRepository";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -30,7 +30,7 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 @injectable()
-export class SiftRepository implements ISiftRepository {
+export class SiftContractRepository implements ISiftContractRepository {
   protected siftContract: ResultAsync<
     ISiftContract,
     BlockchainProviderError | UninitializedError

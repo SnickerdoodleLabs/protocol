@@ -24,6 +24,8 @@ import ConnectWalletPending from "../Screens/ConnectWalletPending";
 import RewardCard from "../Screens/RewardCard";
 import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
 import { parse } from "tldts";
+import ScamFilterComponent from "../ScamFilterComponent";
+import { EScamFilterStatus } from "../ScamFilterComponent/ScamFilterComponent";
 
 let coreGateway: ExternalCoreGateway;
 let notificationEmitter;
@@ -73,6 +75,13 @@ const App = () => {
     useState<IInvitationDomainWithUUID>();
 
   const _path = usePath();
+
+  useEffect(() => {
+    initialateScamFilterStatus();
+  }, []);
+  const initialateScamFilterStatus = () => {
+    console.log(coreGateway.checkURL("www.shrapnel.com" as DomainName));
+  };
 
   useEffect(() => {
     if (rewardToDisplay) {
@@ -166,7 +175,12 @@ const App = () => {
     }
   }, [rewardToDisplay, appState]);
 
-  return <>{renderComponent}</>;
+  return (
+    <>
+      <ScamFilterComponent scamFilterStatus={EScamFilterStatus.VERIFIED} />
+      {renderComponent}
+    </>
+  );
 };
 
 export default App;
