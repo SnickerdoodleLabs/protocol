@@ -1,4 +1,5 @@
 import {
+  BigNumberString,
   ChainId,
   EvalNotImplementedError,
   EVMContractAddress,
@@ -136,7 +137,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       if (getObject) {
         balanceMap.set(d.address, {
           ticker: getObject.ticker,
-          balance: getObject.balance.add(d.balance),
+          balance: (getObject.balance).add(d.balance),
           networkId: getObject.networkId,
           address: getObject.address,
         });
