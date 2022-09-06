@@ -8,6 +8,7 @@ import { okAsync } from "neverthrow";
 import { QueryEvaluator } from "@core/implementations/business";
 import { AST_Contract } from "@core/interfaces/objects/SDQL/AST_Contract";
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
+import { BigNumber } from "ethers";
 
 
 class NetworkQueryEvaluatorMocks {
@@ -238,7 +239,7 @@ describe("QueryEvaluator: ", () => {
 })
 
 describe("Network Query Testing: ", () => {
-  test("Network Query", async () => {
+  test("Network Query - Boolean", async () => {
     const mocks = new NetworkQueryEvaluatorMocks();
     const repo = mocks.factory();
 
@@ -276,4 +277,48 @@ describe("Network Query Testing: ", () => {
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
+
+  test("Network Query - Object", async () => {
+    const mocks = new NetworkQueryEvaluatorMocks();
+    const repo = mocks.factory();
+
+    const networkQuery = new AST_NetworkQuery(
+      SDQL_Name("q1"),
+      "object",
+      EVMChainCode("AVAX"),
+      new AST_Contract(
+        ChainId(43114),
+        EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
+        EVMContractFunction("Transfer"),
+        EVMContractDirection.From,
+        EVMToken("ERC20"),
+        new EVMBlockRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+      ),
+    );
+    const chainId = networkQuery.contract.networkId;
+    const address = networkQuery.contract.address as EVMAccountAddress;
+    const hash = "";
+    const startTime = networkQuery.contract.blockrange.start;
+    const endTime = networkQuery.contract.blockrange.end;
+
+    const filter = new EVMTransactionFilter(
+      [chainId],
+      [address],
+      [hash],
+      startTime,
+      endTime,
+    );
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+      okAsync([]),
+    );
+    const result = await repo.eval(networkQuery);
+    // console.log("Age is: ", result["value"]);
+    expect(result).toBeDefined();
+    //expect(result["value"]).toBe(false);
+
+    expect(result["value"]["networkId"]).toBe(43114);
+    expect(result["value"]["address"]).toBe("0x9366d30feba284e62900f6295bc28c9906f33172");
+    expect(result["value"]["return"]).toBe(false);
+
+});
 });
