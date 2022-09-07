@@ -1,9 +1,9 @@
 import { SDQL_Name, Version } from "@snickerdoodlelabs/objects";
 
-import { AST_Compensation } from "./AST_Compensation";
-import { AST_Logic } from "./AST_Logic";
-import { AST_Query } from "./AST_Query";
-import { AST_Returns } from "./AST_Returns";
+import { AST_Compensation } from "@query-parser/interfaces/objects/AST_Compensation";
+import { AST_Logic } from "@query-parser/interfaces/objects/AST_Logic";
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query";
+import { AST_Returns } from "@query-parser/interfaces/objects/AST_Returns";
 
 export class AST {
  

@@ -1,12 +1,11 @@
-import { AST } from "prettier";
 
-import { AST_Expr } from "./AST_Expr";
-import { AST_Query } from "./AST_Query";
-import { AST_ReturnExpr } from "./AST_ReturnExpr";
-import { Command } from "./Command";
-import { Command_IF } from "./Command_IF";
-import { AST_ConditionExpr } from "./condition/AST_ConditionExpr";
-import { Operator } from "./Operator";
+import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr";
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query";
+import { AST_ReturnExpr } from "@query-parser/interfaces/objects/AST_ReturnExpr";
+import { Command } from "@query-parser/interfaces/objects/Command";
+import { Command_IF } from "@query-parser/interfaces/objects/Command_IF";
+import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr";
+import { Operator } from "@query-parser/interfaces/objects/Operator";
 
 export type AstAllowedTypes =
   | string

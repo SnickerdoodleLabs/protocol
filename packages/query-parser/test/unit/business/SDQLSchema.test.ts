@@ -1,6 +1,6 @@
 import { avalance1SchemaStr } from "./avalanche1.data";
 
-import { SDQLSchema } from "@core/interfaces/objects/SDQL";
+import { SDQLSchema } from "@query-parser/interfaces/objects";
 import { SDQLString } from "@snickerdoodlelabs/objects";
 
 describe("SDQLSchema with Avalanche", () => {
@@ -44,7 +44,7 @@ describe("SDQLSchema with Avalanche", () => {
     expect(Object.keys(logicSchema).length).toBe(2);
   });
 
-  test.only("date fix", () => {
+  test("date fix", () => {
     const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
       version: 0.1,
       description:

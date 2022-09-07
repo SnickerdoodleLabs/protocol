@@ -1,4 +1,5 @@
-import { AST_BalanceQuery, AST_NetworkQuery, AST_PropertyQuery, Condition } from "@query-parser/interfaces/objects";
+import { AST_BalanceQuery, AST_NetworkQuery, AST_PropertyQuery } from "@query-parser/interfaces/objects";
+import { Condition } from "@query-parser/interfaces/objects/condition";
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
 export interface IQueryObjectFactory {

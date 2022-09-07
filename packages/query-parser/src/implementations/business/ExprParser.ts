@@ -10,7 +10,7 @@ import {
   Tokenizer,
   TokenType
 } from "@query-parser/implementations/business/Tokenizer";
-import { ParserContextDataTypes } from "@query-parser/interfaces/utilities";
+import { ParserContextDataTypes } from "@query-parser/interfaces";
 import {
   AST_ConditionExpr,
   AST_Expr,
@@ -20,7 +20,7 @@ import {
   Command_IF,
   ConditionAnd,
   ConditionOr
-} from "@query-parser/interfaces/objects";
+} from "@query-parser/interfaces";
 
 export class ExprParser {
   /**

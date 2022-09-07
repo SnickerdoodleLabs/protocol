@@ -1,8 +1,8 @@
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { AST_Expr } from "./AST_Expr";
-import { AST_Query } from "./AST_Query";
-import { AST_Return } from "./AST_Return";
+import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr";
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query";
+import { AST_Return } from "@query-parser/interfaces/objects/AST_Return";
 
 export class AST_ReturnExpr extends AST_Expr {
   /**

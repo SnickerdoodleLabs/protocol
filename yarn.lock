@@ -5190,7 +5190,7 @@ __metadata:
     "@snickerdoodlelabs/contracts-sdk": "workspace:^"
     "@snickerdoodlelabs/indexers": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
-    "@snickerdoodlelabs/query-parsing": "workspace:^"
+    "@snickerdoodlelabs/query-parser": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
@@ -5292,9 +5292,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/query-parsing@workspace:^, @snickerdoodlelabs/query-parsing@workspace:packages/query-parsing":
+"@snickerdoodlelabs/query-parser@workspace:^, @snickerdoodlelabs/query-parser@workspace:packages/query-parser":
   version: 0.0.0-use.local
-  resolution: "@snickerdoodlelabs/query-parsing@workspace:packages/query-parsing"
+  resolution: "@snickerdoodlelabs/query-parser@workspace:packages/query-parser"
   dependencies:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6

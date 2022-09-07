@@ -5,7 +5,7 @@ import { ParserError } from "@snickerdoodlelabs/objects";
 import {
   Tokenizer,
   TokenType,
-} from "@core/implementations/business/utilities/query";
+} from "@query-parser/implementations/business/Tokenizer";
 
 describe("Tokenizer", () => {
   test("12 is a number", function () {

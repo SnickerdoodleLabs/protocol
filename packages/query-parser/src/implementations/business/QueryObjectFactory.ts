@@ -1,20 +1,19 @@
-import "reflect-metadata";
 import {
   ChainId,
   SDQL_Name,
-  SDQL_OperatorName,
+  SDQL_OperatorName
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
+import "reflect-metadata";
 
-import { AST_NetworkQuery, AST_PropertyQuery, AST_BalanceQuery } from "@query-parser/interfaces/objects";
+import { AST_BalanceQuery, AST_NetworkQuery, AST_PropertyQuery, IQueryObjectFactory } from "@query-parser/interfaces";
 import {
   Condition,
   ConditionG,
   ConditionGE,
   ConditionIn,
-  ConditionL,
-} from "@query-parser/interfaces/objects";
-import { IQueryObjectFactory } from "@query-parser/interfaces/utilities";
+  ConditionL
+} from "@query-parser/interfaces";
 
 @injectable()
 export class QueryObjectFactory implements IQueryObjectFactory {

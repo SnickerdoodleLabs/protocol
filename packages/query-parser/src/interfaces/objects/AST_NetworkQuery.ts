@@ -1,7 +1,7 @@
 import { EVMChainCode, SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { AST_Contract } from "./AST_Contract";
-import { AST_Query } from "./AST_Query";
+import { AST_Contract } from "@query-parser/interfaces/objects/AST_Contract";
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query";
 
 export class AST_NetworkQuery extends AST_Query {
   /**

@@ -1,1 +1,1 @@
-export * from "@query-parsing/interfaces/utilities/ParserContext";
+export * from "@query-parser/interfaces/utilities/ParserContext";

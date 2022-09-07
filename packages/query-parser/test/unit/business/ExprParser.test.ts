@@ -11,7 +11,7 @@ import {
   Token,
   Tokenizer,
   TokenType
-} from "@core/implementations/business/utilities/query";
+} from "@query-parser/implementations";
 import {
   AST_ConditionExpr,
   AST_NetworkQuery,
@@ -21,11 +21,9 @@ import {
   AST_ReturnExpr,
   Command_IF,
   ConditionAnd,
-  ConditionOr,
-  SDQLSchema
-} from "@core/interfaces/objects/SDQL";
-import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+  ConditionOr, ParserContextDataTypes, SDQLSchema
+} from "@query-parser/interfaces";
+import { okAsync, ResultAsync } from "neverthrow";
 
 
 class ExprParserMocks {

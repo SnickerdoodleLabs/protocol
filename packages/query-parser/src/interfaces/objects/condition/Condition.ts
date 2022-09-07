@@ -1,4 +1,4 @@
-import { Operator } from "@query-parsing/interfaces/objects/Operator";
+import { Operator } from "@query-parser/interfaces/objects/Operator";
 
 export abstract class Condition extends Operator {
   /**

@@ -1,24 +1,13 @@
 import "reflect-metadata";
 
 import {
-  IpfsCID,
-  SDQL_Name,
+  DataPermissions, DuplicateIdInSchema, EWalletDataType, IpfsCID, MissingTokenConstructorError, MissingWalletDataTypeError, ParserError, QueryExpiredError, QueryFormatError, ReturnNotImplementedError, SDQL_Name,
   URLString,
-  Version,
-  DuplicateIdInSchema,
-  ReturnNotImplementedError,
-  ParserError,
-  QueryFormatError,
-  MissingTokenConstructorError,
-  DataPermissions,
-  EWalletDataType,
-  MissingWalletDataTypeError,
-  QueryExpiredError,
+  Version
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { ExprParser } from "@query-parser/implementations/business/ExprParser";
-import { ParserContextDataTypes } from "@query-parser/interfaces";
 import {
   AST,
   AST_BalanceQuery,
@@ -31,10 +20,8 @@ import {
   AST_Return,
   AST_ReturnExpr,
   AST_Returns,
-  Command,
-  SDQLSchema,
-} from "@query-parser/interfaces/objects";
-import { IQueryObjectFactory } from "@query-parser/interfaces/utilities/factory";
+  Command, IQueryObjectFactory, ParserContextDataTypes, SDQLSchema
+} from "@query-parser/interfaces";
 import { ResultUtils } from "neverthrow-result-utils";
 
 export class SDQLParser {

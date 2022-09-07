@@ -1,7 +1,6 @@
 import { DataPermissions } from "@snickerdoodlelabs/objects";
-import { AST_Expr } from "./AST_Expr";
-import { AST_Query } from "./AST_Query";
-import { Command } from "./Command";
+import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr";
+import { Command } from "@query-parser/interfaces/objects/Command";
 
 export class AST_Logic {
   /**

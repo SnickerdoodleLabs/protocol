@@ -1,8 +1,8 @@
 import { SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 
-import { AST_Expr } from "../AST_Expr";
+import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr";
 
-import { Condition } from "./Condition";
+import { Condition } from "@query-parser/interfaces/objects/condition/Condition";
 
 export class ConditionGE extends Condition {
   constructor(

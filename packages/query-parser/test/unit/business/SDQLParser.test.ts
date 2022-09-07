@@ -1,9 +1,9 @@
-import "reflect-metadata";
 import { IpfsCID, SDQLString, SDQL_Name } from "@objects/primitives";
+import "reflect-metadata";
 
 import { avalance1SchemaStr } from "./avalanche1.data";
 
-import { QueryObjectFactory, SDQLParser } from "@core/implementations/business/utilities/query";
+import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 import {
   AST,
   AST_BalanceQuery,
@@ -17,9 +17,9 @@ import {
   Command_IF,
   ConditionAnd,
   ConditionGE,
-  SDQLSchema,
-} from "@core/interfaces/objects/SDQL";
-import { DataPermissions, EWalletDataType } from "@snickerdoodlelabs/objects";
+  SDQLSchema
+} from "@query-parser/interfaces";
+import { EWalletDataType } from "@snickerdoodlelabs/objects";
 
 describe("SDQLParser on avalanche", () => {
 

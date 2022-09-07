@@ -1,1 +1,1 @@
-export * from "@query-parsing/implementations/business";
+export * from "@query-parser/implementations/business";
