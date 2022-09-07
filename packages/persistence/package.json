@@ -33,6 +33,7 @@
     "test:watch": "npx jest --watch --color --detectOpenHandles"
   },
   "types": "dist/index.d.ts",
+  "type": "module",
   "dependencies": {
     "@ceramicnetwork/blockchain-utils-linking": "^2.0.10",
     "@ceramicnetwork/http-client": "^2.3.3",

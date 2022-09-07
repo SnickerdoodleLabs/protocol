@@ -5,11 +5,6 @@
  */
 
 import {
-  ICloudStorage,
-  ICloudStorageType,
-  CeramicCloudStorage,
-} from "@persistence/cloud";
-import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
   DefaultAccountNFTs,
@@ -71,6 +66,9 @@ import {
   IndexedDBFactory,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
+  ICloudStorage,
+  ICloudStorageType,
+  CeramicCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,

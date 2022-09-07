@@ -37,6 +37,7 @@
     "test": "npx jest"
   },
   "types": "dist/index.d.ts",
+  "type": "module",
   "dependencies": {
     "ethers": "^5.6.6",
     "neverthrow": "^4.3.1",

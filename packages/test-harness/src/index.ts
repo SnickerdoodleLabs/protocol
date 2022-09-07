@@ -1,4 +1,6 @@
 import "reflect-metadata";
+import process from "node:process";
+
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
@@ -48,9 +50,10 @@ import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IPFSClient } from "@extension-onboarding/packages/test-harness/src/IPFSClient";
-import { BlockchainStuff } from "@test-harness/BlockchainStuff";
-import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
+import { BlockchainStuff } from "@test-harness/BlockchainStuff.js";
+import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator.js";
+import { IPFSClient } from "@test-harness/IPFSClient.js";
+import { query1, query2 } from "@test-harness/queries";
 
 // https://github.com/SBoudrias/Inquirer.js
 const core = new SnickerdoodleCore({
@@ -87,19 +90,15 @@ const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
 
-// find all errors
-import process from 'node:process';
-import { query1, query2 } from "./queries";
 process
-  .on('unhandledRejection', (reason, p) => {
-    console.error(reason, 'Unhandled Rejection at Promise', p);
+  .on("unhandledRejection", (reason, p) => {
+    console.error(reason, "Unhandled Rejection at Promise", p);
     process.exit(1);
   })
-  .on('uncaughtException', err => {
-    console.error(err, 'Uncaught Exception thrown');
+  .on("uncaughtException", (err) => {
+    console.error(err, "Uncaught Exception thrown");
     process.exit(1);
   });
-
 
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
@@ -505,13 +504,9 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
         // They did not pick "cancel"
         let queryText = SDQLString("");
         if (queryId === 1) {
-          queryText = SDQLString(
-            JSON.stringify(query1),
-          );
+          queryText = SDQLString(JSON.stringify(query1));
         } else if (queryId === 2) {
-          queryText = SDQLString(
-            JSON.stringify(query2),
-          );
+          queryText = SDQLString(JSON.stringify(query2));
         }
 
         return simulator.postQuery(contractAddress, queryText);

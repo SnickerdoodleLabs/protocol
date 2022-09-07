@@ -5,7 +5,7 @@
     "downlevelIteration": true,
     "target": "ES2019",
     "baseUrl": ".",
-    "module": "commonjs",
+    "module": "ESNext",
     "removeComments": false,
     "moduleResolution": "node",
     "preserveConstEnums": true,

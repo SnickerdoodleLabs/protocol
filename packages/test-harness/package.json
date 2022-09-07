@@ -29,8 +29,9 @@
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "docker-push": "docker push snickerdoodlelabs/protocol-test-harness:local",
     "dockerize": "docker build -t snickerdoodlelabs/protocol-test-harness:local -f Dockerfile --progress=plain ../..",
-    "start": "yarn compile && npx ts-node -r tsconfig-paths/register src/index.ts"
+    "start": "yarn compile && node --experimental-specifier-resolution=node dist/index.js"
   },
+  "type": "module",
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",

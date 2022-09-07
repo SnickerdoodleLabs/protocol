@@ -36,6 +36,7 @@
     "test:watch": "jest --watch --color --detectOpenHandles"
   },
   "types": "dist/index.d.ts",
+  "type": "module",
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",

@@ -22,6 +22,7 @@
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo"
   ],
+  "type": "module",
   "scripts": {
     "alias": "tsc-alias",
     "build": "yarn clean && yarn compile",

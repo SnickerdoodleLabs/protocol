@@ -1,7 +1,7 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
-} from "@extension-onboarding/packages/common-utils/dist";
+} from "@snickerdoodlelabs/common-utils";
 import {
   URLString,
   Age,

@@ -1,7 +1,7 @@
 // Stolen from https://github.com/vespaiach/axios-fetch-adapter, but that
 // package does not work in CommonJS (it is using import internally)
 
-import axios, { AxiosError } from "axios";
+import AxiosError from "axios/lib/core/AxiosError";
 import buildFullPath from "axios/lib/core/buildFullPath";
 import settle from "axios/lib/core/settle";
 import buildURL from "axios/lib/helpers/buildURL";

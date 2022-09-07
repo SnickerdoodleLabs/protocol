@@ -9,7 +9,6 @@ import {
   AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { IPFSHTTPClient } from "ipfs-http-client";
 import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 

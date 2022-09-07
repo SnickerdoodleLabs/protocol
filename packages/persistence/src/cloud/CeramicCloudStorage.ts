@@ -18,12 +18,11 @@ import { getResolver } from "key-did-resolver";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { ICloudStorage } from "@persistence/cloud/ICloudStorage";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
-} from "../IPersistenceConfigProvider";
-
-import { ICloudStorage } from "@persistence/cloud";
+} from "@persistence/IPersistenceConfigProvider";
 
 @injectable()
 export class CeramicCloudStorage implements ICloudStorage {
