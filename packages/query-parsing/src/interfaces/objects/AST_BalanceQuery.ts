@@ -1,6 +1,6 @@
 import { ChainId, EVMChainCode, SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { Condition, ConditionG, ConditionGE, ConditionIn, ConditionL } from "@core/interfaces/objects/SDQL/condition";
+import { Condition, ConditionG, ConditionGE, ConditionIn, ConditionL } from "@query-parsing/interfaces/objects/condition";
 import { AST_Contract } from "./AST_Contract";
 import { AST_Query } from "./AST_Query";
 

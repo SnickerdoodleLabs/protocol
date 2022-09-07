@@ -8,7 +8,7 @@ import {
   ConditionGE,
   ConditionIn,
   ConditionL,
-} from "@core/interfaces/objects/SDQL/condition";
+} from "@snickerdoodlelabs/query-parsing/src/interfaces/objects/condition";
 
 export class AST_PropertyQuery extends AST_Query {
   /**

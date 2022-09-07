@@ -17,8 +17,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
-import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
+import { ExprParser } from "@query-parser/implementations/business/ExprParser";
+import { ParserContextDataTypes } from "@query-parser/interfaces";
 import {
   AST,
   AST_BalanceQuery,
@@ -33,8 +33,8 @@ import {
   AST_Returns,
   Command,
   SDQLSchema,
-} from "@core/interfaces/objects";
-import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+} from "@query-parser/interfaces/objects";
+import { IQueryObjectFactory } from "@query-parser/interfaces/utilities/factory";
 import { ResultUtils } from "neverthrow-result-utils";
 
 export class SDQLParser {

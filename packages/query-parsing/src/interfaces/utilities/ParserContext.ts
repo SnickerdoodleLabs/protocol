@@ -1,4 +1,4 @@
-import { AST_Compensation, AST_Expr, AST_Query, AST_ReturnExpr } from "@core/interfaces/objects";
+import { AST_Compensation, AST_Expr, AST_Query, AST_ReturnExpr } from "@query-parsing/interfaces/objects";
 
 export type ParserContextDataTypes = AST_Query 
                                     | string 

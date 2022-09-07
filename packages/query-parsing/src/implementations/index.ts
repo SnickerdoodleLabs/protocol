@@ -1,1 +1,1 @@
-export const placeholder = "";
+export * from "@query-parsing/implementations/business";

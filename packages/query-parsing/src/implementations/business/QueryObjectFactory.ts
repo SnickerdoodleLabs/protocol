@@ -6,16 +6,15 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 
-import { AST_NetworkQuery, AST_PropertyQuery } from "@core/interfaces/objects";
-import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
+import { AST_NetworkQuery, AST_PropertyQuery, AST_BalanceQuery } from "@query-parser/interfaces/objects";
 import {
   Condition,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
-} from "@core/interfaces/objects/SDQL/condition";
-import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+} from "@query-parser/interfaces/objects";
+import { IQueryObjectFactory } from "@query-parser/interfaces/utilities";
 
 @injectable()
 export class QueryObjectFactory implements IQueryObjectFactory {
