@@ -233,14 +233,14 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /// @notice Allows user to update their agreement flags
     /// @param tokenId Token id being updated 
-    /// @param newAgreementFlags User's new agreement flag 
-    /// TODO : check if we're taking agreement flag type or the whole agreement flag? 
-    /// we can update based on the agreement flag array's index if we want to target specific agreement type to change 
+    /// @param newAgreementFlags User's new agreement flag
     function updateAgreementFlags(uint256 tokenId, bytes32 newAgreementFlags) external {
+        
+        /// check if user is msgSender() of token Id
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Consent: caller is not token owner");
+        
         /// update the data access permissions for the user
-        agreementFlagsArray[tokenId] = agreementFlags;
-
-        //or call _updateCounterAndTokenFlags(tokenId, agreementFlags);? 
+        _updateCounterAndTokenFlags(tokenId, newAgreementFlags);
     }
 
     /* SETTERS */
@@ -353,26 +353,35 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     }
 
     /* INTERNAL FUNCTIONS */ 
+    /// @notice Updates the token's current counter and agreement flags
+    /// @param tokenId Token id being updated 
+    /// @param flagsToUpdate Bytes32 containing flags to be updated
+    function _updateCounterAndTokenFlags(uint256 tokenId, bytes32 flagsToUpdate) internal {
 
-    function _updateCounterAndTokenFlags(uint256 tokenId, bytes32 agreementFlags) internal {
+        /// Get current agreement flags
+        bytes32 currentAgreementFlags = agreementFlagsArray[tokenId];
 
-        /// set the data access permissions for the user
-        agreementFlagsArray[tokenId] = agreementFlags;
+        /// Flip flags that need to be updated
+        bytes32 XOR = currentAgreementFlags ^ flagsToUpdate;
 
-        /// TODO: Kernighan’s Algorithm to count number of sets bits in an integer
-        /* uint256 count = 0;
-        uint256 num = uint256(agreementFlags);
+        /// Update the user with new agreement flags
+        agreementFlagsArray[tokenId] = XOR;
+
+        /// TODO: update counter and then update the cost to call requestForData
+    }
+
+    /// @notice Kernighan’s Algorithm to count number of sets bits in an integer
+    /// @param tokenId Token id to check bit count for 
+    function _getBitCountByTokenId(uint256 tokenId) public view returns(uint256) {
+        uint256 count = 0;
+        uint256 num = uint256(agreementFlagsArray[tokenId]);
         while (num > 0)
         {
             count += num & 1;
             num >>= 1;
-        } */
-        //return count;
-        /// and then update the cost to call requestForData
+        } 
+        return count;
     }
-
-    /// TODO: combine these Signature Validation functions in a single function that takes
-    /// a calldata packet
 
     /// @notice Verify that a signature is valid
     /// @param hash Hashed message containing user address (if restricted opt in), token id and agreementFlags
