@@ -51,7 +51,7 @@
         "./packages/objects/src/*"
       ],
       "@persistence/*": ["./packages/persistence/src/*"],
-      "@query-parsing/*": ["./packages/query-parsing/src/*"],
+      "@query-parser/*": ["./packages/query-parser/src/*"],
       "@signatureVerification/*": [
         "./packages/signatureVerification/src/*"
       ],

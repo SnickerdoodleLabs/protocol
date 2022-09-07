@@ -1,5 +1,5 @@
 {
-  "name": "@snickerdoodlelabs/query-parsing",
+  "name": "@snickerdoodlelabs/query-parser",
   "version": "0.0.1",
   "description": "Utilitites for parsing and understanding SDQL Queries",
   "license": "MIT",
@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
-  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/queryParsing#readme",
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/query-parser#readme",
   "author": "Golam Muktadir <muktadir@snickerdoodlelabs.io>",
   "keywords": [
     "Snickerdoodle",

@@ -27,7 +27,7 @@
       "path": "packages/persistence"
     },
     {
-      "path": "packages/query-parsing"
+      "path": "packages/query-parser"
     },
     {
       "path": "packages/signatureVerification"

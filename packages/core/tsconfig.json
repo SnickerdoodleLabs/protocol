@@ -21,7 +21,7 @@
       "path": "../persistence"
     },
     {
-      "path": "../query-parsing"
+      "path": "../query-parser"
     },
     {
       "path": "../signatureVerification"
