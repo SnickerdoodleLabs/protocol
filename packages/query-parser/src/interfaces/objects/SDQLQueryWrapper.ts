@@ -58,16 +58,16 @@ export class SDQLQueryWrapper {
     return isoDate;
   }
 
-  public get timestamp(): UnixTimestamp | undefined { 
+  public get timestamp(): UnixTimestamp | null { 
     if (!this.internalObj.timestamp) {
-      return undefined;
+      return null;
     }
     return UnixTimestamp(Date.parse(this.internalObj.timestamp));
   }
 
-  public get expiry(): UnixTimestamp | undefined {
+  public get expiry(): UnixTimestamp | null {
     if (!this.internalObj.expiry) {
-      return undefined;
+      return null;
     }
 
     const timestamp = Date.parse(this.internalObj.expiry);

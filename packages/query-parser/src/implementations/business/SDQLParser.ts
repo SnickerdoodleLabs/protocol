@@ -160,15 +160,15 @@ export class SDQLParser {
 
   public validateTimeStampExpiry(schema: SDQLQueryWrapper, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
 
-    if (schema.timestamp === undefined) {
+    if (!schema.timestamp) {
       return errAsync(new QueryFormatError("schema missing timestamp"));
     } else if (isNaN(schema.timestamp)) {
       return errAsync(new QueryFormatError("Invalid timestamp date format"));
     }
 
-    if (schema["expiry"] === undefined) {
+    if (!schema.expiry) {
       return errAsync(new QueryFormatError("schema missing expiry"));
-    } else if (isNaN(schema["expiry"])) {
+    } else if (isNaN(schema.expiry)) {
       return errAsync(new QueryFormatError("Invalid expiry date format"));
     } else if (schema.isExpired()) {
       return errAsync(new QueryExpiredError("Tried to execute an expired query", cid));
