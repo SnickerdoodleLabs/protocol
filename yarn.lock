@@ -5292,9 +5292,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/query-parsing@workspace:^, @snickerdoodlelabs/query-parsing@workspace:packages/queryParsing":
+"@snickerdoodlelabs/query-parsing@workspace:^, @snickerdoodlelabs/query-parsing@workspace:packages/query-parsing":
   version: 0.0.0-use.local
-  resolution: "@snickerdoodlelabs/query-parsing@workspace:packages/queryParsing"
+  resolution: "@snickerdoodlelabs/query-parsing@workspace:packages/query-parsing"
   dependencies:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
