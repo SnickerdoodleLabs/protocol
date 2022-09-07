@@ -18,12 +18,13 @@ import {
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
-import { AST, InsightString, SDQLSchema } from "@core/interfaces/objects";
+import { InsightString } from "@core/interfaces/objects";
 import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
 import { BaseOf } from "ts-brand";
+import { AST } from "@snickerdoodlelabs/query-parser";
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 @injectable()

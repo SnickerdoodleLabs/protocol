@@ -1,30 +1,15 @@
+import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 import {
-ChainId,
-EvalNotImplementedError,
-EVMAccountAddress,
-EVMContractAddress,
-EVMTransactionFilter,
-IDataWalletPersistence,
-IDataWalletPersistenceType,
-ITokenBalance,
-PersistenceError,
-SDQL_Return,
-TickerSymbol,
+    EVMAccountAddress, EVMTransactionFilter,
+    IDataWalletPersistence,
+    IDataWalletPersistenceType, PersistenceError,
+    SDQL_Return
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
+import {
+    AST_NetworkQuery
+} from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import {
-AST_BalanceQuery,
-AST_NetworkQuery,
-ConditionE,
-ConditionG,
-ConditionGE,
-ConditionL,
-ConditionLE,
-} from "@core/interfaces/objects";
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
   
 @injectable()
 export class NetworkQueryEvaluator implements INetworkQueryEvaluator {

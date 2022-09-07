@@ -23,7 +23,7 @@ import {
   ConditionGE,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
+} from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {

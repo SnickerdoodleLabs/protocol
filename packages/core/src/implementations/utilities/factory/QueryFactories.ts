@@ -6,14 +6,12 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { AST_Evaluator, SDQLParser } from "@core/implementations/business";
+import { AST_Evaluator } from "@core/implementations/business";
 import { IQueryRepository } from "@core/interfaces/business/utilities";
-import { AST, SDQLSchema } from "@core/interfaces/objects";
 import {
   IQueryFactories,
-  IQueryObjectFactory,
-  IQueryObjectFactoryType,
 } from "@core/interfaces/utilities/factory";
+import { AST, IQueryObjectFactory, IQueryObjectFactoryType, SDQLParser, SDQLSchema } from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {

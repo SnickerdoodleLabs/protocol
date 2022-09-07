@@ -1,4 +1,5 @@
 // export * from "@core/interfaces/objects/SDQL/exceptions"
+export * from "@query-parser/interfaces/objects/AST_Contract";
 export * from "@query-parser/interfaces/objects/AST";
 export * from "@query-parser/interfaces/objects/AST_Logic";
 export * from "@query-parser/interfaces/objects/AST_Expr";

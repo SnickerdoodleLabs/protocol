@@ -3,10 +3,10 @@
 import "reflect-metadata";
   
   
-  import { QueryObjectFactory, SDQLParser } from "@core/implementations/business/utilities/query";
+  import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 import {
   SDQLSchema
-} from "@core/interfaces/objects/SDQL";
+} from "@query-parser/interfaces/objects";
 import { QueryFormatError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
   

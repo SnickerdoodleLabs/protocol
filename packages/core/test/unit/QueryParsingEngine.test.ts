@@ -22,19 +22,17 @@ import td from "testdouble";
 
 import {
   QueryEvaluator,
-  QueryObjectFactory,
   QueryParsingEngine,
   QueryRepository,
 } from "@core/implementations/business";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { avalance2SchemaStr } from "./business/query/avalanche2.data";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryObjectFactory";
 import { avalance4SchemaStr } from "./business/query/avalanche4.data";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { avalance1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
+import { IQueryObjectFactory, QueryObjectFactory } from "@snickerdoodlelabs/query-parser";
 
 const queryId = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(queryId, SDQLString(avalance1ExpiredSchemaStr));

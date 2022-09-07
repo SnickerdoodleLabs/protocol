@@ -1,9 +1,7 @@
 import "reflect-metadata";
-import { QueryObjectFactory } from "@core/implementations/business";
-import { ConditionGE, SDQLSchema } from "@core/interfaces/objects";
-import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
 import { SDQLString, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { avalance3SchemaStr } from "./avalanche3.data";
+import { ConditionGE, IQueryObjectFactory, QueryObjectFactory, SDQLSchema } from "@snickerdoodlelabs/query-parser";
 
 const schema = SDQLSchema.fromString(SDQLString(avalance3SchemaStr));
 class QueryObjectFactoryMocks {

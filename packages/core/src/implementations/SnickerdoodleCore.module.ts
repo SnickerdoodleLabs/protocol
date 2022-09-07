@@ -34,7 +34,6 @@ import {
   MonitoringService,
   ProfileService,
   QueryEvaluator,
-  QueryObjectFactory,
   QueryParsingEngine,
   QueryRepository,
   QueryService,
@@ -114,12 +113,11 @@ import {
   IContractFactory,
   IContractFactoryType,
   IQueryFactories,
-  IQueryFactoriesType,
-  IQueryObjectFactory,
-  IQueryObjectFactoryType,
+  IQueryFactoriesType
 } from "@core/interfaces/utilities/factory";
 import { IBalanceQueryEvaluator, IBalanceQueryEvaluatorType } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "./business/utilities/query/BalanceQueryEvaluator";
+import { IQueryObjectFactory, IQueryObjectFactoryType, QueryObjectFactory } from "@snickerdoodlelabs/query-parser";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
