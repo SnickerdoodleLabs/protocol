@@ -24,11 +24,13 @@ import {
   ConditionOr, ParserContextDataTypes, SDQLQueryWrapper
 } from "@query-parser/interfaces";
 import { okAsync, ResultAsync } from "neverthrow";
+import { SDQLQueryWrapperMocks } from "../../mocks";
 
 
 class ExprParserMocks {
 
-  readonly schema = SDQLQueryWrapper.fromString(SDQLString(avalance1SchemaStr));
+  public wrapperMocks = new SDQLQueryWrapperMocks();
+  public schema = this.wrapperMocks.makeQueryWrapper(avalance1SchemaStr);
   readonly parser = new SDQLParser(IpfsCID("0"), this.schema, new QueryObjectFactory());
 
   public context: Map<string, ParserContextDataTypes> | null = null;

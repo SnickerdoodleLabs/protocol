@@ -10,6 +10,7 @@ import {
 import { QueryFormatError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { SDQLQueryWrapperMocks } from "../../mocks";
   
   const cid = IpfsCID("0");
   const timeUtils = new TimeUtils();
@@ -17,10 +18,12 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
   describe.only("Schema validation", () => {
     test("missing version", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         timestamp: "2021-11-13T20:20:39Z",
         expiry: "2023-11-13T20:20:39Z",
-      })));
+      });
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
@@ -35,12 +38,13 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 
     });
     test("missing description", async () => {
-      
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         timestamp: "2021-11-13T20:20:39Z",
         expiry: "2023-11-13T20:20:39Z",
-      })));
+      });
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
@@ -56,14 +60,16 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
     });
     test("missing business", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
         timestamp: "2021-11-13T20:20:39Z",
         expiry: "2023-11-13T20:20:39Z",
-      })));
+      });
       
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
       await parser.validateSchema(schema, cid)
@@ -78,14 +84,16 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
     });
     test("missing timestamp", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
         business: "Shrapnel",
         expiry: "2023-11-13T20:20:39Z",
-      })));
+      });
       
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
       await parser.validateSchema(schema, cid)
@@ -100,14 +108,16 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
     });
     test("missing expiry", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
         business: "Shrapnel",
         timestamp: "2021-11-13T20:20:39Z",
-      })));
+      });
       
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
       await parser.validateSchema(schema, cid)
@@ -122,15 +132,17 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
     });
     test("invalid timestamp iso 8601", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
         business: "Shrapnel",
         timestamp: "2021-1-13T20:20:39Z",
         expiry: "2023-11-13T20:20:39Z",
-      })));
+      });
       
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
       await parser.validateSchema(schema, cid)
@@ -145,14 +157,16 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
     });
     test("invalid expiry iso 8601", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
         business: "Shrapnel",
         timestamp: "2021-11-13T20:20:39Z",
         expiry: "2023-11-10T20:20:39+00",
-      })));
+      });
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
@@ -168,15 +182,17 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
     });
     test("missing timezone fix", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
         business: "Shrapnel",
         timestamp: "2021-11-13T20:20:39",
         expiry: "2023-11-13T20:20:39+00:00",
-      })));
+      });
       
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
       await parser.validateTimeStampExpiry(schema, cid)
@@ -193,15 +209,17 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
     });
     test("missing queries", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
         business: "Shrapnel",
         timestamp: "2021-11-13T20:20:39Z",
         expiry: "2023-11-10T20:20:39Z",
-      })));
+      });
       
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
       await parser.validateSchema(schema, cid)
@@ -216,7 +234,7 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
     });
     test("missing returns", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -232,8 +250,10 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
             },
           },
         }
-      })));
+      });
       
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
       await parser.validateSchema(schema, cid)
@@ -249,7 +269,7 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 
     test("missing compensations", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -271,8 +291,10 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
             message: "qualified",
           },
         }
-      })));
+      });
       
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
       await parser.validateSchema(schema, cid)
@@ -288,7 +310,7 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 
     test("missing logic", async () => {
       
-      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
+      const schemaStr = JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -318,8 +340,10 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
           },
         }
         
-      })));
+      });
       
+      const mocks = new SDQLQueryWrapperMocks();
+      const schema = mocks.makeQueryWrapper(schemaStr);
       const parser = new SDQLParser(cid, schema, new QueryObjectFactory());
 
       await parser.validateSchema(schema, cid)

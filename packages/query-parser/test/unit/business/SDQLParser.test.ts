@@ -20,10 +20,12 @@ import {
   SDQLQueryWrapper
 } from "@query-parser/interfaces";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
+import { SDQLQueryWrapperMocks } from "../../mocks";
 
 describe("SDQLParser on avalanche", () => {
 
-  const schema = SDQLQueryWrapper.fromString(SDQLString(avalance1SchemaStr));
+  const wrapperMocks = new SDQLQueryWrapperMocks();
+  const schema = wrapperMocks.makeQueryWrapper(avalance1SchemaStr);
   const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
   let ast: null | AST = null;
 

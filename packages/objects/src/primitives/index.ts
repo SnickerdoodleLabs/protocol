@@ -48,3 +48,4 @@ export * from "@objects/primitives/EVMBlockNumber";
 export * from "@objects/primitives/SDQL";
 export * from "@objects/primitives/Version";
 export * from "@objects/primitives/TIckerSymbol";
+export * from "@objects/primitives/ISO8601DateString";

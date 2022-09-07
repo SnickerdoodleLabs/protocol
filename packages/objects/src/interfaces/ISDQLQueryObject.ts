@@ -1,14 +1,13 @@
 // This is where Zara's definition will come in. This file should contain all the relevant
 // interfaces from the JSON schema of the query
 import {
-  EVMContractAddress,
-  UnixTimestamp,
-  URLString,
+  EVMContractAddress, URLString
 } from "@objects/primitives";
+import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
 export interface ISDQLQueryObject {
   version: string;
-  timestamp: string;
-  expiry: string;
+  timestamp: ISO8601DateString;
+  expiry: ISO8601DateString;
   description: string;
   business: string;
   queries: {

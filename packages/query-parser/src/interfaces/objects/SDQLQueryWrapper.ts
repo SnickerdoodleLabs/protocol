@@ -1,3 +1,4 @@
+import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   ISDQLQueryObject,
   SDQLString,
@@ -7,20 +8,26 @@ import {
   ISDQLLogicObjects,
   UnixTimestamp,
   URLString,
+  ISO8601DateString,
 } from "@snickerdoodlelabs/objects";
+import { inject } from "inversify";
 
 export class SDQLQueryWrapper {
   /**
    * A object created from string
    */
 
-  constructor(readonly internalObj: ISDQLQueryObject) {
+  constructor(
+    readonly internalObj: ISDQLQueryObject,
+    @inject(ITimeUtilsType)
+    readonly timeUtils: ITimeUtils
+    ) {
     // console.log("internalObj: " + internalObj)
     this.fixDateFormats();
   }
 
-  static fromString(s: SDQLString): SDQLQueryWrapper {
-    return new SDQLQueryWrapper(JSON.parse(s)  as ISDQLQueryObject);
+  static fromString(s: SDQLString, timeUtils: ITimeUtils): SDQLQueryWrapper {
+    return new SDQLQueryWrapper(JSON.parse(s)  as ISDQLQueryObject, timeUtils);
   }
 
   public get version(): string | undefined {
@@ -42,17 +49,17 @@ export class SDQLQueryWrapper {
 
 
   }
-  public fixDateFormat(isoDate: string): string {
+  public fixDateFormat(isoDate: ISO8601DateString): ISO8601DateString {
     // Adds time zone if missing
     // 1. check if has time zone in +- format
     if (isoDate.includes("+", 10) || isoDate.includes("-", 10)) {
       return isoDate;
     } 
     
-    isoDate = isoDate.toUpperCase();
+    isoDate = ISO8601DateString(isoDate.toUpperCase());
 
     if (isoDate[isoDate.length - 1] != "Z") {
-      isoDate = isoDate + "Z";
+      isoDate = ISO8601DateString(isoDate + "Z");
     }
 
     return isoDate;
@@ -76,12 +83,10 @@ export class SDQLQueryWrapper {
   }
 
   public isExpired(): boolean {
-    const expiry = this.expiry! as number;
-    // console.log("current gmt timestamp", Date.now() );
-    // console.log("expiry gmt timestamp", this.expiry! );
-    // console.log("current gmt time", new Date().toISOString());
-    // console.log("expiry gmt time", new Date(expiry).toISOString());
-    return Date.now() > expiry;
+    if (!this.expiry) {
+      return true;
+    }
+    return Date.now() > this.expiry;
   }
 
   public get description(): string {
