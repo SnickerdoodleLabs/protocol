@@ -117,7 +117,7 @@ import {
 } from "@core/interfaces/utilities/factory";
 import { IBalanceQueryEvaluator, IBalanceQueryEvaluatorType } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "./business/utilities/query/BalanceQueryEvaluator";
-import { IQueryObjectFactory, IQueryObjectFactoryType, QueryObjectFactory } from "@snickerdoodlelabs/query-parser";
+import { IQueryObjectFactory, IQueryObjectFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType, QueryObjectFactory, SDQLQueryWrapperFactory } from "@snickerdoodlelabs/query-parser";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -220,12 +220,16 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(QueryRepository)
       .inSingletonScope();
 
-      bind<IQueryFactories>(IQueryFactoriesType)
-      .to(QueryFactories)
+    bind<IQueryFactories>(IQueryFactoriesType)
+    .to(QueryFactories)
+    .inSingletonScope();
+
+    bind<IQueryObjectFactory>(IQueryObjectFactoryType)
+      .to(QueryObjectFactory)
       .inSingletonScope();
 
-      bind<IQueryObjectFactory>(IQueryObjectFactoryType)
-        .to(QueryObjectFactory)
-        .inSingletonScope();
+    bind<ISDQLQueryWrapperFactory>(ISDQLQueryWrapperFactoryType)
+      .to(SDQLQueryWrapperFactory)
+      .inSingletonScope();
   },
 );

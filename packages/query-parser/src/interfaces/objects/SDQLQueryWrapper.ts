@@ -1,16 +1,8 @@
-import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
+import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  ISDQLQueryObject,
-  SDQLString,
-  ISDQLQueryClause,
-  ISDQLReturnProperties,
   ISDQLCompensations,
-  ISDQLLogicObjects,
-  UnixTimestamp,
-  URLString,
-  ISO8601DateString,
+  ISDQLLogicObjects, ISDQLQueryClause, ISDQLQueryObject, ISDQLReturnProperties, ISO8601DateString, SDQLString, UnixTimestamp
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
 
 export class SDQLQueryWrapper {
   /**
@@ -19,16 +11,15 @@ export class SDQLQueryWrapper {
 
   constructor(
     readonly internalObj: ISDQLQueryObject,
-    @inject(ITimeUtilsType)
     readonly timeUtils: ITimeUtils
     ) {
     // console.log("internalObj: " + internalObj)
     this.fixDateFormats();
   }
 
-  static fromString(s: SDQLString, timeUtils: ITimeUtils): SDQLQueryWrapper {
-    return new SDQLQueryWrapper(JSON.parse(s)  as ISDQLQueryObject, timeUtils);
-  }
+  // static fromString(s: SDQLString, timeUtils: ITimeUtils): SDQLQueryWrapper {
+  //   return new SDQLQueryWrapper(JSON.parse(s)  as ISDQLQueryObject, timeUtils);
+  // }
 
   public get version(): string | undefined {
     if (!this.internalObj.version) {
