@@ -12,6 +12,7 @@ import {
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
+  ChainId,
   EVMContractAddress,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -98,12 +99,12 @@ export class ContractFactory implements IContractFactory {
     BlockchainProviderError | UninitializedError
   > {
     return ResultUtils.combine([
-      this.blockchainProvider.getControlProvider(),
+      this.blockchainProvider.getAllProviders(),
       this.configProvider.getConfig(),
-    ]).map(([provider, config]) => {
+    ]).map(([providers, config]) => {
       return new SiftContract(
-        provider,
-        config.controlChainInformation.crumbsContractAddress,
+        providers.get(ChainId(43113))!,
+        EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"),
       );
     });
   }

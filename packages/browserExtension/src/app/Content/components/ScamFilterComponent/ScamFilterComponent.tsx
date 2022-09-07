@@ -8,16 +8,16 @@ export interface IScamFilterStatus {
 }
 
 export enum EScamFilterStatus {
-  VERIFIED = "Verified",
-  MALICIOUS = "Malicious",
-  NOT_VERIFIED = "Not Verified",
+  VERIFIED = "VERIFIED",
+  MALICIOUS = "MALICIOUS",
+  NOT_VERIFIED = "NOT VERIFIED",
 }
 
 const ScamFilterComponent: FC<IScamFilterStatus> = ({ scamFilterStatus }) => {
   const renderScamFilter = () => {
     switch (scamFilterStatus) {
       case EScamFilterStatus.MALICIOUS: {
-        return <ScamNotification safeURL="www.google.com" />;
+        return <ScamNotification />;
       }
       case EScamFilterStatus.VERIFIED: {
         return <SafeUrlNotification />;
@@ -31,8 +31,6 @@ const ScamFilterComponent: FC<IScamFilterStatus> = ({ scamFilterStatus }) => {
     }
   };
 
-  return<Box>
-   {renderScamFilter}
-  </Box>;
+  return <Box>{renderScamFilter}</Box>;
 };
 export default ScamFilterComponent;

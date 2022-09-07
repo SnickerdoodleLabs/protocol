@@ -3,10 +3,11 @@ import Browser from "webextension-polyfill";
 import React, { FC } from "react";
 import { useStyles } from "./ScamNotification.style";
 import { IScamNotification } from "./ScamNotification.interface";
+import { safeURLsObject } from "@app/Content/constants";
 
-const ScamNotification: FC<IScamNotification> = ({ safeURL }) => {
+const ScamNotification: FC = () => {
   const [dangerousOpen, setDangerousOpen] = React.useState(true);
-
+  const safeURL = safeURLsObject[window.location.hostname];
 
   function acceptRiskHandler() {
     setDangerousOpen(false);
@@ -39,43 +40,47 @@ const ScamNotification: FC<IScamNotification> = ({ safeURL }) => {
                 checklist. This includes malicious <br></br> websites and
                 legitimate websites that is a malicious actor has compromised.
               </Typography>
-              <Typography className={classes.text2} variant="h4">
-                <b>
-                  We believe that you wanted to visit {safeURL}. Do you
-                  want to go to {safeURL}
-                </b>
-              </Typography>
+              {safeURL && (
+                <Typography className={classes.text2} variant="h4">
+                  <b>
+                    We believe that you wanted to visit {safeURL}. Do you want
+                    to go to {safeURL}
+                  </b>
+                </Typography>
+              )}
               <Grid className={classes.bottomContainer}>
-                <Button
-                  onClick={() => {
-                    window.location.href = `${safeURL}`;
-                  }}
-                  variant="outlined"
-                  color="primary"
-                  className={classes.primaryButton}
-                >
-                  {`Go to ${safeURL}`}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 17 16"
-                    fill="none"
-                    fillRule="evenodd"
-                    strokeLinecap="square"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    aria-hidden="true"
-                    className={classes.primaryButtonIcon}
+                {safeURL && (
+                  <Button
+                    onClick={() => {
+                      window.open(`${safeURL}`, "_self");
+                    }}
+                    variant="outlined"
+                    color="primary"
+                    className={classes.primaryButton}
                   >
-                    <path
-                      d="M1.808 14.535 14.535 1.806"
-                      className="arrow-body"
-                    />
-                    <path
-                      d="M3.379 1.1h11M15.241 12.963v-11"
-                      className="arrow-head"
-                    />
-                  </svg>
-                </Button>
+                    {`Go to ${safeURL}`}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 17 16"
+                      fill="none"
+                      fillRule="evenodd"
+                      strokeLinecap="square"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      aria-hidden="true"
+                      className={classes.primaryButtonIcon}
+                    >
+                      <path
+                        d="M1.808 14.535 14.535 1.806"
+                        className="arrow-body"
+                      />
+                      <path
+                        d="M3.379 1.1h11M15.241 12.963v-11"
+                        className="arrow-head"
+                      />
+                    </svg>
+                  </Button>
+                )}
 
                 <Grid className={classes.acceptRiskContainer}>
                   <Typography

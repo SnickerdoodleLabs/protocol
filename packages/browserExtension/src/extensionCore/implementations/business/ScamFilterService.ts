@@ -1,28 +1,17 @@
-import {
-  DomainName,
-  EVMAccountAddress,
-  IEVMBalance,
-  IEVMNFT,
-  LanguageCode,
-  Signature,
-} from "@snickerdoodlelabs/objects";
+import { DomainName } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-
-import { IAccountService } from "@interfaces/business";
-import { IAccountRepository, IAccountRepositoryType } from "@interfaces/data";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
-  SnickerDoodleCoreError,
-  ExtensionCookieError,
-} from "@shared/objects/errors";
-import { ISiftContractRepositoryType } from "@snickerdoodlelabs/core/src/interfaces/data";
-import { IScamFilterRepository } from "@interfaces/data/IScamFilterRepository";
+  IScamFilterRepository,
+  IScamFilterRepositoryType,
+} from "@interfaces/data/IScamFilterRepository";
 import { IScamFilterService } from "@interfaces/business/IScamFilterService";
 
 @injectable()
 export class ScamFilterService implements IScamFilterService {
   constructor(
-    @inject(ISiftContractRepositoryType)
+    @inject(IScamFilterRepositoryType)
     protected scamFilterRepository: IScamFilterRepository,
   ) {}
 

@@ -47,6 +47,7 @@ import {
   InvitationRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
+  SiftContractRepository,
 } from "@core/implementations/data";
 import {
   BlockchainProvider,
@@ -77,6 +78,8 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  INetworkQueryEvaluator,
+  INetworkQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryParsingEngine,
@@ -125,7 +128,6 @@ import {
   IBalanceQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "./business/utilities/query/BalanceQueryEvaluator";
-import { SiftContractRepository } from "./data/SiftContractRepository";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -222,6 +224,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IQueryEvaluator>(IQueryEvaluatorType)
       .to(QueryEvaluator)
       .inSingletonScope();
+
+
 
     bind<IBalanceQueryEvaluator>(IBalanceQueryEvaluatorType)
       .to(BalanceQueryEvaluator)

@@ -1,13 +1,19 @@
 import { IScamFilterRepository } from "@interfaces/data/IScamFilterRepository";
-import { IAccountCookieUtils, IErrorUtils } from "@interfaces/utilities";
+import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
-import { DomainName, ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import {
+  DomainName,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreType,
+} from "@snickerdoodlelabs/objects";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
+@injectable()
 export class ScamFilterRepository implements IScamFilterRepository {
   constructor(
-    protected core: ISnickerdoodleCore,
-    protected errorUtils: IErrorUtils,
+    @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
+    @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
 
   public checkURL(

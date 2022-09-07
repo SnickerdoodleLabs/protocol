@@ -5,3 +5,4 @@ export * from "@core/implementations/data/InsightPlatformRepository";
 export * from "@core/implementations/data/InvitationRepository";
 export * from "@core/implementations/data/MetatransactionForwarderRepository";
 export * from "@core/implementations/data/SDQLQueryRepository";
+export * from "@core/implementations/data/SiftContractRepository";

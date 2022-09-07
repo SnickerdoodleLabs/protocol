@@ -73,8 +73,10 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
 import { parse } from "tldts";
 import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
-import { ISiftContractRepositoryType } from "@snickerdoodlelabs/core/src/interfaces/data";
-import { IScamFilterService } from "@interfaces/business/IScamFilterService";
+import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@interfaces/business/IScamFilterService";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -84,7 +86,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IPIIServiceType) protected piiService: IPIIService,
     @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
-    @inject(ISiftContractRepositoryType)
+    @inject(IScamFilterServiceType)
     protected scamFilterService: IScamFilterService,
   ) {}
 
@@ -360,10 +362,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     id: UUID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     const invitation = this.contextProvider.getInvitation(id) as Invitation;
-    return this.invitationService.acceptInvitation(
-      invitation,
-      dataPermissions,
-    );
+    return this.invitationService.acceptInvitation(invitation, dataPermissions);
   }
   private rejectInvitation(
     id: UUID,

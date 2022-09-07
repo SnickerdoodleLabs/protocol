@@ -20,6 +20,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Consent Contract Factory
       EVMContractAddress("0x0165878A594ca255338adfa4d48449f69242Eb8F"), // Crumbs Contract
       EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"), // Metatransaction Forwarder Contract
+      EVMContractAddress("0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"), // Sift Contract
     ),
   ],
   [
@@ -35,6 +36,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Consent Contract Factory
       EVMContractAddress("0x0165878A594ca255338adfa4d48449f69242Eb8F"), // Crumbs Contract
       EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"), // Metatransaction Forwarder Contract
+      EVMContractAddress("0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"), // Sift Contract
     ),
   ],
   [
@@ -62,6 +64,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EVMContractAddress("0xC44C9B4375ab43D7974252c37bccb41F99910fA5"), // Consent Contract Factory
       EVMContractAddress("0x97464F3547510fb430448F5216eC7D8e71D7C4eF"), // Crumbs Contract
       EVMContractAddress("0xF7c6dC708550D89558110cAecD20a8A6a184427E"), // Metatransaction Forwarder Contract
+      EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
     ),
   ],
 ]);

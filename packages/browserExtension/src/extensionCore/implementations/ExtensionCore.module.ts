@@ -96,6 +96,16 @@ import {
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import configProvider from "@shared/utils/ConfigProvider";
+import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@interfaces/business/IScamFilterService";
+import { ScamFilterService } from "./business/ScamFilterService";
+import {
+  IScamFilterRepository,
+  IScamFilterRepositoryType,
+} from "@interfaces/data/IScamFilterRepository";
+import { ScamFilterRepository } from "./data/ScamFilterRepository";
 
 export const extensionCoreModule = new ContainerModule(
   (
@@ -136,6 +146,9 @@ export const extensionCoreModule = new ContainerModule(
     bind<IUserSiteInteractionService>(IUserSiteInteractionServiceType)
       .to(UserSiteInteractionService)
       .inSingletonScope();
+    bind<IScamFilterService>(IScamFilterServiceType)
+      .to(ScamFilterService)
+      .inSingletonScope();
 
     // Data
     bind<IAccountRepository>(IAccountRepositoryType)
@@ -152,6 +165,9 @@ export const extensionCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IUserSiteInteractionRepository>(IUserSiteInteractionRepositoryType)
       .to(UserSiteInteractionRepository)
+      .inSingletonScope();
+    bind<IScamFilterRepository>(IScamFilterRepositoryType)
+      .to(ScamFilterRepository)
       .inSingletonScope();
 
     // Utilities

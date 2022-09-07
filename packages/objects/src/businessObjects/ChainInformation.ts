@@ -33,6 +33,7 @@ export class ControlChainInformation extends ChainInformation {
     public consentFactoryContractAddress: EVMContractAddress,
     public crumbsContractAddress: EVMContractAddress,
     public metatransactionForwarderAddress: EVMContractAddress,
+    public siftContractAddress: EVMContractAddress,
   ) {
     super(
       name,

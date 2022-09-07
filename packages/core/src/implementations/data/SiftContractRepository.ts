@@ -39,9 +39,6 @@ export class SiftContractRepository implements ISiftContractRepository {
   public constructor(
     @inject(IContractFactoryType)
     protected contractFactory: IContractFactory,
-    @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
-    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
   verifyURL(

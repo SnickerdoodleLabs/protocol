@@ -24,8 +24,9 @@ import ConnectWalletPending from "../Screens/ConnectWalletPending";
 import RewardCard from "../Screens/RewardCard";
 import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
 import { parse } from "tldts";
-import ScamFilterComponent from "../ScamFilterComponent";
-import { EScamFilterStatus } from "../ScamFilterComponent/ScamFilterComponent";
+import ScamFilterComponent, {
+  EScamFilterStatus,
+} from "@app/Content/components/ScamFilterComponent";
 
 let coreGateway: ExternalCoreGateway;
 let notificationEmitter;
@@ -74,13 +75,18 @@ const App = () => {
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
 
+  const [scamFilterStatus, setScamFilterStatus] = useState<EScamFilterStatus>();
   const _path = usePath();
 
   useEffect(() => {
-    initialateScamFilterStatus();
+    initiateScamFilterStatus();
   }, []);
-  const initialateScamFilterStatus = () => {
-    console.log(coreGateway.checkURL("www.shrapnel.com" as DomainName));
+  const initiateScamFilterStatus = () => {
+    coreGateway
+      .checkURL(window.location.hostname.replace('www.','') as DomainName)
+      .map((result) => {
+        setScamFilterStatus(result.split("/").pop() as EScamFilterStatus);
+      });
   };
 
   useEffect(() => {
@@ -177,7 +183,9 @@ const App = () => {
 
   return (
     <>
-      <ScamFilterComponent scamFilterStatus={EScamFilterStatus.VERIFIED} />
+      {scamFilterStatus && (
+        <ScamFilterComponent scamFilterStatus={scamFilterStatus} />
+      )}
       {renderComponent}
     </>
   );

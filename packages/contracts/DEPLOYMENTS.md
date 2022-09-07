@@ -36,5 +36,5 @@ Official Avalanche Network testnet:
 - DoodleToken Contract: `TBD`
 - Snickerdoodle Timelock Contract: `TBD`
 - Snickerdoodle Governor Contract: `TBD`
-- Sift Contract: `0x82721EB9786255fA45BFf58c82Bc7Ae4210B9c72`
+- Sift Contract: `0x1007D88962A3c0c4A11649480168B6456355d91a`
 - Minimal Forwarder Contract: `0xF7c6dC708550D89558110cAecD20a8A6a184427E`

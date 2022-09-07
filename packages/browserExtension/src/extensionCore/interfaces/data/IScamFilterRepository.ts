@@ -5,3 +5,4 @@ import { ResultAsync } from "neverthrow";
 export interface IScamFilterRepository {
   checkURL(domain: DomainName): ResultAsync<string, SnickerDoodleCoreError>;
 }
+export const IScamFilterRepositoryType = Symbol.for("IScamFilterRepository");
