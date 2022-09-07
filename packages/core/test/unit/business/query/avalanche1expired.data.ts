@@ -8,7 +8,7 @@ export const avalance1ExpiredSchemaStr = JSON.stringify(
   timestamp:  timeUtils.getISO8601TimeString(),
   expiry : timeUtils.getISO8601TimeString(Date.now() - (1000 * 60 * 60 * 24)),
   description:
-    "Intractions with the Avalanche blockchain for 15-year and older individuals",
+  "Interactions with the Avalanche blockchain for 15-year and older individuals",
   business: "Shrapnel",
   queries: {
     q1: {
@@ -35,10 +35,10 @@ export const avalance1ExpiredSchemaStr = JSON.stringify(
           ge: 15,
         },
       },
-    q3: {
-    name: "location",
-    return: "integer",
-    },
+      q3: {
+          name: "location",
+          return: "string",
+      },
     q4: {
         name: "balance",
         networkid: "1",
