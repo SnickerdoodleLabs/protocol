@@ -20,7 +20,7 @@ import {
   AST_Return,
   AST_ReturnExpr,
   AST_Returns,
-  Command, IQueryObjectFactory, ParserContextDataTypes, SDQLSchema
+  Command, IQueryObjectFactory, ParserContextDataTypes, SDQLQueryWrapper
 } from "@query-parser/interfaces";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -39,7 +39,7 @@ export class SDQLParser {
 
   constructor(
     readonly cid: IpfsCID,
-    readonly schema: SDQLSchema,
+    readonly schema: SDQLQueryWrapper,
     readonly queryObjectFactory: IQueryObjectFactory,
   ) {
     this.returns = null;
@@ -127,7 +127,7 @@ export class SDQLParser {
   }
 
   // #region schema validation
-  public validateSchema(schema: SDQLSchema, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+  public validateSchema(schema: SDQLQueryWrapper, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
     return ResultUtils.combine([
       this.validateMeta(schema),
       this.validateTimeStampExpiry(schema, cid),
@@ -143,7 +143,7 @@ export class SDQLParser {
 
   }
 
-  public validateMeta(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+  public validateMeta(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryExpiredError> {
     
     if (schema.version === undefined) {
       return errAsync(new QueryFormatError("schema missing version"));
@@ -158,7 +158,7 @@ export class SDQLParser {
 
   }
 
-  public validateTimeStampExpiry(schema: SDQLSchema, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+  public validateTimeStampExpiry(schema: SDQLQueryWrapper, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
 
     if (schema.timestamp === undefined) {
       return errAsync(new QueryFormatError("schema missing timestamp"));
@@ -177,7 +177,7 @@ export class SDQLParser {
 
   }
 
-  public validateQuery(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryFormatError> {
+  public validateQuery(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryFormatError> {
     
     if (schema.queries === undefined) {
       return errAsync(new QueryFormatError("schema missing queries"));
@@ -185,21 +185,21 @@ export class SDQLParser {
     return okAsync(undefined);
   }
   
-  public validateCompenstations(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryFormatError> {
+  public validateCompenstations(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryFormatError> {
     if (schema.compensations === undefined) {
       return errAsync(new QueryFormatError("schema missing compensations"));
     }
     return okAsync(undefined);
   }
 
-  public validateReturns(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryFormatError> {
+  public validateReturns(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryFormatError> {
     if (schema.returns === undefined) {
       return errAsync(new QueryFormatError("schema missing returns"));
     }
     return okAsync(undefined);
   }
 
-  public validateLogic(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+  public validateLogic(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryExpiredError> {
     
     if (schema.logic === undefined) {
       return errAsync(new QueryFormatError("schema missing logic"));

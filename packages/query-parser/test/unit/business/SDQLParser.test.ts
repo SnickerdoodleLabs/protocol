@@ -17,13 +17,13 @@ import {
   Command_IF,
   ConditionAnd,
   ConditionGE,
-  SDQLSchema
+  SDQLQueryWrapper
 } from "@query-parser/interfaces";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 
 describe("SDQLParser on avalanche", () => {
 
-  const schema = SDQLSchema.fromString(SDQLString(avalance1SchemaStr));
+  const schema = SDQLQueryWrapper.fromString(SDQLString(avalance1SchemaStr));
   const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
   let ast: null | AST = null;
 

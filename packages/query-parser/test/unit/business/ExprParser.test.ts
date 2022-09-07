@@ -21,14 +21,14 @@ import {
   AST_ReturnExpr,
   Command_IF,
   ConditionAnd,
-  ConditionOr, ParserContextDataTypes, SDQLSchema
+  ConditionOr, ParserContextDataTypes, SDQLQueryWrapper
 } from "@query-parser/interfaces";
 import { okAsync, ResultAsync } from "neverthrow";
 
 
 class ExprParserMocks {
 
-  readonly schema = SDQLSchema.fromString(SDQLString(avalance1SchemaStr));
+  readonly schema = SDQLQueryWrapper.fromString(SDQLString(avalance1SchemaStr));
   readonly parser = new SDQLParser(IpfsCID("0"), this.schema, new QueryObjectFactory());
 
   public context: Map<string, ParserContextDataTypes> | null = null;

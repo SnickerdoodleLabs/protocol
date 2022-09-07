@@ -1,10 +1,10 @@
 import { avalance1SchemaStr } from "./avalanche1.data";
 
-import { SDQLSchema } from "@query-parser/interfaces/objects";
+import { SDQLQueryWrapper } from "@query-parser/interfaces/objects";
 import { SDQLString } from "@snickerdoodlelabs/objects";
 
-describe("SDQLSchema with Avalanche", () => {
-  const sdqlSchema = SDQLSchema.fromString(SDQLString(avalance1SchemaStr));
+describe("SDQLQueryWrapper with Avalanche", () => {
+  const sdqlSchema = SDQLQueryWrapper.fromString(SDQLString(avalance1SchemaStr));
   const querySchema = sdqlSchema.getQuerySchema();
   const returnSchema = sdqlSchema.getReturnSchema();
   const compensationSchema = sdqlSchema.getCompensationSchema();
@@ -45,7 +45,7 @@ describe("SDQLSchema with Avalanche", () => {
   });
 
   test("date fix", () => {
-    const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+    const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
       version: 0.1,
       description:
         "Intractions with the Avalanche blockchain for 15-year and older individuals",

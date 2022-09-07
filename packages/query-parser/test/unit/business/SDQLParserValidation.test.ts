@@ -5,7 +5,7 @@ import "reflect-metadata";
   
   import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 import {
-  SDQLSchema
+  SDQLQueryWrapper
 } from "@query-parser/interfaces/objects";
 import { QueryFormatError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
@@ -15,7 +15,7 @@ import { errAsync, okAsync } from "neverthrow";
   describe.only("Schema validation", () => {
     test("missing version", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         timestamp: "2021-11-13T20:20:39Z",
         expiry: "2023-11-13T20:20:39Z",
       })));
@@ -34,7 +34,7 @@ import { errAsync, okAsync } from "neverthrow";
     });
     test("missing description", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         timestamp: "2021-11-13T20:20:39Z",
         expiry: "2023-11-13T20:20:39Z",
@@ -54,7 +54,7 @@ import { errAsync, okAsync } from "neverthrow";
     });
     test("missing business", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -76,7 +76,7 @@ import { errAsync, okAsync } from "neverthrow";
     });
     test("missing timestamp", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -98,7 +98,7 @@ import { errAsync, okAsync } from "neverthrow";
     });
     test("missing expiry", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -120,7 +120,7 @@ import { errAsync, okAsync } from "neverthrow";
     });
     test("invalid timestamp iso 8601", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -143,7 +143,7 @@ import { errAsync, okAsync } from "neverthrow";
     });
     test("invalid expiry iso 8601", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -166,7 +166,7 @@ import { errAsync, okAsync } from "neverthrow";
     });
     test("missing timezone fix", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -191,7 +191,7 @@ import { errAsync, okAsync } from "neverthrow";
     });
     test("missing queries", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -214,7 +214,7 @@ import { errAsync, okAsync } from "neverthrow";
     });
     test("missing returns", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -247,7 +247,7 @@ import { errAsync, okAsync } from "neverthrow";
 
     test("missing compensations", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",
@@ -286,7 +286,7 @@ import { errAsync, okAsync } from "neverthrow";
 
     test("missing logic", async () => {
       
-      const schema = SDQLSchema.fromString(SDQLString(JSON.stringify({
+      const schema = SDQLQueryWrapper.fromString(SDQLString(JSON.stringify({
         version: 0.1,
         description:
           "Intractions with the Avalanche blockchain for 15-year and older individuals",

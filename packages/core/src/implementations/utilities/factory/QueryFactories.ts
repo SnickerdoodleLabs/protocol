@@ -11,7 +11,7 @@ import { IQueryRepository } from "@core/interfaces/business/utilities";
 import {
   IQueryFactories,
 } from "@core/interfaces/utilities/factory";
-import { AST, IQueryObjectFactory, IQueryObjectFactoryType, SDQLParser, SDQLSchema } from "@snickerdoodlelabs/query-parser";
+import { AST, IQueryObjectFactory, IQueryObjectFactoryType, SDQLParser, SDQLQueryWrapper } from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {
@@ -21,7 +21,7 @@ export class QueryFactories implements IQueryFactories {
   ) {}
 
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {
-    const schema = SDQLSchema.fromString(SDQLString(schemaString));
+    const schema = SDQLQueryWrapper.fromString(SDQLString(schemaString));
     return new SDQLParser(cid, schema, this.queryObjectFactory);
   }
 
@@ -30,7 +30,7 @@ export class QueryFactories implements IQueryFactories {
     schemaString: SDQLString,
   ): ResultAsync<SDQLParser, QueryFormatError> {
     try {
-      const schema = SDQLSchema.fromString(schemaString);
+      const schema = SDQLQueryWrapper.fromString(schemaString);
       return okAsync(new SDQLParser(cid, schema, this.queryObjectFactory));
     } catch (e) {
       return errAsync(new QueryFormatError((e as Error).message));

@@ -9,7 +9,7 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 
-export class SDQLSchema {
+export class SDQLQueryWrapper {
   /**
    * A object created from string
    */
@@ -19,8 +19,8 @@ export class SDQLSchema {
     this.fixDateFormats();
   }
 
-  static fromString(s: SDQLString): SDQLSchema {
-    return new SDQLSchema(JSON.parse(s)  as ISDQLQueryObject);
+  static fromString(s: SDQLString): SDQLQueryWrapper {
+    return new SDQLQueryWrapper(JSON.parse(s)  as ISDQLQueryObject);
   }
 
   public get version(): string | undefined {

@@ -16,5 +16,5 @@ export * from "@query-parser/interfaces/objects/AST_Returns";
 export * from "@query-parser/interfaces/objects/AST_Compensation";
 export * from "@query-parser/interfaces/objects/Operator";
 export * from "@query-parser/interfaces/objects/TypeChecker";
-export * from "@query-parser/interfaces/objects/SDQLSchema";
+export * from "@query-parser/interfaces/objects/SDQLQueryWrapper";
 export * from "@query-parser/interfaces/objects/condition";
