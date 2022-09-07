@@ -1,16 +1,18 @@
 
-  import { IpfsCID, SDQLString } from "@objects/primitives";
+import { IpfsCID, SDQLString } from "@objects/primitives";
 import "reflect-metadata";
   
   
-  import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
+import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 import {
   SDQLQueryWrapper
 } from "@query-parser/interfaces/objects";
 import { QueryFormatError } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
   
   const cid = IpfsCID("0");
+  const timeUtils = new TimeUtils();
   
   describe.only("Schema validation", () => {
     test("missing version", async () => {
