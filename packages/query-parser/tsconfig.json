@@ -13,7 +13,10 @@
   ],
   "references": [
     {
-      "path": "../objects"
+      "path": "../objects",
+    },
+    {
+      "path": "../common-utils"
     }
   ]
 }

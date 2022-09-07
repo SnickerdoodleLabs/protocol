@@ -1,8 +1,12 @@
-export const avalance3SchemaStr = `
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+
+const timeUtils = new TimeUtils();
+
+export const avalance3SchemaStr = JSON.stringify(
 {
     "version": 0.1,
-    "timestamp": "2021-11-13T20:20:39Z",
-    "expiry" : "2023-11-13T20:20:39Z",
+    "timestamp":  timeUtils.getISO8601TimeString(),
+    "expiry" : timeUtils.getISO8601TimeString(Date.now() + (1000 * 60 * 60 * 24)),
     "description": "Intractions with the Avalanche blockchain for 15-year and older individuals",
     "business": "Shrapnel",
     "queries": {
@@ -112,7 +116,7 @@ export const avalance3SchemaStr = `
         ]
     }
 }
-`
+);
 
 // [
 //     { 

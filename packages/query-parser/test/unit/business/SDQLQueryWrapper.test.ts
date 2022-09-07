@@ -1,5 +1,5 @@
+import "reflect-metadata";
 import { avalance1SchemaStr } from "./avalanche1.data";
-
 import { SDQLQueryWrapper } from "@query-parser/interfaces/objects";
 import { SDQLString } from "@snickerdoodlelabs/objects";
 
