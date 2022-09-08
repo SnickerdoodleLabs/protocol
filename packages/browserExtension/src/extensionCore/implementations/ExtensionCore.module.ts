@@ -6,11 +6,7 @@ import {
   ITimeUtils,
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { ConfigProvider } from "@snickerdoodlelabs/core";
-import {
-  IPersistenceConfigProvider,
-  IPersistenceConfigProviderType,
-} from "@snickerdoodlelabs/persistence";
+
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -26,6 +22,7 @@ import {
   AccountService,
   PIIService,
   InvitationService,
+  ScamFilterService,
   UserSiteInteractionService,
 } from "@implementations/business";
 import {
@@ -33,6 +30,7 @@ import {
   AccountRepository,
   PIIRepository,
   InvitationRepository,
+  ScamFilterRepository,
   UserSiteInteractionRepository,
 } from "@implementations/data";
 import {
@@ -100,12 +98,10 @@ import {
   IScamFilterService,
   IScamFilterServiceType,
 } from "@interfaces/business/IScamFilterService";
-import { ScamFilterService } from "./business/ScamFilterService";
 import {
   IScamFilterRepository,
   IScamFilterRepositoryType,
 } from "@interfaces/data/IScamFilterRepository";
-import { ScamFilterRepository } from "./data/ScamFilterRepository";
 
 export const extensionCoreModule = new ContainerModule(
   (
