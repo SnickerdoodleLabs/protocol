@@ -7,7 +7,6 @@ import {
   IDataWalletPersistenceType,
   IEVMBalance,
   ITokenBalance,
-  ITokenBalanceDTO,
   PersistenceError,
   SDQL_Return,
   TickerSymbol,
@@ -61,14 +60,14 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       });
   }
 
-  public addBalance(excessValues: IEVMBalance[]): ResultAsync<ITokenBalanceDTO[], never>{
-    const tokenBalances: ITokenBalanceDTO[] = [];
+  public addBalance(excessValues: IEVMBalance[]): ResultAsync<ITokenBalance[], never>{
+    const tokenBalances: ITokenBalance[] = [];
     excessValues.forEach(element => {
       tokenBalances.push({
         ticker: element.ticker,
         networkId: element.chainId,
         address: element.contractAddress,
-        balance: BigNumberString(element.balance)
+        balance: element.balance
       })
     });
     return okAsync(tokenBalances);
@@ -76,8 +75,8 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public evalConditions(
     query: AST_BalanceQuery,
-    balanceArray: ITokenBalanceDTO[],
-  ): ResultAsync<ITokenBalanceDTO[], never> {
+    balanceArray: ITokenBalance[],
+  ): ResultAsync<ITokenBalance[], never> {
     for (const condition of query.conditions) {
       let val: BigNumber = BigNumber.from(0);
 
@@ -127,8 +126,8 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public combineContractValues(
     query: AST_BalanceQuery,
-    balanceArray: ITokenBalanceDTO[],
-  ): ResultAsync<ITokenBalanceDTO[], PersistenceError> {
+    balanceArray: ITokenBalance[],
+  ): ResultAsync<ITokenBalance[], PersistenceError> {
 
     const balanceMap = new Map<EVMContractAddress, ITokenBalance>();
 
@@ -138,21 +137,21 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       if (getObject) {
         balanceMap.set(d.address, {
           ticker: getObject.ticker,
-          balance: (getObject.balance).add(d.balance),
+          balance:  BigNumberString((BigNumber.from(getObject.balance).add(BigNumber.from(d.balance))).toString()),
           networkId: getObject.networkId,
           address: getObject.address,
         });
       } else {
         balanceMap.set(d.address, {
           ticker: d.ticker,
-          balance: BigNumber.from(d.balance),
+          balance: d.balance,
           networkId: d.networkId,
           address: d.address,
         });
       }
     });
 
-    const returnedArray: ITokenBalanceDTO[] = [];
+    const returnedArray: ITokenBalance[] = [];
     balanceMap.forEach((element, key) => {
       returnedArray.push({
         ticker: element.ticker,
