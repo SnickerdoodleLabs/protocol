@@ -5191,6 +5191,7 @@ __metadata:
     "@snickerdoodlelabs/indexers": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/query-parser": "workspace:^"
+    "@snickerdoodlelabs/persistence": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
