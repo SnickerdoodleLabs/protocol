@@ -1,7 +1,6 @@
 import {
   Checkbox,
   Grid,
-  Slide,
   Snackbar,
   SnackbarOrigin,
   Typography,
