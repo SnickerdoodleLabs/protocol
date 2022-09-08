@@ -131,7 +131,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
-        /// increase total supply count
+        /// increase total supply count, this is 20,0000 gas
         totalSupply++;
 
         /// add user's consent contract to ConsentFactory
@@ -438,12 +438,12 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// decrease total supply count
         totalSupply--;
 
-        /// remove user's consent contract to ConsentFactory
-        consentFactoryInstance.removeUserConsents(_msgSender());
-
-        _updateCounterAndTokenFlags(tokenId, bytes32(0));
+        _updateCounterAndTokenFlags(tokenId, agreementFlagsArray[tokenId]);
 
         super._burn(tokenId);
+
+        /// remove user's consent contract to ConsentFactory
+        consentFactoryInstance.removeUserConsents(_msgSender());
     }
 
     function tokenURI(uint256 tokenId)

@@ -598,18 +598,41 @@ describe("Consent", () => {
     });
   });
 
-  describe("tokenURI", function () {
-    it("Returns the correct token uri", async function () {
+  describe("Agreement Flags", function () {
+    it("Returns the correct agreement flags", async function () {
       const agreementFlags = ethers.utils.formatBytes32String(
-        "/age?=1/location?=0/gender?=0",
+        "1",
+      );
+      const nullFlags = ethers.utils.formatBytes32String(
+        "",
       );
 
       // call opt in
       await consent.connect(accounts[1]).optIn(1, agreementFlags);
 
-      const baseUri = await consent.connect(accounts[1]).baseURI();
+      expect(await consent.agreementFlagsArray(1)).to.eq(agreementFlags);
 
-      expect(await consent.tokenURI(1)).to.eq(baseUri + "1");
+      // if you call update with the existing flag array it will zero out all bytes
+      await consent.connect(accounts[1]).updateAgreementFlags(1, agreementFlags);
+
+      expect(await consent.agreementFlagsArray(1)).to.eq(nullFlags);
+
+      await expect(
+        consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1),
+      ).to.revertedWith("Consent: User has already opted in");
+    });
+
+    it("Only owner can change Agreement Flags", async function () {
+      const agreementFlags = ethers.utils.formatBytes32String(
+        "1",
+      );
+
+      // call opt in
+      await consent.connect(accounts[1]).optIn(1, agreementFlags);
+
+      await expect(
+        consent.connect(accounts[2]).updateAgreementFlags(1, agreementFlags),
+      ).to.revertedWith("Consent: caller is not token owner");
     });
   });
 
