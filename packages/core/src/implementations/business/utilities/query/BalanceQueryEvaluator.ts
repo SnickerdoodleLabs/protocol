@@ -61,14 +61,14 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       });
   }
 
-  public addBalance(excessValues: IEVMBalance[]): ResultAsync<ITokenBalance[], never>{
-    const tokenBalances: ITokenBalance[] = [];
+  public addBalance(excessValues: IEVMBalance[]): ResultAsync<ITokenBalanceDTO[], never>{
+    const tokenBalances: ITokenBalanceDTO[] = [];
     excessValues.forEach(element => {
       tokenBalances.push({
         ticker: element.ticker,
         networkId: element.chainId,
         address: element.contractAddress,
-        balance: BigNumber.from(element.balance)
+        balance: BigNumberString(element.balance)
       })
     });
     return okAsync(tokenBalances);
@@ -76,8 +76,8 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public evalConditions(
     query: AST_BalanceQuery,
-    balanceArray: ITokenBalance[],
-  ): ResultAsync<ITokenBalance[], never> {
+    balanceArray: ITokenBalanceDTO[],
+  ): ResultAsync<ITokenBalanceDTO[], never> {
     for (const condition of query.conditions) {
       let val: BigNumber = BigNumber.from(0);
 
@@ -127,7 +127,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public combineContractValues(
     query: AST_BalanceQuery,
-    balanceArray: ITokenBalance[],
+    balanceArray: ITokenBalanceDTO[],
   ): ResultAsync<ITokenBalanceDTO[], PersistenceError> {
 
     const balanceMap = new Map<EVMContractAddress, ITokenBalance>();
@@ -145,7 +145,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       } else {
         balanceMap.set(d.address, {
           ticker: d.ticker,
-          balance: d.balance,
+          balance: BigNumber.from(d.balance),
           networkId: d.networkId,
           address: d.address,
         });
