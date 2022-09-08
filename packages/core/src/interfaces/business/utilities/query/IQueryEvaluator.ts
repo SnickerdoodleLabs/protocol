@@ -9,9 +9,6 @@ import {
 
 export interface IQueryEvaluator {
   eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError>;
-  evalNetworkQuery(
-    q: AST_NetworkQuery,
-  ): ResultAsync<SDQL_Return, PersistenceError>;
   evalPropertyQuery(
     q: AST_PropertyQuery,
   ): ResultAsync<SDQL_Return, PersistenceError>;

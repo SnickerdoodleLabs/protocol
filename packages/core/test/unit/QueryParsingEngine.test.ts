@@ -1,5 +1,17 @@
 import "reflect-metadata";
 import {
+  QueryEvaluator,
+  QueryObjectFactory,
+  QueryParsingEngine,
+  QueryRepository,
+} from "@core/implementations/business";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
+import { QueryFactories } from "@core/implementations/utilities/factory";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryObjectFactory";
+import {
   Age,
   BigNumberString,
   ChainId,
@@ -22,18 +34,6 @@ import td from "testdouble";
 import { avalance2SchemaStr } from "./business/query/avalanche2.data";
 import { avalance4SchemaStr } from "./business/query/avalanche4.data";
 
-import {
-  QueryEvaluator,
-  QueryObjectFactory,
-  QueryParsingEngine,
-  QueryRepository,
-} from "@core/implementations/business";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryObjectFactory";
-
 const queryId = IpfsCID("Beep");
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryId, SDQLString(avalance4SchemaStr));
@@ -42,6 +42,9 @@ const country = CountryCode("1");
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = new BalanceQueryEvaluator(
+    this.persistenceRepo,
+  );
+  public networkQueryEvaluator = new NetworkQueryEvaluator(
     this.persistenceRepo,
   );
 
@@ -71,13 +74,10 @@ class QueryParsingMocks {
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
-    td.when(this.persistenceRepo.getTransactionsMap()).thenReturn(
-      okAsync(new Map()),
-    );
-
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,
       this.balanceQueryEvaluator,
+      this.networkQueryEvaluator,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }
