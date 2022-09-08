@@ -3,12 +3,13 @@ import {
   EligibleReward,
   EvaluationError,
   IpfsCID,
+  QueryExpiredError,
   QueryFormatError,
   SDQLQuery,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
@@ -17,7 +18,7 @@ import {
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
-import { AST, InsightString } from "@core/interfaces/objects";
+import { AST, InsightString, SDQLSchema } from "@core/interfaces/objects";
 import {
   IQueryFactories,
   IQueryFactoriesType,
@@ -41,7 +42,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     [InsightString[], EligibleReward[]] | never,
-    EvaluationError | QueryFormatError
+    EvaluationError | QueryFormatError | QueryExpiredError
   > {
     // console.log("QueryParsingEngine.handleQuery");
 
