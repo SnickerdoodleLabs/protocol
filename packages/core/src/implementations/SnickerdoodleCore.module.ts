@@ -7,7 +7,10 @@ import {
   ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
   LogUtils,
+  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   CovalentEVMTransactionRepository,
@@ -32,6 +35,7 @@ import {
   AccountService,
   InvitationService,
   MonitoringService,
+  NetworkQueryEvaluator,
   ProfileService,
   QueryEvaluator,
   QueryParsingEngine,
@@ -76,6 +80,8 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  INetworkQueryEvaluator,
+  INetworkQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryParsingEngine,
@@ -231,5 +237,13 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ISDQLQueryWrapperFactory>(ISDQLQueryWrapperFactoryType)
       .to(SDQLQueryWrapperFactory)
       .inSingletonScope();
+    
+    bind<ITimeUtils>(ITimeUtilsType)
+    .to(TimeUtils)
+    .inSingletonScope();
+    
+    bind<INetworkQueryEvaluator>(INetworkQueryEvaluatorType)
+    .to(NetworkQueryEvaluator)
+    .inSingletonScope();
   },
 );

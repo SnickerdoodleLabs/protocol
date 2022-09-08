@@ -2,8 +2,9 @@ import { ISDQLQueryWrapperFactory } from "@query-parser/interfaces/utilities/ISD
 import { ISDQLQueryObject, SDQLString } from "@snickerdoodlelabs/objects";
 import { SDQLQueryWrapper } from "@query-parser/interfaces/objects/SDQLQueryWrapper";
 import { ITimeUtils, ITimeUtilsType } from "@snickerdoodlelabs/common-utils";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class SDQLQueryWrapperFactory implements ISDQLQueryWrapperFactory {
 
   constructor(
