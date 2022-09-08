@@ -1,7 +1,7 @@
 export const query1 = {
   version: 0.1,
-  timestamp: "2021-11-13T20:20:39",
-  expiry: "2022-11-13T20:20:39",
+  timestamp: "2021-11-13T20:20:39Z",
+  expiry: "2023-11-13T20:20:39Z",
   description:
     "Intractions with the Avalanche blockchain for 15-year and older individuals",
   business: "Shrapnel",
@@ -41,25 +41,10 @@ export const query1 = {
     q5: {
       name: "url_visited_count",
       return: "object",
-      object_schema: {
-        patternProperties: {
-          "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$":
-            {
-              type: "integer",
-            },
-        },
-      },
     },
     q6: {
       name: "chain_transaction_count",
       return: "object",
-      object_schema: {
-        patternProperties: {
-          "^ETH|AVAX|SOL$": {
-            type: "integer",
-          },
-        },
-      },
     },
     q7: {
       name: "balance",
@@ -93,25 +78,8 @@ export const query1 = {
       conditions: {
         ge: 10,
       },
-      return: "array",
-      array_items: {
-        type: "object",
-        object_schema: {
-          properties: {
-            networkid: {
-              type: "integer",
-            },
-            address: {
-              type: "string",
-              pattern: "^0x[a-fA-F0-9]{40}$",
-            },
-            balance: {
-              type: "number",
-            },
-          },
-          required: ["networkid", "address", "balance"],
-        },
-      },
+      return: "array"
+      
     },
   },
   returns: {

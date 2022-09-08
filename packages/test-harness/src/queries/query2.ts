@@ -1,21 +1,13 @@
 export const query2 = {
   version: 0.1,
-  timestamp: "2021-11-13T20:20:39",
-  expiry: "2022-11-13T20:20:39",
+  timestamp: "2021-11-13T20:20:39Z",
+  expiry: "2023-11-13T20:20:39Z",
   description: "///This should dynamically populate",
   business: "/////This should dynamically populate",
   queries: {
     q1: {
       name: "url_visited_count",
-      return: "object",
-      object_schema: {
-        patternProperties: {
-          "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$":
-            {
-              type: "integer",
-            },
-        },
-      },
+      return: "object"      
     },
     q2: {
       name: "chain_transaction_count",

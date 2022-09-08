@@ -1,8 +1,8 @@
-export const avalance1SchemaStr = `
+export const avalance1ExpiredSchemaStr = `
 {
     "version": 0.1,
     "timestamp": "2021-11-13T20:20:39Z",
-    "expiry" : "2023-11-13T20:20:39Z",
+    "expiry" : "2022-09-02T00:20:39Z",
     "description": "Interactions with the Avalanche blockchain for 15-year and older individuals",
     "business": "Shrapnel",
     "queries": {

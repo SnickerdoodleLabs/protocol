@@ -20,6 +20,7 @@ const errorCodes = {
   UnsupportedLanguageError: "ERR_UNSUPPORTED_LANGUAGE",
   MissingWalletDataTypeError: "ERR_MISSING_WALLET_DATA_TYPE",
   PermissionError: "ERR_PERMISSION",
+  QueryExpiredError: "ERR_QUERY_EXPIRED",
 };
 
 export default errorCodes;
