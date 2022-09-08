@@ -117,7 +117,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @notice Allows any user to opt in to sharing their data
     /// @dev Mints user a Consent token
     /// @param tokenId User's Consent token id to mint against
-    /// @param agreementFlags User's Consent token flag indicating their data permissioning settings
+    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
     function optIn(uint256 tokenId, bytes32 agreementFlags)
         external
         whenNotPaused
@@ -143,7 +143,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev The function is called with the signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementFlags User's Consent token uri containing agreement flags
+    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
     /// @param signature Owner's signature to agree with user opt in
     function restrictedOptIn (
         uint256 tokenId, 
@@ -180,7 +180,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev The function is called with the a signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementFlags User's Consent token uri containing agreement flags
+    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
     /// @param signature Owner's signature to agree with user opt in
     function anonymousRestrictedOptIn (
         uint256 tokenId, 
@@ -233,7 +233,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /// @notice Allows user to update their agreement flags
     /// @param tokenId Token id being updated 
-    /// @param newAgreementFlags User's new agreement flag
+    /// @param newAgreementFlags a bytes32 array of a user's new agreement flag (bits that need to change should be 1, those that should remain the same should be 0)
     function updateAgreementFlags(uint256 tokenId, bytes32 newAgreementFlags) external {
         
         /// check if user is msgSender() of token Id
