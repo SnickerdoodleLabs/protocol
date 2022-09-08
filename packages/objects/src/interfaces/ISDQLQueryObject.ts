@@ -3,7 +3,8 @@
 import { EVMContractAddress, UnixTimestamp } from "@objects/primitives";
 export interface ISDQLQueryObject {
   version: string;
-  timestamp?: UnixTimestamp;
+  timestamp: string;
+  expiry: string;
   description: string;
   business: string;
   queries: {

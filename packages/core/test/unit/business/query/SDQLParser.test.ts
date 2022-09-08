@@ -29,6 +29,7 @@ describe("SDQLParser on avalanche", () => {
 
   beforeAll(async () => {
 
+    // console.log("schema", schema);
     const astRes = await parser.buildAST();
     if (astRes.isOk()) {
       ast = astRes.value;
