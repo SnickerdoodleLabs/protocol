@@ -9,22 +9,22 @@ import React, { useEffect, useMemo, useState } from "react";
 import { parse } from "tldts";
 import Browser from "webextension-polyfill";
 
-import { EAPP_STATE, IRewardItem } from "../../constants/index.js";
-import ConnectWallet from "../Screens/ConnectWallet/index.js";
-import ConnectWalletPending from "../Screens/ConnectWalletPending/index.js";
-import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess/index.js";
-import NftClaimed from "../Screens/NftClaimed/index.js";
-import RewardCard from "../Screens/RewardCard/index.js";
+import { EAPP_STATE, IRewardItem } from "../../constants/index";
+import ConnectWallet from "../Screens/ConnectWallet/index";
+import ConnectWalletPending from "../Screens/ConnectWalletPending/index";
+import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess/index";
+import NftClaimed from "../Screens/NftClaimed/index";
+import RewardCard from "../Screens/RewardCard/index";
 
-import usePath from "@app/Content/hooks/usePath.js";
-import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector.js";
-import { ExternalCoreGateway } from "@app/coreGateways/index.js";
-import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports.js";
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall.js";
-import { EPortNames } from "@shared/enums/ports.js";
-import { IInvitationDomainWithUUID } from "@shared/interfaces/actions.js";
-import ConfigProvider from "@shared/utils/ConfigProvider.js";
-import { VersionUtils } from "@shared/utils/VersionUtils.js";
+import usePath from "@app/Content/hooks/usePath";
+import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
+import { ExternalCoreGateway } from "@app/coreGateways/index";
+import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
+import { EPortNames } from "@shared/enums/ports";
+import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
+import ConfigProvider from "@shared/utils/ConfigProvider";
+import { VersionUtils } from "@shared/utils/VersionUtils";
 
 let coreGateway: ExternalCoreGateway;
 let notificationEmitter;

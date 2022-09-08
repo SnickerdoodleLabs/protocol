@@ -39,17 +39,21 @@ if (fileSystem.existsSync(secretsPath)) {
   alias["secrets"] = secretsPath;
 }
 
+console.log(`env.NODE_ENV: ${env.NODE_ENV}`);
+
 var options = {
   externals: {
     argon2: argon2,
   },
-  mode: process.env.NODE_ENV || "development",
+  target: "webworker",
+  // mode: env.NODE_ENV || "development",
+  mode: "development",
   entry: {
     newtab: path.join(__dirname, "src", "app", "Newtab", "index.jsx"),
     options: path.join(__dirname, "src", "app", "Options", "index.jsx"),
     popup: path.join(__dirname, "src", "app", "Popup", "index.jsx"),
     background: path.join(__dirname, "src", "extensionCore", "index.ts"),
-    contentScript: path.join(__dirname, "src", "app", "Content", "index.js"),
+    contentScript: path.join(__dirname, "src", "app", "Content", "index.tsx"),
     "injectables/onboarding": path.join(
       __dirname,
       "src",
@@ -140,7 +144,7 @@ var options = {
     new CleanWebpackPlugin({ verbose: true }),
     new webpack.ProgressPlugin(),
     // expose and write the allowed env vars on the compiled bundle
-    new webpack.EnvironmentPlugin(["NODE_ENV"]),
+    // new webpack.EnvironmentPlugin(["NODE_ENV"]),
     new webpack.DefinePlugin({
       __ONBOARDING_URL__: JSON.stringify(process.env.__ONBOARDING_URL__),
       __ACCOUNT_COOKIE_URL__: JSON.stringify(
@@ -258,14 +262,14 @@ var options = {
 if (env.NODE_ENV === "development") {
   options.devtool = "cheap-module-source-map";
 } else {
-  options.optimization = {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        extractComments: false,
-      }),
-    ],
-  };
+  // options.optimization = {
+  //   minimize: true,
+  //   minimizer: [
+  //     new TerserPlugin({
+  //       extractComments: false,
+  //     }),
+  //   ],
+  // };
 }
 
 module.exports = options;

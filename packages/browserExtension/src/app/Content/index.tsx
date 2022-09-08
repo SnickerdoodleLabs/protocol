@@ -5,7 +5,7 @@ import "@webcomponents/custom-elements";
 import "./content.styles.css";
 import Browser from "webextension-polyfill";
 
-import App from "./components/App/index.js";
+import App from "./components/App/index";
 
 import { StylesProvider, jssPreset } from "@material-ui/styles";
 import { create } from "jss";
@@ -35,13 +35,13 @@ class ReactExtensionContainer extends HTMLElement {
   }
 }
 
-const initWebComponent = function () {
+function initWebComponent() {
   customElements.define("snickerdoodle-data-wallet", ReactExtensionContainer);
 
   const app = document.createElement("snickerdoodle-data-wallet");
   app.id = "snickerdoodle-data-wallet";
 
   document.body.appendChild(app);
-};
+}
 
 initWebComponent();
