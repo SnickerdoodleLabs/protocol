@@ -1,6 +1,8 @@
 export const avalance3SchemaStr = `
 {
     "version": 0.1,
+    "timestamp": "2021-11-13T20:20:39Z",
+    "expiry" : "2023-11-13T20:20:39Z",
     "description": "Intractions with the Avalanche blockchain for 15-year and older individuals",
     "business": "Shrapnel",
     "queries": {
@@ -35,29 +37,7 @@ export const avalance3SchemaStr = `
         "q4": {
             "name": "balance",
             "networkid": "43114",
-            "return": "array",
-            "array_items": {
-                "type": "object",
-                "object_schema": {
-                    "properties": {
-                        "networkid": {
-                            "type": "integer"
-                        },
-                        "address": {
-                            "type": "string",
-                            "pattern": "^0x[a-fA-F0-9]{40}$"
-                        },
-                        "balance": {
-                            "type": "number"
-                        },
-                        "required": [
-                            "networkid",
-                            "address",
-                            "balance"
-                        ]
-                    }
-                }
-            }
+            "return": "array"
         },
         "q5": {
             "name": "balance",
@@ -65,56 +45,12 @@ export const avalance3SchemaStr = `
             "conditions": {
                 "ge": 10
             },
-            "return": "array",
-            "array_items": {
-                "type": "object",
-                "object_schema": {
-                    "properties": {
-                        "networkid": {
-                            "type": "integer"
-                        },
-                        "address": {
-                            "type": "string",
-                            "pattern": "^0x[a-fA-F0-9]{40}$"
-                        },
-                        "balance": {
-                            "type": "boolean"
-                        }
-                    },
-                    "required": [
-                        "networkid",
-                        "address",
-                        "balance"
-                    ]
-                }
-            }
+            "return": "array"
         },
         "q6": {
             "name": "balance",
             "networkid": "*",
-            "return": "array",
-            "array_items": {
-                "type": "object",
-                "object_schema": {
-                    "properties": {
-                        "networkid": {
-                            "type": "integer"
-                        },
-                        "address": {
-                            "type": "string",
-                            "pattern": "^0x[a-fA-F0-9]{40}$"
-                        },
-                        "balance": {
-                            "type": "number"
-                        }
-                    },
-                    "required": [
-                        "networkid",
-                        "address",
-                        "balance"
-                    ]
-                }
-            }
+            "return": "array"
         }
     },
     "returns": {

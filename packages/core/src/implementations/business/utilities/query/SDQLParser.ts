@@ -13,6 +13,7 @@ import {
   DataPermissions,
   EWalletDataType,
   MissingWalletDataTypeError,
+  QueryExpiredError,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
@@ -113,26 +114,120 @@ export class SDQLParser {
     | DuplicateIdInSchema
     | QueryFormatError
     | MissingTokenConstructorError
+    | QueryExpiredError
   > {
-    return this.parse().andThen(() => {
-      return okAsync(
-        new AST(
-          Version(this.schema["version"]),
-          this.schema["description"],
-          this.schema["business"],
-          this.queries,
-          this.returns,
-          this.compensations,
-          new AST_Logic(
-            this.logicReturns,
-            this.logicCompensations,
-            this.returnPermissions,
-            this.compensationPermissions,
-          ),
-        ),
-      );
-    });
+    return this.validateSchema(this.schema, this.cid)
+      .andThen(() => {
+        return this.parse().andThen(() => {
+         return okAsync(
+           new AST(
+             Version(this.schema.version!),
+             this.schema.description,
+             this.schema.business,
+             this.queries,
+             this.returns,
+             this.compensations,
+             new AST_Logic(
+               this.logicReturns,
+               this.logicCompensations,
+               this.returnPermissions,
+               this.compensationPermissions,
+             ),
+           ),
+         );
+       });
+      });
   }
+
+  // #region schema validation
+  public validateSchema(schema: SDQLSchema, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    return ResultUtils.combine([
+      this.validateMeta(schema),
+      this.validateTimeStampExpiry(schema, cid),
+      this.validateQuery(schema),
+      this.validateReturns(schema),
+      this.validateCompenstations(schema),
+      this.validateReturns(schema),
+      this.validateLogic(schema)
+    ])
+    .andThen(() => {
+      return okAsync(undefined);
+    });
+
+  }
+
+  public validateMeta(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    
+    if (schema.version === undefined) {
+      return errAsync(new QueryFormatError("schema missing version"));
+    }
+    if (schema.description === undefined) {
+      return errAsync(new QueryFormatError("schema missing description"));
+    }
+    if (schema.business === undefined) {
+      return errAsync(new QueryFormatError("schema missing business"));
+    }
+    return okAsync(undefined);
+
+  }
+
+  public validateTimeStampExpiry(schema: SDQLSchema, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+
+    if (schema.timestamp === undefined) {
+      return errAsync(new QueryFormatError("schema missing timestamp"));
+    } else if (isNaN(schema.timestamp)) {
+      return errAsync(new QueryFormatError("Invalid timestamp date format"));
+    }
+
+    if (schema["expiry"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing expiry"));
+    } else if (isNaN(schema["expiry"])) {
+      return errAsync(new QueryFormatError("Invalid expiry date format"));
+    } else if (schema.isExpired()) {
+      return errAsync(new QueryExpiredError("Tried to execute an expired query", cid));
+    }
+    return okAsync(undefined);
+
+  }
+
+  public validateQuery(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryFormatError> {
+    
+    if (schema.queries === undefined) {
+      return errAsync(new QueryFormatError("schema missing queries"));
+    }
+    return okAsync(undefined);
+  }
+  
+  public validateCompenstations(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryFormatError> {
+    if (schema.compensations === undefined) {
+      return errAsync(new QueryFormatError("schema missing compensations"));
+    }
+    return okAsync(undefined);
+  }
+
+  public validateReturns(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryFormatError> {
+    if (schema.returns === undefined) {
+      return errAsync(new QueryFormatError("schema missing returns"));
+    }
+    return okAsync(undefined);
+  }
+
+  public validateLogic(schema: SDQLSchema): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+    
+    if (schema.logic === undefined) {
+      return errAsync(new QueryFormatError("schema missing logic"));
+    }
+    if (schema.logic["returns"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing logic->returns"));
+    }
+
+    if (schema.logic["compensations"] === undefined) {
+      return errAsync(new QueryFormatError("schema missing logic->compensations"));
+    }
+
+    return okAsync(undefined);
+  }
+  // #endregion
 
   // #region non-logic
   private parseQueries(): ResultAsync<
@@ -412,4 +507,6 @@ export class SDQLParser {
     }
   }
   // #endregion
+
+
 }
