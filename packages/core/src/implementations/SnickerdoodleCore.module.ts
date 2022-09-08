@@ -30,8 +30,10 @@ import {
 } from "@core/implementations/api";
 import {
   AccountService,
+  BalanceQueryEvaluator,
   InvitationService,
   MonitoringService,
+  NetworkQueryEvaluator,
   ProfileService,
   QueryEvaluator,
   QueryObjectFactory,
@@ -118,8 +120,14 @@ import {
   IQueryObjectFactory,
   IQueryObjectFactoryType,
 } from "@core/interfaces/utilities/factory";
-import { IBalanceQueryEvaluator, IBalanceQueryEvaluatorType } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { BalanceQueryEvaluator } from "./business/utilities/query/BalanceQueryEvaluator";
+import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import {
+  INetworkQueryEvaluator,
+  INetworkQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -210,10 +218,13 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Query instances
+    bind<INetworkQueryEvaluator>(INetworkQueryEvaluatorType)
+      .to(NetworkQueryEvaluator)
+      .inSingletonScope();
+
     bind<IQueryEvaluator>(IQueryEvaluatorType)
       .to(QueryEvaluator)
       .inSingletonScope();
-
     bind<IBalanceQueryEvaluator>(IBalanceQueryEvaluatorType)
       .to(BalanceQueryEvaluator)
       .inSingletonScope();
@@ -222,12 +233,12 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(QueryRepository)
       .inSingletonScope();
 
-      bind<IQueryFactories>(IQueryFactoriesType)
+    bind<IQueryFactories>(IQueryFactoriesType)
       .to(QueryFactories)
       .inSingletonScope();
 
-      bind<IQueryObjectFactory>(IQueryObjectFactoryType)
-        .to(QueryObjectFactory)
-        .inSingletonScope();
+    bind<IQueryObjectFactory>(IQueryObjectFactoryType)
+      .to(QueryObjectFactory)
+      .inSingletonScope();
   },
 );
