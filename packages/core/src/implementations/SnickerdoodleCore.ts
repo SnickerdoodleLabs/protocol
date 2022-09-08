@@ -8,11 +8,7 @@ import {
   ICloudStorage,
   ICloudStorageType,
   NullCloudStorage,
-<<<<<<< HEAD
-} from "@persistence/cloud";
-=======
 } from "@snickerdoodlelabs/persistence";
->>>>>>> develop
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
