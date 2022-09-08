@@ -29,55 +29,73 @@ sequenceDiagram
 ## Suggested changes in query schema
 ```
   "compensations":{
+    
+        "parameters": {
+            "recipientAddress": {
+                type:...,
+                required: true,
+                mappedType: "walletAddress"
+            },
+            "productId": {
+                type: number,
+                required: true,
+                values: [urls]
+                mappedType: "productId"
+            },
+            "shippingAddress": {
+                type: string,
+                required: true,
+                mappedType: "shippingAddress"
+            },
+            "param1": type,
+
+        },
         "c1":{
             "description": "10% discount code for Starbucks",
-            "callback": "https://web2api/"
+            "return": {
+               "cid": ipfs id,
+               "compensationId": "c1",
+               "data": .....request related data
+            }
         },
         "c2":{
             "description": "participate in the draw to win a CryptoPunk NFT",
-            "callback": "https://reward-api",
-            "parameters": {
-                "recipientAddress": {
-                    type:...,
-                    required: true,
-                    mappedType: "walletAddress"
-                },
-                "productId": {
-                    type: number,
-                    required: true,
-                    values: [urls]
-                    mappedType: "productId"
-                },
-                "shippingAddress": {
-                    type: string,
-                    required: true,
-                    mappedType: "shippingAddress"
-                },
-                "param1": type,
-
-            },
-          "return": {
+            "return": {
                "cid": ipfs id,
                "compensationId": "c2",
                "data": .....request related data
+            }
         },
         "c3":{
             "description": "a free CrazyApesClub NFT",
-            "callback": "https://reward-api",
-            "parameters": {
-                "recipientAddress": {
-                    type:...,
-                    required: true,
-                    mappedType: "walletAddress"
-                },
-                "param1": type,
-                "param2": type
-
-            },
-          "return": {
+            "return": {
                "cid": ipfs id,
-               "compensationId": "c2",
+               "compensationId": "c3",
                "data": .....request related data
+            }
+            
         }
     },
+```
+
+## Eligible Rewards
+Represents the rewards that the Insight Platform thinks a data wallet is eligible for. Data wallet needs to check description of each reward.
+```
+{
+    "c1":{
+        "description": "10% discount code for Starbucks"
+    },
+    "c3":{
+        "description": "a free CrazyApesClub NFT",
+    },
+}
+```
+
+## EarnedRewards
+There can be three types of earned rewards after a data wallet has posted the insights
+1. Non-delegated rewards
+2. Delegated rewards
+3. Web2 rewards
+
+```
 ```
