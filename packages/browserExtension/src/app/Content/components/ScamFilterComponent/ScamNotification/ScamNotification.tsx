@@ -9,7 +9,7 @@ const ScamNotification: FC = () => {
   const [dangerousOpen, setDangerousOpen] = React.useState(true);
   const safeURL = safeURLsObject[window.location.hostname];
 
-  function acceptRiskHandler() {
+  function acceptHandler() {
     setDangerousOpen(false);
   }
 
@@ -43,8 +43,8 @@ const ScamNotification: FC = () => {
               {safeURL && (
                 <Typography className={classes.text2} variant="h4">
                   <b>
-                    We believe that you wanted to visit {safeURL}. Do you want
-                    to go to {safeURL}
+                    We believe that you wanted to visit {safeURL.replace('https://','')}. Do you want
+                    to go to {safeURL.replace('https://','')}
                   </b>
                 </Typography>
               )}
@@ -52,13 +52,13 @@ const ScamNotification: FC = () => {
                 {safeURL && (
                   <Button
                     onClick={() => {
-                      window.open(`${safeURL}`, "_self");
+                      window.open(`${safeURL.replace('https://','')}`, "_self");
                     }}
                     variant="outlined"
                     color="primary"
                     className={classes.primaryButton}
                   >
-                    {`Go to ${safeURL}`}
+                    {`Go to ${safeURL.replace('https://','')}`}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 17 16"
@@ -84,7 +84,7 @@ const ScamNotification: FC = () => {
 
                 <Grid className={classes.acceptRiskContainer}>
                   <Typography
-                    onClick={acceptRiskHandler}
+                    onClick={acceptHandler}
                     className={classes.text3}
                     variant="h4"
                   >
