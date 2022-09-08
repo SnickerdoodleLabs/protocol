@@ -1,8 +1,9 @@
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { AST_ReturnExpr } from "./AST_ReturnExpr";
-import { Command } from "./Command";
-import { AST_ConditionExpr } from "./condition/AST_ConditionExpr";
+import { AST_ReturnExpr } from "./AST_ReturnExpr.js";
+import { Command } from "./Command.js";
+
+import { AST_ConditionExpr } from "@core/interfaces/objects/SDQL/condition/index.js";
 
 export class Command_IF extends Command {
   constructor(

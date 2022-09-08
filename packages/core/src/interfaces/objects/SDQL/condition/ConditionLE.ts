@@ -1,8 +1,8 @@
 import { SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 
-import { AST_Expr } from "../AST_Expr";
+import { AST_Expr } from "@core/interfaces/objects/SDQL/index.js";
 
-import { Condition } from "./Condition";
+import { Condition } from "./Condition.js";
 
 export class ConditionLE extends Condition {
   constructor(

@@ -27,9 +27,10 @@ import { ContainerModule, interfaces } from "inversify";
 import {
   AccountIndexerPoller,
   BlockchainListener,
-} from "@core/implementations/api";
+} from "@core/implementations/api/index.js";
 import {
   AccountService,
+  BalanceQueryEvaluator,
   InvitationService,
   MonitoringService,
   ProfileService,
@@ -38,7 +39,7 @@ import {
   QueryParsingEngine,
   QueryRepository,
   QueryService,
-} from "@core/implementations/business";
+} from "@core/implementations/business/index.js";
 import {
   ConsentContractRepository,
   CrumbsRepository,
@@ -47,23 +48,23 @@ import {
   InvitationRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
-} from "@core/implementations/data";
+} from "@core/implementations/data/index.js";
+import {
+  ContractFactory,
+  QueryFactories,
+} from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
   ContextProvider,
   DataWalletUtils,
-} from "@core/implementations/utilities";
-import {
-  ContractFactory,
-  QueryFactories,
-} from "@core/implementations/utilities/factory";
+} from "@core/implementations/utilities/index.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
-} from "@core/interfaces/api";
+} from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
@@ -75,15 +76,17 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-} from "@core/interfaces/business";
+} from "@core/interfaces/business/index.js";
 import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
   IQueryRepository,
   IQueryRepositoryType,
-} from "@core/interfaces/business/utilities";
+} from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -99,7 +102,15 @@ import {
   IMetatransactionForwarderRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+  IQueryFactories,
+  IQueryFactoriesType,
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
+} from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -109,17 +120,7 @@ import {
   IContextProviderType,
   IDataWalletUtils,
   IDataWalletUtilsType,
-} from "@core/interfaces/utilities";
-import {
-  IContractFactory,
-  IContractFactoryType,
-  IQueryFactories,
-  IQueryFactoriesType,
-  IQueryObjectFactory,
-  IQueryObjectFactoryType,
-} from "@core/interfaces/utilities/factory";
-import { IBalanceQueryEvaluator, IBalanceQueryEvaluatorType } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { BalanceQueryEvaluator } from "./business/utilities/query/BalanceQueryEvaluator";
+} from "@core/interfaces/utilities/index.js";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -222,12 +223,12 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(QueryRepository)
       .inSingletonScope();
 
-      bind<IQueryFactories>(IQueryFactoriesType)
+    bind<IQueryFactories>(IQueryFactoriesType)
       .to(QueryFactories)
       .inSingletonScope();
 
-      bind<IQueryObjectFactory>(IQueryObjectFactoryType)
-        .to(QueryObjectFactory)
-        .inSingletonScope();
+    bind<IQueryObjectFactory>(IQueryObjectFactoryType)
+      .to(QueryObjectFactory)
+      .inSingletonScope();
   },
 );

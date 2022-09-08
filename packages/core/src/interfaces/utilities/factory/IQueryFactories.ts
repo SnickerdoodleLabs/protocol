@@ -5,9 +5,9 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { AST_Evaluator, SDQLParser } from "@core/implementations/business";
-import { IQueryRepository } from "@core/interfaces/business/utilities";
-import { AST } from "@core/interfaces/objects";
+import { AST_Evaluator, SDQLParser } from "@core/implementations/business/index.js";
+import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
+import { AST } from "@core/interfaces/objects/index.js";
 
 export interface IQueryFactories {
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser;

@@ -6,14 +6,14 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { AST_Evaluator, SDQLParser } from "@core/implementations/business";
-import { IQueryRepository } from "@core/interfaces/business/utilities";
-import { AST, SDQLSchema } from "@core/interfaces/objects";
+import { AST_Evaluator, SDQLParser } from "@core/implementations/business/index.js";
+import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
+import { AST, SDQLSchema } from "@core/interfaces/objects/index.js";
 import {
   IQueryFactories,
   IQueryObjectFactory,
   IQueryObjectFactoryType,
-} from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {

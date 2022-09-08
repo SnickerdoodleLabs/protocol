@@ -79,13 +79,13 @@ import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
-} from "@core/interfaces/api";
+} from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
@@ -95,7 +95,7 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-} from "@core/interfaces/business";
+} from "@core/interfaces/business/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -103,7 +103,7 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;

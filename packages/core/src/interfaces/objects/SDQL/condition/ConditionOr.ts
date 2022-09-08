@@ -2,7 +2,7 @@ import { SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 
 import { AST_BoolExpr } from "../AST_BoolExpr";
 
-import { Condition } from "./Condition";
+import { Condition } from "./Condition.js";
 
 export class ConditionOr extends Condition {
   constructor(

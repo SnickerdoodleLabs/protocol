@@ -24,9 +24,9 @@ import {
   QueryObjectFactory,
   QueryParsingEngine,
   QueryRepository,
-} from "@core/implementations/business";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
+} from "@core/implementations/business/index.js";
+import { QueryFactories } from "@core/implementations/utilities/factory/index.js";
+import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
 import { avalance2SchemaStr } from "./business/query/avalanche2.data";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryObjectFactory";

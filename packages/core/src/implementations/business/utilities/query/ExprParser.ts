@@ -2,25 +2,27 @@ import {
   MissingTokenConstructorError,
   ParserError,
   SDQL_Name,
-  SDQL_OperatorName
+  SDQL_OperatorName,
 } from "@snickerdoodlelabs/objects";
 
 import {
   Token,
   Tokenizer,
-  TokenType
-} from "@core/implementations/business/utilities/query/Tokenizer";
-import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
+  TokenType,
+} from "@core/implementations/business/utilities/query/Tokenizer.js";
+import { ParserContextDataTypes } from "@core/interfaces/business/utilities/index.js";
 import {
   AST_ConditionExpr,
+  ConditionAnd,
+  ConditionOr,
+} from "@core/interfaces/objects/SDQL/condition/index.js";
+import {
   AST_Expr,
   AST_Query,
   AST_ReturnExpr,
   Command,
   Command_IF,
-  ConditionAnd,
-  ConditionOr
-} from "@core/interfaces/objects";
+} from "@core/interfaces/objects/SDQL/index.js";
 
 export class ExprParser {
   /**
@@ -356,27 +358,21 @@ export class ExprParser {
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
 
-    const deps:AST_Query[] = [];
+    const deps: AST_Query[] = [];
 
     tokens.reduce((deps, token) => {
-      
       if (token.type == TokenType.query) {
-        
         deps.push(this.getExecutableFromContext(token) as AST_Query);
-
       } else if (token.type == TokenType.return) {
-
         const r = this.getExecutableFromContext(token) as AST_ReturnExpr;
         if (r.source instanceof AST_Query) {
           deps.push(r.source);
         }
       }
       return deps;
-
     }, deps);
 
     return deps;
-
   }
   // #endregion
 }

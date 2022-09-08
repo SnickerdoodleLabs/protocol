@@ -24,7 +24,7 @@ import {
   ConditionOr,
   SDQLSchema
 } from "@core/interfaces/objects/SDQL";
-import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
+import { ParserContextDataTypes } from "@core/interfaces/business/utilities/index.js";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 

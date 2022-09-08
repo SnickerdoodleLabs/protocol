@@ -1,6 +1,6 @@
 import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 
-import { AST_Query } from "./AST_Query";
+import { AST_Query } from "./AST_Query.js";
 
 import {
   Condition,
@@ -8,7 +8,7 @@ import {
   ConditionGE,
   ConditionIn,
   ConditionL,
-} from "@core/interfaces/objects/SDQL/condition";
+} from "@core/interfaces/objects/SDQL/condition/index.js";
 
 export class AST_PropertyQuery extends AST_Query {
   /**

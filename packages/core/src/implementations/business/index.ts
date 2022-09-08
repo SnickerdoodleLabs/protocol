@@ -1,7 +1,7 @@
-export * from "@core/implementations/business/AccountService";
-export * from "@core/implementations/business/InvitationService";
-export * from "@core/implementations/business/MonitoringService";
-export * from "@core/implementations/business/ProfileService";
-export * from "@core/implementations/business/QueryService";
+export * from "@core/implementations/business/AccountService.js";
+export * from "@core/implementations/business/InvitationService.js";
+export * from "@core/implementations/business/MonitoringService.js";
+export * from "@core/implementations/business/ProfileService.js";
+export * from "@core/implementations/business/QueryService.js";
 
-export * from "@core/implementations/business/utilities";
+export * from "@core/implementations/business/utilities/index.js";

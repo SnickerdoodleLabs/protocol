@@ -16,12 +16,12 @@ import {
   IQueryParsingEngine,
   IQueryRepository,
   IQueryRepositoryType,
-} from "@core/interfaces/business/utilities";
-import { AST, InsightString } from "@core/interfaces/objects";
+} from "@core/interfaces/business/utilities/index.js";
+import { AST, InsightString } from "@core/interfaces/objects/index.js";
 import {
   IQueryFactories,
   IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/utilities/factory/index.js";
 import { BaseOf } from "ts-brand";
 //import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 

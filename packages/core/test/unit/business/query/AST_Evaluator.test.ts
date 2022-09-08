@@ -16,7 +16,7 @@ import {
   QueryEvaluator,
   QueryRepository,
 } from "@core/implementations/business/utilities";
-import { QueryFactories } from "@core/implementations/utilities/factory";
+import { QueryFactories } from "@core/implementations/utilities/factory/index.js";
 import {
   AST_ConditionExpr,
   AST_Expr,
@@ -28,8 +28,8 @@ import {
   ConditionIn,
   ConditionL,
   ConditionOr,
-} from "@core/interfaces/objects";
-import { IQueryFactories, IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/objects/index.js";
+import { IQueryFactories, IQueryObjectFactory } from "@core/interfaces/utilities/factory/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 

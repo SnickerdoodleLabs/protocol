@@ -26,13 +26,13 @@ import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IMonitoringService } from "@core/interfaces/business";
+import { IMonitoringService } from "@core/interfaces/business/index.js";
 import {
   IContextProvider,
   IConfigProvider,
   IConfigProviderType,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MonitoringService implements IMonitoringService {

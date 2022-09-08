@@ -1,9 +1,11 @@
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { AST_BoolExpr } from "../AST_BoolExpr";
-import { AST_Query } from "../AST_Query";
+import { Condition } from "./Condition.js";
 
-import { Condition } from "./Condition";
+import {
+  AST_BoolExpr,
+  AST_Query,
+} from "@core/interfaces/objects/SDQL/index.js";
 
 export class AST_ConditionExpr extends AST_BoolExpr {
   /**

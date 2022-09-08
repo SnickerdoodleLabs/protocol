@@ -1,4 +1,4 @@
-import { Operator } from "@core/interfaces/objects/SDQL/Operator";
+import { Operator } from "@core/interfaces/objects/SDQL/Operator.js";
 
 export abstract class Condition extends Operator {
   /**

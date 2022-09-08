@@ -4,7 +4,7 @@ import { ResultAsync } from "neverthrow";
 import {
   VolatileTableConfig,
   IVolatileStorageTable,
-} from "@persistence/volatile/IVolatileStorageTable";
+} from "@persistence/volatile/IVolatileStorageTable.js";
 
 export interface IVolatileStorageFactory {
   getStore(

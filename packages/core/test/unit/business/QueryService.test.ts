@@ -21,19 +21,19 @@ import {
   ConfigProviderMock, ContextProviderMock
 } from "@core-tests/mock/utilities";
 import { avalance1SchemaStr } from "@core-tests/unit/business/query/avalanche1.data";
-import { QueryService } from "@core/implementations/business";
-import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
+import { QueryService } from "@core/implementations/business/index.js";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IInsightPlatformRepository,
   ISDQLQueryRepository
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 import {
   CoreConfig,
   CoreContext,
   InsightString
-} from "@core/interfaces/objects";
-import { IConfigProvider } from "@core/interfaces/utilities";
+} from "@core/interfaces/objects/index.js";
+import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 import { DataPermissions } from "@snickerdoodlelabs/objects";
 import { ConsentToken } from "@snickerdoodlelabs/objects";
 import { TokenId } from "@snickerdoodlelabs/objects";

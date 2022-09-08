@@ -40,21 +40,18 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BackupManager } from "@persistence/backup";
-import {
-  ICloudStorage,
-  ICloudStorageType,
-} from "@persistence/cloud/ICloudStorage";
+import { BackupManager } from "@persistence/backup/index.js";
+import { ICloudStorage, ICloudStorageType } from "@persistence/cloud/index.js";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
-} from "@persistence/IPersistenceConfigProvider";
+} from "@persistence/IPersistenceConfigProvider.js";
 import {
   IVolatileStorageTable,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
   IVolatileCursor,
-} from "@persistence/volatile";
+} from "@persistence/volatile/index.js";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",

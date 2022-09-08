@@ -1,16 +1,16 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { indexedDB as fakeIndexedDB, IDBKeyRange } from "fake-indexeddb";
 import { injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IVolatileStorageFactory } from "@persistence/volatile/IVolatileStorageFactory";
+import { IVolatileStorageFactory } from "@persistence/volatile/IVolatileStorageFactory.js";
 import {
   VolatileTableConfig,
   IVolatileStorageTable,
   VolatileTableIndex,
   IVolatileCursor,
-} from "@persistence/volatile/IVolatileStorageTable";
+} from "@persistence/volatile/IVolatileStorageTable.js";
 
 @injectable()
 export class IndexedDBFactory implements IVolatileStorageFactory {

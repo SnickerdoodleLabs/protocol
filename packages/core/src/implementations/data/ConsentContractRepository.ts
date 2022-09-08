@@ -25,17 +25,17 @@ import {
   IConsentContractRepository,
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 import {
   IContractFactoryType,
   IContractFactory,
-} from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {

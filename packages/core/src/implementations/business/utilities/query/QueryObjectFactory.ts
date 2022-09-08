@@ -6,16 +6,19 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 
-import { AST_NetworkQuery, AST_PropertyQuery } from "@core/interfaces/objects";
-import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
 import {
   Condition,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
-} from "@core/interfaces/objects/SDQL/condition";
-import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/objects/SDQL/condition/index.js";
+import {
+  AST_BalanceQuery,
+  AST_NetworkQuery,
+  AST_PropertyQuery,
+} from "@core/interfaces/objects/SDQL/index.js";
+import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class QueryObjectFactory implements IQueryObjectFactory {

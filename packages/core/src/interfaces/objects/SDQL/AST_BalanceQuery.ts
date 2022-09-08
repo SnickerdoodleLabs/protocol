@@ -1,8 +1,7 @@
-import { ChainId, EVMChainCode, SDQL_Name } from "@snickerdoodlelabs/objects";
+import { ChainId, SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { Condition, ConditionG, ConditionGE, ConditionIn, ConditionL } from "@core/interfaces/objects/SDQL/condition";
-import { AST_Contract } from "./AST_Contract";
-import { AST_Query } from "./AST_Query";
+import { AST_Query } from "@core/interfaces/objects/SDQL/AST_Query.js";
+import { Condition } from "@core/interfaces/objects/SDQL/condition/index.js";
 
 export class AST_BalanceQuery extends AST_Query {
   /**

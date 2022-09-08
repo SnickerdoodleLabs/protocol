@@ -11,8 +11,8 @@ import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verific
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { CoreConfig } from "@core/interfaces/objects";
-import { IConfigProvider } from "@core/interfaces/utilities";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
+import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 
 const modelAliases = {
   definitions: {

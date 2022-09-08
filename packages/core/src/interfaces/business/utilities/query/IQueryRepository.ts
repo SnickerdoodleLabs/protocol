@@ -5,7 +5,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { AST_Query } from "@core/interfaces/objects";
+import { AST_Query } from "@core/interfaces/objects/index.js";
 
 export interface IQueryRepository {
   get(cid: IpfsCID, q: AST_Query): ResultAsync<SDQL_Return, PersistenceError>;

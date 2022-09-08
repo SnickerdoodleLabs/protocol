@@ -16,8 +16,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { ExprParser } from "@core/implementations/business/utilities/query/ExprParser";
-import { ParserContextDataTypes } from "@core/interfaces/business/utilities";
+import { ExprParser } from "@core/implementations/business/utilities/index.js";
+import { ParserContextDataTypes } from "@core/interfaces/business/utilities/index.js";
 import {
   AST,
   AST_BalanceQuery,
@@ -32,12 +32,10 @@ import {
   AST_Returns,
   Command,
   SDQLSchema,
-} from "@core/interfaces/objects";
-import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
-import { ResultUtils } from "neverthrow-result-utils";
+} from "@core/interfaces/objects/index.js";
+import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/index.js";
 
 export class SDQLParser {
-
   public context = new Map<string, ParserContextDataTypes>();
   public queries = new Map<SDQL_Name, AST_Query>();
   public returns: AST_Returns | null;
@@ -380,7 +378,6 @@ export class SDQLParser {
         throw err;
     }
   }
-
 
   private getPropertyQueryPermissionFlag(query: AST_Query) {
     const propQuery = query as AST_PropertyQuery;

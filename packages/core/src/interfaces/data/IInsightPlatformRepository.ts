@@ -1,4 +1,4 @@
-import { InsightString } from "@core/interfaces/objects";
+import { InsightString } from "@core/interfaces/objects/index.js";
 import {
   AjaxError,
   Insight,

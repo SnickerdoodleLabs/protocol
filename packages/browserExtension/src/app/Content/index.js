@@ -3,10 +3,13 @@ import { render } from "react-dom";
 import "@webcomponents/custom-elements";
 
 import "./content.styles.css";
-import App from "./components/App";
+import Browser from "webextension-polyfill";
+
+import App from "./components/App/index.js";
+
 import { StylesProvider, jssPreset } from "@material-ui/styles";
 import { create } from "jss";
-import Browser from "webextension-polyfill";
+
 class ReactExtensionContainer extends HTMLElement {
   connectedCallback() {
     const shadowRoot = this.attachShadow({ mode: "open" });

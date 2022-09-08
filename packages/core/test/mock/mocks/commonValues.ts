@@ -16,7 +16,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
 
-import { CoreConfig } from "@core/interfaces/objects";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
 
 export const externalAccountAddress1 = EVMAccountAddress(
   "ExternalAccountAddress1",

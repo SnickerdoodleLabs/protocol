@@ -5,7 +5,7 @@ import {
   AST_NetworkQuery,
   AST_PropertyQuery,
   AST_Query,
-} from "@core/interfaces/objects";
+} from "@core/interfaces/objects/index.js";
 
 export interface IQueryEvaluator {
   eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError>;

@@ -3,7 +3,7 @@
 import { injectable } from "inversify";
 import pino from "pino";
 
-import { ILogUtils } from "@common-utils/interfaces";
+import { ILogUtils } from "@common-utils/interfaces/index.js";
 
 @injectable()
 export class LogUtils implements ILogUtils {

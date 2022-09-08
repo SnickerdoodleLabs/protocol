@@ -1,29 +1,30 @@
-import usePath from "@app/Content/hooks/usePath";
-import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
-import { ExternalCoreGateway } from "@app/coreGateways";
-import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
-import { EPortNames } from "@shared/enums/ports";
-
-import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
-import NftClaimed from "../Screens/NftClaimed";
-import { EAPP_STATE, IRewardItem } from "../../constants";
-import Browser from "webextension-polyfill";
-import pump from "pump";
-import ObjectMultiplex from "obj-multiplex";
+import { DomainName, URLString } from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import ConfigProvider from "@shared/utils/ConfigProvider";
-import { VersionUtils } from "@shared/utils/VersionUtils";
-import endOfStream from "end-of-stream";
-import { DomainName, URLString } from "@snickerdoodlelabs/objects";
+import ObjectMultiplex from "obj-multiplex";
+import pump from "pump";
 import React, { useEffect, useMemo, useState } from "react";
-import ConnectWallet from "../Screens/ConnectWallet";
-import ConnectWalletPending from "../Screens/ConnectWalletPending";
-import RewardCard from "../Screens/RewardCard";
-import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
 import { parse } from "tldts";
+import Browser from "webextension-polyfill";
+
+import { EAPP_STATE, IRewardItem } from "../../constants/index.js";
+import ConnectWallet from "../Screens/ConnectWallet/index.js";
+import ConnectWalletPending from "../Screens/ConnectWalletPending/index.js";
+import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess/index.js";
+import NftClaimed from "../Screens/NftClaimed/index.js";
+import RewardCard from "../Screens/RewardCard/index.js";
+
+import usePath from "@app/Content/hooks/usePath.js";
+import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector.js";
+import { ExternalCoreGateway } from "@app/coreGateways/index.js";
+import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports.js";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall.js";
+import { EPortNames } from "@shared/enums/ports.js";
+import { IInvitationDomainWithUUID } from "@shared/interfaces/actions.js";
+import ConfigProvider from "@shared/utils/ConfigProvider.js";
+import { VersionUtils } from "@shared/utils/VersionUtils.js";
 
 let coreGateway: ExternalCoreGateway;
 let notificationEmitter;

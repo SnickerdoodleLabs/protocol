@@ -16,7 +16,7 @@ import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IVolatileStorageTable } from "@persistence/volatile/";
+import { IVolatileStorageTable } from "@persistence/volatile/index.js";
 
 export class BackupManager {
   private fieldUpdates: FieldMap = {};

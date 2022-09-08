@@ -1,3 +1,3 @@
-export * from "@persistence/cloud/ICloudStorage";
-export * from "@persistence/cloud/NullCloudStorage";
-export * from "@persistence/cloud/CeramicCloudStorage";
+export * from "@persistence/cloud/ICloudStorage.js";
+export * from "@persistence/cloud/NullCloudStorage.js";
+export * from "@persistence/cloud/CeramicCloudStorage.js";

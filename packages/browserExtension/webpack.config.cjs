@@ -10,7 +10,7 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 
-const env = require("./utils/env");
+const env = require("./utils/env.cjs");
 
 const configFilePath = require.resolve("./tsconfig.json");
 const argon2 = require("argon2");
@@ -131,6 +131,9 @@ var options = {
     extensions: fileExtensions
       .map((extension) => "." + extension)
       .concat([".js", ".jsx", ".ts", ".tsx", ".css", "html"]),
+    // fullySpecified: false,
+    // mainFiles: ["index"],
+    // enforceExtension: false,
   },
   plugins: [
     new NodePolyfillPlugin(),

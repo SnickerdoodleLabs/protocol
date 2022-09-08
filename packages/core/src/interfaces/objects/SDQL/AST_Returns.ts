@@ -1,6 +1,6 @@
 import { SDQL_Name, URLString } from "@snickerdoodlelabs/objects";
 
-import { AST_ReturnExpr } from "./AST_ReturnExpr";
+import { AST_ReturnExpr } from "./AST_ReturnExpr.js";
 
 export class AST_Returns extends Map<SDQL_Name, any> {
   expressions: Map<SDQL_Name, AST_ReturnExpr> = new Map();

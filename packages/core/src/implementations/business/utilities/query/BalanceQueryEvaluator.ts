@@ -15,13 +15,13 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
-  AST_BalanceQuery,
   ConditionE,
   ConditionG,
   ConditionGE,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
+} from "@core/interfaces/objects/SDQL/condition/index.js";
+import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/index.js";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
@@ -50,14 +50,13 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         const tokenBalances: ITokenBalance[] = [];
 
         excessValues.forEach((object) => {
-          const newToken:ITokenBalance = {
+          const newToken: ITokenBalance = {
             ticker: object.ticker,
             networkId: object.chainId,
             address: object.contractAddress,
-            balance: BigNumber.from(object.balance)
+            balance: BigNumber.from(object.balance),
           };
           tokenBalances.push(newToken);
-
         });
         return okAsync(tokenBalances);
       })

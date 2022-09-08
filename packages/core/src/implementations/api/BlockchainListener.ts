@@ -17,18 +17,18 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IBlockchainListener } from "@core/interfaces/api";
+import { IBlockchainListener } from "@core/interfaces/api/index.js";
 import {
   IMonitoringService,
   IMonitoringServiceType,
   IQueryService,
   IQueryServiceType,
-} from "@core/interfaces/business";
+} from "@core/interfaces/business/index.js";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
-} from "@core/interfaces/data";
-import { CoreConfig } from "@core/interfaces/objects";
+} from "@core/interfaces/data/index.js";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -36,7 +36,7 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 /**
  * This class is much simplified from before, and has only a single responsibility-

@@ -26,7 +26,7 @@ import {
   ConditionIn,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
+} from "@core/interfaces/objects/index.js";
 import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";

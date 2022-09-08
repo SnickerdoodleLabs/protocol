@@ -1,9 +1,9 @@
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { AST_Query } from "./AST_Query";
-import { AST_Return } from "./AST_Return";
-import { Command_IF } from "./Command_IF";
-import { Operator } from "./Operator";
+import { AST_Query } from "./AST_Query.js";
+import { AST_Return } from "./AST_Return.js";
+import { Command_IF } from "./Command_IF.js";
+import { Operator } from "./Operator.js";
 
 export class AST_Expr {
   /**

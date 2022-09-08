@@ -13,17 +13,12 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { IQueryEvaluator } from "@core/interfaces/business/utilities";
 import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+  IQueryEvaluator,
+} from "@core/interfaces/business/utilities/index.js";
 import {
-  AST_BalanceQuery,
-  AST_Expr,
-  AST_NetworkQuery,
-  AST_PropertyQuery,
-  AST_Query,
   Condition,
   ConditionE,
   ConditionG,
@@ -31,7 +26,14 @@ import {
   ConditionIn,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
+} from "@core/interfaces/objects/SDQL/condition/index.js";
+import {
+  AST_BalanceQuery,
+  AST_Expr,
+  AST_NetworkQuery,
+  AST_PropertyQuery,
+  AST_Query,
+} from "@core/interfaces/objects/SDQL/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {

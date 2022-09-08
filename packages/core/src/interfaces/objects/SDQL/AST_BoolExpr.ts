@@ -1,8 +1,8 @@
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { AST_Expr } from "./AST_Expr";
-import { AST_Query } from "./AST_Query";
-import { Operator } from "./Operator";
+import { AST_Expr } from "./AST_Expr.js";
+import { AST_Query } from "./AST_Query.js";
+import { Operator } from "./Operator.js";
 
 export class AST_BoolExpr extends AST_Expr {
   /**

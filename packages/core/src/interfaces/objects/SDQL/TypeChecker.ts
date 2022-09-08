@@ -1,12 +1,11 @@
-import { AST } from "prettier";
+import { AST_Expr } from "./AST_Expr.js";
+import { AST_Query } from "./AST_Query.js";
+import { AST_ReturnExpr } from "./AST_ReturnExpr.js";
+import { Command } from "./Command.js";
+import { Command_IF } from "./Command_IF.js";
+import { Operator } from "./Operator.js";
 
-import { AST_Expr } from "./AST_Expr";
-import { AST_Query } from "./AST_Query";
-import { AST_ReturnExpr } from "./AST_ReturnExpr";
-import { Command } from "./Command";
-import { Command_IF } from "./Command_IF";
-import { AST_ConditionExpr } from "./condition/AST_ConditionExpr";
-import { Operator } from "./Operator";
+import { AST_ConditionExpr } from "@core/interfaces/objects/SDQL/condition/index.js";
 
 export type AstAllowedTypes =
   | string

@@ -28,16 +28,16 @@ import {
   consentContractAddress1,
 } from "@core-tests/mock/mocks/commonValues";
 import { ContextProviderMock } from "@core-tests/mock/utilities";
-import { InvitationService } from "@core/implementations/business";
-import { IInvitationService } from "@core/interfaces/business";
+import { InvitationService } from "@core/implementations/business/index.js";
+import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
   IInsightPlatformRepository,
   IInvitationRepository,
   IMetatransactionForwarderRepository,
-} from "@core/interfaces/data";
-import { IContextProvider } from "@core/interfaces/utilities";
+} from "@core/interfaces/data/index.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 const metatransactionNonce = BigNumberString("nonce");
 const optInCallData = HexString("0xOptIn");

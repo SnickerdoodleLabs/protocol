@@ -5,7 +5,7 @@ import {
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { ICloudStorage } from "@persistence/cloud/ICloudStorage";
+import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 
 @injectable()
 export class NullCloudStorage implements ICloudStorage {

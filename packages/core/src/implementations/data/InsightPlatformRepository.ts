@@ -22,12 +22,12 @@ import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
-import { IInsightPlatformRepository } from "@core/interfaces/data";
+import { IInsightPlatformRepository } from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities";
-import { InsightString } from "@core/interfaces/objects";
+} from "@core/interfaces/utilities/index.js";
+import { InsightString } from "@core/interfaces/objects/index.js";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {

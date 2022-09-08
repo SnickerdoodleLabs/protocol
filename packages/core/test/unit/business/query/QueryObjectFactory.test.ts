@@ -1,7 +1,7 @@
 import "reflect-metadata";
-import { QueryObjectFactory } from "@core/implementations/business";
-import { ConditionGE, SDQLSchema } from "@core/interfaces/objects";
-import { IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+import { QueryObjectFactory } from "@core/implementations/business/index.js";
+import { ConditionGE, SDQLSchema } from "@core/interfaces/objects/index.js";
+import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/index.js";
 import { SDQLString, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { avalance3SchemaStr } from "./avalanche3.data";
 

@@ -1,7 +1,7 @@
 import { IConfigOverrides } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { CoreConfig } from "@core/interfaces/objects";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
 
 export interface IConfigProvider {
   getConfig(): ResultAsync<CoreConfig, never>;
