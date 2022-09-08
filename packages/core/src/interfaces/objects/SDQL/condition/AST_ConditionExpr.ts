@@ -4,8 +4,10 @@ import { Condition } from "./Condition.js";
 
 import {
   AST_BoolExpr,
+} from "@core/interfaces/objects/SDQL/AST_BoolExpr.js";
+import {
   AST_Query,
-} from "@core/interfaces/objects/SDQL/index.js";
+} from "@core/interfaces/objects/SDQL/AST_Query.js";
 
 export class AST_ConditionExpr extends AST_BoolExpr {
   /**

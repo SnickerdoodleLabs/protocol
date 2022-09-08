@@ -33,6 +33,7 @@
     "test:ci": "npx jest --runInBand --coverage --passWithNoTests",
     "test:watch": "npx jest --watch --color --detectOpenHandles"
   },
+  "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",

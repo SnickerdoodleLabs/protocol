@@ -53,7 +53,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { BlockchainStuff } from "@test-harness/BlockchainStuff.js";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator.js";
 import { IPFSClient } from "@test-harness/IPFSClient.js";
-import { query1, query2 } from "@test-harness/queries";
+import { query1, query2 } from "@test-harness/queries/index.js";
 
 // https://github.com/SBoudrias/Inquirer.js
 const core = new SnickerdoodleCore({

@@ -25,7 +25,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider";
+} from "@indexers/IIndexerConfigProvider.js";
 
 interface ICovalentEVMTransactionResponse {
   data: {

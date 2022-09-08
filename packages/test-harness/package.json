@@ -29,7 +29,7 @@
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "docker-push": "docker push snickerdoodlelabs/protocol-test-harness:local",
     "dockerize": "docker build -t snickerdoodlelabs/protocol-test-harness:local -f Dockerfile --progress=plain ../..",
-    "start": "yarn compile && node --experimental-specifier-resolution=node dist/index.js"
+    "start": "yarn compile && node dist/index.js"
   },
   "type": "module",
   "dependencies": {
