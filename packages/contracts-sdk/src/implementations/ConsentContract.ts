@@ -493,21 +493,19 @@ export class ConsentContract implements IConsentContract {
               return okAsync(null);
             }
 
-            return this.tokenURI(logEvent.args?.tokenId).andThen((tokenUri) => {
-              return okAsync(
-                new ConsentToken(
-                  this.contractAddress,
-                  ownerAddress,
-                  TokenId(logEvent.args?.tokenId?.toNumber()),
-                  // TODO: DataPermissions
-                  new DataPermissions(
-                    HexString32(
-                      "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-                    ),
+            return this.agreementFlags(logEvent.args?.tokenId).andThen(
+              (agreementFlag) => {
+                return okAsync(
+                  new ConsentToken(
+                    this.contractAddress,
+                    ownerAddress,
+                    TokenId(logEvent.args?.tokenId?.toNumber()),
+                    // TODO: DataPermissions
+                    new DataPermissions(agreementFlag),
                   ),
-                ),
-              );
-            });
+                );
+              },
+            );
           }),
         ).map((consentTokens) => {
           return consentTokens.filter(
@@ -534,20 +532,20 @@ export class ConsentContract implements IConsentContract {
         // Get only the last Transfer event (the latest opt in token id)
         const lastIndex = logsEvents.length - 1;
 
-        const tokenId = logsEvents[lastIndex].args?.tokenId;
-
         // Get the agreement flags of the user's current consent token
-        return this.agreementFlags(tokenId).andThen((agreementFlag) => {
-          return okAsync(
-            new ConsentToken(
-              this.contractAddress,
-              ownerAddress,
-              TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
-              // TODO: DataPermissions
-              new DataPermissions(agreementFlag),
-            ),
-          );
-        });
+        return this.agreementFlags(logsEvents[lastIndex].args?.tokenId).andThen(
+          (agreementFlag) => {
+            return okAsync(
+              new ConsentToken(
+                this.contractAddress,
+                ownerAddress,
+                TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
+                // TODO: DataPermissions
+                new DataPermissions(agreementFlag),
+              ),
+            );
+          },
+        );
       });
     });
   }
