@@ -1,7 +1,8 @@
+import { SDQLString } from "@snickerdoodlelabs/objects";
+
 import { avalance1SchemaStr } from "./avalanche1.data";
 
 import { SDQLSchema } from "@core/interfaces/objects/SDQL";
-import { SDQLString } from "@snickerdoodlelabs/objects";
 
 describe("SDQLSchema with Avalanche", () => {
   const sdqlSchema = SDQLSchema.fromString(SDQLString(avalance1SchemaStr));

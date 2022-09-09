@@ -82,6 +82,12 @@ describe("SDQLParser on avalanche", () => {
       // console.log(q4);
       expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
     });
+
+    test("q4 is a balance query", () => {
+      const q4 = parser.context.get("q4");
+      // console.log(q4);
+      expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
+    });
   });
 
   describe("Checking return queries", () => {
