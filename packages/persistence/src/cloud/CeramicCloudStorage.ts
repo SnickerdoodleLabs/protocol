@@ -173,6 +173,10 @@ export class CeramicCloudStorage implements ICloudStorage {
     });
   }
 
+  public lastRestore(): ResultAsync<number, PersistenceError> {
+    return okAsync(0); // TODO: fix this
+  }
+
   private _getBackup(
     id: string,
   ): ResultAsync<IDataWalletBackup, PersistenceError> {
@@ -192,4 +196,6 @@ export class CeramicCloudStorage implements ICloudStorage {
       ).map((backups) => backups ?? []);
     });
   }
+
+  
 }
