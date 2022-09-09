@@ -10,26 +10,34 @@ import {
   ITimeUtils,
   ITimeUtilsType,
   LogUtils,
-  TimeUtils
+  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   CovalentEVMTransactionRepository,
   IIndexerConfigProvider,
-  IIndexerConfigProviderType
+  IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
 import {
   IEVMTransactionRepository,
-  IEVMTransactionRepositoryType
+  IEVMTransactionRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
-  IPersistenceConfigProviderType
+  IPersistenceConfigProviderType,
 } from "@snickerdoodlelabs/persistence";
+import {
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+  QueryObjectFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
   AccountIndexerPoller,
-  BlockchainListener
+  BlockchainListener,
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
@@ -41,7 +49,7 @@ import {
   QueryEvaluator,
   QueryParsingEngine,
   QueryRepository,
-  QueryService
+  QueryService,
 } from "@core/implementations/business/index.js";
 import {
   ConsentContractRepository,
@@ -50,23 +58,23 @@ import {
   InsightPlatformRepository,
   InvitationRepository,
   MetatransactionForwarderRepository,
-  SDQLQueryRepository
+  SDQLQueryRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
-  QueryFactories
+  QueryFactories,
 } from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
   ContextProvider,
-  DataWalletUtils
+  DataWalletUtils,
 } from "@core/implementations/utilities/index.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
-  IBlockchainListenerType
+  IBlockchainListenerType,
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
@@ -78,7 +86,7 @@ import {
   IProfileService,
   IProfileServiceType,
   IQueryService,
-  IQueryServiceType
+  IQueryServiceType,
 } from "@core/interfaces/business/index.js";
 import {
   IBalanceQueryEvaluator,
@@ -90,7 +98,7 @@ import {
   IQueryParsingEngine,
   IQueryParsingEngineType,
   IQueryRepository,
-  IQueryRepositoryType
+  IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
@@ -106,13 +114,13 @@ import {
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
   ISDQLQueryRepository,
-  ISDQLQueryRepositoryType
+  ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
   IQueryFactories,
-  IQueryFactoriesType
+  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -122,9 +130,8 @@ import {
   IContextProvider,
   IContextProviderType,
   IDataWalletUtils,
-  IDataWalletUtilsType
+  IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
-import { IQueryObjectFactory, IQueryObjectFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType, QueryObjectFactory, SDQLQueryWrapperFactory } from "@snickerdoodlelabs/query-parser";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -231,8 +238,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     bind<IQueryFactories>(IQueryFactoriesType)
-    .to(QueryFactories)
-    .inSingletonScope();
+      .to(QueryFactories)
+      .inSingletonScope();
 
     bind<IQueryObjectFactory>(IQueryObjectFactoryType)
       .to(QueryObjectFactory)
@@ -241,13 +248,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ISDQLQueryWrapperFactory>(ISDQLQueryWrapperFactoryType)
       .to(SDQLQueryWrapperFactory)
       .inSingletonScope();
-    
-    bind<ITimeUtils>(ITimeUtilsType)
-    .to(TimeUtils)
-    .inSingletonScope();
-    
-    bind<INetworkQueryEvaluator>(INetworkQueryEvaluatorType)
-    .to(NetworkQueryEvaluator)
-    .inSingletonScope();
+
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
   },
 );

@@ -3,15 +3,21 @@ import {
   SDQLString,
   QueryFormatError,
 } from "@snickerdoodlelabs/objects";
+import {
+  AST,
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+  SDQLParser,
+  SDQLQueryWrapper,
+} from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { AST_Evaluator } from "@core/implementations/business";
-import { IQueryRepository } from "@core/interfaces/business/utilities";
-import {
-  IQueryFactories,
-} from "@core/interfaces/utilities/factory";
-import { AST, IQueryObjectFactory, IQueryObjectFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType, SDQLParser, SDQLQueryWrapper } from "@snickerdoodlelabs/query-parser";
+import { AST_Evaluator } from "@core/implementations/business/index.js";
+import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
+import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {
@@ -19,7 +25,7 @@ export class QueryFactories implements IQueryFactories {
     @inject(IQueryObjectFactoryType)
     readonly queryObjectFactory: IQueryObjectFactory,
     @inject(ISDQLQueryWrapperFactoryType)
-    readonly queryWrapperFactory: ISDQLQueryWrapperFactory
+    readonly queryWrapperFactory: ISDQLQueryWrapperFactory,
   ) {}
 
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {

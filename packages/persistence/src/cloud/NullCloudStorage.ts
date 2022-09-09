@@ -21,13 +21,7 @@ export class NullCloudStorage implements ICloudStorage {
     return okAsync("");
   }
 
-  pollBackups(
-    startTime: number,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return okAsync([]);
-  }
-
-  lastRestore(): ResultAsync<number, PersistenceError> {
-    return okAsync(this._lastRestore);
   }
 }

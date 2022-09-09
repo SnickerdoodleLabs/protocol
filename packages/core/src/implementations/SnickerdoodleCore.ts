@@ -3,8 +3,6 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-
-
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
@@ -70,6 +68,7 @@ import {
   ICloudStorage,
   ICloudStorageType,
   CeramicCloudStorage,
+  NullCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,

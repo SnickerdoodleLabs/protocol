@@ -1,2 +1,1 @@
-
-export * from "@query-parser/implementations/utilities/SDQLQueryWrapperFactory";
+export * from "@query-parser/implementations/utilities/SDQLQueryWrapperFactory.js";

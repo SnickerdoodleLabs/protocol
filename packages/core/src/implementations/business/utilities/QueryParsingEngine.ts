@@ -6,8 +6,9 @@ import {
   QueryExpiredError,
   QueryFormatError,
   SDQLQuery,
-  SDQL_Return
+  SDQL_Return,
 } from "@snickerdoodlelabs/objects";
+import { AST } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -17,15 +18,13 @@ import { AST_Evaluator } from "@core/implementations/business/utilities/query/AS
 import {
   IQueryParsingEngine,
   IQueryRepository,
-  IQueryRepositoryType
-} from "@core/interfaces/business/utilities";
-import { InsightString } from "@core/interfaces/objects";
+  IQueryRepositoryType,
+} from "@core/interfaces/business/utilities/index.js";
+import { InsightString } from "@core/interfaces/objects/index.js";
 import {
   IQueryFactories,
-  IQueryFactoriesType
-} from "@core/interfaces/utilities/factory";
-import { AST } from "@snickerdoodlelabs/query-parser";
-
+  IQueryFactoriesType,
+} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
