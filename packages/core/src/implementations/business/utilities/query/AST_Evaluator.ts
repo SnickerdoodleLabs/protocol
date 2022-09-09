@@ -24,7 +24,7 @@ import {
   ConditionOr,
   Operator,
   TypeChecker,
-} from "@core/interfaces/objects";
+} from "@snickerdoodlelabs/query-parser";
 
 export class AST_Evaluator {
   /**

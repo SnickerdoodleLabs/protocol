@@ -1,40 +1,31 @@
 import "reflect-metadata";
+
 import {
   QueryEvaluator,
-  QueryObjectFactory,
   QueryParsingEngine,
-  QueryRepository,
+  QueryRepository
 } from "@core/implementations/business";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { IQueryObjectFactory } from "@core/interfaces/utilities/factory/IQueryObjectFactory";
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  Age,
-  BigNumberString,
-  ChainId,
-  CountryCode,
-  DataPermissions,
-  EVMAccountAddress,
-  EVMContractAddress,
-  EWalletDataType,
+  Age, ChainId, CountryCode,
+  DataPermissions, EWalletDataType,
   Gender,
-  IDataWalletPersistence,
-  IEVMBalance,
-  IpfsCID,
+  IDataWalletPersistence, IpfsCID,
   QueryExpiredError,
   SDQLQuery,
-  SDQLString,
-  TickerSymbol,
+  SDQLString
 } from "@snickerdoodlelabs/objects";
+import { IQueryObjectFactory, ISDQLQueryWrapperFactory, QueryObjectFactory, SDQLQueryWrapperFactory } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
 import td from "testdouble";
 
+import { avalance1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
 import { avalance2SchemaStr } from "./business/query/avalanche2.data";
 import { avalance4SchemaStr } from "./business/query/avalanche4.data";
-import { avalance1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
 
 const queryId = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(queryId, SDQLString(avalance1ExpiredSchemaStr));
@@ -53,13 +44,14 @@ class QueryParsingMocks {
 
   protected queryObjectFactory: IQueryObjectFactory;
   protected queryFactories: IQueryFactories;
-  //   protected queryRepository = td.object<IQueryRepository>();
+  protected queryWrapperFactory: ISDQLQueryWrapperFactory;
   protected queryRepository: QueryRepository;
   protected queryEvaluator: QueryEvaluator;
 
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
-    this.queryFactories = new QueryFactories(this.queryObjectFactory);
+    this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
+    this.queryFactories = new QueryFactories(this.queryObjectFactory, this.queryWrapperFactory);
 
     td.when(this.persistenceRepo.getGender()).thenReturn(
       okAsync(Gender("female")),
@@ -74,6 +66,10 @@ class QueryParsingMocks {
     td.when(
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
+
+    td.when(
+      this.persistenceRepo.getTransactionsMap(),
+    ).thenReturn(okAsync(new Map<ChainId, number>()));
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 

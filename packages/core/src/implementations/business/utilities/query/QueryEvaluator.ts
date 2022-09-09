@@ -6,9 +6,7 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   PersistenceError,
-  SDQL_Return,
-  EVMAccountAddress,
-  EVMTransactionFilter,
+  SDQL_Return
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -16,8 +14,9 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { IQueryEvaluator } from "@core/interfaces/business/utilities";
 import {
   IBalanceQueryEvaluator,
-  IBalanceQueryEvaluatorType,
+  IBalanceQueryEvaluatorType
 } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { INetworkQueryEvaluator, INetworkQueryEvaluatorType } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 import {
   AST_BalanceQuery,
   AST_Expr,
@@ -30,9 +29,8 @@ import {
   ConditionGE,
   ConditionIn,
   ConditionL,
-  ConditionLE,
-} from "@core/interfaces/objects";
-import { INetworkQueryEvaluator, INetworkQueryEvaluatorType } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
+  ConditionLE
+} from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {

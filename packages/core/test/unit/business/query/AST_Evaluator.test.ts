@@ -13,6 +13,7 @@ import { okAsync } from "neverthrow";
 import td from "testdouble";
 
 import {
+  NetworkQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
 } from "@core/implementations/business/utilities";
@@ -28,10 +29,15 @@ import {
   ConditionIn,
   ConditionL,
   ConditionOr,
-} from "@core/interfaces/objects";
-import { IQueryFactories, IQueryObjectFactory } from "@core/interfaces/utilities/factory";
+  IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 
 // const ast = new AST(
 //     Version("0.1"),
@@ -44,21 +50,24 @@ class ASTMocks {
   public queryObjectFactory = td.object<IQueryObjectFactory>();
 
   public queryFactories: IQueryFactories;
-  //   protected queryRepository = td.object<IQueryRepository>();
+  protected queryWrapperFactory: ISDQLQueryWrapperFactory;
   public queryRepository: QueryRepository;
   public queryEvaluator: QueryEvaluator;
   public balanceQueryEvaluator: IBalanceQueryEvaluator;
+  public networkQueryEvaluator: INetworkQueryEvaluator;
 
   public constructor() {
-    this.queryFactories = new QueryFactories(this.queryObjectFactory);
+    this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
+    this.queryFactories = new QueryFactories(this.queryObjectFactory, this.queryWrapperFactory);
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.persistenceRepo);
+    this.networkQueryEvaluator = new NetworkQueryEvaluator(this.persistenceRepo);
 
     td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(
       okAsync(CountryCode("1")),
     );
 
-    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator);
+    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator, this.networkQueryEvaluator);
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }
 
