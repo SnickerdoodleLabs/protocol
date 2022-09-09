@@ -1,3 +1,6 @@
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -20,10 +23,6 @@ import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -534,23 +533,21 @@ export class ConsentContract implements IConsentContract {
         console.log("Transfer events log count", logsEvents.length);
         // Get only the last Transfer event (the latest opt in token id)
         const lastIndex = logsEvents.length - 1;
-        return this.tokenURI(logsEvents[lastIndex].args?.tokenId).andThen(
-          () => {
-            return okAsync(
-              new ConsentToken(
-                this.contractAddress,
-                ownerAddress,
-                TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
-                // TODO: DataPermissions
-                new DataPermissions(
-                  HexString32(
-                    "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-                  ),
-                ),
-              ),
-            );
-          },
-        );
+
+        const tokenId = logsEvents[lastIndex].args?.tokenId;
+
+        // Get the agreement flags of the user's current consent token
+        return this.agreementFlags(tokenId).andThen((agreementFlag) => {
+          return okAsync(
+            new ConsentToken(
+              this.contractAddress,
+              ownerAddress,
+              TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
+              // TODO: DataPermissions
+              new DataPermissions(agreementFlag),
+            ),
+          );
+        });
       });
     });
   }
