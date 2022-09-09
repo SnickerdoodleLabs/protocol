@@ -67,17 +67,15 @@ export class CeramicCloudStorage implements ICloudStorage {
     }
 
     return this._configProvider.getConfig().andThen((config) => {
-      this._ceramic = new CeramicClient(config.ceramicNodeURL);
+      const ceramic = new CeramicClient(config.ceramicNodeURL);
       return this.waitForUnlock().andThen((privateKey) => {
         return this._cryptoUtils
           .deriveCeramicSeedFromEVMPrivateKey(privateKey)
           .andThen((seed) => {
-            console.log(new TextDecoder().decode(seed));
             return this._authenticateDID(seed).andThen((did) => {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              this._ceramic!.did = did;
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return okAsync(this._ceramic!);
+              ceramic.did = did;
+              this._ceramic = ceramic;
+              return okAsync(this._ceramic);
             });
           });
       });
@@ -192,6 +190,4 @@ export class CeramicCloudStorage implements ICloudStorage {
       ).map((backups) => backups ?? []);
     });
   }
-
-  
 }

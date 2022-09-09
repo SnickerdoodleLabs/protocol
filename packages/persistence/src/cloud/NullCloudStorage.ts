@@ -1,4 +1,5 @@
 import {
+  EVMPrivateKey,
   IDataWalletBackup,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
@@ -23,5 +24,11 @@ export class NullCloudStorage implements ICloudStorage {
 
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return okAsync([]);
+  }
+
+  public unlock(
+    derivedKey: EVMPrivateKey,
+  ): ResultAsync<void, PersistenceError> {
+    return okAsync(undefined);
   }
 }
