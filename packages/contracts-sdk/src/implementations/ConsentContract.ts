@@ -14,6 +14,7 @@ import {
   BaseURI,
   HexString,
   DataPermissions,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -47,12 +48,12 @@ export class ConsentContract implements IConsentContract {
 
   public optIn(
     tokenId: TokenId,
-    agreementURI: TokenUri,
+    agreementFlags: HexString32,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.optIn(
         tokenId,
-        agreementURI,
+        agreementFlags,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
@@ -75,24 +76,24 @@ export class ConsentContract implements IConsentContract {
   }
 
   // TODO: add data permissions param
-  public encodeOptIn(tokenId: TokenId, agreementURI: TokenUri): HexString {
+  public encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString {
     return HexString(
       this.contract.interface.encodeFunctionData("optIn", [
         tokenId,
-        agreementURI,
+        agreementFlags,
       ]),
     );
   }
 
   public restrictedOptIn(
     tokenId: TokenId,
-    agreementURI: TokenUri,
+    agreementFlags: HexString32,
     signature: Signature,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.restrictedOptIn(
         tokenId,
-        agreementURI,
+        agreementFlags,
         signature,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -117,13 +118,13 @@ export class ConsentContract implements IConsentContract {
 
   public anonymousRestrictedOptIn(
     tokenId: TokenId,
-    agreementURI: TokenUri,
+    agreementFlags: HexString32,
     signature: Signature,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.anonymousRestrictedOptIn(
         tokenId,
-        agreementURI,
+        agreementFlags,
         signature,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -174,6 +175,21 @@ export class ConsentContract implements IConsentContract {
   public encodeOptOut(tokenId: TokenId): HexString {
     return HexString(
       this.contract.interface.encodeFunctionData("optOut", [tokenId]),
+    );
+  }
+
+  public agreementFlags(
+    tokenId: TokenId,
+  ): ResultAsync<HexString32, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.agreementFlagsArray(tokenId) as Promise<HexString32>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call agreementFlagsArray()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
     );
   }
 
@@ -484,9 +500,12 @@ export class ConsentContract implements IConsentContract {
                   this.contractAddress,
                   ownerAddress,
                   TokenId(logEvent.args?.tokenId?.toNumber()),
-                  tokenUri as TokenUri,
                   // TODO: DataPermissions
-                  new DataPermissions(0xffffffff),
+                  new DataPermissions(
+                    HexString32(
+                      "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+                    ),
+                  ),
                 ),
               );
             });
@@ -516,15 +535,18 @@ export class ConsentContract implements IConsentContract {
         // Get only the last Transfer event (the latest opt in token id)
         const lastIndex = logsEvents.length - 1;
         return this.tokenURI(logsEvents[lastIndex].args?.tokenId).andThen(
-          (tokenUri) => {
+          () => {
             return okAsync(
               new ConsentToken(
                 this.contractAddress,
                 ownerAddress,
                 TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
-                tokenUri as TokenUri,
                 // TODO: DataPermissions
-                new DataPermissions(0xffffffff),
+                new DataPermissions(
+                  HexString32(
+                    "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+                  ),
+                ),
               ),
             );
           },

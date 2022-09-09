@@ -26,6 +26,7 @@ export * from "@objects/primitives/EVMPrivateKey";
 export * from "@objects/primitives/GivenName";
 export * from "@objects/primitives/Gender";
 export * from "@objects/primitives/HexString";
+export * from "@objects/primitives/HexString32";
 export * from "@objects/primitives/InitializationVector";
 export * from "@objects/primitives/IpfsCID";
 export * from "@objects/primitives/JSONString";
