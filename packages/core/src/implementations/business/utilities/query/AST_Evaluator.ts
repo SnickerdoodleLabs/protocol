@@ -9,21 +9,19 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 import {
+  AST,
   AST_ConditionExpr,
+  AST_Expr,
+  AST_Query,
+  AST_Return,
+  AST_ReturnExpr,
+  Command_IF,
   ConditionAnd,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
   ConditionOr,
-} from "@core/interfaces/objects/SDQL/condition/index.js";
-import {
-  AST,
-  AST_Expr,
-  AST_Query,
-  AST_Return,
-  AST_ReturnExpr,
-  Command_IF,
   Operator,
   TypeChecker,
 } from "@snickerdoodlelabs/query-parser";

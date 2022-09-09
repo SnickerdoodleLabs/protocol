@@ -112,9 +112,7 @@ import {
   IContractFactory,
   IContractFactoryType,
   IQueryFactories,
-  IQueryFactoriesType,
-  IQueryObjectFactory,
-  IQueryObjectFactoryType
+  IQueryFactoriesType
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -126,7 +124,7 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType
 } from "@core/interfaces/utilities/index.js";
-import { ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType, QueryObjectFactory, SDQLQueryWrapperFactory } from "@snickerdoodlelabs/query-parser";
+import { IQueryObjectFactory, IQueryObjectFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType, QueryObjectFactory, SDQLQueryWrapperFactory } from "@snickerdoodlelabs/query-parser";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
