@@ -57,14 +57,14 @@ export class SDQLQueryWrapper {
   }
 
   public get timestamp(): UnixTimestamp | null { 
-    if (!this.internalObj.timestamp) {
+    if (this.internalObj.timestamp == null) {
       return null;
     }
     return UnixTimestamp(Date.parse(this.internalObj.timestamp));
   }
 
   public get expiry(): UnixTimestamp | null {
-    if (!this.internalObj.expiry) {
+    if (this.internalObj.expiry == null) {
       return null;
     }
 

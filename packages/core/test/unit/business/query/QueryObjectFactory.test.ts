@@ -2,17 +2,22 @@ import "reflect-metadata";
 import { SDQLString, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { avalance3SchemaStr } from "./avalanche3.data";
 import { ConditionGE, IQueryObjectFactory, QueryObjectFactory, SDQLQueryWrapper } from "@snickerdoodlelabs/query-parser";
-
-const schema = SDQLQueryWrapper.fromString(SDQLString(avalance3SchemaStr));
+import { SDQLQueryWrapperMocks } from "../../../mock/mocks";
 class QueryObjectFactoryMocks {
+  public wrapperMocks = new SDQLQueryWrapperMocks();
+  public schema = this.wrapperMocks.makeQueryWrapper(avalance3SchemaStr);
   factory(): IQueryObjectFactory {
     return new QueryObjectFactory();
   }
 }
 
 describe("test balance query parsing", () => {
-  const factory = new QueryObjectFactoryMocks().factory();
+  
   test("q4 should have networkId 43114 and no conditions", () => {
+    const mocks = new QueryObjectFactoryMocks()
+    const factory = mocks.factory();
+    const schema = mocks.schema;
+    
     const name = "q4";
     const balanceSchemma = schema.getQuerySchema()[name];
     const query = factory.toBalanceQuery(SDQL_Name(name), balanceSchemma);
@@ -22,6 +27,10 @@ describe("test balance query parsing", () => {
   });
 
   test("q5 should have networkId 1 and and one ge (10) condition ", () => {
+    const mocks = new QueryObjectFactoryMocks()
+    const factory = mocks.factory();
+    const schema = mocks.schema;
+
     const name = "q5";
     const balanceSchemma = schema.getQuerySchema()[name];
     const query = factory.toBalanceQuery(SDQL_Name(name), balanceSchemma);
@@ -36,6 +45,10 @@ describe("test balance query parsing", () => {
   });
 
   test("q6 should have networkId null and no conditions", () => {
+    const mocks = new QueryObjectFactoryMocks()
+    const factory = mocks.factory();
+    const schema = mocks.schema;
+    
     const name = "q6";
     const balanceSchemma = schema.getQuerySchema()[name];
     const query = factory.toBalanceQuery(SDQL_Name(name), balanceSchemma);
