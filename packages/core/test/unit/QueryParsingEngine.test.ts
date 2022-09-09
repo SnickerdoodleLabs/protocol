@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import {
   QueryEvaluator,
   QueryParsingEngine,
@@ -9,7 +11,7 @@ import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  Age, CountryCode,
+  Age, ChainId, CountryCode,
   DataPermissions, EWalletDataType,
   Gender,
   IDataWalletPersistence, IpfsCID,
@@ -19,7 +21,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { IQueryObjectFactory, ISDQLQueryWrapperFactory, QueryObjectFactory, SDQLQueryWrapperFactory } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
-import "reflect-metadata";
 import td from "testdouble";
 
 import { avalance1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
@@ -65,6 +66,10 @@ class QueryParsingMocks {
     td.when(
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
+
+    td.when(
+      this.persistenceRepo.getTransactionsMap(),
+    ).thenReturn(okAsync(new Map<ChainId, number>()));
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 

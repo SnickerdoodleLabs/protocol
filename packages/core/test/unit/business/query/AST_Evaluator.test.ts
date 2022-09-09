@@ -30,11 +30,14 @@ import {
   ConditionL,
   ConditionOr,
   IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 
 // const ast = new AST(
 //     Version("0.1"),
@@ -47,14 +50,15 @@ class ASTMocks {
   public queryObjectFactory = td.object<IQueryObjectFactory>();
 
   public queryFactories: IQueryFactories;
-  //   protected queryRepository = td.object<IQueryRepository>();
+  protected queryWrapperFactory: ISDQLQueryWrapperFactory;
   public queryRepository: QueryRepository;
   public queryEvaluator: QueryEvaluator;
   public balanceQueryEvaluator: IBalanceQueryEvaluator;
   public networkQueryEvaluator: INetworkQueryEvaluator;
 
   public constructor() {
-    this.queryFactories = new QueryFactories(this.queryObjectFactory);
+    this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
+    this.queryFactories = new QueryFactories(this.queryObjectFactory, this.queryWrapperFactory);
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.persistenceRepo);
     this.networkQueryEvaluator = new NetworkQueryEvaluator(this.persistenceRepo);
 
