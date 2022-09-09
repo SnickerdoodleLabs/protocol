@@ -21,6 +21,7 @@ import {
   HexString,
   IpfsCID,
   ISDQLQueryObject,
+  ISO8601DateString,
   SDQLString,
   Signature,
   UnixTimestamp,
@@ -226,10 +227,11 @@ export class InsightPlatformSimulator {
 
     // The queryText needs to have the timestamp inserted
     const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
-    queryJson.timestamp = UnixTimestamp(
-      Math.floor(new Date().getTime() / 1000),
-    );
-
+    // queryJson.timestamp = UnixTimestamp(
+    //   Math.floor(new Date().getTime() / 1000),
+    // );
+    queryJson.timestamp =  ISO8601DateString(new Date().toISOString());
+    // queryJson.expiry = new Date().toISOString();
     // Convert query back to string
     queryText = SDQLString(JSON.stringify(queryJson));
 

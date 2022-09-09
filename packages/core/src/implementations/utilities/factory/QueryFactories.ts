@@ -6,24 +6,24 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { AST_Evaluator, SDQLParser } from "@core/implementations/business/index.js";
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
-import { AST, SDQLSchema } from "@core/interfaces/objects/index.js";
+import { AST_Evaluator } from "@core/implementations/business";
+import { IQueryRepository } from "@core/interfaces/business/utilities";
 import {
   IQueryFactories,
-  IQueryObjectFactory,
-  IQueryObjectFactoryType,
-} from "@core/interfaces/utilities/factory/index.js";
+} from "@core/interfaces/utilities/factory";
+import { AST, IQueryObjectFactory, IQueryObjectFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType, SDQLParser, SDQLQueryWrapper } from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class QueryFactories implements IQueryFactories {
   constructor(
     @inject(IQueryObjectFactoryType)
     readonly queryObjectFactory: IQueryObjectFactory,
+    @inject(ISDQLQueryWrapperFactoryType)
+    readonly queryWrapperFactory: ISDQLQueryWrapperFactory
   ) {}
 
   makeParser(cid: IpfsCID, schemaString: SDQLString): SDQLParser {
-    const schema = SDQLSchema.fromString(SDQLString(schemaString));
+    const schema = this.queryWrapperFactory.makeWrapper(schemaString);
     return new SDQLParser(cid, schema, this.queryObjectFactory);
   }
 
@@ -32,7 +32,7 @@ export class QueryFactories implements IQueryFactories {
     schemaString: SDQLString,
   ): ResultAsync<SDQLParser, QueryFormatError> {
     try {
-      const schema = SDQLSchema.fromString(schemaString);
+      const schema = this.queryWrapperFactory.makeWrapper(schemaString);
       return okAsync(new SDQLParser(cid, schema, this.queryObjectFactory));
     } catch (e) {
       return errAsync(new QueryFormatError((e as Error).message));

@@ -1,8 +1,13 @@
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+
+const timeUtils = new TimeUtils();
 export const avalance4SchemaStr = JSON.stringify(
 {
   version: 0.1,
+  timestamp:  timeUtils.getISO8601TimeString(),
+  expiry : timeUtils.getISO8601TimeString(Date.now() + (1000 * 60 * 60 * 24)),
   description:
-    "Intractions with the Avalanche blockchain for 15-year and older individuals",
+  "Interactions with the Avalanche blockchain for 15-year and older individuals",
   business: "Shrapnel",
   queries: {
     q1: {
@@ -29,8 +34,8 @@ export const avalance4SchemaStr = JSON.stringify(
       },
     },
     q3: {
-      name: "location",
-      return: "integer",
+        name: "location",
+        return: "string",
     },
     q4: {
       name: "gender",
@@ -40,25 +45,10 @@ export const avalance4SchemaStr = JSON.stringify(
     q5: {
       name: "url_visited_count",
       return: "object",
-      object_schema: {
-        patternProperties: {
-          "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$":
-            {
-              type: "integer",
-            },
-        },
-      },
     },
     q6: {
       name: "chain_transaction_count",
       return: "object",
-      object_schema: {
-        patternProperties: {
-          "^ETH|AVAX|SOL$": {
-            type: "integer",
-          },
-        },
-      },
     },
     q7: {
       name: "balance",
@@ -66,25 +56,8 @@ export const avalance4SchemaStr = JSON.stringify(
       conditions: {
         ge: 10,
       },
-      return: "array",
-      array_items: {
-        type: "object",
-        object_schema: {
-          properties: {
-            networkid: {
-              type: "integer",
-            },
-            address: {
-              type: "string",
-              pattern: "^0x[a-fA-F0-9]{40}$",
-            },
-            balance: {
-              type: "number",
-            },
-          },
-          required: ["networkid", "address", "balance"],
-        },
-      },
+      return: "array"
+      
     },
     q8: {
       name: "balance",
@@ -92,25 +65,8 @@ export const avalance4SchemaStr = JSON.stringify(
       conditions: {
         ge: 10,
       },
-      return: "array",
-      array_items: {
-        type: "object",
-        object_schema: {
-          properties: {
-            networkid: {
-              type: "integer",
-            },
-            address: {
-              type: "string",
-              pattern: "^0x[a-fA-F0-9]{40}$",
-            },
-            balance: {
-              type: "number",
-            },
-          },
-          required: ["networkid", "address", "balance"],
-        },
-      },
+      return: "array"
+      
     },
   },
   returns: {

@@ -6,4 +6,3 @@ export * from "@core/interfaces/objects/MetatransactionRequest.js";
 export * from "@core/interfaces/objects/PublicEvents.js";
 export * from "@core/interfaces/objects/QueryResponse.js";
 
-export * from "@core/interfaces/objects/SDQL/index.js";

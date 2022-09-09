@@ -10,8 +10,8 @@ import {
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryRepository,
-} from "@core/interfaces/business/utilities/index.js";
-import { AST_Query } from "@core/interfaces/objects/index.js";
+} from "@core/interfaces/business/utilities";
+import { AST_Query } from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class QueryRepository implements IQueryRepository {

@@ -3,27 +3,29 @@ import {
   EligibleReward,
   EvaluationError,
   IpfsCID,
+  QueryExpiredError,
   QueryFormatError,
   SDQLQuery,
-  SDQL_Return,
+  SDQL_Return
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { BaseOf } from "ts-brand";
 
 import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
 import {
   IQueryParsingEngine,
   IQueryRepository,
-  IQueryRepositoryType,
-} from "@core/interfaces/business/utilities/index.js";
-import { AST, InsightString } from "@core/interfaces/objects/index.js";
+  IQueryRepositoryType
+} from "@core/interfaces/business/utilities";
+import { InsightString } from "@core/interfaces/objects";
 import {
   IQueryFactories,
-  IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory/index.js";
-import { BaseOf } from "ts-brand";
-//import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+  IQueryFactoriesType
+} from "@core/interfaces/utilities/factory";
+import { AST } from "@snickerdoodlelabs/query-parser";
+
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -41,7 +43,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<
     [InsightString[], EligibleReward[]] | never,
-    EvaluationError | QueryFormatError
+    EvaluationError | QueryFormatError | QueryExpiredError
   > {
     // console.log("QueryParsingEngine.handleQuery");
 
@@ -77,8 +79,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       });
   }
 
-  protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString{
-            
+  protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
 
     if (typeof actualTypeData == "string") {
@@ -88,7 +89,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     } else {
       return InsightString(JSON.stringify(actualTypeData));
     }
-    
   }
 
   private evalCompensations(

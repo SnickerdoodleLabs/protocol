@@ -2,16 +2,12 @@ import { PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import {
-  AST_NetworkQuery,
   AST_PropertyQuery,
-  AST_Query,
-} from "@core/interfaces/objects/index.js";
+  AST_Query
+} from "@query-parser/interfaces";
 
 export interface IQueryEvaluator {
   eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError>;
-  evalNetworkQuery(
-    q: AST_NetworkQuery,
-  ): ResultAsync<SDQL_Return, PersistenceError>;
   evalPropertyQuery(
     q: AST_PropertyQuery,
   ): ResultAsync<SDQL_Return, PersistenceError>;

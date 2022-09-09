@@ -20,14 +20,15 @@ import { okAsync } from "neverthrow";
 import td from "testdouble";
 
 import {
+    AST_BalanceQuery,
+  AST_PropertyQuery,
   ConditionE,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects/index.js";
-import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
+} from "@snickerdoodlelabs/query-parser";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { BigNumber } from "ethers";
@@ -909,38 +910,4 @@ test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () =
     // console.log(result);
     expect(result["value"].length).toEqual(0);
   })
-
-
-
-/*
-  test("Pass Condition that has not been used yet - returns error", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-        SDQL_Name("q7"),
-        "array",
-        ChainId(0), // * - for all, use null
-        conditionsIn,
-    )
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(new Array<IEVMBalance>(
-        {
-            ticker: TickerSymbol("ETH"),
-            chainId: ChainId(1),
-            accountAddress: EVMAccountAddress("GOOD1"),
-            balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
-        },
-      ))
-    )
-
-    const result = await repo.eval(balanceQuery);
-    expect(result.isErr()).toBeTruthy();
-    //console.log(result);
-
-  })
-  */
 })
-

@@ -1,8 +1,4 @@
 import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-import {
   URLString,
   Age,
   ClickData,
@@ -40,18 +36,22 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BackupManager } from "@persistence/backup/index.js";
-import { ICloudStorage, ICloudStorageType } from "@persistence/cloud/index.js";
+import { BackupManager } from "@persistence/backup";
+import {
+  ICloudStorage,
+  ICloudStorageType,
+} from "@persistence/cloud/ICloudStorage";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
-} from "@persistence/IPersistenceConfigProvider.js";
+} from "@persistence/IPersistenceConfigProvider";
 import {
   IVolatileStorageTable,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
   IVolatileCursor,
-} from "@persistence/volatile/index.js";
+} from "@persistence/volatile";
+import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -78,6 +78,7 @@ enum ELocalStorageKey {
 export class DataWalletPersistence implements IDataWalletPersistence {
   private objectStore?: IVolatileStorageTable;
   private backupManager?: BackupManager;
+
   private unlockPromise: Promise<EVMPrivateKey>;
   private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
 
@@ -744,30 +745,34 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public pollBackups(): ResultAsync<void, PersistenceError> {
     return this.cloudStorage
-      .pollBackups()
-      .andThen((backups) => {
-        return ResultUtils.combine(
-          backups.map((backup) => {
-            return this.restoreBackup(backup);
-          }),
-        );
-      })
-      .andThen((_) => {
-        return ResultUtils.combine([
-          this._getBackupManager(),
-          this.configProvider.getConfig(),
-        ]).andThen(([backupManager, config]) => {
-          return backupManager.getNumUpdates().andThen((numUpdates) => {
-            if (numUpdates >= config.backupChunkSizeTarget) {
-              return backupManager.dump().andThen((backup) => {
-                return this.cloudStorage
-                  .putBackup(backup)
-                  .andThen(() => okAsync(backupManager.clear()));
+      .lastRestore()
+      .andThen((startTime) => {
+        return this.cloudStorage
+          .pollBackups(startTime)
+          .andThen((backups) => {
+            return ResultUtils.combine(
+              backups.map((backup) => {
+                return this.restoreBackup(backup);
+              }),
+            );
+          })
+          .andThen((_) => {
+            return ResultUtils.combine([
+              this._getBackupManager(),
+              this.configProvider.getConfig(),
+            ]).andThen(([backupManager, config]) => {
+              return backupManager.getNumUpdates().andThen((numUpdates) => {
+                if (numUpdates >= config.backupChunkSizeTarget) {
+                  return backupManager.dump().andThen((backup) => {
+                    return this.cloudStorage
+                      .putBackup(backup)
+                      .andThen(() => okAsync(backupManager.clear()));
+                  });
+                }
+                return okAsync(undefined);
               });
-            }
-            return okAsync(undefined);
+            });
           });
-        });
       })
       .andThen((_) => okAsync(undefined));
   }

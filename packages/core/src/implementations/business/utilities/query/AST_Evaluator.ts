@@ -26,7 +26,7 @@ import {
   Command_IF,
   Operator,
   TypeChecker,
-} from "@core/interfaces/objects/SDQL/index.js";
+} from "@snickerdoodlelabs/query-parser";
 
 export class AST_Evaluator {
   /**

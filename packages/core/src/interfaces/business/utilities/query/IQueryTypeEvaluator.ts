@@ -1,4 +1,4 @@
-import { AST_Query } from "@core/interfaces/objects/index.js";
+import { AST_Query } from "@query-parser/interfaces";
 import { PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
