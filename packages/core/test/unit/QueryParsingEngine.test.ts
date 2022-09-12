@@ -1,37 +1,57 @@
 import "reflect-metadata";
 
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  Age,
+  ChainId,
+  CountryCode,
+  DataPermissions,
+  EWalletDataType,
+  Gender,
+  HexString32,
+  IDataWalletPersistence,
+  IpfsCID,
+  QueryExpiredError,
+  SDQLQuery,
+  SDQLString,
+} from "@snickerdoodlelabs/objects";
+import {
+  IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  QueryObjectFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+import { errAsync, okAsync } from "neverthrow";
+import td from "testdouble";
+
+import { avalanche1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
+import { avalanche2SchemaStr } from "./business/query/avalanche2.data";
+import { avalanche4SchemaStr } from "./business/query/avalanche4.data";
+
 import {
   QueryEvaluator,
   QueryParsingEngine,
-  QueryRepository
+  QueryRepository,
 } from "@core/implementations/business";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import {
-  Age, ChainId, CountryCode,
-  DataPermissions, EWalletDataType,
-  Gender,
-  IDataWalletPersistence, IpfsCID,
-  QueryExpiredError,
-  SDQLQuery,
-  SDQLString
-} from "@snickerdoodlelabs/objects";
-import { IQueryObjectFactory, ISDQLQueryWrapperFactory, QueryObjectFactory, SDQLQueryWrapperFactory } from "@snickerdoodlelabs/query-parser";
-import { errAsync, okAsync } from "neverthrow";
-import td from "testdouble";
-
-import { avalance1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
-import { avalance2SchemaStr } from "./business/query/avalanche2.data";
-import { avalance4SchemaStr } from "./business/query/avalanche4.data";
 
 const queryId = IpfsCID("Beep");
-const sdqlQueryExpired = new SDQLQuery(queryId, SDQLString(avalance1ExpiredSchemaStr));
-const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance2SchemaStr));
-const sdqlQuery4 = new SDQLQuery(queryId, SDQLString(avalance4SchemaStr));
+const sdqlQueryExpired = new SDQLQuery(
+  queryId,
+  SDQLString(avalanche1ExpiredSchemaStr),
+);
+const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalanche2SchemaStr));
+const sdqlQuery4 = new SDQLQuery(queryId, SDQLString(avalanche4SchemaStr));
 const country = CountryCode("1");
+const allPermissions = HexString32(
+  "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+);
+const noPermissions = HexString32(
+  "0x0000000000000000000000000000000000000000000000000000000000000000",
+);
 
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
@@ -51,7 +71,10 @@ class QueryParsingMocks {
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-    this.queryFactories = new QueryFactories(this.queryObjectFactory, this.queryWrapperFactory);
+    this.queryFactories = new QueryFactories(
+      this.queryObjectFactory,
+      this.queryWrapperFactory,
+    );
 
     td.when(this.persistenceRepo.getGender()).thenReturn(
       okAsync(Gender("female")),
@@ -67,9 +90,9 @@ class QueryParsingMocks {
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    td.when(
-      this.persistenceRepo.getTransactionsMap(),
-    ).thenReturn(okAsync(new Map<ChainId, number>()));
+    td.when(this.persistenceRepo.getTransactionsMap()).thenReturn(
+      okAsync(new Map<ChainId, number>()),
+    );
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
@@ -88,20 +111,19 @@ class QueryParsingMocks {
 
 describe("single Tests", () => {
   test("Expired query must return QueryExpiredError", async () => {
-    
-  const mocks = new QueryParsingMocks();
-  const engine = mocks.factory();
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
 
-  await engine.handleQuery(sdqlQueryExpired, new DataPermissions(0xffffffff))
-    .andThen(([insights, rewards]) => {
-      fail("Expired query was executed!");
-      return errAsync(new Error(`Expired query was executed!`));
-    })
-    .mapErr((err) => {
-      expect(err.constructor).toBe(QueryExpiredError);
-    });
+    await engine
+      .handleQuery(sdqlQueryExpired, new DataPermissions(allPermissions))
+      .andThen(([insights, rewards]) => {
+        fail("Expired query was executed!");
+        return errAsync(new Error(`Expired query was executed!`));
+      })
+      .mapErr((err) => {
+        expect(err.constructor).toBe(QueryExpiredError);
+      });
   });
-
 });
 
 describe("Testing order of results", () => {
@@ -110,7 +132,7 @@ describe("Testing order of results", () => {
     const engine = mocks.factory();
 
     await engine
-      .handleQuery(sdqlQuery, new DataPermissions(0xffffffff))
+      .handleQuery(sdqlQuery, new DataPermissions(allPermissions))
       .andThen(([insights, rewards]) => {
         // console.log(insights);
         expect(insights).toEqual([
@@ -135,10 +157,9 @@ describe("Tests with data permissions", () => {
    * Plan, create a data permission object
    */
 
-  test("avalance 2 first insight is null when age permission is not given", async () => {
-    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
+  test("avalanche 2 first insight is null when age permission is not given", async () => {
     const flags = EWalletDataType.EVMTransactions;
-    const givenPermissions = new DataPermissions(flags);
+    const givenPermissions = new DataPermissions(noPermissions);
 
     await engine
       .handleQuery(sdqlQuery, givenPermissions)
@@ -153,10 +174,10 @@ describe("Tests with data permissions", () => {
       });
   });
 
-  test("avalance 2 first insight is null when network permission is not given", async () => {
-    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
-    const flags = EWalletDataType.Age;
-    const givenPermissions = new DataPermissions(flags);
+  test("avalanche 2 first insight is null when network permission is not given", async () => {
+    const givenPermissions = DataPermissions.createWithPermissions([
+      EWalletDataType.Age,
+    ]);
 
     await engine
       .handleQuery(sdqlQuery, givenPermissions)
@@ -171,10 +192,11 @@ describe("Tests with data permissions", () => {
       });
   });
 
-  test("avalance 2 first insight is not null when network and age permissions are given", async () => {
-    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
-    const flags = EWalletDataType.Age | EWalletDataType.EVMTransactions;
-    const givenPermissions = new DataPermissions(flags);
+  test("avalanche 2 first insight is not null when network and age permissions are given", async () => {
+    const givenPermissions = DataPermissions.createWithPermissions([
+      EWalletDataType.Age,
+      EWalletDataType.EVMTransactions,
+    ]);
 
     await engine
       .handleQuery(sdqlQuery, givenPermissions)
@@ -190,9 +212,7 @@ describe("Tests with data permissions", () => {
   });
 
   test("all null when no permissions are given", async () => {
-    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
-    const flags = 0;
-    const givenPermissions = new DataPermissions(flags);
+    const givenPermissions = new DataPermissions(noPermissions);
 
     await engine
       .handleQuery(sdqlQuery, givenPermissions)
@@ -207,10 +227,10 @@ describe("Tests with data permissions", () => {
       });
   });
 
-  test("avalance 2 4th insight not null when siteVisits given", async () => {
-    // const flags = EWalletDataType.Age | EWalletDataType.Gender | EWalletDataType.Location | EWalletDataType.SiteVisits | EWalletDataType.EVMTransactions;
-    const flags = EWalletDataType.SiteVisits;
-    const givenPermissions = new DataPermissions(flags);
+  test("avalanche 2 4th insight not null when siteVisits given", async () => {
+    const givenPermissions = DataPermissions.createWithPermissions([
+      EWalletDataType.SiteVisits,
+    ]);
 
     await engine
       .handleQuery(sdqlQuery, givenPermissions)
@@ -226,8 +246,8 @@ describe("Tests with data permissions", () => {
   });
 });
 
-describe("Testing avalance 4", () => {
-  test("avalance 4", async () => {
+describe("Testing avalanche 4", () => {
+  test("avalanche 4", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
 
@@ -244,7 +264,7 @@ describe("Testing avalance 4", () => {
     // console.log(sdqlQuery4);
 
     await engine
-      .handleQuery(sdqlQuery4, new DataPermissions(0xffffffff))
+      .handleQuery(sdqlQuery4, new DataPermissions(allPermissions))
       .andThen(([insights, rewards]) => {
         // console.log("Why not printed")
 
@@ -259,5 +279,3 @@ describe("Testing avalance 4", () => {
       });
   });
 });
-
-

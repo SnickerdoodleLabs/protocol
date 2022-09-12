@@ -25,6 +25,14 @@ import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@snickerdoodlelabs/persistence";
+import {
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+  QueryObjectFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -91,6 +99,10 @@ import {
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
 import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
   ICrumbsRepository,
@@ -120,10 +132,8 @@ import {
   IContractFactory,
   IContractFactoryType,
   IQueryFactories,
-  IQueryFactoriesType
+  IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
-import { IBalanceQueryEvaluator, IBalanceQueryEvaluatorType } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { IQueryObjectFactory, IQueryObjectFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType, QueryObjectFactory, SDQLQueryWrapperFactory } from "@snickerdoodlelabs/query-parser";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -230,8 +240,8 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     bind<IQueryFactories>(IQueryFactoriesType)
-    .to(QueryFactories)
-    .inSingletonScope();
+      .to(QueryFactories)
+      .inSingletonScope();
 
     bind<IQueryObjectFactory>(IQueryObjectFactoryType)
       .to(QueryObjectFactory)
@@ -240,13 +250,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<ISDQLQueryWrapperFactory>(ISDQLQueryWrapperFactoryType)
       .to(SDQLQueryWrapperFactory)
       .inSingletonScope();
-    
-    bind<ITimeUtils>(ITimeUtilsType)
-    .to(TimeUtils)
-    .inSingletonScope();
-    
-    bind<INetworkQueryEvaluator>(INetworkQueryEvaluatorType)
-    .to(NetworkQueryEvaluator)
-    .inSingletonScope();
+
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
   },
 );

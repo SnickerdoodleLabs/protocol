@@ -1,11 +1,22 @@
 import "reflect-metadata";
 
 import {
-  DataPermissions, DuplicateIdInSchema, EWalletDataType, IpfsCID, MissingTokenConstructorError, MissingWalletDataTypeError, ParserError, QueryExpiredError, QueryFormatError, ReturnNotImplementedError, SDQL_Name,
+  DataPermissions,
+  DuplicateIdInSchema,
+  EWalletDataType,
+  IpfsCID,
+  MissingTokenConstructorError,
+  MissingWalletDataTypeError,
+  ParserError,
+  QueryExpiredError,
+  QueryFormatError,
+  ReturnNotImplementedError,
+  SDQL_Name,
   URLString,
-  Version
+  Version,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { ExprParser } from "@query-parser/implementations/business/ExprParser";
 import {
@@ -20,12 +31,13 @@ import {
   AST_Return,
   AST_ReturnExpr,
   AST_Returns,
-  Command, IQueryObjectFactory, ParserContextDataTypes, SDQLQueryWrapper
+  Command,
+  IQueryObjectFactory,
+  ParserContextDataTypes,
+  SDQLQueryWrapper,
 } from "@query-parser/interfaces";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export class SDQLParser {
-
   public context = new Map<string, ParserContextDataTypes>();
   public queries = new Map<SDQL_Name, AST_Query>();
   public returns: AST_Returns | null;
@@ -103,31 +115,33 @@ export class SDQLParser {
     | MissingTokenConstructorError
     | QueryExpiredError
   > {
-    return this.validateSchema(this.schema, this.cid)
-      .andThen(() => {
-        return this.parse().andThen(() => {
-         return okAsync(
-           new AST(
-             Version(this.schema.version!),
-             this.schema.description,
-             this.schema.business,
-             this.queries,
-             this.returns,
-             this.compensations,
-             new AST_Logic(
-               this.logicReturns,
-               this.logicCompensations,
-               this.returnPermissions,
-               this.compensationPermissions,
-             ),
-           ),
-         );
-       });
+    return this.validateSchema(this.schema, this.cid).andThen(() => {
+      return this.parse().andThen(() => {
+        return okAsync(
+          new AST(
+            Version(this.schema.version!),
+            this.schema.description,
+            this.schema.business,
+            this.queries,
+            this.returns,
+            this.compensations,
+            new AST_Logic(
+              this.logicReturns,
+              this.logicCompensations,
+              this.returnPermissions,
+              this.compensationPermissions,
+            ),
+          ),
+        );
       });
+    });
   }
 
   // #region schema validation
-  public validateSchema(schema: SDQLQueryWrapper, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
+  public validateSchema(
+    schema: SDQLQueryWrapper,
+    cid: IpfsCID,
+  ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
     return ResultUtils.combine([
       this.validateMeta(schema),
       this.validateTimeStampExpiry(schema, cid),
@@ -135,16 +149,15 @@ export class SDQLParser {
       this.validateReturns(schema),
       this.validateCompenstations(schema),
       this.validateReturns(schema),
-      this.validateLogic(schema)
-    ])
-    .andThen(() => {
+      this.validateLogic(schema),
+    ]).andThen(() => {
       return okAsync(undefined);
     });
-
   }
 
-  public validateMeta(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    
+  public validateMeta(
+    schema: SDQLQueryWrapper,
+  ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
     if (schema.version === undefined) {
       return errAsync(new QueryFormatError("schema missing version"));
     }
@@ -155,11 +168,12 @@ export class SDQLParser {
       return errAsync(new QueryFormatError("schema missing business"));
     }
     return okAsync(undefined);
-
   }
 
-  public validateTimeStampExpiry(schema: SDQLQueryWrapper, cid: IpfsCID): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-
+  public validateTimeStampExpiry(
+    schema: SDQLQueryWrapper,
+    cid: IpfsCID,
+  ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
     if (schema.timestamp == null) {
       return errAsync(new QueryFormatError("schema missing timestamp"));
     } else if (isNaN(schema.timestamp)) {
@@ -171,36 +185,43 @@ export class SDQLParser {
     } else if (isNaN(schema.expiry)) {
       return errAsync(new QueryFormatError("Invalid expiry date format"));
     } else if (schema.isExpired()) {
-      return errAsync(new QueryExpiredError("Tried to execute an expired query", cid));
+      return errAsync(
+        new QueryExpiredError("Tried to execute an expired query", cid),
+      );
     }
     return okAsync(undefined);
-
   }
 
-  public validateQuery(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryFormatError> {
-    
+  public validateQuery(
+    schema: SDQLQueryWrapper,
+  ): ResultAsync<void, QueryFormatError | QueryFormatError> {
     if (schema.queries === undefined) {
       return errAsync(new QueryFormatError("schema missing queries"));
     }
     return okAsync(undefined);
   }
-  
-  public validateCompenstations(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryFormatError> {
+
+  public validateCompenstations(
+    schema: SDQLQueryWrapper,
+  ): ResultAsync<void, QueryFormatError | QueryFormatError> {
     if (schema.compensations === undefined) {
       return errAsync(new QueryFormatError("schema missing compensations"));
     }
     return okAsync(undefined);
   }
 
-  public validateReturns(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryFormatError> {
+  public validateReturns(
+    schema: SDQLQueryWrapper,
+  ): ResultAsync<void, QueryFormatError | QueryFormatError> {
     if (schema.returns === undefined) {
       return errAsync(new QueryFormatError("schema missing returns"));
     }
     return okAsync(undefined);
   }
 
-  public validateLogic(schema: SDQLQueryWrapper): ResultAsync<void, QueryFormatError | QueryExpiredError> {
-    
+  public validateLogic(
+    schema: SDQLQueryWrapper,
+  ): ResultAsync<void, QueryFormatError | QueryExpiredError> {
     if (schema.logic === undefined) {
       return errAsync(new QueryFormatError("schema missing logic"));
     }
@@ -209,7 +230,9 @@ export class SDQLParser {
     }
 
     if (schema.logic["compensations"] === undefined) {
-      return errAsync(new QueryFormatError("schema missing logic->compensations"));
+      return errAsync(
+        new QueryFormatError("schema missing logic->compensations"),
+      );
     }
 
     return okAsync(undefined);
@@ -439,13 +462,11 @@ export class SDQLParser {
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
-    let flags = 0; // we will or the flags
-    for (const query of queries) {
-      const flag = this.getQueryPermissionFlag(query);
-      flags |= flag;
-    }
-
-    return new DataPermissions(flags);
+    return DataPermissions.createWithPermissions(
+      queries.map((query) => {
+        return this.getQueryPermissionFlag(query);
+      }),
+    );
   }
 
   public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
@@ -462,7 +483,6 @@ export class SDQLParser {
         throw err;
     }
   }
-
 
   private getPropertyQueryPermissionFlag(query: AST_Query) {
     const propQuery = query as AST_PropertyQuery;
@@ -494,6 +514,4 @@ export class SDQLParser {
     }
   }
   // #endregion
-
-
 }

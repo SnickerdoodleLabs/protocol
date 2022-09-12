@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import { IpfsCID, SDQLString, SDQL_Name } from "@objects/primitives";
 
-import { avalance1SchemaStr } from "./avalanche1.data";
+import { avalanche1SchemaStr } from "./avalanche1.data";
 
 import {
   ExprParser,
@@ -30,7 +30,7 @@ import { SDQLQueryWrapperMocks } from "../../mocks";
 class ExprParserMocks {
 
   public wrapperMocks = new SDQLQueryWrapperMocks();
-  public schema = this.wrapperMocks.makeQueryWrapper(avalance1SchemaStr);
+  public schema = this.wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
   readonly parser = new SDQLParser(IpfsCID("0"), this.schema, new QueryObjectFactory());
 
   public context: Map<string, ParserContextDataTypes> | null = null;
