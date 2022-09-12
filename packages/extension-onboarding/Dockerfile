@@ -15,6 +15,7 @@ COPY packages/extension-onboarding/package.json ./packages/extension-onboarding/
 COPY packages/indexers/package.json ./packages/indexers/
 COPY packages/objects/package.json ./packages/objects/
 COPY packages/persistence/package.json ./packages/persistence/
+COPY packages/query-parser/package.json ./packages/query-parser/
 COPY packages/signatureVerification/package.json ./packages/signatureVerification/
 COPY packages/test-harness/package.json ./packages/test-harness/
 COPY packages/utils/package.json ./packages/utils/
