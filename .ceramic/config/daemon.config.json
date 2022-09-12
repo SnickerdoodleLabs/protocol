@@ -1,0 +1,26 @@
+{
+    "anchor": {
+        "ethereum-rpc-url": "https://gnosischain-rpc.gateway.pokt.network"
+    },
+    "http-api": {
+        "cors-allowed-origins": [
+            ".*"
+        ]
+    },
+    "ipfs": {
+        "mode": "remote",
+        "host": "http://ipfs:5001"
+    },
+    "logger": {
+        "log-level": 2,
+        "log-to-files": true
+    },
+    "network": {
+        "name": "testnet-clay"
+    },
+    "node": {},
+    "state-store": {
+        "mode": "fs",
+        "local-directory": "/root/.ceramic/statestore"
+    }
+}
