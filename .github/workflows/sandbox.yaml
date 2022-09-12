@@ -57,7 +57,7 @@ jobs:
 
     - name: Deploy to GCR
       run: |-
-        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Z0-9].-[0-9].' | awk '{print tolower($0)}')
+        JIRA_TICKET=$(echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})" | grep -Eo '[A-Za-z0-9]*-[0-9]*' | awk '{print tolower($0)}')
         GKE_CLUSTER=$(gcloud container clusters list --format="csv(name)" | grep $JIRA_TICKET)
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
         
