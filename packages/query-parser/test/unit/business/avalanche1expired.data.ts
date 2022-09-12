@@ -2,7 +2,7 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 
 const timeUtils = new TimeUtils();
 
-export const avalance1ExpiredSchemaStr = JSON.stringify(
+export const avalanche1ExpiredSchemaStr = JSON.stringify(
 {
   version: 0.1,
   timestamp:  timeUtils.getISO8601TimeString(),

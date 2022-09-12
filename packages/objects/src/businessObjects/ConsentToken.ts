@@ -3,7 +3,6 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   TokenId,
-  TokenUri,
 } from "@objects/primitives";
 
 export class ConsentToken {
@@ -11,7 +10,6 @@ export class ConsentToken {
     public consentContractAddress: EVMContractAddress,
     public ownerAddress: EVMAccountAddress,
     public tokenId: TokenId,
-    public tokenUri: TokenUri,
     public dataPermissions: DataPermissions,
   ) {}
 }

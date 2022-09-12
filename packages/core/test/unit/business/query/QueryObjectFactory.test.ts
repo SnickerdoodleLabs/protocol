@@ -1,11 +1,11 @@
 import "reflect-metadata";
 import { SDQLString, SDQL_Name } from "@snickerdoodlelabs/objects";
-import { avalance3SchemaStr } from "./avalanche3.data";
+import { avalanche3SchemaStr } from "./avalanche3.data";
 import { ConditionGE, IQueryObjectFactory, QueryObjectFactory, SDQLQueryWrapper } from "@snickerdoodlelabs/query-parser";
 import { SDQLQueryWrapperMocks } from "../../../mock/mocks";
 class QueryObjectFactoryMocks {
   public wrapperMocks = new SDQLQueryWrapperMocks();
-  public schema = this.wrapperMocks.makeQueryWrapper(avalance3SchemaStr);
+  public schema = this.wrapperMocks.makeQueryWrapper(avalanche3SchemaStr);
   factory(): IQueryObjectFactory {
     return new QueryObjectFactory();
   }

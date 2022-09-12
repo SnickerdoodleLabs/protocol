@@ -1,7 +1,7 @@
 import { IpfsCID, SDQLString, SDQL_Name } from "@objects/primitives";
 import "reflect-metadata";
 
-import { avalance1SchemaStr } from "./avalanche1.data";
+import { avalanche1SchemaStr } from "./avalanche1.data";
 
 import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 import {
@@ -25,7 +25,7 @@ import { SDQLQueryWrapperMocks } from "../../mocks";
 describe("SDQLParser on avalanche", () => {
 
   const wrapperMocks = new SDQLQueryWrapperMocks();
-  const schema = wrapperMocks.makeQueryWrapper(avalance1SchemaStr);
+  const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
   const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
   let ast: null | AST = null;
 
@@ -144,7 +144,7 @@ describe("SDQLParser on avalanche", () => {
   });
 
   describe("Checking Logic return ASTs", () => {
-    test("avalance 1 has 2 return ASTs", () => {
+    test("avalanche 1 has 2 return ASTs", () => {
       expect(parser.logicReturns.size).toBe(2);
     });
 
@@ -173,7 +173,7 @@ describe("SDQLParser on avalanche", () => {
   });
 
   describe("Checking Logic compenstation ASTs", () => {
-    test("avalance 1 has 3 compenstation ASTs", () => {
+    test("avalanche 1 has 3 compenstation ASTs", () => {
       expect(parser.logicCompensations.size).toBe(3);
     });
     test("First compenstation is a valid if$q1then$c1 AST", () => {

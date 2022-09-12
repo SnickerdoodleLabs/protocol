@@ -462,13 +462,11 @@ export class SDQLParser {
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
-    let flags = 0; // we will or the flags
-    for (const query of queries) {
-      const flag = this.getQueryPermissionFlag(query);
-      flags |= flag;
-    }
-
-    return new DataPermissions(flags);
+    return DataPermissions.createWithPermissions(
+      queries.map((query) => {
+        return this.getQueryPermissionFlag(query);
+      }),
+    );
   }
 
   public getQueryPermissionFlag(query: AST_Query): EWalletDataType {

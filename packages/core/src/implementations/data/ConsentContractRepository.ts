@@ -13,9 +13,9 @@ import {
   DataPermissions,
   HexString,
   TokenId,
-  TokenUri,
   URLString,
   IpfsCID,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -199,7 +199,14 @@ export class ConsentContractRepository implements IConsentContractRepository {
     dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
     return this.getConsentContract(consentContractAddress).map((contract) => {
-      return contract.encodeOptIn(tokenId, TokenUri("ConsentConditionsGoHere")); // TODO: add data permissions param
+      return contract.encodeOptIn(
+        tokenId,
+        dataPermissions != null
+          ? dataPermissions.getFlags()
+          : HexString32(
+              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            ),
+      );
     });
   }
   public encodeOptOut(
