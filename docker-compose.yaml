@@ -35,6 +35,13 @@ services:
     networks:
       - internal
 
+  ceramic:
+    image: ceramicnetwork/js-ceramic:latest
+    ports:
+      - 7007:7007
+    env_file: docker-compose.env
+    command: ["ceramic", "daemon"]
+
 networks:
   internal:
 

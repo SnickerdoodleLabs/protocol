@@ -95,6 +95,7 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   private _init(): ResultAsync<
     {
+      client: CeramicClient;
       store: DIDDataStore<ModelTypes>;
       model: DataModel<ModelTypes>;
       loader: TileLoader;
@@ -114,6 +115,7 @@ export class CeramicCloudStorage implements ICloudStorage {
           store: this._dataStore,
           model: this._dataModel,
           loader: this._loader,
+          client: ceramic,
         });
       }
 
@@ -132,6 +134,7 @@ export class CeramicCloudStorage implements ICloudStorage {
         store: this._dataStore,
         model: this._dataModel,
         loader: this._loader,
+        client: ceramic,
       });
     });
   }
@@ -183,8 +186,9 @@ export class CeramicCloudStorage implements ICloudStorage {
   }
 
   private _getBackupIndex(): ResultAsync<BackupIndex, PersistenceError> {
-    return this._init().andThen(({ store }) => {
+    return this._init().andThen(({ store, client }) => {
       return ResultAsync.fromPromise(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         store.get("backupIndex"),
         (e) => e as PersistenceError,
       ).map((backups) => backups ?? []);

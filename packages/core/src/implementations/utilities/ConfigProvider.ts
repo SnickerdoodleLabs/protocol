@@ -71,7 +71,7 @@ export class ConfigProvider
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"),
       modelAliases,
-      URLString("https://ceramic-clay.3boxlabs.com"),
+      URLString("https://localhost:7007"),
     );
   }
 
