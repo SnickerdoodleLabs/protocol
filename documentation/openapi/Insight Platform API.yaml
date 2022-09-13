@@ -92,6 +92,12 @@ paths:
                 nonce:
                   type: string
                   format: big-number-string
+                value:
+                  type: string
+                  format: big-number-string
+                gas:
+                  type: string
+                  format: big-number-string
                 data:
                   description: The hex-encoded string of the transaction data.
                   type: string

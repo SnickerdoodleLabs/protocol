@@ -187,6 +187,8 @@ export class InvitationService implements IInvitationService {
                 EVMAccountAddress(context.dataWalletAddress!), // account address
                 invitation.consentContractAddress, // contract address
                 BigNumberString(BigNumber.from(nonce).toString()),
+                BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
                 callData,
                 metatransactionSignature,
                 context.dataWalletKey!,
@@ -297,6 +299,8 @@ export class InvitationService implements IInvitationService {
                     EVMAccountAddress(context.dataWalletAddress!), // account address
                     consentContractAddress, // contract address
                     BigNumberString(BigNumber.from(nonce).toString()),
+                    BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                    BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
                     callData,
                     metatransactionSignature,
                     context.dataWalletKey!,
