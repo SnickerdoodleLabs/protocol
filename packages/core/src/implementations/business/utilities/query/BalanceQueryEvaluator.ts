@@ -23,7 +23,7 @@ import {
   ConditionGE,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
+} from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
@@ -60,15 +60,17 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       });
   }
 
-  public addBalance(excessValues: IEVMBalance[]): ResultAsync<ITokenBalance[], never>{
+  public addBalance(
+    excessValues: IEVMBalance[],
+  ): ResultAsync<ITokenBalance[], never> {
     const tokenBalances: ITokenBalance[] = [];
-    excessValues.forEach(element => {
+    excessValues.forEach((element) => {
       tokenBalances.push({
         ticker: element.ticker,
         networkId: element.chainId,
         address: element.contractAddress,
-        balance: element.balance
-      })
+        balance: element.balance,
+      });
     });
     return okAsync(tokenBalances);
   }
@@ -128,7 +130,6 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     query: AST_BalanceQuery,
     balanceArray: ITokenBalance[],
   ): ResultAsync<ITokenBalance[], PersistenceError> {
-
     const balanceMap = new Map<EVMContractAddress, ITokenBalance>();
 
     balanceArray.forEach((d) => {

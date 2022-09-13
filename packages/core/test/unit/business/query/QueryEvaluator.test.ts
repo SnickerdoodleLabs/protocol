@@ -38,9 +38,8 @@ import {
   ConditionIn,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
-import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
-import { AST_Contract } from "@core/interfaces/objects/SDQL/AST_Contract";
+} from "@snickerdoodlelabs/query-parser";
+
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 

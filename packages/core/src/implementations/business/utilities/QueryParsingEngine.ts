@@ -8,9 +8,11 @@ import {
   SDQLQuery,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
+import { AST } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { BaseOf } from "ts-brand";
 
 import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
 import {
@@ -18,13 +20,11 @@ import {
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
-import { AST, InsightString, SDQLSchema } from "@core/interfaces/objects";
+import { InsightString } from "@core/interfaces/objects";
 import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
-import { BaseOf } from "ts-brand";
-//import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -78,8 +78,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       });
   }
 
-  protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString{
-            
+  protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
 
     if (typeof actualTypeData == "string") {
@@ -89,7 +88,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     } else {
       return InsightString(JSON.stringify(actualTypeData));
     }
-    
   }
 
   private evalCompensations(

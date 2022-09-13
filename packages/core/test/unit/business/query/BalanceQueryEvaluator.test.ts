@@ -20,6 +20,7 @@ import { okAsync } from "neverthrow";
 import td from "testdouble";
 
 import {
+    AST_BalanceQuery,
   AST_PropertyQuery,
   ConditionE,
   ConditionG,
@@ -27,8 +28,7 @@ import {
   ConditionIn,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
-import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
+} from "@snickerdoodlelabs/query-parser";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { BigNumber } from "ethers";

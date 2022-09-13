@@ -1,14 +1,12 @@
 import "reflect-metadata";
 
-import { AST_NetworkQuery, AST_PropertyQuery } from "@core/interfaces/objects";
-import td from "testdouble";
-import { Age, BigNumberString, ChainId, EVMAccountAddress, EVMBlockRange, EVMChainCode, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken, EVMTransaction, EVMTransactionFilter, Gender, IDataWalletPersistence, IEVMBalance, SDQL_Name, TickerSymbol, UnixTimestamp, URLString } from "@snickerdoodlelabs/objects";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { okAsync } from "neverthrow";
-import { QueryEvaluator } from "@core/implementations/business";
-import { AST_Contract } from "@core/interfaces/objects/SDQL/AST_Contract";
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
-import { BigNumber } from "ethers";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { Age, BigNumberString, ChainId, EVMAccountAddress, EVMBlockRange, EVMChainCode, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken, EVMTransaction, EVMTransactionFilter, Gender, IDataWalletPersistence, IEVMBalance, SDQL_Name, TickerSymbol, UnixTimestamp, URLString } from "@snickerdoodlelabs/objects";
+import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
+import { okAsync } from "neverthrow";
+import td from "testdouble";
+import { AST_Contract } from "@snickerdoodlelabs/query-parser";
 
 
 class NetworkQueryEvaluatorMocks {

@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 import {
   CryptoUtils,
   ILogUtils,
@@ -19,6 +21,7 @@ import {
   HexString,
   IpfsCID,
   ISDQLQueryObject,
+  ISO8601DateString,
   SDQLString,
   Signature,
   UnixTimestamp,
@@ -35,7 +38,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
 import { IPFSClient } from "@test-harness/IPFSClient";
-import * as fs from 'fs';
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
@@ -44,7 +46,10 @@ export class InsightPlatformSimulator {
   protected cryptoUtils = new CryptoUtils();
 
   protected consentContracts = new Array<EVMContractAddress>();
-  protected logStream = fs.createWriteStream('data/insight/' + new Date().toISOString().substring(0, 10), {flags: 'a'});
+  protected logStream = fs.createWriteStream(
+    "data/insight/" + new Date().toISOString().substring(0, 10),
+    { flags: "a" },
+  );
 
   public constructor(
     protected blockchain: BlockchainStuff,
@@ -53,8 +58,7 @@ export class InsightPlatformSimulator {
     protected consentContractsRepository: IConsentContractRepository,
     */,
   ) {
-
-    process.on('exit', () => {
+    process.on("exit", () => {
       this.logStream.close();
     });
 
@@ -226,7 +230,7 @@ export class InsightPlatformSimulator {
     // queryJson.timestamp = UnixTimestamp(
     //   Math.floor(new Date().getTime() / 1000),
     // );
-    queryJson.timestamp = new Date().toISOString();
+    queryJson.timestamp =  ISO8601DateString(new Date().toISOString());
     // queryJson.expiry = new Date().toISOString();
     // Convert query back to string
     queryText = SDQLString(JSON.stringify(queryJson));

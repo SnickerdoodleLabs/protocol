@@ -12,6 +12,7 @@ import {
   BaseURI,
   HexString,
   EVMContractAddress,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -32,11 +33,11 @@ export interface IConsentContract {
    */
   optIn(
     tokenId: TokenId,
-    agreementURI: TokenUri,
+    agreementFlags: HexString32,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
 
-  encodeOptIn(tokenId: TokenId, agreementURI: TokenUri): HexString; // TODO: add data permissions param
+  encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString;
 
   /**
    * Create a consent token with providing the business signature
@@ -47,7 +48,7 @@ export interface IConsentContract {
    */
   restrictedOptIn(
     tokenId: TokenId,
-    agreementURI: TokenUri,
+    agreementFlags: HexString32,
     signature: Signature,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
@@ -62,7 +63,7 @@ export interface IConsentContract {
    */
   anonymousRestrictedOptIn(
     tokenId: TokenId,
-    agreementURI: TokenUri,
+    agreementFlags: HexString32,
     signature: Signature,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
@@ -75,6 +76,14 @@ export interface IConsentContract {
     tokenId: TokenId,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
+
+  /**
+   * Returns the agreementFlagsArray value for the token ID
+   * @param tokenId
+   */
+  agreementFlags(
+    tokenId: TokenId,
+  ): ResultAsync<HexString32, ConsentContractError>;
 
   encodeOptOut(tokenId: TokenId): HexString;
 
