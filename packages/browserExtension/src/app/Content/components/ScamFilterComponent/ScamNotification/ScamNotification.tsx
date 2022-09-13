@@ -1,8 +1,7 @@
 import { Button, Grid, Typography } from "@material-ui/core";
 import Browser from "webextension-polyfill";
 import React, { FC } from "react";
-import { useStyles } from "./ScamNotification.style";
-import { IScamNotification } from "./ScamNotification.interface";
+import { useStyles } from "@app/Content/components/ScamFilterComponent/ScamNotification";
 import { safeURLsObject } from "@app/Content/constants";
 
 const ScamNotification: FC = () => {
@@ -43,8 +42,9 @@ const ScamNotification: FC = () => {
               {safeURL && (
                 <Typography className={classes.text2} variant="h4">
                   <b>
-                    We believe that you wanted to visit {safeURL.replace('https://','')}. Do you want
-                    to go to {safeURL.replace('https://','')}
+                    We believe that you wanted to visit{" "}
+                    {safeURL.replace("https://", "")}. Do you want to go to{" "}
+                    {safeURL.replace("https://", "")}
                   </b>
                 </Typography>
               )}
@@ -52,13 +52,16 @@ const ScamNotification: FC = () => {
                 {safeURL && (
                   <Button
                     onClick={() => {
-                      window.open(`${safeURL.replace('https://','')}`, "_self");
+                      window.open(
+                        `${safeURL.replace("https://", "")}`,
+                        "_self",
+                      );
                     }}
                     variant="outlined"
                     color="primary"
                     className={classes.primaryButton}
                   >
-                    {`Go to ${safeURL.replace('https://','')}`}
+                    {`Go to ${safeURL.replace("https://", "")}`}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 17 16"

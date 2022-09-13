@@ -3,7 +3,7 @@ import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory";
-import { ISiftContract } from "@extension-onboarding/packages/contracts-sdk/src/interfaces/ISiftContract";
+import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
 
 import {
   BlockchainProviderError,

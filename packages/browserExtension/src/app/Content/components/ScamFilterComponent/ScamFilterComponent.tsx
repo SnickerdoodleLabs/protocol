@@ -1,6 +1,6 @@
-import React, { FC, useEffect, useMemo } from "react";
-import ScamNotification from "./ScamNotification/ScamNotification";
-import SafeUrlNotification from "./SafeUrlNotification";
+import React, { FC } from "react";
+import ScamNotification from "@app/Content/components/ScamFilterComponent/ScamNotification";
+import SafeUrlNotification from "@app/Content/components/ScamFilterComponent/SafeUrlNotification";
 import { Box } from "@material-ui/core";
 
 export interface IScamFilterStatus {

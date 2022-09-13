@@ -7,7 +7,7 @@ import {
 } from "@material-ui/core";
 import Browser from "webextension-polyfill";
 import React, { FC, useEffect } from "react";
-import { useStyles } from "./SafeUrlNotification.style";
+import { useStyles } from "@app/Content/components/ScamFilterComponent/SafeUrlNotification";
 
 export interface State extends SnackbarOrigin {
   open: boolean;
