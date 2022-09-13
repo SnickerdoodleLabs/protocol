@@ -17,13 +17,13 @@ import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 const modelAliases = {
   definitions: {
     backupIndex:
-      "kjzl6cwe1jw145bd1jyr8t8q4ci4hri9f6s3zk1apyg5sjj16dhf8s57gzlze1h",
+      "kjzl6cwe1jw148r5ikuqqeg1kzjg5yh68fh1y0mbnmg1m84t4omkcdacymds0j1",
   },
   schemas: {
-    DataWalletBackup:
-      "ceramic://k3y52l7qbv1fryn7vmgx641cm8pzjot7zi1whntpf7v2qiikub0prqq09n42vjocg",
     BackupIndex:
-      "ceramic://k3y52l7qbv1fryp8rjyi4auupgoldxikhzp359tzg2j55jkddwbcvchg17pnkqmtc",
+      "ceramic://k3y52l7qbv1frxqnw08u1lxtxw20e81lruao04gc6g53bk33vuyfcb5txapg7nsw0",
+    DataWalletBackup:
+      "ceramic://k3y52l7qbv1fryclxiy50k6k8krqtixdhdoos5mzs7ihpa7xqt5yzrzmn2keyr20w",
   },
   tiles: {},
 };

@@ -158,7 +158,10 @@ export class CeramicCloudStorage implements ICloudStorage {
               ],
             }),
             (e) => e as PersistenceError,
-          ).map((_) => id);
+          ).map((_) => {
+            // console.debug("CloudStorage", `Backup placed: ${id}`);
+            return id;
+          });
         });
       });
     });
@@ -166,6 +169,7 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return this._getBackupIndex().andThen((backups) => {
+      // console.debug("CloudStorage", `${backups.length} backups found`);
       const recent = backups.map((record) => record.id);
       const found = [...recent].filter((x) => this._restored.has(x));
       return ResultUtils.combine(
@@ -184,7 +188,10 @@ export class CeramicCloudStorage implements ICloudStorage {
       return ResultAsync.fromPromise(
         loader.load<IDataWalletBackup>(id),
         (e) => e as PersistenceError,
-      ).map((tileDoc) => tileDoc.content);
+      ).map((tileDoc) => {
+        // console.debug("CloudStorage", `fetched content for ${id}`);
+        return tileDoc.content;
+      });
     });
   }
 
