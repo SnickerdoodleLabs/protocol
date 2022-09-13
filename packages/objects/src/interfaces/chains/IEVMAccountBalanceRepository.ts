@@ -22,7 +22,7 @@ export interface ITokenBalance {
   ticker: TickerSymbol;
   networkId: ChainId;
   address: EVMContractAddress; // This is the token contract address
-  balance: BigNumber;
+  balance: BigNumberString;
 }
 
 export interface IEVMAccountBalanceRepository {
