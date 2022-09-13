@@ -18,7 +18,9 @@
     "network": {
         "name": "testnet-clay"
     },
-    "node": {},
+    "node": {
+        "gateway": false
+    },
     "state-store": {
         "mode": "fs",
         "local-directory": "/root/.ceramic/statestore"

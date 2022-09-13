@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-import { writeFile } from "node:fs/promises";
-
 import { CeramicClient } from "@ceramicnetwork/http-client";
+import { DataModel } from "@glazed/datamodel";
 import { ModelManager } from "@glazed/devtools";
+import { DIDDataStore } from "@glazed/did-datastore";
+import { TileLoader } from "@glazed/tile-loader";
 import { DID } from "dids";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
@@ -25,9 +25,6 @@ const BackupSchema = {
           type: "number",
         },
         signature: {
-          type: "string",
-        },
-        accountAddress: {
           type: "string",
         },
       },
@@ -86,46 +83,30 @@ async function run() {
   const ceramic = new CeramicClient(CERAMIC_URL);
   const provider = new Ed25519Provider(seed);
   const did = new DID({ provider, resolver: getResolver() });
-  await ceramic.setDID(did);
-  // Authenticate the Ceramic instance with the provider
-  await ceramic.did.authenticate();
+  await did.authenticate();
+  ceramic.did = did;
 
   // Create a manager for the model
   const manager = new ModelManager({ ceramic });
 
   // Publish the two schemas
   const [backupSchema, backupIndexSchema] = await Promise.all([
-    manager.createSchema(ceramic, { content: BackupSchema }),
-    manager.createSchema(ceramic, { content: BackupIndexSchema }),
+    manager.createSchema("DataWalletBackup", BackupSchema),
+    manager.createSchema("BackupIndex", BackupIndexSchema),
   ]);
 
   // Create the definition using the created schema ID
-  const backupsDefinition = await manager.createDefinition(ceramic, {
+  const backupsDefinition = await manager.createDefinition("backupIndex", {
     name: "backupIndex",
     description: "SDL Data Wallet Backup Index",
     schema: manager.getSchemaURL(backupIndexSchema),
   });
 
   // Write model to JSON file
-  const aliases = await manager.deploy();
-  const modelAliases = {
-    definitions: {
-      backupIndex: backupsDefinition,
-    },
-    schemas: {
-      Backup: manager.getSchemaURL(backupSchema),
-      BackupIndex: manager.getSchemaURL(backupIndexSchema),
-    },
-    tiles: {},
-  };
+  const modelAliases = await manager.deploy();
   console.log(modelAliases);
-
-  // for some reason this does not work
-  // await writeFile(
-  //   "./model.json",
-  //   `export const aliases = ${JSON.stringify(aliases)}`,
-  // );
-  console.log("Model aliases written to model,json", aliases);
+  // const modelEncoding = manager.toJSON();
+  // console.log(modelEncoding);
 }
 
 run().catch(console.error);

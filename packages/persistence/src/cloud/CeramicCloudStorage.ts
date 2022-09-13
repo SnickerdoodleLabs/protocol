@@ -5,6 +5,7 @@ import { TileLoader } from "@glazed/tile-loader";
 import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   BackupIndex,
+  BackupIndexEntry,
   EVMPrivateKey,
   IDataWalletBackup,
   ModelTypes,
@@ -121,7 +122,7 @@ export class CeramicCloudStorage implements ICloudStorage {
 
       this._loader = new TileLoader({ ceramic });
       this._dataModel = new DataModel({
-        loader: this._loader,
+        ceramic,
         aliases: config.ceramicModelAliases,
       });
       this._dataStore = new DIDDataStore({
@@ -144,16 +145,18 @@ export class CeramicCloudStorage implements ICloudStorage {
   ): ResultAsync<string, PersistenceError> {
     return this._init().andThen(({ store, model }) => {
       return ResultAsync.fromPromise(
-        model.createTile("Backup", backup),
+        model.createTile("DataWalletBackup", backup),
         (e) => e as PersistenceError,
       ).andThen((doc) => {
         const id = doc.id.toUrl();
-        return ResultAsync.fromPromise(
-          store.get("backupIndex"),
-          (e) => e as PersistenceError,
-        ).andThen((backups) => {
+        return this._getBackupIndex().andThen((backups) => {
           return ResultAsync.fromPromise(
-            store.set("backupIndex", [...(backups ?? []), { id: id }]),
+            store.set("backupIndex", {
+              backups: [
+                ...backups,
+                { id: id, timestamp: backup.header.timestamp },
+              ],
+            }),
             (e) => e as PersistenceError,
           ).map((_) => id);
         });
@@ -185,13 +188,18 @@ export class CeramicCloudStorage implements ICloudStorage {
     });
   }
 
-  private _getBackupIndex(): ResultAsync<BackupIndex, PersistenceError> {
+  private _getBackupIndex(): ResultAsync<BackupIndexEntry[], PersistenceError> {
     return this._init().andThen(({ store, client }) => {
       return ResultAsync.fromPromise(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         store.get("backupIndex"),
         (e) => e as PersistenceError,
-      ).map((backups) => backups ?? []);
+      ).map((backups) => {
+        if (backups == null) {
+          return [];
+        }
+        return Object.values(backups.backups);
+      });
     });
   }
 }

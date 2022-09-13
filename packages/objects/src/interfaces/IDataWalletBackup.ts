@@ -7,7 +7,6 @@ export interface IDataWalletBackupHeader {
   hash: string;
   timestamp: UnixTimestamp;
   signature: string;
-  accountAddress: string; // not sure if we should include this
 }
 
 export interface IDataWalletBackup {
@@ -22,11 +21,12 @@ export class BackupBlob {
   public constructor(public fields: FieldMap, public records: TableMap) {}
 }
 
-export type BackupIndex = { id: string }[];
+export type BackupIndexEntry = { id: string; timestamp: number };
+export type BackupIndex = { backups: { [key: string]: BackupIndexEntry } };
 
 export type ModelTypes = {
   schemas: {
-    Backup: IDataWalletBackup;
+    DataWalletBackup: IDataWalletBackup;
     BackupIndex: BackupIndex;
   };
   definitions: {

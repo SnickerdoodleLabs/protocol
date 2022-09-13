@@ -80,7 +80,6 @@ export class BackupManager {
               hash: hash,
               timestamp: UnixTimestamp(timestamp),
               signature: sig,
-              accountAddress: this.accountAddr,
             },
             blob: blob,
           };
@@ -174,12 +173,7 @@ export class BackupManager {
         ),
         Signature(backup.header.signature),
       )
-      .andThen((addr) =>
-        okAsync(
-          EVMAccountAddress(backup.header.accountAddress) == addr &&
-            addr == EVMAccountAddress(this.accountAddr),
-        ),
-      );
+      .andThen((addr) => okAsync(addr == EVMAccountAddress(this.accountAddr)));
   }
 
   private _generateBlob(): ResultAsync<AESEncryptedString, PersistenceError> {

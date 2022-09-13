@@ -17,13 +17,13 @@ import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 const modelAliases = {
   definitions: {
     backupIndex:
-      "kjzl6cwe1jw1486yn4lzaisae3u7dx4nt2ubjsgxmv5bex7aotbsy194ackmvbx",
+      "kjzl6cwe1jw145bd1jyr8t8q4ci4hri9f6s3zk1apyg5sjj16dhf8s57gzlze1h",
   },
   schemas: {
-    Backup:
-      "ceramic://k3y52l7qbv1frya9z15oyatn66xpixjcsb8zfp8hiyfdblffqyajv5qhrzmfri5mo",
+    DataWalletBackup:
+      "ceramic://k3y52l7qbv1fryn7vmgx641cm8pzjot7zi1whntpf7v2qiikub0prqq09n42vjocg",
     BackupIndex:
-      "ceramic://k3y52l7qbv1frxqvdyuck1d7episbc6zoyup5q5bvdpwa8iso5jn2fflq8wz5a77k",
+      "ceramic://k3y52l7qbv1fryp8rjyi4auupgoldxikhzp359tzg2j55jkddwbcvchg17pnkqmtc",
   },
   tiles: {},
 };
@@ -71,7 +71,7 @@ export class ConfigProvider
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"),
       modelAliases,
-      URLString("https://localhost:7007"),
+      URLString("http://localhost:7007"),
     );
   }
 

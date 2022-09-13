@@ -404,7 +404,6 @@ function corePrompt(): ResultAsync<void, Error> {
             timestamp: UnixTimestamp(1661451654712),
             signature:
               "0x91b3f61b2d1a7da6dc8a8a74037351b4f7d8c09b9844c004828dd9de7da7977e69e7350a13d324df050ace9bb625530e00884a94acc7ec307270ce4488225c4a1c",
-            accountAddress: "0xF7e191Dbebb9450835Cb5768eeE7622FCfF57208",
           },
           blob: new AESEncryptedString(
             EncryptedString(
