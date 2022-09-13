@@ -159,7 +159,7 @@ export class CeramicCloudStorage implements ICloudStorage {
             }),
             (e) => e as PersistenceError,
           ).map((_) => {
-            // console.debug("CloudStorage", `Backup placed: ${id}`);
+            console.debug("CloudStorage", `Backup placed: ${id}`);
             return id;
           });
         });
@@ -169,9 +169,9 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return this._getBackupIndex().andThen((backups) => {
-      // console.debug("CloudStorage", `${backups.length} backups found`);
       const recent = backups.map((record) => record.id);
-      const found = [...recent].filter((x) => this._restored.has(x));
+      const found = [...recent].filter((x) => !this._restored.has(x));
+      console.debug("CloudStorage", `${found.length} new backups found`);
       return ResultUtils.combine(
         found.map((backupID) => this._getBackup(backupID)),
       ).map((fetched) => {
@@ -198,7 +198,6 @@ export class CeramicCloudStorage implements ICloudStorage {
   private _getBackupIndex(): ResultAsync<BackupIndexEntry[], PersistenceError> {
     return this._init().andThen(({ store, client }) => {
       return ResultAsync.fromPromise(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         store.get("backupIndex"),
         (e) => e as PersistenceError,
       ).map((backups) => {

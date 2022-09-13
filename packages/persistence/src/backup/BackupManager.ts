@@ -135,7 +135,10 @@ export class BackupManager {
             );
           });
         })
-        .map((_) => undefined);
+        .map((_) => {
+          console.log(`restored backup: ${backup.header.hash}`);
+          return undefined;
+        });
     });
   }
 

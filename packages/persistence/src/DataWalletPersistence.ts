@@ -189,9 +189,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.resolveUnlock!(derivedKey);
-    this.cloudStorage.unlock(derivedKey);
-
-    return okAsync(undefined);
+    return this.cloudStorage.unlock(derivedKey).andThen(() => {
+      return this.pollBackups();
+    });
   }
 
   public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
