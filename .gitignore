@@ -25,7 +25,7 @@ yarn-error.log
 build/
 out/linecounter.json
 out/linecounter.txt
-*.ipfs
+# *.ipfs
 
 # Yarn 2 recommendations, no PNP: https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
 .pnp.*
@@ -60,4 +60,4 @@ packages/test-harness/data/insight/*
 
 # Don't checkin the ceramic stuff
 .ceramic/logs/*
-.ceramic/statestore/*
+# .ceramic/statestore/*
