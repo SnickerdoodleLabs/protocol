@@ -20,14 +20,15 @@ import { okAsync } from "neverthrow";
 import td from "testdouble";
 
 import {
+    AST_BalanceQuery,
+  AST_PropertyQuery,
   ConditionE,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
-import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
+} from "@snickerdoodlelabs/query-parser";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { BigNumber } from "ethers";
@@ -224,16 +225,19 @@ describe("BalanceQueryEvaluator", () => {
             balance: BigNumberString("30"),
             contractAddress: EVMContractAddress("Contract 1"),
         }
-    ))
+      ))
     )
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
+    expect(result["value"][0].ticker).toEqual('ETH');
     expect(result["value"][0].address).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
     expect(result["value"][0].balance).toEqual(BigNumber.from("70"));
+
+    // TODO this is conceptually incorrect as different contract address will have different ticket symbols.
   })
 
 
@@ -270,10 +274,12 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(2);
+    expect(result["value"][0].ticker).toEqual('ETH');
     expect(result["value"][0].address).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
     expect(result["value"][0].balance).toEqual(BigNumber.from("9"));
 
+    expect(result["value"][1].ticker).toEqual('SOL');
     expect(result["value"][1].address).toEqual('Contract 2');
     expect(result["value"][1].networkId).toEqual(2);
     expect(result["value"][1].balance).toEqual(BigNumber.from("44"));
@@ -312,6 +318,7 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
+    expect(result["value"][0].ticker).toEqual('ETH');
     expect(result["value"][0].address).toEqual('Contract 1');
     expect(result["value"][0].networkId).toEqual(1);
     expect(result["value"][0].balance).toEqual(BigNumber.from("53"));
@@ -903,38 +910,4 @@ test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () =
     // console.log(result);
     expect(result["value"].length).toEqual(0);
   })
-
-
-
-/*
-  test("Pass Condition that has not been used yet - returns error", async () => {
-    const balanceQuery = new AST_BalanceQuery(
-        SDQL_Name("q7"),
-        "array",
-        ChainId(0), // * - for all, use null
-        conditionsIn,
-    )
-    // >= 20 and < 30
-    const mocks = new BalanceQueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(new Array<IEVMBalance>(
-        {
-            ticker: TickerSymbol("ETH"),
-            chainId: ChainId(1),
-            accountAddress: EVMAccountAddress("GOOD1"),
-            balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
-        },
-      ))
-    )
-
-    const result = await repo.eval(balanceQuery);
-    expect(result.isErr()).toBeTruthy();
-    //console.log(result);
-
-  })
-  */
 })
-

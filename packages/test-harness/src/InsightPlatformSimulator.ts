@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 import {
   CryptoUtils,
   ILogUtils,
@@ -19,6 +21,7 @@ import {
   HexString,
   IpfsCID,
   ISDQLQueryObject,
+  ISO8601DateString,
   SDQLString,
   Signature,
   UnixTimestamp,
@@ -43,6 +46,10 @@ export class InsightPlatformSimulator {
   protected cryptoUtils = new CryptoUtils();
 
   protected consentContracts = new Array<EVMContractAddress>();
+  protected logStream = fs.createWriteStream(
+    "data/insight/" + new Date().toISOString().substring(0, 10),
+    { flags: "a" },
+  );
 
   public constructor(
     protected blockchain: BlockchainStuff,
@@ -51,6 +58,10 @@ export class InsightPlatformSimulator {
     protected consentContractsRepository: IConsentContractRepository,
     */,
   ) {
+    process.on("exit", () => {
+      this.logStream.close();
+    });
+
     this.app = express();
 
     this.app.use(express.json());
@@ -72,23 +83,25 @@ export class InsightPlatformSimulator {
     });
 
     this.app.post("/insights/responses", (req, res) => {
-      //console.log("Sending to Insight Responses");
-      //console.log("Req is this: ", req.body);
+      // console.log("Sending to Insight Responses");
+      // console.log("Req is this: ", req.body);
       //console.log("req.body.consentContractId: ", req.body.consentContractId);
-      const newConsentContract = req.body.consentContractId;
-      const consentContractId = EVMContractAddress(req.body.consentContractId);
-      //console.log("consentContractId: ", consentContractId);
-      const queryId = IpfsCID(req.body.queryId);
-      const dataWallet = EVMAccountAddress(req.body.dataWallet);
-      const returns = JSON.stringify(req.body.returns);
-      const signature = Signature(req.body.signature);
+      // const newConsentContract = req.body.consentContractId;
+      // const consentContractId = EVMContractAddress(req.body.consentContractId);
+      // //console.log("consentContractId: ", consentContractId);
+      // const queryId = IpfsCID(req.body.queryId);
+      // const dataWallet = EVMAccountAddress(req.body.dataWallet);
+      // const returns = JSON.stringify(req.body.returns);
+      // const signature = Signature(req.body.signature);
 
-      const value = {
-        consentContractId,
-        queryId,
-        dataWallet,
-        returns,
-      };
+      // const value = {
+      //   consentContractId,
+      //   queryId,
+      //   dataWallet,
+      //   returns,
+      // };
+
+      this.logStream.write(JSON.stringify(req.body));
 
       res.send("Insights received successfully!");
       /*
@@ -216,10 +229,11 @@ export class InsightPlatformSimulator {
 
     // The queryText needs to have the timestamp inserted
     const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
-    queryJson.timestamp = UnixTimestamp(
-      Math.floor(new Date().getTime() / 1000),
-    );
-
+    // queryJson.timestamp = UnixTimestamp(
+    //   Math.floor(new Date().getTime() / 1000),
+    // );
+    queryJson.timestamp =  ISO8601DateString(new Date().toISOString());
+    // queryJson.expiry = new Date().toISOString();
     // Convert query back to string
     queryText = SDQLString(JSON.stringify(queryJson));
 

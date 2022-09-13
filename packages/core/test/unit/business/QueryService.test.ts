@@ -1,12 +1,17 @@
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  AjaxError, EligibleReward,
+  AjaxError,
+  EligibleReward,
   EVMAccountAddress,
-  EVMContractAddress, IpfsCID,
+  EVMContractAddress,
+  IpfsCID,
   SDQLQuery,
   SDQLString,
   Signature,
-  UninitializedError
+  UninitializedError,
+  DataPermissions,
+  ConsentToken,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { errAsync, okAsync } from "neverthrow";
@@ -15,23 +20,26 @@ import "reflect-metadata";
 import td from "testdouble";
 
 import {
-  dataWalletAddress, dataWalletKey, testCoreConfig
+  dataWalletAddress,
+  dataWalletKey,
+  testCoreConfig,
 } from "@core-tests/mock/mocks";
 import {
-  ConfigProviderMock, ContextProviderMock
+  ConfigProviderMock,
+  ContextProviderMock,
 } from "@core-tests/mock/utilities";
-import { avalance1SchemaStr } from "@core-tests/unit/business/query/avalanche1.data";
+import { avalanche1SchemaStr } from "@core-tests/unit/business/query/avalanche1.data";
 import { QueryService } from "@core/implementations/business";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities";
 import {
   IConsentContractRepository,
   IInsightPlatformRepository,
-  ISDQLQueryRepository
+  ISDQLQueryRepository,
 } from "@core/interfaces/data";
 import {
   CoreConfig,
   CoreContext,
-  InsightString
+  InsightString,
 } from "@core/interfaces/objects";
 import { IConfigProvider } from "@core/interfaces/utilities";
 
@@ -40,7 +48,7 @@ const queryId = IpfsCID("Beep");
 const queryContent = SDQLString("Hello world!");
 // const sdqlQuery = new SDQLQuery(queryId, queryContent);
 
-const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalance1SchemaStr));
+const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalanche1SchemaStr));
 
 const insights: InsightString[] = [
   InsightString("Hello1"),
@@ -57,6 +65,12 @@ class QueryServiceMocks {
   public contextProvider: ContextProviderMock;
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
+  public consentToken = new ConsentToken(
+    consentContractAddress,
+    EVMAccountAddress(dataWalletAddress),
+    TokenId(BigInt(0)),
+    DataPermissions.createWithAllPermissions(),
+  );
 
   public constructor() {
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
@@ -100,9 +114,16 @@ class QueryServiceMocks {
       ),
     ).thenReturn(okAsync(true));
 
-    td.when(this.queryParsingEngine.handleQuery(sdqlQuery)).thenReturn(
-      okAsync([insights, rewards]),
-    );
+    td.when(
+      this.consentContractRepo.getCurrentConsentToken(consentContractAddress),
+    ).thenReturn(okAsync(this.consentToken));
+
+    td.when(
+      this.queryParsingEngine.handleQuery(
+        sdqlQuery,
+        DataPermissions.createWithAllPermissions(),
+      ),
+    ).thenReturn(okAsync([insights, rewards]));
 
     td.when(
       this.cryptoUtils.signTypedData(
@@ -157,20 +178,6 @@ describe("processQuery tests", () => {
     });
   });
 
-  // test("no error if dataWallet and address are present", async () => {
-  //   await ResultUtils.combine([
-  //     mocks.contextProvider.getContext(),
-  //     mocks.configProvider.getConfig(),
-  //   ]).andThen(([context, config]) => {
-  //     const res = queryService.validateContextConfig(
-  //       context as CoreContext,
-  //       config as CoreConfig,
-  //     );
-  //     expect(res).toBeNull();
-  //     return okAsync(true);
-  //   });
-  // });
-
   test("error if dataWalletAddress missing in context", async () => {
     await ResultUtils.combine([
       mocks.contextProvider.getContext(),
@@ -178,12 +185,19 @@ describe("processQuery tests", () => {
     ]).andThen(([context, config]) => {
       const copyContext: CoreContext = { ...(context as CoreContext) };
       copyContext.dataWalletAddress = null;
-      const res = queryService.validateContextConfig(
-        copyContext,
-        config as CoreConfig,
-      );
-      expect(res).toBeInstanceOf(UninitializedError);
-      return okAsync(true);
+      return queryService
+        .validateContextConfig(
+          copyContext,
+          config as CoreConfig,
+          mocks.consentToken,
+        )
+        .andThen(() => {
+          fail();
+        })
+        .orElse((err) => {
+          expect(err.constructor).toBe(UninitializedError);
+          return errAsync(err);
+        });
     });
   });
 
@@ -194,12 +208,19 @@ describe("processQuery tests", () => {
     ]).andThen(([context, config]) => {
       const copyContext: CoreContext = { ...(context as CoreContext) };
       copyContext.dataWalletKey = null;
-      const res = queryService.validateContextConfig(
-        copyContext,
-        config as CoreConfig,
-      );
-      expect(res).toBeInstanceOf(UninitializedError);
-      return okAsync(true);
+      return queryService
+        .validateContextConfig(
+          copyContext,
+          config as CoreConfig,
+          mocks.consentToken,
+        )
+        .andThen(() => {
+          fail();
+        })
+        .orElse((err) => {
+          expect(err.constructor).toBe(UninitializedError);
+          return errAsync(err);
+        });
     });
   });
 
@@ -251,11 +272,8 @@ describe("processQuery tests", () => {
   });
 
   test("processQuery success", async () => {
-    // const queryRequest = new SDQLQueryRequest(consentContractAddress, sdqlQuery);
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    // queryService.
-    // copyContext.dataWalletKey = null;
 
     await queryService
       .processQuery(consentContractAddress, sdqlQuery)
@@ -264,12 +282,10 @@ describe("processQuery tests", () => {
         expect(result).toBeUndefined();
         // expect(result.isOk()).toBeTruthy();
         return okAsync(true);
+      })
+      .orElse((err) => {
+        console.log(err);
+        fail();
       });
-    // await queryService
-    //   .processQuery(consentContractAddress, sdqlQuery)
-    //   .then((result) => {
-    //     console.log('result', result);
-    //     expect(result.isOk()).toBeTruthy();
-    //   });
   });
 });

@@ -2,7 +2,7 @@ export * from "@objects/businessObjects/AESEncryptedString";
 export * from "@objects/businessObjects/ChainInformation";
 export * from "@objects/businessObjects/ClickData";
 export * from "@objects/businessObjects/ClickFilter";
-export * from "@objects/businessObjects/ConsentConditions";
+export * from "@objects/businessObjects/DataPermissions";
 export * from "@objects/businessObjects/ConsentToken";
 export * from "@objects/businessObjects/EligibleReward";
 export * from "@objects/businessObjects/EVMNFT";

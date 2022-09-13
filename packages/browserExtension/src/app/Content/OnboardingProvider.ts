@@ -10,6 +10,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  IpfsCID,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -134,9 +135,14 @@ export class OnboardingProvider extends EventEmitter {
   public setGender(gender: Gender) {
     return coreGateway.setGender(gender);
   }
-  public getInvitationsMetadata() {
-    return coreGateway.getInvitationsMetadata();
+  public getAcceptedInvitationsCID() {
+    return coreGateway.getAcceptedInvitationsCID();
   }
+
+  public getInvitationMetadataByCID(ipfsCID: IpfsCID) {
+    return coreGateway.getInvitationMetadataByCID(ipfsCID);
+  }
+
   public leaveCohort(consentContractAddress: EVMContractAddress) {
     return coreGateway.leaveCohort(consentContractAddress);
   }

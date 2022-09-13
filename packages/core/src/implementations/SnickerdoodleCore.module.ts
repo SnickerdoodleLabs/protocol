@@ -7,7 +7,10 @@ import {
   ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
   LogUtils,
+  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   CovalentEVMTransactionRepository,
@@ -22,6 +25,14 @@ import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@snickerdoodlelabs/persistence";
+import {
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+  QueryObjectFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -30,11 +41,12 @@ import {
 } from "@core/implementations/api";
 import {
   AccountService,
+  BalanceQueryEvaluator,
   InvitationService,
   MonitoringService,
+  NetworkQueryEvaluator,
   ProfileService,
   QueryEvaluator,
-  QueryObjectFactory,
   QueryParsingEngine,
   QueryRepository,
   QueryService,
@@ -77,6 +89,8 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  INetworkQueryEvaluator,
+  INetworkQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryParsingEngine,
@@ -84,6 +98,10 @@ import {
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
+import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -115,11 +133,7 @@ import {
   IContractFactoryType,
   IQueryFactories,
   IQueryFactoriesType,
-  IQueryObjectFactory,
-  IQueryObjectFactoryType,
 } from "@core/interfaces/utilities/factory";
-import { IBalanceQueryEvaluator, IBalanceQueryEvaluatorType } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { BalanceQueryEvaluator } from "./business/utilities/query/BalanceQueryEvaluator";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -210,10 +224,13 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Query instances
+    bind<INetworkQueryEvaluator>(INetworkQueryEvaluatorType)
+      .to(NetworkQueryEvaluator)
+      .inSingletonScope();
+
     bind<IQueryEvaluator>(IQueryEvaluatorType)
       .to(QueryEvaluator)
       .inSingletonScope();
-
     bind<IBalanceQueryEvaluator>(IBalanceQueryEvaluatorType)
       .to(BalanceQueryEvaluator)
       .inSingletonScope();
@@ -222,12 +239,18 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(QueryRepository)
       .inSingletonScope();
 
-      bind<IQueryFactories>(IQueryFactoriesType)
+    bind<IQueryFactories>(IQueryFactoriesType)
       .to(QueryFactories)
       .inSingletonScope();
 
-      bind<IQueryObjectFactory>(IQueryObjectFactoryType)
-        .to(QueryObjectFactory)
-        .inSingletonScope();
+    bind<IQueryObjectFactory>(IQueryObjectFactoryType)
+      .to(QueryObjectFactory)
+      .inSingletonScope();
+
+    bind<ISDQLQueryWrapperFactory>(ISDQLQueryWrapperFactoryType)
+      .to(SDQLQueryWrapperFactory)
+      .inSingletonScope();
+
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
   },
 );

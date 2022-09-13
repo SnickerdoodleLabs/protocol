@@ -26,6 +26,14 @@ export interface ICryptoUtils {
     salt: HexString,
   ): ResultAsync<AESKey, never>;
 
+  deriveAESKeyFromEVMPrivateKey(
+    evmKey: EVMPrivateKey,
+  ): ResultAsync<AESKey, never>;
+
+  deriveCeramicSeedFromEVMPrivateKey(
+    evmKey: EVMPrivateKey,
+  ): ResultAsync<Uint8Array, never>;
+
   createEthereumPrivateKey(): ResultAsync<EVMPrivateKey, never>;
   getEthereumAccountAddressFromPrivateKey(
     privateKey: EVMPrivateKey,

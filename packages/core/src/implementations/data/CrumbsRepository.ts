@@ -68,7 +68,7 @@ export class CrumbsRepository implements ICrumbsRepository {
           // Token uri will be prefixed with the base uri
           // currently it is www.crumbs.com/ on the deployment scripts
           // alternatively we can also fetch the latest base uri directly from the contract
-          const tokenUri = rawTokenUri.replace("www.crumbs.com/", "");
+          const tokenUri = rawTokenUri.match(/\{[\s\S]*\}/)?.[0];
 
           // If there is no crumb, there's no data
           if (tokenUri == null) {

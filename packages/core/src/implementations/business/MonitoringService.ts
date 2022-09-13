@@ -66,8 +66,6 @@ export class MonitoringService implements IMonitoringService {
                 return this.persistence
                   .getLatestTransactionForAccount(chainId, accountAddress)
                   .andThen((tx) => {
-                    console.log("latest tx", tx);
-
                     // TODO: Determine cold start timestamp
                     let startTime = UnixTimestamp(0);
                     if (tx != null && tx.timestamp != null) {
@@ -91,8 +89,10 @@ export class MonitoringService implements IMonitoringService {
       });
   }
 
-  public siteVisited(SiteVisit: SiteVisit): ResultAsync<void, never> {
-    throw new Error("Method not implemented.");
+  public siteVisited(
+    siteVisit: SiteVisit,
+  ): ResultAsync<void, PersistenceError> {
+    return this.persistence.addSiteVisits([siteVisit]);
   }
 
   protected getLatestTransactions(
@@ -133,5 +133,9 @@ export class MonitoringService implements IMonitoringService {
           return okAsync([]);
       }
     });
+  }
+
+  public pollBackups(): ResultAsync<void, PersistenceError> {
+    return this.persistence.pollBackups();
   }
 }

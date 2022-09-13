@@ -4,13 +4,13 @@ import { IEVMBalance } from "./chains";
 
 import {
   ClickData,
-  ClickFilter,
   EVMTransaction,
   EVMTransactionFilter,
   IEVMNFT,
   SiteVisit,
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
+import { IDataWalletBackup } from "@objects/interfaces";
 import {
   Age,
   EmailAddressString,
@@ -145,6 +145,10 @@ export interface IDataWalletPersistence {
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError>;
   getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError>;
+
+  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
+  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  pollBackups(): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

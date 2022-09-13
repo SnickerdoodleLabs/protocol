@@ -2,7 +2,7 @@ import {
   AjaxError,
   BlockchainProviderError,
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
@@ -16,6 +16,7 @@ import {
   IPFSError,
   IOpenSeaMetadata,
   ConsentFactoryContractError,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -34,7 +35,7 @@ export interface IInvitationService {
 
   acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -81,23 +82,17 @@ export interface IInvitationService {
     | IPFSError
   >;
 
-  getAcceptedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
+  getAcceptedInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
     | ConsentContractError
-    | IPFSError
   >;
 
-  getRejectedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | PersistenceError
-    | IPFSError
-  >;
+  getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");

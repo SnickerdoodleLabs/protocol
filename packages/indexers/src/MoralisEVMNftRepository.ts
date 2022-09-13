@@ -13,7 +13,6 @@ import {
   IEVMNFT,
   IEVMNftRepository,
   TickerSymbol,
-  TokenId,
   TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
