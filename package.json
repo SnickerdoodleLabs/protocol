@@ -48,7 +48,10 @@
     "setup-windows": "yarn install --global --production windows-build-tools",
     "start": "docker-compose up",
     "test": "yarn workspaces foreach -p run test",
-    "initCeramic": "npx run scripts/ceramic_init.mjs"
+    "initCeramic": "npx run scripts/ceramic_init.mjs",
+    "copy-ceramic": "copyfiles -u 1 .ceramic.template/**/* .ceramic",
+    "copy-ipfs": "copyfiles  -u 1 '.ipfs.template/**/*' .ipfs",
+    "bootstrap": "yarn copy-ceramic && yarn copy-ipfs"
   },
   "husky": {
     "hooks": {
