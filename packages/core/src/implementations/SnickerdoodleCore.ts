@@ -40,6 +40,7 @@ import {
   IDataWalletPersistenceType,
   IEVMBalance,
   IEVMNFT,
+  InvalidParametersError,
   InvalidSignatureError,
   Invitation,
   IOpenSeaMetadata,
@@ -48,6 +49,7 @@ import {
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   LanguageCode,
+  MetatransactionSignatureRequest,
   MinimalForwarderContractError,
   PageInvitation,
   PersistenceError,
@@ -68,7 +70,6 @@ import {
   ICloudStorage,
   ICloudStorageType,
   CeramicCloudStorage,
-  NullCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -268,6 +269,22 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
     return accountService.addAccount(accountAddress, signature, languageCode);
+  }
+
+  public getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidParametersError
+  > {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    return accountService.getUnlinkAccountRequest(accountAddress);
   }
 
   public checkInvitationStatus(

@@ -40,6 +40,7 @@ import {
   EncryptedString,
   InitializationVector,
   IDataWalletBackup,
+  MetatransactionSignatureRequest,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -147,60 +148,15 @@ core.getEvents().map(async (events) => {
 
   events.onMetatransactionSignatureRequested.subscribe(async (request) => {
     // This method needs to happen in nicer form in all form factors
-    try {
-      console.log(
-        `Metadata Transaction Requested!`,
-        `Request account address: ${request.accountAddress}`,
-      );
+    console.log(
+      `Metadata Transaction Requested!`,
+      `Request account address: ${request.accountAddress}`,
+    );
 
-      // We need to get a nonce for this account address from the forwarder contract
-      const nonceResult = await blockchain.minimalForwarder.getNonce(
-        request.accountAddress,
-      );
-      if (nonceResult.isErr()) {
-        throw nonceResult.error;
-      }
-      const nonce = nonceResult.value;
-
-      // We need to take the types, and send it to the account signer
-      const value = {
-        to: request.contractAddress, // Contract address for the metatransaction
-        from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
-        value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-        gas: BigNumber.from(10000000), // The amount of gas to pay.
-        nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-        data: request.data, // The actual bytes of the request, encoded as a hex string
-      } as IMinimalForwarderRequest;
-
-      // Get the chain info for the doodle chain
-      const doodleChainConfig = chainConfig.get(
-        ChainId(31338),
-      ) as ControlChainInformation;
-
-      // Get the wallet we are going to sign with
-      const wallet = blockchain.getWalletForAddress(request.accountAddress);
-
-      const metatransactionSignature = Signature(
-        await wallet._signTypedData(
-          // This domain is critical- we have to use this and not the normal Snickerdoodle domain
-          getMinimalForwarderSigningDomain(
-            doodleChainConfig.chainId,
-            doodleChainConfig.metatransactionForwarderAddress,
-          ),
-          forwardRequestTypes,
-          value,
-        ),
-      );
-
-      console.log(
-        `Metatransaction signature generated: ${metatransactionSignature}`,
-      );
-
-      request.callback(metatransactionSignature, nonce);
-    } catch (e) {
+    await signMetatransactionRequest(request).mapErr((e) => {
       console.error(`Error signing forwarding request!`, e);
       process.exit(1);
-    }
+    });
   });
 
   // Main event prompt. Core is up and running
@@ -246,6 +202,7 @@ function mainPrompt(): ResultAsync<void, Error> {
 function corePrompt(): ResultAsync<void, Error> {
   let choices = [
     { name: "Add Account", value: "addAccount" },
+    { name: "Remove Account", value: "removeAccount" },
     new inquirer.Separator(),
     {
       name: "Opt In to Campaign",
@@ -315,6 +272,8 @@ function corePrompt(): ResultAsync<void, Error> {
         return unlockCore();
       case "addAccount":
         return addAccount();
+      case "removeAccount":
+        return removeAccount();
       case "optInCampaign":
         return optInCampaign();
       case "optOutCampaign":
@@ -633,6 +592,62 @@ function addAccount(): ResultAsync<
     });
 }
 
+function removeAccount(): ResultAsync<
+  void,
+  | PersistenceError
+  | BlockchainProviderError
+  | UninitializedError
+  | CrumbsContractError
+  | Error
+> {
+  return core
+    .getAccounts()
+    .andThen((linkedAccounts) => {
+      const removeableWallets = blockchain.accountWallets.filter((aw) => {
+        return linkedAccounts.includes(EVMAccountAddress(aw.address));
+      });
+      return prompt([
+        {
+          type: "list",
+          name: "removeAccountSelector",
+          message: "Which account do you want to remove?",
+          choices: [
+            ...removeableWallets.map((wallet) => {
+              return {
+                name: wallet.address,
+                value: wallet,
+              };
+            }),
+            new inquirer.Separator(),
+            { name: "Cancel", value: "cancel" },
+          ],
+        },
+      ]);
+    })
+    .andThen((answers) => {
+      if (answers.removeAccountSelector == "cancel") {
+        return okAsync(undefined);
+      }
+
+      const wallet = answers.removeAccountSelector as ethers.Wallet;
+      const accountAddress = EVMAccountAddress(wallet.address);
+
+      return core
+        .getUnlinkAccountRequest(accountAddress)
+        .andThen((request) => {
+          // Once you have the request, we just get nonce, sign, and call the callback
+          return signMetatransactionRequest(request);
+        })
+        .map(() => {
+          console.log(`Unlinked account ${accountAddress}`);
+        });
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
+    });
+}
+
 function optInCampaign(): ResultAsync<
   void,
   | Error
@@ -787,4 +802,58 @@ function prompt(
     // Swallow the error, returns an empty answer
     return okAsync({});
   });
+}
+
+function signMetatransactionRequest<TErr>(
+  request: MetatransactionSignatureRequest<TErr>,
+): ResultAsync<void, Error | TErr> {
+  // This method needs to happen in nicer form in all form factors
+  console.log(
+    `Metadata Transaction Requested!`,
+    `Request account address: ${request.accountAddress}`,
+  );
+
+  // We need to get a nonce for this account address from the forwarder contract
+  return blockchain.minimalForwarder
+    .getNonce(request.accountAddress)
+    .andThen((nonce) => {
+      // We need to take the types, and send it to the account signer
+      const value = {
+        to: request.contractAddress, // Contract address for the metatransaction
+        from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
+        value: BigNumber.from(request.value), // The amount of doodle token to pay. Should be 0.
+        gas: BigNumber.from(request.gas), // The amount of gas to pay.
+        nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+        data: request.data, // The actual bytes of the request, encoded as a hex string
+      } as IMinimalForwarderRequest;
+
+      // Get the chain info for the doodle chain
+      const doodleChainConfig = chainConfig.get(
+        ChainId(31338),
+      ) as ControlChainInformation;
+
+      // Get the wallet we are going to sign with
+      const wallet = blockchain.getWalletForAddress(request.accountAddress);
+
+      return ResultAsync.fromPromise(
+        wallet._signTypedData(
+          // This domain is critical- we have to use this and not the normal Snickerdoodle domain
+          getMinimalForwarderSigningDomain(
+            doodleChainConfig.chainId,
+            doodleChainConfig.metatransactionForwarderAddress,
+          ),
+          forwardRequestTypes,
+          value,
+        ),
+        (e) => {
+          return new Error();
+        },
+      ).andThen((metatransactionSignature) => {
+        console.log(
+          `Metatransaction signature generated: ${metatransactionSignature}`,
+        );
+
+        return request.callback(Signature(metatransactionSignature), nonce);
+      });
+    });
 }

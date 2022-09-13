@@ -1,4 +1,3 @@
-import { InsightString } from "@core/interfaces/objects/index.js";
 import {
   AjaxError,
   Insight,
@@ -13,6 +12,8 @@ import {
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { InsightString } from "@core/interfaces/objects/index.js";
 
 export interface IInsightPlatformRepository {
   claimReward(
@@ -32,6 +33,8 @@ export interface IInsightPlatformRepository {
     accountAddress: EVMAccountAddress,
     contractAddress: EVMContractAddress,
     nonce: BigNumberString,
+    value: BigNumberString,
+    gas: BigNumberString,
     data: HexString,
     metatransactionSignature: Signature,
     dataWalletKey: EVMPrivateKey,

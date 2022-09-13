@@ -59,6 +59,8 @@ export const testCoreConfig = new CoreConfig(
   5000, // polling interval indexing,
   5000, // polling interval balance
   5000, // polling interval NFT
+  1000, // dataWalletBackupIntervalMS
+  100000, // backupChunkSizeTarget
   "covalent api key",
   "moralis api key",
   URLString("http://dnsServerAddress"),

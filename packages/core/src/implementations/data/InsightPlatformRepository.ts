@@ -19,15 +19,15 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { executeMetatransactionTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
-import { ResultAsync, okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@core/interfaces/data/index.js";
+import { InsightString } from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { InsightString } from "@core/interfaces/objects/index.js";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -76,6 +76,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     accountAddress: EVMAccountAddress,
     contractAddress: EVMContractAddress,
     nonce: BigNumberString,
+    value: BigNumberString,
+    gas: BigNumberString,
     data: HexString,
     metatransactionSignature: Signature,
     dataWalletKey: EVMPrivateKey,
@@ -83,7 +85,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     return this.configProvider
       .getConfig()
       .andThen((config) => {
-        const value = {
+        const signingData = {
           dataWallet: dataWalletAddress,
           accountAddress: accountAddress,
           contractAddress: contractAddress,
@@ -96,7 +98,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           .signTypedData(
             config.snickerdoodleProtocolDomain,
             executeMetatransactionTypes,
-            value,
+            signingData,
             dataWalletKey,
           )
           .andThen((signature) => {
@@ -109,6 +111,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
               accountAddress: accountAddress,
               contractAddress: contractAddress,
               nonce: nonce,
+              value: value,
+              gas: gas,
               data: data,
               metatransactionSignature: metatransactionSignature,
               requestSignature: signature,
