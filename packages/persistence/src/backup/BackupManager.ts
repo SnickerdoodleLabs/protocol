@@ -50,6 +50,7 @@ export class BackupManager {
     tableName: string,
     value: object,
   ): ResultAsync<void, PersistenceError> {
+    // console.log("Record update", tableName, value);
     this.tableUpdates[tableName].push(value);
     this.numUpdates += 1;
     return this.volatile.putObject(tableName, value);
@@ -59,9 +60,13 @@ export class BackupManager {
     key: string,
     value: object,
   ): ResultAsync<void, PersistenceError> {
+    // console.log("Field update", key, value);
+    if (!(key in this.fieldUpdates)) {
+      this.numUpdates += 1;
+    }
+
     const timestamp = new Date().getTime();
     this.fieldUpdates[key] = [value, timestamp];
-    this.numUpdates += 1;
     this._updateFieldHistory(key, timestamp);
     return this.persistent.write(key, value);
   }

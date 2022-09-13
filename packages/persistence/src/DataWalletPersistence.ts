@@ -786,6 +786,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           this.configProvider.getConfig(),
         ]).andThen(([backupManager, config]) => {
           return backupManager.getNumUpdates().andThen((numUpdates) => {
+            // console.log("chunk", numUpdates, config.backupChunkSizeTarget);
             if (numUpdates >= config.backupChunkSizeTarget) {
               return backupManager.dump().andThen((backup) => {
                 return this.cloudStorage
