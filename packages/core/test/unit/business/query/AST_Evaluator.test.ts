@@ -61,10 +61,6 @@ class ASTMocks {
     this.queryFactories = new QueryFactories(this.queryObjectFactory, this.queryWrapperFactory);
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.persistenceRepo);
     this.networkQueryEvaluator = new NetworkQueryEvaluator(this.persistenceRepo);
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
 
     td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(
