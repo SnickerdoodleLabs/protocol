@@ -828,10 +828,10 @@ export class ConsentContract implements IConsentContract {
 
   public getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract.hasRole(ConsentRoles[role], address) as Promise<BlockNumber>,
+      this.contract.queryHorizon() as Promise<BlockNumber>,
       (e) => {
         return new ConsentContractError(
-          "Unable to call hasRole()",
+          "Unable to call queryHorizon()",
           (e as IBlockchainError).reason,
           e,
         );
@@ -841,7 +841,30 @@ export class ConsentContract implements IConsentContract {
 
   public setQueryHorizon(
     blockNumber: BlockNumber,
-  ): ResultAsync<void, ConsentContractError>;
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.setQueryHorizon(
+        blockNumber,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call setQueryHorizon()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for setQueryHorizon() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
 
   // Get the number of opted in addresses
   public totalSupply(): ResultAsync<number, ConsentContractError> {
