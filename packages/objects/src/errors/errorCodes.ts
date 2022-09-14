@@ -21,6 +21,7 @@ const errorCodes = {
   MissingWalletDataTypeError: "ERR_MISSING_WALLET_DATA_TYPE",
   PermissionError: "ERR_PERMISSION",
   QueryExpiredError: "ERR_QUERY_EXPIRED",
+  MissingASTError: "ERR_MISSING_AST",
 };
 
 export default errorCodes;
