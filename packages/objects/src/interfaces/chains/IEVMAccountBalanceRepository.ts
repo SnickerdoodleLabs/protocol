@@ -16,6 +16,7 @@ export interface IEVMBalance {
   accountAddress: EVMAccountAddress;
   balance: BigNumberString; // TODO replace with a BigNumber type (please don't)
   contractAddress: EVMContractAddress;
+  quoteBalance: number;
 }
 
 export interface ITokenBalance {
