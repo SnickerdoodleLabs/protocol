@@ -122,5 +122,10 @@ export class ConfigProvider
       overrides.moralisApiKey ?? this.config.moralisApiKey;
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
+    this.config.dataWalletBackupIntervalMS =
+      overrides.dataWalletBackupIntervalMS ??
+      this.config.dataWalletBackupIntervalMS;
+    this.config.backupChunkSizeTarget =
+      overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
   }
 }
