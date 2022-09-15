@@ -711,11 +711,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           return ResultUtils.combine(
             chains.map((chain) => {
               return txStore
-                .getAllKeys(
-                  ELocalStorageKey.TRANSACTIONS,
-                  "chainId",
-                  IDBKeyRange.only(chain),
-                )
+                .getAllKeys(ELocalStorageKey.TRANSACTIONS, "chainId", chain)
                 .andThen((keys) => {
                   return okAsync([chain, keys.length]);
                 });
