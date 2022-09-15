@@ -23,7 +23,7 @@ import {
   ConditionGE,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
+} from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
@@ -60,15 +60,17 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       });
   }
 
-  public addBalance(excessValues: IEVMBalance[]): ResultAsync<ITokenBalance[], never>{
+  public addBalance(
+    excessValues: IEVMBalance[],
+  ): ResultAsync<ITokenBalance[], never> {
     const tokenBalances: ITokenBalance[] = [];
-    excessValues.forEach(element => {
+    excessValues.forEach((element) => {
       tokenBalances.push({
         ticker: element.ticker,
         networkId: element.chainId,
         address: element.contractAddress,
-        balance: BigNumber.from(element.balance)
-      })
+        balance: element.balance,
+      });
     });
     return okAsync(tokenBalances);
   }
@@ -128,7 +130,6 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     query: AST_BalanceQuery,
     balanceArray: ITokenBalance[],
   ): ResultAsync<ITokenBalance[], PersistenceError> {
-
     const balanceMap = new Map<EVMContractAddress, ITokenBalance>();
 
     balanceArray.forEach((d) => {
@@ -137,7 +138,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       if (getObject) {
         balanceMap.set(d.address, {
           ticker: getObject.ticker,
-          balance: (getObject.balance).add(d.balance),
+          balance:  BigNumberString((BigNumber.from(getObject.balance).add(BigNumber.from(d.balance))).toString()),
           networkId: getObject.networkId,
           address: getObject.address,
         });
@@ -156,12 +157,11 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       returnedArray.push({
         ticker: element.ticker,
         address: key,
-        balance: element.balance,
+        balance: BigNumberString(element.balance.toString()),
         networkId: element.networkId,
       });
     });
 
     return okAsync(returnedArray);
   }
-  // public evalConditions()
 }

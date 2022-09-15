@@ -1,3 +1,6 @@
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -14,15 +17,12 @@ import {
   BaseURI,
   HexString,
   DataPermissions,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -47,12 +47,12 @@ export class ConsentContract implements IConsentContract {
 
   public optIn(
     tokenId: TokenId,
-    agreementURI: TokenUri,
+    agreementFlags: HexString32,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.optIn(
         tokenId,
-        agreementURI,
+        agreementFlags,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
@@ -75,24 +75,24 @@ export class ConsentContract implements IConsentContract {
   }
 
   // TODO: add data permissions param
-  public encodeOptIn(tokenId: TokenId, agreementURI: TokenUri): HexString {
+  public encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString {
     return HexString(
       this.contract.interface.encodeFunctionData("optIn", [
         tokenId,
-        agreementURI,
+        agreementFlags,
       ]),
     );
   }
 
   public restrictedOptIn(
     tokenId: TokenId,
-    agreementURI: TokenUri,
+    agreementFlags: HexString32,
     signature: Signature,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.restrictedOptIn(
         tokenId,
-        agreementURI,
+        agreementFlags,
         signature,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -117,13 +117,13 @@ export class ConsentContract implements IConsentContract {
 
   public anonymousRestrictedOptIn(
     tokenId: TokenId,
-    agreementURI: TokenUri,
+    agreementFlags: HexString32,
     signature: Signature,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
       this.contract.anonymousRestrictedOptIn(
         tokenId,
-        agreementURI,
+        agreementFlags,
         signature,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
@@ -174,6 +174,21 @@ export class ConsentContract implements IConsentContract {
   public encodeOptOut(tokenId: TokenId): HexString {
     return HexString(
       this.contract.interface.encodeFunctionData("optOut", [tokenId]),
+    );
+  }
+
+  public agreementFlags(
+    tokenId: TokenId,
+  ): ResultAsync<HexString32, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.agreementFlagsArray(tokenId) as Promise<HexString32>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call agreementFlagsArray()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
     );
   }
 
@@ -478,18 +493,19 @@ export class ConsentContract implements IConsentContract {
               return okAsync(null);
             }
 
-            return this.tokenURI(logEvent.args?.tokenId).andThen((tokenUri) => {
-              return okAsync(
-                new ConsentToken(
-                  this.contractAddress,
-                  ownerAddress,
-                  TokenId(logEvent.args?.tokenId?.toNumber()),
-                  tokenUri as TokenUri,
-                  // TODO: DataPermissions
-                  new DataPermissions(0xffffffff),
-                ),
-              );
-            });
+            return this.agreementFlags(logEvent.args?.tokenId).andThen(
+              (agreementFlag) => {
+                return okAsync(
+                  new ConsentToken(
+                    this.contractAddress,
+                    ownerAddress,
+                    TokenId(logEvent.args?.tokenId?.toNumber()),
+                    // TODO: DataPermissions
+                    new DataPermissions(agreementFlag),
+                  ),
+                );
+              },
+            );
           }),
         ).map((consentTokens) => {
           return consentTokens.filter(
@@ -515,16 +531,17 @@ export class ConsentContract implements IConsentContract {
         console.log("Transfer events log count", logsEvents.length);
         // Get only the last Transfer event (the latest opt in token id)
         const lastIndex = logsEvents.length - 1;
-        return this.tokenURI(logsEvents[lastIndex].args?.tokenId).andThen(
-          (tokenUri) => {
+
+        // Get the agreement flags of the user's current consent token
+        return this.agreementFlags(logsEvents[lastIndex].args?.tokenId).andThen(
+          (agreementFlag) => {
             return okAsync(
               new ConsentToken(
                 this.contractAddress,
                 ownerAddress,
                 TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
-                tokenUri as TokenUri,
                 // TODO: DataPermissions
-                new DataPermissions(0xffffffff),
+                new DataPermissions(agreementFlag),
               ),
             );
           },
@@ -801,6 +818,46 @@ export class ConsentContract implements IConsentContract {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new ConsentContractError(
             "Wait for renounceRole() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
+  public getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.queryHorizon() as Promise<BlockNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call queryHorizon()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
+  public setQueryHorizon(
+    blockNumber: BlockNumber,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.setQueryHorizon(
+        blockNumber,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call setQueryHorizon()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for setQueryHorizon() failed",
             "Unknown",
             e,
           );

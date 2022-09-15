@@ -11,7 +11,7 @@ import {
   IQueryEvaluatorType,
   IQueryRepository,
 } from "@core/interfaces/business/utilities";
-import { AST_Query } from "@core/interfaces/objects";
+import { AST_Query } from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class QueryRepository implements IQueryRepository {

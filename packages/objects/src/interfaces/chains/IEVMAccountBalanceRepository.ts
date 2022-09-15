@@ -16,13 +16,14 @@ export interface IEVMBalance {
   accountAddress: EVMAccountAddress;
   balance: BigNumberString; // TODO replace with a BigNumber type (please don't)
   contractAddress: EVMContractAddress;
+  quoteBalance: number;
 }
 
 export interface ITokenBalance {
   ticker: TickerSymbol;
   networkId: ChainId;
   address: EVMContractAddress; // This is the token contract address
-  balance: BigNumber;
+  balance: BigNumberString;
 }
 
 export interface IEVMAccountBalanceRepository {

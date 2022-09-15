@@ -7,7 +7,10 @@ import {
   ICryptoUtilsType,
   ILogUtils,
   ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
   LogUtils,
+  TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
   CovalentEVMTransactionRepository,
@@ -22,6 +25,14 @@ import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@snickerdoodlelabs/persistence";
+import {
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+  QueryObjectFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -36,7 +47,6 @@ import {
   NetworkQueryEvaluator,
   ProfileService,
   QueryEvaluator,
-  QueryObjectFactory,
   QueryParsingEngine,
   QueryRepository,
   QueryService,
@@ -79,6 +89,8 @@ import {
   IQueryServiceType,
 } from "@core/interfaces/business";
 import {
+  INetworkQueryEvaluator,
+  INetworkQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryParsingEngine,
@@ -86,6 +98,10 @@ import {
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities";
+import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
+} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -117,17 +133,7 @@ import {
   IContractFactoryType,
   IQueryFactories,
   IQueryFactoriesType,
-  IQueryObjectFactory,
-  IQueryObjectFactoryType,
 } from "@core/interfaces/utilities/factory";
-import {
-  IBalanceQueryEvaluator,
-  IBalanceQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import {
-  INetworkQueryEvaluator,
-  INetworkQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -240,5 +246,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IQueryObjectFactory>(IQueryObjectFactoryType)
       .to(QueryObjectFactory)
       .inSingletonScope();
+
+    bind<ISDQLQueryWrapperFactory>(ISDQLQueryWrapperFactoryType)
+      .to(SDQLQueryWrapperFactory)
+      .inSingletonScope();
+
+    bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
   },
 );

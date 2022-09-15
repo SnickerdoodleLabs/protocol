@@ -94,8 +94,8 @@ const WalletProviders: FC = () => {
           const value = {
             to: pendingMetatransaction.data.contractAddress,
             from: pendingMetatransaction.data.accountAddress,
-            value: BigNumber.from(0),
-            gas: BigNumber.from(10000000),
+            value: BigNumber.from(pendingMetatransaction.data.value),
+            gas: BigNumber.from(pendingMetatransaction.data.gas),
             nonce: BigNumber.from(nonce),
             data: HexString(pendingMetatransaction.data.data),
           } as IMinimalForwarderRequest;

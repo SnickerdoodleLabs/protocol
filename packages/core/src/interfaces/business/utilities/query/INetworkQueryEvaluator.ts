@@ -1,8 +1,7 @@
-import { AST_NetworkQuery } from "@core/interfaces/objects";
-import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
+import { IQueryTypeEvaluator } from "@core/interfaces/business/utilities/query/IQueryTypeEvaluator";
+import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
 import { PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-import { IQueryTypeEvaluator } from "./IQueryTypeEvaluator";
 
 export interface INetworkQueryEvaluator extends IQueryTypeEvaluator {
     eval (

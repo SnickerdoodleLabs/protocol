@@ -25,6 +25,7 @@ export class EVMTransaction {
     public gasOffered: BigNumberString | null,
     public feesPaid: BigNumberString | null,
     public events: EVMEvent[] | null,
+    public valueQuote: number | null,
   ) {}
 }
 

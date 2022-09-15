@@ -1,4 +1,8 @@
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   URLString,
   Age,
   ClickData,
@@ -51,7 +55,6 @@ import {
   IVolatileStorageFactoryType,
   IVolatileCursor,
 } from "@persistence/volatile";
-import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -271,13 +274,36 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
       return this.persistentStorageUtils
-        .read<EVMContractAddress[]>(ELocalStorageKey.ACCOUNT)
+        .read<EVMAccountAddress[]>(ELocalStorageKey.ACCOUNT)
         .andThen((saved) => {
           return this._getBackupManager().andThen((backupManager) => {
             return backupManager.updateField(
               ELocalStorageKey.ACCOUNT,
               Array.from(new Set([...(saved ?? []), accountAddress])),
             );
+          });
+        });
+    });
+  }
+
+  public removeAccount(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForUnlock().andThen((key) => {
+      return this.persistentStorageUtils
+        .read<EVMAccountAddress[]>(ELocalStorageKey.ACCOUNT)
+        .andThen((saved) => {
+          return this._getBackupManager().andThen((backupManager) => {
+            if (saved == null) {
+              return okAsync(undefined);
+            }
+
+            const index = saved.indexOf(accountAddress, 0);
+            if (index > -1) {
+              saved.splice(index, 1);
+            }
+
+            return backupManager.updateField(ELocalStorageKey.ACCOUNT, saved);
           });
         });
     });
