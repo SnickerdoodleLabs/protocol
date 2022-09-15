@@ -15,17 +15,12 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
+import { ISiftContractService } from "@core/interfaces/business/ISiftContractService";
 
 @injectable()
-export class SiftContractRepository implements ISiftContractRepository {
-  protected siftContract: ResultAsync<
-    ISiftContract,
-    BlockchainProviderError | UninitializedError
-  > | null = null;
-
+export class SiftContractService implements ISiftContractService {
   public constructor(
-    @inject(IContractFactoryType)
-    protected contractFactory: IContractFactory,
+    protected siftContractRepository: ISiftContractRepository,
   ) {}
 
   verifyURL(
@@ -34,9 +29,7 @@ export class SiftContractRepository implements ISiftContractRepository {
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
-    return this.getSiftContract().andThen((contract) => {
-      return contract.verifyURL(domain);
-    });
+    return this.siftContractRepository.verifyURL(domain);
   }
 
   maliciousURL(
@@ -45,9 +38,7 @@ export class SiftContractRepository implements ISiftContractRepository {
     void,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
-    return this.getSiftContract().andThen((contract) => {
-      return contract.maliciousURL(domain);
-    });
+    return this.siftContractRepository.maliciousURL(domain);
   }
 
   checkURL(
@@ -56,20 +47,6 @@ export class SiftContractRepository implements ISiftContractRepository {
     EScamFilterStatus,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
-    return this.getSiftContract().andThen((contract) => {
-      return contract.checkURL(domain).map((url) => {
-        return url.split("/").pop() as EScamFilterStatus;
-      });
-    });
-  }
-
-  protected getSiftContract(): ResultAsync<
-    ISiftContract,
-    BlockchainProviderError | UninitializedError
-  > {
-    if (this.siftContract == null) {
-      this.siftContract = this.contractFactory.factorySiftContract();
-    }
-    return this.siftContract;
+    return this.siftContractRepository.checkURL(domain);
   }
 }

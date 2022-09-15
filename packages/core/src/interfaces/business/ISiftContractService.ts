@@ -2,12 +2,13 @@ import {
   BlockchainProviderError,
   SiftContractError,
   DomainName,
+  TokenUri,
   UninitializedError,
   EScamFilterStatus,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface ISiftContractRepository {
+export interface ISiftContractService {
   verifyURL(
     domain: DomainName,
   ): ResultAsync<
@@ -30,6 +31,4 @@ export interface ISiftContractRepository {
   >;
 }
 
-export const ISiftContractRepositoryType = Symbol.for(
-  "ISiftContractRepository",
-);
+export const ISiftContractServiceType = Symbol.for("ISiftContractService");

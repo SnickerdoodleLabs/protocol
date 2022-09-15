@@ -10,7 +10,7 @@ import {
   SiteVisit,
   MetatransactionSignatureRequest,
 } from "@objects/businessObjects";
-import { EInvitationStatus } from "@objects/enum";
+import { EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -232,7 +232,7 @@ export interface ISnickerdoodleCore {
   checkURL(
     domain: DomainName,
   ): ResultAsync<
-    TokenUri,
+    EScamFilterStatus,
     BlockchainProviderError | UninitializedError | SiftContractError
   >;
 

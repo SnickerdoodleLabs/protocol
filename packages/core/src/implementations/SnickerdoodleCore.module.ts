@@ -137,6 +137,11 @@ import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
+import {
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/ISiftContractService";
+import { SiftContractService } from "./business/SiftContractService";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -165,6 +170,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
+      .inSingletonScope();
+    bind<ISiftContractService>(ISiftContractServiceType)
+      .to(SiftContractService)
       .inSingletonScope();
 
     bind<IQueryParsingEngine>(IQueryParsingEngineType)

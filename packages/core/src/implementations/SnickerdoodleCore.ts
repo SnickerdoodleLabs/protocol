@@ -63,7 +63,7 @@ import {
   UnixTimestamp,
   UnsupportedLanguageError,
   URLString,
-  TokenUri,
+  EScamFilterStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -112,6 +112,10 @@ import {
   ISiftContractRepository,
   ISiftContractRepositoryType,
 } from "@core/interfaces/data";
+import {
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/ISiftContractService";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -439,13 +443,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public checkURL(
     domain: DomainName,
   ): ResultAsync<
-    TokenUri,
+    EScamFilterStatus,
     BlockchainProviderError | UninitializedError | SiftContractError
   > {
-    const siftRepository = this.iocContainer.get<ISiftContractRepository>(
-      ISiftContractRepositoryType,
+    const siftService = this.iocContainer.get<ISiftContractService>(
+      ISiftContractServiceType,
     );
-    return siftRepository.checkURL(domain);
+    return siftService.checkURL(domain);
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {

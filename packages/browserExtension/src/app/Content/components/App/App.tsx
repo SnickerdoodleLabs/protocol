@@ -85,7 +85,7 @@ const App = () => {
     coreGateway
       .checkURL(window.location.hostname.replace("www.", "") as DomainName)
       .map((result) => {
-        setScamFilterStatus(result.split("/").pop() as EScamFilterStatus);
+        setScamFilterStatus(result as EScamFilterStatus);
       });
   };
 
