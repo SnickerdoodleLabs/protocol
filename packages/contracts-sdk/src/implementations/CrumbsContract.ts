@@ -148,6 +148,12 @@ export class CrumbsContract implements ICrumbsContract {
       .map(() => {});
   }
 
+  public encodeBurnCrumb(crumbId: TokenId): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("burnCrumb", [crumbId]),
+    );
+  }
+
   public updateTokenURI(
     crumbId: TokenId,
     tokenURI: TokenUri,

@@ -1,7 +1,4 @@
-import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
+import { ResultAsync } from "neverthrow";
 
 import {
   BigNumberString,
@@ -11,11 +8,16 @@ import {
   Signature,
 } from "@objects/primitives";
 
-export class MetatransactionSignatureRequest {
+export class MetatransactionSignatureRequest<TErr = unknown> {
   public constructor(
     public accountAddress: EVMAccountAddress,
     public contractAddress: EVMContractAddress,
+    public value: BigNumberString,
+    public gas: BigNumberString,
     public data: HexString,
-    public callback: (signature: Signature, nonce: BigNumberString) => void,
+    public callback: (
+      signature: Signature,
+      nonce: BigNumberString,
+    ) => ResultAsync<void, TErr>,
   ) {}
 }

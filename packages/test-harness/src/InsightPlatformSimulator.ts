@@ -151,13 +151,15 @@ export class InsightPlatformSimulator {
       const dataWalletAddress = DataWalletAddress(req.body.dataWalletAddress);
       const contractAddress = EVMContractAddress(req.body.contractAddress);
       const nonce = BigNumberString(req.body.nonce);
+      const value = BigNumberString(req.body.value);
+      const gas = BigNumberString(req.body.gas);
       const data = HexString(req.body.data);
       const signature = Signature(req.body.requestSignature);
       const metatransactionSignature = Signature(
         req.body.metatransactionSignature,
       );
 
-      const value = {
+      const signingData = {
         dataWallet: dataWalletAddress,
         accountAddress: accountAddress,
         contractAddress: contractAddress,
@@ -171,7 +173,7 @@ export class InsightPlatformSimulator {
         .verifyTypedData(
           snickerdoodleSigningDomain,
           executeMetatransactionTypes,
-          value,
+          signingData,
           signature,
         )
         .andThen((verificationAddress) => {
@@ -189,8 +191,8 @@ export class InsightPlatformSimulator {
           const forwarderRequest = {
             to: contractAddress, // Contract address for the metatransaction
             from: accountAddress, // EOA to run the transaction as
-            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(10000000), // The amount of gas to pay.
+            value: BigNumber.from(value), // The amount of doodle token to pay. Should be 0.
+            gas: BigNumber.from(gas), // The amount of gas to pay.
             nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
             data: data, // The actual bytes of the request, encoded as a hex string
           } as IMinimalForwarderRequest;

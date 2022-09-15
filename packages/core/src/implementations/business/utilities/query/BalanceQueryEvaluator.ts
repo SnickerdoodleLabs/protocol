@@ -69,7 +69,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         ticker: element.ticker,
         networkId: element.chainId,
         address: element.contractAddress,
-        balance: BigNumber.from(element.balance),
+        balance: element.balance,
       });
     });
     return okAsync(tokenBalances);
@@ -138,7 +138,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       if (getObject) {
         balanceMap.set(d.address, {
           ticker: getObject.ticker,
-          balance: getObject.balance.add(d.balance),
+          balance:  BigNumberString((BigNumber.from(getObject.balance).add(BigNumber.from(d.balance))).toString()),
           networkId: getObject.networkId,
           address: getObject.address,
         });
@@ -157,12 +157,11 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       returnedArray.push({
         ticker: element.ticker,
         address: key,
-        balance: element.balance,
+        balance: BigNumberString(element.balance.toString()),
         networkId: element.networkId,
       });
     });
 
     return okAsync(returnedArray);
   }
-  // public evalConditions()
 }

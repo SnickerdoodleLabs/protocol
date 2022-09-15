@@ -8,6 +8,7 @@ import {
   SDQLQuery,
   PageInvitation,
   SiteVisit,
+  MetatransactionSignatureRequest,
 } from "@objects/businessObjects";
 import { EInvitationStatus } from "@objects/enum";
 import {
@@ -19,6 +20,7 @@ import {
   ConsentFactoryContractError,
   CrumbsContractError,
   EvaluationError,
+  InvalidParametersError,
   InvalidSignatureError,
   IPFSError,
   MinimalForwarderContractError,
@@ -29,6 +31,7 @@ import {
   UnsupportedLanguageError,
 } from "@objects/errors";
 import { IEVMBalance } from "@objects/interfaces/chains";
+import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   Age,
@@ -47,7 +50,6 @@ import {
   TokenUri,
   UnixTimestamp,
 } from "@objects/primitives";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -108,6 +110,24 @@ export interface ISnickerdoodleCore {
     | PersistenceError
     | AjaxError
     | CrumbsContractError
+  >;
+
+  /**
+   * getUnlinkAccountRequest() returns a MetatransactionSignatureRequest that will burn the
+   * crumb token for an account and unlink it from the persistence.
+   * It does not remove any data for that account but prevents any new account-specific data
+   * from being collected
+   * @param accountAddress
+   */
+  getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidParametersError
   >;
 
   /**
@@ -267,12 +287,3 @@ export interface ISnickerdoodleCore {
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
-
-export interface IQueryEngineEvents {
-  onInitialized: Observable<DataWalletAddress>;
-  onQueryPosted: Observable<{
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }>;
-  onAccountAdded: Observable<EVMAccountAddress>;
-}
