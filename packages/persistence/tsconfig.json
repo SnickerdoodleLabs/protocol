@@ -4,6 +4,14 @@
 		"outDir": "./dist",
 		"rootDir": "./src",
 		"module": "ES2022",
+		"paths": {
+			"@persistence/*": [
+			  "./packages/persistence/src/*"
+			],
+			"@persistence-test/*": [
+			  "./packages/persistence/test/*"
+			],
+		  },
 	},
 	"references": [
 		{

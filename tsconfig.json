@@ -9,34 +9,64 @@
       "path": "packages/common-utils"
     },
     {
+      "path": "packages/common-utils/test"
+    },
+    {
       "path": "packages/extension-onboarding"
+    },
+    {
+      "path": "packages/extension-onboarding/test"
     },
     {
       "path": "packages/contracts-sdk"
     },
     {
+      "path": "packages/contracts-sdk/test"
+    },
+    {
       "path": "packages/core"
+    },
+    {
+      "path": "packages/core/test"
     },
     {
       "path": "packages/indexers"
     },
     {
+      "path": "packages/indexers/test"
+    },
+    {
       "path": "packages/objects"
+    },
+    {
+      "path": "packages/objects/test"
     },
     {
       "path": "packages/persistence"
     },
     {
+      "path": "packages/persistence/test"
+    },
+    {
       "path": "packages/query-parser"
     },
     {
+      "path": "packages/query-parser/test"
+    },
+    {
       "path": "packages/signatureVerification"
+    },
+    {
+      "path": "packages/signatureVerification/test"
     },
     {
       "path": "packages/test-harness"
     },
     {
       "path": "packages/utils"
+    },
+    {
+      "path": "packages/utils/test"
     }
   ]
 }

@@ -3,7 +3,15 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "module": "ES2022"
+    "module": "ES2022",
+    "paths": {
+      "@core/*": [
+        "./packages/core/src/*"
+      ],
+      "@core-tests/*": [
+        "./packages/core/test/*"
+      ],
+    }
   },
   "references": [
     {

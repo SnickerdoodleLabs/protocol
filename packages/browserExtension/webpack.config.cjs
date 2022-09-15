@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
+const argon2 = require("argon2");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const fileSystem = require("fs-extra");
@@ -13,7 +15,6 @@ const { merge } = require("webpack-merge");
 const env = require("./utils/env.cjs");
 
 const configFilePath = require.resolve("./tsconfig.json");
-const argon2 = require("argon2");
 
 var alias = {
   "react-dom": "@hot-loader/react-dom",
@@ -262,14 +263,14 @@ var options = {
 if (env.NODE_ENV === "development") {
   options.devtool = "cheap-module-source-map";
 } else {
-  // options.optimization = {
-  //   minimize: true,
-  //   minimizer: [
-  //     new TerserPlugin({
-  //       extractComments: false,
-  //     }),
-  //   ],
-  // };
+  options.optimization = {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        extractComments: false,
+      }),
+    ],
+  };
 }
 
 module.exports = options;

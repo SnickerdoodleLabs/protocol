@@ -22,43 +22,8 @@
     "resolveJsonModule": true,
     "jsx": "react",
     "composite": true,
-    "paths": {
-      "@browser-extension/*": [
-        "./packages/browserExtension/src/*"
-      ],
-      "@core/*": [
-        "./packages/core/src/*"
-      ],
-      "@extension-onboarding/*": [
-        "./*"
-      ],
-      "@core-tests/*": [
-        "./packages/core/test/*"
-      ],
-      "@common-utils/*": [
-        "./packages/common-utils/src/*"
-      ],
-      "@contracts-sdk/*": [
-        "./packages/contracts-sdk/src/*"
-      ],
-      "@indexers/*": [
-        "./packages/indexers/src/*"
-      ],
-      "@indexers-test/*": [
-        "./packages/indexers/test/*"
-      ],
-      "@objects/*": [
-        "./packages/objects/src/*"
-      ],
-      "@persistence/*": ["./packages/persistence/src/*"],
-      "@query-parser/*": ["./packages/query-parser/src/*"],
-      "@signatureVerification/*": [
-        "./packages/signatureVerification/src/*"
-      ],
-      "@test-harness/*": [
-        "./packages/test-harness/src/*"
-      ],
-      "@utils/*": ["./packages/utils/src/*"]
-    }
-  }
+  },
+  "tsc-alias": {
+    "verbose": false,
+  },
 }

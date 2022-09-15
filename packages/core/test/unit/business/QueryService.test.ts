@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AjaxError,
@@ -16,18 +17,17 @@ import {
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import "reflect-metadata";
-import td from "testdouble";
+import * as td from "testdouble";
 
 import {
   dataWalletAddress,
   dataWalletKey,
   testCoreConfig,
-} from "@core-tests/mock/mocks";
+} from "@core-tests/mock/mocks/index.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
-} from "@core-tests/mock/utilities";
+} from "@core-tests/mock/utilities/index.js";
 import { avalanche1SchemaStr } from "@core-tests/unit/business/query/avalanche1.data";
 import { QueryService } from "@core/implementations/business/index.js";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";

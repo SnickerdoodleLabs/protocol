@@ -23,14 +23,14 @@
     "!dist/tsconfig.tsbuildinfo"
   ],
   "scripts": {
-    "alias": "tsc-alias",
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
     "prepare": "yarn build",
-    "test": "yarn build && yarn test:ci",
-    "test:ci": "npx jest --runInBand --coverage --passWithNoTests",
+    "test": "yarn test:ci",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests",
     "test:watch": "npx jest --watch --color --detectOpenHandles"
   },
   "type": "module",

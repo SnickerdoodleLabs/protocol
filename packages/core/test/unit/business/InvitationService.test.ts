@@ -19,7 +19,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import td from "testdouble";
+import * as td from "testdouble";
 
 import {
   dataWalletAddress,
@@ -40,6 +40,8 @@ import {
 import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 const metatransactionNonce = BigNumberString("nonce");
+const metatransactionValue = BigNumberString("value");
+const metatransactionGas = BigNumberString("gas");
 const optInCallData = HexString("0xOptIn");
 const optOutCallData = HexString("0xOptOut");
 const optInSignature = Signature("OptInSignature");
@@ -86,6 +88,8 @@ class InvitationServiceMocks {
         EVMAccountAddress(dataWalletAddress),
         consentContractAddress1,
         metatransactionNonce,
+        metatransactionValue,
+        metatransactionGas,
         optInCallData,
         optInSignature,
         dataWalletKey,

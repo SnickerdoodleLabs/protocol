@@ -3,6 +3,14 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "paths": {
+			"@objects/*": [
+			  "./packages/objects/src/*"
+			],
+			"@objects-test/*": [
+			  "./packages/objects/test/*"
+			],
+		  },
   },
   "include": [
     "./src/**/*.ts" 
