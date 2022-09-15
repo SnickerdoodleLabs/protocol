@@ -101,10 +101,10 @@ export class ContractFactory implements IContractFactory {
     return ResultUtils.combine([
       this.blockchainProvider.getAllProviders(),
       this.configProvider.getConfig(),
-    ]).map(([providers, config]) => {
+    ]).map(([provider, config]) => {
       return new SiftContract(
-        providers.get(ChainId(43113))!,
-        EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"),
+        provider.get(config.controlChainId)!,
+        config.controlChainInformation.siftContractAddress,
       );
     });
   }
