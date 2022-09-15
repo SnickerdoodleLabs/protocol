@@ -25,5 +25,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public covalentApiKey: string,
     public moralisApiKey: string,
     public dnsServerAddress: URLString,
+    public quoteCurrency: string,
   ) {}
 }
