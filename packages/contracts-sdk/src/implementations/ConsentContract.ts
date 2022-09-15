@@ -828,7 +828,7 @@ export class ConsentContract implements IConsentContract {
 
   public getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract.queryHorizon() as Promise<BlockNumber>,
+      this.contract.queryHorizon() as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
           "Unable to call queryHorizon()",
@@ -836,7 +836,7 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    );
+    ).map((totalSupply) => BlockNumber(totalSupply.toNumber()));
   }
 
   public setQueryHorizon(
