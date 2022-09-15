@@ -52,6 +52,7 @@ sequenceDiagram
         },
         "c1":{
             "description": "10% discount code for Starbucks",
+            "chainId": 1,
             "return": {
                "cid": ipfs id,
                "compensationId": "c1",
@@ -60,6 +61,7 @@ sequenceDiagram
         },
         "c2":{
             "description": "participate in the draw to win a CryptoPunk NFT",
+            "chainId": 5,
             "return": {
                "cid": ipfs id,
                "compensationId": "c2",
@@ -68,13 +70,39 @@ sequenceDiagram
         },
         "c3":{
             "description": "a free CrazyApesClub NFT",
+            "chainId": 1,
             "return": {
                "cid": ipfs id,
                "compensationId": "c3",
                "data": .....request related data
+            },
+            "alternatives": [
+                "c4",
+                "c5"
+            ]
+            
+        },
+        "c4":{
+            "description": "a free CrazyApesClub NFT on Avalanche",
+            "chainId": 43114,
+            "return": {
+               "cid": ipfs id,
+               "compensationId": "c4",
+               "data": .....request related data
             }
             
-        }
+        },
+        "c5":{
+            "description": "a free CrazyApesClub NFT on Solana",
+            "chainId": null,
+            "nonEvmChain": "Solana"
+            "return": {
+               "cid": ipfs id,
+               "compensationId": "c5",
+               "data": .....request related data
+            }
+            
+        },
     },
 ```
 
@@ -90,6 +118,9 @@ Represents the rewards that the Insight Platform thinks a data wallet is eligibl
     },
 }
 ```
+
+## Alternatives
+The one reward may be claimed on different chains. So, compenstations can have alternatives (example, "c3"). Users can claim the compenstation, "c3", or one of the alternatives, "c4", "c5".
 
 ## EarnedRewards
 There can be three types of earned rewards after a data wallet has posted the insights
