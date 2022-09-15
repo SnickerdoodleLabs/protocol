@@ -1,5 +1,6 @@
 import "reflect-metadata";
 
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
   CountryCode,
@@ -7,17 +8,8 @@ import {
   SDQL_Name,
   SDQL_OperatorName,
   SDQL_Return,
-} from "@objects/primitives";
-import { IDataWalletPersistence } from "@snickerdoodlelabs/objects";
-import { okAsync } from "neverthrow";
-import td from "testdouble";
-
-import {
-  NetworkQueryEvaluator,
-  QueryEvaluator,
-  QueryRepository,
-} from "@core/implementations/business/utilities";
-import { QueryFactories } from "@core/implementations/utilities/factory";
+  IDataWalletPersistence,
+} from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
   AST_Expr,
@@ -33,11 +25,19 @@ import {
   ISDQLQueryWrapperFactory,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { okAsync } from "neverthrow";
+import * as td from "testdouble";
+
+import {
+  NetworkQueryEvaluator,
+  QueryEvaluator,
+  QueryRepository,
+} from "@core/implementations/business/utilities";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+import { QueryFactories } from "@core/implementations/utilities/factory";
 import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
 // const ast = new AST(
 //     Version("0.1"),
@@ -58,16 +58,27 @@ class ASTMocks {
 
   public constructor() {
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-    this.queryFactories = new QueryFactories(this.queryObjectFactory, this.queryWrapperFactory);
-    this.balanceQueryEvaluator = new BalanceQueryEvaluator(this.persistenceRepo);
-    this.networkQueryEvaluator = new NetworkQueryEvaluator(this.persistenceRepo);
+    this.queryFactories = new QueryFactories(
+      this.queryObjectFactory,
+      this.queryWrapperFactory,
+    );
+    this.balanceQueryEvaluator = new BalanceQueryEvaluator(
+      this.persistenceRepo,
+    );
+    this.networkQueryEvaluator = new NetworkQueryEvaluator(
+      this.persistenceRepo,
+    );
 
     td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(
       okAsync(CountryCode("1")),
     );
 
-    this.queryEvaluator = new QueryEvaluator(this.persistenceRepo, this.balanceQueryEvaluator, this.networkQueryEvaluator);
+    this.queryEvaluator = new QueryEvaluator(
+      this.persistenceRepo,
+      this.balanceQueryEvaluator,
+      this.networkQueryEvaluator,
+    );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }
 

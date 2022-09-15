@@ -8,10 +8,10 @@
     "build-dev": "yarn compile && __CONTROL_CHAIN_ID__=31337 __ONBOARDING_URL__='https://datawallet.dev.snickerdoodle.dev/' __ACCOUNT_COOKIE_URL__='https://snickerdoodlelabs.io/' __SUPPORTED_CHAINS__='42,43113' __IPFS_FETCH_BASE_URL__='https://ipfs.dev.snickerdoodle.dev/ipfs/' __DEFAULT_INSIGHT_PLATFORM_BASE_URL__='https://insight-api.dev.snickerdoodle.dev/v0/' __COVALENT_API_KEY__='' __MORALIS_API_KEY__='' __DNS_SERVER_ADDRESS__='' node utils/build.cjs dev",
     "build-prod": "yarn compile && __CONTROL_CHAIN_ID__=43113 __ONBOARDING_URL__='https://datawallet.snickerdoodle.com/' __ACCOUNT_COOKIE_URL__='https://snickerdoodlelabs.io/' __SUPPORTED_CHAINS__='42,43113' __IPFS_FETCH_BASE_URL__='https://ipfs.snickerdoodle.com/ipfs/' __DEFAULT_INSIGHT_PLATFORM_BASE_URL__='https://insight-api.snickerdoodle.com/v0/' __COVALENT_API_KEY__='' __MORALIS_API_KEY__='' __DNS_SERVER_ADDRESS__=''  node utils/build.cjs prod",
     "build:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/build.js",
+    "compile": "cd ../.. && yarn compile",
+    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "start": "node utils/webserver.cjs",
     "start:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/webserver.js",
-    "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "compile": "cd ../.. && yarn compile",
     "webpack": "npx webpack --stats-children --stats-error-details"
   },
   "type": "module",

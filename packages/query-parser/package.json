@@ -26,7 +26,7 @@
     "!tsconfig.json"
   ],
   "scripts": {
-    "alias": "tsc-alias",
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "alias-with-copyfiles": "yarn copy-files && tsc-alias",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
@@ -34,8 +34,9 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "npx jest --runInBand --coverage --passWithNoTests"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests"
   },
+  "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
@@ -44,6 +45,5 @@
     "inversify": "^5.1.1",
     "neverthrow": "^4.3.1",
     "neverthrow-result-utils": "^1.0.2"
-  },
-  "type": "module"
+  }
 }

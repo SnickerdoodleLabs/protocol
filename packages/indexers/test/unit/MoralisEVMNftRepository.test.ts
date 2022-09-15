@@ -1,9 +1,14 @@
 import "reflect-metadata";
 import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 import { okAsync } from "neverthrow";
-import td from "testdouble";
+import * as td from "testdouble";
 
-import * as MoralisResponseSinglePage from "@indexers-test/mock/MoralisResponse_ETH_SinglePage";
+import {
+  response as MoralisResponseSinglePage,
+  chainId,
+  accountAddress,
+  requestURL,
+} from "@indexers-test/mock/MoralisResponse_ETH_SinglePage";
 import { IIndexerConfig } from "@indexers/IIndexerConfig";
 import { IIndexerConfigProvider } from "@indexers/IIndexerConfigProvider";
 import { MoralisEVMNftRepository } from "@indexers/MoralisEVMNftRepository";
@@ -22,11 +27,11 @@ class MoralisEVMNftRepositoryMocks {
     td.when(
       this.ajaxUtils.get(
         td.matchers.argThat((url: URL) => {
-          return new URL(responseRepo.requestURL).pathname === url.pathname;
+          return new URL(requestURL).pathname === url.pathname;
         }),
         td.matchers.anything(),
       ),
-    ).thenReturn(okAsync(responseRepo.response));
+    ).thenReturn(okAsync(MoralisResponseSinglePage));
   }
 
   public factoryService(): MoralisEVMNftRepository {
@@ -41,10 +46,7 @@ describe("MoralisEVMNftRepository tests", () => {
     const repo = mocks.factoryService();
 
     // Act
-    const response = await repo.getTokensForAccount(
-      MoralisResponseSinglePage.chainId,
-      MoralisResponseSinglePage.accountAddress,
-    );
+    const response = await repo.getTokensForAccount(chainId, accountAddress);
 
     // Assert
     expect(response).toBeDefined();

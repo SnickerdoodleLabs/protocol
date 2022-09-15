@@ -14,7 +14,7 @@
     "postCompile": "npx webpack",
     "prepare": "yarn build",
     "start": "node scripts/webserver.js",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests"
   },
   "types": "dist/index.d.ts",
   "dependencies": {

@@ -5,7 +5,7 @@ import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/quer
 import { Age, BigNumberString, ChainId, EVMAccountAddress, EVMBlockRange, EVMChainCode, EVMContractAddress, EVMContractDirection, EVMContractFunction, EVMToken, EVMTransaction, EVMTransactionFilter, Gender, IDataWalletPersistence, IEVMBalance, SDQL_Name, TickerSymbol, UnixTimestamp, URLString } from "@snickerdoodlelabs/objects";
 import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
-import td from "testdouble";
+import * as td from "testdouble";
 import { AST_Contract } from "@snickerdoodlelabs/query-parser";
 
 
