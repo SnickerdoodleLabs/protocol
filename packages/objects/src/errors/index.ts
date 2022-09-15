@@ -23,3 +23,5 @@ export * from "@objects/errors/sdqlExceptions";
 export * from "@objects/errors/MissingWalletDataTypeError";
 export * from "@objects/errors/PermissionError";
 export * from "@objects/errors/QueryExpiredError";
+export * from "@objects/errors/MissingASTError";
+export * from "@objects/errors/ParserTypeNotImplementedError";
