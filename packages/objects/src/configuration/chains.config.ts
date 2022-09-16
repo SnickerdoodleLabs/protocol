@@ -52,18 +52,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(1),
-    new ChainInformation(
-      "Ether mainnet",
-      ChainId(1),
-      true,
-      [],
-      10000,
-      EIndexer.EVM,
-      new NativeCurrencyInformation("ETH", 18, "ETH"),
-    ),
-  ],
-  [
     ChainId(42),
     new ChainInformation(
       "Kovan",
@@ -75,7 +63,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("ETH", 18, "ETH"),
     ),
   ],
-
   [
     ChainId(43113),
     new ControlChainInformation(
