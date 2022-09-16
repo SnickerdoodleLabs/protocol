@@ -63,6 +63,38 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("ETH", 18, "ETH"),
     ),
   ],
+  [
+    ChainId(80001),
+    new ChainInformation(
+      "Mumbai Testnet",
+      ChainId(80001),
+      true,
+      [
+        ProviderUrl(
+          "https://polygon-mumbai.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7",
+        ),
+      ],
+      10000,
+      EIndexer.EVM,
+      new NativeCurrencyInformation("MATIC", 18, "MATIC"),
+    ),
+  ],
+  [
+    ChainId(137),
+    new ChainInformation(
+      "Polygon",
+      ChainId(137),
+      true,
+      [
+        ProviderUrl(
+          "https://polygon-mainnet.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7",
+        ),
+      ],
+      10000,
+      EIndexer.EVM,
+      new NativeCurrencyInformation("MATIC", 18, "MATIC"),
+    ),
+  ],
 
   [
     ChainId(43113),
