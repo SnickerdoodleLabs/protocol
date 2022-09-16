@@ -1,4 +1,7 @@
-import { ISiftContractRepository } from "@core/interfaces/data/ISiftContractRepository";
+import {
+  ISiftContractRepository,
+  ISiftContractRepositoryType,
+} from "@core/interfaces/data/ISiftContractRepository";
 import {
   IContractFactory,
   IContractFactoryType,
@@ -20,6 +23,7 @@ import { ISiftContractService } from "@core/interfaces/business/ISiftContractSer
 @injectable()
 export class SiftContractService implements ISiftContractService {
   public constructor(
+    @inject(ISiftContractRepositoryType)
     protected siftContractRepository: ISiftContractRepository,
   ) {}
 

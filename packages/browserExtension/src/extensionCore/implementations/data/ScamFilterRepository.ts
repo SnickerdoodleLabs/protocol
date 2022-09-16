@@ -3,6 +3,7 @@ import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   DomainName,
+  EScamFilterStatus,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
@@ -18,7 +19,7 @@ export class ScamFilterRepository implements IScamFilterRepository {
 
   public checkURL(
     domain: DomainName,
-  ): ResultAsync<string, SnickerDoodleCoreError> {
+  ): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError> {
     return this.core.checkURL(domain).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

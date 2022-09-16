@@ -1,4 +1,4 @@
-import { DomainName } from "@snickerdoodlelabs/objects";
+import { DomainName, EScamFilterStatus } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
@@ -17,7 +17,7 @@ export class ScamFilterService implements IScamFilterService {
 
   public checkURL(
     domain: DomainName,
-  ): ResultAsync<string, SnickerDoodleCoreError> {
+  ): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError> {
     return this.scamFilterRepository.checkURL(domain);
   }
 }

@@ -19,6 +19,7 @@ import {
   EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
+  EScamFilterStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -370,7 +371,7 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
   private checkURL(
     domain: DomainName,
-  ): ResultAsync<string, SnickerDoodleCoreError> {
+  ): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError> {
     return this.scamFilterService.checkURL(domain);
   }
 
