@@ -38,7 +38,7 @@
                                 "browsing_history",
                                 "gender",
                                 "url_visited_count",
-                                "chain_transaction_count",
+                                "chain_transactions",
                                 "balance"
                             ]
                         },
@@ -161,7 +161,7 @@
                                     "type": "object",
                                     "patternProperties": {
                                         "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
-                                            "type": "number"
+                                            "type": "integer"
                                         }
                                     }
                                 }
@@ -238,7 +238,7 @@
                                             "const": "url_visited_count"
                                         },
                                         {
-                                            "const": "chain_transaction_count"
+                                            "const": "chain_transactions"
                                         }
                                     ]
                                 },

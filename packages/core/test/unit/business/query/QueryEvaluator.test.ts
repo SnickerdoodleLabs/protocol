@@ -688,12 +688,12 @@ describe("Return Chain Transaction Count", () => {
       const propertyQuery = new AST_PropertyQuery(
           SDQL_Name("q1"),
           "object",
-          "chain_transaction_count",
+          "chain_transactions",
           [],
           [],
           {
               "^ETH|AVAX|SOL$": {
-                  "type": "integer"
+                  "type": "number"
               }
           }
       )

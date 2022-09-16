@@ -152,7 +152,7 @@ export class QueryEvaluator implements IQueryEvaluator {
             // console.log("URL count: ", url_visited_count);
             return okAsync(SDQL_Return(url_visited_count));
           });
-      case "chain_transaction_count":
+      case "chain_transactions":
         return this.dataWalletPersistence
           .getTransactionsMap()
           .andThen((transactionsMap) => {

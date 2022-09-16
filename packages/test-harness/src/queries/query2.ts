@@ -10,12 +10,12 @@ export const query2 = {
       return: "object"      
     },
     q2: {
-      name: "chain_transaction_count",
+      name: "chain_transactions",
       return: "object",
       object_schema: {
         patternProperties: {
           "^ETH|AVAX|SOL$": {
-            type: "integer",
+            type: "number",
           },
         },
       },
