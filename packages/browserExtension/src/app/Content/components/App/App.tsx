@@ -6,8 +6,8 @@ import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { EPortNames } from "@shared/enums/ports";
 
 import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
-import NftClaimed from "../Screens/NftClaimed";
-import { EAPP_STATE, IRewardItem } from "../../constants";
+import NftClaimed from "@app/Content/components/Screens/NftClaimed";
+import { EAPP_STATE, IRewardItem } from "@app/Content/constants";
 import Browser from "webextension-polyfill";
 import pump from "pump";
 import ObjectMultiplex from "obj-multiplex";
@@ -19,11 +19,14 @@ import { VersionUtils } from "@shared/utils/VersionUtils";
 import endOfStream from "end-of-stream";
 import { DomainName, URLString } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useMemo, useState } from "react";
-import ConnectWallet from "../Screens/ConnectWallet";
-import ConnectWalletPending from "../Screens/ConnectWalletPending";
-import RewardCard from "../Screens/RewardCard";
+import ConnectWallet from "@app/Content/components/Screens/ConnectWallet";
+import ConnectWalletPending from "@app/Content/components/Screens/ConnectWalletPending";
+import RewardCard from "@app/Content/components/Screens/RewardCard";
 import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
 import { parse } from "tldts";
+import ScamFilterComponent, {
+  EScamFilterStatus,
+} from "@app/Content/components/ScamFilterComponent";
 
 let coreGateway: ExternalCoreGateway;
 let notificationEmitter;
@@ -72,7 +75,19 @@ const App = () => {
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
 
+  const [scamFilterStatus, setScamFilterStatus] = useState<EScamFilterStatus>();
   const _path = usePath();
+
+  useEffect(() => {
+    initiateScamFilterStatus();
+  }, []);
+  const initiateScamFilterStatus = () => {
+    coreGateway
+      .checkURL(window.location.hostname.replace("www.", "") as DomainName)
+      .map((result) => {
+        setScamFilterStatus(result as EScamFilterStatus);
+      });
+  };
 
   useEffect(() => {
     if (rewardToDisplay) {
@@ -166,7 +181,14 @@ const App = () => {
     }
   }, [rewardToDisplay, appState]);
 
-  return <>{renderComponent}</>;
+  return (
+    <>
+      {scamFilterStatus && (
+        <ScamFilterComponent scamFilterStatus={scamFilterStatus} />
+      )}
+      {renderComponent}
+    </>
+  );
 };
 
 export default App;

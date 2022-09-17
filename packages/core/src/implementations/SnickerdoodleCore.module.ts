@@ -59,6 +59,7 @@ import {
   InvitationRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
+  SiftContractRepository,
 } from "@core/implementations/data";
 import {
   BlockchainProvider,
@@ -117,6 +118,8 @@ import {
   IMetatransactionForwarderRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
+  ISiftContractRepository,
+  ISiftContractRepositoryType,
 } from "@core/interfaces/data";
 import {
   IBlockchainProvider,
@@ -134,6 +137,11 @@ import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory";
+import {
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/ISiftContractService";
+import { SiftContractService } from "./business/SiftContractService";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -163,6 +171,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
       .inSingletonScope();
+    bind<ISiftContractService>(ISiftContractServiceType)
+      .to(SiftContractService)
+      .inSingletonScope();
 
     bind<IQueryParsingEngine>(IQueryParsingEngineType)
       .to(QueryParsingEngine)
@@ -177,6 +188,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IConsentContractRepository>(IConsentContractRepositoryType).to(
       ConsentContractRepository,
     );
+    bind<ISiftContractRepository>(ISiftContractRepositoryType)
+      .to(SiftContractRepository)
+      .inSingletonScope();
     bind<IMetatransactionForwarderRepository>(
       IMetatransactionForwarderRepositoryType,
     ).to(MetatransactionForwarderRepository);
@@ -231,6 +245,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IQueryEvaluator>(IQueryEvaluatorType)
       .to(QueryEvaluator)
       .inSingletonScope();
+
     bind<IBalanceQueryEvaluator>(IBalanceQueryEvaluatorType)
       .to(BalanceQueryEvaluator)
       .inSingletonScope();
