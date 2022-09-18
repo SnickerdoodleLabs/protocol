@@ -7,10 +7,15 @@ import {
   EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
+  HexString32,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
+import {
+  ExtensionStorageError,
+  SnickerDoodleCoreError,
+} from "@shared/objects/errors";
 
 export interface IInvitationService {
   checkInvitationStatus(
@@ -19,8 +24,9 @@ export interface IInvitationService {
 
   acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
+    dataTypes: EWalletDataType[] | null,
+    useDefaultPermissions?: boolean,
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError>;
 
   rejectInvitation(
     invitation: Invitation,
@@ -42,6 +48,21 @@ export interface IInvitationService {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
+
+  acceptPublicInvitationByConsentContractAddress(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[] | null,
+    useDefaultPermissions?: boolean,
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError>;
+
+  getAvailableInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    SnickerDoodleCoreError
+  >;
+
+  getAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError>;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");

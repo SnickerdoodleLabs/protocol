@@ -1,5 +1,10 @@
 import { IInvitationRepository } from "@interfaces/data/IInvitationRepository";
-import { IErrorUtils, IErrorUtilsType } from "@interfaces/utilities";
+import {
+  IDataPermissionsUtils,
+  IDataPermissionsUtilsType,
+  IErrorUtils,
+  IErrorUtilsType,
+} from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
@@ -12,6 +17,7 @@ import {
   IOpenSeaMetadata,
   EVMContractAddress,
   IpfsCID,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -22,6 +28,42 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
+
+  public getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<HexString32, SnickerDoodleCoreError> {
+    return this.core
+      .getAgreementFlags(consentContractAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
+
+  public acceptPublicInvitationByConsentContractAddress(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core
+      .acceptPublicInvitationByConsentContractAddress(
+        consentContractAddress,
+        dataPermissions,
+      )
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      });
+  }
+
+  public getAvailableInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    SnickerDoodleCoreError
+  > {
+    return this.core.getAvailableInvitationsCID().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
 
   public getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,

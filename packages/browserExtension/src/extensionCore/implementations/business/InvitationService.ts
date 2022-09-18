@@ -3,8 +3,16 @@ import {
   IInvitationRepository,
   IInvitationRepositoryType,
 } from "@interfaces/data/IInvitationRepository";
-import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
+import {
+  IContextProvider,
+  IContextProviderType,
+  IDataPermissionsUtils,
+  IDataPermissionsUtilsType,
+} from "@interfaces/utilities";
+import {
+  ExtensionStorageError,
+  SnickerDoodleCoreError,
+} from "@shared/objects/errors";
 import {
   Invitation,
   DataPermissions,
@@ -14,9 +22,11 @@ import {
   EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
+  HexString32,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -24,13 +34,49 @@ export class InvitationService implements IInvitationService {
     @inject(IInvitationRepositoryType)
     protected invitationRepository: IInvitationRepository,
     @inject(IContextProviderType) protected contexProvider: IContextProvider,
+    @inject(IDataPermissionsUtilsType)
+    protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
+
+  public getAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {
+    return this.invitationRepository
+      .getAgreementFlags(consentContractAddress)
+      .andThen((flags) =>
+        this.dataPermissionsUtils.getDataTypesFromFlagsString(flags),
+      );
+  }
+
+  public acceptPublicInvitationByConsentContractAddress(
+    consentContractAddress: EVMContractAddress,
+    dataTypes: EWalletDataType[] | null,
+    useDefaultPermissions?: boolean,
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
+    return this.getDataPermissions(dataTypes, useDefaultPermissions).andThen(
+      (dataPermissions) => {
+        return this.invitationRepository.acceptPublicInvitationByConsentContractAddress(
+          consentContractAddress,
+          dataPermissions,
+        );
+      },
+    );
+  }
+
+  public getAvailableInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationRepository.getAvailableInvitationsCID();
+  }
+
   public getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   > {
     return this.invitationRepository.getAcceptedInvitationsCID();
   }
+
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
@@ -51,11 +97,16 @@ export class InvitationService implements IInvitationService {
 
   public acceptInvitation(
     invitation: Invitation,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.invitationRepository.acceptInvitation(
-      invitation,
-      dataPermissions,
+    dataTypes: EWalletDataType[] | null,
+    useDefaultPermissions?: boolean,
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
+    return this.getDataPermissions(dataTypes, useDefaultPermissions).andThen(
+      (dataPermissions) => {
+        return this.invitationRepository.acceptInvitation(
+          invitation,
+          dataPermissions,
+        );
+      },
     );
   }
   public rejectInvitation(
@@ -68,5 +119,18 @@ export class InvitationService implements IInvitationService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.leaveCohort(consentContractAddress);
+  }
+
+  protected getDataPermissions(
+    dataTypes: EWalletDataType[] | null,
+    useDefaultPermissions?: boolean,
+  ): ResultAsync<DataPermissions | null, never | ExtensionStorageError> {
+    return useDefaultPermissions
+      ? this.dataPermissionsUtils.DefaultDataPermissions
+      : dataTypes
+      ? this.dataPermissionsUtils.generateDataPermissionsClassWithDataTypes(
+          dataTypes,
+        )
+      : okAsync(null);
   }
 }
