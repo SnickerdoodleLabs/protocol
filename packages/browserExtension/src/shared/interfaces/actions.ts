@@ -17,6 +17,7 @@ import {
   URLString,
   IpfsCID,
   EChain,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -68,8 +69,22 @@ export interface IGetInvitationWithDomainParams {
   path: string;
 }
 export interface IAcceptInvitationParams {
-  dataPermissions: DataPermissions;
+  useDefaultPermissions?: boolean;
+  dataTypes: EWalletDataType[];
   id: UUID;
+}
+export interface IAcceptPublicInvitationByConsentContractAddressParams {
+  useDefaultPermissions?: boolean;
+  dataTypes: EWalletDataType[];
+  consentContractAddress: EVMContractAddress;
+}
+
+export interface IGetAgreementPermissionsParams {
+  consentContractAddress: EVMContractAddress;
+}
+
+export interface ISetDefaultPermissionsWithDataTypesParams {
+  dataTypes: EWalletDataType[];
 }
 export interface IRejectInvitationParams {
   id: UUID;

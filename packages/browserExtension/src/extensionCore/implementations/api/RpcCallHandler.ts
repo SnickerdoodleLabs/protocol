@@ -22,6 +22,7 @@ import {
   EScamFilterStatus,
   EChain,
   LinkedAccount,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -47,7 +48,12 @@ import {
   IScamFilterService,
   IScamFilterServiceType,
 } from "@interfaces/business/IScamFilterService";
-import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+import { 
+  IContextProvider,
+  IContextProviderType,
+  IDataPermissionsUtils,
+  IDataPermissionsUtilsType,
+} from "@interfaces/utilities";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
 import { EExternalActions, EInternalActions } from "@shared/enums";
@@ -70,11 +76,15 @@ import {
   IInvitationDomainWithUUID,
   IGetInvitationMetadataByCIDParams,
   ICheckURLParams,
+  IAcceptPublicInvitationByConsentContractAddressParams,
+  IGetAgreementPermissionsParams,
+  ISetDefaultPermissionsWithDataTypesParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
   ExtensionCookieError,
   ExtensionMetatransactionError,
+  ExtensionStorageError,
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
@@ -89,6 +99,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected invitationService: IInvitationService,
     @inject(IScamFilterServiceType)
     protected scamFilterService: IScamFilterService,
+    @inject(IDataPermissionsUtilsType)
+    protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
 
   public async handleRpcCall(
@@ -248,10 +260,57 @@ export class RpcCallHandler implements IRpcCallHandler {
           res,
         ).call();
       }
-      case EExternalActions.ACCEPT_INVITATION: {
-        const { dataPermissions, id } = params as IAcceptInvitationParams;
+      case EExternalActions.GET_AVAILABLE_INVITATIONS_CID: {
         return new AsyncRpcResponseSender(
-          this.acceptInvitation(dataPermissions, id),
+          this.getAvailableInvitationsCID(),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_AGREEMENT_PERMISSIONS: {
+        const { consentContractAddress } =
+          params as IGetAgreementPermissionsParams;
+        return new AsyncRpcResponseSender(
+          this.getAgreementPermissions(consentContractAddress),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_DEFAULT_PERMISSIONS: {
+        return new AsyncRpcResponseSender(
+          this.getDefaultPermissions(),
+          res,
+        ).call();
+      }
+      case EExternalActions.SET_DEFAULT_PERMISSIONS: {
+        const { dataTypes } =
+          params as ISetDefaultPermissionsWithDataTypesParams;
+        return new AsyncRpcResponseSender(
+          this.setDefaultPermissionsWithDataTypes(dataTypes),
+          res,
+        ).call();
+      }
+      case EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL: {
+        return new AsyncRpcResponseSender(
+          this.setDefaultPermissionsToAll(),
+          res,
+        ).call();
+      }
+      case EExternalActions.ACCEPT_INVITATION: {
+        const { dataTypes, id, useDefaultPermissions } =
+          params as IAcceptInvitationParams;
+        return new AsyncRpcResponseSender(
+          this.acceptInvitation(dataTypes, id, useDefaultPermissions),
+          res,
+        ).call();
+      }
+      case EExternalActions.ACCEPT_PUBLIC_INVITIATION_BY_CONSENT_CONTRACT_ADDRESS: {
+        const { dataTypes, consentContractAddress, useDefaultPermissions } =
+          params as IAcceptPublicInvitationByConsentContractAddressParams;
+        return new AsyncRpcResponseSender(
+          this.acceptPublicInvitationByConsentContractAddress(
+            dataTypes,
+            consentContractAddress,
+            useDefaultPermissions,
+          ),
           res,
         ).call();
       }
@@ -359,12 +418,68 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private acceptInvitation(
-    dataPermissions: DataPermissions | null,
+    dataTypes: EWalletDataType[] | null,
     id: UUID,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
+    useDefaultPermissions?: boolean,
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
     const invitation = this.contextProvider.getInvitation(id) as Invitation;
-    return this.invitationService.acceptInvitation(invitation, dataPermissions);
+    return this.invitationService.acceptInvitation(
+      invitation,
+      dataTypes,
+      useDefaultPermissions,
+    );
   }
+
+  private getAvailableInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationService
+      .getAvailableInvitationsCID()
+      .map((res) => mapToObj(res));
+  }
+
+  private acceptPublicInvitationByConsentContractAddress(
+    dataTypes: EWalletDataType[] | null,
+    consentContractAddress: EVMContractAddress,
+    useDefaultPermissions?: boolean,
+  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
+    return this.invitationService.acceptPublicInvitationByConsentContractAddress(
+      consentContractAddress,
+      dataTypes,
+      useDefaultPermissions,
+    );
+  }
+  private getAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {
+    return this.invitationService.getAgreementPermissions(
+      consentContractAddress,
+    );
+  }
+
+  private getDefaultPermissions(): ResultAsync<
+    EWalletDataType[],
+    ExtensionStorageError
+  > {
+    return this.dataPermissionsUtils.defaultFlags.andThen((flags) =>
+      this.dataPermissionsUtils.getDataTypesFromFlagsString(flags),
+    );
+  }
+
+  private setDefaultPermissionsWithDataTypes(
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, ExtensionStorageError> {
+    return this.dataPermissionsUtils.setDefaultFlagsWithDataTypes(dataTypes);
+  }
+
+  private setDefaultPermissionsToAll(): ResultAsync<
+    void,
+    ExtensionStorageError
+  > {
+    return this.dataPermissionsUtils.setDefaultFlagsToAll();
+  }
+
   private rejectInvitation(
     id: UUID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
