@@ -26,13 +26,13 @@ import {
   ConsentFactoryContractError,
   IOpenSeaMetadata,
   IpfsCID,
-  HexString,
+  URLString,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { getDomain } from "tldts";
 
 import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
@@ -52,6 +52,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { getDomain, parse } from "tldts";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -441,18 +442,209 @@ export class InvitationService implements IInvitationService {
     });
   }
 
+  public getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | AjaxError
+    | ConsentError
+  > {
+    return this.contextProvider.getContext().andThen((context) => {
+      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+        return errAsync(
+          new UninitializedError("Data wallet has not been unlocked yet!"),
+        );
+      }
+      return this.consentRepo
+        .getCurrentConsentToken(consentContractAddress)
+        .andThen((consentToken) => {
+          if (consentToken == null) {
+            // not opted in!
+            return errAsync(
+              new ConsentError(
+                "Cannot getAggrementFlags of consent contract, you were not opted in!",
+              ),
+            );
+          }
+          return this.consentRepo.getAgreementFlags(
+            consentContractAddress,
+            consentToken.tokenId,
+          );
+        });
+    });
+  }
+
+  public acceptPublicInvitationByConsentContractAddress(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | ConsentError
+    | ConsentFactoryContractError
+  > {
+    return this.consenContractHasMatchingTXT(consentContractAddress).andThen(
+      (hasMatchingTXT) => {
+        // check valid public consent contract or not
+        if (hasMatchingTXT) {
+          return this.consentRepo
+            .getOptedInConsentContractAddresses()
+            .andThen((optedInConsentsAddresses) => {
+              if (optedInConsentsAddresses.includes(consentContractAddress)) {
+                return errAsync(
+                  new ConsentError(
+                    "Cannot opt in to consent contract, you were already opted in!",
+                  ),
+                );
+              }
+              return this.cryptoUtils.getTokenId().andThen((tokenId) => {
+                return this.acceptInvitation(
+                  new Invitation(
+                    DomainName(""),
+                    consentContractAddress,
+                    tokenId,
+                    null,
+                  ),
+                  dataPermissions,
+                );
+              });
+            });
+        }
+        return errAsync(
+          new ConsentError(
+            `${consentContractAddress} is not valid public consent contract`,
+          ),
+        );
+      },
+    );
+  }
+
+  public getAvailableInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | PersistenceError
+  > {
+    return this.getAvailableConsentContractAddresses().andThen(
+      (consentAddresses) => {
+        return ResultUtils.combine(
+          consentAddresses.map((consentAddress) =>
+            this.consenContractHasMatchingTXT(consentAddress).map(
+              (hasMatchingTXT) => ({
+                consentAddress,
+                hasMatchingTXT,
+              }),
+            ),
+          ),
+        )
+          .andThen((results) => {
+            // since we are checking TXT records here
+            // we can confirm that all consent addresses are for public invitations
+            const validConsentContractAddresses = results
+              .filter((result) => result.hasMatchingTXT)
+              .map((validResults) => validResults.consentAddress);
+            return ResultUtils.combine(
+              validConsentContractAddresses.map((contractAddress) =>
+                this.consentRepo
+                  .getMetadataCID(contractAddress)
+                  .map((ipfsCID) => ({ ipfsCID, contractAddress })),
+              ),
+            );
+          })
+          .map((addressesWithCID) => {
+            console.log("addressesWithCID", addressesWithCID);
+            return new Map(
+              addressesWithCID.map((addressWithCID) => [
+                addressWithCID.contractAddress,
+                addressWithCID.ipfsCID,
+              ]),
+            );
+          });
+      },
+    );
+  }
+
+  protected consenContractHasMatchingTXT(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<boolean, never> {
+    return this.consentRepo
+      .getInvitationUrls(consentContractAddress)
+      .andThen((urls) => {
+        return ResultUtils.combine(
+          urls.map((url) => {
+            const urlInfo = parse(url);
+            return this.getConsentContractAddressesFromDNS(
+              DomainName(`snickerdoodle-protocol.${urlInfo.domain}`),
+            ).orElse(() => {
+              return okAsync([] as EVMContractAddress[]);
+            });
+          }),
+        );
+      })
+      .map((contractAddressesArr) => {
+        let match = false;
+        for (const contractAddresses of contractAddressesArr) {
+          if (contractAddresses.includes(consentContractAddress)) {
+            match = true;
+            break;
+          }
+        }
+        return match;
+      })
+      .orElse((e) => {
+        return okAsync(false);
+      });
+  }
+
+  protected getAvailableConsentContractAddresses(): ResultAsync<
+    EVMContractAddress[],
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | PersistenceError
+  > {
+    return ResultUtils.combine([
+      // can be fetched via insight-platform API call
+      // or indexing can be used to avoid this relatively expensive look through
+      this.consentRepo.getDeployedConsentContractAddresses(),
+      this.consentRepo.getOptedInConsentContractAddresses(),
+      this.persistenceRepo.getRejectedCohorts(),
+    ]).map(([consents, optedInConsents, rejectedConsents]) => {
+      return consents.filter(
+        (consent) =>
+          !optedInConsents.includes(consent) &&
+          !rejectedConsents.includes(consent),
+      );
+    });
+  }
+
   protected getConsentContractAddressesFromDNS(
     domain: DomainName,
   ): ResultAsync<EVMContractAddress[], AjaxError> {
     return this.dnsRepository.fetchTXTRecords(domain).map((txtRecords) => {
-      return txtRecords
-        .map((txtRecord) => {
-          const records = JSON.parse(txtRecord)
-            .split(",")
-            .map((r) => r.trim());
-          return records.map((record) => EVMContractAddress(record));
-        })
-        .flat();
+      // to avoid TXT records which were not shaped as JSON
+      try {
+        return txtRecords
+          .map((txtRecord) => {
+            const records = JSON.parse(txtRecord)
+              .split(",")
+              .map((r) => r.trim());
+            return records.map((record) => EVMContractAddress(record));
+          })
+          .flat();
+      } catch {
+        return [];
+      }
     });
   }
 }
