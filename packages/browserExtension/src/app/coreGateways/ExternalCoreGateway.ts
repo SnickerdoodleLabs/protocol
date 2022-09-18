@@ -1,3 +1,30 @@
+import CoreHandler from "@app/coreGateways/handler/CoreHandler";
+import { EExternalActions } from "@shared/enums";
+import {
+  IAcceptInvitationParams,
+  IAddAccountParams,
+  IGetInvitationMetadataByCIDParams,
+  IGetInvitationWithDomainParams,
+  IGetUnlockMessageParams,
+  IInvitationDomainWithUUID,
+  ILeaveCohortParams,
+  IMetatransactionSignatureRequestCallbackParams,
+  IRejectInvitationParams,
+  ISetAgeParams,
+  ISetBirthdayParams,
+  ISetEmailParams,
+  ISetFamilyNameParams,
+  ISetGenderParams,
+  ISetGivenNameParams,
+  ISetLocationParams,
+  IUnlockParams,
+  ICheckURLParams,
+  IAcceptPublicInvitationByConsentContractAddressParams,
+  IGetAgreementPermissionsParams,
+  ISetDefaultPermissionsWithDataTypesParams,
+} from "@shared/interfaces/actions";
+import { IExternalState } from "@shared/interfaces/states";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
   Invitation,
@@ -20,34 +47,10 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
   EChain,
+  EWalletDataType,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
-
-import CoreHandler from "@app/coreGateways/handler/CoreHandler";
-import { EExternalActions } from "@shared/enums";
-import {
-  IAcceptInvitationParams,
-  IAddAccountParams,
-  IGetInvitationMetadataByCIDParams,
-  IGetInvitationWithDomainParams,
-  IGetUnlockMessageParams,
-  IInvitationDomainWithUUID,
-  ILeaveCohortParams,
-  IMetatransactionSignatureRequestCallbackParams,
-  IRejectInvitationParams,
-  ISetAgeParams,
-  ISetBirthdayParams,
-  ISetEmailParams,
-  ISetFamilyNameParams,
-  ISetGenderParams,
-  ISetGivenNameParams,
-  ISetLocationParams,
-  IUnlockParams,
-  ICheckURLParams,
-} from "@shared/interfaces/actions";
-import { IExternalState } from "@shared/interfaces/states";
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;
@@ -68,14 +71,63 @@ export class ExternalCoreGateway {
     );
   }
   public acceptInvitation(
-    dataPermissions: DataPermissions | null,
+    dataTypes: EWalletDataType[] | null,
     id: UUID,
+    useDefaultPermissions?: boolean,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
-      dataPermissions,
+      dataTypes,
+      useDefaultPermissions,
       id,
     } as IAcceptInvitationParams);
   }
+
+  public getAvailableInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_AVAILABLE_INVITATIONS_CID);
+  }
+
+  public acceptPublicInvitationByConsentContractAddress(
+    dataTypes: EWalletDataType[] | null,
+    consentContractAddress: EVMContractAddress,
+    useDefaultPermissions?: boolean,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(
+      EExternalActions.ACCEPT_PUBLIC_INVITIATION_BY_CONSENT_CONTRACT_ADDRESS,
+      {
+        dataTypes,
+        useDefaultPermissions,
+        consentContractAddress,
+      } as IAcceptPublicInvitationByConsentContractAddressParams,
+    );
+  }
+
+  public getAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<EWalletDataType[], JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_AGREEMENT_PERMISSIONS, {
+      consentContractAddress,
+    } as IGetAgreementPermissionsParams);
+  }
+
+  public getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_DEFAULT_PERMISSIONS);
+  }
+
+  public setDefaultPermissionsWithDataTypes(
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_DEFAULT_PERMISSIONS, {
+      dataTypes,
+    } as ISetDefaultPermissionsWithDataTypesParams);
+  }
+
+  public setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL);
+  }
+
   public rejectInvitation(id: UUID): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.REJECT_INVITATION, {
       id,
