@@ -8,6 +8,7 @@ import {
   EmailAddressString,
   EVMAccountAddress,
   EVMContractAddress,
+  EWalletDataType,
   FamilyName,
   Gender,
   GivenName,
@@ -69,7 +70,6 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   public getState() {
     return coreGateway.getState();
   }
-
   public unlock(
     accountAddress: EVMAccountAddress,
     signature: Signature,
@@ -149,8 +149,40 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getAcceptedInvitationsCID();
   }
 
+  public getAvailableInvitationsCID() {
+    return coreGateway.getAvailableInvitationsCID();
+  }
+
+  public getDefaultPermissions() {
+    return coreGateway.getDefaultPermissions();
+  }
+
+  public setDefaultPermissions(dataTypes: EWalletDataType[]) {
+    return coreGateway.setDefaultPermissionsWithDataTypes(dataTypes);
+  }
+
+  public setDefaultPermissionsToAll() {
+    return coreGateway.setDefaultPermissionsToAll();
+  }
+
   public getInvitationMetadataByCID(ipfsCID: IpfsCID) {
     return coreGateway.getInvitationMetadataByCID(ipfsCID);
+  }
+
+  public getAgreementPermissions(consentContractAddres: EVMContractAddress) {
+    return coreGateway.getAgreementPermissions(consentContractAddres);
+  }
+
+  public acceptPublicInvitationByConsentContractAddress(
+    dataTypes: EWalletDataType[] | null,
+    consentContractAddress: EVMContractAddress,
+    useDefaultPermissions?: boolean,
+  ) {
+    return coreGateway.acceptPublicInvitationByConsentContractAddress(
+      dataTypes,
+      consentContractAddress,
+      useDefaultPermissions,
+    );
   }
 
   public leaveCohort(consentContractAddress: EVMContractAddress) {
