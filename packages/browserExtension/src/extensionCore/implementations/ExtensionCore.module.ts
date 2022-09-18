@@ -36,6 +36,7 @@ import {
 import {
   AccountCookieUtils,
   ContextProvider,
+  DataPermissionsUtils,
   ErrorUtils,
 } from "@implementations/utilities";
 import { RpcEngineFactory } from "@implementations/utilities/factory";
@@ -82,6 +83,8 @@ import {
   IAccountCookieUtilsType,
   IContextProvider,
   IContextProviderType,
+  IDataPermissionsUtils,
+  IDataPermissionsUtilsType,
   IErrorUtils,
   IErrorUtilsType,
 } from "@interfaces/utilities";
@@ -173,6 +176,9 @@ export const extensionCoreModule = new ContainerModule(
     bind<IConfigProvider>(IConfigProviderType).toConstantValue(configProvider);
     bind<IAccountCookieUtils>(IAccountCookieUtilsType)
       .to(AccountCookieUtils)
+      .inSingletonScope();
+    bind<IDataPermissionsUtils>(IDataPermissionsUtilsType)
+      .to(DataPermissionsUtils)
       .inSingletonScope();
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
