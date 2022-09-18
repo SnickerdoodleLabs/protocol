@@ -30,6 +30,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  HexString32,
   IAccountBalancesType,
   IAccountIndexingType,
   IAccountNFTsType,
@@ -441,6 +442,62 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     );
 
     return cohortService.getInvitationsByDomain(domain);
+  }
+
+  public getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | AjaxError
+    | ConsentError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.getAgreementFlags(consentContractAddress);
+  }
+
+  public acceptPublicInvitationByConsentContractAddress(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<
+    void,
+    | BlockchainProviderError
+    | UninitializedError
+    | PersistenceError
+    | AjaxError
+    | MinimalForwarderContractError
+    | ConsentError
+    | ConsentFactoryContractError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.acceptPublicInvitationByConsentContractAddress(
+      consentContractAddress,
+      dataPermissions,
+    );
+  }
+
+  public getAvailableInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | BlockchainProviderError
+    | UninitializedError
+    | PersistenceError
+    | ConsentContractError
+    | ConsentFactoryContractError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.getAvailableInvitationsCID();
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
