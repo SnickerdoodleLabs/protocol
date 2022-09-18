@@ -17,6 +17,7 @@ import {
   IOpenSeaMetadata,
   ConsentFactoryContractError,
   IpfsCID,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -93,6 +94,41 @@ export interface IInvitationService {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+
+  getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | AjaxError
+    | ConsentError
+  >;
+
+  acceptPublicInvitationByConsentContractAddress(
+    consentContractAddress: EVMContractAddress,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<
+    void,
+    | PersistenceError
+    | UninitializedError
+    | AjaxError
+    | BlockchainProviderError
+    | MinimalForwarderContractError
+    | ConsentError
+    | ConsentFactoryContractError
+  >;
+
+  getAvailableInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | PersistenceError
+  >;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");
