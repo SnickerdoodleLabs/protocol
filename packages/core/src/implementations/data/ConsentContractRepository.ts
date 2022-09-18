@@ -239,6 +239,31 @@ export class ConsentContractRepository implements IConsentContractRepository {
     });
   }
 
+  public getDeployedConsentContractAddresses(): ResultAsync<
+    EVMContractAddress[],
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  > {
+    return this.consentContractFactory
+      .factoryConsentFactoryContract()
+      .andThen((consentFactoryContract) => {
+        return consentFactoryContract.getDeployedConsents();
+      });
+  }
+
+  public getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+  ): ResultAsync<
+    HexString32,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddress).andThen(
+      (contract) => {
+        return contract.agreementFlags(tokenId);
+      },
+    );
+  }
+
   protected getConsentContract(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
