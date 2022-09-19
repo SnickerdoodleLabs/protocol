@@ -35,7 +35,6 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @dev Role bytes
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
 
-
     /// @dev Initializes the contract with the base URI, then disables any initializers as recommended by OpenZeppelin
     constructor(string memory baseURInew) {
         initialize(baseURInew);
@@ -60,6 +59,10 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @param url Site URL
     /// @param owner Address receiving the url's NFT   
     function verifyURL(string memory url, address owner) external {
+        // check if the url has already been verified on the contract
+        // if it has a token id mapped to it, it has been verified 
+        require(urlToTokenId[keccak256(abi.encodePacked(url))] == 0, "Consent: URL already verified");
+
         // mint token id and append to the token URI "VERIFIED"
         _safeMintAndRegister(owner, "VERIFIED", url);
     }
