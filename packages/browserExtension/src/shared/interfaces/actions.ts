@@ -99,6 +99,10 @@ export interface ILeaveCohortParams {
   consentContractAddress: EVMContractAddress;
 }
 
+export interface IGetUnlinkRequestParams {
+  accountAddress: EVMAccountAddress;
+}
+
 export interface IGetInvitationMetadataByCIDParams {
   ipfsCID: IpfsCID;
 }

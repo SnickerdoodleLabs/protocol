@@ -79,6 +79,7 @@ import {
   IAcceptPublicInvitationByConsentContractAddressParams,
   IGetAgreementPermissionsParams,
   ISetDefaultPermissionsWithDataTypesParams,
+  IGetUnlinkRequestParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -227,6 +228,15 @@ export class RpcCallHandler implements IRpcCallHandler {
           res,
         ).call();
       }
+
+      case EExternalActions.GET_UNLINK_REQUEST: {
+        const { accountAddress } = params as IGetUnlinkRequestParams;
+        return new AsyncRpcResponseSender(
+          this.getUnlinkAccountRequest(accountAddress),
+          res,
+        ).call();
+      }
+
       case EExternalActions.LEAVE_COHORT: {
         const { consentContractAddress } = params as ILeaveCohortParams;
         return new AsyncRpcResponseSender(
@@ -437,6 +447,12 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.invitationService
       .getAvailableInvitationsCID()
       .map((res) => mapToObj(res));
+  }
+
+  private getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.accountService.getUnlinkAccountRequest(accountAddress);
   }
 
   private acceptPublicInvitationByConsentContractAddress(

@@ -22,6 +22,7 @@ import {
   IAcceptPublicInvitationByConsentContractAddressParams,
   IGetAgreementPermissionsParams,
   ISetDefaultPermissionsWithDataTypesParams,
+  IGetUnlinkRequestParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
@@ -182,6 +183,13 @@ export class ExternalCoreGateway {
       chain,
       languageCode,
     } as IUnlockParams);
+  }
+  public getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_UNLINK_REQUEST, {
+      accountAddress,
+    } as IGetUnlinkRequestParams);
   }
   public getUnlockMessage(
     languageCode: LanguageCode,
