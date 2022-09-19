@@ -78,4 +78,10 @@ export class AccountService implements IAccountService {
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
     return this.accountRepository.isDataWalletAddressInitialized();
   }
+
+  public getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.accountRepository.getUnlinkAccountRequest(accountAddress);
+  }
 }

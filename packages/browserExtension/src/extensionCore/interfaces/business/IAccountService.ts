@@ -35,6 +35,9 @@ export interface IAccountService {
   getAccountBalances(): ResultAsync<IEVMBalance[], SnickerDoodleCoreError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
+  getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, SnickerDoodleCoreError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

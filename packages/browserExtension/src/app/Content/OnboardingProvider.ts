@@ -91,6 +91,9 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
       languageCode,
     );
   }
+  public getUnlinkAccountRequest(accountAddress: EVMAccountAddress) {
+    return coreGateway.getUnlinkAccountRequest(accountAddress);
+  }
   public getUnlockMessage(languageCode: LanguageCode = LanguageCode("en")) {
     return coreGateway.getUnlockMessage(languageCode);
   }

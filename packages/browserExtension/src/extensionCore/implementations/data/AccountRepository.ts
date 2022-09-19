@@ -17,6 +17,8 @@ import { IAccountRepository } from "@interfaces/data";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
+  IContextProvider,
+  IContextProviderType,
   IErrorUtils,
   IErrorUtilsType,
 } from "@interfaces/utilities";
@@ -32,6 +34,7 @@ export class AccountRepository implements IAccountRepository {
     @inject(IAccountCookieUtilsType)
     protected accountCookieUtils: IAccountCookieUtils,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
   public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.core.getAccounts().mapErr((error) => {
@@ -109,5 +112,21 @@ export class AccountRepository implements IAccountRepository {
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
     return this.core.isDataWalletAddressInitialized();
+  }
+
+  public getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.core
+      .getUnlinkAccountRequest(accountAddress)
+      .mapErr((error) => {
+        this.errorUtils.emit(error);
+        return new SnickerDoodleCoreError((error as Error).message, error);
+      })
+      .map((metatransactionSignatureRequest) => {
+        this.contextProvider.notifyPortsWithIncomingMetatransactionSignatureRequest(
+          metatransactionSignatureRequest,
+        );
+      });
   }
 }
