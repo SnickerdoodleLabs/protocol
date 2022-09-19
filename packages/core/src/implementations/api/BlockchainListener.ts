@@ -153,7 +153,7 @@ export class BlockchainListener implements IBlockchainListener {
 
                 // Only need to do the query if the calculated start block is less than
                 // the current block on the chain
-                if (startBlock < currentBlockNumber) {
+                if (startBlock >= currentBlockNumber) {
                   return okAsync([]);
                 }
 
