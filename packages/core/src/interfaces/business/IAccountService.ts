@@ -17,6 +17,8 @@ import {
   ChainId,
   URLString,
   SiteVisit,
+  MetatransactionSignatureRequest,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -52,6 +54,17 @@ export interface IAccountService {
     | PersistenceError
     | CrumbsContractError
     | AjaxError
+  >;
+
+  getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidParametersError
   >;
 
   getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;

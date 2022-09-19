@@ -4,6 +4,7 @@ import {
   CrumbsContractError,
   EVMAccountAddress,
   LanguageCode,
+  TokenId,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -18,6 +19,13 @@ export interface ICrumbsRepository {
     languageCode: LanguageCode,
   ): ResultAsync<
     AESEncryptedString | null,
+    BlockchainProviderError | UninitializedError | CrumbsContractError
+  >;
+
+  getCrumbTokenId(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    TokenId | null,
     BlockchainProviderError | UninitializedError | CrumbsContractError
   >;
 }

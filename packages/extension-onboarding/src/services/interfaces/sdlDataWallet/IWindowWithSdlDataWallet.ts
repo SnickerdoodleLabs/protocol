@@ -17,6 +17,7 @@ import {
   IEVMNFT,
   IOpenSeaMetadata,
   EVMContractAddress,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -58,10 +59,13 @@ export interface ISdlDataWallet extends EventEmitter {
   getAccountNFTs(): ResultAsync<IEVMNFT[], unknown>;
   closeTab(): ResultAsync<void, unknown>;
   getDataWalletAddress(): ResultAsync<EVMAccountAddress | null, undefined>;
-  getInvitationsMetadata(): ResultAsync<
-    Record<EVMContractAddress, IOpenSeaMetadata>,
-    undefined
+  getAcceptedInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
+    unknown
   >;
+  getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, unknown>;
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, unknown>;

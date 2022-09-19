@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 import {
   CryptoUtils,
   ILogUtils,
@@ -19,6 +21,7 @@ import {
   HexString,
   IpfsCID,
   ISDQLQueryObject,
+  ISO8601DateString,
   SDQLString,
   Signature,
   UnixTimestamp,
@@ -43,6 +46,10 @@ export class InsightPlatformSimulator {
   protected cryptoUtils = new CryptoUtils();
 
   protected consentContracts = new Array<EVMContractAddress>();
+  protected logStream = fs.createWriteStream(
+    "data/insight/" + new Date().toISOString().substring(0, 10),
+    { flags: "a" },
+  );
 
   public constructor(
     protected blockchain: BlockchainStuff,
@@ -51,6 +58,10 @@ export class InsightPlatformSimulator {
     protected consentContractsRepository: IConsentContractRepository,
     */,
   ) {
+    process.on("exit", () => {
+      this.logStream.close();
+    });
+
     this.app = express();
 
     this.app.use(express.json());
@@ -72,23 +83,25 @@ export class InsightPlatformSimulator {
     });
 
     this.app.post("/insights/responses", (req, res) => {
-      //console.log("Sending to Insight Responses");
-      //console.log("Req is this: ", req.body);
+      // console.log("Sending to Insight Responses");
+      // console.log("Req is this: ", req.body);
       //console.log("req.body.consentContractId: ", req.body.consentContractId);
-      const newConsentContract = req.body.consentContractId;
-      const consentContractId = EVMContractAddress(req.body.consentContractId);
-      //console.log("consentContractId: ", consentContractId);
-      const queryId = IpfsCID(req.body.queryId);
-      const dataWallet = EVMAccountAddress(req.body.dataWallet);
-      const returns = JSON.stringify(req.body.returns);
-      const signature = Signature(req.body.signature);
+      // const newConsentContract = req.body.consentContractId;
+      // const consentContractId = EVMContractAddress(req.body.consentContractId);
+      // //console.log("consentContractId: ", consentContractId);
+      // const queryId = IpfsCID(req.body.queryId);
+      // const dataWallet = EVMAccountAddress(req.body.dataWallet);
+      // const returns = JSON.stringify(req.body.returns);
+      // const signature = Signature(req.body.signature);
 
-      const value = {
-        consentContractId,
-        queryId,
-        dataWallet,
-        returns,
-      };
+      // const value = {
+      //   consentContractId,
+      //   queryId,
+      //   dataWallet,
+      //   returns,
+      // };
+
+      this.logStream.write(JSON.stringify(req.body));
 
       res.send("Insights received successfully!");
       /*
@@ -138,13 +151,15 @@ export class InsightPlatformSimulator {
       const dataWalletAddress = DataWalletAddress(req.body.dataWalletAddress);
       const contractAddress = EVMContractAddress(req.body.contractAddress);
       const nonce = BigNumberString(req.body.nonce);
+      const value = BigNumberString(req.body.value);
+      const gas = BigNumberString(req.body.gas);
       const data = HexString(req.body.data);
       const signature = Signature(req.body.requestSignature);
       const metatransactionSignature = Signature(
         req.body.metatransactionSignature,
       );
 
-      const value = {
+      const signingData = {
         dataWallet: dataWalletAddress,
         accountAddress: accountAddress,
         contractAddress: contractAddress,
@@ -158,7 +173,7 @@ export class InsightPlatformSimulator {
         .verifyTypedData(
           snickerdoodleSigningDomain,
           executeMetatransactionTypes,
-          value,
+          signingData,
           signature,
         )
         .andThen((verificationAddress) => {
@@ -176,8 +191,8 @@ export class InsightPlatformSimulator {
           const forwarderRequest = {
             to: contractAddress, // Contract address for the metatransaction
             from: accountAddress, // EOA to run the transaction as
-            value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(10000000), // The amount of gas to pay.
+            value: BigNumber.from(value), // The amount of doodle token to pay. Should be 0.
+            gas: BigNumber.from(gas), // The amount of gas to pay.
             nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
             data: data, // The actual bytes of the request, encoded as a hex string
           } as IMinimalForwarderRequest;
@@ -214,10 +229,11 @@ export class InsightPlatformSimulator {
 
     // The queryText needs to have the timestamp inserted
     const queryJson = JSON.parse(queryText) as ISDQLQueryObject;
-    queryJson.timestamp = UnixTimestamp(
-      Math.floor(new Date().getTime() / 1000),
-    );
-
+    // queryJson.timestamp = UnixTimestamp(
+    //   Math.floor(new Date().getTime() / 1000),
+    // );
+    queryJson.timestamp =  ISO8601DateString(new Date().toISOString());
+    // queryJson.expiry = new Date().toISOString();
     // Convert query back to string
     queryText = SDQLString(JSON.stringify(queryJson));
 

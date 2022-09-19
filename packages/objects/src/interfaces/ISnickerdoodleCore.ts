@@ -3,13 +3,14 @@ import { Observable } from "rxjs";
 
 import {
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   IEVMNFT,
   SDQLQuery,
   PageInvitation,
   SiteVisit,
+  MetatransactionSignatureRequest,
 } from "@objects/businessObjects";
-import { EInvitationStatus } from "@objects/enum";
+import { EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -19,15 +20,18 @@ import {
   ConsentFactoryContractError,
   CrumbsContractError,
   EvaluationError,
+  InvalidParametersError,
   InvalidSignatureError,
   IPFSError,
   MinimalForwarderContractError,
   PersistenceError,
   QueryFormatError,
+  SiftContractError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
 import { IEVMBalance } from "@objects/interfaces/chains";
+import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   Age,
@@ -40,11 +44,12 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  IpfsCID,
   LanguageCode,
   Signature,
+  TokenUri,
   UnixTimestamp,
 } from "@objects/primitives";
-import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -108,6 +113,24 @@ export interface ISnickerdoodleCore {
   >;
 
   /**
+   * getUnlinkAccountRequest() returns a MetatransactionSignatureRequest that will burn the
+   * crumb token for an account and unlink it from the persistence.
+   * It does not remove any data for that account but prevents any new account-specific data
+   * from being collected
+   * @param accountAddress
+   */
+  getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidParametersError
+  >;
+
+  /**
    * This method checks the status of the invitation in relationship to the data wallet.
    * An invitation may be either "New" (haven't dealt with it one way or the other),
    * "Rejected" (previously, positively turned down), or "Accepted" (if we are already opted
@@ -131,11 +154,11 @@ export interface ISnickerdoodleCore {
    * Note that this is different than reject invitation, which will not opt you out of the
    * cohort
    * @param invitation The actual invitation to the cohort
-   * @param consentConditions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
+   * @param dataPermissions OPTIONAL. Any conditions for query consent that should be baked into the consent token.
    */
   acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -194,22 +217,23 @@ export interface ISnickerdoodleCore {
     | IPFSError
   >;
 
-  getAcceptedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
+  getAcceptedInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
     | ConsentContractError
-    | IPFSError
   >;
 
-  getRejectedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | PersistenceError
-    | IPFSError
+  getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+
+  checkURL(
+    domain: DomainName,
+  ): ResultAsync<
+    EScamFilterStatus,
+    BlockchainProviderError | UninitializedError | SiftContractError
   >;
 
   // Called by the form factor to approve the processing of the query.
@@ -263,12 +287,3 @@ export interface ISnickerdoodleCore {
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
-
-export interface IQueryEngineEvents {
-  onInitialized: Observable<DataWalletAddress>;
-  onQueryPosted: Observable<{
-    consentContractAddress: EVMContractAddress;
-    query: SDQLQuery;
-  }>;
-  onAccountAdded: Observable<EVMAccountAddress>;
-}

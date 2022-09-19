@@ -3,6 +3,7 @@ import { EExternalActions } from "@shared/enums";
 import {
   IAcceptInvitationParams,
   IAddAccountParams,
+  IGetInvitationMetadataByCIDParams,
   IGetInvitationWithDomainParams,
   IGetUnlockMessageParams,
   IInvitationDomainWithUUID,
@@ -17,8 +18,10 @@ import {
   ISetGivenNameParams,
   ISetLocationParams,
   IUnlockParams,
+  ICheckURLParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
   Invitation,
@@ -36,15 +39,15 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
-  ConsentConditions,
+  DataPermissions,
   EVMContractAddress,
   IOpenSeaMetadata,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
-  [x: string]: any;
   protected _handler: CoreHandler;
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
@@ -63,11 +66,11 @@ export class ExternalCoreGateway {
     );
   }
   public acceptInvitation(
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
     id: UUID,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
-      consentConditions,
+      dataPermissions,
       id,
     } as IAcceptInvitationParams);
   }
@@ -77,11 +80,19 @@ export class ExternalCoreGateway {
     } as IRejectInvitationParams);
   }
 
-  public getInvitationsMetadata(): ResultAsync<
-    Record<EVMContractAddress, IOpenSeaMetadata>,
+  public getAcceptedInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
     JsonRpcError
   > {
-    return this._handler.call(EExternalActions.GET_INVITATIONS_METADATA);
+    return this._handler.call(EExternalActions.GET_ACCEPTED_INVITATIONS_CID);
+  }
+
+  public getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_INVITATION_METADATA_BY_CID, {
+      ipfsCID,
+    } as IGetInvitationMetadataByCIDParams);
   }
 
   public leaveCohort(
@@ -217,5 +228,12 @@ export class ExternalCoreGateway {
     JsonRpcError
   > {
     return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);
+  }
+  public checkURL(
+    domain: DomainName,
+  ): ResultAsync<string, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.CHECK_URL, {
+      domain,
+    } as ICheckURLParams);
   }
 }

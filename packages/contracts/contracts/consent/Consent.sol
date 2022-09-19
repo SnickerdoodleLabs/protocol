@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+// TODO to remove ERC721URIStorageUpgradeable before audit as we no longer use token URi to store agreements
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
@@ -45,6 +46,12 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev Array of trusted domains
     string[] domains;
 
+    /// @dev Oldest block that should be scanned for requestForData events 
+    uint public queryHorizon; 
+
+    /// @dev mapping from token id to consent token permissions
+    mapping(uint256 => bytes32) public agreementFlagsArray;
+    
     /* EVENTS */ 
 
     /// @notice Emitted when a request for data is made
@@ -90,6 +97,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         // set trusted forwarder
         trustedForwarder = 0xF7c6dC708550D89558110cAecD20a8A6a184427E; 
 
+        // set the queryHorizon to be the current block number;
+        queryHorizon = block.number;
+
         // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping 
         super._grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
         super._grantRole(PAUSER_ROLE, consentOwner);
@@ -107,8 +117,8 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @notice Allows any user to opt in to sharing their data
     /// @dev Mints user a Consent token
     /// @param tokenId User's Consent token id to mint against
-    /// @param agreementURI User's Consent token uri containing agreement flags
-    function optIn(uint256 tokenId, string memory agreementURI)
+    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
+    function optIn(uint256 tokenId, bytes32 agreementFlags)
         external
         whenNotPaused
         whenNotDisabled
@@ -118,9 +128,10 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         /// mint the consent token and set its agreement uri
         _safeMint(_msgSender(), tokenId);
-        _setTokenURI(tokenId, agreementURI);
 
-        /// increase total supply count
+        _updateCounterAndTokenFlags(tokenId, agreementFlags);
+
+        /// increase total supply count, this is 20,0000 gas
         totalSupply++;
 
         /// add user's consent contract to ConsentFactory
@@ -132,11 +143,11 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev The function is called with the signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
     /// @param signature Owner's signature to agree with user opt in
     function restrictedOptIn (
         uint256 tokenId, 
-        string memory agreementURI,
+        bytes32 agreementFlags,
         bytes memory signature
         )
         external
@@ -145,15 +156,17 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// if user has opted in before, revert
         require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
         
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(_msgSender(), tokenId, agreementFlags)));
+
         /// check the signature against the payload
         require(
-            _isValidSignature(_msgSender(), tokenId, agreementURI, signature),
+            _isValidSignature(hash, signature),
             "Consent: Contract owner did not sign this message"
         );
 
         /// mint the consent token and set its uri
         _safeMint(_msgSender(), tokenId);
-        _setTokenURI(tokenId, agreementURI);
+        _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
         /// increase total supply count
         totalSupply++;
@@ -167,11 +180,11 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev The function is called with the a signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
     /// @param signature Owner's signature to agree with user opt in
     function anonymousRestrictedOptIn (
         uint256 tokenId, 
-        string memory agreementURI,
+        bytes32 agreementFlags,
         bytes memory signature
         )
         external
@@ -180,16 +193,17 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// if user has opted in before, revert
         require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
         
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementFlags)));
         /// check the signature against the payload
         /// Any account possessing the signature and payload can call this method
         require(
-            _isValidSignature(tokenId, agreementURI, signature),
+            _isValidSignature(hash, signature),
             "Consent: Contract owner did not sign this message"
         );
 
         /// mint the consent token and set its uri
         _safeMint(_msgSender(), tokenId);
-        _setTokenURI(tokenId, agreementURI);
+        _updateCounterAndTokenFlags(tokenId, agreementFlags);
 
         /// increase total supply count before interaction
         totalSupply++;
@@ -217,7 +231,24 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     }
     /// price for data request (calculates based on number of tokens minted (opt-ed in))
 
+    /// @notice Allows user to update their agreement flags
+    /// @param tokenId Token id being updated 
+    /// @param newAgreementFlags a bytes32 array of a user's new agreement flag (bits that need to change should be 1, those that should remain the same should be 0)
+    function updateAgreementFlags(uint256 tokenId, bytes32 newAgreementFlags) external {
+        
+        /// check if user is msgSender() of token Id
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "Consent: caller is not token owner");
+        
+        /// update the data access permissions for the user
+        _updateCounterAndTokenFlags(tokenId, newAgreementFlags);
+    }
+
     /* SETTERS */
+
+    function setQueryHorizon(uint queryHorizon_) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(queryHorizon_ > queryHorizon, "New horizon must be strictly later than current horizon.");
+        queryHorizon = queryHorizon_;
+    }
 
     /// @notice Set the trusted forwarder address 
     /// @param trustedForwarder_ Address of the trusted forwarder 
@@ -322,46 +353,45 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     }
 
     /* INTERNAL FUNCTIONS */ 
+    /// @notice Updates the token's current counter and agreement flags
+    /// @param tokenId Token id being updated 
+    /// @param flagsToUpdate Bytes32 containing flags to be updated
+    function _updateCounterAndTokenFlags(uint256 tokenId, bytes32 flagsToUpdate) internal {
 
-    /// @notice Verify that a signature is valid
-    /// @param user Address of the user calling the function
-    /// @param tokenId Token id to be tied to current user
-    /// @param agreementURI User's Consent token uri containing agreement flags
-    /// @param signature Signature of approved user's message hash 
-    /// @return Boolean of whether signature is valid
-    function _isValidSignature(
-        address user,
-        uint256 tokenId,
-        string memory agreementURI,
-        bytes memory signature
-    ) internal view returns (bool) {
+        /// Get current agreement flags
+        bytes32 currentAgreementFlags = agreementFlagsArray[tokenId];
 
-        // convert the payload to a 32 byte hash
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(user, tokenId, agreementURI)));
-        
-        // retrieve the signature's signer 
-        address signer = ECDSAUpgradeable.recover(hash, signature);
+        /// Flip flags that need to be updated
+        bytes32 XOR = currentAgreementFlags ^ flagsToUpdate;
 
-        require(signer != address(0), "Consent: Signer cannot be 0 address.");
+        /// Update the user with new agreement flags
+        agreementFlagsArray[tokenId] = XOR;
 
-        // check if the recovered signature has the SIGNER_ROLE
-        return hasRole(SIGNER_ROLE, signer);
+        /// TODO: update counter and then update the cost to call requestForData
     }
 
-    /// @notice Verify that a signature is valid (doesn't check for recipient account)
-    /// @param tokenId Token id to be tied to current user
-    /// @param agreementURI User's Consent token uri containing agreement flags
+    /// @notice Kernighan’s Algorithm to count number of sets bits in an integer
+    /// @param tokenId Token id to check bit count for 
+    function _getBitCountByTokenId(uint256 tokenId) public view returns(uint256) {
+        uint256 count = 0;
+        uint256 num = uint256(agreementFlagsArray[tokenId]);
+        while (num > 0)
+        {
+            count += num & 1;
+            num >>= 1;
+        } 
+        return count;
+    }
+
+    /// @notice Verify that a signature is valid
+    /// @param hash Hashed message containing user address (if restricted opt in), token id and agreementFlags
     /// @param signature Signature of approved user's message hash 
     /// @return Boolean of whether signature is valid
     function _isValidSignature(
-        uint256 tokenId,
-        string memory agreementURI,
+        bytes32 hash,
         bytes memory signature
     ) internal view returns (bool) {
-
-        // convert the payload to a 32 byte hash
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementURI)));
-        
+     
         // retrieve the signature's signer 
         address signer = ECDSAUpgradeable.recover(hash, signature);
 
@@ -408,10 +438,12 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// decrease total supply count
         totalSupply--;
 
-        /// remove user's consent contract to ConsentFactory
-        consentFactoryInstance.removeUserConsents(_msgSender());
+        _updateCounterAndTokenFlags(tokenId, agreementFlagsArray[tokenId]);
 
         super._burn(tokenId);
+
+        /// remove user's consent contract to ConsentFactory
+        consentFactoryInstance.removeUserConsents(_msgSender());
     }
 
     function tokenURI(uint256 tokenId)

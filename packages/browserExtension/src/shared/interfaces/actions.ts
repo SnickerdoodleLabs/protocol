@@ -1,7 +1,7 @@
 import {
   Age,
   BigNumberString,
-  ConsentConditions,
+  DataPermissions,
   CountryCode,
   DomainName,
   EmailAddressString,
@@ -15,6 +15,7 @@ import {
   UUID,
   EVMContractAddress,
   URLString,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -64,7 +65,7 @@ export interface IGetInvitationWithDomainParams {
   path: string;
 }
 export interface IAcceptInvitationParams {
-  consentConditions: ConsentConditions;
+  dataPermissions: DataPermissions;
   id: UUID;
 }
 export interface IRejectInvitationParams {
@@ -80,6 +81,10 @@ export interface ILeaveCohortParams {
   consentContractAddress: EVMContractAddress;
 }
 
+export interface IGetInvitationMetadataByCIDParams {
+  ipfsCID: IpfsCID;
+}
+
 export interface IInvitationDomainWithUUID {
   domain: DomainName;
   title: string;
@@ -88,4 +93,7 @@ export interface IInvitationDomainWithUUID {
   rewardName: string;
   nftClaimedImage: URLString;
   id: UUID;
+}
+export interface ICheckURLParams {
+  domain: DomainName;
 }

@@ -42,7 +42,7 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(42), ChainId(43113)], //supported chains (kovan, fuji)
+      [ChainId(42), ChainId(43113), ChainId(80001), ChainId(137), ChainId(1)], //supported chains (kovan, fuji,eth mainnet)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
@@ -51,9 +51,12 @@ export class ConfigProvider
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
+      5000, // backup interval
+      5, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"),
+      "USD",
     );
   }
 

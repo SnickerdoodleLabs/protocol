@@ -1,4 +1,5 @@
 import {
+  BigNumberString,
   EVMAccountAddress,
   EVMContractAddress,
   HexString,
@@ -13,6 +14,8 @@ export class MTSRNotification extends BaseNotification {
     public data: {
       accountAddress: EVMAccountAddress;
       contractAddress: EVMContractAddress;
+      gas: BigNumberString;
+      value: BigNumberString;
       data: HexString;
     },
     public key: UUID,

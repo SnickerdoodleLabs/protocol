@@ -20,8 +20,11 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
     public accountNFTPollingIntervalMS: number,
+    public dataWalletBackupIntervalMS: number,
+    public backupChunkSizeTarget: number,
     public covalentApiKey: string,
     public moralisApiKey: string,
     public dnsServerAddress: URLString,
+    public quoteCurrency: string,
   ) {}
 }

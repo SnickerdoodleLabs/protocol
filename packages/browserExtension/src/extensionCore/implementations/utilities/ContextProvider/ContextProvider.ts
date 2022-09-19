@@ -59,7 +59,7 @@ export class ContextProvider implements IContextProvider {
   public notifyPortsWithIncomingMetatransactionSignatureRequest(
     metatransactionSignatureRequest: MetatransactionSignatureRequest,
   ) {
-    const { accountAddress, contractAddress, data } =
+    const { accountAddress, contractAddress, data, gas, value } =
       metatransactionSignatureRequest;
     const SPAOrigin = new URL(this.configProvider.getConfig().onboardingUrl)
       .origin;
@@ -69,7 +69,7 @@ export class ContextProvider implements IContextProvider {
     );
 
     const notification = new MTSRNotification(
-      { accountAddress, contractAddress, data },
+      { accountAddress, contractAddress, gas, value, data },
       id,
     );
 

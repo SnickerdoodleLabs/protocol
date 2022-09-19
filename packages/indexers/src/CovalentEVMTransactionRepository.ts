@@ -21,11 +21,61 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { urlJoinP, urlJoin } from "url-join-ts";
 
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider";
+
+interface ICovalentEVMTransactionResponseItem {
+  block_signed_at: string;
+  block_height: number;
+  tx_hash: string;
+  tx_offset: number;
+  successful: boolean;
+  from_address: string;
+  from_address_label?: string | null;
+  to_address: string | null;
+  to_address_label?: string | null;
+  value: number | null;
+  value_quote: number | null;
+  gas_offered: number;
+  gas_spent: number;
+  gas_price: number;
+  fees_paid: string;
+  gas_quote: number;
+  gas_quote_rate: number;
+
+  log_events: {
+    block_signed_at: string;
+    block_height: number;
+    tx_offset: number;
+    log_offset: number;
+    tx_hash: string;
+    raw_log_topics: string[];
+    sender_contract_decimals: number;
+    sender_name: string;
+    sender_contract_ticker_symbol: string;
+    sender_address: string;
+    sender_address_label: string;
+    sender_logo_url: string;
+    raw_log_data: string;
+    decoded: {
+      name: string;
+      signature: string;
+      params:
+        | {
+            name: string;
+            type: string;
+            indexed: boolean;
+            decoded: boolean;
+            value: string;
+          }[]
+        | null;
+    };
+  }[];
+}
 
 interface ICovalentEVMTransactionResponse {
   data: {
@@ -35,54 +85,7 @@ interface ICovalentEVMTransactionResponse {
     quote_currenncy: string;
     chain_id: number;
 
-    items: {
-      block_signed_at: string;
-      block_height: number;
-      tx_hash: string;
-      tx_offset: number;
-      successful: boolean;
-      from_address: string;
-      from_address_label?: string | null;
-      to_address: string | null;
-      to_address_label?: string | null;
-      value: number | null;
-      value_quote: number | null;
-      gas_offered: number;
-      gas_spent: number;
-      gas_price: number;
-      fees_paid: string;
-      gas_quote: number;
-      gas_quote_rate: number;
-
-      log_events: {
-        block_signed_at: string;
-        block_height: number;
-        tx_offset: number;
-        log_offset: number;
-        tx_hash: string;
-        raw_log_topics: string[];
-        sender_contract_decimals: number;
-        sender_name: string;
-        sender_contract_ticker_symbol: string;
-        sender_address: string;
-        sender_address_label: string;
-        sender_logo_url: string;
-        raw_log_data: string;
-        decoded: {
-          name: string;
-          signature: string;
-          params:
-            | {
-                name: string;
-                type: string;
-                indexed: boolean;
-                decoded: boolean;
-                value: string;
-              }[]
-            | null;
-        };
-      }[];
-    }[];
+    items: ICovalentEVMTransactionResponseItem[];
 
     pagination: {
       has_more: boolean;
@@ -114,6 +117,7 @@ interface IEVMTokenInfo {
   contract_address: string;
   supports_erc: string[];
   balance: BigNumberString;
+  quote: number;
 
   contract_name?: string;
   logo_url?: string;
@@ -141,69 +145,12 @@ export class CovalentEVMTransactionRepository
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return this.generatePrimer(startTime, endTime).andThen((primer) => {
-      return this.generateQueryConfig(
+      return this.fetchPages(
         chainId,
         this.ENDPOINT_TRANSACTIONS,
         accountAddress,
         primer,
-      ).andThen((queryConfig) => {
-        return this.ajaxUtils
-          .get<ICovalentEVMTransactionResponse>(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            new URL(queryConfig.url!),
-            queryConfig,
-          )
-          .map((queryResult: ICovalentEVMTransactionResponse) => {
-            const chainId = ChainId(queryResult.data.chain_id);
-            const transactions = queryResult.data.items.map((tx) => {
-              const busObj = new EVMTransaction(
-                chainId,
-                tx.tx_hash,
-                UnixTimestamp(
-                  Math.floor(Date.parse(tx.block_signed_at) / 1000),
-                ),
-                tx.block_height,
-                tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,
-                tx.from_address != null
-                  ? EVMAccountAddress(tx.from_address)
-                  : null,
-                tx.value != null ? BigNumberString(tx.value.toString()) : null,
-                tx.gas_price != null
-                  ? BigNumberString(tx.gas_price.toString())
-                  : null,
-                tx.gas_offered != null
-                  ? BigNumberString(tx.gas_offered.toString())
-                  : null,
-                tx.fees_paid != null
-                  ? BigNumberString(tx.fees_paid.toString())
-                  : null,
-                null,
-              );
-
-              if (tx.log_events != null) {
-                busObj.events = tx.log_events.map((event) => {
-                  return new EVMEvent(
-                    event.tx_hash,
-                    event.raw_log_data,
-                    event.raw_log_topics,
-                    event.sender_contract_decimals,
-                    event.sender_name,
-                    event.sender_contract_ticker_symbol,
-                    event.sender_address,
-                    event.sender_address_label,
-                    event.sender_logo_url,
-                    event.raw_log_data,
-                    event.decoded,
-                  );
-                });
-              }
-
-              return busObj;
-            });
-
-            return transactions;
-          });
-      });
+      );
     });
   }
 
@@ -229,7 +176,8 @@ export class CovalentEVMTransactionRepository
               chainId: chainId,
               accountAddress: accountAddress,
               balance: tokenInfo.balance,
-              contractAddress: EVMContractAddress(tokenInfo.contract_address)
+              contractAddress: EVMContractAddress(tokenInfo.contract_address),
+              quoteBalance: tokenInfo.quote,
             };
           });
         });
@@ -266,24 +214,126 @@ export class CovalentEVMTransactionRepository
     return okAsync(primer);
   }
 
+  private fetchPages(
+    chainId: ChainId,
+    endpoint: string,
+    accountAddress: EVMAccountAddress,
+    primer?: string,
+    pageNumber?: number,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
+    return this.generateQueryConfig(
+      chainId,
+      endpoint,
+      accountAddress,
+      primer,
+      pageNumber,
+    ).andThen((requestConfig) => {
+      return this.ajaxUtils
+        .get<ICovalentEVMTransactionResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        )
+        .andThen((queryResult) => {
+          const chainId = ChainId(queryResult.data.chain_id);
+          const transactions = queryResult.data.items.map((tx) =>
+            this.mapTransaction(tx, chainId),
+          );
+
+          if (queryResult.data.pagination.has_more) {
+            return this.fetchPages(
+              chainId,
+              endpoint,
+              accountAddress,
+              primer,
+              queryResult.data.pagination.page_number + 1,
+            ).andThen((otherTransactions) => {
+              return okAsync([...transactions, ...otherTransactions]);
+            });
+          }
+
+          return okAsync(transactions);
+        });
+    });
+  }
+
+  private mapTransaction(
+    tx: ICovalentEVMTransactionResponseItem,
+    chainId: ChainId,
+  ): EVMTransaction {
+    const busObj = new EVMTransaction(
+      chainId,
+      tx.tx_hash,
+      UnixTimestamp(Math.floor(Date.parse(tx.block_signed_at) / 1000)),
+      tx.block_height,
+      tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,
+      tx.from_address != null ? EVMAccountAddress(tx.from_address) : null,
+      tx.value != null ? BigNumberString(tx.value.toString()) : null,
+      tx.gas_price != null ? BigNumberString(tx.gas_price.toString()) : null,
+      tx.gas_offered != null
+        ? BigNumberString(tx.gas_offered.toString())
+        : null,
+      tx.fees_paid != null ? BigNumberString(tx.fees_paid.toString()) : null,
+      null,
+      tx.value_quote,
+    );
+
+    if (tx.log_events != null) {
+      busObj.events = tx.log_events.map((event) => {
+        return new EVMEvent(
+          event.tx_hash,
+          event.raw_log_data,
+          event.raw_log_topics,
+          event.sender_contract_decimals,
+          event.sender_name,
+          event.sender_contract_ticker_symbol,
+          event.sender_address,
+          event.sender_address_label,
+          event.sender_logo_url,
+          event.raw_log_data,
+          event.decoded,
+        );
+      });
+    }
+
+    return busObj;
+  }
+
   private generateQueryConfig(
     chainId: ChainId,
     endpoint: string,
     accountAddress: EVMAccountAddress,
     primer?: string,
+    pageNumber?: number,
   ): ResultAsync<IRequestConfig, never> {
     return this.configProvider.getConfig().map((config) => {
-      let url = `https://api.covalenthq.com/v1/${chainId.toString()}/address/${accountAddress}/${endpoint}/?key=${
-        config.covalentApiKey
-      }`;
-      if (primer != undefined) {
-        url += `&match=${primer}`;
+      const params = {
+        key: config.covalentApiKey,
+        "quote-currency": config.quoteCurrency,
+      };
+
+      if (pageNumber != undefined) {
+        params["page-number"] = pageNumber;
       }
+      if (primer != undefined) {
+        params["match"] = primer;
+      }
+      const paramString = urlJoinP(undefined, [], params);
+
+      const url = urlJoin(
+        "https://api.covalenthq.com",
+        "v1",
+        chainId.toString(),
+        "address",
+        accountAddress,
+        endpoint,
+        paramString, // needs to be assembled separately to preserve trailing slash
+      );
 
       const result: IRequestConfig = {
         method: "get",
         url: url,
-        headers: {},
+        headers: { Accept: "application/json" },
       };
       return result;
     });

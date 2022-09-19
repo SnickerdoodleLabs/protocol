@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/objects",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Objects and types shared by the Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
@@ -34,7 +34,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "jest"
+    "test": "npx jest"
   },
   "types": "dist/index.d.ts",
   "dependencies": {

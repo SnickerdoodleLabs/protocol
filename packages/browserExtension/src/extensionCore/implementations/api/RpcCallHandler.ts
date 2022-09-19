@@ -14,12 +14,12 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
-  PageInvitation,
-  ConsentConditions,
+  DataPermissions,
   UUID,
-  InvitationDomain,
   EVMContractAddress,
   IOpenSeaMetadata,
+  IpfsCID,
+  EScamFilterStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -60,6 +60,8 @@ import {
   IRejectInvitationParams,
   ILeaveCohortParams,
   IInvitationDomainWithUUID,
+  IGetInvitationMetadataByCIDParams,
+  ICheckURLParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -70,6 +72,10 @@ import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
 import { parse } from "tldts";
 import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
+import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@interfaces/business/IScamFilterService";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -79,6 +85,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IPIIServiceType) protected piiService: IPIIService,
     @inject(IInvitationServiceType)
     protected invitationService: IInvitationService,
+    @inject(IScamFilterServiceType)
+    protected scamFilterService: IScamFilterService,
   ) {}
 
   public async handleRpcCall(
@@ -192,9 +200,16 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_LOCATION: {
         return new AsyncRpcResponseSender(this.getLocation(), res).call();
       }
-      case EExternalActions.GET_INVITATIONS_METADATA: {
+      case EExternalActions.GET_ACCEPTED_INVITATIONS_CID: {
         return new AsyncRpcResponseSender(
-          this.getInvitationsMetadata(),
+          this.getAcceptedInvitationsCID(),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_INVITATION_METADATA_BY_CID: {
+        const { ipfsCID } = params as IGetInvitationMetadataByCIDParams;
+        return new AsyncRpcResponseSender(
+          this.getInvitationMetadataByCID(ipfsCID),
           res,
         ).call();
       }
@@ -232,9 +247,9 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
       case EExternalActions.ACCEPT_INVITATION: {
-        const { consentConditions, id } = params as IAcceptInvitationParams;
+        const { dataPermissions, id } = params as IAcceptInvitationParams;
         return new AsyncRpcResponseSender(
-          this.acceptInvitation(consentConditions, id),
+          this.acceptInvitation(dataPermissions, id),
           res,
         ).call();
       }
@@ -244,6 +259,10 @@ export class RpcCallHandler implements IRpcCallHandler {
           this.rejectInvitation(id),
           res,
         ).call();
+      }
+      case EExternalActions.CHECK_URL: {
+        const { domain } = params as ICheckURLParams;
+        return new AsyncRpcResponseSender(this.checkURL(domain), res).call();
       }
       case EExternalActions.CLOSE_TAB: {
         sender?.tab?.id && ExtensionUtils.closeTab(sender.tab.id);
@@ -316,14 +335,19 @@ export class RpcCallHandler implements IRpcCallHandler {
       });
   }
 
-  private getInvitationsMetadata(): ResultAsync<
-    Record<EVMContractAddress, IOpenSeaMetadata>,
+  private getAcceptedInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   > {
-    return this.invitationService.getInvitationsMetadata().map((res) => {
-      // since Map obj can not sent via rpc call we are converting to record
-      return mapToObj(res);
-    });
+    return this.invitationService
+      .getAcceptedInvitationsCID()
+      .map((res) => mapToObj(res));
+  }
+
+  private getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
+    return this.invitationService.getInvitationMetadataByCID(ipfsCID);
   }
 
   private leaveCohort(
@@ -333,20 +357,22 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private acceptInvitation(
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
     id: UUID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     const invitation = this.contextProvider.getInvitation(id) as Invitation;
-    return this.invitationService.acceptInvitation(
-      invitation,
-      consentConditions,
-    );
+    return this.invitationService.acceptInvitation(invitation, dataPermissions);
   }
   private rejectInvitation(
     id: UUID,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     const invitation = this.contextProvider.getInvitation(id) as Invitation;
     return this.invitationService.rejectInvitation(invitation);
+  }
+  private checkURL(
+    domain: DomainName,
+  ): ResultAsync<EScamFilterStatus, SnickerDoodleCoreError> {
+    return this.scamFilterService.checkURL(domain);
   }
 
   private unlock(

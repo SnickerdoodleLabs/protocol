@@ -23,6 +23,7 @@ import {
   IDataWalletPersistenceType,
   IEVMBalance,
   IEVMNFT,
+  InvalidParametersError,
   InvalidSignatureError,
   LanguageCode,
   MetatransactionSignatureRequest,
@@ -35,6 +36,7 @@ import {
   UnsupportedLanguageError,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -144,6 +146,10 @@ export class AccountService implements IAccountService {
             return this.unlockExistingWallet(encryptedDataWalletKey, signature);
           })
           .andThen((account) => {
+            console.log(
+              "Data wallet address initialized: ",
+              account.accountAddress,
+            );
             // The account address in account is just a generic EVMAccountAddress,
             // we need to cast it to a DataWalletAddress, since in this case, that's
             // what it is.
@@ -270,9 +276,16 @@ export class AccountService implements IAccountService {
             new MetatransactionSignatureRequest(
               accountAddress,
               crumbsContract.contractAddress,
+              BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+              BigNumberString(BigNumber.from(10000000).toString()), // gas
               callData, // data
               (signature: Signature, nonce: BigNumberString) => {
                 resolve([signature, nonce]);
+
+                // Return. We should really return the result from the end of this method
+                // though
+                // TODO: Figure out if there is a reasonable logical path to make that happen
+                return okAsync(undefined);
               },
             ),
           );
@@ -284,6 +297,8 @@ export class AccountService implements IAccountService {
             accountAddress,
             crumbsContract.contractAddress,
             nonce,
+            BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+            BigNumberString(BigNumber.from(10000000).toString()), // gas
             callData,
             signature,
             dataWalletKey,
@@ -385,6 +400,103 @@ export class AccountService implements IAccountService {
           context.publicEvents.onAccountAdded.next(accountAddress);
         });
     });
+  }
+
+  public getUnlinkAccountRequest(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    | PersistenceError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidParametersError
+  > {
+    return this.dataWalletPersistence
+      .getAccounts()
+      .andThen((accounts) => {
+        // Two things
+        // First, we can't remove the last account from your data wallet, so we need
+        // to make sure you're not doing that.
+        // Second, we want to make sure the request is for a valid account that is in
+        // your wallet
+        if (!accounts.includes(accountAddress)) {
+          return errAsync(
+            new InvalidParametersError(
+              `Account ${accountAddress} is not linked to your data wallet`,
+            ),
+          );
+        }
+
+        if (accounts.length <= 1) {
+          return errAsync(
+            new InvalidParametersError(
+              `Can not remove the last account from your data wallet`,
+            ),
+          );
+        }
+        return this.contextProvider.getContext();
+      })
+      .andThen((context) => {
+        if (
+          context.dataWalletAddress == null ||
+          context.dataWalletKey == null
+        ) {
+          return errAsync(
+            new UninitializedError(
+              "Core must be unlocked first before you can add an additional account",
+            ),
+          );
+        }
+
+        return ResultUtils.combine([
+          this.loginRegistryRepo.getCrumbTokenId(accountAddress),
+          this.contractFactory.factoryCrumbsContract(),
+        ]).andThen(([crumbTokenId, crumbsContract]) => {
+          if (crumbTokenId == null) {
+            // We can't unlink an account with no crumb
+            return errAsync(new UninitializedError());
+          }
+
+          const callData = crumbsContract.encodeBurnCrumb(crumbTokenId);
+
+          return okAsync(
+            new MetatransactionSignatureRequest(
+              accountAddress,
+              crumbsContract.contractAddress,
+              BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+              BigNumberString(BigNumber.from(10000000).toString()), // gas
+              callData, // data
+              (signature: Signature, nonce: BigNumberString) => {
+                // We have everything we need to do the metatransaction
+
+                return this.insightPlatformRepo
+                  .executeMetatransaction(
+                    context.dataWalletAddress!, // data wallet address
+                    accountAddress, // account address
+                    crumbsContract.contractAddress, // contract address
+                    BigNumberString(BigNumber.from(nonce).toString()),
+                    BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                    BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
+                    callData,
+                    signature,
+                    context.dataWalletKey!,
+                  )
+                  .andThen(() => {
+                    // Add the account to the data wallet
+                    return this.dataWalletPersistence.removeAccount(
+                      accountAddress,
+                    );
+                  })
+                  .map(() => {
+                    // Notify the outside world of what we did
+                    context.publicEvents.onAccountRemoved.next(accountAddress);
+                  });
+              },
+            ),
+          );
+        });
+      });
   }
 
   public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {

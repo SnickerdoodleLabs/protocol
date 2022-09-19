@@ -5,3 +5,4 @@ export * from "@core/interfaces/data/IInsightPlatformRepository";
 export * from "@core/interfaces/data/IInvitationRepository";
 export * from "@core/interfaces/data/IMetatransactionForwarderRepository";
 export * from "@core/interfaces/data/ISDQLQueryRepository";
+export * from "@core/interfaces/data/ISiftContractRepository";

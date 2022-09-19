@@ -1,4 +1,5 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import { IConsentContract } from "@snickerdoodlelabs/contracts-sdk";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -7,6 +8,7 @@ import {
   ConsentContractRepositoryError,
   ConsentError,
   ConsentFactoryContractError,
+  EVMContractAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   IPFSError,
@@ -48,7 +50,7 @@ export class BlockchainListener implements IBlockchainListener {
   constructor(
     @inject(IMonitoringServiceType)
     protected monitoringService: IMonitoringService,
-    @inject(IQueryServiceType) 
+    @inject(IQueryServiceType)
     protected queryService: IQueryService,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
@@ -56,13 +58,18 @@ export class BlockchainListener implements IBlockchainListener {
     protected consentContractRepository: IConsentContractRepository,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
-    @inject(IConfigProviderType) 
+    @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
-    @inject(IContextProviderType) 
+    @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
-    @inject(ILogUtilsType) 
+    @inject(ILogUtilsType)
     protected logUtils: ILogUtils,
   ) {}
+
+  protected queryHorizonCache = new Map<
+    EVMContractAddress,
+    BlockNumber | null
+  >();
 
   public initialize(): ResultAsync<
     void,
@@ -101,31 +108,17 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentError
     | PersistenceError
   > {
-    return ResultUtils.combine([
-      this.blockchainProvider.getLatestBlock(config.controlChainId),
-      this.dataWalletPersistence.getLatestBlockNumber(),
-    ]).andThen(([currentBlock, latestBlock]) => {
-      const currentBlockNumber = BlockNumber(currentBlock.number);
+    return this.blockchainProvider
+      .getLatestBlock(config.controlChainId)
+      .andThen((currentBlock) => {
+        const currentBlockNumber = BlockNumber(currentBlock.number);
 
-      if (latestBlock < currentBlockNumber) {
-        // If the latest known block is older than the current block, there are potentially events
-        return this.listenForConsentContractsEvents(
-          latestBlock,
-          currentBlockNumber,
-        ).andThen(() => {
-          return this.dataWalletPersistence.setLatestBlockNumber(
-            currentBlockNumber,
-          );
-        });
-      }
-
-      return okAsync(undefined);
-    });
+        return this.listenForConsentContractsEvents(currentBlockNumber);
+      });
   }
 
   protected listenForConsentContractsEvents(
-    firstBlockNumber: BlockNumber,
-    lastBlockNumber: BlockNumber,
+    currentBlockNumber: BlockNumber,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -136,6 +129,7 @@ export class BlockchainListener implements IBlockchainListener {
     | AjaxError
     | ConsentContractError
     | ConsentError
+    | PersistenceError
   > {
     return this.consentContractRepository
       .getConsentContracts()
@@ -143,14 +137,42 @@ export class BlockchainListener implements IBlockchainListener {
         return ResultUtils.combine(
           Array.from(consentContractsMap.values()).map((consentContract) => {
             // Only consent owners can request data
-            return consentContract
-              .getConsentOwner()
-              .andThen((consentOwner) => {
-                return consentContract.getRequestForDataListByRequesterAddress(
-                  consentOwner,
-                  firstBlockNumber,
-                  lastBlockNumber,
-                );
+            return ResultUtils.combine([
+              consentContract.getConsentOwner(),
+              this.getQueryHorizon(consentContract),
+              this.dataWalletPersistence.getLatestBlockNumber(
+                consentContract.getContractAddress(),
+              ),
+            ])
+              .andThen(([consentOwner, queryHorizon, latestBlockNumber]) => {
+                // Start at the queryHorizon or the firstBlockNumber, whichever is later
+                const startBlock =
+                  queryHorizon > latestBlockNumber
+                    ? queryHorizon
+                    : latestBlockNumber;
+
+                // Only need to do the query if the calculated start block is less than
+                // the current block on the chain
+                if (startBlock >= currentBlockNumber) {
+                  return okAsync([]);
+                }
+
+                return consentContract
+                  .getRequestForDataListByRequesterAddress(
+                    consentOwner,
+                    startBlock,
+                    currentBlockNumber,
+                  )
+                  .andThen((requestForDataObjects) => {
+                    return this.dataWalletPersistence
+                      .setLatestBlockNumber(
+                        consentContract.getContractAddress(),
+                        currentBlockNumber,
+                      )
+                      .map(() => {
+                        return requestForDataObjects;
+                      });
+                  });
               })
               .andThen((requestForDataObjects) => {
                 return ResultUtils.combine(
@@ -165,5 +187,27 @@ export class BlockchainListener implements IBlockchainListener {
           }),
         ).map((result) => {});
       });
+  }
+
+  protected getQueryHorizon(
+    consentContract: IConsentContract,
+  ): ResultAsync<BlockNumber, ConsentContractError> {
+    // Check if the query horizon is in the cache
+    const cachedQueryHorizon = this.queryHorizonCache.get(
+      consentContract.getContractAddress(),
+    );
+
+    if (cachedQueryHorizon != null) {
+      return okAsync(cachedQueryHorizon);
+    }
+
+    return consentContract.getQueryHorizon().map((queryHorizon) => {
+      this.queryHorizonCache.set(
+        consentContract.getContractAddress(),
+        queryHorizon,
+      );
+
+      return queryHorizon;
+    });
   }
 }

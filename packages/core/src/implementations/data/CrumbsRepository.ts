@@ -13,6 +13,7 @@ import {
   UninitializedError,
   CrumbsContractError,
   ICrumbContent,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -67,7 +68,7 @@ export class CrumbsRepository implements ICrumbsRepository {
           // Token uri will be prefixed with the base uri
           // currently it is www.crumbs.com/ on the deployment scripts
           // alternatively we can also fetch the latest base uri directly from the contract
-          const tokenUri = rawTokenUri.replace("www.crumbs.com/", "");
+          const tokenUri = rawTokenUri.match(/\{[\s\S]*\}/)?.[0];
 
           // If there is no crumb, there's no data
           if (tokenUri == null) {
@@ -88,6 +89,17 @@ export class CrumbsRepository implements ICrumbsRepository {
           return new AESEncryptedString(languageCrumb.d, languageCrumb.iv);
         });
       });
+    });
+  }
+
+  public getCrumbTokenId(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<
+    TokenId | null,
+    UninitializedError | BlockchainProviderError | CrumbsContractError
+  > {
+    return this.getCrumbsContract().andThen((contract) => {
+      return contract.addressToCrumbId(accountAddress);
     });
   }
 

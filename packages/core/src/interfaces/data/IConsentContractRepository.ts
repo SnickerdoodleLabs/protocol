@@ -11,7 +11,7 @@ import {
   ConsentFactoryContractError,
   HexString,
   TokenId,
-  ConsentConditions,
+  DataPermissions,
   URLString,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
@@ -54,7 +54,6 @@ export interface IConsentContractRepository {
 
   getCurrentConsentToken(
     consentContractAddress: EVMContractAddress,
-    ownerAddress: EVMAccountAddress,
   ): ResultAsync<
     ConsentToken | null,
     | ConsentContractError
@@ -90,7 +89,7 @@ export interface IConsentContractRepository {
   encodeOptIn(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
   encodeOptOut(
     consentContractAddress: EVMContractAddress,

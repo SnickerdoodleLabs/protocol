@@ -1,0 +1,56 @@
+Project Name,Token,Project/Dapp Website,Utility Contract Address,App Type,Protocol
+Mirandus,ERC20,https://mirandus.game/,0xcd17fA52528f37FACB3028688E62ec82d9417581,Game,Ethereum
+League of Kingdoms,ERC20,https://leagueofkingdoms.com/,0x61E90A50137E1F645c9eF4a0d3A4f01477738406,Game,Ethereum
+Decentraland,ERC20,https://decentraland.org/,0x0f5d2fb29fb7d3cfee444a200298f468908cc942,Game,Ethereum
+NFT Worlds,ERC20,https://www.nftworlds.com/,0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9,Game,Ethereum
+Illuvium,ERC20,https://www.illuvium.io/,0x767fe9edc9e0df98e07454847909b5e959d7ca0e,Game,Ethereum
+MoonCatRescue,ERC20,https://mooncatrescue.com/index.html,0x60cd862c9C687A9dE49aecdC3A99b74A4fc54aB6,Game,Ethereum
+Immortal Player Characters (IPCs),ERC721,https://www.immortalplayercharacters.com/,0x011C77fa577c500dEeDaD364b8af9e8540b808C0,Game,Ethereum
+CryptoKitties,ERC721,https://www.cryptokitties.co/,0x06012c8cf97BEaD5deAe237070F9587f8E7A266d,Game,Ethereum
+Benji Bananas,ERC721,https://benjibananas.com/,0x5911a6DA952A9D1B67Be13cEcB389aD247420360,Game,Ethereum
+NetVRk,ERC20,https://www.netvrk.co/,0xfc0d6cf33e38bce7ca7d89c0e292274031b7157a,Game,Ethereum
+Ragnarok,ERC721,https://ragnarok.xyz/top,0x497a9A79e82e6fC0FF10a16f6F75e6fcd5aE65a8,Game,Ethereum
+F1 Delta Time,ERC721,https://www.f1deltatime.com/,0x2aF75676692817d85121353f0D6e8E9aE6AD5576,Game,Ethereum
+Voxies,ERC721,https://www.voxies.io/,0xd0258a3fd00f38aa8090dfee343f10a9d4d30d3f,Game,Ethereum
+Farm Land by Pixels,ERC721,https://pixels.online/,0x5C1A0CC6DAdf4d0fB31425461df35Ba80fCBc110,Game,Ethereum
+Cryptobots,ERC20,https://cryptobots.me/,0xF7a6E15dfD5cdD9ef12711Bd757a9b6021ABf643,Game,Ethereum
+Decentral Games,ERC20,https://decentral.games/,0x4f81C790581b240A5C948Afd173620EcC8C71c8d,Game,Ethereum
+Ethermon,ERC20,https://ethermon.io/#top,0xd6a5ab46ead26f49b03bbb1f9eb1ad5c1767974a,Game,Ethereum
+MARS4,ERC20,https://www.mars4.me/,0x16cda4028e9e872a38acb903176719299beaed87,Game,Ethereum
+Sipherian Surge,ERC20,https://sipher.xyz/,0x9F52c8ecbEe10e00D9faaAc5Ee9Ba0fF6550F511,Game,Ethereum
+Bullieverse,ERC721,https://bullieverse.com/home,0x329fa32F6520FB67Bb3C1fc3a6909BEb8239544c,Game,Ethereum
+Metaguardians,ERC721,https://metaguardians.com/,0x6FbBc8977616e0425911C69d72E12d32A5865560,Game,Ethereum
+Monsterbuds,ERC721,https://monsterbuds.io/,0x6317C4CAB501655D7B85128A5868E98a094C0082,Game,Ethereum
+Nifty League,ERC20,https://niftyleague.com/,0x3c8D2FCE49906e11e71cB16Fa0fFeB2B16C29638,Game,Ethereum
+OpenSea,ERC20,https://opensea.io/,0x7f268357A8c2552623316e2562D90e642bB538E5,Marketplaces,Ethereum
+Uniswap V2,ERC20,https://app.uniswap.org/#/swap?chain=mainnet,0x1c9052e823b5f4611ef7d5fb4153995b040ccbf5,Exchanges,Ethereum
+Uniswap V3,ERC721,https://app.uniswap.org/#/swap?chain=mainnet,0xC36442b4a4522E871399CD717aBDD847Ab11FE88,Exchanges,Ethereum
+MetaMask Swap,ERC20,https://metamask.io/,0x881d40237659c251811cec9c364ef91dc08d300c,DeFi,Ethereum
+0x Protocol,ERC20,https://www.0x.org/,0xE41d2489571d322189246DaFA5ebDe1F4699F498,Exchanges,Ethereum
+Sushi,ERC20,https://app.sushi.com/analytics/xsushi,0x6b3595068778dd592e39a122f4f5a5cf09c90fe2,DeFi,Ethereum
+Polygon POS Bridge,ERC20,https://polygon.technology/,0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0,DeFi,Ethereum
+X2Y2,ERC20,https://x2y2.io/,0x1e4ede388cbc9f4b5c79681b7f94d36a11abebc9,Marketplaces,Ethereum
+Mail3,ERC721,https://mail3.me/,0x949C4828890e939deF03a2776135fB4C18fAdAAe,Social,Ethereum
+Chimpers,ERC721,https://www.chimpers.xyz/,0x80336Ad7A747236ef41F47ed2C7641828a480BAA,Collectibles,Ethereum
+1Inch Network,ERC20,https://app.1inch.io/#/1/swap/ETH/DAI,0x111111111117dc0aa78b770fa6a738034120c302,DeFi,Ethereum
+Foundation,ERC721,https://foundation.app/,0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405,Marketplaces,Ethereum
+CowSwap,ERC20,https://cow.fi/,0xDEf1CA1fb7FBcDC777520aa7f396b4E015F497aB,DeFi,Ethereum
+LooksRare,ERC20,https://looksrare.org/,0xf4d2888d29d722226fafa5d9b24f9164c092421e,Marketplaces,Ethereum
+Hex,ERC20,https://hex.com/,0x2b591e99afe9f32eaa6214f7b7629768c40eeb39,DeFi,Ethereum
+Aave V2,ERC20,https://app.aave.com/,0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9,DeFi,Ethereum
+Element Market,ERC20,https://www.element.market/ethereum,0x20f780a973856b93f63670377900c1d2a50a77c4,Marketplaces,Ethereum
+http://Crypto.com DeFi Swap,ERC20,https://crypto.com/defi/swap/,0xA0b73E1Ff0B80914AB6fe0444E65848C4C34450b,Exchanges,Ethereum
+Shibha Swap,ERC20,https://shibaswap.com/#/,0x27c70cd1946795b66be9d954418546998b546634,DeFi,Ethereum
+Curve,ERC20,https://beta.curve.fi/,0xd533a949740bb3306d119cc777fa900ba034cd52,DeFi,Ethereum
+Convex Finance,ERC20,https://www.convexfinance.com/,0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b,DeFi,Ethereum
+HOP Protocol,ERC20,https://app.hop.exchange/#/send?token=ETH,0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc,Exchanges,Ethereum
+Uniswap,ERC20,https://uniswap.org/,0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984,DAO,Ethereum
+BitDAO,ERC20,https://www.bitdao.io/,0x1A4b46696b2bB4794Eb3D4c26f1c55F9170fa4C5,DAO,Ethereum
+Gnosis,ERC20,https://gnosis.io/gnosisdao/,0x6810e776880C02933D47DB1b9fc05908e5386b96,DAO,Ethereum
+Lido,ERC20,https://lido.fi/,0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32,DAO,Ethereum
+OlympusDAO,ERC20,https://www.olympusdao.finance/,0x64aa3364F17a4D01c6f1751Fd97C2BD3D7e7f1D5,DAO,Ethereum
+Decentraland,ERC20,https://dao.decentraland.org/,0x0F5D2fB29fb7d3CFeE444a200298f468908cC942,DAO,Ethereum
+AAVE,ERC20,https://aave.com/,0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,DAO,Ethereum
+ENS,ERC20,https://ens.domains/,0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85,DAO,Ethereum
+Compound,ERC20,https://compound.finance/,0xc00e94Cb662C3520282E6f5717214004A7f26888,DAO,Ethereum
+Ribbon,ERC20,https://www.ribbon.finance/,0x6123B0049F904d730dB3C36a31167D9d4121fA6B,DAO,Ethereum

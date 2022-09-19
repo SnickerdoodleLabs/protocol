@@ -48,14 +48,18 @@ export class SDQLQueryRepository implements ISDQLQueryRepository {
         const ipfsUrl = urlJoin(config.ipfsFetchBaseUrl, cid);
         return this.ajaxUtils.get<SDQLString>(new URL(ipfsUrl));
       })
-      .map((sdql) => {
+      .map((sdql: SDQLString) => {
         // If there is no data in IPFS for this CID, return null
         if (sdql.length == 0) {
           return null;
         }
 
+        if (typeof sdql !== "string") {
+          sdql = SDQLString(JSON.stringify(sdql));
+        }
+
         // Create the query
-        const query = new SDQLQuery(cid, SDQLString(JSON.stringify(sdql)));
+        const query = new SDQLQuery(cid, sdql);
 
         // Cache the query
         this.queryCache.set(cid, query);

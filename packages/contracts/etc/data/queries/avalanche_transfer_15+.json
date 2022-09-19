@@ -1,6 +1,8 @@
 {
     "version": 0.1,
-    "description": "Intractions with the Avalanche blockchain for 15-year and older individuals",
+    "timestamp": "2021-11-13T20:20:39",
+    "expiry" : "2022-11-13T20:20:39",
+    "description": "Targeting 15-year and older individuals who have interactions with the Avalanche blockchain, querying location",
     "business": "Shrapnel",
     "queries": {
         "q1": {
@@ -28,7 +30,8 @@
         },
         "q3":{
             "name": "location",
-            "return": "integer"
+            "return": "string",
+            "string_pattern": "^([A-Z]){2}$"        
         }
     },
     "returns": {

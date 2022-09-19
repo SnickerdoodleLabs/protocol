@@ -8,7 +8,7 @@ import {
   EInvitationStatus,
   UninitializedError,
   PersistenceError,
-  ConsentConditions,
+  DataPermissions,
   ConsentError,
   EVMContractAddress,
   IDataWalletPersistenceType,
@@ -25,6 +25,7 @@ import {
   PageInvitation,
   ConsentFactoryContractError,
   IOpenSeaMetadata,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -138,7 +139,7 @@ export class InvitationService implements IInvitationService {
 
   public acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<
     void,
     | PersistenceError
@@ -160,7 +161,7 @@ export class InvitationService implements IInvitationService {
         this.consentRepo.encodeOptIn(
           invitation.consentContractAddress,
           invitation.tokenId,
-          consentConditions,
+          dataPermissions,
         ),
         this.forwarderRepo.getNonce(),
       ])
@@ -186,6 +187,8 @@ export class InvitationService implements IInvitationService {
                 EVMAccountAddress(context.dataWalletAddress!), // account address
                 invitation.consentContractAddress, // contract address
                 BigNumberString(BigNumber.from(nonce).toString()),
+                BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
                 callData,
                 metatransactionSignature,
                 context.dataWalletKey!,
@@ -254,10 +257,7 @@ export class InvitationService implements IInvitationService {
 
       // We need to find your opt-in token
       return this.consentRepo
-        .getCurrentConsentToken(
-          consentContractAddress,
-          EVMAccountAddress(context.dataWalletAddress),
-        )
+        .getCurrentConsentToken(consentContractAddress)
         .andThen((consentToken) => {
           console.log(consentToken);
 
@@ -299,6 +299,8 @@ export class InvitationService implements IInvitationService {
                     EVMAccountAddress(context.dataWalletAddress!), // account address
                     consentContractAddress, // contract address
                     BigNumberString(BigNumber.from(nonce).toString()),
+                    BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                    BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
                     callData,
                     metatransactionSignature,
                     context.dataWalletKey!,
@@ -339,81 +341,39 @@ export class InvitationService implements IInvitationService {
       });
   }
 
-  public getAcceptedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
+  public getAcceptedInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
     | UninitializedError
     | BlockchainProviderError
     | ConsentFactoryContractError
     | ConsentContractError
-    | IPFSError
   > {
     return this.consentRepo
       .getConsentContracts()
-      .andThen((consentContractAddresses) => {
-        return ResultUtils.combine(
+      .andThen((consentContractAddresses) =>
+        ResultUtils.combine(
           Array.from(consentContractAddresses.keys()).map((contractAddress) => {
             return this.consentRepo
               .getMetadataCID(contractAddress)
-              .andThen((ipfsCID) => {
-                return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
-              })
-              .map((openSeaMetadata) => {
-                return {
-                  contractAddress,
-                  openSeaMetadata,
-                };
-              });
+              .map((ipfsCID) => ({ ipfsCID, contractAddress }));
           }),
-        );
-      })
-      .map((addressesWithMetadatas) => {
-        return new Map(
-          addressesWithMetadatas.map((addressWithMetadata) => {
-            return [
-              addressWithMetadata.contractAddress,
-              addressWithMetadata.openSeaMetadata,
-            ];
-          }),
-        );
-      });
+        ),
+      )
+      .map(
+        (addressesWithCID) =>
+          new Map(
+            addressesWithCID.map((addressWithCID) => [
+              addressWithCID.contractAddress,
+              addressWithCID.ipfsCID,
+            ]),
+          ),
+      );
   }
 
-  public getRejectedInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
-    | UninitializedError
-    | BlockchainProviderError
-    | ConsentContractError
-    | PersistenceError
-    | IPFSError
-  > {
-    return this.persistenceRepo
-      .getRejectedCohorts()
-      .andThen((consentContractAddresses) => {
-        return ResultUtils.combine(
-          consentContractAddresses.map((contractAddress) => {
-            return this.consentRepo
-              .getMetadataCID(contractAddress)
-              .andThen((ipfsCID) => {
-                return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
-              })
-              .map((openSeaMetadata) => {
-                return {
-                  contractAddress,
-                  openSeaMetadata,
-                };
-              });
-          }),
-        ).map((addressesWithMetadatas) => {
-          return new Map(
-            addressesWithMetadatas.map((addressWithMetadata) => {
-              return [
-                addressWithMetadata.contractAddress,
-                addressWithMetadata.openSeaMetadata,
-              ];
-            }),
-          );
-        });
-      });
+  public getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, IPFSError> {
+    return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
   }
 
   protected getInvitationsFromConsentContract(

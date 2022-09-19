@@ -1,6 +1,7 @@
 {
     "version": 0.1,
-	"timestamp": <this should be populated with GMT>,
+    "timestamp": <this should be populated with GMT>,
+    "expiry" : <this should be populated with GMT>,
     "description": "///This should dynamically populate",
     "business": "/////This should dynamically populate",
     "queries": {

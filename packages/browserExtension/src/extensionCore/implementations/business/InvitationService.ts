@@ -7,12 +7,13 @@ import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
-  ConsentConditions,
+  DataPermissions,
   DomainName,
   EInvitationStatus,
   PageInvitation,
   EVMContractAddress,
   IOpenSeaMetadata,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -24,6 +25,17 @@ export class InvitationService implements IInvitationService {
     protected invitationRepository: IInvitationRepository,
     @inject(IContextProviderType) protected contexProvider: IContextProvider,
   ) {}
+  public getAcceptedInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    SnickerDoodleCoreError
+  > {
+    return this.invitationRepository.getAcceptedInvitationsCID();
+  }
+  public getInvitationMetadataByCID(
+    ipfsCID: IpfsCID,
+  ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError> {
+    return this.invitationRepository.getInvitationMetadataByCID(ipfsCID);
+  }
 
   public getInvitationByDomain(
     domain: DomainName,
@@ -39,24 +51,17 @@ export class InvitationService implements IInvitationService {
 
   public acceptInvitation(
     invitation: Invitation,
-    consentConditions: ConsentConditions | null,
+    dataPermissions: DataPermissions | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.acceptInvitation(
       invitation,
-      consentConditions,
+      dataPermissions,
     );
   }
   public rejectInvitation(
     invitation: Invitation,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.rejectInvitation(invitation);
-  }
-
-  public getInvitationsMetadata(): ResultAsync<
-    Map<EVMContractAddress, IOpenSeaMetadata>,
-    SnickerDoodleCoreError
-  > {
-    return this.invitationRepository.getInvitationsMetadata();
   }
 
   public leaveCohort(

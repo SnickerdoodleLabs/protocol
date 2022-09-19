@@ -10,7 +10,8 @@
         },
         "q2": {
             "name": "location",
-            "return": "string"
+            "return": "string",
+            "string_pattern": "^([A-Z]){2}$"        
         },
         "q3": {
             "name": "gender",

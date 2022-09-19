@@ -1,11 +1,32 @@
 {
     "version": 0.1,
-    "description": "ETH sent on the Ethereum blockchain by north american millenials",
+    "timestamp": "2021-11-13T20:20:39",
+    "expiry" : "2022-11-13T20:20:39",
+    "description": "Target north american millenials, querying ETH sent on the Ethereum blockchain",
     "business": "Shrapnel",
     "queries": {
         "q1": {
             "name": "network",
-            "return": "boolean",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },   
             "chain": "ETH",
             "contract": {
                 "networkid": "1",
@@ -32,16 +53,39 @@
             "return": "boolean",
             "conditions": {
                 "in": [
-                    840,
-                    484,
-                    124,
-                    304
+                    "US",
+                    "CA",
+                    "MX",
+                    "AG",
+                    "BS",
+                    "BB",
+                    "CU",
+                    "DM",
+                    "DO",
+                    "GD",
+                    "HT",
+                    "JM",
+                    "KN",
+                    "LC",
+                    "VC",
+                    "TT",
+                    "AI",
+                    "BM",
+                    "VG",
+                    "KY",
+                    "MS",
+                    "TC",
+                    "GL",
+                    "BQ",
+                    "GP",
+                    "MQ",
+                    "BL",
+                    "MF",
+                    "PM",
+                    "PR",
+                    "VI"
                 ]
             }
-        }, 
-        "q4": {
-            "name": "location",
-            "return": "integer"
         }
     },
     "returns": {
@@ -55,7 +99,7 @@
         }, 
         "r3":{
             "name": "query_response",
-            "query": "q4"
+            "query": "q1"
         },
         "url": "https://418e-64-85-231-39.ngrok.io/insights"
     },
@@ -74,7 +118,7 @@
         }
     },
     "logic":{
-        "returns": ["if($q1and$q2and$q3)then$r1else$r2", "$r3"],
-        "compensations": ["if$q1then$c1", "if$q2then$c2", "if$q3then$c2", "if$q4then$c3"]
+        "returns": ["if($q2and$q3)then$r1else$r2", "$r3"],
+        "compensations": ["if$q1then$c1", "if$q2then$c2", "if$q3then$c2"]
     }
 }

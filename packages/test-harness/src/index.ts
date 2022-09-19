@@ -1,4 +1,6 @@
 import "reflect-metadata";
+import process from "node:process";
+
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
@@ -34,6 +36,11 @@ import {
   Gender,
   SDQLQueryRequest,
   EVMTransaction,
+  AESEncryptedString,
+  EncryptedString,
+  InitializationVector,
+  IDataWalletBackup,
+  MetatransactionSignatureRequest,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -43,6 +50,8 @@ import { BigNumber, ethers } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { query1, query2 } from "./queries";
 
 import { IPFSClient } from "@extension-onboarding/packages/test-harness/src/IPFSClient";
 import { BlockchainStuff } from "@test-harness/BlockchainStuff";
@@ -83,6 +92,16 @@ const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
 
+process
+  .on("unhandledRejection", (reason, p) => {
+    console.error(reason, "Unhandled Rejection at Promise", p);
+    process.exit(1);
+  })
+  .on("uncaughtException", (err) => {
+    console.error(err, "Uncaught Exception thrown");
+    process.exit(1);
+  });
+
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
     console.log(`Added account: ${addedAccount}`);
@@ -92,106 +111,53 @@ core.getEvents().map(async (events) => {
     console.log(`Initialized with address ${dataWalletAddress}`);
   });
 
-  events.onQueryPosted.subscribe((queryRequest: SDQLQueryRequest) => {
+  events.onQueryPosted.subscribe(async (queryRequest: SDQLQueryRequest) => {
     console.log(
-      `Recieved query for consentContract ${queryRequest.consentContractAddress}`,
+      `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
     );
 
-    const val = queryRequest.query.query;
-    console.log("Val: ", val);
-    /*
-    const queryPretty = JSON.stringify(
-      (queryRequest.query.query),
-      null,
-      2,
-    );
-    console.log(queryPretty);
-    */
-    // console.log(queryRequest.query);
+    try {
+      await prompt([
+        {
+          type: "list",
+          name: "approveQuery",
+          message: "Approve running the query?",
+          choices: [
+            { name: "Yes", value: true },
+            { name: "No", value: false },
+          ],
+        },
+      ])
+        .andThen((answers) => {
+          if (!answers.approveQuery) {
+            return okAsync(undefined);
+          }
 
-    prompt([
-      {
-        type: "list",
-        name: "approveQuery",
-        message: "Approve running the query?",
-        choices: [
-          { name: "Yes", value: true },
-          { name: "No", value: false },
-        ],
-      },
-    ])
-      .andThen((answers) => {
-        if (!answers.approveQuery) {
-          return okAsync(undefined);
-        }
-
-        return core.processQuery(
-          queryRequest.consentContractAddress,
-          queryRequest.query,
-        );
-      })
-      .mapErr((e) => {
-        console.error(e);
-        return e;
-      });
+          return core.processQuery(
+            queryRequest.consentContractAddress,
+            queryRequest.query,
+          );
+        })
+        .mapErr((e) => {
+          console.error(e);
+          return e;
+        });
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   events.onMetatransactionSignatureRequested.subscribe(async (request) => {
     // This method needs to happen in nicer form in all form factors
-    try {
-      console.log(
-        `Metadata Transaction Requested!`,
-        `Request account address: ${request.accountAddress}`,
-      );
+    console.log(
+      `Metadata Transaction Requested!`,
+      `Request account address: ${request.accountAddress}`,
+    );
 
-      // We need to get a nonce for this account address from the forwarder contract
-      const nonceResult = await blockchain.minimalForwarder.getNonce(
-        request.accountAddress,
-      );
-      if (nonceResult.isErr()) {
-        throw nonceResult.error;
-      }
-      const nonce = nonceResult.value;
-
-      // We need to take the types, and send it to the account signer
-      const value = {
-        to: request.contractAddress, // Contract address for the metatransaction
-        from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
-        value: BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-        gas: BigNumber.from(10000000), // The amount of gas to pay.
-        nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-        data: request.data, // The actual bytes of the request, encoded as a hex string
-      } as IMinimalForwarderRequest;
-
-      // Get the chain info for the doodle chain
-      const doodleChainConfig = chainConfig.get(
-        ChainId(31338),
-      ) as ControlChainInformation;
-
-      // Get the wallet we are going to sign with
-      const wallet = blockchain.getWalletForAddress(request.accountAddress);
-
-      const metatransactionSignature = Signature(
-        await wallet._signTypedData(
-          // This domain is critical- we have to use this and not the normal Snickerdoodle domain
-          getMinimalForwarderSigningDomain(
-            doodleChainConfig.chainId,
-            doodleChainConfig.metatransactionForwarderAddress,
-          ),
-          forwardRequestTypes,
-          value,
-        ),
-      );
-
-      console.log(
-        `Metatransaction signature generated: ${metatransactionSignature}`,
-      );
-
-      request.callback(metatransactionSignature, nonce);
-    } catch (e) {
+    await signMetatransactionRequest(request).mapErr((e) => {
       console.error(`Error signing forwarding request!`, e);
       process.exit(1);
-    }
+    });
   });
 
   // Main event prompt. Core is up and running
@@ -237,6 +203,7 @@ function mainPrompt(): ResultAsync<void, Error> {
 function corePrompt(): ResultAsync<void, Error> {
   let choices = [
     { name: "Add Account", value: "addAccount" },
+    { name: "Remove Account", value: "removeAccount" },
     new inquirer.Separator(),
     {
       name: "Opt In to Campaign",
@@ -275,6 +242,9 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "Add Site Visit - Google ", value: "addSiteVisit - google" },
     { name: "Add Site Visit - Facebook", value: "addSiteVisit - facebook" },
     new inquirer.Separator(),
+    { name: "dump backup", value: "dumpBackup" },
+    { name: "restore backup", value: "restoreBackup" },
+    new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
   ];
@@ -303,6 +273,8 @@ function corePrompt(): ResultAsync<void, Error> {
         return unlockCore();
       case "addAccount":
         return addAccount();
+      case "removeAccount":
+        return removeAccount();
       case "optInCampaign":
         return optInCampaign();
       case "optOutCampaign":
@@ -352,6 +324,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
+          Math.random() * 1000,
         );
         return core.addEVMTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
@@ -367,6 +340,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
+          Math.random() * 1000,
         );
         return core.addEVMTransactions(transactions).map(console.log);
       case "addSiteVisit - google":
@@ -383,6 +357,29 @@ function corePrompt(): ResultAsync<void, Error> {
           UnixTimestamp(1000),
         );
         return core.addSiteVisits(sites).map(console.log);
+      case "dumpBackup":
+        return core.dumpBackup().map(console.log);
+      case "restoreBackup":
+        const backup: IDataWalletBackup = {
+          header: {
+            hash: "$argon2id$v=19$m=4096,t=3,p=1$ChlKcS/rZO9dhyS9h+YiHA$yAqqsYNGAhfRMWMU0FmITwKmrw3kIEZcmG2RwJW25gA",
+            timestamp: UnixTimestamp(1661451654712),
+            signature:
+              "0x91b3f61b2d1a7da6dc8a8a74037351b4f7d8c09b9844c004828dd9de7da7977e69e7350a13d324df050ace9bb625530e00884a94acc7ec307270ce4488225c4a1c",
+            accountAddress: "0xF7e191Dbebb9450835Cb5768eeE7622FCfF57208",
+          },
+          blob: new AESEncryptedString(
+            EncryptedString(
+              "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",
+            ),
+            InitializationVector("xR+uHr2nJ3CfL0md"),
+          ),
+        };
+        return core
+          .restoreBackup(backup)
+          .andThen(() =>
+            okAsync(console.log("restored backup", backup.header.hash)),
+          );
     }
     return okAsync(undefined);
   });
@@ -469,188 +466,9 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
         // They did not pick "cancel"
         let queryText = SDQLString("");
         if (queryId === 1) {
-          queryText = SDQLString(
-            JSON.stringify({
-              version: 0.1,
-              description:
-                "Intractions with the Avalanche blockchain for 15-year and older individuals",
-              business: "Shrapnel",
-              queries: {
-                q1: {
-                  name: "network",
-                  return: "boolean",
-                  chain: "AVAX",
-                  contract: {
-                    networkid: "43114",
-                    address: "0x9366d30feba284e62900f6295bc28c9906f33172",
-                    function: "Transfer",
-                    direction: "from",
-                    token: "ERC20",
-                    blockrange: {
-                      start: 13001519,
-                      end: 14910334,
-                    },
-                  },
-                },
-                q2: {
-                  name: "age",
-                  return: "boolean",
-                  conditions: {
-                    ge: 15,
-                  },
-                },
-                q3: {
-                  name: "location",
-                  return: "integer",
-                },
-                q4: {
-                  name: "gender",
-                  return: "enum",
-                  enum_keys: ["female", "male", "nonbinary", "unknown"],
-                },
-                q5: {
-                  name: "url_visited_count",
-                  return: "object",
-                  object_schema: {
-                    patternProperties: {
-                      "^http(s)?://[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*/[a-zA-Z0-9]*$":
-                        {
-                          type: "integer",
-                        },
-                    },
-                  },
-                },
-                q6: {
-                  name: "chain_transaction_count",
-                  return: "object",
-                  object_schema: {
-                    patternProperties: {
-                      "^ETH|AVAX|SOL$": {
-                        type: "integer",
-                      },
-                    },
-                  },
-                },
-                q7: {
-                  name: "balance",
-                  networkid: "42",
-                  conditions: {
-                    ge: 10,
-                  },
-                  return: "array",
-                  array_items: {
-                    type: "object",
-                    object_schema: {
-                      properties: {
-                        networkid: {
-                          type: "integer",
-                        },
-                        address: {
-                          type: "string",
-                          pattern: "^0x[a-fA-F0-9]{40}$",
-                        },
-                        balance: {
-                          type: "number",
-                        },
-                      },
-                      required: ["networkid", "address", "balance"],
-                    },
-                  },
-                },
-                q8: {
-                  name: "balance",
-                  networkid: "*",
-                  conditions: {
-                    ge: 10,
-                  },
-                  return: "array",
-                  array_items: {
-                    type: "object",
-                    object_schema: {
-                      properties: {
-                        networkid: {
-                          type: "integer",
-                        },
-                        address: {
-                          type: "string",
-                          pattern: "^0x[a-fA-F0-9]{40}$",
-                        },
-                        balance: {
-                          type: "number",
-                        },
-                      },
-                      required: ["networkid", "address", "balance"],
-                    },
-                  },
-                },
-              },
-              returns: {
-                r1: {
-                  name: "callback",
-                  message: "qualified",
-                },
-                r2: {
-                  name: "callback",
-                  message: "not qualified",
-                },
-                r3: {
-                  name: "query_response",
-                  query: "q3",
-                },
-                r4: {
-                  name: "query_response",
-                  query: "q4",
-                },
-                r5: {
-                  name: "query_response",
-                  query: "q5",
-                },
-                r6: {
-                  name: "query_response",
-                  query: "q6",
-                },
-                r7: {
-                  name: "query_response",
-                  query: "q7",
-                },
-                r8: {
-                  name: "query_response",
-                  query: "q8",
-                },
-                url: "https://418e-64-85-231-39.ngrok.io/insights",
-              },
-              compensations: {
-                c1: {
-                  description: "10% discount code for Starbucks",
-                  callback: "https://418e-64-85-231-39.ngrok.io/starbucks",
-                },
-                c2: {
-                  description:
-                    "participate in the draw to win a CryptoPunk NFT",
-                  callback: "https://418e-64-85-231-39.ngrok.io/cryptopunk",
-                },
-                c3: {
-                  description: "a free CrazyApesClub NFT",
-                  callback: "https://418e-64-85-231-39.ngrok.io/crazyapesclub",
-                },
-              },
-              logic: {
-                returns: [
-                  "if($q1and$q2)then$r1else$r2",
-                  "$r3",
-                  "$r4",
-                  "$r5",
-                  "$r6",
-                  "$r7",
-                  "$r8",
-                ],
-                compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
-              },
-            }),
-          );
+          queryText = SDQLString(JSON.stringify(query1));
         } else if (queryId === 2) {
-          console.log("Query 2 currently does not exist");
-          queryText = SDQLString("{}");
+          queryText = SDQLString(JSON.stringify(query2));
         }
 
         return simulator.postQuery(contractAddress, queryText);
@@ -770,6 +588,62 @@ function addAccount(): ResultAsync<
             signature,
             languageCode,
           );
+        });
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
+    });
+}
+
+function removeAccount(): ResultAsync<
+  void,
+  | PersistenceError
+  | BlockchainProviderError
+  | UninitializedError
+  | CrumbsContractError
+  | Error
+> {
+  return core
+    .getAccounts()
+    .andThen((linkedAccounts) => {
+      const removeableWallets = blockchain.accountWallets.filter((aw) => {
+        return linkedAccounts.includes(EVMAccountAddress(aw.address));
+      });
+      return prompt([
+        {
+          type: "list",
+          name: "removeAccountSelector",
+          message: "Which account do you want to remove?",
+          choices: [
+            ...removeableWallets.map((wallet) => {
+              return {
+                name: wallet.address,
+                value: wallet,
+              };
+            }),
+            new inquirer.Separator(),
+            { name: "Cancel", value: "cancel" },
+          ],
+        },
+      ]);
+    })
+    .andThen((answers) => {
+      if (answers.removeAccountSelector == "cancel") {
+        return okAsync(undefined);
+      }
+
+      const wallet = answers.removeAccountSelector as ethers.Wallet;
+      const accountAddress = EVMAccountAddress(wallet.address);
+
+      return core
+        .getUnlinkAccountRequest(accountAddress)
+        .andThen((request) => {
+          // Once you have the request, we just get nonce, sign, and call the callback
+          return signMetatransactionRequest(request);
+        })
+        .map(() => {
+          console.log(`Unlinked account ${accountAddress}`);
         });
     })
     .mapErr((e) => {
@@ -932,4 +806,58 @@ function prompt(
     // Swallow the error, returns an empty answer
     return okAsync({});
   });
+}
+
+function signMetatransactionRequest<TErr>(
+  request: MetatransactionSignatureRequest<TErr>,
+): ResultAsync<void, Error | TErr> {
+  // This method needs to happen in nicer form in all form factors
+  console.log(
+    `Metadata Transaction Requested!`,
+    `Request account address: ${request.accountAddress}`,
+  );
+
+  // We need to get a nonce for this account address from the forwarder contract
+  return blockchain.minimalForwarder
+    .getNonce(request.accountAddress)
+    .andThen((nonce) => {
+      // We need to take the types, and send it to the account signer
+      const value = {
+        to: request.contractAddress, // Contract address for the metatransaction
+        from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
+        value: BigNumber.from(request.value), // The amount of doodle token to pay. Should be 0.
+        gas: BigNumber.from(request.gas), // The amount of gas to pay.
+        nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+        data: request.data, // The actual bytes of the request, encoded as a hex string
+      } as IMinimalForwarderRequest;
+
+      // Get the chain info for the doodle chain
+      const doodleChainConfig = chainConfig.get(
+        ChainId(31338),
+      ) as ControlChainInformation;
+
+      // Get the wallet we are going to sign with
+      const wallet = blockchain.getWalletForAddress(request.accountAddress);
+
+      return ResultAsync.fromPromise(
+        wallet._signTypedData(
+          // This domain is critical- we have to use this and not the normal Snickerdoodle domain
+          getMinimalForwarderSigningDomain(
+            doodleChainConfig.chainId,
+            doodleChainConfig.metatransactionForwarderAddress,
+          ),
+          forwardRequestTypes,
+          value,
+        ),
+        (e) => {
+          return new Error();
+        },
+      ).andThen((metatransactionSignature) => {
+        console.log(
+          `Metatransaction signature generated: ${metatransactionSignature}`,
+        );
+
+        return request.callback(Signature(metatransactionSignature), nonce);
+      });
+    });
 }

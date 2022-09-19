@@ -1,11 +1,32 @@
 {
     "version": 0.1,
-    "description": "Intractions with the Avalanche blockchain for 15-year and older individuals",
+    "timestamp": "2021-11-13T20:20:39",
+    "expiry" : "2022-11-13T20:20:39",
+    "description": "Targetting 25-year and older individuals querying intractions with the Avalanche blockchain and chain balances",
     "business": "Shrapnel",
     "queries": {
         "q1": {
             "name": "network",
-            "return": "boolean",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },   
             "chain": "AVAX",
             "contract": {
                 "networkid": "43114",
@@ -23,14 +44,10 @@
             "name": "age",
             "return": "boolean",
             "conditions": {
-                "ge": 15
+                "ge": 25
             }
         },
         "q3": {
-            "name": "location",
-            "return": "integer"
-        },
-        "q4": {
             "name": "balance",
             "networkid": "43114",
             "return": "array",
@@ -47,17 +64,17 @@
                         },
                         "balance": {
                             "type": "number"
-                        },
-                        "required": [
-                            "networkid",
-                            "address",
-                            "balance"
-                        ]
-                    }
+                        }
+                    },
+                    "required": [
+                        "networkid",
+                        "address",
+                        "balance"
+                    ]
                 }
             }
         },
-        "q5": {
+        "q4": {
             "name": "balance",
             "networkid": "1",
             "conditions": {
@@ -87,7 +104,7 @@
                 }
             }
         },
-        "q6": {
+        "q5": {
             "name": "balance",
             "networkid": "*",
             "return": "array",
@@ -138,7 +155,7 @@
         },
         "r6": {
             "name": "query_response",
-            "query": "q6"
+            "query": "q1"
         },
         "url": "https://418e-64-85-231-39.ngrok.io/insights"
     },
@@ -158,11 +175,11 @@
     },
     "logic": {
         "returns": [
-            "if($q1and$q2)then$r1else$r2",
+            "if$q2then$r1else$r2",
             "$r3",
             "$r4",
             "$r5",
-            "r6"
+            "$r6"
         ],
         "compensations": [
             "if$q1then$c1",

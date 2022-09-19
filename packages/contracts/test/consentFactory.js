@@ -1,6 +1,10 @@
 const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
 
+const agreementFlags1 = ethers.utils.formatBytes32String(1);
+const agreementFlags2 = ethers.utils.formatBytes32String(2);
+const agreementFlags3 = ethers.utils.formatBytes32String(3);
+
 async function getAddress(contract) {
   const txHash = contract.deployTransaction.hash;
   const txReceipt = await ethers.provider.waitForTransaction(txHash);
@@ -241,8 +245,8 @@ describe("ConsentFactory", () => {
       const consent1 = await Consent.attach(deployedConsentAddressArray[0]);
       const consent2 = await Consent.attach(deployedConsentAddressArray[1]);
 
-      await consent1.connect(user1).optIn(1, "agreement1");
-      await consent2.connect(user1).optIn(2, "agreement2");
+      await consent1.connect(user1).optIn(1, agreementFlags1);
+      await consent2.connect(user1).optIn(2, agreementFlags1);
 
       const userArrayCount = await consentFactory.getUserConsentAddressesCount(
         user1.address,
@@ -305,9 +309,9 @@ describe("ConsentFactory", () => {
       const consent2 = await Consent.attach(deployedConsentAddressArray[1]);
       const consent3 = await Consent.attach(deployedConsentAddressArray[2]);
 
-      await consent1.connect(user1).optIn(1, "agreement1");
-      await consent2.connect(user1).optIn(2, "agreement2");
-      await consent3.connect(user1).optIn(3, "agreement3");
+      await consent1.connect(user1).optIn(1, agreementFlags1);
+      await consent2.connect(user1).optIn(2, agreementFlags2);
+      await consent3.connect(user1).optIn(3, agreementFlags3);
 
       // user 1 opts out of 1
       await consent1.connect(user1).optOut(1);

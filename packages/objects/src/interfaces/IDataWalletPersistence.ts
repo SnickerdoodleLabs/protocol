@@ -4,13 +4,13 @@ import { IEVMBalance } from "./chains";
 
 import {
   ClickData,
-  ClickFilter,
   EVMTransaction,
   EVMTransactionFilter,
   IEVMNFT,
   SiteVisit,
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
+import { IDataWalletBackup } from "@objects/interfaces";
 import {
   Age,
   EmailAddressString,
@@ -53,6 +53,14 @@ export interface IDataWalletPersistence {
    * @param accountAddress
    */
   addAccount(
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<void, PersistenceError>;
+
+  /**
+   * This method removes an ethereum account from the data wallet.
+   * @param accountAddress
+   */
+  removeAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError>;
 
@@ -134,9 +142,16 @@ export interface IDataWalletPersistence {
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 
   setLatestBlockNumber(
+    contractAddress: EVMContractAddress,
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError>;
-  getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError>;
+  getLatestBlockNumber(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<BlockNumber, PersistenceError>;
+
+  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
+  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+  pollBackups(): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

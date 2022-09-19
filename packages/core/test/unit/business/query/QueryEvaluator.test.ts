@@ -38,10 +38,10 @@ import {
   ConditionIn,
   ConditionL,
   ConditionLE,
-} from "@core/interfaces/objects";
-import { AST_BalanceQuery } from "@core/interfaces/objects/SDQL/AST_BalanceQuery";
-import { AST_Contract } from "@core/interfaces/objects/SDQL/AST_Contract";
+} from "@snickerdoodlelabs/query-parser";
+
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -69,6 +69,7 @@ const conditionsGEandL = [
 class QueryEvaluatorMocks {
     public dataWalletPersistence = td.object<IDataWalletPersistence>();
     public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
+    public networkQueryEvaluator = td.object<INetworkQueryEvaluator>();
 
 
     public URLmap = new Map<URLString, number>([
@@ -135,7 +136,7 @@ class QueryEvaluatorMocks {
   }
     
     public factory() {
-      return new QueryEvaluator(this.dataWalletPersistence, this.balanceQueryEvaluator);
+      return new QueryEvaluator(this.dataWalletPersistence, this.balanceQueryEvaluator, this.networkQueryEvaluator);
     }
 }
 
@@ -659,300 +660,51 @@ describe("QueryEvaluator return integer values", () => {
   });
 });
 
-describe("QueryEvaluator: ", () => {
-    test("Network Query: Return True", async () => {
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-
-        const networkQuery = new AST_NetworkQuery(
-            SDQL_Name("q1"),
-            "boolean",
-            EVMChainCode("AVAX"),
-            new AST_Contract(
-                ChainId(43114),
-                EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
-                EVMContractFunction("Transfer"),
-                EVMContractDirection.From,
-                EVMToken("ERC20"),
-                new EVMBlockRange(
-                    UnixTimestamp(13001519),
-                    UnixTimestamp(14910334)
-                )
-            )
-        )
-        let chainId = networkQuery.contract.networkId;
-        let address = networkQuery.contract.address as EVMAccountAddress;
-        let hash = "";
-        let startTime = networkQuery.contract.blockrange.start;
-        let endTime = networkQuery.contract.blockrange.end;
-        // console.log("Address: ", address)
-        // console.log("Start Time: ", startTime)
-        // console.log("End Time: ", endTime)
-        let filter = new EVMTransactionFilter(
-            [chainId],
-            [address],
-            [hash],
-            startTime,
-            endTime
-        );
-        td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
-            okAsync([new EVMTransaction(
-                ChainId(43114),
-                "",
-                UnixTimestamp(13001519),
-                null,
-                null,
-                EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
-                null,
-                null,
-                null,
-                null,
-                null
-            )])
-        )
-        const result = await repo.eval(networkQuery);
-        // console.log("Age is: ", result["value"]);
-        // console.log(result)
-        expect(result).toBeDefined();
-        expect(result["value"]).toBe(true);
-    })
-
-    test("Network Query: Return True", async () => {
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-
-        const networkQuery = new AST_NetworkQuery(
-        SDQL_Name("q1"),
-        "boolean",
-        EVMChainCode("AVAX"),
-        new AST_Contract(
-            ChainId(43114),
-            EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
-            EVMContractFunction("Transfer"),
-            EVMContractDirection.From,
-            EVMToken("ERC20"),
-            new EVMBlockRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
-        ),
-        );
-        const chainId = networkQuery.contract.networkId;
-        const address = networkQuery.contract.address as EVMAccountAddress;
-        const hash = "";
-        const startTime = networkQuery.contract.blockrange.start;
-        const endTime = networkQuery.contract.blockrange.end;
-
-        const filter = new EVMTransactionFilter(
-        [chainId],
-        [address],
-        [hash],
-        startTime,
-        endTime,
-        );
-        td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
-        okAsync([
-            new EVMTransaction(
-            ChainId(43114),
-            "",
-            UnixTimestamp(13001519),
-            null,
-            null,
-            EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
-            null,
-            null,
-            null,
-            null,
-            null,
-            ),
-        ]),
-        );
-        const result = await repo.eval(networkQuery);
-        // console.log("Age is: ", result["value"]);
-        expect(result).toBeDefined();
-        expect(result["value"]).toBe(true);
-    });
-
-    test("Network Query: Return False", async () => {
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const networkQuery = new AST_NetworkQuery(
-            SDQL_Name("q1"),
-            "boolean",
-            EVMChainCode("AVAX"),
-            new AST_Contract(
-                ChainId(43114),
-                EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
-                EVMContractFunction("Transfer"),
-                EVMContractDirection.From,
-                EVMToken("ERC20"),
-                new EVMBlockRange(
-                    UnixTimestamp(13001519),
-                    UnixTimestamp(14910334)
-                )
-            )
-        )
-        let chainId = networkQuery.contract.networkId;
-        let address = networkQuery.contract.address as EVMAccountAddress;
-        let hash = "";
-        let startTime = networkQuery.contract.blockrange.start;
-        let endTime = networkQuery.contract.blockrange.end;
-        // console.log("Address: ", address)
-        // console.log("Start Time: ", startTime)
-        // console.log("End Time: ", endTime)
-        let filter = new EVMTransactionFilter(
-            [chainId],
-            [address],
-            [hash],
-            startTime,
-            endTime
-        );
-        td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
-            okAsync([])
-        )
-        const result = await repo.eval(networkQuery);
-        // console.log("Age is: ", result["value"]);
-        // console.log(result)
-        expect(result).toBeDefined();
-        expect(result["value"]).toBe(false);
-    })
-})
-
-describe("Network Query Testing: ", () => {
-  test("Network Query", async () => {
-    const mocks = new QueryEvaluatorMocks();
-    const repo = mocks.factory();
-
-    const networkQuery = new AST_NetworkQuery(
-      SDQL_Name("q1"),
-      "boolean",
-      EVMChainCode("AVAX"),
-      new AST_Contract(
-        ChainId(43114),
-        EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
-        EVMContractFunction("Transfer"),
-        EVMContractDirection.From,
-        EVMToken("ERC20"),
-        new EVMBlockRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
-      ),
-    );
-    const chainId = networkQuery.contract.networkId;
-    const address = networkQuery.contract.address as EVMAccountAddress;
-    const hash = "";
-    const startTime = networkQuery.contract.blockrange.start;
-    const endTime = networkQuery.contract.blockrange.end;
-
-    const filter = new EVMTransactionFilter(
-      [chainId],
-      [address],
-      [hash],
-      startTime,
-      endTime,
-    );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
-      okAsync([]),
-    );
-    const result = await repo.eval(networkQuery);
-    // console.log("Age is: ", result["value"]);
-    expect(result).toBeDefined();
-    expect(result["value"]).toBe(false);
-  });
-});
 
 describe("Return URLs Map", () => {
-    test("EvalPropertyQuery: return URLs count", async () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "object",
-            "url_visited_count",
-            [],
-            [],
-            {}
-        )
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(propertyQuery);
-        // console.log("URLs is: ", result["value"]);
-        expect(result["value"]).toEqual(
-            new Map<URLString, number>([
-                [URLString("www.snickerdoodlelabs.io"), 10]
-            ])
-        )
-    })
+  test("EvalPropertyQuery: return URLs count", async () => {
+      const propertyQuery = new AST_PropertyQuery(
+          SDQL_Name("q1"),
+          "object",
+          "url_visited_count",
+          [],
+          [],
+          {}
+      )
+      const mocks = new QueryEvaluatorMocks();
+      const repo = mocks.factory();
+      const result = await repo.eval(propertyQuery);
+      // console.log("URLs is: ", result["value"]);
+      expect(result["value"]).toEqual(
+          new Map<URLString, number>([
+              [URLString("www.snickerdoodlelabs.io"), 10]
+          ])
+      )
+  })
 })
 
 describe("Return Chain Transaction Count", () => {
-    test("EvalPropertyQuery: return chain transaction count", async () => {
-        const propertyQuery = new AST_PropertyQuery(
-            SDQL_Name("q1"),
-            "object",
-            "chain_transaction_count",
-            [],
-            [],
-            {
-                "^ETH|AVAX|SOL$": {
-                    "type": "integer"
-                }
-            }
-        )
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(propertyQuery);
-        // console.log("URLs is: ", result["value"]);
-        expect(result["value"]).toEqual(            
-        new Map<ChainId, number>([
-            [ChainId(1), 10]
-        ])
-        )
-    })
-})
-
-/*
-describe("BalanceQueryEvaluator", () => {
-    test("Return Query Balance Array - 1 Chain ID, 20 <= x < 30", async () => {
-        const balanceQuery = new AST_BalanceQuery(
-            SDQL_Name("q7"),
-            "array",
-            ChainId(1),
-            conditionsGEandL,
-        )
-        // >= 20 and < 30
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(balanceQuery);
-
-
-        expect(result["value"][0]["balance"]).toEqual("25")
-        expect(result["value"][0]["ticker"]).toEqual("ETH")  
-        expect(result["value"][0]["chainId"]).toEqual(1)  
-        expect(result["value"][0]["accountAddress"]).toEqual("GOOD2")  
-  
-        expect(result["value"].length).toEqual(1)  
-    })
-    test("Return Query Balance Array - All Chain Id's AND No Conditions", async () => {
-        const balanceQuery = new AST_BalanceQuery(
-            SDQL_Name("q7"),
-            "array",
-            null,
-            [],
-        )
-        // >= 20 and < 30
-        const mocks = new QueryEvaluatorMocks();
-        const repo = mocks.factory();
-        const result = await repo.eval(balanceQuery);
-
-        expect(result["value"].length).toEqual(4)  
-    })
-    test("Return Query Balance Array - All Chain Id's AND No Conditions", async () => {
-      const balanceQuery = new AST_BalanceQuery(
-          SDQL_Name("q7"),
-          "array",
-          null,
+  test("EvalPropertyQuery: return chain transaction count", async () => {
+      const propertyQuery = new AST_PropertyQuery(
+          SDQL_Name("q1"),
+          "object",
+          "chain_transaction_count",
           [],
+          [],
+          {
+              "^ETH|AVAX|SOL$": {
+                  "type": "integer"
+              }
+          }
       )
-      // >= 20 and < 30
       const mocks = new QueryEvaluatorMocks();
       const repo = mocks.factory();
-      const result = await repo.eval(balanceQuery);
-
-      expect(result["value"].length).toEqual(4)  
+      const result = await repo.eval(propertyQuery);
+      // console.log("URLs is: ", result["value"]);
+      expect(result["value"]).toEqual(            
+      new Map<ChainId, number>([
+          [ChainId(1), 10]
+      ])
+      )
   })
 })
-*/
