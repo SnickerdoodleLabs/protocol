@@ -175,16 +175,19 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   public getAgreementPermissions(consentContractAddres: EVMContractAddress) {
     return coreGateway.getAgreementPermissions(consentContractAddres);
   }
-
+  public getApplyDefaultPermissionsOption() {
+    return coreGateway.getApplyDefaultPermissionsOption();
+  }
+  public setApplyDefaultPermissionsOption(option: boolean) {
+    return coreGateway.setApplyDefaultPermissionsOption(option);
+  }
   public acceptPublicInvitationByConsentContractAddress(
     dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
-    useDefaultPermissions?: boolean,
   ) {
     return coreGateway.acceptPublicInvitationByConsentContractAddress(
       dataTypes,
       consentContractAddress,
-      useDefaultPermissions,
     );
   }
 

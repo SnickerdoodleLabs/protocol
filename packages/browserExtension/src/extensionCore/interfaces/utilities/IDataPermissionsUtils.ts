@@ -19,6 +19,10 @@ export interface IDataPermissionsUtils {
   getDataTypesFromFlagsString(
     flags: HexString32,
   ): ResultAsync<EWalletDataType[], never>;
+  applyDefaultPermissionsOption: ResultAsync<boolean, ExtensionStorageError>;
+  setApplyDefaultPermissionsOption(
+    option: boolean,
+  ): ResultAsync<void, ExtensionStorageError>;
 }
 
 export const IDataPermissionsUtilsType = Symbol.for("IDataPermissionsUtils");

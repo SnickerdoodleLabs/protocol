@@ -25,7 +25,6 @@ export interface IInvitationService {
   acceptInvitation(
     invitation: Invitation,
     dataTypes: EWalletDataType[] | null,
-    useDefaultPermissions?: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError>;
 
   rejectInvitation(
@@ -52,7 +51,6 @@ export interface IInvitationService {
   acceptPublicInvitationByConsentContractAddress(
     consentContractAddress: EVMContractAddress,
     dataTypes: EWalletDataType[] | null,
-    useDefaultPermissions?: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError>;
 
   getAvailableInvitationsCID(): ResultAsync<

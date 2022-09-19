@@ -23,6 +23,7 @@ import {
   IGetAgreementPermissionsParams,
   ISetDefaultPermissionsWithDataTypesParams,
   IGetUnlinkRequestParams,
+  ISetApplyDefaultPermissionsParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
@@ -74,11 +75,9 @@ export class ExternalCoreGateway {
   public acceptInvitation(
     dataTypes: EWalletDataType[] | null,
     id: UUID,
-    useDefaultPermissions?: boolean,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
       dataTypes,
-      useDefaultPermissions,
       id,
     } as IAcceptInvitationParams);
   }
@@ -93,13 +92,11 @@ export class ExternalCoreGateway {
   public acceptPublicInvitationByConsentContractAddress(
     dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
-    useDefaultPermissions?: boolean,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(
       EExternalActions.ACCEPT_PUBLIC_INVITIATION_BY_CONSENT_CONTRACT_ADDRESS,
       {
         dataTypes,
-        useDefaultPermissions,
         consentContractAddress,
       } as IAcceptPublicInvitationByConsentContractAddressParams,
     );
@@ -197,6 +194,22 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_UNLOCK_MESSAGE, {
       languageCode,
     } as IGetUnlockMessageParams);
+  }
+  public getApplyDefaultPermissionsOption(): ResultAsync<
+    boolean,
+    JsonRpcError
+  > {
+    return this._handler.call(
+      EExternalActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION,
+    );
+  }
+  public setApplyDefaultPermissionsOption(
+    option: boolean,
+  ): ResultAsync<boolean, JsonRpcError> {
+    return this._handler.call(
+      EExternalActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION,
+      { option } as ISetApplyDefaultPermissionsParams,
+    );
   }
   public getAccounts(): ResultAsync<EVMAccountAddress[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNTS);

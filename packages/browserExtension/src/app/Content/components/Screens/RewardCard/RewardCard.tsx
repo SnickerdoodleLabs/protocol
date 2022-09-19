@@ -23,11 +23,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
   coreGateway,
 }: IRewardCardProps) => {
   const acceptInvitation = () => {
-    return coreGateway.acceptInvitation(
-      null,
-      invitationDomain?.id as UUID,
-      false,
-    );
+    return coreGateway.acceptInvitation(null, invitationDomain?.id as UUID);
   };
 
   const modalClasses = useGenericModalStyles();
