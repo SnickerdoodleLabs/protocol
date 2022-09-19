@@ -51,16 +51,13 @@ export class InvitationService implements IInvitationService {
   public acceptPublicInvitationByConsentContractAddress(
     consentContractAddress: EVMContractAddress,
     dataTypes: EWalletDataType[] | null,
-    useDefaultPermissions?: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
-    return this.getDataPermissions(dataTypes, useDefaultPermissions).andThen(
-      (dataPermissions) => {
-        return this.invitationRepository.acceptPublicInvitationByConsentContractAddress(
-          consentContractAddress,
-          dataPermissions,
-        );
-      },
-    );
+    return this.getDataPermissions(dataTypes).andThen((dataPermissions) => {
+      return this.invitationRepository.acceptPublicInvitationByConsentContractAddress(
+        consentContractAddress,
+        dataPermissions,
+      );
+    });
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
@@ -98,16 +95,13 @@ export class InvitationService implements IInvitationService {
   public acceptInvitation(
     invitation: Invitation,
     dataTypes: EWalletDataType[] | null,
-    useDefaultPermissions?: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
-    return this.getDataPermissions(dataTypes, useDefaultPermissions).andThen(
-      (dataPermissions) => {
-        return this.invitationRepository.acceptInvitation(
-          invitation,
-          dataPermissions,
-        );
-      },
-    );
+    return this.getDataPermissions(dataTypes).andThen((dataPermissions) => {
+      return this.invitationRepository.acceptInvitation(
+        invitation,
+        dataPermissions,
+      );
+    });
   }
   public rejectInvitation(
     invitation: Invitation,
@@ -123,14 +117,19 @@ export class InvitationService implements IInvitationService {
 
   protected getDataPermissions(
     dataTypes: EWalletDataType[] | null,
-    useDefaultPermissions?: boolean,
   ): ResultAsync<DataPermissions | null, never | ExtensionStorageError> {
-    return useDefaultPermissions
-      ? this.dataPermissionsUtils.DefaultDataPermissions
-      : dataTypes
-      ? this.dataPermissionsUtils.generateDataPermissionsClassWithDataTypes(
-          dataTypes,
-        )
-      : okAsync(null);
+    return this.dataPermissionsUtils.applyDefaultPermissionsOption.andThen(
+      (option) => {
+        if (option) {
+          return this.dataPermissionsUtils.DefaultDataPermissions;
+        }
+        if (dataTypes) {
+          return this.dataPermissionsUtils.generateDataPermissionsClassWithDataTypes(
+            dataTypes,
+          );
+        }
+        return okAsync(null);
+      },
+    );
   }
 }

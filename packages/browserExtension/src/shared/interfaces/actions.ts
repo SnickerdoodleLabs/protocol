@@ -64,17 +64,19 @@ export interface ISetEmailParams {
 export interface ISetLocationParams {
   location: CountryCode;
 }
+
+export interface ISetApplyDefaultPermissionsParams {
+  option: boolean;
+}
 export interface IGetInvitationWithDomainParams {
   domain: DomainName;
   path: string;
 }
 export interface IAcceptInvitationParams {
-  useDefaultPermissions?: boolean;
   dataTypes: EWalletDataType[];
   id: UUID;
 }
 export interface IAcceptPublicInvitationByConsentContractAddressParams {
-  useDefaultPermissions?: boolean;
   dataTypes: EWalletDataType[];
   consentContractAddress: EVMContractAddress;
 }

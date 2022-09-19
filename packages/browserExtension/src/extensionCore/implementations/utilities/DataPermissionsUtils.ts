@@ -29,6 +29,39 @@ export class DataPermissionsUtils implements IDataPermissionsUtils {
     });
   }
 
+  // Move below two to settings utils later
+  public get applyDefaultPermissionsOption(): ResultAsync<
+    boolean,
+    ExtensionStorageError
+  > {
+    return ResultAsync.fromPromise(
+      Browser.storage.local.get("applyDefaultPermissionsOption"),
+      (e) =>
+        new ExtensionStorageError(
+          "could not read key applyDefaultPermissionsOption",
+        ),
+    ).map((res) => {
+      if (res.applyDefaultPermissionsOption) {
+        return res.applyDefaultPermissionsOption as boolean;
+      }
+      return false;
+    });
+  }
+
+  public setApplyDefaultPermissionsOption(
+    option: boolean,
+  ): ResultAsync<void, ExtensionStorageError> {
+    return ResultAsync.fromPromise(
+      Browser.storage.local.set({
+        applyDefaultPermissionsOption: option,
+      }),
+      (e) =>
+        new ExtensionStorageError(
+          "could not set value of applyDefaultPermissionsOption",
+        ),
+    );
+  }
+
   public get DefaultDataPermissions(): ResultAsync<
     DataPermissions,
     ExtensionStorageError
