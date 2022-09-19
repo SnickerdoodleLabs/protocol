@@ -1,3 +1,27 @@
+import CoreHandler from "@app/coreGateways/handler/CoreHandler";
+import { EExternalActions } from "@shared/enums";
+import {
+  IAcceptInvitationParams,
+  IAddAccountParams,
+  IGetInvitationMetadataByCIDParams,
+  IGetInvitationWithDomainParams,
+  IGetUnlockMessageParams,
+  IInvitationDomainWithUUID,
+  ILeaveCohortParams,
+  IMetatransactionSignatureRequestCallbackParams,
+  IRejectInvitationParams,
+  ISetAgeParams,
+  ISetBirthdayParams,
+  ISetEmailParams,
+  ISetFamilyNameParams,
+  ISetGenderParams,
+  ISetGivenNameParams,
+  ISetLocationParams,
+  IUnlockParams,
+  ICheckURLParams,
+} from "@shared/interfaces/actions";
+import { IExternalState } from "@shared/interfaces/states";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
   Invitation,
@@ -22,29 +46,6 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
-
-import CoreHandler from "@app/coreGateways/handler/CoreHandler";
-import { EExternalActions } from "@shared/enums";
-import {
-  IAcceptInvitationParams,
-  IAddAccountParams,
-  IGetInvitationMetadataByCIDParams,
-  IGetInvitationWithDomainParams,
-  IGetUnlockMessageParams,
-  IInvitationDomainWithUUID,
-  ILeaveCohortParams,
-  IMetatransactionSignatureRequestCallbackParams,
-  IRejectInvitationParams,
-  ISetAgeParams,
-  ISetBirthdayParams,
-  ISetEmailParams,
-  ISetFamilyNameParams,
-  ISetGenderParams,
-  ISetGivenNameParams,
-  ISetLocationParams,
-  IUnlockParams,
-} from "@shared/interfaces/actions";
-import { IExternalState } from "@shared/interfaces/states";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;
@@ -227,5 +228,12 @@ export class ExternalCoreGateway {
     JsonRpcError
   > {
     return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);
+  }
+  public checkURL(
+    domain: DomainName,
+  ): ResultAsync<string, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.CHECK_URL, {
+      domain,
+    } as ICheckURLParams);
   }
 }

@@ -10,7 +10,7 @@ import {
   SiteVisit,
   MetatransactionSignatureRequest,
 } from "@objects/businessObjects";
-import { EInvitationStatus } from "@objects/enum";
+import { EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -26,6 +26,7 @@ import {
   MinimalForwarderContractError,
   PersistenceError,
   QueryFormatError,
+  SiftContractError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
@@ -46,6 +47,7 @@ import {
   IpfsCID,
   LanguageCode,
   Signature,
+  TokenUri,
   UnixTimestamp,
 } from "@objects/primitives";
 
@@ -226,6 +228,13 @@ export interface ISnickerdoodleCore {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+
+  checkURL(
+    domain: DomainName,
+  ): ResultAsync<
+    EScamFilterStatus,
+    BlockchainProviderError | UninitializedError | SiftContractError
+  >;
 
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be
