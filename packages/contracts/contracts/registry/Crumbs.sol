@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 /// @title Crumbs 
 /// @author Sean Sing
 /// @notice Snickerdoodle Protocol's Crumbs Contract
-/// @dev A crumb is an ERC721 NFT that holds the JSON object (for SDL's parsing) of a user within the token uri
+/// @dev A crumb is a non-transferable ERC721 NFT that holds the JSON object (for SDL's parsing) of a user within the token uri
 /// @dev Any user can create a crumb, store and update the JSON object 
 /// @dev The ERC721's tokenId is labelled crumbId in this contract
 /// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter 
@@ -131,6 +131,9 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
         internal
         override
     {   
+        // ensures crumbs are non-transferable
+        require(from == address(0) || to == address(0), "Crumbs: Crumb tokens are non-transferrable");
+        
         // carry out checks before transfer
         super._beforeTokenTransfer(from, to, crumbId);
 
