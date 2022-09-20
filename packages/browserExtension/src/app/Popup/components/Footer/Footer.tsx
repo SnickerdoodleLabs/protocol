@@ -74,7 +74,7 @@ const Footer: FC = () => {
             return (
               <Box
                 ml={0.5}
-                style={{ cursor: "pointer" }}
+                className={classes.socialButtonWrapper}
                 onClick={() => {
                   window.open(link.url, "_blank");
                 }}
