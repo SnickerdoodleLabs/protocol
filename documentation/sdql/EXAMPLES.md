@@ -81,13 +81,27 @@ This example checks if the user's age is greater than or equal to 15. It also qu
             }
         },
         "q6": {
-            "name": "chain_transactio",
-            "return": "object",
-            "object_schema": {
-                "patternProperties": {
-                    "^ETH|AVAX|SOL$": {
-                        "type": "number"
-                    }
+            "name": "chain_transactions",
+            "return": "array",
+            "array_items": {
+                "type": "object",
+                "object_schema": {
+                    "properties": {
+                        "networkId": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "number"
+                        },
+                        "count": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "networkId",
+                        "value",
+                        "count"
+                    ]
                 }
             }
         }       

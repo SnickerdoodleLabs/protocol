@@ -19,6 +19,13 @@ export interface IEVMBalance {
   quoteBalance: number;
 }
 
+export interface IChainTransactions {
+  ticker: TickerSymbol;
+  value: BigNumberString;
+  count: BigNumberString;
+}
+
+
 export interface ITokenBalance {
   ticker: TickerSymbol;
   networkId: ChainId;

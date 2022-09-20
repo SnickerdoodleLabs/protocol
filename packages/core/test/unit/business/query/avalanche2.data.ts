@@ -49,7 +49,7 @@ export const avalanche2SchemaStr = JSON.stringify(
       },
       q6: {
          name: "chain_transactions",
-         return: "object",
+         return: "array",
       },
    },
    returns: {

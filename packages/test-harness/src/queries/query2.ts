@@ -7,18 +7,28 @@ export const query2 = {
   queries: {
     q1: {
       name: "url_visited_count",
-      return: "object"      
+      return: "object"
     },
     q2: {
       name: "chain_transactions",
-      return: "object",
-      object_schema: {
-        patternProperties: {
-          "^ETH|AVAX|SOL$": {
-            type: "number",
+      return: "array",
+      array_items: {
+        type: "object",
+        object_schema: {
+          properties: {
+            networkId: {
+              type: "string",
+            },
+            value: {
+              type: "number",
+            },
+            count: {
+              type: "integer",
+            }
           },
-        },
-      },
+          required: ["networkId", "value", "count"],
+        }
+      }
     },
     q3: {
       name: "balance",
@@ -32,7 +42,7 @@ export const query2 = {
               type: "string",
             },
             networkId: {
-              type: "integer",
+              type: "string",
             },
             balance: {
               type: "number",

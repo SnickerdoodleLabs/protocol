@@ -44,7 +44,7 @@ export const query1 = {
     },
     q6: {
       name: "chain_transactions",
-      return: "object",
+      return: "array",
     },
     q7: {
       name: "balance",

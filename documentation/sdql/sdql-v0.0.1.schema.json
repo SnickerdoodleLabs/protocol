@@ -233,14 +233,7 @@
                         {
                             "properties": {
                                 "name": {
-                                    "anyOf": [
-                                        {
-                                            "const": "url_visited_count"
-                                        },
-                                        {
-                                            "const": "chain_transactions"
-                                        }
-                                    ]
+                                    "const": "url_visited_count"
                                 },
                                 "return": {
                                     "const": "object"
@@ -253,15 +246,21 @@
                         {
                             "properties": {
                                 "name": {
-                                    "const": "balance"
+                                    "anyOf": [
+                                        {
+                                            "const": "chain_transactions"
+                                        },
+                                        {
+                                            "const": "balance"
+                                        }
+                                    ]
                                 },
                                 "return": {
                                     "const": "array"
                                 }
                             },
                             "required": [
-                                "array_items",
-                                "networkid"
+                                "array_items"
                             ]
                         },
                         {

@@ -75,15 +75,29 @@
         },
         "q6": {
             "name": "chain_transactions",
-            "return": "object",
-            "object_schema": {
-                "patternProperties": {
-                    "^ETH|AVAX|SOL$": {
-                        "type": "number"
-                    }
+            "return": "array",
+            "array_items": {
+                "type": "object",
+                "object_schema": {
+                    "properties": {
+                        "networkId": {
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "number"
+                        },
+                        "count": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "networkId",
+                        "value",
+                        "count"
+                    ]
                 }
             }
-        }       
+        }
     },
     "returns": {
         "r1": {
