@@ -56,12 +56,14 @@ import {
   PersistenceError,
   QueryFormatError,
   SDQLQuery,
+  SiftContractError,
   Signature,
   SiteVisit,
   UninitializedError,
   UnixTimestamp,
   UnsupportedLanguageError,
   URLString,
+  EScamFilterStatus,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -106,6 +108,14 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities";
+import {
+  ISiftContractRepository,
+  ISiftContractRepositoryType,
+} from "@core/interfaces/data";
+import {
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/ISiftContractService";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -428,6 +438,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return contextProvider.getContext().map((context) => {
       return !!context.dataWalletAddress;
     });
+  }
+
+  public checkURL(
+    domain: DomainName,
+  ): ResultAsync<
+    EScamFilterStatus,
+    BlockchainProviderError | UninitializedError | SiftContractError
+  > {
+    const siftService = this.iocContainer.get<ISiftContractService>(
+      ISiftContractServiceType,
+    );
+    return siftService.checkURL(domain);
   }
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {

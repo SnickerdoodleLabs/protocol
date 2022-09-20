@@ -177,7 +177,7 @@ const siftContract = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "0x82721EB9786255fA45BFf58c82Bc7Ae4210B9c72";
+    return "0x1007D88962A3c0c4A11649480168B6456355d91a";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {

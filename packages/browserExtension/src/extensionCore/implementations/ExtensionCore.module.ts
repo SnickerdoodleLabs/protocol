@@ -6,11 +6,7 @@ import {
   ITimeUtils,
   ITimeUtilsType,
 } from "@snickerdoodlelabs/common-utils";
-import { ConfigProvider } from "@snickerdoodlelabs/core";
-import {
-  IPersistenceConfigProvider,
-  IPersistenceConfigProviderType,
-} from "@snickerdoodlelabs/persistence";
+
 import { ContainerModule, interfaces } from "inversify";
 
 import {
@@ -26,6 +22,7 @@ import {
   AccountService,
   PIIService,
   InvitationService,
+  ScamFilterService,
   UserSiteInteractionService,
 } from "@implementations/business";
 import {
@@ -33,6 +30,7 @@ import {
   AccountRepository,
   PIIRepository,
   InvitationRepository,
+  ScamFilterRepository,
   UserSiteInteractionRepository,
 } from "@implementations/data";
 import {
@@ -96,6 +94,14 @@ import {
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import configProvider from "@shared/utils/ConfigProvider";
+import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@interfaces/business/IScamFilterService";
+import {
+  IScamFilterRepository,
+  IScamFilterRepositoryType,
+} from "@interfaces/data/IScamFilterRepository";
 
 export const extensionCoreModule = new ContainerModule(
   (
@@ -136,6 +142,9 @@ export const extensionCoreModule = new ContainerModule(
     bind<IUserSiteInteractionService>(IUserSiteInteractionServiceType)
       .to(UserSiteInteractionService)
       .inSingletonScope();
+    bind<IScamFilterService>(IScamFilterServiceType)
+      .to(ScamFilterService)
+      .inSingletonScope();
 
     // Data
     bind<IAccountRepository>(IAccountRepositoryType)
@@ -152,6 +161,9 @@ export const extensionCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IUserSiteInteractionRepository>(IUserSiteInteractionRepositoryType)
       .to(UserSiteInteractionRepository)
+      .inSingletonScope();
+    bind<IScamFilterRepository>(IScamFilterRepositoryType)
+      .to(ScamFilterRepository)
       .inSingletonScope();
 
     // Utilities
