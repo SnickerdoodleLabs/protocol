@@ -108,31 +108,17 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentError
     | PersistenceError
   > {
-    return ResultUtils.combine([
-      this.blockchainProvider.getLatestBlock(config.controlChainId),
-      this.dataWalletPersistence.getLatestBlockNumber(),
-    ]).andThen(([currentBlock, latestBlock]) => {
-      const currentBlockNumber = BlockNumber(currentBlock.number);
+    return this.blockchainProvider
+      .getLatestBlock(config.controlChainId)
+      .andThen((currentBlock) => {
+        const currentBlockNumber = BlockNumber(currentBlock.number);
 
-      if (latestBlock < currentBlockNumber) {
-        // If the latest known block is older than the current block, there are potentially events
-        return this.listenForConsentContractsEvents(
-          latestBlock,
-          currentBlockNumber,
-        ).andThen(() => {
-          return this.dataWalletPersistence.setLatestBlockNumber(
-            currentBlockNumber,
-          );
-        });
-      }
-
-      return okAsync(undefined);
-    });
+        return this.listenForConsentContractsEvents(currentBlockNumber);
+      });
   }
 
   protected listenForConsentContractsEvents(
-    firstBlockNumber: BlockNumber,
-    lastBlockNumber: BlockNumber,
+    currentBlockNumber: BlockNumber,
   ): ResultAsync<
     void,
     | BlockchainProviderError
@@ -143,6 +129,7 @@ export class BlockchainListener implements IBlockchainListener {
     | AjaxError
     | ConsentContractError
     | ConsentError
+    | PersistenceError
   > {
     return this.consentContractRepository
       .getConsentContracts()
@@ -153,19 +140,39 @@ export class BlockchainListener implements IBlockchainListener {
             return ResultUtils.combine([
               consentContract.getConsentOwner(),
               this.getQueryHorizon(consentContract),
+              this.dataWalletPersistence.getLatestBlockNumber(
+                consentContract.getContractAddress(),
+              ),
             ])
-              .andThen(([consentOwner, queryHorizon]) => {
+              .andThen(([consentOwner, queryHorizon, latestBlockNumber]) => {
                 // Start at the queryHorizon or the firstBlockNumber, whichever is later
                 const startBlock =
-                  queryHorizon > firstBlockNumber
+                  queryHorizon > latestBlockNumber
                     ? queryHorizon
-                    : firstBlockNumber;
+                    : latestBlockNumber;
 
-                return consentContract.getRequestForDataListByRequesterAddress(
-                  consentOwner,
-                  startBlock,
-                  lastBlockNumber,
-                );
+                // Only need to do the query if the calculated start block is less than
+                // the current block on the chain
+                if (startBlock >= currentBlockNumber) {
+                  return okAsync([]);
+                }
+
+                return consentContract
+                  .getRequestForDataListByRequesterAddress(
+                    consentOwner,
+                    startBlock,
+                    currentBlockNumber,
+                  )
+                  .andThen((requestForDataObjects) => {
+                    return this.dataWalletPersistence
+                      .setLatestBlockNumber(
+                        consentContract.getContractAddress(),
+                        currentBlockNumber,
+                      )
+                      .map(() => {
+                        return requestForDataObjects;
+                      });
+                  });
               })
               .andThen((requestForDataObjects) => {
                 return ResultUtils.combine(

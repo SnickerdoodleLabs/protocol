@@ -43,12 +43,23 @@ describe("Sift", () => {
     });
 
     it("Does not allow address without VERIFIER_ROLE to verify a url.", async function () {
-      // accounts 1 creates a crumb
+      // account 1 verifies a url
       await expect(
         sift.connect(accounts[1]).verifyURL("www.uniswap.com", owner.address),
       ).to.revertedWith(
         `AccessControl: account ${accounts[1].address.toLowerCase()} is missing role ${verifierRoleBytes}`,
       );
+    });
+
+    it("Does not allow user to verify a url twice.", async function () {
+      // account 1 verifies a url
+      await sift.connect(owner).verifyURL("www.uniswap.com", owner.address);
+
+      //account 1 tries to verify the same url
+
+      await expect(
+        sift.connect(owner).verifyURL("www.uniswap.com", owner.address),
+      ).to.revertedWith("Consent: URL already verified");
     });
   });
 

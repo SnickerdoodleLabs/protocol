@@ -59,7 +59,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         );
         return this.ajaxUtils.post<boolean>(url, {
           consentContractId: consentContractAddress,
-          queryId: queryId,
+          queryCid: queryId,
           dataWallet: dataWalletAddress,
           returns: returns,
           signature: signature,

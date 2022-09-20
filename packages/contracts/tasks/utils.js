@@ -15,6 +15,10 @@ task("parseBytes32", "Parse bytes32string to string")
 task("keccak256", "Output keccak256 of input")
   .addParam("input", "Data to output as keccak256")
   .setAction(async (taskArgs, hre) => {
+    if (taskArgs.input == "DEFAULT_ADMIN_ROLE") {
+      console.log(ethers.utils.formatBytes32String(0));
+      return;
+    }
     // @ts-ignore
     console.log(hre.ethers.utils.id(taskArgs.input));
   });

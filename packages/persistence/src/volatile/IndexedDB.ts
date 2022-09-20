@@ -1,7 +1,10 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
-import { indexedDB as fakeIndexedDB, IDBKeyRange } from "fake-indexeddb";
+import {
+  indexedDB as fakeIndexedDB,
+  IDBKeyRange as fakeIDBKeyRange,
+} from "fake-indexeddb";
 import { injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IVolatileStorageFactory } from "@persistence/volatile/IVolatileStorageFactory";
@@ -81,6 +84,13 @@ export class IndexedDB implements IVolatileStorageTable {
       return fakeIndexedDB;
     }
     return indexedDB;
+  }
+
+  private _getIDBKeyRange(query: string | number): IDBKeyRange {
+    if (typeof indexedDB === "undefined") {
+      return fakeIDBKeyRange.only(query);
+    }
+    return IDBKeyRange.only(query);
   }
 
   public persist(): ResultAsync<boolean, PersistenceError> {
@@ -208,7 +218,7 @@ export class IndexedDB implements IVolatileStorageTable {
   public getCursor<T>(
     name: string,
     indexName?: string,
-    query?: IDBValidKey | IDBKeyRange | null | undefined,
+    query?: string | number,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IndexedDBCursor<T>, PersistenceError> {
@@ -258,7 +268,7 @@ export class IndexedDB implements IVolatileStorageTable {
   public getAllKeys<T>(
     name: string,
     indexName?: string,
-    query?: IDBValidKey | IDBKeyRange | null | undefined,
+    query?: string | number,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError> {
     return this.initialize().andThen((db) => {

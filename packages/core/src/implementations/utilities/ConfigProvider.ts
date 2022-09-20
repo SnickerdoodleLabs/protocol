@@ -42,7 +42,7 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(42), ChainId(43113)], //supported chains (kovan, fuji)
+      [ChainId(42), ChainId(43113), ChainId(80001), ChainId(137), ChainId(1)], //supported chains (kovan, fuji,eth mainnet)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl

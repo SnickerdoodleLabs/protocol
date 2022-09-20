@@ -5,6 +5,7 @@
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
 const { ethers, upgrades } = require("hardhat");
+const { logTXDetails } = require("../tasks/constants.js");
 
 // declare variables that need to be referenced by other functions
 let accounts;
@@ -170,6 +171,22 @@ async function deploySift() {
 
   console.log("Sift deployed to:", sift.address);
   console.log("Sift Gas Fee:", sift_receipt.gasUsed.toString());
+
+  await sift.verifyURL("snickerdoodle.com", accounts[0].address)
+  .then((txResponse) => {
+    return txResponse.wait();
+  })
+  .then((txrct) => {
+    logTXDetails(txrct);
+  });
+
+  await sift.maliciousURL("webthree.love", accounts[0].address)
+  .then((txResponse) => {
+    return txResponse.wait();
+  })
+  .then((txrct) => {
+    logTXDetails(txrct);
+  });
 }
 
 async function deployMinimalForwarder() {
