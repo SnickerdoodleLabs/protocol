@@ -58,11 +58,69 @@ paths:
                 - signature
       responses:
         200:
-          description: Returns true
+          description: Returns a list of EarnedRewards objects
           content:
             application/json:
               schema:
-                type: boolean
+                type: object
+                properties:
+                  rewards:
+                    description: The actual earned rewards (compensations) for participating in the query. 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EarnedReward'
+        400:
+          $ref: '#/components/responses/InvalidError'
+  
+  /responses/preview:
+    post:
+      tags:
+        - responses
+      description: Returns the list of earned rewards. This does not change state, but the return 
+      requestBody:
+        description: The 
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                consentContractId:
+                  type: string
+                  format: ethereum-contract-address
+                queryId:
+                  type: string
+                  format: IPFS-CID
+                dataWallet:
+                  type: string
+                  format: snickerdoodle-account-address
+                queries:
+                  description: The list of queries that will be answered (q1, q3, q4) etc.
+                  type: array
+                  items:
+                    type: string
+                signature:
+                  type: string
+                  format: hex-string
+              required:
+                - consentContractId
+                - queryId
+                - dataWallet
+                - queries
+                - signature
+      responses:
+        200:
+          description: Returns a list of compensations that will be earned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  compensations:
+                    description: The list of compensations that will be earned (c1, c2, c3, etc). If there are limited quantities of a particular reward, it will not be included if it is used up.
+                    type: array
+                    items:
+                      type: string
         400:
           $ref: '#/components/responses/InvalidError'
           
@@ -104,7 +162,8 @@ paths:
                   format: hex-string
                 metatransactionSignature:
                   description: The signature for the metatransaction data. It must be a Minimal Forwarder request, and signed by the executing account address. That is often the data wallet key, but could be an EOA in some cases.
-                  type: hex-string
+                  type: string
+                  format: hex-string
                 requestSignature:
                   description: This is a signature for the actual API call. You must sign all properties in the post body except for signature. This is used to validate that the metatransaction request is actually coming from the data wallet. An invalid metatransaction would also fail, but this is a second level.
                   type: string
@@ -117,7 +176,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  success: boolean
+                  success: 
+                    type: boolean
         400:
           $ref: '#/components/responses/InvalidError'
         401:
@@ -141,6 +201,75 @@ components:
       description: This method is unsupported by the insight platform. The SDC will need to use an alternate method.
       
   schemas:
+    ERewardType:
+      type: string
+      enum: 
+        - Direct
+        - Lazy
+        - Web2
+        
+    ECredentialType:
+      type: string
+      enum: 
+        - UsernamePassword
+        - OAuthBearerToken
+        - RedemptionCode
+        - None
+      
+    EarnedReward:
+      type: object
+      properties:
+        type: 
+          $ref: '#/components/schemas/ERewardType'
+        transactionReceipt:
+          description: The transaction receipt of the reward. May be null if not used by the type
+          type: string
+          format: hex-string
+          nullable: true
+        contractAddress:
+          description: The address of the contract that the reward was executed on.
+          type: string
+          format: ethereum-contract-address
+          nullable: true
+        chainId:
+          description: The chain ID that the reward was either executed on or needs to be executed on. Non-EVM chains will have a negative 
+          type: number
+          nullable: true
+        functionName:
+          type: string
+          nullable: true
+        functionParams:
+          type: array
+          items: 
+            description: Value of the parameter
+            type: string
+          nullable: true
+        eoa:
+          description: The EOA that the reward was given to (for Direct rewards) or that is allowed to claim the reward (for Lazy rewards)
+          type: string
+          format: chain-account-address
+          nullable: true
+        url:
+          description: For Web2 based rewards, this is the redemption URL. The user should go to this URL to receive their reward.
+          type: string
+          format: url
+          nullable: true
+        credentialType:
+          allOf:
+            - description: For Web2 based rewards, this is the type of credential that has been provided in order to claim the reward. It can be a username and password, an OAuth Bearer token, or a simple redemption code. The credential may also be baked into the url, and this field would be None
+            - $ref: '#/components/schemas/ECredentialType'
+            - nullable: true
+        credential:
+          description: The actual provided credential for a Web2 reward
+          type: string
+          nullable: true
+        instructions:
+          description: An optional text field to describe how to redeem the reward
+          type: string
+          nullable: true
+      required:
+        - type
+
     SubqueryReturn:
       type: object
       properties:
