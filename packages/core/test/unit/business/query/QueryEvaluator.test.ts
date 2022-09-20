@@ -24,6 +24,8 @@ import {
   EVMTransactionFilter,
   IDataWalletPersistence,
   IEVMBalance,
+  IChainTransactions,
+
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import td from "testdouble";
@@ -76,10 +78,6 @@ class QueryEvaluatorMocks {
         [URLString("www.snickerdoodlelabs.io"), 10],
     ]);
 
-    public transactionsMap = new Map<ChainId, number>([
-        [ChainId(1), 10]
-    ]);
-
     public accountBalances = new Array<IEVMBalance>(
         {
             ticker: TickerSymbol("ETH"),
@@ -111,6 +109,24 @@ class QueryEvaluatorMocks {
         },
 
     );
+    public chainTransactions = new Array<IChainTransactions>(
+      {
+          ticker: TickerSymbol("ETH"),
+          count: BigNumberString("18"),
+          value: BigNumberString("1822.5")
+      },
+      {
+          ticker: TickerSymbol("SOL"),
+          count: BigNumberString("15"),
+          value: BigNumberString("182.5")
+      },
+      {
+          ticker: TickerSymbol("AVAX"),
+          count: BigNumberString("36"),
+          value: BigNumberString("382.1")
+      },
+
+  );
     
 
   public constructor() {
@@ -126,13 +142,15 @@ class QueryEvaluatorMocks {
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
-    td.when(this.dataWalletPersistence.getTransactionsMap()).thenReturn(
-      okAsync(this.transactionsMap),
-    );
     td.when(this.dataWalletPersistence.getAccountBalances())
     .thenReturn(
         okAsync(this.accountBalances),
     );
+    // td.when(this.dataWalletPersistence.getTransactionsMap())
+    // .thenReturn(
+    //     okAsync(this.chainTransactions),
+    // );
+
   }
     
     public factory() {
@@ -683,28 +701,28 @@ describe("Return URLs Map", () => {
   })
 })
 
-describe("Return Chain Transaction Count", () => {
-  test("EvalPropertyQuery: return chain transaction count", async () => {
-      const propertyQuery = new AST_PropertyQuery(
-          SDQL_Name("q1"),
-          "object",
-          "chain_transactions",
-          [],
-          [],
-          {
-              "^ETH|AVAX|SOL$": {
-                  "type": "number"
-              }
-          }
-      )
-      const mocks = new QueryEvaluatorMocks();
-      const repo = mocks.factory();
-      const result = await repo.eval(propertyQuery);
-      // console.log("URLs is: ", result["value"]);
-      expect(result["value"]).toEqual(            
-      new Map<ChainId, number>([
-          [ChainId(1), 10]
-      ])
-      )
-  })
-})
+// describe("Return Chain Transaction Count", () => {
+//   test("EvalPropertyQuery: return chain transaction count", async () => {
+//       const propertyQuery = new AST_PropertyQuery(
+//           SDQL_Name("q1"),
+//           "object",
+//           "chain_transactions",
+//           [],
+//           [],
+//           {
+//               "^ETH|AVAX|SOL$": {
+//                   "type": "number"
+//               }
+//           }
+//       )
+//       const mocks = new QueryEvaluatorMocks();
+//       const repo = mocks.factory();
+//       const result = await repo.eval(propertyQuery);
+//       // console.log("URLs is: ", result["value"]);
+//       expect(result["value"]).toEqual(            
+//       new Map<ChainId, number>([
+//           [ChainId(1), 10]
+//       ])
+//       )
+//   })
+// })
