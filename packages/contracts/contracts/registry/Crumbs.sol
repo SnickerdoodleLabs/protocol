@@ -126,7 +126,8 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
         return baseURI;
     }
 
-    /// @dev Override to add require statement to make tokens Consent token non-transferrable
+    /// @dev Override to add require statement to make crumb tokens non-transferable
+    /// @dev Remove an address's mapping to its crumb id once its transferred
     function _beforeTokenTransfer(address from, address to, uint256 crumbId)
         internal
         override
