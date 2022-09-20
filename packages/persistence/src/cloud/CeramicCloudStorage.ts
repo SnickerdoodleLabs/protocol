@@ -143,24 +143,29 @@ export class CeramicCloudStorage implements ICloudStorage {
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<string, PersistenceError> {
-    return this._init().andThen(({ store, model }) => {
+    return this._init().andThen(({ store, model, client }) => {
       return ResultAsync.fromPromise(
         model.createTile("DataWalletBackup", backup),
         (e) => e as PersistenceError,
       ).andThen((doc) => {
-        const id = doc.id.toUrl();
-        return this._getBackupIndex().andThen((backups) => {
-          return ResultAsync.fromPromise(
-            store.set("backupIndex", {
-              backups: [
-                ...backups,
-                { id: id, timestamp: backup.header.timestamp },
-              ],
-            }),
-            (e) => e as PersistenceError,
-          ).map((_) => {
-            console.debug("CloudStorage", `Backup placed: ${id}`);
-            return id;
+        return ResultAsync.fromPromise(
+          client.pin.add(doc.id, true),
+          (e) => e as PersistenceError,
+        ).andThen(() => {
+          const id = doc.id.toUrl();
+          return this._getBackupIndex().andThen((backups) => {
+            return ResultAsync.fromPromise(
+              store.set("backupIndex", {
+                backups: [
+                  ...backups,
+                  { id: id, timestamp: backup.header.timestamp },
+                ],
+              }),
+              (e) => e as PersistenceError,
+            ).map((_) => {
+              console.debug("CloudStorage", `Backup placed: ${id}`);
+              return id;
+            });
           });
         });
       });
