@@ -3,12 +3,9 @@ import Browser from "webextension-polyfill";
 
 export enum EAPP_STATE {
   INIT,
+  PERMISSION_SELECTION,
+  MANAGE_PERMISSIONS,
   DISMISSED,
-  CONNECT_WALLET,
-  CONNECT_WALLET_PENDING,
-  CONNECT_WALLET_SUCCESS,
-  FREE_NFT_CLAIMED,
-  CONNECT_WALLET_ERROR,
 }
 
 export interface IRewardItem {

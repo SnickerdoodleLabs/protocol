@@ -1,26 +1,10 @@
-import {
-  DomainName,
+import ScamFilterComponent, {
   EScamFilterStatus,
-  URLString,
-} from "@snickerdoodlelabs/objects";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import ObjectMultiplex from "obj-multiplex";
-import pump from "pump";
-import React, { useEffect, useMemo, useState } from "react";
-import { parse } from "tldts";
-import Browser from "webextension-polyfill";
-
-import { EAPP_STATE, IRewardItem } from "../../constants/index";
-import ConnectWallet from "../Screens/ConnectWallet/index";
-import ConnectWalletPending from "../Screens/ConnectWalletPending/index";
-import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess/index";
-import NftClaimed from "../Screens/NftClaimed/index";
-import RewardCard from "../Screens/RewardCard/index";
-
-import ScamFilterComponent from "@app/Content/components/ScamFilterComponent";
+} from "@app/Content/components/ScamFilterComponent";
+import ManagePermissions from "@app/Content/components/Screens/ManagePermissions";
+import PermissionSelection from "@app/Content/components/Screens/PermissionSelection";
+import RewardCard from "@app/Content/components/Screens/RewardCard";
+import { EAPP_STATE, IRewardItem } from "@app/Content/constants";
 import usePath from "@app/Content/hooks/usePath";
 import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
 import { ExternalCoreGateway } from "@app/coreGateways/index";
@@ -30,6 +14,16 @@ import { EPortNames } from "@shared/enums/ports";
 import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 import { VersionUtils } from "@shared/utils/VersionUtils";
+import { DomainName, EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import ObjectMultiplex from "obj-multiplex";
+import pump from "pump";
+import React, { useEffect, useMemo, useState } from "react";
+import { parse } from "tldts";
+import Browser from "webextension-polyfill";
 
 let coreGateway: ExternalCoreGateway;
 let notificationEmitter;
@@ -99,14 +93,6 @@ const App = () => {
     initiateCohort();
   }, [_path]);
 
-  useEffect(() => {
-    if (appState === EAPP_STATE.CONNECT_WALLET_SUCCESS) {
-      setTimeout(() => {
-        setAppState(EAPP_STATE.FREE_NFT_CLAIMED);
-      }, 1000);
-    }
-  }, [appState]);
-
   const initiateCohort = async () => {
     coreGateway
       .isDataWalletAddressInitialized()
@@ -149,6 +135,25 @@ const App = () => {
 
   const emptyReward = () => {
     setRewardToDisplay(undefined);
+    setAppState(EAPP_STATE.INIT);
+  };
+
+  const acceptInvitation = () => {
+    coreGateway
+      .acceptInvitation(null, invitationDomain?.id as UUID)
+      .map(() => emptyReward());
+  };
+
+  const rejectInvitation = () => {
+    coreGateway
+      .rejectInvitation(invitationDomain?.id as UUID)
+      .map(() => emptyReward());
+  };
+
+  const acceptInvitationWithDataTypes = (dataTypes: EWalletDataType[]) => {
+    coreGateway
+      .acceptInvitation(dataTypes, invitationDomain?.id as UUID)
+      .map(() => emptyReward());
   };
 
   const renderComponent = useMemo(() => {
@@ -159,24 +164,30 @@ const App = () => {
         return (
           <RewardCard
             emptyReward={emptyReward}
+            acceptInvitation={acceptInvitation}
+            changeAppState={changeAppState}
+            rejectInvitation={rejectInvitation}
             rewardItem={rewardToDisplay!}
             invitationDomain={invitationDomain}
             coreGateway={coreGateway}
           />
         );
-      case appState === EAPP_STATE.CONNECT_WALLET:
-        return <ConnectWallet changeAppState={changeAppState} />;
-      case appState === EAPP_STATE.CONNECT_WALLET_PENDING:
-        return <ConnectWalletPending changeAppState={changeAppState} />;
-      case appState === EAPP_STATE.CONNECT_WALLET_SUCCESS:
-        return <ConnectWalletSuccess changeAppState={changeAppState} />;
-      case appState === EAPP_STATE.FREE_NFT_CLAIMED:
+      case appState === EAPP_STATE.PERMISSION_SELECTION:
         return (
-          <NftClaimed
-            rewardItem={rewardToDisplay!}
-            invitationDomain={invitationDomain}
+          <PermissionSelection
+            emptyReward={emptyReward}
+            acceptInvitation={acceptInvitation}
             changeAppState={changeAppState}
+          />
+        );
+      case appState === EAPP_STATE.MANAGE_PERMISSIONS:
+        return (
+          <ManagePermissions
+            emptyReward={emptyReward}
             coreGateway={coreGateway}
+            onSaveClick={(dataTypes) => {
+              acceptInvitationWithDataTypes(dataTypes);
+            }}
           />
         );
       default:
