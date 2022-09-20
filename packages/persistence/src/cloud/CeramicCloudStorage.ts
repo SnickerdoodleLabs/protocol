@@ -152,6 +152,7 @@ export class CeramicCloudStorage implements ICloudStorage {
           client.pin.add(doc.id, true),
           (e) => e as PersistenceError,
         ).andThen(() => {
+          // only index if pin was successful
           const id = doc.id.toUrl();
           return this._getBackupIndex().andThen((backups) => {
             return ResultAsync.fromPromise(

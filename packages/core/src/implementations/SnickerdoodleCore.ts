@@ -70,6 +70,7 @@ import {
   ICloudStorage,
   ICloudStorageType,
   CeramicCloudStorage,
+  NullCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -141,7 +142,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
-        .to(CeramicCloudStorage)
+        .to(NullCloudStorage)
         .inSingletonScope();
     }
 
