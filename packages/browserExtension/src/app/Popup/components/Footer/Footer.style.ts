@@ -1,6 +1,9 @@
 import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
+  socialButtonWrapper: {
+    cursor: "pointer",
+  },
   link: {
     fontFamily: "'Inter'  !important",
     fontStyle: "normal",
