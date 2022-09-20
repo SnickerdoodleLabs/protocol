@@ -1,7 +1,7 @@
 {
     "version": 0.1,
-    "timestamp": <this should be populated with GMT>,
-    "expiry": <this should be populated with GMT>,
+    "timestamp": "///<this should be populated with GMT>",
+    "expiry" : "///<this should be populated with GMT>",
     "description": "///This should dynamically populate",
     "business": "/////This should dynamically populate",
     "queries": {
@@ -23,20 +23,28 @@
                 "type": "object",
                 "object_schema": {
                     "properties": {
-                        "networkId": {
+                        "tickerSymbol": {
                             "type": "string"
                         },
-                        "value": {
+                        "incomingValue": {
                             "type": "number"
                         },
-                        "count": {
+                        "incomingCount": {
+                            "type": "integer"
+                        },
+                        "outgoingValue": {
+                            "type": "number"
+                        },
+                        "outgoingCount": {
                             "type": "integer"
                         }
                     },
                     "required": [
                         "networkId",
-                        "value",
-                        "count"
+                        "incomingValue",
+                        "incomingCount",
+                        "outgoingValue",
+                        "outgoingCount"
                     ]
                 }
             }

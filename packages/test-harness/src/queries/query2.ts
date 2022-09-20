@@ -16,17 +16,29 @@ export const query2 = {
         type: "object",
         object_schema: {
           properties: {
-            networkId: {
+            tickerSymbol: {
               type: "string",
             },
-            value: {
-              type: "number",
+            incomingValue: {
+              type: "number"
             },
-            count: {
-              type: "integer",
+            incomingCount: {
+              type: "integer"
+            },
+            outgoingValue: {
+              type: "number"
+            },
+            outgoingCount: {
+              type: "integer"
             }
           },
-          required: ["networkId", "value", "count"],
+          required: [
+            "tickerSymbol", 
+            "incomingValue", 
+            "incomingCount",
+            "outgoingValue", 
+            "outgoingCount",
+          ],
         }
       }
     },

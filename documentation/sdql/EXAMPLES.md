@@ -87,20 +87,28 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "type": "object",
                 "object_schema": {
                     "properties": {
-                        "networkId": {
+                        "tickerSymbol": {
                             "type": "string"
                         },
-                        "value": {
+                        "incomingValue": {
                             "type": "number"
                         },
-                        "count": {
+                        "incomingCount": {
+                            "type": "integer"
+                        },
+                        "outgoingValue": {
+                            "type": "number"
+                        },
+                        "outgoingCount": {
                             "type": "integer"
                         }
                     },
                     "required": [
                         "networkId",
-                        "value",
-                        "count"
+                        "incomingValue",
+                        "incomingCount",
+                        "outgoingValue",
+                        "outgoingCount"                        
                     ]
                 }
             }
