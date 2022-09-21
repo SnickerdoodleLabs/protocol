@@ -22,6 +22,6 @@ export const useStyles = makeStyles((theme) => ({
     fontWeight: 300,
     fontSize: 14.5,
     lineHeight: "17px",
-    color: " #D32F2F",
+    color: "#8079B4",
   },
 }));

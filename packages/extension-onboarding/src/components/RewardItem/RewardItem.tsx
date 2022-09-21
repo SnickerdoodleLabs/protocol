@@ -1,17 +1,17 @@
 import BrokenImageIcon from "@material-ui/icons/BrokenImage";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardsInfo/components/RewardItem/RewardItem.style";
+import { useStyles } from "@extension-onboarding/components/RewardItem/RewardItem.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, Grid, Icon, Typography } from "@material-ui/core";
+import { Box, Grid } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import { IOpenSeaMetadata, IpfsCID } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useState } from "react";
+import React, { ReactNode, FC, useEffect, useState } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 interface IRewardItemProps {
   rewardCID: IpfsCID;
-  onLeaveClick: () => void;
+  button: ReactNode;
 }
-const RewardItem: FC<IRewardItemProps> = ({ rewardCID, onLeaveClick }) => {
+const RewardItem: FC<IRewardItemProps> = ({ rewardCID, button }) => {
   const [rewardItem, setRewardItem] = useState<IOpenSeaMetadata>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const classes = useStyles();
@@ -61,24 +61,8 @@ const RewardItem: FC<IRewardItemProps> = ({ rewardCID, onLeaveClick }) => {
             </Box>
           )}
         </Box>
-
-        <Box>
-          <Typography className={classes.name}>
-            {rewardItem ? (
-              rewardItem.rewardName
-            ) : isLoading ? (
-              <Box px={2}>
-                <Skeleton />
-              </Box>
-            ) : (
-              " "
-            )}
-          </Typography>
-        </Box>
-        <Box mt={1} mb={2}>
-          <Typography className={classes.link} onClick={onLeaveClick}>
-            Burn Reward
-          </Typography>
+        <Box mt={3} mb={2}>
+          {button}
         </Box>
       </Box>
     </Grid>
