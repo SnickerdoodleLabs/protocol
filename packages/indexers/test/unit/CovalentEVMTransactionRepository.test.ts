@@ -17,6 +17,7 @@ class CovalentEVMTransactionRepositoryMocks {
   public config: IIndexerConfig = {
     covalentApiKey: "CovalentApiKey",
     moralisApiKey: "MoralisApiKey",
+    quoteCurrency: "USD",
   };
 
   constructor(public responseRepo) {

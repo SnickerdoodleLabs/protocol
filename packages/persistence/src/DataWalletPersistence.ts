@@ -77,6 +77,11 @@ enum ELocalStorageKey {
   LATEST_BLOCK = "SD_LatestBlock",
 }
 
+interface LatestBlockEntry {
+  contract: EVMContractAddress;
+  block: BlockNumber;
+}
+
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
   private objectStore?: IVolatileStorageTable;
@@ -116,6 +121,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             ELocalStorageKey.TRANSACTIONS,
             ELocalStorageKey.SITE_VISITS,
             ELocalStorageKey.CLICKS,
+            ELocalStorageKey.LATEST_BLOCK,
           ],
           store,
           this.cryptoUtils,
@@ -165,6 +171,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             ["timestamp", false],
             ["element", false],
           ],
+        },
+        {
+          name: ELocalStorageKey.LATEST_BLOCK,
+          keyPath: "contract",
+          autoIncrement: false,
         },
       ],
     });
@@ -712,11 +723,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           return ResultUtils.combine(
             chains.map((chain) => {
               return txStore
-                .getAllKeys(
-                  ELocalStorageKey.TRANSACTIONS,
-                  "chainId",
-                  IDBKeyRange.only(chain),
-                )
+                .getAllKeys(ELocalStorageKey.TRANSACTIONS, "chainId", chain)
                 .andThen((keys) => {
                   return okAsync([chain, keys.length]);
                 });
@@ -735,24 +742,36 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setLatestBlockNumber(
+    contractAddress: EVMContractAddress,
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
       return this._getBackupManager().andThen((backupManager) => {
-        return backupManager.updateField(
-          ELocalStorageKey.LATEST_BLOCK,
-          blockNumber,
-        );
+        return backupManager.addRecord(ELocalStorageKey.LATEST_BLOCK, {
+          contract: contractAddress,
+          block: blockNumber,
+        });
       });
     });
   }
 
-  public getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError> {
+  public getLatestBlockNumber(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<BlockNumber, PersistenceError> {
     return this.waitForUnlock().andThen((key) => {
-      return this._checkAndRetrieveValue(
-        ELocalStorageKey.LATEST_BLOCK,
-        BlockNumber(-1),
-      );
+      return this._getObjectStore().andThen((store) => {
+        return store
+          .getObject<LatestBlockEntry>(
+            ELocalStorageKey.LATEST_BLOCK,
+            contractAddress.toString(),
+          )
+          .map((block) => {
+            if (block == null) {
+              return BlockNumber(-1);
+            }
+            return block.block;
+          });
+      });
     });
   }
 

@@ -77,6 +77,7 @@ export const testCoreConfig = new CoreConfig(
   URLString("http://dnsServerAddress"),
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
+  "USD",
 );
 
 // #endregion

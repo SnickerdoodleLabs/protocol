@@ -29,5 +29,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public dnsServerAddress: URLString,
     public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,
+    public quoteCurrency: string,
   ) {}
 }

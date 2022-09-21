@@ -323,6 +323,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
+          Math.random() * 1000,
         );
         return core.addEVMTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
@@ -338,6 +339,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
+          Math.random() * 1000,
         );
         return core.addEVMTransactions(transactions).map(console.log);
       case "addSiteVisit - google":

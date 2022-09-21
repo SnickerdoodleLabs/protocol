@@ -273,6 +273,22 @@ export interface IConsentContract {
   ): ResultAsync<void, ConsentContractError>;
 
   /**
+   * Returns the earliest block that should be looked at for requestForData events
+   */
+  getQueryHorizon(): ResultAsync<BlockNumber, ConsentContractError>;
+
+  /**
+   * Sets the earliest block that should ever be looked at for requestForData events.
+   * This should be periodically updated to prevent very old queries from getting looked at.
+   * The update policy depends on how a particular ConsentContract is used and the expiration
+   * dates of the attached queries.
+   * @param blockNumber
+   */
+  setQueryHorizon(
+    blockNumber: BlockNumber,
+  ): ResultAsync<void, ConsentContractError>;
+
+  /**
    * Get the number of opted in addresses
    */
   totalSupply(): ResultAsync<number, ConsentContractError>;

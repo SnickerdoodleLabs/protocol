@@ -62,7 +62,13 @@ export class SimulatorEVMTransactionRepository
         chainId: chainId,
         accountAddress: accountAddress,
         balance: BigNumberString(Math.floor(Math.random() * 1000) + ""),
-        contractAddress: EVMContractAddress(Math.floor(Math.random() * 4) + 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.charAt(Math.floor(Math.random() * 4)))
+        contractAddress: EVMContractAddress(
+          Math.floor(Math.random() * 4) +
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
+              Math.floor(Math.random() * 4),
+            ),
+        ),
+        quoteBalance: Math.random() * 1000,
       };
       result.push(item);
     }
@@ -99,6 +105,7 @@ export class SimulatorEVMTransactionRepository
         null,
         null,
         null,
+        Math.random() * 1000,
       );
     }
     return okAsync(result);

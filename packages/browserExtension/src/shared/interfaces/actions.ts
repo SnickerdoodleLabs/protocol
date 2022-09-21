@@ -94,3 +94,6 @@ export interface IInvitationDomainWithUUID {
   nftClaimedImage: URLString;
   id: UUID;
 }
+export interface ICheckURLParams {
+  domain: DomainName;
+}

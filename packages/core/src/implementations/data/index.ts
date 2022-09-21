@@ -5,3 +5,4 @@ export * from "@core/implementations/data/InsightPlatformRepository.js";
 export * from "@core/implementations/data/InvitationRepository.js";
 export * from "@core/implementations/data/MetatransactionForwarderRepository.js";
 export * from "@core/implementations/data/SDQLQueryRepository.js";
+export * from "@core/implementations/data/SiftContractRepository.js";

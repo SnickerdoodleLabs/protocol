@@ -276,7 +276,7 @@ export class QueryService implements IQueryService {
   ) {
     return {
       consentContractId: consentContractAddress,
-      queryId,
+      queryCid: queryId,
       dataWallet: context.dataWalletAddress,
       returns: returns,
     } as Record<string, unknown>;

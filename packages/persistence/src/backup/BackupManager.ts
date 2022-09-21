@@ -206,7 +206,8 @@ export class BackupManager {
   private _getContentHash(
     blob: AESEncryptedString,
   ): ResultAsync<string, PersistenceError> {
-    return this.cryptoUtils.hashStringArgon2(JSON.stringify(blob));
+    // dummy value on write
+    return okAsync("");
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {

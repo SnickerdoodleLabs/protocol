@@ -15,10 +15,6 @@ import {
   PersistenceError,
   IAccountBalancesType,
   IAccountBalances,
-  IEVMBalance,
-  AccountBalanceError,
-  AccountNFTError,
-  IEVMNFT,
   IAccountNFTsType,
   IAccountNFTs,
 } from "@snickerdoodlelabs/objects";

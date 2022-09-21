@@ -1,4 +1,8 @@
-import { DomainName, URLString } from "@snickerdoodlelabs/objects";
+import {
+  DomainName,
+  EScamFilterStatus,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
@@ -16,6 +20,7 @@ import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess/index";
 import NftClaimed from "../Screens/NftClaimed/index";
 import RewardCard from "../Screens/RewardCard/index";
 
+import ScamFilterComponent from "@app/Content/components/ScamFilterComponent";
 import usePath from "@app/Content/hooks/usePath";
 import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
 import { ExternalCoreGateway } from "@app/coreGateways/index";
@@ -73,7 +78,19 @@ const App = () => {
   const [invitationDomain, setInvitationDomain] =
     useState<IInvitationDomainWithUUID>();
 
+  const [scamFilterStatus, setScamFilterStatus] = useState<EScamFilterStatus>();
   const _path = usePath();
+
+  useEffect(() => {
+    initiateScamFilterStatus();
+  }, []);
+  const initiateScamFilterStatus = () => {
+    coreGateway
+      .checkURL(window.location.hostname.replace("www.", "") as DomainName)
+      .map((result) => {
+        setScamFilterStatus(result as EScamFilterStatus);
+      });
+  };
 
   useEffect(() => {
     if (rewardToDisplay) {
@@ -167,7 +184,14 @@ const App = () => {
     }
   }, [rewardToDisplay, appState]);
 
-  return <>{renderComponent}</>;
+  return (
+    <>
+      {scamFilterStatus && (
+        <ScamFilterComponent scamFilterStatus={scamFilterStatus} />
+      )}
+      {renderComponent}
+    </>
+  );
 };
 
 export default App;

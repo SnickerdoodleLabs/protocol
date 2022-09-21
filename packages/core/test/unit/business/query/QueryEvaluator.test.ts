@@ -25,9 +25,11 @@ import {
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
+import { QueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+import {
+  IBalanceQueryEvaluator,
+  INetworkQueryEvaluator,
+} from "@core/interfaces/business/utilities/query/index.js";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -70,6 +72,7 @@ class QueryEvaluatorMocks {
       accountAddress: EVMAccountAddress("GOOD1"),
       balance: BigNumberString("18"),
       contractAddress: EVMContractAddress("9dkj13nd"),
+      quoteBalance: 0,
     },
     {
       ticker: TickerSymbol("ETH"),
@@ -77,6 +80,7 @@ class QueryEvaluatorMocks {
       accountAddress: EVMAccountAddress("GOOD2"),
       balance: BigNumberString("25"),
       contractAddress: EVMContractAddress("0pemc726"),
+      quoteBalance: 0,
     },
     {
       ticker: TickerSymbol("BLAH"),
@@ -84,6 +88,7 @@ class QueryEvaluatorMocks {
       accountAddress: EVMAccountAddress("BAD"),
       balance: BigNumberString("26"),
       contractAddress: EVMContractAddress("lp20xk3c"),
+      quoteBalance: 0,
     },
     {
       ticker: TickerSymbol("ETH"),
@@ -91,6 +96,7 @@ class QueryEvaluatorMocks {
       accountAddress: EVMAccountAddress("GOOD3"),
       balance: BigNumberString("36"),
       contractAddress: EVMContractAddress("m12s93io"),
+      quoteBalance: 0,
     },
   );
 

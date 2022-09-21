@@ -7,9 +7,12 @@ import {
   MinimalForwarderContract,
   IConsentFactoryContract,
   ConsentFactoryContract,
+  SiftContract,
+  ISiftContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BlockchainProviderError,
+  ChainId,
   EVMContractAddress,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -87,6 +90,21 @@ export class ContractFactory implements IContractFactory {
       return new MinimalForwarderContract(
         provider,
         config.controlChainInformation.metatransactionForwarderAddress,
+      );
+    });
+  }
+
+  public factorySiftContract(): ResultAsync<
+    ISiftContract,
+    BlockchainProviderError | UninitializedError
+  > {
+    return ResultUtils.combine([
+      this.blockchainProvider.getAllProviders(),
+      this.configProvider.getConfig(),
+    ]).map(([provider, config]) => {
+      return new SiftContract(
+        provider.get(config.controlChainId)!,
+        config.controlChainInformation.siftContractAddress,
       );
     });
   }

@@ -67,6 +67,7 @@ class BalanceQueryEvaluatorMocks {
       accountAddress: EVMAccountAddress("GOOD1"),
       balance: BigNumberString("9"),
       contractAddress: EVMContractAddress("Contract 1"),
+      quoteBalance: 0,
     },
     {
       ticker: TickerSymbol("SOL"),
@@ -74,6 +75,7 @@ class BalanceQueryEvaluatorMocks {
       accountAddress: EVMAccountAddress("GOOD2"),
       balance: BigNumberString("44"),
       contractAddress: EVMContractAddress("Contract 2"),
+      quoteBalance: 0,
     },
     {
       ticker: TickerSymbol("AVAX"),
@@ -81,6 +83,7 @@ class BalanceQueryEvaluatorMocks {
       accountAddress: EVMAccountAddress("GOOD3"),
       balance: BigNumberString("117"),
       contractAddress: EVMContractAddress("Contract 3"),
+      quoteBalance: 0,
     },
     {
       ticker: TickerSymbol("BIT"),
@@ -88,6 +91,7 @@ class BalanceQueryEvaluatorMocks {
       accountAddress: EVMAccountAddress("GOOD4"),
       balance: BigNumberString("903"),
       contractAddress: EVMContractAddress("Contract 4"),
+      quoteBalance: 0,
     },
     {
       ticker: TickerSymbol("ADA"),
@@ -95,6 +99,7 @@ class BalanceQueryEvaluatorMocks {
       accountAddress: EVMAccountAddress("GOOD5"),
       balance: BigNumberString("24"),
       contractAddress: EVMContractAddress("Contract 10"),
+      quoteBalance: 0,
     },
   );
 
@@ -142,6 +147,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("15"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("SOL"),
@@ -149,6 +155,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -156,6 +163,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("30"),
             contractAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -164,17 +172,17 @@ describe("BalanceQueryEvaluator", () => {
 
     const result = await repo.eval(balanceQuery);
     //console.log(result);
-    expect(result["value"][0].address).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("15"));
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
+    expect(result["value"][0]["networkId"]).toEqual(1);
+    expect(result["value"][0]["balance"]).toEqual("15");
 
-    expect(result["value"][1].address).toEqual("Contract 2");
+    expect(result["value"][1]["address"]).toEqual("Contract 2");
     expect(result["value"][1].networkId).toEqual(2);
-    expect(result["value"][1].balance).toEqual(BigNumber.from("25"));
+    expect(result["value"][1]["balance"]).toEqual("25");
 
-    expect(result["value"][2].address).toEqual("Contract 3");
+    expect(result["value"][2]["address"]).toEqual("Contract 3");
     expect(result["value"][2].networkId).toEqual(3);
-    expect(result["value"][2].balance).toEqual(BigNumber.from("30"));
+    expect(result["value"][2]["balance"]).toEqual("30");
   });
 
   test("3 EVMBalances, Same Contract Addresses", async () => {
@@ -195,6 +203,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("15"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("SOL"),
@@ -202,6 +211,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -209,6 +219,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("30"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -219,9 +230,9 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0].address).toEqual("Contract 1");
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("70"));
+    expect(result["value"][0]["balance"]).toEqual("70");
 
     // TODO this is conceptually incorrect as different contract address will have different ticket symbols.
   });
@@ -244,6 +255,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("SOL"),
@@ -251,6 +263,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -261,14 +274,14 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(2);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0].address).toEqual("Contract 1");
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("9"));
+    expect(result["value"][0]["balance"]).toEqual("9");
 
     expect(result["value"][1].ticker).toEqual("SOL");
-    expect(result["value"][1].address).toEqual("Contract 2");
+    expect(result["value"][1]["address"]).toEqual("Contract 2");
     expect(result["value"][1].networkId).toEqual(2);
-    expect(result["value"][1].balance).toEqual(BigNumber.from("44"));
+    expect(result["value"][1]["balance"]).toEqual("44");
   });
 
   test("2 EVMBalances, Same Contract Addresses", async () => {
@@ -289,6 +302,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("SOL"),
@@ -296,6 +310,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -306,9 +321,9 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0].address).toEqual("Contract 1");
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("53"));
+    expect(result["value"][0]["balance"]).toEqual("53");
   });
 
   test("Only Accept ChainId(1) EVMBalances", async () => {
@@ -329,6 +344,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("SOL"),
@@ -336,6 +352,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -345,9 +362,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual("Contract 1");
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("9"));
+    expect(result["value"][0]["balance"]).toEqual("9");
   });
 
   test("Only Accept ChainId(1) EVMBalances - Same ContractAddresses", async () => {
@@ -370,6 +387,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("10"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("SOL"),
@@ -377,6 +395,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("10"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -384,6 +403,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("10"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("BIT"),
@@ -391,6 +411,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD4"),
             balance: BigNumberString("10"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ADA"),
@@ -398,6 +419,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD5"),
             balance: BigNumberString("10"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -406,7 +428,7 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("50"));
+    expect(result["value"][0]["balance"]).toEqual("50");
   });
 
   test("(Chain ID: 1) && (20 <= Balance < 30) - ALL VALUES", async () => {
@@ -429,6 +451,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("23"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -436,6 +459,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -443,6 +467,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("27"),
             contractAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -451,17 +476,17 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(3);
-    expect(result["value"][0].address).toEqual("Contract 1");
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("23"));
+    expect(result["value"][0]["balance"]).toEqual("23");
 
-    expect(result["value"][1].address).toEqual("Contract 2");
+    expect(result["value"][1]["address"]).toEqual("Contract 2");
     expect(result["value"][1].networkId).toEqual(1);
-    expect(result["value"][1].balance).toEqual(BigNumber.from("25"));
+    expect(result["value"][1]["balance"]).toEqual("25");
 
-    expect(result["value"][2].address).toEqual("Contract 3");
+    expect(result["value"][2]["address"]).toEqual("Contract 3");
     expect(result["value"][2].networkId).toEqual(1);
-    expect(result["value"][2].balance).toEqual(BigNumber.from("27"));
+    expect(result["value"][2]["balance"]).toEqual("27");
   });
 
   test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () => {
@@ -484,6 +509,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("19"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -491,6 +517,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -498,6 +525,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("31"),
             contractAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -506,9 +534,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual("Contract 2");
+    expect(result["value"][0]["address"]).toEqual("Contract 2");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("25"));
+    expect(result["value"][0]["balance"]).toEqual("25");
   });
 
   test("(Chain ID: 1) & (20 <= Balance < 30) - Add all of the values", async () => {
@@ -531,6 +559,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("23"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -538,6 +567,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -545,6 +575,107 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("27"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
+          },
+        ),
+      ),
+    );
+
+    const result = await repo.eval(balanceQuery);
+    //console.log(result);
+    expect(result["value"].length).toEqual(1);
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
+    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["balance"]).toEqual("75");
+  });
+
+  test("(Chain ID: 1) & (20 <= Balance < 30) - Add first two values, the only ones that match conditions", async () => {
+    const balanceQuery = new AST_BalanceQuery(
+      SDQL_Name("q7"),
+      "array",
+      ChainId(1),
+      conditionsGEandL,
+    );
+    // >= 20 and < 30
+    const mocks = new BalanceQueryEvaluatorMocks();
+    const repo = mocks.factory();
+
+    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+      okAsync(
+        new Array<IEVMBalance>(
+          {
+            ticker: TickerSymbol("ETH"),
+            chainId: ChainId(1),
+            accountAddress: EVMAccountAddress("GOOD1"),
+            balance: BigNumberString("19"),
+            contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
+          },
+          {
+            ticker: TickerSymbol("ETH"),
+            chainId: ChainId(1),
+            accountAddress: EVMAccountAddress("GOOD2"),
+            balance: BigNumberString("25"),
+            contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
+          },
+          {
+            ticker: TickerSymbol("ETH"),
+            chainId: ChainId(1),
+            accountAddress: EVMAccountAddress("GOOD2"),
+            balance: BigNumberString("31"),
+            contractAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: 0,
+          },
+        ),
+      ),
+    );
+
+    const result = await repo.eval(balanceQuery);
+    //console.log(result);
+    expect(result["value"].length).toEqual(1);
+    expect(result["value"][0].address).toEqual("Contract 2");
+    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0].balance).toEqual("25");
+  });
+
+  test("(Chain ID: 1) & (20 <= Balance < 30) - Add all of the values", async () => {
+    const balanceQuery = new AST_BalanceQuery(
+      SDQL_Name("q7"),
+      "array",
+      ChainId(1),
+      conditionsGEandL,
+    );
+    // >= 20 and < 30
+    const mocks = new BalanceQueryEvaluatorMocks();
+    const repo = mocks.factory();
+
+    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+      okAsync(
+        new Array<IEVMBalance>(
+          {
+            ticker: TickerSymbol("ETH"),
+            chainId: ChainId(1),
+            accountAddress: EVMAccountAddress("GOOD1"),
+            balance: BigNumberString("23"),
+            contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
+          },
+          {
+            ticker: TickerSymbol("ETH"),
+            chainId: ChainId(1),
+            accountAddress: EVMAccountAddress("GOOD2"),
+            balance: BigNumberString("25"),
+            contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
+          },
+          {
+            ticker: TickerSymbol("ETH"),
+            chainId: ChainId(1),
+            accountAddress: EVMAccountAddress("GOOD2"),
+            balance: BigNumberString("27"),
+            contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -555,7 +686,7 @@ describe("BalanceQueryEvaluator", () => {
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].address).toEqual("Contract 1");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("75"));
+    expect(result["value"][0].balance).toEqual("75");
   });
 
   test("(Chain ID: 1) & (20 <= Balance < 30) - Add first two values, the only ones that match conditions", async () => {
@@ -578,6 +709,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("25"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -585,6 +717,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -592,6 +725,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("100"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -600,9 +734,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual("Contract 1");
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("50"));
+    expect(result["value"][0]["balance"]).toEqual("50");
   });
 
   test("(Chain ID: 1) & (20 < Balance <= 30)", async () => {
@@ -625,6 +759,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -632,6 +767,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("29"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -639,6 +775,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("24"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -646,6 +783,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("51"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -653,6 +791,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("1002"),
             contractAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -660,6 +799,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("23"),
             contractAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -668,17 +808,17 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(3);
-    expect(result["value"][0].address).toEqual("Contract 1");
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("29"));
+    expect(result["value"][0]["balance"]).toEqual("29");
 
-    expect(result["value"][1].address).toEqual("Contract 2");
+    expect(result["value"][1]["address"]).toEqual("Contract 2");
     expect(result["value"][1].networkId).toEqual(1);
-    expect(result["value"][1].balance).toEqual(BigNumber.from("24"));
+    expect(result["value"][1]["balance"]).toEqual("24");
 
-    expect(result["value"][2].address).toEqual("Contract 3");
+    expect(result["value"][2]["address"]).toEqual("Contract 3");
     expect(result["value"][2].networkId).toEqual(1);
-    expect(result["value"][2].balance).toEqual(BigNumber.from("23"));
+    expect(result["value"][2]["balance"]).toEqual("23");
   });
 
   test("(Chain ID: 1) & (Balance == 29) - one occurence", async () => {
@@ -701,6 +841,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -708,6 +849,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -715,6 +857,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("29"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -722,6 +865,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("11"),
             contractAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -729,6 +873,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("24"),
             contractAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -736,6 +881,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("51"),
             contractAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -743,6 +889,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("1002"),
             contractAddress: EVMContractAddress("Contract 5"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -750,6 +897,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("23"),
             contractAddress: EVMContractAddress("Contract 5"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -758,9 +906,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     // console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual("Contract 2");
+    expect(result["value"][0]["address"]).toEqual("Contract 2");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("29"));
+    expect(result["value"][0]["balance"]).toEqual("29");
   });
 
   test("(Chain ID: 1) & (Balance == 29) - multiple occurences", async () => {
@@ -783,6 +931,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -790,6 +939,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("29"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -797,6 +947,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("29"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -804,6 +955,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("1000"),
             contractAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: 0,
           },
         ),
       ),
@@ -812,9 +964,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     // console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual("Contract 2");
+    expect(result["value"][0]["address"]).toEqual("Contract 2");
     expect(result["value"][0].networkId).toEqual(1);
-    expect(result["value"][0].balance).toEqual(BigNumber.from("58"));
+    expect(result["value"][0]["balance"]).toEqual("58");
   });
 
   test("(Chain ID: 0) - should return no values", async () => {
@@ -837,6 +989,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
             contractAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -844,6 +997,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("ETH"),
@@ -851,6 +1005,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("29"),
             contractAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -858,6 +1013,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("11"),
             contractAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -865,6 +1021,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("24"),
             contractAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -872,6 +1029,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("51"),
             contractAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -879,6 +1037,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("1002"),
             contractAddress: EVMContractAddress("Contract 5"),
+            quoteBalance: 0,
           },
           {
             ticker: TickerSymbol("AVAX"),
@@ -886,6 +1045,7 @@ describe("BalanceQueryEvaluator", () => {
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("23"),
             contractAddress: EVMContractAddress("Contract 5"),
+            quoteBalance: 0,
           },
         ),
       ),
