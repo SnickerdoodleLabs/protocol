@@ -9,15 +9,6 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "17px",
     color: "#8079B4",
   },
-  link: {
-    textDecorationLine: "underline",
-    cursor: "pointer",
-    fontFamily: "Inter",
-    fontStyle: "normal",
-    fontWeight: 300,
-    fontSize: 10,
-    color: "red",
-  },
   image: {
     width: "100%",
     aspectRatio: "4/3",

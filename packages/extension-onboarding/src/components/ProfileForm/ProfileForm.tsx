@@ -1,19 +1,10 @@
 import DateFnsUtils from "@date-io/date-fns";
-import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { ALERT_MESSAGES } from "@extension-onboarding/constants";
 import { countries } from "@extension-onboarding/constants/countries";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import {
-  googleScopes,
-  clientID,
-} from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
+import useProfileIFormLogic from "@extension-onboarding/hooks/useProfileIFormLogic";
+import { clientID } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
-import { PII } from "@extension-onboarding/services/interfaces/objects/";
 import {
-  Button,
   Box,
-  FormLabel,
   FormControlLabel,
   Radio,
   Typography,
@@ -24,11 +15,10 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Select, TextField, RadioGroup } from "formik-material-ui";
-import { gapi } from "gapi-script";
-import React, { FC, useEffect, useState } from "react";
+import { Select, RadioGroup } from "formik-material-ui";
+import React, { FC, useEffect } from "react";
 import { GoogleLogin } from "react-google-login";
-import * as yup from "yup";
+
 interface ProfileFormProps {
   onSubmitted?: () => void;
 }
@@ -36,73 +26,21 @@ interface ProfileFormProps {
 const ProfileForm: FC<ProfileFormProps> = ({
   onSubmitted,
 }: ProfileFormProps) => {
-  const { apiGateway, dataWalletGateway } = useAppContext();
-  const { setAlert } = useNotificationContext();
-  const [isGoogleButtonVisible, setGoogleButtonVisible] = useState(true);
-  const [formValues, setFormValues] = useState<PII>(new PII());
-
-  const getDataFromWallet = () => {
-    dataWalletGateway.profileService.getProfile().map((profileInfo) => {
-      setFormValues(profileInfo);
-    });
-  };
-
-  const sendDataToWallet = async (values: Partial<PII>) => {
-    await dataWalletGateway.profileService.setProfile(values);
-  };
-
-  const schema = yup.object().shape({
-  /*   given_name: yup.string().required("First Name is required").nullable(),
-    family_name: yup.string().required("Last Name is required").nullable(),
-    email_address: yup
-      .string()
-      .email()
-      .required("Email Address is required")
-      .typeError("Please enter valid Email Address!")
-      .nullable(), */
-    date_of_birth: yup
-      .date()
-      .max(new Date(), "Please enter valid Date!")
-      .required("Date of Birth is required")
-      .typeError("Please enter valid Date!")
-      .nullable(),
-    gender: yup.string().required("Gender is required").nullable(),
-  });
+  const {
+    isGoogleButtonVisible,
+    onGoogleLoginFail,
+    onGoogleLoginSuccess,
+    formValues,
+    onFormSubmit,
+    schema,
+    isSubmitted,
+  } = useProfileIFormLogic();
+  const classes = useStyles();
 
   useEffect(() => {
-    function start() {
-      gapi.client.init({
-        clientId: clientID,
-        scope: googleScopes,
-      });
-    }
-    gapi.load("client:auth2", start);
-    getDataFromWallet();
-  }, []);
+    if (isSubmitted) onSubmitted?.();
+  }, [isSubmitted]);
 
-  const onSuccess = (res) => {
-    apiGateway.PIIService.fetchPIIFromGoogle(
-      res?.tokenObj?.access_token,
-      res?.googleId,
-    ).map((res) => {
-      setFormValues(res);
-      setGoogleButtonVisible(false);
-      setAlert({
-        message: ALERT_MESSAGES.PROFILE_FILLED_WITH_GOOGLE_DATA,
-        severity: EAlertSeverity.SUCCESS,
-      });
-    });
-  };
-  const onFailure = (res) => {
-    console.log("googleResFail", res);
-  };
-
-  const onFormSubmit = async (values: PII) => {
-    await sendDataToWallet(values);
-    onSubmitted?.();
-  };
-
-  const classes = useStyles();
   return (
     <Box>
       <Box mb={5} mt={4}>
@@ -117,8 +55,8 @@ const ProfileForm: FC<ProfileFormProps> = ({
               clientId={clientID}
               className={classes.googleButton}
               buttonText="Link your data from Google"
-              onSuccess={onSuccess}
-              onFailure={onFailure}
+              onSuccess={onGoogleLoginSuccess}
+              onFailure={onGoogleLoginFail}
               cookiePolicy={"single_host_origin"}
               isSignedIn={false}
             />

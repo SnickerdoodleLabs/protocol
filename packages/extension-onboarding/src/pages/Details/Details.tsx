@@ -1,71 +1,57 @@
-import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import Sidebar from "@extension-onboarding/components/Sidebar";
+import {
+  EScreens,
+  useAuthFlowRouteContext,
+} from "@extension-onboarding/context/AuthFlowRouteContext";
+import RewardsInfo from "@extension-onboarding/pages/Details/screens/RewardsInfo";
+import MarketPlaceRewards from "@extension-onboarding/pages/Details/screens/MarketPlaceRewards";
 import { useStyles } from "@extension-onboarding/pages/Details/Details.style";
 import OnChainInfo from "@extension-onboarding/pages/Details/screens/OnChainIfo";
+import DataPermissionSettings from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings";
 import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
-import { Box, Tab, Tabs } from "@material-ui/core";
-import React from "react";
-import { useLocation } from "react-router-dom";
-import RewardsInfo from "@extension-onboarding/pages/Details//screens/RewardsInfo";
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box>{children}</Box>}
-    </div>
-  );
-}
-
-const screens = {
-  "on-chain": 1,
-  profile: 0,
-  rewards: 2,
-};
+import { Box } from "@material-ui/core";
+import React, { useMemo } from "react";
 
 const Details = () => {
-  const { search } = useLocation();
   const classes = useStyles();
-  const screen = new URLSearchParams(search).get("screen");
+  const { activeScreen } = useAuthFlowRouteContext();
+  const renderScreen = useMemo(() => {
+    switch (activeScreen) {
+      case EScreens.PORTFOLIO: {
+        return <OnChainInfo />;
+      }
+      case EScreens.OWNED_REWARDS:
+        return <RewardsInfo />;
+      case EScreens.MARKET_PLACE_REWARDS: {
+        return <MarketPlaceRewards />;
+      }
+      case EScreens.DATA_PERMISSIONS_SETTING: {
+        return <DataPermissionSettings />;
+      }
+      case EScreens.ON_CHAIN_INFO_SETTINGS: {
+        return <OnChainInfo />;
+      }
+      case EScreens.DEMOGRAPHIC_INFO_SETTINGS: {
+        return <PersonalInfo />;
+      }
+      default: {
+        return null;
+      }
+    }
+  }, [activeScreen]);
 
-  const [currentScreenIndex, setCurrentScreenIndex] = React.useState(
-    screen != undefined && screens[screen] != undefined ? screens[screen] : 0,
-  );
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setCurrentScreenIndex(newValue);
-  };
   return (
-    <Box pt={8} px={15} className={classes.container}>
-      <img src={snickerDoodleLogo} />
-      <Box mb={5}>
-        <Tabs value={currentScreenIndex} onChange={handleChange}>
-          <Tab disableTouchRipple label="Personal Info" />
-          <Tab disableTouchRipple label="On-chain Info" />
-          <Tab disableTouchRipple label="Rewards" />
-        </Tabs>
+    <Box display="flex" maxHeight="100vh" className={classes.container}>
+      <Sidebar />
+      <Box
+        display="flex"
+        style={{ overflow: "scroll" }}
+        p={6}
+        flex={1}
+        flexDirection="column"
+      >
+        {renderScreen}
       </Box>
-      <TabPanel value={currentScreenIndex} index={0}>
-        <PersonalInfo />
-      </TabPanel>
-      <TabPanel value={currentScreenIndex} index={1}>
-        <OnChainInfo />
-      </TabPanel>
-      <TabPanel value={currentScreenIndex} index={2}>
-        <RewardsInfo />
-      </TabPanel>
     </Box>
   );
 };
