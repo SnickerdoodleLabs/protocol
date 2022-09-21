@@ -11,4 +11,6 @@ export interface IConfigOverrides {
   covalentApiKey?: string;
   moralisApiKey?: string;
   dnsServerAddress?: URLString;
+  dataWalletBackupIntervalMS?: number;
+  backupChunkSizeTarget?: number;
 }

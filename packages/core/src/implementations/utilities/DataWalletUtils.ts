@@ -11,7 +11,7 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { IDataWalletUtils } from "@core/interfaces/utilities";
+import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class DataWalletUtils implements IDataWalletUtils {

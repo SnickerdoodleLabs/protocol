@@ -19,12 +19,12 @@ import {
   IQueryParsingEngine,
   IQueryRepository,
   IQueryRepositoryType,
-} from "@core/interfaces/business/utilities";
-import { InsightString } from "@core/interfaces/objects";
+} from "@core/interfaces/business/utilities/index.js";
+import { InsightString } from "@core/interfaces/objects/index.js";
 import {
   IQueryFactories,
   IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {

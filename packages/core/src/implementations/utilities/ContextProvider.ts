@@ -1,8 +1,8 @@
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { PublicEvents, CoreContext } from "@core/interfaces/objects";
-import { IContextProvider } from "@core/interfaces/utilities";
+import { PublicEvents, CoreContext } from "@core/interfaces/objects/index.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class ContextProvider implements IContextProvider {

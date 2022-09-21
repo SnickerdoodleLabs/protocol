@@ -3,7 +3,6 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
@@ -66,13 +65,14 @@ import {
   EScamFilterStatus,
 } from "@snickerdoodlelabs/objects";
 import {
-  ICloudStorage,
-  ICloudStorageType,
-  NullCloudStorage,
   DataWalletPersistence,
   IndexedDBFactory,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
+  ICloudStorage,
+  ICloudStorageType,
+  CeramicCloudStorage,
+  NullCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -83,13 +83,13 @@ import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
-} from "@core/interfaces/api";
+} from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
@@ -99,7 +99,9 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-} from "@core/interfaces/business";
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -107,15 +109,7 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
-import {
-  ISiftContractRepository,
-  ISiftContractRepositoryType,
-} from "@core/interfaces/data";
-import {
-  ISiftContractService,
-  ISiftContractServiceType,
-} from "@core/interfaces/business/ISiftContractService";
+} from "@core/interfaces/utilities/index.js";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;

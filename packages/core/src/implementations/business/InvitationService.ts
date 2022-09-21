@@ -32,7 +32,7 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IInvitationService } from "@core/interfaces/business";
+import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
   IInsightPlatformRepositoryType,
   IConsentContractRepository,
@@ -44,12 +44,12 @@ import {
   IInvitationRepository,
   IMetatransactionForwarderRepositoryType,
   IMetatransactionForwarderRepository,
-} from "@core/interfaces/data";
-import { MetatransactionRequest } from "@core/interfaces/objects";
+} from "@core/interfaces/data/index.js";
+import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 import { getDomain } from "tldts";
 
 @injectable()

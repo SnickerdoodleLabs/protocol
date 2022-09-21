@@ -1,8 +1,8 @@
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { AST_ReturnExpr } from "@query-parser/interfaces/objects/AST_ReturnExpr";
-import { Command } from "@query-parser/interfaces/objects/Command";
-import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr";
+import { AST_ReturnExpr } from "@query-parser/interfaces/objects/AST_ReturnExpr.js";
+import { Command } from "@query-parser/interfaces/objects/Command.js";
+import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr.js";
 
 export class Command_IF extends Command {
   constructor(

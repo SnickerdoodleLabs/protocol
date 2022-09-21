@@ -2,15 +2,15 @@ import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { injectable, inject } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { IAccountIndexerPoller } from "@core/interfaces/api";
+import { IAccountIndexerPoller } from "@core/interfaces/api/index.js";
 import {
   IMonitoringServiceType,
   IMonitoringService,
-} from "@core/interfaces/business";
+} from "@core/interfaces/business/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class AccountIndexerPoller implements IAccountIndexerPoller {

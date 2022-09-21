@@ -51,11 +51,10 @@ import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { query1, query2 } from "./queries";
-
-import { IPFSClient } from "@extension-onboarding/packages/test-harness/src/IPFSClient";
-import { BlockchainStuff } from "@test-harness/BlockchainStuff";
-import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator";
+import { BlockchainStuff } from "@test-harness/BlockchainStuff.js";
+import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator.js";
+import { IPFSClient } from "@test-harness/IPFSClient.js";
+import { query1, query2 } from "@test-harness/queries/index.js";
 
 // https://github.com/SBoudrias/Inquirer.js
 const core = new SnickerdoodleCore({
@@ -366,7 +365,6 @@ function corePrompt(): ResultAsync<void, Error> {
             timestamp: UnixTimestamp(1661451654712),
             signature:
               "0x91b3f61b2d1a7da6dc8a8a74037351b4f7d8c09b9844c004828dd9de7da7977e69e7350a13d324df050ace9bb625530e00884a94acc7ec307270ce4488225c4a1c",
-            accountAddress: "0xF7e191Dbebb9450835Cb5768eeE7622FCfF57208",
           },
           blob: new AESEncryptedString(
             EncryptedString(

@@ -3,21 +3,18 @@ import {
   IAxiosAjaxUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  IAccountIndexing,
   IAccountNFTs,
   IEVMNftRepository,
-  IEVMTransactionRepository,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider";
-import { MoralisEVMNftRepository } from "@indexers/MoralisEVMNftRepository";
-import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository";
+} from "@indexers/IIndexerConfigProvider.js";
+import { MoralisEVMNftRepository } from "@indexers/MoralisEVMNftRepository.js";
+import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 
 @injectable()
 export class DefaultAccountNFTs implements IAccountNFTs {

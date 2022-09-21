@@ -1,9 +1,11 @@
 import { TypedDataDomain } from "@ethersproject/abstract-signer";
+import { MapModelTypes } from "@glazed/types";
 import { IIndexerConfig } from "@snickerdoodlelabs/indexers";
 import {
   ChainId,
   ChainInformation,
   ControlChainInformation,
+  ModelTypes,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
@@ -25,6 +27,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public covalentApiKey: string,
     public moralisApiKey: string,
     public dnsServerAddress: URLString,
+    public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
+    public ceramicNodeURL: URLString,
     public quoteCurrency: string,
   ) {}
 }
