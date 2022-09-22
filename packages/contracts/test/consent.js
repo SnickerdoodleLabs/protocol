@@ -1,17 +1,17 @@
 const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
 
-async function getSignature(owner, address, tokenId, agreementFlags) {
+async function getSignature(owner, address, tokenId) {
   let msgHash;
   if (address === null) {
     msgHash = ethers.utils.solidityKeccak256(
-      ["uint256", "bytes32"],
-      [tokenId, agreementFlags],
+      ["uint256"],
+      [tokenId],
     );
   } else {
     msgHash = ethers.utils.solidityKeccak256(
-      ["address", "uint256", "bytes32"],
-      [address, tokenId, agreementFlags],
+      ["address", "uint256"],
+      [address, tokenId],
     );
   }
 
@@ -126,8 +126,7 @@ describe("Consent", () => {
       let sig = await getSignature(
         user1,
         accounts[2].address.toLowerCase(),
-        1,
-        sampleAgreementFlag1,
+        1
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
@@ -142,8 +141,7 @@ describe("Consent", () => {
       let sig = await getSignature(
         user1,
         accounts[2].address.toLowerCase(),
-        1,
-        sampleAgreementFlag1,
+        1
       );
 
       // user1 who is the owner signs user 2's address
@@ -151,8 +149,7 @@ describe("Consent", () => {
       let sig2 = await getSignature(
         user1,
         accounts[2].address.toLowerCase(),
-        2,
-        sampleAgreementFlag1,
+        2
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
@@ -174,8 +171,7 @@ describe("Consent", () => {
       let sig = await getSignature(
         user1,
         accounts[2].address.toLowerCase(),
-        1,
-        sampleAgreementFlag1,
+        1
       );
 
       // User 10 tries to call restricted opt in using signature the business entity signed for User 1
@@ -192,8 +188,7 @@ describe("Consent", () => {
       let sig = await getSignature(
         user1,
         accounts[2].address.toLowerCase(),
-        1,
-        sampleAgreementFlag1,
+        1
       );
 
       // pause the contract
@@ -213,15 +208,13 @@ describe("Consent", () => {
       let sig = await getSignature(
         user1,
         accounts[2].address.toLowerCase(),
-        1,
-        sampleAgreementFlag1,
+        1
       );
 
       let sig3 = await getSignature(
         user1,
         accounts[3].address.toLowerCase(),
-        1,
-        sampleAgreementFlag1,
+        1
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
@@ -243,8 +236,7 @@ describe("Consent", () => {
       let sig = await getSignature(
         user1,
         accounts[2].address.toLowerCase(),
-        1,
-        sampleAgreementFlag1,
+        1
       );
 
       // User 2 tries to call restricted opt in again with another token Id
@@ -258,7 +250,7 @@ describe("Consent", () => {
 
   describe("anonymousRestrictedOptIn", function () {
     it("Allows a user who as a signed payload to opt-in", async function () {
-      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
+      let sig = await getSignature(user1, null, 1);
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
@@ -269,11 +261,11 @@ describe("Consent", () => {
     it("Does not allows user to opt-in twice even if signed for", async function () {
       // user1 who is the owner signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
+      let sig = await getSignature(user1, null, 1);
 
       // user1 who is the owner signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig2 = await getSignature(user1, null, 2, sampleAgreementFlag2);
+      let sig2 = await getSignature(user1, null, 2);
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
@@ -291,7 +283,7 @@ describe("Consent", () => {
     it("Does not allow opt-ins when function is paused.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
+      let sig = await getSignature(user1, null, 1);
 
       // pause the contract
       await consent.connect(user1).pause();
@@ -307,9 +299,9 @@ describe("Consent", () => {
     it("Does not allow restricted opt-ins with an existent token id.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
+      let sig = await getSignature(user1, null, 1);
 
-      let sig3 = await getSignature(user1, null, 1, sampleAgreementFlag2);
+      let sig3 = await getSignature(user1, null, 1);
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
@@ -327,7 +319,7 @@ describe("Consent", () => {
     it("Does not allow approved user to call restricted opt-ins with a different token id.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, null, 1, sampleAgreementFlag1);
+      let sig = await getSignature(user1, null, 1);
 
       // User 2 tries to call restricted opt in again with another token Id
       await expect(

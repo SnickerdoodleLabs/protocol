@@ -144,7 +144,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev The function is called with the signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
+    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings (this param is not included in the sig hash)
     /// @param signature Owner's signature to agree with user opt in
     function restrictedOptIn (
         uint256 tokenId, 
@@ -157,7 +157,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// if user has opted in before, revert
         require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
         
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(_msgSender(), tokenId, agreementFlags)));
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(_msgSender(), tokenId)));
 
         /// check the signature against the payload
         require(
@@ -181,7 +181,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev The function is called with the a signature from SIGNER_ROLE
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
-    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings
+    /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings (this param is not included in the sig hash)
     /// @param signature Owner's signature to agree with user opt in
     function anonymousRestrictedOptIn (
         uint256 tokenId, 
@@ -194,7 +194,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// if user has opted in before, revert
         require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
         
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId, agreementFlags)));
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId)));
         /// check the signature against the payload
         /// Any account possessing the signature and payload can call this method
         require(
