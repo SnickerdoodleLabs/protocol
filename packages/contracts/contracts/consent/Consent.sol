@@ -51,6 +51,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /// @dev mapping from token id to consent token permissions
     mapping(uint256 => bytes32) public agreementFlagsArray;
+
+    /// @dev the maximum number of consent tokens that can be issued
+    uint public maxCapacity; 
     
     /* EVENTS */ 
 
@@ -101,6 +104,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         // set the queryHorizon to be the current block number;
         queryHorizon = block.number;
 
+        // set the initial
+        maxCapacity = 50;
+
         // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping 
         super._grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
         super._grantRole(PAUSER_ROLE, consentOwner);
@@ -126,6 +132,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     {   
         /// if user has opted in before, revert
         require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
+        
+        /// if consent cohort is at capacity, revert
+        require(!_atCapacity(), "Consent: cohort is at capacity");
 
         /// mint the consent token and set its agreement uri
         _safeMint(_msgSender(), tokenId);
@@ -156,6 +165,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     {
         /// if user has opted in before, revert
         require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
+
+        /// if consent cohort is at capacity, revert
+        require(!_atCapacity(), "Consent: cohort is at capacity");
         
         bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(_msgSender(), tokenId)));
 
@@ -193,6 +205,9 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     {
         /// if user has opted in before, revert
         require(balanceOf(_msgSender()) == 0, "Consent: User has already opted in");
+
+        /// if consent cohort is at capacity, revert
+        require(!_atCapacity(), "Consent: cohort is at capacity");
         
         bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId)));
         /// check the signature against the payload
@@ -230,6 +245,17 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         emit RequestForData(_msgSender(), ipfsCID, ipfsCID);
     }
+
+    /// @notice This function allows an EOA with the DEFAULT_ADMIN_ROLE to update the maxCapacity variable
+    /// @param _maxCapacity Token id being updated 
+    function updateMaxCapacity(uint _maxCapacity) external onlyRole(DEFAULT_ADMIN_ROLE) {
+
+        // prevent setting the new maxCapacity below the current value of totalSupply
+        require(_maxCapacity >= totalSupply, "Consent: cannot reduce capacity below current enrollment.");
+
+        maxCapacity = _maxCapacity;
+    }
+
     /// price for data request (calculates based on number of tokens minted (opt-ed in))
 
     /// @notice Allows user to update their agreement flags
@@ -340,6 +366,11 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev Allows the factory to deploy a BeaconProxy that initiates a Consent contract without a constructor 
     function isTrustedForwarder(address forwarder) public view virtual returns (bool) {
         return forwarder == trustedForwarder;
+    }
+
+    /// @notice Convenient function for asking contract if there is room left in the campaign in one function call
+    function _atCapacity() internal view virtual returns (bool atCapacity)  {
+        return (totalSupply == maxCapacity);
     }
 
     /// @notice Gets the Consent tokens base URI
