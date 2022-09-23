@@ -73,7 +73,7 @@ export class AccountService implements IAccountService {
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(ICrumbsRepositoryType)
-    protected loginRegistryRepo: ICrumbsRepository,
+    protected crumbsRepo: ICrumbsRepository,
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -133,7 +133,7 @@ export class AccountService implements IAccountService {
         ]);
       })
       .andThen(([derivedEOA, context]) => {
-        return this.loginRegistryRepo
+        return this.crumbsRepo
           .getCrumb(derivedEOA.accountAddress, languageCode)
           .andThen((encryptedDataWalletKey) => {
             // If we're already in the process of unlocking
@@ -161,7 +161,7 @@ export class AccountService implements IAccountService {
               .andThen(() => {
                 if (encryptedDataWalletKey == null) {
                   // We're trying to unlock for the first time!
-                  return this.createDataWalletSolana(
+                  return this.createDataWallet(
                     signature,
                     languageCode,
                     derivedEOA,
@@ -198,13 +198,27 @@ export class AccountService implements IAccountService {
                 // Need to add the account if this was the first time;
                 // Doing it this way because I have to make sure the persistence is
                 // unlocked first.
-                return this.dataWalletPersistence.addAccount(
-                  new LinkedAccount(
-                    chain,
-                    accountAddress,
-                    derivedEOA.accountAddress,
-                  ),
-                );
+                if (encryptedDataWalletKey == null) {
+                  return this.dataWalletPersistence
+                    .addAccount(
+                      new LinkedAccount(
+                        chain,
+                        accountAddress,
+                        derivedEOA.accountAddress,
+                      ),
+                    )
+                    .map(() => {
+                      context.publicEvents.onAccountAdded.next(
+                        new LinkedAccount(
+                          chain,
+                          accountAddress,
+                          derivedEOA.accountAddress,
+                        ),
+                      );
+                    });
+                }
+                // No need to add the account to persistence
+                return okAsync(undefined);
               })
               .andThen(() => {
                 // Need to emit some events
@@ -280,7 +294,7 @@ export class AccountService implements IAccountService {
           );
         }
 
-        return this.loginRegistryRepo
+        return this.crumbsRepo
           .getCrumb(derivedEOA.accountAddress, languageCode)
           .andThen((existingCrumb) => {
             if (existingCrumb != null) {
@@ -397,7 +411,7 @@ export class AccountService implements IAccountService {
             );
           }
 
-          return this.loginRegistryRepo
+          return this.crumbsRepo
             .getCrumbTokenId(derivedEVMAccount.accountAddress)
             .andThen((crumbTokenId) => {
               if (crumbTokenId == null) {
@@ -647,7 +661,7 @@ export class AccountService implements IAccountService {
       });
   }
 
-  protected createDataWalletSolana(
+  protected createDataWallet(
     signature: Signature,
     languageCode: LanguageCode,
     derivedEVMAccount: ExternallyOwnedAccount,

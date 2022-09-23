@@ -156,11 +156,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           name: ELocalStorageKey.ACCOUNT,
           keyPath: "sourceAccountAddress",
           autoIncrement: false,
-          indexBy: [
-            ["sourceChain", false],
-            ["sourceAccountAddress", false],
-            ["derivedAccountAddress", false],
-          ],
+          indexBy: [["sourceChain", false]],
         },
         {
           name: ELocalStorageKey.TRANSACTIONS,
