@@ -1,17 +1,17 @@
 const { expect } = require("chai");
 const { ethers, upgrades } = require("hardhat");
 
-async function getSignature(owner, address, tokenId) {
+async function getSignature(owner, contract, recipient, tokenId) {
   let msgHash;
-  if (address === null) {
+  if (recipient === null) {
     msgHash = ethers.utils.solidityKeccak256(
-      ["uint256"],
-      [tokenId],
+      ["address","uint256"],
+      [contract, tokenId],
     );
   } else {
     msgHash = ethers.utils.solidityKeccak256(
-      ["address", "uint256"],
-      [address, tokenId],
+      ["address", "address", "uint256"],
+      [contract, recipient, tokenId],
     );
   }
 
@@ -141,6 +141,7 @@ describe("Consent", () => {
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
         user1,
+        consent.address,
         accounts[2].address.toLowerCase(),
         1
       );
@@ -156,6 +157,7 @@ describe("Consent", () => {
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
         user1,
+        consent.address,
         accounts[2].address.toLowerCase(),
         1
       );
@@ -164,6 +166,7 @@ describe("Consent", () => {
       // pass in address in lowercase to match Solidity string conversion
       let sig2 = await getSignature(
         user1,
+        consent.address,
         accounts[2].address.toLowerCase(),
         2
       );
@@ -186,6 +189,7 @@ describe("Consent", () => {
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
         user1,
+        consent.address,
         accounts[2].address.toLowerCase(),
         1
       );
@@ -203,6 +207,7 @@ describe("Consent", () => {
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
         user1,
+        consent.address,
         accounts[2].address.toLowerCase(),
         1
       );
@@ -223,12 +228,14 @@ describe("Consent", () => {
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
         user1,
+        consent.address,
         accounts[2].address.toLowerCase(),
         1
       );
 
       let sig3 = await getSignature(
         user1,
+        consent.address,
         accounts[3].address.toLowerCase(),
         1
       );
@@ -251,6 +258,7 @@ describe("Consent", () => {
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
         user1,
+        consent.address,
         accounts[2].address.toLowerCase(),
         1
       );
@@ -268,12 +276,14 @@ describe("Consent", () => {
       // pass in address in lowercase to match Solidity string conversion
       let sig = await getSignature(
         user1,
+        consent.address,
         accounts[2].address.toLowerCase(),
         1
       );
 
       let sig3 = await getSignature(
         user1,
+        consent.address,
         accounts[3].address.toLowerCase(),
         2
       );
@@ -301,7 +311,7 @@ describe("Consent", () => {
 
   describe("anonymousRestrictedOptIn", function () {
     it("Allows a user who as a signed payload to opt-in", async function () {
-      let sig = await getSignature(user1, null, 1);
+      let sig = await getSignature(user1, consent.address, null, 1);
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
@@ -312,11 +322,11 @@ describe("Consent", () => {
     it("Does not allows user to opt-in twice even if signed for", async function () {
       // user1 who is the owner signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, null, 1);
+      let sig = await getSignature(user1, consent.address, null, 1);
 
       // user1 who is the owner signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig2 = await getSignature(user1, null, 2);
+      let sig2 = await getSignature(user1, consent.address, null, 2);
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
@@ -334,7 +344,7 @@ describe("Consent", () => {
     it("Does not allow opt-ins when function is paused.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, null, 1);
+      let sig = await getSignature(user1, consent.address, null, 1);
 
       // pause the contract
       await consent.connect(user1).pause();
@@ -350,9 +360,9 @@ describe("Consent", () => {
     it("Does not allow restricted opt-ins with an existent token id.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, null, 1);
+      let sig = await getSignature(user1, consent.address, null, 1);
 
-      let sig3 = await getSignature(user1, null, 1);
+      let sig3 = await getSignature(user1, consent.address, null, 1);
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
       await consent
@@ -370,7 +380,7 @@ describe("Consent", () => {
     it("Does not allow approved user to call restricted opt-ins with a different token id.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, accounts[2].address, 1);
+      let sig = await getSignature(user1, consent.address, accounts[2].address, 1);
 
       // User 2 tries to call restricted opt in again with another token Id
       await expect(
@@ -383,8 +393,8 @@ describe("Consent", () => {
     it("Does not allow approved user to call restricted opt-in when at capacity.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, null, 1);
-      let sig2 = await getSignature(user1, null, 2);
+      let sig = await getSignature(user1, consent.address, null, 1);
+      let sig2 = await getSignature(user1, consent.address, null, 2);
 
       await consent.connect(accounts[2]).anonymousRestrictedOptIn(1, sampleAgreementFlag1, sig);
       await consent.connect(accounts[1]).updateMaxCapacity(1);

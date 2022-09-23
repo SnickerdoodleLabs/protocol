@@ -154,7 +154,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
     /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings (this param is not included in the sig hash)
-    /// @param signature Owner's signature to agree with user opt in
+    /// @param signature Signature to be recovered from the hash of the target contract address, target recipient address, and token id to be redeemeed
     function restrictedOptIn (
         uint256 tokenId, 
         bytes32 agreementFlags,
@@ -169,7 +169,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// if consent cohort is at capacity, revert
         require(!_atCapacity(), "Consent: cohort is at capacity");
         
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(_msgSender(), tokenId)));
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(address(this), _msgSender(), tokenId)));
 
         /// check the signature against the payload
         require(
@@ -194,7 +194,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     /// @dev If the message signature is valid, the user calling this function is minted a Consent token
     /// @param tokenId User's Consent token id to mint against (also serves as a nonce)
     /// @param agreementFlags A bytes32 array of the user's consent token flag indicating their data permissioning settings (this param is not included in the sig hash)
-    /// @param signature Owner's signature to agree with user opt in
+    /// @param signature Signature to be recovered from the hash of the target contract address and token id to be redeemeed
     function anonymousRestrictedOptIn (
         uint256 tokenId, 
         bytes32 agreementFlags,
@@ -209,7 +209,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         /// if consent cohort is at capacity, revert
         require(!_atCapacity(), "Consent: cohort is at capacity");
         
-        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(tokenId)));
+        bytes32 hash = ECDSAUpgradeable.toEthSignedMessageHash(keccak256(abi.encodePacked(address(this), tokenId)));
         /// check the signature against the payload
         /// Any account possessing the signature and payload can call this method
         require(
