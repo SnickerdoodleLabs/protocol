@@ -16,17 +16,20 @@ import {
   EVMContractAddress,
   URLString,
   IpfsCID,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
   accountAddress: EVMAccountAddress;
   signature: Signature;
+  chain: EChain;
   languageCode: LanguageCode;
 }
 
 export interface IAddAccountParams {
   accountAddress: EVMAccountAddress;
   signature: Signature;
+  chain: EChain;
   languageCode: LanguageCode;
 }
 

@@ -1,7 +1,7 @@
 import {
   DataWalletAddress,
-  EVMAccountAddress,
   Invitation,
+  LinkedAccount,
   MetatransactionSignatureRequest,
   UUID,
 } from "@snickerdoodlelabs/objects";
@@ -32,7 +32,7 @@ export interface IContextProvider {
   addInvitation(invitation: Invitation): UUID;
   getInvitation(id: UUID): Invitation | undefined;
   setAccountContext(dataWalletAddress: DataWalletAddress): void;
-  addAccount(accountAddress: EVMAccountAddress): void;
+  addAccount(accountAddress: LinkedAccount): void;
 }
 
 export const IContextProviderType = Symbol.for("IContextProvider");

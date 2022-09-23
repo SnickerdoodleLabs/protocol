@@ -3,7 +3,14 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
-import { EVMAccountAddress, HexString } from "@snickerdoodlelabs/objects";
+import {
+  EVMAccountAddress,
+  EVMPrivateKey,
+  HexString,
+  Signature,
+  SolanaAccountAddress,
+  SolanaPrivateKey,
+} from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -94,7 +101,37 @@ describe("CryptoUtils tests", () => {
     expect(Buffer.from(key, "base64").toString("base64")).toBe(key);
     expect(Buffer.from(key, "base64").byteLength).toBe(32);
     expect(key.length).toBe(44);
-    console.log(key);
+    expect(key).toBe("yZQUobT6iFhM/GUEDmngagB6oAF0CaMMKKEJWB5xcII=");
+  });
+
+  test("deriveEVMPrivateKeyFromSignature returns 32 bytes as 64 characters of hex", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const messageToSign = "Phoebe is cute!";
+
+    // Act
+    const privateKeyResult = await utils.createEthereumPrivateKey();
+    const privateKey = privateKeyResult._unsafeUnwrap();
+    const signatureResult = await utils.signMessage(messageToSign, privateKey);
+    const signature = signatureResult._unsafeUnwrap();
+
+    const result = await utils.deriveEVMPrivateKeyFromSignature(
+      signature,
+      HexString("0x0123456789abcdf"),
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const key = result._unsafeUnwrap();
+    expect(Buffer.from(key, "hex").toString("hex")).toBe(key);
+    expect(Buffer.from(key, "hex").byteLength).toBe(32);
+    expect(key.length).toBe(64);
+    expect(key).toBe(
+      "c99414a1b4fa88584cfc65040e69e06a007aa0017409a30c28a109581e717082",
+    );
   });
 
   test("createAESKey returns 32 bytes as 44 characters of base64", async () => {
@@ -207,6 +244,31 @@ describe("CryptoUtils tests", () => {
     expect(encryption.initializationVector.length).toBe(16);
   });
 
+  test("signMessage() works", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    const dataToEncrypt = "Phoebe is cute!";
+
+    // Act
+    // This key was randomly generated
+    const privateKey = EVMPrivateKey(
+      "cdb1a5a07befb0420d8f2439a1794c3ac21f718bf3d63a5d9981cb490db8bfb7",
+    );
+    const result = await utils.signMessage(dataToEncrypt, privateKey);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const signature = result._unsafeUnwrap();
+    expect(signature).toEqual(
+      Signature(
+        "0x072db31845f8faf1627abb01dd1e5f5bb1059a1bd358d1d235147a7b765705e93be08e21268af8c0e8695ca000c1e4fca3d32b407c0e5973f87b8b7e7d995bf71c",
+      ),
+    );
+  });
+
   test("signMessage() Closed Loop", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
@@ -222,7 +284,7 @@ describe("CryptoUtils tests", () => {
     const result = await utils
       .signMessage(dataToEncrypt, privateKey)
       .andThen((signature) => {
-        return utils.verifySignature(dataToEncrypt, signature);
+        return utils.verifyEVMSignature(dataToEncrypt, signature);
       });
 
     // Assert
@@ -230,6 +292,59 @@ describe("CryptoUtils tests", () => {
     expect(result.isErr()).toBeFalsy();
     const address = result._unsafeUnwrap();
     expect(address).toEqual(expectedAddress);
+  });
+
+  test("verifySolanaSignature() works", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    // This signature was generated from an account with this public key
+    const solanaPublicKey = SolanaAccountAddress(
+      "FbthzRMmwWRyCD2q3NRbCTcmAPsbRn6Q3QYJC3yPd2ne",
+    );
+    const solanaSignature = Signature(
+      "8f6d2d8b7844e881c5eadb3901afc0ee35060a0cafac4209c629bae112d9f3b7bf5447becd615d95350f56beef391a755af80ba4f45883f0084242c7f63e8e04",
+    );
+    const message = "Phoebe is cute";
+
+    // Act
+    const result = await utils.verifySolanaSignature(
+      message,
+      solanaSignature,
+      solanaPublicKey,
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const verified = result._unsafeUnwrap();
+    expect(verified).toBeTruthy();
+  });
+
+  test("signMessageSolana() works", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    // This signature was generated from an account with this public key
+    const privateKey = SolanaPrivateKey(
+      "3UVXV4k4zErpzsjQLsJR3Ee1x1RJgZptbZrGuVZxribdhJvKGbkbGBzWD8b8ZYwjLDrcTJJdYwKX7Z7TDapnvhKG",
+    );
+    const message = "Phoebe is cute";
+
+    // Act
+    const result = await utils.signMessageSolana(message, privateKey);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const signature = result._unsafeUnwrap();
+    expect(signature).toBe(
+      Signature(
+        "8f6d2d8b7844e881c5eadb3901afc0ee35060a0cafac4209c629bae112d9f3b7bf5447becd615d95350f56beef391a755af80ba4f45883f0084242c7f63e8e04",
+      ),
+    );
   });
 
   test("signTypedData<>verifyTypedData Closed Loop", async () => {

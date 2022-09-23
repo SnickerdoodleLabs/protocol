@@ -1,5 +1,4 @@
 import { ResultAsync } from "neverthrow";
-import { Observable } from "rxjs";
 
 import {
   Invitation,
@@ -8,9 +7,9 @@ import {
   SDQLQuery,
   PageInvitation,
   SiteVisit,
-  MetatransactionSignatureRequest,
+  LinkedAccount,
 } from "@objects/businessObjects";
-import { EInvitationStatus, EScamFilterStatus } from "@objects/enum";
+import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -30,16 +29,15 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
-import { IEVMBalance } from "@objects/interfaces/chains";
+import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
+  AccountAddress,
   Age,
   CountryCode,
-  DataWalletAddress,
   DomainName,
   EmailAddressString,
-  EVMAccountAddress,
   EVMContractAddress,
   FamilyName,
   Gender,
@@ -47,7 +45,6 @@ import {
   IpfsCID,
   LanguageCode,
   Signature,
-  TokenUri,
   UnixTimestamp,
 } from "@objects/primitives";
 
@@ -70,23 +67,30 @@ export interface ISnickerdoodleCore {
    * signature from any of the accounts (form factor can decide), but you cannot
    * add a new account via unlock, use addAccount() to link a new account once you
    * have already logged in. It will return an error if you call it twice.
+   * unlockWithSolana() is identical to unlock() but uses a Solana account address instead of an
+   * EVM based account. Internally, it will map the Solana account to an EVM account using the signature
+   * to generate an EVM private key. This key will generate the EVM account address, but will also be
+   * stored in memory and used to sign the metatransaction for the crumb. The Solana wallet will never
+   * have to sign the metatransaction request itself, unlike unlock(); so this method will never generate
+   * a MetatransactionSignatureRequestedEvent.
    * @param signature
    * @param countryCode
    */
   unlock(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
     void,
-    | UnsupportedLanguageError
+    | PersistenceError
+    | AjaxError
     | BlockchainProviderError
     | UninitializedError
-    | ConsentContractError
-    | PersistenceError
-    | InvalidSignatureError
-    | AjaxError
     | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | MinimalForwarderContractError
   >;
 
   /**
@@ -95,39 +99,52 @@ export interface ISnickerdoodleCore {
    * existing account). A connected account will be monitored for activity, and
    * can be used for subsequent logins. This can prevent you from being locked out
    * of your data wallet, as long as you have at least 2 accounts connected.
+   * addSolanaAccount() is identical to addAccount, but adds a Solana (non-EVM) account.
+   * Like unlock, an EVM private key will be derived from the signature and used for the account
+   * the crumb is assigned to on the doodlechain.
    * @param accountAddress
    * @param signature
    * @param countryCode
    */
   addAccount(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
     void,
     | BlockchainProviderError
     | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
     | PersistenceError
     | AjaxError
-    | CrumbsContractError
+    | MinimalForwarderContractError
   >;
 
   /**
-   * getUnlinkAccountRequest() returns a MetatransactionSignatureRequest that will burn the
-   * crumb token for an account and unlink it from the persistence.
-   * It does not remove any data for that account but prevents any new account-specific data
-   * from being collected
+   * unlinkAccount() will un-link a Solana account from the data wallet, but works differently
+   * from getUnlinkAccountRequest(). It requires a signature from the account to derive the EVM key,
+   * but it can then sign the metatransaction to burn the crumb directly.
    * @param accountAddress
    */
-  getUnlinkAccountRequest(
-    accountAddress: EVMAccountAddress,
+  unlinkAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
-    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    void,
     | PersistenceError
+    | InvalidParametersError
     | BlockchainProviderError
     | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
     | CrumbsContractError
-    | InvalidParametersError
+    | AjaxError
+    | MinimalForwarderContractError
   >;
 
   /**
@@ -281,7 +298,7 @@ export interface ISnickerdoodleCore {
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
-  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
+  getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 }

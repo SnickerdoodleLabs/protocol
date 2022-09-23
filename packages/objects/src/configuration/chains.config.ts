@@ -3,15 +3,17 @@ import {
   ControlChainInformation,
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
-import { EIndexer } from "@objects/enum";
+import { EChain, EChainTechnology, EIndexer } from "@objects/enum";
 import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 
 export const chainConfig = new Map<ChainId, ChainInformation>([
   [
-    ChainId(31337),
+    ChainId(EChain.DevDoodle),
     new ControlChainInformation(
       "Dev Env Doodle Chain",
-      ChainId(31337),
+      ChainId(EChain.DevDoodle),
+      EChain.DevDoodle,
+      EChainTechnology.EVM,
       true,
       [ProviderUrl("https://doodlechain.dev.snickerdoodle.dev")],
       4000,
@@ -24,10 +26,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(31338),
+    ChainId(EChain.LocalDoodle),
     new ControlChainInformation(
       "Local Doodle Chain",
-      ChainId(31338),
+      ChainId(EChain.LocalDoodle),
+      EChain.LocalDoodle,
+      EChainTechnology.EVM,
       true,
       [ProviderUrl("http://127.0.0.1:8545")],
       4000,
@@ -40,10 +44,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(1),
+    ChainId(EChain.EthereumMainnet),
     new ChainInformation(
       "Ether mainnet",
-      ChainId(1),
+      ChainId(EChain.EthereumMainnet),
+      EChain.EthereumMainnet,
+      EChainTechnology.EVM,
       true,
       [],
       10000,
@@ -56,6 +62,8 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     new ChainInformation(
       "Goerli",
       ChainId(5),
+      EChain.Goerli,
+      EChainTechnology.EVM,
       true,
       [],
       10000,
@@ -64,10 +72,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(80001),
+    ChainId(EChain.Mumbai),
     new ChainInformation(
       "Mumbai Testnet",
-      ChainId(80001),
+      ChainId(EChain.Mumbai),
+      EChain.Mumbai,
+      EChainTechnology.EVM,
       true,
       [
         ProviderUrl(
@@ -80,10 +90,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(137),
+    ChainId(EChain.Polygon),
     new ChainInformation(
       "Polygon",
-      ChainId(137),
+      ChainId(EChain.Polygon),
+      EChain.Polygon,
+      EChainTechnology.EVM,
       true,
       [
         ProviderUrl(
@@ -97,10 +109,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
   ],
 
   [
-    ChainId(43113),
+    ChainId(EChain.Fuji),
     new ControlChainInformation(
       "Fuji",
-      ChainId(43113),
+      ChainId(EChain.Fuji),
+      EChain.Fuji,
+      EChainTechnology.EVM,
       true,
       [ProviderUrl("https://fuji.snickerdoodle.dev/rpc")],
       4000,
@@ -112,4 +126,27 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
     ),
   ],
+  [
+    ChainId(EChain.Solana),
+    new ChainInformation(
+      "Solana",
+      ChainId(EChain.Solana),
+      EChain.Solana,
+      EChainTechnology.Solana,
+      true,
+      [],
+      10000,
+      EIndexer.Solana,
+      new NativeCurrencyInformation("Sol", 9, "SOL"),
+    ),
+  ],
 ]);
+
+export function getChainInfoByChain(chain: EChain): ChainInformation {
+  const chainInfo = chainConfig.get(ChainId(chain));
+  if (chainInfo == null) {
+    throw new Error(`Unknown chain ${chain}`);
+  }
+
+  return chainInfo;
+}

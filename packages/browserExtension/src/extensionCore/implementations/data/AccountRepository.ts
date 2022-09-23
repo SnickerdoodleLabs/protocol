@@ -1,10 +1,13 @@
 import {
+  AccountAddress,
+  EChain,
   EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   LanguageCode,
+  LinkedAccount,
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -30,10 +33,7 @@ export class AccountRepository implements IAccountRepository {
     protected accountCookieUtils: IAccountCookieUtils,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
-  public getAccounts(): ResultAsync<
-    EVMAccountAddress[],
-    SnickerDoodleCoreError
-  > {
+  public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.core.getAccounts().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
@@ -58,12 +58,13 @@ export class AccountRepository implements IAccountRepository {
   }
 
   public addAccount(
-    account: EVMAccountAddress,
+    account: AccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core
-      .addAccount(account, signature, languageCode)
+      .addAccount(account, signature, languageCode, chain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);
@@ -73,11 +74,12 @@ export class AccountRepository implements IAccountRepository {
   public unlock(
     account: EVMAccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
     calledWithCookie: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
     return this.core
-      .unlock(account, signature, languageCode)
+      .unlock(account, signature, languageCode, chain)
       .mapErr((error) => {
         return new SnickerDoodleCoreError((error as Error).message, error);
       })

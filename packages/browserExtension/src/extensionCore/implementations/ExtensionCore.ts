@@ -1,7 +1,6 @@
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
-  SnickerdoodleCore
-} from "@snickerdoodlelabs/core";
-import {
+  EChain,
   IConfigOverrides,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
@@ -111,7 +110,13 @@ export class ExtensionCore {
       if (values?.length) {
         const { accountAddress, signature, languageCode } = values[0];
         return accountService
-          .unlock(accountAddress, signature, languageCode, true)
+          .unlock(
+            accountAddress,
+            signature,
+            EChain.EthereumMainnet,
+            languageCode,
+            true,
+          )
           .mapErr((e) => {
             ExtensionUtils.openTab({ url: config.onboardingUrl });
             return okAsync(undefined);

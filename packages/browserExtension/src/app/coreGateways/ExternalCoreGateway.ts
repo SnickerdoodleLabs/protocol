@@ -1,3 +1,29 @@
+import {
+  Age,
+  Invitation,
+  BigNumberString,
+  CountryCode,
+  DomainName,
+  EmailAddressString,
+  EVMAccountAddress,
+  FamilyName,
+  Gender,
+  GivenName,
+  IEVMBalance,
+  IEVMNFT,
+  LanguageCode,
+  Signature,
+  UnixTimestamp,
+  UUID,
+  DataPermissions,
+  EVMContractAddress,
+  IOpenSeaMetadata,
+  IpfsCID,
+  EChain,
+} from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
+
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import { EExternalActions } from "@shared/enums";
 import {
@@ -22,30 +48,6 @@ import {
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
-import {
-  Age,
-  Invitation,
-  BigNumberString,
-  CountryCode,
-  DomainName,
-  EmailAddressString,
-  EVMAccountAddress,
-  FamilyName,
-  Gender,
-  GivenName,
-  IEVMBalance,
-  IEVMNFT,
-  LanguageCode,
-  Signature,
-  UnixTimestamp,
-  UUID,
-  DataPermissions,
-  EVMContractAddress,
-  IOpenSeaMetadata,
-  IpfsCID,
-} from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;
@@ -106,22 +108,26 @@ export class ExternalCoreGateway {
   public addAccount(
     accountAddress: EVMAccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.ADD_ACCOUNT, {
       accountAddress,
       signature,
+      chain,
       languageCode,
     } as IAddAccountParams);
   }
   public unlock(
     accountAddress: EVMAccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.UNLOCK, {
       accountAddress,
       signature,
+      chain,
       languageCode,
     } as IUnlockParams);
   }
@@ -205,7 +211,7 @@ export class ExternalCoreGateway {
     id: UUID,
     metatransactionSignature: Signature,
     nonce: BigNumberString,
-  ) {
+  ): ResultAsync<void, unknown> {
     return this._handler.call(
       EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK,
       {
