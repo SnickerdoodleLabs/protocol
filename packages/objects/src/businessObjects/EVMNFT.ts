@@ -3,7 +3,6 @@ import {
   EVMAccountAddress,
   TickerSymbol,
   ChainId,
-  TokenId,
   TokenUri,
   BigNumberString,
 } from "@objects/primitives";

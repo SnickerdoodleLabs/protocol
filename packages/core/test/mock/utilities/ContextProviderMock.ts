@@ -1,7 +1,6 @@
 import {
   DataWalletAddress,
-  EVMAccountAddress,
-  SDQLQuery,
+  LinkedAccount,
   SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -17,7 +16,7 @@ export class ContextProviderMock implements IContextProvider {
 
   public onInitializedActivations: DataWalletAddress[] = [];
   public onQueryPostedActivations: SDQLQueryRequest[] = [];
-  public onAccountAddedActivations: EVMAccountAddress[] = [];
+  public onAccountAddedActivations: LinkedAccount[] = [];
 
   constructor(context: CoreContext | null = null) {
     this.publicEvents.onInitialized.subscribe((val) => {

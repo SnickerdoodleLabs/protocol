@@ -13,6 +13,7 @@ export * from "@objects/businessObjects/ExternallyOwnedAccount";
 export * from "@objects/businessObjects/Insight";
 export * from "@objects/businessObjects/Invitation";
 export * from "@objects/businessObjects/InvitationDomain";
+export * from "@objects/businessObjects/LinkedAccount";
 export * from "@objects/businessObjects/MetatransactionSignatureRequest";
 export * from "@objects/businessObjects/PageInvitation";
 export * from "@objects/businessObjects/RequestForData";

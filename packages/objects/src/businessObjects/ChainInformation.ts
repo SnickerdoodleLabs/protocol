@@ -1,4 +1,4 @@
-import { EIndexer } from "@objects/enum";
+import { EChain, EChainTechnology, EIndexer } from "@objects/enum";
 import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 
 export class NativeCurrencyInformation {
@@ -13,6 +13,8 @@ export class ChainInformation {
   public constructor(
     public name: string,
     public chainId: ChainId,
+    public chain: EChain,
+    public chainTechnology: EChainTechnology,
     public isDev: boolean,
     public providerUrls: ProviderUrl[],
     public averageBlockMiningTime: number,
@@ -25,6 +27,8 @@ export class ControlChainInformation extends ChainInformation {
   constructor(
     public name: string,
     public chainId: ChainId,
+    public chain: EChain,
+    public chainTechnology: EChainTechnology,
     public isDev: boolean,
     public providerUrls: ProviderUrl[],
     public averageBlockMiningTime: number,
@@ -38,6 +42,8 @@ export class ControlChainInformation extends ChainInformation {
     super(
       name,
       chainId,
+      chain,
+      chainTechnology,
       isDev,
       providerUrls,
       averageBlockMiningTime,

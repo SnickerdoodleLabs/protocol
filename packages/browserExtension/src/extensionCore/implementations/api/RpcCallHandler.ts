@@ -20,6 +20,8 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
   EScamFilterStatus,
+  EChain,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -28,6 +30,7 @@ import {
   PendingJsonRpcResponse,
 } from "json-rpc-engine";
 import { okAsync, ResultAsync } from "neverthrow";
+import { parse } from "tldts";
 import { Runtime } from "webextension-polyfill";
 
 import { AsyncRpcResponseSender } from "@implementations/utilities";
@@ -40,8 +43,13 @@ import {
   IPIIService,
   IPIIServiceType,
 } from "@interfaces/business";
+import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@interfaces/business/IScamFilterService";
 import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
+import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
 import { EExternalActions, EInternalActions } from "@shared/enums";
 import {
   IUnlockParams,
@@ -70,12 +78,6 @@ import {
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
-import { parse } from "tldts";
-import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
-import {
-  IScamFilterService,
-  IScamFilterServiceType,
-} from "@interfaces/business/IScamFilterService";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -99,18 +101,18 @@ export class RpcCallHandler implements IRpcCallHandler {
 
     switch (method) {
       case EExternalActions.UNLOCK: {
-        const { accountAddress, signature, languageCode } =
+        const { accountAddress, signature, chain, languageCode } =
           params as IUnlockParams;
         return new AsyncRpcResponseSender(
-          this.unlock(accountAddress, signature, languageCode),
+          this.unlock(accountAddress, signature, chain, languageCode),
           res,
         ).call();
       }
       case EExternalActions.ADD_ACCOUNT: {
-        const { accountAddress, signature, languageCode } =
+        const { accountAddress, signature, chain, languageCode } =
           params as IAddAccountParams;
         return new AsyncRpcResponseSender(
-          this.addAccount(accountAddress, signature, languageCode),
+          this.addAccount(accountAddress, signature, chain, languageCode),
           res,
         ).call();
       }
@@ -378,54 +380,66 @@ export class RpcCallHandler implements IRpcCallHandler {
   private unlock(
     account: EVMAccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
-    return this.accountService.unlock(account, signature, languageCode);
+    return this.accountService.unlock(account, signature, chain, languageCode);
   }
   private addAccount(
     account: EVMAccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountService.addAccount(account, signature, languageCode);
+    return this.accountService.addAccount(
+      account,
+      signature,
+      chain,
+      languageCode,
+    );
   }
   private getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
     return this.accountService.getUnlockMessage(languageCode);
   }
-  private getAccounts(): ResultAsync<
-    EVMAccountAddress[],
-    SnickerDoodleCoreError
-  > {
+
+  private getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.accountService.getAccounts();
   }
+
   private getAccountBalances(): ResultAsync<
     IEVMBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountService.getAccountBalances();
   }
+
   private getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
     return this.accountService.getAccountNFTs();
   }
+
   private setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setAge(age);
   }
+
   private getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
     return this.piiService.getAge();
   }
+
   private setGivenName(
     name: GivenName,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setGivenName(name);
   }
+
   private getGivenName(): ResultAsync<
     GivenName | null,
     SnickerDoodleCoreError
   > {
     return this.piiService.getGivenName();
   }
+
   private setFamilyName(
     name: FamilyName,
   ): ResultAsync<void, SnickerDoodleCoreError> {

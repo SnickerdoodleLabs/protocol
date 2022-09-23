@@ -1,8 +1,10 @@
 import {
+  EChain,
   EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
   LanguageCode,
+  LinkedAccount,
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -22,10 +24,7 @@ export class AccountService implements IAccountService {
     protected accountRepository: IAccountRepository,
   ) {}
 
-  public getAccounts(): ResultAsync<
-    EVMAccountAddress[],
-    SnickerDoodleCoreError
-  > {
+  public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.accountRepository.getAccounts();
   }
 
@@ -43,20 +42,28 @@ export class AccountService implements IAccountService {
   public addAccount(
     account: EVMAccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountRepository.addAccount(account, signature, languageCode);
+    return this.accountRepository.addAccount(
+      account,
+      signature,
+      chain,
+      languageCode,
+    );
   }
 
   public unlock(
     account: EVMAccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
     calledWithCookie?: boolean,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
     return this.accountRepository.unlock(
       account,
       signature,
+      chain,
       languageCode,
       calledWithCookie || false,
     );

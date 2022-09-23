@@ -22,10 +22,7 @@ import {
   PersistenceError,
   UninitializedError,
   UnsupportedLanguageError,
-  Signature,
-  chainConfig,
   ChainId,
-  ControlChainInformation,
   ConsentFactoryContractError,
   CountryCode,
   SDQLString,
@@ -40,13 +37,12 @@ import {
   EncryptedString,
   InitializationVector,
   IDataWalletBackup,
+  MinimalForwarderContractError,
+  EChain,
+  SolanaPrivateKey,
   MetatransactionSignatureRequest,
 } from "@snickerdoodlelabs/objects";
-import {
-  forwardRequestTypes,
-  getMinimalForwarderSigningDomain,
-} from "@snickerdoodlelabs/signature-verification";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -55,6 +51,9 @@ import { BlockchainStuff } from "@test-harness/BlockchainStuff.js";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator.js";
 import { IPFSClient } from "@test-harness/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
+import { TestWallet } from "@test-harness/TestWallet.js";
+
+const cryptoUtils = new CryptoUtils();
 
 // https://github.com/SBoudrias/Inquirer.js
 const core = new SnickerdoodleCore({
@@ -63,14 +62,33 @@ const core = new SnickerdoodleCore({
 } as IConfigOverrides);
 
 const devAccountKeys = [
-  EVMPrivateKey(
-    "0x0123456789012345678901234567890123456789012345678901234567890123",
+  new TestWallet(
+    EChain.LocalDoodle,
+    EVMPrivateKey(
+      "0x0123456789012345678901234567890123456789012345678901234567890123",
+    ),
+    cryptoUtils,
   ),
-  EVMPrivateKey(
-    "0x1234567890123456789012345678901234567890123456789012345678901234",
+  new TestWallet(
+    EChain.LocalDoodle,
+    EVMPrivateKey(
+      "0x1234567890123456789012345678901234567890123456789012345678901234",
+    ),
+    cryptoUtils,
   ),
-  EVMPrivateKey(
-    "cd34642d879fe59110689ff87a080aad52b383daeb5ad945fd6da20b954d2542",
+  new TestWallet(
+    EChain.LocalDoodle,
+    EVMPrivateKey(
+      "cd34642d879fe59110689ff87a080aad52b383daeb5ad945fd6da20b954d2542",
+    ),
+    cryptoUtils,
+  ),
+  new TestWallet(
+    EChain.Solana,
+    SolanaPrivateKey(
+      "3UVXV4k4zErpzsjQLsJR3Ee1x1RJgZptbZrGuVZxribdhJvKGbkbGBzWD8b8ZYwjLDrcTJJdYwKX7Z7TDapnvhKG",
+    ),
+    cryptoUtils,
   ),
 ];
 
@@ -78,7 +96,6 @@ const blockchain = new BlockchainStuff(devAccountKeys);
 const ipfs = new IPFSClient();
 
 const simulator = new InsightPlatformSimulator(blockchain, ipfs);
-const cryptoUtils = new CryptoUtils();
 const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.com");
@@ -482,14 +499,14 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
 
 function unlockCore(): ResultAsync<
   void,
-  | PersistenceError
   | UnsupportedLanguageError
+  | PersistenceError
+  | AjaxError
   | BlockchainProviderError
   | UninitializedError
-  | ConsentContractError
-  | InvalidSignatureError
-  | AjaxError
   | CrumbsContractError
+  | InvalidSignatureError
+  | MinimalForwarderContractError
 > {
   return prompt([
     {
@@ -498,30 +515,28 @@ function unlockCore(): ResultAsync<
       message: "Which account do you want to unlock with?",
       choices: blockchain.accountWallets.map((wallet) => {
         return {
-          name: wallet.address,
+          name: wallet.getName(),
           value: wallet,
         };
       }),
     },
   ])
     .andThen((answers) => {
-      const wallet = answers.unlockAccountSelector as ethers.Wallet;
+      const wallet = answers.unlockAccountSelector as TestWallet;
       // Need to get the unlock message first
       return core
         .getUnlockMessage(languageCode)
         .andThen((message) => {
           // Sign the message
 
-          return cryptoUtils.signMessage(
-            message,
-            EVMPrivateKey(wallet._signingKey().privateKey),
-          );
+          return wallet.signMessage(message);
         })
         .andThen((signature) => {
           return core.unlock(
-            EVMAccountAddress(wallet.address),
+            wallet.accountAddress,
             signature,
             languageCode,
+            wallet.chain,
           );
         });
     })
@@ -537,21 +552,23 @@ function unlockCore(): ResultAsync<
 
 function addAccount(): ResultAsync<
   void,
-  | PersistenceError
   | UnsupportedLanguageError
+  | PersistenceError
+  | AjaxError
   | BlockchainProviderError
   | UninitializedError
-  | ConsentContractError
-  | InvalidSignatureError
-  | AjaxError
   | CrumbsContractError
+  | InvalidSignatureError
+  | MinimalForwarderContractError
 > {
   return core
     .getAccounts()
     .andThen((linkedAccounts) => {
-      console.log("Linked Accounts", linkedAccounts);
       const addableAccounts = blockchain.accountWallets.filter((aw) => {
-        return !linkedAccounts.includes(EVMAccountAddress(aw.address));
+        const linkedAccount = linkedAccounts.find((la) => {
+          return la.sourceAccountAddress == aw.accountAddress;
+        });
+        return linkedAccount == null;
       });
       return prompt([
         {
@@ -560,7 +577,7 @@ function addAccount(): ResultAsync<
           message: "Which account do you want to add?",
           choices: addableAccounts.map((wallet) => {
             return {
-              name: wallet.address,
+              name: wallet.getName(),
               value: wallet,
             };
           }),
@@ -569,22 +586,20 @@ function addAccount(): ResultAsync<
     })
 
     .andThen((answers) => {
-      const wallet = answers.addAccountSelector as ethers.Wallet;
+      const wallet = answers.addAccountSelector as TestWallet;
       // Need to get the unlock message first
       return core
         .getUnlockMessage(languageCode)
         .andThen((message) => {
           // Sign the message
-          return cryptoUtils.signMessage(
-            message,
-            EVMPrivateKey(wallet._signingKey().privateKey),
-          );
+          return wallet.signMessage(message);
         })
         .andThen((signature) => {
           return core.addAccount(
-            EVMAccountAddress(wallet.address),
+            wallet.accountAddress,
             signature,
             languageCode,
+            wallet.chain,
           );
         });
     })
@@ -606,7 +621,12 @@ function removeAccount(): ResultAsync<
     .getAccounts()
     .andThen((linkedAccounts) => {
       const removeableWallets = blockchain.accountWallets.filter((aw) => {
-        return linkedAccounts.includes(EVMAccountAddress(aw.address));
+        const linkedAccount = linkedAccounts.find((la) => {
+          return (
+            la.sourceAccountAddress == EVMAccountAddress(aw.accountAddress)
+          );
+        });
+        return linkedAccount != null;
       });
       return prompt([
         {
@@ -616,7 +636,7 @@ function removeAccount(): ResultAsync<
           choices: [
             ...removeableWallets.map((wallet) => {
               return {
-                name: wallet.address,
+                name: wallet.getName(),
                 value: wallet,
               };
             }),
@@ -631,17 +651,24 @@ function removeAccount(): ResultAsync<
         return okAsync(undefined);
       }
 
-      const wallet = answers.removeAccountSelector as ethers.Wallet;
-      const accountAddress = EVMAccountAddress(wallet.address);
+      const wallet = answers.removeAccountSelector as TestWallet;
 
       return core
-        .getUnlinkAccountRequest(accountAddress)
-        .andThen((request) => {
-          // Once you have the request, we just get nonce, sign, and call the callback
-          return signMetatransactionRequest(request);
+        .getUnlockMessage(languageCode)
+        .andThen((message) => {
+          // Sign the message
+          return wallet.signMessage(message);
+        })
+        .andThen((signature) => {
+          return core.unlinkAccount(
+            wallet.accountAddress,
+            signature,
+            languageCode,
+            wallet.chain,
+          );
         })
         .map(() => {
-          console.log(`Unlinked account ${accountAddress}`);
+          console.log(`Unlinked account ${wallet.getName()}`);
         });
     })
     .mapErr((e) => {
@@ -812,6 +839,7 @@ function signMetatransactionRequest<TErr>(
   // This method needs to happen in nicer form in all form factors
   console.log(
     `Metadata Transaction Requested!`,
+    `WARNING: This should no longer occur!`,
     `Request account address: ${request.accountAddress}`,
   );
 
@@ -829,33 +857,17 @@ function signMetatransactionRequest<TErr>(
         data: request.data, // The actual bytes of the request, encoded as a hex string
       } as IMinimalForwarderRequest;
 
-      // Get the chain info for the doodle chain
-      const doodleChainConfig = chainConfig.get(
-        ChainId(31338),
-      ) as ControlChainInformation;
-
       // Get the wallet we are going to sign with
       const wallet = blockchain.getWalletForAddress(request.accountAddress);
 
-      return ResultAsync.fromPromise(
-        wallet._signTypedData(
-          // This domain is critical- we have to use this and not the normal Snickerdoodle domain
-          getMinimalForwarderSigningDomain(
-            doodleChainConfig.chainId,
-            doodleChainConfig.metatransactionForwarderAddress,
-          ),
-          forwardRequestTypes,
-          value,
-        ),
-        (e) => {
-          return new Error();
-        },
-      ).andThen((metatransactionSignature) => {
-        console.log(
-          `Metatransaction signature generated: ${metatransactionSignature}`,
-        );
+      return wallet
+        .signMinimalForwarderRequest(value)
+        .andThen((metatransactionSignature) => {
+          console.log(
+            `Metatransaction signature generated: ${metatransactionSignature}`,
+          );
 
-        return request.callback(Signature(metatransactionSignature), nonce);
-      });
+          return request.callback(metatransactionSignature, nonce);
+        });
     });
 }
