@@ -18,6 +18,7 @@ import {
   AccountBalanceError,
   TickerSymbol,
   EVMContractAddress,
+  toUnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -144,89 +145,158 @@ export class CovalentEVMTransactionRepository
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
-    return this.generatePrimer(startTime, endTime).andThen((primer) => {
-      return this.fetchPages(
-        chainId,
-        this.ENDPOINT_TRANSACTIONS,
-        accountAddress,
-        primer,
-      );
-    });
+    return this.scanTransactions(chainId, accountAddress, startTime, endTime);
   }
 
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<IEVMBalance[], AccountBalanceError | AjaxError> {
-    return this.generateQueryConfig(
-      chainId,
-      this.ENDPOINT_BALANCES,
-      accountAddress,
-    ).andThen((requestConfig) => {
-      return this.ajaxUtils
-        .get<ICovalentEVMBalanceResponse>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        )
-        .map((queryResult) => {
-          return queryResult.data.items.map((tokenInfo) => {
-            return {
-              ticker: TickerSymbol(tokenInfo.contract_ticker_symbol),
-              chainId: chainId,
-              accountAddress: accountAddress,
-              balance: tokenInfo.balance,
-              contractAddress: EVMContractAddress(tokenInfo.contract_address),
-              quoteBalance: tokenInfo.quote,
-            };
+    return this.generateParams().andThen((params) => {
+      return this.generateQueryConfig(
+        chainId,
+        this.ENDPOINT_BALANCES,
+        accountAddress,
+        params,
+      ).andThen((requestConfig) => {
+        return this.ajaxUtils
+          .get<ICovalentEVMBalanceResponse>(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            new URL(requestConfig.url!),
+            requestConfig,
+          )
+          .map((queryResult) => {
+            return queryResult.data.items.map((tokenInfo) => {
+              return {
+                ticker: TickerSymbol(tokenInfo.contract_ticker_symbol),
+                chainId: chainId,
+                accountAddress: accountAddress,
+                balance: tokenInfo.balance,
+                contractAddress: EVMContractAddress(tokenInfo.contract_address),
+                quoteBalance: tokenInfo.quote,
+              };
+            });
           });
-        });
+      });
     });
   }
 
-  private generatePrimer(
-    startTime: Date,
-    endTime?: Date,
-  ): ResultAsync<string, never> {
-    let primer: string = JSON.stringify({
-      block_signed_at: {
-        $gt: startTime.toISOString(),
-      },
-    });
+  private scanTransactions(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+    start?: Date,
+    end?: Date,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
+    console.log("scanning", chainId, accountAddress, start, end);
+    return this.getDepth(chainId, accountAddress, start).andThen(
+      (startTime) => {
+        console.log("start", start);
 
-    if (endTime !== undefined) {
-      primer = JSON.stringify({
-        $and: [
-          {
-            block_signed_at: {
-              $gt: startTime.toISOString(),
-            },
+        if (startTime == null) {
+          return okAsync([]);
+        }
+
+        return this.generateParams(startTime, end, false, 0).andThen(
+          (params) => {
+            console.log("params", params);
+
+            return this.fetchPages(
+              chainId,
+              this.ENDPOINT_TRANSACTIONS,
+              accountAddress,
+              params,
+            ).andThen((txs) => {
+              console.log("txs", txs.length);
+
+              if (startTime.valueOf() >= toUnixTimestamp(new Date())) {
+                console.log("caught up");
+                return okAsync(txs);
+              }
+
+              return this.configProvider.getConfig().andThen((config) => {
+                const newStart = new Date(
+                  startTime.getTime() + config.txIndexingSpanMS,
+                );
+                console.log("newStart", newStart);
+
+                if (end != undefined && newStart.getTime() > end?.getTime()) {
+                  console.log("end reached", end, newStart);
+                  return okAsync(txs);
+                }
+
+                return this.scanTransactions(
+                  chainId,
+                  accountAddress,
+                  startTime,
+                  end,
+                ).andThen((nextTxs) => {
+                  console.log("next", nextTxs.length);
+                  return okAsync([...txs, ...nextTxs]);
+                });
+              });
+            });
           },
-          {
-            block_signed_at: {
-              $lt: endTime.toISOString(),
-            },
-          },
-        ],
-      });
+        );
+      },
+    );
+  }
+
+  private getDepth(
+    chainId: ChainId,
+    accountAddr: EVMAccountAddress,
+    start?: Date,
+  ): ResultAsync<Date | null, AjaxError | AccountIndexingError> {
+    if (start != undefined && start.getTime() > 0) {
+      return okAsync(start);
     }
 
-    return okAsync(primer);
+    console.log("depth");
+
+    return this.generateParams(
+      undefined,
+      undefined,
+      true,
+      undefined,
+      1,
+      true,
+    ).andThen((params) => {
+      return this.generateQueryConfig(
+        chainId,
+        this.ENDPOINT_TRANSACTIONS,
+        accountAddr,
+        params,
+      ).andThen((query) => {
+        console.log("query", query);
+
+        return (
+          this.ajaxUtils
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            .get<ICovalentEVMTransactionResponse>(new URL(query.url!), query)
+            .andThen((response) => {
+              console.log("response", response);
+
+              if (response.data.items.length == 0) {
+                return okAsync(null);
+              }
+              const timestamp = response.data.items[0].block_signed_at;
+              return okAsync(new Date(timestamp));
+            })
+        );
+      });
+    });
   }
 
   private fetchPages(
     chainId: ChainId,
     endpoint: string,
     accountAddress: EVMAccountAddress,
-    primer?: string,
-    pageNumber?: number,
+    params: object,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return this.generateQueryConfig(
       chainId,
       endpoint,
       accountAddress,
-      primer,
-      pageNumber,
+      params,
     ).andThen((requestConfig) => {
       return this.ajaxUtils
         .get<ICovalentEVMTransactionResponse>(
@@ -241,12 +311,12 @@ export class CovalentEVMTransactionRepository
           );
 
           if (queryResult.data.pagination.has_more) {
+            params["page-number"] += 1;
             return this.fetchPages(
               chainId,
               endpoint,
               accountAddress,
-              primer,
-              queryResult.data.pagination.page_number + 1,
+              params,
             ).andThen((otherTransactions) => {
               return okAsync([...transactions, ...otherTransactions]);
             });
@@ -299,43 +369,65 @@ export class CovalentEVMTransactionRepository
     return busObj;
   }
 
-  private generateQueryConfig(
-    chainId: ChainId,
-    endpoint: string,
-    accountAddress: EVMAccountAddress,
-    primer?: string,
+  private generateParams(
+    start?: Date,
+    end?: Date,
+    asc?: boolean,
     pageNumber?: number,
-  ): ResultAsync<IRequestConfig, never> {
+    pageSize?: number,
+    noLogs?: boolean,
+  ): ResultAsync<object, never> {
     return this.configProvider.getConfig().map((config) => {
       const params = {
         key: config.covalentApiKey,
         "quote-currency": config.quoteCurrency,
+        "no-logs": noLogs ?? false,
       };
 
+      if (asc != undefined) {
+        params["block-signed-at-asc"] = asc;
+      }
+      if (start != undefined) {
+        params["block-signed-at-limit"] = toUnixTimestamp(start);
+        params["block-signed-at-span"] = config.txIndexingSpanMS / 1000;
+
+        if (end != undefined) {
+          params["block-signed-at-span"] =
+            (end.getTime() - start.getTime()) / 1000;
+        }
+      }
       if (pageNumber != undefined) {
         params["page-number"] = pageNumber;
       }
-      if (primer != undefined) {
-        params["match"] = primer;
+      if (pageSize != undefined) {
+        params["page-size"] = pageSize;
       }
-      const paramString = urlJoinP(undefined, [], params);
 
-      const url = urlJoin(
-        "https://api.covalenthq.com",
-        "v1",
-        chainId.toString(),
-        "address",
-        accountAddress,
-        endpoint,
-        paramString, // needs to be assembled separately to preserve trailing slash
-      );
-
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: { Accept: "application/json" },
-      };
-      return result;
+      return params;
     });
+  }
+
+  private generateQueryConfig(
+    chainId: ChainId,
+    endpoint: string,
+    accountAddress: EVMAccountAddress,
+    params: object,
+  ): ResultAsync<IRequestConfig, never> {
+    const url = urlJoin(
+      "https://api.covalenthq.com",
+      "v1",
+      chainId.toString(),
+      "address",
+      accountAddress,
+      endpoint,
+      urlJoinP(undefined, [], params), // needs to be assembled separately to preserve trailing slash
+    );
+
+    const result: IRequestConfig = {
+      method: "get",
+      url: url,
+      headers: { Accept: "application/json" },
+    };
+    return okAsync(result);
   }
 }

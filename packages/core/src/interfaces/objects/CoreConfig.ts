@@ -30,5 +30,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,
     public quoteCurrency: string,
+    public txIndexingSpanMS: number,
   ) {}
 }
