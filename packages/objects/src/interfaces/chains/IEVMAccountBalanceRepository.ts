@@ -19,11 +19,14 @@ export interface IEVMBalance {
   quoteBalance: number;
 }
 
-export interface IChainTransactions {
+export interface IChainTransaction {
   ticker: TickerSymbol;
-  value: BigNumberString;
-  count: BigNumberString;
+  incomingValue: BigNumberString;
+  incomingCount: BigNumberString;
+  outgoingValue: BigNumberString;
+  outogingCount: BigNumberString;
 }
+
 
 
 export interface ITokenBalance {

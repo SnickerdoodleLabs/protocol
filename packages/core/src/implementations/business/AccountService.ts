@@ -9,7 +9,7 @@ import {
   BigNumberString,
   BlockchainProviderError,
   ChainId,
-  ChainTransaction,
+  IChainTransaction,
   ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
@@ -519,7 +519,7 @@ export class AccountService implements IAccountService {
   }
 
   public getTransactionsArray(): ResultAsync<
-    Array<ChainTransaction>,
+    Array<IChainTransaction>,
     PersistenceError
   > {
     return this.dataWalletPersistence.getTransactionsArray();

@@ -29,7 +29,7 @@ import * as td from "testdouble";
 
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { ChainTransaction } from "@snickerdoodlelabs/objects";
+import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 20),
@@ -53,7 +53,7 @@ class BalanceQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsMap = new Array<ChainTransaction>(
+  public transactionsMap = new Array<IChainTransaction>(
     // [
     //   // ChainTransaction(
     //   //   TickerSymbol("hi"),

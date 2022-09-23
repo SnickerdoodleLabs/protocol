@@ -30,7 +30,7 @@ import * as td from "testdouble";
 
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
-import { ChainTransaction } from "@snickerdoodlelabs/objects";
+import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 class NetworkQueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
@@ -40,7 +40,7 @@ class NetworkQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsArray = new Array<ChainTransaction>(
+  public transactionsArray = new Array<IChainTransaction>(
     
   );
 

@@ -32,7 +32,6 @@ import {
   IBalanceQueryEvaluator,
   INetworkQueryEvaluator,
 } from "@core/interfaces/business/utilities/query/index.js";
-import { ChainTransaction } from "@snickerdoodlelabs/objects";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -66,7 +65,7 @@ class QueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsArray = new Array<ChainTransaction>
+  public transactionsArray = new Array<IChainTransaction>
   (
   );
 
