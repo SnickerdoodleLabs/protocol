@@ -518,10 +518,7 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getEVMTransactions(filter);
   }
 
-  public getTransactionsArray(): ResultAsync<
-    Array<IChainTransaction>,
-    PersistenceError
-  > {
+  public getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError> {
     return this.dataWalletPersistence.getTransactionsArray();
   }
 

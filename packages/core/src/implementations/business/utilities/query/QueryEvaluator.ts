@@ -52,11 +52,7 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_Query>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    // All the switch statements here
-    // if (query.name == SDQL_Name('q7')) {
 
-    //     console.log("Constructor: ", query.constructor);
-    // }
     if (query instanceof AST_NetworkQuery) {
       return this.networkQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
@@ -100,7 +96,6 @@ export class QueryEvaluator implements IQueryEvaluator {
               return okAsync(result);
           }
         });
-        console.log("Tracking the result: ", result);
         return okAsync(result);
       case "location":
         // console.log("Tracking the result: ", result);

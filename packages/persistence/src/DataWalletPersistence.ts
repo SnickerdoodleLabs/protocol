@@ -710,44 +710,44 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   // return an array of Chain Transactions
-  public getTransactionsArray(): ResultAsync<
-    Array<IChainTransaction>,
-    PersistenceError
-  > {
-    return this.waitForUnlock().andThen((key) => {
-      return ResultUtils.combine([
-        this.configProvider.getConfig(),
-        this._getObjectStore(),
-      ])
-        .andThen(([config, txStore]) => {
-          const chains = Array.from(config.chainInformation.keys());
+  // public getTransactionsMap(): ResultAsync<
+  //   Array<IChainTransaction>,
+  //   PersistenceError
+  // > {
+  //   return this.waitForUnlock().andThen((key) => {
+  //     return ResultUtils.combine([
+  //       this.configProvider.getConfig(),
+  //       this._getObjectStore(),
+  //     ])
+  //       .andThen(([config, txStore]) => {
+  //         const chains = Array.from(config.chainInformation.keys());
           
-          console.log("My Chains!: ");
-          console.log(chains);
+  //         console.log("My Chains!: ");
+  //         console.log(chains);
 
-          return ResultUtils.combine(
-            chains.map((chain) => {
-              return txStore
-                .getAllKeys(ELocalStorageKey.TRANSACTIONS, "chainId", chain)
-                .andThen((keys) => {
-                  return okAsync([chain, keys.length]);
-                });
-            }),
-          );
-        })
+  //         return ResultUtils.combine(
+  //           chains.map((chain) => {
+  //             return txStore
+  //               .getAll<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "chainId", chain)
+  //               .andThen((keys) => {
+  //                 return okAsync([chain, keys.length]);
+  //               });
+  //           }),
+  //         );
+  //       })
         
-        .andThen((result) => {
-          const returnVal = new Array<IChainTransaction>();
-          for (const elem in result) {
-            const [chain, num] = elem;
-            returnVal[chain] = num;
-          }
-          return okAsync(returnVal);
-        });
+  //       .andThen((result) => {
+  //         const returnVal = new Array<IChainTransaction>();
+  //         for (const elem in result) {
+  //           const [chain, num] = elem;
+  //           returnVal[chain] = num;
+  //         }
+  //         return okAsync(returnVal);
+  //       });
         
 
-    });
-  }
+  //   });
+  // }
 
   public setLatestBlockNumber(
     contractAddress: EVMContractAddress,
@@ -825,5 +825,33 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           });
         });
       });
+  }
+
+  public getTransactionsArray(): ResultAsync<
+    { chainId: ChainId; items: EVMTransaction[] | null }[],
+    PersistenceError
+  > {
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this._getObjectStore(),
+    ]).andThen(([config, store]) => {
+      
+      return ResultUtils.combine(
+        config.supportedChains .map((chainId) => {
+        return store
+          .getCursor<EVMTransaction>(
+            ELocalStorageKey.TRANSACTIONS,
+            "chainId",
+            chainId,
+            undefined,
+            undefined,
+          )
+          .andThen((cursor) => {
+            return cursor.allValues().map((transactions) => {
+              return ({ chainId: chainId, items: transactions });
+            });
+          });
+      }));
+    });
   }
 }

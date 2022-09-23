@@ -116,9 +116,11 @@ class QueryEvaluatorMocks {
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
+    /*
     td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
       okAsync(this.transactionsArray),
     );
+    */
     td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(this.accountBalances),
     );

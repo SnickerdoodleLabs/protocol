@@ -85,6 +85,16 @@ public eval(
         });
     }
 
+    if (query.name == "chain_transactions"){
+        return this.dataWalletPersistence
+          .getTransactionsArray()
+          .andThen((transactionsArray) => {
+            // console.log("URL count: ", url_visited_count);
+            return okAsync(SDQL_Return(transactionsArray));
+          });
+    }
+
+
     return okAsync(SDQL_Return(false));
 }
 }
