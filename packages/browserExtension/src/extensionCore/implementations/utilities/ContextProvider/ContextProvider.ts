@@ -1,12 +1,13 @@
 import {
   DataWalletAddress,
-  EVMAccountAddress,
   Invitation,
+  LinkedAccount,
   MetatransactionSignatureRequest,
   UUID,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Subject } from "rxjs";
+import { v4 } from "uuid";
 
 import { AccountContext } from "@implementations/utilities/ContextProvider/AccountContext";
 import { AppContext } from "@implementations/utilities/ContextProvider/AppContext";
@@ -18,10 +19,9 @@ import {
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import { IInternalState, IExternalState } from "@shared/interfaces/states";
-import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
-import { AccountInitializedNotification } from "@shared/objects/notifications/AccountInitializedNotification";
 import { AccountAddedNotification } from "@shared/objects/notifications/AccountAddedNotification";
-import { v4 } from "uuid";
+import { AccountInitializedNotification } from "@shared/objects/notifications/AccountInitializedNotification";
+import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
 
 @injectable()
 export class ContextProvider implements IContextProvider {
@@ -133,11 +133,11 @@ export class ContextProvider implements IContextProvider {
   }
 
   // TODO move it to service layer
-  public addAccount = (accountAddress: EVMAccountAddress) => {
+  public addAccount(linkedAccount: LinkedAccount) {
     this.appContext.notifyAllConnections(
-      new AccountAddedNotification({ accountAddress }, UUID(v4())),
+      new AccountAddedNotification({ linkedAccount }, UUID(v4())),
     );
-  };
+  }
 
   public setAccountContext(dataWalletAddress: DataWalletAddress): void {
     this.accountContext.initialize(dataWalletAddress);

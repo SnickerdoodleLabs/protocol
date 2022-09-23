@@ -7,9 +7,16 @@ import {
   Signature,
   AESKey,
   HexString,
+  AccountAddress,
+  ExternallyOwnedAccount,
+  EChain,
+  chainConfig,
+  ChainId,
+  EChainTechnology,
+  SolanaAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 
@@ -32,5 +39,55 @@ export class DataWalletUtils implements IDataWalletUtils {
       signature,
       HexString("0x0"),
     );
+  }
+
+  public getDerivedEVMAccountFromSignature(
+    accountAddress: AccountAddress,
+    signature: Signature,
+  ): ResultAsync<ExternallyOwnedAccount, never> {
+    return this.cryptoUtils
+      .deriveEVMPrivateKeyFromSignature(signature, HexString(accountAddress))
+      .map((derivedEVMKey) => {
+        const derivedEVMAccountAddress =
+          this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+            derivedEVMKey,
+          );
+        return new ExternallyOwnedAccount(
+          derivedEVMAccountAddress,
+          derivedEVMKey,
+        );
+      });
+  }
+
+  public verifySignature(
+    chain: EChain,
+    accountAddress: AccountAddress,
+    signature: Signature,
+    message: string,
+  ): ResultAsync<boolean, never> {
+    const chainInfo = chainConfig.get(ChainId(chain));
+
+    if (chainInfo == null) {
+      throw new Error();
+    }
+
+    // The signature has to be verified based on the chain technology
+    if (chainInfo.chainTechnology == EChainTechnology.EVM) {
+      return this.cryptoUtils
+        .verifyEVMSignature(message, signature)
+        .map((verifiedAccountAddress) => {
+          return verifiedAccountAddress == accountAddress;
+        });
+    }
+    if (chainInfo.chainTechnology == EChainTechnology.Solana) {
+      return this.cryptoUtils.verifySolanaSignature(
+        message,
+        signature,
+        accountAddress as SolanaAccountAddress,
+      );
+    }
+
+    // No match for the chain technology!
+    throw new Error(`Unknown chainTechnology ${chainInfo.chainTechnology}`);
   }
 }

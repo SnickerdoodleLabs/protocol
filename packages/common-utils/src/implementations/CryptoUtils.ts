@@ -17,11 +17,15 @@ import {
   HexString,
   TokenId,
   Base64String,
+  SolanaAccountAddress,
+  SolanaPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import argon2 from "argon2";
 import { ethers } from "ethers";
+import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import nacl from "tweetnacl";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
 
@@ -67,6 +71,24 @@ export class CryptoUtils implements ICryptoUtils {
     );
 
     return okAsync(AESKey(keyBuffer.toString("base64")));
+  }
+
+  public deriveEVMPrivateKeyFromSignature(
+    signature: Signature,
+    salt: HexString,
+  ): ResultAsync<EVMPrivateKey, never> {
+    // A signature is a hex string, with 65 bytes. We should convert it to a buffer
+    const sourceEntropy = Buffer.from(signature, "hex");
+    const saltBuffer = Buffer.from(salt, "hex");
+    const keyBuffer = Crypto.pbkdf2Sync(
+      sourceEntropy,
+      saltBuffer,
+      100,
+      32,
+      "sha256",
+    );
+
+    return okAsync(EVMPrivateKey(keyBuffer.toString("hex")));
   }
 
   public deriveAESKeyFromEVMPrivateKey(
@@ -122,7 +144,7 @@ export class CryptoUtils implements ICryptoUtils {
     return EVMAccountAddress(wallet.address);
   }
 
-  public verifySignature(
+  public verifyEVMSignature(
     message: string,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
@@ -131,6 +153,20 @@ export class CryptoUtils implements ICryptoUtils {
     );
 
     return okAsync(address);
+  }
+
+  public verifySolanaSignature(
+    message: string,
+    signature: Signature,
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<boolean, never> {
+    return okAsync(
+      nacl.sign.detached.verify(
+        Buffer.from(message, "utf-8"),
+        Buffer.from(signature, "hex"),
+        base58.decode(accountAddress),
+      ),
+    );
   }
 
   public verifyTypedData(
@@ -220,6 +256,22 @@ export class CryptoUtils implements ICryptoUtils {
     ).map((signature) => {
       return Signature(signature);
     });
+  }
+
+  public signMessageSolana(
+    message: string,
+    privateKey: SolanaPrivateKey,
+  ): ResultAsync<Signature, never> {
+    return okAsync(
+      Signature(
+        Buffer.from(
+          nacl.sign.detached(
+            Buffer.from(message, "utf8"),
+            base58.decode(privateKey),
+          ),
+        ).toString("hex"),
+      ),
+    );
   }
 
   public signTypedData(

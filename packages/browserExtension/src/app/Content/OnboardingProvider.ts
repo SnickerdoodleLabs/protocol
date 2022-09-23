@@ -4,6 +4,7 @@ import {
   Age,
   BigNumberString,
   CountryCode,
+  EChain,
   EmailAddressString,
   EVMAccountAddress,
   EVMContractAddress,
@@ -11,6 +12,7 @@ import {
   Gender,
   GivenName,
   IpfsCID,
+  ISdlDataWallet,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -31,8 +33,6 @@ import {
 } from "@shared/constants/ports";
 import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
 
-let coreGateway: ExternalCoreGateway;
-
 const localStream = new LocalMessageStream({
   name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   target: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -47,16 +47,19 @@ pump(
 );
 const rpcEngine = new JsonRpcEngine();
 rpcEngine.push(streamMiddleware.middleware);
-coreGateway = new ExternalCoreGateway(rpcEngine);
+
+const coreGateway = new ExternalCoreGateway(rpcEngine);
+
 const clearMux = () => {
   mux.destroy();
   document.removeEventListener("extension-stream-channel-closed", clearMux);
 };
 document.addEventListener("extension-stream-channel-closed", clearMux);
 
-export class OnboardingProvider extends EventEmitter {
+export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   constructor() {
     super();
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
     streamMiddleware.events.on(PORT_NOTIFICATION, (resp: MTSRNotification) => {
       _this.emit(resp.type, resp);
@@ -70,16 +73,23 @@ export class OnboardingProvider extends EventEmitter {
   public unlock(
     accountAddress: EVMAccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode = LanguageCode("en"),
   ) {
-    return coreGateway.unlock(accountAddress, signature, languageCode);
+    return coreGateway.unlock(accountAddress, signature, chain, languageCode);
   }
   public addAccount(
     accountAddress: EVMAccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode = LanguageCode("en"),
   ) {
-    return coreGateway.addAccount(accountAddress, signature, languageCode);
+    return coreGateway.addAccount(
+      accountAddress,
+      signature,
+      chain,
+      languageCode,
+    );
   }
   public getUnlockMessage(languageCode: LanguageCode = LanguageCode("en")) {
     return coreGateway.getUnlockMessage(languageCode);
