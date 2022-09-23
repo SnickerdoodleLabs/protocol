@@ -9,6 +9,7 @@ import {
   BigNumberString,
   BlockchainProviderError,
   ChainId,
+  ChainTransaction,
   ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
@@ -517,11 +518,11 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getEVMTransactions(filter);
   }
 
-  public getTransactionsMap(): ResultAsync<
-    Map<ChainId, number>,
+  public getTransactionsArray(): ResultAsync<
+    Array<ChainTransaction>,
     PersistenceError
   > {
-    return this.dataWalletPersistence.getTransactionsMap();
+    return this.dataWalletPersistence.getTransactionsArray();
   }
 
   public getSiteVisitsMap(): ResultAsync<

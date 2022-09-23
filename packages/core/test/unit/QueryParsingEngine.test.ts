@@ -37,6 +37,7 @@ import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { ChainTransaction } from "@snickerdoodlelabs/objects";
 
 const queryId = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -90,8 +91,8 @@ class QueryParsingMocks {
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    td.when(this.persistenceRepo.getTransactionsMap()).thenReturn(
-      okAsync(new Map<ChainId, number>()),
+    td.when(this.persistenceRepo.getTransactionsArray()).thenReturn(
+      okAsync(new Array<ChainTransaction>()),
     );
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));

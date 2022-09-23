@@ -157,10 +157,10 @@ export class QueryEvaluator implements IQueryEvaluator {
           });
       case "chain_transactions":
         return this.dataWalletPersistence
-          .getTransactionsMap()
-          .andThen((transactionsMap) => {
+          .getTransactionsArray()
+          .andThen((transactionsArray) => {
             // console.log("URL count: ", url_visited_count);
-            return okAsync(SDQL_Return(transactionsMap));
+            return okAsync(SDQL_Return(transactionsArray));
           });
       default:
         // console.log("Tracking the result: ", result);

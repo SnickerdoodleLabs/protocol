@@ -19,6 +19,7 @@ import {
   SiteVisit,
   MetatransactionSignatureRequest,
   InvalidParametersError,
+  IChainTransaction,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -76,7 +77,7 @@ export interface IAccountService {
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+  getTransactionsArray(): ResultAsync<Array<IChainTransaction>, PersistenceError>;
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;

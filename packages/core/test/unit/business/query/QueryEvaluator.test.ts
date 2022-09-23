@@ -13,7 +13,7 @@ import {
   BigNumberString,
   IDataWalletPersistence,
   IEVMBalance,
-  IChainTransactions,
+  IChainTransaction,
 
 } from "@snickerdoodlelabs/objects";
 import {
@@ -32,6 +32,7 @@ import {
   IBalanceQueryEvaluator,
   INetworkQueryEvaluator,
 } from "@core/interfaces/business/utilities/query/index.js";
+import { ChainTransaction } from "@snickerdoodlelabs/objects";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -65,7 +66,9 @@ class QueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsMap = new Map<ChainId, number>([[ChainId(1), 10]]);
+  public transactionsArray = new Array<ChainTransaction>
+  (
+  );
 
   public accountBalances = new Array<IEVMBalance>(
     {
@@ -114,8 +117,8 @@ class QueryEvaluatorMocks {
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
-    td.when(this.dataWalletPersistence.getTransactionsMap()).thenReturn(
-      okAsync(this.transactionsMap),
+    td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
+      okAsync(this.transactionsArray),
     );
     td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(this.accountBalances),

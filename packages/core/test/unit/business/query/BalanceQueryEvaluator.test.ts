@@ -29,6 +29,7 @@ import * as td from "testdouble";
 
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { ChainTransaction } from "@snickerdoodlelabs/objects";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 20),
@@ -52,7 +53,17 @@ class BalanceQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsMap = new Map<ChainId, number>([[ChainId(1), 10]]);
+  public transactionsMap = new Array<ChainTransaction>(
+    // [
+    //   // ChainTransaction(
+    //   //   TickerSymbol("hi"),
+    //   //   BigNumberString("1"),
+    //   //   BigNumberString("2"),
+    //   //   BigNumberString("3"),
+    //   //   BigNumberString("4")
+    //   // )
+    // ]
+  );
 
   /*
       ChainId(1) - 5
@@ -115,7 +126,7 @@ class BalanceQueryEvaluatorMocks {
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
-    td.when(this.dataWalletPersistence.getTransactionsMap()).thenReturn(
+    td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
       okAsync(this.transactionsMap),
     );
     td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(

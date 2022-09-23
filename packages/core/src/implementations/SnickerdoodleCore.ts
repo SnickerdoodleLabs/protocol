@@ -63,6 +63,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   EScamFilterStatus,
+  ChainTransaction,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -542,10 +543,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountNFTs();
   }
 
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError> {
+  getTransactionsArray(): ResultAsync<Array<ChainTransaction>, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTransactionsMap();
+    return accountService.getTransactionsArray();
   }
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError> {

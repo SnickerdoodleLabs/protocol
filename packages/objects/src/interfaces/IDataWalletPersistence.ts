@@ -1,6 +1,6 @@
 import { ResultAsync } from "neverthrow";
 
-import { IEVMBalance } from "./chains";
+import { ChainTransaction, IEVMBalance } from "./chains";
 
 import {
   ClickData,
@@ -119,8 +119,8 @@ export interface IDataWalletPersistence {
   // return a map of URLs
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
 
-  // return a map of Chain Transaction Counts
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+  // return an array of Chain Transaction
+  getTransactionsArray(): ResultAsync<Array<ChainTransaction>, PersistenceError>;
 
   getLatestTransactionForAccount(
     chainId: ChainId,

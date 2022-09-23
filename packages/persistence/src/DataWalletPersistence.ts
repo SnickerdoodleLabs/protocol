@@ -33,6 +33,7 @@ import {
   EIndexer,
   AccountBalanceError,
   IDataWalletBackup,
+  IChainTransaction,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { IDBKeyRange } from "fake-indexeddb";
@@ -708,9 +709,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  // return a map of Chain Transaction Counts
-  public getTransactionsMap(): ResultAsync<
-    Map<ChainId, number>,
+  // return an array of Chain Transactions
+  public getTransactionsArray(): ResultAsync<
+    Array<IChainTransaction>,
     PersistenceError
   > {
     return this.waitForUnlock().andThen((key) => {
@@ -720,6 +721,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       ])
         .andThen(([config, txStore]) => {
           const chains = Array.from(config.chainInformation.keys());
+          
+          console.log("My Chains!: ");
+          console.log(chains);
+
           return ResultUtils.combine(
             chains.map((chain) => {
               return txStore
@@ -730,14 +735,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             }),
           );
         })
+        
         .andThen((result) => {
-          const returnVal = new Map<ChainId, number>();
+          const returnVal = new Array<IChainTransaction>();
           for (const elem in result) {
             const [chain, num] = elem;
             returnVal[chain] = num;
           }
           return okAsync(returnVal);
         });
+        
+
     });
   }
 
