@@ -117,6 +117,22 @@ describe("Consent", () => {
         consent.connect(accounts[2]).optIn(1, sampleAgreementFlag1),
       ).to.revertedWith("ERC721: token already minted");
     });
+
+    it("Does not allow opt-ins when at capacity.", async function () {
+      // call opt in
+      await consent.connect(accounts[1]).optIn(1, sampleAgreementFlag1);
+      await consent.connect(accounts[1]).updateMaxCapacity(1);
+
+      // call opt in with another account and new tokenid
+      await expect(
+        consent.connect(accounts[2]).optIn(2, sampleAgreementFlag1),
+      ).to.revertedWith("Consent: cohort is at capacity");
+
+      // can't reduce the max capacity below current enrollment
+      await expect(
+        consent.connect(accounts[1]).updateMaxCapacity(0),
+      ).to.revertedWith("Consent: cannot reduce capacity below current enrollment.");
+    });
   });
 
   describe("restrictedOptIn", function () {
@@ -246,6 +262,41 @@ describe("Consent", () => {
           .restrictedOptIn(2, sampleAgreementFlag1, sig),
       ).to.revertedWith("Consent: Contract owner did not sign this message");
     });
+
+    it("Does not allow opt-ins when at capacity.", async function () {
+      // Business user signs user 2's address
+      // pass in address in lowercase to match Solidity string conversion
+      let sig = await getSignature(
+        user1,
+        accounts[2].address.toLowerCase(),
+        1
+      );
+
+      let sig3 = await getSignature(
+        user1,
+        accounts[3].address.toLowerCase(),
+        2
+      );
+
+      // User 2 can now call restricted opt in if business entity has signed to approve them
+      await consent
+        .connect(accounts[2])
+        .restrictedOptIn(1, sampleAgreementFlag1, sig);
+
+      await consent.connect(accounts[1]).updateMaxCapacity(1);
+
+      // User 2 tried to call again with the same token id
+      await expect(
+        consent
+          .connect(accounts[3])
+          .restrictedOptIn(2, sampleAgreementFlag1, sig3),
+      ).to.revertedWith("Consent: cohort is at capacity");
+
+      // can't reduce the max capacity below current enrollment
+      await expect(
+        consent.connect(accounts[1]).updateMaxCapacity(0),
+      ).to.revertedWith("Consent: cannot reduce capacity below current enrollment.");
+    });
   });
 
   describe("anonymousRestrictedOptIn", function () {
@@ -319,14 +370,31 @@ describe("Consent", () => {
     it("Does not allow approved user to call restricted opt-ins with a different token id.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, null, 1);
+      let sig = await getSignature(user1, accounts[2].address, 1);
 
       // User 2 tries to call restricted opt in again with another token Id
       await expect(
         consent
           .connect(accounts[2])
-          .restrictedOptIn(2, sampleAgreementFlag1, sig),
+          .anonymousRestrictedOptIn(2, sampleAgreementFlag1, sig),
       ).to.revertedWith("Consent: Contract owner did not sign this message");
+    });
+
+    it("Does not allow approved user to call restricted opt-in when at capacity.", async function () {
+      // Business user signs user 2's address
+      // pass in address in lowercase to match Solidity string conversion
+      let sig = await getSignature(user1, null, 1);
+      let sig2 = await getSignature(user1, null, 2);
+
+      await consent.connect(accounts[2]).anonymousRestrictedOptIn(1, sampleAgreementFlag1, sig);
+      await consent.connect(accounts[1]).updateMaxCapacity(1);
+
+      // User 2 tries to call restricted opt in again with another token Id
+      await expect(
+        consent
+          .connect(accounts[3])
+          .anonymousRestrictedOptIn(2, sampleAgreementFlag1, sig2),
+      ).to.revertedWith("Consent: cohort is at capacity");
     });
   });
 
