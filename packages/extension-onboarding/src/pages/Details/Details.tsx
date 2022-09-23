@@ -9,6 +9,7 @@ import { useStyles } from "@extension-onboarding/pages/Details/Details.style";
 import OnChainInfo from "@extension-onboarding/pages/Details/screens/OnChainIfo";
 import DataPermissionSettings from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings";
 import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
+import Portfolio from "@extension-onboarding/pages/Details/screens/Portfolio";
 import { Box } from "@material-ui/core";
 import React, { useMemo } from "react";
 
@@ -18,7 +19,7 @@ const Details = () => {
   const renderScreen = useMemo(() => {
     switch (activeScreen) {
       case EScreens.PORTFOLIO: {
-        return <OnChainInfo />;
+        return <Portfolio />;
       }
       case EScreens.OWNED_REWARDS:
         return <RewardsInfo />;
