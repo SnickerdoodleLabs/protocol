@@ -41,24 +41,24 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IAccountService } from "@core/interfaces/business";
+import { IAccountService } from "@core/interfaces/business/index.js";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
-} from "@core/interfaces/data";
-import { CoreContext } from "@core/interfaces/objects";
+} from "@core/interfaces/data/index.js";
+import { CoreContext } from "@core/interfaces/objects/index.js";
 import {
   IContextProvider,
   IContextProviderType,
   IDataWalletUtils,
   IDataWalletUtilsType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
-} from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class AccountService implements IAccountService {

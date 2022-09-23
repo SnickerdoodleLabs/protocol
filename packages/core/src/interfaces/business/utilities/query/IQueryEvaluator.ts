@@ -1,10 +1,6 @@
 import { PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
+import { AST_PropertyQuery, AST_Query } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
-
-import {
-  AST_PropertyQuery,
-  AST_Query
-} from "@query-parser/interfaces";
 
 export interface IQueryEvaluator {
   eval(query: AST_Query): ResultAsync<SDQL_Return, PersistenceError>;

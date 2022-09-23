@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Crumbs", () => {
+describe.only("Crumbs", () => {
   // declare variables to be used in tests
   let Crumbs;
   let crumbs;
@@ -85,7 +85,7 @@ describe("Crumbs", () => {
       ).to.revertedWith("Crumb: Address already has a crumb");
     });
 
-    it("Once transferred, the crumb id gets remapped to the new owner and original owner can create another crumb.", async function () {
+    it("Once a crumb is created, it is not transferable", async function () {
       // accounts 1 creates a crumb
       await crumbs
         .connect(accounts[1])
@@ -95,23 +95,30 @@ describe("Crumbs", () => {
         );
 
       // accounts 1 transfers away his crumb
-      await crumbs
-        .connect(accounts[1])
-        .transferFrom(accounts[1].address, accounts[2].address, 1);
+      await expect(
+        crumbs
+          .connect(accounts[1])
+          .transferFrom(accounts[1].address, accounts[2].address, 1),
+      ).to.revertedWith("Crumbs: Crumb tokens are non-transferrable");
+    });
 
-      // accounts 1 tries to create another crumb
-      const crumbId = await crumbs
-        .connect(accounts[1])
-        .addressToCrumbId(accounts[2].address);
-
-      // check if second address maps to the transferred crumb id
-      expect(crumbId).to.eq(1);
-
-      // accounts 1 can create a new crumb after transferring
+    it("Once a crumb is created, it can be burnt and the owner can create a new one.", async function () {
+      // accounts 1 creates a crumb
       await crumbs
         .connect(accounts[1])
         .createCrumb(
-          2,
+          1,
+          "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        );
+
+      // accounts 1 creates a crumb
+      await crumbs.connect(accounts[1]).burnCrumb(1);
+
+      // accounts 1 creates a crumb
+      await crumbs
+        .connect(accounts[1])
+        .createCrumb(
+          1,
           "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
         );
     });

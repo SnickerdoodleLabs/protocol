@@ -11,7 +11,7 @@ import { IDNSRepository } from "@core/interfaces/data/IDNSRepository";
 import {
   IConfigProviderType,
   IConfigProvider,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class DNSRepository implements IDNSRepository {

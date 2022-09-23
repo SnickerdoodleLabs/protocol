@@ -2,7 +2,15 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "paths": {
+      "@contracts-sdk/*": [
+        "./packages/contracts-sdk/src/*"
+      ],
+      "@contracts-sdk-test/*": [
+        "./packages/contracts-sdk/src/*"
+      ],
+    },
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules", "dist"],

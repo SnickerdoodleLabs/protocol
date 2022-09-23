@@ -1,2 +1,2 @@
-export * from "@core/implementations/api/AccountIndexerPoller";
-export * from "@core/implementations/api/BlockchainListener";
+export * from "@core/implementations/api/AccountIndexerPoller.js";
+export * from "@core/implementations/api/BlockchainListener.js";

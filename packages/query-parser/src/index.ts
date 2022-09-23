@@ -1,2 +1,2 @@
-export * from "@query-parser/implementations";
-export * from "@query-parser/interfaces";
+export * from "@query-parser/implementations/index.js";
+export * from "@query-parser/interfaces/index.js";

@@ -1,5 +1,12 @@
-import { IpfsCID, SDQLString, SDQL_Name } from "@objects/primitives";
 import "reflect-metadata";
+
+import {
+  EWalletDataType,
+  IpfsCID,
+  SDQL_Name,
+} from "@snickerdoodlelabs/objects";
+
+import { SDQLQueryWrapperMocks } from "../../mocks";
 
 import { avalanche1SchemaStr } from "./avalanche1.data";
 
@@ -17,20 +24,15 @@ import {
   Command_IF,
   ConditionAnd,
   ConditionGE,
-  SDQLQueryWrapper
 } from "@query-parser/interfaces";
-import { EWalletDataType } from "@snickerdoodlelabs/objects";
-import { SDQLQueryWrapperMocks } from "../../mocks";
 
 describe("SDQLParser on avalanche", () => {
-
   const wrapperMocks = new SDQLQueryWrapperMocks();
   const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
   const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
   let ast: null | AST = null;
 
   beforeAll(async () => {
-
     // console.log("schema", schema);
     const astRes = await parser.buildAST();
     if (astRes.isOk()) {
@@ -38,7 +40,6 @@ describe("SDQLParser on avalanche", () => {
     } else {
       fail(astRes.error.message);
     }
-  
   });
 
   describe("Checking queries", () => {
@@ -189,7 +190,7 @@ describe("SDQLParser on avalanche", () => {
 
       expect(eef.trueExpr).toEqual(parser.context.get("c1"));
     });
-  }); 
+  });
 
   describe("AST validation", () => {
     test("meta check", () => {
@@ -203,21 +204,19 @@ describe("SDQLParser on avalanche", () => {
 
   describe("Dependency validation", () => {
     test("if($q1and$q2)then$r1else$r2 -> q1, q2", () => {
-
       // console.log(parser.returnPermissions);
-      const permissions = parser.returnPermissions.get("if($q1and$q2)then$r1else$r2")
-      const expectedFlags = EWalletDataType.EVMTransactions | EWalletDataType.Age;
-      expect(permissions!.eq(expectedFlags)).toBeTruthy();
-
+      const permissions = parser.returnPermissions.get(
+        "if($q1and$q2)then$r1else$r2",
+      );
+      expect(permissions?.EVMTransactions).toBeTruthy();
+      expect(permissions?.Age).toBeTruthy();
     });
 
     test("$r3 -> q3", () => {
-
       // console.log(parser.returnPermissions);
-      const permissions = parser.returnPermissions.get("$r3")
+      const permissions = parser.returnPermissions.get("$r3");
       const expectedFlags = EWalletDataType.Location;
-      expect(permissions!.eq(expectedFlags)).toBeTruthy();
-
+      expect(permissions?.Location).toBeTruthy();
     });
   });
 });

@@ -16,7 +16,7 @@ import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IVolatileStorageTable } from "@persistence/volatile/";
+import { IVolatileStorageTable } from "@persistence/volatile/index.js";
 
 export class BackupManager {
   private fieldUpdates: FieldMap = {};
@@ -24,7 +24,6 @@ export class BackupManager {
   private numUpdates = 0;
   private accountAddr: DataWalletAddress;
 
-  private restored: Set<string> = new Set();
   private fieldHistory: Map<string, number> = new Map();
 
   public constructor(
@@ -51,6 +50,7 @@ export class BackupManager {
     tableName: string,
     value: object,
   ): ResultAsync<void, PersistenceError> {
+    // console.log("Record update", tableName, value);
     this.tableUpdates[tableName].push(value);
     this.numUpdates += 1;
     return this.volatile.putObject(tableName, value);
@@ -60,9 +60,13 @@ export class BackupManager {
     key: string,
     value: object,
   ): ResultAsync<void, PersistenceError> {
+    // console.log("Field update", key, value);
+    if (!(key in this.fieldUpdates)) {
+      this.numUpdates += 1;
+    }
+
     const timestamp = new Date().getTime();
     this.fieldUpdates[key] = [value, timestamp];
-    this.numUpdates += 1;
     this._updateFieldHistory(key, timestamp);
     return this.persistent.write(key, value);
   }
@@ -81,12 +85,10 @@ export class BackupManager {
               hash: hash,
               timestamp: UnixTimestamp(timestamp),
               signature: sig,
-              accountAddress: this.accountAddr,
             },
             blob: blob,
           };
 
-          this.restored.add(backup.header.hash);
           return okAsync(backup);
         });
       });
@@ -99,10 +101,6 @@ export class BackupManager {
     return this._verifyBackupSignature(backup).andThen((valid) => {
       if (!valid) {
         return errAsync(new PersistenceError("invalid backup signature"));
-      }
-
-      if (backup.header.hash in this.restored) {
-        return errAsync(new PersistenceError("backup already restored"));
       }
 
       return this._unpackBlob(backup.blob)
@@ -143,7 +141,8 @@ export class BackupManager {
           });
         })
         .map((_) => {
-          this.restored.add(backup.header.hash);
+          console.log(`restored backup: ${backup.header.hash}`);
+          return undefined;
         });
     });
   }
@@ -182,12 +181,7 @@ export class BackupManager {
         ),
         Signature(backup.header.signature),
       )
-      .andThen((addr) =>
-        okAsync(
-          EVMAccountAddress(backup.header.accountAddress) == addr &&
-            addr == EVMAccountAddress(this.accountAddr),
-        ),
-      );
+      .andThen((addr) => okAsync(addr == EVMAccountAddress(this.accountAddr)));
   }
 
   private _generateBlob(): ResultAsync<AESEncryptedString, PersistenceError> {

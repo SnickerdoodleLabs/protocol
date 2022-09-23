@@ -1,17 +1,21 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { pathsToModuleNameMapper } = require("ts-jest/utils");
+// Keeping this file around as a reference in case someone ever wants to take a crack at
+// making ts-node based tests work again
+
+import type { Config } from "@jest/types";
+import { pathsToModuleNameMapper } from "ts-jest";
 
 // In the following statement, replace `./tsconfig` with the path to your `tsconfig` file
 // which contains the path mapping (ie the `compilerOptions.paths` option):
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { compilerOptions } = require("../../tsconfig.build");
+import { compilerOptions } from "../../tsconfig.build.json";
 
 const moduleNames = pathsToModuleNameMapper(compilerOptions.paths, {
   prefix: "<rootDir>/../..",
 });
 
-module.exports = {
-  preset: "ts-jest",
+const config: Config.InitialOptions = {
+  preset: "ts-jest/presets/default-esm",
+  resolver: "ts-jest-resolver",
+  extensionsToTreatAsEsm: [".ts"],
   testEnvironment: "node",
   // Ignore lib folder, use this or root property include paths but not both https://medium.com/swlh/jest-with-typescript-446ea996cc68
   modulePathIgnorePatterns: ["<rootDir>/dist/"],
@@ -23,17 +27,25 @@ module.exports = {
     // "<rootDir>/src/**/*.ts",
 
     // Add other allowed folders to the list below.
-    "<rootDir>/src/**/*.ts",
-    "!<rootDir>/src/**/index.ts",
-    "!<rootDir>/src/**/IConcurrencyUtils.ts",
+    "<rootDir>/src/implementations/**/*.ts",
+    "!<rootDir>/src/implementations/**/index.ts",
 
     // Disabled because we don't want it to end up in coverage report,
     // "<rootDir>/src/tests/**/*.ts",
   ],
   moduleNameMapper: moduleNames,
-  globals: {
-    "ts-jest": {
-      tsconfig: "test/tsconfig.json",
-    },
+  transform: {
+    "<regex_match_files>": [
+      "ts-jest",
+      {
+        tsconfig: "test/tsconfig.json",
+        useESM: true,
+      },
+    ],
   },
+  transformIgnorePatterns: [
+    "<rootDir>/../../node_modules/(?!@snickerdoodlelabs/common-utils)/",
+  ],
 };
+
+export default config;

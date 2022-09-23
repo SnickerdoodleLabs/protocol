@@ -3,6 +3,7 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
+import { AST_Query } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -10,8 +11,7 @@ import {
   IQueryEvaluator,
   IQueryEvaluatorType,
   IQueryRepository,
-} from "@core/interfaces/business/utilities";
-import { AST_Query } from "@snickerdoodlelabs/query-parser";
+} from "@core/interfaces/business/utilities/index.js";
 
 @injectable()
 export class QueryRepository implements IQueryRepository {

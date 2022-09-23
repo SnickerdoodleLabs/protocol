@@ -3,6 +3,14 @@
 	"compilerOptions": {
 		"outDir": "./dist",
 		"rootDir": "./src",
+		"paths": {
+			"@utils/*": [
+			  "./packages/utils/src/*"
+			],
+			"@utils-test/*": [
+			  "./packages/utils/test/*"
+			],
+		  },
 	},
 	"references": [
 		{

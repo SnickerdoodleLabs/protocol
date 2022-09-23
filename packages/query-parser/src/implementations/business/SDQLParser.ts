@@ -18,7 +18,7 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { ExprParser } from "@query-parser/implementations/business/ExprParser";
+import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
 import {
   AST,
   AST_BalanceQuery,
@@ -35,7 +35,7 @@ import {
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
-} from "@query-parser/interfaces";
+} from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();

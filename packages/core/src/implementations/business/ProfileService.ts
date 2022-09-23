@@ -13,7 +13,7 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { IProfileService } from "@core/interfaces/business";
+import { IProfileService } from "@core/interfaces/business/index.js";
 
 @injectable()
 export class ProfileService implements IProfileService {

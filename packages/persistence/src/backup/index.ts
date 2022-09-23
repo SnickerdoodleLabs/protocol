@@ -1,1 +1,1 @@
-export * from "@persistence/backup/BackupManager";
+export * from "@persistence/backup/BackupManager.js";

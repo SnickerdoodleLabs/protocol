@@ -7,7 +7,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { InsightString } from "@core/interfaces/objects";
+import { InsightString } from "@core/interfaces/objects/index.js";
 
 export interface IQueryParsingEngine {
   handleQuery(
