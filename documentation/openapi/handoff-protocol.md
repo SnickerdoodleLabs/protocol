@@ -84,7 +84,7 @@ sequenceDiagram
         },
         "c4":{
             "description": "a free CrazyApesClub NFT on Avalanche",
-            "chain": "AVAX",
+            "chainId": "1",
             "return": {
                "cid": ipfs id,
                "compensationId": "c4",
@@ -94,7 +94,7 @@ sequenceDiagram
         },
         "c5":{
             "description": "a free CrazyApesClub NFT on Solana",
-            "chain": "Solana",
+            "chainId": "-1",
             "return": {
                "cid": ipfs id,
                "compensationId": "c5",
