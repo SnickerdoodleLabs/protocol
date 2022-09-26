@@ -27,7 +27,7 @@ export type BackupIndex = { backups: { [key: string]: BackupIndexEntry } };
 export type ModelTypes = {
   schemas: {
     DataWalletBackup: IDataWalletBackup;
-    BackupIndex: BackupIndex;
+    BackupIndex: AESEncryptedString;
   };
   definitions: {
     backupIndex: "BackupIndex";
