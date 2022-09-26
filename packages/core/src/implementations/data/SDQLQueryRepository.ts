@@ -9,17 +9,16 @@ import {
   AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { IPFSHTTPClient } from "ipfs-http-client";
 import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
-import { ISDQLQueryRepository } from "@core/interfaces/data";
+import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class SDQLQueryRepository implements ISDQLQueryRepository {

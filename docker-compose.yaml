@@ -30,10 +30,24 @@ services:
       - ./.ipfs/export:/export
       - ./scripts/start_ipfs.sh:/start_ipfs
     entrypoint: ["/sbin/tini", "--", "start_ipfs"]
-    command: ["daemon", "--migrate=true", "--agent-version-suffix=docker"]
+    command: ["daemon", "--migrate=true", "--agent-version-suffix=docker", "--enable-pubsub-experiment"]
     env_file: docker-compose.env
     networks:
       - internal
+
+  ceramic:
+    image: ceramicnetwork/js-ceramic:latest
+    ports:
+      - 7007:7007
+    volumes:
+      - ./.ceramic/config/daemon.config.json:/root/.ceramic/daemon.config.json
+      - ./.ceramic/logs:/root/.ceramic/logs
+      - ./.ceramic/statestore:/root/.ceramic/statestore
+    env_file: docker-compose.env
+    networks:
+      - internal
+    depends_on:
+      - ipfs
 
 networks:
   internal:

@@ -9,12 +9,12 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
+import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider";
-import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository";
+} from "@indexers/IIndexerConfigProvider.js";
+import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {

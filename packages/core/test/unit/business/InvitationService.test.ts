@@ -19,7 +19,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import td from "testdouble";
+import * as td from "testdouble";
 
 import {
   dataWalletAddress,
@@ -28,18 +28,20 @@ import {
   consentContractAddress1,
 } from "@core-tests/mock/mocks/commonValues";
 import { ContextProviderMock } from "@core-tests/mock/utilities";
-import { InvitationService } from "@core/implementations/business";
-import { IInvitationService } from "@core/interfaces/business";
+import { InvitationService } from "@core/implementations/business/index.js";
+import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
   IInsightPlatformRepository,
   IInvitationRepository,
   IMetatransactionForwarderRepository,
-} from "@core/interfaces/data";
-import { IContextProvider } from "@core/interfaces/utilities";
+} from "@core/interfaces/data/index.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 const metatransactionNonce = BigNumberString("nonce");
+const metatransactionValue = BigNumberString("value");
+const metatransactionGas = BigNumberString("gas");
 const optInCallData = HexString("0xOptIn");
 const optOutCallData = HexString("0xOptOut");
 const optInSignature = Signature("OptInSignature");
@@ -86,6 +88,8 @@ class InvitationServiceMocks {
         EVMAccountAddress(dataWalletAddress),
         consentContractAddress1,
         metatransactionNonce,
+        metatransactionValue,
+        metatransactionGas,
         optInCallData,
         optInSignature,
         dataWalletKey,

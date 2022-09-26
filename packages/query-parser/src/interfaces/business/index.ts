@@ -1,1 +1,1 @@
-export * from "@query-parser/interfaces/business/IQueryObjectFactory";
+export * from "@query-parser/interfaces/business/IQueryObjectFactory.js";

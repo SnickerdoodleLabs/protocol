@@ -21,9 +21,9 @@ import {
 import argon2 from "argon2";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
-import { ICryptoUtils } from "@common-utils/interfaces";
+import { ICryptoUtils } from "@common-utils/interfaces/index.js";
 
 @injectable()
 export class CryptoUtils implements ICryptoUtils {

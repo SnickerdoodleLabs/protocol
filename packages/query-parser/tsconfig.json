@@ -2,7 +2,12 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "module": "ES2022",
+    "paths": {
+      "@query-parser/*": ["./packages/query-parser/src/*"],
+      "@query-parser-test/*": ["./packages/query-parser/test/*"],
+    },
   },
   "include": [
     "./src/**/*.ts"

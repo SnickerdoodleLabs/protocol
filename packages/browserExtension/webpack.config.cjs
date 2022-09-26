@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 
+const argon2 = require("argon2");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const fileSystem = require("fs-extra");
@@ -10,10 +12,9 @@ const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 
-const env = require("./utils/env");
+const env = require("./utils/env.cjs");
 
 const configFilePath = require.resolve("./tsconfig.json");
-const argon2 = require("argon2");
 
 var alias = {
   "react-dom": "@hot-loader/react-dom",
@@ -39,17 +40,21 @@ if (fileSystem.existsSync(secretsPath)) {
   alias["secrets"] = secretsPath;
 }
 
+console.log(`env.NODE_ENV: ${env.NODE_ENV}`);
+
 var options = {
   externals: {
     argon2: argon2,
   },
-  mode: process.env.NODE_ENV || "development",
+  target: "webworker",
+  // mode: env.NODE_ENV || "development",
+  mode: "development",
   entry: {
     newtab: path.join(__dirname, "src", "app", "Newtab", "index.jsx"),
     options: path.join(__dirname, "src", "app", "Options", "index.jsx"),
     popup: path.join(__dirname, "src", "app", "Popup", "index.jsx"),
     background: path.join(__dirname, "src", "extensionCore", "index.ts"),
-    contentScript: path.join(__dirname, "src", "app", "Content", "index.js"),
+    contentScript: path.join(__dirname, "src", "app", "Content", "index.tsx"),
     "injectables/onboarding": path.join(
       __dirname,
       "src",
@@ -131,13 +136,16 @@ var options = {
     extensions: fileExtensions
       .map((extension) => "." + extension)
       .concat([".js", ".jsx", ".ts", ".tsx", ".css", "html"]),
+    // fullySpecified: false,
+    // mainFiles: ["index"],
+    // enforceExtension: false,
   },
   plugins: [
     new NodePolyfillPlugin(),
     new CleanWebpackPlugin({ verbose: true }),
     new webpack.ProgressPlugin(),
     // expose and write the allowed env vars on the compiled bundle
-    new webpack.EnvironmentPlugin(["NODE_ENV"]),
+    // new webpack.EnvironmentPlugin(["NODE_ENV"]),
     new webpack.DefinePlugin({
       __ONBOARDING_URL__: JSON.stringify(process.env.__ONBOARDING_URL__),
       __ACCOUNT_COOKIE_URL__: JSON.stringify(

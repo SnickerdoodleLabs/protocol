@@ -14,11 +14,11 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
-import { IInvitationRepository } from "@core/interfaces/data";
+import { IInvitationRepository } from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class InvitationRepository implements IInvitationRepository {

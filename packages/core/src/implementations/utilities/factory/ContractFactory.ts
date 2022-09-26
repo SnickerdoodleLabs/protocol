@@ -25,8 +25,8 @@ import {
   IBlockchainProviderType,
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities";
-import { IContractFactory } from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/utilities/index.js";
+import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class ContractFactory implements IContractFactory {

@@ -1,5 +1,3 @@
-// import { InvalidRegularExpression, ParserError } from "@snickerdoodlelabs/objects/src/businessObjects/SDQL/exceptions";
-
 import {
   InvalidRegularExpression,
   ParserError,
@@ -21,6 +19,7 @@ export enum TokenType {
   string = "string",
   whitespace = "whitespace",
 }
+
 export class Token {
   constructor(
     readonly type: TokenType,
@@ -28,6 +27,7 @@ export class Token {
     readonly position: number,
   ) {}
 }
+
 const rules = new Array<[RegExp, TokenType]>(); // Order matters
 rules.push(
   [/if/y, TokenType.if],

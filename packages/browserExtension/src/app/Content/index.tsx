@@ -3,10 +3,13 @@ import { render } from "react-dom";
 import "@webcomponents/custom-elements";
 
 import "./content.styles.css";
-import App from "./components/App";
+import Browser from "webextension-polyfill";
+
+import App from "./components/App/index";
+
 import { StylesProvider, jssPreset } from "@material-ui/styles";
 import { create } from "jss";
-import Browser from "webextension-polyfill";
+
 class ReactExtensionContainer extends HTMLElement {
   connectedCallback() {
     const shadowRoot = this.attachShadow({ mode: "open" });
@@ -32,13 +35,13 @@ class ReactExtensionContainer extends HTMLElement {
   }
 }
 
-const initWebComponent = function () {
+function initWebComponent() {
   customElements.define("snickerdoodle-data-wallet", ReactExtensionContainer);
 
   const app = document.createElement("snickerdoodle-data-wallet");
   app.id = "snickerdoodle-data-wallet";
 
   document.body.appendChild(app);
-};
+}
 
 initWebComponent();

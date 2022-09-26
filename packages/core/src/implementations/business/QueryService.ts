@@ -29,11 +29,11 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IQueryService } from "@core/interfaces/business";
+import { IQueryService } from "@core/interfaces/business/index.js";
 import {
   IQueryParsingEngine,
   IQueryParsingEngineType,
-} from "@core/interfaces/business/utilities";
+} from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -41,18 +41,18 @@ import {
   IInsightPlatformRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 import {
   CoreConfig,
   CoreContext,
   InsightString,
-} from "@core/interfaces/objects";
+} from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QueryService implements IQueryService {

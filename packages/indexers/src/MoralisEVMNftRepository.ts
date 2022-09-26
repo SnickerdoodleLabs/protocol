@@ -22,7 +22,7 @@ import { urlJoinP } from "url-join-ts";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
-} from "@indexers/IIndexerConfigProvider";
+} from "@indexers/IIndexerConfigProvider.js";
 
 interface IMoralisNFTResponse {
   total: number;
