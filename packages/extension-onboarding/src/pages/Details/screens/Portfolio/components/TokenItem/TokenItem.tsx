@@ -17,9 +17,30 @@ const TokenItem: FC<ITokenItem> = (item: ITokenItem) => {
           <img width={36} height={36} src={item?.image} />
         </Box>
         <Box ml={3}>
-          <Box>{item?.name}</Box>
           <Box>
-            {item.balance} - ${item?.currency}
+            <Typography
+              style={{
+                fontFamily: "Space Grotesk",
+                fontWeight: 500,
+                fontSize: 16,
+                color: "#5D5A74",
+              }}
+            >
+              {" "}
+              {item?.name}
+            </Typography>
+          </Box>
+          <Box>
+            <Typography
+              style={{
+                fontFamily: "Space Grotesk",
+                fontWeight: 500,
+                fontSize: 12,
+                color: "#5D5A74",
+                opacity: 0.6,
+              }}
+            >{item.balance} - ${item?.currency}</Typography>
+            
           </Box>
         </Box>
       </Box>
@@ -30,7 +51,15 @@ const TokenItem: FC<ITokenItem> = (item: ITokenItem) => {
         borderRadius={10}
         bgcolor="#F3F2F8"
       >
-        <Typography style={{ padding: "10px" }}>
+        <Typography
+          style={{
+            fontFamily: "Space Grotesk",
+            fontWeight: 500,
+            fontSize: 16,
+            color: "#5D5A74",
+            padding: "10px",
+          }}
+        >
           ${item.balance * item?.currency}
         </Typography>
       </Box>

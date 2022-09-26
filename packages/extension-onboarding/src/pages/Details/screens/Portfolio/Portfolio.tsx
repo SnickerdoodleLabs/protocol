@@ -25,17 +25,22 @@ import ethereumIcon from "@extension-onboarding/assets/icons/ethereum-icon.svg";
 import avalancheIcon from "@extension-onboarding/assets/icons/avalanche-icon.svg";
 import polygonIcon from "@extension-onboarding/assets/icons/polygon-icon.svg";
 import {
+  ChainId,
   EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
 } from "@snickerdoodlelabs/objects";
 import BalanceItem from "@extension-onboarding/components/BalanceItem";
 import TokenItem from "@extension-onboarding/pages/Details/screens/Portfolio/components/TokenItem/TokenItem";
+import NFTItem from "./components/NFTItem/NFTItem";
 
 declare const window: IWindowWithSdlDataWallet;
 
 export interface IAccountBalanceObject {
   [id: EVMAccountAddress]: IEVMBalance[];
+}
+export interface IChainBalanceObject {
+  [id: ChainId]: IEVMBalance[];
 }
 export interface IAccountNFTsObject {
   [id: EVMAccountAddress]: IEVMNFT[];
@@ -46,7 +51,9 @@ const Portfolio: FC = () => {
   const { linkedAccounts } = useAppContext();
   const [accountBalances, setAccountBalances] =
     useState<IAccountBalanceObject>();
-  const [accountNFTs, setAccountNFTs] = useState<IAccountNFTsObject>();
+  const [chainIdBalance, setChainIdBalance] = useState<IChainBalanceObject>();
+
+  const [accountNFTs, setAccountNFTs] = useState<IEVMNFT[]>([]);
 
   const [isBalancesLoading, setIsBalancesLoading] = useState(true);
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
@@ -54,9 +61,15 @@ const Portfolio: FC = () => {
   const [chainSelect, setChainSelect] = useState(0);
 
   useEffect(() => {
+    test();
     initializeBalances();
     initializeNfts();
   }, []);
+
+  useEffect(() => {
+    console.log("chainBalance", chainIdBalance);
+    console.log("chainIDBALANCE", getTotalBalanceByChainId(ChainId(1)));
+  }, [chainIdBalance]);
 
   useEffect(() => {
     if (accountBalances) {
@@ -96,7 +109,9 @@ const Portfolio: FC = () => {
         setIsNFTsLoading(false);
       })
       .map((result) => {
-        const structeredNFTs = result.reduce((acc, item) => {
+        console.log("NFTs",result)
+        setAccountNFTs(result);
+        /*  const structeredNFTs = result.reduce((acc, item) => {
           if (acc[item.owner]) {
             acc[item.owner] = [...acc[item.owner], item];
           } else {
@@ -104,7 +119,7 @@ const Portfolio: FC = () => {
           }
           return acc;
         }, {} as IAccountNFTsObject);
-        setAccountNFTs(structeredNFTs);
+        setAccountNFTs(structeredNFTs); */
       });
   };
 
@@ -112,14 +127,25 @@ const Portfolio: FC = () => {
     window.sdlDataWallet
       .getAccountBalances()
       .mapErr((e) => {
-        console.log("err", e);
+        setIsBalancesLoading(false);
       })
-      .map((result: IEVMBalance[]) => {
-        //@ts-ignore ???????????????????????
-        const chains = result.group(({ chainId }) => chainId);
-
-        result.map((res) => {});
+      .map((result) => {
+        const groupedByChanId = result.reduce((acc, currentValue) => {
+          let groupKey = currentValue["chainId"];
+          if (!acc[groupKey]) {
+            acc[groupKey] = [];
+          }
+          acc[groupKey].push(currentValue);
+          return acc;
+        }, {} as IChainBalanceObject);
+        setChainIdBalance(groupedByChanId);
       });
+  };
+
+  const getTotalBalanceByChainId = (id: ChainId) => {
+    return chainIdBalance?.[id].reduce((accumulator, object) => {
+      return accumulator + object.quoteBalance;
+    }, 0);
   };
 
   const classes = useStyles();
@@ -303,7 +329,18 @@ const Portfolio: FC = () => {
                 setChainSelect(0);
               }}
             >
-              All
+              <Typography
+                style={{
+                  paddingLeft: "8px",
+                  textTransform: "none",
+                  fontFamily: "Space Grotesk",
+                  fontWeight: 500,
+                  fontSize: 16,
+                  color: "#232039",
+                }}
+              >
+                All
+              </Typography>
             </Button>
             <Button
               onClick={() => {
@@ -312,7 +349,18 @@ const Portfolio: FC = () => {
             >
               <Box display="flex">
                 <img src={ethereumIcon} />
-                <Typography style={{ paddingLeft: "8px" }}>Ethereum</Typography>
+                <Typography
+                  style={{
+                    paddingLeft: "8px",
+                    textTransform: "none",
+                    fontFamily: "Space Grotesk",
+                    fontWeight: 500,
+                    fontSize: 16,
+                    color: "#232039",
+                  }}
+                >
+                  Ethereum
+                </Typography>
               </Box>
             </Button>
             <Button
@@ -322,8 +370,28 @@ const Portfolio: FC = () => {
             >
               <Box display="flex">
                 <img src={avalancheIcon} />
-                <Typography style={{ paddingLeft: "8px" }}>
-                  Avalanche
+                <Typography
+                  style={{
+                    paddingLeft: "8px",
+                    textTransform: "none",
+                    fontFamily: "Space Grotesk",
+                    fontWeight: 500,
+                    fontSize: 16,
+                    color: "#232039",
+                  }}
+                >
+                  <Typography
+                    style={{
+                      paddingLeft: "8px",
+                      textTransform: "none",
+                      fontFamily: "Space Grotesk",
+                      fontWeight: 500,
+                      fontSize: 16,
+                      color: "#232039",
+                    }}
+                  >
+                    Avalanche
+                  </Typography>
                 </Typography>
               </Box>
             </Button>
@@ -334,7 +402,18 @@ const Portfolio: FC = () => {
             >
               <Box display="flex">
                 <img src={polygonIcon} />
-                <Typography style={{ paddingLeft: "8px" }}>Polygon</Typography>
+                <Typography
+                  style={{
+                    paddingLeft: "8px",
+                    textTransform: "none",
+                    fontFamily: "Space Grotesk",
+                    fontWeight: 500,
+                    fontSize: 16,
+                    color: "#232039",
+                  }}
+                >
+                  Polygon
+                </Typography>
               </Box>
             </Button>
           </Box>
@@ -351,21 +430,54 @@ const Portfolio: FC = () => {
       >
         <Grid container>
           <Grid xs={6}>
-            <Typography>My Tokens</Typography>
+            <Typography
+              style={{
+                fontFamily: "Space Grotesk",
+                fontWeight: 500,
+                fontSize: 16,
+                color: "#5D5A74",
+              }}
+            >
+              My Tokens
+            </Typography>
           </Grid>
           <Grid xs={6}>
-            <Typography>My NFTs</Typography>
+            <Typography
+              style={{
+                fontFamily: "Space Grotesk",
+                fontWeight: 500,
+                fontSize: 16,
+                color: "#5D5A74",
+              }}
+            >
+              My NFTs
+            </Typography>
           </Grid>
           <Grid xs={6} style={{ marginTop: "30px" }}>
-            <TokenItem
-              image={ethereumCircle}
-              name="Ethereum"
-              balance={0.133}
-              currency={1664}
-              ticker="ETH"
-            />
+            <Box>
+              <Box my={3}>
+                <TokenItem
+                  image={ethereumCircle}
+                  name="Ethereum"
+                  balance={0.133}
+                  currency={1664}
+                  ticker="ETH"
+                />
+              </Box>
+              <Box my={3}>
+                <TokenItem
+                  image={ethereumCircle}
+                  name="Ethereum"
+                  balance={0.133}
+                  currency={1664}
+                  ticker="ETH"
+                />
+              </Box>
+            </Box>
           </Grid>
-          <Grid xs={6}></Grid>
+          <Grid xs={6}>
+            <NFTItem nftList={accountNFTs} />
+          </Grid>
         </Grid>
       </Box>
     </Box>
