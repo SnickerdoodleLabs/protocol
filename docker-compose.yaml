@@ -1,14 +1,14 @@
 version: "3.4"
 
 services:
-  doodlechain:
-    container_name: doodlechain
-    env_file: docker-compose.env
-    ports:
-      - 8545:8569
-    environment:
-      NETWORK: local
-    image: 'snickerdoodlelabs/devchain:latest'
+  # doodlechain:
+  #   container_name: doodlechain
+  #   env_file: docker-compose.env
+  #   ports:
+  #     - 8545:8569
+  #   environment:
+  #     NETWORK: local
+  #   image: 'snickerdoodlelabs/devchain:latest'
 
   # extension-onboarding:
   #   image: snickerdoodlelabs/extension-onboarding:local
@@ -20,7 +20,7 @@ services:
   #     - internal
       
   ipfs:
-    image: ipfs/go-ipfs:latest
+    image: ipfs/kubo:latest
     ports:
       - 4001:4001 # Swarm
       - 5001:5001 # Api
@@ -36,7 +36,7 @@ services:
       - internal
 
   ceramic:
-    image: ceramicnetwork/js-ceramic:latest
+    image: ceramicnetwork/js-ceramic:2.7.0-rc.2
     ports:
       - 7007:7007
     volumes:
