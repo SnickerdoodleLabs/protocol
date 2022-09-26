@@ -1,32 +1,35 @@
-import usePath from "@app/Content/hooks/usePath";
-import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
-import { ExternalCoreGateway } from "@app/coreGateways";
-import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
-import { EPortNames } from "@shared/enums/ports";
-
-import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess";
-import NftClaimed from "@app/Content/components/Screens/NftClaimed";
-import { EAPP_STATE, IRewardItem } from "@app/Content/constants";
-import Browser from "webextension-polyfill";
-import pump from "pump";
-import ObjectMultiplex from "obj-multiplex";
+import {
+  DomainName,
+  EScamFilterStatus,
+  URLString,
+} from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import ObjectMultiplex from "obj-multiplex";
+import pump from "pump";
+import React, { useEffect, useMemo, useState } from "react";
+import { parse } from "tldts";
+import Browser from "webextension-polyfill";
+
+import { EAPP_STATE, IRewardItem } from "../../constants/index";
+import ConnectWallet from "../Screens/ConnectWallet/index";
+import ConnectWalletPending from "../Screens/ConnectWalletPending/index";
+import ConnectWalletSuccess from "../Screens/ConnectWalletSuccess/index";
+import NftClaimed from "../Screens/NftClaimed/index";
+import RewardCard from "../Screens/RewardCard/index";
+
+import ScamFilterComponent from "@app/Content/components/ScamFilterComponent";
+import usePath from "@app/Content/hooks/usePath";
+import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
+import { ExternalCoreGateway } from "@app/coreGateways/index";
+import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
+import { EPortNames } from "@shared/enums/ports";
+import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 import { VersionUtils } from "@shared/utils/VersionUtils";
-import endOfStream from "end-of-stream";
-import { DomainName, URLString } from "@snickerdoodlelabs/objects";
-import React, { useEffect, useMemo, useState } from "react";
-import ConnectWallet from "@app/Content/components/Screens/ConnectWallet";
-import ConnectWalletPending from "@app/Content/components/Screens/ConnectWalletPending";
-import RewardCard from "@app/Content/components/Screens/RewardCard";
-import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
-import { parse } from "tldts";
-import ScamFilterComponent, {
-  EScamFilterStatus,
-} from "@app/Content/components/ScamFilterComponent";
 
 let coreGateway: ExternalCoreGateway;
 let notificationEmitter;

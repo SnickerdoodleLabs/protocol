@@ -1,4 +1,5 @@
 # SDQL Examples
+**For an update list of queries, please, [check here](https://github.com/SnickerdoodleLabs/protocol/tree/develop/packages/contracts/etc/data/queries).**
 
 ## Query Target 15 and Older Users About Avalanche Transfer, Location, Age, Gender, URLs Visited, And Chain Transaction Count
 

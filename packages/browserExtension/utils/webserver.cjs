@@ -15,8 +15,8 @@ process.env.__DNS_SERVER_ADDRESS__ = "http://localhost:3006/dns";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),
-  config = require("../webpack.config"),
-  env = require("./env"),
+  config = require("../webpack.config.cjs"),
+  env = require("./env.cjs"),
   path = require("path");
 
 config.plugins = [new webpack.HotModuleReplacementPlugin()].concat(

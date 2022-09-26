@@ -24,12 +24,12 @@
     "!dist/tsconfig.tsbuildinfo"
   ],
   "scripts": {
-    "alias": "tsc-alias",
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "build": "yarn clean && yarn compile",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "compile": "tsc --build && cd ../.. && yarn alias",
     "test": "yarn test:ci",
-    "test:ci": "jest --runInBand --coverage --passWithNoTests",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests",
     "test:watch": "jest --watch --color --detectOpenHandles"
   },
   "types": "dist/index.d.ts",

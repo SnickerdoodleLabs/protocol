@@ -4,9 +4,7 @@ import { ResultAsync } from "neverthrow";
 import { IQueryTypeEvaluator } from "@core/interfaces/business/utilities/query/IQueryTypeEvaluator";
 
 export interface IBalanceQueryEvaluator extends IQueryTypeEvaluator {
-    eval (
-        query: AST_BalanceQuery
-    ): ResultAsync<SDQL_Return, PersistenceError>;
+  eval(query: AST_BalanceQuery): ResultAsync<SDQL_Return, PersistenceError>;
 }
 
 export const IBalanceQueryEvaluatorType = Symbol.for("IBalanceQueryEvaluator");

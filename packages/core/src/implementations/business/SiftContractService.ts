@@ -1,24 +1,18 @@
 import {
-  ISiftContractRepository,
-  ISiftContractRepositoryType,
-} from "@core/interfaces/data/ISiftContractRepository";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory";
-import { ISiftContract } from "@contracts-sdk/interfaces/ISiftContract";
-
-import {
   BlockchainProviderError,
   UninitializedError,
   SiftContractError,
   DomainName,
-  TokenUri,
   EScamFilterStatus,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
-import { ISiftContractService } from "@core/interfaces/business/ISiftContractService";
+
+import { ISiftContractService } from "@core/interfaces/business/index.js";
+import {
+  ISiftContractRepository,
+  ISiftContractRepositoryType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class SiftContractService implements ISiftContractService {

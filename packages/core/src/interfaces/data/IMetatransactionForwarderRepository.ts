@@ -9,7 +9,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { MetatransactionRequest } from "@core/interfaces/objects";
+import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 
 export interface IMetatransactionForwarderRepository {
   /**

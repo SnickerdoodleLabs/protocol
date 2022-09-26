@@ -1,28 +1,11 @@
-import { AxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  ConfigProvider,
-  SnickerdoodleCore,
-  ConfigProvider as CoreConfigProvider,
+  SnickerdoodleCore
 } from "@snickerdoodlelabs/core";
 import {
-  DefaultAccountBalances,
-  DefaultAccountNFTs,
-  IIndexerConfig,
-  IIndexerConfigProvider,
-  IIndexerConfigProviderType,
-} from "@snickerdoodlelabs/indexers";
-import {
-  ChainId,
   IConfigOverrides,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
-  URLString,
 } from "@snickerdoodlelabs/objects";
-import {
-  DataWalletPersistence,
-  IPersistenceConfigProvider,
-  IPersistenceConfigProviderType,
-} from "@snickerdoodlelabs/persistence";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";

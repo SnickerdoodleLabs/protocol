@@ -7,8 +7,8 @@ import {
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
-import { CoreContext, PublicEvents } from "@core/interfaces/objects";
-import { IContextProvider } from "@core/interfaces/utilities";
+import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 export class ContextProviderMock implements IContextProvider {
   public context: CoreContext;

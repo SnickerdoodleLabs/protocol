@@ -17,7 +17,7 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class BlockchainProvider implements IBlockchainProvider {

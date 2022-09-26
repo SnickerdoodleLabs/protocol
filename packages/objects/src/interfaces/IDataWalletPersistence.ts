@@ -142,9 +142,12 @@ export interface IDataWalletPersistence {
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 
   setLatestBlockNumber(
+    contractAddress: EVMContractAddress,
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError>;
-  getLatestBlockNumber(): ResultAsync<BlockNumber, PersistenceError>;
+  getLatestBlockNumber(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<BlockNumber, PersistenceError>;
 
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;

@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { IJsonUtils } from "@common-utils/interfaces";
+import { IJsonUtils } from "@common-utils/interfaces/index.js";
 
 @injectable()
 export class JsonUtils implements IJsonUtils {

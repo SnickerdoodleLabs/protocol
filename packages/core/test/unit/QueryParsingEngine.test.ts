@@ -22,7 +22,7 @@ import {
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
-import td from "testdouble";
+import * as td from "testdouble";
 
 import { avalanche1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
 import { avalanche2SchemaStr } from "./business/query/avalanche2.data";
