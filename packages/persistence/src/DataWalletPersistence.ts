@@ -90,6 +90,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   private unlockPromise: Promise<EVMPrivateKey>;
   private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
 
+  private restorePromise: Promise<void>;
+  private resolveRestore: (() => void) | null = null;
+
   public constructor(
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
@@ -105,6 +108,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     this.objectStore = undefined;
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
+    });
+    this.restorePromise = new Promise<void>((resolve) => {
+      this.resolveRestore = resolve;
     });
   }
 
@@ -194,15 +200,26 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return ResultAsync.fromSafePromise(this.unlockPromise);
   }
 
+  protected waitForRestore(): ResultAsync<void, never> {
+    return ResultAsync.fromSafePromise(this.restorePromise);
+  }
+
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, PersistenceError> {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.resolveUnlock!(derivedKey);
-    return this.cloudStorage.unlock(derivedKey).andThen(() => {
-      return this.pollBackups();
-    });
+    return this.cloudStorage
+      .unlock(derivedKey)
+      .andThen(() => {
+        return this.pollBackups();
+      })
+      .andThen(() => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.resolveRestore!();
+        return okAsync(undefined);
+      });
   }
 
   public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
@@ -215,7 +232,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.addRecord(ELocalStorageKey.CLICKS, click);
       });
@@ -223,7 +243,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getClicks(): ResultAsync<ClickData[], PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getObjectStore().andThen((store) => {
         return store.getAll<ClickData>(ELocalStorageKey.CLICKS);
       });
@@ -233,7 +256,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addRejectedCohorts(
     consentContractAddresses: EVMContractAddress[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this.persistentStorageUtils
         .read<EVMContractAddress[]>(ELocalStorageKey.REJECTED_COHORTS)
         .andThen((saved) => {
@@ -251,7 +277,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     EVMContractAddress[],
     PersistenceError
   > {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._checkAndRetrieveValue<EVMContractAddress[]>(
         ELocalStorageKey.REJECTED_COHORTS,
         [],
@@ -262,7 +291,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return ResultUtils.combine(
           siteVisits.map((visit) => {
@@ -274,7 +306,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getObjectStore().andThen((store) => {
         return store.getAll<SiteVisit>(ELocalStorageKey.SITE_VISITS);
       });
@@ -284,7 +319,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this.persistentStorageUtils
         .read<EVMAccountAddress[]>(ELocalStorageKey.ACCOUNT)
         .andThen((saved) => {
@@ -301,7 +339,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public removeAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this.persistentStorageUtils
         .read<EVMAccountAddress[]>(ELocalStorageKey.ACCOUNT)
         .andThen((saved) => {
@@ -322,7 +363,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.AGE, age);
       });
@@ -330,13 +374,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.AGE, null);
     });
   }
 
   public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.FIRST_NAME, name);
       });
@@ -344,13 +394,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.FIRST_NAME, null);
     });
   }
 
   public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.LAST_NAME, name);
       });
@@ -358,7 +414,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.LAST_NAME, null);
     });
   }
@@ -366,7 +425,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.BIRTHDAY, birthday);
       });
@@ -374,13 +436,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.BIRTHDAY, null);
     });
   }
 
   public setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.GENDER, gender);
       });
@@ -388,7 +456,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getGender(): ResultAsync<Gender | null, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.GENDER, null);
     });
   }
@@ -396,7 +467,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setEmail(
     email: EmailAddressString,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.EMAIL, email);
       });
@@ -404,7 +478,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.EMAIL, null);
     });
   }
@@ -412,7 +489,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setLocation(
     location: CountryCode,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.LOCATION, location);
       });
@@ -420,7 +500,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION, null);
     });
   }
@@ -428,7 +511,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this.persistentStorageUtils
         .write(ELocalStorageKey.BALANCES, JSON.stringify(balances))
         .andThen(() => {
@@ -442,7 +528,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return ResultUtils.combine([
         this.configProvider.getConfig(),
         this._checkAndRetrieveValue<number>(
@@ -529,7 +618,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateAccountNFTs(
     nfts: IEVMNFT[],
   ): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this.persistentStorageUtils
         .write(ELocalStorageKey.NFTS, JSON.stringify(nfts))
         .andThen(() => {
@@ -543,7 +635,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return ResultUtils.combine([
         this.configProvider.getConfig(),
         this._checkAndRetrieveValue<number>(
@@ -625,7 +720,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return ResultUtils.combine(
           transactions.map((tx) => {
@@ -639,7 +737,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public getEVMTransactions(
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getObjectStore().andThen((txStore) => {
         return txStore
           .getAll<EVMTransaction>(ELocalStorageKey.TRANSACTIONS)
@@ -662,7 +763,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     chainId: ChainId,
     address: EVMAccountAddress,
   ): ResultAsync<EVMTransaction | null, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       const filter = new EVMTransactionFilter([chainId], [address]);
       return this._getObjectStore().andThen((txStore) => {
         return txStore
@@ -694,7 +798,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     Map<URLString, number>,
     PersistenceError
   > {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this.getSiteVisits().andThen((siteVisits) => {
         const result = new Map<URLString, number>();
         siteVisits.forEach((siteVisit, _i, _arr) => {
@@ -713,7 +820,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     Map<ChainId, number>,
     PersistenceError
   > {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return ResultUtils.combine([
         this.configProvider.getConfig(),
         this._getObjectStore(),
@@ -745,7 +855,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     contractAddress: EVMContractAddress,
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.addRecord(ELocalStorageKey.LATEST_BLOCK, {
           contract: contractAddress,
@@ -758,7 +871,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public getLatestBlockNumber(
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this.waitForRestore(),
+    ]).andThen(([key]) => {
       return this._getObjectStore().andThen((store) => {
         return store
           .getObject<LatestBlockEntry>(
