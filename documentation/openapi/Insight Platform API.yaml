@@ -76,9 +76,8 @@ paths:
     post:
       tags:
         - responses
-      description: Returns the list of earned rewards. This does not change state, but the return 
+      description: Returns the list of earned rewards, based on the proposed list of queries. This does not change state.
       requestBody:
-        description: The 
         required: true
         content:
           application/json:
@@ -95,7 +94,7 @@ paths:
                   type: string
                   format: snickerdoodle-account-address
                 queries:
-                  description: The list of queries that will be answered (q1, q3, q4) etc.
+                  description: The list of queries that will be answered (q1, q3, q4) etc, based on the data permissions.
                   type: array
                   items:
                     type: string
