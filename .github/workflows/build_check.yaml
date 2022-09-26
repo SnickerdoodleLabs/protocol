@@ -50,4 +50,4 @@ jobs:
     - name: Slack Notification
       if: ${{ failure() }}
       run: |-
-        curl -X POST -H 'Content-type: application/json' --data '{ "text": "Build Failed: Protocol!", "blocks": [ { "type": "section", "block_id": "section567", "text": { "type": "mrkdwn", "text": "Docker Build Failed for Combined Server!\nSee Details: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|GITHUB ACTION>\nCC: ${{ github.actor }}" } } ] }' '${{ secrets.SLACK_HOOK }}'
+        curl -X POST -H 'Content-type: application/json' --data '{ "text": "Build Failed: Protocol!", "blocks": [ { "type": "section", "block_id": "section567", "text": { "type": "mrkdwn", "text": "Docker Build Failed for Protocol!\nSee Details: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|GITHUB ACTION>\nCC: ${{ github.actor }}" } } ] }' '${{ secrets.SLACK_HOOK }}'
