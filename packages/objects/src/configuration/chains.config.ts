@@ -52,10 +52,10 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(42),
+    ChainId(5),
     new ChainInformation(
-      "Kovan",
-      ChainId(42),
+      "Goerli",
+      ChainId(5),
       true,
       [],
       10000,
