@@ -17,7 +17,7 @@ env:
 
 jobs:
   setup-build-publish-deploy:
-    name: Setup, Build, and Publish
+    name: Setup && Build Sanity
     runs-on: ubuntu-latest
     steps:
 
