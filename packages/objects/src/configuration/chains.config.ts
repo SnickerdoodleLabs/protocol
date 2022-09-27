@@ -46,7 +46,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
   [
     ChainId(EChain.EthereumMainnet),
     new ChainInformation(
-      "Ether mainnet",
+      "Ethereum",
       ChainId(EChain.EthereumMainnet),
       EChain.EthereumMainnet,
       EChainTechnology.EVM,
@@ -119,6 +119,21 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       10000,
       EIndexer.EVM,
       new NativeCurrencyInformation("MATIC", 18, "MATIC"),
+    ),
+  ],
+
+  [
+    ChainId(EChain.Avalanche),
+    new ChainInformation(
+      "Avalanche",
+      ChainId(EChain.Avalanche),
+      EChain.Avalanche,
+      EChainTechnology.EVM,
+      true,
+      [ProviderUrl("https://avalanche-mainnet.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7")],
+      4000,
+      EIndexer.EVM,
+      new NativeCurrencyInformation("AVAX", 18, "AVAX"),
     ),
   ],
 
