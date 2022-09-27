@@ -1,12 +1,12 @@
 import { EventEmitter } from "events";
 
 import {
+  AccountAddress,
   Age,
   BigNumberString,
   CountryCode,
   EChain,
   EmailAddressString,
-  EVMAccountAddress,
   EVMContractAddress,
   EWalletDataType,
   FamilyName,
@@ -32,7 +32,7 @@ import {
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
   PORT_NOTIFICATION,
 } from "@shared/constants/ports";
-import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
+import { TNotification } from "@shared/types/notification";
 
 const localStream = new LocalMessageStream({
   name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -62,7 +62,7 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     super();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
-    streamMiddleware.events.on(PORT_NOTIFICATION, (resp: MTSRNotification) => {
+    streamMiddleware.events.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
   }
@@ -71,7 +71,7 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     return coreGateway.getState();
   }
   public unlock(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode = LanguageCode("en"),
@@ -79,7 +79,7 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     return coreGateway.unlock(accountAddress, signature, chain, languageCode);
   }
   public addAccount(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode = LanguageCode("en"),
@@ -91,8 +91,18 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
       languageCode,
     );
   }
-  public getUnlinkAccountRequest(accountAddress: EVMAccountAddress) {
-    return coreGateway.getUnlinkAccountRequest(accountAddress);
+  public unlinkAcccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode = LanguageCode("en"),
+  ) {
+    return coreGateway.unlinkAccount(
+      accountAddress,
+      signature,
+      chain,
+      languageCode,
+    );
   }
   public getUnlockMessage(languageCode: LanguageCode = LanguageCode("en")) {
     return coreGateway.getUnlockMessage(languageCode);
@@ -193,17 +203,6 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
 
   public leaveCohort(consentContractAddress: EVMContractAddress) {
     return coreGateway.leaveCohort(consentContractAddress);
-  }
-  public metatransactionSignatureRequestCallback(
-    id: UUID,
-    metatransactionSignature: Signature,
-    nonce: BigNumberString,
-  ) {
-    return coreGateway.metatransactionSignatureRequestCallback(
-      id,
-      metatransactionSignature,
-      nonce,
-    );
   }
   public closeTab() {
     return coreGateway.closeTab();
