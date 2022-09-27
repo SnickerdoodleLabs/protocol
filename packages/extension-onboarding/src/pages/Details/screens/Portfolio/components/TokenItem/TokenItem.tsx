@@ -1,20 +1,54 @@
 import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
-
-export interface ITokenItem {
-  image: string;
-  name: string;
-  ticker: string;
-  balance: number;
-  currency: number;
+import { ethers } from "ethers";
+import { IEVMBalance } from "@snickerdoodlelabs/objects";
+import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
+import polygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
+import ethereumIcon from "@extension-onboarding/assets/icons/ethereum-icon.svg";
+import avalancheIcon from "@extension-onboarding/assets/icons/avalanche-icon.svg";
+import polygonIcon from "@extension-onboarding/assets/icons/polygon-icon.svg";
+import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
+import usdcCircle from "@extension-onboarding/assets/icons/usdc-circle.png";
+import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
+interface ITokenItemProps {
+  item: IEVMBalance;
 }
 
-const TokenItem: FC<ITokenItem> = (item: ITokenItem) => {
+const TokenItem: FC<ITokenItemProps> = ({ item }) => {
+  const getImage = (ticker) => {
+    switch (ticker) {
+      case "ETH":
+        return ethereumCircle;
+      case "AVAX":
+        return avaxCircle;
+      case "USDC":
+        return usdcCircle;
+      case "MATIC":
+        return polygonIcon;
+      default:
+        return defaultToken;
+    }
+  };
+
+  const getTokenName = (ticker) => {
+    switch (ticker) {
+      case "ETH":
+        return "Ethereum";
+      case "AVAX":
+        return "AVAX";
+      case "USDC":
+        return "USDC";
+      case "MATIC":
+        return "Polygon";
+      default:
+        return "";
+    }
+  };
   return (
     <Box display="flex" justifyContent="space-between">
       <Box display="flex">
         <Box ml={1}>
-          <img width={36} height={36} src={item?.image} />
+          <img width={36} height={36} src={getImage(item.ticker)} />
         </Box>
         <Box ml={3}>
           <Box>
@@ -26,8 +60,7 @@ const TokenItem: FC<ITokenItem> = (item: ITokenItem) => {
                 color: "#5D5A74",
               }}
             >
-              {" "}
-              {item?.name}
+              {getTokenName(item.ticker) ?? item?.ticker}
             </Typography>
           </Box>
           <Box>
@@ -39,8 +72,9 @@ const TokenItem: FC<ITokenItem> = (item: ITokenItem) => {
                 color: "#5D5A74",
                 opacity: 0.6,
               }}
-            >{item.balance} - ${item?.currency}</Typography>
-            
+            >
+              {ethers.utils.formatUnits(item.balance)} {item.ticker}
+            </Typography>
           </Box>
         </Box>
       </Box>
@@ -60,7 +94,7 @@ const TokenItem: FC<ITokenItem> = (item: ITokenItem) => {
             padding: "10px",
           }}
         >
-          ${item.balance * item?.currency}
+          ${item.quoteBalance}
         </Typography>
       </Box>
     </Box>

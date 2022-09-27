@@ -1,8 +1,6 @@
-import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import RewardItem from "@extension-onboarding/components/RewardItem";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
@@ -12,27 +10,26 @@ import {
   Grid,
   MenuItem,
   Select,
+  TablePagination,
   Typography,
 } from "@material-ui/core";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useMemo, useState } from "react";
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
-import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
+
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
-import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
-import polygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
-import ethereumIcon from "@extension-onboarding/assets/icons/ethereum-icon.svg";
-import avalancheIcon from "@extension-onboarding/assets/icons/avalanche-icon.svg";
-import polygonIcon from "@extension-onboarding/assets/icons/polygon-icon.svg";
+
 import {
+  chainConfig,
   ChainId,
   EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
 } from "@snickerdoodlelabs/objects";
-import BalanceItem from "@extension-onboarding/components/BalanceItem";
+
 import TokenItem from "@extension-onboarding/pages/Details/screens/Portfolio/components/TokenItem/TokenItem";
-import NFTItem from "./components/NFTItem/NFTItem";
+import Switch from "@extension-onboarding/components/Switch";
+import NFTItem from "@extension-onboarding/components/NFTItem";
+import { Pagination } from "@material-ui/lab";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -46,30 +43,41 @@ export interface IAccountNFTsObject {
   [id: EVMAccountAddress]: IEVMNFT[];
 }
 
+export enum EDisplayMode {
+  MAINNET,
+  TESTNET,
+}
+interface IPagination {
+  currentIndex: number;
+  numberOfPages: number;
+  totalItems: number;
+}
+
 const Portfolio: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { linkedAccounts } = useAppContext();
   const [accountBalances, setAccountBalances] =
     useState<IAccountBalanceObject>();
-  const [chainIdBalance, setChainIdBalance] = useState<IChainBalanceObject>();
-
-  const [accountNFTs, setAccountNFTs] = useState<IEVMNFT[]>([]);
+  const [accountTestnetBalances, setAccountTestnetBalances] =
+    useState<IAccountBalanceObject>();
+  const [accountNFTs, setAccountNFTs] = useState<IAccountNFTsObject>();
+  const [accountTestnetNFTs, setAccountTestnetNFTs] =
+    useState<IAccountNFTsObject>();
 
   const [isBalancesLoading, setIsBalancesLoading] = useState(true);
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
   const [accountSelect, setAccountSelect] = useState<EVMAccountAddress>();
-  const [chainSelect, setChainSelect] = useState(0);
+  const [chainSelect, setChainSelect] = useState<ChainId>();
+  const [displayMode, setDisplayMode] = useState<EDisplayMode>(
+    EDisplayMode.MAINNET,
+  );
+  const [tokensPagination, setTokensPagination] = useState<IPagination>();
+  const [nftsPagination, setNftsPagination] = useState<IPagination>();
 
   useEffect(() => {
-    test();
     initializeBalances();
     initializeNfts();
   }, []);
-
-  useEffect(() => {
-    console.log("chainBalance", chainIdBalance);
-    console.log("chainIDBALANCE", getTotalBalanceByChainId(ChainId(1)));
-  }, [chainIdBalance]);
 
   useEffect(() => {
     if (accountBalances) {
@@ -90,17 +98,82 @@ const Portfolio: FC = () => {
         setIsBalancesLoading(false);
       })
       .map((result) => {
-        const structeredBalances = result.reduce((acc, item) => {
-          if (acc[item.accountAddress]) {
-            acc[item.accountAddress] = [...acc[item.accountAddress], item];
-          } else {
-            acc[item.accountAddress] = [item];
-          }
-          return acc;
-        }, {} as IAccountBalanceObject);
-        setAccountBalances(structeredBalances);
+        const structeredBalances = result.reduce(
+          (acc, item) => {
+            const isMainnetItem = mainnetSupportedChainIds.includes(
+              item.chainId,
+            );
+            const balanceObjectToUpdate = isMainnetItem
+              ? acc.mainnetBalances
+              : acc.testnetBalances;
+
+            if (balanceObjectToUpdate[item.accountAddress]) {
+              balanceObjectToUpdate[item.accountAddress] = [
+                ...balanceObjectToUpdate[item.accountAddress],
+                item,
+              ];
+            } else {
+              balanceObjectToUpdate[item.accountAddress] = [item];
+            }
+
+            return acc;
+          },
+          { mainnetBalances: {}, testnetBalances: {} } as {
+            mainnetBalances: IAccountBalanceObject;
+            testnetBalances: IAccountBalanceObject;
+          },
+        );
+        setAccountBalances(structeredBalances.mainnetBalances);
+        setAccountTestnetBalances(structeredBalances.testnetBalances);
       });
   };
+
+  const netWorth = useMemo(() => {
+    if (!accountBalances && !accountTestnetBalances) {
+      return 0;
+    } else {
+      const objectsToFilter =
+        EDisplayMode.MAINNET === displayMode
+          ? accountBalances
+          : accountTestnetBalances;
+
+      return Object.values(objectsToFilter!)
+        .flat()
+        .reduce((acc, item) => {
+          return (acc = acc + item?.quoteBalance);
+        }, 0);
+    }
+  }, [displayMode, accountBalances, accountTestnetBalances]);
+
+  const numberOfTokens = useMemo(() => {
+    if (!accountBalances && !accountTestnetBalances) {
+      return 0;
+    } else {
+      const objectsToFilter =
+        EDisplayMode.MAINNET === displayMode
+          ? accountBalances
+          : accountTestnetBalances;
+
+      return Array.from(
+        new Set(
+          Object.values(objectsToFilter!)
+            .flat()
+            .map((item) => item.ticker),
+        ),
+      ).length;
+    }
+  }, [displayMode, accountBalances, accountTestnetBalances]);
+
+  const numberOfNFTs = useMemo(() => {
+    if (!accountNFTs && !accountTestnetNFTs) {
+      return 0;
+    } else {
+      const objectsToFilter =
+        EDisplayMode.MAINNET === displayMode ? accountNFTs : accountTestnetNFTs;
+
+      return Object.values(objectsToFilter!).flat().length;
+    }
+  }, [displayMode, accountNFTs, accountTestnetNFTs]);
 
   const initializeNfts = () => {
     window.sdlDataWallet
@@ -109,56 +182,205 @@ const Portfolio: FC = () => {
         setIsNFTsLoading(false);
       })
       .map((result) => {
-        console.log("NFTs",result)
-        setAccountNFTs(result);
-        /*  const structeredNFTs = result.reduce((acc, item) => {
-          if (acc[item.owner]) {
-            acc[item.owner] = [...acc[item.owner], item];
-          } else {
-            acc[item.owner] = [item];
-          }
-          return acc;
-        }, {} as IAccountNFTsObject);
-        setAccountNFTs(structeredNFTs); */
+        const structeredNfts = result.reduce(
+          (acc, item) => {
+            const isMainnetItem = mainnetSupportedChainIds.includes(item.chain);
+            const nftObjectToUpdate = isMainnetItem
+              ? acc.mainnetNfts
+              : acc.testnetNfts;
+
+            if (nftObjectToUpdate[item.owner]) {
+              nftObjectToUpdate[item.owner] = [
+                ...nftObjectToUpdate[item.owner],
+                item,
+              ];
+            } else {
+              nftObjectToUpdate[item.owner] = [item];
+            }
+
+            return acc;
+          },
+          { mainnetNfts: {}, testnetNfts: {} } as {
+            mainnetNfts: IAccountNFTsObject;
+            testnetNfts: IAccountNFTsObject;
+          },
+        );
+        setAccountNFTs(structeredNfts.mainnetNfts);
+        setAccountTestnetNFTs(structeredNfts.testnetNfts);
       });
   };
-
-  const test = () => {
-    window.sdlDataWallet
-      .getAccountBalances()
-      .mapErr((e) => {
-        setIsBalancesLoading(false);
-      })
-      .map((result) => {
-        const groupedByChanId = result.reduce((acc, currentValue) => {
-          let groupKey = currentValue["chainId"];
-          if (!acc[groupKey]) {
-            acc[groupKey] = [];
-          }
-          acc[groupKey].push(currentValue);
-          return acc;
-        }, {} as IChainBalanceObject);
-        setChainIdBalance(groupedByChanId);
-      });
-  };
-
-  const getTotalBalanceByChainId = (id: ChainId) => {
-    return chainIdBalance?.[id].reduce((accumulator, object) => {
-      return accumulator + object.quoteBalance;
-    }, 0);
-  };
-
-  const classes = useStyles();
 
   const handleAccountChange = (event: any) => {
-    console.log("event", event.target.value);
-    setAccountSelect(event.target.value);
+    const value = event.target.value === "all" ? undefined : event.target.value;
+    setAccountSelect(value);
   };
   const handleChainChange = (event: any) => {
-    console.log("event", event.target.value);
     setChainSelect(event.target.value);
   };
 
+  const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
+    chainConfig.values(),
+  ).reduce(
+    (acc, chainInfo) => {
+      if (!chainInfo.isDev) {
+        acc.mainnetSupportedChainIds = [
+          ...acc.mainnetSupportedChainIds,
+          chainInfo.chainId,
+        ];
+      } else {
+        acc.testnetSupportedChainIds = [
+          ...acc.testnetSupportedChainIds,
+          chainInfo.chainId,
+        ];
+      }
+      return acc;
+    },
+    { mainnetSupportedChainIds: [], testnetSupportedChainIds: [] } as {
+      mainnetSupportedChainIds: ChainId[];
+      testnetSupportedChainIds: ChainId[];
+    },
+  );
+
+  const tokensToRender: IEVMBalance[] | null = useMemo(() => {
+    if (!accountBalances && !accountTestnetBalances) {
+      return null;
+    } else {
+      const objectsToFilter =
+        EDisplayMode.MAINNET === displayMode
+          ? accountBalances
+          : accountTestnetBalances;
+
+      if (!accountSelect && !chainSelect) {
+        return Object.values(
+          Object.values(objectsToFilter!)
+            .flat()
+            .reduce((acc, item) => {
+              if (acc[item.ticker]) {
+                acc[item.ticker] = {
+                  ...acc[item.ticker],
+                  balance: acc[item.ticker].balance + item.balance,
+                  quotoeBalance:
+                    acc[item.ticker].quotoeBalance + item.quotoeBalance,
+                };
+              } else {
+                acc[item.ticker] = item;
+              }
+              return acc;
+            }, {}),
+        );
+      } else if (!accountSelect && chainSelect) {
+        return Object.values(
+          Object.values(objectsToFilter!)
+            .map((arr) => {
+              return arr.filter((item) => item.chainId === chainSelect);
+            })
+            .flat()
+            .reduce((acc, item) => {
+              if (acc[item.ticker]) {
+                acc[item.ticker] = {
+                  ...acc[item.ticker],
+                  balance: acc[item.ticker].balance + item.balance,
+                  quotoeBalance:
+                    acc[item.ticker].quotoeBalance + item.quotoeBalance,
+                };
+              } else {
+                acc[item.ticker] = item;
+              }
+              return acc;
+            }, {}),
+        );
+      } else if (accountSelect && !chainSelect) {
+        return objectsToFilter?.[accountSelect] ?? [];
+      } else if (accountSelect && chainSelect) {
+        return (
+          objectsToFilter?.[accountSelect]?.filter(
+            (item) => item.chainId === chainSelect,
+          ) ?? []
+        );
+      } else {
+        return null;
+      }
+    }
+  }, [
+    accountSelect,
+    chainSelect,
+    displayMode,
+    accountBalances,
+    accountTestnetBalances,
+  ]);
+
+  const nftsToRender = useMemo(() => {
+    if (!accountNFTs && !accountTestnetNFTs) {
+      return null;
+    } else {
+      const objectsToFilter =
+        EDisplayMode.MAINNET === displayMode ? accountNFTs : accountTestnetNFTs;
+
+      if (!accountSelect && !chainSelect) {
+        return Object.values(objectsToFilter!).flat();
+      } else if (!accountSelect && chainSelect) {
+        return Object.values(objectsToFilter!)
+          .map((arr) => {
+            return arr.filter((item) => item.chain === chainSelect);
+          })
+          .flat();
+      } else if (accountSelect && !chainSelect) {
+        return objectsToFilter?.[accountSelect];
+      } else if (accountSelect && chainSelect) {
+        return objectsToFilter?.[accountSelect].filter(
+          (item) => item.chain === chainSelect,
+        );
+      } else {
+        return null;
+      }
+    }
+  }, [
+    accountSelect,
+    chainSelect,
+    displayMode,
+    accountNFTs,
+    accountTestnetNFTs,
+  ]);
+
+  useEffect(() => {
+    if (tokensToRender && tokensToRender.length > 5) {
+      setTokensPagination({
+        currentIndex: 1,
+        numberOfPages:
+          ((tokensToRender.length / 5) | 0) +
+          (tokensToRender.length % 5 != 0 ? 1 : 0),
+        totalItems: tokensToRender.length,
+      });
+    } else {
+      setTokensPagination(undefined);
+    }
+  }, [tokensToRender]);
+
+  useEffect(() => {
+    if (nftsToRender && nftsToRender.length > 5) {
+      setNftsPagination({
+        currentIndex: 1,
+        numberOfPages:
+          ((nftsToRender.length / 5) | 0) +
+          (nftsToRender.length % 5 != 0 ? 1 : 0),
+        totalItems: nftsToRender.length,
+      });
+    } else {
+      setNftsPagination(undefined);
+    }
+  }, [nftsToRender]);
+
+  const chainIdsToRender = useMemo(() => {
+    if (EDisplayMode.MAINNET === displayMode) {
+      return mainnetSupportedChainIds;
+    }
+    return testnetSupportedChainIds;
+  }, [displayMode]);
+
+  console.log("balances", tokensToRender);
+  console.log("nfts", nftsToRender);
+
+  const classes = useStyles();
   return (
     <Box>
       <Box mb={4}>
@@ -193,7 +415,7 @@ const Portfolio: FC = () => {
                 fontWeight: 400,
               }}
             >
-              $ 345
+              $ {`${netWorth}`}
             </Typography>
           </Box>
         </Box>
@@ -222,7 +444,7 @@ const Portfolio: FC = () => {
                 fontWeight: 400,
               }}
             >
-              5
+              {`${numberOfTokens}`}
             </Typography>
           </Box>
         </Box>
@@ -251,7 +473,7 @@ const Portfolio: FC = () => {
                 fontWeight: 400,
               }}
             >
-              4
+              0
             </Typography>
           </Box>
         </Box>
@@ -280,7 +502,7 @@ const Portfolio: FC = () => {
                 fontWeight: 400,
               }}
             >
-              6
+              {`${numberOfNFTs}`}
             </Typography>
           </Box>
         </Box>
@@ -294,10 +516,11 @@ const Portfolio: FC = () => {
               fullWidth
               variant="outlined"
               name="accounts"
-              placeholder="Accounts"
-              value={accountSelect}
+              value={accountSelect ?? "all"}
+              placeholder="All"
               onChange={handleAccountChange}
             >
+              <MenuItem value="all">All</MenuItem>
               {linkedAccounts?.map((account) => {
                 return (
                   <MenuItem
@@ -323,32 +546,26 @@ const Portfolio: FC = () => {
               })}
             </Select>
           </Box>
-          <Box display="flex">
-            <Button
-              onClick={() => {
-                setChainSelect(0);
-              }}
-            >
-              <Typography
-                style={{
-                  paddingLeft: "8px",
-                  textTransform: "none",
-                  fontFamily: "Space Grotesk",
-                  fontWeight: 500,
-                  fontSize: 16,
-                  color: "#232039",
+
+          <Box>
+            <Box>
+              <Switch
+                value={displayMode === EDisplayMode.MAINNET}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setDisplayMode(EDisplayMode.MAINNET);
+                  } else {
+                    setDisplayMode(EDisplayMode.TESTNET);
+                  }
+                }}
+              />
+            </Box>
+            <Box display="flex">
+              <Button
+                onClick={() => {
+                  setChainSelect(undefined);
                 }}
               >
-                All
-              </Typography>
-            </Button>
-            <Button
-              onClick={() => {
-                setChainSelect(1);
-              }}
-            >
-              <Box display="flex">
-                <img src={ethereumIcon} />
                 <Typography
                   style={{
                     paddingLeft: "8px",
@@ -359,63 +576,32 @@ const Portfolio: FC = () => {
                     color: "#232039",
                   }}
                 >
-                  Ethereum
+                  All
                 </Typography>
-              </Box>
-            </Button>
-            <Button
-              onClick={() => {
-                setChainSelect(43113);
-              }}
-            >
-              <Box display="flex">
-                <img src={avalancheIcon} />
-                <Typography
-                  style={{
-                    paddingLeft: "8px",
-                    textTransform: "none",
-                    fontFamily: "Space Grotesk",
-                    fontWeight: 500,
-                    fontSize: 16,
-                    color: "#232039",
-                  }}
-                >
-                  <Typography
-                    style={{
-                      paddingLeft: "8px",
-                      textTransform: "none",
-                      fontFamily: "Space Grotesk",
-                      fontWeight: 500,
-                      fontSize: 16,
-                      color: "#232039",
+              </Button>
+              {chainIdsToRender.map((chainId) => {
+                return (
+                  <Button
+                    onClick={() => {
+                      setChainSelect(chainId);
                     }}
                   >
-                    Avalanche
-                  </Typography>
-                </Typography>
-              </Box>
-            </Button>
-            <Button
-              onClick={() => {
-                setChainSelect(137);
-              }}
-            >
-              <Box display="flex">
-                <img src={polygonIcon} />
-                <Typography
-                  style={{
-                    paddingLeft: "8px",
-                    textTransform: "none",
-                    fontFamily: "Space Grotesk",
-                    fontWeight: 500,
-                    fontSize: 16,
-                    color: "#232039",
-                  }}
-                >
-                  Polygon
-                </Typography>
-              </Box>
-            </Button>
+                    <Typography
+                      style={{
+                        paddingLeft: "8px",
+                        textTransform: "none",
+                        fontFamily: "Space Grotesk",
+                        fontWeight: 500,
+                        fontSize: 16,
+                        color: "#232039",
+                      }}
+                    >
+                      {chainConfig.get(chainId)?.name}
+                    </Typography>
+                  </Button>
+                );
+              })}
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -455,28 +641,72 @@ const Portfolio: FC = () => {
           </Grid>
           <Grid xs={6} style={{ marginTop: "30px" }}>
             <Box>
-              <Box my={3}>
-                <TokenItem
-                  image={ethereumCircle}
-                  name="Ethereum"
-                  balance={0.133}
-                  currency={1664}
-                  ticker="ETH"
-                />
-              </Box>
-              <Box my={3}>
-                <TokenItem
-                  image={ethereumCircle}
-                  name="Ethereum"
-                  balance={0.133}
-                  currency={1664}
-                  ticker="ETH"
-                />
-              </Box>
+              {tokensToRender &&
+                (tokensPagination
+                  ? tokensToRender.slice(
+                      (tokensPagination?.currentIndex - 1) * 5,
+                      tokensPagination?.currentIndex * 5,
+                    )
+                  : tokensToRender
+                ).map((item, index) => {
+                  return (
+                    <Box key={index} mb={3}>
+                      <TokenItem item={item} />
+                    </Box>
+                  );
+                })}
             </Box>
+            {tokensPagination && (
+              <Pagination
+                count={tokensPagination.numberOfPages}
+                page={tokensPagination.currentIndex}
+                onChange={(event, newPage) => {
+                  setTokensPagination({
+                    ...tokensPagination,
+                    currentIndex: newPage,
+                  });
+                }}
+              />
+            )}
           </Grid>
           <Grid xs={6}>
-            <NFTItem nftList={accountNFTs} />
+            <Box m={3}>
+              {isNFTsLoading ? (
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  mt={10}
+                >
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Grid container className={classes.nftContainer}>
+                  {nftsToRender &&
+                    (nftsPagination
+                      ? nftsToRender.slice(
+                          (nftsPagination.currentIndex - 1) * 5,
+                          nftsPagination.currentIndex * 5,
+                        )
+                      : nftsToRender
+                    )?.map((nftitem, index) => {
+                      return <NFTItem key={index} item={nftitem} />;
+                    })}
+                  {nftsPagination && (
+                    <Pagination
+                      count={nftsPagination.numberOfPages}
+                      page={nftsPagination.currentIndex}
+                      onChange={(event, newPage) => {
+                        setNftsPagination({
+                          ...nftsPagination,
+                          currentIndex: newPage,
+                        });
+                      }}
+                    />
+                  )}
+                </Grid>
+              )}
+            </Box>
           </Grid>
         </Grid>
       </Box>
