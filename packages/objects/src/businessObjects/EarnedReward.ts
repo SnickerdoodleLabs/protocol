@@ -1,4 +1,4 @@
-import { IpfsCID } from "@snickerdoodlelabs/objects";
+import { IpfsCID } from "@objects/primitives";
 
 export enum ERewardType {
   LAZY = 0,
