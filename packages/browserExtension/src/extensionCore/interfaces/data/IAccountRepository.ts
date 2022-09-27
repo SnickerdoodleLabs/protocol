@@ -27,7 +27,7 @@ export interface IAccountRepository {
     chain: EChain,
     languageCode: LanguageCode,
     calledWithCookie: boolean,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError>;
+  ): ResultAsync<void, SnickerDoodleCoreError>;
   getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError>;
@@ -35,9 +35,18 @@ export interface IAccountRepository {
   getAccountBalances(): ResultAsync<IEVMBalance[], SnickerDoodleCoreError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
-  getUnlinkAccountRequest(
-    accountAddress: EVMAccountAddress,
+  unlinkAccount(
+    account: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError>;
+  areValidParamsToUnlockExistingWallet(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<boolean, SnickerDoodleCoreError>;
 }
 
 export const IAccountRepositoryType = Symbol.for("IAccountRepository");

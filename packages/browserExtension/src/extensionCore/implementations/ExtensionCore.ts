@@ -103,27 +103,49 @@ export class ExtensionCore {
     );
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
+
     return accountCookieUtils.readAccountInfoFromCookie().andThen((values) => {
       const config = configProvider.getConfig();
       if (values?.length) {
-        const { accountAddress, signature, languageCode } = values[0];
+        const { accountAddress, signature, languageCode, chain } = values[0];
         return accountService
-          .unlock(
+          .areValidParamsToUnlockExistingWallet(
             accountAddress,
             signature,
-            EChain.EthereumMainnet,
             languageCode,
-            true,
+            chain ?? EChain.EthereumMainnet,
           )
+          .andThen((isValid) => {
+            if (isValid) {
+              console.log(
+                `Datawallet is unlocking with account address ${accountAddress}`,
+              );
+              return accountService.unlock(
+                accountAddress,
+                signature,
+                chain ?? EChain.EthereumMainnet,
+                languageCode,
+                true,
+              );
+            } else {
+              console.log(
+                `Datawallet was not able to be unlocked with account address ${accountAddress}`,
+              );
+              return accountCookieUtils
+                .removeAccountInfoFromCookie(accountAddress)
+                .andThen(() => {
+                  return this.tryUnlock();
+                });
+            }
+          })
           .mapErr((e) => {
-            ExtensionUtils.openTab({ url: config.onboardingUrl });
-            return okAsync(undefined);
+            return ExtensionUtils.openTab({ url: config.onboardingUrl });
           });
       } else {
-        ExtensionUtils.openTab({ url: config.onboardingUrl });
-        return okAsync(undefined);
+        return ExtensionUtils.openTab({ url: config.onboardingUrl });
       }
     });
   }
