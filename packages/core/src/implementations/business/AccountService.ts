@@ -628,6 +628,40 @@ export class AccountService implements IAccountService {
     });
   }
 
+  public areValidParamsToUnlockExistingWallet(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<
+    boolean,
+    | BlockchainProviderError
+    | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | CrumbsContractError
+  > {
+    return this.validateSignatureForAddress(
+      accountAddress,
+      signature,
+      languageCode,
+      chain,
+    )
+      .andThen(() => {
+        return this.dataWalletUtils.getDerivedEVMAccountFromSignature(
+          accountAddress,
+          signature,
+        );
+      })
+      .andThen((derivedEOA) => {
+        return this.crumbsRepo
+          .getCrumb(derivedEOA.accountAddress, languageCode)
+          .andThen((encryptedDataWalletKey) => {
+            return okAsync(encryptedDataWalletKey != null);
+          });
+      });
+  }
+
   protected removeCrumb(
     dataWalletAccount: ExternallyOwnedAccount,
     derivedEVMAccount: ExternallyOwnedAccount,
