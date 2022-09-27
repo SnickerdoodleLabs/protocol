@@ -31,6 +31,7 @@ import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { getDomain } from "tldts";
 
 import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
@@ -50,7 +51,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { getDomain } from "tldts";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -84,7 +84,10 @@ export class InvitationService implements IInvitationService {
     return ResultUtils.combine([
       this.persistenceRepo.getRejectedCohorts(),
       this.consentRepo.isAddressOptedIn(invitation.consentContractAddress),
-    ]).andThen(([rejectedConsentContracts, optedIn]) => {
+      this.consentRepo.getAvailableOptInCount(
+        invitation.consentContractAddress,
+      ),
+    ]).andThen(([rejectedConsentContracts, optedIn, availableOptIns]) => {
       const rejected = rejectedConsentContracts.includes(
         invitation.consentContractAddress,
       );
@@ -97,6 +100,11 @@ export class InvitationService implements IInvitationService {
       // Next winner, the reject list
       if (rejected) {
         return okAsync(EInvitationStatus.Rejected);
+      }
+
+      // Next up, if there are no slots available, then it's an Invalid invitation
+      if (availableOptIns == 0) {
+        return okAsync(EInvitationStatus.Invalid);
       }
 
       // Not rejected or already in the cohort, we need to verify the invitation
@@ -389,7 +397,13 @@ export class InvitationService implements IInvitationService {
     return ResultUtils.combine([
       this.consentRepo.getInvitationUrls(consentContractAddress),
       this.consentRepo.getMetadataCID(consentContractAddress),
-    ]).andThen(([invitationUrls, ipfsCID]) => {
+      this.consentRepo.getAvailableOptInCount(consentContractAddress),
+    ]).andThen(([invitationUrls, ipfsCID, availableOptIns]) => {
+      // If there's no slots, there's no invites
+      if (availableOptIns == 0) {
+        return okAsync([]);
+      }
+
       // The baseUri is an IPFS CID
       return this.invitationRepo
         .getInvitationDomainByCID(ipfsCID, domain)

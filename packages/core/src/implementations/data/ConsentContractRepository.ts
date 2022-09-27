@@ -27,15 +27,15 @@ import {
   IInsightPlatformRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
+  IContractFactoryType,
+  IContractFactory,
+} from "@core/interfaces/utilities/factory/index.js";
+import {
   IBlockchainProvider,
   IBlockchainProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import {
-  IContractFactoryType,
-  IContractFactory,
-} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {
@@ -82,6 +82,31 @@ export class ConsentContractRepository implements IConsentContractRepository {
         return domains.map((domain) => {
           return URLString(domain);
         });
+      });
+  }
+
+  public getAvailableOptInCount(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    number,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return ResultUtils.combine([
+          contract.totalSupply(),
+          contract.getMaxCapacity(),
+        ]);
+      })
+      .map(([totalSupply, maxCapacity]) => {
+        const available = maxCapacity - totalSupply;
+
+        // Crazy sanity check
+        if (available < 0) {
+          return 0;
+        }
+
+        return available;
       });
   }
 

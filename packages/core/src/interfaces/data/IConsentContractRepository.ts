@@ -42,6 +42,18 @@ export interface IConsentContractRepository {
   >;
 
   /**
+   * Returns the number of "slots" available to opt-in to the contract, which is just
+   * maxCapacity - currentOptins.
+   * @param consentContractAddress
+   */
+  getAvailableOptInCount(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    number,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
+  /**
    * Returns the IPFS CID of the metadata for the contract
    * @param consentContractAddress
    */

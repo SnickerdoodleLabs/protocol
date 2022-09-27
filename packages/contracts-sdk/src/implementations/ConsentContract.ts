@@ -1,6 +1,3 @@
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -23,6 +20,10 @@ import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -190,6 +191,48 @@ export class ConsentContract implements IConsentContract {
         );
       },
     );
+  }
+
+  public getMaxCapacity(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.maxCapacity() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call agreementFlagsArray()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((bigCapacity) => {
+      return bigCapacity.toNumber();
+    });
+  }
+
+  public setMaxCapacity(
+    maxCapacity: number,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.setMaxCapacity(
+        maxCapacity,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call setMaxCapacity()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for setMaxCapacity() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public requestForData(
@@ -836,7 +879,7 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map((totalSupply) => BlockNumber(totalSupply.toNumber()));
+    ).map((queryHorizon) => BlockNumber(queryHorizon.toNumber()));
   }
 
   public setQueryHorizon(
