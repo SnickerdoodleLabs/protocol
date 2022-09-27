@@ -104,10 +104,7 @@ const App = () => {
           const url = `${urlInfo.hostname}${path.replace(/\/$/, "")}`;
           const domainName = DomainName(`snickerdoodle-protocol.${domain}`);
           coreGateway.getInvitationsByDomain(domainName, url).map((result) => {
-            if (
-              result !== DEFAULT_RPC_SUCCESS_RESULT &&
-              typeof result !== "string"
-            ) {
+            if (result) {
               setInvitationDomain(result);
               initiateRewardPopup(result);
             }

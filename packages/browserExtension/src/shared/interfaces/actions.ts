@@ -1,11 +1,9 @@
 import {
   Age,
   BigNumberString,
-  DataPermissions,
   CountryCode,
   DomainName,
   EmailAddressString,
-  EVMAccountAddress,
   FamilyName,
   Gender,
   GivenName,
@@ -18,17 +16,25 @@ import {
   IpfsCID,
   EChain,
   EWalletDataType,
+  AccountAddress,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
-  accountAddress: EVMAccountAddress;
+  accountAddress: AccountAddress;
   signature: Signature;
   chain: EChain;
   languageCode: LanguageCode;
 }
 
 export interface IAddAccountParams {
-  accountAddress: EVMAccountAddress;
+  accountAddress: AccountAddress;
+  signature: Signature;
+  chain: EChain;
+  languageCode: LanguageCode;
+}
+
+export interface IUnlinkAccountParams {
+  accountAddress: AccountAddress;
   signature: Signature;
   chain: EChain;
   languageCode: LanguageCode;
@@ -91,18 +97,9 @@ export interface ISetDefaultPermissionsWithDataTypesParams {
 export interface IRejectInvitationParams {
   id: UUID;
 }
-export interface IMetatransactionSignatureRequestCallbackParams {
-  id: UUID;
-  metatransactionSignature: Signature;
-  nonce: BigNumberString;
-}
 
 export interface ILeaveCohortParams {
   consentContractAddress: EVMContractAddress;
-}
-
-export interface IGetUnlinkRequestParams {
-  accountAddress: EVMAccountAddress;
 }
 
 export interface IGetInvitationMetadataByCIDParams {

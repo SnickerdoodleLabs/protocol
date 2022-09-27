@@ -8,7 +8,6 @@ import {
   IGetUnlockMessageParams,
   IInvitationDomainWithUUID,
   ILeaveCohortParams,
-  IMetatransactionSignatureRequestCallbackParams,
   IRejectInvitationParams,
   ISetAgeParams,
   ISetBirthdayParams,
@@ -22,19 +21,16 @@ import {
   IAcceptPublicInvitationByConsentContractAddressParams,
   IGetAgreementPermissionsParams,
   ISetDefaultPermissionsWithDataTypesParams,
-  IGetUnlinkRequestParams,
   ISetApplyDefaultPermissionsParams,
+  IUnlinkAccountParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
-  Invitation,
-  BigNumberString,
   CountryCode,
   DomainName,
   EmailAddressString,
-  EVMAccountAddress,
   FamilyName,
   Gender,
   GivenName,
@@ -44,12 +40,14 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
-  DataPermissions,
   EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
   EChain,
   EWalletDataType,
+  AccountAddress,
+  LinkedAccount,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -66,7 +64,7 @@ export class ExternalCoreGateway {
   public getInvitationsByDomain(
     domain: DomainName,
     path: string,
-  ): ResultAsync<IInvitationDomainWithUUID | string, JsonRpcError> {
+  ): ResultAsync<IInvitationDomainWithUUID | null, JsonRpcError> {
     return this._handler.call(
       EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN,
       { domain, path } as IGetInvitationWithDomainParams,
@@ -156,7 +154,7 @@ export class ExternalCoreGateway {
   }
 
   public addAccount(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
@@ -169,7 +167,7 @@ export class ExternalCoreGateway {
     } as IAddAccountParams);
   }
   public unlock(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
@@ -181,12 +179,18 @@ export class ExternalCoreGateway {
       languageCode,
     } as IUnlockParams);
   }
-  public getUnlinkAccountRequest(
-    accountAddress: EVMAccountAddress,
+  public unlinkAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(EExternalActions.GET_UNLINK_REQUEST, {
+    return this._handler.call(EExternalActions.UNLINK_ACCOUNT, {
       accountAddress,
-    } as IGetUnlinkRequestParams);
+      chain,
+      languageCode,
+      signature,
+    } as IUnlinkAccountParams);
   }
   public getUnlockMessage(
     languageCode: LanguageCode,
@@ -211,7 +215,7 @@ export class ExternalCoreGateway {
       { option } as ISetApplyDefaultPermissionsParams,
     );
   }
-  public getAccounts(): ResultAsync<EVMAccountAddress[], JsonRpcError> {
+  public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNTS);
   }
   public getAccountBalances(): ResultAsync<IEVMBalance[], JsonRpcError> {
@@ -280,20 +284,6 @@ export class ExternalCoreGateway {
   public getLocation(): ResultAsync<CountryCode | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_LOCATION);
   }
-  public metatransactionSignatureRequestCallback(
-    id: UUID,
-    metatransactionSignature: Signature,
-    nonce: BigNumberString,
-  ): ResultAsync<void, unknown> {
-    return this._handler.call(
-      EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK,
-      {
-        id,
-        metatransactionSignature,
-        nonce,
-      } as IMetatransactionSignatureRequestCallbackParams,
-    );
-  }
   public isDataWalletAddressInitialized(): ResultAsync<boolean, JsonRpcError> {
     return this._handler.call(
       EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED,
@@ -303,7 +293,7 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.CLOSE_TAB);
   }
   public getDataWalletAddress(): ResultAsync<
-    EVMAccountAddress | null,
+    DataWalletAddress | null,
     JsonRpcError
   > {
     return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);

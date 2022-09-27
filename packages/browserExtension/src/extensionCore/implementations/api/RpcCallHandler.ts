@@ -5,7 +5,6 @@ import {
   DomainName,
   EInvitationStatus,
   EmailAddressString,
-  EVMAccountAddress,
   FamilyName,
   Gender,
   GivenName,
@@ -14,7 +13,6 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
-  DataPermissions,
   UUID,
   EVMContractAddress,
   IOpenSeaMetadata,
@@ -23,6 +21,7 @@ import {
   EChain,
   LinkedAccount,
   EWalletDataType,
+  AccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -48,7 +47,7 @@ import {
   IScamFilterService,
   IScamFilterServiceType,
 } from "@interfaces/business/IScamFilterService";
-import { 
+import {
   IContextProvider,
   IContextProviderType,
   IDataPermissionsUtils,
@@ -69,7 +68,6 @@ import {
   ISetLocationParams,
   ISetEmailParams,
   IGetInvitationWithDomainParams,
-  IMetatransactionSignatureRequestCallbackParams,
   IAcceptInvitationParams,
   IRejectInvitationParams,
   ILeaveCohortParams,
@@ -79,13 +77,11 @@ import {
   IAcceptPublicInvitationByConsentContractAddressParams,
   IGetAgreementPermissionsParams,
   ISetDefaultPermissionsWithDataTypesParams,
-  IGetUnlinkRequestParams,
   ISetApplyDefaultPermissionsParams,
+  IUnlinkAccountParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
-  ExtensionCookieError,
-  ExtensionMetatransactionError,
   ExtensionStorageError,
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
@@ -231,10 +227,11 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
 
-      case EExternalActions.GET_UNLINK_REQUEST: {
-        const { accountAddress } = params as IGetUnlinkRequestParams;
+      case EExternalActions.UNLINK_ACCOUNT: {
+        const { accountAddress, chain, languageCode, signature } =
+          params as IUnlinkAccountParams;
         return new AsyncRpcResponseSender(
-          this.getUnlinkAccountRequest(accountAddress),
+          this.unlinkAccount(accountAddress, signature, chain, languageCode),
           res,
         ).call();
       }
@@ -245,25 +242,6 @@ export class RpcCallHandler implements IRpcCallHandler {
           this.leaveCohort(consentContractAddress),
           res,
         ).call();
-      }
-      // TODO move it to correct place
-      case EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK: {
-        const { nonce, id, metatransactionSignature } =
-          params as IMetatransactionSignatureRequestCallbackParams;
-        const metatransactionSignatureRequest =
-          this.contextProvider.getMetatransactionSignatureRequestById(id);
-        if (!metatransactionSignatureRequest) {
-          return (res.error = new ExtensionMetatransactionError(
-            `Metatransaction could not found with key: ${id}`,
-          ));
-        }
-        metatransactionSignatureRequest.callback(
-          metatransactionSignature,
-          nonce,
-        );
-        // TODO add to history if needed
-        this.contextProvider.removePendingMetatransactionSignatureRequest(id);
-        return (res.result = DEFAULT_RPC_SUCCESS_RESULT);
       }
       case EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN: {
         const { domain, path } = params as IGetInvitationWithDomainParams;
@@ -377,10 +355,7 @@ export class RpcCallHandler implements IRpcCallHandler {
   private getInvitationsByDomain(
     domain: DomainName,
     url: string,
-  ): ResultAsync<
-    IInvitationDomainWithUUID | undefined,
-    SnickerDoodleCoreError
-  > {
+  ): ResultAsync<IInvitationDomainWithUUID | null, SnickerDoodleCoreError> {
     return this.invitationService
       .getInvitationByDomain(domain)
       .andThen((pageInvitations) => {
@@ -410,11 +385,11 @@ export class RpcCallHandler implements IRpcCallHandler {
                   }),
                 );
               } else {
-                return okAsync(undefined);
+                return okAsync(null);
               }
             });
         } else {
-          return okAsync(undefined);
+          return okAsync(null);
         }
       });
   }
@@ -455,12 +430,6 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.invitationService
       .getAvailableInvitationsCID()
       .map((res) => mapToObj(res));
-  }
-
-  private getUnlinkAccountRequest(
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountService.getUnlinkAccountRequest(accountAddress);
   }
 
   private acceptPublicInvitationByConsentContractAddress(
@@ -528,20 +497,33 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private unlock(
-    account: EVMAccountAddress,
+    account: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
+  ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.accountService.unlock(account, signature, chain, languageCode);
   }
   private addAccount(
-    account: EVMAccountAddress,
+    account: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.accountService.addAccount(
+      account,
+      signature,
+      chain,
+      languageCode,
+    );
+  }
+  private unlinkAccount(
+    account: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.accountService.unlinkAccount(
       account,
       signature,
       chain,
