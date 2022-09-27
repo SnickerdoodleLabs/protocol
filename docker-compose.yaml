@@ -1,14 +1,14 @@
 version: "3.4"
 
 services:
-  # doodlechain:
-  #   container_name: doodlechain
-  #   env_file: docker-compose.env
-  #   ports:
-  #     - 8545:8569
-  #   environment:
-  #     NETWORK: local
-  #   image: 'snickerdoodlelabs/devchain:latest'
+  doodlechain:
+    container_name: doodlechain
+    env_file: docker-compose.env
+    ports:
+      - 8545:8569
+    environment:
+      NETWORK: local
+    image: 'snickerdoodlelabs/devchain:latest'
 
   # extension-onboarding:
   #   image: snickerdoodlelabs/extension-onboarding:local
