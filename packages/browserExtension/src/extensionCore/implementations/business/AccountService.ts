@@ -1,6 +1,6 @@
 import {
+  AccountAddress,
   EChain,
-  EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
   LanguageCode,
@@ -14,7 +14,6 @@ import { IAccountService } from "@interfaces/business";
 import { IAccountRepository, IAccountRepositoryType } from "@interfaces/data";
 import {
   SnickerDoodleCoreError,
-  ExtensionCookieError,
 } from "@shared/objects/errors";
 
 @injectable()
@@ -40,7 +39,7 @@ export class AccountService implements IAccountService {
   }
 
   public addAccount(
-    account: EVMAccountAddress,
+    account: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
@@ -53,13 +52,27 @@ export class AccountService implements IAccountService {
     );
   }
 
+  public areValidParamsToUnlockExistingWallet(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<boolean, SnickerDoodleCoreError> {
+    return this.accountRepository.areValidParamsToUnlockExistingWallet(
+      accountAddress,
+      signature,
+      languageCode,
+      chain,
+    );
+  }
+
   public unlock(
-    account: EVMAccountAddress,
+    account: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
     calledWithCookie?: boolean,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError> {
+  ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.accountRepository.unlock(
       account,
       signature,
@@ -79,9 +92,17 @@ export class AccountService implements IAccountService {
     return this.accountRepository.isDataWalletAddressInitialized();
   }
 
-  public getUnlinkAccountRequest(
-    accountAddress: EVMAccountAddress,
+  public unlinkAccount(
+    account: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.accountRepository.getUnlinkAccountRequest(accountAddress);
+    return this.accountRepository.unlinkAccount(
+      account,
+      signature,
+      chain,
+      languageCode,
+    );
   }
 }

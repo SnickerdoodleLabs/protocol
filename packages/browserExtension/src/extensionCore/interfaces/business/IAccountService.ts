@@ -1,6 +1,6 @@
 import {
+  AccountAddress,
   EChain,
-  EVMAccountAddress,
   IEVMBalance,
   IEVMNFT,
   LanguageCode,
@@ -9,25 +9,22 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import {
-  SnickerDoodleCoreError,
-  ExtensionCookieError,
-} from "@shared/objects/errors";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IAccountService {
   addAccount(
-    account: EVMAccountAddress,
+    account: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError>;
   unlock(
-    account: EVMAccountAddress,
+    account: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode: LanguageCode,
     calledWithCookie?: boolean,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionCookieError>;
+  ): ResultAsync<void, SnickerDoodleCoreError>;
   getUnlockMessage(
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError>;
@@ -35,9 +32,18 @@ export interface IAccountService {
   getAccountBalances(): ResultAsync<IEVMBalance[], SnickerDoodleCoreError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
-  getUnlinkAccountRequest(
-    accountAddress: EVMAccountAddress,
+  unlinkAccount(
+    account: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError>;
+  areValidParamsToUnlockExistingWallet(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<boolean, SnickerDoodleCoreError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");
