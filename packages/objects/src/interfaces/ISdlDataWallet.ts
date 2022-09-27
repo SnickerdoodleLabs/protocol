@@ -10,7 +10,6 @@ import {
   CountryCode,
   DataWalletAddress,
   EmailAddressString,
-  EVMAccountAddress,
   EVMContractAddress,
   FamilyName,
   Gender,
@@ -25,13 +24,13 @@ import { ResultAsync } from "neverthrow";
 type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {
   unlock(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode?: LanguageCode,
   ): ResultAsync<void, JsonRpcError>;
   addAccount: (
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode?: LanguageCode,
