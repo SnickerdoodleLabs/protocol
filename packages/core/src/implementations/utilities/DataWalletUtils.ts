@@ -82,7 +82,9 @@ export class DataWalletUtils implements IDataWalletUtils {
       return this.cryptoUtils
         .verifyEVMSignature(message, signature)
         .map((verifiedAccountAddress) => {
-          return verifiedAccountAddress == accountAddress;
+          return (
+            verifiedAccountAddress.toLowerCase() == accountAddress.toLowerCase()
+          );
         });
     }
     if (chainInfo.chainTechnology == EChainTechnology.Solana) {
