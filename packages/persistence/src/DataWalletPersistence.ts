@@ -33,6 +33,7 @@ import {
   EIndexer,
   AccountBalanceError,
   IDataWalletBackup,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { IDBKeyRange } from "fake-indexeddb";
@@ -75,6 +76,7 @@ enum ELocalStorageKey {
   CLICKS = "SD_CLICKS",
   REJECTED_COHORTS = "SD_RejectedCohorts",
   LATEST_BLOCK = "SD_LatestBlock",
+  EARNED_REWARDS = "SD_EarnedRewards",
 }
 
 interface LatestBlockEntry {
@@ -122,6 +124,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             ELocalStorageKey.SITE_VISITS,
             ELocalStorageKey.CLICKS,
             ELocalStorageKey.LATEST_BLOCK,
+            ELocalStorageKey.EARNED_REWARDS,
           ],
           store,
           this.cryptoUtils,
@@ -177,6 +180,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           keyPath: "contract",
           autoIncrement: false,
         },
+        {
+          name: ELocalStorageKey.EARNED_REWARDS,
+          keyPath: "queryCID",
+          autoIncrement: false,
+          indexBy: [["type", false]],
+        },
       ],
     });
   }
@@ -211,6 +220,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         ELocalStorageKey.ACCOUNT,
         [],
       );
+    });
+  }
+
+  public addEarnedReward(
+    reward: EarnedReward,
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForUnlock().andThen((key) => {
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.addRecord(ELocalStorageKey.EARNED_REWARDS, reward);
+      });
+    });
+  }
+
+  public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    return this.waitForUnlock().andThen((key) => {
+      return this._getObjectStore().andThen((store) => {
+        return store.getAll<EarnedReward>(ELocalStorageKey.EARNED_REWARDS);
+      });
     });
   }
 
