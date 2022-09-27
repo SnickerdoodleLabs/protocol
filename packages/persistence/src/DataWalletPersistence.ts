@@ -732,10 +732,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         })
         .andThen((result) => {
           const returnVal = new Map<ChainId, number>();
-          for (const elem in result) {
+          result.forEach((elem) => {
             const [chain, num] = elem;
             returnVal[chain] = num;
-          }
+          });
           return okAsync(returnVal);
         });
     });
