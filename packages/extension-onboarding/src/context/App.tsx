@@ -12,8 +12,10 @@ import { ApiGateway } from "@extension-onboarding/services/implementations/ApiGa
 import { DataWalletGateway } from "@extension-onboarding/services/implementations/DataWalletGateway";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
+  AccountAddress,
   DataWalletAddress,
-  EVMAccountAddress,
+  EChain,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import React, {
@@ -27,7 +29,8 @@ import React, {
 
 export interface ILinkedAccount {
   providerKey: EWalletProviderKeys;
-  accountAddress: EVMAccountAddress;
+  accountAddress: AccountAddress;
+  chain: EChain;
 }
 
 export enum EAppModes {
@@ -128,12 +131,15 @@ export const AppContextProvider: FC = ({ children }) => {
   };
 
   const onAccountAdded = (notification: {
-    data: { accountAddress: EVMAccountAddress };
+    data: { linkedAccount: LinkedAccount };
   }) => {
     addAccount({
-      accountAddress: notification.data.accountAddress,
+      accountAddress: notification.data.linkedAccount.sourceAccountAddress,
       providerKey:
-        localStorage.getItem(`${notification.data.accountAddress}`) ?? null,
+        localStorage.getItem(
+          `${notification.data.linkedAccount.sourceAccountAddress}`,
+        ) ?? null,
+      chain: notification.data.linkedAccount.sourceChain,
     } as ILinkedAccount);
     setAlert({
       message: ALERT_MESSAGES.ACCOUNT_ADDED,
@@ -154,12 +160,13 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const getUserAccounts = () => {
     return window.sdlDataWallet.getAccounts().map((accounts) => {
-      console.log(accounts);
       const _accounts: ILinkedAccount[] = accounts.map(
         (account) =>
           ({
-            accountAddress: account,
-            providerKey: localStorage.getItem(`${account}`) ?? null,
+            accountAddress: account.sourceAccountAddress,
+            providerKey:
+              localStorage.getItem(`${account.sourceAccountAddress}`) ?? null,
+            chain: account.sourceChain,
           } as ILinkedAccount),
       );
       setLinkedAccounts((prev) =>
