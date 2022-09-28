@@ -86,7 +86,9 @@ export interface IConsentContract {
   ): ResultAsync<HexString32, ConsentContractError>;
 
   getMaxCapacity(): ResultAsync<number, ConsentContractError>;
-  setMaxCapacity(maxCapacity: number): ResultAsync<void, ConsentContractError>;
+  updateMaxCapacity(
+    maxCapacity: number,
+  ): ResultAsync<void, ConsentContractError>;
 
   encodeOptOut(tokenId: TokenId): HexString;
 

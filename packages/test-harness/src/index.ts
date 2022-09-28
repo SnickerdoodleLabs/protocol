@@ -392,6 +392,7 @@ function simulatorPrompt(): ResultAsync<void, Error> {
       choices: [
         { name: "Create Campaign", value: "createCampaign" },
         { name: "Post Query", value: "post" },
+        { name: "Set Max Capacity", value: "setMaxCapacity" },
         new inquirer.Separator(),
         { name: "Cancel", value: "cancel" },
       ],
@@ -402,6 +403,8 @@ function simulatorPrompt(): ResultAsync<void, Error> {
         return createCampaign();
       case "post":
         return postQuery();
+      case "setMaxCapacity":
+        return setMaxCapacity();
     }
     return okAsync(undefined);
   });
@@ -470,6 +473,52 @@ function postQuery(): ResultAsync<void, Error | ConsentContractError> {
         }
 
         return simulator.postQuery(contractAddress, queryText);
+      }
+
+      return okAsync(undefined);
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
+    });
+}
+
+function setMaxCapacity(): ResultAsync<void, Error | ConsentContractError> {
+  return prompt([
+    {
+      type: "list",
+      name: "consentContract",
+      message: "Please select a consent contract to set the max capacity on:",
+      choices: [
+        ...consentContracts.map((contractAddress) => {
+          return {
+            name: `Consent Contract ${contractAddress}`,
+            value: contractAddress,
+          };
+        }),
+        new inquirer.Separator(),
+        { name: "Cancel", value: "cancel" },
+      ],
+    },
+    {
+      type: "number",
+      name: "maxCapacity",
+      message: "Enter the new max capacity:",
+    },
+  ])
+    .andThen((answers) => {
+      const contractAddress = EVMContractAddress(answers.consentContract);
+      const maxCapacity = Number(answers.maxCapacity);
+
+      if (
+        consentContracts.includes(contractAddress) &&
+        answers.consentContract != "cancel"
+      ) {
+        // They did not pick "cancel"
+        return blockchain.setConsentContractMaxCapacity(
+          contractAddress,
+          maxCapacity,
+        );
       }
 
       return okAsync(undefined);

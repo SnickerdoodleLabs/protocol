@@ -208,16 +208,16 @@ export class ConsentContract implements IConsentContract {
     });
   }
 
-  public setMaxCapacity(
+  public updateMaxCapacity(
     maxCapacity: number,
   ): ResultAsync<void, ConsentContractError> {
     return ResultAsync.fromPromise(
-      this.contract.setMaxCapacity(
+      this.contract.updateMaxCapacity(
         maxCapacity,
       ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new ConsentContractError(
-          "Unable to call setMaxCapacity()",
+          "Unable to call updateMaxCapacity()",
           (e as IBlockchainError).reason,
           e,
         );
@@ -226,7 +226,7 @@ export class ConsentContract implements IConsentContract {
       .andThen((tx) => {
         return ResultAsync.fromPromise(tx.wait(), (e) => {
           return new ConsentContractError(
-            "Wait for setMaxCapacity() failed",
+            "Wait for updateMaxCapacity() failed",
             "Unknown",
             e,
           );

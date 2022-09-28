@@ -779,11 +779,11 @@ export default {
       inputs: [
         {
           internalType: "uint256",
-          name: "maxCapacity_",
+          name: "_maxCapacity_",
           type: "uint256",
         },
       ],
-      name: "setMaxCapacity",
+      name: "updateMaxCapacity",
       outputs: [],
       stateMutability: "nonpayable",
       type: "function",
