@@ -196,7 +196,7 @@ export class QueryEvaluator implements IQueryEvaluator {
               outgoingValue: getObject.outgoingValue,
               outgoingCount: getObject.outgoingCount,
               incomingValue: BigNumberString(
-                (BigNumber.from(getObject.incomingValue).add(BigNumber.from(obj.value))).toString()
+                (BigNumber.from(getObject.incomingValue).add(BigNumber.from(obj.valueQuote))).toString()
               ),
               incomingCount: BigNumberString(
                 (BigNumber.from(getObject.incomingCount).add(BigNumber.from("1"))).toString()
@@ -209,7 +209,7 @@ export class QueryEvaluator implements IQueryEvaluator {
             flowMap.set(obj.chainId, {
               chainId: obj.chainId, 
               outgoingValue: BigNumberString(
-                (BigNumber.from(getObject.outgoingValue).add(BigNumber.from(obj.value))).toString()
+                (BigNumber.from(getObject.outgoingValue).add(BigNumber.from(obj.valueQuote))).toString()
               ),
               outgoingCount:  BigNumberString(
                 (BigNumber.from(getObject.outgoingCount).add(BigNumber.from("1"))).toString()
@@ -227,7 +227,7 @@ export class QueryEvaluator implements IQueryEvaluator {
               chainId: obj.chainId, 
               outgoingValue: BigNumberString("0"),
               outgoingCount: BigNumberString("0"),
-              incomingValue: BigNumberString(BigNumber.from(obj.value).toString()),
+              incomingValue: BigNumberString(BigNumber.from(obj.valueQuote).toString()),
               incomingCount: BigNumberString("1"),
             });
           } 
@@ -236,7 +236,7 @@ export class QueryEvaluator implements IQueryEvaluator {
           if (accounts.includes(from_address)){
             flowMap.set(obj.chainId, {
               chainId: obj.chainId, 
-              outgoingValue: BigNumberString(BigNumber.from(obj.value).toString()),
+              outgoingValue: BigNumberString(BigNumber.from(obj.valueQuote).toString()),
               outgoingCount: BigNumberString("1"),
               incomingValue: BigNumberString("0"),
               incomingCount: BigNumberString("0"),
