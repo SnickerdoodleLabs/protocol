@@ -20,6 +20,7 @@ import {
   EChain,
   MinimalForwarderContractError,
   AccountAddress,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -78,6 +79,21 @@ export interface IAccountService {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
+  >;
+
+  getDataWalletForAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<
+    DataWalletAddress | null,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
   >;
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;

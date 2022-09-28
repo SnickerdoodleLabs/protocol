@@ -162,13 +162,15 @@ export class AccountService implements IAccountService {
                 if (encryptedDataWalletKey == null) {
                   // We're trying to unlock for the first time!
                   return this.createDataWallet(
+                    accountAddress,
                     signature,
                     languageCode,
                     derivedEOA,
                   );
                 }
-                return this.unlockExistingWallet(
+                return this.getDataWalletAccount(
                   encryptedDataWalletKey,
+                  accountAddress,
                   signature,
                 );
               })
@@ -279,7 +281,10 @@ export class AccountService implements IAccountService {
             signature,
           ),
           this.contextProvider.getContext(),
-          this.dataWalletUtils.deriveEncryptionKeyFromSignature(signature),
+          this.dataWalletUtils.deriveEncryptionKeyFromSignature(
+            accountAddress,
+            signature,
+          ),
         ]);
       })
       .andThen(([derivedEOA, context, encryptionKey]) => {
@@ -447,6 +452,55 @@ export class AccountService implements IAccountService {
             });
         });
     });
+  }
+
+  public getDataWalletForAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<
+    DataWalletAddress | null,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+  > {
+    // First, let's do some validation and make sure that the signature is actually for the account
+    return this.validateSignatureForAddress(
+      accountAddress,
+      signature,
+      languageCode,
+      chain,
+    )
+      .andThen(() => {
+        // Next step is to convert the signature into a derived account
+        return this.dataWalletUtils.getDerivedEVMAccountFromSignature(
+          accountAddress,
+          signature,
+        );
+      })
+      .andThen((derivedEOA) => {
+        return this.crumbsRepo
+          .getCrumb(derivedEOA.accountAddress, languageCode)
+          .andThen((encryptedDataWalletKey) => {
+            if (encryptedDataWalletKey == null) {
+              // There's no crumb for this data wallet at all, so there's no data wallet
+              return okAsync(null);
+            }
+
+            // There is a crumb!
+            return this.getDataWalletAccount(
+              encryptedDataWalletKey,
+              accountAddress,
+              signature,
+            ).map((dataWalletAccount) => {
+              return DataWalletAddress(dataWalletAccount.accountAddress);
+            });
+          });
+      });
   }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
@@ -662,6 +716,7 @@ export class AccountService implements IAccountService {
   }
 
   protected createDataWallet(
+    accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
     derivedEVMAccount: ExternallyOwnedAccount,
@@ -674,7 +729,10 @@ export class AccountService implements IAccountService {
   > {
     return ResultUtils.combine([
       this.dataWalletUtils.createDataWalletKey(),
-      this.dataWalletUtils.deriveEncryptionKeyFromSignature(signature),
+      this.dataWalletUtils.deriveEncryptionKeyFromSignature(
+        accountAddress,
+        signature,
+      ),
     ]).andThen(([dataWalletKey, encryptionKey]) => {
       // Encrypt the data wallet key
       return this.cryptoUtils
@@ -703,15 +761,16 @@ export class AccountService implements IAccountService {
     });
   }
 
-  protected unlockExistingWallet(
+  protected getDataWalletAccount(
     encryptedDataWalletKey: AESEncryptedString,
+    accountAddress: AccountAddress,
     signature: Signature,
   ): ResultAsync<
     ExternallyOwnedAccount,
     BlockchainProviderError | InvalidSignatureError | UnsupportedLanguageError
   > {
     return this.dataWalletUtils
-      .deriveEncryptionKeyFromSignature(signature)
+      .deriveEncryptionKeyFromSignature(accountAddress, signature)
       .andThen((encryptionKey) => {
         return this.cryptoUtils.decryptAESEncryptedString(
           encryptedDataWalletKey,

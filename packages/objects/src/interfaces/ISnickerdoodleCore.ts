@@ -36,6 +36,7 @@ import {
   AccountAddress,
   Age,
   CountryCode,
+  DataWalletAddress,
   DomainName,
   EmailAddressString,
   EVMContractAddress,
@@ -145,6 +146,30 @@ export interface ISnickerdoodleCore {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
+  >;
+
+  /**
+   * Checks if the account address has already been linked to a data wallet, and returns the
+   * address of the data wallet. You can only do this if you control the account address, since
+   * it requires you to decrypt the crumb. If there is no crumb, it returns null.
+   * @param accountAddress
+   * @param signature
+   * @param languageCode
+   * @param chain
+   */
+  getDataWalletForAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<
+    DataWalletAddress | null,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
   >;
 
   /**

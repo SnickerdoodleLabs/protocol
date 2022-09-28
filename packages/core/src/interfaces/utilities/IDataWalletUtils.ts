@@ -11,6 +11,7 @@ import { ResultAsync } from "neverthrow";
 export interface IDataWalletUtils {
   createDataWalletKey(): ResultAsync<EVMPrivateKey, never>;
   deriveEncryptionKeyFromSignature(
+    accountAddress: AccountAddress,
     signature: Signature,
   ): ResultAsync<AESKey, never>;
 
