@@ -5,14 +5,14 @@ import { ChainId, EVMAccountAddress, IpfsCID, RewardFunctionParam } from "@objec
 export class LazyReward extends EarnedReward {
 
     constructor(
-        readonly cid: IpfsCID,
+        readonly queryCID: IpfsCID,
         readonly chainId: ChainId,
         readonly eoa: EVMAccountAddress,
         readonly functionName: string,
         readonly functionParams: RewardFunctionParam[]
 
     ) {
-        super(cid, ERewardType.Lazy)
+        super(queryCID, ERewardType.Lazy)
     }
 
 }

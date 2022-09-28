@@ -20,3 +20,4 @@ export * from "@objects/businessObjects/Reward";
 export * from "@objects/businessObjects/SDQLQuery";
 export * from "@objects/businessObjects/SDQLQueryRequest";
 export * from "@objects/businessObjects/SiteVisit";
+export * from "@objects/businessObjects/rewards";

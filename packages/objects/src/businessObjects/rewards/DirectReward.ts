@@ -5,13 +5,13 @@ import { ChainId, EVMAccountAddress, IpfsCID, TransactionReceipt } from "@object
 export class DirectReward extends EarnedReward {
 
     constructor(
-        readonly cid: IpfsCID,
+        readonly queryCID: IpfsCID,
         readonly chainId: ChainId,
         readonly eoa: EVMAccountAddress,
         readonly transactionReceipt: TransactionReceipt
 
     ) {
-        super(cid, ERewardType.Direct)
+        super(queryCID, ERewardType.Direct)
     }
 
 }

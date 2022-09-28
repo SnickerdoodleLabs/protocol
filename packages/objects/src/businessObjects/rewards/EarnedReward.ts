@@ -3,7 +3,7 @@ import { IpfsCID } from "@objects/primitives";
 
 export class EarnedReward {
     constructor(
-        readonly cid: IpfsCID,
+        readonly queryCID: IpfsCID,
         readonly type: ERewardType,
     ) {}
 }
