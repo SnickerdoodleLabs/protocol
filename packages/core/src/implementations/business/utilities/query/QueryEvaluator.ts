@@ -138,14 +138,20 @@ export class QueryEvaluator implements IQueryEvaluator {
             return okAsync(SDQL_Return(url_visited_count));
           });
       case "chain_transactions":
-        return ResultUtils.combine([
-          this.dataWalletPersistence.getTransactionsArray(),
-          this.dataWalletPersistence.getAccounts()
-        ]).andThen(([transactionsArray, accounts]) => {
+        return this.dataWalletPersistence.getTransactionsArray()
+        .andThen((transactionsArray) => {
+          // return okAsync(SDQL_Return(transactionsArray))
             let items = transactionsArray.filter(obj => (obj.items?.length != 0));            
-            return this.TransactionFlowOutput(items, accounts);
-        }).andThen((chainTrans) => {
-          return okAsync(SDQL_Return(chainTrans))
+            return ResultUtils.combine([
+              this.convertTransactions(transactionsArray),
+              this.dataWalletPersistence.getAccounts()
+            ])
+            
+        }).andThen(([convertedTrans, accounts]) => {
+          return this.TransactionFlowOutput(convertedTrans, accounts);
+        
+        }).andThen((finalArray) => {
+          return okAsync(SDQL_Return(finalArray))
         })
       default:
         // console.log("Tracking the result: ", result);
@@ -153,73 +159,99 @@ export class QueryEvaluator implements IQueryEvaluator {
     }
   }
 
+  protected convertTransactions(
+    transactionsArray: {chainId: ChainId, items: EVMTransaction[] | null}[]
+  ): ResultAsync<EVMTransaction[], PersistenceError>{
+  
+    let returnedTransactions : EVMTransaction[] = [];
+    transactionsArray.forEach(val => {
+      if (val.items != null){
+        returnedTransactions = returnedTransactions.concat(val.items);
+      }
+    });
+
+    return okAsync((returnedTransactions));
+  
+  }
       
   // passed in transArray of only values with items that have values
   // passed in accounts Array
   protected TransactionFlowOutput(
-    transactionsArray: {chainId: ChainId, items: EVMTransaction[] | null}[], 
+    transactionsArray: EVMTransaction[], 
     accounts: EVMAccountAddress[]
   ): ResultAsync<IChainTransaction[], PersistenceError>{
-    let outputFlow : IChainTransaction[] = [];
+    const flowMap = new Map<ChainId, IChainTransaction>();
 
-    for (let i = 0; i < transactionsArray.length; i++){
-      let obj = transactionsArray[i];
-      let transChain = obj["chainId"];
-      let outgoingFlag;
+    transactionsArray.forEach((obj) => {
 
-      if (obj["items"]?.length !== 0){
+      const getObject = flowMap.get(obj.chainId);
+      let to_address = obj.to;
+      let from_address = obj.from;
 
-        let chainFlowObj = {
-          chainId: transChain,
-          outgoingValue: BigNumberString("0"),
-          outgoingCount: BigNumberString("0"),
-          incomingValue: BigNumberString("0"),
-          incomingCount: BigNumberString("0")
+      if (getObject) {
+        if (to_address != null){
+          if (accounts.includes(to_address)){
+            flowMap.set(obj.chainId, {
+              chainId: obj.chainId, 
+              outgoingValue: getObject.outgoingValue,
+              outgoingCount: getObject.outgoingCount,
+              incomingValue: BigNumberString(
+                (BigNumber.from(getObject.incomingValue).add(BigNumber.from(obj.value))).toString()
+              ),
+              incomingCount: BigNumberString(
+                (BigNumber.from(getObject.incomingCount).add(BigNumber.from("1"))).toString()
+              )
+            });
+          } 
         }
-
-        let j = 0;
-        if (obj["items"] != null){
-          while(j < obj["items"]?.length){
-            let transaction = obj["items"][j];
-            let dollars = transaction.value;
-            let to_address = transaction.to;
-            let from_address = transaction.from;
-
-            if (to_address != null){
-              console.log("Accounts: ");
-              console.log(accounts);
-              console.log("to_address: ");
-              console.log(to_address);
-              console.log("from_address: ");
-              console.log(from_address);
-
-              if (accounts.includes(to_address)){
-                chainFlowObj.incomingCount = BigNumberString(
-                  (BigNumber.from(chainFlowObj.incomingCount).add(BigNumber.from("1"))).toString()
-                );
-                chainFlowObj.incomingValue = BigNumberString(
-                  (BigNumber.from(chainFlowObj.incomingValue).add(BigNumber.from(dollars))).toString()
-                );
-              }
-            }
-            if (from_address != null){
-              if (accounts.includes(from_address)){
-                chainFlowObj.outgoingCount = BigNumberString(
-                  (BigNumber.from(chainFlowObj.outgoingCount).add(BigNumber.from("1"))).toString()
-                );
-                chainFlowObj.outgoingValue = BigNumberString(
-                  (BigNumber.from(chainFlowObj.outgoingValue).add(BigNumber.from(dollars))).toString()
-                );
-              }            
-            }
-            j = j + 1;
-          }
+        if (from_address != null){
+          if (accounts.includes(from_address)){
+            flowMap.set(obj.chainId, {
+              chainId: obj.chainId, 
+              outgoingValue: BigNumberString(
+                (BigNumber.from(getObject.outgoingValue).add(BigNumber.from(obj.value))).toString()
+              ),
+              outgoingCount:  BigNumberString(
+                (BigNumber.from(getObject.outgoingCount).add(BigNumber.from("1"))).toString()
+              ),
+              incomingValue: getObject.incomingValue,
+              incomingCount: getObject.incomingCount
+            });
+          } 
         }
-        outputFlow.push(chainFlowObj)
+      } else {
+        
+        if (to_address != null){
+          if (accounts.includes(to_address)){
+            flowMap.set(obj.chainId, {
+              chainId: obj.chainId, 
+              outgoingValue: BigNumberString("0"),
+              outgoingCount: BigNumberString("0"),
+              incomingValue: BigNumberString(BigNumber.from(obj.value).toString()),
+              incomingCount: BigNumberString("1"),
+            });
+          } 
+        }
+        if (from_address != null){
+          if (accounts.includes(from_address)){
+            flowMap.set(obj.chainId, {
+              chainId: obj.chainId, 
+              outgoingValue: BigNumberString(BigNumber.from(obj.value).toString()),
+              outgoingCount: BigNumberString("1"),
+              incomingValue: BigNumberString("0"),
+              incomingCount: BigNumberString("0"),
+            });
+          } 
+        }
       }
+    });
 
-    }
-    return okAsync((outputFlow));
+    const outputFlow: IChainTransaction[] = [];
+    flowMap.forEach((element, key) => {
+      outputFlow.push(element);
+    });
+
+    return okAsync(outputFlow);
   }
 
 
