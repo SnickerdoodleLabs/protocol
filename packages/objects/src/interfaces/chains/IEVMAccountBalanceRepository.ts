@@ -20,11 +20,11 @@ export interface IEVMBalance {
 }
 
 export interface IChainTransaction {
-  ticker: TickerSymbol;
+  chainId: ChainId;
   incomingValue: BigNumberString;
   incomingCount: BigNumberString;
   outgoingValue: BigNumberString;
-  outogingCount: BigNumberString;
+  outgoingCount: BigNumberString;
 }
 
 

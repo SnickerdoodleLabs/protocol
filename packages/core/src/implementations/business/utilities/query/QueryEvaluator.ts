@@ -1,12 +1,18 @@
 import {
   Age,
+  BigNumberString,
+  ChainId,
   CountryCode,
   EvalNotImplementedError,
+  EVMAccountAddress,
+  EVMTransaction,
   Gender,
+  IChainTransaction,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   PersistenceError,
   SDQL_Return,
+  TickerSymbol,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -34,6 +40,9 @@ import {
   INetworkQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator.js";
 import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
+import { valueToNode } from "@babel/types";
+import { ResultUtils } from "neverthrow-result-utils";
+import { BigNumber } from "ethers";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -74,48 +83,34 @@ export class QueryEvaluator implements IQueryEvaluator {
     let result = SDQL_Return(true);
     switch (q.property) {
       case "age":
-        // console.log("Tracking the result: ", result);
         return this.dataWalletPersistence.getAge().andThen((age) => {
           switch (q.returnType) {
             case "boolean":
-              // console.log("Property: Age, Return Type: Boolean");
-              // console.log("Before conditions: ", result);
               for (const condition of q.conditions) {
                 result = result && this.evalPropertyConditon(age, condition);
               }
-              //console.log("After conditions: ", result);
               return okAsync(result);
             case "integer":
-              //console.log("Property: Age, Return Type: Integer");
-              //console.log("Returning age: ", age)
               result = SDQL_Return(age);
-              // console.log("Tracking the result: ", result);
               return okAsync(result);
             default:
-              // console.log("Tracking the result: ", result);
               return okAsync(result);
           }
         });
         return okAsync(result);
       case "location":
-        // console.log("Tracking the result: ", result);
         return this.dataWalletPersistence.getLocation().andThen((location) => {
           switch (q.returnType) {
             case "string":
               result = SDQL_Return(location);
               return okAsync(result);
             case "boolean":
-              // console.log("Property: Location, Return Type: Boolean");
-              // console.log("Before conditions: ", result);
               for (const condition of q.conditions) {
                 result =
                   result && this.evalPropertyConditon(location, condition);
               }
-              //console.log("After conditions: ", result);
               return okAsync(result);
             case "integer":
-              //console.log("Property: Location, Return Type: Integer");
-              //console.log("Returning location: ", location)
               result = SDQL_Return(location);
               return okAsync(result);
             default:
@@ -123,45 +118,111 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "gender":
-        // console.log("Tracking the result: ", result);
         return this.dataWalletPersistence.getGender().andThen((gender) => {
-          // console.log("Gender: ", gender);
-          // console.log("Return Type: ", q.returnType);
           switch (q.returnType) {
             case "enum":
-              // console.log("Property: Gender, Return Type: Enum");
-              // console.log("Gender: ", gender);
               for (const key of q.enum_keys) {
                 if (key == gender) {
                   return okAsync(SDQL_Return(gender));
                 }
               }
-              // console.log("After conditions: ", result);
               return okAsync(SDQL_Return(Gender("unknown")));
             default:
               return okAsync(result);
           }
         });
       case "url_visited_count":
-        // console.log("Tracking the result: ", result);
         return this.dataWalletPersistence
           .getSiteVisitsMap()
           .andThen((url_visited_count) => {
-            // console.log("URL count: ", url_visited_count);
             return okAsync(SDQL_Return(url_visited_count));
           });
       case "chain_transactions":
-        return this.dataWalletPersistence
-          .getTransactionsArray()
-          .andThen((transactionsArray) => {
-            // console.log("URL count: ", url_visited_count);
-            return okAsync(SDQL_Return(transactionsArray));
-          });
+        return ResultUtils.combine([
+          this.dataWalletPersistence.getTransactionsArray(),
+          this.dataWalletPersistence.getAccounts()
+        ]).andThen(([transactionsArray, accounts]) => {
+            let items = transactionsArray.filter(obj => (obj.items?.length != 0));            
+            return this.TransactionFlowOutput(items, accounts);
+        }).andThen((chainTrans) => {
+          return okAsync(SDQL_Return(chainTrans))
+        })
       default:
         // console.log("Tracking the result: ", result);
         return okAsync(result);
     }
   }
+
+      
+  // passed in transArray of only values with items that have values
+  // passed in accounts Array
+  protected TransactionFlowOutput(
+    transactionsArray: {chainId: ChainId, items: EVMTransaction[] | null}[], 
+    accounts: EVMAccountAddress[]
+  ): ResultAsync<IChainTransaction[], PersistenceError>{
+    let outputFlow : IChainTransaction[] = [];
+
+    for (let i = 0; i < transactionsArray.length; i++){
+      let obj = transactionsArray[i];
+      let transChain = obj["chainId"];
+      let outgoingFlag;
+
+      if (obj["items"]?.length !== 0){
+
+        let chainFlowObj = {
+          chainId: transChain,
+          outgoingValue: BigNumberString("0"),
+          outgoingCount: BigNumberString("0"),
+          incomingValue: BigNumberString("0"),
+          incomingCount: BigNumberString("0")
+        }
+
+        let j = 0;
+        if (obj["items"] != null){
+          while(j < obj["items"]?.length){
+            let transaction = obj["items"][j];
+            let dollars = transaction.value;
+            let to_address = transaction.to;
+            let from_address = transaction.from;
+
+            if (to_address != null){
+              console.log("Accounts: ");
+              console.log(accounts);
+              console.log("to_address: ");
+              console.log(to_address);
+              console.log("from_address: ");
+              console.log(from_address);
+
+              if (accounts.includes(to_address)){
+                chainFlowObj.incomingCount = BigNumberString(
+                  (BigNumber.from(chainFlowObj.incomingCount).add(BigNumber.from("1"))).toString()
+                );
+                chainFlowObj.incomingValue = BigNumberString(
+                  (BigNumber.from(chainFlowObj.incomingValue).add(BigNumber.from(dollars))).toString()
+                );
+              }
+            }
+            if (from_address != null){
+              if (accounts.includes(from_address)){
+                chainFlowObj.outgoingCount = BigNumberString(
+                  (BigNumber.from(chainFlowObj.outgoingCount).add(BigNumber.from("1"))).toString()
+                );
+                chainFlowObj.outgoingValue = BigNumberString(
+                  (BigNumber.from(chainFlowObj.outgoingValue).add(BigNumber.from(dollars))).toString()
+                );
+              }            
+            }
+            j = j + 1;
+          }
+        }
+        outputFlow.push(chainFlowObj)
+      }
+
+    }
+    return okAsync((outputFlow));
+  }
+
+
 
   public evalPropertyConditon(
     propertyVal: Age | CountryCode | null,

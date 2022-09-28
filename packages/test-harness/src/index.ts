@@ -41,6 +41,7 @@ import {
   InitializationVector,
   IDataWalletBackup,
   MetatransactionSignatureRequest,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -311,14 +312,61 @@ function corePrompt(): ResultAsync<void, Error> {
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
       case "addEVMTransaction - Query's Network":
+        // First Transaction gives you $1000
+        // Second Transaction takes $200
+        // Third Transaction takes $300
+        // Fourth Transaction takes $50
+
         transactions[0] = new EVMTransaction(
-          ChainId(43114),
+          ChainId(43113),
           "",
           UnixTimestamp(100),
           null,
+          EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+          EVMAccountAddress("get1000"),
+          BigNumberString("1000"),
           null,
-          EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
           null,
+          null,
+          null,
+          Math.random() * 1000,
+        );
+        transactions[1] = new EVMTransaction(
+          ChainId(43113),
+          "",
+          UnixTimestamp(100),
+          null,
+          EVMAccountAddress("send200"),
+          EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+          BigNumberString("200"),
+          null,
+          null,
+          null,
+          null,
+          Math.random() * 1000,
+        );
+        transactions[2] = new EVMTransaction(
+          ChainId(43113),
+          "",
+          UnixTimestamp(100),
+          null,
+          EVMAccountAddress("send300"),
+          EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+          BigNumberString("300"),
+          null,
+          null,
+          null,
+          null,
+          Math.random() * 1000,
+        );
+        transactions[3] = new EVMTransaction(
+          ChainId(43113),
+          "",
+          UnixTimestamp(100),
+          null,
+          EVMAccountAddress("send50"),
+          EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+          BigNumberString("50"),
           null,
           null,
           null,
@@ -329,7 +377,7 @@ function corePrompt(): ResultAsync<void, Error> {
       case "addEVMTransaction - google":
         transactions[0] = new EVMTransaction(
           ChainId(1),
-          "",
+          "null",
           UnixTimestamp(100),
           null,
           null,

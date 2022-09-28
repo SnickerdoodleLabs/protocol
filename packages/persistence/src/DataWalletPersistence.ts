@@ -837,7 +837,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ]).andThen(([config, store]) => {
       
       return ResultUtils.combine(
-        config.supportedChains .map((chainId) => {
+        config.supportedChains.map((chainId) => {
         return store
           .getCursor<EVMTransaction>(
             ELocalStorageKey.TRANSACTIONS,
@@ -854,4 +854,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       }));
     });
   }
+
+  public returnProperTransactions(): ResultAsync<IChainTransaction[], PersistenceError>{
+    let chainlist: IChainTransaction[] = []; 
+    return okAsync(chainlist);
+  }
+
+  
 }
