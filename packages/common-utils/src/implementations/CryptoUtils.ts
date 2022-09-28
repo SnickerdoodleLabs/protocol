@@ -60,12 +60,12 @@ export class CryptoUtils implements ICryptoUtils {
     salt: HexString,
   ): ResultAsync<AESKey, never> {
     // A signature is a hex string, with 65 bytes. We should convert it to a buffer
-    const sourceEntropy = Buffer.from(signature, "hex");
-    const saltBuffer = Buffer.from(salt, "hex");
+    const sourceEntropy = Buffer.from(ethers.utils.arrayify(signature));
+    const saltBuffer = Buffer.from(ethers.utils.arrayify(salt));
     const keyBuffer = Crypto.pbkdf2Sync(
       sourceEntropy,
       saltBuffer,
-      100,
+      100000,
       32,
       "sha256",
     );
@@ -78,12 +78,12 @@ export class CryptoUtils implements ICryptoUtils {
     salt: HexString,
   ): ResultAsync<EVMPrivateKey, never> {
     // A signature is a hex string, with 65 bytes. We should convert it to a buffer
-    const sourceEntropy = Buffer.from(signature, "hex");
-    const saltBuffer = Buffer.from(salt, "hex");
+    const sourceEntropy = Buffer.from(ethers.utils.arrayify(signature));
+    const saltBuffer = Buffer.from(ethers.utils.arrayify(salt));
     const keyBuffer = Crypto.pbkdf2Sync(
       sourceEntropy,
       saltBuffer,
-      100,
+      100000,
       32,
       "sha256",
     );
@@ -97,12 +97,12 @@ export class CryptoUtils implements ICryptoUtils {
     // We can generate salt by signing a message
     return this.signMessage("PhoebeIsCute", evmKey).map((signature) => {
       // An EVMPrivateKey is a hex string. We should convert it to a buffer
-      const sourceEntropy = Buffer.from(evmKey, "hex");
-      const saltBuffer = Buffer.from(signature, "hex");
+      const sourceEntropy = Buffer.from(ethers.utils.arrayify(evmKey));
+      const saltBuffer = Buffer.from(ethers.utils.arrayify(signature));
       const keyBuffer = Crypto.pbkdf2Sync(
         sourceEntropy,
         saltBuffer,
-        100,
+        100000,
         32,
         "sha256",
       );
@@ -115,12 +115,12 @@ export class CryptoUtils implements ICryptoUtils {
   ): ResultAsync<Uint8Array, never> {
     return this.signMessage("VarunWasHere", evmKey).map((signature) => {
       // An EVMPrivateKey is a hex string. We should convert it to a buffer
-      const sourceEntropy = Buffer.from(evmKey, "hex");
-      const saltBuffer = Buffer.from(signature, "hex");
+      const sourceEntropy = Buffer.from(ethers.utils.arrayify(evmKey));
+      const saltBuffer = Buffer.from(ethers.utils.arrayify(signature));
       const keyBuffer = Crypto.pbkdf2Sync(
         sourceEntropy,
         saltBuffer,
-        100,
+        100000,
         32,
         "sha256",
       );

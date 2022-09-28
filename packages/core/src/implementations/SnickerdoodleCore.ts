@@ -64,6 +64,7 @@ import {
   EChain,
   LinkedAccount,
   AccountAddress,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -317,6 +318,38 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       languageCode,
       chain,
     );
+  }
+
+  public getDataWalletForAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<
+    DataWalletAddress | null,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+  > {
+    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+      IBlockchainProviderType,
+    );
+
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    // BlockchainProvider needs to be ready to go in order to do the unlock
+    return blockchainProvider.initialize().andThen(() => {
+      return accountService.getDataWalletForAccount(
+        accountAddress,
+        signature,
+        languageCode,
+        chain,
+      );
+    });
   }
 
   public checkInvitationStatus(

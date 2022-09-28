@@ -241,10 +241,16 @@ class AccountServiceMocks {
       ),
     ).thenReturn(okAsync(solanaDerivedEVMAccount));
     td.when(
-      this.dataWalletUtils.deriveEncryptionKeyFromSignature(evmSignature),
+      this.dataWalletUtils.deriveEncryptionKeyFromSignature(
+        evmAccountAddress,
+        evmSignature,
+      ),
     ).thenReturn(okAsync(evmDerivedEncryptionKey));
     td.when(
-      this.dataWalletUtils.deriveEncryptionKeyFromSignature(solanaSignature),
+      this.dataWalletUtils.deriveEncryptionKeyFromSignature(
+        solanaAccountAddress,
+        solanaSignature,
+      ),
     ).thenReturn(okAsync(solanaDerivedEncryptionKey));
     td.when(this.dataWalletUtils.createDataWalletKey()).thenReturn(
       okAsync(dataWalletKey),
@@ -1501,5 +1507,68 @@ describe("AccountService unlinkAccount() tests", () => {
       onAccountRemoved: 1,
     });
     expect(mocks.contextProvider.setContextValues.length).toBe(0);
+  });
+});
+
+describe("AccountService getDataWalletForAccount() tests", () => {
+  test("getDataWalletForAccount() with EVM based account works with no existing crumb", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks();
+
+    // No existing crumb
+    td.when(
+      mocks.crumbsRepo.getCrumb(
+        evmDerivedEVMAccount.accountAddress,
+        languageCode,
+      ),
+    ).thenReturn(okAsync(null));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.getDataWalletForAccount(
+      evmAccountAddress,
+      evmSignature,
+      languageCode,
+      evmChain,
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({
+      onInitialized: 0,
+      onAccountAdded: 0,
+    });
+
+    const dataWalletAddress = result._unsafeUnwrap();
+    expect(dataWalletAddress).toBeNull();
+  });
+
+  test("getDataWalletForAccount() with EVM based account works with an existing crumb", async () => {
+    // Arrange
+    const mocks = new AccountServiceMocks();
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.getDataWalletForAccount(
+      evmAccountAddress,
+      evmSignature,
+      languageCode,
+      evmChain,
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+
+    mocks.contextProvider.assertEventCounts({
+      onInitialized: 0,
+      onAccountAdded: 0,
+    });
+
+    const dataWalletAddress = result._unsafeUnwrap();
+    expect(dataWalletAddress).toBe(dataWalletAddress);
   });
 });

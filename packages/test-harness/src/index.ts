@@ -41,6 +41,7 @@ import {
   EChain,
   SolanaPrivateKey,
   MetatransactionSignatureRequest,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import inquirer from "inquirer";
@@ -220,6 +221,7 @@ function corePrompt(): ResultAsync<void, Error> {
   let choices = [
     { name: "Add Account", value: "addAccount" },
     { name: "Remove Account", value: "removeAccount" },
+    { name: "Check Account", value: "checkAccount" },
     new inquirer.Separator(),
     {
       name: "Opt In to Campaign",
@@ -289,6 +291,8 @@ function corePrompt(): ResultAsync<void, Error> {
         return unlockCore();
       case "addAccount":
         return addAccount();
+      case "checkAccount":
+        return checkAccount();
       case "removeAccount":
         return removeAccount();
       case "optInCampaign":
@@ -524,21 +528,14 @@ function unlockCore(): ResultAsync<
     .andThen((answers) => {
       const wallet = answers.unlockAccountSelector as TestWallet;
       // Need to get the unlock message first
-      return core
-        .getUnlockMessage(languageCode)
-        .andThen((message) => {
-          // Sign the message
-
-          return wallet.signMessage(message);
-        })
-        .andThen((signature) => {
-          return core.unlock(
-            wallet.accountAddress,
-            signature,
-            languageCode,
-            wallet.chain,
-          );
-        });
+      return getSignatureForAccount(wallet).andThen((signature) => {
+        return core.unlock(
+          wallet.accountAddress,
+          signature,
+          languageCode,
+          wallet.chain,
+        );
+      });
     })
     .map(() => {
       unlocked = true;
@@ -588,20 +585,14 @@ function addAccount(): ResultAsync<
     .andThen((answers) => {
       const wallet = answers.addAccountSelector as TestWallet;
       // Need to get the unlock message first
-      return core
-        .getUnlockMessage(languageCode)
-        .andThen((message) => {
-          // Sign the message
-          return wallet.signMessage(message);
-        })
-        .andThen((signature) => {
-          return core.addAccount(
-            wallet.accountAddress,
-            signature,
-            languageCode,
-            wallet.chain,
-          );
-        });
+      return getSignatureForAccount(wallet).andThen((signature) => {
+        return core.addAccount(
+          wallet.accountAddress,
+          signature,
+          languageCode,
+          wallet.chain,
+        );
+      });
     })
     .mapErr((e) => {
       console.error(e);
@@ -653,12 +644,7 @@ function removeAccount(): ResultAsync<
 
       const wallet = answers.removeAccountSelector as TestWallet;
 
-      return core
-        .getUnlockMessage(languageCode)
-        .andThen((message) => {
-          // Sign the message
-          return wallet.signMessage(message);
-        })
+      return getSignatureForAccount(wallet)
         .andThen((signature) => {
           return core.unlinkAccount(
             wallet.accountAddress,
@@ -669,6 +655,55 @@ function removeAccount(): ResultAsync<
         })
         .map(() => {
           console.log(`Unlinked account ${wallet.getName()}`);
+        });
+    })
+    .mapErr((e) => {
+      console.error(e);
+      return e;
+    });
+}
+
+function checkAccount(): ResultAsync<
+  void,
+  | UnsupportedLanguageError
+  | PersistenceError
+  | AjaxError
+  | BlockchainProviderError
+  | UninitializedError
+  | CrumbsContractError
+  | InvalidSignatureError
+  | MinimalForwarderContractError
+> {
+  return prompt([
+    {
+      type: "list",
+      name: "checkAccountSelector",
+      message: "Which account do you want to check?",
+      choices: blockchain.accountWallets.map((wallet) => {
+        return {
+          name: wallet.getName(),
+          value: wallet,
+        };
+      }),
+    },
+  ])
+    .andThen((answers) => {
+      const wallet = answers.checkAccountSelector as TestWallet;
+      // Need to get the unlock message first
+      return getSignatureForAccount(wallet)
+        .andThen((signature) => {
+          console.log(wallet.accountAddress, signature, wallet.chain);
+          return core.getDataWalletForAccount(
+            wallet.accountAddress,
+            signature,
+            languageCode,
+            wallet.chain,
+          );
+        })
+        .map((dataWalletAccount) => {
+          console.log(
+            `Data wallet account address for account ${wallet.accountAddress}: ${dataWalletAccount}`,
+          );
         });
     })
     .mapErr((e) => {
@@ -870,4 +905,12 @@ function signMetatransactionRequest<TErr>(
           return request.callback(metatransactionSignature, nonce);
         });
     });
+}
+
+function getSignatureForAccount(
+  wallet: TestWallet,
+): ResultAsync<Signature, UnsupportedLanguageError> {
+  return core.getUnlockMessage(languageCode).andThen((message) => {
+    return wallet.signMessage(message);
+  });
 }

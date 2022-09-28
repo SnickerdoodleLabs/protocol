@@ -31,13 +31,14 @@ export class DataWalletUtils implements IDataWalletUtils {
   }
 
   public deriveEncryptionKeyFromSignature(
+    accountAddress: AccountAddress,
     signature: Signature,
   ): ResultAsync<AESKey, never> {
     // The only hard thing here is the salt. I am just using a constant value for now.
     // TODO: Figure out if there is a better salt we can use
     return this.cryptoUtils.deriveAESKeyFromSignature(
       signature,
-      HexString("0x0"),
+      HexString(accountAddress),
     );
   }
 
