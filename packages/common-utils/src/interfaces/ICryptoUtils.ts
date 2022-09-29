@@ -15,12 +15,15 @@ import {
   Base64String,
   SolanaAccountAddress,
   SolanaPrivateKey,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface ICryptoUtils {
   getNonce(nonceSize?: number): ResultAsync<Base64String, never>;
   getTokenId(): ResultAsync<TokenId, never>;
+  getTokenIds(quantity: number): ResultAsync<TokenId[], never>;
 
   createAESKey(): ResultAsync<AESKey, never>;
   deriveAESKeyFromSignature(
@@ -102,6 +105,18 @@ export interface ICryptoUtils {
   sfc32(a: number, b: number, c: number, d: number): () => number;
   randomInt(randomFunc: () => number, low: number, high: number): number;
   randomBytes(length: number, seed: string): Uint8Array;
+  getSignature(
+    owner: ethers.Wallet,
+    contract: EVMContractAddress,
+    tokenId: TokenId,
+    recipient: EVMAccountAddress,
+  ): ResultAsync<Signature, never>;
+
+  getSignatureAnonymous(
+    owner: ethers.Wallet,
+    contract: EVMContractAddress,
+    tokenId: TokenId,
+  ): ResultAsync<Signature, never>;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");
