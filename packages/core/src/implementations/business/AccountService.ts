@@ -197,36 +197,37 @@ export class AccountService implements IAccountService {
                 ]);
               })
               .andThen(() => {
-                // Need to add the account if this was the first time;
-                // Doing it this way because I have to make sure the persistence is
-                // unlocked first.
-                if (encryptedDataWalletKey == null) {
-                  return this.dataWalletPersistence
-                    .addAccount(
-                      new LinkedAccount(
-                        chain,
-                        accountAddress,
-                        derivedEOA.accountAddress,
-                      ),
-                    )
-                    .map(() => {
-                      context.publicEvents.onAccountAdded.next(
-                        new LinkedAccount(
-                          chain,
-                          accountAddress,
-                          derivedEOA.accountAddress,
-                        ),
-                      );
-                    });
-                }
-                // No need to add the account to persistence
-                return okAsync(undefined);
+                // This is a bit of a hack.
+                // The problem is, if you have an existing data wallet, but don't have the data
+                // for that wallet, when you call getAccounts() after unlocking you'll get a complete
+                // blank. This assures us that we have at LEAST the account that unlocked the wallet
+                // in our persistence.
+                return this.dataWalletPersistence.addAccount(
+                  new LinkedAccount(
+                    chain,
+                    accountAddress,
+                    derivedEOA.accountAddress,
+                  ),
+                );
               })
               .andThen(() => {
                 // Need to emit some events
                 context.publicEvents.onInitialized.next(
                   context.dataWalletAddress!,
                 );
+
+                // If the account was newly added, event out
+                if (encryptedDataWalletKey == null) {
+                  context.publicEvents.onAccountAdded.next(
+                    new LinkedAccount(
+                      chain,
+                      accountAddress,
+                      derivedEOA.accountAddress,
+                    ),
+                  );
+                }
+                // No need to add the account to persistence
+                return okAsync(undefined);
 
                 // Placeholder for any action we want to do to verify the account
                 // is in the data wallet or other sanity checking
