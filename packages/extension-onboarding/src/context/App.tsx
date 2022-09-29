@@ -94,6 +94,7 @@ export const AppContextProvider: FC = ({ children }) => {
       if (dataWalletAddress) {
         getUserAccounts();
         subscribeToAccountAdding();
+        subscribeToAccountRemoving();
         if (
           sessionStorage.getItem("appMode") ===
           EAppModes.ONBOARDING_FLOW.toString()
@@ -117,6 +118,10 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const subscribeToAccountInitiating = () => {
     window?.sdlDataWallet?.on("onAccountInitialized", onAccountInitialized);
+  };
+
+  const subscribeToAccountRemoving = () => {
+    window?.sdlDataWallet?.on("onAccountRemoved", onAccountRemoved);
   };
 
   const onAccountInitialized = (notification: {
@@ -145,6 +150,12 @@ export const AppContextProvider: FC = ({ children }) => {
       message: ALERT_MESSAGES.ACCOUNT_ADDED,
       severity: EAlertSeverity.SUCCESS,
     });
+  };
+
+  const onAccountRemoved = (notification: {
+    data: { linkedAccount: LinkedAccount };
+  }) => {
+    getUserAccounts();
   };
 
   const onWalletConnected = useCallback(() => {
