@@ -26,11 +26,13 @@ import {
   ConsentFactoryContractError,
   IOpenSeaMetadata,
   IpfsCID,
+  HexString,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { getDomain } from "tldts";
 
 import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
@@ -50,7 +52,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { getDomain } from "tldts";
 
 @injectable()
 export class InvitationService implements IInvitationService {
@@ -154,6 +155,25 @@ export class InvitationService implements IInvitationService {
       if (context.dataWalletAddress == null || context.dataWalletKey == null) {
         return errAsync(
           new UninitializedError("Data wallet has not been unlocked yet!"),
+        );
+      }
+
+      let optInData: ResultAsync<
+        HexString,
+        BlockchainProviderError | UninitializedError
+      >;
+      if (invitation.businessSignature == null) {
+        optInData = this.consentRepo.encodeOptIn(
+          invitation.consentContractAddress,
+          invitation.tokenId,
+          dataPermissions,
+        );
+      } else {
+        optInData = this.consentRepo.encodeRestrictedOptIn(
+          invitation.consentContractAddress,
+          invitation.tokenId,
+          invitation.businessSignature,
+          dataPermissions,
         );
       }
 
