@@ -16,6 +16,7 @@ import {
   URLString,
   IpfsCID,
   HexString32,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -27,15 +28,15 @@ import {
   IInsightPlatformRepositoryType,
 } from "@core/interfaces/data/index.js";
 import {
+  IContractFactoryType,
+  IContractFactory,
+} from "@core/interfaces/utilities/factory/index.js";
+import {
   IBlockchainProvider,
   IBlockchainProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import {
-  IContractFactoryType,
-  IContractFactory,
-} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {
@@ -209,6 +210,26 @@ export class ConsentContractRepository implements IConsentContractRepository {
       );
     });
   }
+
+  public encodeRestrictedOptIn(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    signature: Signature,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
+    return this.getConsentContract(consentContractAddress).map((contract) => {
+      return contract.encodeRestrictedOptIn(
+        tokenId,
+        signature,
+        dataPermissions != null
+          ? dataPermissions.getFlags()
+          : HexString32(
+              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            ),
+      );
+    });
+  }
+
   public encodeOptOut(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,

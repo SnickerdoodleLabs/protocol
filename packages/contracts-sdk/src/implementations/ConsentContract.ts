@@ -1,6 +1,3 @@
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -23,6 +20,10 @@ import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -80,6 +81,20 @@ export class ConsentContract implements IConsentContract {
       this.contract.interface.encodeFunctionData("optIn", [
         tokenId,
         agreementFlags,
+      ]),
+    );
+  }
+
+  public encodeRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("restrictedOptIn", [
+        tokenId,
+        agreementFlags,
+        signature,
       ]),
     );
   }
