@@ -18,7 +18,7 @@ const Home: FC = () => {
           </Box>
           <Box mt={1}>
             <LinkCard
-              navigateTo={SPA_PATHS.profile}
+              navigateTo={SPA_PATHS.portfoilo}
               icon={Browser.runtime.getURL("assets/icons/portfolio.svg")}
               title="My Portfolio"
             />
@@ -28,7 +28,7 @@ const Home: FC = () => {
               title="Rewards"
             />
             <LinkCard
-              navigateTo={SPA_PATHS.onChain}
+              navigateTo={SPA_PATHS.settings}
               icon={Browser.runtime.getURL("assets/icons/settings.svg")}
               title="Settings"
             />

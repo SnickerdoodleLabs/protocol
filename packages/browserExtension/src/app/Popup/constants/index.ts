@@ -4,7 +4,7 @@ export const PRIVACY_POLICY_URL =
 export const WEBSITE_URL = "https://www.snickerdoodle.com/";
 
 export const SPA_PATHS = {
-  profile: "profile",
-  onChain: "on-chain",
+  portfoilo: "portfolio",
+  settings: "settings",
   rewards: "rewards",
 };
