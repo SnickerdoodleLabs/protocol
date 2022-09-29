@@ -1,12 +1,9 @@
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import PersonalInfoCard from "@extension-onboarding/components/PersonalInfoCard";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import ProfileForm from "@extension-onboarding/components/ProfileForm/ProfileForm";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import InfoCard from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/InfoCard";
 import UpdateForm from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/UpdateForm";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PersonalInfo/Personalnfo.style";
-import { Box, Button, Divider, Grid, Typography } from "@material-ui/core";
+import { Box, Typography } from "@material-ui/core";
 
 import React, { FC, useMemo, useState } from "react";
 
@@ -40,7 +37,7 @@ const PersonalInfo: FC = () => {
               setMode(EMode.DISPLAY);
               setAlert({
                 severity: EAlertSeverity.SUCCESS,
-                message: "Your have been successfully claim your reward!",
+                message: "Your change has been successfully saved!",
               });
             }}
           />
