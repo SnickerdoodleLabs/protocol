@@ -46,7 +46,7 @@ const Details = () => {
       <Sidebar />
       <Box
         display="flex"
-        style={{ overflow: "scroll" }}
+        style={{ overflowY: "auto" }}
         p={6}
         flex={1}
         flexDirection="column"

@@ -13,6 +13,15 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 18,
     lineHeight: "23px",
   },
+  actionButton: {
+    "& .MuiButton-label": {
+      textTransform: "none",
+      fontFamily: "Space Grotesk",
+      fontSize: 18,
+      fontWeight: 500,
+      color: "#8079B4",
+    },
+  },
   info: {
     fontFamily: "'Space Grotesk'",
     fontStyle: "normal",

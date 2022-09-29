@@ -27,13 +27,13 @@ const WalletProviders: FC = () => {
             }}
             provider={provider}
           />
-          {provider.key === EWalletProviderKeys.PHANTOM && (
+          {/* {provider.key === EWalletProviderKeys.PHANTOM && (
             <Box mt={2} mb={5}>
               <Typography className={classes.phantomSteps}>
                 Steps to add multiple Phantom account
               </Typography>
             </Box>
-          )}
+          )} */}
         </Box>
       ))}
       {!!unDetectedProviders.length && (
