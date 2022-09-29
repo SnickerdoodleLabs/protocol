@@ -266,35 +266,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       .map(() => {});
   }
 
-  public areValidParamsToUnlockExistingWallet(
-    accountAddress: AccountAddress,
-    signature: Signature,
-    languageCode: LanguageCode,
-    chain: EChain,
-  ): ResultAsync<
-    boolean,
-    | UnsupportedLanguageError
-    | BlockchainProviderError
-    | UninitializedError
-    | CrumbsContractError
-    | InvalidSignatureError
-  > {
-    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
-      IBlockchainProviderType,
-    );
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    // BlockchainProvider needs to be initialized before check crumbs
-    return blockchainProvider.initialize().andThen(() => {
-      return accountService.areValidParamsToUnlockExistingWallet(
-        accountAddress,
-        signature,
-        languageCode,
-        chain,
-      );
-    });
-  }
-
   public addAccount(
     accountAddress: AccountAddress,
     signature: Signature,

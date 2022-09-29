@@ -1,5 +1,6 @@
 import {
   AccountAddress,
+  DataWalletAddress,
   EChain,
   IEVMBalance,
   IEVMNFT,
@@ -12,9 +13,7 @@ import { ResultAsync } from "neverthrow";
 
 import { IAccountService } from "@interfaces/business";
 import { IAccountRepository, IAccountRepositoryType } from "@interfaces/data";
-import {
-  SnickerDoodleCoreError,
-} from "@shared/objects/errors";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -52,13 +51,13 @@ export class AccountService implements IAccountService {
     );
   }
 
-  public areValidParamsToUnlockExistingWallet(
+  public getDataWalletForAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
-  ): ResultAsync<boolean, SnickerDoodleCoreError> {
-    return this.accountRepository.areValidParamsToUnlockExistingWallet(
+  ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError> {
+    return this.accountRepository.getDataWalletForAccount(
       accountAddress,
       signature,
       languageCode,
