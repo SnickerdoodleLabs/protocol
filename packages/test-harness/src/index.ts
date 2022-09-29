@@ -376,7 +376,7 @@ function corePrompt(): ResultAsync<void, Error> {
 
         // {chainId\":43113,
         // \"outgoingValue\":\"0\",\"outgoingCount\":\"0\",\"incomingValue\":\"1000\",\"incomingCount\":\"1\"
-
+        console.log(`adding ${transactions.length} transactions for chain 43113`)
         return core.addEVMTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
         transactions[0] = new EVMTransaction(
@@ -853,6 +853,7 @@ function prompt(
     }
     return e as Error;
   }).orElse((e) => {
+    console.log("function prompt in index.ts", e);
     // Swallow the error, returns an empty answer
     return okAsync({});
   });

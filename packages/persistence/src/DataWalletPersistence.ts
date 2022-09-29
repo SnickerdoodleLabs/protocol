@@ -645,6 +645,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
+
+    if (transactions.length == 0) {
+      return okAsync(undefined);
+    }
+
+    console.log(`addEVMTransactions #${transactions.length} for first chain id ${transactions[0].chainId}`);
+
     return this.waitForRestore().andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
         return ResultUtils.combine(

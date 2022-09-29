@@ -43,6 +43,7 @@ import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQuer
 import { valueToNode } from "@babel/types";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BigNumber } from "ethers";
+import { concat } from "rxjs";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -141,16 +142,19 @@ export class QueryEvaluator implements IQueryEvaluator {
         return this.dataWalletPersistence.getTransactionsArray()
         .andThen((transactionsArray) => {
           // return okAsync(SDQL_Return(transactionsArray))
-            let items = transactionsArray.filter(obj => (obj.items?.length != 0));            
+            // console.log("line 144 transactionsArray", transactionsArray);
+            // let items = transactionsArray.filter(obj => (obj.items?.length != 0));            
             return ResultUtils.combine([
               this.convertTransactions(transactionsArray),
               this.dataWalletPersistence.getAccounts()
             ])
             
         }).andThen(([convertedTrans, accounts]) => {
+          // console.log("line 152 convertedTrans", convertedTrans);
           return this.TransactionFlowOutput(convertedTrans, accounts);
         
         }).andThen((finalArray) => {
+          // console.log("line 156 finalArray", finalArray);
           return okAsync(SDQL_Return(finalArray))
         })
       default:
@@ -164,14 +168,19 @@ export class QueryEvaluator implements IQueryEvaluator {
   ): ResultAsync<EVMTransaction[], PersistenceError>{
   
     let returnedTransactions : EVMTransaction[] = [];
-    transactionsArray.forEach(val => {
-      if (val.items != null){
-        returnedTransactions = returnedTransactions.concat(val.items);
-      }
-    });
 
-    return okAsync((returnedTransactions));
-  
+    for (const chain of transactionsArray) {
+      // console.log("line 173  chain items", chain);
+      console.log(`QueryEvaluator: line 174 converting ${chain.items!.length} items for chain ${chain.chainId}`)
+      const items = chain.items;
+      if (items != null) {
+        // console.log("line 177  items", items);
+        returnedTransactions.push(...items);
+        // console.log("line 178 returnedTransactions", returnedTransactions);
+      }
+    }
+
+    return okAsync(returnedTransactions);
   }
       
   // passed in transArray of only values with items that have values
