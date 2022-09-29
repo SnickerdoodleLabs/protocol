@@ -17,11 +17,13 @@ import {
   HexString,
   TokenId,
   Base64String,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import argon2 from "argon2";
 import { ethers } from "ethers";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
 
@@ -49,6 +51,60 @@ export class CryptoUtils implements ICryptoUtils {
     // work in a service worker, because the polyfills available do not support randomInt().
     // Ye be warned.
     //return okAsync(TokenId(BigInt(Crypto.randomInt(281474976710655))));
+  }
+
+  public getTokenIds(quantity: number): ResultAsync<TokenId[], never> {
+    if (quantity < 1) {
+      return okAsync([]);
+    }
+
+    const generateUniqeTokens = (
+      uniqueList: TokenId[] = [],
+    ): ResultAsync<TokenId[], never> => {
+      return ResultUtils.combine(
+        [...Array(quantity - uniqueList.length)].map(() => {
+          return this.getTokenId();
+        }),
+      ).andThen((tokenIds) => {
+        const uniqueTokenIds = [...new Set([...uniqueList, ...tokenIds])];
+        if (uniqueTokenIds.length !== quantity) {
+          return generateUniqeTokens(uniqueTokenIds);
+        }
+        return okAsync(uniqueTokenIds);
+      });
+    };
+    return generateUniqeTokens();
+  }
+
+  public getSignatureAnonymous(
+    owner: ethers.Wallet,
+    contract: EVMContractAddress,
+    tokenId: TokenId,
+  ): ResultAsync<Signature, never> {
+    const msgHash = ethers.utils.solidityKeccak256(
+      ["address", "uint256"],
+      [contract, tokenId],
+    );
+
+    return ResultAsync.fromSafePromise(
+      owner.signMessage(ethers.utils.arrayify(msgHash)) as Promise<Signature>,
+    );
+  }
+
+  public getSignature(
+    owner: ethers.Wallet,
+    contract: EVMContractAddress,
+    tokenId: TokenId,
+    recipient: EVMAccountAddress,
+  ): ResultAsync<Signature, never> {
+    const msgHash = ethers.utils.solidityKeccak256(
+      ["address", "address", "uint256"],
+      [contract, recipient, tokenId],
+    );
+
+    return ResultAsync.fromSafePromise(
+      owner.signMessage(ethers.utils.arrayify(msgHash)) as Promise<Signature>,
+    );
   }
 
   public deriveAESKeyFromSignature(
