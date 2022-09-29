@@ -27,6 +27,8 @@ import { IAccountService, IAccountServiceType } from "@interfaces/business";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
+  IErrorUtils,
+  IErrorUtilsType,
 } from "@interfaces/utilities";
 import {
   IConfigProvider,
@@ -107,46 +109,76 @@ export class ExtensionCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-    return accountCookieUtils.readAccountInfoFromCookie().andThen((values) => {
-      const config = configProvider.getConfig();
-      if (values?.length) {
-        const { accountAddress, signature, languageCode, chain } = values[0];
-        return accountService
-          .areValidParamsToUnlockExistingWallet(
-            accountAddress,
-            signature,
-            languageCode,
-            chain ?? EChain.EthereumMainnet,
-          )
-          .andThen((isValid) => {
-            if (isValid) {
-              console.log(
-                `Datawallet is unlocking with account address ${accountAddress}`,
-              );
-              return accountService.unlock(
-                accountAddress,
-                signature,
-                chain ?? EChain.EthereumMainnet,
-                languageCode,
-                true,
-              );
-            } else {
-              console.log(
-                `Datawallet was not able to be unlocked with account address ${accountAddress}`,
-              );
-              return accountCookieUtils
-                .removeAccountInfoFromCookie(accountAddress)
-                .andThen(() => {
-                  return this.tryUnlock();
+    const errorUtils = this.iocContainer.get<IErrorUtils>(IErrorUtilsType);
+
+    const config = configProvider.getConfig();
+
+    return accountCookieUtils
+      .readAccountInfoFromCookie()
+      .andThen((values) => {
+        return accountCookieUtils
+          .readDataWalletAddressFromCookie()
+          .andThen((dataWalletAddressOnCookie) => {
+            console.log(
+              `Data wallet address on Cookie ${dataWalletAddressOnCookie}`,
+            );
+            if (values?.length) {
+              const { accountAddress, signature, languageCode, chain } =
+                values[0];
+              return accountService
+                .getDataWalletForAccount(
+                  accountAddress,
+                  signature,
+                  languageCode,
+                  chain ?? EChain.EthereumMainnet,
+                )
+                .andThen((dataWalletAddress) => {
+                  console.log(
+                    `Decrypted data wallet address for account ${accountAddress} ${dataWalletAddress}`,
+                  );
+                  if (
+                    !dataWalletAddress ||
+                    (dataWalletAddressOnCookie &&
+                      dataWalletAddressOnCookie != dataWalletAddress)
+                  ) {
+                    console.log(
+                      `Datawallet was not able to be unlocked with account address ${accountAddress}`,
+                    );
+                    return accountCookieUtils
+                      .removeAccountInfoFromCookie(accountAddress)
+                      .map(() => {
+                        console.log(`Account ${accountAddress} removed`);
+                        this.tryUnlock();
+                      });
+                  }
+                  return accountService.unlock(
+                    accountAddress,
+                    signature,
+                    chain ?? EChain.EthereumMainnet,
+                    languageCode,
+                    true,
+                  );
                 });
+            } else {
+              if (dataWalletAddressOnCookie) {
+                console.log(
+                  `No account info found on cookie for auto unlock ${dataWalletAddressOnCookie} is removing`,
+                );
+                return accountCookieUtils
+                  .removeDataWalletAddressFromCookie()
+                  .andThen(() => {
+                    return ExtensionUtils.openTab({
+                      url: config.onboardingUrl,
+                    });
+                  });
+              }
+              return ExtensionUtils.openTab({ url: config.onboardingUrl });
             }
-          })
-          .mapErr((e) => {
-            return ExtensionUtils.openTab({ url: config.onboardingUrl });
           });
-      } else {
+      })
+      .orElse((e) => {
+        errorUtils.emit(e);
         return ExtensionUtils.openTab({ url: config.onboardingUrl });
-      }
-    });
+      });
   }
 }

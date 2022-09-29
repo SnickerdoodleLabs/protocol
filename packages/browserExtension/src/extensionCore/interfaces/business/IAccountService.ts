@@ -1,5 +1,6 @@
 import {
   AccountAddress,
+  DataWalletAddress,
   EChain,
   IEVMBalance,
   IEVMNFT,
@@ -38,12 +39,12 @@ export interface IAccountService {
     chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  areValidParamsToUnlockExistingWallet(
+  getDataWalletForAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
-  ): ResultAsync<boolean, SnickerDoodleCoreError>;
+  ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

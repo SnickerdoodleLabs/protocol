@@ -1,5 +1,6 @@
 import {
   AccountAddress,
+  DataWalletAddress,
   EChain,
   EVMAccountAddress,
   IEVMBalance,
@@ -24,7 +25,6 @@ import {
 } from "@interfaces/utilities";
 import {
   SnickerDoodleCoreError,
-  ExtensionCookieError,
 } from "@shared/objects/errors";
 
 @injectable()
@@ -36,19 +36,14 @@ export class AccountRepository implements IAccountRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
-  public areValidParamsToUnlockExistingWallet(
+  public getDataWalletForAccount(
     accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
     chain: EChain,
-  ): ResultAsync<boolean, SnickerDoodleCoreError> {
+  ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError> {
     return this.core
-      .areValidParamsToUnlockExistingWallet(
-        accountAddress,
-        signature,
-        languageCode,
-        chain,
-      )
+      .getDataWalletForAccount(accountAddress, signature, languageCode, chain)
       .mapErr((error) => {
         this.errorUtils.emit(error);
         return new SnickerDoodleCoreError((error as Error).message, error);

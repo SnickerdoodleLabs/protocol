@@ -1,6 +1,11 @@
 import { BrowserUtils } from "@enviroment/shared/utils";
 import { ICoreListener } from "@interfaces/api";
-import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+import {
+  IAccountCookieUtils,
+  IAccountCookieUtilsType,
+  IContextProvider,
+  IContextProviderType,
+} from "@interfaces/utilities";
 import {
   DataWalletAddress,
   ISnickerdoodleCore,
@@ -19,6 +24,8 @@ export class CoreListener implements ICoreListener {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(IAccountCookieUtilsType)
+    protected accountCookieUtils: IAccountCookieUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -39,6 +46,7 @@ export class CoreListener implements ICoreListener {
         });
       }
     });
+    this.accountCookieUtils.writeDataWalletAddressToCookie(dataWalletAddress);
     this.contextProvider.setAccountContext(dataWalletAddress);
     console.log("onInitialized", dataWalletAddress);
     return okAsync(undefined);
@@ -82,7 +90,9 @@ export class CoreListener implements ICoreListener {
   }
 
   private onAccountRemoved(account: LinkedAccount) {
-    console.log("onAccountRemoved", account);
+    this.accountCookieUtils.removeAccountInfoFromCookie(
+      account.sourceAccountAddress,
+    );
     this.contextProvider.onAccountRemoved(account);
   }
 }
