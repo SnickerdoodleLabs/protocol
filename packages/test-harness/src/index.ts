@@ -312,14 +312,12 @@ function corePrompt(): ResultAsync<void, Error> {
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
       case "addEVMTransaction - Query's Network":
-        // First Transaction gives you $1000
-        // Second Transaction takes $200
-        // Third Transaction takes $300
-        // Fourth Transaction takes $50
-
+        /*
+          Important!  Must use different hash values for transaction values!
+        */
         transactions[0] = new EVMTransaction(
           ChainId(43113),
-          "",
+          "firstHash",
           UnixTimestamp(100),
           null,
           EVMAccountAddress("send200"),
@@ -333,7 +331,7 @@ function corePrompt(): ResultAsync<void, Error> {
         );
         transactions[1] = new EVMTransaction(
           ChainId(43113),
-          "",
+          "secondHash",
           UnixTimestamp(100),
           null,
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
@@ -347,7 +345,7 @@ function corePrompt(): ResultAsync<void, Error> {
         );
         transactions[2] = new EVMTransaction(
           ChainId(43113),
-          "",
+          "thirdHash",
           UnixTimestamp(100),
           null,
           EVMAccountAddress("send300"),
@@ -361,7 +359,7 @@ function corePrompt(): ResultAsync<void, Error> {
         );
         transactions[3] = new EVMTransaction(
           ChainId(43113),
-          "",
+          "fourthHash",
           UnixTimestamp(100),
           null,
           EVMAccountAddress("send50"),

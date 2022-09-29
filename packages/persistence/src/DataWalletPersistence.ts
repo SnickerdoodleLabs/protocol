@@ -676,9 +676,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             }
 
             return okAsync(
-              transactions.filter((value) => {
-                filter.matches(value);
-              }),
+              transactions.filter((value) => filter.matches(value)),
             );
           });
       });
