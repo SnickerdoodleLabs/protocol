@@ -12,6 +12,7 @@ import { Subject } from "rxjs";
 export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onInitialized: Subject<DataWalletAddress>;
   public onQueryPosted: Subject<SDQLQueryRequest>;
+  public onQueryAccepted: Subject<SDQLQueryRequest>;
   public onAccountAdded: Subject<EVMAccountAddress>;
   public onAccountRemoved: Subject<EVMAccountAddress>;
   public onCohortJoined: Subject<EVMContractAddress>;
@@ -22,6 +23,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public constructor() {
     this.onInitialized = new Subject();
     this.onQueryPosted = new Subject();
+    this.onQueryAccepted = new Subject();
     this.onAccountAdded = new Subject();
     this.onAccountRemoved = new Subject();
     this.onCohortJoined = new Subject();

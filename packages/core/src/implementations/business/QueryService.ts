@@ -146,6 +146,73 @@ export class QueryService implements IQueryService {
     });
   }
 
+  // You have now accepted the new Query.  Therefore, we must: 
+  // 1. Aggregate the Insights
+  // 2. Generate the Rewards
+  public onQueryAccepted(
+    consentContractAddress: EVMContractAddress,
+    queryId: IpfsCID,
+  ): ResultAsync<
+    void,
+    | IPFSError
+  > {
+    // Get the IPFS data for the query. This is just "Get the query";
+
+    // Cache
+    // if (!this.safeUpdateQueryContractMap(queryId, consentContractAddress)) {
+    //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryId}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryId)}`)); ))
+    // }
+    return ResultUtils.combine([
+      this.sdqlQueryRepo.getByCID(queryId),
+      this.contextProvider.getContext(),
+    ]).andThen(([query, context]) => {
+      if (query == null) {
+        // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
+        // If the client does have the cid key, but no query data yet, then it is not resolved in IPFS yet.
+        // Then we should store this CID and try again later
+        // TODO: This is a temporary return
+        return errAsync(
+          new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
+        );
+      }
+
+      if (context.dataWalletAddress == null) {
+        // Need to wait for the wallet to unlock
+        return okAsync(undefined);
+      }
+
+      // We have the query, next step is check if you actually have a consent token for this business
+      return this.consentContractRepository
+        .isAddressOptedIn(
+          consentContractAddress,
+          EVMAccountAddress(context.dataWalletAddress),
+        )
+        .andThen((addressOptedIn) => {
+          if (!addressOptedIn) {
+            // No consent given!
+            return errAsync(
+              new ConsentError(
+                `No consent token for address ${context.dataWalletAddress}!`,
+              ),
+            );
+          }
+
+          // We have a consent token!
+          const queryRequest = new SDQLQueryRequest(
+            consentContractAddress,
+            query,
+          );
+          // context.publicEvents.onQueryPosted.next({
+          //   consentContractAddress: consentContractAddress,
+          //   query: query,
+          // });
+          context.publicEvents.onQueryAccepted.next(queryRequest);
+
+          return okAsync(undefined);
+        });
+    });
+  }
+
   // safeUpdateQueryContractMap(queryId: IpfsCID, consentContractAddress: EVMContractAddress): boolean {
 
   //   const existingConsentAddress = this.queryContractMap.get(queryId)

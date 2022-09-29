@@ -146,6 +146,11 @@ core.getEvents().map(async (events) => {
     }
   });
 
+  // TODO: For Testing Rewards Preview
+  events.onQueryAccepted.subscribe(async (queryRequest: SDQLQueryRequest) => {
+
+  })
+
   events.onMetatransactionSignatureRequested.subscribe(async (request) => {
     // This method needs to happen in nicer form in all form factors
     console.log(

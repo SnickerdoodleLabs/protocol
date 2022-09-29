@@ -177,6 +177,8 @@ export class BlockchainListener implements IBlockchainListener {
               .andThen((requestForDataObjects) => {
                 return ResultUtils.combine(
                   requestForDataObjects.map((requestForDataObject) => {
+
+                    // TODO - place onQueryAccepted here instead!
                     return this.queryService.onQueryPosted(
                       requestForDataObject.consentContractAddress,
                       requestForDataObject.requestedCID,

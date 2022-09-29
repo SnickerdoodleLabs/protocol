@@ -28,6 +28,7 @@ export class CoreListener implements ICoreListener {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
+      events.onQueryAccepted.subscribe(this.onQueryAccepted.bind(this));
       events.onMetatransactionSignatureRequested.subscribe(
         this.onMetatransactionSignatureRequested.bind(this),
       );
@@ -85,6 +86,14 @@ export class CoreListener implements ICoreListener {
         );
         console.error(e);
       });
+  }
+
+  // TODO: Add functionality to onQueryAccepted
+  private onQueryAccepted(request: SDQLQueryRequest) {
+    console.log(
+      `onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+    );
+    console.debug(request.query.query);
   }
 
   // Todo move logic to correct place

@@ -78,6 +78,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       });
   }
 
+  public callPreview(){
+    
+  }
+
   protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
 

@@ -28,6 +28,21 @@ export interface IQueryService {
     | AjaxError
     | ConsentError
   >;
+
+  onQueryAccepted(
+    consentContractAddress: EVMContractAddress,
+    queryId: IpfsCID,
+  ): ResultAsync<
+    void,
+    | IPFSError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | ConsentError
+  >;
+
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
