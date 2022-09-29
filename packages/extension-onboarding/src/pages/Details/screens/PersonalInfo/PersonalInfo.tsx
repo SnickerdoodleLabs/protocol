@@ -1,6 +1,8 @@
+import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
 import PersonalInfoCard from "@extension-onboarding/components/PersonalInfoCard";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import ProfileForm from "@extension-onboarding/components/ProfileForm/ProfileForm";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import InfoCard from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/InfoCard";
 import UpdateForm from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/UpdateForm";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PersonalInfo/Personalnfo.style";
@@ -16,6 +18,7 @@ enum EMode {
 const PersonalInfo: FC = () => {
   const [mode, setMode] = useState<EMode>(EMode.DISPLAY);
   const classes = useStyles();
+  const { setAlert } = useNotificationContext();
 
   const component = useMemo(() => {
     switch (mode) {
@@ -35,6 +38,10 @@ const PersonalInfo: FC = () => {
             }}
             onSubmitted={() => {
               setMode(EMode.DISPLAY);
+              setAlert({
+                severity: EAlertSeverity.SUCCESS,
+                message: "Your have been successfully claim your reward!",
+              });
             }}
           />
         );

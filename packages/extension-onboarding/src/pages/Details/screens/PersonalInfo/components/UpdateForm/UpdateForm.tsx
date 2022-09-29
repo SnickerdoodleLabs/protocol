@@ -2,7 +2,10 @@ import DateFnsUtils from "@date-io/date-fns";
 import { countries } from "@extension-onboarding/constants/countries";
 import useProfileIFormLogic from "@extension-onboarding/hooks/useProfileIFormLogic";
 import { clientID } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/UpdateForm/UpdateForm.style";
+import {
+  useStyles,
+  usePopoverStyles,
+} from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/UpdateForm/UpdateForm.style";
 import calendarIcon from "@extension-onboarding/assets/icons/calendar.svg";
 
 import { Box, Typography, MenuItem, Grid, Button } from "@material-ui/core";
@@ -34,6 +37,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
     isSubmitted,
   } = useProfileIFormLogic();
   const classes = useStyles();
+  const popoverClasses = usePopoverStyles();
 
   useEffect(() => {
     if (isSubmitted) onSubmitted?.();
@@ -123,6 +127,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                           inputVariant="outlined"
                           format="MM/dd/yyyy"
                           id="date-picker-inline"
+                          PopoverProps={{ classes: popoverClasses }}
                           invalidDateMessage=""
                           maxDateMessage=""
                           minDateMessage=""
@@ -198,17 +203,17 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                           fullWidth
                           name="gender"
                           placeholder="Gender"
-                          value={values.gender}
+                          value={values.gender || ""}
+                          inputProps={{
+                            displayEmpty: true,
+                          }}
                         >
-                          <MenuItem selected value="female">
-                            Female
+                          <MenuItem value="" disabled>
+                            Select your gender
                           </MenuItem>
-                          <MenuItem selected value="male">
-                            Male
-                          </MenuItem>
-                          <MenuItem selected value="nonbinary">
-                            Non-Binary
-                          </MenuItem>
+                          <MenuItem value="female">Female</MenuItem>
+                          <MenuItem value="male">Male</MenuItem>
+                          <MenuItem value="nonbinary">Non-Binary</MenuItem>
                         </Field>
                         <ErrorMessage
                           children={(errorMessage: string) => (

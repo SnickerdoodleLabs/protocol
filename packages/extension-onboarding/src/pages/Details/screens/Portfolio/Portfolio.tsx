@@ -1,5 +1,7 @@
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
+import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
+import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
 import NFTItem from "@extension-onboarding/components/NFTItem";
 import Switch from "@extension-onboarding/components/Switch";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
@@ -96,6 +98,13 @@ const Portfolio: FC = () => {
   }, []);
 
   useEffect(() => {
+    setIsBalancesLoading(true);
+    setIsNFTsLoading(true);
+    initializeBalances();
+    initializeNfts();
+  }, [linkedAccounts.length]);
+
+  useEffect(() => {
     if (accountBalances) {
       setIsBalancesLoading(false);
     }
@@ -133,6 +142,7 @@ const Portfolio: FC = () => {
         );
         setAccountBalances(structeredBalances.mainnetBalances);
         setAccountTestnetBalances(structeredBalances.testnetBalances);
+        setIsBalancesLoading(false);
       });
   };
 
@@ -160,6 +170,7 @@ const Portfolio: FC = () => {
         );
         setAccountNFTs(structeredNfts.mainnetNfts);
         setAccountTestnetNFTs(structeredNfts.testnetNfts);
+        setIsNFTsLoading(false);
       });
   };
 
@@ -526,7 +537,7 @@ const Portfolio: FC = () => {
                 </Box>
               ) : (
                 <>
-                  {tokensToRender &&
+                  {tokensToRender?.length ? (
                     (tokensPagination
                       ? tokensToRender.slice(
                           (tokensPagination?.currentIndex - 1) *
@@ -546,7 +557,23 @@ const Portfolio: FC = () => {
                           <TokenItem item={item} />
                         </Box>
                       );
-                    })}
+                    })
+                  ) : (
+                    <Box display="flex">
+                      <Box
+                        justifyContent="center"
+                        alignItems="center"
+                        width="100%"
+                        display="flex"
+                        pt={10}
+                      >
+                        <img
+                          style={{ width: 255, height: "auto" }}
+                          src={emptyTokens}
+                        />
+                      </Box>
+                    </Box>
+                  )}
                 </>
               )}
               {tokensPagination && (
@@ -611,7 +638,7 @@ const Portfolio: FC = () => {
                 </Box>
               ) : (
                 <Grid container className={classes.nftContainer}>
-                  {nftsToRender &&
+                  {nftsToRender?.length ? (
                     (nftsPagination
                       ? nftsToRender.slice(
                           (nftsPagination.currentIndex - 1) * PAGINATION_RANGE,
@@ -620,7 +647,23 @@ const Portfolio: FC = () => {
                       : nftsToRender
                     )?.map((nftitem) => {
                       return <NFTItem key={nftitem.contract} item={nftitem} />;
-                    })}
+                    })
+                  ) : (
+                    <Box width="100%" display="flex">
+                      <Box
+                        justifyContent="center"
+                        alignItems="center"
+                        width="100%"
+                        display="flex"
+                        pt={8}
+                      >
+                        <img
+                          style={{ width: 255, height: "auto" }}
+                          src={emptyNfts}
+                        />
+                      </Box>
+                    </Box>
+                  )}
                   {nftsPagination && (
                     <Box
                       display="flex"

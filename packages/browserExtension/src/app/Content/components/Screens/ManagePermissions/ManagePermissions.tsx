@@ -12,29 +12,30 @@ const PERMISSION_NAMES = {
   [EWalletDataType.Birthday]: "Birthday",
   [EWalletDataType.Location]: "Location",
   [EWalletDataType.SiteVisits]: "Site Visits",
-  [EWalletDataType.EVMTransactions]: "EVM Transactions",
-  [EWalletDataType.AccountBalances]: "AccountBalance",
-  [EWalletDataType.AccountNFTs]: "Account NFTs",
-  [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
+  [EWalletDataType.EVMTransactions]: "Transaction History",
+  [EWalletDataType.AccountBalances]: "Token Balances",
+  [EWalletDataType.AccountNFTs]: "NFTs",
+  // [EWalletDataType.LatestBlockNumber]: "Latest Block Number",
 };
 
 const PERMISSIONS = [
   {
-    title: "Demographic Info",
+    title: "Web2 Data",
     dataTypes: [
       EWalletDataType.Gender,
       EWalletDataType.Birthday,
       EWalletDataType.Location,
+      EWalletDataType.SiteVisits,
     ],
   },
   {
-    title: "On-Chain Info",
+    title: "Web3 Data",
     dataTypes: [
       EWalletDataType.SiteVisits,
       EWalletDataType.EVMTransactions,
       EWalletDataType.AccountBalances,
       EWalletDataType.AccountNFTs,
-      EWalletDataType.LatestBlockNumber,
+      // EWalletDataType.LatestBlockNumber,
     ],
   },
 ];

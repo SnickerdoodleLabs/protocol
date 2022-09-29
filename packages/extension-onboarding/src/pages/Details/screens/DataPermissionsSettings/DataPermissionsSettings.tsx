@@ -1,6 +1,7 @@
 import Switch from "@extension-onboarding/components/Switch";
 import {
   PERMISSIONS,
+  PERMISSION_DESCRIPTIONS,
   PERMISSION_NAMES,
 } from "@extension-onboarding/constants/permissions";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings/DataPermissionsSettings.style";
@@ -23,7 +24,6 @@ const DataPermissionsSettings: FC = () => {
   const classes = useStyles();
   const [applyDefaults, setApplyDefaults] = useState<boolean>(false);
   const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
-
 
   useEffect(() => {
     getApplyDefaultOption();
@@ -132,12 +132,20 @@ const DataPermissionsSettings: FC = () => {
                             />
                           </Box>
                         </Box>
-                        {index != item.dataTypes.length - 1 &&
-                          (sectionIndex != 0 ||
-                            index !=
-                              Math.round(item.dataTypes.length / 2) - 1) && (
-                            <Divider />
-                          )}
+                        {PERMISSION_DESCRIPTIONS[dataType] && (
+                          <Box mb={1}>
+                            <Typography
+                              className={classes.permissionDescription}
+                            >
+                              {PERMISSION_DESCRIPTIONS[dataType]}
+                            </Typography>
+                          </Box>
+                        )}
+                        {index === item.dataTypes.length - 1 ||
+                        (sectionIndex === 0 &&
+                          index === item.dataTypes.length - 2) ? null : (
+                          <Divider />
+                        )}
                       </Grid>
                     );
                   })}

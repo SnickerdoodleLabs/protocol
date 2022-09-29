@@ -43,4 +43,12 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "28px",
     color: "#232039",
   },
+  permissionDescription: {
+    fontFamily: "Space Grotesk",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "14px",
+    lineHeight: "16px",
+    color: "#232039",
+  },
 }));

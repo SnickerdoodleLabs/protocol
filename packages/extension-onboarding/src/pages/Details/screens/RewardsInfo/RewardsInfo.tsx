@@ -6,6 +6,7 @@ import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfa
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
+import emptyReward from "@extension-onboarding/assets/images/empty-reward.svg";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -82,6 +83,7 @@ const RewardsInfo: FC = () => {
       ) : (
         <Grid container spacing={2}>
           {rewardContractAddressesWithCID &&
+          Object.keys(rewardContractAddressesWithCID).length ? (
             Object.keys(rewardContractAddressesWithCID)?.map((key) => (
               <RewardItem
                 button={
@@ -97,7 +99,20 @@ const RewardsInfo: FC = () => {
                 key={key}
                 rewardCID={rewardContractAddressesWithCID[key]}
               />
-            ))}
+            ))
+          ) : (
+            <Box width="100%" display="flex">
+              <Box
+                justifyContent="center"
+                alignItems="center"
+                width="100%"
+                display="flex"
+                pt={20}
+              >
+                <img style={{ width: 330, height: "auto" }} src={emptyReward} />
+              </Box>
+            </Box>
+          )}
         </Grid>
       )}
     </Box>
