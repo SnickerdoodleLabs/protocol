@@ -1,9 +1,10 @@
 import { ResultAsync } from "neverthrow";
 
-import { IEVMNftRepository } from "@objects/interfaces";
+import { IEVMNftRepository, ISolanaNFTRepository } from "@objects/interfaces";
 
 export interface IAccountNFTs {
   getEVMNftRepository(): ResultAsync<IEVMNftRepository, never>;
+  getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never>;
   getSimulatorEVMNftRepository(): ResultAsync<IEVMNftRepository, never>;
 }
 

@@ -1,4 +1,3 @@
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 import {
   EVMAccountAddress,
   EVMTransactionFilter,
@@ -10,6 +9,8 @@ import {
 import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 
 @injectable()
 export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
@@ -25,15 +26,16 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
     const chainId = query.contract.networkId;
     const address = query.contract.address as EVMAccountAddress;
     // TODO: Start and end should be timestamps not specific block number
+    const hashes = undefined;
     const startTime = query.contract.blockrange.start;
     const endTime = query.contract.blockrange.end;
 
     const filter = new EVMTransactionFilter(
       [chainId],
       [address],
-      undefined,
-      undefined,
-      undefined,
+      hashes,
+      startTime,
+      endTime,
     );
 
     if (query.returnType == "object") {

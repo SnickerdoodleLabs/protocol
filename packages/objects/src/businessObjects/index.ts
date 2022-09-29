@@ -22,3 +22,5 @@ export * from "@objects/businessObjects/SDQLQuery";
 export * from "@objects/businessObjects/SDQLQueryRequest";
 export * from "@objects/businessObjects/SiteVisit";
 export * from "@objects/businessObjects/rewards";
+export * from "@objects/businessObjects/SolanaTransaction";
+export * from "@objects/businessObjects/SolanaNFT";

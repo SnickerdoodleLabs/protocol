@@ -4,6 +4,7 @@ import {
   EVMAccountAddress,
   BigNumberString,
   UnixTimestamp,
+  EVMAccountAddressRegex,
 } from "@objects/primitives";
 
 /**
@@ -89,7 +90,9 @@ export class EVMTransactionFilter {
         result = new Set([...result, ...this._getDescendants(value)]);
       } else {
         if (typeof value === "string") {
-          result.add(EVMAccountAddress(value));
+          if (EVMAccountAddressRegex.test(value)) {
+            result.add(EVMAccountAddress(value.toLowerCase()));
+          }
         }
       }
     }
