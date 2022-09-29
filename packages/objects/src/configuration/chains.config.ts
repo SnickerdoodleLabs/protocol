@@ -3,7 +3,7 @@ import {
   ControlChainInformation,
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
-import { EChain, EChainTechnology, EIndexer } from "@objects/enum";
+import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
 import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 
 export const chainConfig = new Map<ChainId, ChainInformation>([
@@ -72,6 +72,20 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
+    ChainId(EChain.Kovan),
+    new ChainInformation(
+      "Kovan",
+      ChainId(EChain.Kovan),
+      EChain.Kovan,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000,
+      EIndexer.EVM,
+      new NativeCurrencyInformation("ETH", 18, "ETH"),
+    ),
+  ],
+  [
     ChainId(EChain.Mumbai),
     new ChainInformation(
       "Mumbai Testnet",
@@ -116,7 +130,11 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChain.Avalanche,
       EChainTechnology.EVM,
       true,
-      [ProviderUrl("https://avalanche-mainnet.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7")],
+      [
+        ProviderUrl(
+          "https://avalanche-mainnet.infura.io/v3/aa563c4a004d4a219e5134fab06b7fd7",
+        ),
+      ],
       4000,
       EIndexer.EVM,
       new NativeCurrencyInformation("AVAX", 18, "AVAX"),
