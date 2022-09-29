@@ -322,9 +322,9 @@ function corePrompt(): ResultAsync<void, Error> {
           "",
           UnixTimestamp(100),
           null,
+          EVMAccountAddress("send200"),
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
-          EVMAccountAddress("get1000"),
-          BigNumberString("1000"),
+          BigNumberString("200"),
           null,
           null,
           null,
@@ -336,9 +336,9 @@ function corePrompt(): ResultAsync<void, Error> {
           "",
           UnixTimestamp(100),
           null,
-          EVMAccountAddress("send200"),
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
-          BigNumberString("200"),
+          EVMAccountAddress("get1000"),
+          BigNumberString("1000"),
           null,
           null,
           null,
@@ -373,6 +373,10 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           Math.random() * 1000,
         );
+
+        // {chainId\":43113,
+        // \"outgoingValue\":\"0\",\"outgoingCount\":\"0\",\"incomingValue\":\"1000\",\"incomingCount\":\"1\"
+
         return core.addEVMTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
         transactions[0] = new EVMTransaction(
