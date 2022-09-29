@@ -3,14 +3,9 @@ import { countries } from "@extension-onboarding/constants/countries";
 import useProfileIFormLogic from "@extension-onboarding/hooks/useProfileIFormLogic";
 import { clientID } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/PersonalInfo/components/UpdateForm/UpdateForm.style";
+import calendarIcon from "@extension-onboarding/assets/icons/calendar.svg";
 
-import {
-  Box,
-  FormControlLabel,
-  Radio,
-  Typography,
-  MenuItem,
-} from "@material-ui/core";
+import { Box, Typography, MenuItem, Grid, Button } from "@material-ui/core";
 import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
@@ -21,11 +16,13 @@ import React, { FC, useEffect } from "react";
 import { GoogleLogin } from "react-google-login";
 
 interface IUpdateFormProps {
-  onSubmitted?: () => void;
+  onSubmitted: () => void;
+  onCancelClicked: () => void;
 }
 
 const UpdateForm: FC<IUpdateFormProps> = ({
   onSubmitted,
+  onCancelClicked,
 }: IUpdateFormProps) => {
   const {
     isGoogleButtonVisible,
@@ -44,10 +41,10 @@ const UpdateForm: FC<IUpdateFormProps> = ({
 
   return (
     <Box>
-      <Box mb={5} mt={4}>
+      <Box mb={5}>
         {isGoogleButtonVisible && (
           <Box my={5}>
-            <Box>
+            <Box mb={2}>
               <Typography className={classes.info}>
                 Sync your demographic info by connecting your Google account.
               </Typography>
@@ -61,7 +58,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
               cookiePolicy={"single_host_origin"}
               isSignedIn={false}
             />
-            <Box display="flex" alignItems="center">
+            <Box mt={2} display="flex" alignItems="center">
               <Box mr={1} className={classes.divider} />
               <Typography className={classes.dividerText}>
                 or input it manually
@@ -74,10 +71,27 @@ const UpdateForm: FC<IUpdateFormProps> = ({
           mt={4}
           bgcolor="#FCFCFC"
           p={3}
-          pt={12}
+          pt={6}
           border="1px solid #ECECEC"
           borderRadius={8}
         >
+          <Box display="flex">
+            <Box display="flex" marginLeft="auto">
+              <Button
+                onClick={onCancelClicked}
+                className={classes.actionButton}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                form="profile-create-form"
+                className={classes.actionButton}
+              >
+                Save
+              </Button>
+            </Box>
+          </Box>
           <Formik
             initialValues={formValues}
             onSubmit={onFormSubmit}
@@ -91,14 +105,16 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                   onSubmit={handleSubmit}
                   id="profile-create-form"
                 >
-                  <Box display="flex" mt={3}>
-                    <Box>
+                  <Grid spacing={3} container>
+                    <Grid item xs={6}>
                       <Typography className={classes.formLabel}>
                         Date of Birth
                       </Typography>
                       <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <KeyboardDatePicker
+                          keyboardIcon={<img src={calendarIcon} />}
                           className={classes.input}
+                          fullWidth
                           required
                           clearable
                           autoOk
@@ -134,69 +150,65 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                           name="date_of_birth"
                         />
                       </MuiPickersUtilsProvider>
-                    </Box>
-                  </Box>
-                  <Box /* display="flex" */ mt={3}>
-                    <Box>
-                      <Typography className={classes.formLabel}>
-                        Country
+                      <Typography className={classes.infoText}>
+                        Your Date of Birth will never be shared without your
+                        consent.
                       </Typography>
-                      <Field
-                        className={classes.selectInput}
-                        component={Select}
-                        variant="outlined"
-                        fullWidth
-                        name="country_code"
-                        placeholder="Country"
-                        value={
-                          values.country_code ||
-                          (() => {
-                            setFieldValue("country_code", "US");
-                            return "US";
-                          })()
-                        }
-                      >
-                        <MenuItem selected value="US">
-                          United States
-                        </MenuItem>
-                        {countries.map((country) => (
-                          <MenuItem key={country.code} value={country.code}>
-                            {country.name}
-                          </MenuItem>
-                        ))}
-                      </Field>
-                    </Box>
-                    {/* todo delete mt */}
-                    <Box /* ml={3} */ mt={3}>
-                      <Typography className={classes.formLabel}>
-                        Gender
-                      </Typography>
-                      <Box mt={1}>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Box>
+                        <Typography className={classes.formLabel}>
+                          Country
+                        </Typography>
                         <Field
-                          component={RadioGroup}
-                          row
-                          required
-                          name="gender"
-                          value={values.gender}
-                          onChange={(event) => {
-                            setFieldValue("gender", event.currentTarget.value);
-                          }}
+                          className={classes.selectInput}
+                          component={Select}
+                          variant="outlined"
+                          fullWidth
+                          name="country_code"
+                          placeholder="Country"
+                          value={
+                            values.country_code ||
+                            (() => {
+                              setFieldValue("country_code", "US");
+                              return "US";
+                            })()
+                          }
                         >
-                          <FormControlLabel
-                            value="female"
-                            control={<Radio />}
-                            label="Female"
-                          />
-                          <FormControlLabel
-                            value="male"
-                            control={<Radio />}
-                            label="Male"
-                          />
-                          <FormControlLabel
-                            value="nonbinary"
-                            control={<Radio />}
-                            label="Non-Binary"
-                          />
+                          <MenuItem selected value="US">
+                            United States
+                          </MenuItem>
+                          {countries.map((country) => (
+                            <MenuItem key={country.code} value={country.code}>
+                              {country.name}
+                            </MenuItem>
+                          ))}
+                        </Field>
+                      </Box>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Box>
+                        <Typography className={classes.formLabel}>
+                          Gender
+                        </Typography>
+                        <Field
+                          className={classes.selectInput}
+                          component={Select}
+                          variant="outlined"
+                          fullWidth
+                          name="gender"
+                          placeholder="Gender"
+                          value={values.gender}
+                        >
+                          <MenuItem selected value="female">
+                            Female
+                          </MenuItem>
+                          <MenuItem selected value="male">
+                            Male
+                          </MenuItem>
+                          <MenuItem selected value="nonbinary">
+                            Non-Binary
+                          </MenuItem>
                         </Field>
                         <ErrorMessage
                           children={(errorMessage: string) => (
@@ -207,8 +219,8 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                           name="gender"
                         />
                       </Box>
-                    </Box>
-                  </Box>
+                    </Grid>
+                  </Grid>
                 </Form>
               );
             }}

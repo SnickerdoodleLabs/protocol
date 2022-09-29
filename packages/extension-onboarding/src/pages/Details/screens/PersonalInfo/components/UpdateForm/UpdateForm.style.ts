@@ -45,6 +45,21 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "20px",
     color: "#232039",
   },
+  actionButton: {
+    "& .MuiButton-label": {
+      textTransform: "none",
+      fontFamily: "Space Grotesk",
+      fontSize: 18,
+      fontWeight: 500,
+      color: "#8079B4",
+    },
+  },
+  infoText: {
+    fontFamily: "Space Grotesk",
+    fontSize: 12,
+    fontWeight: 400,
+    color: "#616161",
+  },
   divider: {
     display: "flex",
     flex: 1,
@@ -76,7 +91,6 @@ export const useStyles = makeStyles((theme) => ({
     color: "#232039",
   },
   input: {
-    width: 330,
     height: 55,
     border: "1px solid #D9D9D9",
     borderRadius: 8,
@@ -86,7 +100,6 @@ export const useStyles = makeStyles((theme) => ({
   },
   errorMessage: {
     margin: 0,
-    marginLeft: 14,
     marginRight: 14,
     color: "#f44336",
     fontSize: "0.75rem",
@@ -97,7 +110,6 @@ export const useStyles = makeStyles((theme) => ({
     letterSpacing: "0.03333em",
   },
   selectInput: {
-    width: 330,
     height: 55,
     border: "1px solid #D9D9D9",
     borderRadius: 8,

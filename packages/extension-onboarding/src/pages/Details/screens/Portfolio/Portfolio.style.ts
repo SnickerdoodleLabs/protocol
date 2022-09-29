@@ -61,7 +61,9 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 14,
     fontWeight: 500,
     color: "#929292",
-    background: "none",
+    "& .MuiSelect-select:focus": {
+      background: "none",
+    },
   },
   selectChain: {
     width: 240,
@@ -98,5 +100,35 @@ export const useStyles = makeStyles((theme) => ({
     display: "flex",
     marginTop: "16px",
     gap: 10,
+  },
+  gridTitle: {
+    fontFamily: "Space Grotesk",
+    fontWeight: 500,
+    fontSize: 16,
+    color: "#5D5A74",
+  },
+  switchNetwork: {
+    fontFamily: "Space Grotesk",
+    fontWeight: 500,
+    fontSize: 12,
+    color: "#232039",
+    cursor: "pointer",
+  },
+  paginationText: {
+    fontFamily: "Roboto",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: 12,
+  },
+  buttonText: {
+    paddingLeft: "8px",
+    textTransform: "none",
+    fontFamily: "Space Grotesk",
+    fontWeight: 500,
+    fontSize: 16,
+    color: "#232039",
+  },
+  unfocused: {
+    opacity: 0.3,
   },
 }));
