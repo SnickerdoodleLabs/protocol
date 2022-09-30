@@ -14,6 +14,8 @@ import {
   IDataWalletPersistence,
   IEVMBalance,
   IChainTransaction,
+  EVMTransaction,
+  UnixTimestamp,
 
 } from "@snickerdoodlelabs/objects";
 import {
@@ -65,9 +67,70 @@ class QueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsArray = new Array<IChainTransaction>
-  (
-  );
+  
+  public evmReturns: EVMTransaction[] = [
+    new EVMTransaction(
+      ChainId(43113),
+      "firstHash",
+      UnixTimestamp(100),
+      null,
+      EVMAccountAddress("send200"),
+      EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+      BigNumberString("200"),
+      null,
+      null,
+      null,
+      null,
+      Math.random() * 1000,
+    ),
+    new EVMTransaction(
+      ChainId(43113),
+      "secondHash",
+      UnixTimestamp(100),
+      null,
+      EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+      EVMAccountAddress("get1000"),
+      BigNumberString("1000"),
+      null,
+      null,
+      null,
+      null,
+      Math.random() * 1000,
+    ),
+    new EVMTransaction(
+      ChainId(43113),
+      "thirdHash",
+      UnixTimestamp(100),
+      null,
+      EVMAccountAddress("send300"),
+      EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+      BigNumberString("300"),
+      null,
+      null,
+      null,
+      null,
+      Math.random() * 1000,
+    ),
+    new EVMTransaction(
+      ChainId(43113),
+      "fourthHash",
+      UnixTimestamp(100),
+      null,
+      EVMAccountAddress("send50"),
+      EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+      BigNumberString("50"),
+      null,
+      null,
+      null,
+      null,
+      Math.random() * 1000,
+    )
+  ];
+
+  public transactionsReturn = [{
+    "chainId": ChainId(43113),
+    "items": this.evmReturns
+  }]
 
   public accountBalances = new Array<IEVMBalance>(
     {
@@ -116,11 +179,12 @@ class QueryEvaluatorMocks {
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
-    /*
+    
     td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
-      okAsync(this.transactionsArray),
+      okAsync(this.transactionsReturn),
     );
-    */
+
+    
     td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(this.accountBalances),
     );
@@ -679,7 +743,7 @@ describe("Return URLs Map", () => {
     );
   });
 });
-
+/*
 describe("Return Chain Transaction Count", () => {
   test("EvalPropertyQuery: return chain transaction count", async () => {
     const propertyQuery = new AST_PropertyQuery(
@@ -694,12 +758,18 @@ describe("Return Chain Transaction Count", () => {
         },
       },
     );
+
+    //const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
+
     const mocks = new QueryEvaluatorMocks();
     const repo = mocks.factory();
     const result = await repo.eval(propertyQuery);
+
+
     // console.log("URLs is: ", result["value"]);
     expect(result["value"]).toEqual(
       new Map<ChainId, number>([[ChainId(1), 10]]),
     );
   });
 });
+*/

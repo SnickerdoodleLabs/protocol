@@ -143,7 +143,10 @@ export class QueryEvaluator implements IQueryEvaluator {
         .andThen((transactionsArray) => {
           // return okAsync(SDQL_Return(transactionsArray))
             // console.log("line 144 transactionsArray", transactionsArray);
-            // let items = transactionsArray.filter(obj => (obj.items?.length != 0));            
+            // let items = transactionsArray.filter(obj => (obj.items?.length != 0));   
+            
+            console.log("Transactions: ");
+            console.log(transactionsArray);
             return ResultUtils.combine([
               this.convertTransactions(transactionsArray),
               this.dataWalletPersistence.getAccounts()
@@ -163,7 +166,7 @@ export class QueryEvaluator implements IQueryEvaluator {
     }
   }
 
-  protected convertTransactions(
+  public convertTransactions(
     transactionsArray: {chainId: ChainId, items: EVMTransaction[] | null}[]
   ): ResultAsync<EVMTransaction[], PersistenceError>{
   
