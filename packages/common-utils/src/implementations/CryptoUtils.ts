@@ -60,8 +60,8 @@ export class CryptoUtils implements ICryptoUtils {
     salt: HexString,
   ): ResultAsync<AESKey, never> {
     // A signature is a hex string, with 65 bytes. We should convert it to a buffer
-    const sourceEntropy = Buffer.from(ethers.utils.arrayify(signature));
-    const saltBuffer = Buffer.from(ethers.utils.arrayify(salt));
+    const sourceEntropy = this.hexStringToBuffer(signature);
+    const saltBuffer = this.hexStringToBuffer(salt);
     const keyBuffer = Crypto.pbkdf2Sync(
       sourceEntropy,
       saltBuffer,
@@ -78,8 +78,8 @@ export class CryptoUtils implements ICryptoUtils {
     salt: HexString,
   ): ResultAsync<EVMPrivateKey, never> {
     // A signature is a hex string, with 65 bytes. We should convert it to a buffer
-    const sourceEntropy = Buffer.from(ethers.utils.arrayify(signature));
-    const saltBuffer = Buffer.from(ethers.utils.arrayify(salt));
+    const sourceEntropy = this.hexStringToBuffer(signature);
+    const saltBuffer = this.hexStringToBuffer(salt);
     const keyBuffer = Crypto.pbkdf2Sync(
       sourceEntropy,
       saltBuffer,
@@ -97,8 +97,8 @@ export class CryptoUtils implements ICryptoUtils {
     // We can generate salt by signing a message
     return this.signMessage("PhoebeIsCute", evmKey).map((signature) => {
       // An EVMPrivateKey is a hex string. We should convert it to a buffer
-      const sourceEntropy = Buffer.from(ethers.utils.arrayify(evmKey));
-      const saltBuffer = Buffer.from(ethers.utils.arrayify(signature));
+      const sourceEntropy = this.hexStringToBuffer(evmKey);
+      const saltBuffer = this.hexStringToBuffer(signature);
       const keyBuffer = Crypto.pbkdf2Sync(
         sourceEntropy,
         saltBuffer,
@@ -115,8 +115,8 @@ export class CryptoUtils implements ICryptoUtils {
   ): ResultAsync<Uint8Array, never> {
     return this.signMessage("VarunWasHere", evmKey).map((signature) => {
       // An EVMPrivateKey is a hex string. We should convert it to a buffer
-      const sourceEntropy = Buffer.from(ethers.utils.arrayify(evmKey));
-      const saltBuffer = Buffer.from(ethers.utils.arrayify(signature));
+      const sourceEntropy = this.hexStringToBuffer(evmKey);
+      const saltBuffer = this.hexStringToBuffer(signature);
       const keyBuffer = Crypto.pbkdf2Sync(
         sourceEntropy,
         saltBuffer,
@@ -363,5 +363,22 @@ export class CryptoUtils implements ICryptoUtils {
       out[i] = this.randomInt(randFunc, 0, 256);
     }
     return out;
+  }
+
+  protected hexStringToBuffer(
+    hex: HexString | Signature | EVMPrivateKey,
+  ): Buffer {
+    // HexStrings have a nasty habit of SOMETIMES having a 0x prefix but not always.
+    // We will correct that
+    if (!ethers.utils.isHexString(hex)) {
+      const prefixedHex = `0x${hex}`;
+
+      // If it's still not a valid hex string, then it's exception time.
+      if (!ethers.utils.isHexString(prefixedHex)) {
+        throw new Error(`Invalid hex string ${hex}`);
+      }
+      return Buffer.from(ethers.utils.arrayify(prefixedHex));
+    }
+    return Buffer.from(ethers.utils.arrayify(hex));
   }
 }

@@ -121,7 +121,8 @@ process
 
 core.getEvents().map(async (events) => {
   events.onAccountAdded.subscribe((addedAccount) => {
-    console.log(`Added account: ${addedAccount}`);
+    console.log(`Added account`);
+    console.log(addedAccount);
   });
 
   events.onInitialized.subscribe((dataWalletAddress) => {
