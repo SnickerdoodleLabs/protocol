@@ -16,8 +16,9 @@ import {
   SolanaAccountAddress,
   SolanaPrivateKey,
   EVMContractAddress,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface ICryptoUtils {
@@ -106,17 +107,12 @@ export interface ICryptoUtils {
   randomInt(randomFunc: () => number, low: number, high: number): number;
   randomBytes(length: number, seed: string): Uint8Array;
   getSignature(
-    owner: ethers.Wallet,
-    contract: EVMContractAddress,
-    tokenId: TokenId,
-    recipient: EVMAccountAddress,
-  ): ResultAsync<Signature, never>;
-
-  getSignatureAnonymous(
-    owner: ethers.Wallet,
-    contract: EVMContractAddress,
-    tokenId: TokenId,
-  ): ResultAsync<Signature, never>;
+    owner: ethers.Signer,
+    types: Array<string>,
+    values: Array<
+      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+    >,
+  ): ResultAsync<Signature, InvalidParametersError>;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");
