@@ -22,11 +22,10 @@ import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { urlJoinP, urlJoin } from "url-join-ts";
 
-import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository";
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
-} from "@indexers/IIndexerConfigProvider";
+} from "@indexers/IIndexerConfigProvider.js";
 
 interface ICovalentSolanaBalanceResponse {
   data: {

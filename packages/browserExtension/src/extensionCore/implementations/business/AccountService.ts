@@ -1,8 +1,8 @@
 import {
   EChain,
   EVMAccountAddress,
-  IEVMBalance,
   IEVMNFT,
+  ITokenBalance,
   LanguageCode,
   LinkedAccount,
   Signature,
@@ -29,7 +29,7 @@ export class AccountService implements IAccountService {
   }
 
   public getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    ITokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountRepository.getAccountBalances();

@@ -2,10 +2,10 @@ import {
   AccountAddress,
   EChain,
   EVMAccountAddress,
-  IEVMBalance,
   IEVMNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
+  ITokenBalance,
   LanguageCode,
   LinkedAccount,
   Signature,
@@ -41,7 +41,7 @@ export class AccountRepository implements IAccountRepository {
   }
 
   public getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    ITokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.core.getAccountBalances().mapErr((error) => {

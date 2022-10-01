@@ -9,7 +9,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IEVMBalance,
   IEVMNFT,
   LanguageCode,
   Signature,
@@ -22,6 +21,7 @@ import {
   EScamFilterStatus,
   EChain,
   LinkedAccount,
+  ITokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -409,7 +409,7 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    ITokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountService.getAccountBalances();

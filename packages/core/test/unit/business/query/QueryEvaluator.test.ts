@@ -12,7 +12,7 @@ import {
   TickerSymbol,
   BigNumberString,
   IDataWalletPersistence,
-  IEVMBalance,
+  EVMBalance,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -65,39 +65,39 @@ class QueryEvaluatorMocks {
 
   public transactionsMap = new Map<ChainId, number>([[ChainId(1), 10]]);
 
-  public accountBalances = new Array<IEVMBalance>(
-    {
-      ticker: TickerSymbol("ETH"),
-      chainId: ChainId(1),
-      accountAddress: EVMAccountAddress("GOOD1"),
-      balance: BigNumberString("18"),
-      contractAddress: EVMContractAddress("9dkj13nd"),
-      quoteBalance: 0,
-    },
-    {
-      ticker: TickerSymbol("ETH"),
-      chainId: ChainId(1),
-      accountAddress: EVMAccountAddress("GOOD2"),
-      balance: BigNumberString("25"),
-      contractAddress: EVMContractAddress("0pemc726"),
-      quoteBalance: 0,
-    },
-    {
-      ticker: TickerSymbol("BLAH"),
-      chainId: ChainId(901398),
-      accountAddress: EVMAccountAddress("BAD"),
-      balance: BigNumberString("26"),
-      contractAddress: EVMContractAddress("lp20xk3c"),
-      quoteBalance: 0,
-    },
-    {
-      ticker: TickerSymbol("ETH"),
-      chainId: ChainId(1),
-      accountAddress: EVMAccountAddress("GOOD3"),
-      balance: BigNumberString("36"),
-      contractAddress: EVMContractAddress("m12s93io"),
-      quoteBalance: 0,
-    },
+  public accountBalances = new Array<EVMBalance>(
+    new EVMBalance(
+      TickerSymbol("ETH"),
+      ChainId(1),
+      EVMAccountAddress("GOOD1"),
+      BigNumberString("18"),
+      EVMContractAddress("9dkj13nd"),
+      0,
+    ),
+    new EVMBalance(
+      TickerSymbol("ETH"),
+      ChainId(1),
+      EVMAccountAddress("GOOD2"),
+      BigNumberString("25"),
+      EVMContractAddress("0pemc726"),
+      0,
+    ),
+    new EVMBalance(
+      TickerSymbol("BLAH"),
+      ChainId(901398),
+      EVMAccountAddress("BAD"),
+      BigNumberString("26"),
+      EVMContractAddress("lp20xk3c"),
+      0,
+    ),
+    new EVMBalance(
+      TickerSymbol("ETH"),
+      ChainId(1),
+      EVMAccountAddress("GOOD3"),
+      BigNumberString("36"),
+      EVMContractAddress("m12s93io"),
+      0,
+    ),
   );
 
   public constructor() {

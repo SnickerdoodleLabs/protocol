@@ -6,5 +6,5 @@ export * from "@indexers/IIndexerConfigProvider.js";
 export * from "@indexers/MoralisEVMNftRepository.js";
 export * from "@indexers/SimulatorEVMTransactionRepository.js";
 export * from "@indexers/DefaultAccountNFTs.js";
-export * from "@indexers/DummySolanaTransactionRepository";
-export * from "@indexers/MoralisSolanaNFTRepository";
+export * from "@indexers/DummySolanaTransactionRepository.js";
+export * from "@indexers/MoralisSolanaNFTRepository.js";
