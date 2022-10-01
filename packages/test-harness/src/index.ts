@@ -91,6 +91,13 @@ const devAccountKeys = [
     ),
     cryptoUtils,
   ),
+  new TestWallet(
+    EChain.Solana,
+    SolanaPrivateKey(
+      "2r6dcz3uhSoqGnnpvFhj6Fp6bRmAoZxiBifj6UXh8AgXteVMa8So69Pp39tM9DXD2KLpFuGaaD2CBNA6Mbz8agKn",
+    ),
+    cryptoUtils,
+  ),
 ];
 
 const blockchain = new BlockchainStuff(devAccountKeys);
