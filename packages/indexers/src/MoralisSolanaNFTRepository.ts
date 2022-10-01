@@ -21,7 +21,7 @@ import { urlJoin } from "url-join-ts";
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
-} from "./IIndexerConfigProvider";
+} from "@indexers/IIndexerConfigProvider.js";
 
 type SolanaAccountNFTResponse = {
   associatedTokenAddress: string;

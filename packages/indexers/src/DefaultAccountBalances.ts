@@ -10,9 +10,8 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { CovalentSolanaBalanceRepository } from "./CovalentSolanaBalanceRepository";
-
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
+import { CovalentSolanaBalanceRepository } from "@indexers/CovalentSolanaBalanceRepository.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
