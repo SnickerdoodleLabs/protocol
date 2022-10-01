@@ -3,3 +3,4 @@ export * from "@objects/interfaces/chains/IEVMAccountBalanceRepository";
 export * from "@objects/interfaces/chains/IEVMNftRepository";
 export * from "@objects/interfaces/chains/ISolanaTransactionRepository";
 export * from "@objects/interfaces/chains/ISolanaNFTRepository";
+export * from "@objects/interfaces/chains/ISolanaBalanceRepository";

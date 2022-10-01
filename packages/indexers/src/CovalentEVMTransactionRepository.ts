@@ -14,10 +14,11 @@ import {
   BigNumberString,
   EVMEvent,
   IEVMAccountBalanceRepository,
-  IEVMBalance,
   AccountBalanceError,
   TickerSymbol,
   EVMContractAddress,
+  ISolanaBalanceRepository,
+  EVMBalance,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -157,7 +158,7 @@ export class CovalentEVMTransactionRepository
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMBalance[], AccountBalanceError | AjaxError> {
+  ): ResultAsync<EVMBalance[], AccountBalanceError | AjaxError> {
     return this.generateQueryConfig(
       chainId,
       this.ENDPOINT_BALANCES,
@@ -171,14 +172,7 @@ export class CovalentEVMTransactionRepository
         )
         .map((queryResult) => {
           return queryResult.data.items.map((tokenInfo) => {
-            return {
-              ticker: TickerSymbol(tokenInfo.contract_ticker_symbol),
-              chainId: chainId,
-              accountAddress: accountAddress,
-              balance: tokenInfo.balance,
-              contractAddress: EVMContractAddress(tokenInfo.contract_address),
-              quoteBalance: tokenInfo.quote,
-            };
+            return new EVMBalance(TickerSymbol(tokenInfo.contract_ticker_symbol), chainId, accountAddress, tokenInfo.balance, EVMContractAddress(tokenInfo.contract_address), tokenInfo.quote);
           });
         });
     });
@@ -310,6 +304,7 @@ export class CovalentEVMTransactionRepository
       const params = {
         key: config.covalentApiKey,
         "quote-currency": config.quoteCurrency,
+        nft: false,
       };
 
       if (pageNumber != undefined) {

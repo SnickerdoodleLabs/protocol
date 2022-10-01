@@ -2,9 +2,10 @@ import { EventEmitter } from "events";
 
 import { ResultAsync } from "neverthrow";
 
+import { ITokenBalance } from "@objects/interfaces";
+
 import { IEVMNFT } from "@objects/businessObjects";
 import { EChain } from "@objects/enum";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import {
   Age,
@@ -59,7 +60,7 @@ export interface ISdlDataWallet extends EventEmitter {
     nonce: BigNumberString,
   ): ResultAsync<void, unknown>;
   getAccounts(): ResultAsync<EVMAccountAddress[], unknown>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], unknown>;
+  getAccountBalances(): ResultAsync<ITokenBalance[], unknown>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], unknown>;
   closeTab(): ResultAsync<void, unknown>;
   getDataWalletAddress(): ResultAsync<EVMAccountAddress | null, unknown>;

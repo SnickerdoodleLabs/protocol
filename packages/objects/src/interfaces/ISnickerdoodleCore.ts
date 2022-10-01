@@ -29,7 +29,6 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
@@ -47,6 +46,7 @@ import {
   Signature,
   UnixTimestamp,
 } from "@objects/primitives";
+import { ITokenBalance } from "@objects/interfaces";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -299,7 +299,7 @@ export interface ISnickerdoodleCore {
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 }
 

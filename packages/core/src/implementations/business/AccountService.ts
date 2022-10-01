@@ -22,10 +22,10 @@ import {
   ICrumbContent,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
   IEVMNFT,
   InvalidParametersError,
   InvalidSignatureError,
+  ITokenBalance,
   LanguageCode,
   LinkedAccount,
   MinimalForwarderContractError,
@@ -453,7 +453,7 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getAccounts();
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+  public getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError> {
     return this.dataWalletPersistence.getAccountBalances();
   }
 

@@ -20,7 +20,6 @@ import {
   EVMContractAddress,
   EVMTransaction,
   ChainId,
-  IEVMBalance,
   IEVMNFT,
   EVMTransactionFilter,
   BlockNumber,
@@ -36,6 +35,7 @@ import {
   LinkedAccount,
   EChainTechnology,
   getChainInfoByChain,
+  ITokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -447,9 +447,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public updateAccountBalances(
-    balances: IEVMBalance[],
-  ): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    balances: ITokenBalance[],
+  ): ResultAsync<ITokenBalance[], PersistenceError> {
+    return this.waitForUnlock().andThen((key) => {
       return this.persistentStorageUtils
         .write(ELocalStorageKey.BALANCES, JSON.stringify(balances))
         .andThen(() => {
@@ -462,8 +462,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+  public getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError> {
+    return this.waitForUnlock().andThen((key) => {
       return ResultUtils.combine([
         this.configProvider.getConfig(),
         this._checkAndRetrieveValue<number>(
@@ -473,7 +473,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       ]).andThen(([config, lastUpdate]) => {
         const currTime = new Date().getTime();
         if (currTime - lastUpdate < config.accountBalancePollingIntervalMS) {
-          return this._checkAndRetrieveValue<IEVMBalance[]>(
+          return this._checkAndRetrieveValue<ITokenBalance[]>(
             ELocalStorageKey.BALANCES,
             [],
           );
@@ -487,7 +487,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   private pollBalances(): ResultAsync<
-    IEVMBalance[],
+    ITokenBalance[],
     PersistenceError | AccountBalanceError | AjaxError
   > {
     return ResultUtils.combine([
@@ -525,7 +525,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<
-    IEVMBalance[],
+    ITokenBalance[],
     PersistenceError | AccountBalanceError | AjaxError
   > {
     return ResultUtils.combine([

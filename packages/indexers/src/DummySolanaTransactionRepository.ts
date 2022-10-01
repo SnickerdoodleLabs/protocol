@@ -6,10 +6,8 @@ import {
   SolanaAccountAddress,
   SolanaTransaction,
 } from "@snickerdoodlelabs/objects";
-import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-@injectable()
 export class DummySolanaTransactionRepository
   implements ISolanaTransactionRepository
 {

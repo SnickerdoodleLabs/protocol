@@ -3,7 +3,6 @@ import {
   BlockchainProviderError,
   CrumbsContractError,
   InvalidSignatureError,
-  IEVMBalance,
   IEVMNFT,
   LanguageCode,
   PersistenceError,
@@ -20,6 +19,7 @@ import {
   EChain,
   MinimalForwarderContractError,
   AccountAddress,
+  ITokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -82,7 +82,7 @@ export interface IAccountService {
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
 
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
   getTranactions(

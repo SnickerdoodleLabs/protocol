@@ -10,7 +10,6 @@ import {
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import {
   Age,
   EmailAddressString,
@@ -27,6 +26,7 @@ import {
   UnixTimestamp,
   AccountAddress,
 } from "@objects/primitives";
+import { ITokenBalance } from "./ITokenBalance";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -133,9 +133,9 @@ export interface IDataWalletPersistence {
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 
   updateAccountBalances(
-    balances: IEVMBalance[],
-  ): ResultAsync<IEVMBalance[], PersistenceError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+    balances: ITokenBalance[],
+  ): ResultAsync<ITokenBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
 
   updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<IEVMNFT[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;

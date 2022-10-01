@@ -6,18 +6,17 @@ import {
   IAccountIndexing,
   IEVMTransactionRepository,
   ISolanaTransactionRepository,
-  ISolanaTransactionRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
+import { DummySolanaTransactionRepository } from "@indexers/DummySolanaTransactionRepository.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { DummySolanaTransactionRepository } from "./DummySolanaTransactionRepository";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {

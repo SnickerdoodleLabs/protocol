@@ -5,9 +5,12 @@ import {
 import {
   IAccountBalances,
   IEVMAccountBalanceRepository,
+  ISolanaBalanceRepository,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { CovalentSolanaBalanceRepository } from "./CovalentSolanaBalanceRepository";
 
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
 import {
@@ -19,6 +22,7 @@ import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransac
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {
   protected evm: IEVMAccountBalanceRepository;
+  protected sol: ISolanaBalanceRepository;
   protected sim: IEVMAccountBalanceRepository;
 
   public constructor(
@@ -31,7 +35,19 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.ajaxUtils,
     );
 
+    this.sol = new CovalentSolanaBalanceRepository(
+      this.configProvider,
+      this.ajaxUtils,
+    );
+
     this.sim = new SimulatorEVMTransactionRepository();
+  }
+
+  public getSolanaBalanceRepository(): ResultAsync<
+    ISolanaBalanceRepository,
+    never
+  > {
+    return okAsync(this.sol);
   }
 
   public getEVMBalanceRepository(): ResultAsync<

@@ -1,13 +1,25 @@
 import {
+  AccountAddress,
   BigNumberString,
   ChainId,
   EVMContractAddress,
+  SolanaTokenAddress,
   TickerSymbol,
 } from "@objects/primitives";
 
+export enum EBalanceType {
+  EVM = "EVM",
+  SOL = "SOL",
+}
+
+export type TokenAddress = EVMContractAddress | SolanaTokenAddress | string;
+
 export interface ITokenBalance {
+  type: EBalanceType;
   ticker: TickerSymbol;
-  networkId: ChainId;
-  address: EVMContractAddress; // This is the token contract address
+  chainId: ChainId;
+  tokenAddress: TokenAddress;
+  accountAddress: AccountAddress;
   balance: BigNumberString;
+  quoteBalance: number;
 }

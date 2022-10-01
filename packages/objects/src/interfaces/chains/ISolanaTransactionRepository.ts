@@ -12,7 +12,3 @@ export interface ISolanaTransactionRepository {
     endTime?: Date,
   ): ResultAsync<SolanaTransaction[], AccountIndexingError | AjaxError>;
 }
-
-export const ISolanaTransactionRepositoryType = Symbol.for(
-  "ISolanaTransactionRepository",
-);

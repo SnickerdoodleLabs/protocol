@@ -37,7 +37,6 @@ import {
   IDataWalletBackup,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
   IEVMNFT,
   InvalidParametersError,
   InvalidSignatureError,
@@ -64,6 +63,7 @@ import {
   EChain,
   LinkedAccount,
   AccountAddress,
+  ITokenBalance,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -557,7 +557,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getTranactions(filter);
   }
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountBalances();

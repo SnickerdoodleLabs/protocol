@@ -40,6 +40,8 @@ export * from "@objects/primitives/SDQLString";
 export * from "@objects/primitives/SHA256Hash";
 export * from "@objects/primitives/Signature";
 export * from "@objects/primitives/SolanaAccountAddress";
+export * from "@objects/primitives/SolanaContractAddress";
+export * from "@objects/primitives/SolanaTokenAddress";
 export * from "@objects/primitives/SolanaPrivateKey";
 export * from "@objects/primitives/TokenId";
 export * from "@objects/primitives/TokenUri";
