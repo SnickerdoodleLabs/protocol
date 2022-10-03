@@ -58,6 +58,20 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
+    ChainId(EChain.Goerli),
+    new ChainInformation(
+      "Goerli",
+      ChainId(EChain.Goerli),
+      EChain.Goerli,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000,
+      EIndexer.EVM,
+      new NativeCurrencyInformation("ETH", 18, "ETH"),
+    ),
+  ],
+  [
     ChainId(EChain.Kovan),
     new ChainInformation(
       "Kovan",

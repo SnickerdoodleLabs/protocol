@@ -1,5 +1,6 @@
 export enum EChain {
   EthereumMainnet = 1,
+  Goerli = 5,
   Kovan = 42,
   Polygon = 137,
   DevDoodle = 31337,

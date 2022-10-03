@@ -14,6 +14,7 @@ import {
   DataPermissions,
   URLString,
   IpfsCID,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -89,6 +90,12 @@ export interface IConsentContractRepository {
   encodeOptIn(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
+  encodeRestrictedOptIn(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    signature: Signature,
     dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
   encodeOptOut(

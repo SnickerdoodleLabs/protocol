@@ -53,3 +53,7 @@ export * from "@objects/primitives/SDQL";
 export * from "@objects/primitives/Version";
 export * from "@objects/primitives/TIckerSymbol";
 export * from "@objects/primitives/ISO8601DateString";
+
+export * from "@objects/primitives/Web2Credential";
+export * from "@objects/primitives/RewardFunctionParam";
+export * from "@objects/primitives/TransactionReceipt";
