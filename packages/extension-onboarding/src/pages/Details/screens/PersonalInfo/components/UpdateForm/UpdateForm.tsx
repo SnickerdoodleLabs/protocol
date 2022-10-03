@@ -1,7 +1,6 @@
 import DateFnsUtils from "@date-io/date-fns";
 import { countries } from "@extension-onboarding/constants/countries";
 import useProfileIFormLogic from "@extension-onboarding/hooks/useProfileIFormLogic";
-import { clientID } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
 import {
   useStyles,
   usePopoverStyles,
@@ -14,7 +13,7 @@ import {
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Select, RadioGroup } from "formik-material-ui";
+import { Select } from "formik-material-ui";
 import React, { FC, useEffect } from "react";
 import { GoogleLogin } from "react-google-login";
 
@@ -35,6 +34,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
     onFormSubmit,
     schema,
     isSubmitted,
+    gapiClientID,
   } = useProfileIFormLogic();
   const classes = useStyles();
   const popoverClasses = usePopoverStyles();
@@ -54,7 +54,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
               </Typography>
             </Box>
             <GoogleLogin
-              clientId={clientID}
+              clientId={gapiClientID}
               className={classes.googleButton}
               buttonText="Link your data from Google"
               onSuccess={onGoogleLoginSuccess}

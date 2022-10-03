@@ -107,7 +107,6 @@ module.exports = {
       process: "process/browser",
     }),
     new webpack.DefinePlugin({
-      __CONTROL_CHAIN_ID__: JSON.stringify(process.env.__CONTROL_CHAIN_ID__),
       __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
       __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
       __GAPI_CLIENT_ID__: JSON.stringify(process.env.__GAPI_CLIENT_ID__),
