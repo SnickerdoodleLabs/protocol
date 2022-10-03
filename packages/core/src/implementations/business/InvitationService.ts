@@ -26,7 +26,7 @@ import {
   ConsentFactoryContractError,
   IOpenSeaMetadata,
   IpfsCID,
-  URLString,
+  HexString,
   HexString32,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
