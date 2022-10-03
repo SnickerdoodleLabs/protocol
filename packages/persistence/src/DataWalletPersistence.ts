@@ -763,19 +763,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               return txStore
                 .getAllKeys(ELocalStorageKey.TRANSACTIONS, "chainId", chain)
                 .andThen((keys) => {
-                  return okAsync([chain, keys.length]);
+                  return okAsync([chain, keys.length] as [ChainId, number]);
                 });
             }),
           );
         })
-        .andThen((result) => {
-          const returnVal = new Map<ChainId, number>();
-          result.forEach((elem) => {
-            const [chain, num] = elem;
-            returnVal[chain] = num;
-          });
-          return okAsync(returnVal);
-        });
+        .map((result) => new Map(result));
     });
   }
 
