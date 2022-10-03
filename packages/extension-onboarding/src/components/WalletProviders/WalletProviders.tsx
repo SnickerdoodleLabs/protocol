@@ -3,7 +3,7 @@ import {
   IMinimalForwarderRequest,
   MinimalForwarderContract,
 } from "@snickerdoodlelabs/contracts-sdk";
-import { HexString, Signature } from "@snickerdoodlelabs/objects";
+import { EChain, HexString, Signature } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
@@ -176,9 +176,19 @@ const WalletProviders: FC = () => {
                   console.log(
                     "No existing linked accounts, calling sdlDataWallet.unlock()",
                   );
-                  return window.sdlDataWallet.unlock(account, signature);
+                  // TODO: Insert the chain that is being used for the unlock/addAccount
+                  // This is only really important for Solana
+                  return window.sdlDataWallet.unlock(
+                    account,
+                    signature,
+                    EChain.EthereumMainnet,
+                  );
                 }
-                return window.sdlDataWallet.addAccount(account, signature);
+                return window.sdlDataWallet.addAccount(
+                  account,
+                  signature,
+                  EChain.EthereumMainnet,
+                );
               } else {
                 setModal({
                   modalSelector: EModalSelectors.PHANTOM_LINKING_STEPS,
