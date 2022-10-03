@@ -69,6 +69,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       10000,
       EIndexer.EVM,
       new NativeCurrencyInformation("ETH", 18, "ETH"),
+      EChainType.Testnet,
     ),
   ],
   [
