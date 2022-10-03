@@ -8,7 +8,8 @@ import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
 import { fromString } from "uint8arrays/from-string";
 
-const CERAMIC_URL = process.env.CERAMIC_URL || "http://localhost:7007";
+const CERAMIC_URL =
+  process.env.CERAMIC_URL || "https://ceramic.snickerdoodle.dev/";
 
 const BackupSchema = {
   $schema: "http://json-schema.org/draft-07/schema#",
