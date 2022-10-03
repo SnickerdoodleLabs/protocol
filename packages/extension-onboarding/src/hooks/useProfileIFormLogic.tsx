@@ -1,33 +1,11 @@
-import DateFnsUtils from "@date-io/date-fns";
 import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert";
-import { ALERT_MESSAGES } from "@extension-onboarding/constants";
-import { countries } from "@extension-onboarding/constants/countries";
+import { ALERT_MESSAGES, googleScopes } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import {
-  googleScopes,
-  clientID,
-} from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
-import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
+
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
-import {
-  Button,
-  Box,
-  FormLabel,
-  FormControlLabel,
-  Radio,
-  Typography,
-  MenuItem,
-} from "@material-ui/core";
-import {
-  KeyboardDatePicker,
-  MuiPickersUtilsProvider,
-} from "@material-ui/pickers";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Select, TextField, RadioGroup } from "formik-material-ui";
 import { gapi } from "gapi-script";
-import React, { FC, useEffect, useState } from "react";
-import { GoogleLogin } from "react-google-login";
+import React, { useEffect, useState } from "react";
 import * as yup from "yup";
 
 const useProfileIFormLogic = (): {
@@ -38,12 +16,14 @@ const useProfileIFormLogic = (): {
   schema: yup.ObjectSchema<any>;
   isSubmitted: boolean;
   onFormSubmit: (values: PII) => Promise<any>;
+  gapiClientID: string;
 } => {
   const { apiGateway, dataWalletGateway } = useAppContext();
   const { setAlert } = useNotificationContext();
   const [isGoogleButtonVisible, setGoogleButtonVisible] = useState(true);
   const [formValues, setFormValues] = useState<PII>(new PII());
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const gapiClientID = apiGateway.config.gaClientId;
 
   const getDataFromWallet = () => {
     dataWalletGateway.profileService.getProfile().map((profileInfo) => {
@@ -76,7 +56,7 @@ const useProfileIFormLogic = (): {
   useEffect(() => {
     function start() {
       gapi.client.init({
-        clientId: clientID,
+        clientId: gapiClientID,
         scope: googleScopes,
       });
     }
@@ -108,7 +88,7 @@ const useProfileIFormLogic = (): {
 
   return {
     isGoogleButtonVisible,
-
+    gapiClientID,
     onGoogleLoginSuccess,
     onGoogleLoginFail,
     formValues,

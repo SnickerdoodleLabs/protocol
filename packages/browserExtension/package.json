@@ -10,7 +10,7 @@
     "build:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/build.js",
     "compile": "cd ../.. && yarn compile",
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "start": "node utils/webserver.cjs",
+    "start": "yarn compile && node utils/webserver.cjs",
     "start:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/webserver.js",
     "webpack": "npx webpack --stats-children --stats-error-details"
   },

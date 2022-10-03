@@ -1,7 +1,6 @@
 import DateFnsUtils from "@date-io/date-fns";
 import { countries } from "@extension-onboarding/constants/countries";
 import useProfileIFormLogic from "@extension-onboarding/hooks/useProfileIFormLogic";
-import { clientID } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.constants";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
 import {
   Box,
@@ -34,6 +33,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
     onFormSubmit,
     schema,
     isSubmitted,
+    gapiClientID,
   } = useProfileIFormLogic();
   const classes = useStyles();
 
@@ -52,7 +52,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
               </Typography>
             </Box>
             <GoogleLogin
-              clientId={clientID}
+              clientId={gapiClientID}
               className={classes.googleButton}
               buttonText="Link your data from Google"
               onSuccess={onGoogleLoginSuccess}
