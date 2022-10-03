@@ -13,10 +13,10 @@ const SOCIAL_LINKS = [
     iconSrc: Browser.runtime.getURL("assets/icons/linkedin.svg"),
     url: "https://www.linkedin.com/company/snickerdoodlelabs/",
   },
-  //   {
-  //     iconSrc: Browser.runtime.getURL("assets/icons/instagram.svg"),
-  //     url: "https://twitter.com/yosnickerdoodle",
-  //   },
+  {
+    iconSrc: Browser.runtime.getURL("assets/icons/instagram.svg"),
+    url: "https://www.instagram.com/yosnickerdoodle/",
+  },
   {
     iconSrc: Browser.runtime.getURL("assets/icons/facebook.svg"),
     url: "https://www.facebook.com/profile.php?id=100068000334616",
