@@ -127,6 +127,8 @@ export interface IDataWalletPersistence {
     PersistenceError
   >;
 
+  getTransactionFlow(): ResultAsync<IChainTransaction[], PersistenceError>;
+
   getLatestTransactionForAccount(
     chainId: ChainId,
     address: EVMAccountAddress,

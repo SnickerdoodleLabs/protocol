@@ -743,7 +743,7 @@ describe("Return URLs Map", () => {
     );
   });
 });
-/*
+
 describe("Return Chain Transaction Count", () => {
   test("EvalPropertyQuery: return chain transaction count", async () => {
     const propertyQuery = new AST_PropertyQuery(
@@ -772,4 +772,4 @@ describe("Return Chain Transaction Count", () => {
     );
   });
 });
-*/
+

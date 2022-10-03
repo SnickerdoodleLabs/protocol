@@ -549,6 +549,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getTransactionsArray();
   }
 
+
+  getTransactionFlow(): ResultAsync<IChainTransaction[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getTransactionFlow();
+  }
+
+
+
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);

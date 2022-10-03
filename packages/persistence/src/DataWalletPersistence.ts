@@ -34,10 +34,13 @@ import {
   AccountBalanceError,
   IDataWalletBackup,
   IChainTransaction,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
+
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BackupManager } from "@persistence/backup/BackupManager.js";
@@ -55,6 +58,7 @@ import {
   IVolatileStorageFactoryType,
   IVolatileCursor,
 } from "@persistence/volatile/index.js";
+import { transcode } from "buffer";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -156,6 +160,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             ["timestamp", false],
             ["chainId", false],
             ["value", false],
+            ["to", false], 
+            ["from", false],
           ],
         },
         {
@@ -641,6 +647,68 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       }
     });
   }
+
+  public getTransactionFlow(): ResultAsync<IChainTransaction[], PersistenceError>{
+// accounts: EVMAccountAddress[]
+
+    let map : Map<ChainId, IChainTransaction> = new Map<ChainId, IChainTransaction>();
+
+
+    return ResultUtils.combine([
+      this.getAccounts(),
+      this._getObjectStore(),
+    ])
+    .andThen(([accounts, objStore]) => {
+      return ResultUtils.combine(accounts.map( (account) => {
+        return ResultUtils.combine([
+          objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "to", account).andThen((cursor) => cursor.allValues().map((evm) => (evm!))), 
+          objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "from", account).andThen((cursor) => cursor.allValues().map((evm) => (evm!)))
+          //objStore.getCursor<ChainId>(ELocalStorageKey.TRANSACTIONS, "chainId").andThen((cursor) => (cursor).allValues())
+        ]).andThen(([toTransactions, fromTransactions]) => {
+          const chainTransaction : IChainTransaction[] = [];
+          
+          for (let i = 0; i < toTransactions.length; i++) {
+            chainTransaction.push(
+              {
+                "chainId": toTransactions[i].chainId,
+                "incomingCount": BigNumberString("1"),
+                "incomingValue": BigNumberString((BigNumber.from(toTransactions[i].valueQuote!)).toString()),
+                "outgoingCount": BigNumberString("0"),
+                "outgoingValue": BigNumberString("0")
+              }
+            );
+          }
+          for (let i = 0; i < fromTransactions.length; i++) {
+            chainTransaction.push(
+              {
+                "chainId": fromTransactions[i].chainId,
+                "incomingCount": BigNumberString("0"),
+                "incomingValue": BigNumberString("0"),
+                "outgoingCount": BigNumberString("1"),
+                "outgoingValue": BigNumberString((BigNumber.from(fromTransactions[i].valueQuote!)).toString())
+              }
+            );
+          }
+          return okAsync(chainTransaction);
+        })
+      }))
+      
+      .andThen(([chainTransaction]) => {
+        /*
+        const transactions = chainTransaction.reduce(( ) => {
+
+          }
+        )
+        */
+
+
+
+
+        return okAsync(chainTransaction);
+        });
+      });
+
+    }
 
   public addEVMTransactions(
     transactions: EVMTransaction[],

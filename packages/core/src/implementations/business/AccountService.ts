@@ -522,6 +522,14 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getTransactionsArray();
   }
 
+  public getTransactionFlow(): ResultAsync<IChainTransaction[], PersistenceError> {
+    return this.dataWalletPersistence.getTransactionFlow();
+  }
+
+  
+
+
+
   public getSiteVisitsMap(): ResultAsync<
     Map<URLString, number>,
     PersistenceError
