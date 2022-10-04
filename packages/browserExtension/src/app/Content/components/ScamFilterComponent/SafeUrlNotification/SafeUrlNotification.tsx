@@ -47,43 +47,48 @@ const SafeUrlNotification: FC = () => {
 
   return (
     <Snackbar
-      // TransitionComponent={(props) => <Slide {...props} direction="left" />}
       autoHideDuration={5000}
       anchorOrigin={{ vertical, horizontal }}
       open={open}
       onClose={handleClose}
       key={vertical + horizontal}
     >
-      <Grid container direction="row" className={classes.container}>
-        <img
-          onClick={handleClose}
-          className={classes.closeImg}
-          src={Browser.runtime.getURL("assets/img/safeClose.svg")}
-        />
-        <Grid item className={classes.container2}>
+      <>
+        <Grid container direction="row" className={classes.container}>
           <img
-            className={classes.safeImg}
-            src={Browser.runtime.getURL("assets/img/safe.png")}
+            onClick={handleClose}
+            className={classes.closeImg}
+            src={Browser.runtime.getURL("assets/img/safeClose.svg")}
           />
-        </Grid>
-
-        <Grid item>
-          <Typography className={classes.title} variant="h3" component="h4">
-            Verified URL
-          </Typography>
-          <Typography className={classes.learnMore} variant="h3" component="h4">
-            Learn More
-          </Typography>
-          <Typography className={classes.dontShow}>
-            <Checkbox
-              className={classes.checkbox}
-              checked={dontShow}
-              onChange={handleDontShow}
+          <Grid item className={classes.container2}>
+            <img
+              className={classes.safeImg}
+              src={Browser.runtime.getURL("assets/img/safe.png")}
             />
-            Don't show again
-          </Typography>
+          </Grid>
+
+          <Grid item>
+            <Typography className={classes.title} variant="h3" component="h4">
+              Verified URL
+            </Typography>
+            <Typography
+              className={classes.learnMore}
+              variant="h3"
+              component="h4"
+            >
+              Learn More
+            </Typography>
+            <Typography className={classes.dontShow}>
+              <Checkbox
+                className={classes.checkbox}
+                checked={dontShow}
+                onChange={handleDontShow}
+              />
+              Don't show again
+            </Typography>
+          </Grid>
         </Grid>
-      </Grid>
+      </>
     </Snackbar>
   );
 };
