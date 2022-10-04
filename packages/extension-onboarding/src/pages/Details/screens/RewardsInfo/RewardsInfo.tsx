@@ -1,3 +1,4 @@
+import emptyReward from "@extension-onboarding/assets/images/empty-reward.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import RewardItem from "@extension-onboarding/components/RewardItem";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
@@ -6,7 +7,6 @@ import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfa
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
-import emptyReward from "@extension-onboarding/assets/images/empty-reward.svg";
 
 declare const window: IWindowWithSdlDataWallet;
 
