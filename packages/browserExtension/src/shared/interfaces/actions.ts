@@ -120,3 +120,7 @@ export interface IInvitationDomainWithUUID {
 export interface ICheckURLParams {
   domain: DomainName;
 }
+export interface IScamFilterSettingsParams {
+  isScamFilterActive: boolean;
+  showMessageEveryTime: boolean;
+}

@@ -81,6 +81,7 @@ import {
   ISetApplyDefaultPermissionsParams,
   IUnlinkAccountParams,
   IAcceptInvitationParams,
+  IScamFilterSettingsParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -93,6 +94,12 @@ import {
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import { BigNumber } from "ethers";
+
+import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@interfaces/utilities/IScamFilterSettingsUtils";
+import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -107,6 +114,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IScamFilterSettingsUtilsType)
+    protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
   ) {}
 
   public async handleRpcCall(
@@ -312,6 +321,20 @@ export class RpcCallHandler implements IRpcCallHandler {
           res,
         ).call();
       }
+      case EExternalActions.GET_SCAM_FILTER_SETTINGS: {
+        return new AsyncRpcResponseSender(
+          this.getScamFilterSettings(),
+          res,
+        ).call();
+      }
+      case EExternalActions.SET_SCAM_FILTER_SETTINGS: {
+        const { isScamFilterActive, showMessageEveryTime } =
+          params as IScamFilterSettingsParams;
+        return new AsyncRpcResponseSender(
+          this.setScamFilterSettings(isScamFilterActive, showMessageEveryTime),
+          res,
+        ).call();
+      }
       case EExternalActions.ACCEPT_INVITATION: {
         const {
           dataTypes,
@@ -513,6 +536,21 @@ export class RpcCallHandler implements IRpcCallHandler {
     option: boolean,
   ): ResultAsync<void, ExtensionStorageError> {
     return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(option);
+  }
+  private setScamFilterSettings(
+    isScamFilterActive,
+    showMessageEveryTime,
+  ): ResultAsync<void, ExtensionStorageError> {
+    return this.scamFilterSettingsUtils.setScamFilterSettings(
+      isScamFilterActive,
+      showMessageEveryTime,
+    );
+  }
+  private getScamFilterSettings(): ResultAsync<
+    IScamFilterPreferences,
+    ExtensionStorageError
+  > {
+    return this.scamFilterSettingsUtils.getScamFilterSettings();
   }
 
   private rejectInvitation(
