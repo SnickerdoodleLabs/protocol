@@ -82,6 +82,13 @@ export class InsightPlatformSimulator {
       });
     });
 
+    /* Rewards Preview API */
+    this.app.post("/insights/preview", (req, res) => {
+      console.log("Returning a Rewards Preview");
+
+
+    })
+
     this.app.post("/insights/responses", (req, res) => {
       // console.log("Sending to Insight Responses");
       // console.log("Req is this: ", req.body);

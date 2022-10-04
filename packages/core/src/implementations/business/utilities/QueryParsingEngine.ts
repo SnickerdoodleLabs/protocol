@@ -37,6 +37,20 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryRepository: IQueryRepository,
   ) {}
 
+  public getRewardsPreview (
+    query: SDQLQuery,
+    dataPermissions: DataPermissions
+  ): ResultAsync<
+  [] | never,
+  EvaluationError | QueryFormatError | QueryExpiredError
+> {
+    /*   
+      return query.
+    */
+
+    return okAsync([]);
+  }
+
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,

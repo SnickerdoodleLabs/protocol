@@ -95,6 +95,10 @@ export class QueryService implements IQueryService {
     //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryId}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryId)}`)); ))
     // }
 
+    /* Extend onQueryPosted to include the preview */
+    /* 
+      "IF I pariticlate in query 1,3,5 I should get data 2 and 4 right?"
+    */
     return ResultUtils.combine([
       this.sdqlQueryRepo.getByCID(queryId),
       this.contextProvider.getContext(),
@@ -114,6 +118,8 @@ export class QueryService implements IQueryService {
         return okAsync(undefined);
       }
 
+
+      /* Above is all good */
       // We have the query, next step is check if you actually have a consent token for this business
       return this.consentContractRepository
         .isAddressOptedIn(
@@ -182,6 +188,20 @@ export class QueryService implements IQueryService {
         config,
         consentToken,
       ).andThen(() => {
+
+        /* Replacing handleQuery with getPreview */
+
+        /*
+        return this.queryParsingEngine.getPreview(query, consentToken!.dataPermissions).andThen((val) => {
+
+          if (val == true): 
+            now move forward.
+          else if false
+            quit out of asynch line
+
+        })
+        */
+
         return this.queryParsingEngine
           .handleQuery(query, consentToken!.dataPermissions)
           .andThen((maps) => {

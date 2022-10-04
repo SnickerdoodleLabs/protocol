@@ -74,6 +74,7 @@ export class CoreListener implements ICoreListener {
       return queryString;
     };
 
+    /* We are replacing the processQuery with something else here */
     this.core
       .processQuery(request.consentContractAddress, {
         cid: request.query.cid,
