@@ -191,13 +191,17 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   public setApplyDefaultPermissionsOption(option: boolean) {
     return coreGateway.setApplyDefaultPermissionsOption(option);
   }
-  public acceptPublicInvitationByConsentContractAddress(
+  public acceptInvitation(
     dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
   ) {
-    return coreGateway.acceptPublicInvitationByConsentContractAddress(
+    return coreGateway.acceptInvitation(
       dataTypes,
       consentContractAddress,
+      tokenId,
+      businessSignature,
     );
   }
 

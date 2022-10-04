@@ -7,6 +7,7 @@ import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import {
   AccountAddress,
   Age,
+  BigNumberString,
   CountryCode,
   DataWalletAddress,
   EmailAddressString,
@@ -80,9 +81,11 @@ export interface ISdlDataWallet extends EventEmitter {
     dataTypes: EWalletDataType[],
   ): ResultAsync<void, JsonRpcError>;
   setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError>;
-  acceptPublicInvitationByConsentContractAddress(
+  acceptInvitation(
     dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
   ): ResultAsync<void, JsonRpcError>;
   leaveCohort(
     consentContractAddress: EVMContractAddress,
