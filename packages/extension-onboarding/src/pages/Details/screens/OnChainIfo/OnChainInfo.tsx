@@ -12,31 +12,23 @@ const OnChainInfo: FC = () => {
   return (
     <Box>
       <Box mb={5}>
-        <Typography className={classes.title}>On Chain Info</Typography>
+        <Typography className={classes.title}>Web 3 Info</Typography>
         <Typography className={classes.description}>
-          Manage all your personal data from your Snickerdoodle Data Wallet.
+          Add or remove wallets to control what web 3 data you store in your
+          data wallet.
         </Typography>
       </Box>
       <Grid container spacing={2}>
-        <Grid item sm={7}>
+        <Grid item sm={12}>
           <WalletProviders />
         </Grid>
-        <Grid item sm={5}>
+        <Grid item sm={12}>
           <Box mb={2}>
             <Typography className={classes.itemTitle}>
               Your Linked Accounts
             </Typography>
           </Box>
-          <AccountsCard
-            onButtonClick={(account) => {
-              setModal({
-                modalSelector: EModalSelectors.VIEW_ACCOUNT_DETAILS,
-                customProps: { account },
-                onPrimaryButtonClick: () => {},
-              });
-            }}
-            buttonText="VIEW DETAILS"
-          />
+          <AccountsCard />
         </Grid>
       </Grid>
     </Box>

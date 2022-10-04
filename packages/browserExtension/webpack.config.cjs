@@ -168,6 +168,9 @@ var options = {
       __DNS_SERVER_ADDRESS__: JSON.stringify(
         process.env.__DNS_SERVER_ADDRESS__,
       ),
+      __COOKIE_LIFETIME__: JSON.stringify(
+        process.env.__COOKIE_LIFETIME__ || "1",
+      ),
     }),
     new CopyWebpackPlugin({
       patterns: [
