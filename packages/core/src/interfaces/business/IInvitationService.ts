@@ -44,6 +44,7 @@ export interface IInvitationService {
     | BlockchainProviderError
     | AjaxError
     | MinimalForwarderContractError
+    | ConsentError
   >;
 
   rejectInvitation(
@@ -105,20 +106,6 @@ export interface IInvitationService {
     | ConsentContractRepositoryError
     | AjaxError
     | ConsentError
-  >;
-
-  acceptPublicInvitationByConsentContractAddress(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | ConsentError
-    | ConsentFactoryContractError
   >;
 
   getAvailableInvitationsCID(): ResultAsync<

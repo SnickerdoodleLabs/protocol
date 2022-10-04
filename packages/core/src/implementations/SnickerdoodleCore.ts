@@ -381,6 +381,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | AjaxError
     | BlockchainProviderError
     | MinimalForwarderContractError
+    | ConsentError
   > {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -460,29 +461,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     );
 
     return cohortService.getAgreementFlags(consentContractAddress);
-  }
-
-  public acceptPublicInvitationByConsentContractAddress(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<
-    void,
-    | BlockchainProviderError
-    | UninitializedError
-    | PersistenceError
-    | AjaxError
-    | MinimalForwarderContractError
-    | ConsentError
-    | ConsentFactoryContractError
-  > {
-    const cohortService = this.iocContainer.get<IInvitationService>(
-      IInvitationServiceType,
-    );
-
-    return cohortService.acceptPublicInvitationByConsentContractAddress(
-      consentContractAddress,
-      dataPermissions,
-    );
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
