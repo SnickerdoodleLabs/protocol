@@ -447,7 +447,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForUnlock().andThen(([key]) => {
       return this.persistentStorageUtils
         .write(ELocalStorageKey.BALANCES, JSON.stringify(balances))
         .andThen(() => {
@@ -461,7 +461,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForUnlock().andThen(([key]) => {
       return ResultUtils.combine([
         this.configProvider.getConfig(),
         this._checkAndRetrieveValue<number>(
@@ -548,7 +548,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateAccountNFTs(
     nfts: IEVMNFT[],
   ): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForUnlock().andThen(([key]) => {
       return this.persistentStorageUtils
         .write(ELocalStorageKey.NFTS, JSON.stringify(nfts))
         .andThen(() => {
@@ -562,7 +562,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForUnlock().andThen(([key]) => {
       return ResultUtils.combine([
         this.configProvider.getConfig(),
         this._checkAndRetrieveValue<number>(
