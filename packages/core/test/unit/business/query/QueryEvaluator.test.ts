@@ -167,6 +167,30 @@ class QueryEvaluatorMocks {
     },
   );
 
+  public transactionsFlow = new Array<IChainTransaction>(
+    {
+      "chainId": ChainId(1),
+      "incomingValue": BigNumberString("1"),
+      "incomingCount": BigNumberString("293820383028"),
+      "outgoingValue": BigNumberString("5"),
+      "outgoingCount": BigNumberString("41031830109120")
+    }, 
+    {
+      "chainId": ChainId(137),
+      "incomingValue": BigNumberString("1"),
+      "incomingCount": BigNumberString("2020292"),
+      "outgoingValue": BigNumberString("1"),
+      "outgoingCount": BigNumberString("4928")
+    }, 
+    {
+      "chainId": ChainId(43113),
+      "incomingValue": BigNumberString("1"),
+      "incomingCount": BigNumberString("9482928"),
+      "outgoingValue": BigNumberString("0"),
+      "outgoingCount": BigNumberString("0")
+    }, 
+  );
+
   public constructor() {
     this.dataWalletPersistence.setAge(Age(25));
     //this.dataWalletPersistence.setLocation(CountryCode("US"));
@@ -180,8 +204,8 @@ class QueryEvaluatorMocks {
       okAsync(this.URLmap),
     );
     
-    td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
-      okAsync(this.transactionsReturn),
+    td.when(this.dataWalletPersistence.getTransactionFlow()).thenReturn(
+      okAsync(this.transactionsFlow),
     );
 
     
@@ -744,12 +768,12 @@ describe("Return URLs Map", () => {
   });
 });
 
-describe("Return Chain Transaction Count", () => {
-  test("EvalPropertyQuery: return chain transaction count", async () => {
+describe("Return Chain Transaction Flow", () => {
+  test("EvalPropertyQuery: return chain_transactions", async () => {
     const propertyQuery = new AST_PropertyQuery(
       SDQL_Name("q1"),
-      "object",
-      "chain_transaction_count",
+      "array",
+      "chain_transactions",
       [],
       [],
       {
@@ -765,10 +789,31 @@ describe("Return Chain Transaction Count", () => {
     const repo = mocks.factory();
     const result = await repo.eval(propertyQuery);
 
-
     // console.log("URLs is: ", result["value"]);
     expect(result["value"]).toEqual(
-      new Map<ChainId, number>([[ChainId(1), 10]]),
+      new Array<IChainTransaction>(
+        {
+          "chainId": ChainId(1),
+          "incomingValue": BigNumberString("1"),
+          "incomingCount": BigNumberString("293820383028"),
+          "outgoingValue": BigNumberString("5"),
+          "outgoingCount": BigNumberString("41031830109120")
+        }, 
+        {
+          "chainId": ChainId(137),
+          "incomingValue": BigNumberString("1"),
+          "incomingCount": BigNumberString("2020292"),
+          "outgoingValue": BigNumberString("1"),
+          "outgoingCount": BigNumberString("4928")
+        }, 
+        {
+          "chainId": ChainId(43113),
+          "incomingValue": BigNumberString("1"),
+          "incomingCount": BigNumberString("9482928"),
+          "outgoingValue": BigNumberString("0"),
+          "outgoingCount": BigNumberString("0")
+        }, 
+      )
     );
   });
 });

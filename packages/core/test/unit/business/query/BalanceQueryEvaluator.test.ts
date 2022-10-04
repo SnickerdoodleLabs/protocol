@@ -53,24 +53,6 @@ class BalanceQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsMap = new Array<IChainTransaction>(
-    // [
-    //   // ChainTransaction(
-    //   //   TickerSymbol("hi"),
-    //   //   BigNumberString("1"),
-    //   //   BigNumberString("2"),
-    //   //   BigNumberString("3"),
-    //   //   BigNumberString("4")
-    //   // )
-    // ]
-  );
-
-  /*
-      ChainId(1) - 5
-      ChainId(4) - 1
-      ChainId(8) - 1
-      ChainId(9) - 1
-    */
   public accountBalances = new Array<IEVMBalance>(
     {
       ticker: TickerSymbol("ETH"),
@@ -1068,4 +1050,7 @@ describe("BalanceQueryEvaluator", () => {
     // console.log(result);
     expect(result["value"].length).toEqual(0);
   });
+
+
+  
 });
