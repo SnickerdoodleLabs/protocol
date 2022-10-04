@@ -7,7 +7,6 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
-import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -61,7 +60,6 @@ export class ConfigProvider
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
-      snickerdoodleSigningDomain, // snickerdoodleProtocolDomain
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts

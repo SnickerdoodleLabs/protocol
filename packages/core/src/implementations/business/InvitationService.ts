@@ -4,6 +4,10 @@ import {
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+} from "@snickerdoodlelabs/insight-platform-api";
+import {
   Invitation,
   EInvitationStatus,
   UninitializedError,
@@ -36,10 +40,8 @@ import { getDomain } from "tldts";
 
 import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
-  IInsightPlatformRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IInsightPlatformRepository,
   IDNSRepositoryType,
   IDNSRepository,
   IInvitationRepositoryType,
@@ -49,6 +51,7 @@ import {
 } from "@core/interfaces/data/index.js";
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
+  IConfigProvider,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
@@ -69,6 +72,7 @@ export class InvitationService implements IInvitationService {
     protected forwarderRepo: IMetatransactionForwarderRepository,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(IContextProviderType) protected configProvider: IConfigProvider,
   ) {}
 
   public checkInvitationStatus(
@@ -178,14 +182,11 @@ export class InvitationService implements IInvitationService {
       }
 
       return ResultUtils.combine([
-        this.consentRepo.encodeOptIn(
-          invitation.consentContractAddress,
-          invitation.tokenId,
-          dataPermissions,
-        ),
+        optInData,
         this.forwarderRepo.getNonce(),
+        this.configProvider.getConfig(),
       ])
-        .andThen(([callData, nonce]) => {
+        .andThen(([callData, nonce, config]) => {
           // We need to take the types, and send it to the account signer
           const request = new MetatransactionRequest(
             invitation.consentContractAddress, // Contract address for the metatransaction
@@ -212,6 +213,7 @@ export class InvitationService implements IInvitationService {
                 callData,
                 metatransactionSignature,
                 context.dataWalletKey!,
+                config.defaultInsightPlatformBaseUrl,
               );
             });
         })
@@ -297,8 +299,9 @@ export class InvitationService implements IInvitationService {
               consentToken.tokenId,
             ),
             this.forwarderRepo.getNonce(),
+            this.configProvider.getConfig(),
           ])
-            .andThen(([callData, nonce]) => {
+            .andThen(([callData, nonce, config,]) => {
               const request = new MetatransactionRequest(
                 consentContractAddress, // Contract address for the metatransaction
                 EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
@@ -324,6 +327,7 @@ export class InvitationService implements IInvitationService {
                     callData,
                     metatransactionSignature,
                     context.dataWalletKey!,
+                    config.defaultInsightPlatformBaseUrl,
                   );
                 });
             })
