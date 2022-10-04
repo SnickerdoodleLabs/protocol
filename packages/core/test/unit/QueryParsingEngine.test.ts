@@ -279,3 +279,40 @@ describe("Testing avalanche 4", () => {
       });
   });
 });
+
+
+
+describe("Reward Preview", () => {
+  test("showcase rewards", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
+
+    const expectedInsights = [
+      "not qualified",
+      "1",
+      "female",
+      "{}",
+      "{}",
+      "[]",
+      "[]",
+    ]; // 7 return expressions
+
+    // console.log(sdqlQuery4);
+
+    await engine
+      .getRewardsPreview(sdqlQuery4, new DataPermissions(allPermissions))
+      
+      .andThen(([insights, rewards]) => {
+        // console.log("Why not printed")
+
+        // console.log('insights', insights);
+        expect(insights).toEqual(expectedInsights);
+        expect(insights.length > 0).toBeTruthy();
+        return okAsync(undefined);
+      })
+      .mapErr((e) => {
+        console.log(e);
+        fail(e.message);
+      });
+  });
+});

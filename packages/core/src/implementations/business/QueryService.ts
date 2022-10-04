@@ -189,41 +189,42 @@ export class QueryService implements IQueryService {
         consentToken,
       ).andThen(() => {
 
-        /* Replacing handleQuery with getPreview */
-
+        /* ENGT-745 */
+        return this.queryParsingEngine.getRewardsPreview(query, consentToken!.dataPermissions).andThen( () => {
+        
         /*
-        return this.queryParsingEngine.getPreview(query, consentToken!.dataPermissions).andThen((val) => {
+          returns a preview:
+          the preview includes a prompt
 
           if (val == true): 
             now move forward.
           else if false
             quit out of asynch line
-
-        })
         */
+        }).andThen(() => {
+          return this.queryParsingEngine
+            .handleQuery(query, consentToken!.dataPermissions)
+            .andThen((maps) => {
+              // console.log("QueryParsingEngine HandleQuery");
+              const maps2 = maps as [InsightString[], EligibleReward[]];
+              const insights = maps2[0];
+              const rewards = maps2[1];
 
-        return this.queryParsingEngine
-          .handleQuery(query, consentToken!.dataPermissions)
-          .andThen((maps) => {
-            // console.log("QueryParsingEngine HandleQuery");
-            const maps2 = maps as [InsightString[], EligibleReward[]];
-            const insights = maps2[0];
-            const rewards = maps2[1];
-
-            return this.deliverInsights(
-              context,
-              config,
-              consentContractAddress,
-              query.cid,
-              insights,
-            ).map(() => {
-              console.log("insight delivery api call done");
-              // context.publicEvents.onQueryPosted.next({
-              //   consentContractAddress,
-              //   query,
-              // });
+              return this.deliverInsights(
+                context,
+                config,
+                consentContractAddress,
+                query.cid,
+                insights,
+              ).map(() => {
+                console.log("insight delivery api call done");
+                // context.publicEvents.onQueryPosted.next({
+                //   consentContractAddress,
+                //   query,
+                // });
+              });
             });
-          });
+        });
       });
     });
   }

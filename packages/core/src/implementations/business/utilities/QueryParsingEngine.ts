@@ -37,6 +37,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryRepository: IQueryRepository,
   ) {}
 
+  /* ENGT-745
+    Return these schematics: 
+    1. The data types that we are asking for: (Location, Age, Web3 data, etc.)
+    2. Return the current values assigned to each data type (true, false, false, true)
+    3. Display which rewards will be given because of your associated values 
+  */
   public getRewardsPreview (
     query: SDQLQuery,
     dataPermissions: DataPermissions
@@ -44,9 +50,32 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   [] | never,
   EvaluationError | QueryFormatError | QueryExpiredError
 > {
-    /*   
-      return query.
-    */
+
+  const rewards: EligibleReward[] = [];
+  const schemaString = query.query;
+  const cid: IpfsCID = query.cid;
+
+  return this.queryFactories.makeParserAsync(cid, schemaString)
+    .andThen((sdqlParser) => {
+      return sdqlParser.buildAST();
+    })
+    .andThen((ast: AST) => {
+      const astEvaluator = this.queryFactories.makeAstEvaluator(
+        cid,
+        ast,
+        this.queryRepository,
+      )T 
+
+      return ResultUtils.combine(
+        this.evalCompensations(ast, dataPermissions, astEvaluator),
+      ).andThen((CompensationResults) => {
+        const insights = CompensationResults.map(this.SDQLReturnToInsightString);
+        return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
+          [insights, rewards],
+        );
+      });
+    });
+
 
     return okAsync([]);
   }
