@@ -19,12 +19,15 @@ import {
   Base64String,
   SolanaAccountAddress,
   SolanaPrivateKey,
+  InvalidParametersError,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import argon2 from "argon2";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import nacl from "tweetnacl";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
@@ -53,6 +56,29 @@ export class CryptoUtils implements ICryptoUtils {
     // work in a service worker, because the polyfills available do not support randomInt().
     // Ye be warned.
     //return okAsync(TokenId(BigInt(Crypto.randomInt(281474976710655))));
+  }
+
+  public getTokenIds(quantity: number): ResultAsync<TokenId[], never> {
+    if (quantity < 1) {
+      return okAsync([]);
+    }
+
+    const generateUniqeTokens = (
+      uniqueList: TokenId[] = [],
+    ): ResultAsync<TokenId[], never> => {
+      return ResultUtils.combine(
+        [...Array(quantity - uniqueList.length)].map(() => {
+          return this.getTokenId();
+        }),
+      ).andThen((tokenIds) => {
+        const uniqueTokenIds = [...new Set([...uniqueList, ...tokenIds])];
+        if (uniqueTokenIds.length !== quantity) {
+          return generateUniqeTokens(uniqueTokenIds);
+        }
+        return okAsync(uniqueTokenIds);
+      });
+    };
+    return generateUniqeTokens();
   }
 
   public deriveAESKeyFromSignature(
@@ -244,6 +270,29 @@ export class CryptoUtils implements ICryptoUtils {
 
   // 	return okAsync(undefined);
   // }
+
+  public getSignature(
+    owner: ethers.Signer,
+    types: Array<string>,
+    values: Array<
+      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+    >,
+  ): ResultAsync<Signature, InvalidParametersError> {
+    if (types.length !== values.length) {
+      return errAsync(
+        new InvalidParametersError(
+          "Types and values should have same number of members.",
+        ),
+      );
+    }
+    const msgHash = ethers.utils.solidityKeccak256([...types], [...values]);
+
+    return ResultAsync.fromSafePromise<string, never>(
+      owner.signMessage(ethers.utils.arrayify(msgHash)),
+    ).map((signature) => {
+      return Signature(signature);
+    });
+  }
 
   public signMessage(
     message: string,
