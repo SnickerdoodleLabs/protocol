@@ -12,6 +12,7 @@ import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalIn
 import Portfolio from "@extension-onboarding/pages/Details/screens/Portfolio";
 import { Box } from "@material-ui/core";
 import React, { useMemo } from "react";
+import ScamFilterSettings from "@extension-onboarding/pages/Details/screens/ScamFilterSettings";
 
 const Details = () => {
   const classes = useStyles();
@@ -34,6 +35,9 @@ const Details = () => {
       }
       case EScreens.DEMOGRAPHIC_INFO_SETTINGS: {
         return <PersonalInfo />;
+      }
+      case EScreens.SCAM_FILTER_SETTINGS: {
+        return <ScamFilterSettings />;
       }
       default: {
         return null;
