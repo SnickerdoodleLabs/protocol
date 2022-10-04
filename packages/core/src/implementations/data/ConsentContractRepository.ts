@@ -17,6 +17,7 @@ import {
   IpfsCID,
   HexString32,
   Signature,
+  ConsentError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -204,9 +205,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
         tokenId,
         dataPermissions != null
           ? dataPermissions.getFlags()
-          : HexString32(
-              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-            ),
+          : DataPermissions.allPermissionsHexString,
       );
     });
   }
@@ -223,9 +222,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
         signature,
         dataPermissions != null
           ? dataPermissions.getFlags()
-          : HexString32(
-              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-            ),
+          : DataPermissions.allPermissionsHexString,
       );
     });
   }
@@ -252,14 +249,26 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
   public getAgreementFlags(
     consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
   ): ResultAsync<
     HexString32,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | AjaxError
+    | ConsentError
   > {
-    return this.getConsentContract(consentContractAddress).andThen(
-      (contract) => {
-        return contract.agreementFlags(tokenId);
+    return this.getCurrentConsentToken(consentContractAddress).andThen(
+      (consentToken) => {
+        if (consentToken == null) {
+          // not opted in!
+          return errAsync(new ConsentError("not opteed in!"));
+        }
+        return this.getConsentContract(consentContractAddress).andThen(
+          (contract) => {
+            return contract.agreementFlags(consentToken.tokenId);
+          },
+        );
       },
     );
   }
