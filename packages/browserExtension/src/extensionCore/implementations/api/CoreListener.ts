@@ -1,9 +1,9 @@
 import {
   DataWalletAddress,
-  EVMAccountAddress,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
+  LinkedAccount,
   MetatransactionSignatureRequest,
   SDQLQueryRequest,
   SDQLString,
@@ -49,14 +49,13 @@ export class CoreListener implements ICoreListener {
     return okAsync(undefined);
   }
 
-  private onAccountAdded(account: EVMAccountAddress) {
+  private onAccountAdded(account: LinkedAccount) {
     this.contextProvider.addAccount(account);
     console.log("onAccountAdded", account);
     return okAsync(undefined);
   }
 
   private onQueryPosted(request: SDQLQueryRequest) {
-    
     console.log(
       `onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
     );

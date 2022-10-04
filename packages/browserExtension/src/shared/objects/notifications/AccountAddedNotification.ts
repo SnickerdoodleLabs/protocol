@@ -1,11 +1,12 @@
+import { LinkedAccount, UUID } from "@snickerdoodlelabs/objects";
+
 import { ENotificationTypes } from "@shared/enums/notification";
 import { BaseNotification } from "@shared/objects/notifications/BaseNotification";
-import { EVMAccountAddress, UUID } from "@snickerdoodlelabs/objects";
 
 export class AccountAddedNotification extends BaseNotification {
   constructor(
     public data: {
-      accountAddress: EVMAccountAddress;
+      linkedAccount: LinkedAccount;
     },
     public key: UUID,
   ) {

@@ -17,14 +17,18 @@ import {
   HexString,
   TokenId,
   Base64String,
-  EVMContractAddress,
+  SolanaAccountAddress,
+  SolanaPrivateKey,
   InvalidParametersError,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
+import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import nacl from "tweetnacl";
 
 import { ICryptoUtils } from "@common-utils/interfaces/index.js";
 
@@ -82,17 +86,35 @@ export class CryptoUtils implements ICryptoUtils {
     salt: HexString,
   ): ResultAsync<AESKey, never> {
     // A signature is a hex string, with 65 bytes. We should convert it to a buffer
-    const sourceEntropy = Buffer.from(signature, "hex");
-    const saltBuffer = Buffer.from(salt, "hex");
+    const sourceEntropy = this.hexStringToBuffer(signature);
+    const saltBuffer = this.hexStringToBuffer(salt);
     const keyBuffer = Crypto.pbkdf2Sync(
       sourceEntropy,
       saltBuffer,
-      100,
+      100000,
       32,
       "sha256",
     );
 
     return okAsync(AESKey(keyBuffer.toString("base64")));
+  }
+
+  public deriveEVMPrivateKeyFromSignature(
+    signature: Signature,
+    salt: HexString,
+  ): ResultAsync<EVMPrivateKey, never> {
+    // A signature is a hex string, with 65 bytes. We should convert it to a buffer
+    const sourceEntropy = this.hexStringToBuffer(signature);
+    const saltBuffer = this.hexStringToBuffer(salt);
+    const keyBuffer = Crypto.pbkdf2Sync(
+      sourceEntropy,
+      saltBuffer,
+      100000,
+      32,
+      "sha256",
+    );
+
+    return okAsync(EVMPrivateKey(keyBuffer.toString("hex")));
   }
 
   public deriveAESKeyFromEVMPrivateKey(
@@ -101,12 +123,12 @@ export class CryptoUtils implements ICryptoUtils {
     // We can generate salt by signing a message
     return this.signMessage("PhoebeIsCute", evmKey).map((signature) => {
       // An EVMPrivateKey is a hex string. We should convert it to a buffer
-      const sourceEntropy = Buffer.from(evmKey, "hex");
-      const saltBuffer = Buffer.from(signature, "hex");
+      const sourceEntropy = this.hexStringToBuffer(evmKey);
+      const saltBuffer = this.hexStringToBuffer(signature);
       const keyBuffer = Crypto.pbkdf2Sync(
         sourceEntropy,
         saltBuffer,
-        100,
+        100000,
         32,
         "sha256",
       );
@@ -119,12 +141,12 @@ export class CryptoUtils implements ICryptoUtils {
   ): ResultAsync<Uint8Array, never> {
     return this.signMessage("VarunWasHere", evmKey).map((signature) => {
       // An EVMPrivateKey is a hex string. We should convert it to a buffer
-      const sourceEntropy = Buffer.from(evmKey, "hex");
-      const saltBuffer = Buffer.from(signature, "hex");
+      const sourceEntropy = this.hexStringToBuffer(evmKey);
+      const saltBuffer = this.hexStringToBuffer(signature);
       const keyBuffer = Crypto.pbkdf2Sync(
         sourceEntropy,
         saltBuffer,
-        100,
+        100000,
         32,
         "sha256",
       );
@@ -148,7 +170,7 @@ export class CryptoUtils implements ICryptoUtils {
     return EVMAccountAddress(wallet.address);
   }
 
-  public verifySignature(
+  public verifyEVMSignature(
     message: string,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
@@ -157,6 +179,20 @@ export class CryptoUtils implements ICryptoUtils {
     );
 
     return okAsync(address);
+  }
+
+  public verifySolanaSignature(
+    message: string,
+    signature: Signature,
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<boolean, never> {
+    return okAsync(
+      nacl.sign.detached.verify(
+        Buffer.from(message, "utf-8"),
+        Buffer.from(signature, "hex"),
+        base58.decode(accountAddress),
+      ),
+    );
   }
 
   public verifyTypedData(
@@ -271,6 +307,22 @@ export class CryptoUtils implements ICryptoUtils {
     });
   }
 
+  public signMessageSolana(
+    message: string,
+    privateKey: SolanaPrivateKey,
+  ): ResultAsync<Signature, never> {
+    return okAsync(
+      Signature(
+        Buffer.from(
+          nacl.sign.detached(
+            Buffer.from(message, "utf8"),
+            base58.decode(privateKey),
+          ),
+        ).toString("hex"),
+      ),
+    );
+  }
+
   public signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
@@ -360,5 +412,22 @@ export class CryptoUtils implements ICryptoUtils {
       out[i] = this.randomInt(randFunc, 0, 256);
     }
     return out;
+  }
+
+  protected hexStringToBuffer(
+    hex: HexString | Signature | EVMPrivateKey,
+  ): Buffer {
+    // HexStrings have a nasty habit of SOMETIMES having a 0x prefix but not always.
+    // We will correct that
+    if (!ethers.utils.isHexString(hex)) {
+      const prefixedHex = `0x${hex}`;
+
+      // If it's still not a valid hex string, then it's exception time.
+      if (!ethers.utils.isHexString(prefixedHex)) {
+        throw new Error(`Invalid hex string ${hex}`);
+      }
+      return Buffer.from(ethers.utils.arrayify(prefixedHex));
+    }
+    return Buffer.from(ethers.utils.arrayify(hex));
   }
 }

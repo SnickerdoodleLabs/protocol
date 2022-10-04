@@ -13,6 +13,8 @@ import {
   HexString,
   TokenId,
   Base64String,
+  SolanaAccountAddress,
+  SolanaPrivateKey,
   EVMContractAddress,
   InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
@@ -30,6 +32,11 @@ export interface ICryptoUtils {
     salt: HexString,
   ): ResultAsync<AESKey, never>;
 
+  deriveEVMPrivateKeyFromSignature(
+    signature: Signature,
+    salt: HexString,
+  ): ResultAsync<EVMPrivateKey, never>;
+
   deriveAESKeyFromEVMPrivateKey(
     evmKey: EVMPrivateKey,
   ): ResultAsync<AESKey, never>;
@@ -43,10 +50,17 @@ export interface ICryptoUtils {
     privateKey: EVMPrivateKey,
   ): EVMAccountAddress;
 
-  verifySignature(
+  verifyEVMSignature(
     message: string,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never>;
+
+  verifySolanaSignature(
+    message: string,
+    signature: Signature,
+    accountAddress: SolanaAccountAddress,
+  ): ResultAsync<boolean, never>;
+
   verifyTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
@@ -64,11 +78,14 @@ export interface ICryptoUtils {
     encryptionKey: AESKey,
   ): ResultAsync<string, never>;
 
-  // generateKeyPair(): ResultAsync<void, never>;
-
   signMessage(
     message: string,
     privateKey: EVMPrivateKey,
+  ): ResultAsync<Signature, never>;
+
+  signMessageSolana(
+    message: string,
+    privateKey: SolanaPrivateKey,
   ): ResultAsync<Signature, never>;
 
   signTypedData(
