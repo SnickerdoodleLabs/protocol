@@ -111,6 +111,7 @@ module.exports = {
       __BUILD_ENV__: JSON.stringify(process.env.__BUILD_ENV__),
       __INFURA_ID__: JSON.stringify(process.env.__INFURA_ID__),
       __GAPI_CLIENT_ID__: JSON.stringify(process.env.__GAPI_CLIENT_ID__),
+      __RPC_PROVIDER__: JSON.stringify(process.env.__RPC_PROVIDER__),
     }),
   ],
 };
