@@ -42,15 +42,12 @@ const MarketPlaceRewards: FC = () => {
   };
 
   const acceptInvitation = (
-    dataTpes: EWalletDataType[] | null,
+    dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
   ) => {
     setLoadingStatus(true);
     return window.sdlDataWallet
-      .acceptPublicInvitationByConsentContractAddress(
-        dataTpes,
-        consentContractAddress,
-      )
+      .acceptInvitation(dataTypes, consentContractAddress)
       .mapErr((e) => {
         setLoadingStatus(false);
       })
