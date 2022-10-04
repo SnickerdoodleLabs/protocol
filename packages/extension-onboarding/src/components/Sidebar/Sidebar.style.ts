@@ -43,4 +43,7 @@ export const useStyles = makeStyles((theme) => ({
   textActive: {
     fontWeight: 700,
   },
+  button: {
+    cursor: "pointer",
+  },
 }));
