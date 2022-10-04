@@ -1,37 +1,39 @@
+import { BrowserUtils } from "@enviroment/shared/utils";
+import { ICoreListener } from "@interfaces/api";
+import {
+  IAccountCookieUtils,
+  IAccountCookieUtilsType,
+  IContextProvider,
+  IContextProviderType,
+} from "@interfaces/utilities";
 import {
   DataWalletAddress,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   LinkedAccount,
-  MetatransactionSignatureRequest,
   SDQLQueryRequest,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ok, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import Browser from "webextension-polyfill";
-
-import { BrowserUtils } from "@enviroment/shared/utils";
-import { ICoreListener } from "@interfaces/api";
-import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
 
 @injectable()
 export class CoreListener implements ICoreListener {
   constructor(
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(IAccountCookieUtilsType)
+    protected accountCookieUtils: IAccountCookieUtils,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
     this.core.getEvents().map((events: ISnickerdoodleCoreEvents) => {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
+      events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
-      events.onMetatransactionSignatureRequested.subscribe(
-        this.onMetatransactionSignatureRequested.bind(this),
-      );
-      return ok(undefined);
     });
     return okAsync(undefined);
   }
@@ -44,13 +46,14 @@ export class CoreListener implements ICoreListener {
         });
       }
     });
+    this.accountCookieUtils.writeDataWalletAddressToCookie(dataWalletAddress);
     this.contextProvider.setAccountContext(dataWalletAddress);
     console.log("onInitialized", dataWalletAddress);
     return okAsync(undefined);
   }
 
   private onAccountAdded(account: LinkedAccount) {
-    this.contextProvider.addAccount(account);
+    this.contextProvider.onAccountAdded(account);
     console.log("onAccountAdded", account);
     return okAsync(undefined);
   }
@@ -86,12 +89,10 @@ export class CoreListener implements ICoreListener {
       });
   }
 
-  // Todo move logic to correct place
-  private onMetatransactionSignatureRequested(
-    metatransactionSignatureRequest: MetatransactionSignatureRequest,
-  ) {
-    this.contextProvider.notifyPortsWithIncomingMetatransactionSignatureRequest(
-      metatransactionSignatureRequest,
+  private onAccountRemoved(account: LinkedAccount) {
+    this.accountCookieUtils.removeAccountInfoFromCookie(
+      account.sourceAccountAddress,
     );
+    this.contextProvider.onAccountRemoved(account);
   }
 }

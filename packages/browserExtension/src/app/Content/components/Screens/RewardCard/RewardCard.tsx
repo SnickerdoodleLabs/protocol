@@ -1,16 +1,25 @@
-import React from "react";
-import { Box, Typography } from "@material-ui/core";
+import React, { useEffect, useMemo, useState } from "react";
+import { Box, Typography, FormControlLabel } from "@material-ui/core";
 
-import Modal, { useGenericModalStyles } from "../../Modals/Modal";
+import Modal, {
+  useGenericModalStyles,
+} from "@app/Content/components/Modals/Modal";
 
-import { EAPP_STATE, IRewardItem } from "../../../constants";
-import { UUID } from "@snickerdoodlelabs/objects";
+import { EAPP_STATE, IRewardItem } from "@app/Content/constants";
+import { EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
 
 import { ExternalCoreGateway } from "@app/coreGateways";
 import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
+import { okAsync } from "neverthrow";
+import BasicModal from "@app/Content/components/Modals/BasicModal";
+import Switch from "@app/Content/components/Switch";
+import Button from "@app/Content/components/Button";
 
 interface IRewardCardProps {
   emptyReward: () => void;
+  acceptInvitation: () => void;
+  rejectInvitation: () => void;
+  changeAppState: (state: EAPP_STATE) => void;
   rewardItem: IRewardItem;
   invitationDomain: IInvitationDomainWithUUID | undefined;
   coreGateway: ExternalCoreGateway;
@@ -18,19 +27,22 @@ interface IRewardCardProps {
 
 const RewardCard: React.FC<IRewardCardProps> = ({
   emptyReward,
+  changeAppState,
+  acceptInvitation,
+  rejectInvitation,
   rewardItem,
   invitationDomain,
   coreGateway,
 }: IRewardCardProps) => {
-  const acceptInvitation = () => {
-    return coreGateway.acceptInvitation(null, invitationDomain?.id as UUID);
-  };
-
   const modalClasses = useGenericModalStyles();
 
   const onPrimaryButtonClick = () => {
-    acceptInvitation().map(() => {
-      emptyReward();
+    coreGateway.getApplyDefaultPermissionsOption().map((option) => {
+      if (option) {
+        acceptInvitation();
+        return;
+      }
+      changeAppState(EAPP_STATE.PERMISSION_SELECTION);
     });
   };
 

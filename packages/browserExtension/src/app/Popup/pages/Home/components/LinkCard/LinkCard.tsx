@@ -21,12 +21,12 @@ const LinkCard = ({ navigateTo, icon, title }: ILinkCardProps) => {
   return (
     <Box
       onClick={navigate}
-      mt={3}
+      mt={2}
       display="flex"
       alignItems="center"
       className={classes.container}
     >
-      <Box ml={1}>
+      <Box mx={2}>
         <img src={icon} />
       </Box>
 

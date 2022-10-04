@@ -43,6 +43,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
+  HexString32,
   IpfsCID,
   LanguageCode,
   Signature,
@@ -208,6 +209,7 @@ export interface ISnickerdoodleCore {
     | BlockchainProviderError
     | AjaxError
     | MinimalForwarderContractError
+    | ConsentError
   >;
 
   /**
@@ -292,6 +294,27 @@ export interface ISnickerdoodleCore {
     | IPFSError
     | QueryFormatError
     | EvaluationError
+  >;
+
+  getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | AjaxError
+    | ConsentError
+  >;
+
+  getAvailableInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentFactoryContractError
+    | ConsentContractError
+    | PersistenceError
   >;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;

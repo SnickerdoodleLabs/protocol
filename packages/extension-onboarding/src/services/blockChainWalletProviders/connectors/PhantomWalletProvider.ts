@@ -1,11 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Web3Provider, JsonRpcSigner } from "@ethersproject/providers";
-import {
-  EVMAccountAddress,
-  ChainId,
-  Signature,
-  ChainInformation,
-} from "@snickerdoodlelabs/objects";
+import { AccountAddress, Signature } from "@snickerdoodlelabs/objects";
 import { PublicKey } from "@solana/web3.js";
 import { ethers } from "ethers";
 import { ResultAsync, okAsync, errAsync } from "neverthrow";
@@ -40,23 +35,15 @@ interface PhantomProvider {
 export class PhantomWalletProvider implements IWalletProvider {
   protected _provider: PhantomProvider | null;
 
-  constructor(protected _config: Config) {
+  constructor() {
     // @ts-ignore
     this._provider = window?.solana?.isPhantom && window.solana;
   }
-  public getWeb3Provider(): ResultAsync<Web3Provider | undefined, never> {
-    throw new Error("Method not implemented.");
-  }
-  public getWeb3Signer(): ResultAsync<JsonRpcSigner | undefined, never> {
-    throw new Error("Method not implemented.");
-  }
-  public get config(): Config {
-    return this._config;
-  }
+
   public get isInstalled(): boolean {
     return !!this._provider;
   }
-  public connect(): ResultAsync<EVMAccountAddress, unknown> {
+  public connect(): ResultAsync<AccountAddress, unknown> {
     if (!this._provider) {
       return errAsync(new Error("Phantom is not installed!"));
     }
@@ -65,7 +52,7 @@ export class PhantomWalletProvider implements IWalletProvider {
       (e) => errAsync(new Error("User cancelled")),
     ).andThen((publicKey) => {
       const account = publicKey.publicKey.toBase58();
-      return okAsync(EVMAccountAddress(account));
+      return okAsync(account as AccountAddress);
     });
   }
   public getSignature(message: string): ResultAsync<Signature, unknown> {
@@ -75,16 +62,10 @@ export class PhantomWalletProvider implements IWalletProvider {
     const encodedMessage = new TextEncoder().encode(message);
     return ResultAsync.fromPromise(
       // @ts-ignore
-      this._provider.request({
-        method: "signMessage",
-        params: {
-          message: encodedMessage,
-          display: "utf8",
-        },
-      }) as Promise<{ publicKey: EVMAccountAddress; signature: Signature }>,
+      this._provider.signMessage(encodedMessage),
       (e) => errAsync(new Error("User cancelled")),
     ).andThen((signatureResult) => {
-      return okAsync(Signature(signatureResult.signature));
+      return okAsync(Signature(signatureResult?.signature?.toString?.("hex")));
     });
   }
   public checkAndSwitchToControlChain(): ResultAsync<

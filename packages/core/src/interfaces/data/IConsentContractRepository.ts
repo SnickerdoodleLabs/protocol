@@ -15,6 +15,8 @@ import {
   URLString,
   IpfsCID,
   Signature,
+  HexString32,
+  ConsentError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -78,6 +80,23 @@ export interface IConsentContractRepository {
 
   getConsentContracts(): ResultAsync<
     Map<EVMContractAddress, IConsentContract>,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+
+  getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | AjaxError
+    | ConsentError
+  >;
+
+  getDeployedConsentContractAddresses(): ResultAsync<
+    EVMContractAddress[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 

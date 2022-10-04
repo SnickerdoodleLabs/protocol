@@ -97,12 +97,14 @@ export class DataPermissions {
     return (flagsArray[byteNumber] & (1 << bitNumber)) > 0;
   }
 
-  static createWithAllPermissions(): DataPermissions {
-    return new DataPermissions(
-      HexString32(
-        "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-      ),
+  static get allPermissionsHexString(): HexString32 {
+    return HexString32(
+      "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
     );
+  }
+
+  static createWithAllPermissions(): DataPermissions {
+    return new DataPermissions(DataPermissions.allPermissionsHexString);
   }
 
   static createWithPermissions(dataTypes: EWalletDataType[]): DataPermissions {
