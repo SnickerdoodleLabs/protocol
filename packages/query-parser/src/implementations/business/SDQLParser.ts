@@ -5,6 +5,7 @@ import {
   DuplicateIdInSchema,
   EWalletDataType,
   IpfsCID,
+  MissingASTError,
   MissingTokenConstructorError,
   MissingWalletDataTypeError,
   ParserError,
@@ -61,7 +62,7 @@ export class SDQLParser {
   private saveInContext(name: string, val: ParserContextDataTypes): void {
     if (this.context.get(name)) {
       const err = new DuplicateIdInSchema(name);
-      console.error(err);
+      // console.error(err);
       throw err;
     }
 
@@ -294,7 +295,9 @@ export class SDQLParser {
 
   private parseReturns(): ResultAsync<
     void,
-    DuplicateIdInSchema | QueryFormatError
+    DuplicateIdInSchema 
+    | QueryFormatError
+    | MissingASTError
   > {
     try {
       const returnsSchema = this.schema.getReturnSchema();
@@ -311,27 +314,33 @@ export class SDQLParser {
         }
 
         if ("query" in schema) {
-          // console.log(`${rName} is a query`);
+          
+          const source = this.context.get(SDQL_Name(schema.query!)) as AST_Query | AST_Return;
+          if (null == source) {
+            return errAsync(new MissingASTError(schema.query!))
+          }
           const returnExpr = new AST_ReturnExpr(
             name,
-            this.context.get(SDQL_Name(schema.query!)) as
-              | AST_Query
-              | AST_Return,
+            source
           );
-
           returns.push(returnExpr);
+
         } else if ("message" in schema) {
-          // console.log(`${rName} is a message`);
+
+          const source = new AST_Return(SDQL_Name(schema.name), schema.message!);
           const returnExpr = new AST_ReturnExpr(
             name,
-            new AST_Return(SDQL_Name(schema.name), schema.message!),
+            source
           );
-
           returns.push(returnExpr);
+
         } else {
-          const err = new ReturnNotImplementedError(rName);
-          console.error(err);
-          throw err;
+
+          // const err = new ReturnNotImplementedError(rName);
+          // console.error(err);
+          // throw err;
+          return errAsync(new QueryFormatError("Missing type definition", 0, schema));
+
         }
       }
 

@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/common-utils",
-  "version": "0.0.4",
+  "version": "0.0.7",
   "description": "Common utils classes used in snickerdoodlelabs projects",
   "license": "MIT",
   "repository": {
@@ -41,13 +41,14 @@
   "module": "./dist/index.js",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@snickerdoodlelabs/objects": ">=0.0.1",
+    "@snickerdoodlelabs/objects": "workspace:^",
     "argon2": "^0.28.4",
     "axios": "^0.27.2",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
     "neverthrow": "^4.3.1",
     "neverthrow-result-utils": "^1.0.2",
-    "pino": "^8.1.0"
+    "pino": "^8.1.0",
+    "tweetnacl": "^1.0.3"
   }
 }

@@ -53,6 +53,12 @@ export interface IConsentContract {
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
 
+  encodeRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString;
+
   /**
    * Create a consent token with providing the business signature
    * Allows Signature Issuer to send anonymous invitation link to end user to opt in
