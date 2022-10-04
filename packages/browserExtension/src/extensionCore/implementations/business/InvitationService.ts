@@ -48,18 +48,6 @@ export class InvitationService implements IInvitationService {
       );
   }
 
-  public acceptPublicInvitationByConsentContractAddress(
-    consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[] | null,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
-    return this.getDataPermissions(dataTypes).andThen((dataPermissions) => {
-      return this.invitationRepository.acceptPublicInvitationByConsentContractAddress(
-        consentContractAddress,
-        dataPermissions,
-      );
-    });
-  }
-
   public getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError

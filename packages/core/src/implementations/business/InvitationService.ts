@@ -26,7 +26,6 @@ import {
   ConsentFactoryContractError,
   IOpenSeaMetadata,
   IpfsCID,
-  HexString,
   HexString32,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
@@ -149,80 +148,92 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | BlockchainProviderError
     | MinimalForwarderContractError
+    | ConsentError
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
-    return this.contextProvider.getContext().andThen((context) => {
-      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
-        return errAsync(
-          new UninitializedError("Data wallet has not been unlocked yet!"),
-        );
-      }
-
-      let optInData: ResultAsync<
-        HexString,
-        BlockchainProviderError | UninitializedError
-      >;
-      if (invitation.businessSignature == null) {
-        optInData = this.consentRepo.encodeOptIn(
-          invitation.consentContractAddress,
-          invitation.tokenId,
-          dataPermissions,
-        );
-      } else {
-        optInData = this.consentRepo.encodeRestrictedOptIn(
-          invitation.consentContractAddress,
-          invitation.tokenId,
-          invitation.businessSignature,
-          dataPermissions,
-        );
-      }
-
-      return ResultUtils.combine([
-        this.consentRepo.encodeOptIn(
-          invitation.consentContractAddress,
-          invitation.tokenId,
-          dataPermissions,
-        ),
-        this.forwarderRepo.getNonce(),
-      ])
-        .andThen(([callData, nonce]) => {
-          // We need to take the types, and send it to the account signer
-          const request = new MetatransactionRequest(
-            invitation.consentContractAddress, // Contract address for the metatransaction
-            EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
-            BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-            BigNumber.from(10000000), // The amount of gas to pay.
-            BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-            callData, // The actual bytes of the request, encoded as a hex string
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        if (
+          context.dataWalletAddress == null ||
+          context.dataWalletKey == null
+        ) {
+          return errAsync(
+            new UninitializedError("Data wallet has not been unlocked yet!"),
           );
-
-          return this.forwarderRepo
-            .signMetatransactionRequest(request, context.dataWalletKey!)
-            .andThen((metatransactionSignature) => {
-              // Got the signature for the metatransaction, now we can execute it.
-              // .executeMetatransaction will sign everything and have the server run
-              // the metatransaction.
-              return this.insightPlatformRepo.executeMetatransaction(
-                context.dataWalletAddress!, // data wallet address
-                EVMAccountAddress(context.dataWalletAddress!), // account address
-                invitation.consentContractAddress, // contract address
-                BigNumberString(BigNumber.from(nonce).toString()),
-                BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
-                callData,
-                metatransactionSignature,
-                context.dataWalletKey!,
-              );
-            });
-        })
-        .map(() => {
-          // Notify the world that we've opted in to the cohort
-          context.publicEvents.onCohortJoined.next(
+        }
+        if (invitation.businessSignature == null) {
+          // Before optIn check TXT records to validate invitation
+          return this.consentContractHasMatchingTXT(
             invitation.consentContractAddress,
-          );
+          ).andThen((res) => {
+            if (res) {
+              return okAsync({
+                optInData: this.consentRepo.encodeOptIn(
+                  invitation.consentContractAddress,
+                  invitation.tokenId,
+                  dataPermissions,
+                ),
+                context,
+              });
+            }
+            return errAsync(
+              new ConsentError(
+                `${invitation.consentContractAddress} is not valid public consent contract`,
+              ),
+            );
+          });
+        }
+        return okAsync({
+          optInData: this.consentRepo.encodeRestrictedOptIn(
+            invitation.consentContractAddress,
+            invitation.tokenId,
+            invitation.businessSignature,
+            dataPermissions,
+          ),
+          context,
         });
-    });
+      })
+      .andThen(({ optInData, context }) => {
+        return ResultUtils.combine([optInData, this.forwarderRepo.getNonce()])
+          .andThen(([callData, nonce]) => {
+            // We need to take the types, and send it to the account signer
+            const request = new MetatransactionRequest(
+              invitation.consentContractAddress, // Contract address for the metatransaction
+              EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
+              BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+              BigNumber.from(10000000), // The amount of gas to pay.
+              BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+              callData, // The actual bytes of the request, encoded as a hex string
+            );
+
+            return this.forwarderRepo
+              .signMetatransactionRequest(request, context.dataWalletKey!)
+              .andThen((metatransactionSignature) => {
+                // Got the signature for the metatransaction, now we can execute it.
+                // .executeMetatransaction will sign everything and have the server run
+                // the metatransaction.
+                return this.insightPlatformRepo.executeMetatransaction(
+                  context.dataWalletAddress!, // data wallet address
+                  EVMAccountAddress(context.dataWalletAddress!), // account address
+                  invitation.consentContractAddress, // contract address
+                  BigNumberString(BigNumber.from(nonce).toString()),
+                  BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                  BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
+                  callData,
+                  metatransactionSignature,
+                  context.dataWalletKey!,
+                );
+              });
+          })
+          .map(() => {
+            // Notify the world that we've opted in to the cohort
+            context.publicEvents.onCohortJoined.next(
+              invitation.consentContractAddress,
+            );
+          });
+      });
   }
 
   public rejectInvitation(
@@ -453,78 +464,7 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | ConsentError
   > {
-    return this.contextProvider.getContext().andThen((context) => {
-      if (context.dataWalletAddress == null || context.dataWalletKey == null) {
-        return errAsync(
-          new UninitializedError("Data wallet has not been unlocked yet!"),
-        );
-      }
-      return this.consentRepo
-        .getCurrentConsentToken(consentContractAddress)
-        .andThen((consentToken) => {
-          if (consentToken == null) {
-            // not opted in!
-            return errAsync(
-              new ConsentError(
-                "Cannot getAggrementFlags of consent contract, you were not opted in!",
-              ),
-            );
-          }
-          return this.consentRepo.getAgreementFlags(
-            consentContractAddress,
-            consentToken.tokenId,
-          );
-        });
-    });
-  }
-
-  public acceptPublicInvitationByConsentContractAddress(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | ConsentError
-    | ConsentFactoryContractError
-  > {
-    return this.consenContractHasMatchingTXT(consentContractAddress).andThen(
-      (hasMatchingTXT) => {
-        // check valid public consent contract or not
-        if (hasMatchingTXT) {
-          return this.consentRepo
-            .getOptedInConsentContractAddresses()
-            .andThen((optedInConsentsAddresses) => {
-              if (optedInConsentsAddresses.includes(consentContractAddress)) {
-                return errAsync(
-                  new ConsentError(
-                    "Cannot opt in to consent contract, you were already opted in!",
-                  ),
-                );
-              }
-              return this.cryptoUtils.getTokenId().andThen((tokenId) => {
-                return this.acceptInvitation(
-                  new Invitation(
-                    DomainName(""),
-                    consentContractAddress,
-                    tokenId,
-                    null,
-                  ),
-                  dataPermissions,
-                );
-              });
-            });
-        }
-        return errAsync(
-          new ConsentError(
-            `${consentContractAddress} is not valid public consent contract`,
-          ),
-        );
-      },
-    );
+    return this.consentRepo.getAgreementFlags(consentContractAddress);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
@@ -539,7 +479,7 @@ export class InvitationService implements IInvitationService {
       (consentAddresses) => {
         return ResultUtils.combine(
           consentAddresses.map((consentAddress) =>
-            this.consenContractHasMatchingTXT(consentAddress).map(
+            this.consentContractHasMatchingTXT(consentAddress).map(
               (hasMatchingTXT) => ({
                 consentAddress,
                 hasMatchingTXT,
@@ -574,7 +514,7 @@ export class InvitationService implements IInvitationService {
     );
   }
 
-  protected consenContractHasMatchingTXT(
+  protected consentContractHasMatchingTXT(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<boolean, never> {
     return this.consentRepo

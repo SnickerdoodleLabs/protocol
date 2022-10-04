@@ -23,9 +23,7 @@ export class DataPermissionsUtils implements IDataPermissionsUtils {
       if (res.defaultFlags) {
         return res.defaultFlags as HexString32;
       }
-      return HexString32(
-        "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-      );
+      return DataPermissions.allPermissionsHexString;
     });
   }
 
@@ -82,11 +80,7 @@ export class DataPermissionsUtils implements IDataPermissionsUtils {
   }
 
   public setDefaultFlagsToAll(): ResultAsync<void, ExtensionStorageError> {
-    return this.setDefaultFlags(
-      HexString32(
-        "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-      ),
-    );
+    return this.setDefaultFlags(DataPermissions.allPermissionsHexString);
   }
 
   public generateDataPermissionsClassWithDataTypes(

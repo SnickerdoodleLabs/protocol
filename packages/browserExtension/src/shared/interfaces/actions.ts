@@ -78,13 +78,15 @@ export interface IGetInvitationWithDomainParams {
   domain: DomainName;
   path: string;
 }
-export interface IAcceptInvitationParams {
+export interface IAcceptInvitationByUUIDParams {
   dataTypes: EWalletDataType[];
   id: UUID;
 }
-export interface IAcceptPublicInvitationByConsentContractAddressParams {
+export interface IAcceptInvitationParams {
   dataTypes: EWalletDataType[];
   consentContractAddress: EVMContractAddress;
+  tokenId?: BigNumberString;
+  businessSignature?: Signature;
 }
 
 export interface IGetAgreementPermissionsParams {
