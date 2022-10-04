@@ -13,7 +13,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       "Dev Env Doodle Chain",
       ChainId(31337),
       true,
-      [ProviderUrl("https://doodlechain.dev.snickerdoodle.dev")],
+      [ProviderUrl(process.env.RPC_PROVIDER)],
       4000,
       EIndexer.Simulator,
       new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
