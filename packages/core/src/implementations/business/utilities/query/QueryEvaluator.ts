@@ -139,134 +139,13 @@ export class QueryEvaluator implements IQueryEvaluator {
             return okAsync(SDQL_Return(url_visited_count));
           });
       case "chain_transactions":
-        return this.dataWalletPersistence.getTransactionsArray()
-        .andThen((transactionsArray) => {
-          // return okAsync(SDQL_Return(transactionsArray))
-            // console.log("line 144 transactionsArray", transactionsArray);
-            // let items = transactionsArray.filter(obj => (obj.items?.length != 0));   
-            
-            console.log("Transactions: ");
-            console.log(transactionsArray);
-            return ResultUtils.combine([
-              this.convertTransactions(transactionsArray),
-              this.dataWalletPersistence.getAccounts()
-            ])
-            
-        }).andThen(([convertedTrans, accounts]) => {
-          // console.log("line 152 convertedTrans", convertedTrans);
-          return this.TransactionFlowOutput(convertedTrans, accounts);
-        
-        }).andThen((finalArray) => {
-          // console.log("line 156 finalArray", finalArray);
-          return okAsync(SDQL_Return(finalArray))
-        })
+        return this.dataWalletPersistence.getTransactionFlow().andThen((transactionArray) => {
+          return okAsync(SDQL_Return(transactionArray));
+        });
       default:
-        // console.log("Tracking the result: ", result);
         return okAsync(result);
     }
   }
-
-  public convertTransactions(
-    transactionsArray: {chainId: ChainId, items: EVMTransaction[] | null}[]
-  ): ResultAsync<EVMTransaction[], PersistenceError>{
-  
-    let returnedTransactions : EVMTransaction[] = [];
-
-    for (const chain of transactionsArray) {
-      // console.log("line 173  chain items", chain);
-      console.log(`QueryEvaluator: line 174 converting ${chain.items!.length} items for chain ${chain.chainId}`)
-      const items = chain.items;
-      if (items != null) {
-        // console.log("line 177  items", items);
-        returnedTransactions.push(...items);
-        // console.log("line 178 returnedTransactions", returnedTransactions);
-      }
-    }
-
-    return okAsync(returnedTransactions);
-  }
-      
-  // passed in transArray of only values with items that have values
-  // passed in accounts Array
-  protected TransactionFlowOutput(
-    transactionsArray: EVMTransaction[], 
-    accounts: EVMAccountAddress[]
-  ): ResultAsync<IChainTransaction[], PersistenceError>{
-    const flowMap = new Map<ChainId, IChainTransaction>();
-
-    transactionsArray.forEach((obj) => {
-
-      const getObject = flowMap.get(obj.chainId);
-      let to_address = obj.to;
-      let from_address = obj.from;
-
-      if (getObject) {
-        if (to_address != null){
-          if (accounts.includes(to_address)){
-            flowMap.set(obj.chainId, {
-              chainId: obj.chainId, 
-              outgoingValue: getObject.outgoingValue,
-              outgoingCount: getObject.outgoingCount,
-              incomingValue: BigNumberString(
-                (BigNumber.from(getObject.incomingValue).add(BigNumber.from(obj.value))).toString()
-              ),
-              incomingCount: BigNumberString(
-                (BigNumber.from(getObject.incomingCount).add(BigNumber.from("1"))).toString()
-              )
-            });
-          } 
-        }
-        if (from_address != null){
-          if (accounts.includes(from_address)){
-            flowMap.set(obj.chainId, {
-              chainId: obj.chainId, 
-              outgoingValue: BigNumberString(
-                (BigNumber.from(getObject.outgoingValue).add(BigNumber.from(obj.value))).toString()
-              ),
-              outgoingCount:  BigNumberString(
-                (BigNumber.from(getObject.outgoingCount).add(BigNumber.from("1"))).toString()
-              ),
-              incomingValue: getObject.incomingValue,
-              incomingCount: getObject.incomingCount
-            });
-          } 
-        }
-      } else {
-        
-        if (to_address != null){
-          if (accounts.includes(to_address)){
-            flowMap.set(obj.chainId, {
-              chainId: obj.chainId, 
-              outgoingValue: BigNumberString("0"),
-              outgoingCount: BigNumberString("0"),
-              incomingValue: BigNumberString(BigNumber.from(obj.value).toString()),
-              incomingCount: BigNumberString("1"),
-            });
-          } 
-        }
-        if (from_address != null){
-          if (accounts.includes(from_address)){
-            flowMap.set(obj.chainId, {
-              chainId: obj.chainId, 
-              outgoingValue: BigNumberString(BigNumber.from(obj.value).toString()),
-              outgoingCount: BigNumberString("1"),
-              incomingValue: BigNumberString("0"),
-              incomingCount: BigNumberString("0"),
-            });
-          } 
-        }
-      }
-    });
-
-    const outputFlow: IChainTransaction[] = [];
-    flowMap.forEach((element, key) => {
-      outputFlow.push(element);
-    });
-
-    return okAsync(outputFlow);
-  }
-
-
 
   public evalPropertyConditon(
     propertyVal: Age | CountryCode | null,

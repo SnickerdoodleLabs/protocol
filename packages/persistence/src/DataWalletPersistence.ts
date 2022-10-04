@@ -649,11 +649,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getTransactionFlow(): ResultAsync<IChainTransaction[], PersistenceError>{
-// accounts: EVMAccountAddress[]
-
-    let map : Map<ChainId, IChainTransaction> = new Map<ChainId, IChainTransaction>();
-
-
+    
     return ResultUtils.combine([
       this.getAccounts(),
       this._getObjectStore(),
@@ -663,52 +659,87 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return ResultUtils.combine([
           objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "to", account).andThen((cursor) => cursor.allValues().map((evm) => (evm!))), 
           objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "from", account).andThen((cursor) => cursor.allValues().map((evm) => (evm!)))
-          //objStore.getCursor<ChainId>(ELocalStorageKey.TRANSACTIONS, "chainId").andThen((cursor) => (cursor).allValues())
         ]).andThen(([toTransactions, fromTransactions]) => {
-          const chainTransaction : IChainTransaction[] = [];
-          
-          for (let i = 0; i < toTransactions.length; i++) {
-            chainTransaction.push(
-              {
-                "chainId": toTransactions[i].chainId,
-                "incomingCount": BigNumberString("1"),
-                "incomingValue": BigNumberString((BigNumber.from(toTransactions[i].valueQuote!)).toString()),
-                "outgoingCount": BigNumberString("0"),
-                "outgoingValue": BigNumberString("0")
-              }
-            );
-          }
-          for (let i = 0; i < fromTransactions.length; i++) {
-            chainTransaction.push(
-              {
-                "chainId": fromTransactions[i].chainId,
-                "incomingCount": BigNumberString("0"),
-                "incomingValue": BigNumberString("0"),
-                "outgoingCount": BigNumberString("1"),
-                "outgoingValue": BigNumberString((BigNumber.from(fromTransactions[i].valueQuote!)).toString())
-              }
-            );
-          }
-          return okAsync(chainTransaction);
+          return this.pushTransaction(toTransactions, fromTransactions, []);
         })
       }))
-      
-      .andThen(([chainTransaction]) => {
-        /*
-        const transactions = chainTransaction.reduce(( ) => {
-
-          }
-        )
-        */
+      .andThen(([transactionsArray]) => {
+        return this.compoundTransaction(transactionsArray);
+      })
+    })
+  }
 
 
-
-
-        return okAsync(chainTransaction);
-        });
-      });
-
+  protected pushTransaction(incomingTransaction: EVMTransaction[], outgoingTransaction: EVMTransaction[], chainTransaction: IChainTransaction[]): ResultAsync<IChainTransaction[], PersistenceError>{          
+    
+    for (let i = 0; i < incomingTransaction.length; i++) {
+      let valueQuote = incomingTransaction[i].valueQuote;
+      if ((valueQuote == null) || (valueQuote == undefined)){
+        valueQuote = 0;
+      }
+      chainTransaction.push(
+        {
+          "chainId": incomingTransaction[i].chainId,
+          "incomingCount": BigNumberString("1"), 
+          "incomingValue": BigNumberString((BigNumber.from(BigInt(valueQuote * 10e18))).toString()),
+          "outgoingCount": BigNumberString("0"),
+          "outgoingValue": BigNumberString("0")
+        }
+      );
     }
+    for (let i = 0; i < outgoingTransaction.length; i++) {
+      let valueQuote = outgoingTransaction[i].valueQuote;
+      if ((valueQuote == null) || (valueQuote == undefined)){
+        valueQuote = 0;
+      }
+      chainTransaction.push(
+        {
+          "chainId": outgoingTransaction[i].chainId,
+          "incomingCount": BigNumberString("0"),
+          "incomingValue": BigNumberString("0"),
+          "outgoingCount": BigNumberString("1"),
+          "outgoingValue": BigNumberString((BigNumber.from(BigInt(valueQuote * 10e18))).toString())
+        }
+      );
+    }
+
+    return okAsync(chainTransaction);
+  }
+
+  protected compoundTransaction(chainTransaction: IChainTransaction[]): ResultAsync<IChainTransaction[], PersistenceError>{
+    const flowMap = new Map<ChainId, IChainTransaction>();
+    chainTransaction.forEach((obj) => {
+      const getObject = flowMap.get(obj.chainId)!;
+      if (flowMap.has(obj.chainId)){
+        flowMap.set(obj.chainId, {
+          chainId: obj.chainId, 
+          outgoingValue: BigNumberString((BigNumber.from(obj.outgoingValue.toString()).add(getObject.outgoingValue.toString())).toString()),
+          outgoingCount: BigNumberString((BigNumber.from(obj.outgoingCount.toString()).add(getObject.outgoingCount.toString())).toString()),
+          incomingValue: BigNumberString((BigNumber.from(obj.incomingValue.toString()).add(getObject.incomingValue.toString())).toString()),
+          incomingCount: BigNumberString((BigNumber.from(obj.incomingCount.toString()).add(getObject.incomingCount.toString())).toString()),
+        });
+      } 
+      else
+      {
+        flowMap.set(obj.chainId, {
+          chainId: obj.chainId, 
+          outgoingValue: BigNumberString((BigNumber.from(obj.outgoingValue.toString())).toString()),
+          outgoingCount: BigNumberString((BigNumber.from(obj.outgoingCount.toString())).toString()),
+          incomingValue: BigNumberString((BigNumber.from(obj.incomingValue.toString())).toString()),
+          incomingCount: BigNumberString((BigNumber.from(obj.incomingCount.toString())).toString()),
+        });
+    }
+    });
+
+    const outputFlow: IChainTransaction[] = [];
+    flowMap.forEach((element, key) => {
+      outputFlow.push(element);
+    });
+
+    return okAsync(outputFlow);
+  }
+
+
 
   public addEVMTransactions(
     transactions: EVMTransaction[],
