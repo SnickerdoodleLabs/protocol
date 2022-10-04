@@ -8,15 +8,20 @@ export const useStyles = makeStyles((theme) => ({
     color: "#232039",
   },
   description: {
-    fontFamily: "Space Grotesk",
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
     fontWeight: 400,
-    fontSize: 18,
-    lineHeight: "23px",
+    fontSize: "16px",
+    lineHeight: "24px",
   },
-  editButton: {
-    fontFamily: "Space Grotesk",
-    fontSize: 16,
-    fontWeight: 500,
-    color: "#8079B4",
+  link: {
+    textDecorationLine: "underline",
+    cursor: "pointer",
+    fontFamily: "Inter",
+    fontStyle: "normal",
+    fontWeight: 300,
+    fontSize: 14.5,
+    lineHeight: "17px",
+    color: " #D32F2F",
   },
 }));

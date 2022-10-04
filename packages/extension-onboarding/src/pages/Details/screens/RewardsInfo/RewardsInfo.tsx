@@ -1,9 +1,12 @@
-import RewardItem from "@extension-onboarding/pages/Details/screens/RewardsInfo/components/RewardItem";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import RewardItem from "@extension-onboarding/components/RewardItem";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardsInfo/RewardsInfo.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
+import emptyReward from "@extension-onboarding/assets/images/empty-reward.svg";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -11,13 +14,16 @@ const RewardsInfo: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [rewardContractAddressesWithCID, setRewardContractAddressesWithCID] =
     useState<Record<EVMContractAddress, IpfsCID>>();
+  const { setModal, setLoadingStatus } = useLayoutContext();
 
   useEffect(() => {
     getInvitations();
   }, []);
 
   useEffect(() => {
-    setIsLoading(false);
+    if (rewardContractAddressesWithCID) {
+      setIsLoading(false);
+    }
   }, [JSON.stringify(rewardContractAddressesWithCID)]);
 
   const getInvitations = () => {
@@ -31,18 +37,33 @@ const RewardsInfo: FC = () => {
       });
   };
 
-  const onLeaveClick = (consentContractAddress: EVMContractAddress) => {
-    setIsLoading(true);
+  const leaveCohort = (consentContractAddress: EVMContractAddress) => {
+    setLoadingStatus(true);
     window.sdlDataWallet
       .leaveCohort(consentContractAddress)
       .mapErr((e) => {
-        setIsLoading(false);
+        setLoadingStatus(false);
       })
       .map(() => {
         const metadata = { ...rewardContractAddressesWithCID };
         delete metadata[consentContractAddress];
         setRewardContractAddressesWithCID(metadata);
+        setLoadingStatus(false);
       });
+  };
+
+  const onLeaveClick = (consentContractAddress: EVMContractAddress) => {
+    setModal({
+      modalSelector: EModalSelectors.CONFIRMATION_MODAL,
+      onPrimaryButtonClick: () => {
+        leaveCohort(consentContractAddress);
+      },
+      customProps: {
+        title: "Burn Reward",
+        content: "Are you sure you want to burn this reward?",
+        primaryButtonText: "Burn",
+      },
+    });
   };
 
   const classes = useStyles();
@@ -50,7 +71,10 @@ const RewardsInfo: FC = () => {
   return (
     <Box>
       <Box mb={4}>
-        <Typography className={classes.title}>Rewards</Typography>
+        <Typography className={classes.title}>My Rewards</Typography>
+        <Typography className={classes.description}>
+          See what you've earned from sharing insights!
+        </Typography>
       </Box>
       {isLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={15}>
@@ -59,15 +83,36 @@ const RewardsInfo: FC = () => {
       ) : (
         <Grid container spacing={2}>
           {rewardContractAddressesWithCID &&
-            Object.keys(rewardContractAddressesWithCID)?.map((key, index) => (
+          Object.keys(rewardContractAddressesWithCID).length ? (
+            Object.keys(rewardContractAddressesWithCID)?.map((key) => (
               <RewardItem
-                onLeaveClick={() => {
-                  onLeaveClick(key as EVMContractAddress);
-                }}
-                key={index}
+                button={
+                  <Typography
+                    onClick={() => {
+                      onLeaveClick(key as EVMContractAddress);
+                    }}
+                    className={classes.link}
+                  >
+                    Burn
+                  </Typography>
+                }
+                key={key}
                 rewardCID={rewardContractAddressesWithCID[key]}
               />
-            ))}
+            ))
+          ) : (
+            <Box width="100%" display="flex">
+              <Box
+                justifyContent="center"
+                alignItems="center"
+                width="100%"
+                display="flex"
+                pt={20}
+              >
+                <img style={{ width: 330, height: "auto" }} src={emptyReward} />
+              </Box>
+            </Box>
+          )}
         </Grid>
       )}
     </Box>
