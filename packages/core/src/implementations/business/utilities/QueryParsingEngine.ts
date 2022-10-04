@@ -64,7 +64,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         cid,
         ast,
         this.queryRepository,
-      )T 
+      ) 
 
       return ResultUtils.combine(
         this.evalCompensations(ast, dataPermissions, astEvaluator),
@@ -75,9 +75,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         );
       });
     });
-
-
-    return okAsync([]);
   }
 
   public handleQuery(

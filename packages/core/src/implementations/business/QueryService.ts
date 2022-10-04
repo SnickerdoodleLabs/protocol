@@ -141,10 +141,6 @@ export class QueryService implements IQueryService {
             consentContractAddress,
             query,
           );
-          // context.publicEvents.onQueryPosted.next({
-          //   consentContractAddress: consentContractAddress,
-          //   query: query,
-          // });
           context.publicEvents.onQueryPosted.next(queryRequest);
 
           return okAsync(undefined);
