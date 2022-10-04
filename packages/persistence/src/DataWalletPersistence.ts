@@ -681,7 +681,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         {
           "chainId": incomingTransaction[i].chainId,
           "incomingCount": BigNumberString("1"), 
-          "incomingValue": BigNumberString((BigNumber.from(BigInt(valueQuote * 10e18))).toString()),
+          "incomingValue": BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString()),
           "outgoingCount": BigNumberString("0"),
           "outgoingValue": BigNumberString("0")
         }
@@ -698,7 +698,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           "incomingCount": BigNumberString("0"),
           "incomingValue": BigNumberString("0"),
           "outgoingCount": BigNumberString("1"),
-          "outgoingValue": BigNumberString((BigNumber.from(BigInt(valueQuote * 10e18))).toString())
+          "outgoingValue": BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString())
         }
       );
     }
