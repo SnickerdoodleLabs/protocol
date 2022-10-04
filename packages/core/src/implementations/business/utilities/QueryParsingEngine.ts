@@ -47,7 +47,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions
   ): ResultAsync<
-  [] | never,
+  EligibleReward[] | never,
   EvaluationError | QueryFormatError | QueryExpiredError
 > {
 
@@ -57,22 +57,29 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   return this.queryFactories.makeParserAsync(cid, schemaString)
     .andThen((sdqlParser) => {
+      //console.log("Find 1;");
       return sdqlParser.buildAST();
     })
     .andThen((ast: AST) => {
+      //console.log("Find 2;");
+
       const astEvaluator = this.queryFactories.makeAstEvaluator(
         cid,
         ast,
         this.queryRepository,
       ) 
+      //console.log("Find 3;");
+
 
       return ResultUtils.combine(
         this.evalCompensations(ast, dataPermissions, astEvaluator),
       ).andThen((CompensationResults) => {
+        //console.log("Find 4;");
+
         const insights = CompensationResults.map(this.SDQLReturnToInsightString);
-        return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
-          [insights, rewards],
-        );
+        //console.log("Find 5;");
+
+        return okAsync<EligibleReward[], QueryFormatError>(rewards);
       });
     });
   }

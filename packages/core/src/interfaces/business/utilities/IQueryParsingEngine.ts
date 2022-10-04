@@ -15,7 +15,7 @@ export interface IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions
   ): ResultAsync<
-  [] | never,
+  EligibleReward[] | never,
   EvaluationError | QueryFormatError | QueryExpiredError
   >;
   handleQuery(

@@ -118,8 +118,6 @@ export class QueryService implements IQueryService {
         return okAsync(undefined);
       }
 
-
-      /* Above is all good */
       // We have the query, next step is check if you actually have a consent token for this business
       return this.consentContractRepository
         .isAddressOptedIn(
@@ -187,7 +185,7 @@ export class QueryService implements IQueryService {
 
         /* ENGT-745 */
         return this.queryParsingEngine.getRewardsPreview(query, consentToken!.dataPermissions).andThen( () => {
-        
+          return okAsync([]);
         /*
           returns a preview:
           the preview includes a prompt

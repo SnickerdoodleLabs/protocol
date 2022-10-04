@@ -92,6 +92,11 @@ export class AST_Evaluator {
   }
 
   public evalIf(eef: Command_IF): ResultAsync<SDQL_Return, EvaluationError> {
+    // console.log("eef name: ", eef.name);
+    // console.log("eef trueExpr: ", eef.trueExpr);
+    // console.log("eef falseExpr: ", eef.falseExpr);
+    // console.log("eef conditionExpr: ", eef.conditionExpr);
+
     return this.evalConditionExpr(eef.conditionExpr).andThen(
       (val): ResultAsync<SDQL_Return, EvaluationError> => {
         if (val == true) {
