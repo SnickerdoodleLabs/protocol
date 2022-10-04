@@ -13,12 +13,16 @@ import {
   HexString,
   TokenId,
   Base64String,
+  EVMContractAddress,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber, ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 export interface ICryptoUtils {
   getNonce(nonceSize?: number): ResultAsync<Base64String, never>;
   getTokenId(): ResultAsync<TokenId, never>;
+  getTokenIds(quantity: number): ResultAsync<TokenId[], never>;
 
   createAESKey(): ResultAsync<AESKey, never>;
   deriveAESKeyFromSignature(
@@ -85,6 +89,13 @@ export interface ICryptoUtils {
   sfc32(a: number, b: number, c: number, d: number): () => number;
   randomInt(randomFunc: () => number, low: number, high: number): number;
   randomBytes(length: number, seed: string): Uint8Array;
+  getSignature(
+    owner: ethers.Signer,
+    types: Array<string>,
+    values: Array<
+      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+    >,
+  ): ResultAsync<Signature, InvalidParametersError>;
 }
 
 export const ICryptoUtilsType = Symbol.for("ICryptoUtils");
