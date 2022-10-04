@@ -12,6 +12,10 @@ export enum EScamFilterStatus {
   MALICIOUS = "MALICIOUS",
   NOT_VERIFIED = "NOT VERIFIED",
 }
+export interface IScamFilterPreferences {
+  isScamFilterActive: boolean;
+  showMessageEveryTime: boolean;
+}
 
 const ScamFilterComponent: FC<IScamFilterStatus> = ({ scamFilterStatus }) => {
   const renderScamFilter = () => {

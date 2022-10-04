@@ -11,7 +11,10 @@ import { ExternalCoreGateway } from "@app/coreGateways/index";
 import { CONTENT_SCRIPT_SUBSTREAM } from "@shared/constants/ports";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { EPortNames } from "@shared/enums/ports";
-import { IInvitationDomainWithUUID } from "@shared/interfaces/actions";
+import {
+  IInvitationDomainWithUUID,
+  IScamFilterSettingsParams,
+} from "@shared/interfaces/actions";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 import { VersionUtils } from "@shared/utils/VersionUtils";
 import { DomainName, EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
@@ -19,11 +22,17 @@ import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
 import { JsonRpcEngine } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import ObjectMultiplex from "obj-multiplex";
 import pump from "pump";
 import React, { useEffect, useMemo, useState } from "react";
 import { parse } from "tldts";
-import Browser from "webextension-polyfill";
+import Browser, { urlbar } from "webextension-polyfill";
+
+interface ISafeURLHistory {
+  url: string;
+}
 
 let coreGateway: ExternalCoreGateway;
 let notificationEmitter;
@@ -79,11 +88,47 @@ const App = () => {
     initiateScamFilterStatus();
   }, []);
   const initiateScamFilterStatus = () => {
-    coreGateway
-      .checkURL(window.location.hostname.replace("www.", "") as DomainName)
-      .map((result) => {
-        setScamFilterStatus(result as EScamFilterStatus);
-      });
+    const url = window.location.hostname.replace("www.", "");
+
+    ResultUtils.combine([
+      coreGateway.getScamFilterSettings(),
+      coreGateway.checkURL(url as DomainName),
+    ]).andThen(([scamSettings, scamStatus]) => {
+      if (scamSettings.isScamFilterActive) {
+        if (scamSettings.showMessageEveryTime) {
+          setScamFilterStatus(scamStatus as EScamFilterStatus);
+        } else {
+          let arr: ISafeURLHistory[] = [];
+          Browser.storage.local.get("safeURLHistory").then((history) => {
+            if (history?.safeURLHistory?.length > 0) {
+              const isVisited = history.safeURLHistory.find(
+                (value) => value.url === url,
+              );
+              if (!isVisited) {
+                setScamFilterStatus(scamStatus as EScamFilterStatus);
+
+                if (scamStatus === EScamFilterStatus.VERIFIED) {
+                  Browser.storage.local.set({
+                    safeURLHistory: [...history.safeURLHistory, { url }],
+                  });
+                }
+              }
+            } else {
+              if (scamStatus === EScamFilterStatus.VERIFIED) {
+                arr.push({
+                  url,
+                });
+                Browser.storage.local.set({
+                  safeURLHistory: arr,
+                });
+              }
+            }
+          });
+        }
+      }
+
+      return okAsync(undefined);
+    });
   };
 
   useEffect(() => {
