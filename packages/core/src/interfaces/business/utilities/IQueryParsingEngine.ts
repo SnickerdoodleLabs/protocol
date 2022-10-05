@@ -2,12 +2,11 @@ import {
   DataPermissions,
   EligibleReward,
   EvaluationError,
+  InsightString,
   QueryFormatError,
   SDQLQuery,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { InsightString } from "@core/interfaces/objects/index.js";
 
 export interface IQueryParsingEngine {
   handleQuery(

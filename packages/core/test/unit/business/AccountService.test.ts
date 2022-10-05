@@ -5,6 +5,7 @@ import {
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
 } from "@snickerdoodlelabs/contracts-sdk";
+import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
   AESEncryptedString,
   AESKey,
@@ -38,14 +39,12 @@ import {
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
 import { errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
 import {
   dataWalletAddress,
   dataWalletKey,
-  externalAccountAddress1,
-  consentContractAddress1,
+  defaultInsightPlatformBaseUrl,
 } from "@core-tests/mock/mocks/commonValues";
 import {
   ConfigProviderMock,
@@ -53,10 +52,7 @@ import {
 } from "@core-tests/mock/utilities/index.js";
 import { AccountService } from "@core/implementations/business/index.js";
 import { IAccountService } from "@core/interfaces/business/index.js";
-import {
-  IInsightPlatformRepository,
-  ICrumbsRepository,
-} from "@core/interfaces/data/index.js";
+import { ICrumbsRepository } from "@core/interfaces/data/index.js";
 import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
 import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
@@ -166,6 +162,7 @@ class AccountServiceMocks {
         evmEncodedCreateCrumbContent,
         evmAddCrumbMetatransactionSignature,
         dataWalletKey,
+        defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
@@ -179,6 +176,7 @@ class AccountServiceMocks {
         solanaEncodedCreateCrumbContent,
         solanaAddCrumbMetatransactionSignature,
         dataWalletKey,
+        defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
@@ -192,6 +190,7 @@ class AccountServiceMocks {
         evmEncodedBurnCrumbContent,
         evmBurnCrumbMetatransactionSignature,
         dataWalletKey,
+        defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
@@ -205,6 +204,7 @@ class AccountServiceMocks {
         solanaEncodedBurnCrumbContent,
         solanaBurnCrumbMetatransactionSignature,
         dataWalletKey,
+        defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
 
@@ -1045,6 +1045,7 @@ describe("AccountService unlock() tests", () => {
         evmEncodedCreateCrumbContent,
         evmAddCrumbMetatransactionSignature,
         dataWalletKey,
+        defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError()));
 
@@ -1394,6 +1395,7 @@ describe("AccountService addAccount() tests", () => {
         evmEncodedCreateCrumbContent,
         evmAddCrumbMetatransactionSignature,
         dataWalletKey,
+        defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError()));
 

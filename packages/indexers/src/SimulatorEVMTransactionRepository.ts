@@ -14,7 +14,6 @@ import {
   IEVMNftRepository,
   IEVMTransactionRepository,
   TickerSymbol,
-  TokenId,
   TokenUri,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";

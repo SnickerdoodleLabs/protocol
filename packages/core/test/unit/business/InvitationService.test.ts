@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
   BigNumberString,
   DomainName,
@@ -13,7 +14,6 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
 import {
@@ -21,14 +21,17 @@ import {
   dataWalletKey,
   externalAccountAddress1,
   consentContractAddress1,
-} from "@core-tests/mock/mocks/commonValues";
-import { ContextProviderMock } from "@core-tests/mock/utilities";
+  defaultInsightPlatformBaseUrl,
+} from "@core-tests/mock/mocks/commonValues.js";
+import {
+  ConfigProviderMock,
+  ContextProviderMock,
+} from "@core-tests/mock/utilities";
 import { InvitationService } from "@core/implementations/business/index.js";
 import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
-  IInsightPlatformRepository,
   IInvitationRepository,
   IMetatransactionForwarderRepository,
 } from "@core/interfaces/data/index.js";
@@ -66,6 +69,7 @@ class InvitationServiceMocks {
   public forwarderRepo: IMetatransactionForwarderRepository;
   public cryptoUtils: ICryptoUtils;
   public contextProvider: IContextProvider;
+  public configProvider: ConfigProviderMock;
 
   public constructor() {
     this.persistenceRepo = td.object<IDataWalletPersistence>();
@@ -76,6 +80,7 @@ class InvitationServiceMocks {
     this.forwarderRepo = td.object<IMetatransactionForwarderRepository>();
     this.contextProvider = new ContextProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
+    this.configProvider = new ConfigProviderMock();
 
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
@@ -88,6 +93,7 @@ class InvitationServiceMocks {
         optInCallData,
         optInSignature,
         dataWalletKey,
+        defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
 
@@ -127,6 +133,7 @@ class InvitationServiceMocks {
       this.forwarderRepo,
       this.cryptoUtils,
       this.contextProvider,
+      this.configProvider,
     );
   }
 }
