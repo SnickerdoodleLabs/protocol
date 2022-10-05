@@ -87,6 +87,31 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
+  public getAvailableOptInCount(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    number,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return ResultUtils.combine([
+          contract.totalSupply(),
+          contract.getMaxCapacity(),
+        ]);
+      })
+      .map(([totalSupply, maxCapacity]) => {
+        const available = maxCapacity - totalSupply;
+
+        // Crazy sanity check
+        if (available < 0) {
+          return 0;
+        }
+
+        return available;
+      });
+  }
+
   public getMetadataCID(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
