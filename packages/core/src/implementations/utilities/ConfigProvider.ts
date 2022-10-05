@@ -62,10 +62,10 @@ export class ConfigProvider
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
       snickerdoodleSigningDomain, // snickerdoodleProtocolDomain
-      5000, // polling interval indexing,
-      5000, // polling interval balance
-      5000, // polling interval nfts
-      10000, // backup interval
+      25000000, // polling interval indexing,
+      25000000, // polling interval balance
+      25000000, // polling interval nfts
+      2500000, // backup interval
       3, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
