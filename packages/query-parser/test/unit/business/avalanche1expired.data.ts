@@ -64,18 +64,63 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify(
       url: "https://418e-64-85-231-39.ngrok.io/insights"
     },
     compensations: {
+        parameters: {
+          recipientAddress: {
+              type: "address",
+              required: true
+          },
+          productId: {
+              type: "string",
+              required: false,
+              values: [
+                "https://product1",
+                "https://product2",
+              ]
+          },
+          shippingAddress: {
+              type: "string",
+              required: false,
+          },
+
+      },
       c1: {
         description: "10% discount code for Starbucks",
-        callback: "https://418e-64-85-231-39.ngrok.io/starbucks",
+        chainId: 1,
+        return: {
+          parameters: [
+            "recipientAddress"
+          ],
+          data: {
+            trackingId: "982JJDSLAcx",
+          }
+        }
       },
       c2: {
         description:
           "participate in the draw to win a CryptoPunk NFT",
-        callback: "https://418e-64-85-231-39.ngrok.io/cryptopunk",
+        chainId: 1,
+        return: {
+          parameters: [
+            "recipientAddress",
+            "productId"
+          ],
+          data: {
+            trackingId: "982JJDSLAcx",
+          }
+        }
       },
       c3: {
         description: "a free CrazyApesClub NFT",
-        callback: "https://418e-64-85-231-39.ngrok.io/crazyapesclub",
+        chainId: 1,
+        return: {
+          parameters: [
+            "recipientAddress",
+            "productId"
+          ],
+          data: {
+            trackingId: "982JJDSLAcx",
+          }
+        }
       },
     },
     logic:{
