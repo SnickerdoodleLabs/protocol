@@ -1,7 +1,7 @@
 import {
   EChain,
   EVMAccountAddress,
-  IEVMNFT,
+  AccountNFT,
   ITokenBalance,
   LanguageCode,
   LinkedAccount,
@@ -35,7 +35,7 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<AccountNFT[], SnickerDoodleCoreError> {
     return this.accountRepository.getAccountNFTs();
   }
 

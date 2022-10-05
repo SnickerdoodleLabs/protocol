@@ -3,7 +3,7 @@ import {
   BlockchainProviderError,
   CrumbsContractError,
   InvalidSignatureError,
-  IEVMNFT,
+  AccountNFT,
   LanguageCode,
   PersistenceError,
   Signature,
@@ -84,7 +84,7 @@ export interface IAccountService {
 
   getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<AccountNFT[], PersistenceError>;
   getTranactions(
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;

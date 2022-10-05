@@ -12,6 +12,7 @@ import {
   SolanaAccountAddress,
   SolanaNFT,
   SolanaNFTMetadata,
+  SolanaTokenAddress,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -75,7 +76,9 @@ export class MoralisSolanaNFTRepository implements ISolanaNFTRepository {
                       .andThen((metadata) => {
                         return okAsync(
                           new SolanaNFT(
-                            item.associatedTokenAddress,
+                            chainId,
+                            accountAddress,
+                            SolanaTokenAddress(item.associatedTokenAddress),
                             item.mint,
                             metadata,
                           ),

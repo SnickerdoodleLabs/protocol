@@ -9,7 +9,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IEVMNFT,
+  AccountNFT,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -415,7 +415,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.accountService.getAccountBalances();
   }
 
-  private getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  private getAccountNFTs(): ResultAsync<AccountNFT[], SnickerDoodleCoreError> {
     return this.accountService.getAccountNFTs();
   }
 

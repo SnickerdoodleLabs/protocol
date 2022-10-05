@@ -2,7 +2,7 @@ import {
   AccountAddress,
   EChain,
   EVMAccountAddress,
-  IEVMNFT,
+  AccountNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   ITokenBalance,
@@ -50,7 +50,7 @@ export class AccountRepository implements IAccountRepository {
     });
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<AccountNFT[], SnickerDoodleCoreError> {
     return this.core.getAccountNFTs().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

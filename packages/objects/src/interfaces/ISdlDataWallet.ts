@@ -4,7 +4,7 @@ import { ResultAsync } from "neverthrow";
 
 import { ITokenBalance } from "@objects/interfaces";
 
-import { IEVMNFT } from "@objects/businessObjects";
+import { AccountNFT } from "@objects/businessObjects";
 import { EChain } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import {
@@ -61,7 +61,7 @@ export interface ISdlDataWallet extends EventEmitter {
   ): ResultAsync<void, unknown>;
   getAccounts(): ResultAsync<EVMAccountAddress[], unknown>;
   getAccountBalances(): ResultAsync<ITokenBalance[], unknown>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], unknown>;
+  getAccountNFTs(): ResultAsync<AccountNFT[], unknown>;
   closeTab(): ResultAsync<void, unknown>;
   getDataWalletAddress(): ResultAsync<EVMAccountAddress | null, unknown>;
   getAcceptedInvitationsCID(): ResultAsync<

@@ -9,7 +9,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IEVMNFT,
+  AccountNFT,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -144,7 +144,7 @@ export class ExternalCoreGateway {
   public getAccountBalances(): ResultAsync<ITokenBalance[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_BALANCES);
   }
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], JsonRpcError> {
+  public getAccountNFTs(): ResultAsync<AccountNFT[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);
   }
 

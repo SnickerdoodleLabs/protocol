@@ -1,3 +1,6 @@
+import { ChainId, SolanaAccountAddress, SolanaTokenAddress } from "@objects/primitives";
+import { AccountNFT } from "@objects/businessObjects";
+
 export interface MetaplexInfo {
   metadataUri: string;
   masterEdition: boolean;
@@ -17,9 +20,11 @@ export class SolanaNFTMetadata {
   ) {}
 }
 
-export class SolanaNFT {
+export class SolanaNFT implements AccountNFT {
   public constructor(
-    public associatedTokenAddress: string,
+    public chain: ChainId,
+    public owner: SolanaAccountAddress,
+    public token: SolanaTokenAddress,
     public mint: string,
     public metadata: SolanaNFTMetadata,
   ) {}

@@ -9,7 +9,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-import { EVMAccountAddress, EVMBalance, IEVMNFT } from "@snickerdoodlelabs/objects";
+import {
+  EVMAccountAddress,
+  EVMBalance,
+  EVMNFT,
+} from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import React, { FC, useEffect, useState } from "react";
 
@@ -33,7 +37,7 @@ export interface IAccountBalanceObject {
   [id: EVMAccountAddress]: EVMBalance[];
 }
 export interface IAccountNFTsObject {
-  [id: EVMAccountAddress]: IEVMNFT[];
+  [id: EVMAccountAddress]: EVMNFT[];
 }
 
 const ViewDetailsModal: FC = () => {

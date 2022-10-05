@@ -10,7 +10,7 @@ import {
   EVMContractAddress,
   EVMTransaction,
   IEVMAccountBalanceRepository,
-  IEVMNFT,
+  EVMNFT,
   IEVMNftRepository,
   IEVMTransactionRepository,
   TickerSymbol,
@@ -28,22 +28,22 @@ export class SimulatorEVMTransactionRepository
   getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMNFT[], AjaxError | AccountNFTError> {
+  ): ResultAsync<EVMNFT[], AjaxError | AccountNFTError> {
     const num = Math.floor(Math.random() * 10);
-    const result: IEVMNFT[] = [];
+    const result: EVMNFT[] = [];
     for (let i = 0; i < num; i++) {
-      const item: IEVMNFT = {
-        contract: EVMContractAddress("EVMContractAddress#" + i),
-        tokenId: BigNumberString(`${Math.floor(Math.random() * 1000)}`),
-        contractType: "erc721",
-        owner: accountAddress,
-        metadata: "metadata",
-        amount: BigNumberString(Math.floor(Math.random() * 1000) + ""),
-        name: "Fake Token #" + i,
-        ticker: TickerSymbol((Math.random() + 1).toString(36).substring(5)),
-        chain: chainId,
-        tokenUri: TokenUri("tokenURI"),
-      };
+      const item = new EVMNFT(
+        EVMContractAddress("EVMContractAddress#" + i),
+        BigNumberString(`${Math.floor(Math.random() * 1000)}`),
+        "erc721",
+        accountAddress,
+        TokenUri("tokenURI"),
+        "metadata",
+        BigNumberString(Math.floor(Math.random() * 1000) + ""),
+        "Fake Token #" + i,
+        TickerSymbol((Math.random() + 1).toString(36).substring(5)),
+        chainId,
+      );
       result.push(item);
     }
     return okAsync(result);

@@ -22,7 +22,7 @@ import {
   ICrumbContent,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMNFT,
+  AccountNFT,
   InvalidParametersError,
   InvalidSignatureError,
   ITokenBalance,
@@ -457,7 +457,7 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  public getAccountNFTs(): ResultAsync<AccountNFT[], PersistenceError> {
     return this.dataWalletPersistence.getAccountNFTs();
   }
 

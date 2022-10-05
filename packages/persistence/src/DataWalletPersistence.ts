@@ -20,7 +20,7 @@ import {
   EVMContractAddress,
   EVMTransaction,
   ChainId,
-  IEVMNFT,
+  AccountNFT,
   EVMTransactionFilter,
   BlockNumber,
   IAccountBalances,
@@ -36,6 +36,8 @@ import {
   EChainTechnology,
   getChainInfoByChain,
   ITokenBalance,
+  AccountAddress,
+  SolanaAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -495,20 +497,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
-        // Limit it to only EVM linked accounts
-        const evmAccounts = linkedAccounts.filter((la) => {
-          // Get the chainInfo for the linked account
-          const chainInfo = getChainInfoByChain(la.sourceChain);
-          return chainInfo.chainTechnology == EChainTechnology.EVM;
-        });
-
         return ResultUtils.combine(
-          evmAccounts.map((linkedAccount) => {
+          linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
                 return this.getLatestBalances(
                   chainId,
-                  linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                  linkedAccount.sourceAccountAddress,
                 );
               }),
             );
@@ -523,7 +518,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   private getLatestBalances(
     chainId: ChainId,
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
   ): ResultAsync<
     ITokenBalance[],
     PersistenceError | AccountBalanceError | AjaxError
@@ -532,7 +527,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.configProvider.getConfig(),
       this.accountBalances.getEVMBalanceRepository(),
       this.accountBalances.getSimulatorEVMBalanceRepository(),
-    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+      this.accountBalances.getSolanaBalanceRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo, solanaRepo]) => {
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         return errAsync(
@@ -544,9 +540,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
       switch (chainInfo.indexer) {
         case EIndexer.EVM:
-          return evmRepo.getBalancesForAccount(chainId, accountAddress);
+          return evmRepo.getBalancesForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
+        case EIndexer.Solana:
+          return solanaRepo.getBalancesForAccount(
+            chainId,
+            accountAddress as SolanaAccountAddress,
+          );
         case EIndexer.Simulator:
-          return simulatorRepo.getBalancesForAccount(chainId, accountAddress);
+          return simulatorRepo.getBalancesForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
         default:
           return errAsync(
             new AccountBalanceError(
@@ -558,8 +565,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public updateAccountNFTs(
-    nfts: IEVMNFT[],
-  ): ResultAsync<IEVMNFT[], PersistenceError> {
+    nfts: AccountNFT[],
+  ): ResultAsync<AccountNFT[], PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return this.persistentStorageUtils
         .write(ELocalStorageKey.NFTS, JSON.stringify(nfts))
@@ -573,7 +580,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  public getAccountNFTs(): ResultAsync<AccountNFT[], PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return ResultUtils.combine([
         this.configProvider.getConfig(),
@@ -584,7 +591,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       ]).andThen(([config, lastUpdate]) => {
         const currTime = new Date().getTime();
         if (currTime - lastUpdate < config.accountNFTPollingIntervalMS) {
-          return this._checkAndRetrieveValue<IEVMNFT[]>(
+          return this._checkAndRetrieveValue<AccountNFT[]>(
             ELocalStorageKey.NFTS,
             [],
           );
@@ -598,7 +605,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   private pollNFTs(): ResultAsync<
-    IEVMNFT[],
+    AccountNFT[],
     PersistenceError | AjaxError | AccountNFTError
   > {
     return ResultUtils.combine([
@@ -606,19 +613,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
-        // Limit it to only EVM linked accounts
-        const evmAccounts = linkedAccounts.filter((la) => {
-          // Get the chainInfo for the linked account
-          const chainInfo = getChainInfoByChain(la.sourceChain);
-          return chainInfo.chainTechnology == EChainTechnology.EVM;
-        });
         return ResultUtils.combine(
-          evmAccounts.map((linkedAccount) => {
+          linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
                 return this.getLatestNFTs(
                   chainId,
-                  linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                  linkedAccount.sourceAccountAddress,
                 );
               }),
             );
@@ -633,13 +634,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   private getLatestNFTs(
     chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMNFT[], PersistenceError | AccountNFTError | AjaxError> {
+    accountAddress: AccountAddress,
+  ): ResultAsync<AccountNFT[], PersistenceError | AccountNFTError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.accountNFTs.getEVMNftRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
-    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+      this.accountNFTs.getSolanaNFTRepository(),
+    ]).andThen(([config, evmRepo, simulatorRepo, solanaRepo]) => {
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         return errAsync(
@@ -649,9 +651,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
       switch (chainInfo.indexer) {
         case EIndexer.EVM:
-          return evmRepo.getTokensForAccount(chainId, accountAddress);
+          return evmRepo.getTokensForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
         case EIndexer.Simulator:
-          return simulatorRepo.getTokensForAccount(chainId, accountAddress);
+          return simulatorRepo.getTokensForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
+        case EIndexer.Solana:
+          return solanaRepo.getTokensForAccount(
+            chainId,
+            accountAddress as SolanaAccountAddress,
+          );
         default:
           return errAsync(
             new AccountNFTError(

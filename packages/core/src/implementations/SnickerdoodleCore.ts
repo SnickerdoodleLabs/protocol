@@ -37,7 +37,7 @@ import {
   IDataWalletBackup,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMNFT,
+  AccountNFT,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
@@ -563,7 +563,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountBalances();
   }
 
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  getAccountNFTs(): ResultAsync<AccountNFT[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountNFTs();

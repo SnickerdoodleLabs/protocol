@@ -3,7 +3,7 @@ import { ResultAsync } from "neverthrow";
 import {
   Invitation,
   DataPermissions,
-  IEVMNFT,
+  AccountNFT,
   SDQLQuery,
   PageInvitation,
   SiteVisit,
@@ -300,7 +300,7 @@ export interface ISnickerdoodleCore {
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
   getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<AccountNFT[], PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

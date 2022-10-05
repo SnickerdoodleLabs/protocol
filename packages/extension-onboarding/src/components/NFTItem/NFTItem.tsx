@@ -1,10 +1,11 @@
-import { IEVMNFT } from "@snickerdoodlelabs/objects";
-import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import { Box, Grid, Typography } from "@material-ui/core";
+import { EVMNFT } from "@snickerdoodlelabs/objects";
 import React, { FC, useMemo } from "react";
 
+import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
+
 export interface INFTItemProps {
-  item: IEVMNFT;
+  item: EVMNFT;
 }
 
 const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
