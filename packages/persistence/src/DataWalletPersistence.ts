@@ -235,7 +235,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
-    return this.waitForUnlock().andThen(() => {
+    return this.waitForRestore().andThen(() => {
       return this._getObjectStore().andThen((store) => {
         return store.getAll<LinkedAccount>(ELocalStorageKey.ACCOUNT);
       });
@@ -312,7 +312,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen(() => {
+    return this.waitForRestore().andThen(() => {
       return this._getBackupManager().andThen((backupManager) => {
         return backupManager.addRecord(ELocalStorageKey.ACCOUNT, linkedAccount);
       });

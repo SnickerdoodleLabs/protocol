@@ -19,8 +19,8 @@ import {
   Base64String,
   SolanaAccountAddress,
   SolanaPrivateKey,
-  EVMContractAddress,
   InvalidParametersError,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";

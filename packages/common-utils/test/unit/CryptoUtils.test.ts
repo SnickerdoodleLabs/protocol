@@ -129,7 +129,6 @@ describe("CryptoUtils tests", () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
-
     const messageToSign = "Phoebe is cute!";
 
     // Act
@@ -156,15 +155,13 @@ describe("CryptoUtils tests", () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
+    const messageToSign = "Phoebe is cute!";
 
     // Act
     const privateKey = EVMPrivateKey(
       "e44867e4da30b5c651151ecebc673ced4b1ea968f00eef20cad78b30bfbe055b",
     );
-    const signatureResult = await utils.signMessage(
-      "messageToSign",
-      privateKey,
-    );
+    const signatureResult = await utils.signMessage(messageToSign, privateKey);
     const signature = signatureResult._unsafeUnwrap();
 
     const result = await utils.deriveEVMPrivateKeyFromSignature(

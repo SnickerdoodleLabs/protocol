@@ -61,10 +61,10 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(5),
+    ChainId(EChain.Goerli),
     new ChainInformation(
       "Goerli",
-      ChainId(5),
+      ChainId(EChain.Goerli),
       EChain.Goerli,
       EChainTechnology.EVM,
       true,
@@ -87,7 +87,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       10000,
       EIndexer.EVM,
       new NativeCurrencyInformation("ETH", 18, "ETH"),
-      EChainType.Testnet
+      EChainType.Testnet,
     ),
   ],
   [
