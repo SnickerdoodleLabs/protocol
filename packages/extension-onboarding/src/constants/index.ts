@@ -14,3 +14,6 @@ export enum EWalletProviderKeys {
 
 export const DOWNLOAD_URL =
   "https://chrome.google.com/webstore/detail/data-wallet/eakgkbblgjcanmmalnebjolplnlijmkc";
+
+export const googleScopes =
+  "profile email https://www.googleapis.com/auth/user.addresses.read https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/user.gender.read https://www.googleapis.com/auth/user.phonenumbers.read https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";

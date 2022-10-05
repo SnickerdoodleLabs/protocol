@@ -24,20 +24,25 @@
     "!dist/tsconfig.tsbuildinfo"
   ],
   "scripts": {
-    "alias": "tsc-alias",
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "build": "yarn clean && yarn compile",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "compile": "tsc --build && cd ../.. && yarn alias",
     "test": "yarn test:ci",
-    "test:ci": "npx jest --runInBand --coverage --passWithNoTests",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests",
     "test:watch": "npx jest --watch --color --detectOpenHandles"
   },
+  "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
     "@ceramicnetwork/blockchain-utils-linking": "^2.0.10",
     "@ceramicnetwork/http-client": "^2.3.3",
+    "@ceramicstudio/idx": "^0.12.2",
     "@glazed/datamodel": "^0.3.1",
+    "@glazed/devtools": "^0.2.0",
     "@glazed/did-datastore": "^0.3.2",
+    "@glazed/tile-loader": "^0.2.1",
+    "@glazed/types": "^0.2.0",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",

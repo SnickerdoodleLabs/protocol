@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/objects",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Objects and types shared by the Snickerdoodle Protocol",
   "license": "MIT",
   "repository": {
@@ -26,7 +26,7 @@
     "!tsconfig.json"
   ],
   "scripts": {
-    "alias": "tsc-alias",
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "alias-with-copyfiles": "yarn copy-files && tsc-alias",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
@@ -34,7 +34,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "npx jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests --no-cache"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
@@ -42,18 +42,5 @@
     "neverthrow": "^4.3.1",
     "rxjs": "^7.5.5",
     "ts-brand": "^0.0.2"
-  },
-  "devDependencies": {
-    "@babel/preset-typescript": "^7.18.6",
-    "jest": "^26.4.2"
-  },
-  "jest": {
-    "moduleDirectories": [
-      "node_modules",
-      "src"
-    ],
-    "moduleNameMapper": {
-      "^@objects/(.+)$": "<rootDir>src/$1"
-    }
   }
 }

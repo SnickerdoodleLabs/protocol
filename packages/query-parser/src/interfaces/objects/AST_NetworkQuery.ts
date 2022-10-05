@@ -1,7 +1,7 @@
 import { EVMChainCode, SDQL_Name } from "@snickerdoodlelabs/objects";
 
-import { AST_Contract } from "@query-parser/interfaces/objects/AST_Contract";
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query";
+import { AST_Contract } from "@query-parser/interfaces/objects/AST_Contract.js";
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 
 export class AST_NetworkQuery extends AST_Query {
   /**
@@ -9,7 +9,13 @@ export class AST_NetworkQuery extends AST_Query {
    */
   constructor(
     name: SDQL_Name,
-    readonly returnType: "string" | "boolean" | "integer" | "number" | "array" | "object",
+    readonly returnType:
+      | "string"
+      | "boolean"
+      | "integer"
+      | "number"
+      | "array"
+      | "object",
     readonly chain: EVMChainCode,
     readonly contract: AST_Contract,
   ) {

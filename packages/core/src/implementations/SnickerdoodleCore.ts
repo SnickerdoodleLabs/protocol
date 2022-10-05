@@ -3,7 +3,6 @@
  *
  * Regardless of form factor, you need to instantiate an instance of
  */
-
 import {
   DefaultAccountBalances,
   DefaultAccountIndexers,
@@ -25,13 +24,13 @@ import {
   EInvitationStatus,
   EmailAddressString,
   EvaluationError,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMTransaction,
   EVMTransactionFilter,
   FamilyName,
   Gender,
   GivenName,
+  HexString32,
   IAccountBalancesType,
   IAccountIndexingType,
   IAccountNFTsType,
@@ -50,7 +49,6 @@ import {
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   LanguageCode,
-  MetatransactionSignatureRequest,
   MinimalForwarderContractError,
   PageInvitation,
   PersistenceError,
@@ -64,15 +62,19 @@ import {
   UnsupportedLanguageError,
   URLString,
   EScamFilterStatus,
+  EChain,
+  LinkedAccount,
+  AccountAddress,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import {
-  ICloudStorage,
-  ICloudStorageType,
-  NullCloudStorage,
   DataWalletPersistence,
   IndexedDBFactory,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
+  ICloudStorage,
+  ICloudStorageType,
+  NullCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -83,13 +85,13 @@ import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module";
+import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
-} from "@core/interfaces/api";
+} from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
@@ -99,7 +101,9 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-} from "@core/interfaces/business";
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -107,15 +111,7 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
-import {
-  ISiftContractRepository,
-  ISiftContractRepositoryType,
-} from "@core/interfaces/data";
-import {
-  ISiftContractService,
-  ISiftContractServiceType,
-} from "@core/interfaces/business/ISiftContractService";
+} from "@core/interfaces/utilities/index.js";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -218,19 +214,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
    * @returns
    */
   public unlock(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
     void,
-    | UnsupportedLanguageError
+    | PersistenceError
+    | AjaxError
     | BlockchainProviderError
     | UninitializedError
-    | ConsentContractError
-    | PersistenceError
-    | InvalidSignatureError
-    | AjaxError
     | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | MinimalForwarderContractError
   > {
     // Get all of our indexers and initialize them
     // TODO
@@ -253,7 +250,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     // BlockchainProvider needs to be ready to go in order to do the unlock
     return ResultUtils.combine([blockchainProvider.initialize()])
       .andThen(() => {
-        return accountService.unlock(accountAddress, signature, languageCode);
+        return accountService.unlock(
+          accountAddress,
+          signature,
+          languageCode,
+          chain,
+        );
       })
       .andThen(() => {
         return ResultUtils.combine([
@@ -265,37 +267,90 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public addAccount(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
     void,
     | BlockchainProviderError
     | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
     | PersistenceError
     | AjaxError
-    | CrumbsContractError
+    | MinimalForwarderContractError
   > {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-    return accountService.addAccount(accountAddress, signature, languageCode);
+    return accountService.addAccount(
+      accountAddress,
+      signature,
+      languageCode,
+      chain,
+    );
   }
 
-  public getUnlinkAccountRequest(
-    accountAddress: EVMAccountAddress,
+  public unlinkAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
-    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    void,
     | PersistenceError
+    | InvalidParametersError
     | BlockchainProviderError
     | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
     | CrumbsContractError
-    | InvalidParametersError
+    | AjaxError
+    | MinimalForwarderContractError
   > {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
 
-    return accountService.getUnlinkAccountRequest(accountAddress);
+    return accountService.unlinkAccount(
+      accountAddress,
+      signature,
+      languageCode,
+      chain,
+    );
+  }
+
+  public getDataWalletForAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<
+    DataWalletAddress | null,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+  > {
+    const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
+      IBlockchainProviderType,
+    );
+
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    // BlockchainProvider needs to be ready to go in order to do the unlock
+    return blockchainProvider.initialize().andThen(() => {
+      return accountService.getDataWalletForAccount(
+        accountAddress,
+        signature,
+        languageCode,
+        chain,
+      );
+    });
   }
 
   public checkInvitationStatus(
@@ -326,6 +381,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | AjaxError
     | BlockchainProviderError
     | MinimalForwarderContractError
+    | ConsentError
   > {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -387,6 +443,39 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     );
 
     return cohortService.getInvitationsByDomain(domain);
+  }
+
+  public getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | AjaxError
+    | ConsentError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.getAgreementFlags(consentContractAddress);
+  }
+
+  public getAvailableInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    | BlockchainProviderError
+    | UninitializedError
+    | PersistenceError
+    | ConsentContractError
+    | ConsentFactoryContractError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return cohortService.getAvailableInvitationsCID();
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
@@ -522,7 +611,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getAge();
   }
-  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
+  getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccounts();

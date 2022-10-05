@@ -5,6 +5,7 @@ import {
   MinimalForwarderContract,
 } from "@snickerdoodlelabs/contracts-sdk";
 import {
+  AccountAddress,
   BaseURI,
   chainConfig,
   ChainId,
@@ -13,20 +14,18 @@ import {
   ConsentName,
   ControlChainInformation,
   DomainName,
-  EVMAccountAddress,
   EVMContractAddress,
-  EVMPrivateKey,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { localChainAccounts } from "@test-harness/LocalChainAccounts";
+import { localChainAccounts } from "@test-harness/LocalChainAccounts.js";
+import { TestWallet } from "@test-harness/TestWallet.js";
 
 export class BlockchainStuff {
   public serverSigner: ethers.Wallet;
   public businessSigner: ethers.Wallet;
-  public accountWallets: ethers.Wallet[];
   public provider: ethers.providers.JsonRpcProvider;
   public consentFactoryContract: ConsentFactoryContract;
   public crumbsContract: CrumbsContract;
@@ -37,7 +36,7 @@ export class BlockchainStuff {
 
   public consentContracts = new Map<EVMContractAddress, ConsentContract>();
 
-  public constructor(public devAccountKeys: EVMPrivateKey[]) {
+  public constructor(public accountWallets: TestWallet[]) {
     // Initialize a connection to the local blockchain
     this.provider = new ethers.providers.JsonRpcProvider(
       "http://localhost:8545",
@@ -53,10 +52,6 @@ export class BlockchainStuff {
       this.businessAccount.privateKey,
       this.provider,
     );
-
-    this.accountWallets = devAccountKeys.map((devKey) => {
-      return new ethers.Wallet(devKey, this.provider);
-    });
 
     const doodleChain = chainConfig.get(
       ChainId(31338),
@@ -75,9 +70,9 @@ export class BlockchainStuff {
     );
   }
 
-  public getWalletForAddress(accountAddress: EVMAccountAddress): ethers.Wallet {
+  public getWalletForAddress(accountAddress: AccountAddress): TestWallet {
     const wallet = this.accountWallets.find((wal) => {
-      return wal.address == accountAddress;
+      return wal.accountAddress == accountAddress;
     });
 
     if (wallet == null) {

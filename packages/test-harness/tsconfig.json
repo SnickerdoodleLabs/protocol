@@ -3,6 +3,12 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "module": "ES2022",
+    "paths": {
+      "@test-harness/*": [
+        "./packages/test-harness/src/*"
+      ],
+    }
   },
   "include": [
     "./src/**/*.ts"
@@ -23,5 +29,8 @@
     {
       "path": "../persistence"
     }
-  ]
+  ],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
 }

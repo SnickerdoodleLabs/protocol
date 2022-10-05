@@ -1,5 +1,5 @@
 import { okAsync, ResultAsync } from "neverthrow";
-import td from "testdouble";
+import * as td from "testdouble";
 
 interface IFooRepository {
   getNumber(): ResultAsync<number, never>;

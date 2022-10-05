@@ -1,3 +1,3 @@
-export * from "@persistence/volatile/IndexedDB";
-export * from "@persistence/volatile/IVolatileStorageFactory";
-export * from "@persistence/volatile/IVolatileStorageTable";
+export * from "@persistence/volatile/IndexedDB.js";
+export * from "@persistence/volatile/IVolatileStorageFactory.js";
+export * from "@persistence/volatile/IVolatileStorageTable.js";

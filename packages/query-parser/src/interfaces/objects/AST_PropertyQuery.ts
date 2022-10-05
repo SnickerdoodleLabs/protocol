@@ -1,14 +1,13 @@
 import { SDQL_Name, SDQL_OperatorName } from "@snickerdoodlelabs/objects";
 
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query";
-
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import {
   Condition,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
-} from "@query-parser/interfaces/objects/condition";
+} from "@query-parser/interfaces/objects/condition/index.js";
 
 export class AST_PropertyQuery extends AST_Query {
   /**

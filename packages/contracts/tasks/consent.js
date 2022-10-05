@@ -211,7 +211,7 @@ task("optOut", "Opt in to a Consent Contract")
     );
 
     await consentContractHandle
-      .optOut(tokenid, "")
+      .optOut(tokenid)
       .then((txresponse) => {
         return txresponse.wait();
       })
@@ -552,7 +552,6 @@ task(
   "Returns a list of requested data by an address",
 )
   .addParam("consentaddress", "Target consent address.")
-  .addParam("owneraddress", "Address of data requester.")
   .setAction(async (taskArgs) => {
     const consentAddress = taskArgs.consentaddress;
     const provider = await hre.ethers.provider;
@@ -564,12 +563,14 @@ task(
       provider,
     );
 
-    // declare the filter parameters of the event of interest
-    const filter = await consentContractHandle.filters.RequestForData(
-      taskArgs.owneraddress,
-    );
+    // get the queryHorizon
+    const qh = await consentContractHandle.queryHorizon();
+    console.log("Query Horizon Block is:", qh.toNumber())
 
-    await consentContractHandle.queryFilter(filter).then((result) => {
+    // declare the filter parameters of the event of interest
+    const filter = await consentContractHandle.filters.RequestForData();
+
+    await consentContractHandle.queryFilter(filter, qh.toNumber(), 'latest').then((result) => {
       console.log("");
       console.log("Queried address:", consentAddress);
       // print each event's arguments

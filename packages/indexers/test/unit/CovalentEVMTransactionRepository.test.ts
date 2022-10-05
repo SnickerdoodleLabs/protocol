@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
 import { okAsync } from "neverthrow";
-import td from "testdouble";
+import * as td from "testdouble";
 
 import * as CovalentAvaxResponse from "@indexers-test/mock/CovalentResponse_AVAX_EndTime";
 import * as CovalentBalanceResponse from "@indexers-test/mock/CovalentResponse_ETH_Balances";
@@ -17,6 +17,7 @@ class CovalentEVMTransactionRepositoryMocks {
   public config: IIndexerConfig = {
     covalentApiKey: "CovalentApiKey",
     moralisApiKey: "MoralisApiKey",
+    quoteCurrency: "USD",
   };
 
   constructor(public responseRepo) {

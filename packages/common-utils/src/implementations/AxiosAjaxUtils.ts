@@ -6,8 +6,11 @@ import axios, { AxiosAdapter, AxiosInstance, AxiosResponse } from "axios";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import fetchAdapter from "@common-utils/implementations/FetchAdapter";
-import { IAxiosAjaxUtils, IRequestConfig } from "@common-utils/interfaces";
+import fetchAdapter from "@common-utils/implementations/FetchAdapter.js";
+import {
+  IAxiosAjaxUtils,
+  IRequestConfig,
+} from "@common-utils/interfaces/index.js";
 
 @injectable()
 export class AxiosAjaxUtils implements IAxiosAjaxUtils {

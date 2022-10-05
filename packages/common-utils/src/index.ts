@@ -1,2 +1,2 @@
-export * from "@common-utils/implementations";
-export * from "@common-utils/interfaces";
+export * from "@common-utils/implementations/index.js";
+export * from "@common-utils/interfaces/index.js";

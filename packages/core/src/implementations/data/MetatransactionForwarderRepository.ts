@@ -20,18 +20,18 @@ import { inject, injectable } from "inversify";
 import { errAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IMetatransactionForwarderRepository } from "@core/interfaces/data";
-import { MetatransactionRequest } from "@core/interfaces/objects";
+import { IMetatransactionForwarderRepository } from "@core/interfaces/data/index.js";
+import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+} from "@core/interfaces/utilities/factory/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
-import {
-  IContractFactory,
-  IContractFactoryType,
-} from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MetatransactionForwarderRepository

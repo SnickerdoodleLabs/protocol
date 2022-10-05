@@ -1,11 +1,9 @@
 import {
   Age,
   BigNumberString,
-  DataPermissions,
   CountryCode,
   DomainName,
   EmailAddressString,
-  EVMAccountAddress,
   FamilyName,
   Gender,
   GivenName,
@@ -16,17 +14,29 @@ import {
   EVMContractAddress,
   URLString,
   IpfsCID,
+  EChain,
+  EWalletDataType,
+  AccountAddress,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
-  accountAddress: EVMAccountAddress;
+  accountAddress: AccountAddress;
   signature: Signature;
+  chain: EChain;
   languageCode: LanguageCode;
 }
 
 export interface IAddAccountParams {
-  accountAddress: EVMAccountAddress;
+  accountAddress: AccountAddress;
   signature: Signature;
+  chain: EChain;
+  languageCode: LanguageCode;
+}
+
+export interface IUnlinkAccountParams {
+  accountAddress: AccountAddress;
+  signature: Signature;
+  chain: EChain;
   languageCode: LanguageCode;
 }
 
@@ -60,21 +70,34 @@ export interface ISetEmailParams {
 export interface ISetLocationParams {
   location: CountryCode;
 }
+
+export interface ISetApplyDefaultPermissionsParams {
+  option: boolean;
+}
 export interface IGetInvitationWithDomainParams {
   domain: DomainName;
   path: string;
 }
-export interface IAcceptInvitationParams {
-  dataPermissions: DataPermissions;
+export interface IAcceptInvitationByUUIDParams {
+  dataTypes: EWalletDataType[];
   id: UUID;
+}
+export interface IAcceptInvitationParams {
+  dataTypes: EWalletDataType[];
+  consentContractAddress: EVMContractAddress;
+  tokenId?: BigNumberString;
+  businessSignature?: Signature;
+}
+
+export interface IGetAgreementPermissionsParams {
+  consentContractAddress: EVMContractAddress;
+}
+
+export interface ISetDefaultPermissionsWithDataTypesParams {
+  dataTypes: EWalletDataType[];
 }
 export interface IRejectInvitationParams {
   id: UUID;
-}
-export interface IMetatransactionSignatureRequestCallbackParams {
-  id: UUID;
-  metatransactionSignature: Signature;
-  nonce: BigNumberString;
 }
 
 export interface ILeaveCohortParams {

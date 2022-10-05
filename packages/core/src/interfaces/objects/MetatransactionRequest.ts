@@ -2,7 +2,7 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   HexString,
-} from "@objects/primitives";
+} from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 
 export class MetatransactionRequest {

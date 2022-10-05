@@ -5,14 +5,16 @@
   "license": "MIT",
   "scripts": {
     "build": "yarn build-dev",
-    "build-dev": "yarn compile && __CONTROL_CHAIN_ID__=31337 __ONBOARDING_URL__='https://datawallet.dev.snickerdoodle.dev/' __ACCOUNT_COOKIE_URL__='https://snickerdoodlelabs.io/' __SUPPORTED_CHAINS__='42,43113' __IPFS_FETCH_BASE_URL__='https://ipfs.dev.snickerdoodle.dev/ipfs/' __DEFAULT_INSIGHT_PLATFORM_BASE_URL__='https://insight-api.dev.snickerdoodle.dev/v0/' __COVALENT_API_KEY__='' __MORALIS_API_KEY__='' __DNS_SERVER_ADDRESS__='' node utils/build.js dev",
-    "build-prod": "yarn compile && __CONTROL_CHAIN_ID__=43113 __ONBOARDING_URL__='https://datawallet.snickerdoodle.com/' __ACCOUNT_COOKIE_URL__='https://snickerdoodlelabs.io/' __SUPPORTED_CHAINS__='42,43113' __IPFS_FETCH_BASE_URL__='https://ipfs.snickerdoodle.com/ipfs/' __DEFAULT_INSIGHT_PLATFORM_BASE_URL__='https://insight-api.snickerdoodle.com/v0/' __COVALENT_API_KEY__='' __MORALIS_API_KEY__='' __DNS_SERVER_ADDRESS__=''  node utils/build.js prod",
+    "build-dev": "yarn compile && __CONTROL_CHAIN_ID__=31337 __ONBOARDING_URL__='https://datawallet.dev.snickerdoodle.dev/' __ACCOUNT_COOKIE_URL__='https://snickerdoodlelabs.io/' __SUPPORTED_CHAINS__='42,43113' __IPFS_FETCH_BASE_URL__='https://ipfs-gateway.snickerdoodle.dev/ipfs/' __DEFAULT_INSIGHT_PLATFORM_BASE_URL__='https://insight-api.dev.snickerdoodle.dev/v0/' __COVALENT_API_KEY__='' __MORALIS_API_KEY__='' __DNS_SERVER_ADDRESS__='' node utils/build.cjs dev",
+    "build-prod": "yarn compile && __CONTROL_CHAIN_ID__=43113 __ONBOARDING_URL__='https://datawallet.snickerdoodle.com/' __ACCOUNT_COOKIE_URL__='https://snickerdoodlelabs.io/' __SUPPORTED_CHAINS__='1,43113,137' __IPFS_FETCH_BASE_URL__='https://ipfs-gateway.snickerdoodle.com/ipfs/' __DEFAULT_INSIGHT_PLATFORM_BASE_URL__='https://insight-api.snickerdoodle.com/v0/' __COVALENT_API_KEY__='' __MORALIS_API_KEY__='' __DNS_SERVER_ADDRESS__=''  node utils/build.cjs prod",
     "build:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/build.js",
-    "start": "yarn compile && node utils/webserver.js",
-    "start:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/webserver.js",
+    "compile": "cd ../.. && yarn compile",
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "compile": "cd ../.. && yarn compile"
+    "start": "yarn compile && node utils/webserver.cjs",
+    "start:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/webserver.js",
+    "webpack": "npx webpack --stats-children --stats-error-details"
   },
+  "type": "module",
   "dependencies": {
     "@hot-loader/react-dom": "^17.0.2",
     "@material-ui/core": "^4.12.4",
@@ -22,7 +24,7 @@
     "@snickerdoodlelabs/core": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/persistence": "workspace:^",
-    "@solana/web3.js": "^1.47.3",
+    "@solana/web3.js": "^1.63.0",
     "@webcomponents/custom-elements": "^1.5.0",
     "end-of-stream": "^1.4.4",
     "ethers": "^5.6.6",
