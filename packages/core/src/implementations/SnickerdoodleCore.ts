@@ -74,7 +74,7 @@ import {
   IVolatileStorageFactoryType,
   ICloudStorage,
   ICloudStorageType,
-  NullCloudStorage,
+  CeramicCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
