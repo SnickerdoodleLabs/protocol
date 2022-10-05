@@ -183,18 +183,22 @@ export class QueryService implements IQueryService {
         consentToken,
       ).andThen(() => {
 
-        /* ENGT-745 */
-        return this.queryParsingEngine.getRewardsPreview(query, consentToken!.dataPermissions).andThen( () => {
-          return okAsync([]);
-        /*
-          returns a preview:
-          the preview includes a prompt
-
-          if (val == true): 
-            now move forward.
-          else if false
-            quit out of asynch line
+        /* 
+          ENGT-745 
+          1. Create RewardsPreview - currently returning AST_Compensations instead of EligibleReward, will change the class later
+          2. 
         */
+        return this.queryParsingEngine.getRewardsPreview(query, consentToken!.dataPermissions).andThen( 
+          (rewardsPreviews) => {
+              /* 
+                ENGT-745 
+                2. Send out prompt for previews
+
+                MUKTADIR! - THIS IS WHERE THE PROMPT IS SENT OUT
+              */
+             if (true){
+              return okAsync(true);
+             }
         }).andThen(() => {
           return this.queryParsingEngine
             .handleQuery(query, consentToken!.dataPermissions)

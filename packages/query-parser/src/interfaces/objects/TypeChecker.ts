@@ -6,6 +6,7 @@ import { Command } from "@query-parser/interfaces/objects/Command";
 import { Command_IF } from "@query-parser/interfaces/objects/Command_IF";
 import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr";
 import { Operator } from "@query-parser/interfaces/objects/Operator";
+import { AST_Compensation } from "./AST_Compensation";
 
 export type AstAllowedTypes =
   | string
@@ -32,6 +33,10 @@ export class TypeChecker {
   static isQuery(expr: any): boolean {
     return expr instanceof AST_Query;
   }
+
+  // static isCompIfCommand(expr: any): boolean {
+  //   return expr instanceof Command_IF;
+  // }
 
   static isOperator(expr: any): boolean {
     return expr instanceof Operator;

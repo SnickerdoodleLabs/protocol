@@ -22,6 +22,20 @@ export type SDQL_Return = Brand<
   "SDQL_Return"
 >;
 
+export type SDQL_Compensation = Brand<
+  | string
+  | boolean
+  | number
+  | Array<any>
+  | Map<URLString, number>
+  | Map<ChainId, number>
+  | IEVMBalance[]
+  | ITokenBalance[]
+  | Object
+  | null,
+  "SDQL_Compensation"
+>;
+
 export const SDQL_Return = make<SDQL_Return>();
 
 // export type SDQL_Chain = Brand<string, "SDQL_Chain">; EVMChainCode

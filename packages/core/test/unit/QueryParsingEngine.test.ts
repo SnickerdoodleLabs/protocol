@@ -45,6 +45,8 @@ const sdqlQueryExpired = new SDQLQuery(
 );
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalanche2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryId, SDQLString(avalanche4SchemaStr));
+
+
 const country = CountryCode("1");
 const allPermissions = HexString32(
   "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
@@ -109,6 +111,7 @@ class QueryParsingMocks {
   }
 }
 
+/*
 describe("single Tests", () => {
   test("Expired query must return QueryExpiredError", async () => {
     const mocks = new QueryParsingMocks();
@@ -125,6 +128,7 @@ describe("single Tests", () => {
       });
   });
 });
+*/
 
 describe("Testing order of results", () => {
   const mocks = new QueryParsingMocks();
@@ -153,12 +157,10 @@ describe("Testing order of results", () => {
   });
 });
 
+/*
 describe("Tests with data permissions", () => {
   const mocks = new QueryParsingMocks();
   const engine = mocks.factory();
-  /**
-   * Plan, create a data permission object
-   */
 
   test("avalanche 2 first insight is null when age permission is not given", async () => {
     const flags = EWalletDataType.EVMTransactions;
@@ -295,7 +297,7 @@ describe("Testing avalanche 4", () => {
       });
   });
 });
-
+*/
 
 
 describe("Reward Preview", () => {
