@@ -59,6 +59,7 @@ import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
+import { EarnedReward } from "@extension-onboarding/packages/objects/src/businessObjects";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -538,6 +539,17 @@ export class AccountService implements IAccountService {
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     return this.dataWalletPersistence.getSiteVisits();
   }
+
+  public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.addEarnedAward(reward);
+  }
+
+  public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    return this.dataWalletPersistence.getEarnedRewards();
+
+  }
+
+
 
   public addEVMTransactions(
     transactions: EVMTransaction[],

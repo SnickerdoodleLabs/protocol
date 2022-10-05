@@ -4,6 +4,7 @@ import { IEVMBalance } from "./chains";
 
 import {
   ClickData,
+  EarnedReward,
   EVMTransaction,
   EVMTransactionFilter,
   IEVMNFT,
@@ -115,6 +116,10 @@ export interface IDataWalletPersistence {
 
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
+
+  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+
 
   // return a map of URLs
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;

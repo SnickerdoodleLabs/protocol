@@ -110,6 +110,8 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+// import { EarnedReward } from "@extension-onboarding/packages/objects/src/businessObjects";
+import { EarnedReward } from "@objects/businessObjects";
 
 export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
@@ -570,6 +572,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEVMTransactions(transactions);
+  }
+
+  public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+    return accountService.addEarnedReward(reward);
+  }
+
+  public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getEarnedRewards();
   }
 
   public dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError> {

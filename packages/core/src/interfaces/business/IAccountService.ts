@@ -1,3 +1,4 @@
+import { EarnedReward } from "@extension-onboarding/packages/objects/src/businessObjects";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -83,6 +84,10 @@ export interface IAccountService {
   addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
+
+  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

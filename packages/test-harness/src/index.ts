@@ -41,6 +41,7 @@ import {
   InitializationVector,
   IDataWalletBackup,
   MetatransactionSignatureRequest,
+  IpfsCID
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -55,6 +56,8 @@ import { BlockchainStuff } from "@test-harness/BlockchainStuff.js";
 import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator.js";
 import { IPFSClient } from "@test-harness/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
+//import { IpfsCID } from "@objects/primitives";
+
 
 // https://github.com/SBoudrias/Inquirer.js
 const core = new SnickerdoodleCore({
@@ -229,6 +232,8 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "Get Transaction Map", value: "getTransactionMap" },
     { name: "Get SiteVisit Map", value: "getSiteVisitMap" },
     { name: "Get SiteVisits Array", value: "getSiteVisits" },
+    { name: "Add Earned Award", value: "addEarnedAward"},
+    { name: "Get Earned Awards", value: "getEarnedAwards"},
     new inquirer.Separator(),
     {
       name: "Add EVM Transaction - Google",
@@ -267,6 +272,7 @@ function corePrompt(): ResultAsync<void, Error> {
   ]).andThen((answers) => {
     const sites: SiteVisit[] = [];
     const transactions: EVMTransaction[] = [];
+    //const asdf = IpfsCID("");
     switch (answers.core) {
       case "unlock":
         return unlockCore();
@@ -310,6 +316,17 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
+        /*
+      case "addEarnedAward":
+        const earnedReward = {
+          "queryCID": IpfsCID("cid"),
+          "type": 0
+        };
+        return core.addEarnedAward(earnedReward).map(console.log);
+        */
+      case "getEarnedAwards":
+        return core.getEarnedRewards().map(console.log);    
+        
       case "addEVMTransaction - Query's Network":
         transactions[0] = new EVMTransaction(
           ChainId(43114),

@@ -1,7 +1,6 @@
 
-import { IpfsCID, SDQLString } from "@objects/primitives";
+import { IpfsCID, SDQLString} from "@objects/primitives"
 import "reflect-metadata";
-  
   
 import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 import {
