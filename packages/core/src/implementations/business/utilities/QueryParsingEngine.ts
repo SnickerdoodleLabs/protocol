@@ -70,10 +70,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return ResultUtils.combine(
         this.evalCompensations(ast, dataPermissions, astEvaluator),
       ).andThen((CompensationResults) => {
-        //console.log("CompensationResults: ", CompensationResults);
+        console.log("CompensationResults: ", CompensationResults);
 
         const rewardsPreviews = CompensationResults.map(this.SDQLReturnToInsightString);
-        //console.log("CompensationResults: ", rewardsPreviews);
+        console.log("CompensationResults: ", rewardsPreviews);
 
         return okAsync<EligibleReward[], QueryFormatError>(rewards);
       });
