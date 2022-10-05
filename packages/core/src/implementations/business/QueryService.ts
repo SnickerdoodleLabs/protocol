@@ -75,6 +75,12 @@ export class QueryService implements IQueryService {
     protected cryptoUtils: ICryptoUtils,
   ) {}
 
+  /* TODO: implementation
+  public onQueryAccepted(): ResultAsync<void, IPFSError>{
+
+  }
+  */
+
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,

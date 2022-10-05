@@ -111,6 +111,10 @@ core.getEvents().map(async (events) => {
     console.log(`Initialized with address ${dataWalletAddress}`);
   });
 
+  events.onQueryAccepted.subscribe(async (queryRequest: SDQLQueryRequest) => {
+    console.log(`Accepted query contract ${queryRequest.consentContractAddress}`)
+  })
+
   events.onQueryPosted.subscribe(async (queryRequest: SDQLQueryRequest) => {
     console.log(
       `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,

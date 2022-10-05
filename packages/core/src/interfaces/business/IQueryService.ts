@@ -15,6 +15,10 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryService {
+
+  /*  TODO: implementation
+  onQueryAccepted() - 
+  */
   onQueryPosted(
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,

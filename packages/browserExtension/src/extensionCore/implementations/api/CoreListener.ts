@@ -28,6 +28,9 @@ export class CoreListener implements ICoreListener {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
+
+      events.onQueryAccepted.subscribe(this.onQueryAccepted.bind(this));
+
       events.onMetatransactionSignatureRequested.subscribe(
         this.onMetatransactionSignatureRequested.bind(this),
       );
@@ -53,6 +56,11 @@ export class CoreListener implements ICoreListener {
     this.contextProvider.addAccount(account);
     console.log("onAccountAdded", account);
     return okAsync(undefined);
+  }
+
+  // TODO: implementation
+  private onQueryAccepted(request: SDQLQueryRequest){
+
   }
 
   private onQueryPosted(request: SDQLQueryRequest) {
