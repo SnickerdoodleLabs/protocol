@@ -52,6 +52,7 @@ import {
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
+  IConfigProviderType,
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
@@ -72,7 +73,7 @@ export class InvitationService implements IInvitationService {
     protected forwarderRepo: IMetatransactionForwarderRepository,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
-    @inject(IContextProviderType) protected configProvider: IConfigProvider,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
   ) {}
 
   public checkInvitationStatus(

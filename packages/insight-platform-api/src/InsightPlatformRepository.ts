@@ -43,11 +43,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError> {
+    const returnsString = JSON.stringify(returns);
     const signableData = {
       consentContractId: consentContractAddress,
       queryCid: queryCid,
       dataWallet: dataWalletAddress,
-      returns: returns,
+      returns: returnsString,
     } as Record<string, unknown>;
 
     return this.cryptoUtils
