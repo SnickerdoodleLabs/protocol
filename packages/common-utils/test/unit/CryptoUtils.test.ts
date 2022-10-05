@@ -3,7 +3,6 @@ import {
   TypedDataDomain,
   TypedDataField,
 } from "@ethersproject/abstract-signer";
-<<<<<<< HEAD
 import {
   EVMAccountAddress,
   EVMPrivateKey,
@@ -12,11 +11,7 @@ import {
   SolanaAccountAddress,
   SolanaPrivateKey,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
-=======
-import { EVMAccountAddress, HexString } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
->>>>>>> ac7f8e80 (feat: add unit tests for getSignature and getTokenIds)
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { CryptoUtils } from "@common-utils/implementations";
@@ -163,8 +158,13 @@ describe("CryptoUtils tests", () => {
     const utils = mocks.factoryCryptoUtils();
 
     // Act
-    const privateKey = EVMPrivateKey("e44867e4da30b5c651151ecebc673ced4b1ea968f00eef20cad78b30bfbe055b");
-    const signatureResult = await utils.signMessage(mes sageToSign, privateKey);
+    const privateKey = EVMPrivateKey(
+      "e44867e4da30b5c651151ecebc673ced4b1ea968f00eef20cad78b30bfbe055b",
+    );
+    const signatureResult = await utils.signMessage(
+      "messageToSign",
+      privateKey,
+    );
     const signature = signatureResult._unsafeUnwrap();
 
     const result = await utils.deriveEVMPrivateKeyFromSignature(

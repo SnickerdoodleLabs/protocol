@@ -128,5 +128,9 @@ export class ConfigProvider
       this.config.dataWalletBackupIntervalMS;
     this.config.backupChunkSizeTarget =
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
+    this.config.ceramicNodeURL =
+      overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
+    this.config.ceramicModelAliases =
+      overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
   }
 }

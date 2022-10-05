@@ -24,7 +24,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import argon2 from "argon2";
 import { BigNumber, ethers } from "ethers";
-import { base58 } from "ethers/lib/utils";
+import { base58 } from "ethers/lib/utils.js";
 import { injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
