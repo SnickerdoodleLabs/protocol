@@ -33,20 +33,17 @@ sequenceDiagram
             "recipientAddress": {
                 type:...,
                 required: true,
-                mappedType: "walletAddress"
+                chainId: 1
             },
             "productId": {
-                type: number,
+                type: string,
                 required: true,
                 values: [urls]
-                mappedType: "productId"
             },
             "shippingAddress": {
                 type: string,
                 required: true,
-                mappedType: "shippingAddress"
             },
-            "param1": type,
 
         },
         "c1":{
