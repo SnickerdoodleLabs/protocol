@@ -32,18 +32,15 @@ const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
         <Grid item className={classes.card}>
           <Box>
             <img
-              width={165}
-              height={165}
+              width={150}
+              height={140}
               style={{ borderRadius: "8px 8px 0px 0px" }}
               src={nftImages[0].replace("ipfs://", "https://ipfs.io/ipfs/")}
             />
-            <Box height={68} mt={-0.5} bgcolor="rgba(253, 243, 225, 0.6)">
+            <Box mt={-0.5} bgcolor="rgba(253, 243, 225, 0.6)">
               <Box p={2}>
                 <Typography className={classes.nftName}>
                   {item?.name}
-                </Typography>
-                <Typography className={classes.nftTokenId}>
-                  Token ID: {item?.tokenId}
                 </Typography>
               </Box>
             </Box>

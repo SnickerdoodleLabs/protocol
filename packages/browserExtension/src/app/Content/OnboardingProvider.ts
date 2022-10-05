@@ -1,16 +1,19 @@
 import { EventEmitter } from "events";
 
 import {
+  AccountAddress,
   Age,
   BigNumberString,
   CountryCode,
+  EChain,
   EmailAddressString,
-  EVMAccountAddress,
   EVMContractAddress,
+  EWalletDataType,
   FamilyName,
   Gender,
   GivenName,
   IpfsCID,
+  ISdlDataWallet,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -29,9 +32,7 @@ import {
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
   PORT_NOTIFICATION,
 } from "@shared/constants/ports";
-import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
-
-let coreGateway: ExternalCoreGateway;
+import { TNotification } from "@shared/types/notification";
 
 const localStream = new LocalMessageStream({
   name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -47,18 +48,21 @@ pump(
 );
 const rpcEngine = new JsonRpcEngine();
 rpcEngine.push(streamMiddleware.middleware);
-coreGateway = new ExternalCoreGateway(rpcEngine);
+
+const coreGateway = new ExternalCoreGateway(rpcEngine);
+
 const clearMux = () => {
   mux.destroy();
   document.removeEventListener("extension-stream-channel-closed", clearMux);
 };
 document.addEventListener("extension-stream-channel-closed", clearMux);
 
-export class OnboardingProvider extends EventEmitter {
+export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   constructor() {
     super();
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
-    streamMiddleware.events.on(PORT_NOTIFICATION, (resp: MTSRNotification) => {
+    streamMiddleware.events.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
   }
@@ -66,20 +70,39 @@ export class OnboardingProvider extends EventEmitter {
   public getState() {
     return coreGateway.getState();
   }
-
   public unlock(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode = LanguageCode("en"),
   ) {
-    return coreGateway.unlock(accountAddress, signature, languageCode);
+    return coreGateway.unlock(accountAddress, signature, chain, languageCode);
   }
   public addAccount(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode = LanguageCode("en"),
   ) {
-    return coreGateway.addAccount(accountAddress, signature, languageCode);
+    return coreGateway.addAccount(
+      accountAddress,
+      signature,
+      chain,
+      languageCode,
+    );
+  }
+  public unlinkAcccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode = LanguageCode("en"),
+  ) {
+    return coreGateway.unlinkAccount(
+      accountAddress,
+      signature,
+      chain,
+      languageCode,
+    );
   }
   public getUnlockMessage(languageCode: LanguageCode = LanguageCode("en")) {
     return coreGateway.getUnlockMessage(languageCode);
@@ -139,23 +162,51 @@ export class OnboardingProvider extends EventEmitter {
     return coreGateway.getAcceptedInvitationsCID();
   }
 
+  public getAvailableInvitationsCID() {
+    return coreGateway.getAvailableInvitationsCID();
+  }
+
+  public getDefaultPermissions() {
+    return coreGateway.getDefaultPermissions();
+  }
+
+  public setDefaultPermissions(dataTypes: EWalletDataType[]) {
+    return coreGateway.setDefaultPermissionsWithDataTypes(dataTypes);
+  }
+
+  public setDefaultPermissionsToAll() {
+    return coreGateway.setDefaultPermissionsToAll();
+  }
+
   public getInvitationMetadataByCID(ipfsCID: IpfsCID) {
     return coreGateway.getInvitationMetadataByCID(ipfsCID);
   }
 
+  public getAgreementPermissions(consentContractAddres: EVMContractAddress) {
+    return coreGateway.getAgreementPermissions(consentContractAddres);
+  }
+  public getApplyDefaultPermissionsOption() {
+    return coreGateway.getApplyDefaultPermissionsOption();
+  }
+  public setApplyDefaultPermissionsOption(option: boolean) {
+    return coreGateway.setApplyDefaultPermissionsOption(option);
+  }
+  public acceptInvitation(
+    dataTypes: EWalletDataType[] | null,
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+  ) {
+    return coreGateway.acceptInvitation(
+      dataTypes,
+      consentContractAddress,
+      tokenId,
+      businessSignature,
+    );
+  }
+
   public leaveCohort(consentContractAddress: EVMContractAddress) {
     return coreGateway.leaveCohort(consentContractAddress);
-  }
-  public metatransactionSignatureRequestCallback(
-    id: UUID,
-    metatransactionSignature: Signature,
-    nonce: BigNumberString,
-  ) {
-    return coreGateway.metatransactionSignatureRequestCallback(
-      id,
-      metatransactionSignature,
-      nonce,
-    );
   }
   public closeTab() {
     return coreGateway.closeTab();

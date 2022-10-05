@@ -16,6 +16,8 @@ import {
   URLString,
   IpfsCID,
   HexString32,
+  Signature,
+  ConsentError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -228,12 +230,28 @@ export class ConsentContractRepository implements IConsentContractRepository {
         tokenId,
         dataPermissions != null
           ? dataPermissions.getFlags()
-          : HexString32(
-              "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-            ),
+          : DataPermissions.allPermissionsHexString,
       );
     });
   }
+
+  public encodeRestrictedOptIn(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    signature: Signature,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
+    return this.getConsentContract(consentContractAddress).map((contract) => {
+      return contract.encodeRestrictedOptIn(
+        tokenId,
+        signature,
+        dataPermissions != null
+          ? dataPermissions.getFlags()
+          : DataPermissions.allPermissionsHexString,
+      );
+    });
+  }
+
   public encodeOptOut(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
@@ -241,6 +259,43 @@ export class ConsentContractRepository implements IConsentContractRepository {
     return this.getConsentContract(consentContractAddress).map((contract) => {
       return contract.encodeOptOut(tokenId);
     });
+  }
+
+  public getDeployedConsentContractAddresses(): ResultAsync<
+    EVMContractAddress[],
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  > {
+    return this.consentContractFactory
+      .factoryConsentFactoryContract()
+      .andThen((consentFactoryContract) => {
+        return consentFactoryContract.getDeployedConsents();
+      });
+  }
+
+  public getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | AjaxError
+    | ConsentError
+  > {
+    return this.getCurrentConsentToken(consentContractAddress).andThen(
+      (consentToken) => {
+        if (consentToken == null) {
+          // not opted in!
+          return errAsync(new ConsentError("not opteed in!"));
+        }
+        return this.getConsentContract(consentContractAddress).andThen(
+          (contract) => {
+            return contract.agreementFlags(consentToken.tokenId);
+          },
+        );
+      },
+    );
   }
 
   protected getConsentContract(

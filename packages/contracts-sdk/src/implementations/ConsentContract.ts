@@ -85,6 +85,20 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
+  public encodeRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("restrictedOptIn", [
+        tokenId,
+        agreementFlags,
+        signature,
+      ]),
+    );
+  }
+
   public restrictedOptIn(
     tokenId: TokenId,
     agreementFlags: HexString32,

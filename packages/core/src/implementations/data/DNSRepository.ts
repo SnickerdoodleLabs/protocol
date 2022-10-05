@@ -35,9 +35,11 @@ export class DNSRepository implements IDNSRepository {
         });
       })
       .map((response) => {
-        return response.Answer.map((txtRecord) => {
-          return txtRecord.data;
-        });
+        return (
+          response?.Answer?.map?.((txtRecord) => {
+            return txtRecord.data;
+          }) ?? []
+        );
       })
       .orElse((error) => {
         console.log("error from fetchTXTRecords", error);

@@ -110,4 +110,12 @@ export interface IConsentFactoryContract {
   getOptedInConsentContractAddressForAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError>;
+
+  /**
+   *  Return Consent addresses by checking ContractDeployed event logs
+   */
+  getDeployedConsents(): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError
+  >;
 }

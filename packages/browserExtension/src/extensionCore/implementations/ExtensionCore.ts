@@ -1,7 +1,6 @@
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import {
-  SnickerdoodleCore
-} from "@snickerdoodlelabs/core";
-import {
+  EChain,
   IConfigOverrides,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
@@ -28,12 +27,15 @@ import { IAccountService, IAccountServiceType } from "@interfaces/business";
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
+  IErrorUtils,
+  IErrorUtilsType,
 } from "@interfaces/utilities";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+import { Tabs } from "webextension-polyfill";
 
 export class ExtensionCore {
   protected iocContainer: Container;
@@ -98,28 +100,84 @@ export class ExtensionCore {
     ]).map(() => {});
   }
 
-  private tryUnlock() {
+  private tryUnlock(): ResultAsync<void | Tabs.Tab, Error> {
     const accountCookieUtils = this.iocContainer.get<IAccountCookieUtils>(
       IAccountCookieUtilsType,
     );
     const configProvider =
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
+
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountCookieUtils.readAccountInfoFromCookie().andThen((values) => {
-      const config = configProvider.getConfig();
-      if (values?.length) {
-        const { accountAddress, signature, languageCode } = values[0];
-        return accountService
-          .unlock(accountAddress, signature, languageCode, true)
-          .mapErr((e) => {
-            ExtensionUtils.openTab({ url: config.onboardingUrl });
-            return okAsync(undefined);
-          });
-      } else {
-        ExtensionUtils.openTab({ url: config.onboardingUrl });
-        return okAsync(undefined);
-      }
-    });
+
+    const errorUtils = this.iocContainer.get<IErrorUtils>(IErrorUtilsType);
+
+    const config = configProvider.getConfig();
+
+    return ResultUtils.combine([
+      accountCookieUtils.readAccountInfoFromCookie(),
+      accountCookieUtils.readDataWalletAddressFromCookie(),
+    ])
+      .andThen(([unlockParamsArr, dataWalletAddressOnCookie]) => {
+        console.log(
+          `Data wallet address on Cookie ${dataWalletAddressOnCookie}`,
+        );
+        if (unlockParamsArr?.length) {
+          const { accountAddress, signature, languageCode, chain } =
+            unlockParamsArr[0];
+          return accountService
+            .getDataWalletForAccount(
+              accountAddress,
+              signature,
+              languageCode,
+              chain ?? EChain.EthereumMainnet,
+            )
+            .andThen((dataWalletAddress) => {
+              console.log(
+                `Decrypted data wallet address for account ${accountAddress} ${dataWalletAddress}`,
+              );
+              if (
+                !dataWalletAddress ||
+                (dataWalletAddressOnCookie &&
+                  dataWalletAddressOnCookie != dataWalletAddress)
+              ) {
+                console.log(
+                  `Datawallet was not able to be unlocked with account address ${accountAddress}`,
+                );
+                return accountCookieUtils
+                  .removeAccountInfoFromCookie(accountAddress)
+                  .map(() => {
+                    console.log(`Account ${accountAddress} removed`);
+                    this.tryUnlock();
+                  });
+              }
+              return accountService.unlock(
+                accountAddress,
+                signature,
+                chain ?? EChain.EthereumMainnet,
+                languageCode,
+                true,
+              );
+            });
+        } else {
+          if (dataWalletAddressOnCookie) {
+            console.log(
+              `No account info found on cookie for auto unlock ${dataWalletAddressOnCookie} is removing`,
+            );
+            return accountCookieUtils
+              .removeDataWalletAddressFromCookie()
+              .andThen(() => {
+                return ExtensionUtils.openTab({
+                  url: config.onboardingUrl,
+                });
+              });
+          }
+          return ExtensionUtils.openTab({ url: config.onboardingUrl });
+        }
+      })
+      .orElse((e) => {
+        errorUtils.emit(e);
+        return ExtensionUtils.openTab({ url: config.onboardingUrl });
+      });
   }
 }
