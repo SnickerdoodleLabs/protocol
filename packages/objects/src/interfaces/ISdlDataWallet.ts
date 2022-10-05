@@ -1,17 +1,16 @@
 import { EventEmitter } from "events";
 
-import { ResultAsync } from "neverthrow";
-
-import { IEVMNFT } from "@objects/businessObjects";
-import { EChain } from "@objects/enum";
+import { IEVMNFT, LinkedAccount } from "@objects/businessObjects";
+import { EChain, EWalletDataType } from "@objects/enum";
 import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import {
+  AccountAddress,
   Age,
   BigNumberString,
   CountryCode,
+  DataWalletAddress,
   EmailAddressString,
-  EVMAccountAddress,
   EVMContractAddress,
   FamilyName,
   Gender,
@@ -20,57 +19,81 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
-  UUID,
 } from "@objects/primitives";
+import { ResultAsync } from "neverthrow";
 
+type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {
   unlock(
-    account: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode?: LanguageCode,
-  ): ResultAsync<void, unknown>;
+  ): ResultAsync<void, JsonRpcError>;
   addAccount: (
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     chain: EChain,
     languageCode?: LanguageCode,
-  ) => ResultAsync<void, unknown>;
+  ) => ResultAsync<void, JsonRpcError>;
   getUnlockMessage: (
     languageCode?: LanguageCode,
-  ) => ResultAsync<string, unknown>;
-  setAge(age: Age): ResultAsync<void, unknown>;
-  getAge(): ResultAsync<Age | null, unknown>;
-  setGivenName(givenName: GivenName): ResultAsync<void, unknown>;
-  getGivenName(): ResultAsync<GivenName | null, unknown>;
-  setFamilyName(familyName: FamilyName): ResultAsync<void, unknown>;
-  getFamilyName(): ResultAsync<FamilyName | null, unknown>;
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, unknown>;
-  getBirthday(): ResultAsync<UnixTimestamp | null, unknown>;
-  setGender(gender: Gender): ResultAsync<void, unknown>;
-  getGender(): ResultAsync<Gender | null, unknown>;
-  setEmail(email: EmailAddressString): ResultAsync<void, unknown>;
-  getEmail(): ResultAsync<EmailAddressString | null, unknown>;
-  setLocation(location: CountryCode): ResultAsync<void, unknown>;
-  getLocation(): ResultAsync<CountryCode | null, unknown>;
-  metatransactionSignatureRequestCallback(
-    id: UUID,
-    metatransactionSignature: Signature,
-    nonce: BigNumberString,
-  ): ResultAsync<void, unknown>;
-  getAccounts(): ResultAsync<EVMAccountAddress[], unknown>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], unknown>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], unknown>;
-  closeTab(): ResultAsync<void, unknown>;
-  getDataWalletAddress(): ResultAsync<EVMAccountAddress | null, unknown>;
+  ) => ResultAsync<string, JsonRpcError>;
+  setAge(age: Age): ResultAsync<void, JsonRpcError>;
+  getAge(): ResultAsync<Age | null, JsonRpcError>;
+  setGivenName(givenName: GivenName): ResultAsync<void, JsonRpcError>;
+  getGivenName(): ResultAsync<GivenName | null, JsonRpcError>;
+  setFamilyName(familyName: FamilyName): ResultAsync<void, JsonRpcError>;
+  getFamilyName(): ResultAsync<FamilyName | null, JsonRpcError>;
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, JsonRpcError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, JsonRpcError>;
+  setGender(gender: Gender): ResultAsync<void, JsonRpcError>;
+  getGender(): ResultAsync<Gender | null, JsonRpcError>;
+  setEmail(email: EmailAddressString): ResultAsync<void, JsonRpcError>;
+  getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError>;
+  setLocation(location: CountryCode): ResultAsync<void, JsonRpcError>;
+  getLocation(): ResultAsync<CountryCode | null, JsonRpcError>;
+  getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError>;
+  getAccountBalances(): ResultAsync<IEVMBalance[], JsonRpcError>;
+  getAccountNFTs(): ResultAsync<IEVMNFT[], JsonRpcError>;
+  closeTab(): ResultAsync<void, JsonRpcError>;
+  getDataWalletAddress(): ResultAsync<DataWalletAddress | null, JsonRpcError>;
   getAcceptedInvitationsCID(): ResultAsync<
     Record<EVMContractAddress, IpfsCID>,
-    unknown
+    JsonRpcError
+  >;
+  getAvailableInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
+    JsonRpcError
   >;
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
-  ): ResultAsync<IOpenSeaMetadata, unknown>;
+  ): ResultAsync<IOpenSeaMetadata, JsonRpcError>;
+  getAgreementPermissions(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<EWalletDataType[], JsonRpcError>;
+  getApplyDefaultPermissionsOption(): ResultAsync<boolean, JsonRpcError>;
+  setApplyDefaultPermissionsOption(
+    option: boolean,
+  ): ResultAsync<boolean, JsonRpcError>;
+  getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError>;
+  setDefaultPermissions(
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, JsonRpcError>;
+  setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError>;
+  acceptInvitation(
+    dataTypes: EWalletDataType[] | null,
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+  ): ResultAsync<void, JsonRpcError>;
   leaveCohort(
     consentContractAddress: EVMContractAddress,
-  ): ResultAsync<void, unknown>;
+  ): ResultAsync<void, JsonRpcError>;
+  unlinkAcccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode?: LanguageCode,
+  ): ResultAsync<void, JsonRpcError>;
 }

@@ -1,4 +1,4 @@
-import { EChain, EChainTechnology, EIndexer } from "@objects/enum";
+import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
 import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 
 export class NativeCurrencyInformation {
@@ -20,6 +20,7 @@ export class ChainInformation {
     public averageBlockMiningTime: number,
     public indexer: EIndexer,
     public nativeCurrency: NativeCurrencyInformation,
+    public type: EChainType,
   ) {}
 }
 
@@ -34,6 +35,7 @@ export class ControlChainInformation extends ChainInformation {
     public averageBlockMiningTime: number,
     public indexer: EIndexer,
     public nativeCurrency: NativeCurrencyInformation,
+    public type: EChainType,
     public consentFactoryContractAddress: EVMContractAddress,
     public crumbsContractAddress: EVMContractAddress,
     public metatransactionForwarderAddress: EVMContractAddress,
@@ -49,6 +51,7 @@ export class ControlChainInformation extends ChainInformation {
       averageBlockMiningTime,
       indexer,
       nativeCurrency,
+      type,
     );
   }
 }

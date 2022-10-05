@@ -5,6 +5,7 @@ export const useStyles = makeStyles((theme) => ({
     border: "1px solid #ECECEC",
     borderRadius: 8,
     height: 60,
+    cursor: "pointer",
   },
   linkTitle: {
     fontFamily: "Space Grotesk",

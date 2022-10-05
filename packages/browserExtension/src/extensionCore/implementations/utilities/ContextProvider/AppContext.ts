@@ -15,10 +15,8 @@ import {
 } from "@interfaces/objects";
 import { PORT_NOTIFICATION } from "@shared/constants/ports";
 import { EPortNames } from "@shared/enums/ports";
-import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
 import { ExtensionDisplayUtils } from "@shared/utils/ExtensionDisplayUtils";
-import { AccountInitializedNotification } from "@shared/objects/notifications/AccountInitializedNotification";
-import { AccountAddedNotification } from "@shared/objects/notifications/AccountAddedNotification";
+import { TNotification } from "@shared/types/notification";
 
 export class AppContext {
   constructor(
@@ -28,17 +26,9 @@ export class AppContext {
     protected isPopupOpen: boolean = false,
     protected currentNotificationPath: string | null = null,
     protected connections: IPortConnections = {},
-    protected pendingMetatransactionSignatureRequests: Map<
-      UUID,
-      MetatransactionSignatureRequest
-    > = new Map(),
     protected pendingInvitation: Map<UUID, Invitation> = new Map(),
     protected pendingActions: any[] = [],
     protected proccesingAction: any = null,
-    protected pendingCohortInvititaitions: Map<
-      string,
-      MetatransactionSignatureRequest
-    > = new Map(),
   ) {}
 
   public setNotificationOpen(
@@ -67,26 +57,6 @@ export class AppContext {
   }
   public removeInvitation(id: UUID) {
     this.pendingInvitation.delete(id);
-  }
-
-  // TODO find smart way to idendify requests
-  public addMetatransactionSignatureRequest(
-    metatransactionSignatureRequest: MetatransactionSignatureRequest,
-  ): UUID {
-    const id = v4();
-    this.pendingMetatransactionSignatureRequests.set(
-      UUID(id),
-      metatransactionSignatureRequest,
-    );
-    return UUID(id);
-  }
-
-  public removeMetatransactionSignatureRequestWithId(id: UUID) {
-    this.pendingMetatransactionSignatureRequests.delete(id);
-  }
-
-  public getMetatransactionSignatureRequestById(id: UUID) {
-    return this.pendingMetatransactionSignatureRequests.get(id);
   }
 
   public async displayPopupNotification(path?: string, cb?: () => void) {
@@ -157,17 +127,12 @@ export class AppContext {
 
   public notifyConnectionPort(
     rpcEngine: JsonRpcEngine,
-    notification: MTSRNotification,
+    notification: TNotification,
   ) {
     rpcEngine.emit(PORT_NOTIFICATION, notification);
   }
 
-  public notifyAllConnections(
-    notification:
-      | MTSRNotification
-      | AccountInitializedNotification
-      | AccountAddedNotification,
-  ) {
+  public notifyAllConnections(notification: TNotification) {
     Object.values(this.connections).forEach((conns) => {
       Object.keys(conns).forEach((connId) => {
         conns[connId] &&

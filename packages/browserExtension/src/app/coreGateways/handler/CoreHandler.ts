@@ -1,3 +1,4 @@
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { JsonRpcEngine, JsonRpcRequest } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
 import { v4 } from "uuid";
@@ -15,8 +16,16 @@ export default class CoreHandler {
           if (error) {
             return reject(error);
           }
-          // @ts-ignore - no type support provided
-          return resolve(result.result);
+          return resolve(
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore - no type support provided
+            result.result === DEFAULT_RPC_SUCCESS_RESULT
+              ? // resolve void
+                undefined
+              : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore - no type support provided
+                result.result,
+          );
         });
       }),
       (e) => e as K,
