@@ -209,6 +209,7 @@ export interface ISnickerdoodleCore {
     | BlockchainProviderError
     | AjaxError
     | MinimalForwarderContractError
+    | ConsentError
   >;
 
   /**
@@ -305,20 +306,6 @@ export interface ISnickerdoodleCore {
     | ConsentContractRepositoryError
     | AjaxError
     | ConsentError
-  >;
-
-  acceptPublicInvitationByConsentContractAddress(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<
-    void,
-    | PersistenceError
-    | UninitializedError
-    | AjaxError
-    | BlockchainProviderError
-    | MinimalForwarderContractError
-    | ConsentError
-    | ConsentFactoryContractError
   >;
 
   getAvailableInvitationsCID(): ResultAsync<

@@ -11,7 +11,7 @@ import {
   SolanaAccountAddress,
   SolanaPrivateKey,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { CryptoUtils } from "@common-utils/implementations";
@@ -76,6 +76,28 @@ describe("CryptoUtils tests", () => {
     expect(tokenId).toBeGreaterThanOrEqual(0);
   });
 
+  test("generated tokenIds are unique", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+    const quantity = 10;
+
+    // Act
+    const result = await utils.getTokenIds(quantity);
+    const result2 = await utils.getTokenIds(-1);
+    const tokenIdList = result._unsafeUnwrap();
+    const tokenIdList2 = result2._unsafeUnwrap();
+    const uniqueTokenIdList = [...new Set(tokenIdList)];
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result2).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    expect(result2.isErr()).toBeFalsy();
+    expect(tokenIdList2.length).toEqual(0);
+    expect(uniqueTokenIdList.length).toEqual(quantity);
+  });
+
   test("deriveAESKeyFromSignature returns 32 bytes as 44 characters of base64", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
@@ -101,19 +123,44 @@ describe("CryptoUtils tests", () => {
     expect(Buffer.from(key, "base64").toString("base64")).toBe(key);
     expect(Buffer.from(key, "base64").byteLength).toBe(32);
     expect(key.length).toBe(44);
-    expect(key).toBe("TzhWa2if/TUOC4wWz7Cfn1CoPGbx2AqhnAOZxge/hZg==");
   });
 
-  test("deriveEVMPrivateKeyFromSignature returns 32 bytes as 64 characters of hex", async () => {
+  test("deriveAESKeyFromSignature returns 32 bytes as 44 characters of base64", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
-
     const messageToSign = "Phoebe is cute!";
 
     // Act
     const privateKeyResult = await utils.createEthereumPrivateKey();
     const privateKey = privateKeyResult._unsafeUnwrap();
+    const signatureResult = await utils.signMessage(messageToSign, privateKey);
+    const signature = signatureResult._unsafeUnwrap();
+
+    const result = await utils.deriveAESKeyFromSignature(
+      signature,
+      HexString("0x00123456789abcdf"),
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const key = result._unsafeUnwrap();
+    expect(Buffer.from(key, "base64").toString("base64")).toBe(key);
+    expect(Buffer.from(key, "base64").byteLength).toBe(32);
+    expect(key.length).toBe(44);
+  });
+
+  test("deriveEVMPrivateKeyFromSignature returns the same derived key each time", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+    const messageToSign = "Phoebe is cute!";
+
+    // Act
+    const privateKey = EVMPrivateKey(
+      "e44867e4da30b5c651151ecebc673ced4b1ea968f00eef20cad78b30bfbe055b",
+    );
     const signatureResult = await utils.signMessage(messageToSign, privateKey);
     const signature = signatureResult._unsafeUnwrap();
 
@@ -456,6 +503,40 @@ describe("CryptoUtils tests", () => {
   // 	// expect(result.isErr()).toBeFalsy();
   // 	// expect(result._unsafeUnwrap()).toEqual(dataToEncrypt);
   // });
+
+  test("getSignature() Closed Loop", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+    const testBigInt = BigNumber.from(69);
+    const types = ["address", "uint256"];
+    const testAddress = EVMAccountAddress(
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    );
+
+    // Act
+    const privateKeyResult = await utils.createEthereumPrivateKey();
+    const privateKey = privateKeyResult._unsafeUnwrap();
+    const wallet = new ethers.Wallet(privateKey);
+    const values = [testAddress, testBigInt];
+    const msgHash = ethers.utils.solidityKeccak256([...types], [...values]);
+
+    const expectedAddress =
+      utils.getEthereumAccountAddressFromPrivateKey(privateKey);
+    const result = await utils.getSignature(wallet, types, values);
+    const signature = result._unsafeUnwrap();
+    const address = ethers.utils.verifyMessage(
+      ethers.utils.arrayify(msgHash),
+      signature,
+    );
+    const result2 = await utils.getSignature(wallet, [], values);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    expect(result2.isErr()).toBeTruthy();
+    expect(address).toEqual(expectedAddress);
+  });
 
   test("hashStringSHA256 Test", async () => {
     // Arrange

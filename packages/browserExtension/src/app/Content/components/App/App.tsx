@@ -137,7 +137,7 @@ const App = () => {
 
   const acceptInvitation = () => {
     coreGateway
-      .acceptInvitation(null, invitationDomain?.id as UUID)
+      .acceptInvitationByUUID(null, invitationDomain?.id as UUID)
       .map(() => emptyReward());
   };
 
@@ -149,7 +149,7 @@ const App = () => {
 
   const acceptInvitationWithDataTypes = (dataTypes: EWalletDataType[]) => {
     coreGateway
-      .acceptInvitation(dataTypes, invitationDomain?.id as UUID)
+      .acceptInvitationByUUID(dataTypes, invitationDomain?.id as UUID)
       .map(() => emptyReward());
   };
 

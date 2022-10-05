@@ -22,6 +22,8 @@ import {
   LinkedAccount,
   EWalletDataType,
   AccountAddress,
+  TokenId,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -68,17 +70,17 @@ import {
   ISetLocationParams,
   ISetEmailParams,
   IGetInvitationWithDomainParams,
-  IAcceptInvitationParams,
+  IAcceptInvitationByUUIDParams,
   IRejectInvitationParams,
   ILeaveCohortParams,
   IInvitationDomainWithUUID,
   IGetInvitationMetadataByCIDParams,
   ICheckURLParams,
-  IAcceptPublicInvitationByConsentContractAddressParams,
   IGetAgreementPermissionsParams,
   ISetDefaultPermissionsWithDataTypesParams,
   ISetApplyDefaultPermissionsParams,
   IUnlinkAccountParams,
+  IAcceptInvitationParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -86,6 +88,11 @@ import {
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
+import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import { BigNumber } from "ethers";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -99,6 +106,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     protected scamFilterService: IScamFilterService,
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {}
 
   public async handleRpcCall(
@@ -297,20 +305,26 @@ export class RpcCallHandler implements IRpcCallHandler {
           res,
         ).call();
       }
-      case EExternalActions.ACCEPT_INVITATION: {
-        const { dataTypes, id } = params as IAcceptInvitationParams;
+      case EExternalActions.ACCEPT_INVITATION_BY_UUID: {
+        const { dataTypes, id } = params as IAcceptInvitationByUUIDParams;
         return new AsyncRpcResponseSender(
-          this.acceptInvitation(dataTypes, id),
+          this.acceptInvitationByUUID(dataTypes, id),
           res,
         ).call();
       }
-      case EExternalActions.ACCEPT_PUBLIC_INVITIATION_BY_CONSENT_CONTRACT_ADDRESS: {
-        const { dataTypes, consentContractAddress } =
-          params as IAcceptPublicInvitationByConsentContractAddressParams;
+      case EExternalActions.ACCEPT_INVITATION: {
+        const {
+          dataTypes,
+          consentContractAddress,
+          tokenId,
+          businessSignature,
+        } = params as IAcceptInvitationParams;
         return new AsyncRpcResponseSender(
-          this.acceptPublicInvitationByConsentContractAddress(
+          this.acceptInvitation(
             dataTypes,
             consentContractAddress,
+            tokenId,
+            businessSignature,
           ),
           res,
         ).call();
@@ -415,7 +429,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.invitationService.leaveCohort(consentContractAddress);
   }
 
-  private acceptInvitation(
+  private acceptInvitationByUUID(
     dataTypes: EWalletDataType[] | null,
     id: UUID,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
@@ -432,15 +446,32 @@ export class RpcCallHandler implements IRpcCallHandler {
       .map((res) => mapToObj(res));
   }
 
-  private acceptPublicInvitationByConsentContractAddress(
+  private acceptInvitation(
     dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
+    tokenId: BigNumberString | undefined,
+    businessSignature: Signature | undefined,
   ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError> {
-    return this.invitationService.acceptPublicInvitationByConsentContractAddress(
-      consentContractAddress,
-      dataTypes,
-    );
+    return this._getTokenId(tokenId).andThen((tokenId) => {
+      return this.invitationService.acceptInvitation(
+        new Invitation(
+          "" as DomainName,
+          consentContractAddress,
+          tokenId,
+          businessSignature ?? null,
+        ),
+        dataTypes,
+      );
+    });
   }
+
+  private _getTokenId(tokenId: BigNumberString | undefined) {
+    if (tokenId) {
+      return okAsync(TokenId(BigInt(tokenId)));
+    }
+    return this.cryptoUtils.getTokenId();
+  }
+
   private getAgreementPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {

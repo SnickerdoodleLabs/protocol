@@ -1,10 +1,13 @@
 import {
   AxiosAjaxUtils,
+  CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   TimeUtils,
   ITimeUtils,
   ITimeUtilsType,
+  ICryptoUtils,
+  ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 
 import { ContainerModule, interfaces } from "inversify";
@@ -184,6 +187,7 @@ export const extensionCoreModule = new ContainerModule(
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
+    bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
 
     // Utilities/Factory

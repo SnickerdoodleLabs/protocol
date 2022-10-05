@@ -33,6 +33,7 @@ const Sidebar = () => {
           onClick={() => {
             setIsModalOpen(true);
           }}
+          className={classes.button}
           mt={6}
           height={48}
           borderRadius={8}

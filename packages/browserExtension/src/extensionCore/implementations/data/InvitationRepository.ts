@@ -40,21 +40,6 @@ export class InvitationRepository implements IInvitationRepository {
       });
   }
 
-  public acceptPublicInvitationByConsentContractAddress(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core
-      .acceptPublicInvitationByConsentContractAddress(
-        consentContractAddress,
-        dataPermissions,
-      )
-      .mapErr((error) => {
-        this.errorUtils.emit(error);
-        return new SnickerDoodleCoreError((error as Error).message, error);
-      });
-  }
-
   public getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError

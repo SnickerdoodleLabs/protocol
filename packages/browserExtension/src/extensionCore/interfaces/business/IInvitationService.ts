@@ -48,11 +48,6 @@ export interface IInvitationService {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
 
-  acceptPublicInvitationByConsentContractAddress(
-    consentContractAddress: EVMContractAddress,
-    dataTypes: EWalletDataType[] | null,
-  ): ResultAsync<void, SnickerDoodleCoreError | ExtensionStorageError>;
-
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError

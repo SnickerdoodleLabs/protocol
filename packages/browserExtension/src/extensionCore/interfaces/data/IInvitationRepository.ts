@@ -35,10 +35,6 @@ export interface IInvitationRepository {
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
-  acceptPublicInvitationByConsentContractAddress(
-    consentContractAddress: EVMContractAddress,
-    dataPermissions: DataPermissions | null,
-  ): ResultAsync<void, SnickerDoodleCoreError>;
   getAvailableInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError

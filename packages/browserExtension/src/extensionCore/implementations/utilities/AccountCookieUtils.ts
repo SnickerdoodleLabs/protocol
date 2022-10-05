@@ -5,6 +5,7 @@ import {
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import { ExtensionCookieError } from "@shared/objects/errors";
+import { UnixTimestamp } from "@snickerdoodlelabs/objects";
 import {
   Signature,
   LanguageCode,
@@ -22,8 +23,11 @@ import Browser from "webextension-polyfill";
 // Opera	  4096 bytes
 
 const MAXIMUM_ACCOUNT_COUNT = 15;
-const COOKIE_ACCOUNT_INFO_KEY = "account-info";
-const COOKIE_DATA_WALLET_INFO_KEY = "data-wallet-address";
+
+enum ECookieName {
+  AccountInfo = "account-info",
+  DataWalletAddress = "data-wallet-address",
+}
 
 @injectable()
 export class AccountCookieUtils implements IAccountCookieUtils {
@@ -34,14 +38,14 @@ export class AccountCookieUtils implements IAccountCookieUtils {
   public writeDataWalletAddressToCookie(
     dataWalletAddress: DataWalletAddress,
   ): ResultAsync<void, ExtensionCookieError> {
-    return this._setCookie(COOKIE_DATA_WALLET_INFO_KEY, dataWalletAddress);
+    return this._setCookie(ECookieName.DataWalletAddress, dataWalletAddress);
   }
 
   public readDataWalletAddressFromCookie(): ResultAsync<
     DataWalletAddress | null,
     ExtensionCookieError
   > {
-    return this._getCookie(COOKIE_DATA_WALLET_INFO_KEY).andThen((cookie) => {
+    return this._getCookie(ECookieName.DataWalletAddress).andThen((cookie) => {
       if (!cookie?.value) {
         return okAsync(null);
       }
@@ -53,7 +57,7 @@ export class AccountCookieUtils implements IAccountCookieUtils {
     void,
     ExtensionCookieError
   > {
-    return this._setCookie(COOKIE_DATA_WALLET_INFO_KEY, "");
+    return this._setCookie(ECookieName.DataWalletAddress, "");
   }
 
   public writeAccountInfoToCookie(
@@ -73,8 +77,10 @@ export class AccountCookieUtils implements IAccountCookieUtils {
       }
       if (accountInfo.length < MAXIMUM_ACCOUNT_COUNT) {
         const value = JSON.stringify([...accountInfo, _value]);
-        return this._setCookie(COOKIE_ACCOUNT_INFO_KEY, value);
+        return this._setCookie(ECookieName.AccountInfo, value);
       }
+      // TODO generate new key to store more account information
+      // instead returning an error
       return errAsync(
         new ExtensionCookieError(
           "Not able to add account info to cookie, maxium capacity has been reached!",
@@ -87,7 +93,7 @@ export class AccountCookieUtils implements IAccountCookieUtils {
     IUnlockParams[],
     ExtensionCookieError
   > {
-    return this._getCookie(COOKIE_ACCOUNT_INFO_KEY).andThen((cookie) => {
+    return this._getCookie(ECookieName.AccountInfo).andThen((cookie) => {
       if (!cookie?.value) {
         return okAsync([]);
       }
@@ -100,7 +106,7 @@ export class AccountCookieUtils implements IAccountCookieUtils {
   ): ResultAsync<void, ExtensionCookieError> {
     return this.readAccountInfoFromCookie().andThen((acountInfoArr) => {
       return this._setCookie(
-        COOKIE_ACCOUNT_INFO_KEY,
+        ECookieName.AccountInfo,
         JSON.stringify(
           acountInfoArr.filter(
             (accountInfo) => accountInfo.accountAddress != accountAddress,
@@ -110,14 +116,16 @@ export class AccountCookieUtils implements IAccountCookieUtils {
     });
   }
 
-  private _generateExpirationDate(): number {
+  private _generateExpirationDate(): UnixTimestamp {
     const date = new Date();
-    date.setFullYear(date.getFullYear() + 1);
-    return date.getTime() / 1000;
+    date.setFullYear(
+      date.getFullYear() + this.configProvider.getConfig().cookieLifeTime,
+    );
+    return UnixTimestamp(date.getTime() / 1000);
   }
 
   private _setCookie(
-    name: string,
+    name: ECookieName,
     value: string,
   ): ResultAsync<void, ExtensionCookieError> {
     if (!Browser.cookies) {
@@ -138,7 +146,7 @@ export class AccountCookieUtils implements IAccountCookieUtils {
   }
 
   private _getCookie(
-    name: string,
+    name: ECookieName,
   ): ResultAsync<Browser.Cookies.Cookie, ExtensionCookieError> {
     if (!Browser.cookies) {
       return errAsync(

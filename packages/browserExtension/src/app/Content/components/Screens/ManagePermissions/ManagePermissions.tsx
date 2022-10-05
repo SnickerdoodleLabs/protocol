@@ -31,7 +31,6 @@ const PERMISSIONS = [
   {
     title: "Web3 Data",
     dataTypes: [
-      EWalletDataType.SiteVisits,
       EWalletDataType.EVMTransactions,
       EWalletDataType.AccountBalances,
       EWalletDataType.AccountNFTs,

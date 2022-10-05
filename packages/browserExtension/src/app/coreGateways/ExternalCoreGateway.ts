@@ -18,7 +18,7 @@ import {
   ISetLocationParams,
   IUnlockParams,
   ICheckURLParams,
-  IAcceptPublicInvitationByConsentContractAddressParams,
+  IAcceptInvitationByUUIDParams,
   IGetAgreementPermissionsParams,
   ISetDefaultPermissionsWithDataTypesParams,
   ISetApplyDefaultPermissionsParams,
@@ -48,6 +48,7 @@ import {
   AccountAddress,
   LinkedAccount,
   DataWalletAddress,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -70,14 +71,14 @@ export class ExternalCoreGateway {
       { domain, path } as IGetInvitationWithDomainParams,
     );
   }
-  public acceptInvitation(
+  public acceptInvitationByUUID(
     dataTypes: EWalletDataType[] | null,
     id: UUID,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
+    return this._handler.call(EExternalActions.ACCEPT_INVITATION_BY_UUID, {
       dataTypes,
       id,
-    } as IAcceptInvitationParams);
+    } as IAcceptInvitationByUUIDParams);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
@@ -87,17 +88,18 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_AVAILABLE_INVITATIONS_CID);
   }
 
-  public acceptPublicInvitationByConsentContractAddress(
+  public acceptInvitation(
     dataTypes: EWalletDataType[] | null,
     consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(
-      EExternalActions.ACCEPT_PUBLIC_INVITIATION_BY_CONSENT_CONTRACT_ADDRESS,
-      {
-        dataTypes,
-        consentContractAddress,
-      } as IAcceptPublicInvitationByConsentContractAddressParams,
-    );
+    return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
+      dataTypes,
+      consentContractAddress,
+      tokenId,
+      businessSignature,
+    } as IAcceptInvitationParams);
   }
 
   public getAgreementPermissions(
