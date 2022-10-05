@@ -176,7 +176,7 @@ export class BackupManager {
     return this.cryptoUtils
       .verifyEVMSignature(
         this._generateSignatureMessage(
-          backup.header.hash,
+          "", //backup.header.hash,
           backup.header.timestamp,
         ),
         Signature(backup.header.signature),
