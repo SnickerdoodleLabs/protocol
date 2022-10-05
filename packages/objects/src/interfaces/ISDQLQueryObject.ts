@@ -82,11 +82,12 @@ export interface ISDQLReturnProperties {
 
 export interface ISDQLCompensations {
   description: string;
-  callback: string;
+  chainId: ChainId;
+  data: Record<string, unknown>;
 }
 
 export interface ISDQLCompensationParameters {
-  [paramName: string]: unknown & {
+  [paramName: string]: unknown & { //a param can have other properties that we don't know of
     type: unknown;
     required: boolean;
   } // composition with unknowns?
