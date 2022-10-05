@@ -128,10 +128,9 @@ describe("CryptoUtils tests", () => {
     expect(Buffer.from(key, "base64").toString("base64")).toBe(key);
     expect(Buffer.from(key, "base64").byteLength).toBe(32);
     expect(key.length).toBe(44);
-    expect(key).toBe("TzhWa2if/TUOC4wWz7Cfn1CoPGbx2AqhnAOZxge/hZg==");
   });
 
-  test("deriveEVMPrivateKeyFromSignature returns 32 bytes as 64 characters of hex", async () => {
+  test("deriveAESKeyFromSignature returns 32 bytes as 44 characters of base64", async () => {
     // Arrange
     const mocks = new CryptoUtilsMocks();
     const utils = mocks.factoryCryptoUtils();
@@ -142,6 +141,30 @@ describe("CryptoUtils tests", () => {
     const privateKeyResult = await utils.createEthereumPrivateKey();
     const privateKey = privateKeyResult._unsafeUnwrap();
     const signatureResult = await utils.signMessage(messageToSign, privateKey);
+    const signature = signatureResult._unsafeUnwrap();
+
+    const result = await utils.deriveAESKeyFromSignature(
+      signature,
+      HexString("0x00123456789abcdf"),
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const key = result._unsafeUnwrap();
+    expect(Buffer.from(key, "base64").toString("base64")).toBe(key);
+    expect(Buffer.from(key, "base64").byteLength).toBe(32);
+    expect(key.length).toBe(44);
+  });
+
+  test("deriveEVMPrivateKeyFromSignature returns the same derived key each time", async () => {
+    // Arrange
+    const mocks = new CryptoUtilsMocks();
+    const utils = mocks.factoryCryptoUtils();
+
+    // Act
+    const privateKey = EVMPrivateKey("e44867e4da30b5c651151ecebc673ced4b1ea968f00eef20cad78b30bfbe055b");
+    const signatureResult = await utils.signMessage(mes sageToSign, privateKey);
     const signature = signatureResult._unsafeUnwrap();
 
     const result = await utils.deriveEVMPrivateKeyFromSignature(
