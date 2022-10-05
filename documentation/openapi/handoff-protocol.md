@@ -48,7 +48,7 @@ sequenceDiagram
         },
         "c1":{
             "description": "10% discount code for Starbucks",
-            "chain": "ETH",
+            "chainId": 1,
             "return": {
                "cid": ipfs id,
                "compensationId": "c1",
@@ -57,7 +57,7 @@ sequenceDiagram
         },
         "c2":{
             "description": "participate in the draw to win a CryptoPunk NFT",
-            "chain": "ETH",
+            "chainId": 1,
             "return": {
                "cid": ipfs id,
                "compensationId": "c2",
@@ -66,7 +66,7 @@ sequenceDiagram
         },
         "c3":{
             "description": "a free CrazyApesClub NFT",
-            "chain": "ETH",
+            "chainId": 1,
             "return": {
                "cid": ipfs id,
                "compensationId": "c3",
@@ -80,7 +80,7 @@ sequenceDiagram
         },
         "c4":{
             "description": "a free CrazyApesClub NFT on Avalanche",
-            "chain": "AVAX",
+            "chainId": 1354,
             "return": {
                "cid": ipfs id,
                "compensationId": "c4",
@@ -90,7 +90,7 @@ sequenceDiagram
         },
         "c5":{
             "description": "a free CrazyApesClub NFT on Solana",
-            "chain": "Solana",
+            "chainId": -1,
             "return": {
                "cid": ipfs id,
                "compensationId": "c5",
