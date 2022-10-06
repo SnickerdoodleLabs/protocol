@@ -240,7 +240,7 @@ const App = () => {
   return (
     <>
       {scamFilterStatus && (
-        <ScamFilterComponent scamFilterStatus={scamFilterStatus} />
+        <ScamFilterComponent scamFilterStatus={scamFilterStatus} coreGateway={coreGateway} />
       )}
       {renderComponent}
     </>

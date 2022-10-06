@@ -1,4 +1,5 @@
 import {
+  Box,
   Checkbox,
   Grid,
   Snackbar,
@@ -8,13 +9,19 @@ import {
 import Browser from "webextension-polyfill";
 import React, { FC, useEffect } from "react";
 import { useStyles } from "@app/Content/components/ScamFilterComponent/SafeUrlNotification";
+import { ExternalCoreGateway } from "@app/coreGateways";
 
 export interface State extends SnackbarOrigin {
   open: boolean;
 }
-const SafeUrlNotification: FC = () => {
+interface ISafeURLNotificationProps {
+  coreGateway: ExternalCoreGateway;
+}
+const SafeUrlNotification: FC<ISafeURLNotificationProps> = ({
+  coreGateway,
+}) => {
   const [safeState, setSafeState] = React.useState<State>({
-    open: false,
+    open: true,
     vertical: "top",
     horizontal: "right",
   });
@@ -24,30 +31,18 @@ const SafeUrlNotification: FC = () => {
 
   const classes = useStyles();
 
-  useEffect(() => {
-    Browser.storage.local.get("safeDontShow").then((option) => {
-      if (option.safeDontShow) {
-        setSafeState({ ...safeState, open: false });
-      } else {
-        setSafeState({ ...safeState, open: true });
-      }
-    });
-  }, []);
-
   const handleClose = () => {
-    if (dontShow) {
-      Browser.storage.local.set({ safeDontShow: true });
-    }
     setSafeState({ ...safeState, open: false });
   };
 
   const handleDontShow = () => {
+    coreGateway.setScamFilterSettings(true, dontShow);
     setDontShow(!dontShow);
   };
 
   return (
     <Snackbar
-      autoHideDuration={5000}
+      autoHideDuration={544000}
       anchorOrigin={{ vertical, horizontal }}
       open={open}
       onClose={handleClose}
@@ -80,7 +75,7 @@ const SafeUrlNotification: FC = () => {
             </Typography>
             <Typography className={classes.dontShow}>
               <Checkbox
-                className={classes.checkbox}
+                color="primary"
                 checked={dontShow}
                 onChange={handleDontShow}
               />

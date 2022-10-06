@@ -109,7 +109,7 @@ const ScamFilterSettings: FC = () => {
                   className={classes.label}
                   value={true}
                   control={<Radio />}
-                  label="Give me a 'verified' message on each website every time."
+                  label="Show me a 'verified' message on each website every time."
                 />
                 <Box width="100%" py={2}>
                   <Divider />
@@ -118,7 +118,7 @@ const ScamFilterSettings: FC = () => {
                   className={classes.label}
                   value={false}
                   control={<Radio />}
-                  label="Give me a 'verified' message for each website only once."
+                  label="Show me a 'verified' message for each website only once."
                 />
               </RadioGroup>
             </Box>
