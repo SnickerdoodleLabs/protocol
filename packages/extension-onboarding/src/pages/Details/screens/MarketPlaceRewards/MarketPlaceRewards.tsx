@@ -1,3 +1,4 @@
+import emptyReward from "@extension-onboarding/assets/images/empty-marketplace-rewads.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import RewardItem from "@extension-onboarding/components/RewardItem";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
@@ -103,6 +104,7 @@ const MarketPlaceRewards: FC = () => {
       ) : (
         <Grid container spacing={2}>
           {rewardContractAddressesWithCID &&
+          Object.keys(rewardContractAddressesWithCID).length ? (
             Object.keys(rewardContractAddressesWithCID)?.map((key, index) => (
               <RewardItem
                 button={
@@ -118,7 +120,20 @@ const MarketPlaceRewards: FC = () => {
                 key={key}
                 rewardCID={rewardContractAddressesWithCID[key]}
               />
-            ))}
+            ))
+          ) : (
+            <Box width="100%" display="flex">
+              <Box
+                justifyContent="center"
+                alignItems="center"
+                width="100%"
+                display="flex"
+                pt={20}
+              >
+                <img style={{ width: 330, height: "auto" }} src={emptyReward} />
+              </Box>
+            </Box>
+          )}
         </Grid>
       )}
     </Box>
