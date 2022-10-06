@@ -91,11 +91,11 @@ class QueryParsingMocks {
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    /*
+    
     td.when(this.persistenceRepo.getTransactionsArray()).thenReturn(
       okAsync(new Array<IChainTransaction>()),
     );
-*/
+
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
     this.queryEvaluator = new QueryEvaluator(

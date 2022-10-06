@@ -123,12 +123,12 @@ export interface IDataWalletPersistence {
   // return an array of Chain Transaction
   // getTransactionsMap(): ResultAsync<Array<IChainTransaction>, PersistenceError>;
   
-  getTransactionsArray(): ResultAsync<
-    { chainId: ChainId; items: EVMTransaction[] | null }[],
-    PersistenceError
-  >;
+  // getTransactionsArray(): ResultAsync<
+  //   { chainId: ChainId; items: EVMTransaction[] | null }[],
+  //   PersistenceError
+  // >;
 
-  getTransactionFlow(): ResultAsync<IChainTransaction[], PersistenceError>;
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
 
   getLatestTransactionForAccount(
     chainId: ChainId,

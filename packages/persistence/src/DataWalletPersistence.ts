@@ -64,7 +64,7 @@ import {
   IVolatileStorageFactoryType,
   IVolatileCursor,
 } from "@persistence/volatile/index.js";
-import { transcode } from "buffer";
+import { ChainTransaction } from "@snickerdoodlelabs/objects";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -672,7 +672,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getTransactionFlow(): ResultAsync<IChainTransaction[], PersistenceError>{
+  public getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>{
     
     return ResultUtils.combine([
       this.getAccounts(),
@@ -680,17 +680,21 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ])
     .andThen(([accounts, objStore]) => {
       return ResultUtils.combine(accounts.map( (account) => {
+        
         return ResultUtils.combine([
-          objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "to", account.derivedAccountAddress ).andThen((cursor) => cursor.allValues().map((evm) => (evm!))), 
+          objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "to", account.derivedAccountAddress).andThen((cursor) => cursor.allValues().map((evm) => (evm!))), 
           objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "from", account.derivedAccountAddress).andThen((cursor) => cursor.allValues().map((evm) => (evm!)))
         ]).andThen(([toTransactions, fromTransactions]) => {
           return this.pushTransaction(toTransactions, fromTransactions, []);
         })
+        
       }))
       .andThen(([transactionsArray]) => {
         return this.compoundTransaction(transactionsArray);
       })
     })
+    
+
   }
 
 
@@ -702,13 +706,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         valueQuote = 0;
       }
       chainTransaction.push(
-        {
-          "chainId": incomingTransaction[i].chainId,
-          "incomingCount": BigNumberString("1"), 
-          "incomingValue": BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString()),
-          "outgoingCount": BigNumberString("0"),
-          "outgoingValue": BigNumberString("0")
-        }
+        new ChainTransaction(
+          incomingTransaction[i].chainId, 
+          BigNumberString("1"), 
+          BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString()),
+          BigNumberString("0"),
+          BigNumberString("0")
+          )
+        // {
+        //   "chainId": incomingTransaction[i].chainId,
+        //   "incomingCount": BigNumberString("1"), 
+        //   "incomingValue": BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString()),
+        //   "outgoingCount": BigNumberString("0"),
+        //   "outgoingValue": BigNumberString("0")
+        // }
       );
     }
     for (let i = 0; i < outgoingTransaction.length; i++) {
@@ -966,33 +977,33 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public getTransactionsArray(): ResultAsync<
-    { chainId: ChainId; items: EVMTransaction[] | null }[],
-    PersistenceError
-  > {
-    return ResultUtils.combine([
-      this.configProvider.getConfig(),
-      this._getObjectStore(),
-    ]).andThen(([config, store]) => {
+  // public getTransactionsArray(): ResultAsync<
+  //   { chainId: ChainId; items: EVMTransaction[] | null }[],
+  //   PersistenceError
+  // > {
+  //   return ResultUtils.combine([
+  //     this.configProvider.getConfig(),
+  //     this._getObjectStore(),
+  //   ]).andThen(([config, store]) => {
       
-      return ResultUtils.combine(
-        config.supportedChains.map((chainId) => {
-        return store
-          .getCursor<EVMTransaction>(
-            ELocalStorageKey.TRANSACTIONS,
-            "chainId",
-            chainId,
-            undefined,
-            undefined,
-          )
-          .andThen((cursor) => {
-            return cursor.allValues().map((transactions) => {
-              return ({ chainId: chainId, items: transactions });
-            });
-          });
-      }));
-    });
-  }
+  //     return ResultUtils.combine(
+  //       config.supportedChains.map((chainId) => {
+  //       return store
+  //         .getCursor<EVMTransaction>(
+  //           ELocalStorageKey.TRANSACTIONS,
+  //           "chainId",
+  //           chainId,
+  //           undefined,
+  //           undefined,
+  //         )
+  //         .andThen((cursor) => {
+  //           return cursor.allValues().map((transactions) => {
+  //             return ({ chainId: chainId, items: transactions });
+  //           });
+  //         });
+  //     }));
+  //   });
+  // }
 
   public returnProperTransactions(): ResultAsync<IChainTransaction[], PersistenceError>{
     let chainlist: IChainTransaction[] = []; 

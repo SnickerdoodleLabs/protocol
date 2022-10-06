@@ -204,7 +204,7 @@ class QueryEvaluatorMocks {
       okAsync(this.URLmap),
     );
     
-    td.when(this.dataWalletPersistence.getTransactionFlow()).thenReturn(
+    td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
       okAsync(this.transactionsFlow),
     );
 

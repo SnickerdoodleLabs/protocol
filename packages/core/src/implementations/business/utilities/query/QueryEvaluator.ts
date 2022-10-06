@@ -1,18 +1,12 @@
 import {
   Age,
-  BigNumberString,
-  ChainId,
   CountryCode,
   EvalNotImplementedError,
-  EVMAccountAddress,
-  EVMTransaction,
   Gender,
-  IChainTransaction,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   PersistenceError,
   SDQL_Return,
-  TickerSymbol,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -40,10 +34,6 @@ import {
   INetworkQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator.js";
 import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
-import { valueToNode } from "@babel/types";
-import { ResultUtils } from "neverthrow-result-utils";
-import { BigNumber } from "ethers";
-import { concat } from "rxjs";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -139,7 +129,7 @@ export class QueryEvaluator implements IQueryEvaluator {
             return okAsync(SDQL_Return(url_visited_count));
           });
       case "chain_transactions":
-        return this.dataWalletPersistence.getTransactionFlow().andThen((transactionArray) => {
+        return this.dataWalletPersistence.getTransactionsArray().andThen((transactionArray) => {
           return okAsync(SDQL_Return(transactionArray));
         });
       default:

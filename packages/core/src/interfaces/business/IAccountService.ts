@@ -106,8 +106,8 @@ export interface IAccountService {
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 
-  getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError>
-  getTransactionFlow(): ResultAsync<IChainTransaction[], PersistenceError>
+  // getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError>
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;

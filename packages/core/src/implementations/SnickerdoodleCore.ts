@@ -638,20 +638,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountNFTs();
   }
 
+  /*
   getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null; }[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTransactionsArray();
   }
+  */
 
-
-  getTransactionFlow(): ResultAsync<IChainTransaction[], PersistenceError> {
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTransactionFlow();
+    return accountService.getTransactionsArray();
   }
-
-
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError> {
     const accountService =
