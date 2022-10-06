@@ -120,4 +120,13 @@ export class BlockchainStuff {
         return contractAddress;
       });
   }
+
+  public setConsentContractMaxCapacity(
+    contractAddress: EVMContractAddress,
+    maxCapacity: number,
+  ): ResultAsync<void, ConsentContractError> {
+    const contract = this.getConsentContract(contractAddress);
+
+    return contract.updateMaxCapacity(maxCapacity);
+  }
 }
