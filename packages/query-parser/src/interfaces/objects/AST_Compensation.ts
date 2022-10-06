@@ -1,9 +1,11 @@
-import { SDQL_Name, URLString } from "@snickerdoodlelabs/objects";
+import { ChainId, CompensationId, ISDQLCallback, SDQL_Name, URLString } from "@snickerdoodlelabs/objects";
 
 export class AST_Compensation {
   constructor(
     readonly name: SDQL_Name,
     readonly description: string, // TODO
-    readonly callback: URLString,
+    readonly chainId: ChainId,
+    readonly callback: ISDQLCallback,
+    readonly alternatives: CompensationId[]
   ) {}
 }

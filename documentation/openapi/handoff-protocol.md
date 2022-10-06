@@ -48,7 +48,7 @@ sequenceDiagram
         "c1":{
             "description": "10% discount code for Starbucks",
             "chainId": 1,
-            "return": {
+            "callback": {
                 "parameters": [
                     "recipientAddress"
                 ],
@@ -58,7 +58,7 @@ sequenceDiagram
         "c2":{
             "description": "participate in the draw to win a CryptoPunk NFT",
             "chainId": 1,
-            "return": {
+            "callback": {
                 "parameters": [
                     "recipientAddress",
                     "productId"
@@ -69,7 +69,7 @@ sequenceDiagram
         "c3":{
             "description": "a free CrazyApesClub NFT",
             "chainId": 1,
-            "return": {
+            "callback": {
                 "parameters": [
                     "recipientAddress",
                     "shippingAddress"
@@ -85,7 +85,7 @@ sequenceDiagram
         "c4":{
             "description": "a free CrazyApesClub NFT on Avalanche",
             "chainId": 1354,
-            "return": {
+            "callback": {
                 "parameters": [
                     "recipientAddress",
                     "shippingAddress"
@@ -97,7 +97,7 @@ sequenceDiagram
         "c5":{
             "description": "a free CrazyApesClub NFT on Solana",
             "chainId": -1,
-            "return": {
+            "callback": {
                 "parameters": [
                     "recipientAddress",
                     "shippingAddress"

@@ -22,10 +22,7 @@ export interface ISDQLQueryObject {
     //https://github.com/Microsoft/TypeScript/issues/10042
     url;
   };
-  compensations: {
-    [index: string | CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
-    parameters: ISDQLCompensationParameters;
-  };
+  compensations: ISDQLCompensationBlock;
   logic: ISDQLLogicObjects;
 }
 export interface ISDQLQueryClause {
@@ -80,14 +77,21 @@ export interface ISDQLReturnProperties {
   query?: string;
 }
 
+export interface ISDQLCompensationBlock {
+  [index: string | CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
+  parameters: ISDQLCompensationParameters;
+};
+
 export interface ISDQLCompensations {
   description: string;
   chainId: ChainId;
-  return: {
-    parameters: string[];
-    data: Record<string, unknown>;
-  }
+  callback: ISDQLCallback;
   alternatives?: CompensationId[];
+}
+
+export interface ISDQLCallback {
+  parameters: string[];
+  data: Record<string, unknown>;
 }
 
 export interface ISDQLCompensationParameters {
@@ -95,12 +99,11 @@ export interface ISDQLCompensationParameters {
     type: unknown;
     required: boolean;
     values?: unknown[];
-  } // composition with unknowns?
+  } // TODO composition with unknowns?
 
   recipientAddress: {
     type: AccountAddress;
     required: boolean;
-    chainId: ChainId;
   }
   
 }
