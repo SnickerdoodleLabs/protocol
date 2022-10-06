@@ -1,4 +1,3 @@
-import { BigNumber } from "@ethersproject/bignumber";
 import { ResultAsync } from "neverthrow";
 
 import { AccountBalanceError, AjaxError } from "@objects/errors";
@@ -9,7 +8,8 @@ import {
   EVMContractAddress,
   TickerSymbol,
 } from "@objects/primitives";
-
+import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
+import { ChainId, EVMAccountAddress } from "@objects/primitives";
 export interface IEVMBalance {
   ticker: TickerSymbol;
   chainId: ChainId;
@@ -35,6 +35,8 @@ export interface ITokenBalance {
   address: EVMContractAddress; // This is the token contract address
   balance: BigNumberString;
 }
+
+
 
 export interface IEVMAccountBalanceRepository {
   getBalancesForAccount(

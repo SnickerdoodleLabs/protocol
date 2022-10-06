@@ -1,9 +1,7 @@
 import {
   AjaxError,
   BlockchainProviderError,
-  ConsentContractError,
   CrumbsContractError,
-  EVMAccountAddress,
   InvalidSignatureError,
   IEVMBalance,
   IEVMNFT,
@@ -17,9 +15,13 @@ import {
   ChainId,
   URLString,
   SiteVisit,
-  MetatransactionSignatureRequest,
   InvalidParametersError,
   IChainTransaction,
+  LinkedAccount,
+  EChain,
+  MinimalForwarderContractError,
+  AccountAddress,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -29,46 +31,73 @@ export interface IAccountService {
   ): ResultAsync<string, UnsupportedLanguageError>;
 
   unlock(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
     void,
+    | PersistenceError
+    | AjaxError
     | BlockchainProviderError
     | UninitializedError
     | CrumbsContractError
-    | PersistenceError
-    | UnsupportedLanguageError
     | InvalidSignatureError
-    | AjaxError
-    | ConsentContractError
+    | UnsupportedLanguageError
+    | MinimalForwarderContractError
   >;
 
   addAccount(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
     void,
     | BlockchainProviderError
     | UninitializedError
-    | PersistenceError
     | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | PersistenceError
     | AjaxError
+    | MinimalForwarderContractError
   >;
 
-  getUnlinkAccountRequest(
-    accountAddress: EVMAccountAddress,
+  unlinkAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
-    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    void,
     | PersistenceError
+    | InvalidParametersError
     | BlockchainProviderError
     | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
     | CrumbsContractError
-    | InvalidParametersError
+    | AjaxError
+    | MinimalForwarderContractError
   >;
 
-  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
+  getDataWalletForAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<
+    DataWalletAddress | null,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+  >;
+
+  getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
 
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
 

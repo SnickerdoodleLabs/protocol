@@ -35,6 +35,9 @@ import {
   IDataWalletBackup,
   IChainTransaction,
   BigNumberString,
+  LinkedAccount,
+  EChainTechnology,
+  getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 
@@ -128,6 +131,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         this.backupManager = new BackupManager(
           key,
           [
+            ELocalStorageKey.ACCOUNT,
             ELocalStorageKey.TRANSACTIONS,
             ELocalStorageKey.SITE_VISITS,
             ELocalStorageKey.CLICKS,
@@ -153,6 +157,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.volatileStorageFactory.getStore({
       name: "SD_Wallet",
       schema: [
+        {
+          name: ELocalStorageKey.ACCOUNT,
+          keyPath: "sourceAccountAddress",
+          autoIncrement: false,
+          indexBy: [["sourceChain", false]],
+        },
         {
           name: ELocalStorageKey.TRANSACTIONS,
           keyPath: "hash",
@@ -231,12 +241,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError> {
-    return this.waitForRestore().andThen((key) => {
-      return this._checkAndRetrieveValue<EVMAccountAddress[]>(
-        ELocalStorageKey.ACCOUNT,
-        [],
-      );
+  public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
+    return this.waitForRestore().andThen(() => {
+      return this._getObjectStore().andThen((store) => {
+        return store.getAll<LinkedAccount>(ELocalStorageKey.ACCOUNT);
+      });
     });
   }
 
@@ -308,19 +317,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public addAccount(
-    accountAddress: EVMAccountAddress,
+    linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this.persistentStorageUtils
-        .read<EVMAccountAddress[]>(ELocalStorageKey.ACCOUNT)
-        .andThen((saved) => {
-          return this._getBackupManager().andThen((backupManager) => {
-            return backupManager.updateField(
-              ELocalStorageKey.ACCOUNT,
-              Array.from(new Set([...(saved ?? []), accountAddress])),
-            );
-          });
-        });
+    return this.waitForRestore().andThen(() => {
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.addRecord(ELocalStorageKey.ACCOUNT, linkedAccount);
+      });
     });
   }
 
@@ -499,12 +501,22 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.getAccounts(),
       this.configProvider.getConfig(),
     ])
-      .andThen(([accountAddresses, config]) => {
+      .andThen(([linkedAccounts, config]) => {
+        // Limit it to only EVM linked accounts
+        const evmAccounts = linkedAccounts.filter((la) => {
+          // Get the chainInfo for the linked account
+          const chainInfo = getChainInfoByChain(la.sourceChain);
+          return chainInfo.chainTechnology == EChainTechnology.EVM;
+        });
+
         return ResultUtils.combine(
-          accountAddresses.map((accountAddress) => {
+          evmAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
-                return this.getLatestBalances(chainId, accountAddress);
+                return this.getLatestBalances(
+                  chainId,
+                  linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                );
               }),
             );
           }),
@@ -600,12 +612,21 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.getAccounts(),
       this.configProvider.getConfig(),
     ])
-      .andThen(([accountAddresses, config]) => {
+      .andThen(([linkedAccounts, config]) => {
+        // Limit it to only EVM linked accounts
+        const evmAccounts = linkedAccounts.filter((la) => {
+          // Get the chainInfo for the linked account
+          const chainInfo = getChainInfoByChain(la.sourceChain);
+          return chainInfo.chainTechnology == EChainTechnology.EVM;
+        });
         return ResultUtils.combine(
-          accountAddresses.map((accountAddress) => {
+          evmAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
-                return this.getLatestNFTs(chainId, accountAddress);
+                return this.getLatestNFTs(
+                  chainId,
+                  linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                );
               }),
             );
           }),

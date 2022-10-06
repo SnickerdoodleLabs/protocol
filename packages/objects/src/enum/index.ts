@@ -1,3 +1,6 @@
+export * from "@objects/enum/EChain";
+export * from "@objects/enum/EChainTechnology";
+export * from "@objects/enum/EChainType";
 export * from "@objects/enum/EIndexer";
 export * from "@objects/enum/EInvitationStatus";
 export * from "@objects/enum/EExtensionEvent";

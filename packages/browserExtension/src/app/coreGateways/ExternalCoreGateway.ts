@@ -8,7 +8,6 @@ import {
   IGetUnlockMessageParams,
   IInvitationDomainWithUUID,
   ILeaveCohortParams,
-  IMetatransactionSignatureRequestCallbackParams,
   IRejectInvitationParams,
   ISetAgeParams,
   ISetBirthdayParams,
@@ -19,17 +18,19 @@ import {
   ISetLocationParams,
   IUnlockParams,
   ICheckURLParams,
+  IAcceptInvitationByUUIDParams,
+  IGetAgreementPermissionsParams,
+  ISetDefaultPermissionsWithDataTypesParams,
+  ISetApplyDefaultPermissionsParams,
+  IUnlinkAccountParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Age,
-  Invitation,
-  BigNumberString,
   CountryCode,
   DomainName,
   EmailAddressString,
-  EVMAccountAddress,
   FamilyName,
   Gender,
   GivenName,
@@ -39,10 +40,15 @@ import {
   Signature,
   UnixTimestamp,
   UUID,
-  DataPermissions,
   EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
+  EChain,
+  EWalletDataType,
+  AccountAddress,
+  LinkedAccount,
+  DataWalletAddress,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -59,21 +65,67 @@ export class ExternalCoreGateway {
   public getInvitationsByDomain(
     domain: DomainName,
     path: string,
-  ): ResultAsync<IInvitationDomainWithUUID | string, JsonRpcError> {
+  ): ResultAsync<IInvitationDomainWithUUID | null, JsonRpcError> {
     return this._handler.call(
       EExternalActions.GET_COHORT_INVITATION_WITH_DOMAIN,
       { domain, path } as IGetInvitationWithDomainParams,
     );
   }
-  public acceptInvitation(
-    dataPermissions: DataPermissions | null,
+  public acceptInvitationByUUID(
+    dataTypes: EWalletDataType[] | null,
     id: UUID,
   ): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
-      dataPermissions,
+    return this._handler.call(EExternalActions.ACCEPT_INVITATION_BY_UUID, {
+      dataTypes,
       id,
+    } as IAcceptInvitationByUUIDParams);
+  }
+
+  public getAvailableInvitationsCID(): ResultAsync<
+    Record<EVMContractAddress, IpfsCID>,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_AVAILABLE_INVITATIONS_CID);
+  }
+
+  public acceptInvitation(
+    dataTypes: EWalletDataType[] | null,
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    businessSignature?: Signature,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.ACCEPT_INVITATION, {
+      dataTypes,
+      consentContractAddress,
+      tokenId,
+      businessSignature,
     } as IAcceptInvitationParams);
   }
+
+  public getAgreementPermissions(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<EWalletDataType[], JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_AGREEMENT_PERMISSIONS, {
+      consentContractAddress,
+    } as IGetAgreementPermissionsParams);
+  }
+
+  public getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_DEFAULT_PERMISSIONS);
+  }
+
+  public setDefaultPermissionsWithDataTypes(
+    dataTypes: EWalletDataType[],
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_DEFAULT_PERMISSIONS, {
+      dataTypes,
+    } as ISetDefaultPermissionsWithDataTypesParams);
+  }
+
+  public setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL);
+  }
+
   public rejectInvitation(id: UUID): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.REJECT_INVITATION, {
       id,
@@ -104,26 +156,43 @@ export class ExternalCoreGateway {
   }
 
   public addAccount(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.ADD_ACCOUNT, {
       accountAddress,
       signature,
+      chain,
       languageCode,
     } as IAddAccountParams);
   }
   public unlock(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
+    chain: EChain,
     languageCode: LanguageCode,
   ): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.UNLOCK, {
       accountAddress,
       signature,
+      chain,
       languageCode,
     } as IUnlockParams);
+  }
+  public unlinkAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    chain: EChain,
+    languageCode: LanguageCode,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.UNLINK_ACCOUNT, {
+      accountAddress,
+      chain,
+      languageCode,
+      signature,
+    } as IUnlinkAccountParams);
   }
   public getUnlockMessage(
     languageCode: LanguageCode,
@@ -132,7 +201,23 @@ export class ExternalCoreGateway {
       languageCode,
     } as IGetUnlockMessageParams);
   }
-  public getAccounts(): ResultAsync<EVMAccountAddress[], JsonRpcError> {
+  public getApplyDefaultPermissionsOption(): ResultAsync<
+    boolean,
+    JsonRpcError
+  > {
+    return this._handler.call(
+      EExternalActions.GET_APPLY_DEFAULT_PERMISSIONS_OPTION,
+    );
+  }
+  public setApplyDefaultPermissionsOption(
+    option: boolean,
+  ): ResultAsync<boolean, JsonRpcError> {
+    return this._handler.call(
+      EExternalActions.SET_APPLY_DEFAULT_PERMISSIONS_OPTION,
+      { option } as ISetApplyDefaultPermissionsParams,
+    );
+  }
+  public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNTS);
   }
   public getAccountBalances(): ResultAsync<IEVMBalance[], JsonRpcError> {
@@ -201,20 +286,6 @@ export class ExternalCoreGateway {
   public getLocation(): ResultAsync<CountryCode | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_LOCATION);
   }
-  public metatransactionSignatureRequestCallback(
-    id: UUID,
-    metatransactionSignature: Signature,
-    nonce: BigNumberString,
-  ) {
-    return this._handler.call(
-      EExternalActions.METATRANSACTION_SIGNATURE_REQUEST_CALLBACK,
-      {
-        id,
-        metatransactionSignature,
-        nonce,
-      } as IMetatransactionSignatureRequestCallbackParams,
-    );
-  }
   public isDataWalletAddressInitialized(): ResultAsync<boolean, JsonRpcError> {
     return this._handler.call(
       EExternalActions.IS_DATA_WALLET_ADDRESS_INITIALIZED,
@@ -224,7 +295,7 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.CLOSE_TAB);
   }
   public getDataWalletAddress(): ResultAsync<
-    EVMAccountAddress | null,
+    DataWalletAddress | null,
     JsonRpcError
   > {
     return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);

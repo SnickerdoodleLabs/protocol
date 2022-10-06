@@ -1,18 +1,16 @@
+import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import AccountUnlinkingModal from "@extension-onboarding/components/Modals/AccountUnlinkingModal";
+import ConfirmationModal from "@extension-onboarding/components/Modals/ConfirmationModal";
+import DataPermissionsModal from "@extension-onboarding/components/Modals/DataPermissionsModal";
+import PermissionSelectionModal from "@extension-onboarding/components/Modals/PermissionSelectionModal";
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
 import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal";
-import React, {
-  FC,
-  createContext,
-  useContext,
-  useState,
-  useMemo,
-} from "react";
+import React, { FC, createContext, useContext, useState, useMemo } from "react";
 
 export interface IModal {
   modalSelector: EModalSelectors | null;
-  onPrimaryButtonClick: () => void;
+  onPrimaryButtonClick: (params?: any) => void;
   customProps?: any;
 }
 
@@ -21,6 +19,7 @@ interface ILayout {
   closeModal: () => void;
   setModal: (modalProps: IModal) => void;
   modalState: IModal;
+  loading: boolean;
 }
 
 const initialModalState: IModal = {
@@ -42,6 +41,12 @@ export const LayoutProvider: FC = ({ children }) => {
         return <PhantomLinkingSteps />;
       case modalState.modalSelector === EModalSelectors.VIEW_ACCOUNT_DETAILS:
         return <ViewDetailsModal />;
+      case modalState.modalSelector === EModalSelectors.MANAGE_PERMISSIONS:
+        return <DataPermissionsModal />;
+      case modalState.modalSelector === EModalSelectors.PERMISSION_SELECTION:
+        return <PermissionSelectionModal />;
+      case modalState.modalSelector === EModalSelectors.CONFIRMATION_MODAL:
+        return <ConfirmationModal />;
       default:
         return null;
     }
@@ -61,8 +66,15 @@ export const LayoutProvider: FC = ({ children }) => {
 
   return (
     <LayoutContext.Provider
-      value={{ setLoadingStatus, setModal, closeModal, modalState }}
+      value={{
+        setLoadingStatus,
+        setModal,
+        closeModal,
+        modalState,
+        loading: isLoading,
+      }}
     >
+      <LoadingSpinner />
       {modalComponent}
       {children}
     </LayoutContext.Provider>

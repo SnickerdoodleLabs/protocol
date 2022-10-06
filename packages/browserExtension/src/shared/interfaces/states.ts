@@ -6,6 +6,4 @@ export interface IInternalState {
 
 export interface IExternalState {
   dataWalletAddress: DataWalletAddress | null;
-  scamList: string[];
-  whiteList: string[];
 }

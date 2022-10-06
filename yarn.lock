@@ -6232,7 +6232,7 @@ __metadata:
     "@snickerdoodlelabs/core": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/persistence": "workspace:^"
-    "@solana/web3.js": ^1.47.3
+    "@solana/web3.js": ^1.63.0
     "@webcomponents/custom-elements": ^1.5.0
     end-of-stream: ^1.4.4
     ethers: ^5.6.6
@@ -6266,7 +6266,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/common-utils@workspace:packages/common-utils"
   dependencies:
-    "@snickerdoodlelabs/objects": ">=0.0.1"
+    "@snickerdoodlelabs/objects": "workspace:^"
     argon2: ^0.28.4
     axios: ^0.27.2
     ethers: ^5.6.6
@@ -6274,6 +6274,7 @@ __metadata:
     neverthrow: ^4.3.1
     neverthrow-result-utils: ^1.0.2
     pino: ^8.1.0
+    tweetnacl: ^1.0.3
   languageName: unknown
   linkType: soft
 
@@ -6327,6 +6328,7 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/persistence": "workspace:^"
     "@snickerdoodlelabs/signature-verification": "workspace:^"
+    "@solana/web3.js": ^1.63.0
     ethers: ^5.6.6
     express: ^4.18.1
     inquirer: ^8.0.0
@@ -6417,7 +6419,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snickerdoodlelabs/objects@>=0.0.1, @snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
+"@snickerdoodlelabs/objects@workspace:^, @snickerdoodlelabs/objects@workspace:packages/objects":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
   dependencies:
@@ -6502,9 +6504,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@solana/web3.js@npm:^1.47.3":
-  version: 1.63.1
-  resolution: "@solana/web3.js@npm:1.63.1"
+"@solana/web3.js@npm:^1.63.0":
+  version: 1.63.0
+  resolution: "@solana/web3.js@npm:1.63.0"
   dependencies:
     "@babel/runtime": ^7.12.5
     "@noble/ed25519": ^1.7.0
@@ -6521,7 +6523,7 @@ __metadata:
     node-fetch: 2
     rpc-websockets: ^7.5.0
     superstruct: ^0.14.2
-  checksum: 77a79cc4b7f9b081aa8df1d01450015f594d11557b515b19f06c875bd1f489e421065c51eb0c756207dca5f61494c67bbcf81209b2bd3e292d239e7701e5a90e
+  checksum: 909f1067b5c4da8ed61d3c2b0282044c7f395f650974370838eec905e18357f8d049b9210f79cd861870eb56e73cc57fefdadf2d3b87a609e1c5d525ea8cd8bf
   languageName: node
   linkType: hard
 

@@ -174,7 +174,7 @@ export class BackupManager {
     backup: IDataWalletBackup,
   ): ResultAsync<boolean, PersistenceError> {
     return this.cryptoUtils
-      .verifySignature(
+      .verifyEVMSignature(
         this._generateSignatureMessage(
           backup.header.hash,
           backup.header.timestamp,
