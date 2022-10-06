@@ -41,11 +41,8 @@ import {
   EChain,
   SolanaPrivateKey,
   MetatransactionSignatureRequest,
-<<<<<<< HEAD
   BigNumberString,
-=======
   Signature,
->>>>>>> develop
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import inquirer from "inquirer";

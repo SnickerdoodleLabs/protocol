@@ -33,12 +33,15 @@ import {
   EIndexer,
   AccountBalanceError,
   IDataWalletBackup,
-  IChainTransaction,
   BigNumberString,
   LinkedAccount,
   EChainTechnology,
   getChainInfoByChain,
 } from "@snickerdoodlelabs/objects";
+
+import { IChainTransaction } from "@snickerdoodlelabs/objects";
+
+
 import { BigNumber } from "ethers";
 
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
@@ -678,8 +681,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     .andThen(([accounts, objStore]) => {
       return ResultUtils.combine(accounts.map( (account) => {
         return ResultUtils.combine([
-          objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "to", account).andThen((cursor) => cursor.allValues().map((evm) => (evm!))), 
-          objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "from", account).andThen((cursor) => cursor.allValues().map((evm) => (evm!)))
+          objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "to", account.derivedAccountAddress ).andThen((cursor) => cursor.allValues().map((evm) => (evm!))), 
+          objStore.getCursor<EVMTransaction>(ELocalStorageKey.TRANSACTIONS, "from", account.derivedAccountAddress).andThen((cursor) => cursor.allValues().map((evm) => (evm!)))
         ]).andThen(([toTransactions, fromTransactions]) => {
           return this.pushTransaction(toTransactions, fromTransactions, []);
         })

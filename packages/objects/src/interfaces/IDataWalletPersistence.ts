@@ -1,6 +1,6 @@
 import { ResultAsync } from "neverthrow";
 
-import { IChainTransaction, IEVMBalance } from "./chains";
+import { IChainTransaction } from "./chains";
 
 import {
   ClickData,
