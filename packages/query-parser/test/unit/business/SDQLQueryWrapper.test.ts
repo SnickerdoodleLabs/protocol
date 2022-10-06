@@ -48,11 +48,16 @@ describe("SDQLQueryWrapper with Avalanche", () => {
     expect("query" in returnSchema["r3"]).toBeTruthy();
   });
 
-  test("avalanche has 3 compensation schema", () => {
+  test("avalanche has 3 compensation schema and 1 parameters", () => {
     const mocks = new SDQLQueryWrapperMocks();
     const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
     const compensationSchema = sdqlSchema.getCompensationSchema();
-    expect(Object.keys(compensationSchema).length).toBe(3);
+    console.log("SDQLQueryWrapper", Object.keys(compensationSchema).length);
+    expect(Object.keys(compensationSchema).length).toBe(4);
+    expect(Object.keys(compensationSchema).includes("parameters")).toBeTruthy();
+    expect(Object.keys(compensationSchema).includes("c1")).toBeTruthy();
+    expect(Object.keys(compensationSchema).includes("c2")).toBeTruthy();
+    expect(Object.keys(compensationSchema).includes("c3")).toBeTruthy();
   });
 
   test("avalanche has 2 logic schema", () => {
