@@ -7,7 +7,6 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
-import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -27,6 +26,17 @@ const modelAliases = {
   },
   tiles: {},
 };
+
+/**
+ * The config provider is a stash for data that is determined dynamically
+ * but does not change during runtime.
+ * 
+ * The built-in config values should always be appropriate for working in the test-harness package;
+ * ie, they should be appropriate for local dev. All config values should be able to be changed via
+ * ConfigOverrides, and anywhere that is NOT the test harness should be required to provide a basically
+ * full set of ConfigOverrides when creating a new SnickercoodleCore. There is only one place in
+ * this repo that does that, in the browserExtension, so it's easy to find.
+ */
 
 @injectable()
 export class ConfigProvider
@@ -56,12 +66,11 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(5), ChainId(43113), ChainId(80001), ChainId(137), ChainId(1)], //supported chains (goerli, fuji,eth mainnet)
+      [ChainId(31338)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
-      snickerdoodleSigningDomain, // snickerdoodleProtocolDomain
       25000000, // polling interval indexing,
       25000000, // polling interval balance
       25000000, // polling interval nfts

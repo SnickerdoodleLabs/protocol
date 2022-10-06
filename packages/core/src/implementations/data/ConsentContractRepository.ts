@@ -20,14 +20,10 @@ import {
   ConsentError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import {
-  IConsentContractRepository,
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
-} from "@core/interfaces/data/index.js";
+import { IConsentContractRepository } from "@core/interfaces/data/index.js";
 import {
   IContractFactoryType,
   IContractFactory,
@@ -42,8 +38,6 @@ import {
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {
   public constructor(
-    @inject(IInsightPlatformRepositoryType)
-    protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,

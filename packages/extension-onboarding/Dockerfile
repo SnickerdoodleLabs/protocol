@@ -13,6 +13,7 @@ COPY packages/contracts-sdk/package.json ./packages/contracts-sdk/
 COPY packages/core/package.json ./packages/core/
 COPY packages/extension-onboarding/package.json ./packages/extension-onboarding/
 COPY packages/indexers/package.json ./packages/indexers/
+COPY packages/insight-platform-api/package.json ./packages/insight-platform-api/
 COPY packages/objects/package.json ./packages/objects/
 COPY packages/persistence/package.json ./packages/persistence/
 COPY packages/query-parser/package.json ./packages/query-parser/
