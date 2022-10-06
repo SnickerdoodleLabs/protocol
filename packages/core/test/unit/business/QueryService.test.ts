@@ -28,7 +28,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { avalanche1SchemaStr } from "@core-tests/unit/business/query/avalanche1.data";
 import { QueryService } from "@core/implementations/business/index.js";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
@@ -42,6 +41,7 @@ import {
   InsightString,
 } from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
+import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
@@ -170,7 +170,8 @@ describe("processQuery tests", () => {
           queryId,
           returns,
         );
-        expect(signable["queryId"]).toEqual(queryId);
+        // console.log("Query Service signable:", signabyale)
+        expect(signable["queryCid"]).toEqual(queryId);
         expect(signable["consentContractId"]).toEqual(consentContractAddress);
         expect(signable["dataWallet"]).toEqual(dataWalletAddress);
         expect(signable["returns"]).toEqual(JSON.stringify(insights));
