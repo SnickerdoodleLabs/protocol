@@ -86,7 +86,7 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify(
       c1: {
         description: "10% discount code for Starbucks",
         chainId: 1,
-        return: {
+        callback: {
           parameters: [
             "recipientAddress"
           ],
@@ -99,7 +99,7 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify(
         description:
           "participate in the draw to win a CryptoPunk NFT",
         chainId: 1,
-        return: {
+        callback: {
           parameters: [
             "recipientAddress",
             "productId"
@@ -112,7 +112,7 @@ export const avalanche1ExpiredSchemaStr = JSON.stringify(
       c3: {
         description: "a free CrazyApesClub NFT",
         chainId: 1,
-        return: {
+        callback: {
           parameters: [
             "recipientAddress",
             "productId"
