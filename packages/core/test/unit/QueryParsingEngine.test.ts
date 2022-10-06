@@ -17,6 +17,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
+  avalanche2SchemaStr,
+  avalanche4SchemaStr,
   IQueryObjectFactory,
   ISDQLQueryWrapperFactory,
   QueryObjectFactory,
@@ -25,8 +27,6 @@ import {
 import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { avalanche2SchemaStr } from "./business/query/avalanche2.data";
-import { avalanche4SchemaStr } from "./business/query/avalanche4.data";
 
 import {
   QueryEvaluator,
