@@ -103,7 +103,7 @@ export const query2 = {
           trackingId: "982JJDSLAcx",
         }
       },
-      aleternatives: ["c3"]
+      alternatives: ["c3"]
     },
     c3: {
       description: "a free CrazyApesClub NFT",
@@ -116,7 +116,8 @@ export const query2 = {
         data: {
           trackingId: "982JJDSLAcx",
         }
-      }
+      },
+      alternatives: ["c2"]
     },
   },
   logic: {

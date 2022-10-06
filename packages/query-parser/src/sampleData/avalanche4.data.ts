@@ -149,7 +149,7 @@ export const avalanche4SchemaStr = JSON.stringify(
           trackingId: "982JJDSLAcx",
         }
       },
-      aleternatives: ["c3"]
+      alternatives: ["c3"]
     },
     c3: {
       description: "a free CrazyApesClub NFT",
@@ -162,7 +162,8 @@ export const avalanche4SchemaStr = JSON.stringify(
         data: {
           trackingId: "982JJDSLAcx",
         }
-      }
+      },
+      alternatives: ["c2"]
     },
   },
   logic: {

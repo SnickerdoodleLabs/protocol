@@ -91,7 +91,11 @@ sequenceDiagram
                     "shippingAddress"
                 ],
                 "data": {...an object to be forwarded with the api call}
-            }
+            },
+            "alternatives": [
+                "c3",
+                "c5"
+            ]
             
         },
         "c5":{
@@ -103,7 +107,11 @@ sequenceDiagram
                     "shippingAddress"
                 ],
                 "data": {...an object to be forwarded with the api call}
-            }
+            },
+            "alternatives": [
+                "c3",
+                "c4"
+            ]
             
         },
     },
