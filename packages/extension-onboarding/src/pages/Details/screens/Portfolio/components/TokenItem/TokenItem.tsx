@@ -62,7 +62,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
             padding: "10px",
           }}
         >
-          ${item.quoteBalance.toFixed(1)}
+          ${item?.quoteBalance?.toFixed(1)}
         </Typography>
       </Box>
     </Box>
