@@ -35,9 +35,57 @@ describe("SDQLQueryUtils tests", () => {
         const expected = ['c1'];
 
         const mocks = new SDQLQueryUtilsMocks();
-        const got = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
+        const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
 
-        expect(got).toEqual(expected);
+        expect(result.isOk()).toBeTruthy();
+
+        expect(result._unsafeUnwrap()).toEqual(expected);
+
+    })
+
+    test("avalanche 1: ['q2'] -> ['c2', 'c3']", async () => {
+
+        // input-output
+        const schemaString = SDQLString(avalanche1SchemaStr);
+        const queryIds = ['q2'];
+        const expected = ['c2', 'c3'];
+
+        const mocks = new SDQLQueryUtilsMocks();
+        const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
+
+        expect(result.isOk()).toBeTruthy();
+
+        expect(result._unsafeUnwrap()).toEqual(expected);
+
+    })
+    test("avalanche 1: ['q3'] -> ['c2', 'c3']", async () => {
+
+        // input-output
+        const schemaString = SDQLString(avalanche1SchemaStr);
+        const queryIds = ['q3'];
+        const expected = ["c3", "c2"];
+
+        const mocks = new SDQLQueryUtilsMocks();
+        const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
+
+        expect(result.isOk()).toBeTruthy();
+
+        expect(result._unsafeUnwrap()).toEqual(expected);
+
+    })
+    test("avalanche 1: ['q1', 'q2'] -> ['c1', 'c2', 'c3']", async () => {
+
+        // input-output
+        const schemaString = SDQLString(avalanche1SchemaStr);
+        const queryIds = ['q1', 'q2'] ;
+        const expected = ['c1', 'c2', 'c3'];
+
+        const mocks = new SDQLQueryUtilsMocks();
+        const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
+
+        expect(result.isOk()).toBeTruthy();
+
+        expect(result._unsafeUnwrap()).toEqual(expected);
 
     })
 });

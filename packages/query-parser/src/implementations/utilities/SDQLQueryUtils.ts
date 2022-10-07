@@ -1,7 +1,7 @@
-import { ISDQLParserFactory, ISDQLParserFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType } from "@query-parser/interfaces";
+import { AST_Compensation, AST_Expr, Command, Command_IF, ISDQLParserFactory, ISDQLParserFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType } from "@query-parser/interfaces";
 import { CompensationId, DuplicateIdInSchema, IpfsCID, MissingTokenConstructorError, ParserError, QueryExpiredError, QueryFormatError, SDQLString } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 @injectable()
 export class SDQLQueryUtils{
@@ -27,22 +27,76 @@ export class SDQLQueryUtils{
                 return parser.buildAST()
                     .andThen(() => {
 
-                        const queryPermissions = parser.queryIdsToDataPermissions(queryIds);
+                        try {
 
-                        // now queryPermissions must contain the permission for each compensation expr for eligibility
+                            const queryPermissions = parser.queryIdsToDataPermissions(queryIds);
 
-                        const eligibleComIds: CompensationId[] = [];
-
-                        for (const compExpr in parser.compensationPermissions) {
-                            const comPermissions = parser.compensationPermissions[compExpr];
-                            if (queryPermissions.contains(comPermissions)) {
-                                const comAst = parser.logicCompensations[compExpr];
-                                eligibleComIds.push(CompensationId(comAst.name as string));
+                            // console.log("queryPermissions", queryPermissions.getFlags());
+    
+                            // now queryPermissions must contain the permission for each compensation expr for eligibility
+    
+                            const eligibleComIds = new Set<CompensationId>();
+    
+                            // console.log("logicPermissions", parser.returnPermissions);
+                            // console.log("compensationPermissions", parser.compensationPermissions);
+                            const expressions = Array.from(parser.compensationPermissions.keys());
+    
+                            for (const compExpr of expressions) {
+                                // console.log(`compExpr`, compExpr);
+                                const comPermissions = parser.compensationPermissions.get(compExpr);
+                                // console.log(`${compExpr} comPermissions`, comPermissions!.getFlags());
+                                if (queryPermissions.contains(comPermissions!)) {
+                                    const comAst = parser.logicCompensations.get(compExpr);
+                                    // const compensationId = this.extractCompensationIdFromAst(comAst!)
+                                    // eligibleComIds.add(compensationId);
+                                    const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
+                                    comIds.forEach((comId) => {
+                                        eligibleComIds.add(comId);
+                                    })
+                                }
                             }
+                            return okAsync(Array.from(eligibleComIds.values()));
+
+                        } catch (e) {
+                            return errAsync(e as QueryFormatError);
                         }
-                        return okAsync(eligibleComIds);
                     })
             });
+
+    }
+
+    public extractCompensationIdFromAst(ast: AST_Expr | Command): CompensationId  {
+
+        // console.log("extractCompensationIdFromAst: ast", ast);
+        const compensationAst = this.getCompensationAstFromAst(ast);
+        return CompensationId(compensationAst.name as string);
+    }
+
+    public extractCompensationIdFromAstWithAlternatives(ast: AST_Expr | Command): Set<CompensationId>  {
+
+        // console.log("extractCompensationIdFromAst: ast", ast);
+        const comIds = new Set<CompensationId>();
+        const compensationAst = this.getCompensationAstFromAst(ast);
+        comIds.add(CompensationId(compensationAst.name as string));
+        for (const altId of compensationAst.alternatives) {
+            comIds.add(altId);
+        }
+
+        return comIds;
+    }
+
+    public getCompensationAstFromAst(ast: AST_Expr | Command): AST_Compensation {
+
+        switch (ast.constructor) {
+            case Command_IF:
+                return this.getCompensationAstFromAst((ast as Command_IF).trueExpr);
+            case AST_Compensation:
+                return ast as AST_Compensation;
+            default:
+                console.error("getCompensationAstFromAst: Unknown expression to extract compensation from.", ast);
+                throw new QueryFormatError("Unknown expression to extract compensation from.");
+
+        }
 
     }
     // public getEligibleCompensations(schemaString: SDQLString, queryIds: string[]): 
