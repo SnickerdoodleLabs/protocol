@@ -37,7 +37,7 @@ The *name* sub-keyword indicates which attribute must be accessed in the DW pers
 - `browsing_history`: access to the browsing history of the DW user
 - `gender`: access to the gender of the DW user
 - `url_visited_count`: accesses the number of times urls are visited by DW user
-- `chain_transaction_count`: accesses the number of transactions by the DW user per chain
+- `chain_transactions`: accesses the transaction volume (in USD) and count by the DW user per chain
 - `balance`: accesses the balance of the DW user per chain
 
 #### return (required)

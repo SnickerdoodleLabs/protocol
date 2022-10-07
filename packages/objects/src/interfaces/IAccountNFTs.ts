@@ -1,6 +1,6 @@
 import { ResultAsync } from "neverthrow";
 
-import { IEVMNftRepository } from "@objects/interfaces";
+import { IEVMNftRepository } from "./chains";
 
 export interface IAccountNFTs {
   getEVMNftRepository(): ResultAsync<IEVMNftRepository, never>;

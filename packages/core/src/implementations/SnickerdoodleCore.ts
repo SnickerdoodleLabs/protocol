@@ -62,6 +62,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   EScamFilterStatus,
+  IChainTransaction,
   EChain,
   LinkedAccount,
   AccountAddress,
@@ -637,10 +638,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountNFTs();
   }
 
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError> {
+  /*
+  getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null; }[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTransactionsMap();
+    return accountService.getTransactionsArray();
+  }
+  */
+
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getTransactionsArray();
   }
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError> {

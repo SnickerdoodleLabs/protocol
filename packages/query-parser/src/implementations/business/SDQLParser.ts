@@ -514,7 +514,7 @@ export class SDQLParser {
         return EWalletDataType.SiteVisits;
       case "url_visited_count":
         return EWalletDataType.SiteVisits;
-      case "chain_transaction_count":
+      case "chain_transactions":
         return EWalletDataType.EVMTransactions;
       default:
         const err = new MissingWalletDataTypeError(propQuery.property);

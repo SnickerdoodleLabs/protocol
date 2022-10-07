@@ -93,7 +93,7 @@ export class MonitoringService implements IMonitoringService {
       })
       .andThen((transactionsArr) => {
         const transactions = transactionsArr.flat(2);
-        return this.persistence.addEVMTransactions(transactions);
+        return this.persistence.addEVMTransactions(transactions); // let's not call if empty?
       });
   }
 

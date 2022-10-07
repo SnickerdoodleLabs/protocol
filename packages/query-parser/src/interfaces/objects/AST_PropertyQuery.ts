@@ -24,7 +24,8 @@ export class AST_PropertyQuery extends AST_Query {
       | "number"
       | "list"
       | "enum"
-      | "object",
+      | "object"
+      | "array",
     readonly property: string,
     readonly conditions: Array<Condition>,
     // for reading gender

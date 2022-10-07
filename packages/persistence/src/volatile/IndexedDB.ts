@@ -328,4 +328,16 @@ export class IndexedDBCursor<T> implements IVolatileCursor<T> {
     this._cursor?.continue();
     return ResultAsync.fromPromise(promise, (e) => e as PersistenceError);
   }
+
+  public allValues(): ResultAsync<T[], PersistenceError> {
+    return this.nextValue().andThen((val) => {
+      if (val == null) {
+        return okAsync([]);
+      }
+
+      return this.allValues().andThen((vals) => {
+        return okAsync([val, ...vals]);
+      });
+    });
+  }
 }

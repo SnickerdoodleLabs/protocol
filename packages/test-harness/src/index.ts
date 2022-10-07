@@ -41,6 +41,7 @@ import {
   EChain,
   SolanaPrivateKey,
   MetatransactionSignatureRequest,
+  BigNumberString,
   Signature,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
@@ -334,31 +335,80 @@ function corePrompt(): ResultAsync<void, Error> {
       case "getBalances":
         return core.getAccountBalances().map(console.log);
       case "getTransactionMap":
-        return core.getTransactionsMap().map(console.log);
+        return core.getTransactionsArray().map(console.log);
       case "getSiteVisitMap":
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
       case "addEVMTransaction - Query's Network":
+        /*
+          Important!  Must use different hash values for transaction values!
+        */
         transactions[0] = new EVMTransaction(
-          ChainId(43114),
-          "",
+          ChainId(43113),
+          "firstHash",
           UnixTimestamp(100),
           null,
-          null,
-          EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
-          null,
+          EVMAccountAddress("send200"),
+          EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+          BigNumberString("200"),
           null,
           null,
           null,
           null,
           Math.random() * 1000,
         );
+        transactions[1] = new EVMTransaction(
+          ChainId(43113),
+          "secondHash",
+          UnixTimestamp(100),
+          null,
+          EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+          EVMAccountAddress("get1000"),
+          BigNumberString("1000"),
+          null,
+          null,
+          null,
+          null,
+          Math.random() * 1000,
+        );
+        transactions[2] = new EVMTransaction(
+          ChainId(43113),
+          "thirdHash",
+          UnixTimestamp(100),
+          null,
+          EVMAccountAddress("send300"),
+          EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+          BigNumberString("300"),
+          null,
+          null,
+          null,
+          null,
+          Math.random() * 1000,
+        );
+        transactions[3] = new EVMTransaction(
+          ChainId(43113),
+          "fourthHash",
+          UnixTimestamp(100),
+          null,
+          EVMAccountAddress("send50"),
+          EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+          BigNumberString("50"),
+          null,
+          null,
+          null,
+          null,
+          Math.random() * 1000,
+        );
+
+        // {chainId\":43113,
+        // \"outgoingValue\":\"0\",\"outgoingCount\":\"0\",\"incomingValue\":\"1000\",\"incomingCount\":\"1\"
+        console.log(`adding ${transactions.length} transactions for chain 43113`)
         return core.addEVMTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
         transactions[0] = new EVMTransaction(
           ChainId(1),
-          "",
+          "null",
           UnixTimestamp(100),
           null,
           null,
@@ -920,6 +970,7 @@ function prompt(
     }
     return e as Error;
   }).orElse((e) => {
+    console.log("function prompt in index.ts", e);
     // Swallow the error, returns an empty answer
     return okAsync({});
   });
