@@ -497,6 +497,20 @@ export class SDQLParser {
     );
   }
 
+  public queryIdsToDataPermissions(ids: string[]): DataPermissions {
+    
+    const queries:AST_Query[] = [];
+    ids.reduce<AST_Query[]>((queries, id) => {
+      const query = this.context.get(SDQL_Name(id))
+      if (query != null) {
+        queries.push(query as AST_Query);
+      }
+      return queries;
+    }, queries);
+
+    return this.queriesToDataPermission(queries);
+  }
+
   public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
     switch (query.constructor) {
       case AST_NetworkQuery:
