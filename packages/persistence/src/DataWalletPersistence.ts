@@ -66,6 +66,8 @@ import {
 } from "@persistence/volatile/index.js";
 import { ChainTransaction } from "@snickerdoodlelabs/objects";
 
+import { EarnedReward } from "@snickerdoodlelabs/objects";
+
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
   AGE = "SD_Age",
@@ -85,6 +87,7 @@ enum ELocalStorageKey {
   CLICKS = "SD_CLICKS",
   REJECTED_COHORTS = "SD_RejectedCohorts",
   LATEST_BLOCK = "SD_LatestBlock",
+  EARNED_REWARDS = "SD_EarnedRewards"
 }
 
 interface LatestBlockEntry {
@@ -139,6 +142,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             ELocalStorageKey.SITE_VISITS,
             ELocalStorageKey.CLICKS,
             ELocalStorageKey.LATEST_BLOCK,
+            ELocalStorageKey.EARNED_REWARDS,
           ],
           store,
           this.cryptoUtils,
@@ -202,9 +206,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           keyPath: "contract",
           autoIncrement: false,
         },
+        {
+          name: ELocalStorageKey.EARNED_REWARDS,
+          keyPath: "queryCID",
+          autoIncrement: false,
+          indexBy: [["type", false]]
+        },
       ],
     });
   }
+
+
 
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
@@ -248,6 +260,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.waitForRestore().andThen(() => {
       return this._getObjectStore().andThen((store) => {
         return store.getAll<LinkedAccount>(ELocalStorageKey.ACCOUNT);
+      });
+    });
+  }
+
+  public addEarnedReward(
+    reward: EarnedReward,
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForUnlock().andThen((key) => {
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.addRecord(ELocalStorageKey.EARNED_REWARDS, reward);
+      });
+    });
+  }
+
+  public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    return this.waitForUnlock().andThen((key) => {
+      return this._getObjectStore().andThen((store) => {
+        return store.getAll<EarnedReward>(ELocalStorageKey.EARNED_REWARDS);
       });
     });
   }

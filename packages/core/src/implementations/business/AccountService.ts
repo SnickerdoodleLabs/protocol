@@ -70,6 +70,7 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -520,6 +521,15 @@ export class AccountService implements IAccountService {
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
     return this.dataWalletPersistence.getAccountNFTs();
   }
+
+  public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    return this.dataWalletPersistence.getEarnedRewards();
+  }
+
+  public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.addEarnedReward(reward);
+  }
+
 
   public getTranactions(
     filter?: EVMTransactionFilter,
