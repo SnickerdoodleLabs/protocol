@@ -2,6 +2,7 @@ import { ResultAsync } from "neverthrow";
 
 import {
   ClickData,
+  EarnedReward,
   EVMTransaction,
   EVMTransactionFilter,
   IEVMNFT,
@@ -98,6 +99,9 @@ export interface IDataWalletPersistence {
 
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
+
+  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected

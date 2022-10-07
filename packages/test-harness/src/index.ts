@@ -53,6 +53,9 @@ import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator
 import { IPFSClient } from "@test-harness/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
 import { TestWallet } from "@test-harness/TestWallet.js";
+import { EarnedReward } from "@snickerdoodlelabs/objects";
+import { IpfsCID } from "@snickerdoodlelabs/objects";
+import { ERewardType } from "@snickerdoodlelabs/objects";
 
 const cryptoUtils = new CryptoUtils();
 
@@ -267,6 +270,9 @@ function corePrompt(): ResultAsync<void, Error> {
     },
     { name: "Add Site Visit - Google ", value: "addSiteVisit - google" },
     { name: "Add Site Visit - Facebook", value: "addSiteVisit - facebook" },
+
+    { name: "Add Earned Award", value: "addEarnedAward"},
+    { name: "Get Earned Awards", value: "getEarnedAwards"},
     new inquirer.Separator(),
     { name: "dump backup", value: "dumpBackup" },
     { name: "restore backup", value: "restoreBackup" },
@@ -294,6 +300,8 @@ function corePrompt(): ResultAsync<void, Error> {
   ]).andThen((answers) => {
     const sites: SiteVisit[] = [];
     const transactions: EVMTransaction[] = [];
+    const earnedReward = new EarnedReward(IpfsCID("LazyReward"), ERewardType.Lazy);
+
     switch (answers.core) {
       case "unlock":
         return unlockCore();
@@ -339,6 +347,12 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
+              
+      case "addEarnedAward":
+        return core.addEarnedReward(earnedReward).map(console.log);
+        
+      case "getEarnedAwards":
+        return core.getEarnedRewards().map(console.log);  
       case "addEVMTransaction - Query's Network":
         transactions[0] = new EVMTransaction(
           ChainId(43114),
