@@ -1,5 +1,6 @@
+import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
 import { AST_Compensation, AST_Expr, Command, Command_IF, ISDQLParserFactory, ISDQLParserFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType } from "@query-parser/interfaces";
-import { CompensationId, DuplicateIdInSchema, IpfsCID, MissingTokenConstructorError, ParserError, QueryExpiredError, QueryFormatError, SDQLString } from "@snickerdoodlelabs/objects";
+import { CompensationId, DuplicateIdInSchema, IpfsCID, MissingTokenConstructorError, ParserError, QueryExpiredError, QueryFormatError, SDQLString, DataPermissions } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
@@ -99,17 +100,36 @@ export class SDQLQueryUtils{
         }
 
     }
-    // public getEligibleCompensations(schemaString: SDQLString, queryIds: string[]): 
-    // ResultAsync<CompensationId[], 
-    // | ParserError
-    // | DuplicateIdInSchema
-    // | QueryFormatError
-    // | MissingTokenConstructorError
-    // | QueryExpiredError
-    // > {
-        
-    //   const schema = this.queryWrapperFactory.makeWrapper(schemaString);
-    //   const compensationExpressions = schema.logic["compensations"]
 
-    // }
+
+    public getPermittedQueryIdsFromSchemaString(schemaString: SDQLString, givenPermissions: DataPermissions): ResultAsync<string[], 
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    > {
+
+
+
+        return this.parserFactory.makeParser(IpfsCID(""), schemaString)
+            .andThen((parser) => {
+                return parser.buildAST()
+                    .andThen(() => {
+                        return this.getPermittedQueryIds(parser, givenPermissions);
+                    })
+            });
+    }
+
+    public getPermittedQueryIds(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<string[], 
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+    > {
+
+        return okAsync([]);
+        
+    }
 }
