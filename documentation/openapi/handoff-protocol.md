@@ -84,7 +84,7 @@ sequenceDiagram
         },
         "c4":{
             "description": "a free CrazyApesClub NFT on Avalanche",
-            "chainId": 1354,
+            "chainId": 43114,
             "callback": {
                 "parameters": [
                     "recipientAddress",
