@@ -1,6 +1,6 @@
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
-import { AST_Compensation, AST_Expr, AST_Query, Command, Command_IF, ISDQLParserFactory, ISDQLParserFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType } from "@query-parser/interfaces";
-import { SDQL_Name } from "@snickerdoodlelabs/objects";
+import { AST_BalanceQuery, AST_Compensation, AST_Expr, AST_NetworkQuery, AST_PropertyQuery, AST_Query, Command, Command_IF, ISDQLParserFactory, ISDQLParserFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType } from "@query-parser/interfaces";
+import { EWalletDataType, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { CompensationId, DuplicateIdInSchema, IpfsCID, MissingTokenConstructorError, ParserError, QueryExpiredError, QueryFormatError, SDQLString, DataPermissions } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
@@ -130,11 +130,7 @@ export class SDQLQueryUtils{
     > {
 
         // for each query, check if permission is given
-        const checks: ResultAsync<SDQL_Name | null, never> [] = [];
-        for (const [queryId, query] of parser.queries) {
-            checks.push(this.queryIdIfPermitted(query, givenPermissions));
-        }
-
+        const checks = this.getQueryPermissionChecks(parser, givenPermissions);
         return ResultUtils.combine(checks)
             .andThen((resultIds) => {
                 return okAsync(
@@ -149,7 +145,25 @@ export class SDQLQueryUtils{
         
     }
 
-    public queryIdIfPermitted(query:AST_Query, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> {
+    public getQueryPermissionChecks(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> []{
+        /// returns an array of check results where each check resolves to a queryId if permmission is given or null otherwise.
+        const checks: ResultAsync<SDQL_Name | null, never> [] = [];
+        for (const [queryId, query] of parser.queries) {
+            checks.push(this.queryIdIfPermitted(parser, query, givenPermissions));
+        }
+
+        return checks;
+
+    }
+    
+    public queryIdIfPermitted(parser: SDQLParser, query:AST_Query, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> {
+
+        const flag = parser.getQueryPermissionFlag(query);
+        if (givenPermissions.getFlag(flag)) {
+            return okAsync(query.name);
+        }
         return okAsync(null);
     }
+
+    
 }
