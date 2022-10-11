@@ -1,8 +1,10 @@
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
-import { AST_Compensation, AST_Expr, Command, Command_IF, ISDQLParserFactory, ISDQLParserFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType } from "@query-parser/interfaces";
+import { AST_Compensation, AST_Expr, AST_Query, Command, Command_IF, ISDQLParserFactory, ISDQLParserFactoryType, ISDQLQueryWrapperFactory, ISDQLQueryWrapperFactoryType } from "@query-parser/interfaces";
+import { SDQL_Name } from "@snickerdoodlelabs/objects";
 import { CompensationId, DuplicateIdInSchema, IpfsCID, MissingTokenConstructorError, ParserError, QueryExpiredError, QueryFormatError, SDQLString, DataPermissions } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class SDQLQueryUtils{
@@ -110,8 +112,6 @@ export class SDQLQueryUtils{
     | QueryExpiredError
     > {
 
-
-
         return this.parserFactory.makeParser(IpfsCID(""), schemaString)
             .andThen((parser) => {
                 return parser.buildAST()
@@ -129,7 +129,27 @@ export class SDQLQueryUtils{
     | QueryExpiredError
     > {
 
-        return okAsync([]);
+        // for each query, check if permission is given
+        const checks: ResultAsync<SDQL_Name | null, never> [] = [];
+        for (const [queryId, query] of parser.queries) {
+            checks.push(this.queryIdIfPermitted(query, givenPermissions));
+        }
+
+        return ResultUtils.combine(checks)
+            .andThen((resultIds) => {
+                return okAsync(
+                    resultIds.reduce<string[]>((acc, next)=>{
+                        if (next != null) {
+                            acc.push(next);
+                        }
+                        return acc;
+                    }, [])
+                );
+            })
         
+    }
+
+    public queryIdIfPermitted(query:AST_Query, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> {
+        return okAsync(null);
     }
 }
