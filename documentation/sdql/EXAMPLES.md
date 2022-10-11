@@ -181,7 +181,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         },
         "c4":{
             "description": "a free CrazyApesClub NFT on Avalanche",
-            "chainId": 1354,
+            "chainId": 43114,
             "callback": {
                 "parameters": [
                     "recipientAddress",
