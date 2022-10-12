@@ -12,7 +12,7 @@ export const useStyles = makeStyles((theme) => ({
       color: "#8079B4",
     },
     "& .MuiTypography-body1": {
-      fontFamily: "'Space Grotesk'",
+      fontFamily: "Space Grotesk",
       fontStyle: "normal",
       fontWeight: 500,
       fontSize: "16px",
@@ -20,8 +20,21 @@ export const useStyles = makeStyles((theme) => ({
       color: "#232039",
     },
   },
+  labelDeactive: {
+    "& .MuiRadio-colorSecondary.Mui-checked ": {
+      color: "#8079B4",
+    },
+    "& .MuiTypography-body1": {
+      fontFamily: "Space Grotesk",
+      fontStyle: "normal",
+      fontWeight: 500,
+      fontSize: "16px",
+      lineHeight: "16px",
+      color: "#BDBDBD",
+    },
+  },
   description: {
-    fontFamily: "'Space Grotesk'",
+    fontFamily: "Space Grotesk",
     fontStyle: "normal",
     fontWeight: 400,
     fontSize: "16px",

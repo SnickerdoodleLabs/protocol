@@ -106,19 +106,29 @@ const ScamFilterSettings: FC = () => {
                 }
               >
                 <FormControlLabel
-                  className={classes.label}
+                  className={
+                    scamFilterPreferences?.isScamFilterActive
+                      ? classes.label
+                      : classes.labelDeactive
+                  }
+                  disabled={!scamFilterPreferences?.isScamFilterActive ?? false}
                   value={true}
                   control={<Radio />}
-                  label="Show me a 'verified' message on each website every time."
+                  label={`Show “Verified” modal for each site every time on every visit`}
                 />
                 <Box width="100%" py={2}>
                   <Divider />
                 </Box>
                 <FormControlLabel
-                  className={classes.label}
+                  className={
+                    scamFilterPreferences?.isScamFilterActive
+                      ? classes.label
+                      : classes.labelDeactive
+                  }
+                  disabled={!scamFilterPreferences?.isScamFilterActive ?? false}
                   value={false}
                   control={<Radio />}
-                  label="Show me a 'verified' message for each website only once."
+                  label={`Show “Verified” modal for each site only once`}
                 />
               </RadioGroup>
             </Box>
