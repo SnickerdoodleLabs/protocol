@@ -36,6 +36,7 @@ import {
   LinkedAccount,
   EChainTechnology,
   getChainInfoByChain,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -857,5 +858,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           });
         });
       });
+  }
+
+  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+    return this.waitForRestore().andThen((key) => {
+      return this._getBackupManager().andThen((backupManager) => {
+        return backupManager.dump().andThen((backup) => {
+          return this.cloudStorage.putBackup(backup);
+        });
+      });
+    });
   }
 }

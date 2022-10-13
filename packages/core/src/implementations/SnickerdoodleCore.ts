@@ -66,6 +66,7 @@ import {
   LinkedAccount,
   AccountAddress,
   DataWalletAddress,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -681,5 +682,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IDataWalletPersistenceType,
     );
     return persistence.restoreBackup(backup);
+  }
+
+  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.postBackup();
   }
 }

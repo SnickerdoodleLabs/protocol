@@ -26,6 +26,7 @@ import {
   BlockNumber,
   UnixTimestamp,
   AccountAddress,
+  CeramicStreamID,
 } from "@objects/primitives";
 
 /**
@@ -151,6 +152,7 @@ export interface IDataWalletPersistence {
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

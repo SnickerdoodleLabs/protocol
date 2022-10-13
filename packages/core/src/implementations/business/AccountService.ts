@@ -14,6 +14,7 @@ import {
   AjaxError,
   BigNumberString,
   BlockchainProviderError,
+  CeramicStreamID,
   ChainId,
   CrumbsContractError,
   DataWalletAddress,
@@ -789,5 +790,9 @@ export class AccountService implements IAccountService {
           key,
         );
       });
+  }
+
+  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+    return this.dataWalletPersistence.postBackup();
   }
 }
