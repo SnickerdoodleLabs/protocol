@@ -1,0 +1,3 @@
+# Insight Platform API
+
+This package exports a repository object that can be used to make signed requests to an Insight Platform using the documented OpenAPI spec. All calls to the Insight API require a signature from a data wallet, which makes using Postman very difficult for this purpose. This package is designed to be used by any clients that need to make such requests, including Snickerdoodle Core.

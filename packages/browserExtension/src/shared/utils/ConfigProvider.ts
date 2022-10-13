@@ -16,6 +16,7 @@ declare const __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: URLString;
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
 declare const __DNS_SERVER_ADDRESS__: URLString;
+
 class ConfigProvider implements IConfigProvider {
   protected extensionConfig: ExtensionConfig;
   constructor() {

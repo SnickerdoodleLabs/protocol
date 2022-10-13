@@ -1,7 +1,7 @@
 {
-  "name": "@snickerdoodlelabs/query-parser",
-  "version": "0.0.2",
-  "description": "Utilitites for parsing and understanding SDQL Queries",
+  "name": "@snickerdoodlelabs/insight-platform-api",
+  "version": "0.0.1",
+  "description": "Repository for making signed calls to the Insight Platform API",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -10,11 +10,11 @@
   "bugs": {
     "url": "https://github.com/SnickerdoodleLabs/protocol/issues"
   },
-  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/query-parser#readme",
-  "author": "Golam Muktadir <muktadir@snickerdoodlelabs.io>",
+  "homepage": "https://github.com/SnickerdoodleLabs/protocol/tree/master/packages/insight-platform-api#readme",
+  "author": "Charlie Sibbach <charlie@snickerdoodlelabs.io>",
   "keywords": [
-    "Snickerdoodle",
-    "SDQL"
+    "Blockchain",
+    "Snickerdoodle"
   ],
   "main": "dist/index.js",
   "files": [
@@ -27,7 +27,6 @@
   ],
   "scripts": {
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
-    "alias-with-copyfiles": "yarn copy-files && tsc-alias",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "tsc --build && cd ../.. && yarn alias",
@@ -41,9 +40,11 @@
   "dependencies": {
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
+    "@snickerdoodlelabs/signature-verification": "workspace:^",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
     "neverthrow": "^4.3.1",
-    "neverthrow-result-utils": "^1.0.2"
+    "ts-brand": "^0.0.2",
+    "url-join-ts": "^1.0.5"
   }
 }

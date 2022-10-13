@@ -18,6 +18,11 @@ import {
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
 import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+  InsightPlatformRepository,
+} from "@snickerdoodlelabs/insight-platform-api";
+import {
   IEVMTransactionRepository,
   IEVMTransactionRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -56,7 +61,6 @@ import {
   ConsentContractRepository,
   CrumbsRepository,
   DNSRepository,
-  InsightPlatformRepository,
   InvitationRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
@@ -111,8 +115,6 @@ import {
   ICrumbsRepositoryType,
   IDNSRepository,
   IDNSRepositoryType,
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
   IMetatransactionForwarderRepository,
