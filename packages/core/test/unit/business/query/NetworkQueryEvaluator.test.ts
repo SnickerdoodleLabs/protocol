@@ -30,6 +30,7 @@ import * as td from "testdouble";
 
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 class NetworkQueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
@@ -39,7 +40,9 @@ class NetworkQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsMap = new Map<ChainId, number>([[ChainId(1), 10]]);
+  public transactionsArray = new Array<IChainTransaction>(
+    
+  );
 
   public accountBalances = new Array<IEVMBalance>(
     {
@@ -88,9 +91,11 @@ class NetworkQueryEvaluatorMocks {
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
-    td.when(this.dataWalletPersistence.getTransactionsMap()).thenReturn(
-      okAsync(this.transactionsMap),
+    /*
+    td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
+      okAsync(this.transactionsArray),
     );
+    */
     td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(this.accountBalances),
     );

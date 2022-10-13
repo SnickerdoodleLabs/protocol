@@ -38,29 +38,34 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     return this.dataWalletPersistence
       .getAccountBalances()
       .andThen((balances) => {
+        // console.log("line 41 balances", balances);
         if (query.networkId == null) {
           return okAsync(balances);
         }
         const networkBalances = balances.filter(
           (balance) => balance.chainId == query.networkId,
         );
+        // console.log("line 48 networkBalances", networkBalances);
         return okAsync(networkBalances);
       })
       .andThen((excessValues) => {
-        return this.addBalance(excessValues);
+        return this.convertToTokenBalance(excessValues);
       })
       .andThen((balanceArray) => {
+        // console.log("line 55 balanceArray", balanceArray);
         return this.evalConditions(query, balanceArray);
       })
       .andThen((balanceArray) => {
+        // console.log("line 59 balanceArray", balanceArray);
         return this.combineContractValues(query, balanceArray);
       })
       .andThen((balanceArray) => {
+        // console.log("line 63 balanceArray", balanceArray);
         return okAsync(SDQL_Return(balanceArray));
       });
   }
 
-  public addBalance(
+  public convertToTokenBalance(
     excessValues: IEVMBalance[],
   ): ResultAsync<ITokenBalance[], never> {
     const tokenBalances: ITokenBalance[] = [];
