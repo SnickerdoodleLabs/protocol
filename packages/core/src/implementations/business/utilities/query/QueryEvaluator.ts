@@ -52,11 +52,7 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_Query>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-    // All the switch statements here
-    // if (query.name == SDQL_Name('q7')) {
 
-    //     console.log("Constructor: ", query.constructor);
-    // }
     if (query instanceof AST_NetworkQuery) {
       return this.networkQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
@@ -78,49 +74,34 @@ export class QueryEvaluator implements IQueryEvaluator {
     let result = SDQL_Return(true);
     switch (q.property) {
       case "age":
-        // console.log("Tracking the result: ", result);
         return this.dataWalletPersistence.getAge().andThen((age) => {
           switch (q.returnType) {
             case "boolean":
-              // console.log("Property: Age, Return Type: Boolean");
-              // console.log("Before conditions: ", result);
               for (const condition of q.conditions) {
                 result = result && this.evalPropertyConditon(age, condition);
               }
-              //console.log("After conditions: ", result);
               return okAsync(result);
             case "integer":
-              //console.log("Property: Age, Return Type: Integer");
-              //console.log("Returning age: ", age)
               result = SDQL_Return(age);
-              // console.log("Tracking the result: ", result);
               return okAsync(result);
             default:
-              // console.log("Tracking the result: ", result);
               return okAsync(result);
           }
         });
-        console.log("Tracking the result: ", result);
         return okAsync(result);
       case "location":
-        // console.log("Tracking the result: ", result);
         return this.dataWalletPersistence.getLocation().andThen((location) => {
           switch (q.returnType) {
             case "string":
               result = SDQL_Return(location);
               return okAsync(result);
             case "boolean":
-              // console.log("Property: Location, Return Type: Boolean");
-              // console.log("Before conditions: ", result);
               for (const condition of q.conditions) {
                 result =
                   result && this.evalPropertyConditon(location, condition);
               }
-              //console.log("After conditions: ", result);
               return okAsync(result);
             case "integer":
-              //console.log("Property: Location, Return Type: Integer");
-              //console.log("Returning location: ", location)
               result = SDQL_Return(location);
               return okAsync(result);
             default:
@@ -128,42 +109,30 @@ export class QueryEvaluator implements IQueryEvaluator {
           }
         });
       case "gender":
-        // console.log("Tracking the result: ", result);
         return this.dataWalletPersistence.getGender().andThen((gender) => {
-          // console.log("Gender: ", gender);
-          // console.log("Return Type: ", q.returnType);
           switch (q.returnType) {
             case "enum":
-              // console.log("Property: Gender, Return Type: Enum");
-              // console.log("Gender: ", gender);
               for (const key of q.enum_keys) {
                 if (key == gender) {
                   return okAsync(SDQL_Return(gender));
                 }
               }
-              // console.log("After conditions: ", result);
               return okAsync(SDQL_Return(Gender("unknown")));
             default:
               return okAsync(result);
           }
         });
       case "url_visited_count":
-        // console.log("Tracking the result: ", result);
         return this.dataWalletPersistence
           .getSiteVisitsMap()
           .andThen((url_visited_count) => {
-            // console.log("URL count: ", url_visited_count);
             return okAsync(SDQL_Return(url_visited_count));
           });
-      case "chain_transaction_count":
-        return this.dataWalletPersistence
-          .getTransactionsMap()
-          .andThen((transactionsMap) => {
-            // console.log("URL count: ", url_visited_count);
-            return okAsync(SDQL_Return(transactionsMap));
-          });
+      case "chain_transactions":
+        return this.dataWalletPersistence.getTransactionsArray().andThen((transactionArray) => {
+          return okAsync(SDQL_Return(transactionArray));
+        });
       default:
-        // console.log("Tracking the result: ", result);
         return okAsync(result);
     }
   }
