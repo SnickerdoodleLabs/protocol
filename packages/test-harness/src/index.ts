@@ -271,6 +271,7 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "dump backup", value: "dumpBackup" },
     { name: "restore backup", value: "restoreBackup" },
+    { name: "manual backup", value: "manualBackup"},
     new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
@@ -457,6 +458,8 @@ function corePrompt(): ResultAsync<void, Error> {
           .andThen(() =>
             okAsync(console.log("restored backup", backup.header.hash)),
           );
+      case "manualBackup":
+        return core.postBackup().map(console.log);
     }
     return okAsync(undefined);
   });

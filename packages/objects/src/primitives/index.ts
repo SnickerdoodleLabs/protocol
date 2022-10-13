@@ -59,3 +59,5 @@ export * from "@objects/primitives/Web2Credential";
 export * from "@objects/primitives/RewardFunctionParam";
 export * from "@objects/primitives/TransactionReceipt";
 export * from "@objects/primitives/CompensationId";
+
+export * from "@objects/primitives/CeramicStreamID";
