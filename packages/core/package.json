@@ -40,6 +40,7 @@
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/indexers": "workspace:^",
+    "@snickerdoodlelabs/insight-platform-api": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/persistence": "workspace:^",
     "@snickerdoodlelabs/query-parser": "workspace:^",

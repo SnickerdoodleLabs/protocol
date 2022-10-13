@@ -18,7 +18,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public controlChainInformation: ControlChainInformation,
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
-    public snickerdoodleProtocolDomain: TypedDataDomain,
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
     public accountNFTPollingIntervalMS: number,
