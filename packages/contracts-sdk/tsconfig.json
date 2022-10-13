@@ -17,6 +17,9 @@
   "references": [
     {
       "path": "../objects"
+    },
+    {
+      "path": "../common-utils"
     }
   ]
 }

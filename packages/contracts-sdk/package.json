@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/contracts-sdk",
-  "version": "0.0.13",
+  "version": "0.0.18",
   "description": "SDK for snickerdoodlelabs contracts wrappers",
   "license": "MIT",
   "repository": {
@@ -39,6 +39,7 @@
   },
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
