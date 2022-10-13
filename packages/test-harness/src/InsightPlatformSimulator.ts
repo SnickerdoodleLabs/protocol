@@ -30,10 +30,11 @@ import {
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
+  insightDeliveryTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
-import { ResultAsync, errAsync } from "neverthrow";
+import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BlockchainStuff } from "@test-harness/BlockchainStuff.js";
@@ -53,10 +54,7 @@ export class InsightPlatformSimulator {
 
   public constructor(
     protected blockchain: BlockchainStuff,
-    protected ipfs: IPFSClient /*
-    @inject(IConsentContractRepositoryType) 
-    protected consentContractsRepository: IConsentContractRepository,
-    */,
+    protected ipfs: IPFSClient,
   ) {
     process.on("exit", () => {
       this.logStream.close();
@@ -83,66 +81,60 @@ export class InsightPlatformSimulator {
     });
 
     this.app.post("/insights/responses", (req, res) => {
-      // console.log("Sending to Insight Responses");
-      // console.log("Req is this: ", req.body);
-      //console.log("req.body.consentContractId: ", req.body.consentContractId);
-      // const newConsentContract = req.body.consentContractId;
-      // const consentContractId = EVMContractAddress(req.body.consentContractId);
-      // //console.log("consentContractId: ", consentContractId);
-      // const queryId = IpfsCID(req.body.queryId);
-      // const dataWallet = EVMAccountAddress(req.body.dataWallet);
-      // const returns = JSON.stringify(req.body.returns);
-      // const signature = Signature(req.body.signature);
+      console.log("Sending to Insight Responses");
+      console.log("Req is this: ", req.body);
+      console.log("req.body.consentContractId: ", req.body.consentContractId);
+      const consentContractId = EVMContractAddress(req.body.consentContractId);
+      const queryCid = IpfsCID(req.body.queryCid);
+      const dataWallet = EVMAccountAddress(req.body.dataWallet);
+      const returns = JSON.stringify(req.body.returns);
+      const signature = Signature(req.body.signature);
 
-      // const value = {
-      //   consentContractId,
-      //   queryId,
-      //   dataWallet,
-      //   returns,
-      // };
+      const value = {
+        consentContractId,
+        queryCid,
+        dataWallet,
+        returns,
+      };
 
       this.logStream.write(JSON.stringify(req.body));
 
-      res.send("Insights received successfully!");
-      /*
       return this.cryptoUtils
-      .verifyTypedData(snickerdoodleSigningDomain, insightDeliveryTypes, value, signature)
-      .andThen((verificationAddress) => {
-        console.log("verificationAddress: ", verificationAddress);
-        if (verificationAddress !== dataWallet) {
-					//return okAsync(false);
-          console.log("In bad wallet: ");
-          res.send("Error: Type Data Not Verified");
-				}
-				return okAsync(null);
-      })
-      .andThen( () => {
-        console.log("from promise 1: ");
-
-        return ResultAsync.fromPromise(this.blockchain.getConsentContract(consentContractId) as unknown as Promise<ConsentContract>,
-        (e) => {
-          console.log("from promise 2: ");
-          return new ConsentContractError(
-            "Unable to call getConsentContract()",
-            (e as ConsentContractError).reason,
-            e,
-          );
-        })
-      }).andThen( (contract) => {
-        console.log("contract: ", contract);
-        return contract.getConsentTokensOfAddress(dataWallet);
-      }).andThen((tokens) => {
-        console.log("tokens: ", tokens);
-				if (tokens.length > 0) {
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          insightDeliveryTypes,
+          value,
+          signature,
+        )
+        .andThen((verificationAddress) => {
+          if (verificationAddress !== dataWallet) {
+            const err = new Error("`In bad wallet: ${verificationAddress}`");
+            console.error(err);
+            return errAsync(err);
+          }
           return okAsync(null);
-				}
-        console.log("tokens error: ");
-        res.send("Error: Wallet has no Consent Tokens");
-        return errAsync(" Wallet has no Consent Tokens");
-			}).map(() => {
-        res.send("Insights received successfully!");
-      });
-      */
+        })
+        .andThen(() => {
+          const contract =
+            this.blockchain.getConsentContract(consentContractId);
+          return contract.getConsentTokensOfAddress(dataWallet);
+        })
+        .andThen((tokens) => {
+          console.log("tokens: ", tokens);
+          if (tokens.length > 0) {
+            return okAsync(null);
+          }
+          console.log("tokens error: ");
+          res.send("Error: Wallet has no Consent Tokens");
+          return errAsync(" Wallet has no Consent Tokens");
+        })
+        .map(() => {
+          res.send("Insights received successfully!");
+        })
+        .mapErr((e) => {
+          console.error(e);
+          res.send(e);
+        });
     });
 
     this.app.post("/metatransaction", (req, res) => {
@@ -232,7 +224,7 @@ export class InsightPlatformSimulator {
     // queryJson.timestamp = UnixTimestamp(
     //   Math.floor(new Date().getTime() / 1000),
     // );
-    queryJson.timestamp =  ISO8601DateString(new Date().toISOString());
+    queryJson.timestamp = ISO8601DateString(new Date().toISOString());
     // queryJson.expiry = new Date().toISOString();
     // Convert query back to string
     queryText = SDQLString(JSON.stringify(queryJson));

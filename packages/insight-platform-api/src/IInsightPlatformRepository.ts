@@ -1,31 +1,35 @@
 import {
   AjaxError,
-  Insight,
-  IpfsCID,
-  Reward,
-  EVMContractAddress,
-  Signature,
-  DataWalletAddress,
-  HexString,
-  EVMAccountAddress,
-  EVMPrivateKey,
   BigNumberString,
+  DataWalletAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
+  EVMPrivateKey,
+  HexString,
+  InsightString,
+  IpfsCID,
+  Signature,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-import { InsightString } from "@core/interfaces/objects/index.js";
-
 export interface IInsightPlatformRepository {
-  claimReward(
-    insights: Insight[],
-  ): ResultAsync<Map<IpfsCID, Reward>, AjaxError>;
+  // TODO: This is a placeholder for the rewards preview
+  //   getRewardsPreview(
+  //     dataWalletAddress: DataWalletAddress,
+  //     consentContractAddress: EVMContractAddress,
+  //     queryCid: IpfsCID,
+  //     queries: string[],
+  //     dataWalletKey: EVMPrivateKey,
+  //   ): ResultAsync<void, AjaxError>;
 
   deliverInsights(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
-    signature: Signature,
+    queryCid: IpfsCID,
     returns: InsightString[],
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError>;
 
   executeMetatransaction(
@@ -38,6 +42,7 @@ export interface IInsightPlatformRepository {
     data: HexString,
     metatransactionSignature: Signature,
     dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError>;
 }
 

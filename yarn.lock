@@ -6323,6 +6323,7 @@ __metadata:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/contracts-sdk": "workspace:^"
     "@snickerdoodlelabs/indexers": "workspace:^"
+    "@snickerdoodlelabs/insight-platform-api": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
     "@snickerdoodlelabs/persistence": "workspace:^"
     "@snickerdoodlelabs/query-parser": "workspace:^"
@@ -6390,6 +6391,21 @@ __metadata:
     neverthrow: ^4.3.1
     neverthrow-result-utils: ^1.0.2
     reflect-metadata: ^0.1.13
+    url-join-ts: ^1.0.5
+  languageName: unknown
+  linkType: soft
+
+"@snickerdoodlelabs/insight-platform-api@workspace:^, @snickerdoodlelabs/insight-platform-api@workspace:packages/insight-platform-api":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/insight-platform-api@workspace:packages/insight-platform-api"
+  dependencies:
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/signature-verification": "workspace:^"
+    ethers: ^5.6.6
+    inversify: ^5.1.1
+    neverthrow: ^4.3.1
+    ts-brand: ^0.0.2
     url-join-ts: ^1.0.5
   languageName: unknown
   linkType: soft

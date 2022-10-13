@@ -1,6 +1,6 @@
 export enum EIndexer {
-  EVM,
-  Solana,
-  Monero,
-  Simulator,
+  EVM = 0,
+  Solana = 1,
+  Monero = 2,
+  Simulator = 3,
 }
