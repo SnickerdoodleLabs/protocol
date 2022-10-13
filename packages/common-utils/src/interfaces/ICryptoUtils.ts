@@ -107,7 +107,7 @@ export interface ICryptoUtils {
   randomInt(randomFunc: () => number, low: number, high: number): number;
   randomBytes(length: number, seed: string): Uint8Array;
   getSignature(
-    owner: ethers.Signer,
+    owner: ethers.providers.JsonRpcSigner | ethers.Wallet,
     types: Array<string>,
     values: Array<
       BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress

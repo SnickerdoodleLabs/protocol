@@ -16,6 +16,9 @@ import {
   SDQLString,
 } from "@snickerdoodlelabs/objects";
 import {
+  avalanche1ExpiredSchemaStr,
+  avalanche2SchemaStr,
+  avalanche4SchemaStr,
   IQueryObjectFactory,
   ISDQLQueryWrapperFactory,
   QueryObjectFactory,
@@ -24,9 +27,6 @@ import {
 import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { avalanche1ExpiredSchemaStr } from "./business/query/avalanche1expired.data";
-import { avalanche2SchemaStr } from "./business/query/avalanche2.data";
-import { avalanche4SchemaStr } from "./business/query/avalanche4.data";
 
 import {
   QueryEvaluator,
@@ -37,6 +37,7 @@ import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 const queryId = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -90,8 +91,9 @@ class QueryParsingMocks {
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    td.when(this.persistenceRepo.getTransactionsMap()).thenReturn(
-      okAsync(new Map<ChainId, number>()),
+    
+    td.when(this.persistenceRepo.getTransactionsArray()).thenReturn(
+      okAsync(new Array<IChainTransaction>()),
     );
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
@@ -256,7 +258,7 @@ describe("Testing avalanche 4", () => {
       "1",
       "female",
       "{}",
-      "{}",
+      "[]",
       "[]",
       "[]",
     ]; // 7 return expressions

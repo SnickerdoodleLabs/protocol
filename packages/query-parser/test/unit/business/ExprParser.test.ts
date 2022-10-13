@@ -4,7 +4,7 @@ import { IpfsCID, SDQL_Name } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
-import { avalanche1SchemaStr } from "@query-parser-test/unit/business/avalanche1.data";
+import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
 import {
   ExprParser,
   QueryObjectFactory,

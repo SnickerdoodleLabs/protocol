@@ -38,7 +38,7 @@
                                 "browsing_history",
                                 "gender",
                                 "url_visited_count",
-                                "chain_transaction_count",
+                                "chain_transactions",
                                 "balance"
                             ]
                         },
@@ -161,7 +161,7 @@
                                     "type": "object",
                                     "patternProperties": {
                                         "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
-                                            "type": "number"
+                                            "type": "integer"
                                         }
                                     }
                                 }
@@ -233,14 +233,7 @@
                         {
                             "properties": {
                                 "name": {
-                                    "anyOf": [
-                                        {
-                                            "const": "url_visited_count"
-                                        },
-                                        {
-                                            "const": "chain_transaction_count"
-                                        }
-                                    ]
+                                    "const": "url_visited_count"
                                 },
                                 "return": {
                                     "const": "object"
@@ -253,15 +246,21 @@
                         {
                             "properties": {
                                 "name": {
-                                    "const": "balance"
+                                    "anyOf": [
+                                        {
+                                            "const": "chain_transactions"
+                                        },
+                                        {
+                                            "const": "balance"
+                                        }
+                                    ]
                                 },
                                 "return": {
                                     "const": "array"
                                 }
                             },
                             "required": [
-                                "array_items",
-                                "networkid"
+                                "array_items"
                             ]
                         },
                         {
