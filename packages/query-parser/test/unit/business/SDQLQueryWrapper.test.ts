@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { ISO8601DateString } from "@snickerdoodlelabs/objects";
 
 import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
-import { avalanche1SchemaStr } from "@query-parser-test/unit/business/avalanche1.data";
+import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
 
 describe("SDQLQueryWrapper with Avalanche", () => {
   test("avalanche 1 has 4 query schema", () => {
@@ -48,11 +48,15 @@ describe("SDQLQueryWrapper with Avalanche", () => {
     expect("query" in returnSchema["r3"]).toBeTruthy();
   });
 
-  test("avalanche has 3 compensation schema", () => {
+  test("avalanche has 3 compensation schema and 1 parameters", () => {
     const mocks = new SDQLQueryWrapperMocks();
     const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
     const compensationSchema = sdqlSchema.getCompensationSchema();
-    expect(Object.keys(compensationSchema).length).toBe(3);
+    expect(Object.keys(compensationSchema).length).toBe(4);
+    expect(Object.keys(compensationSchema).includes("parameters")).toBeTruthy();
+    expect(Object.keys(compensationSchema).includes("c1")).toBeTruthy();
+    expect(Object.keys(compensationSchema).includes("c2")).toBeTruthy();
+    expect(Object.keys(compensationSchema).includes("c3")).toBeTruthy();
   });
 
   test("avalanche has 2 logic schema", () => {

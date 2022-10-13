@@ -1,3 +1,4 @@
+import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContract,
   ConsentFactoryContract,
@@ -33,7 +34,7 @@ export class BlockchainStuff {
 
   public serverAccount = localChainAccounts[0];
   public businessAccount = localChainAccounts[1];
-
+  protected cryptoUtils = new CryptoUtils();
   public consentContracts = new Map<EVMContractAddress, ConsentContract>();
 
   public constructor(public accountWallets: TestWallet[]) {
@@ -114,6 +115,7 @@ export class BlockchainStuff {
         const consentContract = new ConsentContract(
           this.serverSigner,
           contractAddress,
+          this.cryptoUtils,
         );
         this.consentContracts.set(contractAddress, consentContract);
 

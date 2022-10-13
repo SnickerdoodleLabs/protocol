@@ -13,8 +13,9 @@ import {
   HexString,
   EVMContractAddress,
   HexString32,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event } from "ethers";
+import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -303,6 +304,12 @@ export interface IConsentContract {
    * Get the number of opted in addresses
    */
   totalSupply(): ResultAsync<number, ConsentContractError>;
+
+  getSignature(
+    values: Array<
+      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+    >,
+  ): ResultAsync<Signature, InvalidParametersError>;
 
   filters: IConsentContractFilters;
 }

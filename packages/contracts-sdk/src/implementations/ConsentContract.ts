@@ -1,3 +1,4 @@
+import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -15,6 +16,7 @@ import {
   HexString,
   DataPermissions,
   HexString32,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -34,6 +36,7 @@ export class ConsentContract implements IConsentContract {
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
+    protected cryptoUtils: ICryptoUtils,
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
@@ -948,4 +951,21 @@ export class ConsentContract implements IConsentContract {
       return this.contract.filters.RequestForData(ownerAddress);
     },
   };
+
+  public getSignature(
+    values: (
+      | string
+      | EVMAccountAddress
+      | ethers.BigNumber
+      | HexString
+      | EVMContractAddress
+    )[],
+  ): ResultAsync<Signature, InvalidParametersError> {
+    const types = ["address", "uint256"];
+    return this.cryptoUtils.getSignature(
+      this.providerOrSigner as ethers.providers.JsonRpcSigner,
+      types,
+      values,
+    );
+  }
 }

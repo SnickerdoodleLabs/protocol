@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { TypedDataField } from "@ethersproject/abstract-signer";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+} from "@snickerdoodlelabs/insight-platform-api";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -13,18 +16,17 @@ import {
   EvaluationError,
   EVMAccountAddress,
   EVMContractAddress,
+  InsightString,
   IpfsCID,
   IPFSError,
   QueryFormatError,
   UninitializedError,
   EligibleReward,
-  EVMPrivateKey,
   DataWalletAddress,
   SDQLQuery,
   SDQLQueryRequest,
   ConsentToken,
 } from "@snickerdoodlelabs/objects";
-import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -37,16 +39,10 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";
-import {
-  CoreConfig,
-  CoreContext,
-  InsightString,
-} from "@core/interfaces/objects/index.js";
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -190,19 +186,22 @@ export class QueryService implements IQueryService {
             const insights = maps2[0];
             const rewards = maps2[1];
 
-            return this.deliverInsights(
-              context,
-              config,
-              consentContractAddress,
-              query.cid,
-              insights,
-            ).map(() => {
-              console.log("insight delivery api call done");
-              // context.publicEvents.onQueryPosted.next({
-              //   consentContractAddress,
-              //   query,
-              // });
-            });
+            return this.insightPlatformRepo
+              .deliverInsights(
+                context.dataWalletAddress!,
+                consentContractAddress,
+                query.cid,
+                insights,
+                context.dataWalletKey!,
+                config.defaultInsightPlatformBaseUrl,
+              )
+              .map(() => {
+                console.log("insight delivery api call done");
+                // context.publicEvents.onQueryPosted.next({
+                //   consentContractAddress,
+                //   query,
+                // });
+              });
           });
       });
     });
@@ -226,59 +225,5 @@ export class QueryService implements IQueryService {
       );
     }
     return okAsync(undefined);
-  }
-
-  public deliverInsights(
-    context: CoreContext,
-    config: CoreConfig,
-    consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
-    insights: InsightString[],
-  ): ResultAsync<
-    void,
-    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
-  > {
-    const signableData = this.createSignable(
-      context,
-      consentContractAddress,
-      queryId,
-      JSON.stringify(insights),
-    );
-
-    return this.cryptoUtils
-      .signTypedData(
-        config.snickerdoodleProtocolDomain,
-        insightDeliveryTypes,
-        signableData,
-        context.dataWalletKey!,
-      )
-      .andThen((signature) => {
-        // console.log('signature', signature);
-
-        const res = this.insightPlatformRepo.deliverInsights(
-          context.dataWalletAddress as DataWalletAddress,
-          consentContractAddress,
-          queryId,
-          signature,
-          insights,
-        );
-
-        // console.log('res', res);
-        return res;
-      });
-  }
-
-  public createSignable(
-    context: CoreContext,
-    consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
-    returns: string,
-  ) {
-    return {
-      consentContractId: consentContractAddress,
-      queryCid: queryId,
-      dataWallet: context.dataWalletAddress,
-      returns: returns,
-    } as Record<string, unknown>;
   }
 }

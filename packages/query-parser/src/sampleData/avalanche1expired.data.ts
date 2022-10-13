@@ -2,13 +2,13 @@ import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 
 const timeUtils = new TimeUtils();
 
-export const avalanche1SchemaStr = JSON.stringify(
+export const avalanche1ExpiredSchemaStr = JSON.stringify(
 {
   version: 0.1,
   timestamp:  timeUtils.getISO8601TimeString(),
-  expiry : timeUtils.getISO8601TimeString(Date.now() + (1000 * 60 * 60 * 24)),
+  expiry : timeUtils.getISO8601TimeString(Date.now() - (1000 * 60 * 60 * 24)),
   description:
-    "Interactions with the Avalanche blockchain for 15-year and older individuals",
+  "Interactions with the Avalanche blockchain for 15-year and older individuals",
   business: "Shrapnel",
   queries: {
     q1: {
@@ -64,18 +64,63 @@ export const avalanche1SchemaStr = JSON.stringify(
       url: "https://418e-64-85-231-39.ngrok.io/insights"
     },
     compensations: {
+        parameters: {
+          recipientAddress: {
+              type: "address",
+              required: true
+          },
+          productId: {
+              type: "string",
+              required: false,
+              values: [
+                "https://product1",
+                "https://product2",
+              ]
+          },
+          shippingAddress: {
+              type: "string",
+              required: false,
+          },
+
+      },
       c1: {
         description: "10% discount code for Starbucks",
-        callback: "https://418e-64-85-231-39.ngrok.io/starbucks",
+        chainId: 1,
+        callback: {
+          parameters: [
+            "recipientAddress"
+          ],
+          data: {
+            trackingId: "982JJDSLAcx",
+          }
+        }
       },
       c2: {
         description:
           "participate in the draw to win a CryptoPunk NFT",
-        callback: "https://418e-64-85-231-39.ngrok.io/cryptopunk",
+        chainId: 1,
+        callback: {
+          parameters: [
+            "recipientAddress",
+            "productId"
+          ],
+          data: {
+            trackingId: "982JJDSLAcx",
+          }
+        }
       },
       c3: {
         description: "a free CrazyApesClub NFT",
-        callback: "https://418e-64-85-231-39.ngrok.io/crazyapesclub",
+        chainId: 1,
+        callback: {
+          parameters: [
+            "recipientAddress",
+            "productId"
+          ],
+          data: {
+            trackingId: "982JJDSLAcx",
+          }
+        }
       },
     },
     logic:{
