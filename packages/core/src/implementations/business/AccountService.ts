@@ -5,6 +5,10 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+} from "@snickerdoodlelabs/insight-platform-api";
+import {
   AccountAddress,
   AESEncryptedString,
   AjaxError,
@@ -51,8 +55,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountService } from "@core/interfaces/business/index.js";
 import {
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -630,6 +632,7 @@ export class AccountService implements IAccountService {
                 callData,
                 metatransactionSignature,
                 dataWalletKey,
+                config.defaultInsightPlatformBaseUrl,
               );
             });
         });
@@ -690,6 +693,7 @@ export class AccountService implements IAccountService {
                 callData,
                 metatransactionSignature,
                 dataWalletAccount.privateKey,
+                config.defaultInsightPlatformBaseUrl,
               );
             });
         });

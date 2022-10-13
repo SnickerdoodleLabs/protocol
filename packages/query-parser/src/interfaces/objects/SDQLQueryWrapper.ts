@@ -1,5 +1,6 @@
 import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  ISDQLCompensationBlock,
   ISDQLCompensations,
   ISDQLLogicObjects,
   ISDQLQueryClause,
@@ -105,9 +106,7 @@ export class SDQLQueryWrapper {
     return this.getReturnSchema();
   }
 
-  public get compensations(): {
-    [compensationObjects: string]: ISDQLCompensations;
-  } {
+  public get compensations(): ISDQLCompensationBlock {
     return this.getCompensationSchema();
   }
 
@@ -127,11 +126,11 @@ export class SDQLQueryWrapper {
   } {
     return this.internalObj.returns;
   }
-  getCompensationSchema(): {
-    [compensationObjects: string]: ISDQLCompensations;
-  } {
+
+  getCompensationSchema(): ISDQLCompensationBlock {
     return this.internalObj.compensations;
   }
+  
   getLogicSchema(): ISDQLLogicObjects {
     return this.internalObj.logic;
   }

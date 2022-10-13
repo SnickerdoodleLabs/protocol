@@ -146,19 +146,93 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         },
         "url": "https://418e-64-85-231-39.ngrok.io/insights"
     },
-    "compensations": {
-        "c1": {
+  "compensations":{
+    
+        "parameters": {
+            "recipientAddress": {
+                type:...,
+                required: true
+            },
+            "productId": {
+                type: string,
+                required: true,
+                values: [urls]
+            },
+            "shippingAddress": {
+                type: string,
+                required: true,
+            },
+
+        },
+        "c1":{
             "description": "10% discount code for Starbucks",
-            "callback": "https://418e-64-85-231-39.ngrok.io/starbucks"
+            "chainId": 1,
+            "callback": {
+                "parameters": [
+                    "recipientAddress"
+                ],
+                "data": {...an object to be forwarded with the api call}
+            }
         },
-        "c2": {
+        "c2":{
             "description": "participate in the draw to win a CryptoPunk NFT",
-            "callback": "https://418e-64-85-231-39.ngrok.io/cryptopunk"
+            "chainId": 1,
+            "callback": {
+                "parameters": [
+                    "recipientAddress",
+                    "productId"
+                ],
+                "data": {...an object to be forwarded with the api call}
+            }
         },
-        "c3": {
+        "c3":{
             "description": "a free CrazyApesClub NFT",
-            "callback": "https://418e-64-85-231-39.ngrok.io/crazyapesclub"
-        }
+            "chainId": 1,
+            "callback": {
+                "parameters": [
+                    "recipientAddress",
+                    "shippingAddress"
+                ],
+                "data": {...an object to be forwarded with the api call}
+            },
+            "alternatives": [
+                "c4",
+                "c5"
+            ]
+            
+        },
+        "c4":{
+            "description": "a free CrazyApesClub NFT on Avalanche",
+            "chainId": 43114,
+            "callback": {
+                "parameters": [
+                    "recipientAddress",
+                    "shippingAddress"
+                ],
+                "data": {...an object to be forwarded with the api call}
+            },
+            "alternatives": [
+                "c3",
+                "c5"
+            ]
+            
+        },
+        "c5":{
+            "description": "a free CrazyApesClub NFT on Solana",
+            "chainId": -1,
+            "callback": {
+                "parameters": [
+                    "recipientAddress",
+                    "shippingAddress"
+                ],
+                "data": {...an object to be forwarded with the api call}
+            },
+            "alternatives": [
+                "c3",
+                "c4"
+            ]
+            
+        },
     },
     "logic": {
         "returns": [

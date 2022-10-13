@@ -1,0 +1,33 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "ES2022",
+    "paths": {
+      "@insightPlatform/*": [
+        "./packages/insight-platform-api/src/*"
+      ],
+      "@insightPlatform-test/*": [
+        "./packages/insight-platform-api/test/*"
+      ],
+    },
+  },
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "references": [
+    {
+      "path": "../common-utils"
+    },
+    {
+      "path": "../objects"
+    },
+    {
+      "path": "../signatureVerification"
+    },
+  ]
+}
