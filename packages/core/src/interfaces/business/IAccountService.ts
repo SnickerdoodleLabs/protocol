@@ -20,6 +20,7 @@ import {
   MinimalForwarderContractError,
   AccountAddress,
   ITokenBalance,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -96,6 +97,7 @@ export interface IAccountService {
   addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

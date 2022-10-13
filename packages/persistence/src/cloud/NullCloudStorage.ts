@@ -2,6 +2,7 @@ import {
   EVMPrivateKey,
   IDataWalletBackup,
   PersistenceError,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -13,13 +14,13 @@ export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, IDataWalletBackup>();
   protected _lastRestore = 0;
 
-  putBackup(backup: IDataWalletBackup): ResultAsync<string, PersistenceError> {
+  putBackup(backup: IDataWalletBackup): ResultAsync<CeramicStreamID, PersistenceError> {
     this._lastRestore =
       backup.header.timestamp > this._lastRestore
         ? backup.header.timestamp
         : this._lastRestore;
     this._backups[backup.header.hash] = backup;
-    return okAsync("");
+    return okAsync(CeramicStreamID(""));
   }
 
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {

@@ -64,6 +64,7 @@ import {
   LinkedAccount,
   AccountAddress,
   ITokenBalance,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -589,6 +590,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addSiteVisits(siteVisits);
+  }
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.postBackup();
   }
 
   public addEVMTransactions(

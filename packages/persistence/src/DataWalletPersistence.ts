@@ -38,6 +38,7 @@ import {
   ITokenBalance,
   AccountAddress,
   SolanaAccountAddress,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -861,5 +862,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           });
         });
       });
+  }
+
+  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+    return ResultUtils.combine([this.waitForUnlock(), this._getBackupManager()]).andThen(([key, backupManager]) => {
+      return backupManager.dump().andThen((backup) => {
+        return this.cloudStorage.putBackup(backup).map((id) => CeramicStreamID(id));
+      });
+    });
   }
 }

@@ -26,6 +26,7 @@ import {
   AccountAddress,
 } from "@objects/primitives";
 import { ITokenBalance, IDataWalletBackup } from "@objects/interfaces";
+import { CeramicStreamID } from "@objects/primitives/CeramicStreamID";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -150,6 +151,7 @@ export interface IDataWalletPersistence {
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
