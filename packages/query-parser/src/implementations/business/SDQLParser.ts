@@ -5,6 +5,8 @@ import {
   DuplicateIdInSchema,
   EWalletDataType,
   IpfsCID,
+  ISDQLCompensationParameters,
+  ISDQLCompensations,
   MissingASTError,
   MissingTokenConstructorError,
   MissingWalletDataTypeError,
@@ -43,6 +45,7 @@ export class SDQLParser {
   public queries = new Map<SDQL_Name, AST_Query>();
   public returns: AST_Returns | null;
   public compensations = new Map<SDQL_Name, AST_Compensation>();
+  public compensationParameters: ISDQLCompensationParameters | null = null;
   public logicReturns = new Map<string, AST_Expr | Command>();
   public logicCompensations = new Map<string, AST_Expr | Command>();
   public returnPermissions = new Map<string, DataPermissions>();
@@ -125,6 +128,7 @@ export class SDQLParser {
             this.schema.business,
             this.queries,
             this.returns,
+            this.compensationParameters,
             this.compensations,
             new AST_Logic(
               this.logicReturns,
@@ -208,6 +212,10 @@ export class SDQLParser {
     if (schema.compensations === undefined) {
       return errAsync(new QueryFormatError("schema missing compensations"));
     }
+
+    // TODO:
+    // 1. validate alternatives
+    // 2. validate required parameters are in parameters block
     return okAsync(undefined);
   }
 
@@ -373,19 +381,30 @@ export class SDQLParser {
       for (const cName in compensationSchema) {
         // console.log(`parsing compensation ${cName}`);
 
-        const name = SDQL_Name(cName);
-        const schema = compensationSchema[cName];
-        const compensation = new AST_Compensation(
-          name,
-          schema.description,
-          URLString(schema.callback),
-        );
+        if (cName == "parameters") {
+          // this is the parameters block
+          this.compensationParameters = compensationSchema[cName] as ISDQLCompensationParameters;
 
-        this.compensations.set(compensation.name, compensation);
-        this.saveInContext(cName, compensation);
+        } else { 
+          // This is a compensation
+          const name = SDQL_Name(cName);
+          const schema = compensationSchema[cName] as ISDQLCompensations;
+          const compensation = new AST_Compensation(
+            name,
+            schema.description,
+            schema.chainId,
+            schema.callback,
+            schema.alternatives ? schema.alternatives : []
+          );
+  
+          this.compensations.set(compensation.name, compensation);
+          this.saveInContext(cName, compensation);
+        }
+       
       }
 
       return okAsync(undefined);
+
     } catch (err) {
       if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
@@ -476,6 +495,20 @@ export class SDQLParser {
         return this.getQueryPermissionFlag(query);
       }),
     );
+  }
+
+  public queryIdsToDataPermissions(ids: string[]): DataPermissions {
+    
+    const queries:AST_Query[] = [];
+    ids.reduce<AST_Query[]>((queries, id) => {
+      const query = this.context.get(SDQL_Name(id))
+      if (query != null) {
+        queries.push(query as AST_Query);
+      }
+      return queries;
+    }, queries);
+
+    return this.queriesToDataPermission(queries);
   }
 
   public getQueryPermissionFlag(query: AST_Query): EWalletDataType {

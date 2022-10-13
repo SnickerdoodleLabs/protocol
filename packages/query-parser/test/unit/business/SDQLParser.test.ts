@@ -8,7 +8,6 @@ import {
 
 import { SDQLQueryWrapperMocks } from "../../mocks";
 
-import { avalanche1SchemaStr } from "./avalanche1.data";
 
 import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
 import {
@@ -25,6 +24,7 @@ import {
   ConditionAnd,
   ConditionGE,
 } from "@query-parser/interfaces";
+import { avalanche1SchemaStr } from "@query-parser/sampleData";
 
 describe("SDQLParser on avalanche", () => {
   const wrapperMocks = new SDQLQueryWrapperMocks();
@@ -136,12 +136,68 @@ describe("SDQLParser on avalanche", () => {
       );
       expect(c3.description).toBe("a free CrazyApesClub NFT");
 
-      expect(c1.callback).toBe("https://418e-64-85-231-39.ngrok.io/starbucks");
-      expect(c2.callback).toBe("https://418e-64-85-231-39.ngrok.io/cryptopunk");
-      expect(c3.callback).toBe(
-        "https://418e-64-85-231-39.ngrok.io/crazyapesclub",
-      );
+      expect(c1.callback).toEqual(
+        {
+          parameters: [
+            "recipientAddress"
+          ],
+          data: {
+            trackingId: "982JJDSLAcx",
+          }
+        }
+      )
+      expect(c2.callback).toEqual(
+        {
+          parameters: [
+            "recipientAddress",
+            "productId"
+          ],
+          data: {
+            trackingId: "982JJDSLAcx",
+          }
+        }
+      )
+      expect(c3.callback).toEqual(
+        {
+          parameters: [
+            "recipientAddress",
+            "productId"
+          ],
+          data: {
+            trackingId: "982JJDSLAcx",
+          }
+        }
+      )
+
+
     });
+
+    test("avalance 1 has 3 compensation parameters (recipientAddress, productId, and shippingAddress", () => {
+      expect(parser.compensationParameters).toBeDefined();
+      expect(parser.compensationParameters!.recipientAddress).toBeDefined();
+      expect(parser.compensationParameters!.productId).toBeDefined();
+      expect(parser.compensationParameters!.shippingAddress).toBeDefined();
+      expect(parser.compensationParameters!).toEqual(
+        {
+            recipientAddress: {
+                type: "address",
+                required: true
+            },
+            productId: {
+                type: "string",
+                required: false,
+                values: [
+                  "https://product1",
+                  "https://product2",
+                ]
+            },
+            shippingAddress: {
+                type: "string",
+                required: false,
+            },
+        }
+      );
+    })
   });
 
   describe("Checking Logic return ASTs", () => {

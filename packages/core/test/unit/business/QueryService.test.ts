@@ -31,7 +31,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { avalanche1SchemaStr } from "@core-tests/unit/business/query/avalanche1.data";
 import { QueryService } from "@core/implementations/business/index.js";
 import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 import {
@@ -40,6 +39,7 @@ import {
 } from "@core/interfaces/data/index.js";
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
+import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
@@ -144,6 +144,7 @@ class QueryServiceMocks {
 describe("processQuery tests", () => {
   const mocks = new QueryServiceMocks();
   const queryService = mocks.factory();
+  const returns = JSON.stringify(insights);
 
   test("error if dataWalletAddress missing in context", async () => {
     await ResultUtils.combine([
