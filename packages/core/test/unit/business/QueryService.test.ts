@@ -144,7 +144,6 @@ class QueryServiceMocks {
 describe("processQuery tests", () => {
   const mocks = new QueryServiceMocks();
   const queryService = mocks.factory();
-  const returns = JSON.stringify(insights);
 
   test("error if dataWalletAddress missing in context", async () => {
     await ResultUtils.combine([

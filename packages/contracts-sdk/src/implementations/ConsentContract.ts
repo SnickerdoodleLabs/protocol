@@ -210,6 +210,48 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
+  public getMaxCapacity(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.maxCapacity() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call agreementFlagsArray()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((bigCapacity) => {
+      return bigCapacity.toNumber();
+    });
+  }
+
+  public updateMaxCapacity(
+    maxCapacity: number,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.updateMaxCapacity(
+        maxCapacity,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call updateMaxCapacity()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for updateMaxCapacity() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
+  }
+
   public requestForData(
     ipfsCID: IpfsCID,
   ): ResultAsync<void, ConsentContractError> {
@@ -854,7 +896,7 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map((totalSupply) => BlockNumber(totalSupply.toNumber()));
+    ).map((queryHorizon) => BlockNumber(queryHorizon.toNumber()));
   }
 
   public setQueryHorizon(

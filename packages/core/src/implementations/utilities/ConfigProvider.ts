@@ -16,13 +16,13 @@ import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 const modelAliases = {
   definitions: {
     backupIndex:
-      "kjzl6cwe1jw149f06c8o6hgro45rerad83swxqn5nrijb4i271uc1g5dybjjk22",
+      "kjzl6cwe1jw14aqi7nvqjgm146nn3dlmqchbmhlp69k1933mu10ili388ofrw7h",
   },
   schemas: {
-    BackupIndex:
-      "ceramic://k3y52l7qbv1frxm8elgkbtatgwkukhh7f3he8h6jarqy8szuq39x96heksob9hqtc",
     DataWalletBackup:
-      "ceramic://k3y52l7qbv1frxmf8dp0byvefkkj7j9f4hztn82r85lmpsrln5195njzlaw6zq680",
+      "ceramic://k3y52l7qbv1fryghpzxm0nfokqq2y52aj3qlr1a95ksxhknw8sz8n6468tsffuqkg",
+    BackupIndex:
+      "ceramic://k3y52l7qbv1frxi1g0kxkb81vdiegvw0py4secyd3soxnrvjcu31b233npz2zhg5c",
   },
   tiles: {},
 };
@@ -71,16 +71,16 @@ export class ConfigProvider
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
-      5000, // polling interval indexing,
-      5000, // polling interval balance
-      5000, // polling interval nfts
-      10000, // backup interval
-      10, // backup chunk size target
+      25000000, // polling interval indexing,
+      25000000, // polling interval balance
+      25000000, // polling interval nfts
+      2500000, // backup interval
+      3, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
-      URLString("http://localhost:7007"), // ceramicNodeURL
+      URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       "USD", // quoteCurrency
     );
   }
@@ -137,5 +137,9 @@ export class ConfigProvider
       this.config.dataWalletBackupIntervalMS;
     this.config.backupChunkSizeTarget =
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
+    this.config.ceramicNodeURL =
+      overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
+    this.config.ceramicModelAliases =
+      overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
   }
 }
