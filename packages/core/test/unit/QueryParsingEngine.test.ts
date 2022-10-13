@@ -258,7 +258,7 @@ describe("Testing avalanche 4", () => {
       "1",
       "female",
       "{}",
-      "{}",
+      "[]",
       "[]",
       "[]",
     ]; // 7 return expressions
