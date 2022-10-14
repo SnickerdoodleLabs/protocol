@@ -215,7 +215,7 @@ export class ConsentContract implements IConsentContract {
       this.contract.maxCapacity() as Promise<BigNumber>,
       (e) => {
         return new ConsentContractError(
-          "Unable to call agreementFlagsArray()",
+          "Unable to call maxCapacity()",
           (e as IBlockchainError).reason,
           e,
         );
