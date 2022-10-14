@@ -24,16 +24,15 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
     const result = SDQL_Return(false);
     const chainId = query.contract.networkId;
     const address = query.contract.address as EVMAccountAddress;
-    // TODO: Start and end should be timestamps not specific block number
-    const startTime = query.contract.blockrange.start;
-    const endTime = query.contract.blockrange.end;
+    const startTime = query.contract.timestamp.start;
+    const endTime = query.contract.timestamp.end;
 
     const filter = new EVMTransactionFilter(
       [chainId],
       [address],
       undefined,
-      undefined,
-      undefined,
+      startTime,
+      endTime,
     );
 
     if (query.returnType == "object") {
@@ -84,15 +83,14 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
         });
     }
 
-    if (query.name == "chain_transactions"){
-        return this.dataWalletPersistence
-          .getTransactionsArray()
-          .andThen((transactionsArray) => {
-            // console.log("URL count: ", url_visited_count);
-            return okAsync(SDQL_Return(transactionsArray));
-          });
+    if (query.name == "chain_transactions") {
+      return this.dataWalletPersistence
+        .getTransactionsArray()
+        .andThen((transactionsArray) => {
+          // console.log("URL count: ", url_visited_count);
+          return okAsync(SDQL_Return(transactionsArray));
+        });
     }
-
 
     return okAsync(SDQL_Return(false));
   }
