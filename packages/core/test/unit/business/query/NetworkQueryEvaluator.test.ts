@@ -139,7 +139,7 @@ describe("QueryEvaluator: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([
         new EVMTransaction(
           ChainId(43114),
@@ -194,7 +194,7 @@ describe("QueryEvaluator: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([
         new EVMTransaction(
           ChainId(43114),
@@ -249,7 +249,7 @@ describe("QueryEvaluator: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([]),
     );
     const result = await repo.eval(networkQuery);
@@ -291,7 +291,7 @@ describe("Network Query Testing: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([]),
     );
     const result = await repo.eval(networkQuery);
@@ -330,7 +330,7 @@ describe("Network Query Testing: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([]),
     );
     const result = await repo.eval(networkQuery);
