@@ -16,11 +16,13 @@ import {
   URLString,
   SiteVisit,
   InvalidParametersError,
+  IChainTransaction,
   LinkedAccount,
   EChain,
   MinimalForwarderContractError,
   AccountAddress,
   DataWalletAddress,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -105,13 +107,17 @@ export interface IAccountService {
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+  // getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError>
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>
+
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
+
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

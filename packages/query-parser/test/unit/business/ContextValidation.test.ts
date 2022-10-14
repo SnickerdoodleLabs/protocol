@@ -1,19 +1,14 @@
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  IpfsCID,
-  SDQLString,
-  MissingASTError,
-  QueryFormatError,
+  IpfsCID, MissingASTError,
+  QueryFormatError
 } from "@snickerdoodlelabs/objects";
 import "reflect-metadata";
-import { errAsync, okAsync } from "neverthrow";
 
 import { SDQLQueryWrapperMocks } from "../../mocks";
 
-import { testData1 } from "./test_data_1.data";
 
 import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
-import { SDQLQueryWrapper } from "@query-parser/interfaces/objects";
 
 const cid = IpfsCID("0");
 const timeUtils = new TimeUtils();

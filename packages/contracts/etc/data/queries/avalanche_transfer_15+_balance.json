@@ -86,7 +86,7 @@
                 "object_schema": {
                     "properties": {
                         "networkid": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "address": {
                             "type": "string",
@@ -113,7 +113,7 @@
                 "object_schema": {
                     "properties": {
                         "networkid": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "address": {
                             "type": "string",

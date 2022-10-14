@@ -7,7 +7,6 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
-import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -17,16 +16,27 @@ import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 const modelAliases = {
   definitions: {
     backupIndex:
-      "kjzl6cwe1jw149f06c8o6hgro45rerad83swxqn5nrijb4i271uc1g5dybjjk22",
+      "kjzl6cwe1jw148nk4xr3be2eplgg67srylg63z079m7xuqerf5ww0pxurebcgxz",
   },
   schemas: {
-    BackupIndex:
-      "ceramic://k3y52l7qbv1frxm8elgkbtatgwkukhh7f3he8h6jarqy8szuq39x96heksob9hqtc",
     DataWalletBackup:
-      "ceramic://k3y52l7qbv1frxmf8dp0byvefkkj7j9f4hztn82r85lmpsrln5195njzlaw6zq680",
+      "ceramic://k3y52l7qbv1frxplna47j0e3m75js1jr5okne9dagpkr6r728t7mapbml3af002yo",
+    BackupIndex:
+      "ceramic://k3y52l7qbv1fry2jy48xjyc23n3il1q2lm2ud2zlj4yoyvytwfye3l3205ld8zhmo",
   },
   tiles: {},
 };
+
+/**
+ * The config provider is a stash for data that is determined dynamically
+ * but does not change during runtime.
+ *
+ * The built-in config values should always be appropriate for working in the test-harness package;
+ * ie, they should be appropriate for local dev. All config values should be able to be changed via
+ * ConfigOverrides, and anywhere that is NOT the test harness should be required to provide a basically
+ * full set of ConfigOverrides when creating a new SnickercoodleCore. There is only one place in
+ * this repo that does that, in the browserExtension, so it's easy to find.
+ */
 
 @injectable()
 export class ConfigProvider
@@ -56,12 +66,11 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(5), ChainId(43113), ChainId(80001), ChainId(137), ChainId(1)], //supported chains (goerli, fuji,eth mainnet)
+      [ChainId(31338)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
-      snickerdoodleSigningDomain, // snickerdoodleProtocolDomain
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
@@ -71,7 +80,7 @@ export class ConfigProvider
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
-      URLString("http://localhost:7007"), // ceramicNodeURL
+      URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       "USD", // quoteCurrency
     );
   }

@@ -1,5 +1,7 @@
 import { ResultAsync } from "neverthrow";
 
+import { IChainTransaction } from "./chains";
+
 import {
   ClickData,
   EVMTransaction,
@@ -26,6 +28,7 @@ import {
   BlockNumber,
   UnixTimestamp,
   AccountAddress,
+  CeramicStreamID,
 } from "@objects/primitives";
 
 /**
@@ -118,8 +121,15 @@ export interface IDataWalletPersistence {
   // return a map of URLs
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
 
-  // return a map of Chain Transaction Counts
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+  // return an array of Chain Transaction
+  // getTransactionsMap(): ResultAsync<Array<IChainTransaction>, PersistenceError>;
+
+  // getTransactionsArray(): ResultAsync<
+  //   { chainId: ChainId; items: EVMTransaction[] | null }[],
+  //   PersistenceError
+  // >;
+
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
 
   getLatestTransactionForAccount(
     chainId: ChainId,
@@ -151,6 +161,7 @@ export interface IDataWalletPersistence {
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

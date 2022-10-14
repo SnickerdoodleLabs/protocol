@@ -6,6 +6,7 @@ import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   BackupIndex,
   BackupIndexEntry,
+  CeramicStreamID,
   EVMPrivateKey,
   IDataWalletBackup,
   ModelTypes,
@@ -142,7 +143,7 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<string, PersistenceError> {
+  ): ResultAsync<CeramicStreamID, PersistenceError> {
     return this._init().andThen(({ store, model, client }) => {
       return ResultAsync.fromPromise(
         model.createTile("DataWalletBackup", backup),
@@ -165,7 +166,7 @@ export class CeramicCloudStorage implements ICloudStorage {
               (e) => e as PersistenceError,
             ).map((_) => {
               console.debug("CloudStorage", `Backup placed: ${id}`);
-              return id;
+              return CeramicStreamID(id);
             });
           });
         });
