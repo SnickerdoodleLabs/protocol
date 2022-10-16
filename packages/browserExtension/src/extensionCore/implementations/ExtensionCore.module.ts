@@ -1,10 +1,13 @@
 import {
   AxiosAjaxUtils,
+  CryptoUtils,
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
   TimeUtils,
   ITimeUtils,
   ITimeUtilsType,
+  ICryptoUtils,
+  ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 
 import { ContainerModule, interfaces } from "inversify";
@@ -36,6 +39,7 @@ import {
 import {
   AccountCookieUtils,
   ContextProvider,
+  DataPermissionsUtils,
   ErrorUtils,
 } from "@implementations/utilities";
 import { RpcEngineFactory } from "@implementations/utilities/factory";
@@ -82,6 +86,8 @@ import {
   IAccountCookieUtilsType,
   IContextProvider,
   IContextProviderType,
+  IDataPermissionsUtils,
+  IDataPermissionsUtilsType,
   IErrorUtils,
   IErrorUtilsType,
 } from "@interfaces/utilities";
@@ -174,10 +180,14 @@ export const extensionCoreModule = new ContainerModule(
     bind<IAccountCookieUtils>(IAccountCookieUtilsType)
       .to(AccountCookieUtils)
       .inSingletonScope();
+    bind<IDataPermissionsUtils>(IDataPermissionsUtilsType)
+      .to(DataPermissionsUtils)
+      .inSingletonScope();
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
       .to(AxiosAjaxUtils)
       .inSingletonScope();
+    bind<ICryptoUtils>(ICryptoUtilsType).to(CryptoUtils).inSingletonScope();
     bind<ITimeUtils>(ITimeUtilsType).to(TimeUtils).inSingletonScope();
 
     // Utilities/Factory

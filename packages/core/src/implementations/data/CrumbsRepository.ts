@@ -18,15 +18,15 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { ICrumbsRepository } from "@core/interfaces/data";
+import { ICrumbsRepository } from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
-} from "@core/interfaces/utilities/factory";
+} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class CrumbsRepository implements ICrumbsRepository {

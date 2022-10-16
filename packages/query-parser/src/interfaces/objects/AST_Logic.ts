@@ -1,6 +1,7 @@
 import { DataPermissions } from "@snickerdoodlelabs/objects";
-import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr";
-import { Command } from "@query-parser/interfaces/objects/Command";
+
+import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr.js";
+import { Command } from "@query-parser/interfaces/objects/Command.js";
 
 export class AST_Logic {
   /**
@@ -22,5 +23,4 @@ export class AST_Logic {
   public getCompensationPermissions(expr: string): DataPermissions {
     return this.compenstationPermissions.get(expr)!;
   }
-
 }

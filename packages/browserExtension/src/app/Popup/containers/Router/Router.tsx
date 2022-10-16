@@ -1,12 +1,13 @@
-import React, { Fragment, FC, useMemo } from "react";
-import { Route, HashRouter, Routes, Navigate } from "react-router-dom";
-import { useAppContext } from "@app/Popup/context";
+import Footer from "@app/Popup/components/Footer";
+import Header from "@app/Popup/components/Header";
 import {
   AuthRequiredRoutes,
   UnauthorizedRoutes,
 } from "@app/Popup/containers/Router/Router.routes";
+import { useAppContext } from "@app/Popup/context";
 import { Box, CircularProgress } from "@material-ui/core";
-import Header from "@app/Popup/components/Header";
+import React, { FC, useMemo } from "react";
+import { Route, HashRouter, Routes, Navigate } from "react-router-dom";
 
 const Router: FC = () => {
   const { appState, initialized } = useAppContext();
@@ -21,10 +22,11 @@ const Router: FC = () => {
         key={route.name}
         path={route.path}
         element={
-          <>
+          <Box display="flex" flexDirection="column" width="100%" height="100%">
             {route.hasHeader && <Header />}
             {route.component}
-          </>
+            <Footer />
+          </Box>
         }
       />
     ));
@@ -33,7 +35,12 @@ const Router: FC = () => {
   return (
     <>
       {!initialized ? (
-        <Box display="flex" alignItems="center" justifyContent="center">
+        <Box
+          display="flex"
+          alignItems="center"
+          height="100%"
+          justifyContent="center"
+        >
           <CircularProgress />
         </Box>
       ) : (

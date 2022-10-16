@@ -1,6 +1,6 @@
 import { ResultAsync } from "neverthrow";
 
-import { CoreContext } from "@core/interfaces/objects";
+import { CoreContext } from "@core/interfaces/objects/index.js";
 
 export interface IContextProvider {
   getContext(): ResultAsync<CoreContext, never>;

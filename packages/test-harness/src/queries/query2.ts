@@ -7,18 +7,40 @@ export const query2 = {
   queries: {
     q1: {
       name: "url_visited_count",
-      return: "object"      
+      return: "object"
     },
     q2: {
-      name: "chain_transaction_count",
-      return: "object",
-      object_schema: {
-        patternProperties: {
-          "^ETH|AVAX|SOL$": {
-            type: "integer",
+      name: "chain_transactions",
+      return: "array",
+      array_items: {
+        type: "object",
+        object_schema: {
+          properties: {
+            tickerSymbol: {
+              type: "string",
+            },
+            incomingValue: {
+              type: "number"
+            },
+            incomingCount: {
+              type: "integer"
+            },
+            outgoingValue: {
+              type: "number"
+            },
+            outgoingCount: {
+              type: "integer"
+            }
           },
-        },
-      },
+          required: [
+            "tickerSymbol", 
+            "incomingValue", 
+            "incomingCount",
+            "outgoingValue", 
+            "outgoingCount",
+          ],
+        }
+      }
     },
     q3: {
       name: "balance",
@@ -32,7 +54,7 @@ export const query2 = {
               type: "string",
             },
             networkId: {
-              type: "integer",
+              type: "string",
             },
             balance: {
               type: "number",
@@ -57,6 +79,68 @@ export const query2 = {
       query: "q3",
     },
     url: "/////This should dynamically populate",
+  },
+  compensations: {
+      parameters: {
+        recipientAddress: {
+            type: "address",
+            required: true
+        },
+        productId: {
+            type: "string",
+            required: false,
+            values: [
+              "https://product1",
+              "https://product2",
+            ]
+        },
+        shippingAddress: {
+            type: "string",
+            required: false,
+        },
+
+    },
+    c1: {
+      description: "10% discount code for Starbucks",
+      chainId: 1,
+      callback: {
+        parameters: [
+          "recipientAddress"
+        ],
+        data: {
+          trackingId: "982JJDSLAcx",
+        }
+      }
+    },
+    c2: {
+      description:
+        "participate in the draw to win a CryptoPunk NFT",
+      chainId: 1,
+      callback: {
+        parameters: [
+          "recipientAddress",
+          "productId"
+        ],
+        data: {
+          trackingId: "982JJDSLAcx",
+        }
+      },
+      alternatives: ["c3"]
+    },
+    c3: {
+      description: "a free CrazyApesClub NFT",
+      chainId: 1,
+      callback: {
+        parameters: [
+          "recipientAddress",
+          "productId"
+        ],
+        data: {
+          trackingId: "982JJDSLAcx",
+        }
+      },
+      alternatives: ["c2"]
+    },
   },
   logic: {
     returns: ["$r1", "$r2", "$r3"],

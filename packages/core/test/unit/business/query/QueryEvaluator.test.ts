@@ -3,45 +3,37 @@ import "reflect-metadata";
 import {
   Age,
   ChainId,
-  CountryCode,
   EVMAccountAddress,
-  EVMChainCode,
   EVMContractAddress,
-  EVMContractDirection,
-  EVMContractFunction,
-  EVMToken,
   Gender,
   SDQL_Name,
   SDQL_OperatorName,
   URLString,
-  UnixTimestamp,
   TickerSymbol,
   BigNumberString,
-} from "@objects/primitives";
-import {
-  EVMBlockRange,
-  EVMTransaction,
-  EVMTransactionFilter,
   IDataWalletPersistence,
   IEVMBalance,
-} from "@snickerdoodlelabs/objects";
-import { okAsync } from "neverthrow";
-import td from "testdouble";
+  IChainTransaction,
+  EVMTransaction,
+  UnixTimestamp,
 
-import { QueryEvaluator } from "@core/implementations/business/utilities/query/QueryEvaluator";
+} from "@snickerdoodlelabs/objects";
 import {
-  AST_NetworkQuery,
   AST_PropertyQuery,
   ConditionE,
   ConditionG,
   ConditionGE,
-  ConditionIn,
   ConditionL,
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
+import { okAsync } from "neverthrow";
+import * as td from "testdouble";
 
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
+import { QueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+import {
+  IBalanceQueryEvaluator,
+  INetworkQueryEvaluator,
+} from "@core/interfaces/business/utilities/query/index.js";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -67,57 +59,142 @@ const conditionsGEandL = [
 ];
 
 class QueryEvaluatorMocks {
-    public dataWalletPersistence = td.object<IDataWalletPersistence>();
-    public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
-    public networkQueryEvaluator = td.object<INetworkQueryEvaluator>();
+  public dataWalletPersistence = td.object<IDataWalletPersistence>();
+  public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
+  public networkQueryEvaluator = td.object<INetworkQueryEvaluator>();
 
+  public URLmap = new Map<URLString, number>([
+    [URLString("www.snickerdoodlelabs.io"), 10],
+  ]);
 
-    public URLmap = new Map<URLString, number>([
-        [URLString("www.snickerdoodlelabs.io"), 10],
-    ]);
+  
+  public evmReturns: EVMTransaction[] = [
+    new EVMTransaction(
+      ChainId(43113),
+      "firstHash",
+      UnixTimestamp(100),
+      null,
+      EVMAccountAddress("send200"),
+      EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+      BigNumberString("200"),
+      null,
+      null,
+      null,
+      null,
+      Math.random() * 1000,
+    ),
+    new EVMTransaction(
+      ChainId(43113),
+      "secondHash",
+      UnixTimestamp(100),
+      null,
+      EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+      EVMAccountAddress("get1000"),
+      BigNumberString("1000"),
+      null,
+      null,
+      null,
+      null,
+      Math.random() * 1000,
+    ),
+    new EVMTransaction(
+      ChainId(43113),
+      "thirdHash",
+      UnixTimestamp(100),
+      null,
+      EVMAccountAddress("send300"),
+      EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+      BigNumberString("300"),
+      null,
+      null,
+      null,
+      null,
+      Math.random() * 1000,
+    ),
+    new EVMTransaction(
+      ChainId(43113),
+      "fourthHash",
+      UnixTimestamp(100),
+      null,
+      EVMAccountAddress("send50"),
+      EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
+      BigNumberString("50"),
+      null,
+      null,
+      null,
+      null,
+      Math.random() * 1000,
+    )
+  ];
 
-    public transactionsMap = new Map<ChainId, number>([
-        [ChainId(1), 10]
-    ]);
+  public transactionsReturn = [{
+    "chainId": ChainId(43113),
+    "items": this.evmReturns
+  }]
 
-    public accountBalances = new Array<IEVMBalance>(
-        {
-            ticker: TickerSymbol("ETH"),
-            chainId: ChainId(1),
-            accountAddress: EVMAccountAddress("GOOD1"),
-            balance: BigNumberString("18"),
-            contractAddress: EVMContractAddress("9dkj13nd"),
-        },
-        {
-            ticker: TickerSymbol("ETH"),
-            chainId: ChainId(1),
-            accountAddress: EVMAccountAddress("GOOD2"),
-            balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("0pemc726"),
-        },
-        {
-            ticker: TickerSymbol("BLAH"),
-            chainId: ChainId(901398),
-            accountAddress: EVMAccountAddress("BAD"),
-            balance: BigNumberString("26"),
-            contractAddress: EVMContractAddress("lp20xk3c"),
-        },
-        {
-            ticker: TickerSymbol("ETH"),
-            chainId: ChainId(1),
-            accountAddress: EVMAccountAddress("GOOD3"),
-            balance: BigNumberString("36"),
-            contractAddress: EVMContractAddress("m12s93io"),
-        },
+  public accountBalances = new Array<IEVMBalance>(
+    {
+      ticker: TickerSymbol("ETH"),
+      chainId: ChainId(1),
+      accountAddress: EVMAccountAddress("GOOD1"),
+      balance: BigNumberString("18"),
+      contractAddress: EVMContractAddress("9dkj13nd"),
+      quoteBalance: 0,
+    },
+    {
+      ticker: TickerSymbol("ETH"),
+      chainId: ChainId(1),
+      accountAddress: EVMAccountAddress("GOOD2"),
+      balance: BigNumberString("25"),
+      contractAddress: EVMContractAddress("0pemc726"),
+      quoteBalance: 0,
+    },
+    {
+      ticker: TickerSymbol("BLAH"),
+      chainId: ChainId(901398),
+      accountAddress: EVMAccountAddress("BAD"),
+      balance: BigNumberString("26"),
+      contractAddress: EVMContractAddress("lp20xk3c"),
+      quoteBalance: 0,
+    },
+    {
+      ticker: TickerSymbol("ETH"),
+      chainId: ChainId(1),
+      accountAddress: EVMAccountAddress("GOOD3"),
+      balance: BigNumberString("36"),
+      contractAddress: EVMContractAddress("m12s93io"),
+      quoteBalance: 0,
+    },
+  );
 
-    );
-    
+  public transactionsFlow = new Array<IChainTransaction>(
+    {
+      "chainId": ChainId(1),
+      "incomingValue": BigNumberString("1"),
+      "incomingCount": BigNumberString("293820383028"),
+      "outgoingValue": BigNumberString("5"),
+      "outgoingCount": BigNumberString("41031830109120")
+    }, 
+    {
+      "chainId": ChainId(137),
+      "incomingValue": BigNumberString("1"),
+      "incomingCount": BigNumberString("2020292"),
+      "outgoingValue": BigNumberString("1"),
+      "outgoingCount": BigNumberString("4928")
+    }, 
+    {
+      "chainId": ChainId(43113),
+      "incomingValue": BigNumberString("1"),
+      "incomingCount": BigNumberString("9482928"),
+      "outgoingValue": BigNumberString("0"),
+      "outgoingCount": BigNumberString("0")
+    }, 
+  );
 
   public constructor() {
     this.dataWalletPersistence.setAge(Age(25));
     //this.dataWalletPersistence.setLocation(CountryCode("US"));
     td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
-    
 
     td.when(this.dataWalletPersistence.getGender()).thenReturn(
       okAsync(Gender("male")),
@@ -126,18 +203,29 @@ class QueryEvaluatorMocks {
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
-    td.when(this.dataWalletPersistence.getTransactionsMap()).thenReturn(
-      okAsync(this.transactionsMap),
+    
+    td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
+      okAsync(this.transactionsFlow),
     );
-    td.when(this.dataWalletPersistence.getAccountBalances())
-    .thenReturn(
-        okAsync(this.accountBalances),
+
+    
+    td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
+      okAsync(this.accountBalances),
     );
   }
-    
-    public factory() {
-      return new QueryEvaluator(this.dataWalletPersistence, this.balanceQueryEvaluator, this.networkQueryEvaluator);
-    }
+
+  public factory() {
+    return new QueryEvaluator(
+      this.dataWalletPersistence,
+      this.balanceQueryEvaluator,
+      this.networkQueryEvaluator,
+    );
+    // td.when(this.dataWalletPersistence.getTransactionsMap())
+    // .thenReturn(
+    //     okAsync(this.chainTransactions),
+    // );
+
+  }
 }
 
 describe("QueryEvaluator checking age boolean: GE", () => {
@@ -660,51 +748,73 @@ describe("QueryEvaluator return integer values", () => {
   });
 });
 
-
 describe("Return URLs Map", () => {
   test("EvalPropertyQuery: return URLs count", async () => {
-      const propertyQuery = new AST_PropertyQuery(
-          SDQL_Name("q1"),
-          "object",
-          "url_visited_count",
-          [],
-          [],
-          {}
-      )
-      const mocks = new QueryEvaluatorMocks();
-      const repo = mocks.factory();
-      const result = await repo.eval(propertyQuery);
-      // console.log("URLs is: ", result["value"]);
-      expect(result["value"]).toEqual(
-          new Map<URLString, number>([
-              [URLString("www.snickerdoodlelabs.io"), 10]
-          ])
-      )
-  })
-})
+    const propertyQuery = new AST_PropertyQuery(
+      SDQL_Name("q1"),
+      "object",
+      "url_visited_count",
+      [],
+      [],
+      {},
+    );
+    const mocks = new QueryEvaluatorMocks();
+    const repo = mocks.factory();
+    const result = await repo.eval(propertyQuery);
+    // console.log("URLs is: ", result["value"]);
+    expect(result["value"]).toEqual(
+      new Map<URLString, number>([[URLString("www.snickerdoodlelabs.io"), 10]]),
+    );
+  });
+});
 
-describe("Return Chain Transaction Count", () => {
-  test("EvalPropertyQuery: return chain transaction count", async () => {
-      const propertyQuery = new AST_PropertyQuery(
-          SDQL_Name("q1"),
-          "object",
-          "chain_transaction_count",
-          [],
-          [],
-          {
-              "^ETH|AVAX|SOL$": {
-                  "type": "integer"
-              }
-          }
+describe("Return Chain Transaction Flow", () => {
+  test("EvalPropertyQuery: return chain_transactions", async () => {
+    const propertyQuery = new AST_PropertyQuery(
+      SDQL_Name("q1"),
+      "array",
+      "chain_transactions",
+      [],
+      [],
+      {
+        "^ETH|AVAX|SOL$": {
+          type: "integer",
+        },
+      },
+    );
+
+    //const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
+
+    const mocks = new QueryEvaluatorMocks();
+    const repo = mocks.factory();
+    const result = await repo.eval(propertyQuery);
+
+    // console.log("URLs is: ", result["value"]);
+    expect(result["value"]).toEqual(
+      new Array<IChainTransaction>(
+        {
+          "chainId": ChainId(1),
+          "incomingValue": BigNumberString("1"),
+          "incomingCount": BigNumberString("293820383028"),
+          "outgoingValue": BigNumberString("5"),
+          "outgoingCount": BigNumberString("41031830109120")
+        }, 
+        {
+          "chainId": ChainId(137),
+          "incomingValue": BigNumberString("1"),
+          "incomingCount": BigNumberString("2020292"),
+          "outgoingValue": BigNumberString("1"),
+          "outgoingCount": BigNumberString("4928")
+        }, 
+        {
+          "chainId": ChainId(43113),
+          "incomingValue": BigNumberString("1"),
+          "incomingCount": BigNumberString("9482928"),
+          "outgoingValue": BigNumberString("0"),
+          "outgoingCount": BigNumberString("0")
+        }, 
       )
-      const mocks = new QueryEvaluatorMocks();
-      const repo = mocks.factory();
-      const result = await repo.eval(propertyQuery);
-      // console.log("URLs is: ", result["value"]);
-      expect(result["value"]).toEqual(            
-      new Map<ChainId, number>([
-          [ChainId(1), 10]
-      ])
-      )
-  })
-})
+    );
+  });
+});
+

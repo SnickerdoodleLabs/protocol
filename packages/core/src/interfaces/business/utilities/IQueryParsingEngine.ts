@@ -3,19 +3,18 @@ import {
   EligibleReward,
   EvaluationError,
   QueryExpiredError,
+  InsightString,
   QueryFormatError,
   SDQLQuery,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { InsightString } from "@core/interfaces/objects";
 
 export interface IQueryParsingEngine {
   getRewardsPreview (
     query: SDQLQuery,
     dataPermissions: DataPermissions
   ): ResultAsync<
-  EligibleReward[] | never,
+  EligibleReward[],
   EvaluationError | QueryFormatError | QueryExpiredError
   >;
   handleQuery(

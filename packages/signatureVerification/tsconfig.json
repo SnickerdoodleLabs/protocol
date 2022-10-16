@@ -3,6 +3,14 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
+    "paths": {
+      "@signatureVerification/*": [
+        "./packages/signatureVerification/src/*"
+      ],
+      "@signatureVerification-test/*": [
+        "./packages/signatureVerification/test/*"
+      ],
+    },
   },
   "include": [
     "./src/**/*.ts"

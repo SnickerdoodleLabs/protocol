@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import Onboarding from "@extension-onboarding/pages/Onboarding";
 import Details from "@extension-onboarding/pages/Details";
+import { AuthFlowRouteContextProvider } from "@extension-onboarding/context/AuthFlowRouteContext";
 
 interface IRoute {
   path: string;
@@ -24,7 +25,11 @@ export const OnboardingRoutes: IRoute[] = [
 export const AuthRequiredRoutes: IRoute[] = [
   {
     path: EPaths.HOME,
-    component: <Details />,
+    component: (
+      <AuthFlowRouteContextProvider>
+        <Details />
+      </AuthFlowRouteContextProvider>
+    ),
     name: "Home",
   },
 ];

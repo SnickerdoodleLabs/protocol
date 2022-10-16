@@ -1,0 +1,20 @@
+title Rewards Handoff Flow
+participant Data Wallet
+participant Insight Platform
+participant SDQL Protocol
+Data Wallet<-SDQL Protocol:query
+activate Data Wallet
+note over Data Wallet:Decide to Accept Query
+Data Wallet->Insight Platform:/insights/preview\nQuery Id\nIntended Responses/Insights\nExpected Rewards
+activate Insight Platform
+note over Insight Platform:Look at data intended to send vs. query, and calculate eligible rewards.\nThese should match the Expected Rewards from the Data Wallet\nCheck if the data wallet has already responded.\nIf so, not eligible for any rewards
+Data Wallet<-Insight Platform:Eligible Rewards
+deactivate Insight Platform
+note over Data Wallet:Compare server's rewards with your list
+Data Wallet->Insight Platform:POST /insights\nSend Insights\nAnd Compensations.parameters values
+activate Insight Platform
+note over Insight Platform:Aggregate insights\nGenerate Rewards
+Data Wallet<-Insight Platform:RewardReceipt[]\n- Delegated\n- Non Delegated\n- Web2
+deactivate Insight Platform
+note over Data Wallet:For Non Delegated Rewards, add EarnedRewards to the wallet.\nShow Delegated Rewards in rewards tab?\nWeb2 rewards are also EarnedRewards, TBD
+deactivate Data Wallet

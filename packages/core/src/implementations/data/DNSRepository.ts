@@ -11,7 +11,7 @@ import { IDNSRepository } from "@core/interfaces/data/IDNSRepository";
 import {
   IConfigProviderType,
   IConfigProvider,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class DNSRepository implements IDNSRepository {
@@ -35,9 +35,11 @@ export class DNSRepository implements IDNSRepository {
         });
       })
       .map((response) => {
-        return response.Answer.map((txtRecord) => {
-          return txtRecord.data;
-        });
+        return (
+          response?.Answer?.map?.((txtRecord) => {
+            return txtRecord.data;
+          }) ?? []
+        );
       })
       .orElse((error) => {
         console.log("error from fetchTXTRecords", error);

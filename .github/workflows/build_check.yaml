@@ -1,0 +1,53 @@
+name: Protocol - Sanity Check
+
+on:
+  pull_request:
+
+
+env:
+  GITHUB_SHA: ${{ github.sha }} 
+  GITHUB_REF: ${{ github.ref }} 
+  IMAGE: insight-platform
+  REGISTRY_HOSTNAME: gcr.io
+  GAR_LOCATION: us-central1
+  GKE_CLUSTER: sdl-cluster-dev-zvfsd
+  GKE_ZONE: us-central1-a
+  PROJECT_ID: snickerdoodle-insight-stackdev
+
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup && Build Sanity
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Setup gcloud CLI
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+        
+
+    - name: Docker configuration
+      run: |-
+        gcloud --quiet auth configure-docker $GAR_LOCATION-docker.pkg.dev
+        
+    - name: Build protocol
+      run: |-
+      
+        docker build \
+          --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA" \
+          --build-arg DOMAIN="extension.dev.snickerdoodle.dev" \
+          --build-arg CONTROL_CHAIN_ID=31337 \
+          --build-arg BUILD_ENV=development \
+          --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
+          --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
+          -f ./packages/extension-onboarding/Dockerfile \
+          .
+    - name: Slack Notification
+      if: ${{ failure() }}
+      run: |-
+        curl -X POST -H 'Content-type: application/json' --data '{ "text": "Build Failed: Protocol!", "blocks": [ { "type": "section", "block_id": "section567", "text": { "type": "mrkdwn", "text": "Docker Build Failed for Protocol!\nSee Details: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|GITHUB ACTION>\nCC: ${{ github.actor }}" } } ] }' '${{ secrets.SLACK_HOOK }}'

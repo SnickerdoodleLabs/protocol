@@ -6,6 +6,7 @@ import { ExtensionConfig } from "@shared/objects/Config";
 
 declare const __ONBOARDING_URL__: string;
 declare const __ACCOUNT_COOKIE_URL__: string;
+declare const __COOKIE_LIFETIME__: string; // year
 declare const __MANIFEST_VERSION__: EManifestVersion;
 declare const __PLATFORM__: EPlatform;
 declare const __CONTROL_CHAIN_ID__: string;
@@ -28,6 +29,7 @@ class ConfigProvider implements IConfigProvider {
     this.extensionConfig = new ExtensionConfig(
       __ONBOARDING_URL__,
       __ACCOUNT_COOKIE_URL__,
+      Number.parseInt(__COOKIE_LIFETIME__),
       __MANIFEST_VERSION__,
       __PLATFORM__,
       ChainId(Number.parseInt(__CONTROL_CHAIN_ID__)),
@@ -38,8 +40,6 @@ class ConfigProvider implements IConfigProvider {
       __MORALIS_API_KEY__ === "" ? undefined : __MORALIS_API_KEY__,
       __DNS_SERVER_ADDRESS__ === "" ? undefined : __DNS_SERVER_ADDRESS__,
     );
-
-    console.log("extensionConfig", this.extensionConfig);
   }
   public getConfig() {
     return this.extensionConfig;

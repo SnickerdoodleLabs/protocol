@@ -7,6 +7,7 @@ import {
   EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -27,15 +28,20 @@ export interface IInvitationRepository {
   leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     SnickerDoodleCoreError
   >;
-
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, SnickerDoodleCoreError>;
+  getAvailableInvitationsCID(): ResultAsync<
+    Map<EVMContractAddress, IpfsCID>,
+    SnickerDoodleCoreError
+  >;
+  getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<HexString32, SnickerDoodleCoreError>;
 }
 
 export const IInvitationRepositoryType = Symbol.for("IInvitationRepository");

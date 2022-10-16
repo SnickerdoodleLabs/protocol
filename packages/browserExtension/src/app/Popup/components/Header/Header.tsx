@@ -7,7 +7,7 @@ const Header: FC = () => {
   const classes = useStyles();
 
   return (
-    <Box className={classes.container} py={4} pl={5}>
+    <Box pt={3} pb={1} pl={3}>
       <img
         className={classes.logo}
         src={Browser.runtime.getURL("assets/img/sdHorizontalLogo.svg")}

@@ -1,12 +1,11 @@
-import { ISO8601DateString } from "@snickerdoodlelabs/objects";
 import "reflect-metadata";
-import { SDQLQueryWrapperMocks } from "../../mocks";
-import { avalanche1SchemaStr } from "./avalanche1.data";
 
+import { ISO8601DateString } from "@snickerdoodlelabs/objects";
 
+import { SDQLQueryWrapperMocks } from "@query-parser-test/mocks";
+import { avalanche1SchemaStr } from "@query-parser/sampleData/avalanche1.data";
 
 describe("SDQLQueryWrapper with Avalanche", () => {
-
   test("avalanche 1 has 4 query schema", () => {
     const mocks = new SDQLQueryWrapperMocks();
     const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
@@ -49,11 +48,15 @@ describe("SDQLQueryWrapper with Avalanche", () => {
     expect("query" in returnSchema["r3"]).toBeTruthy();
   });
 
-  test("avalanche has 3 compensation schema", () => {
+  test("avalanche has 3 compensation schema and 1 parameters", () => {
     const mocks = new SDQLQueryWrapperMocks();
     const sdqlSchema = mocks.makeQueryWrapper(avalanche1SchemaStr);
     const compensationSchema = sdqlSchema.getCompensationSchema();
-    expect(Object.keys(compensationSchema).length).toBe(3);
+    expect(Object.keys(compensationSchema).length).toBe(4);
+    expect(Object.keys(compensationSchema).includes("parameters")).toBeTruthy();
+    expect(Object.keys(compensationSchema).includes("c1")).toBeTruthy();
+    expect(Object.keys(compensationSchema).includes("c2")).toBeTruthy();
+    expect(Object.keys(compensationSchema).includes("c3")).toBeTruthy();
   });
 
   test("avalanche has 2 logic schema", () => {
@@ -75,9 +78,11 @@ describe("SDQLQueryWrapper with Avalanche", () => {
     const mocks = new SDQLQueryWrapperMocks();
     const schema = mocks.makeQueryWrapper(schemaStr);
 
-    expect(schema.fixDateFormat(ISO8601DateString("2000-11-13T20:20:39"))).toBe("2000-11-13T20:20:39Z")
+    expect(schema.fixDateFormat(ISO8601DateString("2000-11-13T20:20:39"))).toBe(
+      "2000-11-13T20:20:39Z",
+    );
 
-    expect(schema.internalObj.timestamp).toBe("2021-11-13T20:20:39Z")
-    expect(schema.internalObj.expiry).toBe("2023-11-13T20:20:39+00:00")
-  })
+    expect(schema.internalObj.timestamp).toBe("2021-11-13T20:20:39Z");
+    expect(schema.internalObj.expiry).toBe("2023-11-13T20:20:39+00:00");
+  });
 });

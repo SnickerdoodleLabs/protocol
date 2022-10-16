@@ -1,12 +1,10 @@
-
-import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr";
-import { AST_Query } from "@query-parser/interfaces/objects/AST_Query";
-import { AST_ReturnExpr } from "@query-parser/interfaces/objects/AST_ReturnExpr";
-import { Command } from "@query-parser/interfaces/objects/Command";
-import { Command_IF } from "@query-parser/interfaces/objects/Command_IF";
-import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr";
-import { Operator } from "@query-parser/interfaces/objects/Operator";
-import { AST_Compensation } from "./AST_Compensation";
+import { AST_Expr } from "@query-parser/interfaces/objects/AST_Expr.js";
+import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
+import { AST_ReturnExpr } from "@query-parser/interfaces/objects/AST_ReturnExpr.js";
+import { Command } from "@query-parser/interfaces/objects/Command.js";
+import { Command_IF } from "@query-parser/interfaces/objects/Command_IF.js";
+import { AST_ConditionExpr } from "@query-parser/interfaces/objects/condition/AST_ConditionExpr.js";
+import { Operator } from "@query-parser/interfaces/objects/Operator.js";
 
 export type AstAllowedTypes =
   | string

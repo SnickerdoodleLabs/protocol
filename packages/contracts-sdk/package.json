@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/contracts-sdk",
-  "version": "0.0.13",
+  "version": "0.0.19",
   "description": "SDK for snickerdoodlelabs contracts wrappers",
   "license": "MIT",
   "repository": {
@@ -27,7 +27,7 @@
     "!tsconfig.json"
   ],
   "scripts": {
-    "alias": "tsc-alias",
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "alias-with-copyfiles": "yarn copy-files && tsc-alias",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
@@ -35,10 +35,11 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "echo \"No tests specified yet\" && exit 0"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
+    "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",

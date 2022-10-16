@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { TypedDataField } from "@ethersproject/abstract-signer";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+} from "@snickerdoodlelabs/insight-platform-api";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -13,46 +16,39 @@ import {
   EvaluationError,
   EVMAccountAddress,
   EVMContractAddress,
+  InsightString,
   IpfsCID,
   IPFSError,
   QueryFormatError,
   UninitializedError,
   EligibleReward,
-  EVMPrivateKey,
   DataWalletAddress,
   SDQLQuery,
   SDQLQueryRequest,
   ConsentToken,
 } from "@snickerdoodlelabs/objects";
-import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IQueryService } from "@core/interfaces/business";
+import { IQueryService } from "@core/interfaces/business/index.js";
 import {
   IQueryParsingEngine,
   IQueryParsingEngineType,
-} from "@core/interfaces/business/utilities";
+} from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
-} from "@core/interfaces/data";
-import {
-  CoreConfig,
-  CoreContext,
-  InsightString,
-} from "@core/interfaces/objects";
+} from "@core/interfaces/data/index.js";
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -103,7 +99,7 @@ export class QueryService implements IQueryService {
 
     /* Extend onQueryPosted to include the preview */
     /* 
-      "IF I pariticlate in query 1,3,5 I should get data 2 and 4 right?"
+      "IF I pariticipate in query 1,3,5 I should get data 2 and 4 right?"
     */
     return ResultUtils.combine([
       this.sdqlQueryRepo.getByCID(queryId),
@@ -146,9 +142,41 @@ export class QueryService implements IQueryService {
             query,
           );
           context.publicEvents.onQueryPosted.next(queryRequest);
+          return okAsync(undefined);
+
+
+          /* 
+            CHARLIE'S comments - move return 
+
+            1. This should be done in the onQueryPosted method above- once you call processQuery() from the Form Factor, we should consider the user to be OK with the rewards they are going to get.
+            2. 
+            
+            this.queryParsingEngine.getRewardsPreview(query, consentToken!.dataPermissions).andThen( 
+          (rewardsPreviews) => {
+
+                   /* 
+          ENGT-745 
+          1. Create RewardsPreview - currently returning AST_Compensations instead of EligibleReward, will change the class later
+          2. The event above, onQueryPosted, should be extended with rewards preview information.
+        
+        return this.queryParsingEngine.getRewardsPreview(query, consentToken!.dataPermissions).andThen( 
+          (rewardsPreviews) => {
+               
+                ENGT-745 
+                2. Send out prompt for previews
+
+                MUKTADIR! - THIS IS WHERE THE PROMPT IS SENT OUT
+              
+             if (true){
+              return okAsync(true);
+             }
+        }).andThen(() => {
+          
 
           return okAsync(undefined);
+          */
         });
+        
     });
   }
 
@@ -188,24 +216,6 @@ export class QueryService implements IQueryService {
         config,
         consentToken,
       ).andThen(() => {
-
-        /* 
-          ENGT-745 
-          1. Create RewardsPreview - currently returning AST_Compensations instead of EligibleReward, will change the class later
-          2. 
-        */
-        return this.queryParsingEngine.getRewardsPreview(query, consentToken!.dataPermissions).andThen( 
-          (rewardsPreviews) => {
-              /* 
-                ENGT-745 
-                2. Send out prompt for previews
-
-                MUKTADIR! - THIS IS WHERE THE PROMPT IS SENT OUT
-              */
-             if (true){
-              return okAsync(true);
-             }
-        }).andThen(() => {
           return this.queryParsingEngine
             .handleQuery(query, consentToken!.dataPermissions)
             .andThen((maps) => {
@@ -214,22 +224,24 @@ export class QueryService implements IQueryService {
               const insights = maps2[0];
               const rewards = maps2[1];
 
-              return this.deliverInsights(
-                context,
-                config,
-                consentContractAddress,
-                query.cid,
-                insights,
-              ).map(() => {
-                console.log("insight delivery api call done");
-                // context.publicEvents.onQueryPosted.next({
-                //   consentContractAddress,
-                //   query,
-                // });
-              });
+              return this.insightPlatformRepo
+                .deliverInsights(
+                  context.dataWalletAddress!,
+                  consentContractAddress,
+                  query.cid,
+                  insights,
+                  context.dataWalletKey!,
+                  config.defaultInsightPlatformBaseUrl,
+                )
+                .map(() => {
+                  console.log("insight delivery api call done");
+                  // context.publicEvents.onQueryPosted.next({
+                  //   consentContractAddress,
+                  //   query,
+                  // });
+                });
             });
         });
-      });
     });
   }
 
@@ -251,59 +263,5 @@ export class QueryService implements IQueryService {
       );
     }
     return okAsync(undefined);
-  }
-
-  public deliverInsights(
-    context: CoreContext,
-    config: CoreConfig,
-    consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
-    insights: InsightString[],
-  ): ResultAsync<
-    void,
-    AjaxError | UninitializedError | ConsentError | IPFSError | QueryFormatError
-  > {
-    const signableData = this.createSignable(
-      context,
-      consentContractAddress,
-      queryId,
-      JSON.stringify(insights),
-    );
-
-    return this.cryptoUtils
-      .signTypedData(
-        config.snickerdoodleProtocolDomain,
-        insightDeliveryTypes,
-        signableData,
-        context.dataWalletKey!,
-      )
-      .andThen((signature) => {
-        // console.log('signature', signature);
-
-        const res = this.insightPlatformRepo.deliverInsights(
-          context.dataWalletAddress as DataWalletAddress,
-          consentContractAddress,
-          queryId,
-          signature,
-          insights,
-        );
-
-        // console.log('res', res);
-        return res;
-      });
-  }
-
-  public createSignable(
-    context: CoreContext,
-    consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
-    returns: string,
-  ) {
-    return {
-      consentContractId: consentContractAddress,
-      queryCid: queryId,
-      dataWallet: context.dataWalletAddress,
-      returns: returns,
-    } as Record<string, unknown>;
   }
 }

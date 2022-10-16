@@ -1,34 +1,29 @@
 import {
   DataWalletAddress,
-  EVMAccountAddress,
   Invitation,
-  MetatransactionSignatureRequest,
+  LinkedAccount,
   UUID,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { Subject } from "rxjs";
+import { v4 } from "uuid";
 
 import { AccountContext } from "@implementations/utilities/ContextProvider/AccountContext";
 import { AppContext } from "@implementations/utilities/ContextProvider/AppContext";
-import { SiteContext } from "@implementations/utilities/ContextProvider/SiteContext";
-import { UserContext } from "@implementations/utilities/ContextProvider/UserContext";
 import { IContextProvider } from "@interfaces/utilities";
 import {
   IConfigProvider,
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import { IInternalState, IExternalState } from "@shared/interfaces/states";
-import { MTSRNotification } from "@shared/objects/notifications/MTSRNotification";
-import { AccountInitializedNotification } from "@shared/objects/notifications/AccountInitializedNotification";
 import { AccountAddedNotification } from "@shared/objects/notifications/AccountAddedNotification";
-import { v4 } from "uuid";
+import { AccountInitializedNotification } from "@shared/objects/notifications/AccountInitializedNotification";
+import { AccountRemovedNotification } from "@shared/objects/notifications/AccountRemovedNotification";
 
 @injectable()
 export class ContextProvider implements IContextProvider {
   protected accountContext: AccountContext;
   protected appContext: AppContext;
-  protected userContext: UserContext;
-  protected siteContext: SiteContext;
   protected onExtensionError: Subject<Error>;
 
   constructor(
@@ -38,11 +33,10 @@ export class ContextProvider implements IContextProvider {
       this.onAccountContextInitialized.bind(this),
     );
     this.appContext = new AppContext();
-    this.userContext = new UserContext();
-    this.siteContext = new SiteContext();
     this.onExtensionError = new Subject();
   }
 
+  // context getters
   public getAccountContext(): AccountContext {
     return this.accountContext;
   }
@@ -51,67 +45,16 @@ export class ContextProvider implements IContextProvider {
     return this.appContext;
   }
 
-  public getUserContext(): UserContext {
-    return this.userContext;
-  }
-
-  // TODO move it to service layer
-  public notifyPortsWithIncomingMetatransactionSignatureRequest(
-    metatransactionSignatureRequest: MetatransactionSignatureRequest,
-  ) {
-    const { accountAddress, contractAddress, data, gas, value } =
-      metatransactionSignatureRequest;
-    const SPAOrigin = new URL(this.configProvider.getConfig().onboardingUrl)
-      .origin;
-
-    const id = this.appContext.addMetatransactionSignatureRequest(
-      metatransactionSignatureRequest,
-    );
-
-    const notification = new MTSRNotification(
-      { accountAddress, contractAddress, gas, value, data },
-      id,
-    );
-
-    const SPAConnections =
-      this.appContext.getActiveRpcConnectionObjectsByOrigin(SPAOrigin);
-
-    if (SPAConnections.length) {
-      // eslint-disable-next-line @typescript-eslint/no-this-alias
-      const _this = this;
-      SPAConnections.forEach((connection) => {
-        _this.appContext.notifyConnectionPort(connection.engine, notification);
-      });
-    } else {
-      this.appContext.notifyAllConnections(notification);
-    }
-  }
-  // TODO move it to service layer
-  public getPendingMetatransactionSignatureRequestDetails(
-    id: UUID,
-  ): Partial<MetatransactionSignatureRequest> | undefined {
-    const metatransactionSignatureRequest =
-      this.appContext.getMetatransactionSignatureRequestById(id);
-    if (!metatransactionSignatureRequest) {
-      return undefined;
-    }
-    const { accountAddress, contractAddress, data } =
-      metatransactionSignatureRequest;
-    return { accountAddress, contractAddress, data };
-  }
-  public removePendingMetatransactionSignatureRequest(id: UUID): void {
-    this.appContext.removeMetatransactionSignatureRequestWithId(id);
-  }
-  public getMetatransactionSignatureRequestById(
-    id: UUID,
-  ): MetatransactionSignatureRequest | undefined {
-    return this.appContext.getMetatransactionSignatureRequestById(id);
-  }
   public addInvitation(invitation: Invitation): UUID {
     return this.appContext.addInvitation(invitation);
   }
+
   public getInvitation(id: UUID): Invitation | undefined {
     return this.appContext.getInvitation(id);
+  }
+
+  public getErrorSubject(): Subject<Error> {
+    return this.onExtensionError;
   }
 
   public getInternalState(): IInternalState {
@@ -123,24 +66,25 @@ export class ContextProvider implements IContextProvider {
   public getExterenalState(): IExternalState {
     return {
       dataWalletAddress: this.accountContext.getAccount(),
-      scamList: this.siteContext.getScamList(),
-      whiteList: this.siteContext.getWhiteList(),
     };
   }
 
-  public getErrorSubject(): Subject<Error> {
-    return this.onExtensionError;
-  }
-
-  // TODO move it to service layer
-  public addAccount = (accountAddress: EVMAccountAddress) => {
-    this.appContext.notifyAllConnections(
-      new AccountAddedNotification({ accountAddress }, UUID(v4())),
-    );
-  };
-
   public setAccountContext(dataWalletAddress: DataWalletAddress): void {
     this.accountContext.initialize(dataWalletAddress);
+  }
+
+  // port notifiers
+
+  public onAccountAdded(linkedAccount: LinkedAccount) {
+    this.appContext.notifyAllConnections(
+      new AccountAddedNotification({ linkedAccount }, UUID(v4())),
+    );
+  }
+
+  public onAccountRemoved(linkedAccount: LinkedAccount) {
+    this.appContext.notifyAllConnections(
+      new AccountRemovedNotification({ linkedAccount }, UUID(v4())),
+    );
   }
 
   private onAccountContextInitialized(dataWalletAddress: DataWalletAddress) {

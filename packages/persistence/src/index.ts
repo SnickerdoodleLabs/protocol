@@ -1,6 +1,7 @@
-export * from "@persistence/DataWalletPersistence";
-export * from "@persistence/IPersistenceConfig";
-export * from "@persistence/IPersistenceConfigProvider";
-export * from "@persistence/cloud";
-export * from "@persistence/volatile";
-export * from "@persistence/backup";
+export * from "@persistence/DataWalletPersistence.js";
+export * from "@persistence/IPersistenceConfig.js";
+export * from "@persistence/IPersistenceConfigProvider.js";
+
+export * from "@persistence/cloud/index.js";
+export * from "@persistence/volatile/index.js";
+export * from "@persistence/backup/index.js";

@@ -8,7 +8,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { IQueryRepository } from "@core/interfaces/business/utilities";
+import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 import {
   AST,
   AST_Compensation,

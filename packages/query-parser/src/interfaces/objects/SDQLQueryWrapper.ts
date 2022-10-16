@@ -1,7 +1,14 @@
 import { ITimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  ISDQLCompensationBlock,
   ISDQLCompensations,
-  ISDQLLogicObjects, ISDQLQueryClause, ISDQLQueryObject, ISDQLReturnProperties, ISO8601DateString, SDQLString, UnixTimestamp
+  ISDQLLogicObjects,
+  ISDQLQueryClause,
+  ISDQLQueryObject,
+  ISDQLReturnProperties,
+  ISO8601DateString,
+  SDQLString,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 
 export class SDQLQueryWrapper {
@@ -11,8 +18,8 @@ export class SDQLQueryWrapper {
 
   constructor(
     readonly internalObj: ISDQLQueryObject,
-    readonly timeUtils: ITimeUtils
-    ) {
+    readonly timeUtils: ITimeUtils,
+  ) {
     // console.log("internalObj: " + internalObj)
     this.fixDateFormats();
   }
@@ -29,24 +36,23 @@ export class SDQLQueryWrapper {
   }
 
   public fixDateFormats() {
-
     if (this.internalObj.timestamp) {
-      this.internalObj.timestamp = this.fixDateFormat(this.internalObj.timestamp);
+      this.internalObj.timestamp = this.fixDateFormat(
+        this.internalObj.timestamp,
+      );
     }
 
     if (this.internalObj.expiry) {
       this.internalObj.expiry = this.fixDateFormat(this.internalObj.expiry);
     }
-
-
   }
   public fixDateFormat(isoDate: ISO8601DateString): ISO8601DateString {
     // Adds time zone if missing
     // 1. check if has time zone in +- format
     if (isoDate.includes("+", 10) || isoDate.includes("-", 10)) {
       return isoDate;
-    } 
-    
+    }
+
     isoDate = ISO8601DateString(isoDate.toUpperCase());
 
     if (isoDate[isoDate.length - 1] != "Z") {
@@ -56,7 +62,7 @@ export class SDQLQueryWrapper {
     return isoDate;
   }
 
-  public get timestamp(): UnixTimestamp | null { 
+  public get timestamp(): UnixTimestamp | null {
     if (this.internalObj.timestamp == null) {
       return null;
     }
@@ -88,26 +94,24 @@ export class SDQLQueryWrapper {
     return this.internalObj.business;
   }
 
-  public get queries():{
+  public get queries(): {
     [queryId: string]: ISDQLQueryClause;
-  }  {
+  } {
     return this.getQuerySchema();
   }
-  public get returns (): {
+  public get returns(): {
     [returnsObject: string]: ISDQLReturnProperties;
     url: any;
   } {
-    return this.getReturnSchema()
+    return this.getReturnSchema();
   }
 
-  public get compensations(): {
-    [compensationObjects: string]: ISDQLCompensations;
-  } {
+  public get compensations(): ISDQLCompensationBlock {
     return this.getCompensationSchema();
   }
 
-  public get logic():  ISDQLLogicObjects {
-    return this.getLogicSchema()
+  public get logic(): ISDQLLogicObjects {
+    return this.getLogicSchema();
   }
 
   getQuerySchema(): {
@@ -122,11 +126,11 @@ export class SDQLQueryWrapper {
   } {
     return this.internalObj.returns;
   }
-  getCompensationSchema(): {
-    [compensationObjects: string]: ISDQLCompensations;
-  } {
+
+  getCompensationSchema(): ISDQLCompensationBlock {
     return this.internalObj.compensations;
   }
+  
   getLogicSchema(): ISDQLLogicObjects {
     return this.internalObj.logic;
   }

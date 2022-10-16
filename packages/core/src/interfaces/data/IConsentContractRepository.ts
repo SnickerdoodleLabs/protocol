@@ -14,6 +14,9 @@ import {
   DataPermissions,
   URLString,
   IpfsCID,
+  Signature,
+  HexString32,
+  ConsentError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -38,6 +41,18 @@ export interface IConsentContractRepository {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     URLString[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
+  /**
+   * Returns the number of "slots" available to opt-in to the contract, which is just
+   * maxCapacity - currentOptins.
+   * @param consentContractAddress
+   */
+  getAvailableOptInCount(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    number,
     BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
@@ -80,6 +95,23 @@ export interface IConsentContractRepository {
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 
+  getAgreementFlags(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    HexString32,
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | AjaxError
+    | ConsentError
+  >;
+
+  getDeployedConsentContractAddresses(): ResultAsync<
+    EVMContractAddress[],
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+
   getOptedInConsentContractAddresses(): ResultAsync<
     EVMContractAddress[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
@@ -89,6 +121,12 @@ export interface IConsentContractRepository {
   encodeOptIn(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
+  encodeRestrictedOptIn(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    signature: Signature,
     dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
   encodeOptOut(

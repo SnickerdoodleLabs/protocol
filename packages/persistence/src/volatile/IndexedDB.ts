@@ -7,13 +7,13 @@ import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IVolatileStorageFactory } from "@persistence/volatile/IVolatileStorageFactory";
+import { IVolatileStorageFactory } from "@persistence/volatile/IVolatileStorageFactory.js";
 import {
   VolatileTableConfig,
   IVolatileStorageTable,
   VolatileTableIndex,
   IVolatileCursor,
-} from "@persistence/volatile/IVolatileStorageTable";
+} from "@persistence/volatile/IVolatileStorageTable.js";
 
 @injectable()
 export class IndexedDBFactory implements IVolatileStorageFactory {
@@ -327,5 +327,17 @@ export class IndexedDBCursor<T> implements IVolatileCursor<T> {
 
     this._cursor?.continue();
     return ResultAsync.fromPromise(promise, (e) => e as PersistenceError);
+  }
+
+  public allValues(): ResultAsync<T[], PersistenceError> {
+    return this.nextValue().andThen((val) => {
+      if (val == null) {
+        return okAsync([]);
+      }
+
+      return this.allValues().andThen((vals) => {
+        return okAsync([val, ...vals]);
+      });
+    });
   }
 }

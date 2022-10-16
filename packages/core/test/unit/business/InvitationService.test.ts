@@ -1,45 +1,45 @@
 import "reflect-metadata";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  AjaxError,
   BigNumberString,
-  DataWalletAddress,
   DomainName,
   EVMAccountAddress,
-  EVMContractAddress,
-  EVMPrivateKey,
   HexString,
   IDataWalletPersistence,
   InvitationDomain,
   IpfsCID,
   Signature,
   TokenId,
-  UninitializedError,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import td from "testdouble";
+import * as td from "testdouble";
 
 import {
   dataWalletAddress,
   dataWalletKey,
   externalAccountAddress1,
   consentContractAddress1,
-} from "@core-tests/mock/mocks/commonValues";
-import { ContextProviderMock } from "@core-tests/mock/utilities";
-import { InvitationService } from "@core/implementations/business";
-import { IInvitationService } from "@core/interfaces/business";
+  defaultInsightPlatformBaseUrl,
+} from "@core-tests/mock/mocks/commonValues.js";
+import {
+  ConfigProviderMock,
+  ContextProviderMock,
+} from "@core-tests/mock/utilities";
+import { InvitationService } from "@core/implementations/business/index.js";
+import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
-  IInsightPlatformRepository,
   IInvitationRepository,
   IMetatransactionForwarderRepository,
-} from "@core/interfaces/data";
-import { IContextProvider } from "@core/interfaces/utilities";
+} from "@core/interfaces/data/index.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 const metatransactionNonce = BigNumberString("nonce");
+const metatransactionValue = BigNumberString("value");
+const metatransactionGas = BigNumberString("gas");
 const optInCallData = HexString("0xOptIn");
 const optOutCallData = HexString("0xOptOut");
 const optInSignature = Signature("OptInSignature");
@@ -69,6 +69,7 @@ class InvitationServiceMocks {
   public forwarderRepo: IMetatransactionForwarderRepository;
   public cryptoUtils: ICryptoUtils;
   public contextProvider: IContextProvider;
+  public configProvider: ConfigProviderMock;
 
   public constructor() {
     this.persistenceRepo = td.object<IDataWalletPersistence>();
@@ -79,6 +80,7 @@ class InvitationServiceMocks {
     this.forwarderRepo = td.object<IMetatransactionForwarderRepository>();
     this.contextProvider = new ContextProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
+    this.configProvider = new ConfigProviderMock();
 
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
@@ -86,9 +88,12 @@ class InvitationServiceMocks {
         EVMAccountAddress(dataWalletAddress),
         consentContractAddress1,
         metatransactionNonce,
+        metatransactionValue,
+        metatransactionGas,
         optInCallData,
         optInSignature,
         dataWalletKey,
+        defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
 
@@ -96,12 +101,16 @@ class InvitationServiceMocks {
       okAsync([`"${consentContractAddress1}"`]),
     );
 
+    // ConsentRepo ---------------------------------------------------------------
     td.when(
       this.consentRepo.getInvitationUrls(consentContractAddress1),
     ).thenReturn(okAsync([url1, url2]));
     td.when(
       this.consentRepo.getMetadataCID(consentContractAddress1),
     ).thenReturn(okAsync(ipfsCID));
+    td.when(
+      this.consentRepo.getAvailableOptInCount(consentContractAddress1),
+    ).thenReturn(okAsync(10));
 
     td.when(
       this.invitationRepo.getInvitationDomainByCID(ipfsCID, domain),
@@ -124,6 +133,7 @@ class InvitationServiceMocks {
       this.forwarderRepo,
       this.cryptoUtils,
       this.contextProvider,
+      this.configProvider,
     );
   }
 }
@@ -160,5 +170,25 @@ describe("InvitationService tests", () => {
     );
     expect(pageInvitations[1].invitation.domain).toBe(domain);
     expect(pageInvitations[1].invitation.tokenId).toBe(tokenId2);
+  });
+
+  test("getInvitationsByDomain no available slots", async () => {
+    // Arrange
+    const mocks = new InvitationServiceMocks();
+
+    td.when(
+      mocks.consentRepo.getAvailableOptInCount(consentContractAddress1),
+    ).thenReturn(okAsync(0));
+
+    const service = mocks.factory();
+
+    // Act
+    const result = await service.getInvitationsByDomain(domain);
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    const pageInvitations = result._unsafeUnwrap();
+    expect(pageInvitations.length).toBe(0);
   });
 });

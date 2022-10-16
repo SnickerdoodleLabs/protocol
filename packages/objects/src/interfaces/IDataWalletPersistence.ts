@@ -1,16 +1,18 @@
 import { ResultAsync } from "neverthrow";
 
-import { IEVMBalance } from "./chains";
+import { IChainTransaction } from "./chains";
 
 import {
   ClickData,
   EVMTransaction,
   EVMTransactionFilter,
   IEVMNFT,
+  LinkedAccount,
   SiteVisit,
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
-import { IDataWalletBackup } from "@objects/interfaces";
+import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
+import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import {
   Age,
   EmailAddressString,
@@ -25,6 +27,8 @@ import {
   URLString,
   BlockNumber,
   UnixTimestamp,
+  AccountAddress,
+  CeramicStreamID,
 } from "@objects/primitives";
 
 /**
@@ -48,26 +52,24 @@ export interface IDataWalletPersistence {
   unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
 
   /**
-   * This method adds an ethereum account to the data wallet. Only these accounts may unlock the
+   * This method adds an account to the data wallet. Only these accounts may unlock the
    * wallet.
-   * @param accountAddress
+   * @param linkedAccount
    */
-  addAccount(
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<void, PersistenceError>;
+  addAccount(linkedAccount: LinkedAccount): ResultAsync<void, PersistenceError>;
 
   /**
    * This method removes an ethereum account from the data wallet.
    * @param accountAddress
    */
   removeAccount(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
   ): ResultAsync<void, PersistenceError>;
 
   /**
    * This method returns all the Ethereum accounts that are registered in the data wallet.
    */
-  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
+  getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
 
   /**
    * This is an example method for adding data to the wallet. In this case, it would be a "click",
@@ -119,8 +121,15 @@ export interface IDataWalletPersistence {
   // return a map of URLs
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
 
-  // return a map of Chain Transaction Counts
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+  // return an array of Chain Transaction
+  // getTransactionsMap(): ResultAsync<Array<IChainTransaction>, PersistenceError>;
+
+  // getTransactionsArray(): ResultAsync<
+  //   { chainId: ChainId; items: EVMTransaction[] | null }[],
+  //   PersistenceError
+  // >;
+
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
 
   getLatestTransactionForAccount(
     chainId: ChainId,
@@ -152,6 +161,7 @@ export interface IDataWalletPersistence {
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

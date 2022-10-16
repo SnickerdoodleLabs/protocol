@@ -2,6 +2,7 @@ import {
   DataPermissions,
   EligibleReward,
   EvaluationError,
+  InsightString,
   IpfsCID,
   QueryExpiredError,
   QueryFormatError,
@@ -19,14 +20,11 @@ import {
   IQueryParsingEngine,
   IQueryRepository,
   IQueryRepositoryType,
-} from "@core/interfaces/business/utilities";
-import { InsightString } from "@core/interfaces/objects";
+} from "@core/interfaces/business/utilities/index.js";
 import {
   IQueryFactories,
   IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory";
-import { URLString } from "@snickerdoodlelabs/objects";
-import { SDQL_Compensation } from "@snickerdoodlelabs/objects";
+} from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -49,7 +47,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions
   ): ResultAsync<
-  EligibleReward[] | never,
+  EligibleReward[],
   EvaluationError | QueryFormatError | QueryExpiredError
 > {
 
@@ -84,7 +82,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    [InsightString[], EligibleReward[]] | never,
+    [InsightString[], EligibleReward[]],
     EvaluationError | QueryFormatError | QueryExpiredError
   > {
     // console.log("QueryParsingEngine.handleQuery");
@@ -111,6 +109,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           // console.log('insightResults', insightResults);
 
           const insights = insightResults.map(this.SDQLReturnToInsightString);
+          // console.log("Insights: ", insights)
 
           return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
             [insights, rewards],

@@ -18,6 +18,11 @@ import {
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
 import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+  InsightPlatformRepository,
+} from "@snickerdoodlelabs/insight-platform-api";
+import {
   IEVMTransactionRepository,
   IEVMTransactionRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -38,7 +43,7 @@ import { ContainerModule, interfaces } from "inversify";
 import {
   AccountIndexerPoller,
   BlockchainListener,
-} from "@core/implementations/api";
+} from "@core/implementations/api/index.js";
 import {
   AccountService,
   BalanceQueryEvaluator,
@@ -50,33 +55,33 @@ import {
   QueryParsingEngine,
   QueryRepository,
   QueryService,
-} from "@core/implementations/business";
+  SiftContractService,
+} from "@core/implementations/business/index.js";
 import {
   ConsentContractRepository,
   CrumbsRepository,
   DNSRepository,
-  InsightPlatformRepository,
   InvitationRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
   SiftContractRepository,
-} from "@core/implementations/data";
+} from "@core/implementations/data/index.js";
+import {
+  ContractFactory,
+  QueryFactories,
+} from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
   ContextProvider,
   DataWalletUtils,
-} from "@core/implementations/utilities";
-import {
-  ContractFactory,
-  QueryFactories,
-} from "@core/implementations/utilities/factory";
+} from "@core/implementations/utilities/index.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
-} from "@core/interfaces/api";
+} from "@core/interfaces/api/index.js";
 import {
   IAccountService,
   IAccountServiceType,
@@ -88,8 +93,12 @@ import {
   IProfileServiceType,
   IQueryService,
   IQueryServiceType,
-} from "@core/interfaces/business";
+  ISiftContractService,
+  ISiftContractServiceType,
+} from "@core/interfaces/business/index.js";
 import {
+  IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
   INetworkQueryEvaluator,
   INetworkQueryEvaluatorType,
   IQueryEvaluator,
@@ -98,11 +107,7 @@ import {
   IQueryParsingEngineType,
   IQueryRepository,
   IQueryRepositoryType,
-} from "@core/interfaces/business/utilities";
-import {
-  IBalanceQueryEvaluator,
-  IBalanceQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+} from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -110,8 +115,6 @@ import {
   ICrumbsRepositoryType,
   IDNSRepository,
   IDNSRepositoryType,
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
   IMetatransactionForwarderRepository,
@@ -120,7 +123,13 @@ import {
   ISDQLQueryRepositoryType,
   ISiftContractRepository,
   ISiftContractRepositoryType,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
+import {
+  IContractFactory,
+  IContractFactoryType,
+  IQueryFactories,
+  IQueryFactoriesType,
+} from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -130,18 +139,7 @@ import {
   IContextProviderType,
   IDataWalletUtils,
   IDataWalletUtilsType,
-} from "@core/interfaces/utilities";
-import {
-  IContractFactory,
-  IContractFactoryType,
-  IQueryFactories,
-  IQueryFactoriesType,
-} from "@core/interfaces/utilities/factory";
-import {
-  ISiftContractService,
-  ISiftContractServiceType,
-} from "@core/interfaces/business/ISiftContractService";
-import { SiftContractService } from "./business/SiftContractService";
+} from "@core/interfaces/utilities/index.js";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (

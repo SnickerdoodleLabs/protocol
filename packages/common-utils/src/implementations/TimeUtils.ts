@@ -1,7 +1,7 @@
 import { ISO8601DateString, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 
-import { ITimeUtils } from "@common-utils/interfaces";
+import { ITimeUtils } from "@common-utils/interfaces/index.js";
 
 @injectable()
 export class TimeUtils implements ITimeUtils {

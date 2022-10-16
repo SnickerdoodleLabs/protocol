@@ -1,9 +1,7 @@
 import {
   AjaxError,
   BlockchainProviderError,
-  ConsentContractError,
   CrumbsContractError,
-  EVMAccountAddress,
   InvalidSignatureError,
   IEVMBalance,
   IEVMNFT,
@@ -17,8 +15,14 @@ import {
   ChainId,
   URLString,
   SiteVisit,
-  MetatransactionSignatureRequest,
   InvalidParametersError,
+  IChainTransaction,
+  LinkedAccount,
+  EChain,
+  MinimalForwarderContractError,
+  AccountAddress,
+  DataWalletAddress,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -28,46 +32,73 @@ export interface IAccountService {
   ): ResultAsync<string, UnsupportedLanguageError>;
 
   unlock(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
     void,
+    | PersistenceError
+    | AjaxError
     | BlockchainProviderError
     | UninitializedError
     | CrumbsContractError
-    | PersistenceError
-    | UnsupportedLanguageError
     | InvalidSignatureError
-    | AjaxError
-    | ConsentContractError
+    | UnsupportedLanguageError
+    | MinimalForwarderContractError
   >;
 
   addAccount(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     signature: Signature,
     languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
     void,
     | BlockchainProviderError
     | UninitializedError
-    | PersistenceError
     | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | PersistenceError
     | AjaxError
+    | MinimalForwarderContractError
   >;
 
-  getUnlinkAccountRequest(
-    accountAddress: EVMAccountAddress,
+  unlinkAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
   ): ResultAsync<
-    MetatransactionSignatureRequest<PersistenceError | AjaxError>,
+    void,
     | PersistenceError
+    | InvalidParametersError
     | BlockchainProviderError
     | UninitializedError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
     | CrumbsContractError
-    | InvalidParametersError
+    | AjaxError
+    | MinimalForwarderContractError
   >;
 
-  getAccounts(): ResultAsync<EVMAccountAddress[], PersistenceError>;
+  getDataWalletForAccount(
+    accountAddress: AccountAddress,
+    signature: Signature,
+    languageCode: LanguageCode,
+    chain: EChain,
+  ): ResultAsync<
+    DataWalletAddress | null,
+    | PersistenceError
+    | UninitializedError
+    | BlockchainProviderError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+  >;
+
+  getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
 
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
 
@@ -76,13 +107,17 @@ export interface IAccountService {
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+  // getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError>
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>
+
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
+
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

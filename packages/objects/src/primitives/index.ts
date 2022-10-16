@@ -1,3 +1,4 @@
+export * from "@objects/primitives/AccountAddress";
 export * from "@objects/primitives/AESKey";
 export * from "@objects/primitives/Age";
 export * from "@objects/primitives/Argon2Hash";
@@ -28,6 +29,7 @@ export * from "@objects/primitives/Gender";
 export * from "@objects/primitives/HexString";
 export * from "@objects/primitives/HexString32";
 export * from "@objects/primitives/InitializationVector";
+export * from "@objects/primitives/InsightString";
 export * from "@objects/primitives/IpfsCID";
 export * from "@objects/primitives/JSONString";
 export * from "@objects/primitives/JsonWebToken";
@@ -38,6 +40,8 @@ export * from "@objects/primitives/PublicKey";
 export * from "@objects/primitives/SDQLString";
 export * from "@objects/primitives/SHA256Hash";
 export * from "@objects/primitives/Signature";
+export * from "@objects/primitives/SolanaAccountAddress";
+export * from "@objects/primitives/SolanaPrivateKey";
 export * from "@objects/primitives/TokenId";
 export * from "@objects/primitives/TokenUri";
 export * from "@objects/primitives/URLString";
@@ -50,3 +54,10 @@ export * from "@objects/primitives/SDQL";
 export * from "@objects/primitives/Version";
 export * from "@objects/primitives/TIckerSymbol";
 export * from "@objects/primitives/ISO8601DateString";
+
+export * from "@objects/primitives/Web2Credential";
+export * from "@objects/primitives/RewardFunctionParam";
+export * from "@objects/primitives/TransactionReceipt";
+export * from "@objects/primitives/CompensationId";
+
+export * from "@objects/primitives/CeramicStreamID";

@@ -13,8 +13,9 @@ import {
   HexString,
   EVMContractAddress,
   HexString32,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
-import { EventFilter, Event } from "ethers";
+import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -53,6 +54,12 @@ export interface IConsentContract {
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
 
+  encodeRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString;
+
   /**
    * Create a consent token with providing the business signature
    * Allows Signature Issuer to send anonymous invitation link to end user to opt in
@@ -84,6 +91,11 @@ export interface IConsentContract {
   agreementFlags(
     tokenId: TokenId,
   ): ResultAsync<HexString32, ConsentContractError>;
+
+  getMaxCapacity(): ResultAsync<number, ConsentContractError>;
+  updateMaxCapacity(
+    maxCapacity: number,
+  ): ResultAsync<void, ConsentContractError>;
 
   encodeOptOut(tokenId: TokenId): HexString;
 
@@ -292,6 +304,12 @@ export interface IConsentContract {
    * Get the number of opted in addresses
    */
   totalSupply(): ResultAsync<number, ConsentContractError>;
+
+  getSignature(
+    values: Array<
+      BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress
+    >,
+  ): ResultAsync<Signature, InvalidParametersError>;
 
   filters: IConsentContractFilters;
 }

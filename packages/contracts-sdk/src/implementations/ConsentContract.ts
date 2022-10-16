@@ -1,6 +1,4 @@
-import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
-import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
+import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ConsentContractError,
   EVMAccountAddress,
@@ -18,11 +16,16 @@ import {
   HexString,
   DataPermissions,
   HexString32,
+  InvalidParametersError,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+
+import { IConsentContract } from "@contracts-sdk/interfaces/IConsentContract";
+import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 
 @injectable()
 export class ConsentContract implements IConsentContract {
@@ -33,6 +36,7 @@ export class ConsentContract implements IConsentContract {
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
     protected contractAddress: EVMContractAddress,
+    protected cryptoUtils: ICryptoUtils,
   ) {
     this.contract = new ethers.Contract(
       contractAddress,
@@ -80,6 +84,20 @@ export class ConsentContract implements IConsentContract {
       this.contract.interface.encodeFunctionData("optIn", [
         tokenId,
         agreementFlags,
+      ]),
+    );
+  }
+
+  public encodeRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("restrictedOptIn", [
+        tokenId,
+        agreementFlags,
+        signature,
       ]),
     );
   }
@@ -190,6 +208,48 @@ export class ConsentContract implements IConsentContract {
         );
       },
     );
+  }
+
+  public getMaxCapacity(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.maxCapacity() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call maxCapacity()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((bigCapacity) => {
+      return bigCapacity.toNumber();
+    });
+  }
+
+  public updateMaxCapacity(
+    maxCapacity: number,
+  ): ResultAsync<void, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.updateMaxCapacity(
+        maxCapacity,
+      ) as Promise<ethers.providers.TransactionResponse>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call updateMaxCapacity()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    )
+      .andThen((tx) => {
+        return ResultAsync.fromPromise(tx.wait(), (e) => {
+          return new ConsentContractError(
+            "Wait for updateMaxCapacity() failed",
+            "Unknown",
+            e,
+          );
+        });
+      })
+      .map(() => {});
   }
 
   public requestForData(
@@ -836,7 +896,7 @@ export class ConsentContract implements IConsentContract {
           e,
         );
       },
-    ).map((totalSupply) => BlockNumber(totalSupply.toNumber()));
+    ).map((queryHorizon) => BlockNumber(queryHorizon.toNumber()));
   }
 
   public setQueryHorizon(
@@ -891,4 +951,21 @@ export class ConsentContract implements IConsentContract {
       return this.contract.filters.RequestForData(ownerAddress);
     },
   };
+
+  public getSignature(
+    values: (
+      | string
+      | EVMAccountAddress
+      | ethers.BigNumber
+      | HexString
+      | EVMContractAddress
+    )[],
+  ): ResultAsync<Signature, InvalidParametersError> {
+    const types = ["address", "uint256"];
+    return this.cryptoUtils.getSignature(
+      this.providerOrSigner as ethers.providers.JsonRpcSigner,
+      types,
+      values,
+    );
+  }
 }

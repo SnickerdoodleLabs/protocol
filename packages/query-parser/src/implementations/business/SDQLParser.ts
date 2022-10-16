@@ -5,6 +5,9 @@ import {
   DuplicateIdInSchema,
   EWalletDataType,
   IpfsCID,
+  ISDQLCompensationParameters,
+  ISDQLCompensations,
+  MissingASTError,
   MissingTokenConstructorError,
   MissingWalletDataTypeError,
   ParserError,
@@ -18,7 +21,7 @@ import {
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { ExprParser } from "@query-parser/implementations/business/ExprParser";
+import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
 import {
   AST,
   AST_BalanceQuery,
@@ -35,13 +38,14 @@ import {
   IQueryObjectFactory,
   ParserContextDataTypes,
   SDQLQueryWrapper,
-} from "@query-parser/interfaces";
+} from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
   public context = new Map<string, ParserContextDataTypes>();
   public queries = new Map<SDQL_Name, AST_Query>();
   public returns: AST_Returns | null;
   public compensations = new Map<SDQL_Name, AST_Compensation>();
+  public compensationParameters: ISDQLCompensationParameters | null = null;
   public logicReturns = new Map<string, AST_Expr | Command>();
   public logicCompensations = new Map<string, AST_Expr | Command>();
   public returnPermissions = new Map<string, DataPermissions>();
@@ -61,7 +65,7 @@ export class SDQLParser {
   private saveInContext(name: string, val: ParserContextDataTypes): void {
     if (this.context.get(name)) {
       const err = new DuplicateIdInSchema(name);
-      console.error(err);
+      // console.error(err);
       throw err;
     }
 
@@ -124,6 +128,7 @@ export class SDQLParser {
             this.schema.business,
             this.queries,
             this.returns,
+            this.compensationParameters,
             this.compensations,
             new AST_Logic(
               this.logicReturns,
@@ -207,6 +212,10 @@ export class SDQLParser {
     if (schema.compensations === undefined) {
       return errAsync(new QueryFormatError("schema missing compensations"));
     }
+
+    // TODO:
+    // 1. validate alternatives
+    // 2. validate required parameters are in parameters block
     return okAsync(undefined);
   }
 
@@ -294,7 +303,9 @@ export class SDQLParser {
 
   private parseReturns(): ResultAsync<
     void,
-    DuplicateIdInSchema | QueryFormatError
+    DuplicateIdInSchema 
+    | QueryFormatError
+    | MissingASTError
   > {
     try {
       const returnsSchema = this.schema.getReturnSchema();
@@ -311,27 +322,33 @@ export class SDQLParser {
         }
 
         if ("query" in schema) {
-          // console.log(`${rName} is a query`);
+          
+          const source = this.context.get(SDQL_Name(schema.query!)) as AST_Query | AST_Return;
+          if (null == source) {
+            return errAsync(new MissingASTError(schema.query!))
+          }
           const returnExpr = new AST_ReturnExpr(
             name,
-            this.context.get(SDQL_Name(schema.query!)) as
-              | AST_Query
-              | AST_Return,
+            source
           );
-
           returns.push(returnExpr);
+
         } else if ("message" in schema) {
-          // console.log(`${rName} is a message`);
+
+          const source = new AST_Return(SDQL_Name(schema.name), schema.message!);
           const returnExpr = new AST_ReturnExpr(
             name,
-            new AST_Return(SDQL_Name(schema.name), schema.message!),
+            source
           );
-
           returns.push(returnExpr);
+
         } else {
-          const err = new ReturnNotImplementedError(rName);
-          console.error(err);
-          throw err;
+
+          // const err = new ReturnNotImplementedError(rName);
+          // console.error(err);
+          // throw err;
+          return errAsync(new QueryFormatError("Missing type definition", 0, schema));
+
         }
       }
 
@@ -364,19 +381,30 @@ export class SDQLParser {
       for (const cName in compensationSchema) {
         // console.log(`parsing compensation ${cName}`);
 
-        const name = SDQL_Name(cName);
-        const schema = compensationSchema[cName];
-        const compensation = new AST_Compensation(
-          name,
-          schema.description,
-          URLString(schema.callback),
-        );
+        if (cName == "parameters") {
+          // this is the parameters block
+          this.compensationParameters = compensationSchema[cName] as ISDQLCompensationParameters;
 
-        this.compensations.set(compensation.name, compensation);
-        this.saveInContext(cName, compensation);
+        } else { 
+          // This is a compensation
+          const name = SDQL_Name(cName);
+          const schema = compensationSchema[cName] as ISDQLCompensations;
+          const compensation = new AST_Compensation(
+            name,
+            schema.description,
+            schema.chainId,
+            schema.callback,
+            schema.alternatives ? schema.alternatives : []
+          );
+  
+          this.compensations.set(compensation.name, compensation);
+          this.saveInContext(cName, compensation);
+        }
+       
       }
 
       return okAsync(undefined);
+
     } catch (err) {
       if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
@@ -469,6 +497,20 @@ export class SDQLParser {
     );
   }
 
+  public queryIdsToDataPermissions(ids: string[]): DataPermissions {
+    
+    const queries:AST_Query[] = [];
+    ids.reduce<AST_Query[]>((queries, id) => {
+      const query = this.context.get(SDQL_Name(id))
+      if (query != null) {
+        queries.push(query as AST_Query);
+      }
+      return queries;
+    }, queries);
+
+    return this.queriesToDataPermission(queries);
+  }
+
   public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
     switch (query.constructor) {
       case AST_NetworkQuery:
@@ -505,7 +547,7 @@ export class SDQLParser {
         return EWalletDataType.SiteVisits;
       case "url_visited_count":
         return EWalletDataType.SiteVisits;
-      case "chain_transaction_count":
+      case "chain_transactions":
         return EWalletDataType.EVMTransactions;
       default:
         const err = new MissingWalletDataTypeError(propQuery.property);

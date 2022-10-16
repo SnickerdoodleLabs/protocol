@@ -27,28 +27,28 @@ console.log("blockChainWallerProvidersConfig", config);
 export const getProviderList = (): IProvider[] => {
   return [
     {
-      provider: new MetamaskWalletProvider(config),
+      provider: new MetamaskWalletProvider(),
       icon: MetamaskIcon,
       name: "MetaMask",
       key: EWalletProviderKeys.METAMASK,
       installationUrl: "https://metamask.io/",
     },
+    {
+      provider: new PhantomWalletProvider(),
+      icon: PhantomIcon,
+      name: "Phantom",
+      key: EWalletProviderKeys.PHANTOM,
+      installationUrl: "https://phantom.app/download",
+    },
     // {
-    //   provider: new PhantomWalletProvider(config),
-    //   icon: PhantomIcon,
-    //   name: "Phantom",
-    //   key: EWalletProviderKeys.PHANTOM,
-    //   installationUrl: "https://phantom.app/download",
-    // },
-    // {
-    //   provider: new WalletConnectProvider(config),
+    //   provider: new WalletConnectProvider(),
     //   icon: WalleConnectIcon,
     //   name: "Wallet Connect",
     //   key: EWalletProviderKeys.WALLET_CONNECT,
     //   installationUrl: "",
     // },
     {
-      provider: new CoinbaseWalletProvider(config),
+      provider: new CoinbaseWalletProvider(),
       icon: CoinbaseIcon,
       name: "Coinbase",
       key: EWalletProviderKeys.COINBASE,

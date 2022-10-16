@@ -1,26 +1,39 @@
 import {
   DataWalletAddress,
-  EVMAccountAddress,
-  SDQLQuery,
+  LinkedAccount,
   SDQLQueryRequest,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { dataWalletAddress, dataWalletKey } from "@core-tests/mock/mocks";
-import { CoreContext, PublicEvents } from "@core/interfaces/objects";
-import { IContextProvider } from "@core/interfaces/utilities";
+import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
+import { IContextProvider } from "@core/interfaces/utilities/index.js";
 
 export class ContextProviderMock implements IContextProvider {
   public context: CoreContext;
 
-  public publicEvents: PublicEvents = new PublicEvents();
+  public publicEvents: PublicEvents;
 
   public onInitializedActivations: DataWalletAddress[] = [];
   public onQueryPostedActivations: SDQLQueryRequest[] = [];
   public onQueryAcceptedActivations: SDQLQueryRequest[] = [];
-  public onAccountAddedActivations: EVMAccountAddress[] = [];
+  public onAccountAddedActivations: LinkedAccount[] = [];
+  public onAccountRemovedActivations: LinkedAccount[] = [];
 
   constructor(context: CoreContext | null = null) {
+    if (context != null) {
+      this.context = context;
+    } else {
+      this.context = new CoreContext(
+        dataWalletAddress,
+        dataWalletKey,
+        false,
+        new PublicEvents(),
+      );
+    }
+
+    this.publicEvents = this.context.publicEvents;
+
     this.publicEvents.onInitialized.subscribe((val) => {
       this.onInitializedActivations.push(val);
     });
@@ -37,25 +50,18 @@ export class ContextProviderMock implements IContextProvider {
       this.onAccountAddedActivations.push(val);
     });
 
-    if (context != null) {
-      this.context = context;
-    } else {
-      this.context = new CoreContext(
-        dataWalletAddress,
-        dataWalletKey,
-        false,
-        this.publicEvents,
-      );
-    }
+    this.publicEvents.onAccountRemoved.subscribe((val) => {
+      this.onAccountRemovedActivations.push(val);
+    });
   }
 
   public getContext(): ResultAsync<CoreContext, never> {
-    return okAsync(this.context);
+    return okAsync({ ...this.context });
   }
 
   public setContextValues = new Array<CoreContext>();
   public setContext(context: CoreContext): ResultAsync<void, never> {
-    this.setContextValues.push(context);
+    this.setContextValues.push({ ...context });
     return okAsync<null, never>(null).map(() => {});
   }
 
@@ -65,6 +71,7 @@ export class ContextProviderMock implements IContextProvider {
       onQueryPosted: 0,
       onQueryAccepted: 0,
       onAccountAdded: 0,
+      onAccountRemoved: 0,
     };
 
     // Merge the passed in counts with the basic counts
@@ -74,6 +81,9 @@ export class ContextProviderMock implements IContextProvider {
     expect(this.onQueryPostedActivations.length).toBe(counts.onQueryPosted);
     expect(this.onQueryAcceptedActivations.length).toBe(counts.onQueryAccepted);
     expect(this.onAccountAddedActivations.length).toBe(counts.onAccountAdded);
+    expect(this.onAccountRemovedActivations.length).toBe(
+      counts.onAccountRemoved,
+    );
   }
 }
 
@@ -82,4 +92,5 @@ export interface IExpectedEventCounts {
   onQueryPosted?: number;
   onQueryAccepted?: number;
   onAccountAdded?: number;
+  onAccountRemoved?: number;
 }

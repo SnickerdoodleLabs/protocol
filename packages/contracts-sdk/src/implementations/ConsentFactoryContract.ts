@@ -256,6 +256,31 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       },
     );
   }
+
+  public getDeployedConsents(): ResultAsync<
+    EVMContractAddress[],
+    ConsentFactoryContractError
+  > {
+    const eventFilter = this.contract.filters.ConsentDeployed();
+    return ResultAsync.fromPromise(
+      this.contract.queryFilter(eventFilter),
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call contract.queryFilter() for ConsentDeployed event",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((events) => {
+      const consents: EVMContractAddress[] = [];
+      events.forEach((event) => {
+        if (event?.args?.consentAddress) {
+          consents.push(EVMContractAddress(event.args.consentAddress));
+        }
+      });
+      return consents;
+    });
+  }
 }
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event
 

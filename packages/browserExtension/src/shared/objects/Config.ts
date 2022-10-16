@@ -6,6 +6,7 @@ export class ExtensionConfig {
   constructor(
     public onboardingUrl: string,
     public accountCookieUrl: string,
+    public cookieLifeTime: number,
     public manifestVersion: EManifestVersion,
     public platform: EPlatform,
     public controlChainId: ChainId,

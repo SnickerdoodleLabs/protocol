@@ -17,18 +17,20 @@ import {
   IAccountBalances,
   IAccountNFTsType,
   IAccountNFTs,
+  getChainInfoByChain,
+  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IMonitoringService } from "@core/interfaces/business";
+import { IMonitoringService } from "@core/interfaces/business/index.js";
 import {
   IContextProvider,
   IConfigProvider,
   IConfigProviderType,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class MonitoringService implements IMonitoringService {
@@ -52,15 +54,25 @@ export class MonitoringService implements IMonitoringService {
       this.persistence.getAccounts(),
       this.configProvider.getConfig(),
     ])
-      .andThen(([accountAddresses, config]) => {
+      .andThen(([linkedAccounts, config]) => {
+        // Limit it to only EVM linked accounts
+        const evmAccounts = linkedAccounts.filter((la) => {
+          // Get the chainInfo for the linked account
+          const chainInfo = getChainInfoByChain(la.sourceChain);
+          return chainInfo.chainTechnology == EChainTechnology.EVM;
+        });
+
         // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
         // config.chainInformation is the list of supported chains,
         return ResultUtils.combine(
-          accountAddresses.map((accountAddress) => {
+          evmAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
                 return this.persistence
-                  .getLatestTransactionForAccount(chainId, accountAddress)
+                  .getLatestTransactionForAccount(
+                    chainId,
+                    linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                  )
                   .andThen((tx) => {
                     // TODO: Determine cold start timestamp
                     let startTime = UnixTimestamp(0);
@@ -69,7 +81,7 @@ export class MonitoringService implements IMonitoringService {
                     }
 
                     return this.getLatestTransactions(
-                      accountAddress,
+                      linkedAccount.sourceAccountAddress as EVMAccountAddress,
                       startTime,
                       chainId,
                     );
@@ -81,7 +93,7 @@ export class MonitoringService implements IMonitoringService {
       })
       .andThen((transactionsArr) => {
         const transactions = transactionsArr.flat(2);
-        return this.persistence.addEVMTransactions(transactions);
+        return this.persistence.addEVMTransactions(transactions); // let's not call if empty?
       });
   }
 

@@ -5,14 +5,13 @@ import {
   controlChainInformation,
   testCoreConfig,
 } from "@core-tests/mock/mocks/commonValues";
-import { CoreConfig } from "@core/interfaces/objects";
-import { IConfigProvider } from "@core/interfaces/utilities";
+import { CoreConfig } from "@core/interfaces/objects/index.js";
+import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 
 export class ConfigProviderMock implements IConfigProvider {
-  protected config: CoreConfig;
+  public config: CoreConfig;
 
   constructor() {
-    // console.log(controlChainInformation);
     this.config = testCoreConfig;
   }
 

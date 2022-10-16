@@ -36,7 +36,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -71,7 +71,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -106,7 +106,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -141,7 +141,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -176,7 +176,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -211,7 +211,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -246,7 +246,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -281,7 +281,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -316,7 +316,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -351,7 +351,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -386,7 +386,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -421,7 +421,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -456,7 +456,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -491,7 +491,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -526,7 +526,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -561,7 +561,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -596,7 +596,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -631,7 +631,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -666,7 +666,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -701,7 +701,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -736,7 +736,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -771,7 +771,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -806,7 +806,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -841,7 +841,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -876,7 +876,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -911,7 +911,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -946,7 +946,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -981,7 +981,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1016,7 +1016,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1051,7 +1051,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1086,7 +1086,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1121,7 +1121,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1156,7 +1156,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1191,7 +1191,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1226,7 +1226,7 @@
                 "token": "ERC721",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1261,7 +1261,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1296,7 +1296,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1331,7 +1331,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1366,7 +1366,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1401,7 +1401,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1436,7 +1436,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1471,7 +1471,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1506,7 +1506,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1541,7 +1541,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1576,7 +1576,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1611,7 +1611,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1646,7 +1646,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1681,7 +1681,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1716,7 +1716,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1751,7 +1751,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1786,7 +1786,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1821,7 +1821,7 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
@@ -1850,17 +1850,52 @@
             "chain": "ETH",
             "contract": {
                 "networkid": "1",
-                "address": "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85",
+                "address": "0x283Af0B28c62C092C9727F1Ee09c02CA627EB7F5",
                 "function": "Transfer",
                 "direction": "to",
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
         "q53": {
+            "name": "network",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },
+            "chain": "ETH",
+            "contract": {
+                "networkid": "1",
+                "address": "0x084b1c3C81545d370f3634392De611CaaBFf8148",
+                "function": "Transfer",
+                "direction": "to",
+                "token": "ERC20",
+                "blockrange": {
+                    "start": 0,
+                    "end": 15600000
+                }
+            }
+        },
+        "q54": {
             "name": "network",
             "return": "object",
             "object_schema": {
@@ -1891,11 +1926,11 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
                 }
             }
         },
-        "q54": {
+        "q55": {
             "name": "network",
             "return": "object",
             "object_schema": {
@@ -1926,7 +1961,217 @@
                 "token": "ERC20",
                 "blockrange": {
                     "start": 0,
-                    "end": 15442629
+                    "end": 15600000
+                }
+            }
+        },
+        "q56": {
+            "name": "network",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },
+            "chain": "MATIC",
+            "contract": {
+                "networkid": "137",
+                "address": "0xa9a6A3626993D487d2Dbda3173cf58cA1a9D9e9f",
+                "function": "Transfer",
+                "direction": "to",
+                "token": "ERC721",
+                "blockrange": {
+                    "start": 0,
+                    "end": 33500000
+                }
+            }
+        },
+        "q57": {
+            "name": "network",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },
+            "chain": "MATIC",
+            "contract": {
+                "networkid": "137",
+                "address": "0xc37d3c4326ab0e1d2b9d8b916bbdf5715f780fcf",
+                "function": "Transfer",
+                "direction": "to",
+                "token": "ERC721",
+                "blockrange": {
+                    "start": 0,
+                    "end": 33500000
+                }
+            }
+        },
+        "q58": {
+            "name": "network",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },
+            "chain": "MATIC",
+            "contract": {
+                "networkid": "137",
+                "address": "0x7be83293BeeDc9Eba1bd76c66A65F10F3efaeC26",
+                "function": "Transfer",
+                "direction": "to",
+                "token": "ERC721",
+                "blockrange": {
+                    "start": 0,
+                    "end": 33500000
+                }
+            }
+        },
+        "q59": {
+            "name": "network",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },
+            "chain": "ETH",
+            "contract": {
+                "networkid": "1",
+                "address": "0x049aba7510f45BA5b64ea9E658E342F904DB358D",
+                "function": "Transfer",
+                "direction": "to",
+                "token": "ERC20",
+                "blockrange": {
+                    "start": 0,
+                    "end": 15600000
+                }
+            }
+        },
+        "q60": {
+            "name": "network",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },
+            "chain": "ETH",
+            "contract": {
+                "networkid": "1",
+                "address": "0x2a7084870bB724175a3C96Da8FaA55128fa3E19D",
+                "function": "Transfer",
+                "direction": "to",
+                "token": "ERC20",
+                "blockrange": {
+                    "start": 0,
+                    "end": 15600000
+                }
+            }
+        },
+        "q61": {
+            "name": "network",
+            "return": "object",
+            "object_schema": {
+                "properties": {
+                    "networkid": {
+                        "type": "integer"
+                    },
+                    "address": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{40}$"
+                    },
+                    "return": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "networkid",
+                    "address",
+                    "return"
+                ]
+            },
+            "chain": "ETH",
+            "contract": {
+                "networkid": "1",
+                "address": "0xb970fbCF52cd8111c76c379D4f2FE12E7f8AE7fb",
+                "function": "Transfer",
+                "direction": "to",
+                "token": "ERC20",
+                "blockrange": {
+                    "start": 0,
+                    "end": 15600000
                 }
             }
         }
@@ -2152,6 +2397,34 @@
             "name": "query_response",
             "query": "q54"
         },
+        "r55": {
+            "name": "query_response",
+            "query": "q55"
+        },
+        "r56": {
+            "name": "query_response",
+            "query": "q56"
+        },
+        "r57": {
+            "name": "query_response",
+            "query": "q57"
+        },
+        "r58": {
+            "name": "query_response",
+            "query": "q58"
+        },
+        "r59": {
+            "name": "query_response",
+            "query": "q59"
+        },
+        "r60": {
+            "name": "query_response",
+            "query": "q60"
+        },
+        "r61": {
+            "name": "query_response",
+            "query": "q61"
+        },
         "url": "////populate with the gateway api address"
     },
     "compensations": {},
@@ -2211,7 +2484,14 @@
             "$r51",
             "$r52",
             "$r53",
-            "$r54"
+            "$r54",
+            "$r55",
+            "$r56",
+            "$r57",
+            "$r58",
+            "$r59",
+            "$r60",
+            "$r61"
         ]
     }
 }

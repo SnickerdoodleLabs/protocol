@@ -1,2 +1,2 @@
-export * from "@core/implementations/utilities/factory/ContractFactory";
-export * from "@core/implementations/utilities/factory/QueryFactories";
+export * from "@core/implementations/utilities/factory/ContractFactory.js";
+export * from "@core/implementations/utilities/factory/QueryFactories.js";

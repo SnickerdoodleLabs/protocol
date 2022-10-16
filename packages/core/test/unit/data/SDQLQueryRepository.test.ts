@@ -1,23 +1,20 @@
 import "reflect-metadata";
-import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
-import {
-  IpfsCID,
-  IPFSError,
-  SDQLQuery,
-  SDQLString,
-} from "@snickerdoodlelabs/objects";
+import { IpfsCID, SDQLQuery, SDQLString } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync } from "neverthrow";
-import td from "testdouble";
+import * as td from "testdouble";
 
-import { testCoreConfig } from "@core-tests/mock/mocks/commonValues";
+import { testCoreConfig } from "@core-tests/mock/mocks/commonValues.js";
 import {
   ContextProviderMock,
   ConfigProviderMock,
   AjaxUtilsMock,
 } from "@core-tests/mock/utilities";
-import { SDQLQueryRepository } from "@core/implementations/data";
-import { ISDQLQueryRepository } from "@core/interfaces/data";
-import { IContextProvider, IConfigProvider } from "@core/interfaces/utilities";
+import { SDQLQueryRepository } from "@core/implementations/data/index.js";
+import { ISDQLQueryRepository } from "@core/interfaces/data/index.js";
+import {
+  IContextProvider,
+  IConfigProvider,
+} from "@core/interfaces/utilities/index.js";
 
 const sdqlContent = "Phoebe";
 // const sdqlContent2 = {a: "a", b: "b", c: "c"};
