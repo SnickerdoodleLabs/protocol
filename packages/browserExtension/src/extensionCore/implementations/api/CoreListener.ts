@@ -35,7 +35,7 @@ export class CoreListener implements ICoreListener {
       events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
       events.onQueryAccepted.subscribe(this.onQueryAccepted.bind(this));
-      events.onMetatransactionSignatureRequested.subscribe(this.onMetatransactionSignatureRequested.bind(this));
+      //events.onMetatransactionSignatureRequested.subscribe(this.onMetatransactionSignatureRequested.bind(this));
     });
     return okAsync(undefined);
   }
