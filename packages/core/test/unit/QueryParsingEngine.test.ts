@@ -309,7 +309,7 @@ describe("Reward Preview", () => {
 
     // console.log(sdqlQuery4);
 
-    let val = await engine.getRewardsPreview(sdqlQuery4, new DataPermissions(allPermissions))
+    let val = await engine.getRewardsPreview(sdqlQuery4)
       
     console.log("Output: ", val);
       /*

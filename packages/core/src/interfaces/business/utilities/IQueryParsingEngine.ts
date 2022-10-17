@@ -11,8 +11,7 @@ import { ResultAsync } from "neverthrow";
 
 export interface IQueryParsingEngine {
   getRewardsPreview (
-    query: SDQLQuery,
-    dataPermissions: DataPermissions
+    query: SDQLQuery
   ): ResultAsync<
   EligibleReward[],
   EvaluationError | QueryFormatError | QueryExpiredError

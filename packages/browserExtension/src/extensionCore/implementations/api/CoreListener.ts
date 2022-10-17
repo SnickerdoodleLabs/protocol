@@ -62,7 +62,7 @@ export class CoreListener implements ICoreListener {
 
   // TODO: implementation
   private onQueryAccepted(request: SDQLQueryRequest){
-
+    console.log("Request here is: ", request);
   }
 
   private onQueryPosted(request: SDQLQueryRequest) {

@@ -82,6 +82,8 @@ export class InsightPlatformSimulator {
 
     /* Rewards Preview API */
     this.app.post("/insights/preview", (req, res) => {
+      console.log("Sending prompt rewards preview to the Insights Platform");
+
       res.send({ status:'success', message:'User Confirmed Rewards' });
 
       // res.send({ status:'failure', message:'User Denied Rewards' });

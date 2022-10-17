@@ -1,3 +1,4 @@
+import { QueryExpiredError } from "@snickerdoodlelabs/objects";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -23,14 +24,7 @@ export interface IQueryService {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
-    void,
-    | IPFSError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | ConsentError
+  void, ConsentContractError | ConsentContractRepositoryError | UninitializedError | BlockchainProviderError | AjaxError | QueryFormatError | EvaluationError | QueryExpiredError
   >;
   processQuery(
     consentContractAddress: EVMContractAddress,

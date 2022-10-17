@@ -49,6 +49,7 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { QueryExpiredError } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -81,30 +82,23 @@ export class QueryService implements IQueryService {
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
-    void,
-    | IPFSError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | ConsentError
+void, ConsentContractError | ConsentContractRepositoryError | UninitializedError | BlockchainProviderError | AjaxError | QueryFormatError | EvaluationError | QueryExpiredError
   > {
-    // Get the IPFS data for the query. This is just "Get the query";
 
+    // Get the IPFS data for the query. This is just "Get the query";
     // Cache
     // if (!this.safeUpdateQueryContractMap(queryId, consentContractAddress)) {
     //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryId}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryId)}`)); ))
     // }
 
-    /* Extend onQueryPosted to include the preview */
-    /* 
-      "IF I pariticipate in query 1,3,5 I should get data 2 and 4 right?"
-    */
+    
     return ResultUtils.combine([
       this.sdqlQueryRepo.getByCID(queryId),
       this.contextProvider.getContext(),
-    ]).andThen(([query, context]) => {
+      this.configProvider.getConfig(),
+    ])
+    .andThen(([query, context, config]) => {
+      
       if (query == null) {
         // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
         // If the client does have the cid key, but no query data yet, then it is not resolved in IPFS yet.
@@ -120,13 +114,16 @@ export class QueryService implements IQueryService {
         return okAsync(undefined);
       }
 
+
       // We have the query, next step is check if you actually have a consent token for this business
       return this.consentContractRepository
         .isAddressOptedIn(
           consentContractAddress,
           EVMAccountAddress(context.dataWalletAddress),
         )
+        
         .andThen((addressOptedIn) => {
+
           if (!addressOptedIn) {
             // No consent given!
             return errAsync(
@@ -141,43 +138,28 @@ export class QueryService implements IQueryService {
             consentContractAddress,
             query,
           );
+          // Charlie's comment
+          // The event above, onQueryPosted, should be extended with rewards preview information.
           context.publicEvents.onQueryPosted.next(queryRequest);
-          return okAsync(undefined);
+          // context.publicEvents.onQueryAccepted.next(queryRequest);
 
-
-          /* 
-            CHARLIE'S comments - move return 
-
-            1. This should be done in the onQueryPosted method above- once you call processQuery() from the Form Factor, we should consider the user to be OK with the rewards they are going to get.
-            2. 
-            
-            this.queryParsingEngine.getRewardsPreview(query, consentToken!.dataPermissions).andThen( 
-          (rewardsPreviews) => {
-
-                   /* 
-          ENGT-745 
-          1. Create RewardsPreview - currently returning AST_Compensations instead of EligibleReward, will change the class later
-          2. The event above, onQueryPosted, should be extended with rewards preview information.
-        
-        return this.queryParsingEngine.getRewardsPreview(query, consentToken!.dataPermissions).andThen( 
-          (rewardsPreviews) => {
-               
-                ENGT-745 
-                2. Send out prompt for previews
-
-                MUKTADIR! - THIS IS WHERE THE PROMPT IS SENT OUT
-              
-             if (true){
-              return okAsync(true);
-             }
-        }).andThen(() => {
+          // return okAsync(undefined);
           
+          return this.queryParsingEngine.getRewardsPreview(query)
+        })
+        .andThen((rewardsPreviews) => {  
+          return this.insightPlatformRepo.deliverPreview(
+            context.dataWalletAddress!,
+            consentContractAddress,
+            query.cid,
+            context.dataWalletKey!,
+            rewardsPreviews,
+            config.defaultInsightPlatformBaseUrl,
+          )
+          
+        })
+      })    
 
-          return okAsync(undefined);
-          */
-        });
-        
-    });
   }
 
   // safeUpdateQueryContractMap(queryId: IpfsCID, consentContractAddress: EVMContractAddress): boolean {

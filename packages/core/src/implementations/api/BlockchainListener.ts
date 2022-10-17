@@ -39,6 +39,9 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+import { QueryFormatError } from "@snickerdoodlelabs/objects";
+import { QueryExpiredError } from "@snickerdoodlelabs/objects";
+import { EvaluationError } from "@snickerdoodlelabs/objects";
 
 /**
  * This class is much simplified from before, and has only a single responsibility-
@@ -107,6 +110,9 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentContractError
     | ConsentError
     | PersistenceError
+    | QueryFormatError
+    | QueryExpiredError
+    | EvaluationError
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -122,14 +128,19 @@ export class BlockchainListener implements IBlockchainListener {
   ): ResultAsync<
     void,
     | BlockchainProviderError
+    | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
+
     | ConsentContractRepositoryError
     | IPFSError
     | AjaxError
     | ConsentContractError
     | ConsentError
-    | PersistenceError
+    | QueryFormatError
+    | EvaluationError
+
+    | QueryExpiredError
   > {
     return this.consentContractRepository
       .getConsentContracts()

@@ -44,8 +44,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     3. Display which rewards will be given because of your associated values 
   */
   public getRewardsPreview (
-    query: SDQLQuery,
-    dataPermissions: DataPermissions
+    query: SDQLQuery
   ): ResultAsync<
   EligibleReward[],
   EvaluationError | QueryFormatError | QueryExpiredError
@@ -55,7 +54,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   const schemaString = query.query;
   const cid: IpfsCID = query.cid;
 
-  return this.queryFactories.makeParserAsync(cid, schemaString)
+  return this.queryFactories
+    .makeParserAsync(cid, schemaString)
     .andThen((sdqlParser) => {
       return sdqlParser.buildAST();
     })
@@ -64,9 +64,9 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         cid,
         ast,
         this.queryRepository,
-      ) 
+      )
       return ResultUtils.combine(
-        this.evalCompensations(ast, dataPermissions, astEvaluator),
+        this.evalCompensations(ast, astEvaluator),
       ).andThen((CompensationResults) => {
         console.log("CompensationResults: ", CompensationResults);
 
@@ -74,8 +74,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         console.log("CompensationResults: ", rewardsPreviews);
 
         return okAsync<EligibleReward[], QueryFormatError>(rewards);
-      });
     });
+  });
+
+
   }
 
   public handleQuery(
@@ -136,32 +138,16 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
   private evalCompensations(
     ast: AST,
-    dataPermissions: DataPermissions,
     astEvaluator: AST_Evaluator,
   ): ResultAsync<SDQL_Return, EvaluationError>[] {
     return [...ast.logic.compensations.keys()].map((compStr) => {
-      //console.log("Comp Keys: ", compStr)
-      const requiredPermissions = ast.logic.getCompensationPermissions(compStr);
       
-      //console.log("requiredPermissions: ", requiredPermissions)
+      console.log("ast.logic.compensations.get(compStr)", ast.logic.compensations.get(compStr));
+      const returnedval = astEvaluator.evalCompensationExpr(ast.logic.compensations.get(compStr));
 
-      if (dataPermissions.contains(requiredPermissions)) {
-        //console.log("Comps contain permissions");
-        //console.log("ast.logic.queries", ast.logic);
-        //console.log("ast.logic.compensations", ast.logic.compensations);
-        console.log("ast.logic.compensations.get(compStr)", ast.logic.compensations.get(compStr));
-        const returnedval = astEvaluator.evalCompensationExpr(ast.logic.compensations.get(compStr));
-        //const actualTypeData = returnedval as BaseOf<SDQL_Return>;
-
-
-        console.log("Eval Any Comp Value: ", returnedval)
-        return returnedval;
-      } else {
-        console.log("Comps does not contain permissions");
-
-        return okAsync(SDQL_Return(null));
-      }
-    });
+      console.log("Eval Any Comp Value: ", returnedval)
+      return returnedval;
+      });
   }
 
   private evalReturns(

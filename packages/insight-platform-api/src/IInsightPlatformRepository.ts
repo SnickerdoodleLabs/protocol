@@ -2,6 +2,7 @@ import {
   AjaxError,
   BigNumberString,
   DataWalletAddress,
+  EligibleReward,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
@@ -22,6 +23,15 @@ export interface IInsightPlatformRepository {
   //     queries: string[],
   //     dataWalletKey: EVMPrivateKey,
   //   ): ResultAsync<void, AjaxError>;
+
+  deliverPreview(
+    dataWalletAddress: DataWalletAddress,
+    consentContractAddress: EVMContractAddress,
+    queryCid: IpfsCID,
+    dataWalletKey: EVMPrivateKey,
+    rewardsPreview: EligibleReward[],
+    insightPlatformBaseUrl: URLString,
+  ): ResultAsync<void, AjaxError>;
 
   deliverInsights(
     dataWalletAddress: DataWalletAddress,

@@ -16,6 +16,7 @@ import {
   BigNumberString,
   InsightString,
   URLString,
+  EligibleReward,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -34,6 +35,50 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+
+  // 
+  public deliverPreview(
+    dataWalletAddress: DataWalletAddress,
+    consentContractAddress: EVMContractAddress,
+    queryCid: IpfsCID,
+    dataWalletKey: EVMPrivateKey,
+    rewardsPreview: EligibleReward[],
+    insightPlatformBaseUrl: URLString,
+  ): ResultAsync<void, AjaxError> {
+    
+    const signableData = {
+      consentContractId: consentContractAddress,
+      queryCid: queryCid,
+      dataWallet: dataWalletAddress,
+      returns: [],
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        insightDeliveryTypes,
+        signableData,
+        dataWalletKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "insights/preview"),
+        );
+
+        return this.ajaxUtils.post<boolean>(url, {
+          consentContractId: consentContractAddress,
+          queryCid: queryCid,
+          dataWallet: dataWalletAddress,
+          signature: signature,
+        });
+      })
+      .map((response) => {
+        console.log("Ajax response: " + JSON.stringify(response));
+        // return okAsync({});
+      });
+  }
+
+
 
   public deliverInsights(
     dataWalletAddress: DataWalletAddress,
