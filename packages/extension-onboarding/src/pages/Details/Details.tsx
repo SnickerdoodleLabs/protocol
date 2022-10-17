@@ -12,6 +12,7 @@ import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalIn
 import Portfolio from "@extension-onboarding/pages/Details/screens/Portfolio";
 import { Box } from "@material-ui/core";
 import React, { useMemo } from "react";
+import RewardCard from "@extension-onboarding/components/Modals/RewardCard/RewardCard";
 
 const Details = () => {
   const classes = useStyles();
@@ -41,6 +42,19 @@ const Details = () => {
     }
   }, [activeScreen]);
 
+  const renderRewardCard = useMemo(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    let method = queryParams.get("method");
+    let consentAddress = queryParams.get("consentAddress");
+    let tokenId = queryParams.get("tokenId");
+    let signature = queryParams.get("signature");
+    if (tokenId && signature && consentAddress) {
+      return <RewardCard />;
+    } else {
+      return null;
+    }
+  }, []);
+
   return (
     <Box display="flex" maxHeight="100vh" className={classes.container}>
       <Sidebar />
@@ -51,6 +65,7 @@ const Details = () => {
         flex={1}
         flexDirection="column"
       >
+        {renderRewardCard}
         {renderScreen}
       </Box>
     </Box>
