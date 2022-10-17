@@ -1,6 +1,9 @@
 import { ResultAsync } from "neverthrow";
 
-import { IEVMTransactionRepository } from "@objects/interfaces/chains";
+import {
+  IEVMTransactionRepository,
+  ISolanaTransactionRepository,
+} from "@objects/interfaces/chains";
 
 export interface IAccountIndexing {
   getEVMTransactionRepository(): ResultAsync<IEVMTransactionRepository, never>;
@@ -8,7 +11,10 @@ export interface IAccountIndexing {
     IEVMTransactionRepository,
     never
   >;
-  //getSolanaRepository(): ResultAsync<ISolanaTransactionRepository, never>;
+  getSolanaTransactionRepository(): ResultAsync<
+    ISolanaTransactionRepository,
+    never
+  >;
 }
 
 export const IAccountIndexingType = Symbol.for("IAccountIndexing");

@@ -183,6 +183,21 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainType.Mainnet,
     ),
   ],
+  [
+    ChainId(EChain.SolanaTestnet),
+    new ChainInformation(
+      "Solana Testnet",
+      ChainId(EChain.SolanaTestnet),
+      EChain.SolanaTestnet,
+      EChainTechnology.Solana,
+      true,
+      [],
+      400,
+      EIndexer.Solana,
+      new NativeCurrencyInformation("Sol", 9, "SOL"),
+      EChainType.Testnet,
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {

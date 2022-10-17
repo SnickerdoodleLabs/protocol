@@ -1,8 +1,10 @@
 import { EventEmitter } from "events";
 
-import { IEVMNFT, LinkedAccount } from "@objects/businessObjects";
+import { ResultAsync } from "neverthrow";
+
+import { LinkedAccount } from "@objects/businessObjects";
 import { EChain, EWalletDataType } from "@objects/enum";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
+import { IAccountNFT, ITokenBalance } from "@objects/interfaces";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import {
   AccountAddress,
@@ -20,7 +22,6 @@ import {
   Signature,
   UnixTimestamp,
 } from "@objects/primitives";
-import { ResultAsync } from "neverthrow";
 
 type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {
@@ -54,8 +55,8 @@ export interface ISdlDataWallet extends EventEmitter {
   setLocation(location: CountryCode): ResultAsync<void, JsonRpcError>;
   getLocation(): ResultAsync<CountryCode | null, JsonRpcError>;
   getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], JsonRpcError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], JsonRpcError>;
+  getAccountBalances(): ResultAsync<ITokenBalance[], JsonRpcError>;
+  getAccountNFTs(): ResultAsync<IAccountNFT[], JsonRpcError>;
   closeTab(): ResultAsync<void, JsonRpcError>;
   getDataWalletAddress(): ResultAsync<DataWalletAddress | null, JsonRpcError>;
   getAcceptedInvitationsCID(): ResultAsync<

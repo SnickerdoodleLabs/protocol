@@ -233,9 +233,9 @@ export class CeramicCloudStorage implements ICloudStorage {
         loader.load<IDataWalletBackup>(id),
         (e) => new PersistenceError("error loading backup", e),
       ).map((tileDoc) => {
-        const retVal = tileDoc.content;
-        retVal.header.hash = tileDoc.id.toUrl();
-        return retVal;
+        const result = tileDoc.content;
+        result.header.hash = id;
+        return result;
       });
     });
   }
