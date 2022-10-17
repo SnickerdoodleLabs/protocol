@@ -16,5 +16,5 @@ export interface ITokenBalance {
   tokenAddress: TokenAddress;
   accountAddress: AccountAddress;
   balance: BigNumberString;
-  quoteBalance: number;
+  quoteBalance: BigNumberString;
 }

@@ -5,33 +5,40 @@ import {
 import {
   IAccountIndexing,
   IEVMTransactionRepository,
+  ISolanaTransactionRepository,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
+import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+import { MoralisEVMIndexer } from "@indexers/MoralisEVMIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
   protected evm: IEVMTransactionRepository;
   protected simulatorRepo: IEVMTransactionRepository;
+  protected solRepo: ISolanaTransactionRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {
-    this.evm = new CovalentEVMTransactionRepository(
-      this.configProvider,
-      this.ajaxUtils,
-    );
-
+    this.evm = new MoralisEVMIndexer(configProvider, ajaxUtils);
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
+    this.solRepo = new DummySolanaIndexer();
+  }
+
+  public getSolanaTransactionRepository(): ResultAsync<
+    ISolanaTransactionRepository,
+    never
+  > {
+    return okAsync(this.solRepo);
   }
 
   public getEVMTransactionRepository(): ResultAsync<
