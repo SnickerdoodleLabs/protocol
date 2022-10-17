@@ -62,7 +62,10 @@ export class CoreListener implements ICoreListener {
 
   // TODO: implementation
   private onQueryAccepted(request: SDQLQueryRequest){
-    console.log("Request here is: ", request);
+    console.log("onQueryAccepted is: ", request);
+
+    // within this method, we store rewards into the persistence layer
+    // this.
   }
 
   private onQueryPosted(request: SDQLQueryRequest) {

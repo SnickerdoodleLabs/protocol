@@ -17,20 +17,21 @@ import { ResultAsync } from "neverthrow";
 
 export interface IQueryService {
 
-  /*  TODO: implementation */
-  onQueryAccepted(
-    consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
-  ): ResultAsync<
-  void, ConsentContractError | ConsentContractRepositoryError | UninitializedError | BlockchainProviderError | AjaxError | QueryFormatError | EvaluationError | QueryExpiredError
-  >;
-
   onQueryPosted(
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
-  void, ConsentContractError | ConsentContractRepositoryError | UninitializedError | BlockchainProviderError | AjaxError | QueryFormatError | EvaluationError | QueryExpiredError
+  void, 
+  ConsentContractError 
+  | ConsentContractRepositoryError 
+  | UninitializedError 
+  | BlockchainProviderError 
+  | AjaxError 
+  | QueryFormatError 
+  | EvaluationError 
+  | QueryExpiredError
   >;
+
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,

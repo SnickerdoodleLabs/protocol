@@ -72,17 +72,20 @@ export class QueryService implements IQueryService {
     protected cryptoUtils: ICryptoUtils,
   ) {}
 
-  /* TODO: implementation
-  public onQueryAccepted(): ResultAsync<void, IPFSError>{
-
-  }
-  */
 
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
-void, ConsentContractError | ConsentContractRepositoryError | UninitializedError | BlockchainProviderError | AjaxError | QueryFormatError | EvaluationError | QueryExpiredError
+    void, 
+    ConsentContractError 
+    | ConsentContractRepositoryError 
+    | UninitializedError 
+    | BlockchainProviderError 
+    | AjaxError 
+    | QueryFormatError 
+    | EvaluationError 
+    | QueryExpiredError
   > {
 
     // Get the IPFS data for the query. This is just "Get the query";
@@ -90,8 +93,6 @@ void, ConsentContractError | ConsentContractRepositoryError | UninitializedError
     // if (!this.safeUpdateQueryContractMap(queryId, consentContractAddress)) {
     //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryId}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryId)}`)); ))
     // }
-
-    
     return ResultUtils.combine([
       this.sdqlQueryRepo.getByCID(queryId),
       this.contextProvider.getContext(),
@@ -159,14 +160,19 @@ void, ConsentContractError | ConsentContractRepositoryError | UninitializedError
             config.defaultInsightPlatformBaseUrl,
           )
 
-        })
-        .andThen((val) => {
-
+        }).andThen((val) => {
           if (val == false){
             return okAsync(undefined);
           }
 
+          const queryRequest = new SDQLQueryRequest(
+            consentContractAddress,
+            query,
+          );
+
           context.publicEvents.onQueryAccepted.next(queryRequest);
+
+          return okAsync(undefined);
 
         })
       })    
