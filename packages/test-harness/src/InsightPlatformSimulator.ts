@@ -83,10 +83,47 @@ export class InsightPlatformSimulator {
     /* Rewards Preview API */
     this.app.post("/insights/preview", (req, res) => {
       console.log("Sending prompt rewards preview to the Insights Platform");
+      console.log("Req is this: ", req.body);
+      console.log("req.body.consentContractId: ", req.body.consentContractId);
+      const consentContractId = EVMContractAddress(req.body.consentContractId);
+      const queryCid = IpfsCID(req.body.queryCid);
+      const dataWallet = EVMAccountAddress(req.body.dataWallet);
+      const signature = Signature(req.body.signature);
 
-      res.send({ status:'success', message:'User Confirmed Rewards' });
+      const value = {
+        consentContractId,
+        queryCid,
+        dataWallet,
+      };
 
-      // res.send({ status:'failure', message:'User Denied Rewards' });
+      this.logStream.write(JSON.stringify(req.body));
+
+      return this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          insightDeliveryTypes,
+          value,
+          signature,
+        )
+        .andThen((verificationAddress) => {
+          if (verificationAddress !== dataWallet) {
+            const err = new Error("`In bad wallet: ${verificationAddress}`");
+            console.error(err);
+            return errAsync(err);
+          }
+          return okAsync(null);
+        })
+        .map(() => {
+          res.send("Reward Preview received successfully!");
+        })
+        .mapErr((e) => {
+          console.error(e);
+          res.send(e);
+        });
+
+        res.send({ status:'success', message:'User Confirmed Rewards' });
+
+        // res.send({ status:'failure', message:'User Denied Rewards' });
     })
 
     this.app.post("/insights/responses", (req, res) => {

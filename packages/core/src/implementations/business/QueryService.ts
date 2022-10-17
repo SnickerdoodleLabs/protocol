@@ -141,13 +141,15 @@ void, ConsentContractError | ConsentContractRepositoryError | UninitializedError
           // Charlie's comment
           // The event above, onQueryPosted, should be extended with rewards preview information.
           context.publicEvents.onQueryPosted.next(queryRequest);
-          // context.publicEvents.onQueryAccepted.next(queryRequest);
 
           // return okAsync(undefined);
+          console.log("Commencing Preview!");
           
           return this.queryParsingEngine.getRewardsPreview(query)
         })
         .andThen((rewardsPreviews) => {  
+          console.log("Returning Preview!");
+
           return this.insightPlatformRepo.deliverPreview(
             context.dataWalletAddress!,
             consentContractAddress,
@@ -156,7 +158,16 @@ void, ConsentContractError | ConsentContractRepositoryError | UninitializedError
             rewardsPreviews,
             config.defaultInsightPlatformBaseUrl,
           )
-          
+
+        })
+        .andThen((val) => {
+
+          if (val == false){
+            return okAsync(undefined);
+          }
+
+          context.publicEvents.onQueryAccepted.next(queryRequest);
+
         })
       })    
 

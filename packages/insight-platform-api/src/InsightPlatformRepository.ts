@@ -44,7 +44,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     dataWalletKey: EVMPrivateKey,
     rewardsPreview: EligibleReward[],
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<void, AjaxError> {
+  ): ResultAsync<boolean, AjaxError> {
     
     const signableData = {
       consentContractId: consentContractAddress,
@@ -65,6 +65,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           urlJoin(insightPlatformBaseUrl, "insights/preview"),
         );
 
+        /* need to send out a post that requires a selection */
         return this.ajaxUtils.post<boolean>(url, {
           consentContractId: consentContractAddress,
           queryCid: queryCid,
@@ -72,10 +73,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           signature: signature,
         });
       })
-      .map((response) => {
-        console.log("Ajax response: " + JSON.stringify(response));
-        // return okAsync({});
-      });
   }
 
 

@@ -31,7 +31,7 @@ export interface IInsightPlatformRepository {
     dataWalletKey: EVMPrivateKey,
     rewardsPreview: EligibleReward[],
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<void, AjaxError>;
+  ): ResultAsync<boolean, AjaxError>;
 
   deliverInsights(
     dataWalletAddress: DataWalletAddress,
