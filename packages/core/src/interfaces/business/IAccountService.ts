@@ -116,6 +116,9 @@ export interface IAccountService {
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
 
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
 }
 
