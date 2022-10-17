@@ -3,7 +3,7 @@ import { ResultAsync } from "neverthrow";
 import {
   Invitation,
   DataPermissions,
-  IEVMNFT,
+  EVMNFT,
   SDQLQuery,
   PageInvitation,
   SiteVisit,
@@ -29,7 +29,7 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
+import { IAccountNFT, ITokenBalance } from "@objects/interfaces";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
@@ -348,8 +348,8 @@ export interface ISnickerdoodleCore {
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError>;
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
 }
 

@@ -1,23 +1,18 @@
 import { ResultAsync } from "neverthrow";
 
-import { IChainTransaction } from "./chains";
-
-import {
-  ClickData,
-  EVMTransaction,
-  EVMTransactionFilter,
-  IEVMNFT,
-  LinkedAccount,
-  SiteVisit,
-} from "@objects/businessObjects";
+import { ClickData, LinkedAccount, SiteVisit } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
+import {
+  ITokenBalance,
+  IAccountNFT,
+  IChainTransaction,
+  TransactionFilter,
+} from "@objects/interfaces";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import {
   Age,
   EmailAddressString,
   ChainId,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   GivenName,
@@ -133,22 +128,25 @@ export interface IDataWalletPersistence {
 
   getLatestTransactionForAccount(
     chainId: ChainId,
-    address: EVMAccountAddress,
-  ): ResultAsync<EVMTransaction | null, PersistenceError>;
-  addEVMTransactions(
-    transactions: EVMTransaction[],
+    address: AccountAddress,
+  ): ResultAsync<IChainTransaction | null, PersistenceError>;
+
+  addTransactions(
+    transactions: IChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
-  getEVMTransactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError>;
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<IChainTransaction[], PersistenceError>;
 
   updateAccountBalances(
-    balances: IEVMBalance[],
-  ): ResultAsync<IEVMBalance[], PersistenceError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+    balances: ITokenBalance[],
+  ): ResultAsync<ITokenBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
 
-  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<IEVMNFT[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  updateAccountNFTs(
+    nfts: IAccountNFT[],
+  ): ResultAsync<IAccountNFT[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError>;
 
   setLatestBlockNumber(
     contractAddress: EVMContractAddress,
