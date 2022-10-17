@@ -43,6 +43,7 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
   URLString,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -568,6 +569,10 @@ export class AccountService implements IAccountService {
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.addEVMTransactions(transactions);
+  }
+
+  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+    return this.dataWalletPersistence.postBackup();
   }
 
   protected addCrumb(

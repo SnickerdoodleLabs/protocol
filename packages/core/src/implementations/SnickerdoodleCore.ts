@@ -67,6 +67,7 @@ import {
   LinkedAccount,
   AccountAddress,
   DataWalletAddress,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -76,6 +77,7 @@ import {
   ICloudStorage,
   ICloudStorageType,
   NullCloudStorage,
+  CeramicCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -150,7 +152,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
-        .to(NullCloudStorage)
+        .to(CeramicCloudStorage)
         .inSingletonScope();
     }
 
@@ -718,5 +720,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IDataWalletPersistenceType,
     );
     return persistence.restoreBackup(backup);
+  }
+
+  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.postBackup();
   }
 }
