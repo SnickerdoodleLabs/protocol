@@ -17,6 +17,6 @@ export class SolanaBalance implements ITokenBalance {
     public balance: BigNumberString,
     public tokenAddress: SolanaTokenAddress,
     public accountAddress: SolanaAccountAddress,
-    public quoteBalance: number,
+    public quoteBalance: BigNumberString,
   ) {}
 }

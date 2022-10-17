@@ -20,7 +20,6 @@ export class EVMTransaction implements IChainTransaction {
     public chainId: ChainId,
     public hash: EVMTransactionHash,
     public timestamp: UnixTimestamp,
-    public blockHeight: number | null,
     public to: EVMAccountAddress | null,
     public from: EVMAccountAddress | null,
     public value: BigNumberString,

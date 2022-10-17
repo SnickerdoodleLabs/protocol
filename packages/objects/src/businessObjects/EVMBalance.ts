@@ -17,6 +17,6 @@ export class EVMBalance implements ITokenBalance {
     public accountAddress: EVMAccountAddress,
     public balance: BigNumberString,
     public tokenAddress: EVMContractAddress,
-    public quoteBalance: number,
+    public quoteBalance: BigNumberString,
   ) {}
 }
