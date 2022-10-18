@@ -37,7 +37,7 @@ export interface IAccountBalanceObject {
   [id: EVMAccountAddress]: ITokenBalance[];
 }
 export interface IAccountNFTsObject {
-  [id: EVMAccountAddress]: ITokenBalance[];
+  [id: EVMAccountAddress]: IAccountNFT[];
 }
 
 const ViewDetailsModal: FC = () => {
@@ -416,7 +416,7 @@ const ViewDetailsModal: FC = () => {
                   ) : (
                     <Grid container className={classes.nftContainer}>
                       {accountNFTs?.[accountSelect]?.map((nftItem, index) => {
-                        if (nftItem.chainId.toString() === chainSelect) {
+                        if (nftItem.chain.toString() === chainSelect) {
                           return <NFTItem key={index} item={nftItem} />;
                         } else {
                           return null;

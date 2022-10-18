@@ -1,3 +1,4 @@
+import { EChainTechnology } from "@objects/enum";
 import { IAccountNFT } from "@objects/interfaces";
 import {
   EVMContractAddress,
@@ -9,6 +10,8 @@ import {
 } from "@objects/primitives";
 
 export class EVMNFT implements IAccountNFT {
+  public type = EChainTechnology.EVM;
+
   public constructor(
     public token: EVMContractAddress,
     public tokenId: BigNumberString,

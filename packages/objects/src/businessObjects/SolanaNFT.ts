@@ -1,3 +1,4 @@
+import { EChainTechnology } from "@objects/enum";
 import { IAccountNFT } from "@objects/interfaces";
 import {
   ChainId,
@@ -25,6 +26,8 @@ export class SolanaNFTMetadata {
 }
 
 export class SolanaNFT implements IAccountNFT {
+  public type = EChainTechnology.Solana;
+
   public constructor(
     public chain: ChainId,
     public owner: SolanaAccountAddress,
