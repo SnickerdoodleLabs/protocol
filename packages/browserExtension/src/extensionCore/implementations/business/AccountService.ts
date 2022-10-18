@@ -2,8 +2,8 @@ import {
   AccountAddress,
   DataWalletAddress,
   EChain,
-  IEVMBalance,
-  IEVMNFT,
+  ITokenBalance,
+  IAccountNFT,
   LanguageCode,
   LinkedAccount,
   Signature,
@@ -27,13 +27,13 @@ export class AccountService implements IAccountService {
   }
 
   public getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    ITokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<IAccountNFT[], SnickerDoodleCoreError> {
     return this.accountRepository.getAccountNFTs();
   }
 

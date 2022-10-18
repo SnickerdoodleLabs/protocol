@@ -43,6 +43,10 @@ import {
   MetatransactionSignatureRequest,
   BigNumberString,
   Signature,
+  EVMTransactionHash,
+  EarnedReward,
+  IpfsCID,
+  ERewardType,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import inquirer from "inquirer";
@@ -54,9 +58,6 @@ import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator
 import { IPFSClient } from "@test-harness/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
 import { TestWallet } from "@test-harness/TestWallet.js";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
-import { IpfsCID } from "@snickerdoodlelabs/objects";
-import { ERewardType } from "@snickerdoodlelabs/objects";
 
 const cryptoUtils = new CryptoUtils();
 
@@ -272,8 +273,8 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "Add Site Visit - Google ", value: "addSiteVisit - google" },
     { name: "Add Site Visit - Facebook", value: "addSiteVisit - facebook" },
 
-    { name: "Add Earned Award", value: "addEarnedAward"},
-    { name: "Get Earned Awards", value: "getEarnedAwards"},
+    { name: "Add Earned Award", value: "addEarnedAward" },
+    { name: "Get Earned Awards", value: "getEarnedAwards" },
     new inquirer.Separator(),
     { name: "dump backup", value: "dumpBackup" },
     { name: "restore backup", value: "restoreBackup" },
@@ -303,7 +304,10 @@ function corePrompt(): ResultAsync<void, Error> {
   ]).andThen((answers) => {
     const sites: SiteVisit[] = [];
     const transactions: EVMTransaction[] = [];
-    const earnedReward = new EarnedReward(IpfsCID("LazyReward"), ERewardType.Lazy);
+    const earnedReward = new EarnedReward(
+      IpfsCID("LazyReward"),
+      ERewardType.Lazy,
+    );
 
     switch (answers.core) {
       case "unlock":
@@ -350,21 +354,20 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
-              
+
       case "addEarnedAward":
         return core.addEarnedReward(earnedReward).map(console.log);
-        
+
       case "getEarnedAwards":
-        return core.getEarnedRewards().map(console.log);  
+        return core.getEarnedRewards().map(console.log);
       case "addEVMTransaction - Query's Network":
         /*
           Important!  Must use different hash values for transaction values!
         */
         transactions[0] = new EVMTransaction(
           ChainId(43113),
-          "firstHash",
+          EVMTransactionHash("firstHash"),
           UnixTimestamp(100),
-          null,
           EVMAccountAddress("send200"),
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           BigNumberString("200"),
@@ -376,9 +379,8 @@ function corePrompt(): ResultAsync<void, Error> {
         );
         transactions[1] = new EVMTransaction(
           ChainId(43113),
-          "secondHash",
+          EVMTransactionHash("secondHash"),
           UnixTimestamp(100),
-          null,
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           EVMAccountAddress("get1000"),
           BigNumberString("1000"),
@@ -390,9 +392,8 @@ function corePrompt(): ResultAsync<void, Error> {
         );
         transactions[2] = new EVMTransaction(
           ChainId(43113),
-          "thirdHash",
+          EVMTransactionHash("thirdHash"),
           UnixTimestamp(100),
-          null,
           EVMAccountAddress("send300"),
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           BigNumberString("300"),
@@ -404,9 +405,8 @@ function corePrompt(): ResultAsync<void, Error> {
         );
         transactions[3] = new EVMTransaction(
           ChainId(43113),
-          "fourthHash",
+          EVMTransactionHash("fourthHash"),
           UnixTimestamp(100),
-          null,
           EVMAccountAddress("send50"),
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           BigNumberString("50"),
@@ -416,29 +416,27 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           Math.random() * 1000,
         );
-
         // {chainId\":43113,
         // \"outgoingValue\":\"0\",\"outgoingCount\":\"0\",\"incomingValue\":\"1000\",\"incomingCount\":\"1\"
         console.log(
           `adding ${transactions.length} transactions for chain 43113`,
         );
-        return core.addEVMTransactions(transactions).map(console.log);
+        return core.addTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
         transactions[0] = new EVMTransaction(
           ChainId(1),
-          "null",
+          EVMTransactionHash("null"),
           UnixTimestamp(100),
           null,
           null,
-          null,
-          null,
+          BigNumberString("100"),
           null,
           null,
           null,
           null,
           Math.random() * 1000,
         );
-        return core.addEVMTransactions(transactions).map(console.log);
+        return core.addTransactions(transactions).map(console.log);
       case "addSiteVisit - google":
         sites[0] = new SiteVisit(
           URLString("www.google.com"),
