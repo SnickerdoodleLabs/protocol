@@ -64,6 +64,29 @@ export class CoreListener implements ICoreListener {
   private onQueryAccepted(request: SDQLQueryRequest){
     console.log("onQueryAccepted is: ", request);
 
+    const getStringQuery = () => {
+      const queryObjOrStr = request.query.query;
+      let queryString: SDQLString;
+      if (typeof queryObjOrStr === "object") {
+        queryString = JSON.stringify(queryObjOrStr) as SDQLString;
+      } else {
+        queryString = queryObjOrStr;
+      }
+      return queryString;
+    };
+    
+    this.core
+    .processQuery(request.consentContractAddress, {
+      cid: request.query.cid,
+      query: getStringQuery(),
+    })
+    .mapErr((e) => {
+      console.error(
+        `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+      );
+      console.error(e);
+    });
+
     // within this method, we store rewards into the persistence layer
     // this.
   }
@@ -87,6 +110,7 @@ export class CoreListener implements ICoreListener {
     };
 
     /* We are replacing the processQuery with something else here */
+    /*
     this.core
       .processQuery(request.consentContractAddress, {
         cid: request.query.cid,
@@ -98,6 +122,7 @@ export class CoreListener implements ICoreListener {
         );
         console.error(e);
       });
+    */
   }
 
   private onAccountRemoved(account: LinkedAccount) {

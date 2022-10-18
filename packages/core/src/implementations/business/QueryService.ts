@@ -135,21 +135,18 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          const queryRequest = new SDQLQueryRequest(
-            consentContractAddress,
-            query,
-          );
-          // Charlie's comment
-          // The event above, onQueryPosted, should be extended with rewards preview information.
-          context.publicEvents.onQueryPosted.next(queryRequest);
-
-          // return okAsync(undefined);
-          console.log("Commencing Preview!");
-          
           return this.queryParsingEngine.getRewardsPreview(query)
         })
         .andThen((rewardsPreviews) => {  
           console.log("Returning Preview!");
+
+          const queryRequest = new SDQLQueryRequest(
+            consentContractAddress,
+            query,
+            rewardsPreviews
+          );
+
+          context.publicEvents.onQueryPosted.next(queryRequest);
 
           return this.insightPlatformRepo.deliverPreview(
             context.dataWalletAddress!,
@@ -168,8 +165,8 @@ export class QueryService implements IQueryService {
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
             query,
+            null
           );
-
           context.publicEvents.onQueryAccepted.next(queryRequest);
 
           return okAsync(undefined);
