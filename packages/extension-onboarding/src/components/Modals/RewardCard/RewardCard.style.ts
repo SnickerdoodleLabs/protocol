@@ -39,4 +39,16 @@ export const useStyles = makeStyles((theme) => ({
     textDecoration: "underline",
     textTransform: "capitalize",
   },
+  subtitle: {
+    fontFamily: "Space Grotesk",
+    fontWeight: 300,
+    fontSize: 12,
+    color: "#222137",
+  },
+  footerText: {
+    fontFamily: "Space Grotesk",
+    fontWeight: 500,
+    fontSize: 9,
+    color: "#8D8B9E",
+  },
 }));
