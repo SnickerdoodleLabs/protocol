@@ -44,11 +44,10 @@ const Details = () => {
 
   const renderRewardCard = useMemo(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    let method = queryParams.get("method");
     let consentAddress = queryParams.get("consentAddress");
     let tokenId = queryParams.get("tokenId");
     let signature = queryParams.get("signature");
-    if (tokenId && signature && consentAddress) {
+    if (consentAddress) {
       return <RewardCard />;
     } else {
       return null;
