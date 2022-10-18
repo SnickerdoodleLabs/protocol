@@ -15,7 +15,7 @@
                 "function": "Transfer",
                 "direction": "to",
                 "token": "ERC721",
-                "blockrange": {
+                "timestamp": {
                     "start": 14801177,
                     "end": 14801190
                 }

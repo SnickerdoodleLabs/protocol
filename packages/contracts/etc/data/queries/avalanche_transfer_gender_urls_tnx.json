@@ -1,7 +1,7 @@
 {
     "version": 0.1,
     "timestamp": "2021-11-13T20:20:39",
-    "expiry" : "2022-11-13T20:20:39",
+    "expiry": "2022-11-13T20:20:39",
     "description": "For 15-year and older individuals, querying intractions with the Avalanche blockchain, location, gender, urls visited and chain transaction count",
     "business": "Shrapnel",
     "queries": {
@@ -26,7 +26,7 @@
                     "address",
                     "return"
                 ]
-            },   
+            },
             "chain": "AVAX",
             "contract": {
                 "networkid": "43114",
@@ -34,7 +34,7 @@
                 "function": "Transfer",
                 "direction": "from",
                 "token": "ERC20",
-                "blockrange": {
+                "timestamp": {
                     "start": 13001519,
                     "end": 14910334
                 }
@@ -50,26 +50,26 @@
         "q3": {
             "name": "location",
             "return": "string",
-            "string_pattern": "^([A-Z]){2}$"        
+            "string_pattern": "^([A-Z]){2}$"
         },
         "q4": {
             "name": "gender",
             "return": "enum",
             "enum_keys": [
-                    "female",
-                    "male",
-                    "nonbinary",
-                    "unknown"
-                ]
+                "female",
+                "male",
+                "nonbinary",
+                "unknown"
+            ]
         },
         "q5": {
             "name": "url_visited_count",
             "return": "object",
-            "object_schema":{
-                "patternProperties":{
+            "object_schema": {
+                "patternProperties": {
                     "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
                         "type": "integer"
-                    } 
+                    }
                 }
             }
         },
@@ -157,7 +157,7 @@
             "if$q2then$r1else$r2",
             "$r3",
             "$r4",
-            "$r5", 
+            "$r5",
             "$r6",
             "$r7"
         ],
