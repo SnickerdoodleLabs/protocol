@@ -26,7 +26,7 @@ import {
   EvaluationError,
   EVMContractAddress,
   EVMTransaction,
-  EVMTransactionFilter,
+  TransactionFilter,
   FamilyName,
   Gender,
   GivenName,
@@ -38,8 +38,8 @@ import {
   IDataWalletBackup,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
-  IEVMNFT,
+  ITokenBalance,
+  IAccountNFT,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
@@ -621,32 +621,24 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   getTransactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError> {
+    filter?: TransactionFilter,
+  ): ResultAsync<IChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTranactions(filter);
   }
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountBalances();
   }
 
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountNFTs();
   }
-
-  /*
-  getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null; }[], PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTransactionsArray();
-  }
-  */
 
   getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError> {
     const accountService =
@@ -670,12 +662,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addSiteVisits(siteVisits);
   }
 
-  public addEVMTransactions(
-    transactions: EVMTransaction[],
+  public addTransactions(
+    transactions: IChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.addEVMTransactions(transactions);
+    return accountService.addTransactions(transactions);
   }
 
   public dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError> {

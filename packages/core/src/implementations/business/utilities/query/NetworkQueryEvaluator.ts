@@ -1,7 +1,6 @@
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 import {
   EVMAccountAddress,
-  EVMTransactionFilter,
+  TransactionFilter,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   PersistenceError,
@@ -10,6 +9,8 @@ import {
 import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
 
 @injectable()
 export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
@@ -28,7 +29,7 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
     const startTime = query.contract.blockrange.start;
     const endTime = query.contract.blockrange.end;
 
-    const filter = new EVMTransactionFilter(
+    const filter = new TransactionFilter(
       [chainId],
       [address],
       undefined,
@@ -38,7 +39,7 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
 
     if (query.returnType == "object") {
       return this.dataWalletPersistence
-        .getEVMTransactions(filter)
+        .getTransactions(filter)
         .andThen((transactions) => {
           // console.log("Network Query Result: ", transactions)
           if (transactions == null) {
@@ -70,7 +71,7 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
         });
     } else if (query.returnType == "boolean") {
       return this.dataWalletPersistence
-        .getEVMTransactions(filter)
+        .getTransactions(filter)
         .andThen((transactions) => {
           // console.log("Network Query Result: ", transactions);
           if (transactions == null) {
@@ -84,15 +85,14 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
         });
     }
 
-    if (query.name == "chain_transactions"){
-        return this.dataWalletPersistence
-          .getTransactionsArray()
-          .andThen((transactionsArray) => {
-            // console.log("URL count: ", url_visited_count);
-            return okAsync(SDQL_Return(transactionsArray));
-          });
+    if (query.name == "chain_transactions") {
+      return this.dataWalletPersistence
+        .getTransactionsArray()
+        .andThen((transactionsArray) => {
+          // console.log("URL count: ", url_visited_count);
+          return okAsync(SDQL_Return(transactionsArray));
+        });
     }
-
 
     return okAsync(SDQL_Return(false));
   }

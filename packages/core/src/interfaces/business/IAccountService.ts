@@ -3,14 +3,13 @@ import {
   BlockchainProviderError,
   CrumbsContractError,
   InvalidSignatureError,
-  IEVMBalance,
-  IEVMNFT,
+  ITokenBalance,
+  IAccountNFT,
   LanguageCode,
   PersistenceError,
   Signature,
   UninitializedError,
   UnsupportedLanguageError,
-  EVMTransactionFilter,
   EVMTransaction,
   ChainId,
   URLString,
@@ -23,6 +22,7 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
+  TransactionFilter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -100,21 +100,21 @@ export interface IAccountService {
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError>;
   getTranactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError>;
+    filter?: TransactionFilter,
+  ): ResultAsync<IChainTransaction[], PersistenceError>;
 
   // getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError>
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
-  addEVMTransactions(
-    transactions: EVMTransaction[],
+  addTransactions(
+    transactions: IChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
 
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;

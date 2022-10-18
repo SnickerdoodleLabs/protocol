@@ -1,21 +1,17 @@
 import {
   BigNumberString,
   ChainId,
+  EChainTechnology,
   EvalNotImplementedError,
   EVMContractAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
   ITokenBalance,
   PersistenceError,
   SDQL_Return,
   TickerSymbol,
+  TokenAddress,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
   AST_BalanceQuery,
   ConditionE,
@@ -24,6 +20,11 @@ import {
   ConditionL,
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
+import { BigNumber } from "ethers";
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
@@ -48,9 +49,6 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         // console.log("line 48 networkBalances", networkBalances);
         return okAsync(networkBalances);
       })
-      .andThen((excessValues) => {
-        return this.convertToTokenBalance(excessValues);
-      })
       .andThen((balanceArray) => {
         // console.log("line 55 balanceArray", balanceArray);
         return this.evalConditions(query, balanceArray);
@@ -63,21 +61,6 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         // console.log("line 63 balanceArray", balanceArray);
         return okAsync(SDQL_Return(balanceArray));
       });
-  }
-
-  public convertToTokenBalance(
-    excessValues: IEVMBalance[],
-  ): ResultAsync<ITokenBalance[], never> {
-    const tokenBalances: ITokenBalance[] = [];
-    excessValues.forEach((element) => {
-      tokenBalances.push({
-        ticker: element.ticker,
-        networkId: element.chainId,
-        address: element.contractAddress,
-        balance: element.balance,
-      });
-    });
-    return okAsync(tokenBalances);
   }
 
   public evalConditions(
@@ -135,36 +118,37 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     query: AST_BalanceQuery,
     balanceArray: ITokenBalance[],
   ): ResultAsync<ITokenBalance[], PersistenceError> {
-    const balanceMap = new Map<EVMContractAddress, ITokenBalance>();
+    const balanceMap = new Map<TokenAddress, ITokenBalance>();
 
     balanceArray.forEach((d) => {
-      const getObject = balanceMap.get(d.address);
+      const getObject = balanceMap.get(d.tokenAddress);
 
       if (getObject) {
-        balanceMap.set(d.address, {
+        balanceMap.set(d.tokenAddress, {
           ticker: getObject.ticker,
-          balance:  BigNumberString((BigNumber.from(getObject.balance).add(BigNumber.from(d.balance))).toString()),
-          networkId: getObject.networkId,
-          address: getObject.address,
+          balance: BigNumberString(
+            BigNumber.from(getObject.balance)
+              .add(BigNumber.from(d.balance))
+              .toString(),
+          ),
+          chainId: getObject.chainId,
+          tokenAddress: getObject.tokenAddress,
+          type: getObject.type,
+          quoteBalance: BigNumberString(
+            BigNumber.from(getObject.quoteBalance)
+              .add(BigNumber.from(d.quoteBalance))
+              .toString(),
+          ),
+          accountAddress: getObject.accountAddress,
         });
       } else {
-        balanceMap.set(d.address, {
-          ticker: d.ticker,
-          balance: d.balance,
-          networkId: d.networkId,
-          address: d.address,
-        });
+        balanceMap.set(d.tokenAddress, d);
       }
     });
 
     const returnedArray: ITokenBalance[] = [];
     balanceMap.forEach((element, key) => {
-      returnedArray.push({
-        ticker: element.ticker,
-        address: key,
-        balance: BigNumberString(element.balance.toString()),
-        networkId: element.networkId,
-      });
+      returnedArray.push(element);
     });
 
     return okAsync(returnedArray);

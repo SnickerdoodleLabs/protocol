@@ -19,6 +19,9 @@ import {
   IAccountNFTs,
   getChainInfoByChain,
   EChainTechnology,
+  AccountAddress,
+  IChainTransaction,
+  SolanaAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -71,7 +74,7 @@ export class MonitoringService implements IMonitoringService {
                 return this.persistence
                   .getLatestTransactionForAccount(
                     chainId,
-                    linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                    linkedAccount.sourceAccountAddress,
                   )
                   .andThen((tx) => {
                     // TODO: Determine cold start timestamp
@@ -81,7 +84,7 @@ export class MonitoringService implements IMonitoringService {
                     }
 
                     return this.getLatestTransactions(
-                      linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                      linkedAccount.sourceAccountAddress,
                       startTime,
                       chainId,
                     );
@@ -93,7 +96,7 @@ export class MonitoringService implements IMonitoringService {
       })
       .andThen((transactionsArr) => {
         const transactions = transactionsArr.flat(2);
-        return this.persistence.addEVMTransactions(transactions); // let's not call if empty?
+        return this.persistence.addTransactions(transactions); // let's not call if empty? (trivial and unnecessary)
       });
   }
 
@@ -104,15 +107,16 @@ export class MonitoringService implements IMonitoringService {
   }
 
   protected getLatestTransactions(
-    accountAddress: EVMAccountAddress,
+    accountAddress: AccountAddress,
     timestamp: UnixTimestamp,
     chainId: ChainId,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<IChainTransaction[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.accountIndexing.getEVMTransactionRepository(),
+      this.accountIndexing.getSolanaTransactionRepository(),
       this.accountIndexing.getSimulatorEVMTransactionRepository(),
-    ]).andThen(([config, evmRepo, simulatorRepo]) => {
+    ]).andThen(([config, evmRepo, solRepo, simulatorRepo]) => {
       // Get the chain info for the transaction
       const chainInfo = config.chainInformation.get(chainId);
 
@@ -125,13 +129,19 @@ export class MonitoringService implements IMonitoringService {
         case EIndexer.EVM:
           return evmRepo.getEVMTransactions(
             chainId,
-            accountAddress,
+            accountAddress as EVMAccountAddress,
             new Date(timestamp * 1000),
           );
         case EIndexer.Simulator:
           return simulatorRepo.getEVMTransactions(
             chainId,
-            accountAddress,
+            accountAddress as EVMAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Solana:
+          return solRepo.getSolanaTransactions(
+            chainId,
+            accountAddress as SolanaAccountAddress,
             new Date(timestamp * 1000),
           );
         default:

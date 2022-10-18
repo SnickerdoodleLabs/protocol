@@ -1,3 +1,22 @@
+import {
+  Box,
+  CircularProgress,
+  Grid,
+  IconButton,
+  MenuItem,
+  Modal,
+  Select,
+  Typography,
+} from "@material-ui/core";
+import CloseIcon from "@material-ui/icons/Close";
+import {
+  EVMAccountAddress,
+  ITokenBalance,
+  IAccountNFT,
+} from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
+import React, { FC, useEffect, useState } from "react";
+
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
@@ -12,31 +31,13 @@ import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import {
-  Box,
-  CircularProgress,
-  Grid,
-  IconButton,
-  MenuItem,
-  Modal,
-  Select,
-  Typography,
-} from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
-import {
-  EVMAccountAddress,
-  IEVMBalance,
-  IEVMNFT,
-} from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
-import React, { FC, useEffect, useState } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
-  [id: EVMAccountAddress]: IEVMBalance[];
+  [id: EVMAccountAddress]: ITokenBalance[];
 }
 export interface IAccountNFTsObject {
-  [id: EVMAccountAddress]: IEVMNFT[];
+  [id: EVMAccountAddress]: ITokenBalance[];
 }
 
 const ViewDetailsModal: FC = () => {
@@ -415,7 +416,7 @@ const ViewDetailsModal: FC = () => {
                   ) : (
                     <Grid container className={classes.nftContainer}>
                       {accountNFTs?.[accountSelect]?.map((nftItem, index) => {
-                        if (nftItem.chain.toString() === chainSelect) {
+                        if (nftItem.chainId.toString() === chainSelect) {
                           return <NFTItem key={index} item={nftItem} />;
                         } else {
                           return null;
