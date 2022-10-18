@@ -43,6 +43,7 @@ import {
   MetatransactionSignatureRequest,
   BigNumberString,
   Signature,
+  EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import inquirer from "inquirer";
@@ -271,7 +272,7 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "dump backup", value: "dumpBackup" },
     { name: "restore backup", value: "restoreBackup" },
-    { name: "manual backup", value: "manualBackup"},
+    { name: "manual backup", value: "manualBackup" },
     new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
@@ -347,9 +348,8 @@ function corePrompt(): ResultAsync<void, Error> {
         */
         transactions[0] = new EVMTransaction(
           ChainId(43113),
-          "firstHash",
+          EVMTransactionHash("firstHash"),
           UnixTimestamp(100),
-          null,
           EVMAccountAddress("send200"),
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           BigNumberString("200"),
@@ -361,9 +361,8 @@ function corePrompt(): ResultAsync<void, Error> {
         );
         transactions[1] = new EVMTransaction(
           ChainId(43113),
-          "secondHash",
+          EVMTransactionHash("secondHash"),
           UnixTimestamp(100),
-          null,
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           EVMAccountAddress("get1000"),
           BigNumberString("1000"),
@@ -375,9 +374,8 @@ function corePrompt(): ResultAsync<void, Error> {
         );
         transactions[2] = new EVMTransaction(
           ChainId(43113),
-          "thirdHash",
+          EVMTransactionHash("thirdHash"),
           UnixTimestamp(100),
-          null,
           EVMAccountAddress("send300"),
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           BigNumberString("300"),
@@ -389,9 +387,8 @@ function corePrompt(): ResultAsync<void, Error> {
         );
         transactions[3] = new EVMTransaction(
           ChainId(43113),
-          "fourthHash",
+          EVMTransactionHash("fourthHash"),
           UnixTimestamp(100),
-          null,
           EVMAccountAddress("send50"),
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           BigNumberString("50"),
@@ -401,27 +398,27 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           Math.random() * 1000,
         );
-
         // {chainId\":43113,
         // \"outgoingValue\":\"0\",\"outgoingCount\":\"0\",\"incomingValue\":\"1000\",\"incomingCount\":\"1\"
-        console.log(`adding ${transactions.length} transactions for chain 43113`)
-        return core.addEVMTransactions(transactions).map(console.log);
+        console.log(
+          `adding ${transactions.length} transactions for chain 43113`,
+        );
+        return core.addTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
         transactions[0] = new EVMTransaction(
           ChainId(1),
-          "null",
+          EVMTransactionHash("null"),
           UnixTimestamp(100),
           null,
           null,
-          null,
-          null,
+          BigNumberString("100"),
           null,
           null,
           null,
           null,
           Math.random() * 1000,
         );
-        return core.addEVMTransactions(transactions).map(console.log);
+        return core.addTransactions(transactions).map(console.log);
       case "addSiteVisit - google":
         sites[0] = new SiteVisit(
           URLString("www.google.com"),

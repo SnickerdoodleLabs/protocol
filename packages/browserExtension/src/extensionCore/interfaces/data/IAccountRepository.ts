@@ -2,8 +2,8 @@ import {
   AccountAddress,
   DataWalletAddress,
   EChain,
-  IEVMBalance,
-  IEVMNFT,
+  ITokenBalance,
+  IAccountNFT,
   LanguageCode,
   LinkedAccount,
   Signature,
@@ -33,8 +33,8 @@ export interface IAccountRepository {
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError>;
   getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], SnickerDoodleCoreError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError>;
+  getAccountBalances(): ResultAsync<ITokenBalance[], SnickerDoodleCoreError>;
+  getAccountNFTs(): ResultAsync<IAccountNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
   unlinkAccount(
     account: AccountAddress,

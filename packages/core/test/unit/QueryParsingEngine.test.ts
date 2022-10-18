@@ -14,6 +14,7 @@ import {
   QueryExpiredError,
   SDQLQuery,
   SDQLString,
+  IChainTransaction,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -27,7 +28,6 @@ import {
 import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-
 import {
   QueryEvaluator,
   QueryParsingEngine,
@@ -37,7 +37,6 @@ import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 const queryId = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -88,10 +87,9 @@ class QueryParsingMocks {
     );
 
     td.when(
-      this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
+      this.persistenceRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    
     td.when(this.persistenceRepo.getTransactionsArray()).thenReturn(
       okAsync(new Array<IChainTransaction>()),
     );

@@ -3,8 +3,8 @@ import {
   DataWalletAddress,
   EChain,
   EVMAccountAddress,
-  IEVMBalance,
-  IEVMNFT,
+  ITokenBalance,
+  IAccountNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   LanguageCode,
@@ -23,9 +23,7 @@ import {
   IErrorUtils,
   IErrorUtilsType,
 } from "@interfaces/utilities";
-import {
-  SnickerDoodleCoreError,
-} from "@shared/objects/errors";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 @injectable()
 export class AccountRepository implements IAccountRepository {
@@ -57,7 +55,7 @@ export class AccountRepository implements IAccountRepository {
   }
 
   public getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    ITokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.core.getAccountBalances().mapErr((error) => {
@@ -66,7 +64,7 @@ export class AccountRepository implements IAccountRepository {
     });
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<IAccountNFT[], SnickerDoodleCoreError> {
     return this.core.getAccountNFTs().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);
