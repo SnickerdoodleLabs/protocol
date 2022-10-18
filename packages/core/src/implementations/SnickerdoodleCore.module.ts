@@ -13,7 +13,6 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  CovalentEVMTransactionRepository,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
@@ -194,9 +193,6 @@ export const snickerdoodleCoreModule = new ContainerModule(
     ).to(MetatransactionForwarderRepository);
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
-      .inSingletonScope();
-    bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
-      .to(CovalentEVMTransactionRepository)
       .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
