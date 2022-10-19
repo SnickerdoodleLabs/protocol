@@ -173,7 +173,7 @@ core.getEvents().map(async (events) => {
             request.consentContractAddress, 
             {
               cid: request.query.cid,
-              query: request.query,
+              query: request.query.query,
             },
             request.rewardsPreview
             )
