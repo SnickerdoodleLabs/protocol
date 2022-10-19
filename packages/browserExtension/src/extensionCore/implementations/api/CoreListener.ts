@@ -35,7 +35,6 @@ export class CoreListener implements ICoreListener {
       events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
       events.onQueryAccepted.subscribe(this.onQueryAccepted.bind(this));
-      //events.onMetatransactionSignatureRequested.subscribe(this.onMetatransactionSignatureRequested.bind(this));
     });
     return okAsync(undefined);
   }
@@ -60,10 +59,46 @@ export class CoreListener implements ICoreListener {
     return okAsync(undefined);
   }
 
+  private onQueryPosted(request: SDQLQueryRequest) {
+    console.log(
+      `onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+    );
+    console.debug(request.query.query);
+
+    // @TODO - remove once ipfs issue is resolved
+    const getStringQuery = () => {
+      const queryObjOrStr = request.query.query;
+      let queryString: SDQLString;
+      if (typeof queryObjOrStr === "object") {
+        queryString = JSON.stringify(queryObjOrStr) as SDQLString;
+      } else {
+        queryString = queryObjOrStr;
+      }
+      return queryString;
+    };
+
+    
+
+    /* We are replacing the processQuery with something else here */
+    
+    this.core
+      .processRewardsPreview(request.consentContractAddress, {
+        cid: request.query.cid,
+        query: getStringQuery(),
+      })
+      .mapErr((e) => {
+        console.error(
+          `Error while creating preview! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+        );
+        console.error(e);
+      });
+    
+  }
+
   // TODO: implementation
   private onQueryAccepted(request: SDQLQueryRequest){
-    console.log("onQueryAccepted is: ", request);
-
+    console.log(`onQueryAccepted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,);
+    
     const getStringQuery = () => {
       const queryObjOrStr = request.query.query;
       let queryString: SDQLString;
@@ -87,42 +122,8 @@ export class CoreListener implements ICoreListener {
       console.error(e);
     });
 
-    // within this method, we store rewards into the persistence layer
-    // this.
-  }
-
-  private onQueryPosted(request: SDQLQueryRequest) {
-    console.log(
-      `onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-    );
-    console.debug(request.query.query);
-
-    // @TODO - remove once ipfs issue is resolved
-    const getStringQuery = () => {
-      const queryObjOrStr = request.query.query;
-      let queryString: SDQLString;
-      if (typeof queryObjOrStr === "object") {
-        queryString = JSON.stringify(queryObjOrStr) as SDQLString;
-      } else {
-        queryString = queryObjOrStr;
-      }
-      return queryString;
-    };
-
-    /* We are replacing the processQuery with something else here */
-    /*
-    this.core
-      .processQuery(request.consentContractAddress, {
-        cid: request.query.cid,
-        query: getStringQuery(),
-      })
-      .mapErr((e) => {
-        console.error(
-          `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-        );
-        console.error(e);
-      });
-    */
+  //   // within this method, we store rewards into the persistence layer
+  //   // this.
   }
 
   private onAccountRemoved(account: LinkedAccount) {

@@ -148,15 +148,6 @@ export class QueryService implements IQueryService {
 
           context.publicEvents.onQueryPosted.next(queryRequest);
 
-          return this.insightPlatformRepo.deliverPreview(
-            context.dataWalletAddress!,
-            consentContractAddress,
-            query.cid,
-            context.dataWalletKey!,
-            rewardsPreviews,
-            config.defaultInsightPlatformBaseUrl,
-          )
-
         }).andThen((val) => {
           if (val == false){
             return okAsync(undefined);
@@ -173,7 +164,62 @@ export class QueryService implements IQueryService {
 
         })
       })    
+  }
 
+  public processRewardsPreview(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+  ): ResultAsync<
+    void,
+    | AjaxError
+    | UninitializedError
+    | ConsentError
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  > {
+    console.log(
+      `QueryService.processQuery: Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,
+    );
+    return ResultUtils.combine([
+      this.contextProvider.getContext(),
+      this.configProvider.getConfig(),
+      this.consentContractRepository.getCurrentConsentToken(
+        consentContractAddress,
+      ),
+    ]).andThen(([context, config, consentToken]) => {
+      
+      return this.validateContextConfig(
+        context as CoreContext,
+        config,
+        consentToken,
+      ).andThen(() => {
+          return this.queryParsingEngine
+            .handleQuery(query, consentToken!.dataPermissions)
+            .andThen((maps) => {
+              // console.log("QueryParsingEngine HandleQuery");
+              const maps2 = maps as [InsightString[], EligibleReward[]];
+              const insights = maps2[0];
+              const rewards = maps2[1];
+
+              return this.insightPlatformRepo.deliverPreview(
+                context.dataWalletAddress!,
+                consentContractAddress,
+                query.cid,
+                context.dataWalletKey!,
+                rewardsPreviews,
+                config.defaultInsightPlatformBaseUrl,
+              )
+                .map(() => {
+                  console.log("insight delivery api call done");
+                  // context.publicEvents.onQueryPosted.next({
+                  //   consentContractAddress,
+                  //   query,
+                  // });
+                });
+            });
+        });
+    });
   }
 
   // safeUpdateQueryContractMap(queryId: IpfsCID, consentContractAddress: EVMContractAddress): boolean {
