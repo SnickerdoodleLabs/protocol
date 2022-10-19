@@ -1,4 +1,5 @@
 import { CeramicClient } from "@ceramicnetwork/http-client";
+import { StreamID } from "@ceramicnetwork/streamid";
 import { DataModel } from "@glazed/datamodel";
 import { DIDDataStore } from "@glazed/did-datastore";
 import { TileLoader } from "@glazed/tile-loader";
@@ -11,7 +12,6 @@ import {
   IDataWalletBackup,
   ModelTypes,
   PersistenceError,
-  URLString,
 } from "@snickerdoodlelabs/objects";
 import { DID } from "dids";
 import { inject, injectable } from "inversify";
@@ -47,6 +47,21 @@ export class CeramicCloudStorage implements ICloudStorage {
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
+    });
+  }
+
+  public clear(): ResultAsync<void, PersistenceError> {
+    return this._init().andThen(({ store, client }) => {
+      return this._getBackupIndex().andThen((entires) => {
+        return ResultUtils.combine(
+          entires.map((entry) => {
+            return ResultAsync.fromPromise(
+              client.pin.rm(StreamID.fromString(entry.id)),
+              (e) => e as PersistenceError,
+            );
+          }),
+        ).andThen(() => this._putBackupIndex([]));
+      });
     });
   }
 
@@ -156,20 +171,42 @@ export class CeramicCloudStorage implements ICloudStorage {
           // only index if pin was successful
           const id = doc.id.toUrl();
           return this._getBackupIndex().andThen((backups) => {
-            return ResultAsync.fromPromise(
-              store.set("backupIndex", {
-                backups: [
-                  ...backups,
-                  { id: id, timestamp: backup.header.timestamp },
-                ],
-              }),
-              (e) => e as PersistenceError,
-            ).map((_) => {
+            const index = [
+              ...backups,
+              { id: id, timestamp: backup.header.timestamp },
+            ];
+
+            return this._putBackupIndex(index).map((_) => {
               console.debug("CloudStorage", `Backup placed: ${id}`);
               return CeramicStreamID(id);
             });
           });
         });
+      });
+    });
+  }
+
+  private _putBackupIndex(
+    backups: BackupIndexEntry[],
+  ): ResultAsync<void, PersistenceError> {
+    const payload = {
+      backups: backups,
+    };
+
+    return this._init().andThen(({ store }) => {
+      return this.waitForUnlock().andThen((key) => {
+        return this._cryptoUtils
+          .deriveAESKeyFromEVMPrivateKey(key)
+          .andThen((aesKey) => {
+            return this._cryptoUtils
+              .encryptString(JSON.stringify(payload), aesKey)
+              .andThen((encrypted) => {
+                return ResultAsync.fromPromise(
+                  store.set("backupIndex", encrypted),
+                  (e) => e as PersistenceError,
+                ).map(() => undefined);
+              });
+          });
       });
     });
   }
@@ -196,23 +233,42 @@ export class CeramicCloudStorage implements ICloudStorage {
         loader.load<IDataWalletBackup>(id),
         (e) => e as PersistenceError,
       ).map((tileDoc) => {
-        // console.debug("CloudStorage", `fetched content for ${id}`);
-        return tileDoc.content;
+        const retVal = tileDoc.content;
+        retVal.header.hash = tileDoc.id.toUrl();
+        return retVal;
       });
     });
   }
 
   private _getBackupIndex(): ResultAsync<BackupIndexEntry[], PersistenceError> {
-    return this._init().andThen(({ store, client }) => {
+    return this._init().andThen(({ store }) => {
       return ResultAsync.fromPromise(
         store.get("backupIndex"),
         (e) => e as PersistenceError,
-      ).map((backups) => {
-        if (backups == null) {
-          return [];
-        }
-        return Object.values(backups.backups);
-      });
+      )
+        .andThen((encrypted) => {
+          if (encrypted == null) {
+            return okAsync(null);
+          }
+
+          return this.waitForUnlock().andThen((key) => {
+            return this._cryptoUtils
+              .deriveAESKeyFromEVMPrivateKey(key)
+              .andThen((aesKey) => {
+                return this._cryptoUtils
+                  .decryptAESEncryptedString(encrypted, aesKey)
+                  .andThen((decrypted) => {
+                    return okAsync(JSON.parse(decrypted) as BackupIndex);
+                  });
+              });
+          });
+        })
+        .map((backups) => {
+          if (backups == null) {
+            return [];
+          }
+          return Object.values(backups.backups);
+        });
     });
   }
 }

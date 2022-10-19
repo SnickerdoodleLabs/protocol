@@ -184,7 +184,7 @@ export class AccountService implements IAccountService {
                 //   "Data wallet address initialized: ",
                 //   dataWalletAccount.accountAddress,
                 // );
-                
+
                 // The account address in account is just a generic EVMAccountAddress,
                 // we need to cast it to a DataWalletAddress, since in this case, that's
                 // what it is.
@@ -532,13 +532,12 @@ export class AccountService implements IAccountService {
   //   return this.dataWalletPersistence.getTransactionsArray();
   // }
 
-  public getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError> {
+  public getTransactionsArray(): ResultAsync<
+    IChainTransaction[],
+    PersistenceError
+  > {
     return this.dataWalletPersistence.getTransactionsArray();
   }
-
-  
-
-
 
   public getSiteVisitsMap(): ResultAsync<
     Map<URLString, number>,
@@ -563,6 +562,10 @@ export class AccountService implements IAccountService {
 
   public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
     return this.dataWalletPersistence.postBackup();
+  }
+
+  public clearCloudStore(): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.clearCloudStore();
   }
 
   protected addCrumb(
