@@ -156,19 +156,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     astEvaluator: AST_Evaluator,
   ): ResultAsync<SDQL_Return, EvaluationError>[] {
     return [...ast.logic.returns.keys()].map((returnStr) => {
-      console.log("returnStr Keys: ", returnStr)
 
       const requiredPermissions = ast.logic.getReturnPermissions(returnStr);
-      console.log("requiredPermissions: ", requiredPermissions)
 
-      // console.log(requiredPermissions);
       if (dataPermissions.contains(requiredPermissions)) {
-        console.log("Returns contain permissions");
-
         return astEvaluator.evalAny(ast.logic.returns.get(returnStr));
       } else {
-        console.log("Returns does not contain permissions");
-
         return okAsync(SDQL_Return(null));
       }
     });

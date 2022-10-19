@@ -59,19 +59,15 @@ export class AST_Evaluator {
 
   public evalAny(expr: any): ResultAsync<SDQL_Return, EvaluationError> {
     // console.log("evalAny", expr);
-    console.log("expr1: ", expr);
     if (expr === undefined) {
       return errAsync(new EvaluationError("undefined expression"));
     }
     if (TypeChecker.isValue(expr)) {
-      console.log("expr: ", expr);
       return okAsync(expr);
     } else if (TypeChecker.isQuery(expr)) {
-      console.log("expr: ", expr);
       return this.evalQuery(expr);
     } else {
       /* COMMAND_IF */
-      console.log("expr: ", expr);
       return this.evalExpr(expr);
     }
   }
@@ -99,10 +95,6 @@ export class AST_Evaluator {
   }
 
   public evalIf(eef: Command_IF): ResultAsync<SDQL_Return, EvaluationError> {
-    // console.log("eef name: ", eef.name);
-    // console.log("eef trueExpr: ", eef.trueExpr);
-    // console.log("eef falseExpr: ", eef.falseExpr);
-    // console.log("eef conditionExpr: ", eef.conditionExpr);
 
     return this.evalConditionExpr(eef.conditionExpr).andThen(
       (val): ResultAsync<SDQL_Return, EvaluationError> => {
