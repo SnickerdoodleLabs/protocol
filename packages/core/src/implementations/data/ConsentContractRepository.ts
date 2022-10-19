@@ -201,17 +201,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     EVMContractAddress[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   > {
-    return ResultUtils.combine([
-      this.consentContractFactory.factoryConsentFactoryContract(),
-      this.contextProvider.getContext(),
-    ]).andThen(([consentFactoryContract, context]) => {
-      if (context.dataWalletAddress == null) {
-        return errAsync(new UninitializedError());
-      }
-      return consentFactoryContract.getOptedInConsentContractAddressForAccount(
-        EVMAccountAddress(context.dataWalletAddress),
-      );
-    });
+    // This now comes from the data persistence
   }
 
   public encodeOptIn(
