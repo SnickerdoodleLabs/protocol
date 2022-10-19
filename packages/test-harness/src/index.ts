@@ -146,9 +146,9 @@ core.getEvents().map(async (events) => {
     );
   })
 
-  events.onQueryPosted.subscribe(async (rewardPreview: SDQLQueryRequest) => {
+  events.onQueryPosted.subscribe(async (request: SDQLQueryRequest) => {
     console.log(
-      `Recieved query for consentContract ${rewardPreview.consentContractAddress} with id ${rewardPreview.query.cid}`,
+      `Recieved query for consentContract ${request.consentContractAddress} with id ${request.query.cid}`,
     );
 
     try {
@@ -168,13 +168,15 @@ core.getEvents().map(async (events) => {
             return okAsync(undefined);
           }
 
-          return okAsync(undefined);
-
-
-          // return core.processQuery(
-          //   rewardPreview.consentContractAddress,
-          //   rewardPreview.query,
-          // );
+          return core
+          .processRewardsPreview(
+            request.consentContractAddress, 
+            {
+              cid: request.query.cid,
+              query: request.query,
+            },
+            request.rewardsPreview
+            )
         })
         .mapErr((e) => {
           console.error(e);
