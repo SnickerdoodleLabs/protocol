@@ -15,21 +15,13 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
-  // TODO: This is a placeholder for the rewards preview
-  //   getRewardsPreview(
-  //     dataWalletAddress: DataWalletAddress,
-  //     consentContractAddress: EVMContractAddress,
-  //     queryCid: IpfsCID,
-  //     queries: string[],
-  //     dataWalletKey: EVMPrivateKey,
-  //   ): ResultAsync<void, AjaxError>;
 
   deliverPreview(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
     queryCid: IpfsCID,
     dataWalletKey: EVMPrivateKey,
-    rewardsPreview: EligibleReward[],
+    rewardsPreview: EligibleReward[] | null,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<boolean, AjaxError>;
 

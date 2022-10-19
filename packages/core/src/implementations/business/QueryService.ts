@@ -99,7 +99,7 @@ export class QueryService implements IQueryService {
       this.configProvider.getConfig(),
     ])
     .andThen(([query, context, config]) => {
-      
+
       if (query == null) {
         // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
         // If the client does have the cid key, but no query data yet, then it is not resolved in IPFS yet.
@@ -138,7 +138,6 @@ export class QueryService implements IQueryService {
           return this.queryParsingEngine.getRewardsPreview(query)
         })
         .andThen((rewardsPreviews) => {  
-          console.log("Returning Preview!");
 
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
@@ -146,22 +145,12 @@ export class QueryService implements IQueryService {
             rewardsPreviews
           );
 
+          /* Would like to discuss unattaching events 
+            Muktadir - do we actually need two events?
+          */
           context.publicEvents.onQueryPosted.next(queryRequest);
-
-        }).andThen((val) => {
-          if (val == false){
-            return okAsync(undefined);
-          }
-
-          const queryRequest = new SDQLQueryRequest(
-            consentContractAddress,
-            query,
-            null
-          );
           context.publicEvents.onQueryAccepted.next(queryRequest);
-
           return okAsync(undefined);
-
         })
       })    
   }
@@ -169,6 +158,7 @@ export class QueryService implements IQueryService {
   public processRewardsPreview(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    rewardsPreview: EligibleReward[] | null
   ): ResultAsync<
     void,
     | AjaxError
@@ -194,42 +184,22 @@ export class QueryService implements IQueryService {
         config,
         consentToken,
       ).andThen(() => {
-          return this.queryParsingEngine
-            .handleQuery(query, consentToken!.dataPermissions)
-            .andThen((maps) => {
-              // console.log("QueryParsingEngine HandleQuery");
-              const maps2 = maps as [InsightString[], EligibleReward[]];
-              const insights = maps2[0];
-              const rewards = maps2[1];
 
               return this.insightPlatformRepo.deliverPreview(
                 context.dataWalletAddress!,
                 consentContractAddress,
                 query.cid,
                 context.dataWalletKey!,
-                rewardsPreviews,
+                rewardsPreview,
                 config.defaultInsightPlatformBaseUrl,
               )
                 .map(() => {
-                  console.log("insight delivery api call done");
-                  // context.publicEvents.onQueryPosted.next({
-                  //   consentContractAddress,
-                  //   query,
-                  // });
+                  console.log("insights reward preview api call done");
                 });
-            });
+
         });
     });
   }
-
-  // safeUpdateQueryContractMap(queryId: IpfsCID, consentContractAddress: EVMContractAddress): boolean {
-
-  //   const existingConsentAddress = this.queryContractMap.get(queryId)
-  //   if (existingConsentAddress && (existingConsentAddress !== consentContractAddress)) {
-  //     return false;
-  //   }
-  //   return true;
-  // }
 
   public processQuery(
     consentContractAddress: EVMContractAddress,
@@ -261,7 +231,6 @@ export class QueryService implements IQueryService {
           return this.queryParsingEngine
             .handleQuery(query, consentToken!.dataPermissions)
             .andThen((maps) => {
-              // console.log("QueryParsingEngine HandleQuery");
               const maps2 = maps as [InsightString[], EligibleReward[]];
               const insights = maps2[0];
               const rewards = maps2[1];
@@ -277,10 +246,6 @@ export class QueryService implements IQueryService {
                 )
                 .map(() => {
                   console.log("insight delivery api call done");
-                  // context.publicEvents.onQueryPosted.next({
-                  //   consentContractAddress,
-                  //   query,
-                  // });
                 });
             });
         });

@@ -68,6 +68,7 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
+  EligibleReward,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -504,6 +505,26 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return cohortService.getInvitationMetadataByCID(ipfsCID);
   }
 
+
+  public processRewardsPreview(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    rewardsPreview: EligibleReward[] | null
+  ): ResultAsync<
+    void,
+    | AjaxError
+    | UninitializedError
+    | ConsentError
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  > {
+    const queryService =
+      this.iocContainer.get<IQueryService>(IQueryServiceType);
+
+    return queryService.processRewardsPreview(consentContractAddress, query, rewardsPreview);
+  }
+
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
@@ -519,7 +540,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    // console.log("core.processQuery")
     return queryService.processQuery(consentContractAddress, query);
   }
 

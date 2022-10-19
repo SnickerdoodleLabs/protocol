@@ -8,6 +8,7 @@ import {
   PageInvitation,
   SiteVisit,
   LinkedAccount,
+  EligibleReward,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -280,6 +281,21 @@ export interface ISnickerdoodleCore {
     EScamFilterStatus,
     BlockchainProviderError | UninitializedError | SiftContractError
   >;
+
+  processRewardsPreview(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    rewardsPreview: EligibleReward[] | null
+  ): ResultAsync<
+    void,
+    | AjaxError
+    | UninitializedError
+    | ConsentError
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  > 
+
 
   // Called by the form factor to approve the processing of the query.
   // This is basically per-query consent. The consent token will be

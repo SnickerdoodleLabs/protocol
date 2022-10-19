@@ -42,7 +42,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryCid: IpfsCID,
     dataWalletKey: EVMPrivateKey,
-    rewardsPreview: EligibleReward[],
+    rewardsPreview: EligibleReward[] | null,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<boolean, AjaxError> {
     
@@ -71,6 +71,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
           signature: signature,
+          preview: rewardsPreview
         });
       })
   }

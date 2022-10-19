@@ -1,4 +1,4 @@
-import { QueryExpiredError } from "@snickerdoodlelabs/objects";
+import { EligibleReward, QueryExpiredError } from "@snickerdoodlelabs/objects";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -44,6 +44,22 @@ export interface IQueryService {
     | QueryFormatError
     | EvaluationError
   >;
+
+  processRewardsPreview(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    rewardsPreview: EligibleReward[] | null
+  ): ResultAsync<
+    void,
+    | AjaxError
+    | UninitializedError
+    | ConsentError
+    | IPFSError
+    | QueryFormatError
+    | EvaluationError
+  >
+
+
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

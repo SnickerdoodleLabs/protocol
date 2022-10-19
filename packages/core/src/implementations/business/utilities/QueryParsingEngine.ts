@@ -68,8 +68,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       return ResultUtils.combine(
         this.evalCompensations(ast, astEvaluator),
       ).andThen((CompensationResults) => {
+        
         console.log("CompensationResults: ", CompensationResults);
-
         const rewardsPreviews = CompensationResults.map(this.SDQLReturnToInsightString);
         console.log("CompensationResults: ", rewardsPreviews);
 
