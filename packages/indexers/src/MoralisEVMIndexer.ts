@@ -1,3 +1,5 @@
+import { MoralisConfigValues } from "@moralisweb3/core";
+import { MoralisEvmApi } from "@moralisweb3/evm-api";
 import { EvmAddress } from "@moralisweb3/evm-utils";
 import {
   IAxiosAjaxUtilsType,
@@ -24,7 +26,7 @@ import {
   EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
-import Moralis from "moralis";
+import pkg from "moralis";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -32,6 +34,11 @@ import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
 } from "@indexers/IIndexerConfigProvider.js";
+
+const start = (pkg as any).default.start as (
+  providedConfig?: Partial<MoralisConfigValues> | undefined,
+) => Promise<void>;
+const evmApi = (pkg as any).default.EvmApi as MoralisEvmApi;
 
 export class MoralisEVMIndexer
   implements
@@ -45,7 +52,9 @@ export class MoralisEVMIndexer
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-  ) {}
+  ) {
+    console.log(pkg);
+  }
 
   public initialize<E>(): ResultAsync<void, E> {
     if (this._initialized) {
@@ -54,7 +63,7 @@ export class MoralisEVMIndexer
 
     return this.configProvider.getConfig().andThen((config) => {
       return ResultAsync.fromPromise(
-        Moralis.start({ apiKey: config.moralisApiKey }),
+        start({ apiKey: config.moralisApiKey }),
         (e) => e as E,
       );
     });
@@ -70,7 +79,7 @@ export class MoralisEVMIndexer
       this.initialize<AccountBalanceError>(),
     ]).andThen(([config]) => {
       return ResultAsync.fromPromise(
-        Moralis.EvmApi.balance.getNativeBalance({
+        evmApi.balance.getNativeBalance({
           chain: `0x${chainId.toString(16)}`,
           address: accountAddress,
         }),
@@ -94,7 +103,7 @@ export class MoralisEVMIndexer
         );
 
         return ResultAsync.fromPromise(
-          Moralis.EvmApi.token.getWalletTokenBalances({
+          evmApi.token.getWalletTokenBalances({
             chain: `0x${chainId.toString(16)}`,
             address: accountAddress,
           }),
@@ -127,7 +136,7 @@ export class MoralisEVMIndexer
   ): ResultAsync<EVMNFT[], AjaxError | AccountNFTError> {
     return this.initialize<AccountNFTError>().andThen(() => {
       return ResultAsync.fromPromise(
-        Moralis.EvmApi.nft.getWalletNFTs({
+        evmApi.nft.getWalletNFTs({
           chain: `0x${chainId.toString(16)}`,
           address: accountAddress,
         }),
@@ -164,7 +173,7 @@ export class MoralisEVMIndexer
       this.initialize<AccountIndexingError>(),
     ]).andThen(() => {
       return ResultAsync.fromPromise(
-        Moralis.EvmApi.transaction.getWalletTransactions({
+        evmApi.transaction.getWalletTransactions({
           chain: `0x${chainId.toString(16)}`,
           address: accountAddress,
         }),
