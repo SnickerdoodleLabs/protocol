@@ -44,7 +44,7 @@ jobs:
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA" \
           --build-arg DOMAIN="extension.$JIRA_TICKET.snickerdoodle.dev" \
           --build-arg CONTROL_CHAIN_ID=31337 \
-          --build-arg BUILD_ENV=development \
+          --build-arg BUILD_ENV=production \
           --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
           -f ./packages/extension-onboarding/Dockerfile \
