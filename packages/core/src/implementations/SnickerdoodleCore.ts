@@ -661,13 +661,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountNFTs();
   }
 
-  /*
-  getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null; }[], PersistenceError> {
+  addEarnedReward(
+    reward: EarnedReward,
+  ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTransactionsArray();
+    return accountService.addEarnedReward(reward);
   }
-  */
+
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getEarnedRewards();
+  };
 
   getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError> {
     const accountService =
@@ -691,19 +697,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addSiteVisits(siteVisits);
   }
 
-  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getEarnedRewards();
-  }
-  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.addEarnedReward(reward);
-  }
-
-
-
 
   public addEVMTransactions(
     transactions: EVMTransaction[],
@@ -712,19 +705,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEVMTransactions(transactions);
   }
-
-  // public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
-  //   const accountService =
-  //     this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-  //   return accountService.addEarnedReward(reward);
-  // }
-
-  // public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
-  //   const accountService =
-  //     this.iocContainer.get<IAccountService>(IAccountServiceType);
-  //   return accountService.getEarnedRewards();
-  // }
 
   public dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(

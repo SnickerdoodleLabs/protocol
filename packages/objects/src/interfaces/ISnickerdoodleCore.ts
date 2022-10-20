@@ -9,6 +9,7 @@ import {
   SiteVisit,
   LinkedAccount,
   EligibleReward,
+  EarnedReward,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -295,6 +296,12 @@ export interface ISnickerdoodleCore {
     | QueryFormatError
     | EvaluationError
   > 
+
+  addEarnedReward(
+    reward: EarnedReward,
+  ): ResultAsync<void, PersistenceError> 
+
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>
 
 
   // Called by the form factor to approve the processing of the query.

@@ -8,6 +8,8 @@ import {
 } from "@interfaces/utilities";
 import {
   DataWalletAddress,
+  EarnedReward,
+  ERewardType,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
@@ -86,8 +88,22 @@ export class CoreListener implements ICoreListener {
 
   private onQueryAccepted(request: SDQLQueryRequest){
     console.log(`onQueryAccepted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,);
+  
+    // Need to Update ERewardTypes within Eligible Rewards
+    if (request.rewardsPreview != null){
+      request.rewardsPreview.forEach(element => {
+        if (element.description == ERewardType.Lazy){
+          this.core.addEarnedReward(new EarnedReward(request.query.cid, ERewardType.Lazy));
+        }
+        else if (element.description == ERewardType.Direct){
+          this.core.addEarnedReward(new EarnedReward(request.query.cid, ERewardType.Direct));
+        }
+        else {
+          this.core.addEarnedReward(new EarnedReward(request.query.cid, ERewardType.Web2));
+        }
+      });
+    }
 
-    
     this.core
     .processQuery(request.consentContractAddress, {
       cid: request.query.cid,
