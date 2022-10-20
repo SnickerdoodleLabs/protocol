@@ -1,3 +1,4 @@
+import { EarnedReward } from "@snickerdoodlelabs/objects";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -107,15 +108,16 @@ export interface IAccountService {
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 
-  // getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError>
   getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>
-
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError>;
+
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
 
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
