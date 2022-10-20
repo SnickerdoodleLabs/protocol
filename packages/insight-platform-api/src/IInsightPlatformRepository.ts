@@ -9,6 +9,7 @@ import {
   InsightString,
   IpfsCID,
   Signature,
+  TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -26,6 +27,7 @@ export interface IInsightPlatformRepository {
   deliverInsights(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
     queryCid: IpfsCID,
     returns: InsightString[],
     dataWalletKey: EVMPrivateKey,

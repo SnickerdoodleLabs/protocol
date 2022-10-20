@@ -29,6 +29,7 @@ import {
 } from "@core-tests/mock/utilities";
 import { InvitationService } from "@core/implementations/business/index.js";
 import { IInvitationService } from "@core/interfaces/business/index.js";
+import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
@@ -61,6 +62,7 @@ const invitationDomain = new InvitationDomain(
 );
 
 class InvitationServiceMocks {
+  public consentTokenUtils: IConsentTokenUtils;
   public persistenceRepo: IDataWalletPersistence;
   public consentRepo: IConsentContractRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
@@ -72,6 +74,7 @@ class InvitationServiceMocks {
   public configProvider: ConfigProviderMock;
 
   public constructor() {
+    this.consentTokenUtils = td.object<IConsentTokenUtils>();
     this.persistenceRepo = td.object<IDataWalletPersistence>();
     this.consentRepo = td.object<IConsentContractRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
@@ -125,6 +128,7 @@ class InvitationServiceMocks {
 
   public factory(): IInvitationService {
     return new InvitationService(
+      this.consentTokenUtils,
       this.persistenceRepo,
       this.consentRepo,
       this.insightPlatformRepo,

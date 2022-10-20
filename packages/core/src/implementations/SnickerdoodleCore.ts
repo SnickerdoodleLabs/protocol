@@ -68,6 +68,7 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -87,7 +88,6 @@ import {
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
@@ -417,11 +417,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
     | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
     | AjaxError
+    | PersistenceError
     | MinimalForwarderContractError
     | ConsentError
   > {
@@ -456,8 +456,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | ConsentContractRepositoryError
-    | AjaxError
+    | ConsentFactoryContractError
+    | PersistenceError
     | ConsentError
   > {
     const cohortService = this.iocContainer.get<IInvitationService>(
@@ -484,10 +484,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   public getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
-    | ConsentContractError
-    | UninitializedError
     | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
     | ConsentFactoryContractError
+    | PersistenceError
   > {
     const cohortService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
@@ -520,7 +521,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    // console.log("core.processQuery")
     return queryService.processQuery(consentContractAddress, query);
   }
 
@@ -681,9 +681,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEarnedReward(reward);
   }
-
-
-
 
   public addEVMTransactions(
     transactions: EVMTransaction[],

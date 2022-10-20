@@ -15,9 +15,8 @@ import {
   TokenId,
   URLString,
   IpfsCID,
-  HexString32,
   Signature,
-  ConsentError,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, ResultAsync } from "neverthrow";
@@ -45,24 +44,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
     protected consentContractFactory: IContractFactory,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
-
-  public getConsentTokens(
-    consentContractAddress: EVMContractAddress,
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<
-    ConsentToken[],
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-  > {
-    return this.getConsentContract(consentContractAddress).andThen(
-      (consentContract) => {
-        return consentContract.getConsentTokensOfAddress(ownerAddress);
-      },
-    );
-  }
 
   public getInvitationUrls(
     consentContractAddress: EVMContractAddress,
@@ -121,27 +102,17 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  public getCurrentConsentToken(
-    consentContractAddress: EVMContractAddress,
+  public getConsentToken(
+    optInInfo: OptInInfo,
   ): ResultAsync<
     ConsentToken | null,
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
+    ConsentContractError | UninitializedError | BlockchainProviderError
   > {
-    return ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.getConsentContract(consentContractAddress),
-    ]).andThen(([context, consentContract]) => {
-      if (context.dataWalletAddress == null) {
-        return errAsync(new UninitializedError());
-      }
-      return consentContract.getCurrentConsentTokenOfAddress(
-        EVMAccountAddress(context.dataWalletAddress),
-      );
-    });
+    return this.getConsentContract(optInInfo.consentContractAddress).andThen(
+      (consentContract) => {
+        return consentContract.getConsentToken(optInInfo);
+      },
+    );
   }
 
   public isAddressOptedIn(
@@ -178,16 +149,14 @@ export class ConsentContractRepository implements IConsentContractRepository {
       });
   }
 
-  public getConsentContracts(): ResultAsync<
+  public getConsentContracts(
+    consentContractAddresses: EVMContractAddress[],
+  ): ResultAsync<
     Map<EVMContractAddress, IConsentContract>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   > {
-    return this.getOptedInConsentContractAddresses()
-      .andThen((contractAddresses) => {
-        return this.consentContractFactory.factoryConsentContracts(
-          contractAddresses,
-        );
-      })
+    return this.consentContractFactory
+      .factoryConsentContracts(consentContractAddresses)
       .map((consentContracts) => {
         return new Map(
           consentContracts.map((consentContract) => {
@@ -195,13 +164,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
           }),
         );
       });
-  }
-
-  public getOptedInConsentContractAddresses(): ResultAsync<
-    EVMContractAddress[],
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
-  > {
-    // This now comes from the data persistence
   }
 
   public encodeOptIn(
@@ -254,32 +216,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
       .andThen((consentFactoryContract) => {
         return consentFactoryContract.getDeployedConsents();
       });
-  }
-
-  public getAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    HexString32,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | AjaxError
-    | ConsentError
-  > {
-    return this.getCurrentConsentToken(consentContractAddress).andThen(
-      (consentToken) => {
-        if (consentToken == null) {
-          // not opted in!
-          return errAsync(new ConsentError("not opteed in!"));
-        }
-        return this.getConsentContract(consentContractAddress).andThen(
-          (contract) => {
-            return contract.agreementFlags(consentToken.tokenId);
-          },
-        );
-      },
-    );
   }
 
   protected getConsentContract(

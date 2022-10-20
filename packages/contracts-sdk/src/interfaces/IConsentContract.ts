@@ -14,6 +14,7 @@ import {
   EVMContractAddress,
   HexString32,
   InvalidParametersError,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -153,6 +154,14 @@ export interface IConsentContract {
   ): ResultAsync<number, ConsentContractError>;
 
   /**
+   * Returns the owner account for a token Id
+   * @param tokenId token Id
+   */
+  ownerOf(
+    tokenId: TokenId,
+  ): ResultAsync<EVMAccountAddress, ConsentContractError>;
+
+  /**
    * Returns the token uri for a specific token Id
    * @param tokenId token Id
    */
@@ -176,17 +185,9 @@ export interface IConsentContract {
    * Returns consent tokens previously minted for the address
    * @param ownerAddress owner address
    */
-  getConsentTokensOfAddress(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken[], ConsentContractError>;
-
-  /**
-   * Returns a current consent token owned by address
-   * @param ownerAddress owner address
-   */
-  getCurrentConsentTokenOfAddress(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken | null, ConsentContractError>;
+  getConsentToken(
+    optInInfo: OptInInfo,
+  ): ResultAsync<ConsentToken, ConsentContractError>;
 
   /**
    * Adds a domain to the contract storage
