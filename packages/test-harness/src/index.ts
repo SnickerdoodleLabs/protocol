@@ -159,7 +159,7 @@ core.getEvents().map(async (events) => {
         {
           type: "list",
           name: "approveRewardsPreview",
-          message: "Accept Rewards Preview?",
+          message: `Rewards Preview Includes:  Accept Rewards Preview`,
           choices: [
             { name: "Yes", value: true },
             { name: "No", value: false },
@@ -171,15 +171,19 @@ core.getEvents().map(async (events) => {
             return okAsync(undefined);
           }
 
-          return core
-          .processRewardsPreview(
-            request.consentContractAddress, 
-            {
-              cid: request.query.cid,
-              query: request.query.query,
-            },
-            request.rewardsPreview
-            )
+          // return core
+          // .processRewardsPreview(
+          //   request.consentContractAddress, 
+          //   {
+          //     cid: request.query.cid,
+          //     query: request.query.query,
+          //   },
+          //   request.rewardsPreview
+          //   )
+          return core.processQuery(
+            request.consentContractAddress,
+            request.query,
+          );
         })
         .mapErr((e) => {
           console.error(e);
