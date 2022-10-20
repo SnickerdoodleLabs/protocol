@@ -19,6 +19,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import Browser from "webextension-polyfill";
 
 @injectable()
@@ -82,33 +83,25 @@ export class CoreListener implements ICoreListener {
         );
         console.error(e);
       });
-    
   }
 
 
   private onQueryAccepted(request: SDQLQueryRequest){
     console.log(`onQueryAccepted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,);
-  
-    // Need to Update ERewardTypes within Eligible Rewards
-    if (request.rewardsPreview != null){
-      request.rewardsPreview.forEach(element => {
-        if (element.description == ERewardType.Lazy){
-          this.core.addEarnedReward(new EarnedReward(request.query.cid, ERewardType.Lazy));
-        }
-        else if (element.description == ERewardType.Direct){
-          this.core.addEarnedReward(new EarnedReward(request.query.cid, ERewardType.Direct));
-        }
-        else {
-          this.core.addEarnedReward(new EarnedReward(request.query.cid, ERewardType.Web2));
-        }
-      });
-    }
+    
+    return ResultUtils.combine(
+      request.rewardsPreview.map((index) => {
+        this.core.addEarnedReward(new EarnedReward(request.query.cid, index.type))
+        return okAsync(undefined);
+      })
+    ).andThen(() => {
+      this.core.processQuery(request.consentContractAddress, {
+        cid: request.query.cid,
+        query: this.getStringQuery(request),
+      })
 
-    this.core
-    .processQuery(request.consentContractAddress, {
-      cid: request.query.cid,
-      query: this.getStringQuery(request),
-    })
+      return okAsync(undefined);
+  })
     .mapErr((e) => {
       console.error(
         `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
