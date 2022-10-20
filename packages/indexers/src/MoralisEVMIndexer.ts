@@ -52,9 +52,7 @@ export class MoralisEVMIndexer
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-  ) {
-    console.log(pkg);
-  }
+  ) {}
 
   public initialize<E>(): ResultAsync<void, E> {
     if (this._initialized) {
