@@ -22,8 +22,10 @@ import {
   IpfsCID,
   ISDQLQueryObject,
   ISO8601DateString,
+  OptInInfo,
   SDQLString,
   Signature,
+  TokenId,
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -85,6 +87,7 @@ export class InsightPlatformSimulator {
       console.log("Req is this: ", req.body);
       console.log("req.body.consentContractId: ", req.body.consentContractId);
       const consentContractId = EVMContractAddress(req.body.consentContractId);
+      const tokenId = TokenId(req.body.tokenId);
       const queryCid = IpfsCID(req.body.queryCid);
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
       const returns = JSON.stringify(req.body.returns);
@@ -117,11 +120,12 @@ export class InsightPlatformSimulator {
         .andThen(() => {
           const contract =
             this.blockchain.getConsentContract(consentContractId);
-          return contract.getConsentTokensOfAddress(dataWallet);
+          return contract.getConsentToken(
+            new OptInInfo(consentContractId, tokenId),
+          );
         })
-        .andThen((tokens) => {
-          console.log("tokens: ", tokens);
-          if (tokens.length > 0) {
+        .andThen((consentToken) => {
+          if (consentToken != null) {
             return okAsync(null);
           }
           console.log("tokens error: ");

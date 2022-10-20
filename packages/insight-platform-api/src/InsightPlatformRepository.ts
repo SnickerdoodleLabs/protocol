@@ -16,6 +16,7 @@ import {
   BigNumberString,
   InsightString,
   URLString,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -38,6 +39,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public deliverInsights(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
     queryCid: IpfsCID,
     returns: InsightString[],
     dataWalletKey: EVMPrivateKey,
@@ -46,6 +48,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     const returnsString = JSON.stringify(returns);
     const signableData = {
       consentContractId: consentContractAddress,
+      tokenId: tokenId,
       queryCid: queryCid,
       dataWallet: dataWalletAddress,
       returns: returnsString,
@@ -65,6 +68,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         return this.ajaxUtils.post<boolean>(url, {
           consentContractId: consentContractAddress,
+          tokenId: tokenId,
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
           returns: returns,

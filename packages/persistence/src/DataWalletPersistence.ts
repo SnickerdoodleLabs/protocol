@@ -40,11 +40,13 @@ import {
   IChainTransaction,
   ChainTransaction,
   CeramicStreamID,
+  EarnedReward,
+  Invitation,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { BackupManager } from "@persistence/backup/BackupManager.js";
@@ -62,9 +64,6 @@ import {
   IVolatileStorageFactoryType,
   IVolatileCursor,
 } from "@persistence/volatile/index.js";
-
-import { EarnedReward } from "@snickerdoodlelabs/objects";
-
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -85,7 +84,8 @@ enum ELocalStorageKey {
   CLICKS = "SD_CLICKS",
   REJECTED_COHORTS = "SD_RejectedCohorts",
   LATEST_BLOCK = "SD_LatestBlock",
-  EARNED_REWARDS = "SD_EarnedRewards"
+  EARNED_REWARDS = "SD_EarnedRewards",
+  ACCEPTED_INVITATIONS = "SD_OptedInAccounts",
 }
 
 interface LatestBlockEntry {
@@ -141,6 +141,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             ELocalStorageKey.CLICKS,
             ELocalStorageKey.LATEST_BLOCK,
             ELocalStorageKey.EARNED_REWARDS,
+            ELocalStorageKey.ACCEPTED_INVITATIONS,
           ],
           store,
           this.cryptoUtils,
@@ -208,13 +209,16 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           name: ELocalStorageKey.EARNED_REWARDS,
           keyPath: "queryCID",
           autoIncrement: false,
-          indexBy: [["type", false]]
+          indexBy: [["type", false]],
+        },
+        {
+          name: ELocalStorageKey.ACCEPTED_INVITATIONS,
+          keyPath: "consentContractAddress",
+          autoIncrement: false,
         },
       ],
     });
   }
-
-
 
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
@@ -260,6 +264,61 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return store.getAll<LinkedAccount>(ELocalStorageKey.ACCOUNT);
       });
     });
+  }
+
+  public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
+    return this.waitForRestore().andThen(() => {
+      return this._getObjectStore().andThen((store) => {
+        return store.getAll<Invitation>(ELocalStorageKey.ACCEPTED_INVITATIONS);
+      });
+    });
+  }
+
+  public addAcceptedInvitations(
+    invitations: Invitation[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getBackupManager();
+      })
+      .andThen((backupManager) => {
+        return ResultUtils.combine(
+          invitations.map((invitation) => {
+            return backupManager.addRecord(
+              ELocalStorageKey.ACCEPTED_INVITATIONS,
+              invitation,
+            );
+          }),
+        );
+      })
+      .map(() => {});
+  }
+
+  public removeAcceptedInvitationsByContractAddress(
+    addressesToRemove: EVMContractAddress[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this.persistentStorageUtils.read<Invitation[]>(
+          ELocalStorageKey.ACCEPTED_INVITATIONS,
+        );
+      })
+      .andThen((saved) => {
+        return this._getBackupManager().andThen((backupManager) => {
+          if (saved == null) {
+            return okAsync(undefined);
+          }
+
+          const invitations = saved.filter((optIn) => {
+            return !addressesToRemove.includes(optIn.consentContractAddress);
+          });
+
+          return backupManager.updateField(
+            ELocalStorageKey.ACCEPTED_INVITATIONS,
+            invitations,
+          );
+        });
+      });
   }
 
   public addEarnedReward(
@@ -350,56 +409,64 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(() => {
-      return this._getBackupManager().andThen((backupManager) => {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getBackupManager();
+      })
+      .andThen((backupManager) => {
         return backupManager.addRecord(ELocalStorageKey.ACCOUNT, linkedAccount);
       });
-    });
   }
 
   public removeAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this.persistentStorageUtils
-        .read<EVMAccountAddress[]>(ELocalStorageKey.ACCOUNT)
-        .andThen((saved) => {
-          return this._getBackupManager().andThen((backupManager) => {
-            if (saved == null) {
-              return okAsync(undefined);
-            }
+    return this.waitForRestore()
+      .andThen(() => {
+        return this.persistentStorageUtils.read<EVMAccountAddress[]>(
+          ELocalStorageKey.ACCOUNT,
+        );
+      })
+      .andThen((saved) => {
+        return this._getBackupManager().andThen((backupManager) => {
+          if (saved == null) {
+            return okAsync(undefined);
+          }
 
-            const index = saved.indexOf(accountAddress, 0);
-            if (index > -1) {
-              saved.splice(index, 1);
-            }
+          const index = saved.indexOf(accountAddress, 0);
+          if (index > -1) {
+            saved.splice(index, 1);
+          }
 
-            return backupManager.updateField(ELocalStorageKey.ACCOUNT, saved);
-          });
+          return backupManager.updateField(ELocalStorageKey.ACCOUNT, saved);
         });
-    });
+      });
   }
 
   public setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this._getBackupManager().andThen((backupManager) => {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getBackupManager();
+      })
+      .andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.AGE, age);
       });
-    });
   }
 
   public getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForRestore().andThen(() => {
       return this._checkAndRetrieveValue(ELocalStorageKey.AGE, null);
     });
   }
 
   public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this._getBackupManager().andThen((backupManager) => {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getBackupManager();
+      })
+      .andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.FIRST_NAME, name);
       });
-    });
   }
 
   public getGivenName(): ResultAsync<GivenName | null, PersistenceError> {
@@ -409,11 +476,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this._getBackupManager().andThen((backupManager) => {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getBackupManager();
+      })
+      .andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.LAST_NAME, name);
       });
-    });
   }
 
   public getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
@@ -425,11 +494,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this._getBackupManager().andThen((backupManager) => {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getBackupManager();
+      })
+      .andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.BIRTHDAY, birthday);
       });
-    });
   }
 
   public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
@@ -439,11 +510,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this._getBackupManager().andThen((backupManager) => {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getBackupManager();
+      })
+      .andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.GENDER, gender);
       });
-    });
   }
 
   public getGender(): ResultAsync<Gender | null, PersistenceError> {
@@ -455,11 +528,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setEmail(
     email: EmailAddressString,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this._getBackupManager().andThen((backupManager) => {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getBackupManager();
+      })
+      .andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.EMAIL, email);
       });
-    });
   }
 
   public getEmail(): ResultAsync<EmailAddressString | null, PersistenceError> {
@@ -471,11 +546,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setLocation(
     location: CountryCode,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this._getBackupManager().andThen((backupManager) => {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getBackupManager();
+      })
+      .andThen((backupManager) => {
         return backupManager.updateField(ELocalStorageKey.LOCATION, location);
       });
-    });
   }
 
   public getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
@@ -487,17 +564,22 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public updateAccountBalances(
     balances: IEVMBalance[],
   ): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this.persistentStorageUtils
-        .write(ELocalStorageKey.BALANCES, JSON.stringify(balances))
-        .andThen(() => {
-          return this.persistentStorageUtils
-            .write(ELocalStorageKey.BALANCES_LAST_UPDATE, new Date().getTime())
-            .andThen(() => {
-              return okAsync(balances);
-            });
-        });
-    });
+    return this.waitForRestore()
+      .andThen(() => {
+        return this.persistentStorageUtils.write(
+          ELocalStorageKey.BALANCES,
+          JSON.stringify(balances),
+        );
+      })
+      .andThen(() => {
+        return this.persistentStorageUtils.write(
+          ELocalStorageKey.BALANCES_LAST_UPDATE,
+          new Date().getTime(),
+        );
+      })
+      .andThen(() => {
+        return okAsync(balances);
+      });
   }
 
   public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {

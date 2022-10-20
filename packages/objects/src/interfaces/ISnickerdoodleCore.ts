@@ -242,11 +242,11 @@ export interface ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
     | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
     | AjaxError
+    | PersistenceError
     | MinimalForwarderContractError
     | ConsentError
   >;
@@ -264,10 +264,11 @@ export interface ISnickerdoodleCore {
 
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
-    | UninitializedError
     | BlockchainProviderError
-    | ConsentFactoryContractError
+    | UninitializedError
     | ConsentContractError
+    | ConsentFactoryContractError
+    | PersistenceError
   >;
 
   getInvitationMetadataByCID(
@@ -304,8 +305,8 @@ export interface ISnickerdoodleCore {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | ConsentContractRepositoryError
-    | AjaxError
+    | ConsentFactoryContractError
+    | PersistenceError
     | ConsentError
   >;
 

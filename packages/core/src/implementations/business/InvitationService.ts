@@ -40,6 +40,10 @@ import { getDomain, parse } from "tldts";
 
 import { IInvitationService } from "@core/interfaces/business/index.js";
 import {
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
+} from "@core/interfaces/business/utilities/index.js";
+import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
   IDNSRepositoryType,
@@ -60,6 +64,8 @@ import {
 @injectable()
 export class InvitationService implements IInvitationService {
   public constructor(
+    @inject(IConsentTokenUtilsType)
+    protected consentTokenUtils: IConsentTokenUtils,
     @inject(IDataWalletPersistenceType)
     protected persistenceRepo: IDataWalletPersistence,
     @inject(IConsentContractRepositoryType)
@@ -209,10 +215,14 @@ export class InvitationService implements IInvitationService {
         });
       })
       .andThen(({ optInData, context }) => {
+        // We are adding the invitation to persistence NOW, because it is super important that we
+        // save that. It's basically impossible to figure out what contracts you are opted into
+        // by just looking at the blockchain (intentionally)!
         return ResultUtils.combine([
           optInData,
           this.forwarderRepo.getNonce(),
           this.configProvider.getConfig(),
+          this.persistenceRepo.addAcceptedInvitations([invitation]),
         ])
           .andThen(([callData, nonce, config]) => {
             // We need to take the types, and send it to the account signer
@@ -243,6 +253,18 @@ export class InvitationService implements IInvitationService {
                   context.dataWalletKey!,
                   config.defaultInsightPlatformBaseUrl,
                 );
+              })
+              .orElse((e) => {
+                // Metatransaction failed!
+                // Need to do some cleanup
+                return this.persistenceRepo
+                  .removeAcceptedInvitationsByContractAddress([
+                    invitation.consentContractAddress,
+                  ])
+                  .andThen(() => {
+                    // Still an error
+                    return errAsync(e);
+                  });
               });
           })
           .map(() => {
@@ -293,8 +315,8 @@ export class InvitationService implements IInvitationService {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | ConsentError
+    | PersistenceError
   > {
     // This will actually create a metatransaction, since the invitation is issued
     // to the data wallet address
@@ -306,11 +328,22 @@ export class InvitationService implements IInvitationService {
       }
 
       // We need to find your opt-in token
-      return this.consentRepo
-        .getCurrentConsentToken(consentContractAddress)
+      return this.persistenceRepo
+        .getAcceptedInvitations()
+        .andThen((invitations) => {
+          const currentInvitation = invitations.find((invitation) => {
+            return invitation.consentContractAddress == consentContractAddress;
+          });
+          if (currentInvitation == null) {
+            return errAsync(
+              new ConsentError(
+                "Cannot opt out of consent contract, you were not opted in!",
+              ),
+            );
+          }
+          return this.consentRepo.getConsentToken(currentInvitation);
+        })
         .andThen((consentToken) => {
-          console.log(consentToken);
-
           if (consentToken == null) {
             // You're not actually opted in!
             return errAsync(
@@ -359,6 +392,11 @@ export class InvitationService implements IInvitationService {
                   );
                 });
             })
+            .andThen(() => {
+              return this.persistenceRepo.removeAcceptedInvitationsByContractAddress(
+                [consentContractAddress],
+              );
+            })
             .map(() => {
               // Notify the world that we've opted in to the cohort
               context.publicEvents.onCohortLeft.next(consentContractAddress);
@@ -399,12 +437,18 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | ConsentFactoryContractError
     | ConsentContractError
+    | PersistenceError
   > {
-    return this.consentRepo
-      .getConsentContracts()
-      .andThen((consentContractAddresses) =>
+    return this.persistenceRepo
+      .getAcceptedInvitations()
+      .andThen((optInInfo) => {
+        return this.consentRepo.getConsentContracts(
+          optInInfo.map((oii) => oii.consentContractAddress),
+        );
+      })
+      .andThen((consentContractMap) =>
         ResultUtils.combine(
-          Array.from(consentContractAddresses.keys()).map((contractAddress) => {
+          Array.from(consentContractMap.keys()).map((contractAddress) => {
             return this.consentRepo
               .getMetadataCID(contractAddress)
               .map((ipfsCID) => ({ ipfsCID, contractAddress }));
@@ -483,14 +527,14 @@ export class InvitationService implements IInvitationService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     HexString32,
-    | BlockchainProviderError
-    | UninitializedError
     | ConsentContractError
-    | ConsentContractRepositoryError
-    | AjaxError
+    | UninitializedError
+    | BlockchainProviderError
     | ConsentError
+    | PersistenceError
+    | ConsentFactoryContractError
   > {
-    return this.consentRepo.getAgreementFlags(consentContractAddress);
+    return this.consentTokenUtils.getAgreementFlags(consentContractAddress);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
@@ -583,12 +627,12 @@ export class InvitationService implements IInvitationService {
       // can be fetched via insight-platform API call
       // or indexing can be used to avoid this relatively expensive look through
       this.consentRepo.getDeployedConsentContractAddresses(),
-      this.consentRepo.getOptedInConsentContractAddresses(),
+      this.persistenceRepo.getAcceptedInvitations(),
       this.persistenceRepo.getRejectedCohorts(),
-    ]).map(([consents, optedInConsents, rejectedConsents]) => {
+    ]).map(([consents, optInInfo, rejectedConsents]) => {
       return consents.filter(
         (consent) =>
-          !optedInConsents.includes(consent) &&
+          !optInInfo.find((oii) => oii.consentContractAddress == consent) &&
           !rejectedConsents.includes(consent),
       );
     });
