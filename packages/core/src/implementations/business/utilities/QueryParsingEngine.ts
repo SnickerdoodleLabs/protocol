@@ -65,6 +65,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         ast,
         this.queryRepository,
       )
+
       return ResultUtils.combine(
         this.evalCompensations(ast, astEvaluator),
       ).andThen((CompensationResults) => {

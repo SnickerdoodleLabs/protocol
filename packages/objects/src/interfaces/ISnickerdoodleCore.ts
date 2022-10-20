@@ -288,7 +288,7 @@ export interface ISnickerdoodleCore {
     query: SDQLQuery,
     rewardsPreview: EligibleReward[] | null
   ): ResultAsync<
-    void,
+    boolean,
     | AjaxError
     | UninitializedError
     | ConsentError

@@ -77,6 +77,12 @@ export class CoreListener implements ICoreListener {
         },
         request.rewardsPreview
         )
+      .map((acceptingRewards) => {
+          if (acceptingRewards){
+            console.log("Inside accepting rewards");
+            this.onQueryAccepted(request)
+          }
+        })
       .mapErr((e) => {
         console.error(
           `Error while creating preview! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,

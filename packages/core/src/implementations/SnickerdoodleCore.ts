@@ -512,7 +512,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     query: SDQLQuery,
     rewardsPreview: EligibleReward[] | null
   ): ResultAsync<
-    void,
+    boolean,
     | AjaxError
     | UninitializedError
     | ConsentError

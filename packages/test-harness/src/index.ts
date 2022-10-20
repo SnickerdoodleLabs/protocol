@@ -151,8 +151,12 @@ core.getEvents().map(async (events) => {
 
   events.onQueryPosted.subscribe(async (request: SDQLQueryRequest) => {
     console.log(
-      `Recieved query for consentContract ${request.consentContractAddress} with id ${request.query.cid}`,
+      `Recieved rewards preview from consentContract ${request.consentContractAddress} with id ${request.query.cid}`,
     );
+
+    
+
+
 
     try {
       await prompt([

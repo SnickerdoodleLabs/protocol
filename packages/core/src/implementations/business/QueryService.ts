@@ -160,7 +160,7 @@ export class QueryService implements IQueryService {
     query: SDQLQuery,
     rewardsPreview: EligibleReward[] | null
   ): ResultAsync<
-    void,
+    boolean,
     | AjaxError
     | UninitializedError
     | ConsentError
@@ -184,20 +184,14 @@ export class QueryService implements IQueryService {
         config,
         consentToken,
       ).andThen(() => {
-
-              return this.insightPlatformRepo.deliverPreview(
-                context.dataWalletAddress!,
-                consentContractAddress,
-                query.cid,
-                context.dataWalletKey!,
-                rewardsPreview,
-                config.defaultInsightPlatformBaseUrl,
-              )
-                .map(() => {
-                  console.log("insights reward preview api call done");
-                });
-
-        });
+      return this.insightPlatformRepo.deliverPreview(
+        context.dataWalletAddress!,
+        consentContractAddress,
+        query.cid,
+        context.dataWalletKey!,
+        rewardsPreview,
+        config.defaultInsightPlatformBaseUrl,)
+      })
     });
   }
 
