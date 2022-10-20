@@ -702,9 +702,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
-    );
-    return persistence.clearCloudStore();
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.clearCloudStore();
   }
 }

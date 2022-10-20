@@ -52,12 +52,12 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public clear(): ResultAsync<void, PersistenceError> {
     return this._init().andThen(({ store, client }) => {
-      return this._getBackupIndex().andThen((entires) => {
+      return this._getBackupIndex().andThen((entries) => {
         return ResultUtils.combine(
-          entires.map((entry) => {
+          entries.map((entry) => {
             return ResultAsync.fromPromise(
               client.pin.rm(StreamID.fromString(entry.id)),
-              (e) => e as PersistenceError,
+              (e) => new PersistenceError("Error pinning stream", e),
             );
           }),
         ).andThen(() => this._putBackupIndex([]));
@@ -106,7 +106,7 @@ export class CeramicCloudStorage implements ICloudStorage {
     const did = new DID({ provider, resolver: getResolver() });
     return ResultAsync.fromPromise(
       did.authenticate(),
-      (e) => e as PersistenceError,
+      (e) => new PersistenceError("error authenticated ceramic DID", e),
     ).andThen((_) => okAsync(did));
   }
 
@@ -162,11 +162,11 @@ export class CeramicCloudStorage implements ICloudStorage {
     return this._init().andThen(({ store, model, client }) => {
       return ResultAsync.fromPromise(
         model.createTile("DataWalletBackup", backup),
-        (e) => e as PersistenceError,
+        (e) => new PersistenceError("error creating backup tile", e),
       ).andThen((doc) => {
         return ResultAsync.fromPromise(
           client.pin.add(doc.id, true),
-          (e) => e as PersistenceError,
+          (e) => new PersistenceError("unable to pin backup tile", e),
         ).andThen(() => {
           // only index if pin was successful
           const id = doc.id.toUrl();
@@ -203,7 +203,7 @@ export class CeramicCloudStorage implements ICloudStorage {
               .andThen((encrypted) => {
                 return ResultAsync.fromPromise(
                   store.set("backupIndex", encrypted),
-                  (e) => e as PersistenceError,
+                  (e) => new PersistenceError("error putting backup index", e),
                 ).map(() => undefined);
               });
           });
@@ -231,7 +231,7 @@ export class CeramicCloudStorage implements ICloudStorage {
     return this._init().andThen(({ loader }) => {
       return ResultAsync.fromPromise(
         loader.load<IDataWalletBackup>(id),
-        (e) => e as PersistenceError,
+        (e) => new PersistenceError("error loading backup", e),
       ).map((tileDoc) => {
         const retVal = tileDoc.content;
         retVal.header.hash = tileDoc.id.toUrl();
@@ -244,7 +244,7 @@ export class CeramicCloudStorage implements ICloudStorage {
     return this._init().andThen(({ store }) => {
       return ResultAsync.fromPromise(
         store.get("backupIndex"),
-        (e) => e as PersistenceError,
+        (e) => new PersistenceError("unable to get backup index", e),
       )
         .andThen((encrypted) => {
           if (encrypted == null) {
