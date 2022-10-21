@@ -277,7 +277,8 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "dump backup", value: "dumpBackup" },
     { name: "restore backup", value: "restoreBackup" },
-    { name: "manual backup", value: "manualBackup"},
+    { name: "manual backup", value: "manualBackup" },
+    { name: "clear cloud store", value: "clearCloudStore" },
     new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
@@ -418,7 +419,9 @@ function corePrompt(): ResultAsync<void, Error> {
 
         // {chainId\":43113,
         // \"outgoingValue\":\"0\",\"outgoingCount\":\"0\",\"incomingValue\":\"1000\",\"incomingCount\":\"1\"
-        console.log(`adding ${transactions.length} transactions for chain 43113`)
+        console.log(
+          `adding ${transactions.length} transactions for chain 43113`,
+        );
         return core.addEVMTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
         transactions[0] = new EVMTransaction(
@@ -474,6 +477,8 @@ function corePrompt(): ResultAsync<void, Error> {
           );
       case "manualBackup":
         return core.postBackup().map(console.log);
+      case "clearCloudStore":
+        return core.clearCloudStore().map(console.log);
     }
     return okAsync(undefined);
   });
