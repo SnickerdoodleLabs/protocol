@@ -14,7 +14,7 @@ export class TokenBalance {
     public type: EChainTechnology,
     public ticker: TickerSymbol,
     public chainId: ChainId,
-    public tokenAddress: TokenAddress | null,
+    public tokenAddress: TokenAddress | null, // null implies native
     public accountAddress: AccountAddress,
     public balance: BigNumberString,
     public quoteBalance: BigNumberString,
