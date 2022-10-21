@@ -1,9 +1,10 @@
 # SDQL Examples
+
 **For an update list of queries, please, [check here](https://github.com/SnickerdoodleLabs/protocol/tree/develop/packages/contracts/etc/data/queries).**
 
 ## Query Target 15 and Older Users About Avalanche Transfer, Location, Age, Gender, URLs Visited, And Chain Transaction Count
 
-This example checks if the user's age is greater than or equal to 15. It also queries transaction history on the Avalanche mainnet for an ERC-20 token, checks the user's location, gender, urls visited and chain transaction count. 
+This example checks if the user's age is greater than or equal to 15. It also queries transaction history on the Avalanche mainnet for an ERC-20 token, checks the user's location, gender, urls visited and chain transaction count.
 
 ```
 {
@@ -34,7 +35,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                     "address",
                     "return"
                 ]
-            },   
+            },
             "chain": "AVAX",
             "contract": {
                 "networkid": "43114",
@@ -42,7 +43,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "function": "Transfer",
                 "direction": "from",
                 "token": "ERC20",
-                "blockrange": {
+                "timestamp": {
                     "start": 13001519,
                     "end": 14910334
                 }
@@ -77,7 +78,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "patternProperties":{
                     "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
                         "type": "integer"
-                    } 
+                    }
                 }
             }
         },
@@ -109,11 +110,11 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                         "incomingValue",
                         "incomingCount",
                         "outgoingValue",
-                        "outgoingCount"                        
+                        "outgoingCount"
                     ]
                 }
             }
-        }       
+        }
     },
     "returns": {
         "r1": {
@@ -147,7 +148,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         "url": "https://418e-64-85-231-39.ngrok.io/insights"
     },
   "compensations":{
-    
+
         "parameters": {
             "recipientAddress": {
                 type:...,
@@ -199,7 +200,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "c4",
                 "c5"
             ]
-            
+
         },
         "c4":{
             "description": "a free CrazyApesClub NFT on Avalanche",
@@ -215,7 +216,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "c3",
                 "c5"
             ]
-            
+
         },
         "c5":{
             "description": "a free CrazyApesClub NFT on Solana",
@@ -231,7 +232,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "c3",
                 "c4"
             ]
-            
+
         },
     },
     "logic": {
@@ -239,7 +240,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
             "if$q2then$r1else$r2",
             "$r3",
             "$r4",
-            "$r5", 
+            "$r5",
             "$r6",
             "$r7"
         ],
@@ -257,7 +258,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
 
 ## Target US-Based Users Who Received An Ethereum NFT And Visited Uniswap and Crabada
 
-This query determines if a US-based user has received an ERC-721 token on the Ethereum mainnet in a certain time-frame and have visited Uniswap and Crabada. 
+This query determines if a US-based user has received an ERC-721 token on the Ethereum mainnet in a certain time-frame and have visited Uniswap and Crabada.
 
 ```
 {
@@ -277,7 +278,7 @@ This query determines if a US-based user has received an ERC-721 token on the Et
                 "function": "Transfer",
                 "direction": "to",
                 "token": "ERC721",
-                "blockrange": {
+                "timestamp": {
                     "start": 14801177,
                     "end": 14801190
                 }

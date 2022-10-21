@@ -1,7 +1,7 @@
 {
     "version": 0.1,
     "timestamp": "2021-11-13T20:20:39",
-    "expiry" : "2022-11-13T20:20:39",
+    "expiry": "2022-11-13T20:20:39",
     "description": "Targetting 25-year and older individuals querying intractions with the Avalanche blockchain and chain balances",
     "business": "Shrapnel",
     "queries": {
@@ -26,7 +26,7 @@
                     "address",
                     "return"
                 ]
-            },   
+            },
             "chain": "AVAX",
             "contract": {
                 "networkid": "43114",
@@ -34,7 +34,7 @@
                 "function": "Transfer",
                 "direction": "from",
                 "token": "ERC20",
-                "blockrange": {
+                "timestamp": {
                     "start": 13001519,
                     "end": 14910334
                 }

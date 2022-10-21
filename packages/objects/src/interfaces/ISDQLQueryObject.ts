@@ -4,7 +4,8 @@ import {
   AccountAddress,
   ChainId,
   CompensationId,
-  EVMContractAddress, URLString
+  EVMContractAddress,
+  URLString,
 } from "@objects/primitives";
 import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
 export interface ISDQLQueryObject {
@@ -47,10 +48,10 @@ export interface ISDQLQueryContract {
   function: string;
   direction: string;
   token: string;
-  blockrange: ISDQLBlockRange;
+  timestamp: ISDQLTimestamp;
 }
 
-export interface ISDQLBlockRange {
+export interface ISDQLTimestamp {
   start: number;
   end: number;
 }
@@ -78,9 +79,11 @@ export interface ISDQLReturnProperties {
 }
 
 export interface ISDQLCompensationBlock {
-  [index: string | CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
+  [index: string | CompensationId]:
+    | ISDQLCompensationParameters
+    | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;
-};
+}
 
 export interface ISDQLCompensations {
   description: string;
@@ -95,17 +98,17 @@ export interface ISDQLCallback {
 }
 
 export interface ISDQLCompensationParameters {
-  [paramName: string]: unknown & { //a param can have other properties that we don't know of
+  [paramName: string]: unknown & {
+    //a param can have other properties that we don't know of
     type: unknown;
     required: boolean;
     values?: unknown[];
-  } // TODO composition with unknowns?
+  }; // TODO composition with unknowns?
 
   recipientAddress: {
     type: AccountAddress;
     required: boolean;
-  }
-  
+  };
 }
 
 export interface ISDQLLogicObjects {

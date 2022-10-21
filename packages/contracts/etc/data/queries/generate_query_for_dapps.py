@@ -7,7 +7,7 @@ logic_returns = []
 dapps = pd.read_csv('./dapps.csv')
 
 for i in range(len(dapps)):    
-    q = '{{ "name": "network", "return": "object", "object_schema": {{"properties": {{"networkid": {{"type": "integer"}},"address": {{"type": "string", "pattern": "^0x[a-fA-F0-9]{{40}}$" }}, "return": {{"type": "boolean" }}}},"required": ["networkid", "address", "return" ]}}, "chain": "ETH", "contract": {{ "networkid": "1", "address": "{0}", "function": "Transfer", "direction": "to", "token": "{1}", "blockrange": {{ "start": 0, "end": 15442629 }} }} }}'.format(dapps.loc[i,'Utility Contract Address'],dapps.loc[i,'Token'])
+    q = '{{ "name": "network", "return": "object", "object_schema": {{"properties": {{"networkid": {{"type": "integer"}},"address": {{"type": "string", "pattern": "^0x[a-fA-F0-9]{{40}}$" }}, "return": {{"type": "boolean" }}}},"required": ["networkid", "address", "return" ]}}, "chain": "ETH", "contract": {{ "networkid": "1", "address": "{0}", "function": "Transfer", "direction": "to", "token": "{1}", "timestamp": {{ "start": 0, "end": 15442629 }} }} }}'.format(dapps.loc[i,'Utility Contract Address'],dapps.loc[i,'Token'])
     
     r = '{{ "name": "query_response","query": "q{0}"}}'.format(i)
     
