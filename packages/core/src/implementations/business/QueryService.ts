@@ -149,7 +149,6 @@ export class QueryService implements IQueryService {
             Muktadir - do we actually need two events?
           */
           context.publicEvents.onQueryPosted.next(queryRequest);
-          context.publicEvents.onQueryAccepted.next(queryRequest);
           return okAsync(undefined);
         })
       })    
