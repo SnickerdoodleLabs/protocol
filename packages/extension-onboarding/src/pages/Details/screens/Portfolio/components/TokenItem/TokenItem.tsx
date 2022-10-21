@@ -1,12 +1,12 @@
 import { Box, Typography } from "@material-ui/core";
-import { ITokenBalance } from "@snickerdoodlelabs/objects";
+import { TokenBalance } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import React, { FC } from "react";
 
 import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 interface ITokenItemProps {
-  item: ITokenBalance;
+  item: TokenBalance;
 }
 
 const TokenItem: FC<ITokenItemProps> = ({ item }) => {

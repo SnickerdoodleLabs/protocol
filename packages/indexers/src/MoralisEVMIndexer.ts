@@ -6,12 +6,9 @@ import {
   IAxiosAjaxUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  AccountBalanceError,
   AjaxError,
   ChainId,
   EVMAccountAddress,
-  EVMBalance,
-  AccountNFTError,
   EVMNFT,
   AccountIndexingError,
   EVMTransaction,
@@ -24,6 +21,8 @@ import {
   TokenUri,
   UnixTimestamp,
   EVMTransactionHash,
+  TokenBalance,
+  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import pkg from "moralis";
@@ -54,7 +53,7 @@ export class MoralisEVMIndexer
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
-  public initialize<E>(): ResultAsync<void, E> {
+  public initialize(): ResultAsync<void, AccountIndexingError> {
     if (this._initialized) {
       return okAsync(undefined);
     }
@@ -62,50 +61,61 @@ export class MoralisEVMIndexer
     return this.configProvider.getConfig().andThen((config) => {
       return ResultAsync.fromPromise(
         start({ apiKey: config.moralisApiKey }),
-        (e) => e as E,
-      );
+        (e) => new AccountIndexingError("error starting moralis client", e),
+      ).map(() => {
+        this._initialized = true;
+        return undefined;
+      });
     });
   }
 
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMBalance[], AjaxError | AccountBalanceError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError> {
     console.log(chainId, accountAddress);
     return ResultUtils.combine([
       this.configProvider.getConfig(),
-      this.initialize<AccountBalanceError>(),
+      this.initialize(),
     ]).andThen(([config]) => {
-      return ResultAsync.fromPromise(
-        evmApi.balance.getNativeBalance({
-          chain: `0x${chainId.toString(16)}`,
-          address: accountAddress,
-        }),
-        (e) => e as AccountBalanceError,
-      ).andThen((response) => {
-        // response.result.balance
-        if (!config.chainInformation.has(chainId)) {
-          return errAsync(new AccountBalanceError("unsupported chain"));
-        }
+      if (!config.chainInformation.has(chainId)) {
+        return errAsync(new AccountIndexingError("unsupported chain"));
+      }
 
-        const ticker =
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          config.chainInformation.get(chainId)!.nativeCurrency.symbol;
-        const nativeBalance = new EVMBalance(
-          TickerSymbol(ticker),
-          chainId,
-          accountAddress,
-          BigNumberString(response.result.balance.ether),
-          EVMContractAddress("Ether"),
-          BigNumberString(response.result.balance.value.toString()),
-        );
-
-        return ResultAsync.fromPromise(
-          evmApi.token.getWalletTokenBalances({
+      return ResultUtils.combine([
+        ResultAsync.fromPromise(
+          evmApi.balance.getNativeBalance({
             chain: `0x${chainId.toString(16)}`,
             address: accountAddress,
           }),
-          (e) => e as AccountBalanceError,
+          (e) => new AccountIndexingError("error getting native balance", e),
+        ).andThen((response) => {
+          // response.result.balance
+          if (!config.chainInformation.has(chainId)) {
+            return errAsync(new AccountIndexingError("unsupported chain"));
+          }
+
+          const ticker =
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            config.chainInformation.get(chainId)!.nativeCurrency.symbol;
+          return okAsync(
+            new TokenBalance(
+              EChainTechnology.EVM,
+              TickerSymbol(ticker),
+              chainId,
+              null,
+              accountAddress,
+              BigNumberString(response.result.balance.ether),
+              BigNumberString(response.result.balance.value.toString()), // unsure about this
+            ),
+          );
+        }),
+        ResultAsync.fromPromise(
+          evmApi.token.getWalletTokenBalances({
+            chain: this._getChainStr(chainId),
+            address: accountAddress,
+          }),
+          (e) => new AccountIndexingError("error getting token balances", e),
         ).andThen((response) => {
           return okAsync(
             response.result.map((item) => {
@@ -113,49 +123,51 @@ export class MoralisEVMIndexer
                 ? item.token.contractAddress
                 : EvmAddress.ZERO_ADDRESS;
 
-              return new EVMBalance(
+              return new TokenBalance(
+                EChainTechnology.EVM,
                 TickerSymbol(item.token ? item.token.symbol : "NULL"),
                 chainId,
+                EVMContractAddress(contract_addr.lowercase),
                 accountAddress,
                 BigNumberString(item.amount.toString()),
-                EVMContractAddress(contract_addr.lowercase),
-                BigNumberString(item.value),
+                BigNumberString(item.value), // unsure about this
               );
             }),
           );
-        });
-      });
+        }),
+      ]).map(([nativeBalance, tokenBalances]) => [
+        nativeBalance,
+        ...tokenBalances,
+      ]);
     });
   }
 
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AjaxError | AccountNFTError> {
-    return this.initialize<AccountNFTError>().andThen(() => {
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
+    return this.initialize().andThen(() => {
       return ResultAsync.fromPromise(
         evmApi.nft.getWalletNFTs({
-          chain: `0x${chainId.toString(16)}`,
+          chain: this._getChainStr(chainId),
           address: accountAddress,
         }),
-        (e) => e as AccountNFTError,
-      ).andThen((response) => {
-        return okAsync(
-          response.toJSON().map((item) => {
-            return new EVMNFT(
-              EVMContractAddress(item.tokenAddress),
-              BigNumberString(item.tokenId.toString()),
-              item.contractType ?? "NULL",
-              EVMAccountAddress(item.ownerOf ?? "NULL"),
-              TokenUri(item.tokenUri ?? "NULL"),
-              JSON.stringify(item.metadata),
-              BigNumberString(item.amount?.toString() ?? "-1"),
-              item.name ?? "NULL",
-              TickerSymbol(item.symbol ?? "NULL"),
-              chainId,
-            );
-          }),
-        );
+        (e) => new AccountIndexingError("error getting wallet nfts", e),
+      ).map((response) => {
+        return response.toJSON().map((item) => {
+          return new EVMNFT(
+            EVMContractAddress(item.tokenAddress),
+            BigNumberString(item.tokenId.toString()),
+            item.contractType ?? "NULL",
+            EVMAccountAddress(item.ownerOf ?? "NULL"),
+            TokenUri(item.tokenUri ?? "NULL"),
+            JSON.stringify(item.metadata),
+            BigNumberString(item.amount?.toString() ?? "-1"),
+            item.name ?? "NULL",
+            TickerSymbol(item.symbol ?? "NULL"),
+            chainId,
+          );
+        });
       });
     });
   }
@@ -168,14 +180,16 @@ export class MoralisEVMIndexer
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
-      this.initialize<AccountIndexingError>(),
+      this.initialize(),
     ]).andThen(() => {
       return ResultAsync.fromPromise(
         evmApi.transaction.getWalletTransactions({
-          chain: `0x${chainId.toString(16)}`,
+          chain: this._getChainStr(chainId),
           address: accountAddress,
+          toDate: endTime?.toUTCString(),
+          fromDate: startTime?.toUTCString(),
         }),
-        (e) => e as AccountIndexingError,
+        (e) => new AccountIndexingError("error getting transactions", e),
       ).andThen((response) => {
         return okAsync(
           response.toJSON().map((item) => {
@@ -196,5 +210,11 @@ export class MoralisEVMIndexer
         );
       });
     });
+  }
+
+  // public getTokenTransfers(chainId: ChainId, acc):
+
+  private _getChainStr(chainId: ChainId): string {
+    return `0x${chainId.toString(16)}`;
   }
 }

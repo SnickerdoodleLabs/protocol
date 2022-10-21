@@ -11,7 +11,7 @@ import {
 import CloseIcon from "@material-ui/icons/Close";
 import {
   EVMAccountAddress,
-  ITokenBalance,
+  TokenBalance,
   IAccountNFT,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -34,7 +34,7 @@ import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfa
 
 declare const window: IWindowWithSdlDataWallet;
 export interface IAccountBalanceObject {
-  [id: EVMAccountAddress]: ITokenBalance[];
+  [id: EVMAccountAddress]: TokenBalance[];
 }
 export interface IAccountNFTsObject {
   [id: EVMAccountAddress]: IAccountNFT[];

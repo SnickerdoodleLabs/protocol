@@ -1,5 +1,5 @@
 import { Box, Typography } from "@material-ui/core";
-import { ITokenBalance } from "@snickerdoodlelabs/objects";
+import { TokenBalance } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import React, { FC } from "react";
 
@@ -10,7 +10,7 @@ import { useStyles } from "@extension-onboarding/components/BalanceItem/BalanceI
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 
 export interface IBalanceItemProps {
-  item: ITokenBalance;
+  item: TokenBalance;
   currency?: number;
 }
 

@@ -2,7 +2,7 @@ import {
   AccountAddress,
   DataWalletAddress,
   EChain,
-  ITokenBalance,
+  TokenBalance,
   IAccountNFT,
   LanguageCode,
   LinkedAccount,
@@ -27,7 +27,7 @@ export class AccountService implements IAccountService {
   }
 
   public getAccountBalances(): ResultAsync<
-    ITokenBalance[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountRepository.getAccountBalances();

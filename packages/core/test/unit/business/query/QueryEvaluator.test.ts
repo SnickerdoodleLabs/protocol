@@ -12,12 +12,11 @@ import {
   TickerSymbol,
   BigNumberString,
   IDataWalletPersistence,
-  EVMBalance,
   IChainTransaction,
   EVMTransaction,
   UnixTimestamp,
   EVMTransactionHash,
-  ITokenBalance,
+  TokenBalance,
   EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -131,7 +130,7 @@ class QueryEvaluatorMocks {
     },
   ];
 
-  public accountBalances = new Array<ITokenBalance>(
+  public accountBalances = new Array<TokenBalance>(
     {
       type: EChainTechnology.EVM,
       ticker: TickerSymbol("ETH"),

@@ -1,6 +1,6 @@
 import { Brand, make } from "ts-brand";
 
-import { ITokenBalance } from "@objects/interfaces";
+import { TokenBalance } from "@objects/businessObjects";
 import { IChainTransaction } from "@objects/interfaces/IChainTransaction";
 import { ChainId } from "@objects/primitives/ChainId";
 import { URLString } from "@objects/primitives/URLString";
@@ -16,7 +16,7 @@ export type SDQL_Return = Brand<
   | Array<any>
   | Map<URLString, number>
   | Map<ChainId, number>
-  | ITokenBalance[]
+  | TokenBalance[]
   | IChainTransaction[]
   | Object
   | null,

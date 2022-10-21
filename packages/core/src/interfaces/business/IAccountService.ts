@@ -3,7 +3,7 @@ import {
   BlockchainProviderError,
   CrumbsContractError,
   InvalidSignatureError,
-  ITokenBalance,
+  TokenBalance,
   IAccountNFT,
   LanguageCode,
   PersistenceError,
@@ -100,7 +100,7 @@ export interface IAccountService {
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
 
-  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
   getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError>;
   getTranactions(

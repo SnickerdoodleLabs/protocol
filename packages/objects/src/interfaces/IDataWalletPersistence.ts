@@ -1,13 +1,14 @@
 import { ResultAsync } from "neverthrow";
 
-import { ClickData, LinkedAccount, SiteVisit } from "@objects/businessObjects";
-import { PersistenceError } from "@objects/errors";
 import {
-  ITokenBalance,
-  IAccountNFT,
-  IChainTransaction,
+  ClickData,
+  LinkedAccount,
+  SiteVisit,
   TransactionFilter,
-} from "@objects/interfaces";
+  TokenBalance,
+} from "@objects/businessObjects";
+import { PersistenceError } from "@objects/errors";
+import { IAccountNFT, IChainTransaction } from "@objects/interfaces";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import {
   Age,
@@ -139,9 +140,9 @@ export interface IDataWalletPersistence {
   ): ResultAsync<IChainTransaction[], PersistenceError>;
 
   updateAccountBalances(
-    balances: ITokenBalance[],
-  ): ResultAsync<ITokenBalance[], PersistenceError>;
-  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
+    balances: TokenBalance[],
+  ): ResultAsync<TokenBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
   updateAccountNFTs(
     nfts: IAccountNFT[],

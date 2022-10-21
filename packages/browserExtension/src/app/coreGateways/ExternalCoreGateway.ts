@@ -6,7 +6,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  ITokenBalance,
+  TokenBalance,
   IAccountNFT,
   LanguageCode,
   Signature,
@@ -221,7 +221,7 @@ export class ExternalCoreGateway {
   public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNTS);
   }
-  public getAccountBalances(): ResultAsync<ITokenBalance[], JsonRpcError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_BALANCES);
   }
   public getAccountNFTs(): ResultAsync<IAccountNFT[], JsonRpcError> {

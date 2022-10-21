@@ -2,15 +2,13 @@ import {
   ISolanaBalanceRepository,
   ISolanaTransactionRepository,
   ISolanaNFTRepository,
-  AccountBalanceError,
   AjaxError,
   ChainId,
   SolanaAccountAddress,
-  SolanaBalance,
-  AccountNFTError,
   SolanaNFT,
   AccountIndexingError,
   SolanaTransaction,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -24,13 +22,13 @@ export class DummySolanaIndexer
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<SolanaBalance[], AjaxError | AccountBalanceError> {
+  ): ResultAsync<TokenBalance[], never> {
     return okAsync([]);
   }
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<SolanaNFT[], AccountNFTError | AjaxError> {
+  ): ResultAsync<SolanaNFT[], never> {
     return okAsync([]);
   }
   public getSolanaTransactions(

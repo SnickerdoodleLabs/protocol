@@ -16,10 +16,9 @@ import {
   ChainId,
   EChainType,
   EVMAccountAddress,
-  ITokenBalance,
+  TokenBalance,
   IAccountNFT,
   TickerSymbol,
-  EVMBalance,
 } from "@snickerdoodlelabs/objects";
 import clsx from "clsx";
 import { BigNumber } from "ethers";
@@ -78,9 +77,9 @@ const PAGINATION_RANGE = 5;
 
 const Portfolio: FC = () => {
   const { linkedAccounts } = useAppContext();
-  const [accountBalances, setAccountBalances] = useState<ITokenBalance[]>();
+  const [accountBalances, setAccountBalances] = useState<TokenBalance[]>();
   const [accountTestnetBalances, setAccountTestnetBalances] =
-    useState<ITokenBalance[]>();
+    useState<TokenBalance[]>();
   const [accountNFTs, setAccountNFTs] = useState<IAccountNFT[]>();
   const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<IAccountNFT[]>();
 
@@ -138,8 +137,8 @@ const Portfolio: FC = () => {
             return acc;
           },
           { mainnetBalances: [], testnetBalances: [] } as {
-            mainnetBalances: ITokenBalance[];
-            testnetBalances: ITokenBalance[];
+            mainnetBalances: TokenBalance[];
+            testnetBalances: TokenBalance[];
           },
         );
         setAccountBalances(structeredBalances.mainnetBalances);
@@ -216,7 +215,7 @@ const Portfolio: FC = () => {
     setAccountSelect(value);
   };
 
-  const getGroupedBalances = (balanceArr: ITokenBalance[]): ITokenBalance[] => {
+  const getGroupedBalances = (balanceArr: TokenBalance[]): TokenBalance[] => {
     return Object.values(
       balanceArr.reduce((acc, item) => {
         if (acc[item.ticker]) {
@@ -232,11 +231,11 @@ const Portfolio: FC = () => {
           acc[item.ticker] = item;
         }
         return acc;
-      }, {} as { [key: TickerSymbol]: ITokenBalance }),
+      }, {} as { [key: TickerSymbol]: TokenBalance }),
     );
   };
 
-  const tokensToRender: ITokenBalance[] | null = useMemo(() => {
+  const tokensToRender: TokenBalance[] | null = useMemo(() => {
     if (accountBalances && accountTestnetBalances) {
       const balanceArr =
         EDisplayMode.MAINNET === displayMode

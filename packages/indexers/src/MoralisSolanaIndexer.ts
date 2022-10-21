@@ -5,16 +5,13 @@ import {
   IAxiosAjaxUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  AccountBalanceError,
-  AjaxError,
   ChainId,
-  AccountNFTError,
   AccountIndexingError,
   ISolanaBalanceRepository,
   ISolanaNFTRepository,
   ISolanaTransactionRepository,
   SolanaAccountAddress,
-  SolanaBalance,
+  TokenBalance,
   SolanaNFT,
   SolanaTransaction,
 } from "@snickerdoodlelabs/objects";
@@ -46,7 +43,7 @@ export class MoralisSolanaIndexer
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
-  public initialize<E>(): ResultAsync<void, E> {
+  public initialize(): ResultAsync<void, AccountIndexingError> {
     if (this._initialized) {
       return okAsync(undefined);
     }
@@ -54,7 +51,7 @@ export class MoralisSolanaIndexer
     return this.configProvider.getConfig().andThen((config) => {
       return ResultAsync.fromPromise(
         start({ apiKey: config.moralisApiKey }),
-        (e) => e as E,
+        (e) => new AccountIndexingError("error starting moralis client", e),
       );
     });
   }
@@ -62,14 +59,14 @@ export class MoralisSolanaIndexer
   public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<SolanaBalance[], AccountBalanceError | AjaxError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError> {
     throw new Error("Method not implemented.");
   }
 
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: SolanaAccountAddress,
-  ): ResultAsync<SolanaNFT[], AjaxError | AccountNFTError> {
+  ): ResultAsync<SolanaNFT[], AccountIndexingError> {
     throw new Error("Method not implemented.");
   }
 
@@ -78,7 +75,7 @@ export class MoralisSolanaIndexer
     accountAddress: SolanaAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
-  ): ResultAsync<SolanaTransaction[], AjaxError | AccountIndexingError> {
+  ): ResultAsync<SolanaTransaction[], AccountIndexingError> {
     throw new Error("Method not implemented.");
   }
 }

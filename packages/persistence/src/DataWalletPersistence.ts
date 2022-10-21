@@ -25,10 +25,8 @@ import {
   IAccountBalancesType,
   IAccountNFTs,
   IAccountNFTsType,
-  AccountNFTError,
   AjaxError,
   EIndexer,
-  AccountBalanceError,
   IDataWalletBackup,
   LinkedAccount,
   EChainTechnology,
@@ -36,11 +34,12 @@ import {
   IChainTransaction,
   CeramicStreamID,
   TransactionFilter,
-  ITokenBalance,
+  TokenBalance,
   AccountAddress,
   SolanaAccountAddress,
   IAccountNFT,
   getChainInfoByChainId,
+  AccountIndexingError,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
@@ -457,18 +456,16 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     chainId: ChainId,
     account: LinkedAccount,
   ): ResultAsync<boolean, PersistenceError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      const targetChainInfo = getChainInfoByChainId(chainId);
-      const accountChainInfo = getChainInfoByChain(account.sourceChain);
-      return okAsync(
-        targetChainInfo.chainTechnology == accountChainInfo.chainTechnology,
-      );
-    });
+    const targetChainInfo = getChainInfoByChainId(chainId);
+    const accountChainInfo = getChainInfoByChain(account.sourceChain);
+    return okAsync(
+      targetChainInfo.chainTechnology == accountChainInfo.chainTechnology,
+    );
   }
 
   public updateAccountBalances(
-    balances: ITokenBalance[],
-  ): ResultAsync<ITokenBalance[], PersistenceError> {
+    balances: TokenBalance[],
+  ): ResultAsync<TokenBalance[], PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return this.persistentStorageUtils
         .write(ELocalStorageKey.BALANCES, JSON.stringify(balances))
@@ -482,7 +479,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return ResultUtils.combine([
         this.configProvider.getConfig(),
@@ -493,7 +490,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       ]).andThen(([config, lastUpdate]) => {
         const currTime = new Date().getTime();
         if (currTime - lastUpdate < config.accountBalancePollingIntervalMS) {
-          return this._checkAndRetrieveValue<ITokenBalance[]>(
+          return this._checkAndRetrieveValue<TokenBalance[]>(
             ELocalStorageKey.BALANCES,
             [],
           );
@@ -507,8 +504,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   private pollBalances(): ResultAsync<
-    ITokenBalance[],
-    PersistenceError | AccountBalanceError | AjaxError
+    TokenBalance[],
+    PersistenceError | AccountIndexingError | AjaxError
   > {
     return ResultUtils.combine([
       this.getAccounts(),
@@ -546,8 +543,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     chainId: ChainId,
     accountAddress: AccountAddress,
   ): ResultAsync<
-    ITokenBalance[],
-    PersistenceError | AccountBalanceError | AjaxError
+    TokenBalance[],
+    PersistenceError | AccountIndexingError | AjaxError
   > {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
@@ -558,7 +555,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         return errAsync(
-          new AccountBalanceError(
+          new AccountIndexingError(
             `No available chain info for chain ${chainId}`,
           ),
         );
@@ -582,7 +579,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           );
         default:
           return errAsync(
-            new AccountBalanceError(
+            new AccountIndexingError(
               `No available balance repository for chain ${chainId}`,
             ),
           );
@@ -632,7 +629,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   private pollNFTs(): ResultAsync<
     IAccountNFT[],
-    PersistenceError | AjaxError | AccountNFTError
+    PersistenceError | AjaxError | AccountIndexingError
   > {
     return ResultUtils.combine([
       this.getAccounts(),
@@ -671,7 +668,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     accountAddress: AccountAddress,
   ): ResultAsync<
     IAccountNFT[],
-    PersistenceError | AccountNFTError | AjaxError
+    PersistenceError | AccountIndexingError | AjaxError
   > {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
@@ -682,7 +679,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         return errAsync(
-          new AccountNFTError(`No available chain info for chain ${chainId}`),
+          new AccountIndexingError(
+            `No available chain info for chain ${chainId}`,
+          ),
         );
       }
 
@@ -704,7 +703,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           );
         default:
           return errAsync(
-            new AccountNFTError(
+            new AccountIndexingError(
               `No available token repository for chain ${chainId}`,
             ),
           );
