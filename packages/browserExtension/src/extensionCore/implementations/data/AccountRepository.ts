@@ -3,7 +3,7 @@ import {
   DataWalletAddress,
   EChain,
   EVMAccountAddress,
-  ITokenBalance,
+  TokenBalance,
   IAccountNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
@@ -55,7 +55,7 @@ export class AccountRepository implements IAccountRepository {
   }
 
   public getAccountBalances(): ResultAsync<
-    ITokenBalance[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.core.getAccountBalances().mapErr((error) => {

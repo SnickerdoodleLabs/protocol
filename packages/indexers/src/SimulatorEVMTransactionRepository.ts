@@ -1,12 +1,11 @@
 import {
-  AccountBalanceError,
   AccountIndexingError,
-  AccountNFTError,
   AjaxError,
   BigNumberString,
   ChainId,
+  EChain,
+  EChainTechnology,
   EVMAccountAddress,
-  EVMBalance,
   EVMContractAddress,
   EVMNFT,
   EVMTransaction,
@@ -15,6 +14,7 @@ import {
   IEVMNftRepository,
   IEVMTransactionRepository,
   TickerSymbol,
+  TokenBalance,
   TokenUri,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
@@ -29,7 +29,7 @@ export class SimulatorEVMTransactionRepository
   getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AjaxError | AccountNFTError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10);
     const result: EVMNFT[] = [];
     for (let i = 0; i < num; i++) {
@@ -53,21 +53,22 @@ export class SimulatorEVMTransactionRepository
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMBalance[], AjaxError | AccountBalanceError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError> {
     const num = Math.floor(Math.random() * 10);
-    const result: EVMBalance[] = [];
+    const result: TokenBalance[] = [];
     for (let i = 0; i < num; i++) {
-      const item = new EVMBalance(
+      const item = new TokenBalance(
+        EChainTechnology.EVM,
         TickerSymbol((Math.random() + 1).toString(36).substring(5)),
         chainId,
-        accountAddress,
-        BigNumberString(Math.floor(Math.random() * 1000) + ""),
         EVMContractAddress(
           Math.floor(Math.random() * 4) +
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".charAt(
               Math.floor(Math.random() * 4),
             ),
         ),
+        accountAddress,
+        BigNumberString(Math.floor(Math.random() * 1000) + ""),
         BigNumberString(`${Math.random() * 1000}`),
       );
       result.push(item);

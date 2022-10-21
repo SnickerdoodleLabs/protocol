@@ -3,7 +3,7 @@ import {
   EVMAccountAddress,
   FamilyName,
   GivenName,
-  ITokenBalance,
+  TokenBalance,
   IAccountNFT,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
@@ -25,7 +25,7 @@ export class InternalCoreGateway {
   public getAccounts(): ResultAsync<EVMAccountAddress[], JsonRpcError> {
     return this._handler.call(EInternalActions.GET_ACCOUNTS);
   }
-  public getAccountBalances(): ResultAsync<ITokenBalance[], JsonRpcError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
     return this._handler.call(EInternalActions.GET_ACCOUNT_BALANCES);
   }
   public getAccountNFTs(): ResultAsync<IAccountNFT[], JsonRpcError> {

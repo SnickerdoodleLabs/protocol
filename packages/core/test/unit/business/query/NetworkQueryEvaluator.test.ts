@@ -15,7 +15,7 @@ import {
   TransactionFilter,
   Gender,
   IDataWalletPersistence,
-  ITokenBalance,
+  TokenBalance,
   SDQL_Name,
   TickerSymbol,
   UnixTimestamp,
@@ -44,7 +44,7 @@ class NetworkQueryEvaluatorMocks {
 
   public transactionsArray = new Array<IChainTransaction>();
 
-  public accountBalances = new Array<ITokenBalance>(
+  public accountBalances = new Array<TokenBalance>(
     {
       type: EChainTechnology.EVM,
       ticker: TickerSymbol("ETH"),

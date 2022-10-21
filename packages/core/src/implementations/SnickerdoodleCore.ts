@@ -38,7 +38,7 @@ import {
   IDataWalletBackup,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  ITokenBalance,
+  TokenBalance,
   IAccountNFT,
   InvalidParametersError,
   InvalidSignatureError,
@@ -629,7 +629,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getTranactions(filter);
   }
 
-  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError> {
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountBalances();

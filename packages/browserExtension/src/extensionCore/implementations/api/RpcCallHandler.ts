@@ -12,7 +12,7 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  ITokenBalance,
+  TokenBalance,
   IAccountNFT,
   LanguageCode,
   Signature,
@@ -572,7 +572,7 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private getAccountBalances(): ResultAsync<
-    ITokenBalance[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountService.getAccountBalances();

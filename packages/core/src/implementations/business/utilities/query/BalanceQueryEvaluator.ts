@@ -6,7 +6,7 @@ import {
   EVMContractAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  ITokenBalance,
+  TokenBalance,
   PersistenceError,
   SDQL_Return,
   TickerSymbol,
@@ -65,8 +65,8 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public evalConditions(
     query: AST_BalanceQuery,
-    balanceArray: ITokenBalance[],
-  ): ResultAsync<ITokenBalance[], never> {
+    balanceArray: TokenBalance[],
+  ): ResultAsync<TokenBalance[], never> {
     for (const condition of query.conditions) {
       let val: BigNumber = BigNumber.from(0);
 
@@ -116,15 +116,16 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public combineContractValues(
     query: AST_BalanceQuery,
-    balanceArray: ITokenBalance[],
-  ): ResultAsync<ITokenBalance[], PersistenceError> {
-    const balanceMap = new Map<TokenAddress, ITokenBalance>();
+    balanceArray: TokenBalance[],
+  ): ResultAsync<TokenBalance[], PersistenceError> {
+    const balanceMap = new Map<TokenAddress, TokenBalance>();
 
     balanceArray.forEach((d) => {
-      const getObject = balanceMap.get(d.tokenAddress);
+      const contract = d.tokenAddress || "NATIVE";
+      const getObject = balanceMap.get(contract);
 
       if (getObject) {
-        balanceMap.set(d.tokenAddress, {
+        balanceMap.set(contract, {
           ticker: getObject.ticker,
           balance: BigNumberString(
             BigNumber.from(getObject.balance)
@@ -142,11 +143,11 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           accountAddress: getObject.accountAddress,
         });
       } else {
-        balanceMap.set(d.tokenAddress, d);
+        balanceMap.set(contract, d);
       }
     });
 
-    const returnedArray: ITokenBalance[] = [];
+    const returnedArray: TokenBalance[] = [];
     balanceMap.forEach((element, key) => {
       returnedArray.push(element);
     });

@@ -6515,6 +6515,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/common-utils": "workspace:^"
     "@snickerdoodlelabs/objects": "workspace:^"
+    "@types/coingecko-api": ^1.0.10
     ethers: ^5.6.6
     inversify: ^5.1.1
     moralis: ^2.6.5
@@ -7180,6 +7181,13 @@ __metadata:
     "@types/filesystem": "*"
     "@types/har-format": "*"
   checksum: f01205376becff1a229443473c697b0ab42d87af00dc2a52f7a16bce2ad223875fd95ebee12ab1598f2669eb1af26953863c37aace7e87551f68ff73eaaedba5
+  languageName: node
+  linkType: hard
+
+"@types/coingecko-api@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "@types/coingecko-api@npm:1.0.10"
+  checksum: e9683f9ea9ce2f855f6565089981dd3fceb6c4674365438f3fc3877d089a2fb82cdea011b59d59c7baa1635dc610860cd29a10a4b7a650ff96521ead46f22a50
   languageName: node
   linkType: hard
 

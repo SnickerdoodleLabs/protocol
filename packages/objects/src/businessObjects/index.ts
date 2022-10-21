@@ -24,6 +24,6 @@ export * from "@objects/businessObjects/SiteVisit";
 export * from "@objects/businessObjects/rewards";
 export * from "@objects/businessObjects/SolanaTransaction";
 export * from "@objects/businessObjects/SolanaNFT";
-export * from "@objects/businessObjects/SolanaBalance";
-export * from "@objects/businessObjects/EVMBalance";
 export * from "@objects/businessObjects/TokenAddress";
+export * from "@objects/businessObjects/TokenBalance";
+export * from "@objects/businessObjects/TransactionFilter";

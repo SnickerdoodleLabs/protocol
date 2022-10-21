@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import {
   IDataWalletPersistence,
-  ITokenBalance,
+  TokenBalance,
   Age,
   ChainId,
   EVMAccountAddress,
@@ -54,7 +54,7 @@ class BalanceQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public accountBalances = new Array<ITokenBalance>(
+  public accountBalances = new Array<TokenBalance>(
     {
       type: EChainTechnology.EVM,
       ticker: TickerSymbol("ETH"),
@@ -141,7 +141,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -200,7 +200,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -255,7 +255,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -304,7 +304,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -348,7 +348,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -393,7 +393,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -462,7 +462,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -523,7 +523,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -576,7 +576,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -629,7 +629,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -682,7 +682,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -735,7 +735,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -788,7 +788,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -876,7 +876,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -974,7 +974,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),
@@ -1036,7 +1036,7 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<ITokenBalance>(
+        new Array<TokenBalance>(
           {
             type: EChainTechnology.EVM,
             ticker: TickerSymbol("ETH"),

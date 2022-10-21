@@ -1,22 +1,22 @@
+import { TokenAddress } from "@objects/businessObjects";
 import { EChainTechnology } from "@objects/enum";
-import { ITokenBalance } from "@objects/interfaces";
 import {
+  AccountAddress,
   BigNumberString,
   ChainId,
-  EVMAccountAddress,
   EVMContractAddress,
+  SolanaTokenAddress,
   TickerSymbol,
 } from "@objects/primitives";
 
-export class EVMBalance implements ITokenBalance {
-  public type = EChainTechnology.EVM;
-
+export class TokenBalance {
   public constructor(
+    public type: EChainTechnology,
     public ticker: TickerSymbol,
     public chainId: ChainId,
-    public accountAddress: EVMAccountAddress,
+    public tokenAddress: TokenAddress | null,
+    public accountAddress: AccountAddress,
     public balance: BigNumberString,
-    public tokenAddress: EVMContractAddress,
     public quoteBalance: BigNumberString,
   ) {}
 }

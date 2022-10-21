@@ -8,6 +8,7 @@ import {
   PageInvitation,
   SiteVisit,
   LinkedAccount,
+  TokenBalance,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -29,7 +30,7 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
-import { IAccountNFT, ITokenBalance } from "@objects/interfaces";
+import { IAccountNFT } from "@objects/interfaces";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
@@ -348,7 +349,7 @@ export interface ISnickerdoodleCore {
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
-  getAccountBalances(): ResultAsync<ITokenBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError>;
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
