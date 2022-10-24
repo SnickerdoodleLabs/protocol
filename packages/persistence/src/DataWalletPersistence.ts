@@ -42,6 +42,9 @@ import {
   CeramicStreamID,
   EarnedReward,
   Invitation,
+  DomainName,
+  Signature,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { BigNumber } from "ethers";
@@ -267,11 +270,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
-    return this.waitForRestore().andThen(() => {
-      return this._getObjectStore().andThen((store) => {
-        return store.getAll<Invitation>(ELocalStorageKey.ACCEPTED_INVITATIONS);
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._getObjectStore();
+      })
+      .andThen((store) => {
+        return store.getAll<InvitationForStorage>(
+          ELocalStorageKey.ACCEPTED_INVITATIONS,
+        );
+      })
+      .map((storedInvitations) => {
+        return storedInvitations.map((storedInvitation) => {
+          return InvitationForStorage.toInvitation(storedInvitation);
+        });
       });
-    });
   }
 
   public addAcceptedInvitations(
@@ -286,7 +298,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           invitations.map((invitation) => {
             return backupManager.addRecord(
               ELocalStorageKey.ACCEPTED_INVITATIONS,
-              invitation,
+              InvitationForStorage.fromInvitation(invitation),
             );
           }),
         );
@@ -299,7 +311,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError> {
     return this.waitForRestore()
       .andThen(() => {
-        return this.persistentStorageUtils.read<Invitation[]>(
+        return this.persistentStorageUtils.read<InvitationForStorage[]>(
           ELocalStorageKey.ACCEPTED_INVITATIONS,
         );
       })
@@ -1149,5 +1161,32 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
     return this.cloudStorage.clear();
+  }
+}
+
+class InvitationForStorage {
+  public constructor(
+    public domain: DomainName,
+    public consentContractAddress: EVMContractAddress,
+    public tokenId: string,
+    public businessSignature: Signature | null,
+  ) {}
+
+  static toInvitation(src: InvitationForStorage): Invitation {
+    return new Invitation(
+      src.domain,
+      src.consentContractAddress,
+      TokenId(BigInt(src.tokenId)),
+      src.businessSignature,
+    );
+  }
+
+  static fromInvitation(src: Invitation): InvitationForStorage {
+    return new InvitationForStorage(
+      src.domain,
+      src.consentContractAddress,
+      src.tokenId.toString(),
+      src.businessSignature,
+    );
   }
 }
