@@ -38,7 +38,6 @@ import {
   IDataWalletBackup,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  TokenBalance,
   IAccountNFT,
   InvalidParametersError,
   InvalidSignatureError,
@@ -69,15 +68,14 @@ import {
   DataWalletAddress,
   CeramicStreamID,
   EarnedReward,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import {
-  DataWalletPersistence,
   IndexedDBFactory,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
   ICloudStorage,
   ICloudStorageType,
-  NullCloudStorage,
   CeramicCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
@@ -141,11 +139,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(LocalStorageUtils)
         .inSingletonScope();
     }
-
-    this.iocContainer
-      .bind(IDataWalletPersistenceType)
-      .to(DataWalletPersistence)
-      .inSingletonScope();
 
     if (cloudStorage != null) {
       this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);

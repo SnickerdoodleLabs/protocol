@@ -105,8 +105,11 @@ export class BackupManager {
 
       return this._unpackBlob(backup.blob)
         .andThen((unpacked) => {
+          console.log("varun", unpacked);
+
           return ResultUtils.combine(
             Object.keys(unpacked.fields).map((fieldName) => {
+              console.log("varun", fieldName);
               const [value, timestamp] = unpacked.fields[fieldName];
               if (
                 !(fieldName in this.fieldHistory) ||
@@ -127,13 +130,19 @@ export class BackupManager {
               return okAsync(undefined);
             }),
           ).andThen((_) => {
+            console.log("varun", "done");
             return ResultUtils.combine(
               Object.keys(unpacked.records).map((tableName) => {
                 const table = unpacked.records[tableName];
                 return ResultUtils.combine(
                   table.map((value) => {
                     // TODO: figure out how to dedup records from chunk here
-                    return this.volatile.putObject(tableName, value);
+                    return this.volatile
+                      .putObject(tableName, value)
+                      .orElse((e) => {
+                        console.error(e);
+                        return okAsync(undefined);
+                      });
                   }),
                 );
               }),

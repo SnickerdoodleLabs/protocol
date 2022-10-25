@@ -428,7 +428,7 @@ function corePrompt(): ResultAsync<void, Error> {
           EVMTransactionHash("null"),
           UnixTimestamp(100),
           null,
-          null,
+          EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           BigNumberString("100"),
           null,
           null,

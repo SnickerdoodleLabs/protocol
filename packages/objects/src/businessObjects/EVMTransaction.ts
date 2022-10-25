@@ -21,7 +21,7 @@ export class EVMTransaction implements IChainTransaction {
     public hash: EVMTransactionHash,
     public timestamp: UnixTimestamp,
     public to: EVMAccountAddress | null,
-    public from: EVMAccountAddress | null,
+    public from: EVMAccountAddress,
     public value: BigNumberString,
     public gasPrice: BigNumberString | null,
     public gasOffered: BigNumberString | null,

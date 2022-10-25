@@ -73,7 +73,6 @@ export class MoralisEVMIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError> {
-    console.log(chainId, accountAddress);
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.initialize(),
@@ -191,20 +190,21 @@ export class MoralisEVMIndexer
         }),
         (e) => new AccountIndexingError("error getting transactions", e),
       ).andThen((response) => {
+        console.log(response.raw);
         return okAsync(
-          response.toJSON().map((item) => {
+          response.result.map((item) => {
             return new EVMTransaction(
               chainId,
               EVMTransactionHash(item.hash),
               UnixTimestamp(Number(item.blockTimestamp)),
-              EVMAccountAddress(item.to ?? "NULL"),
-              EVMAccountAddress(item.from ?? "NULL"),
-              BigNumberString(item.value ?? "NULL"),
-              BigNumberString(item.gasPrice ?? "NULL"),
-              BigNumberString(item.gas ?? "NULL"),
-              BigNumberString(item.gasUsed ?? "NULL"),
+              EVMAccountAddress(item.to?.lowercase ?? "NULL"),
+              EVMAccountAddress(item.from.lowercase),
+              BigNumberString(item.value?.ether ?? "0"),
+              BigNumberString(item.gasPrice.toString() ?? "-1"),
+              BigNumberString(item.gas?.toString() ?? "-1"),
+              BigNumberString(item.gasUsed.toString() ?? "-1"),
               null,
-              null,
+              0,
             );
           }),
         );

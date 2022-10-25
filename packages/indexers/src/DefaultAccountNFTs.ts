@@ -17,6 +17,7 @@ import {
 } from "@indexers/IIndexerConfigProvider.js";
 import { MoralisEVMIndexer } from "@indexers/MoralisEVMIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
+import { SolscanSolanaIndexer } from "@indexers/SolscanSolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountNFTs implements IAccountNFTs {
@@ -31,7 +32,10 @@ export class DefaultAccountNFTs implements IAccountNFTs {
   ) {
     this.evm = new MoralisEVMIndexer(this.configProvider, this.ajaxUtils);
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
-    this.solRepo = new DummySolanaIndexer();
+    this.solRepo = new SolscanSolanaIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+    );
   }
 
   public getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never> {

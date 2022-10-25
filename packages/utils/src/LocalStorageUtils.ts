@@ -20,6 +20,8 @@ export class LocalStorageUtils implements IStorageUtils {
   }
 
   public write<T>(key: string, value: T): ResultAsync<void, PersistenceError> {
+    console.log(key, value);
+
     const keys = typeof key === "object" ? key : { [key]: value };
     Object.entries(keys).map(([k, val]) =>
       LocalStorageUtils.localStorage.setItem(k, JSON.stringify(val)),
