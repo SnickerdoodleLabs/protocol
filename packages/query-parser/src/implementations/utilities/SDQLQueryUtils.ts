@@ -89,13 +89,13 @@ export class SDQLQueryUtils {
       });
   }
 
-  public extractCompensationIdFromAst(ast: AST_Expr | Command): CompensationId {
+  protected extractCompensationIdFromAst(ast: AST_Expr | Command): CompensationId {
     // console.log("extractCompensationIdFromAst: ast", ast);
     const compensationAst = this.getCompensationAstFromAst(ast);
     return CompensationId(compensationAst.name as string);
   }
 
-  public extractCompensationIdFromAstWithAlternatives(
+  protected extractCompensationIdFromAstWithAlternatives(
     ast: AST_Expr | Command,
   ): Set<CompensationId> {
     // console.log("extractCompensationIdFromAst: ast", ast);
@@ -109,7 +109,7 @@ export class SDQLQueryUtils {
     return comIds;
   }
 
-  public getCompensationAstFromAst(ast: AST_Expr | Command): AST_Compensation {
+  protected getCompensationAstFromAst(ast: AST_Expr | Command): AST_Compensation {
     switch (ast.constructor) {
       case Command_IF:
         return this.getCompensationAstFromAst((ast as Command_IF).trueExpr);
@@ -168,7 +168,7 @@ export class SDQLQueryUtils {
       
   }
 
-  public getQueryPermissionChecks(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> []{
+  protected getQueryPermissionChecks(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> []{
       /// returns an array of check results where each check resolves to a queryId if permmission is given or null otherwise.
       const checks: ResultAsync<SDQL_Name | null, never> [] = [];
       for (const [queryId, query] of parser.queries) {
@@ -179,7 +179,7 @@ export class SDQLQueryUtils {
 
   }
   
-  public queryIdIfPermitted(parser: SDQLParser, query:AST_Query, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> {
+  protected queryIdIfPermitted(parser: SDQLParser, query:AST_Query, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> {
 
       const flag = parser.getQueryPermissionFlag(query);
       if (givenPermissions.getFlag(flag)) {
