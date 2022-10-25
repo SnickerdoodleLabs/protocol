@@ -125,105 +125,68 @@ export class SDQLQueryUtils {
         );
     }
   }
-  // public getEligibleCompensations(schemaString: SDQLString, queryIds: string[]):
-  // ResultAsync<CompensationId[],
-  // | ParserError
-  // | DuplicateIdInSchema
-  // | QueryFormatError
-  // | MissingTokenConstructorError
-  // | QueryExpiredError
-  // > {
+  
 
-  //   const schema = this.queryWrapperFactory.makeWrapper(schemaString);
-  //   const compensationExpressions = schema.logic["compensations"]
+  public getPermittedQueryIdsFromSchemaString(schemaString: SDQLString, givenPermissions: DataPermissions): ResultAsync<string[], 
+  | ParserError
+  | DuplicateIdInSchema
+  | QueryFormatError
+  | MissingTokenConstructorError
+  | QueryExpiredError
+  > {
 
-    //     // console.log("extractCompensationIdFromAst: ast", ast);
-    //     const comIds = new Set<CompensationId>();
-    //     const compensationAst = this.getCompensationAstFromAst(ast);
-    //     comIds.add(CompensationId(compensationAst.name as string));
-    //     for (const altId of compensationAst.alternatives) {
-    //         comIds.add(altId);
-    //     }
+      return this.parserFactory.makeParser(IpfsCID(""), schemaString)
+          .andThen((parser) => {
+              return parser.buildAST()
+                  .andThen(() => {
+                      return this.getPermittedQueryIds(parser, givenPermissions);
+                  })
+          });
+  }
 
-    //     return comIds;
-    // }
+  public getPermittedQueryIds(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<string[], 
+  | ParserError
+  | DuplicateIdInSchema
+  | QueryFormatError
+  | MissingTokenConstructorError
+  | QueryExpiredError
+  > {
 
-    // public getCompensationAstFromAst(ast: AST_Expr | Command): AST_Compensation {
+      // for each query, check if permission is given
+      const checks = this.getQueryPermissionChecks(parser, givenPermissions);
+      return ResultUtils.combine(checks)
+          .andThen((resultIds) => {
+              return okAsync(
+                  resultIds.reduce<string[]>((acc, next)=>{
+                      if (next != null) {
+                          acc.push(next);
+                      }
+                      return acc;
+                  }, [])
+              );
+          })
+      
+  }
 
-    //     switch (ast.constructor) {
-    //         case Command_IF:
-    //             return this.getCompensationAstFromAst((ast as Command_IF).trueExpr);
-    //         case AST_Compensation:
-    //             return ast as AST_Compensation;
-    //         default:
-    //             console.error("getCompensationAstFromAst: Unknown expression to extract compensation from.", ast);
-    //             throw new QueryFormatError("Unknown expression to extract compensation from.");
+  public getQueryPermissionChecks(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> []{
+      /// returns an array of check results where each check resolves to a queryId if permmission is given or null otherwise.
+      const checks: ResultAsync<SDQL_Name | null, never> [] = [];
+      for (const [queryId, query] of parser.queries) {
+          checks.push(this.queryIdIfPermitted(parser, query, givenPermissions));
+      }
 
-    //     }
+      return checks;
 
-    // }
+  }
+  
+  public queryIdIfPermitted(parser: SDQLParser, query:AST_Query, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> {
 
-
-    public getPermittedQueryIdsFromSchemaString(schemaString: SDQLString, givenPermissions: DataPermissions): ResultAsync<string[], 
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-    > {
-
-        return this.parserFactory.makeParser(IpfsCID(""), schemaString)
-            .andThen((parser) => {
-                return parser.buildAST()
-                    .andThen(() => {
-                        return this.getPermittedQueryIds(parser, givenPermissions);
-                    })
-            });
-    }
-
-    public getPermittedQueryIds(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<string[], 
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-    > {
-
-        // for each query, check if permission is given
-        const checks = this.getQueryPermissionChecks(parser, givenPermissions);
-        return ResultUtils.combine(checks)
-            .andThen((resultIds) => {
-                return okAsync(
-                    resultIds.reduce<string[]>((acc, next)=>{
-                        if (next != null) {
-                            acc.push(next);
-                        }
-                        return acc;
-                    }, [])
-                );
-            })
-        
-    }
-
-    public getQueryPermissionChecks(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> []{
-        /// returns an array of check results where each check resolves to a queryId if permmission is given or null otherwise.
-        const checks: ResultAsync<SDQL_Name | null, never> [] = [];
-        for (const [queryId, query] of parser.queries) {
-            checks.push(this.queryIdIfPermitted(parser, query, givenPermissions));
-        }
-
-        return checks;
-
-    }
-    
-    public queryIdIfPermitted(parser: SDQLParser, query:AST_Query, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> {
-
-        const flag = parser.getQueryPermissionFlag(query);
-        if (givenPermissions.getFlag(flag)) {
-            return okAsync(query.name);
-        }
-        return okAsync(null);
-    }
+      const flag = parser.getQueryPermissionFlag(query);
+      if (givenPermissions.getFlag(flag)) {
+          return okAsync(query.name);
+      }
+      return okAsync(null);
+  }
 
     
 }
