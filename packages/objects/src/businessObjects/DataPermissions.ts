@@ -78,7 +78,7 @@ export class DataPermissions {
     return this.getFlag(EWalletDataType.LatestBlockNumber);
   }
 
-  protected getFlag(flagNumber: number): boolean {
+  public getFlag(flagNumber: number): boolean {
     // Convert the flags hex string to a Uint8Array
     const flagsArray = utils.arrayify(this.agreementFlags);
 
