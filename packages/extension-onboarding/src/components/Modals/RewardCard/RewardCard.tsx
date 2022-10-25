@@ -1,37 +1,161 @@
-import {
-  Backdrop,
-  Box,
-  Button,
-  Dialog,
-  DialogTitle,
-  Fade,
-  IconButton,
-  Modal,
-  Typography,
-} from "@material-ui/core";
-import React, { useContext, useEffect, useMemo, useState, FC } from "react";
-import PolygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
-import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
-import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import { useStyles } from "@extension-onboarding/components/Modals/RewardCard/RewardCard.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { Box, Button, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import {
+  BigNumberString,
+  EInvitationStatus,
+  EVMContractAddress,
+  EWalletDataType,
+  IOpenSeaMetadata,
+  Signature,
+  TokenId,
+} from "@snickerdoodlelabs/objects";
+import { okAsync } from "neverthrow";
+import React, {
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  FC,
+  useCallback,
+} from "react";
+
+import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
+import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { useStyles } from "@extension-onboarding/components/Modals/RewardCard/RewardCard.style";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 const RewardCard: FC = () => {
+  const [invitationMeta, setInvitationMeta] = useState<IOpenSeaMetadata>();
+  const [loading, setLoading] = useState<boolean>(false);
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
+  const { setModal, setLoadingStatus } = useLayoutContext();
 
-  const handleOpen = () => {
-    setOpen(true);
+  const invitationInfo = useMemo(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    return {
+      consentAddress: queryParams.get("consentAddress")
+        ? EVMContractAddress(queryParams.get("consentAddress")!)
+        : undefined,
+      tokenId: queryParams.get("tokenId")
+        ? BigNumberString(queryParams.get("tokenId")!)
+        : undefined,
+      signature: queryParams.get("signature")
+        ? Signature(queryParams.get("signature")!)
+        : undefined,
+    };
+  }, [window]);
+
+  useEffect(() => {
+    getInvitationData();
+  }, [JSON.stringify(invitationInfo)]);
+
+  const getInvitationData = useCallback(() => {
+    if (!invitationInfo.consentAddress) {
+      return null;
+    }
+    return window.sdlDataWallet
+      .checkInvitationStatus(
+        invitationInfo.consentAddress,
+        invitationInfo.signature,
+        invitationInfo.tokenId,
+      )
+      .andThen((invitationStatus) => {
+        if (invitationStatus === EInvitationStatus.New) {
+          return window.sdlDataWallet
+            .getConsentContractCID(invitationInfo.consentAddress!)
+            .andThen((ipfsCID) => {
+              return window.sdlDataWallet.getInvitationMetadataByCID(ipfsCID);
+            })
+            .map((invitationMetaData) => {
+              setInvitationMeta(invitationMetaData);
+            });
+        }
+        return okAsync(undefined);
+      })
+      .orElse((e) => {
+        setLoading(false);
+        return okAsync(undefined);
+      });
+  }, [invitationInfo]);
+
+  const acceptInvitation = (
+    dataTypes: EWalletDataType[] | null,
+    consentContractAddress: EVMContractAddress,
+    tokenId?: BigNumberString,
+    signature?: Signature,
+  ) => {
+    setLoadingStatus(true);
+    return window.sdlDataWallet
+      .acceptInvitation(dataTypes, consentContractAddress, tokenId, signature)
+      .mapErr((e) => {
+        setLoadingStatus(false);
+      })
+      .map(() => {
+        setLoadingStatus(false);
+      });
   };
+
+  const onClaimClick = () => {
+    setOpen(false);
+    return window.sdlDataWallet
+      .getApplyDefaultPermissionsOption()
+      .map((option) => {
+        if (option) {
+          acceptInvitation(
+            null,
+            invitationInfo.consentAddress!,
+            invitationInfo.tokenId,
+            invitationInfo.signature,
+          );
+          return;
+        }
+        setModal({
+          modalSelector: EModalSelectors.PERMISSION_SELECTION,
+          onPrimaryButtonClick: () => {
+            acceptInvitation(
+              null,
+              invitationInfo.consentAddress!,
+              invitationInfo.tokenId,
+              invitationInfo.signature,
+            );
+          },
+          customProps: {
+            onManageClicked: () => {
+              setModal({
+                modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
+                onPrimaryButtonClick: (dataTypes: EWalletDataType[]) => {
+                  acceptInvitation(
+                    dataTypes,
+                    invitationInfo.consentAddress!,
+                    invitationInfo.tokenId,
+                    invitationInfo.signature,
+                  );
+                },
+              });
+            },
+          },
+        });
+      });
+  };
+
+  if (loading) {
+  }
+  if (!invitationMeta || !open) {
+    return null;
+  }
 
   const handleClose = () => {
+    setInvitationMeta(undefined);
     setOpen(false);
   };
+
   return (
     <>
-      <Dialog onClose={handleClose} open={open}>
+      <Dialog onClose={handleClose} open={true}>
         <Box width={548} height={477}>
           <Box height={240} style={{ backgroundImage: `url(${RewardBG})` }}>
             <Box
@@ -62,7 +186,7 @@ const RewardCard: FC = () => {
               mt={2}
             >
               <Box>
-                <img width={244} height={145} src={PolygonCircle} />
+                <img width={244} height={145} src={invitationMeta.image} />
               </Box>
             </Box>
           </Box>
@@ -92,13 +216,15 @@ const RewardCard: FC = () => {
               alignItems="center"
             >
               <Box>
-                <Button className={classes.buttonText}>Not Interested</Button>
+                <Button onClick={handleClose} className={classes.buttonText}>
+                  Not Interested
+                </Button>
               </Box>
               <Box>
                 <Button
                   variant="outlined"
                   color="primary"
-                  onClick={() => {}}
+                  onClick={onClaimClick}
                   className={classes.primaryButton}
                 >
                   Claim Reward
