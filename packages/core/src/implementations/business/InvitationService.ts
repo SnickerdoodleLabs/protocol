@@ -31,6 +31,8 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
   HexString32,
+  TokenId,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -93,62 +95,91 @@ export class InvitationService implements IInvitationService {
       this.consentRepo.getAvailableOptInCount(
         invitation.consentContractAddress,
       ),
-    ]).andThen(([rejectedConsentContracts, optedIn, availableOptIns]) => {
-      const rejected = rejectedConsentContracts.includes(
-        invitation.consentContractAddress,
-      );
+      this.configProvider.getConfig(),
+    ]).andThen(
+      ([rejectedConsentContracts, optedIn, availableOptIns, config]) => {
+        const rejected = rejectedConsentContracts.includes(
+          invitation.consentContractAddress,
+        );
 
-      // If we are opted in, that wins
-      if (optedIn) {
-        return okAsync(EInvitationStatus.Accepted);
-      }
+        // If we are opted in, that wins
+        if (optedIn) {
+          return okAsync(EInvitationStatus.Accepted);
+        }
 
-      // Next winner, the reject list
-      if (rejected) {
-        return okAsync(EInvitationStatus.Rejected);
-      }
+        // Next winner, the reject list
+        if (rejected) {
+          return okAsync(EInvitationStatus.Rejected);
+        }
 
-      // Next up, if there are no slots available, then it's an Invalid invitation
-      if (availableOptIns == 0) {
-        return okAsync(EInvitationStatus.Invalid);
-      }
+        // Next up, if there are no slots available, then it's an Invalid invitation
+        if (availableOptIns == 0) {
+          return okAsync(EInvitationStatus.Invalid);
+        }
 
-      // Not rejected or already in the cohort, we need to verify the invitation
-      return ResultUtils.combine([
-        this.consentRepo.getInvitationUrls(invitation.consentContractAddress),
-        this.getConsentContractAddressesFromDNS(invitation.domain),
-      ]).map(([urls, consentContractAddresses]) => {
-        // Derive a list of domains from a list of URLs
-        console.log("urls", urls);
-        console.log("consentContractAddresses", consentContractAddresses);
-        console.log("invitation.domain", invitation.domain);
+        // If invitation has bussiness signature validate signature
+        if (invitation.businessSignature) {
+          //TODO validate signature
+          return this.insightPlatformRepo
+            .isValidSignatureForInvitation(
+              invitation.consentContractAddress,
+              BigNumberString(invitation.tokenId.toString()),
+              invitation.businessSignature,
+              config.defaultInsightPlatformBaseUrl,
+            )
+            .map((isValidSignature) => {
+              if (isValidSignature) {
+                return EInvitationStatus.New;
+              }
+              return EInvitationStatus.Invalid;
+            });
+        }
 
-        const domains = urls
-          .map((url) => {
-            if (url.includes("https://") || url.includes("http://")) {
-              return new URL(url).href;
+        // If invitation belongs any domain verify URLs
+        if (invitation.domain) {
+          // Not rejected or already in the cohort, we need to verify the invitation
+          return ResultUtils.combine([
+            this.consentRepo.getInvitationUrls(
+              invitation.consentContractAddress,
+            ),
+            this.getConsentContractAddressesFromDNS(invitation.domain),
+          ]).map(([urls, consentContractAddresses]) => {
+            // Derive a list of domains from a list of URLs
+            console.log("urls", urls);
+            console.log("consentContractAddresses", consentContractAddresses);
+            console.log("invitation.domain", invitation.domain);
+
+            const domains = urls
+              .map((url) => {
+                if (url.includes("https://") || url.includes("http://")) {
+                  return new URL(url).href;
+                }
+                return new URL(`http://${url}`).href;
+              })
+              .map((href) => getDomain(href));
+
+            console.log("domains", domains);
+
+            // We need to remove the subdomain so it would match with the saved domains in the blockchain
+            const domainStr = getDomain(invitation.domain);
+            // The contract must include the domain
+            if (!domains.includes(domainStr)) {
+              return EInvitationStatus.Invalid;
             }
-            return new URL(`http://${url}`).href;
-          })
-          .map((href) => getDomain(href));
+            if (
+              !consentContractAddresses.includes(
+                invitation.consentContractAddress,
+              )
+            ) {
+              return EInvitationStatus.Invalid;
+            }
 
-        console.log("domains", domains);
-
-        // We need to remove the subdomain so it would match with the saved domains in the blockchain
-        const domainStr = getDomain(invitation.domain);
-        // The contract must include the domain
-        if (!domains.includes(domainStr)) {
-          return EInvitationStatus.Invalid;
+            return EInvitationStatus.New;
+          });
         }
-        if (
-          !consentContractAddresses.includes(invitation.consentContractAddress)
-        ) {
-          return EInvitationStatus.Invalid;
-        }
-
-        return EInvitationStatus.New;
-      });
-    });
+        return okAsync(EInvitationStatus.New);
+      },
+    );
   }
 
   public acceptInvitation(
@@ -426,6 +457,15 @@ export class InvitationService implements IInvitationService {
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError> {
     return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
+  }
+
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.consentRepo.getMetadataCID(consentAddress);
   }
 
   protected getInvitationsFromConsentContract(

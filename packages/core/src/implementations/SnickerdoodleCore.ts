@@ -68,6 +68,7 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -189,6 +190,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+  }
+
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+    return cohortService.getConsentContractCID(consentAddress);
   }
 
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
@@ -681,9 +694,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEarnedReward(reward);
   }
-
-
-
 
   public addEVMTransactions(
     transactions: EVMTransaction[],

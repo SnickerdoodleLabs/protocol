@@ -35,6 +35,15 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public isValidSignatureForInvitation(
+    consentContractAddress: EVMContractAddress,
+    tokenId: BigNumberString,
+    bussinessSignature: Signature,
+    insightPlatformBaseUrl: URLString,
+  ): ResultAsync<boolean, AjaxError> {
+    throw new Error("Method not implemented.");
+  }
+
   public deliverInsights(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
