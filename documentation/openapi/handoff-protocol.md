@@ -32,48 +32,49 @@ sequenceDiagram
         "parameters": {
             "recipientAddress": {
                 type:...,
-                required: true,
-                mappedType: "walletAddress"
+                required: true
             },
             "productId": {
-                type: number,
+                type: string,
                 required: true,
                 values: [urls]
-                mappedType: "productId"
             },
             "shippingAddress": {
                 type: string,
                 required: true,
-                mappedType: "shippingAddress"
             },
-            "param1": type,
 
         },
         "c1":{
             "description": "10% discount code for Starbucks",
-            "chain": "ETH",
-            "return": {
-               "cid": ipfs id,
-               "compensationId": "c1",
-               "data": .....request related data
+            "chainId": 1,
+            "callback": {
+                "parameters": [
+                    "recipientAddress"
+                ],
+                "data": {...an object to be forwarded with the api call}
             }
         },
         "c2":{
             "description": "participate in the draw to win a CryptoPunk NFT",
-            "chain": "ETH",
-            "return": {
-               "cid": ipfs id,
-               "compensationId": "c2",
-               "data": .....request related data
+            "chainId": 1,
+            "callback": {
+                "parameters": [
+                    "recipientAddress",
+                    "productId"
+                ],
+                "data": {...an object to be forwarded with the api call}
             }
         },
         "c3":{
             "description": "a free CrazyApesClub NFT",
-            "chain": "ETH",
-            "return": {
-               "cid": ipfs id,
-               "compensationId": "c3",
-               "data": .....request related data
+            "chainId": 1,
+            "callback": {
+                "parameters": [
+                    "recipientAddress",
+                    "shippingAddress"
+                ],
+                "data": {...an object to be forwarded with the api call}
             },
             "alternatives": [
                 "c4",
@@ -83,22 +84,34 @@ sequenceDiagram
         },
         "c4":{
             "description": "a free CrazyApesClub NFT on Avalanche",
-            "chain": "AVAX",
-            "return": {
-               "cid": ipfs id,
-               "compensationId": "c4",
-               "data": .....request related data
-            }
+            "chainId": 43114,
+            "callback": {
+                "parameters": [
+                    "recipientAddress",
+                    "shippingAddress"
+                ],
+                "data": {...an object to be forwarded with the api call}
+            },
+            "alternatives": [
+                "c3",
+                "c5"
+            ]
             
         },
         "c5":{
             "description": "a free CrazyApesClub NFT on Solana",
-            "chain": "Solana",
-            "return": {
-               "cid": ipfs id,
-               "compensationId": "c5",
-               "data": .....request related data
-            }
+            "chainId": -1,
+            "callback": {
+                "parameters": [
+                    "recipientAddress",
+                    "shippingAddress"
+                ],
+                "data": {...an object to be forwarded with the api call}
+            },
+            "alternatives": [
+                "c3",
+                "c4"
+            ]
             
         },
     },

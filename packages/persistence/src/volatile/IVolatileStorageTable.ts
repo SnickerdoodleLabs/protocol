@@ -43,4 +43,5 @@ export interface IVolatileStorageTable {
 
 export interface IVolatileCursor<T> {
   nextValue(): ResultAsync<T | null, PersistenceError>;
+  allValues(): ResultAsync<T[] | null, PersistenceError>;
 }

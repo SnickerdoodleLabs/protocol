@@ -272,7 +272,7 @@ export class CryptoUtils implements ICryptoUtils {
   // }
 
   public getSignature(
-    owner: ethers.Signer,
+    owner: ethers.providers.JsonRpcSigner | ethers.Wallet,
     types: Array<string>,
     values: Array<
       BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress

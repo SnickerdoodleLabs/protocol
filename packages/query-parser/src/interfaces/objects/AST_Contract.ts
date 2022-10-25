@@ -1,8 +1,7 @@
 import {
   ChainId,
   EVMAccountAddress,
-  EVMBlockRange,
-  EVMContractAddress,
+  EVMTimestamp,
   EVMContractDirection,
   EVMContractFunction,
   EVMToken,
@@ -15,7 +14,7 @@ export class AST_Contract {
     readonly func: EVMContractFunction,
     readonly direction: EVMContractDirection,
     readonly token: EVMToken,
-    readonly blockrange: EVMBlockRange,
+    readonly timestamp: EVMTimestamp,
   ) {}
 
   static fromSchema(schema: any): AST_Contract {
@@ -31,7 +30,7 @@ export class AST_Contract {
       EVMContractFunction(schema.function),
       direction,
       EVMToken(schema.token),
-      EVMBlockRange.fromString(schema.blockrange),
+      EVMTimestamp.fromString(schema.timestamp),
     );
   }
 }

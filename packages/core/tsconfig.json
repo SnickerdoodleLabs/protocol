@@ -24,6 +24,9 @@
       "path": "../indexers"
     },
     {
+      "path": "../insight-platform-api"
+    },
+    {
       "path": "../objects"
     },
     {

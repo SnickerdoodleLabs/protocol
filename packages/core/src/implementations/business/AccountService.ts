@@ -5,12 +5,18 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+} from "@snickerdoodlelabs/insight-platform-api";
+import {
   AccountAddress,
   AESEncryptedString,
   AjaxError,
   BigNumberString,
   BlockchainProviderError,
   ChainId,
+  IChainTransaction,
+  ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
   EChain,
@@ -37,6 +43,7 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
   URLString,
+  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -49,8 +56,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountService } from "@core/interfaces/business/index.js";
 import {
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
 } from "@core/interfaces/data/index.js";
@@ -66,6 +71,7 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -175,10 +181,11 @@ export class AccountService implements IAccountService {
                 );
               })
               .andThen((dataWalletAccount) => {
-                console.log(
-                  "Data wallet address initialized: ",
-                  dataWalletAccount.accountAddress,
-                );
+                // console.log(
+                //   "Data wallet address initialized: ",
+                //   dataWalletAccount.accountAddress,
+                // );
+
                 // The account address in account is just a generic EVMAccountAddress,
                 // we need to cast it to a DataWalletAddress, since in this case, that's
                 // what it is.
@@ -516,17 +523,30 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getAccountNFTs();
   }
 
+  public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    return this.dataWalletPersistence.getEarnedRewards();
+  }
+
+  public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.addEarnedReward(reward);
+  }
+
+
   public getTranactions(
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
     return this.dataWalletPersistence.getEVMTransactions(filter);
   }
 
-  public getTransactionsMap(): ResultAsync<
-    Map<ChainId, number>,
+  // public getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError> {
+  //   return this.dataWalletPersistence.getTransactionsArray();
+  // }
+
+  public getTransactionsArray(): ResultAsync<
+    IChainTransaction[],
     PersistenceError
   > {
-    return this.dataWalletPersistence.getTransactionsMap();
+    return this.dataWalletPersistence.getTransactionsArray();
   }
 
   public getSiteVisitsMap(): ResultAsync<
@@ -548,6 +568,14 @@ export class AccountService implements IAccountService {
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.addEVMTransactions(transactions);
+  }
+
+  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+    return this.dataWalletPersistence.postBackup();
+  }
+
+  public clearCloudStore(): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.clearCloudStore();
   }
 
   protected addCrumb(
@@ -622,6 +650,7 @@ export class AccountService implements IAccountService {
                 callData,
                 metatransactionSignature,
                 dataWalletKey,
+                config.defaultInsightPlatformBaseUrl,
               );
             });
         });
@@ -682,6 +711,7 @@ export class AccountService implements IAccountService {
                 callData,
                 metatransactionSignature,
                 dataWalletAccount.privateKey,
+                config.defaultInsightPlatformBaseUrl,
               );
             });
         });

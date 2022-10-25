@@ -763,6 +763,32 @@ export default {
       type: "function",
     },
     {
+      inputs: [],
+      name: "maxCapacity",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "_maxCapacity_",
+          type: "uint256",
+        },
+      ],
+      name: "updateMaxCapacity",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
       inputs: [
         {
           internalType: "string",
