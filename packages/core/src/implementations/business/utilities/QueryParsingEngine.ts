@@ -68,6 +68,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           // console.log('insightResults', insightResults);
 
           const insights = insightResults.map(this.SDQLReturnToInsightString);
+          // console.log("Insights: ", insights)
 
           return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
             [insights, rewards],

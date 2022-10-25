@@ -1,7 +1,10 @@
 import { ResultAsync } from "neverthrow";
 
+import { IChainTransaction } from "./chains";
+
 import {
   ClickData,
+  EarnedReward,
   EVMTransaction,
   EVMTransactionFilter,
   IEVMNFT,
@@ -26,6 +29,7 @@ import {
   BlockNumber,
   UnixTimestamp,
   AccountAddress,
+  CeramicStreamID,
 } from "@objects/primitives";
 
 /**
@@ -99,6 +103,9 @@ export interface IDataWalletPersistence {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
+  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+
   /**
    * Returns a list of consent contract addresses that the user has rejected
    */
@@ -118,8 +125,15 @@ export interface IDataWalletPersistence {
   // return a map of URLs
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
 
-  // return a map of Chain Transaction Counts
-  getTransactionsMap(): ResultAsync<Map<ChainId, number>, PersistenceError>;
+  // return an array of Chain Transaction
+  // getTransactionsMap(): ResultAsync<Array<IChainTransaction>, PersistenceError>;
+
+  // getTransactionsArray(): ResultAsync<
+  //   { chainId: ChainId; items: EVMTransaction[] | null }[],
+  //   PersistenceError
+  // >;
+
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
 
   getLatestTransactionForAccount(
     chainId: ChainId,
@@ -151,6 +165,8 @@ export interface IDataWalletPersistence {
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

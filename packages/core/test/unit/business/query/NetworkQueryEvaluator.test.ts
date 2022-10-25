@@ -5,7 +5,7 @@ import {
   BigNumberString,
   ChainId,
   EVMAccountAddress,
-  EVMBlockRange,
+  EVMTimestamp,
   EVMChainCode,
   EVMContractAddress,
   EVMContractDirection,
@@ -30,6 +30,7 @@ import * as td from "testdouble";
 
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 class NetworkQueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
@@ -39,7 +40,7 @@ class NetworkQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsMap = new Map<ChainId, number>([[ChainId(1), 10]]);
+  public transactionsArray = new Array<IChainTransaction>();
 
   public accountBalances = new Array<IEVMBalance>(
     {
@@ -88,9 +89,11 @@ class NetworkQueryEvaluatorMocks {
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
-    td.when(this.dataWalletPersistence.getTransactionsMap()).thenReturn(
-      okAsync(this.transactionsMap),
+    /*
+    td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
+      okAsync(this.transactionsArray),
     );
+    */
     td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(this.accountBalances),
     );
@@ -116,14 +119,14 @@ describe("QueryEvaluator: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMBlockRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.blockrange.start;
-    const endTime = networkQuery.contract.blockrange.end;
+    const startTime = networkQuery.contract.timestamp.start;
+    const endTime = networkQuery.contract.timestamp.end;
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
@@ -134,7 +137,7 @@ describe("QueryEvaluator: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([
         new EVMTransaction(
           ChainId(43114),
@@ -173,14 +176,14 @@ describe("QueryEvaluator: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMBlockRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.blockrange.start;
-    const endTime = networkQuery.contract.blockrange.end;
+    const startTime = networkQuery.contract.timestamp.start;
+    const endTime = networkQuery.contract.timestamp.end;
 
     const filter = new EVMTransactionFilter(
       [chainId],
@@ -189,7 +192,7 @@ describe("QueryEvaluator: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([
         new EVMTransaction(
           ChainId(43114),
@@ -226,14 +229,14 @@ describe("QueryEvaluator: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMBlockRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.blockrange.start;
-    const endTime = networkQuery.contract.blockrange.end;
+    const startTime = networkQuery.contract.timestamp.start;
+    const endTime = networkQuery.contract.timestamp.end;
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
@@ -244,7 +247,7 @@ describe("QueryEvaluator: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([]),
     );
     const result = await repo.eval(networkQuery);
@@ -270,14 +273,14 @@ describe("Network Query Testing: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMBlockRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.blockrange.start;
-    const endTime = networkQuery.contract.blockrange.end;
+    const startTime = networkQuery.contract.timestamp.start;
+    const endTime = networkQuery.contract.timestamp.end;
 
     const filter = new EVMTransactionFilter(
       [chainId],
@@ -286,7 +289,7 @@ describe("Network Query Testing: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([]),
     );
     const result = await repo.eval(networkQuery);
@@ -309,14 +312,14 @@ describe("Network Query Testing: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMBlockRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.blockrange.start;
-    const endTime = networkQuery.contract.blockrange.end;
+    const startTime = networkQuery.contract.timestamp.start;
+    const endTime = networkQuery.contract.timestamp.end;
 
     const filter = new EVMTransactionFilter(
       [chainId],
@@ -325,7 +328,7 @@ describe("Network Query Testing: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(filter)).thenReturn(
+    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
       okAsync([]),
     );
     const result = await repo.eval(networkQuery);

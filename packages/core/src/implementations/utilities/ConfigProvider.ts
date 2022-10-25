@@ -16,13 +16,13 @@ import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 const modelAliases = {
   definitions: {
     backupIndex:
-      "kjzl6cwe1jw149f06c8o6hgro45rerad83swxqn5nrijb4i271uc1g5dybjjk22",
+      "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
   },
   schemas: {
-    BackupIndex:
-      "ceramic://k3y52l7qbv1frxm8elgkbtatgwkukhh7f3he8h6jarqy8szuq39x96heksob9hqtc",
     DataWalletBackup:
-      "ceramic://k3y52l7qbv1frxmf8dp0byvefkkj7j9f4hztn82r85lmpsrln5195njzlaw6zq680",
+      "ceramic://k3y52l7qbv1fryeqpnu3xx9st37h6soh7cosvpskp59r6wj8ag4zl2n3u3283xrsw",
+    BackupIndex:
+      "ceramic://k3y52l7qbv1fryk2h9xhsf2mai9wsiga2eld67pn8vgo3845yad3bn9plleei53pc",
   },
   tiles: {},
 };
@@ -30,7 +30,7 @@ const modelAliases = {
 /**
  * The config provider is a stash for data that is determined dynamically
  * but does not change during runtime.
- * 
+ *
  * The built-in config values should always be appropriate for working in the test-harness package;
  * ie, they should be appropriate for local dev. All config values should be able to be changed via
  * ConfigOverrides, and anywhere that is NOT the test harness should be required to provide a basically
@@ -80,7 +80,7 @@ export class ConfigProvider
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
-      URLString("http://localhost:7007"), // ceramicNodeURL
+      URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       "USD", // quoteCurrency
     );
   }
@@ -137,5 +137,9 @@ export class ConfigProvider
       this.config.dataWalletBackupIntervalMS;
     this.config.backupChunkSizeTarget =
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
+    this.config.ceramicNodeURL =
+      overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
+    this.config.ceramicModelAliases =
+      overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
   }
 }
