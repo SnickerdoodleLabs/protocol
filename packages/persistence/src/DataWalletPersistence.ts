@@ -85,7 +85,7 @@ enum ELocalStorageKey {
   CLICKS = "SD_CLICKS",
   REJECTED_COHORTS = "SD_RejectedCohorts",
   LATEST_BLOCK = "SD_LatestBlock",
-  EARNED_REWARDS = "SD_EarnedRewards"
+  EARNED_REWARDS = "SD_EarnedRewards",
 }
 
 interface LatestBlockEntry {
@@ -95,8 +95,9 @@ interface LatestBlockEntry {
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
-  private objectStore?: IVolatileStorageTable;
-  private backupManager?: BackupManager;
+  private objectStore?: ResultAsync<IVolatileStorageTable, PersistenceError>;
+
+  private backupManager?: ResultAsync<BackupManager, PersistenceError>;
 
   private unlockPromise: Promise<EVMPrivateKey>;
   private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
@@ -127,12 +128,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   private _getBackupManager(): ResultAsync<BackupManager, PersistenceError> {
     if (this.backupManager != undefined) {
-      return okAsync(this.backupManager);
+      return this.backupManager;
     }
 
-    return this.waitForUnlock().andThen((key) => {
+    this.backupManager = this.waitForUnlock().andThen((key) => {
       return this._getObjectStore().map((store) => {
-        this.backupManager = new BackupManager(
+        return new BackupManager(
           key,
           [
             ELocalStorageKey.ACCOUNT,
@@ -146,9 +147,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           this.cryptoUtils,
           this.persistentStorageUtils,
         );
-        return this.backupManager;
       });
     });
+    return this.backupManager;
   }
 
   private _getObjectStore(): ResultAsync<
@@ -156,10 +157,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     PersistenceError
   > {
     if (this.objectStore != undefined) {
-      return okAsync(this.objectStore);
+      return this.objectStore;
     }
 
-    return this.volatileStorageFactory.getStore({
+    this.objectStore = this.volatileStorageFactory.getStore({
       name: "SD_Wallet",
       schema: [
         {
@@ -208,13 +209,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           name: ELocalStorageKey.EARNED_REWARDS,
           keyPath: "queryCID",
           autoIncrement: false,
-          indexBy: [["type", false]]
+          indexBy: [["type", false]],
         },
       ],
     });
+
+    return this.objectStore;
   }
-
-
 
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
@@ -1008,7 +1009,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
     return this._getBackupManager().andThen((backupManager) => {
-      return backupManager.restore(backup);
+      return backupManager.restore(backup).orElse((err) => {
+        console.error(err);
+        return okAsync(undefined);
+      });
     });
   }
 
@@ -1028,7 +1032,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           this.configProvider.getConfig(),
         ]).andThen(([backupManager, config]) => {
           return backupManager.getNumUpdates().andThen((numUpdates) => {
-            // console.log("chunk", numUpdates, config.backupChunkSizeTarget);
+            console.log("chunk", numUpdates, config.backupChunkSizeTarget);
             if (numUpdates >= config.backupChunkSizeTarget) {
               return backupManager.dump().andThen((backup) => {
                 return this.cloudStorage

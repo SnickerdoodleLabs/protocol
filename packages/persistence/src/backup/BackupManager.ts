@@ -127,17 +127,21 @@ export class BackupManager {
               return okAsync(undefined);
             }),
           ).andThen((_) => {
-            return ResultUtils.combine(
-              Object.keys(unpacked.records).map((tableName) => {
-                const table = unpacked.records[tableName];
-                return ResultUtils.combine(
-                  table.map((value) => {
-                    // TODO: figure out how to dedup records from chunk here
-                    return this.volatile.putObject(tableName, value);
-                  }),
-                );
-              }),
-            );
+            const result = Object.keys(unpacked.records).map((tableName) => {
+              const table = unpacked.records[tableName];
+              const results = table.map((value) => {
+                // TODO: figure out how to dedup records from chunk here
+                return this.volatile.putObject(tableName, value);
+              });
+
+              return ResultUtils.combine(results);
+            });
+
+            console.log("outer combine", result);
+            return ResultUtils.combine(result).mapErr((e) => {
+              console.log(e);
+              return e;
+            });
           });
         })
         .map((_) => {
