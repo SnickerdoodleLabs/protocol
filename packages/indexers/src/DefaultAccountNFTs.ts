@@ -1,3 +1,4 @@
+import { SolscanSolanaIndexer } from "@indexers/SolscanSolanaIndexer.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -17,7 +18,6 @@ import {
 } from "@indexers/IIndexerConfigProvider.js";
 import { MoralisEVMIndexer } from "@indexers/MoralisEVMIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { SolscanSolanaIndexer } from "@indexers/SolscanSolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountNFTs implements IAccountNFTs {

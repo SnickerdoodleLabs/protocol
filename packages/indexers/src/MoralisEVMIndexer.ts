@@ -190,21 +190,20 @@ export class MoralisEVMIndexer
         }),
         (e) => new AccountIndexingError("error getting transactions", e),
       ).andThen((response) => {
-        console.log(response.raw);
         return okAsync(
-          response.result.map((item) => {
+          response.toJSON().map((item) => {
             return new EVMTransaction(
               chainId,
               EVMTransactionHash(item.hash),
               UnixTimestamp(Number(item.blockTimestamp)),
-              EVMAccountAddress(item.to?.lowercase ?? "NULL"),
-              EVMAccountAddress(item.from.lowercase),
-              BigNumberString(item.value?.ether ?? "0"),
-              BigNumberString(item.gasPrice.toString() ?? "-1"),
-              BigNumberString(item.gas?.toString() ?? "-1"),
-              BigNumberString(item.gasUsed.toString() ?? "-1"),
+              EVMAccountAddress(item.to ?? "NULL"),
+              EVMAccountAddress(item.from ?? "NULL"),
+              BigNumberString(item.value ?? "NULL"),
+              BigNumberString(item.gasPrice ?? "NULL"),
+              BigNumberString(item.gas ?? "NULL"),
+              BigNumberString(item.gasUsed ?? "NULL"),
               null,
-              0,
+              null,
             );
           }),
         );
