@@ -20,14 +20,10 @@ import {
   ConsentError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import {
-  IConsentContractRepository,
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
-} from "@core/interfaces/data/index.js";
+import { IConsentContractRepository } from "@core/interfaces/data/index.js";
 import {
   IContractFactoryType,
   IContractFactory,
@@ -42,8 +38,6 @@ import {
 @injectable()
 export class ConsentContractRepository implements IConsentContractRepository {
   public constructor(
-    @inject(IInsightPlatformRepositoryType)
-    protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IBlockchainProviderType)
     protected blockchainProvider: IBlockchainProvider,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -84,6 +78,31 @@ export class ConsentContractRepository implements IConsentContractRepository {
         return domains.map((domain) => {
           return URLString(domain);
         });
+      });
+  }
+
+  public getAvailableOptInCount(
+    consentContractAddress: EVMContractAddress,
+  ): ResultAsync<
+    number,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddress)
+      .andThen((contract) => {
+        return ResultUtils.combine([
+          contract.totalSupply(),
+          contract.getMaxCapacity(),
+        ]);
+      })
+      .map(([totalSupply, maxCapacity]) => {
+        const available = maxCapacity - totalSupply;
+
+        // Crazy sanity check
+        if (available < 0) {
+          return 0;
+        }
+
+        return available;
       });
   }
 

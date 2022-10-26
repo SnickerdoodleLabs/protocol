@@ -36,6 +36,12 @@
       "path": "packages/indexers/test"
     },
     {
+      "path": "packages/insight-platform-api"
+    },
+    {
+      "path": "packages/insight-platform-api/test"
+    },
+    {
       "path": "packages/objects"
     },
     {

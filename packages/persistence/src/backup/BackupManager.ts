@@ -173,15 +173,16 @@ export class BackupManager {
   private _verifyBackupSignature(
     backup: IDataWalletBackup,
   ): ResultAsync<boolean, PersistenceError> {
-    return this.cryptoUtils
-      .verifyEVMSignature(
-        this._generateSignatureMessage(
-          backup.header.hash,
-          backup.header.timestamp,
-        ),
-        Signature(backup.header.signature),
-      )
-      .andThen((addr) => okAsync(addr == EVMAccountAddress(this.accountAddr)));
+    return this._getContentHash(backup.blob).andThen((hash) => {
+      return this.cryptoUtils
+        .verifyEVMSignature(
+          this._generateSignatureMessage(hash, backup.header.timestamp),
+          Signature(backup.header.signature),
+        )
+        .andThen((addr) =>
+          okAsync(addr == EVMAccountAddress(this.accountAddr)),
+        );
+    });
   }
 
   private _generateBlob(): ResultAsync<AESEncryptedString, PersistenceError> {
@@ -206,8 +207,7 @@ export class BackupManager {
   private _getContentHash(
     blob: AESEncryptedString,
   ): ResultAsync<string, PersistenceError> {
-    // dummy value on write
-    return okAsync("");
+    return this.cryptoUtils.hashStringSHA256(JSON.stringify(blob));
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {

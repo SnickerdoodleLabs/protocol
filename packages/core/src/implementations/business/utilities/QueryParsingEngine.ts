@@ -2,6 +2,7 @@ import {
   DataPermissions,
   EligibleReward,
   EvaluationError,
+  InsightString,
   IpfsCID,
   QueryExpiredError,
   QueryFormatError,
@@ -20,7 +21,6 @@ import {
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
-import { InsightString } from "@core/interfaces/objects/index.js";
 import {
   IQueryFactories,
   IQueryFactoriesType,
@@ -68,6 +68,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           // console.log('insightResults', insightResults);
 
           const insights = insightResults.map(this.SDQLReturnToInsightString);
+          // console.log("Insights: ", insights)
 
           return okAsync<[InsightString[], EligibleReward[]], QueryFormatError>(
             [insights, rewards],

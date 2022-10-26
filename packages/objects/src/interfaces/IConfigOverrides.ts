@@ -1,3 +1,6 @@
+import { MapModelTypes } from "@glazed/types";
+
+import { ModelTypes } from "@objects/interfaces";
 import { ChainId, URLString } from "@objects/primitives";
 
 export interface IConfigOverrides {
@@ -13,4 +16,6 @@ export interface IConfigOverrides {
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
+  ceramicModelAliases?: MapModelTypes<ModelTypes, string>;
+  ceramicNodeURL?: URLString;
 }

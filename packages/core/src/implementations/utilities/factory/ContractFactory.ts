@@ -1,4 +1,8 @@
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   ConsentContract,
   IConsentContract,
   ICrumbsContract,
@@ -20,13 +24,13 @@ import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
   IConfigProvider,
   IConfigProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 
 @injectable()
 export class ContractFactory implements IContractFactory {
@@ -35,6 +39,7 @@ export class ContractFactory implements IContractFactory {
     protected blockchainProvider: IBlockchainProvider,
     @inject(IConfigProviderType)
     protected configProvider: IConfigProvider,
+    @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
   ) {}
   public factoryConsentFactoryContract(): ResultAsync<
     IConsentFactoryContract,
@@ -59,7 +64,11 @@ export class ContractFactory implements IContractFactory {
   > {
     return this.blockchainProvider.getControlProvider().map((provider) => {
       return consentContractAddresses.map((consentContractAddress) => {
-        return new ConsentContract(provider, consentContractAddress);
+        return new ConsentContract(
+          provider,
+          consentContractAddress,
+          this.cryptoUtils,
+        );
       });
     });
   }

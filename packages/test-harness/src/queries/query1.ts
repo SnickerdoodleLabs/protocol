@@ -16,7 +16,7 @@ export const query1 = {
         function: "Transfer",
         direction: "from",
         token: "ERC20",
-        blockrange: {
+        timestamp: {
           start: 13001519,
           end: 14910334,
         },
@@ -43,8 +43,8 @@ export const query1 = {
       return: "object",
     },
     q6: {
-      name: "chain_transaction_count",
-      return: "object",
+      name: "chain_transactions",
+      return: "array",
     },
     q7: {
       name: "balance",
@@ -78,8 +78,7 @@ export const query1 = {
       conditions: {
         ge: 10,
       },
-      return: "array"
-      
+      return: "array",
     },
   },
   returns: {
@@ -118,18 +117,52 @@ export const query1 = {
     url: "https://418e-64-85-231-39.ngrok.io/insights",
   },
   compensations: {
+    parameters: {
+      recipientAddress: {
+        type: "address",
+        required: true,
+      },
+      productId: {
+        type: "string",
+        required: false,
+        values: ["https://product1", "https://product2"],
+      },
+      shippingAddress: {
+        type: "string",
+        required: false,
+      },
+    },
     c1: {
       description: "10% discount code for Starbucks",
-      callback: "https://418e-64-85-231-39.ngrok.io/starbucks",
+      chainId: 1,
+      callback: {
+        parameters: ["recipientAddress"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      },
     },
     c2: {
-      description:
-        "participate in the draw to win a CryptoPunk NFT",
-      callback: "https://418e-64-85-231-39.ngrok.io/cryptopunk",
+      description: "participate in the draw to win a CryptoPunk NFT",
+      chainId: 1,
+      callback: {
+        parameters: ["recipientAddress", "productId"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      },
+      alternatives: ["c3"],
     },
     c3: {
       description: "a free CrazyApesClub NFT",
-      callback: "https://418e-64-85-231-39.ngrok.io/crazyapesclub",
+      chainId: 1,
+      callback: {
+        parameters: ["recipientAddress", "productId"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      },
+      alternatives: ["c2"],
     },
   },
   logic: {
@@ -144,4 +177,4 @@ export const query1 = {
     ],
     compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
   },
-}
+};

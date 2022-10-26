@@ -1,7 +1,11 @@
 // This is where Zara's definition will come in. This file should contain all the relevant
 // interfaces from the JSON schema of the query
 import {
-  EVMContractAddress, URLString
+  AccountAddress,
+  ChainId,
+  CompensationId,
+  EVMContractAddress,
+  URLString,
 } from "@objects/primitives";
 import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
 export interface ISDQLQueryObject {
@@ -19,9 +23,7 @@ export interface ISDQLQueryObject {
     //https://github.com/Microsoft/TypeScript/issues/10042
     url;
   };
-  compensations: {
-    [compensationObjects: string]: ISDQLCompensations;
-  };
+  compensations: ISDQLCompensationBlock;
   logic: ISDQLLogicObjects;
 }
 export interface ISDQLQueryClause {
@@ -46,10 +48,10 @@ export interface ISDQLQueryContract {
   function: string;
   direction: string;
   token: string;
-  blockrange: ISDQLBlockRange;
+  timestamp: ISDQLTimestamp;
 }
 
-export interface ISDQLBlockRange {
+export interface ISDQLTimestamp {
   start: number;
   end: number;
 }
@@ -76,9 +78,37 @@ export interface ISDQLReturnProperties {
   query?: string;
 }
 
+export interface ISDQLCompensationBlock {
+  [index: string | CompensationId]:
+    | ISDQLCompensationParameters
+    | ISDQLCompensations;
+  parameters: ISDQLCompensationParameters;
+}
+
 export interface ISDQLCompensations {
   description: string;
-  callback: string;
+  chainId: ChainId;
+  callback: ISDQLCallback;
+  alternatives?: CompensationId[];
+}
+
+export interface ISDQLCallback {
+  parameters: string[];
+  data: Record<string, unknown>;
+}
+
+export interface ISDQLCompensationParameters {
+  [paramName: string]: unknown & {
+    //a param can have other properties that we don't know of
+    type: unknown;
+    required: boolean;
+    values?: unknown[];
+  }; // TODO composition with unknowns?
+
+  recipientAddress: {
+    type: AccountAddress;
+    required: boolean;
+  };
 }
 
 export interface ISDQLLogicObjects {

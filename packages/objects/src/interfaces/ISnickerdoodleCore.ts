@@ -35,6 +35,7 @@ import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCore
 import {
   AccountAddress,
   Age,
+  CeramicStreamID,
   CountryCode,
   DataWalletAddress,
   DomainName,
@@ -349,6 +350,8 @@ export interface ISnickerdoodleCore {
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

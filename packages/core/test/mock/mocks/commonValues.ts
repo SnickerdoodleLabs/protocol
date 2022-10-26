@@ -59,14 +59,15 @@ export const modelAliases = {
   tiles: {},
 };
 
+export const defaultInsightPlatformBaseUrl = URLString("http://localhost:3000/v0");
+
 export const testCoreConfig = new CoreConfig(
   controlChainId,
   [], //TODO: supported chains
   chainConfig,
   controlChainInformation,
   URLString("http://ipfstest.com/whatever"),
-  URLString("http://localhost:3000/v0"),
-  snickerdoodleSigningDomain,
+  defaultInsightPlatformBaseUrl, // defaultInsightPlatformBaseUrl
   5000, // polling interval indexing,
   5000, // polling interval balance
   5000, // polling interval NFT
