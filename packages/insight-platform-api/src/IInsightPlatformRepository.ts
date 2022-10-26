@@ -46,9 +46,9 @@ export interface IInsightPlatformRepository {
   ): ResultAsync<void, AjaxError>;
 
   isValidSignatureForInvitation(
-    contractAddress: EVMContractAddress,
+    consentAddress: EVMContractAddress,
     tokenId: BigNumberString,
-    bussinessSignature: Signature,
+    signature: Signature,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<boolean, AjaxError>;
 }

@@ -36,22 +36,22 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   ) {}
 
   public isValidSignatureForInvitation(
-    contractAddress: EVMContractAddress,
+    consentAddress: EVMContractAddress,
     tokenId: BigNumberString,
-    bussinessSignature: Signature,
+    signature: Signature,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<boolean, AjaxError> {
     const url = new URL(
       urlJoin(insightPlatformBaseUrl, "chain/validate-invitation-signature"),
     );
     const params: {
-      contractAddress: EVMContractAddress;
+      consentAddress: EVMContractAddress;
       tokenId: BigNumberString;
-      bussinessSignature: Signature;
+      signature: Signature;
     } = {
-      contractAddress,
+      consentAddress,
       tokenId,
-      bussinessSignature,
+      signature,
     };
 
     return this.ajaxUtils.get<boolean>(url, { params });
