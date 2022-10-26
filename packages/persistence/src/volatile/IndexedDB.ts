@@ -162,12 +162,10 @@ export class IndexedDB implements IVolatileStorageTable {
           console.log("creating promise", obj);
           try {
             const timeout = setTimeout(() => {
-              console.log("timeout");
               reject(new PersistenceError("timeout"));
             }, 1000);
             const request = store.put(obj);
             request.onsuccess = (event) => {
-              console.log("success");
               clearTimeout(timeout);
               resolve(undefined);
             };

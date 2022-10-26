@@ -138,7 +138,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           key,
           [
             ELocalStorageKey.ACCOUNT,
-            ELocalStorageKey.TRANSACTIONS,
+            // ELocalStorageKey.TRANSACTIONS,
             ELocalStorageKey.SITE_VISITS,
             ELocalStorageKey.CLICKS,
             ELocalStorageKey.LATEST_BLOCK,
@@ -848,9 +848,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return okAsync(undefined);
     }
 
-    console.log(
-      `addEVMTransactions #${transactions.length} for first chain id ${transactions[0].chainId}`,
-    );
+    // console.log(
+    //   `addEVMTransactions #${transactions.length} for first chain id ${transactions[0].chainId}`,
+    // );
 
     return this.waitForRestore().andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
