@@ -26,6 +26,8 @@ import {
   Signature,
   UnixTimestamp,
   URLString,
+  EligibleReward,
+  ERewardType
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -80,7 +82,7 @@ export class InsightPlatformSimulator {
       });
     });
 
-    /* Rewards Preview API */
+    /* Rewards Preview API - get Eligible Rewards*/
     this.app.post("/insights/preview", (req, res) => {
       console.log("Sending prompt rewards preview to the Insights Platform");
       console.log("Req is this: ", req.body);
@@ -97,6 +99,11 @@ export class InsightPlatformSimulator {
       };
 
       this.logStream.write(JSON.stringify(req.body));
+
+      let reward = ([
+        new EligibleReward("c2", URLString("www.google.com"), ERewardType.Lazy),
+        new EligibleReward("c3", URLString("www.amazon.com"), ERewardType.Lazy),
+      ])
 
       return this.cryptoUtils
         .verifyTypedData(
@@ -115,15 +122,12 @@ export class InsightPlatformSimulator {
         })
         .map(() => {
           res.send("Reward Preview received successfully!");
+          res.send(reward);
         })
         .mapErr((e) => {
           console.error(e);
           res.send(e);
         });
-
-        res.send({ status:'success', message:'User Confirmed Rewards' });
-
-        // res.send({ status:'failure', message:'User Denied Rewards' });
     })
 
     this.app.post("/insights/responses", (req, res) => {

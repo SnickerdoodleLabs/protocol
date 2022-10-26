@@ -38,6 +38,9 @@ import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { IChainTransaction } from "@snickerdoodlelabs/objects";
+import { AST } from "@snickerdoodlelabs/query-parser";
+import { SDQL_Return } from "@snickerdoodlelabs/objects";
+import { ResultUtils } from "neverthrow-result-utils";
 
 const queryId = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -65,11 +68,11 @@ class QueryParsingMocks {
     this.persistenceRepo,
   );
 
-  protected queryObjectFactory: IQueryObjectFactory;
-  protected queryFactories: IQueryFactories;
-  protected queryWrapperFactory: ISDQLQueryWrapperFactory;
-  protected queryRepository: QueryRepository;
-  protected queryEvaluator: QueryEvaluator;
+  public queryObjectFactory: IQueryObjectFactory;
+  public queryFactories: IQueryFactories;
+  public queryWrapperFactory: ISDQLQueryWrapperFactory;
+  public queryRepository: QueryRepository;
+  public queryEvaluator: QueryEvaluator;
 
   public constructor() {
     this.queryObjectFactory = new QueryObjectFactory();
@@ -306,25 +309,62 @@ describe("Reward Preview", () => {
   test("showcase rewards", async () => {
     const mocks = new QueryParsingMocks();
     const engine = mocks.factory();
-
-    // console.log(sdqlQuery4);
-
-    let val = await engine.getRewardsPreview(sdqlQuery4)
+    let val = await engine.getPreviews(sdqlQuery4, new DataPermissions(allPermissions))
       
     console.log("Output: ", val);
-      /*
-      .andThen((rewards) => {
-        // console.log("Why not printed")x
+  });
 
-        // console.log('insights', insights);
-        expect(rewards).toEqual(expectedInsights);
-        expect(rewards.length > 0).toBeTruthy();
-        return okAsync(undefined);
-      })
-      .mapErr((e) => {
-        console.log(e);
-        fail(e.message);
-      });
-      */
+  test("showcase rewards", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
+
+    const schemaString = sdqlQuery4.query;
+    const cid: IpfsCID = sdqlQuery4.cid;
+
+    let response = await mocks.queryFactories.makeParserAsync(cid, schemaString)
+    .andThen((sdqlParser) => {
+      return sdqlParser.buildAST();
+    })
+    .andThen((ast: AST) => {
+      const astEvaluator = mocks.queryFactories.makeAstEvaluator(
+        cid,
+        ast,
+        mocks.queryRepository,
+      );
+
+      return (engine.identifyQueries(ast, astEvaluator, new DataPermissions(allPermissions)))
+    })
+
+    expect(response["value"]).toBe(("asdf"))
+
+    let val = 1;      
+    console.log("Output: ", val);
+  });
+
+  test("showcase rewards", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
+
+    const schemaString = sdqlQuery4.query;
+    const cid: IpfsCID = sdqlQuery4.cid;
+
+    let response = await mocks.queryFactories.makeParserAsync(cid, schemaString)
+    .andThen((sdqlParser) => {
+      return sdqlParser.buildAST();
+    })
+    .andThen((ast: AST) => {
+      const astEvaluator = mocks.queryFactories.makeAstEvaluator(
+        cid,
+        ast,
+        mocks.queryRepository,
+      );
+
+      return (engine.evalCompensations(ast, astEvaluator, new DataPermissions(allPermissions)))
+    })
+
+    expect(response["value"]).toBe(("asdf"))
+
+    let val = 1;      
+    console.log("Output: ", val);
   });
 });

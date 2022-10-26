@@ -50,6 +50,7 @@ import {
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
 import { QueryExpiredError } from "@snickerdoodlelabs/objects";
+import { DataPermissions } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class QueryService implements IQueryService {
@@ -122,6 +123,11 @@ export class QueryService implements IQueryService {
           consentContractAddress,
           EVMAccountAddress(context.dataWalletAddress),
         )
+
+        // this.consentContractRepository.getCurrentConsentToken(
+        //   consentContractAddress,
+        // ),
+        // consentToken!.dataPermissions
         
         .andThen((addressOptedIn) => {
 
@@ -135,63 +141,43 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          return this.queryParsingEngine.getRewardsPreview(query)
-        })
-        .andThen((rewardsPreviews) => {  
-
-          const queryRequest = new SDQLQueryRequest(
+          return this.consentContractRepository.getCurrentConsentToken(
             consentContractAddress,
-            query,
-            rewardsPreviews
-          );
+          )          
+        })
+        .andThen((consentToken) => {
+          return this.queryParsingEngine.getPreviews(query, consentToken!.dataPermissions)
+        })
+        .andThen(([queryIdentifiers, expectedRewards]) => { 
+          // return this.insightPlatformRepo.deliverPreview(
+          //   context.dataWalletAddress!,
+          //   consentContractAddress,
+          //   query.cid,
+          //   context.dataWalletKey!,
+          //   config.defaultInsightPlatformBaseUrl,
+          //   queryIdentifiers,
+          //   expectedRewards
+          //   )
+          // Now wait for user to select option - this prompt leaves us in limbo
+        // })
+        // .andThen((eligibleRewards) => {
 
-          /* Would like to discuss unattaching events 
-            Muktadir - do we actually need two events?
-          */
-          context.publicEvents.onQueryPosted.next(queryRequest);
-          return okAsync(undefined);
+        //     /* Compare server's rewards with your list */
+
+        //     /* post to /insights */
+        //     /* send insights */
+        //     /* And Compensation.parameters values */
+
+        //     const queryRequest = new SDQLQueryRequest(
+        //       consentContractAddress,
+        //       query,
+        //       eligibleRewards
+        //     );
+
+        //     context.publicEvents.onQueryPosted.next(queryRequest);
+            return okAsync(undefined);
         })
       })    
-  }
-
-  public processRewardsPreview(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    rewardsPreview: EligibleReward[] | null
-  ): ResultAsync<
-    boolean,
-    | AjaxError
-    | UninitializedError
-    | ConsentError
-    | IPFSError
-    | QueryFormatError
-    | EvaluationError
-  > {
-    console.log(
-      `QueryService.processQuery: Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,
-    );
-    return ResultUtils.combine([
-      this.contextProvider.getContext(),
-      this.configProvider.getConfig(),
-      this.consentContractRepository.getCurrentConsentToken(
-        consentContractAddress,
-      ),
-    ]).andThen(([context, config, consentToken]) => {
-      
-      return this.validateContextConfig(
-        context as CoreContext,
-        config,
-        consentToken,
-      ).andThen(() => {
-      return this.insightPlatformRepo.deliverPreview(
-        context.dataWalletAddress!,
-        consentContractAddress,
-        query.cid,
-        context.dataWalletKey!,
-        rewardsPreview,
-        config.defaultInsightPlatformBaseUrl,)
-      })
-    });
   }
 
   public processQuery(
@@ -239,6 +225,9 @@ export class QueryService implements IQueryService {
                 )
                 .map(() => {
                   console.log("insight delivery api call done");
+                  /* For Direct Rewards, add EarnedRewards to the wallet */
+                  /* Show Lazy Rewards in rewards tab? */
+                  /* Web2 rewards are also EarnedRewards, TBD */
                 });
             });
         });

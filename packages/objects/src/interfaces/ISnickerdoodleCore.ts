@@ -283,20 +283,6 @@ export interface ISnickerdoodleCore {
     BlockchainProviderError | UninitializedError | SiftContractError
   >;
 
-  processRewardsPreview(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    rewardsPreview: EligibleReward[] | null
-  ): ResultAsync<
-    boolean,
-    | AjaxError
-    | UninitializedError
-    | ConsentError
-    | IPFSError
-    | QueryFormatError
-    | EvaluationError
-  > 
-
   addEarnedReward(
     reward: EarnedReward,
   ): ResultAsync<void, PersistenceError> 

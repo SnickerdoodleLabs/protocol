@@ -1042,33 +1042,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  // public getTransactionsArray(): ResultAsync<
-  //   { chainId: ChainId; items: EVMTransaction[] | null }[],
-  //   PersistenceError
-  // > {
-  //   return ResultUtils.combine([
-  //     this.configProvider.getConfig(),
-  //     this._getObjectStore(),
-  //   ]).andThen(([config, store]) => {
-  //     return ResultUtils.combine(
-  //       config.supportedChains.map((chainId) => {
-  //       return store
-  //         .getCursor<EVMTransaction>(
-  //           ELocalStorageKey.TRANSACTIONS,
-  //           "chainId",
-  //           chainId,
-  //           undefined,
-  //           undefined,
-  //         )
-  //         .andThen((cursor) => {
-  //           return cursor.allValues().map((transactions) => {
-  //             return ({ chainId: chainId, items: transactions });
-  //           });
-  //         });
-  //     }));
-  //   });
-  // }
-
   // rename this. its bad.
   public returnProperTransactions(): ResultAsync<
     IChainTransaction[],

@@ -16,7 +16,6 @@ export class ContextProviderMock implements IContextProvider {
 
   public onInitializedActivations: DataWalletAddress[] = [];
   public onQueryPostedActivations: SDQLQueryRequest[] = [];
-  public onQueryAcceptedActivations: SDQLQueryRequest[] = [];
   public onAccountAddedActivations: LinkedAccount[] = [];
   public onAccountRemovedActivations: LinkedAccount[] = [];
 
@@ -42,10 +41,6 @@ export class ContextProviderMock implements IContextProvider {
       this.onQueryPostedActivations.push(val);
     });
 
-    this.publicEvents.onQueryAccepted.subscribe((val) => {
-      this.onQueryAcceptedActivations.push(val);
-    })
-
     this.publicEvents.onAccountAdded.subscribe((val) => {
       this.onAccountAddedActivations.push(val);
     });
@@ -69,7 +64,6 @@ export class ContextProviderMock implements IContextProvider {
     const counts: IExpectedEventCounts = {
       onInitialized: 0,
       onQueryPosted: 0,
-      onQueryAccepted: 0,
       onAccountAdded: 0,
       onAccountRemoved: 0,
     };
@@ -79,7 +73,6 @@ export class ContextProviderMock implements IContextProvider {
 
     expect(this.onInitializedActivations.length).toBe(counts.onInitialized);
     expect(this.onQueryPostedActivations.length).toBe(counts.onQueryPosted);
-    expect(this.onQueryAcceptedActivations.length).toBe(counts.onQueryAccepted);
     expect(this.onAccountAddedActivations.length).toBe(counts.onAccountAdded);
     expect(this.onAccountRemovedActivations.length).toBe(
       counts.onAccountRemoved,
@@ -90,7 +83,6 @@ export class ContextProviderMock implements IContextProvider {
 export interface IExpectedEventCounts {
   onInitialized?: number;
   onQueryPosted?: number;
-  onQueryAccepted?: number;
   onAccountAdded?: number;
   onAccountRemoved?: number;
 }

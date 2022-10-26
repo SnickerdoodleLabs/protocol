@@ -44,22 +44,6 @@ export interface IQueryService {
     | QueryFormatError
     | EvaluationError
   >;
-
-  processRewardsPreview(
-    consentContractAddress: EVMContractAddress,
-    query: SDQLQuery,
-    rewardsPreview: EligibleReward[] | null
-  ): ResultAsync<
-    boolean,
-    | AjaxError
-    | UninitializedError
-    | ConsentError
-    | IPFSError
-    | QueryFormatError
-    | EvaluationError
-  >
-
-
 }
 
 export const IQueryServiceType = Symbol.for("IQueryService");

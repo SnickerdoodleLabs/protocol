@@ -139,24 +139,11 @@ core.getEvents().map(async (events) => {
   events.onInitialized.subscribe((dataWalletAddress) => {
     console.log(`Initialized with address ${dataWalletAddress}`);
   });
-
-  events.onQueryAccepted.subscribe(async (queryRequest: SDQLQueryRequest) => {
-    console.log(`Accepted query contract ${queryRequest.consentContractAddress}`)
-
-    return core.processQuery(
-      queryRequest.consentContractAddress,
-      queryRequest.query,
-    );
-  })
-
+  
   events.onQueryPosted.subscribe(async (request: SDQLQueryRequest) => {
     console.log(
       `Recieved rewards preview from consentContract ${request.consentContractAddress} with id ${request.query.cid}`,
     );
-
-    
-
-
 
     try {
       await prompt([
@@ -175,15 +162,6 @@ core.getEvents().map(async (events) => {
             return okAsync(undefined);
           }
 
-          // return core
-          // .processRewardsPreview(
-          //   request.consentContractAddress, 
-          //   {
-          //     cid: request.query.cid,
-          //     query: request.query.query,
-          //   },
-          //   request.rewardsPreview
-          //   )
           return core.processQuery(
             request.consentContractAddress,
             request.query,

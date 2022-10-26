@@ -270,6 +270,34 @@ export class AST_Evaluator {
     return okAsync(SDQL_Return(eef));
   }
 
+  public evalQueryExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError> {
+
+    console.log("WITHIN evalCompensationExpr: ", eef)
+    if (TypeChecker.isIfCommand(eef)) {
+
+      console.log("WITHIN evalCompensationExpr line 268: ", eef)
+      return this.evalCompCondition(eef.conditionExpr).andThen(
+        (val): ResultAsync<SDQL_Return, EvaluationError> => {
+          if (val == true) {
+            return this.evalExpr(eef.trueExpr);
+          } else {
+            if (eef.falseExpr == null){
+              return okAsync(SDQL_Return(null))
+            }
+            if (eef.falseExpr) {
+              return this.evalExpr(eef.falseExpr);
+            }
+            return errAsync(
+              new EvaluationError(`if ${eef.name} do not have a falseExpr`),
+            );
+          }
+        },
+      );
+    }
+    console.log("OUT OF evalCompensationExpr: ", eef)
+    return okAsync(SDQL_Return(eef));
+  }
+
   public evalCompCondition(
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
@@ -293,7 +321,6 @@ export class AST_Evaluator {
       );
     }
   }
-
 
   public evalReturnExpr(
     expr: AST_ReturnExpr,

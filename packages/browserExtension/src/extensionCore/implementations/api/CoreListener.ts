@@ -37,7 +37,6 @@ export class CoreListener implements ICoreListener {
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
-      events.onQueryAccepted.subscribe(this.onQueryAccepted.bind(this));
     });
     return okAsync(undefined);
   }
@@ -67,64 +66,35 @@ export class CoreListener implements ICoreListener {
       `onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
     );
     console.debug(request.query.query);
-    
+
+    // @TODO - remove once ipfs issue is resolved
+    const getStringQuery = () => {
+      const queryObjOrStr = request.query.query;
+      let queryString: SDQLString;
+      if (typeof queryObjOrStr === "object") {
+        queryString = JSON.stringify(queryObjOrStr) as SDQLString;
+      } else {
+        queryString = queryObjOrStr;
+      }
+      return queryString;
+    };
+
     this.core
-      .processRewardsPreview(
-        request.consentContractAddress, 
-        {
-          cid: request.query.cid,
-          query: this.getStringQuery(request),
-        },
-        request.rewardsPreview
-        )
-      .map((acceptingRewards) => {
-          if (acceptingRewards){
-            console.log("Inside accepting rewards");
-            this.onQueryAccepted(request)
-          }
-        })
+      .processQuery(request.consentContractAddress, {
+        cid: request.query.cid,
+        query: getStringQuery(),
+      })
+      .map((ea) => {
+        console.log(
+          `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+        );
+      })
       .mapErr((e) => {
         console.error(
-          `Error while creating preview! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+          `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
         );
         console.error(e);
       });
-  }
-
-
-  private onQueryAccepted(request: SDQLQueryRequest){
-    console.log(`onQueryAccepted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,);
-    
-    return ResultUtils.combine(
-      request.rewardsPreview.map((index) => {
-        this.core.addEarnedReward(new EarnedReward(request.query.cid, index.type))
-        return okAsync(undefined);
-      })
-    ).andThen(() => {
-      this.core.processQuery(request.consentContractAddress, {
-        cid: request.query.cid,
-        query: this.getStringQuery(request),
-      })
-
-      return okAsync(undefined);
-  })
-    .mapErr((e) => {
-      console.error(
-        `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-      );
-      console.error(e);
-    });
-  }
-
-  private getStringQuery(request: SDQLQueryRequest) {
-    const queryObjOrStr = request.query.query;
-    let queryString: SDQLString;
-    if (typeof queryObjOrStr === "object") {
-      queryString = JSON.stringify(queryObjOrStr) as SDQLString;
-    } else {
-      queryString = queryObjOrStr;
-    }
-    return queryString;
   }
 
   private onAccountRemoved(account: LinkedAccount) {

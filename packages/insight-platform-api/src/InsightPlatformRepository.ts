@@ -17,6 +17,9 @@ import {
   InsightString,
   URLString,
   EligibleReward,
+  ExpectedReward, 
+  EarnedReward,
+  QueryIdentifier
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -42,15 +45,17 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     queryCid: IpfsCID,
     dataWalletKey: EVMPrivateKey,
-    rewardsPreview: EligibleReward[] | null,
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<boolean, AjaxError> {
+    intendedInsights: QueryIdentifier[],
+    expectedRewards: ExpectedReward[],
+  ): ResultAsync<EligibleReward[], AjaxError> {
     
     const signableData = {
       consentContractId: consentContractAddress,
-      queryCid: queryCid,
       dataWallet: dataWalletAddress,
-      returns: [],
+      queryCid: queryCid,
+      intendedInsights: intendedInsights,
+      expectedRewards: expectedRewards,
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -65,17 +70,17 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           urlJoin(insightPlatformBaseUrl, "insights/preview"),
         );
 
-        /* need to send out a post that requires a selection */
-        return this.ajaxUtils.post<boolean>(url, {
+        /* Following schema from .yaml file: */
+        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
+        return this.ajaxUtils.post<EligibleReward[]>(url, {
           consentContractId: consentContractAddress,
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
+          queries: intendedInsights,
           signature: signature,
-          preview: rewardsPreview
         });
       })
   }
-
 
 
   public deliverInsights(
@@ -85,7 +90,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     returns: InsightString[],
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<void, AjaxError> {
+  ): ResultAsync<EarnedReward[], AjaxError> {
     const returnsString = JSON.stringify(returns);
     const signableData = {
       consentContractId: consentContractAddress,
@@ -106,7 +111,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           urlJoin(insightPlatformBaseUrl, "insights/responses"),
         );
 
-        return this.ajaxUtils.post<boolean>(url, {
+        return this.ajaxUtils.post<EarnedReward[]>(url, {
           consentContractId: consentContractAddress,
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
@@ -114,10 +119,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           signature: signature,
         });
       })
-      .map((response) => {
-        console.log("Ajax response: " + JSON.stringify(response));
-        // return okAsync({});
-      });
+      // .map((response) => {
+      //   console.log("Ajax response: " + JSON.stringify(response));
+      // });
   }
 
   public executeMetatransaction(

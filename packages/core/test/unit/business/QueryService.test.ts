@@ -47,6 +47,8 @@ import { ERewardType } from "@snickerdoodlelabs/objects";
 import { IPFSError } from "@snickerdoodlelabs/objects";
 import { ConsentError } from "@snickerdoodlelabs/objects";
 import { SDQLQueryRequest } from "@snickerdoodlelabs/objects";
+import { ExpectedReward } from "@snickerdoodlelabs/objects";
+import { HexString32 } from "@snickerdoodlelabs/objects";
 
 const AndrewContractAddress = EVMContractAddress("Andrew");
 const consentContractAddress = EVMContractAddress("Phoebe");
@@ -62,6 +64,9 @@ const insights: InsightString[] = [
 ];
 const insightsError: InsightString[] = [InsightString("Ajax Error producer")];
 const rewards: EligibleReward[] = [];
+const allPermissions = HexString32(
+  "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+);
 
 class QueryServiceMocks {
   public queryParsingEngine: IQueryParsingEngine;
@@ -96,7 +101,7 @@ class QueryServiceMocks {
         dataWalletKey,
         defaultInsightPlatformBaseUrl,
       ),
-    ).thenReturn(okAsync(undefined)); // success
+    ).thenReturn(okAsync([])); // success = EarnedReward[]
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -235,11 +240,12 @@ describe("onQueryPosted tests", () => {
     td.when(mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything(), td.matchers.anything())).thenReturn(
       okAsync(true)
     );
-    td.when(mocks.queryParsingEngine.getRewardsPreview(td.matchers.anything())).thenReturn(
+    td.when(mocks.queryParsingEngine.getPreviews(td.matchers.anything(), td.matchers.anything())).thenReturn(
       okAsync([
-        new EligibleReward("c2", URLString("www.google.com"), ERewardType.Lazy),
-        new EligibleReward("c3", URLString("www.amazon.com"), ERewardType.Lazy),
-      ])
+        [], 
+        []
+      ]
+      )
     );
 
     const queryService = mocks.factory(); // new context
@@ -272,11 +278,11 @@ describe("processRewardsPreview tests", () => {
     td.when(mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything(), td.matchers.anything())).thenReturn(
       okAsync(true)
     );
-    td.when(mocks.queryParsingEngine.getRewardsPreview(sdqlQuery)).thenReturn(
+    td.when(mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything())).thenReturn(
       okAsync([
-        new EligibleReward("c2", URLString("www.google.com"), ERewardType.Lazy),
-        new EligibleReward("c3", URLString("www.amazon.com"), ERewardType.Lazy),
-      ])
+      [], 
+      []
+    ])
     );
 
     await ResultUtils.combine([
@@ -302,20 +308,20 @@ describe("processRewardsPreview tests", () => {
           EVMAccountAddress(context.dataWalletAddress),
         )        
         .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getRewardsPreview(query)
+          return mocks.queryParsingEngine.getPreviews(query, new DataPermissions(allPermissions))
         })
         .andThen((rewardsPreviews) => {  
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
             query,
-            rewardsPreviews
+            []
           );
           context.publicEvents.onQueryPosted.next(queryRequest);
           return okAsync(undefined);
         })
-        .orElse((err) => {
+        .mapErr((err) => {
           expect(err.constructor).toBe(UninitializedError);
-          return errAsync(err);
+          return err;
         });
     });
   });
