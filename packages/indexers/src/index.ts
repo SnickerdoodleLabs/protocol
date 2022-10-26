@@ -6,4 +6,3 @@ export * from "@indexers/IIndexerConfigProvider.js";
 export * from "@indexers/SimulatorEVMTransactionRepository.js";
 export * from "@indexers/MoralisEVMIndexer.js";
 export * from "@indexers/DummySolanaIndexer.js";
-export * from "@indexers/SolscanSolanaIndexer.js";

@@ -17,7 +17,6 @@ import {
 } from "@indexers/IIndexerConfigProvider.js";
 import { MoralisEVMIndexer } from "@indexers/MoralisEVMIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { SolscanSolanaIndexer } from "@indexers/SolscanSolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {
@@ -32,7 +31,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   ) {
     this.evm = new MoralisEVMIndexer(configProvider, ajaxUtils);
     this.sim = new SimulatorEVMTransactionRepository();
-    this.sol = new SolscanSolanaIndexer(configProvider, ajaxUtils);
+    this.sol = new DummySolanaIndexer();
   }
 
   public getSolanaBalanceRepository(): ResultAsync<

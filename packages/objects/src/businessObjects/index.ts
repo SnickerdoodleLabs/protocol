@@ -26,4 +26,5 @@ export * from "@objects/businessObjects/SolanaTransaction";
 export * from "@objects/businessObjects/SolanaNFT";
 export * from "@objects/businessObjects/TokenAddress";
 export * from "@objects/businessObjects/TokenBalance";
+export * from "@objects/businessObjects/TokenInfo";
 export * from "@objects/businessObjects/TransactionFilter";

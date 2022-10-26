@@ -52,7 +52,8 @@ import {
   IPersistenceConfigProviderType,
   ICloudStorage,
   ICloudStorageType,
-} from "@snickerdoodlelabs/persistence";
+} from 
+;
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -87,7 +88,7 @@ interface LatestBlockEntry {
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
-  private objectStore?: IVolatileStorageTable;
+  private objectStore?: ResultAsync<IVolatileStorageTable, PersistenceError>;
   private backupManager?: BackupManager;
 
   private unlockPromise: Promise<EVMPrivateKey>;
@@ -148,10 +149,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     PersistenceError
   > {
     if (this.objectStore != undefined) {
-      return okAsync(this.objectStore);
+      return this.objectStore;
     }
 
-    return this.volatileStorageFactory.getStore({
+    this.objectStore = this.volatileStorageFactory.getStore({
       name: "SD_Wallet",
       schema: [
         {
@@ -201,6 +202,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         },
       ],
     });
+    return this.objectStore;
   }
 
   private _checkAndRetrieveValue<T>(

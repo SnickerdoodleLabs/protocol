@@ -10,13 +10,13 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
+import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 import { MoralisEVMIndexer } from "@indexers/MoralisEVMIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
-import { SolscanSolanaIndexer } from "@indexers/SolscanSolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
@@ -31,7 +31,7 @@ export class DefaultAccountIndexers implements IAccountIndexing {
   ) {
     this.evm = new MoralisEVMIndexer(configProvider, ajaxUtils);
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
-    this.solRepo = new SolscanSolanaIndexer(configProvider, ajaxUtils);
+    this.solRepo = new DummySolanaIndexer();
   }
 
   public getSolanaTransactionRepository(): ResultAsync<

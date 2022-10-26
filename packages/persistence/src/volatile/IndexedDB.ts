@@ -15,6 +15,8 @@ import {
   IVolatileCursor,
 } from "@persistence/volatile/IVolatileStorageTable.js";
 
+export type IDBKeyType = (string | number)[] | (string | number);
+
 @injectable()
 export class IndexedDBFactory implements IVolatileStorageFactory {
   public getStore(
@@ -22,6 +24,10 @@ export class IndexedDBFactory implements IVolatileStorageFactory {
   ): ResultAsync<IVolatileStorageTable, PersistenceError> {
     return okAsync(new IndexedDB(config.name, config.schema));
   }
+}
+
+function _getCompoundIndexName(key: (string | number)[]): string {
+  return key.join(",");
 }
 
 export class IndexedDB implements IVolatileStorageTable {
@@ -40,7 +46,6 @@ export class IndexedDB implements IVolatileStorageTable {
     }
 
     const idb = this._getIDBFactory();
-
     const schema = this.schema;
     const request = idb.open(this.name);
     const promise = new Promise<IDBDatabase>(function (resolve, reject) {
@@ -59,7 +64,13 @@ export class IndexedDB implements IVolatileStorageTable {
           };
           const objectStore = db.createObjectStore(storeInfo.name, keyPathObj);
           storeInfo.indexBy?.forEach(([name, unique]) => {
-            objectStore.createIndex(name, name, { unique: unique });
+            if (Array.isArray(name)) {
+              objectStore.createIndex(_getCompoundIndexName(name), name, {
+                unique: unique,
+              });
+            } else {
+              objectStore.createIndex(name, name, { unique: unique });
+            }
           });
         });
       };
@@ -212,7 +223,7 @@ export class IndexedDB implements IVolatileStorageTable {
 
   public getObject<T>(
     name: string,
-    key: string,
+    key: IDBKeyType,
   ): ResultAsync<T | null, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readonly").andThen((store) => {
@@ -237,7 +248,7 @@ export class IndexedDB implements IVolatileStorageTable {
   public getCursor<T>(
     name: string,
     indexName?: string,
-    query?: string | number,
+    query?: IDBKeyType,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IndexedDBCursor<T>, PersistenceError> {

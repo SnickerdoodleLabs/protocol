@@ -152,7 +152,7 @@ describe("QueryEvaluator: ", () => {
           EVMTransactionHash(""),
           UnixTimestamp(13001519),
           EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
-          null,
+          EVMAccountAddress(""),
           BigNumberString("0"),
           null,
           null,

@@ -1,11 +1,14 @@
 import { ResultAsync } from "neverthrow";
 
-import { TokenAddress } from "@objects/businessObjects";
+import { TokenAddress, TokenInfo } from "@objects/businessObjects";
 import { AccountIndexingError } from "@objects/errors";
 import { ChainId } from "@objects/primitives";
 
 export interface ITokenPriceRepository {
-  initialize(): ResultAsync<void, AccountIndexingError>;
+  getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress,
+  ): ResultAsync<TokenInfo, AccountIndexingError>;
   getTokenPrice(
     chainId: ChainId,
     contractAddress: TokenAddress | null,

@@ -1,4 +1,3 @@
-import { SolscanSolanaIndexer } from "@indexers/SolscanSolanaIndexer.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -32,10 +31,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
   ) {
     this.evm = new MoralisEVMIndexer(this.configProvider, this.ajaxUtils);
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
-    this.solRepo = new SolscanSolanaIndexer(
-      this.configProvider,
-      this.ajaxUtils,
-    );
+    this.solRepo = new DummySolanaIndexer();
   }
 
   public getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never> {
