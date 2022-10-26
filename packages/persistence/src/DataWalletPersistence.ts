@@ -1,6 +1,8 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   URLString,
@@ -40,6 +42,7 @@ import {
   IChainTransaction,
   ChainTransaction,
   CeramicStreamID,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { BigNumber } from "ethers";
@@ -62,9 +65,6 @@ import {
   IVolatileStorageFactoryType,
   IVolatileCursor,
 } from "@persistence/volatile/index.js";
-
-import { EarnedReward } from "@snickerdoodlelabs/objects";
-
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -116,6 +116,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     protected volatileStorageFactory: IVolatileStorageFactory,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(ICloudStorageType) protected cloudStorage: ICloudStorage,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.objectStore = undefined;
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
@@ -248,10 +249,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       .andThen(() => {
         return this.pollBackups();
       })
-      .andThen(() => {
+      .map(() => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.resolveRestore!();
-        return okAsync(undefined);
       });
   }
 
@@ -1010,7 +1010,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError> {
     return this._getBackupManager().andThen((backupManager) => {
       return backupManager.restore(backup).orElse((err) => {
-        console.error(err);
+        this.logUtils.warning(
+          "Error restoring backups! Data wallet will likely have incomplete data!",
+          err,
+        );
         return okAsync(undefined);
       });
     });
@@ -1026,13 +1029,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           }),
         );
       })
-      .andThen((_) => {
+      .andThen(() => {
         return ResultUtils.combine([
           this._getBackupManager(),
           this.configProvider.getConfig(),
         ]).andThen(([backupManager, config]) => {
           return backupManager.getNumUpdates().andThen((numUpdates) => {
-            console.log("chunk", numUpdates, config.backupChunkSizeTarget);
+            // console.log("chunk", numUpdates, config.backupChunkSizeTarget);
             if (numUpdates >= config.backupChunkSizeTarget) {
               return backupManager.dump().andThen((backup) => {
                 return this.cloudStorage

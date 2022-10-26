@@ -126,7 +126,7 @@ export class BackupManager {
 
               return okAsync(undefined);
             }),
-          ).andThen((_) => {
+          ).andThen(() => {
             const result = Object.keys(unpacked.records).map((tableName) => {
               const table = unpacked.records[tableName];
               const results = table.map((value) => {
@@ -138,15 +138,11 @@ export class BackupManager {
             });
 
             console.log("outer combine", result);
-            return ResultUtils.combine(result).mapErr((e) => {
-              console.log(e);
-              return e;
-            });
+            return ResultUtils.combine(result);
           });
         })
-        .map((_) => {
+        .map(() => {
           console.log(`restored backup: ${backup.header.hash}`);
-          return undefined;
         });
     });
   }
