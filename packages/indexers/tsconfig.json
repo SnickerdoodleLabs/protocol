@@ -19,6 +19,9 @@
     },
     {
       "path": "../objects"
+    },
+    {
+      "path": "../persistence"
     }
   ],
   "include": ["./src/**/*.ts"],

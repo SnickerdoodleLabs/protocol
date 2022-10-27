@@ -77,9 +77,14 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     chainId: ChainId,
     contractAddress: TokenAddress,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
-    return this._getTokens().andThen((tokenStore) => {
-      return tokenStore.getObject<TokenInfo>(TABLE_NAME, [chainId.toString(), contractAddress]);
-    }).mapErr((e) => new AccountIndexingError("error fetching token info", e));
+    return this._getTokens()
+      .andThen((tokenStore) => {
+        return tokenStore.getObject<TokenInfo>(TABLE_NAME, [
+          chainId.toString(),
+          contractAddress,
+        ]);
+      })
+      .mapErr((e) => new AccountIndexingError("error fetching token info", e));
   }
 
   public getTokenPrice(
