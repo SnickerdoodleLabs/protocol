@@ -66,6 +66,7 @@ export class IndexedDB implements IVolatileStorageTable {
         };
       } catch (e) {
         console.error(e);
+        reject(e);
       }
     });
 
