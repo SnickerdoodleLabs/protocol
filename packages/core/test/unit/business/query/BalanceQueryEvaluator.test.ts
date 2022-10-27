@@ -176,17 +176,17 @@ describe("BalanceQueryEvaluator", () => {
 
     const result = await repo.eval(balanceQuery);
     console.log("Result is: ", result["value"]);
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
-    expect(result["value"][0]["chainId"]).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("15");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
+    expect(result["value"][0].balance).toEqual("15");
 
-    expect(result["value"][1]["tokenAddress"]).toEqual("Contract 2");
-    expect(result["value"][1]["chainId"]).toEqual(2);
-    expect(result["value"][1]["balance"]).toEqual("25");
+    expect(result["value"][1].tokenAddress).toEqual("Contract 2");
+    expect(result["value"][1].chainId).toEqual(2);
+    expect(result["value"][1].balance).toEqual("25");
 
-    expect(result["value"][2]["tokenAddress"]).toEqual("Contract 3");
-    expect(result["value"][2]["chainId"]).toEqual(3);
-    expect(result["value"][2]["balance"]).toEqual("30");
+    expect(result["value"][2].tokenAddress).toEqual("Contract 3");
+    expect(result["value"][2].chainId).toEqual(3);
+    expect(result["value"][2].balance).toEqual("30");
   });
 
   test("3 EVMBalances, Same Contract Addresses", async () => {
@@ -237,9 +237,9 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("70");
+    expect(result["value"][0].balance).toEqual("70");
 
     // TODO this is conceptually incorrect as different contract address will have different ticket symbols.
   });
@@ -283,14 +283,14 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(2);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("9");
+    expect(result["value"][0].balance).toEqual("9");
 
     expect(result["value"][1].ticker).toEqual("SOL");
-    expect(result["value"][1]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][1].tokenAddress).toEqual("Contract 2");
     expect(result["value"][1].chainId).toEqual(2);
-    expect(result["value"][1]["balance"]).toEqual("44");
+    expect(result["value"][1].balance).toEqual("44");
   });
 
   test("2 EVMBalances, Same Contract Addresses", async () => {
@@ -332,9 +332,9 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("53");
+    expect(result["value"][0].balance).toEqual("53");
   });
 
   test("Only Accept ChainId(1) EVMBalances", async () => {
@@ -375,9 +375,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("9");
+    expect(result["value"][0].balance).toEqual("9");
   });
 
   test("Only Accept ChainId(1) EVMBalances - Same ContractAddresses", async () => {
@@ -446,7 +446,7 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("50");
+    expect(result["value"][0].balance).toEqual("50");
   });
 
   test("(Chain ID: 1) && (20 <= Balance < 30) - ALL VALUES", async () => {
@@ -497,17 +497,17 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(3);
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("23");
+    expect(result["value"][0].balance).toEqual("23");
 
-    expect(result["value"][1]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][1].tokenAddress).toEqual("Contract 2");
     expect(result["value"][1].chainId).toEqual(1);
-    expect(result["value"][1]["balance"]).toEqual("25");
+    expect(result["value"][1].balance).toEqual("25");
 
-    expect(result["value"][2]["tokenAddress"]).toEqual("Contract 3");
+    expect(result["value"][2].tokenAddress).toEqual("Contract 3");
     expect(result["value"][2].chainId).toEqual(1);
-    expect(result["value"][2]["balance"]).toEqual("27");
+    expect(result["value"][2].balance).toEqual("27");
   });
 
   test("(Chain ID: 1) && (20 <= Balance < 30) - Only One Value Passes", async () => {
@@ -558,9 +558,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 2");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("25");
+    expect(result["value"][0].balance).toEqual("25");
   });
 
   test("(Chain ID: 1) & (20 <= Balance < 30) - Add all of the values", async () => {
@@ -611,9 +611,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("75");
+    expect(result["value"][0].balance).toEqual("75");
   });
 
   test("(Chain ID: 1) & (20 <= Balance < 30) - Add first two values, the only ones that match conditions", async () => {
@@ -770,9 +770,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("50");
+    expect(result["value"][0].balance).toEqual("50");
   });
 
   test("(Chain ID: 1) & (20 < Balance <= 30)", async () => {
@@ -850,17 +850,17 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(3);
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("29");
+    expect(result["value"][0].balance).toEqual("29");
 
-    expect(result["value"][1]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][1].tokenAddress).toEqual("Contract 2");
     expect(result["value"][1].chainId).toEqual(1);
-    expect(result["value"][1]["balance"]).toEqual("24");
+    expect(result["value"][1].balance).toEqual("24");
 
-    expect(result["value"][2]["tokenAddress"]).toEqual("Contract 3");
+    expect(result["value"][2].tokenAddress).toEqual("Contract 3");
     expect(result["value"][2].chainId).toEqual(1);
-    expect(result["value"][2]["balance"]).toEqual("23");
+    expect(result["value"][2].balance).toEqual("23");
   });
 
   test("(Chain ID: 1) & (Balance == 29) - one occurence", async () => {
@@ -956,9 +956,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     // console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 2");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("29");
+    expect(result["value"][0].balance).toEqual("29");
   });
 
   test("(Chain ID: 1) & (Balance == 29) - multiple occurences", async () => {
@@ -1018,9 +1018,9 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     // console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][0].tokenAddress).toEqual("Contract 2");
     expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0]["balance"]).toEqual("58");
+    expect(result["value"][0].balance).toEqual("58");
   });
 
   test("(Chain ID: 0) - should return no values", async () => {
