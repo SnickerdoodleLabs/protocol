@@ -138,9 +138,6 @@ export class InvitationService implements IInvitationService {
             this.getConsentContractAddressesFromDNS(invitation.domain),
           ]).map(([urls, consentContractAddresses]) => {
             // Derive a list of domains from a list of URLs
-            console.log("urls", urls);
-            console.log("consentContractAddresses", consentContractAddresses);
-            console.log("invitation.domain", invitation.domain);
 
             const domains = urls
               .map((url) => {
@@ -150,8 +147,6 @@ export class InvitationService implements IInvitationService {
                 return new URL(`http://${url}`).href;
               })
               .map((href) => getDomain(href));
-
-            console.log("domains", domains);
 
             // We need to remove the subdomain so it would match with the saved domains in the blockchain
             const domainStr = getDomain(invitation.domain);
@@ -333,8 +328,6 @@ export class InvitationService implements IInvitationService {
       return this.consentRepo
         .getCurrentConsentToken(consentContractAddress)
         .andThen((consentToken) => {
-          console.log(consentToken);
-
           if (consentToken == null) {
             // You're not actually opted in!
             return errAsync(
@@ -561,7 +554,6 @@ export class InvitationService implements IInvitationService {
             );
           })
           .map((addressesWithCID) => {
-            console.log("addressesWithCID", addressesWithCID);
             return new Map(
               addressesWithCID.map((addressWithCID) => [
                 addressWithCID.contractAddress,
