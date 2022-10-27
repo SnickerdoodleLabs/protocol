@@ -5,9 +5,6 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 import {
   AST,
   AST_ConditionExpr,
@@ -25,6 +22,9 @@ import {
   Operator,
   TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
+import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 
 export class AST_Evaluator {
   /**
@@ -245,10 +245,11 @@ export class AST_Evaluator {
     if (TypeChecker.isQuery(expr.source)) {
       //return this.evalQuery((expr.source) as AST_Query);
       // console.log(this);
-      const qResult = this.evalQuery(expr.source as AST_Query);
-      if (qResult === undefined) {
-        console.log("got undefined for", expr);
-      }
+
+      // const qResult = this.evalQuery(expr.source as AST_Query);
+      // if (qResult === undefined) {
+      //   console.log("got undefined for", expr);
+      // }
       return this.evalQuery(expr.source as AST_Query).andThen((val) => {
         return okAsync(val);
       });

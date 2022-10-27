@@ -1,27 +1,24 @@
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-  IpfsCID, MissingASTError,
-  QueryFormatError
+  IpfsCID,
+  MissingASTError,
+  QueryFormatError,
 } from "@snickerdoodlelabs/objects";
 import "reflect-metadata";
 
 import { SDQLQueryWrapperMocks } from "../../mocks";
 
-
 import { QueryObjectFactory, SDQLParser } from "@query-parser/implementations";
-
-const cid = IpfsCID("0");
-const timeUtils = new TimeUtils();
-const futureTimeISO = timeUtils.getISO8601TimeString(
-  Date.now() + 1000 * 60 * 60 * 24,
-);
-const pastTimeISO = timeUtils.getISO8601TimeString(
-  Date.now() - 1000 * 60 * 60 * 24,
-);
-const currentTimeISO = timeUtils.getISO8601TimeString();
 
 describe.only("Schema context validation", () => {
   test("invalid return query", async () => {
+    const cid = IpfsCID("0");
+    const timeUtils = new TimeUtils();
+    const futureTimeISO = timeUtils.getISO8601TimeString(
+      Date.now() + 1000 * 60 * 60 * 24,
+    );
+    const currentTimeISO = timeUtils.getISO8601TimeString();
+
     const schemaStr = JSON.stringify({
       version: 0.1,
       description:
@@ -80,6 +77,13 @@ describe.only("Schema context validation", () => {
     }
   });
   test("invalid return schema", async () => {
+    const cid = IpfsCID("0");
+    const timeUtils = new TimeUtils();
+    const futureTimeISO = timeUtils.getISO8601TimeString(
+      Date.now() + 1000 * 60 * 60 * 24,
+    );
+    const currentTimeISO = timeUtils.getISO8601TimeString();
+
     const schemaStr = JSON.stringify({
       version: 0.1,
       description:
