@@ -218,7 +218,7 @@ export class InvitationService implements IInvitationService {
           });
         }
         return okAsync({
-          optInData: this.consentRepo.encodeRestrictedOptIn(
+          optInData: this.consentRepo.encodeAnonymousRestrictedOptIn(
             invitation.consentContractAddress,
             invitation.tokenId,
             invitation.businessSignature,
