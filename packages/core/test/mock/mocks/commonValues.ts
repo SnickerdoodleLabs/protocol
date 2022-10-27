@@ -10,6 +10,7 @@ import {
   SDQLString,
   EVMAccountAddress,
   ControlChainInformation,
+  ECurrencyCode,
 } from "@snickerdoodlelabs/objects";
 import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
 
@@ -59,7 +60,9 @@ export const modelAliases = {
   tiles: {},
 };
 
-export const defaultInsightPlatformBaseUrl = URLString("http://localhost:3000/v0");
+export const defaultInsightPlatformBaseUrl = URLString(
+  "http://localhost:3000/v0",
+);
 
 export const testCoreConfig = new CoreConfig(
   controlChainId,
@@ -78,7 +81,7 @@ export const testCoreConfig = new CoreConfig(
   URLString("http://dnsServerAddress"),
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
-  "USD",
+  ECurrencyCode.USD,
 );
 
 // #endregion

@@ -680,7 +680,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.addEVMTransactions(transactions);
+    return accountService.addTransactions(transactions);
   }
 
   // public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {

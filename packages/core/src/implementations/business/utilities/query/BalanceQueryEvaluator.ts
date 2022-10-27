@@ -5,17 +5,13 @@ import {
   EVMContractAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
-  ITokenBalance,
+  TokenBalance,
   PersistenceError,
   SDQL_Return,
   TickerSymbol,
+  TokenAddress,
+  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
   AST_BalanceQuery,
   ConditionE,
@@ -24,6 +20,11 @@ import {
   ConditionL,
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
+import { BigNumber } from "ethers";
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
@@ -48,9 +49,6 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         // console.log("line 48 networkBalances", networkBalances);
         return okAsync(networkBalances);
       })
-      .andThen((excessValues) => {
-        return this.convertToTokenBalance(excessValues);
-      })
       .andThen((balanceArray) => {
         // console.log("line 55 balanceArray", balanceArray);
         return this.evalConditions(query, balanceArray);
@@ -65,25 +63,10 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       });
   }
 
-  public convertToTokenBalance(
-    excessValues: IEVMBalance[],
-  ): ResultAsync<ITokenBalance[], never> {
-    const tokenBalances: ITokenBalance[] = [];
-    excessValues.forEach((element) => {
-      tokenBalances.push({
-        ticker: element.ticker,
-        networkId: element.chainId,
-        address: element.contractAddress,
-        balance: element.balance,
-      });
-    });
-    return okAsync(tokenBalances);
-  }
-
   public evalConditions(
     query: AST_BalanceQuery,
-    balanceArray: ITokenBalance[],
-  ): ResultAsync<ITokenBalance[], never> {
+    balanceArray: TokenBalance[],
+  ): ResultAsync<TokenBalance[], never> {
     for (const condition of query.conditions) {
       let val: BigNumber = BigNumber.from(0);
 
@@ -133,40 +116,44 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
 
   public combineContractValues(
     query: AST_BalanceQuery,
-    balanceArray: ITokenBalance[],
-  ): ResultAsync<ITokenBalance[], PersistenceError> {
-    const balanceMap = new Map<EVMContractAddress, ITokenBalance>();
+    balanceArray: TokenBalance[],
+  ): ResultAsync<TokenBalance[], PersistenceError> {
+    const balanceMap = new Map<TokenAddress, TokenBalance>();
 
     balanceArray.forEach((d) => {
-      const getObject = balanceMap.get(d.address);
+      const getObject = balanceMap.get(this._getTokenAddress(d));
 
       if (getObject) {
-        balanceMap.set(d.address, {
+        balanceMap.set(this._getTokenAddress(d), {
           ticker: getObject.ticker,
-          balance:  BigNumberString((BigNumber.from(getObject.balance).add(BigNumber.from(d.balance))).toString()),
-          networkId: getObject.networkId,
-          address: getObject.address,
+          balance: BigNumberString(
+            BigNumber.from(getObject.balance)
+              .add(BigNumber.from(d.balance))
+              .toString(),
+          ),
+          chainId: getObject.chainId,
+          accountAddress: getObject.accountAddress,
+          quoteBalance: BigNumberString("-1"),
+          tokenAddress: this._getTokenAddress(getObject),
+          type: getObject.type,
         });
       } else {
-        balanceMap.set(d.address, {
-          ticker: d.ticker,
-          balance: d.balance,
-          networkId: d.networkId,
-          address: d.address,
-        });
+        balanceMap.set(this._getTokenAddress(d), d);
       }
     });
 
-    const returnedArray: ITokenBalance[] = [];
+    const returnedArray: TokenBalance[] = [];
     balanceMap.forEach((element, key) => {
-      returnedArray.push({
-        ticker: element.ticker,
-        address: key,
-        balance: BigNumberString(element.balance.toString()),
-        networkId: element.networkId,
-      });
+      returnedArray.push(element);
     });
 
     return okAsync(returnedArray);
+  }
+
+  private _getTokenAddress(balance: TokenBalance): TokenAddress {
+    return (
+      (balance.tokenAddress as EVMContractAddress) ||
+      EVMContractAddress("NATIVE")
+    );
   }
 }

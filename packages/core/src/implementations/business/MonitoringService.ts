@@ -58,17 +58,10 @@ export class MonitoringService implements IMonitoringService {
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
-        // Limit it to only EVM linked accounts
-        const evmAccounts = linkedAccounts.filter((la) => {
-          // Get the chainInfo for the linked account
-          const chainInfo = getChainInfoByChain(la.sourceChain);
-          return chainInfo.chainTechnology == EChainTechnology.EVM;
-        });
-
         // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
         // config.chainInformation is the list of supported chains,
         return ResultUtils.combine(
-          evmAccounts.map((linkedAccount) => {
+          linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
                 return this.persistence

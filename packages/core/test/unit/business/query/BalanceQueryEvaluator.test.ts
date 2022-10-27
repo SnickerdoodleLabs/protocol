@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import {
   IDataWalletPersistence,
-  IEVMBalance,
+  TokenBalance,
   Age,
   ChainId,
   EVMAccountAddress,
@@ -13,6 +13,8 @@ import {
   URLString,
   TickerSymbol,
   BigNumberString,
+  IChainTransaction,
+  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -29,7 +31,6 @@ import * as td from "testdouble";
 
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 20),
@@ -53,46 +54,51 @@ class BalanceQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public accountBalances = new Array<IEVMBalance>(
+  public accountBalances = new Array<TokenBalance>(
     {
       ticker: TickerSymbol("ETH"),
       chainId: ChainId(1),
       accountAddress: EVMAccountAddress("GOOD1"),
       balance: BigNumberString("9"),
-      contractAddress: EVMContractAddress("Contract 1"),
-      quoteBalance: 0,
+      tokenAddress: EVMContractAddress("Contract 1"),
+      quoteBalance: BigNumberString("0"),
+      type: EChainTechnology.EVM,
     },
     {
       ticker: TickerSymbol("SOL"),
       chainId: ChainId(2),
       accountAddress: EVMAccountAddress("GOOD2"),
       balance: BigNumberString("44"),
-      contractAddress: EVMContractAddress("Contract 2"),
-      quoteBalance: 0,
+      tokenAddress: EVMContractAddress("Contract 2"),
+      quoteBalance: BigNumberString("0"),
+      type: EChainTechnology.EVM,
     },
     {
       ticker: TickerSymbol("AVAX"),
       chainId: ChainId(3),
       accountAddress: EVMAccountAddress("GOOD3"),
       balance: BigNumberString("117"),
-      contractAddress: EVMContractAddress("Contract 3"),
-      quoteBalance: 0,
+      tokenAddress: EVMContractAddress("Contract 3"),
+      quoteBalance: BigNumberString("0"),
+      type: EChainTechnology.EVM,
     },
     {
       ticker: TickerSymbol("BIT"),
       chainId: ChainId(4),
       accountAddress: EVMAccountAddress("GOOD4"),
       balance: BigNumberString("903"),
-      contractAddress: EVMContractAddress("Contract 4"),
-      quoteBalance: 0,
+      tokenAddress: EVMContractAddress("Contract 4"),
+      quoteBalance: BigNumberString("0"),
+      type: EChainTechnology.EVM,
     },
     {
       ticker: TickerSymbol("ADA"),
       chainId: ChainId(5),
       accountAddress: EVMAccountAddress("GOOD5"),
       balance: BigNumberString("24"),
-      contractAddress: EVMContractAddress("Contract 10"),
-      quoteBalance: 0,
+      tokenAddress: EVMContractAddress("Contract 10"),
+      quoteBalance: BigNumberString("0"),
+      type: EChainTechnology.EVM,
     },
   );
 
@@ -135,30 +141,33 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("15"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("SOL"),
             chainId: ChainId(2),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(3),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("30"),
-            contractAddress: EVMContractAddress("Contract 3"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -191,30 +200,33 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("15"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("SOL"),
             chainId: ChainId(2),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(3),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("30"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -243,22 +255,24 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("SOL"),
             chainId: ChainId(2),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -290,22 +304,24 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("SOL"),
             chainId: ChainId(2),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -332,22 +348,24 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("SOL"),
             chainId: ChainId(2),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -375,46 +393,51 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("10"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("SOL"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("10"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("10"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("BIT"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD4"),
             balance: BigNumberString("10"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ADA"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD5"),
             balance: BigNumberString("10"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -439,30 +462,33 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("23"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("27"),
-            contractAddress: EVMContractAddress("Contract 3"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -497,30 +523,33 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("19"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("31"),
-            contractAddress: EVMContractAddress("Contract 3"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -547,30 +576,33 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("23"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("27"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -597,30 +629,33 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("19"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("31"),
-            contractAddress: EVMContractAddress("Contract 3"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -647,30 +682,33 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("23"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("27"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -697,30 +735,33 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("25"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("100"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -747,54 +788,60 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("29"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("24"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("51"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("1002"),
-            contractAddress: EVMContractAddress("Contract 3"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("23"),
-            contractAddress: EVMContractAddress("Contract 3"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -829,70 +876,78 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("29"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("11"),
-            contractAddress: EVMContractAddress("Contract 4"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("24"),
-            contractAddress: EVMContractAddress("Contract 4"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("51"),
-            contractAddress: EVMContractAddress("Contract 4"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("1002"),
-            contractAddress: EVMContractAddress("Contract 5"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 5"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("23"),
-            contractAddress: EVMContractAddress("Contract 5"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 5"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -919,38 +974,42 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("29"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("29"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("1000"),
-            contractAddress: EVMContractAddress("Contract 3"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 3"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -977,70 +1036,78 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<TokenBalance>(
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD1"),
             balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 1"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("44"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("ETH"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD2"),
             balance: BigNumberString("29"),
-            contractAddress: EVMContractAddress("Contract 2"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 2"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("11"),
-            contractAddress: EVMContractAddress("Contract 4"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("24"),
-            contractAddress: EVMContractAddress("Contract 4"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("51"),
-            contractAddress: EVMContractAddress("Contract 4"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 4"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("1002"),
-            contractAddress: EVMContractAddress("Contract 5"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 5"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
           {
             ticker: TickerSymbol("AVAX"),
             chainId: ChainId(1),
             accountAddress: EVMAccountAddress("GOOD3"),
             balance: BigNumberString("23"),
-            contractAddress: EVMContractAddress("Contract 5"),
-            quoteBalance: 0,
+            tokenAddress: EVMContractAddress("Contract 5"),
+            quoteBalance: BigNumberString("0"),
+            type: EChainTechnology.EVM,
           },
         ),
       ),
@@ -1050,7 +1117,4 @@ describe("BalanceQueryEvaluator", () => {
     // console.log(result);
     expect(result["value"].length).toEqual(0);
   });
-
-
-  
 });

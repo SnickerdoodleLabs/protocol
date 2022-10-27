@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
+import { ECurrencyCode } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
@@ -20,7 +21,9 @@ class MoralisEVMNftRepositoryMocks {
   public config: IIndexerConfig = {
     covalentApiKey: "CovalentApiKey",
     moralisApiKey: "MoralisApiKey",
-    quoteCurrency: "USD",
+    quoteCurrency: ECurrencyCode.USD,
+    chainInformation: new Map(),
+    supportedChains: [],
   };
 
   constructor(public responseRepo) {

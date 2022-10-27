@@ -2,11 +2,11 @@ import {
   AccountAddress,
   DataWalletAddress,
   EChain,
-  IEVMBalance,
-  IEVMNFT,
+  IAccountNFT,
   LanguageCode,
   LinkedAccount,
   Signature,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -30,8 +30,8 @@ export interface IAccountService {
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError>;
   getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], SnickerDoodleCoreError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], SnickerDoodleCoreError>;
+  getAccountNFTs(): ResultAsync<IAccountNFT[], SnickerDoodleCoreError>;
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
   unlinkAccount(
     account: AccountAddress,

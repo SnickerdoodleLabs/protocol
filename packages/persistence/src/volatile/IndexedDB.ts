@@ -13,9 +13,8 @@ import {
   IVolatileStorageTable,
   VolatileTableIndex,
   IVolatileCursor,
+  VolatileKey,
 } from "@persistence/volatile/IVolatileStorageTable.js";
-
-export type IDBKeyType = (string | number)[] | (string | number);
 
 function _getCompoundIndexName(key: (string | number)[]): string {
   return key.join(",");
@@ -244,7 +243,7 @@ export class IndexedDB implements IVolatileStorageTable {
 
   public getObject<T>(
     name: string,
-    key: IDBKeyType,
+    key: VolatileKey,
   ): ResultAsync<T | null, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readonly").andThen((store) => {

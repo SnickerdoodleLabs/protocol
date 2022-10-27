@@ -9,4 +9,5 @@ export interface IIndexerConfig {
   moralisApiKey: string;
   quoteCurrency: ECurrencyCode;
   chainInformation: Map<ChainId, ChainInformation>;
+  supportedChains: ChainId[];
 }

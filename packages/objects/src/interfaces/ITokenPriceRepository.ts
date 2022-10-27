@@ -8,7 +8,7 @@ export interface ITokenPriceRepository {
   getTokenInfo(
     chainId: ChainId,
     contractAddress: TokenAddress,
-  ): ResultAsync<TokenInfo, AccountIndexingError>;
+  ): ResultAsync<TokenInfo | null, AccountIndexingError>;
   getTokenPrice(
     chainId: ChainId,
     contractAddress: TokenAddress | null,

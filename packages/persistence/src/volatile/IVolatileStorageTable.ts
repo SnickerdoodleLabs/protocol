@@ -13,6 +13,8 @@ export interface VolatileTableConfig {
   schema: VolatileTableIndex[];
 }
 
+export type VolatileKey = (string | number)[] | (string | number);
+
 export interface IVolatileStorageTable {
   persist(): ResultAsync<boolean, PersistenceError>;
   clearObjectStore(name: string): ResultAsync<void, PersistenceError>;
@@ -20,7 +22,7 @@ export interface IVolatileStorageTable {
   removeObject(name: string, key: string): ResultAsync<void, PersistenceError>;
   getObject<T>(
     name: string,
-    key: string,
+    key: VolatileKey,
   ): ResultAsync<T | null, PersistenceError>;
   getCursor<T>(
     name: string,

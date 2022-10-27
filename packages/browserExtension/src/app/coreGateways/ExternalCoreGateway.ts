@@ -1,3 +1,30 @@
+import {
+  Age,
+  CountryCode,
+  DomainName,
+  EmailAddressString,
+  FamilyName,
+  Gender,
+  GivenName,
+  LanguageCode,
+  Signature,
+  UnixTimestamp,
+  UUID,
+  EVMContractAddress,
+  IOpenSeaMetadata,
+  IpfsCID,
+  EChain,
+  EWalletDataType,
+  AccountAddress,
+  LinkedAccount,
+  DataWalletAddress,
+  BigNumberString,
+  TokenBalance,
+  IAccountNFT,
+} from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
+
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import { EExternalActions } from "@shared/enums";
 import {
@@ -26,32 +53,6 @@ import {
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
-import {
-  Age,
-  CountryCode,
-  DomainName,
-  EmailAddressString,
-  FamilyName,
-  Gender,
-  GivenName,
-  IEVMBalance,
-  IEVMNFT,
-  LanguageCode,
-  Signature,
-  UnixTimestamp,
-  UUID,
-  EVMContractAddress,
-  IOpenSeaMetadata,
-  IpfsCID,
-  EChain,
-  EWalletDataType,
-  AccountAddress,
-  LinkedAccount,
-  DataWalletAddress,
-  BigNumberString,
-} from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;
@@ -220,10 +221,10 @@ export class ExternalCoreGateway {
   public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNTS);
   }
-  public getAccountBalances(): ResultAsync<IEVMBalance[], JsonRpcError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_BALANCES);
   }
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], JsonRpcError> {
+  public getAccountNFTs(): ResultAsync<IAccountNFT[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);
   }
 

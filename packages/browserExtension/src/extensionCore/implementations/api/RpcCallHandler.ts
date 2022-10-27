@@ -1,4 +1,8 @@
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   Age,
   Invitation,
   CountryCode,
@@ -8,8 +12,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IEVMBalance,
-  IEVMNFT,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -24,7 +26,10 @@ import {
   AccountAddress,
   TokenId,
   BigNumberString,
+  TokenBalance,
+  IAccountNFT,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -88,11 +93,6 @@ import {
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-import { BigNumber } from "ethers";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -572,13 +572,13 @@ export class RpcCallHandler implements IRpcCallHandler {
   }
 
   private getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountService.getAccountBalances();
   }
 
-  private getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  private getAccountNFTs(): ResultAsync<IAccountNFT[], SnickerDoodleCoreError> {
     return this.accountService.getAccountNFTs();
   }
 

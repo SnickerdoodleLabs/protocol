@@ -2,11 +2,11 @@ import {
   AccountAddress,
   DataWalletAddress,
   EChain,
-  IEVMBalance,
-  IEVMNFT,
+  IAccountNFT,
   LanguageCode,
   LinkedAccount,
   Signature,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -27,13 +27,13 @@ export class AccountService implements IAccountService {
   }
 
   public getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<IAccountNFT[], SnickerDoodleCoreError> {
     return this.accountRepository.getAccountNFTs();
   }
 

@@ -3,6 +3,7 @@ import {
   chainConfig,
   ChainId,
   ControlChainInformation,
+  ECurrencyCode,
   IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -81,7 +82,7 @@ export class ConfigProvider
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
-      "USD", // quoteCurrency
+      ECurrencyCode.USD, // quoteCurrency
     );
   }
 

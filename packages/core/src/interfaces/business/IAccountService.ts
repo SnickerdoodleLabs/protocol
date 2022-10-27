@@ -1,5 +1,5 @@
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 import {
+  EarnedReward,
   AjaxError,
   BlockchainProviderError,
   CrumbsContractError,
