@@ -18,7 +18,6 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
-
   deliverPreview(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
@@ -27,7 +26,7 @@ export interface IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
     expectedRewards: ExpectedReward[],
-  ): ResultAsync<EligibleReward[], AjaxError> 
+  ): ResultAsync<EligibleReward[], AjaxError>;
 
   deliverInsights(
     dataWalletAddress: DataWalletAddress,

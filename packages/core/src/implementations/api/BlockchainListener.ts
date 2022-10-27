@@ -14,6 +14,9 @@ import {
   IPFSError,
   PersistenceError,
   UninitializedError,
+  QueryFormatError,
+  QueryExpiredError,
+  EvaluationError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -39,9 +42,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-import { QueryFormatError } from "@snickerdoodlelabs/objects";
-import { QueryExpiredError } from "@snickerdoodlelabs/objects";
-import { EvaluationError } from "@snickerdoodlelabs/objects";
 
 /**
  * This class is much simplified from before, and has only a single responsibility-

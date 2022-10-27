@@ -1,9 +1,10 @@
 import { Brand, make } from "ts-brand";
 
+import { IChainTransaction } from "../interfaces/chains";
+
+import { IEVMBalance, ITokenBalance } from "@objects/interfaces";
 import { ChainId } from "@objects/primitives/ChainId";
 import { URLString } from "@objects/primitives/URLString";
-import { IEVMBalance, ITokenBalance } from "@objects/interfaces";
-import { IChainTransaction } from "../interfaces/chains";
 
 //#region types
 export type SDQL_Name = Brand<string, "SDQL_Name">;

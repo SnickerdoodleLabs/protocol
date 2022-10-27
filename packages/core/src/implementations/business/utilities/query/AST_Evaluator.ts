@@ -1,15 +1,10 @@
 import {
   EvalNotImplementedError,
   EvaluationError,
-  ExpectedReward,
   IpfsCID,
   PersistenceError,
   SDQL_Return,
-  URLString,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 import {
   AST,
   AST_Compensation,
@@ -28,6 +23,9 @@ import {
   Operator,
   TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
+import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 
 export class AST_Evaluator {
   /**
@@ -240,16 +238,17 @@ export class AST_Evaluator {
     );
   }
 
-  public evalCompensationExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError> {
-
+  public evalCompensationExpr(
+    eef: any,
+  ): ResultAsync<SDQL_Return, EvaluationError> {
     if (TypeChecker.isIfCommand(eef)) {
       return this.evalCompCondition(eef.conditionExpr).andThen(
         (val): ResultAsync<SDQL_Return, EvaluationError> => {
           if (val) {
             return this.evalExpr(eef.trueExpr);
           } else {
-            if (eef.falseExpr == null){
-              return okAsync(SDQL_Return(null))
+            if (eef.falseExpr == null) {
+              return okAsync(SDQL_Return(null));
             }
             if (eef.falseExpr) {
               return this.evalExpr(eef.falseExpr);
@@ -267,7 +266,6 @@ export class AST_Evaluator {
   }
 
   public evalQueryExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError> {
-
     if (TypeChecker.isIfCommand(eef)) {
       return this.evalCompCondition(eef.conditionExpr).andThen(
         (val): ResultAsync<SDQL_Return, EvaluationError> => {
@@ -286,13 +284,10 @@ export class AST_Evaluator {
   public evalCompCondition(
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
-
     if (TypeChecker.isQuery(expr.source)) {
       return this.evalQuery(expr.source as AST_Query);
-
     } else if (TypeChecker.isOperator(expr.source)) {
       return this.evalOperator(expr.source as Operator);
-
     } else {
       return errAsync<SDQL_Return, EvaluationError>(
         new EvaluationError("Condition has wrong type"),
@@ -322,7 +317,9 @@ export class AST_Evaluator {
     return okAsync(SDQL_Return(r.message));
   }
 
-  public evalCompensation(r: AST_Return): ResultAsync<SDQL_Return, EvaluationError> {
+  public evalCompensation(
+    r: AST_Return,
+  ): ResultAsync<SDQL_Return, EvaluationError> {
     return okAsync(SDQL_Return(r.message));
   }
 

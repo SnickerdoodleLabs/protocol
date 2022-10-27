@@ -18,6 +18,8 @@ import {
   SDQLQuery,
   SDQLString,
   URLString,
+  IChainTransaction,
+  SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -27,11 +29,12 @@ import {
   ISDQLQueryWrapperFactory,
   QueryObjectFactory,
   SDQLQueryWrapperFactory,
+  AST,
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
-
 
 import {
   QueryEvaluator,
@@ -42,10 +45,6 @@ import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
-import { IChainTransaction } from "@snickerdoodlelabs/objects";
-import { AST } from "@snickerdoodlelabs/query-parser";
-import { SDQL_Return } from "@snickerdoodlelabs/objects";
-import { ResultUtils } from "neverthrow-result-utils";
 
 const queryId = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
@@ -54,7 +53,6 @@ const sdqlQueryExpired = new SDQLQuery(
 );
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalanche2SchemaStr));
 const sdqlQuery4 = new SDQLQuery(queryId, SDQLString(avalanche4SchemaStr));
-
 
 const country = CountryCode("1");
 const allPermissions = HexString32(
@@ -101,7 +99,6 @@ class QueryParsingMocks {
       this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    
     td.when(this.persistenceRepo.getTransactionsArray()).thenReturn(
       okAsync(new Array<IChainTransaction>()),
     );
@@ -135,29 +132,51 @@ class QueryParsingMocks {
   public SDQLReturnToExpectedReward(sdqlR: SDQL_Return): ExpectedReward {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
 
-     if (typeof actualTypeData == "object") {
-      if (actualTypeData != null){
+    if (typeof actualTypeData == "object") {
+      if (actualTypeData != null) {
         console.log("rewardData: ", JSON.stringify(actualTypeData));
-        console.log("rewardData['description']: ", actualTypeData["description"]);
+        console.log(
+          "rewardData['description']: ",
+          actualTypeData["description"],
+        );
         console.log("rewardData['callback']: ", actualTypeData["callback"]);
-        console.log("rewardData['callback']['parameters']: ", actualTypeData["callback"]["parameters"]);
-        console.log("rewardData['callback']['data']: ", actualTypeData["callback"]["data"]);
-        return new ExpectedReward(actualTypeData["description"], URLString(actualTypeData["callback"]), ERewardType.Direct);
+        console.log(
+          "rewardData['callback']['parameters']: ",
+          actualTypeData["callback"]["parameters"],
+        );
+        console.log(
+          "rewardData['callback']['data']: ",
+          actualTypeData["callback"]["data"],
+        );
+        return new ExpectedReward(
+          actualTypeData["description"],
+          URLString(actualTypeData["callback"]),
+          ERewardType.Direct,
+        );
       }
     }
-    if (typeof actualTypeData == "string"){
+    if (typeof actualTypeData == "string") {
       const rewardData = JSON.parse(actualTypeData);
       console.log("rewardData: ", rewardData);
       console.log("rewardData['description']: ", rewardData["description"]);
       console.log("rewardData['callback']: ", rewardData["callback"]);
-      console.log("rewardData['callback']['parameters']: ", rewardData["callback"]["parameters"]);
-      console.log("rewardData['callback']['data']: ", rewardData["callback"]["data"]);
-      return new ExpectedReward(rewardData["description"], URLString(rewardData["callback"]), ERewardType.Direct);
+      console.log(
+        "rewardData['callback']['parameters']: ",
+        rewardData["callback"]["parameters"],
+      );
+      console.log(
+        "rewardData['callback']['data']: ",
+        rewardData["callback"]["data"],
+      );
+      return new ExpectedReward(
+        rewardData["description"],
+        URLString(rewardData["callback"]),
+        ERewardType.Direct,
+      );
     }
 
     return new ExpectedReward("", URLString(""), ERewardType.Direct);
   }
-
 }
 
 /*
@@ -348,13 +367,12 @@ describe("Testing avalanche 4", () => {
 });
 */
 
-
 describe("Reward Preview", () => {
   // test("showcase rewards", async () => {
   //   const mocks = new QueryParsingMocks();
   //   const engine = mocks.factory();
   //   let val = await engine.getPreviews(sdqlQuery4, new DataPermissions(allPermissions))
-      
+
   //   console.log("Output: ", val);
   // });
 
@@ -365,19 +383,24 @@ describe("Reward Preview", () => {
     const schemaString = sdqlQuery4.query;
     const cid: IpfsCID = sdqlQuery4.cid;
 
-    let response = await mocks.queryFactories.makeParserAsync(cid, schemaString)
-    .andThen((sdqlParser) => {
-      return sdqlParser.buildAST();
-    })
-    .andThen((ast: AST) => {
-      const astEvaluator = mocks.queryFactories.makeAstEvaluator(
-        cid,
-        ast,
-        mocks.queryRepository,
-      );
+    const response = await mocks.queryFactories
+      .makeParserAsync(cid, schemaString)
+      .andThen((sdqlParser) => {
+        return sdqlParser.buildAST();
+      })
+      .andThen((ast: AST) => {
+        const astEvaluator = mocks.queryFactories.makeAstEvaluator(
+          cid,
+          ast,
+          mocks.queryRepository,
+        );
 
-      return (engine.identifyQueries(ast, astEvaluator, new DataPermissions(allPermissions)))
-    })
+        return engine.identifyQueries(
+          ast,
+          astEvaluator,
+          new DataPermissions(allPermissions),
+        );
+      });
 
     console.log(response["value"]);
     //console.log("Output: ", response);
@@ -390,19 +413,24 @@ describe("Reward Preview", () => {
     const schemaString = sdqlQuery4.query;
     const cid: IpfsCID = sdqlQuery4.cid;
 
-    let response = await mocks.queryFactories.makeParserAsync(cid, schemaString)
-    .andThen((sdqlParser) => {
-      return sdqlParser.buildAST();
-    })
-    .andThen((ast: AST) => {
-      const astEvaluator = mocks.queryFactories.makeAstEvaluator(
-        cid,
-        ast,
-        mocks.queryRepository,
-      );
+    const response = await mocks.queryFactories
+      .makeParserAsync(cid, schemaString)
+      .andThen((sdqlParser) => {
+        return sdqlParser.buildAST();
+      })
+      .andThen((ast: AST) => {
+        const astEvaluator = mocks.queryFactories.makeAstEvaluator(
+          cid,
+          ast,
+          mocks.queryRepository,
+        );
 
-      return (engine.evalCompensations(ast, astEvaluator, new DataPermissions(allPermissions)))
-    })
+        return engine.evalCompensations(
+          ast,
+          astEvaluator,
+          new DataPermissions(allPermissions),
+        );
+      });
 
     console.log("Output: ", response["value"]);
   });
@@ -413,11 +441,11 @@ describe("Reward Preview", () => {
 
     const schemaString = sdqlQuery4.query;
     const cid: IpfsCID = sdqlQuery4.cid;
-  
-    let response = await mocks.queryFactories
+
+    const response = await mocks.queryFactories
       .makeParserAsync(cid, schemaString)
       .andThen((sdqlParser) => {
-          return sdqlParser.buildAST();
+        return sdqlParser.buildAST();
       })
       .andThen((ast: AST) => {
         const astTree = ast;
@@ -425,17 +453,26 @@ describe("Reward Preview", () => {
           cid,
           ast,
           mocks.queryRepository,
-        )
-    
+        );
+
         return ResultUtils.combine([
-          engine.identifyQueries(astTree, astEvaluator, new DataPermissions(allPermissions)),
-          engine.evalCompensations(astTree, astEvaluator, new DataPermissions(allPermissions)),
-        ])
-        .andThen((results) => {
+          engine.identifyQueries(
+            astTree,
+            astEvaluator,
+            new DataPermissions(allPermissions),
+          ),
+          engine.evalCompensations(
+            astTree,
+            astEvaluator,
+            new DataPermissions(allPermissions),
+          ),
+        ]).andThen((results) => {
           const queries = results[0];
           const compensations = results[1];
 
-          const queryIdentifiers = queries.map(mocks.SDQLReturnToQueryIdentifier).filter((n) => n);
+          const queryIdentifiers = queries
+            .map(mocks.SDQLReturnToQueryIdentifier)
+            .filter((n) => n);
           const expectedRewards = compensations.filter((n) => n);
 
           const vals = expectedRewards.map(mocks.SDQLReturnToExpectedReward);
@@ -443,20 +480,17 @@ describe("Reward Preview", () => {
           console.log("QueryIdentifiers: ", queryIdentifiers.length);
           console.log("expectedRewards: ", vals.length);
 
+          return okAsync<
+            [QueryIdentifier[], ExpectedReward[]],
+            EvaluationError | QueryFormatError | QueryExpiredError
+          >([queryIdentifiers, vals]);
+        });
+      });
 
-          return okAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError | QueryFormatError | QueryExpiredError>([queryIdentifiers, vals]);
-        })
-    })
-
-      console.log("Output: ", response["value"]);
-      console.log("Queries: ", response["value"][0]);
-      console.log("Expected Rewards: ", response["value"][1]);
-      // console.log("Expected Rewards: ", response["value"][1].map((val) => val["description"]));
-      // console.log("Expected Rewards: ", response["value"][1].map((val) => val["callback"]));
-
-
-
-
-
+    console.log("Output: ", response["value"]);
+    console.log("Queries: ", response["value"][0]);
+    console.log("Expected Rewards: ", response["value"][1]);
+    // console.log("Expected Rewards: ", response["value"][1].map((val) => val["description"]));
+    // console.log("Expected Rewards: ", response["value"][1].map((val) => val["callback"]));
   });
 });

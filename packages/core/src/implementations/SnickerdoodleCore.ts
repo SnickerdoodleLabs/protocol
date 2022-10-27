@@ -68,6 +68,7 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -87,7 +88,6 @@ import {
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
@@ -661,7 +661,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addSiteVisits(siteVisits);
   }
-
 
   public addEVMTransactions(
     transactions: EVMTransaction[],
