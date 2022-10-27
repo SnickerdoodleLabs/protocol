@@ -252,6 +252,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  private isAccountValidForChain(
+    chainId: ChainId,
+    account: LinkedAccount,
+  ): ResultAsync<boolean, PersistenceError> {
+    const targetChainInfo = getChainInfoByChainId(chainId);
+    const accountChainInfo = getChainInfoByChain(account.sourceChain);
+    return okAsync(
+      targetChainInfo.chainTechnology == accountChainInfo.chainTechnology,
+    );
+  }
+
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
     return this.waitForRestore().andThen(() => {
       return this._getObjectStore().andThen((store) => {
