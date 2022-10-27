@@ -330,6 +330,11 @@ export interface IConsentContract {
    */
   totalSupply(): ResultAsync<number, ConsentContractError>;
 
+  /**
+   * Get the open optIn availability
+   */
+  openOptInDisabled(): ResultAsync<boolean, ConsentContractError>;
+
   getSignature(
     values: Array<
       BigNumber | string | HexString | EVMContractAddress | EVMAccountAddress

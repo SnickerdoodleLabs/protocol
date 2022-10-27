@@ -309,6 +309,19 @@ export class ConsentContractRepository implements IConsentContractRepository {
     );
   }
 
+  public isOpenOptInDisabled(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<
+    boolean,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddres).andThen(
+      (contract) => {
+        return contract.openOptInDisabled();
+      },
+    );
+  }
+
   public getSignerRoleMembers(
     consentContractAddres: EVMContractAddress,
   ): ResultAsync<

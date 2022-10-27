@@ -95,9 +95,14 @@ export class InvitationService implements IInvitationService {
       this.consentRepo.getAvailableOptInCount(
         invitation.consentContractAddress,
       ),
-      this.configProvider.getConfig(),
+      this.consentRepo.isOpenOptInDisabled(invitation.consentContractAddress),
     ]).andThen(
-      ([rejectedConsentContracts, optedIn, availableOptIns, config]) => {
+      ([
+        rejectedConsentContracts,
+        optedIn,
+        availableOptIns,
+        openOptInDisabled,
+      ]) => {
         const rejected = rejectedConsentContracts.includes(
           invitation.consentContractAddress,
         );
@@ -119,6 +124,10 @@ export class InvitationService implements IInvitationService {
 
         // If invitation has bussiness signature verify signature
         if (invitation.businessSignature) {
+          // If business signature exist then open optIn should be disabled
+          if (!openOptInDisabled) {
+            return okAsync(EInvitationStatus.Invalid);
+          }
           return this.isValidSignatureForInvitation(
             invitation.consentContractAddress,
             invitation.tokenId,
@@ -126,6 +135,11 @@ export class InvitationService implements IInvitationService {
           ).map((res) => {
             return res ? EInvitationStatus.New : EInvitationStatus.Invalid;
           });
+        }
+
+        // If business signature does not exist then open optIn should not be disabled
+        if (openOptInDisabled) {
+          return okAsync(EInvitationStatus.Invalid);
         }
 
         // If invitation belongs any domain verify URLs

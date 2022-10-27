@@ -954,6 +954,19 @@ export class ConsentContract implements IConsentContract {
     ).map((totalSupply) => totalSupply.toNumber());
   }
 
+  public openOptInDisabled(): ResultAsync<boolean, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.openOptInDisabled() as Promise<boolean>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call openOptInDisabled()",
+          "Unknown",
+          e,
+        );
+      },
+    );
+  }
+
   public filters = {
     Transfer: (
       fromAddress: EVMAccountAddress | null,

@@ -124,6 +124,13 @@ export interface IConsentContractRepository {
     BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
+  isOpenOptInDisabled(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<
+    boolean,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
   // Encoders
   encodeOptIn(
     consentContractAddress: EVMContractAddress,
