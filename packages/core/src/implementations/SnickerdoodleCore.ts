@@ -640,20 +640,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountNFTs();
   }
 
-  addEarnedReward(
-    reward: EarnedReward,
-  ): ResultAsync<void, PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.addEarnedReward(reward);
-  }
-
-  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getEarnedRewards();
-  };
-
   getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);

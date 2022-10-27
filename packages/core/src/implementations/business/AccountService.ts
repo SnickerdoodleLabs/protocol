@@ -44,6 +44,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   CeramicStreamID,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -71,7 +72,6 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -185,7 +185,7 @@ export class AccountService implements IAccountService {
                 //   "Data wallet address initialized: ",
                 //   dataWalletAccount.accountAddress,
                 // );
-                
+
                 // The account address in account is just a generic EVMAccountAddress,
                 // we need to cast it to a DataWalletAddress, since in this case, that's
                 // what it is.
@@ -527,10 +527,11 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getEarnedRewards();
   }
 
-  public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addEarnedReward(reward);
+  public addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.addEarnedRewards(rewards);
   }
-
 
   public getTranactions(
     filter?: EVMTransactionFilter,
@@ -542,13 +543,12 @@ export class AccountService implements IAccountService {
   //   return this.dataWalletPersistence.getTransactionsArray();
   // }
 
-  public getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError> {
+  public getTransactionsArray(): ResultAsync<
+    IChainTransaction[],
+    PersistenceError
+  > {
     return this.dataWalletPersistence.getTransactionsArray();
   }
-
-  
-
-
 
   public getSiteVisitsMap(): ResultAsync<
     Map<URLString, number>,

@@ -1,5 +1,7 @@
-import { EligibleReward, QueryExpiredError, ServerRewardError } from "@snickerdoodlelabs/objects";
 import {
+  EligibleReward,
+  QueryExpiredError,
+  ServerRewardError,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -16,21 +18,20 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryService {
-
   onQueryPosted(
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
   ): ResultAsync<
-  void, 
-  ConsentContractError 
-  | ConsentContractRepositoryError 
-  | UninitializedError 
-  | BlockchainProviderError 
-  | AjaxError 
-  | QueryFormatError 
-  | EvaluationError 
-  | QueryExpiredError
-  | ServerRewardError
+    void,
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | ServerRewardError
   >;
 
   processQuery(

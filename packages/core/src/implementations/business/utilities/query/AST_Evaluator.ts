@@ -245,7 +245,7 @@ export class AST_Evaluator {
     if (TypeChecker.isIfCommand(eef)) {
       return this.evalCompCondition(eef.conditionExpr).andThen(
         (val): ResultAsync<SDQL_Return, EvaluationError> => {
-          if (val == true) {
+          if (val) {
             return this.evalExpr(eef.trueExpr);
           } else {
             if (eef.falseExpr == null){

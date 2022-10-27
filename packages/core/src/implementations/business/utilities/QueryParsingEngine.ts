@@ -8,10 +8,10 @@ import {
   QueryFormatError,
   SDQLQuery,
   SDQL_Return,
-  QueryIdentifier, 
+  QueryIdentifier,
   ExpectedReward,
   URLString,
-  ERewardType
+  ERewardType,
 } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -39,42 +39,46 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryRepository: IQueryRepository,
   ) {}
 
-  public getPreviews (
+  public getPreviews(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-  [QueryIdentifier[], ExpectedReward[]],
-  EvaluationError | QueryFormatError | QueryExpiredError
-> {
+    [QueryIdentifier[], ExpectedReward[]],
+    EvaluationError | QueryFormatError | QueryExpiredError
+  > {
+    const schemaString = query.query;
+    const cid: IpfsCID = query.cid;
 
-  const schemaString = query.query;
-  const cid: IpfsCID = query.cid;
-
-  return this.queryFactories
-    .makeParserAsync(cid, schemaString)
-    .andThen((sdqlParser) => {
+    return this.queryFactories
+      .makeParserAsync(cid, schemaString)
+      .andThen((sdqlParser) => {
         return sdqlParser.buildAST();
-    })
-    .andThen((ast: AST) => {
-      const astTree = ast;
-      const astEvaluator = this.queryFactories.makeAstEvaluator(
-        cid,
-        ast,
-        this.queryRepository,
-      )
-
-      return ResultUtils.combine([
-        this.identifyQueries(astTree, astEvaluator, dataPermissions),
-        this.evalCompensations(astTree, astEvaluator, dataPermissions),
-      ])
-      .andThen((results) => {
-        const queries = results[0];
-        const compensations = results[1];
-        const queryIdentifiers = queries.map(this.SDQLReturnToQueryIdentifier).filter((n) => n);
-        const expectedRewards = compensations.filter((n) => n).map(this.SDQLReturnToExpectedReward);
-        return okAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError | QueryFormatError | QueryExpiredError>([queryIdentifiers, expectedRewards]);
       })
-    })      
+      .andThen((ast: AST) => {
+        const astTree = ast;
+        const astEvaluator = this.queryFactories.makeAstEvaluator(
+          cid,
+          ast,
+          this.queryRepository,
+        );
+
+        return ResultUtils.combine([
+          this.identifyQueries(astTree, astEvaluator, dataPermissions),
+          this.evalCompensations(astTree, astEvaluator, dataPermissions),
+        ]).andThen(([queries, compensations]) => {
+          const queryIdentifiers = queries
+            .map(this.SDQLReturnToQueryIdentifier)
+            .filter((n) => n);
+          const expectedRewards = compensations
+            .filter((n) => n)
+            .map(this.SDQLReturnToExpectedReward);
+
+          return okAsync<
+            [QueryIdentifier[], ExpectedReward[]],
+            EvaluationError | QueryFormatError | QueryExpiredError
+          >([queryIdentifiers, expectedRewards]);
+        });
+      });
   }
 
   public handleQuery(
@@ -141,32 +145,38 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   protected SDQLReturnToExpectedReward(sdqlR: SDQL_Return): ExpectedReward {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
     if (typeof actualTypeData == "object") {
-      if (actualTypeData != null){
-        return new ExpectedReward(actualTypeData["description"], URLString(actualTypeData["callback"]), ERewardType.Direct);
+      if (actualTypeData != null) {
+        return new ExpectedReward(
+          actualTypeData["description"],
+          URLString(actualTypeData["callback"]),
+          ERewardType.Direct,
+        );
       }
     }
-    if (typeof actualTypeData == "string"){
+    if (typeof actualTypeData == "string") {
       const rewardData = JSON.parse(actualTypeData);
-      return new ExpectedReward(rewardData["description"], URLString(rewardData["callback"]), ERewardType.Direct);
+      return new ExpectedReward(
+        rewardData["description"],
+        URLString(rewardData["callback"]),
+        ERewardType.Direct,
+      );
     }
     return new ExpectedReward("", URLString(""), ERewardType.Direct);
   }
 
-
-
-
   public evalCompensations(
     ast: AST,
     astEvaluator: AST_Evaluator,
-    dataPermissions: DataPermissions
+    dataPermissions: DataPermissions,
   ): ResultAsync<SDQL_Return[], EvaluationError> {
-    const result = [...ast.logic.compensations.keys()].map((compStr) => {      
-      const returnedval = astEvaluator.evalCompensationExpr(ast.logic.compensations.get(compStr));
+    const result = [...ast.logic.compensations.keys()].map((compStr) => {
+      const returnedval = astEvaluator.evalCompensationExpr(
+        ast.logic.compensations.get(compStr),
+      );
       return returnedval;
     });
 
     console.log("evalCompensations: ", result);
-
 
     return ResultUtils.combine(result);
   }
@@ -177,7 +187,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     astEvaluator: AST_Evaluator,
   ): ResultAsync<SDQL_Return, EvaluationError>[] {
     return [...ast.logic.returns.keys()].map((returnStr) => {
-
       const requiredPermissions = ast.logic.getReturnPermissions(returnStr);
 
       if (dataPermissions.contains(requiredPermissions)) {
@@ -193,10 +202,12 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     astEvaluator: AST_Evaluator,
     dataPermissions: DataPermissions,
   ): ResultAsync<SDQL_Return[], EvaluationError> {
-    const result = [...ast.logic.compensations.keys()].map((compStr) => {    
-      console.log("compStr: ", compStr);  
-      const returnedval = astEvaluator.evalQueryExpr(ast.logic.compensations.get(compStr));
-      console.log("returnedval: ", returnedval);  
+    const result = [...ast.logic.compensations.keys()].map((compStr) => {
+      console.log("compStr: ", compStr);
+      const returnedval = astEvaluator.evalQueryExpr(
+        ast.logic.compensations.get(compStr),
+      );
+      console.log("returnedval: ", returnedval);
 
       return returnedval;
     });

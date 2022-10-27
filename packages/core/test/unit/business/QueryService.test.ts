@@ -16,11 +16,21 @@ import {
   ConsentToken,
   TokenId,
   IDataWalletPersistence,
+  URLString,
+  ERewardType,
+  IPFSError,
+  ConsentError,
+  SDQLQueryRequest,
+  ExpectedReward,
+  HexString32,
 } from "@snickerdoodlelabs/objects";
+import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
+import { query } from "express";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
+import { ContextReplacementPlugin } from "webpack";
 
 import {
   dataWalletAddress,
@@ -40,16 +50,6 @@ import {
 } from "@core/interfaces/data/index.js";
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
-import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
-import { query } from "express";
-import { ContextReplacementPlugin } from "webpack";
-import { URLString } from "@snickerdoodlelabs/objects";
-import { ERewardType } from "@snickerdoodlelabs/objects";
-import { IPFSError } from "@snickerdoodlelabs/objects";
-import { ConsentError } from "@snickerdoodlelabs/objects";
-import { SDQLQueryRequest } from "@snickerdoodlelabs/objects";
-import { ExpectedReward } from "@snickerdoodlelabs/objects";
-import { HexString32 } from "@snickerdoodlelabs/objects";
 
 const AndrewContractAddress = EVMContractAddress("Andrew");
 const consentContractAddress = EVMContractAddress("Phoebe");
@@ -139,10 +139,6 @@ class QueryServiceMocks {
         DataPermissions.createWithAllPermissions(),
       ),
     ).thenReturn(okAsync([insights, rewards]));
-
-    // td.when(this.queryParsingEngine.handleQuery(sdqlQuery)).thenReturn(
-    //   okAsync([insights, rewards])
-    // );
   }
 
   public factory(): QueryService {
@@ -154,7 +150,7 @@ class QueryServiceMocks {
       this.contextProvider,
       this.configProvider,
       this.cryptoUtils,
-      this.persistenceRepo
+      this.persistenceRepo,
     );
   }
 }
@@ -232,63 +228,94 @@ describe("processQuery tests", () => {
 describe("onQueryPosted tests", () => {
   test("onQueryPosted: full run through", async () => {
     const mocks = new QueryServiceMocks();
+    const contextMock = new ContextProviderMock();
+    const configMock = new ConfigProviderMock();
 
-    td.when(mocks.sdqlQueryRepo.getByCID(td.matchers.anything())).thenReturn(
-      okAsync(sdqlQuery)
+    td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+      okAsync(sdqlQuery),
     );
     td.when(mocks.contextProvider.getContext()).thenReturn(
-      okAsync(new CoreContext(td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything()))
+      okAsync(td.matchers.anything()),
     );
     td.when(mocks.configProvider.getConfig()).thenReturn(
-      okAsync(new CoreConfig(td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything()))
+      okAsync(td.matchers.anything()),
     );
-    td.when(mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything(), td.matchers.anything())).thenReturn(
-      okAsync(true)
-    );
-    td.when(mocks.queryParsingEngine.getPreviews(td.matchers.anything(), td.matchers.anything())).thenReturn(
-      okAsync([
-        [], 
-        []
-      ]
-      )
-    );
+    td.when(
+      mocks.consentContractRepo.isAddressOptedIn(
+        td.matchers.anything(),
+        td.matchers.anything(),
+      ),
+    ).thenReturn(okAsync(true));
+    td.when(
+      mocks.queryParsingEngine.getPreviews(
+        td.matchers.anything(),
+        td.matchers.anything(),
+      ),
+    ).thenReturn(okAsync([[], []]));
 
     const queryService = mocks.factory(); // new context
 
-    let result = await queryService.onQueryPosted(AndrewContractAddress, queryId);
+    const result = await queryService.onQueryPosted(
+      AndrewContractAddress,
+      queryId,
+    );
 
     console.log("result", result);
-        
+
     expect(result).toBeDefined();
-
   });
-})
-
+});
 
 describe("processRewardsPreview tests", () => {
-
   test("processRewardsPreview: full run through", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
 
     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
-      okAsync(sdqlQuery)
+      okAsync(sdqlQuery),
     );
     td.when(mocks.contextProvider.getContext()).thenReturn(
-      okAsync(new CoreContext(td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything()))
+      okAsync(
+        new CoreContext(
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+        ),
+      ),
     );
     td.when(mocks.configProvider.getConfig()).thenReturn(
-      okAsync(new CoreConfig(td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything(), td.matchers.anything()))
+      okAsync(
+        new CoreConfig(
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+          td.matchers.anything(),
+        ),
+      ),
     );
-    td.when(mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything(), td.matchers.anything())).thenReturn(
-      okAsync(true)
-    );
-    td.when(mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything())).thenReturn(
-      okAsync([
-      [], 
-      []
-    ])
-    );
+    td.when(
+      mocks.consentContractRepo.isAddressOptedIn(
+        td.matchers.anything(),
+        td.matchers.anything(),
+      ),
+    ).thenReturn(okAsync(true));
+    td.when(
+      mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything()),
+    ).thenReturn(okAsync([[], []]));
 
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getByCID(queryId),
@@ -311,15 +338,18 @@ describe("processRewardsPreview tests", () => {
         .isAddressOptedIn(
           consentContractAddress,
           EVMAccountAddress(context.dataWalletAddress),
-        )        
+        )
         .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getPreviews(query, new DataPermissions(allPermissions))
+          return mocks.queryParsingEngine.getPreviews(
+            query,
+            new DataPermissions(allPermissions),
+          );
         })
-        .andThen((rewardsPreviews) => {  
+        .andThen((rewardsPreviews) => {
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
             query,
-            []
+            [],
           );
           context.publicEvents.onQueryPosted.next(queryRequest);
           return okAsync(undefined);
@@ -330,5 +360,4 @@ describe("processRewardsPreview tests", () => {
         });
     });
   });
-
-})
+});

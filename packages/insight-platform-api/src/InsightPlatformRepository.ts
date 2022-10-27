@@ -17,7 +17,6 @@ import {
   InsightString,
   URLString,
   EligibleReward,
-  ExpectedReward, 
   EarnedReward,
   QueryIdentifier,
 } from "@snickerdoodlelabs/objects";
@@ -25,6 +24,7 @@ import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
   insightDeliveryTypes,
+  insightPreviewTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -39,7 +39,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
-  // 
+  //
   public deliverPreview(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
@@ -47,21 +47,18 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
-    expectedRewards: ExpectedReward[],
   ): ResultAsync<EligibleReward[], AjaxError> {
-    
     const signableData = {
       consentContractId: consentContractAddress,
       dataWallet: dataWalletAddress,
       queryCid: queryCid,
-      answeredQueries: answeredQueries,
-      expectedRewards: expectedRewards,
+      queries: JSON.stringify(answeredQueries),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
       .signTypedData(
         snickerdoodleSigningDomain,
-        insightDeliveryTypes,
+        insightPreviewTypes,
         signableData,
         dataWalletKey,
       )
@@ -79,9 +76,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           queries: answeredQueries,
           signature: signature,
         });
-      })
+      });
   }
-
 
   public deliverInsights(
     dataWalletAddress: DataWalletAddress,
@@ -118,10 +114,10 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           returns: returns,
           signature: signature,
         });
-      })
-      // .map((response) => {
-      //   console.log("Ajax response: " + JSON.stringify(response));
-      // });
+      });
+    // .map((response) => {
+    //   console.log("Ajax response: " + JSON.stringify(response));
+    // });
   }
 
   public executeMetatransaction(

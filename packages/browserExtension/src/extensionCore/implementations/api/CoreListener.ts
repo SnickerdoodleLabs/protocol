@@ -1,11 +1,3 @@
-import { BrowserUtils } from "@enviroment/shared/utils";
-import { ICoreListener } from "@interfaces/api";
-import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
-  IContextProvider,
-  IContextProviderType,
-} from "@interfaces/utilities";
 import {
   DataWalletAddress,
   EarnedReward,
@@ -21,6 +13,15 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import Browser from "webextension-polyfill";
+
+import { BrowserUtils } from "@enviroment/shared/utils";
+import { ICoreListener } from "@interfaces/api";
+import {
+  IAccountCookieUtils,
+  IAccountCookieUtilsType,
+  IContextProvider,
+  IContextProviderType,
+} from "@interfaces/utilities";
 
 @injectable()
 export class CoreListener implements ICoreListener {
