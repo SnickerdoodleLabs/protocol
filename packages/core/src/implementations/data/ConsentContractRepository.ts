@@ -292,6 +292,19 @@ export class ConsentContractRepository implements IConsentContractRepository {
     );
   }
 
+  public getSignerRoleMembers(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<
+    EVMAccountAddress[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddres).andThen(
+      (contract) => {
+        return contract.getSignerRoleMembers();
+      },
+    );
+  }
+
   protected getConsentContract(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<

@@ -35,28 +35,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
-  public isValidSignatureForInvitation(
-    consentAddress: EVMContractAddress,
-    tokenId: BigNumberString,
-    signature: Signature,
-    insightPlatformBaseUrl: URLString,
-  ): ResultAsync<boolean, AjaxError> {
-    const url = new URL(
-      urlJoin(insightPlatformBaseUrl, "chain/validate-invitation-signature"),
-    );
-    const params: {
-      consentAddress: EVMContractAddress;
-      tokenId: BigNumberString;
-      signature: Signature;
-    } = {
-      consentAddress,
-      tokenId,
-      signature,
-    };
-
-    return this.ajaxUtils.get<boolean>(url, { params });
-  }
-
   public deliverInsights(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,

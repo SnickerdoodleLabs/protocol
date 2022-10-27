@@ -44,13 +44,6 @@ export interface IInsightPlatformRepository {
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError>;
-
-  isValidSignatureForInvitation(
-    consentAddress: EVMContractAddress,
-    tokenId: BigNumberString,
-    signature: Signature,
-    insightPlatformBaseUrl: URLString,
-  ): ResultAsync<boolean, AjaxError>;
 }
 
 export const IInsightPlatformRepositoryType = Symbol.for(

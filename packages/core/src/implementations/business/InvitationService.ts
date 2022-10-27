@@ -34,7 +34,7 @@ import {
   TokenId,
   Signature,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -117,22 +117,15 @@ export class InvitationService implements IInvitationService {
           return okAsync(EInvitationStatus.Invalid);
         }
 
-        // If invitation has bussiness signature validate signature
+        // If invitation has bussiness signature verify signature
         if (invitation.businessSignature) {
-          //TODO validate signature
-          return this.insightPlatformRepo
-            .isValidSignatureForInvitation(
-              invitation.consentContractAddress,
-              BigNumberString(invitation.tokenId.toString()),
-              invitation.businessSignature,
-              config.defaultInsightPlatformBaseUrl,
-            )
-            .map((isValidSignature) => {
-              if (isValidSignature) {
-                return EInvitationStatus.New;
-              }
-              return EInvitationStatus.Invalid;
-            });
+          return this.isValidSignatureForInvitation(
+            invitation.consentContractAddress,
+            invitation.tokenId,
+            invitation.businessSignature,
+          ).map((res) => {
+            return res ? EInvitationStatus.New : EInvitationStatus.Invalid;
+          });
         }
 
         // If invitation belongs any domain verify URLs
@@ -578,6 +571,39 @@ export class InvitationService implements IInvitationService {
           });
       },
     );
+  }
+
+  protected isValidSignatureForInvitation(
+    consentContractAddres: EVMContractAddress,
+    tokenId: TokenId,
+    businessSignature: Signature,
+  ): ResultAsync<
+    boolean,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.consentRepo
+      .getSignerRoleMembers(consentContractAddres)
+      .andThen((signersAccountAddresses) => {
+        return ResultUtils.combine(
+          signersAccountAddresses.map((signerAccountAddress) => {
+            const types = ["address", "uint256"];
+            const msgHash = ethers.utils.solidityKeccak256(
+              [...types],
+              [consentContractAddres, BigNumber.from(tokenId)],
+            );
+            return this.cryptoUtils
+              .verifyEVMSignature(
+                ethers.utils.arrayify(msgHash),
+                businessSignature,
+              )
+              .map((accountAddress) => {
+                return accountAddress == signerAccountAddress;
+              });
+          }),
+        ).map((validationResults) => {
+          return validationResults.filter(Boolean).length > 0;
+        });
+      });
   }
 
   protected consentContractHasMatchingTXT(

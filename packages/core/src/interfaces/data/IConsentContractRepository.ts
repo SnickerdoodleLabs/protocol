@@ -117,6 +117,13 @@ export interface IConsentContractRepository {
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 
+  getSignerRoleMembers(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<
+    EVMAccountAddress[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
   // Encoders
   encodeOptIn(
     consentContractAddress: EVMContractAddress,
