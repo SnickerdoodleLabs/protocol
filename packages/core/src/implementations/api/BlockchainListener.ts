@@ -14,12 +14,9 @@ import {
   IPFSError,
   PersistenceError,
   UninitializedError,
-<<<<<<< HEAD
-=======
   QueryFormatError,
   QueryExpiredError,
   EvaluationError,
->>>>>>> feature/RewardHandoff
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -113,12 +110,9 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentContractError
     | ConsentError
     | PersistenceError
-<<<<<<< HEAD
-=======
     | QueryFormatError
     | QueryExpiredError
     | EvaluationError
->>>>>>> feature/RewardHandoff
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -134,10 +128,7 @@ export class BlockchainListener implements IBlockchainListener {
   ): ResultAsync<
     void,
     | BlockchainProviderError
-<<<<<<< HEAD
-=======
     | PersistenceError
->>>>>>> feature/RewardHandoff
     | UninitializedError
     | ConsentFactoryContractError
     | ConsentContractRepositoryError
@@ -145,13 +136,9 @@ export class BlockchainListener implements IBlockchainListener {
     | AjaxError
     | ConsentContractError
     | ConsentError
-<<<<<<< HEAD
-    | PersistenceError
-=======
     | QueryFormatError
     | EvaluationError
     | QueryExpiredError
->>>>>>> feature/RewardHandoff
   > {
     return this.consentContractRepository
       .getConsentContracts()

@@ -64,9 +64,6 @@ import {
   IVolatileCursor,
 } from "@persistence/volatile/index.js";
 
-import { EarnedReward } from "@snickerdoodlelabs/objects";
-
-
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
   AGE = "SD_Age",
