@@ -131,7 +131,6 @@ export class BlockchainListener implements IBlockchainListener {
     | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
-
     | ConsentContractRepositoryError
     | IPFSError
     | AjaxError
@@ -139,7 +138,6 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentError
     | QueryFormatError
     | EvaluationError
-
     | QueryExpiredError
   > {
     return this.consentContractRepository

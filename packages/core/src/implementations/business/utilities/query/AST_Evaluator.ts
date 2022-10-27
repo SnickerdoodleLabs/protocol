@@ -4,7 +4,6 @@ import {
   ExpectedReward,
   IpfsCID,
   PersistenceError,
-  SDQL_Compensation,
   SDQL_Return,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -69,7 +68,6 @@ export class AST_Evaluator {
     } else if (TypeChecker.isQuery(expr)) {
       return this.evalQuery(expr);
     } else {
-      /* COMMAND_IF */
       return this.evalExpr(expr);
     }
   }
@@ -97,7 +95,6 @@ export class AST_Evaluator {
   }
 
   public evalIf(eef: Command_IF): ResultAsync<SDQL_Return, EvaluationError> {
-
     return this.evalConditionExpr(eef.conditionExpr).andThen(
       (val): ResultAsync<SDQL_Return, EvaluationError> => {
         if (val == true) {
@@ -243,14 +240,9 @@ export class AST_Evaluator {
     );
   }
 
-  /* Andrew - working on CompensationExpr */
   public evalCompensationExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError> {
 
     if (TypeChecker.isIfCommand(eef)) {
-
-      console.log("Condition Expression: ", eef.conditionExpr);
-      console.log("Condition Expression Name: ", eef.conditionExpr.name);
-
       return this.evalCompCondition(eef.conditionExpr).andThen(
         (val): ResultAsync<SDQL_Return, EvaluationError> => {
           if (val == true) {
@@ -270,7 +262,6 @@ export class AST_Evaluator {
       );
     }
 
-    console.log("OUT OF evalCompensationExpr: ", eef);
     return okAsync(SDQL_Return(eef));
     // return okAsync(SDQL_Return(new ExpectedReward(eef.description, URLString(eef.callback), eef.type)));
   }
@@ -278,17 +269,11 @@ export class AST_Evaluator {
   public evalQueryExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError> {
 
     if (TypeChecker.isIfCommand(eef)) {
-
-      console.log("Condition Expression: ", eef.conditionExpr);
-      console.log("Condition Expression Name: ", eef.conditionExpr.name);
-
       return this.evalCompCondition(eef.conditionExpr).andThen(
         (val): ResultAsync<SDQL_Return, EvaluationError> => {
           if (val == true) {
-            console.log("Condition Expression Return: ", eef.conditionExpr.name);
             return okAsync(SDQL_Return(eef.conditionExpr.name));
           } else {
-            console.log("Condition Expression Return: ", null);
             return okAsync(SDQL_Return(null));
           }
         },
@@ -296,40 +281,19 @@ export class AST_Evaluator {
     }
 
     return okAsync(SDQL_Return(null));
-
-    // console.log("Check this 1: ", eef)
-    // console.log("Check this 2: ", eef.conditionExpr)
-
-    // return this.evalCompCondition(eef.conditionExpr).andThen(
-    //   (val): ResultAsync<SDQL_Return, EvaluationError> => {
-    //     if (val == true) {
-    //       return okAsync(SDQL_Return(eef.conditionExpr.name));
-    //     } else {
-    //       return okAsync(SDQL_Return(null));
-    //     }
-    //   },
-    // );
-    // return okAsync(SDQL_Return(eef));
   }
 
   public evalCompCondition(
     expr: AST_ConditionExpr,
   ): ResultAsync<SDQL_Return, EvaluationError> {
 
-    console.log("comp cond 1: ", expr);
     if (TypeChecker.isQuery(expr.source)) {
-          console.log("comp cond 2: ", expr.source);
-
       return this.evalQuery(expr.source as AST_Query);
 
     } else if (TypeChecker.isOperator(expr.source)) {
-      console.log("comp cond 3");
-
       return this.evalOperator(expr.source as Operator);
 
     } else {
-      console.log("comp cond 4");
-
       return errAsync<SDQL_Return, EvaluationError>(
         new EvaluationError("Condition has wrong type"),
       );

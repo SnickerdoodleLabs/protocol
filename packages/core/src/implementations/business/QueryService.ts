@@ -92,6 +92,7 @@ export class QueryService implements IQueryService {
     | QueryFormatError 
     | EvaluationError 
     | QueryExpiredError
+    | ServerRewardError
   > {
 
     // Get the IPFS data for the query. This is just "Get the query";
@@ -139,15 +140,12 @@ export class QueryService implements IQueryService {
           }
 
           // We have a consent token!
-          return this.consentContractRepository.getCurrentConsentToken(
-            consentContractAddress,
-          )          
+          return this.consentContractRepository.getCurrentConsentToken(consentContractAddress)          
         })
         .andThen((consentToken) => {
           return this.queryParsingEngine.getPreviews(query, consentToken!.dataPermissions)
         })
         .andThen(([queryIdentifiers, expectedRewards]) => { 
-
           return this.insightPlatformRepo.deliverPreview(
             context.dataWalletAddress!,
             consentContractAddress,

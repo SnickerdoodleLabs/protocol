@@ -24,20 +24,6 @@ export type SDQL_Return = Brand<
   "SDQL_Return"
 >;
 
-export type SDQL_Compensation = Brand<
-  | string
-  | boolean
-  | number
-  | Array<any>
-  | Map<URLString, number>
-  | Map<ChainId, number>
-  | IEVMBalance[]
-  | ITokenBalance[]
-  | Object
-  | null,
-  "SDQL_Compensation"
->;
-
 export const SDQL_Return = make<SDQL_Return>();
 
 // export type SDQL_Chain = Brand<string, "SDQL_Chain">; EVMChainCode
@@ -66,8 +52,4 @@ export const SDQL_Callback = make<SDQL_Callback>();
 
 export type SDQL_Returns = Brand<Array<string>, "SDQL_Returns">;
 export const SDQL_Returns = make<SDQL_Returns>();
-
-export type SDQL_Compensations = Brand<Array<string>, "SDQL_Compensations">; // not sure if arrays are suppored in make
-export const SDQL_Compensations = make<SDQL_Compensations>();
-
 //#endregion

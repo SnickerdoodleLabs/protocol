@@ -3,14 +3,11 @@ import "reflect-metadata";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
   Age,
-  ChainId,
   CountryCode,
   DataPermissions,
   ERewardType,
   EvaluationError,
-  EWalletDataType,
   ExpectedReward,
-  ExpectedRewardString,
   Gender,
   HexString32,
   IDataWalletPersistence,

@@ -14,7 +14,6 @@ import {
   EarnedReward,
   ExpectedReward,
   QueryIdentifier,
-  ExpectedRewardString
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 

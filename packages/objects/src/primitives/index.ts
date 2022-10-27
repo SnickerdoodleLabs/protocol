@@ -23,8 +23,6 @@ export * from "@objects/primitives/EVMContractFunction";
 export * from "@objects/primitives/EVMContractDirection";
 export * from "@objects/primitives/EVMToken";
 export * from "@objects/primitives/EVMPrivateKey";
-export * from "@objects/primitives/ExpectedRewardString";
-
 export * from "@objects/primitives/GivenName";
 export * from "@objects/primitives/Gender";
 export * from "@objects/primitives/HexString";

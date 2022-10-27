@@ -7,8 +7,7 @@ import {
   InsightString,
   QueryFormatError,
   SDQLQuery,
-  QueryIdentifier,
-  ExpectedRewardString
+  QueryIdentifier
 } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { AST_Evaluator } from "@core/implementations/business";

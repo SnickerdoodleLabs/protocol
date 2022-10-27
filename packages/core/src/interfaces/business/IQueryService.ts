@@ -1,4 +1,4 @@
-import { EligibleReward, QueryExpiredError } from "@snickerdoodlelabs/objects";
+import { EligibleReward, QueryExpiredError, ServerRewardError } from "@snickerdoodlelabs/objects";
 import {
   AjaxError,
   BlockchainProviderError,
@@ -30,6 +30,7 @@ export interface IQueryService {
   | QueryFormatError 
   | EvaluationError 
   | QueryExpiredError
+  | ServerRewardError
   >;
 
   processQuery(

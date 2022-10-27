@@ -10,9 +10,6 @@ import {
   SDQL_Return,
   QueryIdentifier, 
   ExpectedReward,
-  SDQL_Name,
-  MissingASTError,
-  ExpectedRewardString,
   URLString,
   ERewardType
 } from "@snickerdoodlelabs/objects";
@@ -32,7 +29,6 @@ import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
-import { AST_Query } from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -51,7 +47,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   EvaluationError | QueryFormatError | QueryExpiredError
 > {
 
-  const rewards: ExpectedReward[] = [];
   const schemaString = query.query;
   const cid: IpfsCID = query.cid;
 
@@ -75,12 +70,9 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       .andThen((results) => {
         const queries = results[0];
         const compensations = results[1];
-
         const queryIdentifiers = queries.map(this.SDQLReturnToQueryIdentifier).filter((n) => n);
         const expectedRewards = compensations.filter((n) => n).map(this.SDQLReturnToExpectedReward);
-
         return okAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError | QueryFormatError | QueryExpiredError>([queryIdentifiers, expectedRewards]);
-
       })
     })      
   }
@@ -145,43 +137,18 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     }
   }
 
-  // class ExpectedReward and type ExpectedRewardString
-  protected SDQLReturnToExpectedRewardString(sdqlR: SDQL_Return): ExpectedRewardString {
-    const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
-    if (typeof actualTypeData == "string") {
-      return ExpectedRewardString(actualTypeData);
-    } else if (actualTypeData == null) {
-      return ExpectedRewardString("");
-    } else {
-      return ExpectedRewardString(JSON.stringify(actualTypeData));
-    }
-    //return okAsync(new ExpectedReward(actualTypeData.description, actualTypeData.callback, actualTypeData.type));
-  }
-
   // TODO: Add Lazy and Web2 Reward Implementation
   protected SDQLReturnToExpectedReward(sdqlR: SDQL_Return): ExpectedReward {
     const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
-
-     if (typeof actualTypeData == "object") {
+    if (typeof actualTypeData == "object") {
       if (actualTypeData != null){
-        console.log("rewardData: ", JSON.stringify(actualTypeData));
-        console.log("rewardData['description']: ", actualTypeData["description"]);
-        console.log("rewardData['callback']: ", actualTypeData["callback"]);
-        console.log("rewardData['callback']['parameters']: ", actualTypeData["callback"]["parameters"]);
-        console.log("rewardData['callback']['data']: ", actualTypeData["callback"]["data"]);
         return new ExpectedReward(actualTypeData["description"], URLString(actualTypeData["callback"]), ERewardType.Direct);
       }
     }
     if (typeof actualTypeData == "string"){
       const rewardData = JSON.parse(actualTypeData);
-      console.log("rewardData: ", rewardData);
-      console.log("rewardData['description']: ", rewardData["description"]);
-      console.log("rewardData['callback']: ", rewardData["callback"]);
-      console.log("rewardData['callback']['parameters']: ", rewardData["callback"]["parameters"]);
-      console.log("rewardData['callback']['data']: ", rewardData["callback"]["data"]);
       return new ExpectedReward(rewardData["description"], URLString(rewardData["callback"]), ERewardType.Direct);
     }
-
     return new ExpectedReward("", URLString(""), ERewardType.Direct);
   }
 

@@ -140,17 +140,17 @@ core.getEvents().map(async (events) => {
     console.log(`Initialized with address ${dataWalletAddress}`);
   });
   
-  events.onQueryPosted.subscribe(async (request: SDQLQueryRequest) => {
+  events.onQueryPosted.subscribe(async (queryRequest: SDQLQueryRequest) => {
     console.log(
-      `Recieved rewards preview from consentContract ${request.consentContractAddress} with id ${request.query.cid}`,
+      `Recieved rewards preview from consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
     );
 
     try {
       await prompt([
         {
           type: "list",
-          name: "approveRewardsPreview",
-          message: `Rewards Preview Includes:  Accept Rewards Preview`,
+          name: "approveQuery",
+          message: "Approve running the query?",
           choices: [
             { name: "Yes", value: true },
             { name: "No", value: false },
@@ -158,13 +158,13 @@ core.getEvents().map(async (events) => {
         },
       ])
         .andThen((answers) => {
-          if (!answers.approveRewardsPreview) {
+          if (!answers.approveQuery) {
             return okAsync(undefined);
           }
 
           return core.processQuery(
-            request.consentContractAddress,
-            request.query,
+            queryRequest.consentContractAddress,
+            queryRequest.query,
           );
         })
         .mapErr((e) => {
