@@ -43,6 +43,9 @@ import {
   MetatransactionSignatureRequest,
   BigNumberString,
   Signature,
+  EarnedReward,
+  IpfsCID,
+  ERewardType,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import inquirer from "inquirer";
@@ -54,9 +57,6 @@ import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator
 import { IPFSClient } from "@test-harness/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
 import { TestWallet } from "@test-harness/TestWallet.js";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
-import { IpfsCID } from "@snickerdoodlelabs/objects";
-import { ERewardType } from "@snickerdoodlelabs/objects";
 
 const cryptoUtils = new CryptoUtils();
 
@@ -350,12 +350,11 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
-              
-      case "addEarnedAward":
-        return core.addEarnedReward(earnedReward).map(console.log);
-        
-      case "getEarnedAwards":
-        return core.getEarnedRewards().map(console.log);  
+
+      // case "addEarnedAward":
+      //   return core.addEarnedReward(earnedReward).map(console.log);
+      // case "getEarnedAwards":
+      //   return core.getEarnedRewards().map(console.log);
       case "addEVMTransaction - Query's Network":
         /*
           Important!  Must use different hash values for transaction values!

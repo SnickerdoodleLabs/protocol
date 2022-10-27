@@ -1,5 +1,4 @@
 # SDQL Examples
-
 **For an update list of queries, please, [check here](https://github.com/SnickerdoodleLabs/protocol/tree/develop/packages/contracts/etc/data/queries).**
 
 ## Query Target 15 and Older Users About Avalanche Transfer, Location, Age, Gender, URLs Visited, And Chain Transaction Count
@@ -148,7 +147,6 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         "url": "https://418e-64-85-231-39.ngrok.io/insights"
     },
   "compensations":{
-
         "parameters": {
             "recipientAddress": {
                 type:...,
@@ -200,7 +198,6 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "c4",
                 "c5"
             ]
-
         },
         "c4":{
             "description": "a free CrazyApesClub NFT on Avalanche",
@@ -216,7 +213,6 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "c3",
                 "c5"
             ]
-
         },
         "c5":{
             "description": "a free CrazyApesClub NFT on Solana",
@@ -232,7 +228,6 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "c3",
                 "c4"
             ]
-
         },
     },
     "logic": {

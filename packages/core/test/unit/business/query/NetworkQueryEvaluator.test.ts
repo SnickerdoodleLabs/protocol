@@ -20,6 +20,7 @@ import {
   TickerSymbol,
   UnixTimestamp,
   URLString,
+  IChainTransaction,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_NetworkQuery,
@@ -30,7 +31,6 @@ import * as td from "testdouble";
 
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
-import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 class NetworkQueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
@@ -137,7 +137,9 @@ describe("QueryEvaluator: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
+    td.when(
+      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+    ).thenReturn(
       okAsync([
         new EVMTransaction(
           ChainId(43114),
@@ -192,7 +194,9 @@ describe("QueryEvaluator: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
+    td.when(
+      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+    ).thenReturn(
       okAsync([
         new EVMTransaction(
           ChainId(43114),
@@ -247,9 +251,9 @@ describe("QueryEvaluator: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
-      okAsync([]),
-    );
+    td.when(
+      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);
     // console.log(result)
@@ -289,9 +293,9 @@ describe("Network Query Testing: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
-      okAsync([]),
-    );
+    td.when(
+      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
@@ -328,9 +332,9 @@ describe("Network Query Testing: ", () => {
       startTime,
       endTime,
     );
-    td.when(mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything())).thenReturn(
-      okAsync([]),
-    );
+    td.when(
+      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+    ).thenReturn(okAsync([]));
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();

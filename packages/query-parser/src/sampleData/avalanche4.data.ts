@@ -1,13 +1,12 @@
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 
 const timeUtils = new TimeUtils();
-export const avalanche4SchemaStr = JSON.stringify(
-{
+export const avalanche4SchemaStr = JSON.stringify({
   version: 0.1,
-  timestamp:  timeUtils.getISO8601TimeString(),
-  expiry : timeUtils.getISO8601TimeString(Date.now() + (1000 * 60 * 60 * 24)),
+  timestamp: timeUtils.getISO8601TimeString(),
+  expiry: timeUtils.getISO8601TimeString(Date.now() + 1000 * 60 * 60 * 24),
   description:
-  "Interactions with the Avalanche blockchain for 15-year and older individuals",
+    "Interactions with the Avalanche blockchain for 15-year and older individuals",
   business: "Shrapnel",
   queries: {
     q1: {
@@ -34,8 +33,8 @@ export const avalanche4SchemaStr = JSON.stringify(
       },
     },
     q3: {
-        name: "location",
-        return: "string",
+      name: "location",
+      return: "string",
     },
     q4: {
       name: "gender",
@@ -56,8 +55,7 @@ export const avalanche4SchemaStr = JSON.stringify(
       conditions: {
         ge: 10,
       },
-      return: "array"
-      
+      return: "array",
     },
     q8: {
       name: "balance",
@@ -65,8 +63,7 @@ export const avalanche4SchemaStr = JSON.stringify(
       conditions: {
         ge: 10,
       },
-      return: "array"
-      
+      return: "array",
     },
   },
   returns: {
@@ -105,65 +102,52 @@ export const avalanche4SchemaStr = JSON.stringify(
     url: "https://418e-64-85-231-39.ngrok.io/insights",
   },
   compensations: {
-      parameters: {
-        recipientAddress: {
-            type: "address",
-            required: true
-        },
-        productId: {
-            type: "string",
-            required: false,
-            values: [
-              "https://product1",
-              "https://product2",
-            ]
-        },
-        shippingAddress: {
-            type: "string",
-            required: false,
-        },
-
+    parameters: {
+      recipientAddress: {
+        type: "address",
+        required: true,
+      },
+      productId: {
+        type: "string",
+        required: false,
+        values: ["https://product1", "https://product2"],
+      },
+      shippingAddress: {
+        type: "string",
+        required: false,
+      },
     },
     c1: {
       description: "10% discount code for Starbucks",
       chainId: 1,
       callback: {
-        parameters: [
-          "recipientAddress"
-        ],
+        parameters: ["recipientAddress"],
         data: {
           trackingId: "982JJDSLAcx",
-        }
-      }
+        },
+      },
     },
     c2: {
-      description:
-        "participate in the draw to win a CryptoPunk NFT",
+      description: "participate in the draw to win a CryptoPunk NFT",
       chainId: 1,
       callback: {
-        parameters: [
-          "recipientAddress",
-          "productId"
-        ],
+        parameters: ["recipientAddress", "productId"],
         data: {
           trackingId: "982JJDSLAcx",
-        }
+        },
       },
-      alternatives: ["c3"]
+      alternatives: ["c3"],
     },
     c3: {
       description: "a free CrazyApesClub NFT",
       chainId: 1,
       callback: {
-        parameters: [
-          "recipientAddress",
-          "productId"
-        ],
+        parameters: ["recipientAddress", "productId"],
         data: {
           trackingId: "982JJDSLAcx",
-        }
+        },
       },
-      alternatives: ["c2"]
+      alternatives: ["c2"],
     },
   },
   logic: {
@@ -178,5 +162,4 @@ export const avalanche4SchemaStr = JSON.stringify(
     ],
     compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
   },
-}
-);
+});

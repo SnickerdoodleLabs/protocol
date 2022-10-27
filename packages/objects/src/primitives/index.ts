@@ -23,7 +23,6 @@ export * from "@objects/primitives/EVMContractFunction";
 export * from "@objects/primitives/EVMContractDirection";
 export * from "@objects/primitives/EVMToken";
 export * from "@objects/primitives/EVMPrivateKey";
-
 export * from "@objects/primitives/GivenName";
 export * from "@objects/primitives/Gender";
 export * from "@objects/primitives/HexString";
@@ -37,6 +36,7 @@ export * from "@objects/primitives/LanguageCode";
 export * from "@objects/primitives/FamilyName";
 export * from "@objects/primitives/ProviderUrl";
 export * from "@objects/primitives/PublicKey";
+export * from "@objects/primitives/QueryIdentifier";
 export * from "@objects/primitives/SDQLString";
 export * from "@objects/primitives/SHA256Hash";
 export * from "@objects/primitives/Signature";

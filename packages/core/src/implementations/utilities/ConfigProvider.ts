@@ -16,6 +16,7 @@ import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 const modelAliases = {
   definitions: {
     backupIndex:
+<<<<<<< HEAD
       "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
   },
   schemas: {
@@ -23,6 +24,15 @@ const modelAliases = {
       "ceramic://k3y52l7qbv1fryeqpnu3xx9st37h6soh7cosvpskp59r6wj8ag4zl2n3u3283xrsw",
     BackupIndex:
       "ceramic://k3y52l7qbv1fryk2h9xhsf2mai9wsiga2eld67pn8vgo3845yad3bn9plleei53pc",
+=======
+      "kjzl6cwe1jw148nk4xr3be2eplgg67srylg63z079m7xuqerf5ww0pxurebcgxz",
+  },
+  schemas: {
+    DataWalletBackup:
+      "ceramic://k3y52l7qbv1frxplna47j0e3m75js1jr5okne9dagpkr6r728t7mapbml3af002yo",
+    BackupIndex:
+      "ceramic://k3y52l7qbv1fry2jy48xjyc23n3il1q2lm2ud2zlj4yoyvytwfye3l3205ld8zhmo",
+>>>>>>> feature/RewardHandoff
   },
   tiles: {},
 };
@@ -137,9 +147,12 @@ export class ConfigProvider
       this.config.dataWalletBackupIntervalMS;
     this.config.backupChunkSizeTarget =
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
+<<<<<<< HEAD
     this.config.ceramicNodeURL =
       overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
     this.config.ceramicModelAliases =
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
+=======
+>>>>>>> feature/RewardHandoff
   }
 }

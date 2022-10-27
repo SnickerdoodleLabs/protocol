@@ -22,7 +22,8 @@ const errorCodes = {
   PermissionError: "ERR_PERMISSION",
   QueryExpiredError: "ERR_QUERY_EXPIRED",
   MissingASTError: "ERR_MISSING_AST",
-  ParserTypeNotImplementedError: "ERR_PARSER_TYPE_NOT_IMPLEMENTED"
+  ParserTypeNotImplementedError: "ERR_PARSER_TYPE_NOT_IMPLEMENTED",
+  ServerRewardError: "ERR_SERVER_REWARD",
 };
 
 export default errorCodes;

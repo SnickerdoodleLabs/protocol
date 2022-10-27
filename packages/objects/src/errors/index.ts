@@ -23,7 +23,7 @@ export * from "@objects/errors/UnsupportedLanguageError";
 export * from "@objects/errors/sdqlExceptions";
 export * from "@objects/errors/MissingWalletDataTypeError";
 export * from "@objects/errors/PermissionError";
-export * from "@objects/errors/QueryExpiredError";
 export * from "@objects/errors/MissingASTError";
 export * from "@objects/errors/ParserTypeNotImplementedError";
+export * from "@objects/errors/ServerRewardError";
 export * from "@objects/errors/SiftContractError";
