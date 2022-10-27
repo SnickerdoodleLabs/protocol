@@ -6,14 +6,21 @@ import {
   ChainId,
   CountryCode,
   DataPermissions,
+  ERewardType,
+  EvaluationError,
   EWalletDataType,
+  ExpectedReward,
+  ExpectedRewardString,
   Gender,
   HexString32,
   IDataWalletPersistence,
   IpfsCID,
   QueryExpiredError,
+  QueryFormatError,
+  QueryIdentifier,
   SDQLQuery,
   SDQLString,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -26,6 +33,7 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
 import * as td from "testdouble";
+import { BaseOf } from "ts-brand";
 
 
 import {
@@ -114,6 +122,45 @@ class QueryParsingMocks {
   public factory() {
     return new QueryParsingEngine(this.queryFactories, this.queryRepository);
   }
+
+  public SDQLReturnToQueryIdentifier(sdqlR: SDQL_Return): QueryIdentifier {
+    const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
+    if (typeof actualTypeData == "string") {
+      return QueryIdentifier(actualTypeData);
+    } else if (actualTypeData == null) {
+      return QueryIdentifier("");
+    } else {
+      return QueryIdentifier(JSON.stringify(actualTypeData));
+    }
+  }
+
+  // TODO: Add Lazy and Web2 Reward Implementation
+  public SDQLReturnToExpectedReward(sdqlR: SDQL_Return): ExpectedReward {
+    const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
+
+     if (typeof actualTypeData == "object") {
+      if (actualTypeData != null){
+        console.log("rewardData: ", JSON.stringify(actualTypeData));
+        console.log("rewardData['description']: ", actualTypeData["description"]);
+        console.log("rewardData['callback']: ", actualTypeData["callback"]);
+        console.log("rewardData['callback']['parameters']: ", actualTypeData["callback"]["parameters"]);
+        console.log("rewardData['callback']['data']: ", actualTypeData["callback"]["data"]);
+        return new ExpectedReward(actualTypeData["description"], URLString(actualTypeData["callback"]), ERewardType.Direct);
+      }
+    }
+    if (typeof actualTypeData == "string"){
+      const rewardData = JSON.parse(actualTypeData);
+      console.log("rewardData: ", rewardData);
+      console.log("rewardData['description']: ", rewardData["description"]);
+      console.log("rewardData['callback']: ", rewardData["callback"]);
+      console.log("rewardData['callback']['parameters']: ", rewardData["callback"]["parameters"]);
+      console.log("rewardData['callback']['data']: ", rewardData["callback"]["data"]);
+      return new ExpectedReward(rewardData["description"], URLString(rewardData["callback"]), ERewardType.Direct);
+    }
+
+    return new ExpectedReward("", URLString(""), ERewardType.Direct);
+  }
+
 }
 
 /*
@@ -306,13 +353,13 @@ describe("Testing avalanche 4", () => {
 
 
 describe("Reward Preview", () => {
-  test("showcase rewards", async () => {
-    const mocks = new QueryParsingMocks();
-    const engine = mocks.factory();
-    let val = await engine.getPreviews(sdqlQuery4, new DataPermissions(allPermissions))
+  // test("showcase rewards", async () => {
+  //   const mocks = new QueryParsingMocks();
+  //   const engine = mocks.factory();
+  //   let val = await engine.getPreviews(sdqlQuery4, new DataPermissions(allPermissions))
       
-    console.log("Output: ", val);
-  });
+  //   console.log("Output: ", val);
+  // });
 
   test("showcase rewards", async () => {
     const mocks = new QueryParsingMocks();
@@ -335,10 +382,8 @@ describe("Reward Preview", () => {
       return (engine.identifyQueries(ast, astEvaluator, new DataPermissions(allPermissions)))
     })
 
-    expect(response["value"]).toBe(("asdf"))
-
-    let val = 1;      
-    console.log("Output: ", val);
+    console.log(response["value"]);
+    //console.log("Output: ", response);
   });
 
   test("showcase rewards", async () => {
@@ -362,9 +407,59 @@ describe("Reward Preview", () => {
       return (engine.evalCompensations(ast, astEvaluator, new DataPermissions(allPermissions)))
     })
 
-    expect(response["value"]).toBe(("asdf"))
+    console.log("Output: ", response["value"]);
+  });
 
-    let val = 1;      
-    console.log("Output: ", val);
+  test("showcase RewardsPreview", async () => {
+    const mocks = new QueryParsingMocks();
+    const engine = mocks.factory();
+
+    const schemaString = sdqlQuery4.query;
+    const cid: IpfsCID = sdqlQuery4.cid;
+  
+    let response = await mocks.queryFactories
+      .makeParserAsync(cid, schemaString)
+      .andThen((sdqlParser) => {
+          return sdqlParser.buildAST();
+      })
+      .andThen((ast: AST) => {
+        const astTree = ast;
+        const astEvaluator = mocks.queryFactories.makeAstEvaluator(
+          cid,
+          ast,
+          mocks.queryRepository,
+        )
+    
+        return ResultUtils.combine([
+          engine.identifyQueries(astTree, astEvaluator, new DataPermissions(allPermissions)),
+          engine.evalCompensations(astTree, astEvaluator, new DataPermissions(allPermissions)),
+        ])
+        .andThen((results) => {
+          const queries = results[0];
+          const compensations = results[1];
+
+          const queryIdentifiers = queries.map(mocks.SDQLReturnToQueryIdentifier).filter((n) => n);
+          const expectedRewards = compensations.filter((n) => n);
+
+          const vals = expectedRewards.map(mocks.SDQLReturnToExpectedReward);
+
+          console.log("QueryIdentifiers: ", queryIdentifiers.length);
+          console.log("expectedRewards: ", vals.length);
+
+
+          return okAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError | QueryFormatError | QueryExpiredError>([queryIdentifiers, vals]);
+        })
+    })
+
+      console.log("Output: ", response["value"]);
+      console.log("Queries: ", response["value"][0]);
+      console.log("Expected Rewards: ", response["value"][1]);
+      // console.log("Expected Rewards: ", response["value"][1].map((val) => val["description"]));
+      // console.log("Expected Rewards: ", response["value"][1].map((val) => val["callback"]));
+
+
+
+
+
   });
 });

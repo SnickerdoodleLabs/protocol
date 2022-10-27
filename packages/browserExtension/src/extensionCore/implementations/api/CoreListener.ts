@@ -85,6 +85,9 @@ export class CoreListener implements ICoreListener {
         query: getStringQuery(),
       })
       .map((ea) => {
+
+        //this.core.addEarnedReward
+
         console.log(
           `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
         );

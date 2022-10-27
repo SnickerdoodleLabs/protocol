@@ -19,7 +19,8 @@ import {
   EligibleReward,
   ExpectedReward, 
   EarnedReward,
-  QueryIdentifier
+  QueryIdentifier,
+  ExpectedRewardString
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,

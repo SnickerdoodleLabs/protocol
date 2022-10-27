@@ -1,10 +1,12 @@
 import {
   EvalNotImplementedError,
   EvaluationError,
+  ExpectedReward,
   IpfsCID,
   PersistenceError,
   SDQL_Compensation,
   SDQL_Return,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
@@ -244,10 +246,11 @@ export class AST_Evaluator {
   /* Andrew - working on CompensationExpr */
   public evalCompensationExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError> {
 
-    console.log("WITHIN evalCompensationExpr: ", eef)
     if (TypeChecker.isIfCommand(eef)) {
 
-      console.log("WITHIN evalCompensationExpr line 268: ", eef)
+      console.log("Condition Expression: ", eef.conditionExpr);
+      console.log("Condition Expression Name: ", eef.conditionExpr.name);
+
       return this.evalCompCondition(eef.conditionExpr).andThen(
         (val): ResultAsync<SDQL_Return, EvaluationError> => {
           if (val == true) {
@@ -266,36 +269,47 @@ export class AST_Evaluator {
         },
       );
     }
-    console.log("OUT OF evalCompensationExpr: ", eef)
+
+    console.log("OUT OF evalCompensationExpr: ", eef);
     return okAsync(SDQL_Return(eef));
+    // return okAsync(SDQL_Return(new ExpectedReward(eef.description, URLString(eef.callback), eef.type)));
   }
 
   public evalQueryExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError> {
 
-    console.log("WITHIN evalCompensationExpr: ", eef)
     if (TypeChecker.isIfCommand(eef)) {
 
-      console.log("WITHIN evalCompensationExpr line 268: ", eef)
+      console.log("Condition Expression: ", eef.conditionExpr);
+      console.log("Condition Expression Name: ", eef.conditionExpr.name);
+
       return this.evalCompCondition(eef.conditionExpr).andThen(
         (val): ResultAsync<SDQL_Return, EvaluationError> => {
           if (val == true) {
-            return this.evalExpr(eef.trueExpr);
+            console.log("Condition Expression Return: ", eef.conditionExpr.name);
+            return okAsync(SDQL_Return(eef.conditionExpr.name));
           } else {
-            if (eef.falseExpr == null){
-              return okAsync(SDQL_Return(null))
-            }
-            if (eef.falseExpr) {
-              return this.evalExpr(eef.falseExpr);
-            }
-            return errAsync(
-              new EvaluationError(`if ${eef.name} do not have a falseExpr`),
-            );
+            console.log("Condition Expression Return: ", null);
+            return okAsync(SDQL_Return(null));
           }
         },
       );
     }
-    console.log("OUT OF evalCompensationExpr: ", eef)
-    return okAsync(SDQL_Return(eef));
+
+    return okAsync(SDQL_Return(null));
+
+    // console.log("Check this 1: ", eef)
+    // console.log("Check this 2: ", eef.conditionExpr)
+
+    // return this.evalCompCondition(eef.conditionExpr).andThen(
+    //   (val): ResultAsync<SDQL_Return, EvaluationError> => {
+    //     if (val == true) {
+    //       return okAsync(SDQL_Return(eef.conditionExpr.name));
+    //     } else {
+    //       return okAsync(SDQL_Return(null));
+    //     }
+    //   },
+    // );
+    // return okAsync(SDQL_Return(eef));
   }
 
   public evalCompCondition(

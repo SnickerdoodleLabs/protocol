@@ -13,7 +13,8 @@ import {
   URLString,
   EarnedReward,
   ExpectedReward,
-  QueryIdentifier
+  QueryIdentifier,
+  ExpectedRewardString
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 

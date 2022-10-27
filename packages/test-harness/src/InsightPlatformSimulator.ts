@@ -27,7 +27,8 @@ import {
   UnixTimestamp,
   URLString,
   EligibleReward,
-  ERewardType
+  ERewardType,
+  QueryIdentifier
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -86,20 +87,21 @@ export class InsightPlatformSimulator {
     this.app.post("/insights/preview", (req, res) => {
       console.log("Sending prompt rewards preview to the Insights Platform");
       console.log("Req is this: ", req.body);
-      console.log("req.body.consentContractId: ", req.body.consentContractId);
+
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCid = IpfsCID(req.body.queryCid);
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
+      const queries = (req.body.intendedInsights);
       const signature = Signature(req.body.signature);
 
       const value = {
         consentContractId,
         queryCid,
         dataWallet,
+        queries
       };
 
       this.logStream.write(JSON.stringify(req.body));
-
       let reward = ([
         new EligibleReward("c2", URLString("www.google.com"), ERewardType.Lazy),
         new EligibleReward("c3", URLString("www.amazon.com"), ERewardType.Lazy),

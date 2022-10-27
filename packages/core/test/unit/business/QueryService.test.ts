@@ -15,6 +15,7 @@ import {
   DataPermissions,
   ConsentToken,
   TokenId,
+  IDataWalletPersistence,
 } from "@snickerdoodlelabs/objects";
 import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
 import { errAsync, okAsync } from "neverthrow";
@@ -76,6 +77,8 @@ class QueryServiceMocks {
   public contextProvider: ContextProviderMock;
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
+  public persistenceRepo: IDataWalletPersistence;
+
   public consentToken = new ConsentToken(
     consentContractAddress,
     EVMAccountAddress(dataWalletAddress),
@@ -91,6 +94,7 @@ class QueryServiceMocks {
     this.contextProvider = new ContextProviderMock();
     this.configProvider = new ConfigProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
+    this.persistenceRepo = td.object<IDataWalletPersistence>();
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -150,6 +154,7 @@ class QueryServiceMocks {
       this.contextProvider,
       this.configProvider,
       this.cryptoUtils,
+      this.persistenceRepo
     );
   }
 }

@@ -7,7 +7,8 @@ import {
   InsightString,
   QueryFormatError,
   SDQLQuery,
-  QueryIdentifier
+  QueryIdentifier,
+  ExpectedRewardString
 } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { AST_Evaluator } from "@core/implementations/business";
@@ -20,7 +21,7 @@ export interface IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-  [SDQL_Return[], SDQL_Return[]],
+  [QueryIdentifier[], ExpectedReward[]],
   EvaluationError | QueryFormatError | QueryExpiredError
   >;
   handleQuery(
