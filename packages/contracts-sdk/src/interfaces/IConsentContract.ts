@@ -41,9 +41,12 @@ export interface IConsentContract {
   encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString;
 
   /**
-   * Create a consent token with providing the business signature
+   * Opts in to a private contract, using a signature provided by an account with the SIGNER role.
+   * The signature must encode the contract address, token ID AND the recipient account address.
+   * anonymousRestrictedOptIn uses a slightly different formula and does not encode the recipient
+   * account address
    * @param tokenId randomly generated token id
-   * @param agreementURI token uri data
+   * @param agreementFlags token uri data
    * @param signature business or consent contract owner signature
    * @param contractOverrides for overriding transaction gas object
    */
@@ -55,6 +58,28 @@ export interface IConsentContract {
   ): ResultAsync<void, ConsentContractError>;
 
   encodeRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString;
+
+  /**
+   * Opts in to a private contract, using a signature provided by an account with the SIGNER role.
+   * The signature must encode the contract address and token ID, but not the recipient address.
+   * account address
+   * @param tokenId randomly generated token id
+   * @param agreementFlags token uri data
+   * @param signature business or consent contract owner signature
+   * @param contractOverrides for overriding transaction gas object
+   */
+  anonymousRestrictedOptIn(
+    tokenId: TokenId,
+    agreementFlags: HexString32,
+    signature: Signature,
+    contractOverrides?: ContractOverrides,
+  ): ResultAsync<void, ConsentContractError>;
+
+  encodeAnonymousRestrictedOptIn(
     tokenId: TokenId,
     signature: Signature,
     agreementFlags: HexString32,
