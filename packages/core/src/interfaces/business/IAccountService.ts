@@ -4,15 +4,14 @@ import {
   BlockchainProviderError,
   CrumbsContractError,
   InvalidSignatureError,
-  IEVMBalance,
-  IEVMNFT,
+  TokenBalance,
+  IAccountNFT,
   LanguageCode,
   PersistenceError,
   Signature,
   UninitializedError,
   UnsupportedLanguageError,
-  EVMTransactionFilter,
-  EVMTransaction,
+  TransactionFilter,
   ChainId,
   URLString,
   SiteVisit,
@@ -101,19 +100,19 @@ export interface IAccountService {
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError>;
   getTranactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError>;
+    filter?: TransactionFilter,
+  ): ResultAsync<IChainTransaction[], PersistenceError>;
 
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>
+  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
-  addEVMTransactions(
-    transactions: EVMTransaction[],
+  addTransactions(
+    transactions: IChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;

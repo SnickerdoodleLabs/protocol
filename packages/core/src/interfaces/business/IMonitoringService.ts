@@ -3,8 +3,6 @@ import {
   PersistenceError,
   AccountIndexingError,
   AjaxError,
-  AccountBalanceError,
-  AccountNFTError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 

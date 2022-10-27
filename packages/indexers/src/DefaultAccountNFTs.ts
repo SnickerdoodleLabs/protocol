@@ -5,10 +5,12 @@ import {
 import {
   IAccountNFTs,
   IEVMNftRepository,
+  ISolanaNFTRepository,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
+import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
@@ -20,6 +22,7 @@ import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransac
 export class DefaultAccountNFTs implements IAccountNFTs {
   protected evm: IEVMNftRepository;
   protected simulatorRepo: IEVMNftRepository;
+  protected solRepo: ISolanaNFTRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -28,6 +31,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
   ) {
     this.evm = new MoralisEVMNftRepository(this.configProvider, this.ajaxUtils);
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
+    this.solRepo = new DummySolanaIndexer();
   }
 
   public getEVMNftRepository(): ResultAsync<IEVMNftRepository, never> {
@@ -36,5 +40,9 @@ export class DefaultAccountNFTs implements IAccountNFTs {
 
   public getSimulatorEVMNftRepository(): ResultAsync<IEVMNftRepository, never> {
     return okAsync(this.simulatorRepo);
+  }
+
+  public getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never> {
+    return okAsync(this.solRepo);
   }
 }

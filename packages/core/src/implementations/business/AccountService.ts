@@ -23,13 +23,13 @@ import {
   EVMAccountAddress,
   EVMPrivateKey,
   EVMTransaction,
-  EVMTransactionFilter,
+  TransactionFilter,
   ExternallyOwnedAccount,
   ICrumbContent,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
-  IEVMNFT,
+  TokenBalance,
+  IAccountNFT,
   InvalidParametersError,
   InvalidSignatureError,
   LanguageCode,
@@ -523,11 +523,11 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getAccounts();
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
     return this.dataWalletPersistence.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  public getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError> {
     return this.dataWalletPersistence.getAccountNFTs();
   }
 
@@ -542,9 +542,9 @@ export class AccountService implements IAccountService {
   }
 
   public getTranactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError> {
-    return this.dataWalletPersistence.getEVMTransactions(filter);
+    filter?: TransactionFilter,
+  ): ResultAsync<IChainTransaction[], PersistenceError> {
+    return this.dataWalletPersistence.getTransactions(filter);
   }
 
   // public getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError> {
@@ -573,10 +573,10 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getSiteVisits();
   }
 
-  public addEVMTransactions(
-    transactions: EVMTransaction[],
+  public addTransactions(
+    transactions: IChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addEVMTransactions(transactions);
+    return this.dataWalletPersistence.addTransactions(transactions);
   }
 
   public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {

@@ -1,11 +1,12 @@
-import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { Box, Typography } from "@material-ui/core";
-import { IEVMBalance } from "@snickerdoodlelabs/objects";
+import { TokenBalance } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import React, { FC } from "react";
+
+import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 interface ITokenItemProps {
-  item: IEVMBalance;
+  item: TokenBalance;
 }
 
 const TokenItem: FC<ITokenItemProps> = ({ item }) => {
@@ -62,7 +63,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
             padding: "10px",
           }}
         >
-          ${item.quoteBalance.toFixed(1)}
+          ${item.quoteBalance}
         </Typography>
       </Box>
     </Box>

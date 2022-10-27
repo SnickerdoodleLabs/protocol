@@ -14,10 +14,11 @@ import {
   BigNumberString,
   EVMEvent,
   IEVMAccountBalanceRepository,
-  IEVMBalance,
-  AccountBalanceError,
   TickerSymbol,
   EVMContractAddress,
+  TokenBalance,
+  EVMTransactionHash,
+  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -157,7 +158,7 @@ export class CovalentEVMTransactionRepository
   getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMBalance[], AccountBalanceError | AjaxError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     return this.generateQueryConfig(
       chainId,
       this.ENDPOINT_BALANCES,
@@ -171,14 +172,15 @@ export class CovalentEVMTransactionRepository
         )
         .map((queryResult) => {
           return queryResult.data.items.map((tokenInfo) => {
-            return {
-              ticker: TickerSymbol(tokenInfo.contract_ticker_symbol),
-              chainId: chainId,
-              accountAddress: accountAddress,
-              balance: tokenInfo.balance,
-              contractAddress: EVMContractAddress(tokenInfo.contract_address),
-              quoteBalance: tokenInfo.quote,
-            };
+            return new TokenBalance(
+              EChainTechnology.EVM,
+              TickerSymbol(tokenInfo.contract_ticker_symbol),
+              chainId,
+              EVMContractAddress(tokenInfo.contract_address),
+              accountAddress,
+              tokenInfo.balance,
+              BigNumberString(tokenInfo.quote.toFixed(2)),
+            );
           });
         });
     });
@@ -263,7 +265,7 @@ export class CovalentEVMTransactionRepository
   ): EVMTransaction {
     const busObj = new EVMTransaction(
       chainId,
-      tx.tx_hash,
+      EVMTransactionHash(tx.tx_hash),
       UnixTimestamp(Math.floor(Date.parse(tx.block_signed_at) / 1000)),
       tx.block_height,
       tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,

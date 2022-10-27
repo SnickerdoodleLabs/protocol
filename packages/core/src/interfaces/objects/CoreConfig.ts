@@ -7,6 +7,7 @@ import {
   ControlChainInformation,
   ModelTypes,
   URLString,
+  ECurrencyCode,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -28,6 +29,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public dnsServerAddress: URLString,
     public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,
-    public quoteCurrency: string,
+    public quoteCurrency: ECurrencyCode,
   ) {}
 }

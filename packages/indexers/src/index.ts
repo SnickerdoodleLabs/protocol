@@ -2,6 +2,7 @@ export * from "@indexers/CovalentEVMTransactionRepository.js";
 export * from "@indexers/DefaultAccountBalances.js";
 export * from "@indexers/DefaultAccountIndexers.js";
 export * from "@indexers/DefaultAccountNFTs.js";
+export * from "@indexers/DummySolanaIndexer.js";
 export * from "@indexers/IIndexerConfig.js";
 export * from "@indexers/IIndexerConfigProvider.js";
 export * from "@indexers/MoralisEVMNftRepository.js";

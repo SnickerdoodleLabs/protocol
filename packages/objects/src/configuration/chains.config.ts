@@ -177,7 +177,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainTechnology.Solana,
       true,
       [],
-      10000,
+      400,
       EIndexer.Solana,
       new NativeCurrencyInformation("Sol", 9, "SOL"),
       EChainType.Mainnet,

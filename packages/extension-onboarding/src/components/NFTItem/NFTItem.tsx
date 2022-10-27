@@ -1,30 +1,36 @@
-import { IEVMNFT } from "@snickerdoodlelabs/objects";
-import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import { Box, Grid, Typography } from "@material-ui/core";
+import { EVMNFT, IAccountNFT } from "@snickerdoodlelabs/objects";
 import React, { FC, useMemo } from "react";
 
+import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
+
 export interface INFTItemProps {
-  item: IEVMNFT;
+  item: IAccountNFT;
 }
 
 const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
   const classes = useStyles();
 
-  const nftImages = useMemo((): string[] => {
-    const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
-    const regexpUrl = /(https?|ipfs)/i;
-    const splittedData = item.metadata?.split(regexpImage);
-    const extractedImages: string[] = [];
-    splittedData?.forEach((key) => {
-      if (regexpImage.test(key)) {
-        const imageUrl = key.match(regexpImage)?.[2];
-        if (imageUrl && regexpUrl.test(imageUrl)) {
-          extractedImages.push(imageUrl);
+  let nftImages: string[];
+  try {
+    nftImages = useMemo((): string[] => {
+      const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
+      const regexpUrl = /(https?|ipfs)/i;
+      const splittedData = (item as EVMNFT).metadata?.split(regexpImage);
+      const extractedImages: string[] = [];
+      splittedData?.forEach((key) => {
+        if (regexpImage.test(key)) {
+          const imageUrl = key.match(regexpImage)?.[2];
+          if (imageUrl && regexpUrl.test(imageUrl)) {
+            extractedImages.push(imageUrl);
+          }
         }
-      }
-    });
-    return extractedImages;
-  }, [JSON.stringify(item)]);
+      });
+      return extractedImages;
+    }, [JSON.stringify(item)]);
+  } catch (e) {
+    nftImages = [];
+  }
 
   return (
     <>
@@ -40,7 +46,7 @@ const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
             <Box mt={-0.5} bgcolor="rgba(253, 243, 225, 0.6)">
               <Box p={2}>
                 <Typography className={classes.nftName}>
-                  {item?.name}
+                  {(item as EVMNFT)?.name}
                 </Typography>
               </Box>
             </Box>

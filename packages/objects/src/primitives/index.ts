@@ -22,6 +22,7 @@ export * from "@objects/primitives/EVMContractAddress";
 export * from "@objects/primitives/EVMContractFunction";
 export * from "@objects/primitives/EVMContractDirection";
 export * from "@objects/primitives/EVMToken";
+export * from "@objects/primitives/EVMTransactionHash";
 export * from "@objects/primitives/EVMPrivateKey";
 
 export * from "@objects/primitives/GivenName";
@@ -42,6 +43,8 @@ export * from "@objects/primitives/SHA256Hash";
 export * from "@objects/primitives/Signature";
 export * from "@objects/primitives/SolanaAccountAddress";
 export * from "@objects/primitives/SolanaPrivateKey";
+export * from "@objects/primitives/SolanaTokenAddress";
+export * from "@objects/primitives/SolanaTransactionSignature";
 export * from "@objects/primitives/TokenId";
 export * from "@objects/primitives/TokenUri";
 export * from "@objects/primitives/URLString";
@@ -61,3 +64,4 @@ export * from "@objects/primitives/TransactionReceipt";
 export * from "@objects/primitives/CompensationId";
 
 export * from "@objects/primitives/CeramicStreamID";
+export * from "@objects/primitives/TransactionHash";

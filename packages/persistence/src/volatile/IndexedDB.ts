@@ -15,9 +15,15 @@ import {
   IVolatileCursor,
 } from "@persistence/volatile/IVolatileStorageTable.js";
 
+export type IDBKeyType = (string | number)[] | (string | number);
+
+function _getCompoundIndexName(key: (string | number)[]): string {
+  return key.join(",");
+}
+
 @injectable()
 export class IndexedDBFactory implements IVolatileStorageFactory {
-  getStore(
+  public getStore(
     config: VolatileTableConfig,
   ): ResultAsync<IVolatileStorageTable, PersistenceError> {
     return okAsync(new IndexedDB(config.name, config.schema));
@@ -60,7 +66,13 @@ export class IndexedDB implements IVolatileStorageTable {
               keyPathObj,
             );
             storeInfo.indexBy?.forEach(([name, unique]) => {
-              objectStore.createIndex(name, name, { unique: unique });
+              if (Array.isArray(name)) {
+                objectStore.createIndex(_getCompoundIndexName(name), name, {
+                  unique: unique,
+                });
+              } else {
+                objectStore.createIndex(name, name, { unique: unique });
+              }
             });
           });
         };
@@ -92,11 +104,23 @@ export class IndexedDB implements IVolatileStorageTable {
     return indexedDB;
   }
 
-  private _getIDBKeyRange(query: string | number): IDBKeyRange {
+  private _getIDBKey(query: string | number): IDBKeyRange {
     if (typeof indexedDB === "undefined") {
       return fakeIDBKeyRange.only(query);
     }
     return IDBKeyRange.only(query);
+  }
+
+  private getIDBKeyRange(
+    lower: string | number,
+    upper: string | number,
+    lowerOpen?: boolean,
+    upperOpen?: boolean,
+  ): IDBKeyRange {
+    if (typeof indexedDB === "undefined") {
+      return fakeIDBKeyRange.bound(lower, upper, lowerOpen, upperOpen);
+    }
+    return IDBKeyRange.bound(lower, upper, lowerOpen, upperOpen);
   }
 
   public persist(): ResultAsync<boolean, PersistenceError> {
@@ -220,7 +244,7 @@ export class IndexedDB implements IVolatileStorageTable {
 
   public getObject<T>(
     name: string,
-    key: string,
+    key: IDBKeyType,
   ): ResultAsync<T | null, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readonly").andThen((store) => {
@@ -250,6 +274,8 @@ export class IndexedDB implements IVolatileStorageTable {
     mode?: IDBTransactionMode,
   ): ResultAsync<IndexedDBCursor<T>, PersistenceError> {
     return this.initialize().andThen((db) => {
+      const indexString = Array.isArray(query)
+
       return this.getObjectStore(name, mode ?? "readonly").andThen((store) => {
         let request: IDBRequest<IDBCursorWithValue | null>;
         if (indexName == undefined) {

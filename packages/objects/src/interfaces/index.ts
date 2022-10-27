@@ -1,4 +1,5 @@
 export * from "@objects/interfaces/IAccountBalances";
+export * from "@objects/interfaces/IAccountNFT";
 export * from "@objects/interfaces/IAccountNFTs";
 export * from "@objects/interfaces/IAccountIndexing";
 export * from "@objects/interfaces/IConfigOverrides";
@@ -10,6 +11,7 @@ export * from "@objects/interfaces/ISdlDataWallet";
 export * from "@objects/interfaces/ISDQLQueryObject";
 export * from "@objects/interfaces/ISnickerdoodleCore";
 export * from "@objects/interfaces/ISnickerdoodleCoreEvents";
-//export * from "@objects/interfaces/ITokenBalance";
+export * from "@objects/interfaces/IChainTransaction";
+export * from "@objects/interfaces/ITokenPriceRepository";
 
 export * from "@objects/interfaces/chains";

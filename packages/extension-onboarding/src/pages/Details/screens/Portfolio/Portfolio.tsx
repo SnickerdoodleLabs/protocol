@@ -1,16 +1,3 @@
-import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
-import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
-import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
-import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
-import NFTItem from "@extension-onboarding/components/NFTItem";
-import Switch from "@extension-onboarding/components/Switch";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import { useAppContext } from "@extension-onboarding/context/App";
-import InfoCard from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard";
-import TokenItem from "@extension-onboarding/pages/Details/screens/Portfolio/components/TokenItem";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   CircularProgress,
@@ -29,13 +16,27 @@ import {
   ChainId,
   EChainType,
   EVMAccountAddress,
-  IEVMBalance,
-  IEVMNFT,
+  TokenBalance,
   TickerSymbol,
+  IAccountNFT,
 } from "@snickerdoodlelabs/objects";
 import clsx from "clsx";
 import { BigNumber } from "ethers";
 import React, { FC, useEffect, useMemo, useState } from "react";
+
+import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
+import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
+import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
+import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
+import NFTItem from "@extension-onboarding/components/NFTItem";
+import Switch from "@extension-onboarding/components/Switch";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
+import InfoCard from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard";
+import TokenItem from "@extension-onboarding/pages/Details/screens/Portfolio/components/TokenItem";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -76,11 +77,11 @@ const PAGINATION_RANGE = 5;
 
 const Portfolio: FC = () => {
   const { linkedAccounts } = useAppContext();
-  const [accountBalances, setAccountBalances] = useState<IEVMBalance[]>();
+  const [accountBalances, setAccountBalances] = useState<TokenBalance[]>();
   const [accountTestnetBalances, setAccountTestnetBalances] =
-    useState<IEVMBalance[]>();
-  const [accountNFTs, setAccountNFTs] = useState<IEVMNFT[]>();
-  const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<IEVMNFT[]>();
+    useState<TokenBalance[]>();
+  const [accountNFTs, setAccountNFTs] = useState<IAccountNFT[]>();
+  const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<IAccountNFT[]>();
 
   const [isBalancesLoading, setIsBalancesLoading] = useState(true);
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
@@ -136,8 +137,8 @@ const Portfolio: FC = () => {
             return acc;
           },
           { mainnetBalances: [], testnetBalances: [] } as {
-            mainnetBalances: IEVMBalance[];
-            testnetBalances: IEVMBalance[];
+            mainnetBalances: TokenBalance[];
+            testnetBalances: TokenBalance[];
           },
         );
         setAccountBalances(structeredBalances.mainnetBalances);
@@ -164,8 +165,8 @@ const Portfolio: FC = () => {
             return acc;
           },
           { mainnetNfts: [], testnetNfts: [] } as {
-            mainnetNfts: IEVMNFT[];
-            testnetNfts: IEVMNFT[];
+            mainnetNfts: IAccountNFT[];
+            testnetNfts: IAccountNFT[];
           },
         );
         setAccountNFTs(structeredNfts.mainnetNfts);
@@ -182,7 +183,10 @@ const Portfolio: FC = () => {
           : accountTestnetBalances;
 
       return {
-        netWorth: balanceArr.reduce((acc, item) => acc + item.quoteBalance, 0),
+        netWorth: balanceArr.reduce(
+          (acc, item) => acc + Number.parseFloat(item.quoteBalance),
+          0,
+        ),
         numberOfTokens: new Set(balanceArr.map((balance) => balance.ticker))
           .size,
       };
@@ -211,7 +215,7 @@ const Portfolio: FC = () => {
     setAccountSelect(value);
   };
 
-  const getGroupedBalances = (balanceArr: IEVMBalance[]): IEVMBalance[] => {
+  const getGroupedBalances = (balanceArr: TokenBalance[]): TokenBalance[] => {
     return Object.values(
       balanceArr.reduce((acc, item) => {
         if (acc[item.ticker]) {
@@ -222,17 +226,19 @@ const Portfolio: FC = () => {
                 .add(BigNumber.from(item.balance))
                 .toString(),
             ),
-            quoteBalance: acc[item.ticker].quoteBalance + item.quoteBalance,
+            quoteBalance: BigNumberString(
+              (acc[item.ticker].quoteBalance + item.quoteBalance).toString(),
+            ),
           };
         } else {
           acc[item.ticker] = item;
         }
         return acc;
-      }, {} as { [key: TickerSymbol]: IEVMBalance }),
+      }, {} as { [key: TickerSymbol]: TokenBalance }),
     );
   };
 
-  const tokensToRender: IEVMBalance[] | null = useMemo(() => {
+  const tokensToRender: TokenBalance[] | null = useMemo(() => {
     if (accountBalances && accountTestnetBalances) {
       const balanceArr =
         EDisplayMode.MAINNET === displayMode
@@ -267,7 +273,7 @@ const Portfolio: FC = () => {
     accountTestnetBalances,
   ]);
 
-  const nftsToRender: IEVMNFT[] | null = useMemo(() => {
+  const nftsToRender: IAccountNFT[] | null = useMemo(() => {
     if (accountNFTs && accountTestnetNFTs) {
       const nftArr =
         EDisplayMode.MAINNET === displayMode ? accountNFTs : accountTestnetNFTs;
@@ -646,7 +652,7 @@ const Portfolio: FC = () => {
                         )
                       : nftsToRender
                     )?.map((nftitem) => {
-                      return <NFTItem key={nftitem.contract} item={nftitem} />;
+                      return <NFTItem key={nftitem.token} item={nftitem} />;
                     })
                   ) : (
                     <Box width="100%" display="flex">

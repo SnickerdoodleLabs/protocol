@@ -8,3 +8,4 @@ export * from "@objects/enum/EWalletDataType";
 export * from "@objects/enum/EScamFilterStatus";
 export * from "@objects/enum/ERewardType";
 export * from "@objects/enum/ECredentialType";
+export * from "@objects/enum/ECurrencyCode";

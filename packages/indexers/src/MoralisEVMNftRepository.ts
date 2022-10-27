@@ -4,13 +4,13 @@ import {
   IRequestConfig,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  AccountNFTError,
+  AccountIndexingError,
   AjaxError,
   BigNumberString,
   ChainId,
   EVMAccountAddress,
   EVMContractAddress,
-  IEVMNFT,
+  EVMNFT,
   IEVMNftRepository,
   TickerSymbol,
   TokenUri,
@@ -62,7 +62,7 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
   getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMNFT[], AccountNFTError | AjaxError> {
+  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
     return this.generateQueryConfig(chainId, accountAddress).andThen(
       (requestConfig) => {
         return this.ajaxUtils
@@ -82,20 +82,20 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
     response: IMoralisNFTResponse,
-  ): ResultAsync<IEVMNFT[], AjaxError> {
-    const items: IEVMNFT[] = response.result.map((token) => {
-      return {
-        contract: EVMContractAddress(token.token_address),
-        tokenId: BigNumberString(token.token_id),
-        contractType: token.contract_type,
-        owner: EVMAccountAddress(token.owner_of),
-        tokenUri: TokenUri(token.token_uri),
-        metadata: token.metadata,
-        amount: BigNumberString(token.amount),
-        name: token.name,
-        ticker: TickerSymbol(token.symbol),
-        chain: ChainId(chainId),
-      };
+  ): ResultAsync<EVMNFT[], AjaxError> {
+    const items: EVMNFT[] = response.result.map((token) => {
+      return new EVMNFT(
+        EVMContractAddress(token.token_address),
+        BigNumberString(token.token_id),
+        token.contract_type,
+        EVMAccountAddress(token.owner_of),
+        TokenUri(token.token_uri),
+        token.metadata,
+        BigNumberString(token.amount),
+        token.name,
+        TickerSymbol(token.symbol),
+        ChainId(chainId),
+      );
     });
 
     if (response.cursor == null || response.cursor == "") {

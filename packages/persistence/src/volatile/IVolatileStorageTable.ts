@@ -3,9 +3,9 @@ import { ResultAsync } from "neverthrow";
 
 export interface VolatileTableIndex {
   name: string;
-  keyPath: string;
+  keyPath: string | string[];
   autoIncrement?: boolean;
-  indexBy?: [string, boolean][];
+  indexBy?: [string | string[], boolean][];
 }
 
 export interface VolatileTableConfig {

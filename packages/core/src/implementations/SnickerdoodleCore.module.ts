@@ -13,7 +13,6 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  CovalentEVMTransactionRepository,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
@@ -23,8 +22,8 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  IEVMTransactionRepository,
-  IEVMTransactionRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -60,6 +59,7 @@ import {
 import {
   ConsentContractRepository,
   CrumbsRepository,
+  DataWalletPersistence,
   DNSRepository,
   InvitationRepository,
   MetatransactionForwarderRepository,
@@ -195,14 +195,15 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
       .inSingletonScope();
-    bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
-      .to(CovalentEVMTransactionRepository)
-      .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
       .inSingletonScope();
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
+      .inSingletonScope();
+
+    bind<IDataWalletPersistence>(IDataWalletPersistenceType)
+      .to(DataWalletPersistence)
       .inSingletonScope();
 
     // Utilities

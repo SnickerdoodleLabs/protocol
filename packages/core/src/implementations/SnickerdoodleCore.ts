@@ -26,7 +26,7 @@ import {
   EvaluationError,
   EVMContractAddress,
   EVMTransaction,
-  EVMTransactionFilter,
+  TransactionFilter,
   FamilyName,
   Gender,
   GivenName,
@@ -38,8 +38,7 @@ import {
   IDataWalletBackup,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
-  IEVMNFT,
+  IAccountNFT,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
@@ -68,15 +67,15 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
+  TokenBalance,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
-  DataWalletPersistence,
   IndexedDBFactory,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
   ICloudStorage,
   ICloudStorageType,
-  NullCloudStorage,
   CeramicCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
@@ -87,7 +86,6 @@ import {
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
@@ -141,11 +139,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(LocalStorageUtils)
         .inSingletonScope();
     }
-
-    this.iocContainer
-      .bind(IDataWalletPersistenceType)
-      .to(DataWalletPersistence)
-      .inSingletonScope();
 
     if (cloudStorage != null) {
       this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
@@ -622,20 +615,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   getTransactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError> {
+    filter?: TransactionFilter,
+  ): ResultAsync<IChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTranactions(filter);
   }
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountBalances();
   }
 
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountNFTs();
@@ -682,11 +675,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedReward(reward);
   }
 
-
-
-
-  public addEVMTransactions(
-    transactions: EVMTransaction[],
+  public addTransactions(
+    transactions: IChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);

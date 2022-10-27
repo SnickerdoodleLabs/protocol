@@ -1,15 +1,16 @@
+import { Box, Typography } from "@material-ui/core";
+import { TokenBalance } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
+import React, { FC } from "react";
+
 import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.svg";
 import usdcCircle from "@extension-onboarding/assets/icons/usdc-circle.png";
 import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
 import { useStyles } from "@extension-onboarding/components/BalanceItem/BalanceItem.style";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import { Box, Typography } from "@material-ui/core";
-import { IEVMBalance } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
-import React, { FC } from "react";
 
 export interface IBalanceItemProps {
-  item: IEVMBalance;
+  item: TokenBalance;
   currency?: number;
 }
 
