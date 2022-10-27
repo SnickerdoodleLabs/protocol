@@ -175,17 +175,17 @@ describe("BalanceQueryEvaluator", () => {
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
-    //console.log(result);
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0]["networkId"]).toEqual(1);
+    console.log("Result is: ", result["value"]);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0]["chainId"]).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("15");
 
-    expect(result["value"][1]["address"]).toEqual("Contract 2");
-    expect(result["value"][1].networkId).toEqual(2);
+    expect(result["value"][1]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][1]["chainId"]).toEqual(2);
     expect(result["value"][1]["balance"]).toEqual("25");
 
-    expect(result["value"][2]["address"]).toEqual("Contract 3");
-    expect(result["value"][2].networkId).toEqual(3);
+    expect(result["value"][2]["tokenAddress"]).toEqual("Contract 3");
+    expect(result["value"][2]["chainId"]).toEqual(3);
     expect(result["value"][2]["balance"]).toEqual("30");
   });
 
@@ -237,8 +237,8 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("70");
 
     // TODO this is conceptually incorrect as different contract address will have different ticket symbols.
@@ -283,13 +283,13 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(2);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("9");
 
     expect(result["value"][1].ticker).toEqual("SOL");
-    expect(result["value"][1]["address"]).toEqual("Contract 2");
-    expect(result["value"][1].networkId).toEqual(2);
+    expect(result["value"][1]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][1].chainId).toEqual(2);
     expect(result["value"][1]["balance"]).toEqual("44");
   });
 
@@ -332,8 +332,8 @@ describe("BalanceQueryEvaluator", () => {
     //console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].ticker).toEqual("ETH");
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("53");
   });
 
@@ -375,8 +375,8 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("9");
   });
 
@@ -497,16 +497,16 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(3);
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("23");
 
-    expect(result["value"][1]["address"]).toEqual("Contract 2");
-    expect(result["value"][1].networkId).toEqual(1);
+    expect(result["value"][1]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][1].chainId).toEqual(1);
     expect(result["value"][1]["balance"]).toEqual("25");
 
-    expect(result["value"][2]["address"]).toEqual("Contract 3");
-    expect(result["value"][2].networkId).toEqual(1);
+    expect(result["value"][2]["tokenAddress"]).toEqual("Contract 3");
+    expect(result["value"][2].chainId).toEqual(1);
     expect(result["value"][2]["balance"]).toEqual("27");
   });
 
@@ -558,8 +558,8 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["address"]).toEqual("Contract 2");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("25");
   });
 
@@ -611,8 +611,8 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("75");
   });
 
@@ -664,8 +664,8 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual("Contract 2");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0].tokenAddress).toEqual("Contract 2");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0].balance).toEqual("25");
   });
 
@@ -717,8 +717,8 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0].address).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0].balance).toEqual("75");
   });
 
@@ -770,8 +770,8 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("50");
   });
 
@@ -850,16 +850,16 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     //console.log(result);
     expect(result["value"].length).toEqual(3);
-    expect(result["value"][0]["address"]).toEqual("Contract 1");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 1");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("29");
 
-    expect(result["value"][1]["address"]).toEqual("Contract 2");
-    expect(result["value"][1].networkId).toEqual(1);
+    expect(result["value"][1]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][1].chainId).toEqual(1);
     expect(result["value"][1]["balance"]).toEqual("24");
 
-    expect(result["value"][2]["address"]).toEqual("Contract 3");
-    expect(result["value"][2].networkId).toEqual(1);
+    expect(result["value"][2]["tokenAddress"]).toEqual("Contract 3");
+    expect(result["value"][2].chainId).toEqual(1);
     expect(result["value"][2]["balance"]).toEqual("23");
   });
 
@@ -956,8 +956,8 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     // console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["address"]).toEqual("Contract 2");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("29");
   });
 
@@ -1018,8 +1018,8 @@ describe("BalanceQueryEvaluator", () => {
     const result = await repo.eval(balanceQuery);
     // console.log(result);
     expect(result["value"].length).toEqual(1);
-    expect(result["value"][0]["address"]).toEqual("Contract 2");
-    expect(result["value"][0].networkId).toEqual(1);
+    expect(result["value"][0]["tokenAddress"]).toEqual("Contract 2");
+    expect(result["value"][0].chainId).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("58");
   });
 
