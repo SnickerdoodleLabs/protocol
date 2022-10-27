@@ -1,6 +1,8 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   URLString,
@@ -40,6 +42,7 @@ import {
   IChainTransaction,
   ChainTransaction,
   CeramicStreamID,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { BigNumber } from "ethers";
@@ -63,9 +66,6 @@ import {
   IVolatileCursor,
 } from "@persistence/volatile/index.js";
 
-import { EarnedReward } from "@snickerdoodlelabs/objects";
-
-
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
   AGE = "SD_Age",
@@ -85,7 +85,7 @@ enum ELocalStorageKey {
   CLICKS = "SD_CLICKS",
   REJECTED_COHORTS = "SD_RejectedCohorts",
   LATEST_BLOCK = "SD_LatestBlock",
-  EARNED_REWARDS = "SD_EarnedRewards"
+  EARNED_REWARDS = "SD_EarnedRewards",
 }
 
 interface LatestBlockEntry {
@@ -95,8 +95,9 @@ interface LatestBlockEntry {
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
-  private objectStore?: IVolatileStorageTable;
-  private backupManager?: BackupManager;
+  private objectStore?: ResultAsync<IVolatileStorageTable, PersistenceError>;
+
+  private backupManager?: ResultAsync<BackupManager, PersistenceError>;
 
   private unlockPromise: Promise<EVMPrivateKey>;
   private resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null = null;
@@ -115,6 +116,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     protected volatileStorageFactory: IVolatileStorageFactory,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(ICloudStorageType) protected cloudStorage: ICloudStorage,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.objectStore = undefined;
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
@@ -127,16 +129,16 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   private _getBackupManager(): ResultAsync<BackupManager, PersistenceError> {
     if (this.backupManager != undefined) {
-      return okAsync(this.backupManager);
+      return this.backupManager;
     }
 
-    return this.waitForUnlock().andThen((key) => {
+    this.backupManager = this.waitForUnlock().andThen((key) => {
       return this._getObjectStore().map((store) => {
-        this.backupManager = new BackupManager(
+        return new BackupManager(
           key,
           [
             ELocalStorageKey.ACCOUNT,
-            ELocalStorageKey.TRANSACTIONS,
+            // ELocalStorageKey.TRANSACTIONS,
             ELocalStorageKey.SITE_VISITS,
             ELocalStorageKey.CLICKS,
             ELocalStorageKey.LATEST_BLOCK,
@@ -146,9 +148,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           this.cryptoUtils,
           this.persistentStorageUtils,
         );
-        return this.backupManager;
       });
     });
+    return this.backupManager;
   }
 
   private _getObjectStore(): ResultAsync<
@@ -156,10 +158,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     PersistenceError
   > {
     if (this.objectStore != undefined) {
-      return okAsync(this.objectStore);
+      return this.objectStore;
     }
 
-    return this.volatileStorageFactory.getStore({
+    this.objectStore = this.volatileStorageFactory.getStore({
       name: "SD_Wallet",
       schema: [
         {
@@ -208,13 +210,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           name: ELocalStorageKey.EARNED_REWARDS,
           keyPath: "queryCID",
           autoIncrement: false,
-          indexBy: [["type", false]]
+          indexBy: [["type", false]],
         },
       ],
     });
+
+    return this.objectStore;
   }
-
-
 
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
@@ -247,10 +249,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       .andThen(() => {
         return this.pollBackups();
       })
-      .andThen(() => {
+      .map(() => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.resolveRestore!();
-        return okAsync(undefined);
       });
   }
 
@@ -847,9 +848,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return okAsync(undefined);
     }
 
-    console.log(
-      `addEVMTransactions #${transactions.length} for first chain id ${transactions[0].chainId}`,
-    );
+    // console.log(
+    //   `addEVMTransactions #${transactions.length} for first chain id ${transactions[0].chainId}`,
+    // );
 
     return this.waitForRestore().andThen(([key]) => {
       return this._getBackupManager().andThen((backupManager) => {
@@ -1008,7 +1009,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
     return this._getBackupManager().andThen((backupManager) => {
-      return backupManager.restore(backup);
+      return backupManager.restore(backup).orElse((err) => {
+        this.logUtils.warning(
+          "Error restoring backups! Data wallet will likely have incomplete data!",
+          err,
+        );
+        return okAsync(undefined);
+      });
     });
   }
 
@@ -1022,7 +1029,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           }),
         );
       })
-      .andThen((_) => {
+      .andThen(() => {
         return ResultUtils.combine([
           this._getBackupManager(),
           this.configProvider.getConfig(),

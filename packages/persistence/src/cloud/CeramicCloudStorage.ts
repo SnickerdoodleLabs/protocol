@@ -178,6 +178,7 @@ export class CeramicCloudStorage implements ICloudStorage {
 
             return this._putBackupIndex(index).map((_) => {
               console.debug("CloudStorage", `Backup placed: ${id}`);
+              this._restored.add(id);
               return CeramicStreamID(id);
             });
           });
