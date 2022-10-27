@@ -26,7 +26,7 @@ export interface IInsightPlatformRepository {
     queryCid: IpfsCID,
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    intendedInsights: QueryIdentifier[],
+    answeredQueries: QueryIdentifier[],
     expectedRewards: ExpectedReward[],
   ): ResultAsync<EligibleReward[], AjaxError> 
 

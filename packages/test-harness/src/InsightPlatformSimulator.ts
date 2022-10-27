@@ -91,7 +91,7 @@ export class InsightPlatformSimulator {
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCid = IpfsCID(req.body.queryCid);
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
-      const queries = (req.body.intendedInsights);
+      const queries = (req.body.answeredQueries);
       const signature = Signature(req.body.signature);
 
       const value = {

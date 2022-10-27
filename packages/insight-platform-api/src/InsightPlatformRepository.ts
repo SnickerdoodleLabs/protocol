@@ -47,7 +47,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     queryCid: IpfsCID,
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    intendedInsights: QueryIdentifier[],
+    answeredQueries: QueryIdentifier[],
     expectedRewards: ExpectedReward[],
   ): ResultAsync<EligibleReward[], AjaxError> {
     
@@ -55,7 +55,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       consentContractId: consentContractAddress,
       dataWallet: dataWalletAddress,
       queryCid: queryCid,
-      intendedInsights: intendedInsights,
+      answeredQueries: answeredQueries,
       expectedRewards: expectedRewards,
     } as Record<string, unknown>;
 
@@ -77,7 +77,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           consentContractId: consentContractAddress,
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
-          queries: intendedInsights,
+          queries: answeredQueries,
           signature: signature,
         });
       })
