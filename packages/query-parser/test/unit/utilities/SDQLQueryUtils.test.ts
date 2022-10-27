@@ -1,4 +1,3 @@
-
 import { QueryObjectFactory, SDQLQueryUtils, SDQLQueryWrapperFactory } from "@query-parser/implementations";
 import { SDQLParserFactory } from "@query-parser/implementations/utilities/SDQLParserFactory";
 import { ISDQLParserFactory, ISDQLQueryWrapperFactory } from "@query-parser/interfaces";

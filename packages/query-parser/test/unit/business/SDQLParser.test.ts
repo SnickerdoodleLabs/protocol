@@ -26,24 +26,24 @@ import {
 } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
 
+
+
 describe("SDQLParser on avalanche", () => {
-  const wrapperMocks = new SDQLQueryWrapperMocks();
-  const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
-  const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
-  let ast: null | AST = null;
-
-  beforeAll(async () => {
-    // console.log("schema", schema);
-    const astRes = await parser.buildAST();
-    if (astRes.isOk()) {
-      ast = astRes.value;
-    } else {
-      fail(astRes.error.message);
-    }
-  });
-
+  
   describe("Checking queries", () => {
-    test("q1 is a network query on AVAX", () => {
+    test("q1 is a network query on AVAX", async () => {
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+    
+
       const q1 = parser.context.get("q1") as AST_NetworkQuery;
       // console.log(q1.contract);
       expect(q1 instanceof AST_NetworkQuery).toBeTruthy();
@@ -60,7 +60,20 @@ describe("SDQLParser on avalanche", () => {
       expect(q1.contract.timestamp.end).toBe(14910334);
     });
 
-    test("q2 is a conditional age query", () => {
+    test("q2 is a conditional age query", async () => {
+
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+      
+    
       const q2 = parser.context.get("q2") as AST_PropertyQuery;
       expect(q2 instanceof AST_PropertyQuery).toBeTruthy();
       expect(q2.property).toBe("age");
@@ -73,20 +86,57 @@ describe("SDQLParser on avalanche", () => {
       expect(c1.rval).toBe(15);
     });
 
-    test("q3 is a location query", () => {
+    test("q3 is a location query", async () => {
+
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+    
+
       const q3 = parser.context.get("q3") as AST_PropertyQuery;
       expect(q3 instanceof AST_PropertyQuery).toBeTruthy();
       expect(q3.property).toBe("location");
       expect(q3.returnType).toBe("string");
     });
 
-    test("q4 is a balance query", () => {
+    test("q4 is a balance query", async () => {
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+      
+
       const q4 = parser.context.get("q4");
       // console.log(q4);
       expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
     });
 
-    test("q4 is a balance query", () => {
+    test("q4 is a balance query", async () => {
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+  
+
       const q4 = parser.context.get("q4");
       // console.log(q4);
       expect(q4 instanceof AST_BalanceQuery).toBeTruthy();
@@ -94,14 +144,40 @@ describe("SDQLParser on avalanche", () => {
   });
 
   describe("Checking return queries", () => {
-    test("r1 is a return qualified message", () => {
+    test("r1 is a return qualified message", async () => {
+
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+      
+
       const r = parser.context.get("r1") as AST_ReturnExpr;
       expect(r instanceof AST_ReturnExpr).toBeTruthy();
       expect(r.source instanceof AST_Return).toBeTruthy();
       expect(r.source.name).toBe("callback");
       expect((r.source as AST_Return).message).toBe("qualified");
     });
-    test("r2 is a return not qualified message", () => {
+    test("r2 is a return not qualified message", async () => {
+
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+  
+
       const r = parser.context.get("r2") as AST_ReturnExpr;
       expect(r instanceof AST_ReturnExpr).toBeTruthy();
       expect(r.source instanceof AST_Return).toBeTruthy();
@@ -109,7 +185,20 @@ describe("SDQLParser on avalanche", () => {
       expect((r.source as AST_Return).message).toBe("not qualified");
     });
 
-    test("r3 is a query_response", () => {
+    test("r3 is a query_response", async  () => {
+
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+      
+
       const r = parser.context.get("r3") as AST_ReturnExpr;
       expect(r instanceof AST_ReturnExpr).toBeTruthy();
       expect(r.source instanceof AST_Query).toBeTruthy();
@@ -117,8 +206,20 @@ describe("SDQLParser on avalanche", () => {
     });
   });
 
-  describe("Checking compensations", () => {
-    test("it has 3 compensations (c1, c2, c3) with descriptions and callback", () => {
+  describe("Checking compensations",  () => {
+    test("it has 3 compensations (c1, c2, c3) with descriptions and callback", async () => {
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+      
+    
       const c1 = parser.context.get("c1") as AST_Compensation;
       const c2 = parser.context.get("c2") as AST_Compensation;
       const c3 = parser.context.get("c3") as AST_Compensation;
@@ -172,7 +273,21 @@ describe("SDQLParser on avalanche", () => {
 
     });
 
-    test("avalance 1 has 3 compensation parameters (recipientAddress, productId, and shippingAddress", () => {
+    test("avalance 1 has 3 compensation parameters (recipientAddress, productId, and shippingAddress", async () => {
+
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+      
+
+
       expect(parser.compensationParameters).toBeDefined();
       expect(parser.compensationParameters!.recipientAddress).toBeDefined();
       expect(parser.compensationParameters!.productId).toBeDefined();
@@ -201,11 +316,37 @@ describe("SDQLParser on avalanche", () => {
   });
 
   describe("Checking Logic return ASTs", () => {
-    test("avalanche 1 has 2 return ASTs", () => {
+    test("avalanche 1 has 2 return ASTs", async () => {
+
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+      
+
       expect(parser.logicReturns.size).toBe(2);
     });
 
-    test("First return is a valid if($q1and$q2)then$r1else$r2 AST", () => {
+    test("First return is a valid if($q1and$q2)then$r1else$r2 AST", async () => {
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+      
+
+
       const eef = parser.logicReturns.get(
         "if($q1and$q2)then$r1else$r2",
       ) as Command_IF;
@@ -223,17 +364,51 @@ describe("SDQLParser on avalanche", () => {
       expect(eef.falseExpr).toEqual(parser.context.get("r2"));
     });
 
-    test("Second return is $r3", () => {
+    test("Second return is $r3", async () => {
+
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+  
+
       const r3 = parser.logicReturns.get("$r3");
       expect(r3).toEqual(parser.context.get("r3"));
     });
   });
 
   describe("Checking Logic compenstation ASTs", () => {
-    test("avalanche 1 has 3 compenstation ASTs", () => {
+    test("avalanche 1 has 3 compenstation ASTs", async () => {
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
       expect(parser.logicCompensations.size).toBe(3);
     });
-    test("First compenstation is a valid if$q1then$c1 AST", () => {
+    test("First compenstation is a valid if$q1then$c1 AST", async () => {
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
+      
       const eef = parser.logicCompensations.get("if$q1then$c1") as Command_IF;
       expect(eef.constructor).toBe(Command_IF);
       expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
@@ -249,7 +424,18 @@ describe("SDQLParser on avalanche", () => {
   });
 
   describe("AST validation", () => {
-    test("meta check", () => {
+    test("meta check", async () => {
+
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
       expect(ast!.version).toBe("0.1");
       expect(ast!.description).toBe(
         "Interactions with the Avalanche blockchain for 15-year and older individuals",
@@ -258,8 +444,18 @@ describe("SDQLParser on avalanche", () => {
     });
   });
 
-  describe("Dependency validation", () => {
-    test("if($q1and$q2)then$r1else$r2 -> q1, q2", () => {
+  describe("Dependency validation",  () => {
+    test("if($q1and$q2)then$r1else$r2 -> q1, q2", async () => {
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
       // console.log(parser.returnPermissions);
       const permissions = parser.returnPermissions.get(
         "if($q1and$q2)then$r1else$r2",
@@ -268,7 +464,17 @@ describe("SDQLParser on avalanche", () => {
       expect(permissions?.Age).toBeTruthy();
     });
 
-    test("$r3 -> q3", () => {
+    test("$r3 -> q3", async () => {
+      const wrapperMocks = new SDQLQueryWrapperMocks();
+      const schema = wrapperMocks.makeQueryWrapper(avalanche1SchemaStr);
+      const parser = new SDQLParser(IpfsCID("0"), schema, new QueryObjectFactory());
+      let ast: null | AST = null;
+      const astRes = await parser.buildAST();
+      if (astRes.isOk()) {
+        ast = astRes.value;
+      } else {
+        fail(astRes.error.message);
+      }
       // console.log(parser.returnPermissions);
       const permissions = parser.returnPermissions.get("$r3");
       const expectedFlags = EWalletDataType.Location;
