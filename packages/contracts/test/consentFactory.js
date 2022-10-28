@@ -215,144 +215,13 @@ describe("ConsentFactory", () => {
     });
   });
 
-  describe("addUserConsent", function () {
-    it("Does not allow address that was not deployed by the ConsentFactory to add user consent", async function () {
-      // create a consent contract
-      await expect(
-        consentFactory.connect(owner).addUserConsents(user1.address),
-      ).to.revertedWith("ConsentFactory: Caller is not a Consent Contract");
-    });
-
-    it("When user opts-in, adds to their consent array and adds the correct index in the array", async function () {
-      // create 2 consent contracts
-      await consentFactory
-        .connect(owner)
-        .createConsent(user2.address, "www.user2uri.com", "USER2");
-
-      await consentFactory
-        .connect(owner)
-        .createConsent(user2.address, "www.user2uri2.com", "USER22");
-
-      // get the deployed address by looking up the provided name
-      deployedConsentAddressArray =
-        await consentFactory.getUserDeployedConsentsByIndex(
-          user2.address,
-          0,
-          5,
-        );
-
-      // user 1 opts in to both
-      const consent1 = await Consent.attach(deployedConsentAddressArray[0]);
-      const consent2 = await Consent.attach(deployedConsentAddressArray[1]);
-
-      await consent1.connect(user1).optIn(1, agreementFlags1);
-      await consent2.connect(user1).optIn(2, agreementFlags1);
-
-      const userArrayCount = await consentFactory.getUserConsentAddressesCount(
-        user1.address,
-      );
-      expect(userArrayCount).to.eq(2);
-
-      const userArray = await consentFactory.getUserConsentAddressesByIndex(
-        user1.address,
-        0,
-        5,
-      );
-      expect(userArray.length).to.eq(2);
-
-      const firstIndex = await consentFactory.addressToUserArrayIndex(
-        user1.address,
-        deployedConsentAddressArray[0],
-      );
-      const secondIndex = await consentFactory.addressToUserArrayIndex(
-        user1.address,
-        deployedConsentAddressArray[1],
-      );
-
-      expect(firstIndex).to.eq(0);
-      expect(secondIndex).to.eq(1);
-    });
-  });
-
-  describe("removeUserConsent", function () {
-    it("Does not allow address that was not deployed by the ConsentFactory to remove user consent", async function () {
-      // create a consent contract
-      await expect(
-        consentFactory.connect(owner).removeUserConsents(user1.address),
-      ).to.revertedWith("ConsentFactory: Caller is not a Consent Contract");
-    });
-
-    it("When user opts-out, remove from their consent array and update the index mapping", async function () {
-      // create 2 consent contracts
-      await consentFactory
-        .connect(owner)
-        .createConsent(user2.address, "www.user2uri.com", "USER2");
-
-      await consentFactory
-        .connect(owner)
-        .createConsent(user2.address, "www.user2uri2.com", "USER22");
-
-      await consentFactory
-        .connect(owner)
-        .createConsent(user2.address, "www.user2uri3.com", "USER23");
-
-      // get the deployed address by looking up the provided name
-      deployedConsentAddressArray =
-        await consentFactory.getUserDeployedConsentsByIndex(
-          user2.address,
-          0,
-          5,
-        );
-
-      // user 1 opts in to all 3
-      const consent1 = await Consent.attach(deployedConsentAddressArray[0]);
-      const consent2 = await Consent.attach(deployedConsentAddressArray[1]);
-      const consent3 = await Consent.attach(deployedConsentAddressArray[2]);
-
-      await consent1.connect(user1).optIn(1, agreementFlags1);
-      await consent2.connect(user1).optIn(2, agreementFlags2);
-      await consent3.connect(user1).optIn(3, agreementFlags3);
-
-      // user 1 opts out of 1
-      await consent1.connect(user1).optOut(1);
-
-      const userArrayCount = await consentFactory.getUserConsentAddressesCount(
-        user1.address,
-      );
-      expect(userArrayCount).to.eq(2);
-
-      const userArray = await consentFactory.getUserConsentAddressesByIndex(
-        user1.address,
-        0,
-        5,
-      );
-
-      expect(userArray.length).to.eq(2);
-
-      const firstIndex = await consentFactory.addressToUserArrayIndex(
-        user1.address,
-        deployedConsentAddressArray[0],
-      );
-      const secondIndex = await consentFactory.addressToUserArrayIndex(
-        user1.address,
-        deployedConsentAddressArray[1],
-      );
-      const thirdIndex = await consentFactory.addressToUserArrayIndex(
-        user1.address,
-        deployedConsentAddressArray[2],
-      );
-
-      expect(firstIndex).to.eq(0);
-      expect(secondIndex).to.eq(1);
-      expect(thirdIndex).to.eq(0);
-    });
-  });
-
   describe("addUserRole", function () {
     it("Does not allow address that was not deployed by the ConsentFactory to add user roles", async function () {
       // create a consent contract
       await expect(
-        consentFactory.connect(owner).removeUserConsents(user1.address),
+        consentFactory
+          .connect(owner)
+          .addUserRole(user1.address, signerRoleBytes),
       ).to.revertedWith("ConsentFactory: Caller is not a Consent Contract");
     });
 
@@ -419,7 +288,9 @@ describe("ConsentFactory", () => {
     it("Does not allow address that was not deployed by the ConsentFactory to remove user roles", async function () {
       // create a consent contract
       await expect(
-        consentFactory.connect(owner).removeUserConsents(user1.address),
+        consentFactory
+          .connect(owner)
+          .removeUserRole(user1.address, signerRoleBytes),
       ).to.revertedWith("ConsentFactory: Caller is not a Consent Contract");
     });
 
