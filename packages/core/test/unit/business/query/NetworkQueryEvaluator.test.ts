@@ -131,8 +131,8 @@ describe("QueryEvaluator: ", () => {
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
@@ -190,8 +190,8 @@ describe("QueryEvaluator: ", () => {
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -245,8 +245,8 @@ describe("QueryEvaluator: ", () => {
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
@@ -289,8 +289,8 @@ describe("Network Query Testing: ", () => {
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -328,8 +328,8 @@ describe("Network Query Testing: ", () => {
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
