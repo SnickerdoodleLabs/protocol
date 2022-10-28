@@ -27,6 +27,9 @@ import {
   IEVMTransactionRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import {
+  BackupManagerProvider,
+  IBackupManagerProvider,
+  IBackupManagerProviderType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@snickerdoodlelabs/persistence";
@@ -209,6 +212,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
+      .inSingletonScope();
+
+    // Data Persistence and Indexing
+    bind<IBackupManagerProvider>(IBackupManagerProviderType)
+      .to(BackupManagerProvider)
       .inSingletonScope();
 
     // Utilities
