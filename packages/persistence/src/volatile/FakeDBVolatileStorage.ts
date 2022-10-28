@@ -1,4 +1,5 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -8,14 +9,14 @@ import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
 import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema.js";
 
 @injectable()
-export class IndexedDBVolatileStorage implements IVolatileStorage {
+export class FakeDBVolatileStorage implements IVolatileStorage {
   protected indexedDB: IndexedDB;
 
   public constructor() {
     this.indexedDB = new IndexedDB(
       "SD_Wallet",
       volatileStorageSchema,
-      indexedDB,
+      fakeIndexedDB,
     );
   }
 

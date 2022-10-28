@@ -45,30 +45,23 @@ import {
   EarnedReward,
   chainConfig,
 } from "@snickerdoodlelabs/objects";
+import {
+  IBackupManagerProvider,
+  IBackupManagerProviderType,
+  ICloudStorage,
+  ICloudStorageType,
+  ELocalStorageKey,
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+  IVolatileStorage,
+  IVolatileCursor,
+  IVolatileStorageType,
+} from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-
-import {
-  IBackupManagerProvider,
-  IBackupManagerProviderType,
-} from "@persistence/backup/index.js";
-import {
-  ICloudStorage,
-  ICloudStorageType,
-} from "@persistence/cloud/ICloudStorage.js";
-import { ELocalStorageKey } from "@persistence/ELocalStorageKey.js";
-import {
-  IPersistenceConfigProvider,
-  IPersistenceConfigProviderType,
-} from "@persistence/IPersistenceConfigProvider.js";
-import {
-  IVolatileStorage,
-  IVolatileCursor,
-  IVolatileStorageType,
-} from "@persistence/volatile/index.js";
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {

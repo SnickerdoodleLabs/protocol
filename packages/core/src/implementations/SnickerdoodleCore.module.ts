@@ -23,6 +23,8 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
   IEVMTransactionRepository,
   IEVMTransactionRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -63,6 +65,7 @@ import {
 import {
   ConsentContractRepository,
   CrumbsRepository,
+  DataWalletPersistence,
   DNSRepository,
   InvitationRepository,
   MetatransactionForwarderRepository,
@@ -209,6 +212,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Data Persistence and Indexing
+    bind<IDataWalletPersistence>(IDataWalletPersistenceType)
+      .to(DataWalletPersistence)
+      .inSingletonScope();
     bind<IBackupManagerProvider>(IBackupManagerProviderType)
       .to(BackupManagerProvider)
       .inSingletonScope();

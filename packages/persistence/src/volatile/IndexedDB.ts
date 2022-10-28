@@ -242,7 +242,7 @@ export class IndexedDB {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readonly").andThen((store) => {
         const promise = new Promise<T[]>((resolve, reject) => {
-          let request: IDBRequest<unknown[]>;
+          let request: IDBRequest<T[]>;
           if (indexName == undefined) {
             request = store.getAll();
           } else {
