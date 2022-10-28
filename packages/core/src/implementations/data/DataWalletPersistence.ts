@@ -20,7 +20,6 @@ import {
   EVMPrivateKey,
   EVMAccountAddress,
   EVMContractAddress,
-  EVMTransaction,
   ChainId,
   BlockNumber,
   IAccountBalances,
@@ -30,9 +29,7 @@ import {
   AjaxError,
   EIndexer,
   IDataWalletBackup,
-  BigNumberString,
   LinkedAccount,
-  EChainTechnology,
   getChainInfoByChain,
   ChainTransaction,
   CeramicStreamID,
@@ -58,9 +55,8 @@ import {
   IVolatileCursor,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 enum ELocalStorageKey {
