@@ -225,46 +225,46 @@ describe("processQuery tests", () => {
   });
 });
 
-describe("onQueryPosted tests", () => {
-  test("onQueryPosted: full run through", async () => {
-    const mocks = new QueryServiceMocks();
-    const contextMock = new ContextProviderMock();
-    const configMock = new ConfigProviderMock();
+// describe("onQueryPosted tests", () => {
+//   test("onQueryPosted: full run through", async () => {
+//     const mocks = new QueryServiceMocks();
+//     const contextMock = new ContextProviderMock();
+//     const configMock = new ConfigProviderMock();
 
-    td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
-      okAsync(sdqlQuery),
-    );
-    td.when(mocks.contextProvider.getContext()).thenReturn(
-      okAsync(td.matchers.anything()),
-    );
-    td.when(mocks.configProvider.getConfig()).thenReturn(
-      okAsync(td.matchers.anything()),
-    );
-    td.when(
-      mocks.consentContractRepo.isAddressOptedIn(
-        td.matchers.anything(),
-        td.matchers.anything(),
-      ),
-    ).thenReturn(okAsync(true));
-    td.when(
-      mocks.queryParsingEngine.getPreviews(
-        td.matchers.anything(),
-        td.matchers.anything(),
-      ),
-    ).thenReturn(okAsync([[], []]));
+//     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+//       okAsync(sdqlQuery),
+//     );
+//     td.when(mocks.contextProvider.getContext()).thenReturn(
+//       okAsync(td.matchers.anything()),
+//     );
+//     td.when(mocks.configProvider.getConfig()).thenReturn(
+//       okAsync(td.matchers.anything()),
+//     );
+//     td.when(
+//       mocks.consentContractRepo.isAddressOptedIn(
+//         td.matchers.anything(),
+//         td.matchers.anything(),
+//       ),
+//     ).thenReturn(okAsync(true));
+//     td.when(
+//       mocks.queryParsingEngine.getPreviews(
+//         td.matchers.anything(),
+//         td.matchers.anything(),
+//       ),
+//     ).thenReturn(okAsync([[], []]));
 
-    const queryService = mocks.factory(); // new context
+//     const queryService = mocks.factory(); // new context
 
-    const result = await queryService.onQueryPosted(
-      AndrewContractAddress,
-      queryId,
-    );
+//     const result = await queryService.onQueryPosted(
+//       AndrewContractAddress,
+//       queryId,
+//     );
 
-    console.log("result", result);
+//     console.log("result", result);
 
-    expect(result).toBeDefined();
-  });
-});
+//     expect(result).toBeDefined();
+//   });
+// });
 
 describe("processRewardsPreview tests", () => {
   test("processRewardsPreview: full run through", async () => {
