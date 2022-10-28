@@ -1,6 +1,7 @@
 import {
   ChainInformation,
   ControlChainInformation,
+  LinkedAccount,
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
@@ -201,4 +202,13 @@ export function getChainInfoByChainId(chainId: ChainId): ChainInformation {
   }
 
   return chainInfo;
+}
+
+export function isAccountValidForChain(
+  chainId: ChainId,
+  account: LinkedAccount,
+): boolean {
+  const targetChainInfo = getChainInfoByChainId(chainId);
+  const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }

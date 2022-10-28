@@ -20,6 +20,7 @@ import {
   AccountAddress,
   ChainTransaction,
   SolanaAccountAddress,
+  isAccountValidForChain,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -62,6 +63,10 @@ export class MonitoringService implements IMonitoringService {
           linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
+                if (!isAccountValidForChain(chainId, linkedAccount)) {
+                  return okAsync([]);
+                }
+
                 return this.persistence
                   .getLatestTransactionForAccount(
                     chainId,
@@ -110,7 +115,6 @@ export class MonitoringService implements IMonitoringService {
     ]).andThen(([config, evmRepo, solRepo, simulatorRepo]) => {
       // Get the chain info for the transaction
       const chainInfo = config.chainInformation.get(chainId);
-
       if (chainInfo == null) {
         this.logUtils.error(`No available chain info for chain ${chainId}`);
         return okAsync([]);

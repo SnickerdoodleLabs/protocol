@@ -44,6 +44,7 @@ import {
   AccountAddress,
   SolanaAccountAddress,
   WalletNFT,
+  isAccountValidForChain,
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManager,
@@ -249,17 +250,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.resolveRestore!();
       });
-  }
-
-  private isAccountValidForChain(
-    chainId: ChainId,
-    account: LinkedAccount,
-  ): ResultAsync<boolean, PersistenceError> {
-    const targetChainInfo = getChainInfoByChainId(chainId);
-    const accountChainInfo = getChainInfoByChain(account.sourceChain);
-    return okAsync(
-      targetChainInfo.chainTechnology == accountChainInfo.chainTechnology,
-    );
   }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
@@ -541,17 +531,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
-        // Limit it to only EVM linked accounts
-        const evmAccounts = linkedAccounts.filter((la) => {
-          // Get the chainInfo for the linked account
-          const chainInfo = getChainInfoByChain(la.sourceChain);
-          return chainInfo.chainTechnology == EChainTechnology.EVM;
-        });
-
         return ResultUtils.combine(
-          evmAccounts.map((linkedAccount) => {
+          linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
+                if (!isAccountValidForChain(chainId, linkedAccount)) {
+                  return okAsync([]);
+                }
+
                 return this.getLatestBalances(
                   chainId,
                   linkedAccount.sourceAccountAddress as EVMAccountAddress,
@@ -668,6 +655,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           linkedAccounts.map((linkedAccount) => {
             return ResultUtils.combine(
               config.supportedChains.map((chainId) => {
+                if (!isAccountValidForChain(chainId, linkedAccount)) {
+                  return okAsync([]);
+                }
+
                 return this.getLatestNFTs(
                   chainId,
                   linkedAccount.sourceAccountAddress,
@@ -762,7 +753,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.waitForRestore().andThen(([key]) => {
       return this._getObjectStore().andThen((txStore) => {
         return txStore
-          .getAll<EVMTransaction>(ELocalStorageKey.TRANSACTIONS)
+          .getAll<ChainTransaction>(ELocalStorageKey.TRANSACTIONS)
           .andThen((transactions) => {
             if (filter == undefined) {
               return okAsync(transactions);
@@ -779,13 +770,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public getLatestTransactionForAccount(
     chainId: ChainId,
     address: AccountAddress,
-  ): ResultAsync<EVMTransaction | null, PersistenceError> {
+  ): ResultAsync<ChainTransaction | null, PersistenceError> {
     // TODO: add multikey support to cursor function
     return this.waitForRestore().andThen(([key]) => {
       const filter = new TransactionFilter([chainId], [address]);
       return this._getObjectStore().andThen((txStore) => {
         return txStore
-          .getCursor<EVMTransaction>(
+          .getCursor<ChainTransaction>(
             ELocalStorageKey.TRANSACTIONS,
             "timestamp",
             undefined,
@@ -797,9 +788,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   private _getNextMatchingTx(
-    cursor: IVolatileCursor<EVMTransaction>,
+    cursor: IVolatileCursor<ChainTransaction>,
     filter: TransactionFilter,
-  ): ResultAsync<EVMTransaction | null, PersistenceError> {
+  ): ResultAsync<ChainTransaction | null, PersistenceError> {
     return cursor.nextValue().andThen((val) => {
       if (!val || filter.matches(val)) {
         return okAsync(val);
