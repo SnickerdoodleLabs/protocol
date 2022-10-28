@@ -4,7 +4,7 @@ import {
   IDBKeyRange as fakeIDBKeyRange,
 } from "fake-indexeddb";
 import { injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IVolatileStorageFactory } from "@persistence/volatile/IVolatileStorageFactory.js";
@@ -26,7 +26,7 @@ export class IndexedDBFactory implements IVolatileStorageFactory {
 
 export class IndexedDB implements IVolatileStorageTable {
   private _db?: IDBDatabase;
-  private _initialized = false;
+  private _initialized?: ResultAsync<IDBDatabase, PersistenceError>;
 
   public constructor(
     public name: string,
@@ -35,48 +35,54 @@ export class IndexedDB implements IVolatileStorageTable {
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
     if (this._initialized) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return okAsync(this._db!);
+      return this._initialized;
     }
-
     const idb = this._getIDBFactory();
+    const promise = new Promise<IDBDatabase>((resolve, reject) => {
+      try {
+        const request = idb.open(this.name);
 
-    const schema = this.schema;
-    const request = idb.open(this.name);
-    const promise = new Promise<IDBDatabase>(function (resolve, reject) {
-      request.onsuccess = (_ev) => {
-        resolve(request.result);
-      };
-      request.onerror = (_ev: Event) => {
-        reject(new PersistenceError("error loading db"));
-      };
-      request.onupgradeneeded = (event: Event) => {
-        const db = request.result;
-        schema.forEach((storeInfo) => {
-          const keyPathObj: IDBObjectStoreParameters = {
-            autoIncrement: storeInfo.autoIncrement ?? false,
-            keyPath: storeInfo.keyPath,
-          };
-          const objectStore = db.createObjectStore(storeInfo.name, keyPathObj);
-          storeInfo.indexBy?.forEach(([name, unique]) => {
-            objectStore.createIndex(name, name, { unique: unique });
+        request.onsuccess = (_ev) => {
+          resolve(request.result);
+        };
+        request.onerror = (_ev: Event) => {
+          reject(new PersistenceError("error loading db"));
+        };
+        request.onupgradeneeded = (event: Event) => {
+          const db = request.result;
+          this.schema.forEach((storeInfo) => {
+            const keyPathObj: IDBObjectStoreParameters = {
+              autoIncrement: storeInfo.autoIncrement ?? false,
+              keyPath: storeInfo.keyPath,
+            };
+            const objectStore = db.createObjectStore(
+              storeInfo.name,
+              keyPathObj,
+            );
+            storeInfo.indexBy?.forEach(([name, unique]) => {
+              objectStore.createIndex(name, name, { unique: unique });
+            });
           });
-        });
-      };
+        };
+      } catch (e) {
+        console.error(e);
+        reject(e);
+      }
     });
 
-    return ResultAsync.fromPromise(
+    this._initialized = ResultAsync.fromPromise(
       promise,
-      (e) => e as PersistenceError,
+      (e) => new PersistenceError("error initializing object store", e),
     ).andThen((db) => {
       this._db = db;
-      this._initialized = true;
       return this.persist().andThen((persisted) => {
-        //console.log("Local storage persisted: " + persisted);
+        console.log("Local storage persisted: " + persisted);
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return okAsync(this._db!);
       });
     });
+
+    return this._initialized;
   }
 
   private _getIDBFactory(): IDBFactory {
@@ -122,8 +128,8 @@ export class IndexedDB implements IVolatileStorageTable {
       this.initialize(),
       this.getObjectStore(name, "readwrite"),
     ]).andThen(([_db, store]) => {
-      const req = store.clear();
-      const promise = new Promise(function (resolve, reject) {
+      const promise = new Promise((resolve, reject) => {
+        const req = store.clear();
         req.onsuccess = function (evt) {
           resolve(store);
         };
@@ -143,28 +149,49 @@ export class IndexedDB implements IVolatileStorageTable {
     name: string,
     obj: T,
   ): ResultAsync<void, PersistenceError> {
-    return this.initialize().andThen((db) => {
-      return this.getObjectStore(name, "readwrite").andThen((store) => {
-        const request = store.put(obj);
-        const promise = new Promise(function (resolve, reject) {
-          request.onsuccess = (event) => {
-            resolve(undefined);
-          };
-          request.onerror = (event) => {
-            reject(
-              new PersistenceError(
-                "error updating object store: " + event.target,
-              ),
-            );
-          };
+    if (obj == null) {
+      console.warn("null object placed in volatile store");
+      return okAsync(undefined);
+    }
+
+    return this.initialize()
+      .andThen((db) => {
+        return this.getObjectStore(name, "readwrite");
+      })
+      .andThen((store) => {
+        const promise = new Promise((resolve, reject) => {
+          console.log("creating promise", obj);
+          try {
+            const timeout = setTimeout(() => {
+              reject(new PersistenceError("timeout"));
+            }, 1000);
+            const request = store.put(obj);
+            request.onsuccess = (event) => {
+              clearTimeout(timeout);
+              resolve(undefined);
+            };
+            request.onerror = (event) => {
+              console.log("err", event);
+              clearTimeout(timeout);
+              reject(
+                new PersistenceError(
+                  "error updating object store: " + event.target,
+                ),
+              );
+            };
+          } catch (e) {
+            console.log("error obj", obj);
+            console.error("error", e);
+            reject(new PersistenceError("Error updating object store", e));
+          }
         });
 
         return ResultAsync.fromPromise(
           promise,
-          (e) => e as PersistenceError,
-        ).andThen(() => okAsync(undefined));
-      });
-    });
+          (e) => new PersistenceError("error placing object", e),
+        );
+      })
+      .map(() => {});
   }
 
   public removeObject(
@@ -173,8 +200,8 @@ export class IndexedDB implements IVolatileStorageTable {
   ): ResultAsync<void, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readwrite").andThen((store) => {
-        const request = store.delete(key);
-        const promise = new Promise(function (resolve, reject) {
+        const promise = new Promise((resolve, reject) => {
+          const request = store.delete(key);
           request.onsuccess = (event) => {
             resolve(undefined);
           };
@@ -185,7 +212,7 @@ export class IndexedDB implements IVolatileStorageTable {
 
         return ResultAsync.fromPromise(
           promise,
-          (e) => e as PersistenceError,
+          (e) => new PersistenceError("error removing object", e),
         ).andThen(() => okAsync(undefined));
       });
     });
@@ -197,8 +224,8 @@ export class IndexedDB implements IVolatileStorageTable {
   ): ResultAsync<T | null, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readonly").andThen((store) => {
-        const request = store.get(key);
-        const promise = new Promise(function (resolve, reject) {
+        const promise = new Promise((resolve, reject) => {
+          const request = store.get(key);
           request.onsuccess = (event) => {
             resolve(request.result);
           };
@@ -209,7 +236,7 @@ export class IndexedDB implements IVolatileStorageTable {
 
         return ResultAsync.fromPromise(
           promise,
-          (e) => e as PersistenceError,
+          (e) => new PersistenceError("error getting object", e),
         ).andThen((result) => okAsync(result as T));
       });
     });
@@ -243,15 +270,15 @@ export class IndexedDB implements IVolatileStorageTable {
   ): ResultAsync<T[], PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readonly").andThen((store) => {
-        let request: IDBRequest<any[]>;
-        if (indexName == undefined) {
-          request = store.getAll();
-        } else {
-          const index: IDBIndex = store.index(indexName);
-          request = index.getAll();
-        }
+        const promise = new Promise<T[]>((resolve, reject) => {
+          let request: IDBRequest<any[]>;
+          if (indexName == undefined) {
+            request = store.getAll();
+          } else {
+            const index: IDBIndex = store.index(indexName);
+            request = index.getAll();
+          }
 
-        const promise = new Promise<T[]>(function (resolve, reject) {
           request.onsuccess = (event) => {
             resolve(request.result);
           };
@@ -260,7 +287,10 @@ export class IndexedDB implements IVolatileStorageTable {
           };
         });
 
-        return ResultAsync.fromPromise(promise, (e) => e as PersistenceError);
+        return ResultAsync.fromPromise(
+          promise,
+          (e) => new PersistenceError("error getting all", e),
+        );
       });
     });
   }
@@ -273,15 +303,15 @@ export class IndexedDB implements IVolatileStorageTable {
   ): ResultAsync<T[], PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readonly").andThen((store) => {
-        let request: IDBRequest<any[]>;
-        if (indexName == undefined) {
-          request = store.getAllKeys(query, count);
-        } else {
-          const index: IDBIndex = store.index(indexName);
-          request = index.getAllKeys(query, count);
-        }
+        const promise = new Promise<T[]>((resolve, reject) => {
+          let request: IDBRequest<any[]>;
+          if (indexName == undefined) {
+            request = store.getAllKeys(query, count);
+          } else {
+            const index: IDBIndex = store.index(indexName);
+            request = index.getAllKeys(query, count);
+          }
 
-        const promise = new Promise<T[]>(function (resolve, reject) {
           request.onsuccess = (event) => {
             resolve(request.result);
           };

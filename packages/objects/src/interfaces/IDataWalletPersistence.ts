@@ -4,6 +4,7 @@ import { IChainTransaction } from "./chains";
 
 import {
   ClickData,
+  EarnedReward,
   EVMTransaction,
   EVMTransactionFilter,
   IEVMNFT,
@@ -102,6 +103,9 @@ export interface IDataWalletPersistence {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
+  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+
   /**
    * Returns a list of consent contract addresses that the user has rejected
    */
@@ -162,6 +166,7 @@ export interface IDataWalletPersistence {
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

@@ -87,6 +87,7 @@ import {
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
@@ -670,6 +671,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addSiteVisits(siteVisits);
   }
 
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getEarnedRewards();
+  }
+  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.addEarnedReward(reward);
+  }
+
+
+
+
   public addEVMTransactions(
     transactions: EVMTransaction[],
   ): ResultAsync<void, PersistenceError> {
@@ -677,6 +692,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEVMTransactions(transactions);
   }
+
+  // public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
+  //   const accountService =
+  //     this.iocContainer.get<IAccountService>(IAccountServiceType);
+
+  //   return accountService.addEarnedReward(reward);
+  // }
+
+  // public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+  //   const accountService =
+  //     this.iocContainer.get<IAccountService>(IAccountServiceType);
+  //   return accountService.getEarnedRewards();
+  // }
 
   public dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
@@ -699,5 +727,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       IDataWalletPersistenceType,
     );
     return persistence.postBackup();
+  }
+
+  public clearCloudStore(): ResultAsync<void, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.clearCloudStore();
   }
 }
