@@ -112,10 +112,7 @@ class QueryServiceMocks {
     );
 
     td.when(
-      this.consentContractRepo.isAddressOptedIn(
-        consentContractAddress,
-        EVMAccountAddress(dataWalletAddress),
-      ),
+      this.consentContractRepo.isAddressOptedIn(consentContractAddress),
     ).thenReturn(okAsync(true));
 
     td.when(

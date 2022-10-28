@@ -63,7 +63,6 @@ export interface IConsentContractRepository {
 
   isAddressOptedIn(
     consentContractAddress: EVMContractAddress,
-    address?: EVMAccountAddress,
   ): ResultAsync<
     boolean,
     | ConsentContractError

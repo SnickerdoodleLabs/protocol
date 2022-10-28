@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
   BigNumberString,
@@ -36,7 +36,10 @@ import {
   IInvitationRepository,
   IMetatransactionForwarderRepository,
 } from "@core/interfaces/data/index.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
+import {
+  IContextProvider,
+  IDataWalletUtils,
+} from "@core/interfaces/utilities/index.js";
 
 const metatransactionNonce = BigNumberString("nonce");
 const metatransactionValue = BigNumberString("value");
@@ -69,9 +72,11 @@ class InvitationServiceMocks {
   public dnsRepository: IDNSRepository;
   public invitationRepo: IInvitationRepository;
   public forwarderRepo: IMetatransactionForwarderRepository;
+  public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
   public contextProvider: IContextProvider;
   public configProvider: ConfigProviderMock;
+  public logUtils: ILogUtils;
 
   public constructor() {
     this.consentTokenUtils = td.object<IConsentTokenUtils>();
@@ -82,8 +87,10 @@ class InvitationServiceMocks {
     this.invitationRepo = td.object<IInvitationRepository>();
     this.forwarderRepo = td.object<IMetatransactionForwarderRepository>();
     this.contextProvider = new ContextProviderMock();
+    this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.configProvider = new ConfigProviderMock();
+    this.logUtils = td.object<ILogUtils>();
 
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
@@ -135,9 +142,11 @@ class InvitationServiceMocks {
       this.dnsRepository,
       this.invitationRepo,
       this.forwarderRepo,
+      this.dataWalletUtils,
       this.cryptoUtils,
       this.contextProvider,
       this.configProvider,
+      this.logUtils,
     );
   }
 }

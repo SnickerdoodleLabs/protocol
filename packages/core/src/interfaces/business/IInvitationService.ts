@@ -73,6 +73,8 @@ export interface IInvitationService {
     | PersistenceError
   >;
 
+  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
+
   getInvitationsByDomain(
     domain: DomainName,
   ): ResultAsync<

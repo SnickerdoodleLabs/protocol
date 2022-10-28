@@ -2,6 +2,8 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
@@ -59,6 +61,8 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
@@ -77,9 +81,11 @@ export class InvitationService implements IInvitationService {
     protected invitationRepo: IInvitationRepository,
     @inject(IMetatransactionForwarderRepositoryType)
     protected forwarderRepo: IMetatransactionForwarderRepository,
+    @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IConfigProviderType) protected configProvider: IConfigProvider,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   public checkInvitationStatus(
@@ -182,45 +188,64 @@ export class InvitationService implements IInvitationService {
             new UninitializedError("Data wallet has not been unlocked yet!"),
           );
         }
-        if (invitation.businessSignature == null) {
-          // Before optIn check TXT records to validate invitation
-          return this.consentContractHasMatchingTXT(
+
+        return this.dataWalletUtils
+          .deriveOptInPrivateKey(
             invitation.consentContractAddress,
-          ).andThen((res) => {
-            if (res) {
-              return okAsync({
-                optInData: this.consentRepo.encodeOptIn(
-                  invitation.consentContractAddress,
-                  invitation.tokenId,
-                  dataPermissions,
-                ),
-                context,
+            context.dataWalletKey!,
+          )
+          .andThen((optInPrivateKey) => {
+            if (invitation.businessSignature == null) {
+              // Before optIn check TXT records to validate invitation
+              return this.consentContractHasMatchingTXT(
+                invitation.consentContractAddress,
+              ).andThen((res) => {
+                if (res) {
+                  return okAsync({
+                    optInData: this.consentRepo.encodeOptIn(
+                      invitation.consentContractAddress,
+                      invitation.tokenId,
+                      dataPermissions,
+                    ),
+                    context,
+                    optInPrivateKey,
+                  });
+                }
+                return errAsync(
+                  new ConsentError(
+                    `${invitation.consentContractAddress} is not valid public consent contract`,
+                  ),
+                );
               });
             }
-            return errAsync(
-              new ConsentError(
-                `${invitation.consentContractAddress} is not valid public consent contract`,
+            return okAsync({
+              optInData: this.consentRepo.encodeRestrictedOptIn(
+                invitation.consentContractAddress,
+                invitation.tokenId,
+                invitation.businessSignature,
+                dataPermissions,
               ),
-            );
+              context,
+              optInPrivateKey,
+            });
           });
-        }
-        return okAsync({
-          optInData: this.consentRepo.encodeRestrictedOptIn(
-            invitation.consentContractAddress,
-            invitation.tokenId,
-            invitation.businessSignature,
-            dataPermissions,
-          ),
-          context,
-        });
       })
-      .andThen(({ optInData, context }) => {
+      .andThen(({ optInData, context, optInPrivateKey }) => {
+        const optInAddress =
+          this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+            optInPrivateKey,
+          );
+
+        this.logUtils.log(
+          `Opting in to consent contract ${invitation.consentContractAddress} with derived account ${optInAddress}`,
+        );
+
         // We are adding the invitation to persistence NOW, because it is super important that we
         // save that. It's basically impossible to figure out what contracts you are opted into
         // by just looking at the blockchain (intentionally)!
         return ResultUtils.combine([
           optInData,
-          this.forwarderRepo.getNonce(),
+          this.forwarderRepo.getNonce(optInAddress),
           this.configProvider.getConfig(),
           this.persistenceRepo.addAcceptedInvitations([invitation]),
         ])
@@ -228,7 +253,7 @@ export class InvitationService implements IInvitationService {
             // We need to take the types, and send it to the account signer
             const request = new MetatransactionRequest(
               invitation.consentContractAddress, // Contract address for the metatransaction
-              EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
+              optInAddress, // EOA to run the transaction as (linked account, not derived)
               BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
               BigNumber.from(10000000), // The amount of gas to pay.
               BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
@@ -236,14 +261,14 @@ export class InvitationService implements IInvitationService {
             );
 
             return this.forwarderRepo
-              .signMetatransactionRequest(request, context.dataWalletKey!)
+              .signMetatransactionRequest(request, optInPrivateKey)
               .andThen((metatransactionSignature) => {
                 // Got the signature for the metatransaction, now we can execute it.
                 // .executeMetatransaction will sign everything and have the server run
                 // the metatransaction.
                 return this.insightPlatformRepo.executeMetatransaction(
                   context.dataWalletAddress!, // data wallet address
-                  EVMAccountAddress(context.dataWalletAddress!), // account address
+                  optInAddress, // account address
                   invitation.consentContractAddress, // contract address
                   BigNumberString(BigNumber.from(nonce).toString()),
                   BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
@@ -341,9 +366,15 @@ export class InvitationService implements IInvitationService {
               ),
             );
           }
-          return this.consentRepo.getConsentToken(currentInvitation);
+          return ResultUtils.combine([
+            this.consentRepo.getConsentToken(currentInvitation),
+            this.dataWalletUtils.deriveOptInPrivateKey(
+              consentContractAddress,
+              context.dataWalletKey!,
+            ),
+          ]);
         })
-        .andThen((consentToken) => {
+        .andThen(([consentToken, optInPrivateKey]) => {
           if (consentToken == null) {
             // You're not actually opted in!
             return errAsync(
@@ -353,19 +384,30 @@ export class InvitationService implements IInvitationService {
             );
           }
 
+          this.logUtils.debug("Existing consent token", consentToken);
+
+          const optInAccountAddress =
+            this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+              optInPrivateKey,
+            );
+
+          this.logUtils.log(
+            `Opting out of consent contract ${consentContractAddress} with derived account ${optInAccountAddress}`,
+          );
+
           // Encode the call to the consent contract and get the nonce for the forwarder
           return ResultUtils.combine([
             this.consentRepo.encodeOptOut(
               consentContractAddress,
               consentToken.tokenId,
             ),
-            this.forwarderRepo.getNonce(),
+            this.forwarderRepo.getNonce(optInAccountAddress),
             this.configProvider.getConfig(),
           ])
             .andThen(([callData, nonce, config]) => {
               const request = new MetatransactionRequest(
                 consentContractAddress, // Contract address for the metatransaction
-                EVMAccountAddress(context.dataWalletAddress!), // EOA to run the transaction as (linked account, not derived)
+                optInAccountAddress, // EOA to run the transaction as
                 BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
                 BigNumber.from(10000000), // The amount of gas to pay.
                 BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
@@ -373,14 +415,14 @@ export class InvitationService implements IInvitationService {
               );
 
               return this.forwarderRepo
-                .signMetatransactionRequest(request, context.dataWalletKey!)
+                .signMetatransactionRequest(request, optInPrivateKey)
                 .andThen((metatransactionSignature) => {
                   // Got the signature for the metatransaction, now we can execute it.
                   // .executeMetatransaction will sign everything and have the server run
                   // the metatransaction.
                   return this.insightPlatformRepo.executeMetatransaction(
                     context.dataWalletAddress!, // data wallet address
-                    EVMAccountAddress(context.dataWalletAddress!), // account address
+                    optInAccountAddress, // account address
                     consentContractAddress, // contract address
                     BigNumberString(BigNumber.from(nonce).toString()),
                     BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
@@ -403,6 +445,10 @@ export class InvitationService implements IInvitationService {
             });
         });
     });
+  }
+
+  public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
+    return this.persistenceRepo.getAcceptedInvitations();
   }
 
   public getInvitationsByDomain(

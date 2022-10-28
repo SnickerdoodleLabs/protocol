@@ -32,6 +32,8 @@ import {
   IBlockchainProviderType,
   IContextProvider,
   IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
 
 @injectable()
@@ -42,6 +44,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IContractFactoryType)
     protected consentContractFactory: IContractFactory,
+    @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
@@ -117,7 +120,6 @@ export class ConsentContractRepository implements IConsentContractRepository {
 
   public isAddressOptedIn(
     consentContractAddress: EVMContractAddress,
-    address?: EVMAccountAddress,
   ): ResultAsync<
     boolean,
     | ConsentContractError
@@ -126,23 +128,28 @@ export class ConsentContractRepository implements IConsentContractRepository {
     | BlockchainProviderError
     | AjaxError
   > {
-    return ResultUtils.combine([
-      this.getConsentContract(consentContractAddress),
-      this.contextProvider.getContext(),
-    ])
-      .andThen(([consentContract, context]) => {
-        // We will use the data wallet address if another address is not provided
-        if (address == null) {
-          if (context.dataWalletAddress == null) {
-            return errAsync(
-              new UninitializedError(
-                "No data wallet address provided and core uninitialized in isAddressOptedIn",
-              ),
-            );
-          }
-          address = EVMAccountAddress(context.dataWalletAddress);
+    return this.contextProvider
+      .getContext()
+      .andThen((context) => {
+        if (context.dataWalletKey == null) {
+          return errAsync(
+            new UninitializedError(
+              "No data wallet key provided and core uninitialized in isAddressOptedIn",
+            ),
+          );
         }
-        return consentContract.balanceOf(address);
+        // The opt-in token is not assigned to the data wallet address itself, it is assigned
+        // to a derived address
+        return ResultUtils.combine([
+          this.getConsentContract(consentContractAddress),
+          this.dataWalletUtils.deriveOptInAccountAddress(
+            consentContractAddress,
+            context.dataWalletKey,
+          ),
+        ]);
+      })
+      .andThen(([consentContract, derivedAddress]) => {
+        return consentContract.balanceOf(derivedAddress);
       })
       .map((numberOfTokens) => {
         return numberOfTokens > 0;

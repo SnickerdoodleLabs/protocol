@@ -251,6 +251,8 @@ export interface ISnickerdoodleCore {
     | ConsentError
   >;
 
+  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
+
   getInvitationsByDomain(
     domain: DomainName,
   ): ResultAsync<

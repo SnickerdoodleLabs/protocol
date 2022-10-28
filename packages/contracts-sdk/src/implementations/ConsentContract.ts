@@ -559,7 +559,6 @@ export class ConsentContract implements IConsentContract {
       this.ownerOf(optInInfo.tokenId),
       this.agreementFlags(optInInfo.tokenId),
     ]).andThen(([ownerAddress, agreementFlags]) => {
-      console.log("getConsentToken", ownerAddress, agreementFlags);
       return okAsync(
         new ConsentToken(
           this.contractAddress,

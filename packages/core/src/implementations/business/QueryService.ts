@@ -115,10 +115,7 @@ export class QueryService implements IQueryService {
 
       // We have the query, next step is check if you actually have a consent token for this business
       return this.consentContractRepository
-        .isAddressOptedIn(
-          consentContractAddress,
-          EVMAccountAddress(context.dataWalletAddress),
-        )
+        .isAddressOptedIn(consentContractAddress)
         .andThen((addressOptedIn) => {
           if (!addressOptedIn) {
             // No consent given!
