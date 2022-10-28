@@ -111,6 +111,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           consentContractId: consentContractAddress,
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
+          // TODO add parameters, which are string[] of IDynamicRewardParameter
+          // TODO add queries: answeredQueries,
           returns: returns,
           signature: signature,
         });
