@@ -14,7 +14,7 @@ import {
   QueryExpiredError,
   SDQLQuery,
   SDQLString,
-  IChainTransaction,
+  ChainTransaction,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -91,7 +91,7 @@ class QueryParsingMocks {
     ).thenReturn(okAsync([]));
 
     td.when(this.persistenceRepo.getTransactionsArray()).thenReturn(
-      okAsync(new Array<IChainTransaction>()),
+      okAsync(new Array<ChainTransaction>()),
     );
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));

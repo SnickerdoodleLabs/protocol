@@ -13,7 +13,7 @@ import {
   BigNumberString,
   IDataWalletPersistence,
   TokenBalance,
-  IChainTransaction,
+  ChainTransaction,
   EVMTransaction,
   UnixTimestamp,
   EVMTransactionHash,
@@ -173,7 +173,7 @@ class QueryEvaluatorMocks {
     },
   );
 
-  public transactionsFlow = new Array<IChainTransaction>();
+  public transactionsFlow = new Array<ChainTransaction>();
   // {
   //   chainId: ChainId(1),
   //   incomingValue: BigNumberString("1"),

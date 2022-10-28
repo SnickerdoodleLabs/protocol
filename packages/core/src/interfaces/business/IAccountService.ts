@@ -16,7 +16,7 @@ import {
   URLString,
   SiteVisit,
   InvalidParametersError,
-  IChainTransaction,
+  ChainTransaction,
   LinkedAccount,
   EChain,
   MinimalForwarderContractError,
@@ -105,14 +105,14 @@ export interface IAccountService {
   getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError>;
   getTranactions(
     filter?: TransactionFilter,
-  ): ResultAsync<IChainTransaction[], PersistenceError>;
+  ): ResultAsync<ChainTransaction[], PersistenceError>;
 
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
+  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError>;
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   addTransactions(
-    transactions: IChainTransaction[],
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;

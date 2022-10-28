@@ -20,7 +20,7 @@ import {
   TickerSymbol,
   UnixTimestamp,
   URLString,
-  IChainTransaction,
+  ChainTransaction,
   EChainTechnology,
   EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
@@ -42,7 +42,7 @@ class NetworkQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsArray = new Array<IChainTransaction>();
+  public transactionsArray = new Array<ChainTransaction>();
 
   public accountBalances = new Array<TokenBalance>(
     {

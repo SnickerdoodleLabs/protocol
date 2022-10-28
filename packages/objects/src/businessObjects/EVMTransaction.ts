@@ -1,4 +1,4 @@
-import { EVMEvent } from "@objects/businessObjects";
+import { ChainTransaction, EVMEvent } from "@objects/businessObjects";
 import {
   ChainId,
   EVMAccountAddress,
@@ -7,7 +7,6 @@ import {
   EVMAccountAddressRegex,
   EVMTransactionHash,
 } from "@objects/primitives";
-import { IChainTransaction } from "@objects/interfaces/IChainTransaction";
 
 /**
  * This is a concrete implementation of the Transaction class from Ethers. I'd really prefer to not have to
@@ -15,7 +14,7 @@ import { IChainTransaction } from "@objects/interfaces/IChainTransaction";
  * is also importing Ethers.
  * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
-export class EVMTransaction implements IChainTransaction {
+export class EVMTransaction extends ChainTransaction {
   public constructor(
     public chainId: ChainId,
     public hash: EVMTransactionHash,
@@ -29,5 +28,7 @@ export class EVMTransaction implements IChainTransaction {
     public feesPaid: BigNumberString | null,
     public events: EVMEvent[] | null,
     public valueQuote: number | null,
-  ) {}
+  ) {
+    super(chainId, hash, timestamp);
+  }
 }

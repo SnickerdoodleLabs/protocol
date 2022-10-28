@@ -61,7 +61,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   EScamFilterStatus,
-  IChainTransaction,
+  ChainTransaction,
   EChain,
   LinkedAccount,
   AccountAddress,
@@ -616,7 +616,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
   getTransactions(
     filter?: TransactionFilter,
-  ): ResultAsync<IChainTransaction[], PersistenceError> {
+  ): ResultAsync<ChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTranactions(filter);
@@ -642,7 +642,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
   */
 
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError> {
+  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTransactionsArray();
@@ -676,7 +676,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   public addTransactions(
-    transactions: IChainTransaction[],
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);

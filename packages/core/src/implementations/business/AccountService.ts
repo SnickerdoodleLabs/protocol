@@ -15,7 +15,7 @@ import {
   BigNumberString,
   BlockchainProviderError,
   ChainId,
-  IChainTransaction,
+  ChainTransaction,
   ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
@@ -543,7 +543,7 @@ export class AccountService implements IAccountService {
 
   public getTranactions(
     filter?: TransactionFilter,
-  ): ResultAsync<IChainTransaction[], PersistenceError> {
+  ): ResultAsync<ChainTransaction[], PersistenceError> {
     return this.dataWalletPersistence.getTransactions(filter);
   }
 
@@ -552,7 +552,7 @@ export class AccountService implements IAccountService {
   // }
 
   public getTransactionsArray(): ResultAsync<
-    IChainTransaction[],
+    ChainTransaction[],
     PersistenceError
   > {
     return this.dataWalletPersistence.getTransactionsArray();
@@ -574,7 +574,7 @@ export class AccountService implements IAccountService {
   }
 
   public addTransactions(
-    transactions: IChainTransaction[],
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.addTransactions(transactions);
   }

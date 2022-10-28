@@ -7,9 +7,10 @@ import {
   TokenBalance,
   LinkedAccount,
   SiteVisit,
+  ChainTransaction,
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
-import { IChainTransaction, IAccountNFT } from "@objects/interfaces";
+import { IAccountNFT } from "@objects/interfaces";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import {
   Age,
@@ -130,18 +131,18 @@ export interface IDataWalletPersistence {
   //   PersistenceError
   // >;
 
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
+  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError>;
 
   getLatestTransactionForAccount(
     chainId: ChainId,
     address: AccountAddress,
-  ): ResultAsync<IChainTransaction | null, PersistenceError>;
+  ): ResultAsync<ChainTransaction | null, PersistenceError>;
   addTransactions(
-    transactions: IChainTransaction[],
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
   getTransactions(
     filter?: TransactionFilter,
-  ): ResultAsync<IChainTransaction[], PersistenceError>;
+  ): ResultAsync<ChainTransaction[], PersistenceError>;
 
   updateAccountBalances(
     balances: TokenBalance[],

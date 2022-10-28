@@ -13,7 +13,6 @@ import {
   URLString,
   TickerSymbol,
   BigNumberString,
-  IChainTransaction,
   EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import {

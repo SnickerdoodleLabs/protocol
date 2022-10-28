@@ -34,7 +34,7 @@ import {
   LinkedAccount,
   EChainTechnology,
   getChainInfoByChain,
-  IChainTransaction,
+  ChainTransaction,
   CeramicStreamID,
   EarnedReward,
   TransactionFilter,
@@ -45,23 +45,22 @@ import {
   SolanaAccountAddress,
   IAccountNFT,
 } from "@snickerdoodlelabs/objects";
-import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
-import { BigNumber } from "ethers";
-import { inject, injectable } from "inversify";
-import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-
-import { 
-  BackupManager, 
+import {
+  BackupManager,
   ICloudStorage,
-  ICloudStorageType, 
+  ICloudStorageType,
   IPersistenceConfigProvider,
-  IPersistenceConfigProviderType, 
+  IPersistenceConfigProviderType,
   IVolatileStorageTable,
   IVolatileStorageFactory,
   IVolatileStorageFactoryType,
   IVolatileCursor,
 } from "@snickerdoodlelabs/persistence";
+import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
+import { BigNumber } from "ethers";
+import { inject, injectable } from "inversify";
+import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
@@ -592,11 +591,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
       switch (chainInfo.indexer) {
         case EIndexer.EVM:
-          return evmRepo.getBalancesForAccount(chainId, accountAddress as EVMAccountAddress);
+          return evmRepo.getBalancesForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
         case EIndexer.Simulator:
-          return simulatorRepo.getBalancesForAccount(chainId, accountAddress as EVMAccountAddress);
+          return simulatorRepo.getBalancesForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
         case EIndexer.Solana:
-          return solRepo.getBalancesForAccount(chainId, accountAddress as SolanaAccountAddress);
+          return solRepo.getBalancesForAccount(
+            chainId,
+            accountAddress as SolanaAccountAddress,
+          );
         default:
           return errAsync(
             new AccountIndexingError(
@@ -678,7 +686,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   private getLatestNFTs(
     chainId: ChainId,
     accountAddress: AccountAddress,
-  ): ResultAsync<IAccountNFT[], PersistenceError | AccountIndexingError | AjaxError> {
+  ): ResultAsync<
+    IAccountNFT[],
+    PersistenceError | AccountIndexingError | AjaxError
+  > {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.accountNFTs.getEVMNftRepository(),
@@ -688,17 +699,28 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         return errAsync(
-          new AccountIndexingError(`No available chain info for chain ${chainId}`),
+          new AccountIndexingError(
+            `No available chain info for chain ${chainId}`,
+          ),
         );
       }
 
       switch (chainInfo.indexer) {
         case EIndexer.EVM:
-          return evmRepo.getTokensForAccount(chainId, accountAddress as EVMAccountAddress);
+          return evmRepo.getTokensForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
         case EIndexer.Simulator:
-          return simulatorRepo.getTokensForAccount(chainId, accountAddress as EVMAccountAddress);
+          return simulatorRepo.getTokensForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
         case EIndexer.Solana:
-          return solRepo.getTokensForAccount(chainId, accountAddress as SolanaAccountAddress);
+          return solRepo.getTokensForAccount(
+            chainId,
+            accountAddress as SolanaAccountAddress,
+          );
         default:
           return errAsync(
             new AccountIndexingError(
@@ -710,14 +732,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getTransactionsArray(): ResultAsync<
-    IChainTransaction[],
+    ChainTransaction[],
     PersistenceError
   > {
     return okAsync([]);
   }
 
   public addTransactions(
-    transactions: IChainTransaction[],
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
     if (transactions.length == 0) {
       return okAsync(undefined);
@@ -736,7 +758,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public getTransactions(
     filter?: TransactionFilter,
-  ): ResultAsync<IChainTransaction[], PersistenceError> {
+  ): ResultAsync<ChainTransaction[], PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return this._getObjectStore().andThen((txStore) => {
         return txStore
@@ -923,10 +945,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   // rename this. its bad.
   public returnProperTransactions(): ResultAsync<
-    IChainTransaction[],
+    ChainTransaction[],
     PersistenceError
   > {
-    const chainlist: IChainTransaction[] = [];
+    const chainlist: ChainTransaction[] = [];
     return okAsync(chainlist);
   }
 

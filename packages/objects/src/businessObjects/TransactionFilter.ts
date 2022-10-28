@@ -1,4 +1,4 @@
-import { IChainTransaction } from "@objects/interfaces";
+import { ChainTransaction } from "@objects/businessObjects";
 import {
   ChainId,
   AccountAddress,
@@ -29,7 +29,7 @@ export class TransactionFilter {
     }
   }
 
-  public matches(tx: IChainTransaction): boolean {
+  public matches(tx: ChainTransaction): boolean {
     if (this.chainIDs != undefined && !this.chainIDs.has(tx.chainId)) {
       return false;
     }

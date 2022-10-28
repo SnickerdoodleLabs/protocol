@@ -17,10 +17,8 @@ import {
   IAccountBalances,
   IAccountNFTsType,
   IAccountNFTs,
-  getChainInfoByChain,
-  EChainTechnology,
   AccountAddress,
-  IChainTransaction,
+  ChainTransaction,
   SolanaAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
@@ -103,7 +101,7 @@ export class MonitoringService implements IMonitoringService {
     accountAddress: AccountAddress,
     timestamp: UnixTimestamp,
     chainId: ChainId,
-  ): ResultAsync<IChainTransaction[], AccountIndexingError | AjaxError> {
+  ): ResultAsync<ChainTransaction[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.accountIndexing.getEVMTransactionRepository(),
