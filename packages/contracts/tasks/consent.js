@@ -72,7 +72,10 @@ task(
       });
   });
 
-task("getQueryHorizon", "Check the blocknumber of the consent contracts query horizon")
+task(
+  "getQueryHorizon",
+  "Check the blocknumber of the consent contracts query horizon",
+)
   .addParam("contractaddress", "address of the consent contract")
   .setAction(async (taskArgs) => {
     const contractaddress = taskArgs.contractaddress;
@@ -90,8 +93,14 @@ task("getQueryHorizon", "Check the blocknumber of the consent contracts query ho
     });
   });
 
-  task("setQueryHorizon", "Set the blocknumber of the consent contracts query horizon")
-  .addParam("blocknumber", "The earliest block number to check for requestForData events")
+task(
+  "setQueryHorizon",
+  "Set the blocknumber of the consent contracts query horizon",
+)
+  .addParam(
+    "blocknumber",
+    "The earliest block number to check for requestForData events",
+  )
   .addParam("contractaddress", "address of the consent contract")
   .addParam(
     "accountnumber",
@@ -111,13 +120,14 @@ task("getQueryHorizon", "Check the blocknumber of the consent contracts query ho
       account,
     );
 
-    await consentContractHandle.setQueryHorizon(blocknumber)
-    .then((txresponse) => {
-      return txresponse.wait();
-    })
-    .then((txrct) => {
-      logTXDetails(txrct);
-    });
+    await consentContractHandle
+      .setQueryHorizon(blocknumber)
+      .then((txresponse) => {
+        return txresponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 task("checkBalanceOf", "Check balance of an address given a ERC721 address")
@@ -565,23 +575,25 @@ task(
 
     // get the queryHorizon
     const qh = await consentContractHandle.queryHorizon();
-    console.log("Query Horizon Block is:", qh.toNumber())
+    console.log("Query Horizon Block is:", qh.toNumber());
 
     // declare the filter parameters of the event of interest
     const filter = await consentContractHandle.filters.RequestForData();
 
-    await consentContractHandle.queryFilter(filter, qh.toNumber(), 'latest').then((result) => {
-      console.log("");
-      console.log("Queried address:", consentAddress);
-      // print each event's arguments
-      result.forEach((log, index) => {
+    await consentContractHandle
+      .queryFilter(filter, qh.toNumber(), "latest")
+      .then((result) => {
         console.log("");
-        console.log("Request number: ", index + 1);
-        console.log("  Owner address: ", log.args.requester);
-        console.log("  Requested CID:", log.args.ipfsCID);
+        console.log("Queried address:", consentAddress);
+        // print each event's arguments
+        result.forEach((log, index) => {
+          console.log("");
+          console.log("Request number: ", index + 1);
+          console.log("  Owner address: ", log.args.requester);
+          console.log("  Requested CID:", log.args.ipfsCID);
+        });
+        console.log("");
       });
-      console.log("");
-    });
   });
 
 task(
@@ -640,7 +652,7 @@ task("grantRole", "Grant specific role on the consent contract.")
   )
   .setAction(async (taskArgs) => {
     const accountnumber = taskArgs.accountnumber;
-    const accounts = hre.ethers.getSigners();
+    const accounts = await hre.ethers.getSigners();
     const account = accounts[accountnumber];
 
     const roleBytes = ethers.utils.id(taskArgs.role);
@@ -679,7 +691,7 @@ task("revokeRole", "Revokes a specific role on the consent contract.")
   )
   .setAction(async (taskArgs) => {
     const accountnumber = taskArgs.accountnumber;
-    const accounts = hre.ethers.getSigners();
+    const accounts = await hre.ethers.getSigners();
     const account = accounts[accountnumber];
 
     const roleBytes = ethers.utils.id(taskArgs.role);
