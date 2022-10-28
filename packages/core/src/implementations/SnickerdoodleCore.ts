@@ -70,10 +70,8 @@ import {
   EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
-  DataWalletPersistence,
   ICloudStorage,
   ICloudStorageType,
-  NullCloudStorage,
   CeramicCloudStorage,
   IVolatileStorage,
   IVolatileStorageType,
@@ -140,11 +138,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .to(LocalStorageUtils)
         .inSingletonScope();
     }
-
-    this.iocContainer
-      .bind(IDataWalletPersistenceType)
-      .to(DataWalletPersistence)
-      .inSingletonScope();
 
     if (cloudStorage != null) {
       this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);

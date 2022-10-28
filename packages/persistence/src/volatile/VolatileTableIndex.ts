@@ -4,5 +4,6 @@ export class VolatileTableIndex {
     public keyPath: string,
     public autoIncrement: boolean = false,
     public indexBy?: [string, boolean][],
+    public disableBackup: boolean = false,
   ) {}
 }

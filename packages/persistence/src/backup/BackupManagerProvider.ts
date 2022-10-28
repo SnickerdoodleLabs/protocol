@@ -11,11 +11,11 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { BackupManager } from "@persistence/backup/BackupManager.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { IBackupManagerProvider } from "@persistence/backup/IBackupManagerProvider.js";
-import { ELocalStorageKey } from "@persistence/ELocalStorageKey.js";
 import {
   IVolatileStorage,
   IVolatileStorageType,
 } from "@persistence/volatile/index.js";
+import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema";
 
 @injectable()
 export class BackupManagerProvider implements IBackupManagerProvider {
@@ -44,18 +44,18 @@ export class BackupManagerProvider implements IBackupManagerProvider {
       return this.backupManager;
     }
 
+    const tableNames = volatileStorageSchema
+      .filter((schema) => {
+        return !schema.disableBackup;
+      })
+      .map((schema) => {
+        return schema.name;
+      });
+
     this.backupManager = this.waitForUnlock().map((key) => {
       return new BackupManager(
         key,
-        [
-          ELocalStorageKey.ACCOUNT,
-          // ELocalStorageKey.TRANSACTIONS,
-          ELocalStorageKey.SITE_VISITS,
-          ELocalStorageKey.CLICKS,
-          ELocalStorageKey.LATEST_BLOCK,
-          ELocalStorageKey.EARNED_REWARDS,
-          ELocalStorageKey.ACCEPTED_INVITATIONS,
-        ],
+        tableNames,
         this.volatileStorage,
         this.cryptoUtils,
         this.storageUtils,

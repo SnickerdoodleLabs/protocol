@@ -1,8 +1,4 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
-import {
-  indexedDB as fakeIndexedDB,
-  IDBKeyRange as fakeIDBKeyRange,
-} from "fake-indexeddb";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -17,16 +13,17 @@ export class IndexedDB {
   public constructor(
     public name: string,
     private schema: VolatileTableIndex[],
+    private dbFactory: IDBFactory,
   ) {}
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
     if (this._initialized) {
       return this._initialized;
     }
+
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
       try {
-        const idb = this._getIDBFactory();
-        const request = idb.open(this.name);
+        const request = this.dbFactory.open(this.name);
 
         request.onsuccess = (_ev) => {
           resolve(request.result);
@@ -71,20 +68,6 @@ export class IndexedDB {
       });
 
     return this._initialized;
-  }
-
-  private _getIDBFactory(): IDBFactory {
-    if (typeof indexedDB === "undefined") {
-      return fakeIndexedDB;
-    }
-    return indexedDB;
-  }
-
-  private _getIDBKeyRange(query: string | number): IDBKeyRange {
-    if (typeof indexedDB === "undefined") {
-      return fakeIDBKeyRange.only(query);
-    }
-    return IDBKeyRange.only(query);
   }
 
   public persist(): ResultAsync<boolean, PersistenceError> {
@@ -259,7 +242,7 @@ export class IndexedDB {
     return this.initialize().andThen((db) => {
       return this.getObjectStore(name, "readonly").andThen((store) => {
         const promise = new Promise<T[]>((resolve, reject) => {
-          let request: IDBRequest<any[]>;
+          let request: IDBRequest<T[]>;
           if (indexName == undefined) {
             request = store.getAll();
           } else {
