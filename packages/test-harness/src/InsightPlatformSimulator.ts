@@ -26,6 +26,9 @@ import {
   Signature,
   UnixTimestamp,
   URLString,
+  EligibleReward,
+  ERewardType,
+  QueryIdentifier
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -79,6 +82,55 @@ export class InsightPlatformSimulator {
         }),
       });
     });
+
+    /* Rewards Preview API - get Eligible Rewards*/
+    this.app.post("/insights/preview", (req, res) => {
+      console.log("Sending prompt rewards preview to the Insights Platform");
+      console.log("Req is this: ", req.body);
+
+      const consentContractId = EVMContractAddress(req.body.consentContractId);
+      const queryCid = IpfsCID(req.body.queryCid);
+      const dataWallet = EVMAccountAddress(req.body.dataWallet);
+      const queries = (req.body.answeredQueries);
+      const signature = Signature(req.body.signature);
+
+      const value = {
+        consentContractId,
+        queryCid,
+        dataWallet,
+        queries
+      };
+
+      this.logStream.write(JSON.stringify(req.body));
+      let reward = ([
+        new EligibleReward("c2", URLString("www.google.com"), ERewardType.Lazy),
+        new EligibleReward("c3", URLString("www.amazon.com"), ERewardType.Lazy),
+      ])
+
+      return this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          insightDeliveryTypes,
+          value,
+          signature,
+        )
+        .andThen((verificationAddress) => {
+          if (verificationAddress !== dataWallet) {
+            const err = new Error("`In bad wallet: ${verificationAddress}`");
+            console.error(err);
+            return errAsync(err);
+          }
+          return okAsync(null);
+        })
+        .map(() => {
+          res.send("Reward Preview received successfully!");
+          res.send(reward);
+        })
+        .mapErr((e) => {
+          console.error(e);
+          res.send(e);
+        });
+    })
 
     this.app.post("/insights/responses", (req, res) => {
       console.log("Sending to Insight Responses");

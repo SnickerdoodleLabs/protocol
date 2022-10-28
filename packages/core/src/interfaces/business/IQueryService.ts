@@ -1,4 +1,7 @@
 import {
+  EligibleReward,
+  QueryExpiredError,
+  ServerRewardError,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -20,14 +23,17 @@ export interface IQueryService {
     queryId: IpfsCID,
   ): ResultAsync<
     void,
-    | IPFSError
     | ConsentContractError
     | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
-    | ConsentError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | ServerRewardError
   >;
+
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,

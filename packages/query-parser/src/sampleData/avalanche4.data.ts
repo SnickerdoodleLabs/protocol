@@ -176,7 +176,7 @@ export const avalanche4SchemaStr = JSON.stringify(
       "$r7",
       "$r8",
     ],
-    compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
+    compensations: ["if$q1then$c1", "if$q2then$c2", "$c3"],
   },
 }
 );

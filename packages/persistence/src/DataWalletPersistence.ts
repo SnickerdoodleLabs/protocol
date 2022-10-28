@@ -40,6 +40,7 @@ import {
   IChainTransaction,
   ChainTransaction,
   CeramicStreamID,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { BigNumber } from "ethers";
@@ -63,9 +64,6 @@ import {
   IVolatileCursor,
 } from "@persistence/volatile/index.js";
 
-import { EarnedReward } from "@snickerdoodlelabs/objects";
-
-
 enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
   AGE = "SD_Age",
@@ -85,7 +83,7 @@ enum ELocalStorageKey {
   CLICKS = "SD_CLICKS",
   REJECTED_COHORTS = "SD_RejectedCohorts",
   LATEST_BLOCK = "SD_LatestBlock",
-  EARNED_REWARDS = "SD_EarnedRewards"
+  EARNED_REWARDS = "SD_EarnedRewards",
 }
 
 interface LatestBlockEntry {
@@ -208,13 +206,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           name: ELocalStorageKey.EARNED_REWARDS,
           keyPath: "queryCID",
           autoIncrement: false,
-          indexBy: [["type", false]]
+          indexBy: [["type", false]],
         },
       ],
     });
   }
-
-
 
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
@@ -262,13 +258,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public addEarnedReward(
-    reward: EarnedReward,
+  public addEarnedRewards(
+    rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen((key) => {
-      return this._getBackupManager().andThen((backupManager) => {
-        return backupManager.addRecord(ELocalStorageKey.EARNED_REWARDS, reward);
-      });
+    return this.waitForRestore().andThen(([key]) => {
+      return this.persistentStorageUtils
+        .read<EarnedReward[]>(ELocalStorageKey.EARNED_REWARDS)
+        .andThen((saved) => {
+          return this._getBackupManager().andThen((backupManager) => {
+            return backupManager.updateField(ELocalStorageKey.EARNED_REWARDS, [
+              ...(saved ?? []),
+              ...rewards,
+            ]);
+          });
+        });
     });
   }
 

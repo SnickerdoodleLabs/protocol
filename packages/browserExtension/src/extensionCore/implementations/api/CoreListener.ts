@@ -1,13 +1,7 @@
-import { BrowserUtils } from "@enviroment/shared/utils";
-import { ICoreListener } from "@interfaces/api";
-import {
-  IAccountCookieUtils,
-  IAccountCookieUtilsType,
-  IContextProvider,
-  IContextProviderType,
-} from "@interfaces/utilities";
 import {
   DataWalletAddress,
+  EarnedReward,
+  ERewardType,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
@@ -17,7 +11,17 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import Browser from "webextension-polyfill";
+
+import { BrowserUtils } from "@enviroment/shared/utils";
+import { ICoreListener } from "@interfaces/api";
+import {
+  IAccountCookieUtils,
+  IAccountCookieUtilsType,
+  IContextProvider,
+  IContextProviderType,
+} from "@interfaces/utilities";
 
 @injectable()
 export class CoreListener implements ICoreListener {
@@ -80,6 +84,11 @@ export class CoreListener implements ICoreListener {
       .processQuery(request.consentContractAddress, {
         cid: request.query.cid,
         query: getStringQuery(),
+      })
+      .map(() => {
+        console.log(
+          `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+        );
       })
       .mapErr((e) => {
         console.error(

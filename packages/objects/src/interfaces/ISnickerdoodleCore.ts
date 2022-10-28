@@ -8,6 +8,8 @@ import {
   PageInvitation,
   SiteVisit,
   LinkedAccount,
+  EligibleReward,
+  EarnedReward,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
