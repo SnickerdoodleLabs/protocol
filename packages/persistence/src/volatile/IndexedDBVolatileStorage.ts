@@ -1,4 +1,5 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -13,38 +14,46 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
   protected indexedDB: IndexedDB;
 
   public constructor() {
-    this.indexedDB = new IndexedDB("SD_Wallet", [
-      new VolatileTableIndex(
-        ELocalStorageKey.ACCOUNT,
-        "sourceAccountAddress",
-        false,
-        [["sourceChain", false]],
-      ),
-      new VolatileTableIndex(ELocalStorageKey.TRANSACTIONS, "hash", false, [
-        ["timestamp", false],
-        ["chainId", false],
-        ["value", false],
-        ["to", false],
-        ["from", false],
-      ]),
-      new VolatileTableIndex(ELocalStorageKey.SITE_VISITS, "id", true, [
-        ["url", false],
-        ["startTime", false],
-        ["endTime", false],
-      ]),
-      new VolatileTableIndex(ELocalStorageKey.CLICKS, "id", true, [
-        ["url", false],
-        ["timestamp", false],
-        ["element", false],
-      ]),
-      new VolatileTableIndex(ELocalStorageKey.LATEST_BLOCK, "contract", false),
-      new VolatileTableIndex(
-        ELocalStorageKey.EARNED_REWARDS,
-        "queryCID",
-        false,
-        [["type", false]],
-      ),
-    ]);
+    this.indexedDB = new IndexedDB(
+      "SD_Wallet",
+      [
+        new VolatileTableIndex(
+          ELocalStorageKey.ACCOUNT,
+          "sourceAccountAddress",
+          false,
+          [["sourceChain", false]],
+        ),
+        new VolatileTableIndex(ELocalStorageKey.TRANSACTIONS, "hash", false, [
+          ["timestamp", false],
+          ["chainId", false],
+          ["value", false],
+          ["to", false],
+          ["from", false],
+        ]),
+        new VolatileTableIndex(ELocalStorageKey.SITE_VISITS, "id", true, [
+          ["url", false],
+          ["startTime", false],
+          ["endTime", false],
+        ]),
+        new VolatileTableIndex(ELocalStorageKey.CLICKS, "id", true, [
+          ["url", false],
+          ["timestamp", false],
+          ["element", false],
+        ]),
+        new VolatileTableIndex(
+          ELocalStorageKey.LATEST_BLOCK,
+          "contract",
+          false,
+        ),
+        new VolatileTableIndex(
+          ELocalStorageKey.EARNED_REWARDS,
+          "queryCID",
+          false,
+          [["type", false]],
+        ),
+      ],
+      this.getIDBFactory(),
+    );
   }
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
@@ -104,5 +113,15 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError> {
     return this.indexedDB.getAllKeys(name, indexName, query, count);
+  }
+
+  // We could (should?) have a separate implementation of IndexdBVolatileStorage, FakeDBVolatileStorage.
+  // But we would need to duplicate the table config above, so I keep it here. This one implementation
+  // will switch automatically as needed.
+  private getIDBFactory(): IDBFactory {
+    if (typeof indexedDB === "undefined") {
+      return fakeIndexedDB;
+    }
+    return indexedDB;
   }
 }
