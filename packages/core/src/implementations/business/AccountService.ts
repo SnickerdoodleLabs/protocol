@@ -44,6 +44,7 @@ import {
   UnsupportedLanguageError,
   URLString,
   CeramicStreamID,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -71,7 +72,6 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -341,6 +341,10 @@ export class AccountService implements IAccountService {
               ),
             );
           })
+          .andThen(() => {
+            // We need to post a backup immediately upon adding an account, so that we don't lose access
+            return this.dataWalletPersistence.postBackup();
+          })
           .map(() => {
             // Notify the outside world of what we did
             context.publicEvents.onAccountAdded.next(
@@ -447,6 +451,10 @@ export class AccountService implements IAccountService {
                     accountAddress,
                   );
                 })
+                .andThen(() => {
+                  // We need to post a backup immediately upon adding an account, so that we don't lose access
+                  return this.dataWalletPersistence.postBackup();
+                })
                 .map(() => {
                   // Notify the outside world of what we did
                   context.publicEvents.onAccountRemoved.next(
@@ -527,10 +535,11 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getEarnedRewards();
   }
 
-  public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
+  public addEarnedReward(
+    reward: EarnedReward,
+  ): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.addEarnedReward(reward);
   }
-
 
   public getTranactions(
     filter?: EVMTransactionFilter,
