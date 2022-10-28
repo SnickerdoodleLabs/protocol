@@ -8,9 +8,9 @@ import {
   LinkedAccount,
   SiteVisit,
   ChainTransaction,
+  WalletNFT,
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
-import { IAccountNFT } from "@objects/interfaces";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import {
   Age,
@@ -150,9 +150,9 @@ export interface IDataWalletPersistence {
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
   updateAccountNFTs(
-    nfts: IAccountNFT[],
-  ): ResultAsync<IAccountNFT[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError>;
+    nfts: WalletNFT[],
+  ): ResultAsync<WalletNFT[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
 
   setLatestBlockNumber(
     contractAddress: EVMContractAddress,

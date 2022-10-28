@@ -3,7 +3,7 @@ import {
   DataWalletAddress,
   EChain,
   EVMAccountAddress,
-  IAccountNFT,
+  WalletNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   LanguageCode,
@@ -64,7 +64,7 @@ export class AccountRepository implements IAccountRepository {
     });
   }
 
-  public getAccountNFTs(): ResultAsync<IAccountNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
     return this.core.getAccountNFTs().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

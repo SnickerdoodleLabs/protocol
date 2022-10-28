@@ -12,7 +12,7 @@ import CloseIcon from "@material-ui/icons/Close";
 import {
   EVMAccountAddress,
   TokenBalance,
-  IAccountNFT,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import React, { FC, useEffect, useState } from "react";
@@ -37,7 +37,7 @@ export interface IAccountBalanceObject {
   [id: EVMAccountAddress]: TokenBalance[];
 }
 export interface IAccountNFTsObject {
-  [id: EVMAccountAddress]: IAccountNFT[];
+  [id: EVMAccountAddress]: WalletNFT[];
 }
 
 const ViewDetailsModal: FC = () => {

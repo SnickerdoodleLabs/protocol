@@ -18,7 +18,7 @@ import {
   EVMAccountAddress,
   TokenBalance,
   TickerSymbol,
-  IAccountNFT,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import clsx from "clsx";
 import { BigNumber } from "ethers";
@@ -80,8 +80,8 @@ const Portfolio: FC = () => {
   const [accountBalances, setAccountBalances] = useState<TokenBalance[]>();
   const [accountTestnetBalances, setAccountTestnetBalances] =
     useState<TokenBalance[]>();
-  const [accountNFTs, setAccountNFTs] = useState<IAccountNFT[]>();
-  const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<IAccountNFT[]>();
+  const [accountNFTs, setAccountNFTs] = useState<WalletNFT[]>();
+  const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
 
   const [isBalancesLoading, setIsBalancesLoading] = useState(true);
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
@@ -165,8 +165,8 @@ const Portfolio: FC = () => {
             return acc;
           },
           { mainnetNfts: [], testnetNfts: [] } as {
-            mainnetNfts: IAccountNFT[];
-            testnetNfts: IAccountNFT[];
+            mainnetNfts: WalletNFT[];
+            testnetNfts: WalletNFT[];
           },
         );
         setAccountNFTs(structeredNfts.mainnetNfts);
@@ -273,7 +273,7 @@ const Portfolio: FC = () => {
     accountTestnetBalances,
   ]);
 
-  const nftsToRender: IAccountNFT[] | null = useMemo(() => {
+  const nftsToRender: WalletNFT[] | null = useMemo(() => {
     if (accountNFTs && accountTestnetNFTs) {
       const nftArr =
         EDisplayMode.MAINNET === displayMode ? accountNFTs : accountTestnetNFTs;

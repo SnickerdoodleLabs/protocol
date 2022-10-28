@@ -20,7 +20,7 @@ import {
   DataWalletAddress,
   BigNumberString,
   TokenBalance,
-  IAccountNFT,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -224,7 +224,7 @@ export class ExternalCoreGateway {
   public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_BALANCES);
   }
-  public getAccountNFTs(): ResultAsync<IAccountNFT[], JsonRpcError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);
   }
 

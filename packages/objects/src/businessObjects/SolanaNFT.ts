@@ -1,5 +1,5 @@
+import { WalletNFT } from "@objects/businessObjects";
 import { EChainTechnology } from "@objects/enum";
-import { IAccountNFT } from "@objects/interfaces";
 import {
   ChainId,
   SolanaAccountAddress,
@@ -25,14 +25,14 @@ export class SolanaNFTMetadata {
   ) {}
 }
 
-export class SolanaNFT implements IAccountNFT {
-  public type = EChainTechnology.Solana;
-
+export class SolanaNFT extends WalletNFT {
   public constructor(
     public chain: ChainId,
     public owner: SolanaAccountAddress,
     public token: SolanaTokenAddress,
     public mint: string,
     public metadata: SolanaNFTMetadata,
-  ) {}
+  ) {
+    super(EChainTechnology.Solana, chain, owner, token);
+  }
 }

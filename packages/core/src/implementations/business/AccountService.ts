@@ -29,7 +29,7 @@ import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   TokenBalance,
-  IAccountNFT,
+  WalletNFT,
   InvalidParametersError,
   InvalidSignatureError,
   LanguageCode,
@@ -527,7 +527,7 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
     return this.dataWalletPersistence.getAccountNFTs();
   }
 

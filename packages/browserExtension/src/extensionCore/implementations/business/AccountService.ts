@@ -2,7 +2,7 @@ import {
   AccountAddress,
   DataWalletAddress,
   EChain,
-  IAccountNFT,
+  WalletNFT,
   LanguageCode,
   LinkedAccount,
   Signature,
@@ -33,7 +33,7 @@ export class AccountService implements IAccountService {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IAccountNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
     return this.accountRepository.getAccountNFTs();
   }
 

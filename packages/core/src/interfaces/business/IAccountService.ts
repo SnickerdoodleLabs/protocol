@@ -5,7 +5,7 @@ import {
   CrumbsContractError,
   InvalidSignatureError,
   TokenBalance,
-  IAccountNFT,
+  WalletNFT,
   LanguageCode,
   PersistenceError,
   Signature,
@@ -102,7 +102,7 @@ export interface IAccountService {
 
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
   getTranactions(
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;

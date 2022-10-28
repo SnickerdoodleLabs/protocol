@@ -22,7 +22,6 @@ class MoralisEVMNftRepositoryMocks {
     covalentApiKey: "CovalentApiKey",
     moralisApiKey: "MoralisApiKey",
     quoteCurrency: ECurrencyCode.USD,
-    chainInformation: new Map(),
     supportedChains: [],
   };
 

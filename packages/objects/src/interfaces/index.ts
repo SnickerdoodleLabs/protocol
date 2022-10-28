@@ -1,5 +1,4 @@
 export * from "@objects/interfaces/IAccountBalances";
-export * from "@objects/interfaces/IAccountNFT";
 export * from "@objects/interfaces/IAccountNFTs";
 export * from "@objects/interfaces/IAccountIndexing";
 export * from "@objects/interfaces/IConfigOverrides";

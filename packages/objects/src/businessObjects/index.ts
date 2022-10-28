@@ -29,3 +29,4 @@ export * from "@objects/businessObjects/TokenAddress";
 export * from "@objects/businessObjects/TokenBalance";
 export * from "@objects/businessObjects/TokenInfo";
 export * from "@objects/businessObjects/TransactionFilter";
+export * from "@objects/businessObjects/WalletNFT";

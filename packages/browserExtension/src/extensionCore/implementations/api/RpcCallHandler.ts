@@ -27,7 +27,7 @@ import {
   TokenId,
   BigNumberString,
   TokenBalance,
-  IAccountNFT,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
@@ -578,7 +578,7 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.accountService.getAccountBalances();
   }
 
-  private getAccountNFTs(): ResultAsync<IAccountNFT[], SnickerDoodleCoreError> {
+  private getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
     return this.accountService.getAccountNFTs();
   }
 

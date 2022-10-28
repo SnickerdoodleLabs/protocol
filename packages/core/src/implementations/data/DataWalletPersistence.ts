@@ -43,7 +43,7 @@ import {
   AccountIndexingError,
   AccountAddress,
   SolanaAccountAddress,
-  IAccountNFT,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManager,
@@ -616,8 +616,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public updateAccountNFTs(
-    nfts: IAccountNFT[],
-  ): ResultAsync<IAccountNFT[], PersistenceError> {
+    nfts: WalletNFT[],
+  ): ResultAsync<WalletNFT[], PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return this.persistentStorageUtils
         .write(ELocalStorageKey.NFTS, JSON.stringify(nfts))
@@ -631,7 +631,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAccountNFTs(): ResultAsync<IAccountNFT[], PersistenceError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return ResultUtils.combine([
         this.configProvider.getConfig(),
@@ -642,7 +642,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       ]).andThen(([config, lastUpdate]) => {
         const currTime = new Date().getTime();
         if (currTime - lastUpdate < config.accountNFTPollingIntervalMS) {
-          return this._checkAndRetrieveValue<IAccountNFT[]>(
+          return this._checkAndRetrieveValue<WalletNFT[]>(
             ELocalStorageKey.NFTS,
             [],
           );
@@ -656,7 +656,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   private pollNFTs(): ResultAsync<
-    IAccountNFT[],
+    WalletNFT[],
     PersistenceError | AjaxError | AccountIndexingError
   > {
     return ResultUtils.combine([
@@ -687,7 +687,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     chainId: ChainId,
     accountAddress: AccountAddress,
   ): ResultAsync<
-    IAccountNFT[],
+    WalletNFT[],
     PersistenceError | AccountIndexingError | AjaxError
   > {
     return ResultUtils.combine([

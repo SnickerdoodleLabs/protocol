@@ -1,11 +1,11 @@
 import { Box, Grid, Typography } from "@material-ui/core";
-import { EVMNFT, IAccountNFT } from "@snickerdoodlelabs/objects";
+import { EVMNFT, WalletNFT } from "@snickerdoodlelabs/objects";
 import React, { FC, useMemo } from "react";
 
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 
 export interface INFTItemProps {
-  item: IAccountNFT;
+  item: WalletNFT;
 }
 
 const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
