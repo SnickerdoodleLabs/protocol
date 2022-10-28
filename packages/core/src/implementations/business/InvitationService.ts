@@ -119,7 +119,7 @@ export class InvitationService implements IInvitationService {
 
         // Next up, if there are no slots available, then it's an Invalid invitation
         if (availableOptIns == 0) {
-          return okAsync(EInvitationStatus.Invalid);
+          return okAsync(EInvitationStatus.OutOfCapacity);
         }
 
         // If invitation has bussiness signature verify signature
@@ -128,13 +128,23 @@ export class InvitationService implements IInvitationService {
           if (!openOptInDisabled) {
             return okAsync(EInvitationStatus.Invalid);
           }
-          return this.isValidSignatureForInvitation(
-            invitation.consentContractAddress,
-            invitation.tokenId,
-            invitation.businessSignature,
-          ).map((res) => {
-            return res ? EInvitationStatus.New : EInvitationStatus.Invalid;
-          });
+          return this.consentRepo
+            .getTokenURI(invitation.consentContractAddress, invitation.tokenId)
+            .orElse((e) => {
+              return okAsync(null);
+            })
+            .andThen((tokenUri) => {
+              if (tokenUri) {
+                return okAsync(EInvitationStatus.Occupied);
+              }
+              return this.isValidSignatureForInvitation(
+                invitation.consentContractAddress,
+                invitation.tokenId,
+                invitation.businessSignature!,
+              ).map((res) => {
+                return res ? EInvitationStatus.New : EInvitationStatus.Invalid;
+              });
+            });
         }
 
         // If business signature does not exist then open optIn should not be disabled

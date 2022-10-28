@@ -17,6 +17,7 @@ import {
   Signature,
   HexString32,
   ConsentError,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -129,6 +130,14 @@ export interface IConsentContractRepository {
   ): ResultAsync<
     boolean,
     BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
+  getTokenURI(
+    consentContractAddres: EVMContractAddress,
+    tokenId: TokenId,
+  ): ResultAsync<
+    TokenUri | null,
+    ConsentContractError | UninitializedError | BlockchainProviderError
   >;
 
   // Encoders
