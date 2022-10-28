@@ -97,7 +97,8 @@ module.exports = {
       fs: false,
     },
   },
-  devtool: process.env.__BUILD_ENV__ === "PROD" ? false : "eval-source-map",
+  devtool:
+    process.env.__BUILD_ENV__ === "PROD" ? "source-map" : "eval-source-map",
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src/index.html"),
