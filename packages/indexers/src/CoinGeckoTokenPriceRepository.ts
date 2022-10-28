@@ -43,15 +43,15 @@ interface ITokenHistoryResponse {
   };
 }
 
-interface BiMap<K, V> {
-  forward: Map<K, V>;
-  backward: Map<V, K>;
+interface AssetPlatformMapping {
+  forward: { [key: string]: ChainId };
+  backward: { [key: ChainId]: string };
 }
 
 @injectable()
 export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   private _assetPlatforms?: ResultAsync<
-    BiMap<string, ChainId>,
+    AssetPlatformMapping,
     AccountIndexingError
   >;
 
@@ -98,11 +98,11 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       this.configProvider.getConfig(),
     ])
       .andThen(([platforms, config]) => {
-        if (!platforms.backward.has(chainId)) {
+        if (!(chainId in platforms.backward)) {
           return errAsync(new AccountIndexingError("invalid chain id"));
         }
 
-        const platform = platforms.backward.get(chainId)!;
+        const platform = platforms.backward[chainId];
         if (contractAddress == null) {
           const url = urlJoinP(
             "https://api.coingecko.com/api/v3/coins/",
@@ -193,10 +193,10 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                   if (
                     platform != "" &&
                     addr != "" &&
-                    platforms.forward.has(platform)
+                    platform in platforms.forward
                   ) {
                     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    const chainId = platforms.forward.get(platform)!;
+                    const chainId = platforms.forward[platform];
                     const tokenInfo = new TokenInfo(
                       coin.id,
                       TickerSymbol(coin.symbol),
@@ -204,9 +204,11 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                       ChainId(chainId),
                       addr,
                     );
+
                     results.push(store.putObject(TABLE_NAME, tokenInfo));
                   }
                 }
+
                 return ResultUtils.combine(results);
               }),
             ).map(() => store);
@@ -234,11 +236,12 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         },
       ],
     });
+    console.log(this._tokenInfoStore);
     return this._tokenInfoStore;
   }
 
   private _getAssetPlatforms(): ResultAsync<
-    BiMap<string, ChainId>,
+    AssetPlatformMapping,
     AccountIndexingError
   > {
     if (this._assetPlatforms) {
@@ -256,23 +259,26 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
           }[]
         >(new URL("https://api.coingecko.com/api/v3/asset_platforms"))
         .andThen((items) => {
-          const idToChain = new Map<string, ChainId>();
-          const chainToId = new Map<ChainId, string>();
+          const mapping: AssetPlatformMapping = {
+            forward: {},
+            backward: {},
+          };
+
           items.forEach((item) => {
             if (
               item.chain_identifier &&
               item.chain_identifier in config.supportedChains
             ) {
-              idToChain[item.id] = item.chain_identifier;
-              chainToId[item.chain_identifier] = item.id;
+              mapping.forward[item.id] = ChainId(item.chain_identifier);
+              mapping.backward[ChainId(item.chain_identifier)] = item.id;
             }
           });
 
           // Non EVM has to be mapped manually
-          idToChain["solana"] = ChainId(EChain.Solana);
-          chainToId[ChainId(EChain.Solana)] = "solana";
+          mapping.forward["solana"] = ChainId(EChain.Solana);
+          mapping.backward[ChainId(EChain.Solana)] = "solana";
 
-          return okAsync({ forward: idToChain, backward: chainToId });
+          return okAsync(mapping);
         })
         .mapErr(
           (e) => new AccountIndexingError("error fetching asset platforms", e),

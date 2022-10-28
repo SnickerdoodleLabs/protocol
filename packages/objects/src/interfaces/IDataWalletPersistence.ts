@@ -9,6 +9,7 @@ import {
   SiteVisit,
   ChainTransaction,
   WalletNFT,
+  TokenAddress,
 } from "@objects/businessObjects";
 import { PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
@@ -161,6 +162,12 @@ export interface IDataWalletPersistence {
   getLatestBlockNumber(
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError>;
+
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date: Date,
+  ): ResultAsync<number, PersistenceError>;
 
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;

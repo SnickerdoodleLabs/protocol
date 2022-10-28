@@ -10,6 +10,7 @@ import {
   LinkedAccount,
   TokenBalance,
   WalletNFT,
+  TokenAddress,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -37,6 +38,7 @@ import {
   AccountAddress,
   Age,
   CeramicStreamID,
+  ChainId,
   CountryCode,
   DataWalletAddress,
   DomainName,
@@ -353,6 +355,12 @@ export interface ISnickerdoodleCore {
   getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
+
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date: Date,
+  ): ResultAsync<number, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

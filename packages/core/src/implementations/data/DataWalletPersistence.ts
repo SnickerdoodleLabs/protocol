@@ -45,6 +45,9 @@ import {
   SolanaAccountAddress,
   WalletNFT,
   isAccountValidForChain,
+  ITokenPriceRepositoryType,
+  ITokenPriceRepository,
+  TokenAddress,
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManager,
@@ -114,6 +117,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(ICloudStorageType) protected cloudStorage: ICloudStorage,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITokenPriceRepositoryType)
+    protected tokenPriceRepo: ITokenPriceRepository,
   ) {
     this.objectStore = undefined;
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
@@ -122,6 +127,16 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     this.restorePromise = new Promise<void>((resolve) => {
       this.resolveRestore = resolve;
     });
+  }
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date: Date,
+  ): ResultAsync<number, PersistenceError> {
+    return this.tokenPriceRepo
+      .getTokenPrice(chainId, address, date)
+      .mapErr((e) => new PersistenceError("unable to fetch token price", e));
   }
 
   private _getBackupManager(): ResultAsync<BackupManager, PersistenceError> {

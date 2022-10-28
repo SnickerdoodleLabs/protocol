@@ -69,6 +69,7 @@ import {
   CeramicStreamID,
   TokenBalance,
   EarnedReward,
+  TokenAddress,
 } from "@snickerdoodlelabs/objects";
 import {
   IndexedDBFactory,
@@ -723,5 +724,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.clearCloudStore();
+  }
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date: Date,
+  ): ResultAsync<number, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getTokenPrice(chainId, address, date);
   }
 }

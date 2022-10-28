@@ -15,6 +15,7 @@ import {
   IVolatileCursor,
   VolatileKey,
 } from "@persistence/volatile/IVolatileStorageTable.js";
+import { abort } from "process";
 
 function _getCompoundIndexName(key: (string | number)[]): string {
   return key.join(",");
@@ -44,6 +45,10 @@ export class IndexedDB implements IVolatileStorageTable {
     }
     const idb = this._getIDBFactory();
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new PersistenceError("timeout"));
+      }, 1000);
+
       try {
         const request = idb.open(this.name);
 
@@ -77,6 +82,7 @@ export class IndexedDB implements IVolatileStorageTable {
         };
       } catch (e) {
         console.error(e);
+        clearTimeout(timeout);
         reject(e);
       }
     });
@@ -183,13 +189,14 @@ export class IndexedDB implements IVolatileStorageTable {
       })
       .andThen((store) => {
         const promise = new Promise((resolve, reject) => {
-          console.log("creating promise", obj);
+          const timeout = setTimeout(() => {
+            reject(new PersistenceError("timeout"));
+          }, 1000);
+
           try {
-            const timeout = setTimeout(() => {
-              reject(new PersistenceError("timeout"));
-            }, 1000);
             const request = store.put(obj);
             request.onsuccess = (event) => {
+              // console.log(event);
               clearTimeout(timeout);
               resolve(undefined);
             };
@@ -205,7 +212,9 @@ export class IndexedDB implements IVolatileStorageTable {
           } catch (e) {
             console.log("error obj", obj);
             console.error("error", e);
+            clearTimeout(timeout);
             reject(new PersistenceError("Error updating object store", e));
+            abort();
           }
         });
 

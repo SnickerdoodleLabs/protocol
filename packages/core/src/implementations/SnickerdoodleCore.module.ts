@@ -13,6 +13,7 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
+  CoinGeckoTokenPriceRepository,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
@@ -24,6 +25,8 @@ import {
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import {
   IPersistenceConfigProvider,
@@ -200,6 +203,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
+      .inSingletonScope();
+
+    bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
+      .to(CoinGeckoTokenPriceRepository)
       .inSingletonScope();
 
     bind<IDataWalletPersistence>(IDataWalletPersistenceType)
