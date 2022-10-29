@@ -15,7 +15,7 @@ import {
   IVolatileStorage,
   IVolatileStorageType,
 } from "@persistence/volatile/index.js";
-import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema";
+import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema.js";
 
 @injectable()
 export class BackupManagerProvider implements IBackupManagerProvider {
