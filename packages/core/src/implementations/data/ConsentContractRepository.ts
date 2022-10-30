@@ -18,6 +18,7 @@ import {
   HexString32,
   Signature,
   ConsentError,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, ResultAsync } from "neverthrow";
@@ -331,6 +332,20 @@ export class ConsentContractRepository implements IConsentContractRepository {
     return this.getConsentContract(consentContractAddres).andThen(
       (contract) => {
         return contract.getSignerRoleMembers();
+      },
+    );
+  }
+
+  public getTokenURI(
+    consentContractAddres: EVMContractAddress,
+    tokenId: TokenId,
+  ): ResultAsync<
+    TokenUri | null,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  > {
+    return this.getConsentContract(consentContractAddres).andThen(
+      (contract) => {
+        return contract.tokenURI(tokenId);
       },
     );
   }
