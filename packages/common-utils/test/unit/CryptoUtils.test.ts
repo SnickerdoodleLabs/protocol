@@ -1,17 +1,11 @@
 import "reflect-metadata";
 import {
-  TypedDataDomain,
-  TypedDataField,
-} from "@ethersproject/abstract-signer";
-import {
-  EVMAccountAddress,
-  EVMPrivateKey,
   HexString,
   Signature,
   SolanaAccountAddress,
   SolanaPrivateKey,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { CryptoUtils } from "@common-utils/implementations";
