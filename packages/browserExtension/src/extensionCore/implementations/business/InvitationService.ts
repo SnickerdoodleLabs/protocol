@@ -38,6 +38,12 @@ export class InvitationService implements IInvitationService {
     protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
 
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
+    return this.invitationRepository.getConsentContractCID(consentAddress);
+  }
+
   public getAgreementPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError> {
