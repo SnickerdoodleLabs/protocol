@@ -664,53 +664,48 @@ const Portfolio: FC = () => {
                       </Box>
                     </Box>
                   )}
-                  {nftsPagination && (
-                    <Box
-                      display="flex"
-                      marginTop="auto"
-                      justifyContent="flex-end"
-                    >
-                      <Typography className={classes.paginationText}>
-                        {`${
-                          (nftsPagination.currentIndex - 1) * PAGINATION_RANGE +
-                          1
-                        } - ${
-                          nftsPagination.currentIndex * PAGINATION_RANGE <
-                          nftsPagination.totalItems
-                            ? nftsPagination.currentIndex * PAGINATION_RANGE
-                            : nftsPagination.totalItems
-                        } of ${nftsPagination.totalItems}`}
-                      </Typography>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setTokensPagination({
-                            ...nftsPagination,
-                            currentIndex: nftsPagination.currentIndex - 1,
-                          });
-                        }}
-                        disabled={nftsPagination.currentIndex === 1}
-                      >
-                        <KeyboardArrowLeft />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        disabled={
-                          nftsPagination.currentIndex ===
-                          nftsPagination.numberOfPages
-                        }
-                        onClick={() => {
-                          setTokensPagination({
-                            ...nftsPagination,
-                            currentIndex: nftsPagination.currentIndex + 1,
-                          });
-                        }}
-                      >
-                        <KeyboardArrowRight />
-                      </IconButton>
-                    </Box>
-                  )}
                 </Grid>
+              )}
+              {nftsPagination && (
+                <Box display="flex" marginTop="auto" justifyContent="flex-end">
+                  <Typography className={classes.paginationText}>
+                    {`${
+                      (nftsPagination.currentIndex - 1) * PAGINATION_RANGE + 1
+                    } - ${
+                      nftsPagination.currentIndex * PAGINATION_RANGE <
+                      nftsPagination.totalItems
+                        ? nftsPagination.currentIndex * PAGINATION_RANGE
+                        : nftsPagination.totalItems
+                    } of ${nftsPagination.totalItems}`}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setNftsPagination({
+                        ...nftsPagination,
+                        currentIndex: nftsPagination.currentIndex - 1,
+                      });
+                    }}
+                    disabled={nftsPagination.currentIndex === 1}
+                  >
+                    <KeyboardArrowLeft />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    disabled={
+                      nftsPagination.currentIndex ===
+                      nftsPagination.numberOfPages
+                    }
+                    onClick={() => {
+                      setNftsPagination({
+                        ...nftsPagination,
+                        currentIndex: nftsPagination.currentIndex + 1,
+                      });
+                    }}
+                  >
+                    <KeyboardArrowRight />
+                  </IconButton>
+                </Box>
               )}
             </Box>
           </Grid>
