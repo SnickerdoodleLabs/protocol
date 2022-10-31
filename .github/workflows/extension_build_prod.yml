@@ -1,4 +1,4 @@
-name: Build and Push to GCR
+name: Extension Build Prod
 
 on:
   push:
