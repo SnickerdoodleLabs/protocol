@@ -18,6 +18,8 @@ import {
   ConsentFactoryContractError,
   IpfsCID,
   HexString32,
+  Signature,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -74,6 +76,13 @@ export interface IInvitationService {
   >;
 
   getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
+
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
 
   getInvitationsByDomain(
     domain: DomainName,

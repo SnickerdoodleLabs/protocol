@@ -10,6 +10,8 @@ import {
   EVMContractAddress,
   IpfsCID,
   HexString32,
+  Signature,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -24,6 +26,15 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
+
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
+    return this.core.getConsentContractCID(consentAddress).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
 
   public getAgreementFlags(
     consentContractAddress: EVMContractAddress,

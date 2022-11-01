@@ -700,14 +700,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               .getCursor<EVMTransaction>(
                 ELocalStorageKey.TRANSACTIONS,
                 "to",
-                account.derivedAccountAddress,
+                account.sourceAccountAddress,
               )
               .andThen((cursor) => cursor.allValues().map((evm) => evm!)),
             this.volatileStorage
               .getCursor<EVMTransaction>(
                 ELocalStorageKey.TRANSACTIONS,
                 "from",
-                account.derivedAccountAddress,
+                account.sourceAccountAddress,
               )
               .andThen((cursor) => cursor.allValues().map((evm) => evm!)),
           ]).andThen(([toTransactions, fromTransactions]) => {

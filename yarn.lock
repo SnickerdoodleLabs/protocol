@@ -6258,8 +6258,8 @@ __metadata:
     json-rpc-middleware-stream: ^3.0.0
     jss: ^10.9.0
     metamask-extension-provider: ^3.0.0
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     node-polyfill-webpack-plugin: ^1.1.4
     obj-multiplex: ^1.0.0
     post-message-stream: ^3.0.0
@@ -6286,8 +6286,8 @@ __metadata:
     axios: ^0.27.2
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     pino: ^8.1.0
     tweetnacl: ^1.0.3
   languageName: unknown
@@ -6301,8 +6301,8 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
   languageName: unknown
   linkType: soft
 
@@ -6351,8 +6351,8 @@ __metadata:
     inversify: ^5.1.1
     ipfs-http-client: ^55.0.0
     lzutf8: ^0.6.3
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
   languageName: unknown
   linkType: soft
@@ -6371,8 +6371,8 @@ __metadata:
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
     tldts: ^5.7.89
@@ -6401,8 +6401,8 @@ __metadata:
     formik: 2.2.9
     formik-material-ui: 3.0.1
     gapi-script: ^1.2.0
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     notistack: ^2.0.5
     path-browserify: ^1.0.1
     path-to-regexp: ^6.2.0
@@ -6429,8 +6429,8 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
     url-join-ts: ^1.0.5
   languageName: unknown
@@ -6445,7 +6445,7 @@ __metadata:
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
+    neverthrow: ^5.1.0
     ts-brand: ^0.0.2
     url-join-ts: ^1.0.5
   languageName: unknown
@@ -6456,7 +6456,7 @@ __metadata:
   resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
   dependencies:
     ethers: ^5.6.6
-    neverthrow: ^4.3.1
+    neverthrow: ^5.1.0
     rxjs: ^7.5.5
     ts-brand: ^0.0.2
   languageName: unknown
@@ -6482,7 +6482,7 @@ __metadata:
     ipfs-only-hash: ^4.0.0
     key-did-provider-ed25519: ^2.0.1
     key-did-resolver: ^2.1.0
-    neverthrow: ^4.2.2
+    neverthrow: ^5.1.0
   languageName: unknown
   linkType: soft
 
@@ -6494,8 +6494,8 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
   languageName: unknown
   linkType: soft
 
@@ -6505,7 +6505,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
-    neverthrow: ^4.3.1
+    neverthrow: ^5.1.0
     ts-brand: ^0.0.2
   languageName: unknown
   linkType: soft
@@ -6516,7 +6516,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/objects": "workspace:^"
     inversify: ^5.1.1
-    neverthrow: ^4.2.2
+    neverthrow: ^5.1.0
   languageName: unknown
   linkType: soft
 
@@ -7122,6 +7122,16 @@ __metadata:
     "@types/eslint": "*"
     "@types/estree": "*"
   checksum: ea6a9363e92f301cd3888194469f9ec9d0021fe0a397a97a6dd689e7545c75de0bd2153dfb13d3ab532853a278b6572c6f678ce846980669e41029d205653460
+  languageName: node
+  linkType: hard
+
+"@types/eslint-utils@npm:^3.0.0":
+  version: 3.0.2
+  resolution: "@types/eslint-utils@npm:3.0.2"
+  dependencies:
+    "@types/eslint": "*"
+    "@types/estree": "*"
+  checksum: 052227085b7f19b281f0be78b4186e410e3f5fd63c1f7168010d81aeb8683ecac309e856dfeef43c068c2176fb6de69e4b4bbc687ac4ee17f95d0b0cab4b4b9d
   languageName: node
   linkType: hard
 
@@ -15550,6 +15560,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-neverthrow@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "eslint-plugin-neverthrow@npm:1.1.4"
+  dependencies:
+    "@types/eslint-utils": ^3.0.0
+    eslint-utils: 3.0.0
+    tsutils: 3.21.0
+  peerDependencies:
+    "@typescript-eslint/parser": ">=4.20.0"
+    eslint: ">=5.16.0"
+  checksum: b8c3821a72e533fe32013e54b8a521f042dadf6298fc40301a249598d139388a59080c32488d9adceff97afa13291d19e614fc469546dfe1b973f88b6bd6bd3e
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-node@npm:^11.1.0":
   version: 11.1.0
   resolution: "eslint-plugin-node@npm:11.1.0"
@@ -15715,16 +15739,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-utils@npm:^2.0.0":
-  version: 2.1.0
-  resolution: "eslint-utils@npm:2.1.0"
-  dependencies:
-    eslint-visitor-keys: ^1.1.0
-  checksum: 27500938f348da42100d9e6ad03ae29b3de19ba757ae1a7f4a087bdcf83ac60949bbb54286492ca61fac1f5f3ac8692dd21537ce6214240bf95ad0122f24d71d
-  languageName: node
-  linkType: hard
-
-"eslint-utils@npm:^3.0.0":
+"eslint-utils@npm:3.0.0, eslint-utils@npm:^3.0.0":
   version: 3.0.0
   resolution: "eslint-utils@npm:3.0.0"
   dependencies:
@@ -15732,6 +15747,15 @@ __metadata:
   peerDependencies:
     eslint: ">=5"
   checksum: 0668fe02f5adab2e5a367eee5089f4c39033af20499df88fe4e6aba2015c20720404d8c3d6349b6f716b08fdf91b9da4e5d5481f265049278099c4c836ccb619
+  languageName: node
+  linkType: hard
+
+"eslint-utils@npm:^2.0.0":
+  version: 2.1.0
+  resolution: "eslint-utils@npm:2.1.0"
+  dependencies:
+    eslint-visitor-keys: ^1.1.0
+  checksum: 27500938f348da42100d9e6ad03ae29b3de19ba757ae1a7f4a087bdcf83ac60949bbb54286492ca61fac1f5f3ac8692dd21537ce6214240bf95ad0122f24d71d
   languageName: node
   linkType: hard
 
@@ -26221,20 +26245,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"neverthrow-result-utils@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "neverthrow-result-utils@npm:1.0.2"
+"neverthrow-result-utils@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "neverthrow-result-utils@npm:2.0.2"
   dependencies:
     delay: ^5.0.0
-    neverthrow: ^4.3.1
-  checksum: 32fc0230caf44af52307c55699f626d1b0582ea7f3279f556d0b31a7bd47bbd596c61885a2f74856c4221674f930d5324f6bd1b8226aad9aa3bacb1624fde857
+    neverthrow: ^5.1.0
+  checksum: 0a2efbdec2af660f74900f25386f2c1f1023b4209e58d827430115bda7928a5d8a19eefd070b2ce17b03f9a41a63263d7376475b99795c64e2ff923ced6437d2
   languageName: node
   linkType: hard
 
-"neverthrow@npm:^4.2.2, neverthrow@npm:^4.3.1":
-  version: 4.4.2
-  resolution: "neverthrow@npm:4.4.2"
-  checksum: 4186409c2f8abd04d8f61f69d523e484c7a342b05f67c8f1fc5e3dc492279a62e4fef37e397bfefb3938070b1a5da741c6f70ea00241ebd30f63eab6a7033de6
+"neverthrow@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "neverthrow@npm:5.1.0"
+  checksum: 542e21fb6560354a483037bec871b75ec155e8118df001e036f053332cee64191e4b18e3e249db813a63b313ddf0d3440f727fda5dd9292578c042d77a3bfa67
   languageName: node
   linkType: hard
 
@@ -31578,6 +31602,7 @@ __metadata:
     eslint-plugin-flowtype: ^8.0.3
     eslint-plugin-import: ^2.23.3
     eslint-plugin-jsx-a11y: ^6.5.1
+    eslint-plugin-neverthrow: ^1.1.4
     eslint-plugin-node: ^11.1.0
     eslint-plugin-prettier: ^3.4.0
     eslint-plugin-promise: ^5.1.0
@@ -34002,7 +34027,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsutils@npm:^3.17.1, tsutils@npm:^3.21.0":
+"tsutils@npm:3.21.0, tsutils@npm:^3.17.1, tsutils@npm:^3.21.0":
   version: 3.21.0
   resolution: "tsutils@npm:3.21.0"
   dependencies:

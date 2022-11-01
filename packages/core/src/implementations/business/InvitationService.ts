@@ -33,8 +33,11 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
   HexString32,
+  TokenId,
+  Signature,
+  HexString,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -105,62 +108,103 @@ export class InvitationService implements IInvitationService {
       this.consentRepo.getAvailableOptInCount(
         invitation.consentContractAddress,
       ),
-    ]).andThen(([rejectedConsentContracts, optedIn, availableOptIns]) => {
-      const rejected = rejectedConsentContracts.includes(
-        invitation.consentContractAddress,
-      );
+      this.consentRepo.isOpenOptInDisabled(invitation.consentContractAddress),
+    ]).andThen(
+      ([
+        rejectedConsentContracts,
+        optedIn,
+        availableOptIns,
+        openOptInDisabled,
+      ]) => {
+        const rejected = rejectedConsentContracts.includes(
+          invitation.consentContractAddress,
+        );
 
-      // If we are opted in, that wins
-      if (optedIn) {
-        return okAsync(EInvitationStatus.Accepted);
-      }
+        // If we are opted in, that wins
+        if (optedIn) {
+          return okAsync(EInvitationStatus.Accepted);
+        }
 
-      // Next winner, the reject list
-      if (rejected) {
-        return okAsync(EInvitationStatus.Rejected);
-      }
+        // Next winner, the reject list
+        if (rejected) {
+          return okAsync(EInvitationStatus.Rejected);
+        }
 
-      // Next up, if there are no slots available, then it's an Invalid invitation
-      if (availableOptIns == 0) {
-        return okAsync(EInvitationStatus.Invalid);
-      }
+        // Next up, if there are no slots available, then it's an Invalid invitation
+        if (availableOptIns == 0) {
+          return okAsync(EInvitationStatus.OutOfCapacity);
+        }
 
-      // Not rejected or already in the cohort, we need to verify the invitation
-      return ResultUtils.combine([
-        this.consentRepo.getInvitationUrls(invitation.consentContractAddress),
-        this.getConsentContractAddressesFromDNS(invitation.domain),
-      ]).map(([urls, consentContractAddresses]) => {
-        // Derive a list of domains from a list of URLs
-        console.log("urls", urls);
-        console.log("consentContractAddresses", consentContractAddresses);
-        console.log("invitation.domain", invitation.domain);
+        // If invitation has bussiness signature verify signature
+        if (invitation.businessSignature) {
+          // If business signature exist then open optIn should be disabled
+          if (!openOptInDisabled) {
+            return okAsync(EInvitationStatus.Invalid);
+          }
+          return this.consentRepo
+            .getTokenURI(invitation.consentContractAddress, invitation.tokenId)
+            .orElse((e) => {
+              return okAsync(null);
+            })
+            .andThen((tokenUri) => {
+              if (tokenUri) {
+                return okAsync(EInvitationStatus.Occupied);
+              }
+              return this.isValidSignatureForInvitation(
+                invitation.consentContractAddress,
+                invitation.tokenId,
+                invitation.businessSignature!,
+              ).map((res) => {
+                return res ? EInvitationStatus.New : EInvitationStatus.Invalid;
+              });
+            });
+        }
 
-        const domains = urls
-          .map((url) => {
-            if (url.includes("https://") || url.includes("http://")) {
-              return new URL(url).href;
+        // If business signature does not exist then open optIn should not be disabled
+        if (openOptInDisabled) {
+          return okAsync(EInvitationStatus.Invalid);
+        }
+
+        // If invitation belongs any domain verify URLs
+        if (invitation.domain) {
+          // Not rejected or already in the cohort, we need to verify the invitation
+          return ResultUtils.combine([
+            this.consentRepo.getInvitationUrls(
+              invitation.consentContractAddress,
+            ),
+            this.getConsentContractAddressesFromDNS(invitation.domain),
+          ]).map(([urls, consentContractAddresses]) => {
+            // Derive a list of domains from a list of URLs
+
+            const domains = urls
+              .map((url) => {
+                if (url.includes("https://") || url.includes("http://")) {
+                  return new URL(url).href;
+                }
+                return new URL(`http://${url}`).href;
+              })
+              .map((href) => getDomain(href));
+
+            // We need to remove the subdomain so it would match with the saved domains in the blockchain
+            const domainStr = getDomain(invitation.domain);
+            // The contract must include the domain
+            if (!domains.includes(domainStr)) {
+              return EInvitationStatus.Invalid;
             }
-            return new URL(`http://${url}`).href;
-          })
-          .map((href) => getDomain(href));
+            if (
+              !consentContractAddresses.includes(
+                invitation.consentContractAddress,
+              )
+            ) {
+              return EInvitationStatus.Invalid;
+            }
 
-        console.log("domains", domains);
-
-        // We need to remove the subdomain so it would match with the saved domains in the blockchain
-        const domainStr = getDomain(invitation.domain);
-        // The contract must include the domain
-        if (!domains.includes(domainStr)) {
-          return EInvitationStatus.Invalid;
+            return EInvitationStatus.New;
+          });
         }
-        if (
-          !consentContractAddresses.includes(invitation.consentContractAddress)
-        ) {
-          return EInvitationStatus.Invalid;
-        }
-
-        return EInvitationStatus.New;
-      });
-    });
+        return okAsync(EInvitationStatus.New);
+      },
+    );
   }
 
   public acceptInvitation(
@@ -518,6 +562,15 @@ export class InvitationService implements IInvitationService {
     return this.invitationRepo.getInvitationMetadataByCID(ipfsCID);
   }
 
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.consentRepo.getMetadataCID(consentAddress);
+  }
+
   protected getInvitationsFromConsentContract(
     domain: DomainName,
     consentContractAddress: EVMContractAddress,
@@ -618,7 +671,6 @@ export class InvitationService implements IInvitationService {
             );
           })
           .map((addressesWithCID) => {
-            console.log("addressesWithCID", addressesWithCID);
             return new Map(
               addressesWithCID.map((addressWithCID) => [
                 addressWithCID.contractAddress,
@@ -628,6 +680,39 @@ export class InvitationService implements IInvitationService {
           });
       },
     );
+  }
+
+  protected isValidSignatureForInvitation(
+    consentContractAddres: EVMContractAddress,
+    tokenId: TokenId,
+    businessSignature: Signature,
+  ): ResultAsync<
+    boolean,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.consentRepo
+      .getSignerRoleMembers(consentContractAddres)
+      .andThen((signersAccountAddresses) => {
+        return ResultUtils.combine(
+          signersAccountAddresses.map((signerAccountAddress) => {
+            const types = ["address", "uint256"];
+            const msgHash = ethers.utils.solidityKeccak256(
+              [...types],
+              [consentContractAddres, BigNumber.from(tokenId)],
+            );
+            return this.cryptoUtils
+              .verifyEVMSignature(
+                ethers.utils.arrayify(msgHash),
+                businessSignature,
+              )
+              .map((accountAddress) => {
+                return accountAddress == signerAccountAddress;
+              });
+          }),
+        ).map((validationResults) => {
+          return validationResults.filter(Boolean).length > 0;
+        });
+      });
   }
 
   protected consentContractHasMatchingTXT(
@@ -668,6 +753,7 @@ export class InvitationService implements IInvitationService {
     | UninitializedError
     | ConsentFactoryContractError
     | PersistenceError
+    | ConsentContractError
   > {
     return ResultUtils.combine([
       // can be fetched via insight-platform API call
@@ -675,11 +761,32 @@ export class InvitationService implements IInvitationService {
       this.consentRepo.getDeployedConsentContractAddresses(),
       this.persistenceRepo.getAcceptedInvitations(),
       this.persistenceRepo.getRejectedCohorts(),
-    ]).map(([consents, optInInfo, rejectedConsents]) => {
-      return consents.filter(
-        (consent) =>
-          !optInInfo.find((oii) => oii.consentContractAddress == consent) &&
-          !rejectedConsents.includes(consent),
+    ]).andThen(([consents, acceptedInvitations, rejectedConsents]) => {
+      return ResultUtils.combine(
+        consents
+          .filter((consent) => {
+            const existingAcceptedInvitation = acceptedInvitations.find(
+              (acceptedInvitation) => {
+                return acceptedInvitation.consentContractAddress == consent;
+              },
+            );
+            return (
+              existingAcceptedInvitation == null &&
+              !rejectedConsents.includes(consent)
+            );
+          })
+          .map((consentAddress) =>
+            this.consentRepo
+              .getAvailableOptInCount(consentAddress)
+              .map((availableOptIns) => ({
+                availableOptIns,
+                consentAddress,
+              })),
+          ),
+      ).map((results) =>
+        results
+          .filter((res) => res.availableOptIns)
+          .map((res) => res.consentAddress),
       );
     });
   }

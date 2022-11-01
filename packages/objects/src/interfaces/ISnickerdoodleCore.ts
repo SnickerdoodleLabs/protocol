@@ -48,6 +48,7 @@ import {
   IpfsCID,
   LanguageCode,
   Signature,
+  TokenId,
   UnixTimestamp,
 } from "@objects/primitives";
 
@@ -262,6 +263,13 @@ export interface ISnickerdoodleCore {
     | BlockchainProviderError
     | AjaxError
     | IPFSError
+  >;
+
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
   getAcceptedInvitationsCID(): ResultAsync<

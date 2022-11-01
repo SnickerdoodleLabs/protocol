@@ -89,20 +89,6 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
-  public encodeRestrictedOptIn(
-    tokenId: TokenId,
-    signature: Signature,
-    agreementFlags: HexString32,
-  ): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("restrictedOptIn", [
-        tokenId,
-        agreementFlags,
-        signature,
-      ]),
-    );
-  }
-
   public restrictedOptIn(
     tokenId: TokenId,
     agreementFlags: HexString32,
@@ -134,6 +120,20 @@ export class ConsentContract implements IConsentContract {
       .map(() => {});
   }
 
+  public encodeRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("restrictedOptIn", [
+        tokenId,
+        agreementFlags,
+        signature,
+      ]),
+    );
+  }
+
   public anonymousRestrictedOptIn(
     tokenId: TokenId,
     agreementFlags: HexString32,
@@ -163,6 +163,20 @@ export class ConsentContract implements IConsentContract {
         });
       })
       .map(() => {});
+  }
+
+  public encodeAnonymousRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("anonymousRestrictedOptIn", [
+        tokenId,
+        agreementFlags,
+        signature,
+      ]),
+    );
   }
 
   public optOut(tokenId: TokenId): ResultAsync<void, ConsentContractError> {
@@ -898,6 +912,19 @@ export class ConsentContract implements IConsentContract {
         );
       },
     ).map((totalSupply) => totalSupply.toNumber());
+  }
+
+  public openOptInDisabled(): ResultAsync<boolean, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.openOptInDisabled() as Promise<boolean>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call openOptInDisabled()",
+          "Unknown",
+          e,
+        );
+      },
+    );
   }
 
   public filters = {

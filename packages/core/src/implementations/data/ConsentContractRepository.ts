@@ -17,6 +17,7 @@ import {
   IpfsCID,
   Signature,
   OptInInfo,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, ResultAsync } from "neverthrow";
@@ -205,6 +206,23 @@ export class ConsentContractRepository implements IConsentContractRepository {
     });
   }
 
+  public encodeAnonymousRestrictedOptIn(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    signature: Signature,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError> {
+    return this.getConsentContract(consentContractAddress).map((contract) => {
+      return contract.encodeAnonymousRestrictedOptIn(
+        tokenId,
+        signature,
+        dataPermissions != null
+          ? dataPermissions.getFlags()
+          : DataPermissions.allPermissionsHexString,
+      );
+    });
+  }
+
   public encodeOptOut(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
@@ -223,6 +241,46 @@ export class ConsentContractRepository implements IConsentContractRepository {
       .andThen((consentFactoryContract) => {
         return consentFactoryContract.getDeployedConsents();
       });
+  }
+
+  public isOpenOptInDisabled(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<
+    boolean,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddres).andThen(
+      (contract) => {
+        return contract.openOptInDisabled();
+      },
+    );
+  }
+
+  public getSignerRoleMembers(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<
+    EVMAccountAddress[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  > {
+    return this.getConsentContract(consentContractAddres).andThen(
+      (contract) => {
+        return contract.getSignerRoleMembers();
+      },
+    );
+  }
+
+  public getTokenURI(
+    consentContractAddres: EVMContractAddress,
+    tokenId: TokenId,
+  ): ResultAsync<
+    TokenUri | null,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  > {
+    return this.getConsentContract(consentContractAddres).andThen(
+      (contract) => {
+        return contract.tokenURI(tokenId);
+      },
+    );
   }
 
   protected getConsentContract(
