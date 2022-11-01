@@ -5,6 +5,7 @@ import {
   AjaxError,
   BigNumberString,
   ChainId,
+  ContractName,
   EVMAccountAddress,
   EVMContractAddress,
   EVMTransaction,
@@ -68,6 +69,7 @@ export class SimulatorEVMTransactionRepository
             ),
         ),
         quoteBalance: Math.random() * 1000,
+        contractName: ContractName("Contract Name Here"),
       };
       result.push(item);
     }

@@ -18,6 +18,7 @@ import {
   AccountBalanceError,
   TickerSymbol,
   EVMContractAddress,
+  ContractName,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -171,6 +172,19 @@ export class CovalentEVMTransactionRepository
         )
         .map((queryResult) => {
           return queryResult.data.items.map((tokenInfo) => {
+            //let contract_name = tokenInfo.contract_name;
+            let contract_name;
+            if (tokenInfo.contract_name !== undefined) {
+              return {
+                ticker: TickerSymbol(tokenInfo.contract_ticker_symbol),
+                chainId: chainId,
+                accountAddress: accountAddress,
+                balance: tokenInfo.balance,
+                contractAddress: EVMContractAddress(tokenInfo.contract_address),
+                quoteBalance: tokenInfo.quote,
+                contractName: ContractName(tokenInfo.contract_name),
+              };
+            }
             return {
               ticker: TickerSymbol(tokenInfo.contract_ticker_symbol),
               chainId: chainId,
@@ -178,6 +192,7 @@ export class CovalentEVMTransactionRepository
               balance: tokenInfo.balance,
               contractAddress: EVMContractAddress(tokenInfo.contract_address),
               quoteBalance: tokenInfo.quote,
+              contractName: ContractName("Not Included"),
             };
           });
         });

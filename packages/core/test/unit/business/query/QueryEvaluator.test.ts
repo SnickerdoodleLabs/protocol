@@ -16,7 +16,7 @@ import {
   IChainTransaction,
   EVMTransaction,
   UnixTimestamp,
-
+  ContractName,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -67,7 +67,6 @@ class QueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  
   public evmReturns: EVMTransaction[] = [
     new EVMTransaction(
       ChainId(43113),
@@ -124,13 +123,15 @@ class QueryEvaluatorMocks {
       null,
       null,
       Math.random() * 1000,
-    )
+    ),
   ];
 
-  public transactionsReturn = [{
-    "chainId": ChainId(43113),
-    "items": this.evmReturns
-  }]
+  public transactionsReturn = [
+    {
+      chainId: ChainId(43113),
+      items: this.evmReturns,
+    },
+  ];
 
   public accountBalances = new Array<IEVMBalance>(
     {
@@ -140,6 +141,7 @@ class QueryEvaluatorMocks {
       balance: BigNumberString("18"),
       contractAddress: EVMContractAddress("9dkj13nd"),
       quoteBalance: 0,
+      contractName: ContractName("Ethereum"),
     },
     {
       ticker: TickerSymbol("ETH"),
@@ -148,6 +150,7 @@ class QueryEvaluatorMocks {
       balance: BigNumberString("25"),
       contractAddress: EVMContractAddress("0pemc726"),
       quoteBalance: 0,
+      contractName: ContractName("Ethereum"),
     },
     {
       ticker: TickerSymbol("BLAH"),
@@ -156,6 +159,7 @@ class QueryEvaluatorMocks {
       balance: BigNumberString("26"),
       contractAddress: EVMContractAddress("lp20xk3c"),
       quoteBalance: 0,
+      contractName: ContractName("Ignore"),
     },
     {
       ticker: TickerSymbol("ETH"),
@@ -164,31 +168,32 @@ class QueryEvaluatorMocks {
       balance: BigNumberString("36"),
       contractAddress: EVMContractAddress("m12s93io"),
       quoteBalance: 0,
+      contractName: ContractName("Ethereum"),
     },
   );
 
   public transactionsFlow = new Array<IChainTransaction>(
     {
-      "chainId": ChainId(1),
-      "incomingValue": BigNumberString("1"),
-      "incomingCount": BigNumberString("293820383028"),
-      "outgoingValue": BigNumberString("5"),
-      "outgoingCount": BigNumberString("41031830109120")
-    }, 
+      chainId: ChainId(1),
+      incomingValue: BigNumberString("1"),
+      incomingCount: BigNumberString("293820383028"),
+      outgoingValue: BigNumberString("5"),
+      outgoingCount: BigNumberString("41031830109120"),
+    },
     {
-      "chainId": ChainId(137),
-      "incomingValue": BigNumberString("1"),
-      "incomingCount": BigNumberString("2020292"),
-      "outgoingValue": BigNumberString("1"),
-      "outgoingCount": BigNumberString("4928")
-    }, 
+      chainId: ChainId(137),
+      incomingValue: BigNumberString("1"),
+      incomingCount: BigNumberString("2020292"),
+      outgoingValue: BigNumberString("1"),
+      outgoingCount: BigNumberString("4928"),
+    },
     {
-      "chainId": ChainId(43113),
-      "incomingValue": BigNumberString("1"),
-      "incomingCount": BigNumberString("9482928"),
-      "outgoingValue": BigNumberString("0"),
-      "outgoingCount": BigNumberString("0")
-    }, 
+      chainId: ChainId(43113),
+      incomingValue: BigNumberString("1"),
+      incomingCount: BigNumberString("9482928"),
+      outgoingValue: BigNumberString("0"),
+      outgoingCount: BigNumberString("0"),
+    },
   );
 
   public constructor() {
@@ -203,12 +208,11 @@ class QueryEvaluatorMocks {
     td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
       okAsync(this.URLmap),
     );
-    
+
     td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
       okAsync(this.transactionsFlow),
     );
 
-    
     td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(this.accountBalances),
     );
@@ -224,7 +228,6 @@ class QueryEvaluatorMocks {
     // .thenReturn(
     //     okAsync(this.chainTransactions),
     // );
-
   }
 }
 
@@ -793,28 +796,27 @@ describe("Return Chain Transaction Flow", () => {
     expect(result["value"]).toEqual(
       new Array<IChainTransaction>(
         {
-          "chainId": ChainId(1),
-          "incomingValue": BigNumberString("1"),
-          "incomingCount": BigNumberString("293820383028"),
-          "outgoingValue": BigNumberString("5"),
-          "outgoingCount": BigNumberString("41031830109120")
-        }, 
+          chainId: ChainId(1),
+          incomingValue: BigNumberString("1"),
+          incomingCount: BigNumberString("293820383028"),
+          outgoingValue: BigNumberString("5"),
+          outgoingCount: BigNumberString("41031830109120"),
+        },
         {
-          "chainId": ChainId(137),
-          "incomingValue": BigNumberString("1"),
-          "incomingCount": BigNumberString("2020292"),
-          "outgoingValue": BigNumberString("1"),
-          "outgoingCount": BigNumberString("4928")
-        }, 
+          chainId: ChainId(137),
+          incomingValue: BigNumberString("1"),
+          incomingCount: BigNumberString("2020292"),
+          outgoingValue: BigNumberString("1"),
+          outgoingCount: BigNumberString("4928"),
+        },
         {
-          "chainId": ChainId(43113),
-          "incomingValue": BigNumberString("1"),
-          "incomingCount": BigNumberString("9482928"),
-          "outgoingValue": BigNumberString("0"),
-          "outgoingCount": BigNumberString("0")
-        }, 
-      )
+          chainId: ChainId(43113),
+          incomingValue: BigNumberString("1"),
+          incomingCount: BigNumberString("9482928"),
+          outgoingValue: BigNumberString("0"),
+          outgoingCount: BigNumberString("0"),
+        },
+      ),
     );
   });
 });
-

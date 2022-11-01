@@ -8,6 +8,7 @@ export * from "@objects/primitives/BigNumberString";
 export * from "@objects/primitives/BlockNumber";
 export * from "@objects/primitives/ChainId";
 export * from "@objects/primitives/ConsentName";
+export * from "@objects/primitives/ContractName";
 export * from "@objects/primitives/CountryCode";
 export * from "@objects/primitives/CryptoTokenSymbol";
 export * from "@objects/primitives/CurrencyAlphabeticCode";

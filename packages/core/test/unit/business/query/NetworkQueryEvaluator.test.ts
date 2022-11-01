@@ -20,6 +20,8 @@ import {
   TickerSymbol,
   UnixTimestamp,
   URLString,
+  ContractName,
+  IChainTransaction,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_NetworkQuery,
@@ -30,7 +32,6 @@ import * as td from "testdouble";
 
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
-import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 class NetworkQueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
@@ -50,6 +51,7 @@ class NetworkQueryEvaluatorMocks {
       balance: BigNumberString("18"),
       contractAddress: EVMContractAddress("9dkj13nd"),
       quoteBalance: 0,
+      contractName: ContractName("Ethereum"),
     },
     {
       ticker: TickerSymbol("ETH"),
@@ -58,6 +60,7 @@ class NetworkQueryEvaluatorMocks {
       balance: BigNumberString("25"),
       contractAddress: EVMContractAddress("0pemc726"),
       quoteBalance: 0,
+      contractName: ContractName("Ethereum"),
     },
     {
       ticker: TickerSymbol("BLAH"),
@@ -66,6 +69,7 @@ class NetworkQueryEvaluatorMocks {
       balance: BigNumberString("26"),
       contractAddress: EVMContractAddress("lp20xk3c"),
       quoteBalance: 0,
+      contractName: ContractName("Ignore"),
     },
     {
       ticker: TickerSymbol("ETH"),
@@ -74,6 +78,7 @@ class NetworkQueryEvaluatorMocks {
       balance: BigNumberString("36"),
       contractAddress: EVMContractAddress("m12s93io"),
       quoteBalance: 0,
+      contractName: ContractName("Ethereum"),
     },
   );
 
