@@ -16,9 +16,10 @@ import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IVolatileStorageTable } from "@persistence/volatile/index.js";
+import { IBackupManager } from "@persistence/backup/IBackupManager.js";
+import { IVolatileStorage } from "@persistence/volatile/index.js";
 
-export class BackupManager {
+export class BackupManager implements IBackupManager {
   private fieldUpdates: FieldMap = {};
   private tableUpdates: TableMap = {};
   private numUpdates = 0;
@@ -27,11 +28,11 @@ export class BackupManager {
   private fieldHistory: Map<string, number> = new Map();
 
   public constructor(
-    public privateKey: EVMPrivateKey,
+    protected privateKey: EVMPrivateKey,
     protected tableNames: string[],
-    protected volatile: IVolatileStorageTable,
+    protected volatileStorage: IVolatileStorage,
     protected cryptoUtils: ICryptoUtils,
-    protected persistent: IStorageUtils,
+    protected storageUtils: IStorageUtils,
   ) {
     this.accountAddr = DataWalletAddress(
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
@@ -52,12 +53,12 @@ export class BackupManager {
   ): ResultAsync<void, PersistenceError> {
     // this allows us to bypass transactions
     if (!this.tableUpdates.hasOwnProperty(tableName)) {
-      return this.volatile.putObject(tableName, value);
+      return this.volatileStorage.putObject(tableName, value);
     }
 
     this.tableUpdates[tableName].push(value);
     this.numUpdates += 1;
-    return this.volatile.putObject(tableName, value);
+    return this.volatileStorage.putObject(tableName, value);
   }
 
   public updateField(
@@ -71,7 +72,7 @@ export class BackupManager {
     const timestamp = new Date().getTime();
     this.fieldUpdates[key] = [value, timestamp];
     this._updateFieldHistory(key, timestamp);
-    return this.persistent.write(key, value);
+    return this.storageUtils.write(key, value);
   }
 
   public getNumUpdates(): ResultAsync<number, never> {
@@ -119,11 +120,11 @@ export class BackupManager {
                   if (timestamp > this.fieldUpdates[fieldName][1]) {
                     this.fieldHistory[fieldName] = timestamp;
                     delete this.fieldUpdates[fieldName];
-                    return this.persistent.write(fieldName, value);
+                    return this.storageUtils.write(fieldName, value);
                   }
                 } else {
                   this.fieldHistory[fieldName] = timestamp;
-                  return this.persistent.write(fieldName, value);
+                  return this.storageUtils.write(fieldName, value);
                 }
               }
 
@@ -135,7 +136,7 @@ export class BackupManager {
                 const table = unpacked.records[tableName];
                 return ResultUtils.combine(
                   table.map((value) => {
-                    return this.volatile.putObject(tableName, value);
+                    return this.volatileStorage.putObject(tableName, value);
                   }),
                 );
               }),
