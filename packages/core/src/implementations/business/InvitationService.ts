@@ -154,9 +154,10 @@ export class InvitationService implements IInvitationService {
                 invitation.consentContractAddress,
                 invitation.tokenId,
                 invitation.businessSignature!,
-              ).map((res) => {
-                return res ? EInvitationStatus.New : EInvitationStatus.Invalid;
-              });
+              );
+            })
+            .map((res) => {
+              return res ? EInvitationStatus.New : EInvitationStatus.Invalid;
             });
         }
 
