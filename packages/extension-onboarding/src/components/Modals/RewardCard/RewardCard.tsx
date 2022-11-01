@@ -32,7 +32,7 @@ const RewardCard: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  const { setModal, setLoadingStatus } = useLayoutContext();
+  const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
 
   const invitationInfo = useMemo(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -122,6 +122,19 @@ const RewardCard: FC = () => {
               invitationInfo.tokenId,
               invitationInfo.signature,
             );
+            closeModal();
+            setModal({
+              modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
+              onPrimaryButtonClick: () => {},
+              customProps: {
+                title: "Congratulations",
+                message: `You have successfully claimed your reward.\n \n Once it is ready, your reward will appear on your portfolio. This may take upto 24 hours. `,
+                primaryButtonText: "Got it",
+                secondaryButtonText: "",
+                primaryClicked: () => {},
+                secondaryClicked: () => {},
+              },
+            });
           },
           customProps: {
             onManageClicked: () => {
@@ -151,20 +164,36 @@ const RewardCard: FC = () => {
   const handleClose = () => {
     setInvitationMeta(undefined);
     setOpen(false);
+    setModal({
+      modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
+      onPrimaryButtonClick: () => {},
+      customProps: {
+        title: "Thank you for your interest!",
+        message: `Looks like this NFT reward was sold out. `,
+        primaryButtonText: "Got it",
+        secondaryButtonText: "",
+        primaryClicked: () => {
+          return null;
+        },
+        secondaryClicked: () => {
+          return null;
+        },
+      },
+    });
   };
 
   return (
     <>
       <Dialog onClose={handleClose} open={true}>
-        <Box width={548} height={477}>
-          <Box height={240} style={{ backgroundImage: `url(${RewardBG})` }}>
+        <Box width={548} height={497}>
+          <Box height={270} style={{ backgroundImage: `url(${RewardBG})` }}>
             <Box
               display="flex"
               justifyContent="space-between"
               alignItems="baseline"
             >
               <Box pt={3} pl={4}>
-                <img width={122} height={18} src={SDLogo} />
+                <img width="auto" height={18} src={SDLogo} />
               </Box>
               <Box>
                 <IconButton
@@ -187,6 +216,33 @@ const RewardCard: FC = () => {
             >
               <Box>
                 <img width={244} height={145} src={invitationMeta.image} />
+              </Box>
+            </Box>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              pt={1}
+            >
+              <Box
+                style={{
+                  background: "rgba(128, 121, 180, 0.5)",
+                  borderRadius: "4px",
+                  gap: "10px",
+                }}
+              >
+                <Typography
+                  style={{
+                    fontFamily: "Space Grotestk",
+                    fontWeight: 500,
+                    fontSize: "10px",
+                    textAlign: "center",
+                    color: "#222137",
+                    padding: "3px 12px",
+                  }}
+                >
+                  {invitationMeta.rewardName}
+                </Typography>
               </Box>
             </Box>
           </Box>
