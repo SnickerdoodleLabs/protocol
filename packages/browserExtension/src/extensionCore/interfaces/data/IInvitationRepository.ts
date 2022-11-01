@@ -8,6 +8,11 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
   HexString32,
+  BlockchainProviderError,
+  ConsentContractError,
+  Signature,
+  TokenId,
+  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -42,6 +47,9 @@ export interface IInvitationRepository {
   getAgreementFlags(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<HexString32, SnickerDoodleCoreError>;
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
 }
 
 export const IInvitationRepositoryType = Symbol.for("IInvitationRepository");

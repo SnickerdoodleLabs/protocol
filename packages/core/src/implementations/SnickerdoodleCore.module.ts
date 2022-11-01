@@ -220,15 +220,15 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
 
     // Utilities
-    bind<IConfigProvider>(IConfigProviderType)
-      .to(ConfigProvider)
-      .inSingletonScope();
-    bind<IIndexerConfigProvider>(IIndexerConfigProviderType)
-      .to(ConfigProvider)
-      .inSingletonScope();
-    bind<IPersistenceConfigProvider>(IPersistenceConfigProviderType)
-      .to(ConfigProvider)
-      .inSingletonScope();
+    const configProvider = new ConfigProvider();
+    bind<IConfigProvider>(IConfigProviderType).toConstantValue(configProvider);
+    bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
+      configProvider,
+    );
+    bind<IPersistenceConfigProvider>(
+      IPersistenceConfigProviderType,
+    ).toConstantValue(configProvider);
+
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();

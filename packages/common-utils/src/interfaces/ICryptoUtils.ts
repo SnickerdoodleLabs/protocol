@@ -51,7 +51,7 @@ export interface ICryptoUtils {
   ): EVMAccountAddress;
 
   verifyEVMSignature(
-    message: string,
+    message: string | Uint8Array,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never>;
 

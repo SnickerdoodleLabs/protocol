@@ -183,6 +183,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     }
   }
 
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+    return cohortService.getConsentContractCID(consentAddress);
+  }
+
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
     const contextProvider =
       this.iocContainer.get<IContextProvider>(IContextProviderType);
