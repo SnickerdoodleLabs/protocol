@@ -63,7 +63,7 @@ export class CryptoUtils implements ICryptoUtils {
       return okAsync([]);
     }
 
-    const generateUniqeTokens = (
+    const generateUniqueTokens = (
       uniqueList: TokenId[] = [],
     ): ResultAsync<TokenId[], never> => {
       return ResultUtils.combine(
@@ -73,12 +73,12 @@ export class CryptoUtils implements ICryptoUtils {
       ).andThen((tokenIds) => {
         const uniqueTokenIds = [...new Set([...uniqueList, ...tokenIds])];
         if (uniqueTokenIds.length !== quantity) {
-          return generateUniqeTokens(uniqueTokenIds);
+          return generateUniqueTokens(uniqueTokenIds);
         }
         return okAsync(uniqueTokenIds);
       });
     };
-    return generateUniqeTokens();
+    return generateUniqueTokens();
   }
 
   public deriveAESKeyFromSignature(
