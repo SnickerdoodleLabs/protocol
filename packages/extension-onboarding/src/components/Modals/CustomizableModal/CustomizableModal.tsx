@@ -1,14 +1,27 @@
 import Button from "@extension-onboarding/components/Button";
-import { useStyles } from "@extension-onboarding/components/Modals/PermissionSelectionModal/PermissionSelectionModal.style";
+import { useStyles } from "@extension-onboarding/components/Modals/CustomizableModal/CustomizableModal.style";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { Box, Dialog, Typography, IconButton } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import React, { FC } from "react";
 
-const PermissionSelectionModal: FC = () => {
+interface ICustomizableModal {
+  title: string;
+  message: string;
+  primaryButtonText: string;
+  secondaryButtonText?: string;
+}
+
+const CustomizableModal: FC<ICustomizableModal> = ({
+  title,
+  message,
+  primaryButtonText,
+  secondaryButtonText,
+}) => {
   const { modalState, closeModal } = useLayoutContext();
   const { onPrimaryButtonClick, customProps } = modalState;
-  const onManageClicked: () => void = customProps.onManageClicked;
+  const primaryClicked: () => void = customProps.primaryClicked;
+  const secondaryClicked: () => void = customProps.secondaryClicked;
 
   const classes = useStyles();
   return (
@@ -28,9 +41,7 @@ const PermissionSelectionModal: FC = () => {
         alignItems="center"
         justifyContent="space-between"
       >
-        <Typography className={classes.title}>
-          Manage Your Data Permissions
-        </Typography>
+        <Typography className={classes.title}>{title}</Typography>
         <IconButton
           disableFocusRipple
           disableRipple
@@ -41,27 +52,29 @@ const PermissionSelectionModal: FC = () => {
           <CloseIcon />
         </IconButton>
       </Box>
-      <Typography className={classes.contentSubtitle}>
-        By clicking “Accept All” you are giving permission for the use of your
-        demographic info and wallet activity.
-      </Typography>
+      <Typography className={classes.contentSubtitle}>{message}</Typography>
       <Box mt={4} display="flex">
         <Box marginLeft="auto" mr={2}>
-          <Button buttonType="secondary" onClick={onManageClicked}>
-            Manage Settings
-          </Button>
+          {secondaryButtonText ? (
+            <Button buttonType="secondary" onClick={secondaryClicked}>
+              {secondaryButtonText}
+            </Button>
+          ) : (
+            ""
+          )}
         </Box>
         <Button
           buttonType="primary"
           onClick={() => {
-            onPrimaryButtonClick();
+            primaryClicked();
+            closeModal();
           }}
         >
-          Accept All
+          {primaryButtonText}
         </Button>
       </Box>
     </Dialog>
   );
 };
 
-export default PermissionSelectionModal;
+export default CustomizableModal;
