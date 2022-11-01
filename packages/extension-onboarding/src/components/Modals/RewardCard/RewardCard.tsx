@@ -74,6 +74,37 @@ const RewardCard: FC = () => {
               setInvitationMeta(invitationMetaData);
             });
         }
+        if (
+          [
+            EInvitationStatus.OutOfCapacity,
+            EInvitationStatus.Accepted,
+            EInvitationStatus.Occupied,
+          ].includes(invitationStatus)
+        ) {
+          setModal({
+            modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
+            onPrimaryButtonClick: () => {},
+            customProps: {
+              title: "Thank you for your interest!",
+              message: (() => {
+                switch (invitationStatus) {
+                  case EInvitationStatus.Accepted:
+                    return "Looks like you have claimed this reward already. You can see your reward in your portfolio.";
+                  case EInvitationStatus.Occupied:
+                    return "Looks like this reward link has been reserved for another data wallet user.";
+                  case EInvitationStatus.OutOfCapacity:
+                    return "Looks like this reward was sold out.";
+                  default:
+                    return "";
+                }
+              })(),
+              primaryButtonText: "Got it",
+              secondaryButtonText: "",
+              primaryClicked: () => {},
+              secondaryClicked: () => {},
+            },
+          });
+        }
         return okAsync(undefined);
       })
       .orElse((e) => {
@@ -92,10 +123,35 @@ const RewardCard: FC = () => {
     return window.sdlDataWallet
       .acceptInvitation(dataTypes, consentContractAddress, tokenId, signature)
       .mapErr((e) => {
+        console.log("ERRORRR", e);
+        setModal({
+          modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
+          onPrimaryButtonClick: () => {},
+          customProps: {
+            title: "Thank you for your interest!",
+            message: `Looks like this reward link has been reserved for another data wallet user.`,
+            primaryButtonText: "Got it",
+            secondaryButtonText: "",
+            primaryClicked: () => {},
+            secondaryClicked: () => {},
+          },
+        });
         setLoadingStatus(false);
       })
       .map(() => {
         setLoadingStatus(false);
+        setModal({
+          modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
+          onPrimaryButtonClick: () => {},
+          customProps: {
+            title: "Congratulations",
+            message: `You have successfully claimed your reward.\n\nOnce it is ready, your reward will appear on your portfolio. This may take upto 24 hours. `,
+            primaryButtonText: "Got it",
+            secondaryButtonText: "",
+            primaryClicked: () => {},
+            secondaryClicked: () => {},
+          },
+        });
       });
   };
 
@@ -123,18 +179,6 @@ const RewardCard: FC = () => {
               invitationInfo.signature,
             );
             closeModal();
-            setModal({
-              modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
-              onPrimaryButtonClick: () => {},
-              customProps: {
-                title: "Congratulations",
-                message: `You have successfully claimed your reward.\n \n Once it is ready, your reward will appear on your portfolio. This may take upto 24 hours. `,
-                primaryButtonText: "Got it",
-                secondaryButtonText: "",
-                primaryClicked: () => {},
-                secondaryClicked: () => {},
-              },
-            });
           },
           customProps: {
             onManageClicked: () => {
@@ -164,22 +208,6 @@ const RewardCard: FC = () => {
   const handleClose = () => {
     setInvitationMeta(undefined);
     setOpen(false);
-    setModal({
-      modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
-      onPrimaryButtonClick: () => {},
-      customProps: {
-        title: "Thank you for your interest!",
-        message: `Looks like this NFT reward was sold out. `,
-        primaryButtonText: "Got it",
-        secondaryButtonText: "",
-        primaryClicked: () => {
-          return null;
-        },
-        secondaryClicked: () => {
-          return null;
-        },
-      },
-    });
   };
 
   return (

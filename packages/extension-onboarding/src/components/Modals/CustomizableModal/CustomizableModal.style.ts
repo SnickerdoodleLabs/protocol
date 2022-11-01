@@ -26,6 +26,7 @@ export const useStyles = makeStyles((theme) => ({
     color: "#000000",
   },
   contentSubtitle: {
+    whiteSpace: "break-spaces",
     fontFamily: "Space Grotesk",
     fontStyle: "normal",
     fontWeight: 400,
