@@ -6258,8 +6258,8 @@ __metadata:
     json-rpc-middleware-stream: ^3.0.0
     jss: ^10.9.0
     metamask-extension-provider: ^3.0.0
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     node-polyfill-webpack-plugin: ^1.1.4
     obj-multiplex: ^1.0.0
     post-message-stream: ^3.0.0
@@ -6286,8 +6286,8 @@ __metadata:
     axios: ^0.27.2
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     pino: ^8.1.0
     tweetnacl: ^1.0.3
   languageName: unknown
@@ -6301,8 +6301,8 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
   languageName: unknown
   linkType: soft
 
@@ -6351,8 +6351,8 @@ __metadata:
     inversify: ^5.1.1
     ipfs-http-client: ^55.0.0
     lzutf8: ^0.6.3
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
   languageName: unknown
   linkType: soft
@@ -6371,8 +6371,8 @@ __metadata:
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
     tldts: ^5.7.89
@@ -6401,8 +6401,8 @@ __metadata:
     formik: 2.2.9
     formik-material-ui: 3.0.1
     gapi-script: ^1.2.0
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     notistack: ^2.0.5
     path-browserify: ^1.0.1
     path-to-regexp: ^6.2.0
@@ -6429,8 +6429,8 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
     url-join-ts: ^1.0.5
   languageName: unknown
@@ -6445,7 +6445,7 @@ __metadata:
     "@snickerdoodlelabs/signature-verification": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
+    neverthrow: ^5.1.0
     ts-brand: ^0.0.2
     url-join-ts: ^1.0.5
   languageName: unknown
@@ -6456,7 +6456,7 @@ __metadata:
   resolution: "@snickerdoodlelabs/objects@workspace:packages/objects"
   dependencies:
     ethers: ^5.6.6
-    neverthrow: ^4.3.1
+    neverthrow: ^5.1.0
     rxjs: ^7.5.5
     ts-brand: ^0.0.2
   languageName: unknown
@@ -6482,7 +6482,7 @@ __metadata:
     ipfs-only-hash: ^4.0.0
     key-did-provider-ed25519: ^2.0.1
     key-did-resolver: ^2.1.0
-    neverthrow: ^4.2.2
+    neverthrow: ^5.1.0
   languageName: unknown
   linkType: soft
 
@@ -6494,8 +6494,8 @@ __metadata:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
     inversify: ^5.1.1
-    neverthrow: ^4.3.1
-    neverthrow-result-utils: ^1.0.2
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
   languageName: unknown
   linkType: soft
 
@@ -6505,7 +6505,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/objects": "workspace:^"
     ethers: ^5.6.6
-    neverthrow: ^4.3.1
+    neverthrow: ^5.1.0
     ts-brand: ^0.0.2
   languageName: unknown
   linkType: soft
@@ -6516,7 +6516,7 @@ __metadata:
   dependencies:
     "@snickerdoodlelabs/objects": "workspace:^"
     inversify: ^5.1.1
-    neverthrow: ^4.2.2
+    neverthrow: ^5.1.0
   languageName: unknown
   linkType: soft
 
@@ -26221,20 +26221,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"neverthrow-result-utils@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "neverthrow-result-utils@npm:1.0.2"
+"neverthrow-result-utils@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "neverthrow-result-utils@npm:2.0.2"
   dependencies:
     delay: ^5.0.0
-    neverthrow: ^4.3.1
-  checksum: 32fc0230caf44af52307c55699f626d1b0582ea7f3279f556d0b31a7bd47bbd596c61885a2f74856c4221674f930d5324f6bd1b8226aad9aa3bacb1624fde857
+    neverthrow: ^5.1.0
+  checksum: 0a2efbdec2af660f74900f25386f2c1f1023b4209e58d827430115bda7928a5d8a19eefd070b2ce17b03f9a41a63263d7376475b99795c64e2ff923ced6437d2
   languageName: node
   linkType: hard
 
-"neverthrow@npm:^4.2.2, neverthrow@npm:^4.3.1":
-  version: 4.4.2
-  resolution: "neverthrow@npm:4.4.2"
-  checksum: 4186409c2f8abd04d8f61f69d523e484c7a342b05f67c8f1fc5e3dc492279a62e4fef37e397bfefb3938070b1a5da741c6f70ea00241ebd30f63eab6a7033de6
+"neverthrow@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "neverthrow@npm:5.1.0"
+  checksum: 542e21fb6560354a483037bec871b75ec155e8118df001e036f053332cee64191e4b18e3e249db813a63b313ddf0d3440f727fda5dd9292578c042d77a3bfa67
   languageName: node
   linkType: hard
 
