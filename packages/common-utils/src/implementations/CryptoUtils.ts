@@ -171,7 +171,7 @@ export class CryptoUtils implements ICryptoUtils {
   }
 
   public verifyEVMSignature(
-    message: string,
+    message: string | Uint8Array,
     signature: Signature,
   ): ResultAsync<EVMAccountAddress, never> {
     const address = EVMAccountAddress(

@@ -23,6 +23,8 @@ import {
   ISetDefaultPermissionsWithDataTypesParams,
   ISetApplyDefaultPermissionsParams,
   IUnlinkAccountParams,
+  IGetConsentContractCIDParams,
+  ICheckInvitationStatusParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
@@ -49,6 +51,7 @@ import {
   LinkedAccount,
   DataWalletAddress,
   BigNumberString,
+  EInvitationStatus,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -306,5 +309,25 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.CHECK_URL, {
       domain,
     } as ICheckURLParams);
+  }
+
+  public checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, JsonRpcError> {
+    return this._handler.call(EExternalActions.CHECK_INVITATION_STATUS, {
+      consentAddress,
+      signature,
+      tokenId,
+    } as ICheckInvitationStatusParams);
+  }
+
+  public getContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_CONTRACT_CID, {
+      consentAddress,
+    } as IGetConsentContractCIDParams);
   }
 }
