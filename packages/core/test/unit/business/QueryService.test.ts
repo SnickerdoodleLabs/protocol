@@ -10,13 +10,12 @@ import {
   InsightString,
   SDQLQuery,
   SDQLString,
-  Signature,
   UninitializedError,
   DataPermissions,
   ConsentToken,
   TokenId,
 } from "@snickerdoodlelabs/objects";
-import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
+import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
@@ -25,21 +24,22 @@ import {
   dataWalletAddress,
   dataWalletKey,
   defaultInsightPlatformBaseUrl,
-  testCoreConfig,
 } from "@core-tests/mock/mocks/index.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
 import { QueryService } from "@core/implementations/business/index.js";
-import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
+import {
+  IConsentTokenUtils,
+  IQueryParsingEngine,
+} from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
-import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
@@ -54,8 +54,10 @@ const insights: InsightString[] = [
 ];
 const insightsError: InsightString[] = [InsightString("Ajax Error producer")];
 const rewards: EligibleReward[] = [];
+const tokenId = TokenId(BigInt(0));
 
 class QueryServiceMocks {
+  public consentTokenUtils: IConsentTokenUtils;
   public queryParsingEngine: IQueryParsingEngine;
   public sdqlQueryRepo: ISDQLQueryRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
@@ -63,14 +65,16 @@ class QueryServiceMocks {
   public contextProvider: ContextProviderMock;
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
+
   public consentToken = new ConsentToken(
     consentContractAddress,
     EVMAccountAddress(dataWalletAddress),
-    TokenId(BigInt(0)),
+    tokenId,
     DataPermissions.createWithAllPermissions(),
   );
 
   public constructor() {
+    this.consentTokenUtils = td.object<IConsentTokenUtils>();
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
     this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
@@ -83,6 +87,7 @@ class QueryServiceMocks {
       this.insightPlatformRepo.deliverInsights(
         dataWalletAddress,
         consentContractAddress,
+        tokenId,
         queryId,
         insights,
         dataWalletKey,
@@ -94,6 +99,7 @@ class QueryServiceMocks {
       this.insightPlatformRepo.deliverInsights(
         dataWalletAddress,
         consentContractAddress,
+        tokenId,
         queryId,
         insightsError,
         dataWalletKey,
@@ -106,14 +112,11 @@ class QueryServiceMocks {
     );
 
     td.when(
-      this.consentContractRepo.isAddressOptedIn(
-        consentContractAddress,
-        EVMAccountAddress(dataWalletAddress),
-      ),
+      this.consentContractRepo.isAddressOptedIn(consentContractAddress),
     ).thenReturn(okAsync(true));
 
     td.when(
-      this.consentContractRepo.getCurrentConsentToken(consentContractAddress),
+      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ).thenReturn(okAsync(this.consentToken));
 
     td.when(
@@ -130,6 +133,7 @@ class QueryServiceMocks {
 
   public factory(): QueryService {
     return new QueryService(
+      this.consentTokenUtils,
       this.queryParsingEngine,
       this.sdqlQueryRepo,
       this.insightPlatformRepo,

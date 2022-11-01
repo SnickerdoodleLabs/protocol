@@ -22,7 +22,6 @@ import {
   QueryFormatError,
   UninitializedError,
   EligibleReward,
-  DataWalletAddress,
   SDQLQuery,
   SDQLQueryRequest,
   ConsentToken,
@@ -33,6 +32,8 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
 import {
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
@@ -55,6 +56,8 @@ export class QueryService implements IQueryService {
   // queryContractMap: Map<IpfsCID, EVMContractAddress> = new Map();
 
   public constructor(
+    @inject(IConsentTokenUtilsType)
+    protected consentTokenUtils: IConsentTokenUtils,
     @inject(IQueryParsingEngineType)
     protected queryParsingEngine: IQueryParsingEngine,
     @inject(ISDQLQueryRepositoryType)
@@ -112,10 +115,7 @@ export class QueryService implements IQueryService {
 
       // We have the query, next step is check if you actually have a consent token for this business
       return this.consentContractRepository
-        .isAddressOptedIn(
-          consentContractAddress,
-          EVMAccountAddress(context.dataWalletAddress),
-        )
+        .isAddressOptedIn(consentContractAddress)
         .andThen((addressOptedIn) => {
           if (!addressOptedIn) {
             // No consent given!
@@ -166,12 +166,11 @@ export class QueryService implements IQueryService {
     console.log(
       `QueryService.processQuery: Processing query for consent contract ${consentContractAddress} with CID ${query.cid}`,
     );
+
     return ResultUtils.combine([
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
-      this.consentContractRepository.getCurrentConsentToken(
-        consentContractAddress,
-      ),
+      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([context, config, consentToken]) => {
       return this.validateContextConfig(
         context as CoreContext,
@@ -190,6 +189,7 @@ export class QueryService implements IQueryService {
               .deliverInsights(
                 context.dataWalletAddress!,
                 consentContractAddress,
+                consentToken!.tokenId,
                 query.cid,
                 insights,
                 context.dataWalletKey!,

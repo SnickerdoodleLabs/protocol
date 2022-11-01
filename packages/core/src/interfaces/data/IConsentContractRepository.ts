@@ -15,25 +15,12 @@ import {
   URLString,
   IpfsCID,
   Signature,
-  HexString32,
-  ConsentError,
+  OptInInfo,
   TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IConsentContractRepository {
-  getConsentTokens(
-    consentContractAddress: EVMContractAddress,
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<
-    ConsentToken[],
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-  >;
-
   /**
    * Returns all the URLs that are configured in the contract.
    * @param consentContractAddress
@@ -68,20 +55,15 @@ export interface IConsentContractRepository {
     BlockchainProviderError | UninitializedError | ConsentContractError
   >;
 
-  getCurrentConsentToken(
-    consentContractAddress: EVMContractAddress,
+  getConsentToken(
+    optInInfo: OptInInfo,
   ): ResultAsync<
     ConsentToken | null,
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
+    ConsentContractError | UninitializedError | BlockchainProviderError
   >;
 
   isAddressOptedIn(
     consentContractAddress: EVMContractAddress,
-    address?: EVMAccountAddress,
   ): ResultAsync<
     boolean,
     | ConsentContractError
@@ -91,29 +73,14 @@ export interface IConsentContractRepository {
     | AjaxError
   >;
 
-  getConsentContracts(): ResultAsync<
+  getConsentContracts(
+    consentContractAddresses: EVMContractAddress[],
+  ): ResultAsync<
     Map<EVMContractAddress, IConsentContract>,
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 
-  getAgreementFlags(
-    consentContractAddress: EVMContractAddress,
-  ): ResultAsync<
-    HexString32,
-    | BlockchainProviderError
-    | UninitializedError
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | AjaxError
-    | ConsentError
-  >;
-
   getDeployedConsentContractAddresses(): ResultAsync<
-    EVMContractAddress[],
-    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
-  >;
-
-  getOptedInConsentContractAddresses(): ResultAsync<
     EVMContractAddress[],
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
