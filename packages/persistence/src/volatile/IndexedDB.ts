@@ -160,7 +160,7 @@ export class IndexedDB implements IVolatileStorageTable {
       })
       .andThen((store) => {
         const promise = new Promise((resolve, reject) => {
-          console.log("creating promise", obj);
+          // console.log("creating promise", obj);
           try {
             const timeout = setTimeout(() => {
               reject(new PersistenceError("timeout"));
