@@ -122,6 +122,7 @@ export interface IAccountService {
   ): ResultAsync<void, PersistenceError>;
 
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

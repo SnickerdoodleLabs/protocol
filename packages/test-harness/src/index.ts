@@ -278,6 +278,7 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "dump backup", value: "dumpBackup" },
     { name: "restore backup", value: "restoreBackup" },
     { name: "manual backup", value: "manualBackup" },
+    { name: "clear cloud store", value: "clearCloudStore" },
     new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
@@ -478,6 +479,8 @@ function corePrompt(): ResultAsync<void, Error> {
           );
       case "manualBackup":
         return core.postBackup().map(console.log);
+      case "clearCloudStore":
+        return core.clearCloudStore().map(console.log);
     }
     return okAsync(undefined);
   });

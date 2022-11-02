@@ -50,6 +50,7 @@ import {
   IpfsCID,
   LanguageCode,
   Signature,
+  TokenId,
   UnixTimestamp,
 } from "@objects/primitives";
 
@@ -264,6 +265,13 @@ export interface ISnickerdoodleCore {
     | IPFSError
   >;
 
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     | UninitializedError
@@ -353,6 +361,7 @@ export interface ISnickerdoodleCore {
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

@@ -8,7 +8,7 @@ export * from "@objects/businessObjects/EligibleReward";
 export * from "@objects/businessObjects/EVMNFT";
 export * from "@objects/businessObjects/EVMTransaction";
 export * from "@objects/businessObjects/EVMEvent";
-export * from "@objects/businessObjects/EVMBlockRange";
+export * from "@objects/businessObjects/EVMTimestampRange";
 export * from "@objects/businessObjects/ExternallyOwnedAccount";
 export * from "@objects/businessObjects/Insight";
 export * from "@objects/businessObjects/Invitation";
