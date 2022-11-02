@@ -38,7 +38,6 @@ jobs:
         
     - name: Build protocol
       run: |-
-      
         docker build \
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA" \
           --build-arg DOMAIN="datawallet.snickerdoodle.com" \
