@@ -146,12 +146,7 @@ export interface IDataWalletPersistence {
     filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
 
-  updateAccountBalances(
-    balances: IEVMBalance[],
-  ): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
-
-  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<IEVMNFT[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
 
   setLatestBlockNumber(
