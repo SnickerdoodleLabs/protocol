@@ -30,7 +30,9 @@ const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
   const getImage = () => {
     if (nftImages.length) {
       let imageUrl = nftImages[0];
-      if (!imageUrl.includes("https://ipfs.io/ipfs/")) {
+      if (imageUrl.includes("ipfs://ipfs/")) {
+        imageUrl = imageUrl.replace("ipfs://ipfs/", "https://ipfs.io/ipfs/");
+      } else {
         imageUrl = imageUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
       }
       return imageUrl;
