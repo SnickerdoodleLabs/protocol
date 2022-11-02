@@ -133,17 +133,12 @@ export class IndexedDB {
         const promise = new Promise((resolve, reject) => {
           // console.log("creating promise", obj);
           try {
-            const timeout = setTimeout(() => {
-              reject(new PersistenceError("timeout"));
-            }, 1000);
             const request = store.put(obj);
             request.onsuccess = (event) => {
-              clearTimeout(timeout);
               resolve(undefined);
             };
             request.onerror = (event) => {
               console.log("err", event);
-              clearTimeout(timeout);
               reject(
                 new PersistenceError(
                   "error updating object store: " + event.target,

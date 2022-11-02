@@ -13,7 +13,7 @@ import {
  * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
 export class EVMTransaction {
-  public accountAddresses: Set<EVMAccountAddress> = new Set();
+  public accountAddresses: EVMAccountAddress[] | null; // null safety necessary for old transactions
 
   public constructor(
     public chainId: ChainId,
@@ -29,15 +29,17 @@ export class EVMTransaction {
     events: EVMEvent[] | null,
     public valueQuote: number | null,
   ) {
+    const addrs = new Set<EVMAccountAddress>();
     if (events != null) {
-      this.accountAddresses = this._getDescendants(events);
+      this._getDescendants(events);
     }
     if (this.to) {
-      this.accountAddresses.add(this.to);
+      addrs.add(this.to);
     }
     if (this.from) {
-      this.accountAddresses.add(this.from);
+      addrs.add(this.from);
     }
+    this.accountAddresses = Array.from(addrs);
   }
 
   private _getDescendants(obj): Set<EVMAccountAddress> {
@@ -95,7 +97,7 @@ export class EVMTransactionFilter {
     }
 
     if (this.addresses != undefined) {
-      const txaddrs = Array.from(tx.accountAddresses);
+      const txaddrs = tx.accountAddresses ?? [];
 
       if (txaddrs.length == 0) {
         return false;
