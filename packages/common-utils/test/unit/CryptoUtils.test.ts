@@ -8,16 +8,8 @@ import {
 import { BigNumber } from "ethers";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { CryptoUtils } from "@common-utils/implementations";
-import { ICryptoUtils } from "@common-utils/interfaces";
+import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
 
-class CryptoUtilsMocks {
-  public constructor() {}
-
-  public factoryCryptoUtils(): ICryptoUtils {
-    return new CryptoUtils();
-  }
-}
 
 describe("CryptoUtils tests", () => {
   test("getNonce returns 64 characters of base64", async () => {

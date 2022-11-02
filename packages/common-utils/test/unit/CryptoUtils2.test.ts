@@ -5,16 +5,8 @@ import {
   Signature,
 } from "@snickerdoodlelabs/objects";
 
-import { CryptoUtils } from "@common-utils/implementations";
-import { ICryptoUtils } from "@common-utils/interfaces";
+import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
 
-class CryptoUtilsMocks {
-  public constructor() {}
-
-  public factoryCryptoUtils(): ICryptoUtils {
-    return new CryptoUtils();
-  }
-}
 
 describe("CryptoUtils tests", () => {
   test("deriveAESKeyFromSignature returns 32 bytes as 44 characters of base64", async () => {

@@ -9,16 +9,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 
-import { CryptoUtils } from "@common-utils/implementations";
-import { ICryptoUtils } from "@common-utils/interfaces";
+import { CryptoUtilsMocks } from "../mocks/CryptoUtilsMocks";
 
-class CryptoUtilsMocks {
-  public constructor() {}
-
-  public factoryCryptoUtils(): ICryptoUtils {
-    return new CryptoUtils();
-  }
-}
 
 describe("CryptoUtils tests", () => {
   test("getSignature() Closed Loop", async () => {
