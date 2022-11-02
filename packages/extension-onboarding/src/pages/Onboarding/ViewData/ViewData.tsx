@@ -2,6 +2,7 @@ import AccountsCard from "@extension-onboarding/components/AccountsCard";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import PersonalInfoCard from "@extension-onboarding/components/PersonalInfoCard";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
+import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewData/ViewData.style";
@@ -55,6 +56,19 @@ const ViewData: FC = () => {
         <PrimaryButton
           type="submit"
           onClick={() => {
+            if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
+              const params = new URLSearchParams(
+                JSON.parse(
+                  localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)!,
+                ),
+              );
+              sessionStorage.removeItem("appMode");
+              window.open(
+                window.location.origin + "?" + params.toString(),
+                "_self",
+              );
+              return;
+            }
             window.sdlDataWallet.closeTab();
           }}
         >
