@@ -1,5 +1,6 @@
 import { IEVMNFT } from "@snickerdoodlelabs/objects";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
+import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 import { Box, Grid, Typography } from "@material-ui/core";
 import React, { FC, useMemo } from "react";
 
@@ -26,28 +27,33 @@ const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
     return extractedImages;
   }, [JSON.stringify(item)]);
 
+  const getImage = () => {
+    if (nftImages.length) {
+      let imageUrl = nftImages[0];
+      if (!imageUrl.includes("https://ipfs.io/ipfs/")) {
+        imageUrl = imageUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
+      }
+      return imageUrl;
+    }
+    return placeholder;
+  };
+
   return (
-    <>
-      {nftImages?.length ? (
-        <Grid item className={classes.card}>
-          <Box>
-            <img
-              width={150}
-              height={140}
-              style={{ borderRadius: "8px 8px 0px 0px" }}
-              src={nftImages[0].replace("ipfs://", "https://ipfs.io/ipfs/")}
-            />
-            <Box mt={-0.5} bgcolor="rgba(253, 243, 225, 0.6)">
-              <Box p={2}>
-                <Typography className={classes.nftName}>
-                  {item?.name}
-                </Typography>
-              </Box>
-            </Box>
+    <Grid item className={classes.card}>
+      <Box>
+        <img
+          width={150}
+          height={140}
+          style={{ borderRadius: "8px 8px 0px 0px" }}
+          src={getImage()}
+        />
+        <Box mt={-0.5} bgcolor="rgba(253, 243, 225, 0.6)">
+          <Box p={2}>
+            <Typography className={classes.nftName}>{item?.name}</Typography>
           </Box>
-        </Grid>
-      ) : null}
-    </>
+        </Box>
+      </Box>
+    </Grid>
   );
 };
 export default NFTItem;
