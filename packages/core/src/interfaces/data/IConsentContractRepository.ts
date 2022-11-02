@@ -17,6 +17,7 @@ import {
   Signature,
   HexString32,
   ConsentError,
+  TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -117,6 +118,28 @@ export interface IConsentContractRepository {
     BlockchainProviderError | UninitializedError | ConsentFactoryContractError
   >;
 
+  getSignerRoleMembers(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<
+    EVMAccountAddress[],
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
+  isOpenOptInDisabled(
+    consentContractAddres: EVMContractAddress,
+  ): ResultAsync<
+    boolean,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
+  getTokenURI(
+    consentContractAddres: EVMContractAddress,
+    tokenId: TokenId,
+  ): ResultAsync<
+    TokenUri | null,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  >;
+
   // Encoders
   encodeOptIn(
     consentContractAddress: EVMContractAddress,
@@ -124,6 +147,12 @@ export interface IConsentContractRepository {
     dataPermissions: DataPermissions | null,
   ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
   encodeRestrictedOptIn(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    signature: Signature,
+    dataPermissions: DataPermissions | null,
+  ): ResultAsync<HexString, BlockchainProviderError | UninitializedError>;
+  encodeAnonymousRestrictedOptIn(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     signature: Signature,
