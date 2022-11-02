@@ -19,6 +19,7 @@ import {
   EligibleReward,
   EarnedReward,
   QueryIdentifier,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -86,6 +87,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     returns: InsightString[],
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
     const returnsString = JSON.stringify(returns);
     const signableData = {
@@ -93,6 +95,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       queryCid: queryCid,
       dataWallet: dataWalletAddress,
       returns: returnsString,
+      parameters: parameters,
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -112,7 +115,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
           // TODO add parameters, which are string[] of IDynamicRewardParameter
-          // TODO add queries: answeredQueries,
+          parameters: parameters,
           returns: returns,
           signature: signature,
         });

@@ -240,6 +240,7 @@ export class QueryService implements IQueryService {
                 insights,
                 context.dataWalletKey!,
                 config.defaultInsightPlatformBaseUrl,
+                parameters,
               )
               .map((earnedRewards) => {
                 console.log("insight delivery api call done");
