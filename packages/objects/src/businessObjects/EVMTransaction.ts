@@ -13,6 +13,8 @@ import {
  * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
 export class EVMTransaction {
+  public accountAddresses: Set<EVMAccountAddress> = new Set();
+
   public constructor(
     public chainId: ChainId,
     public hash: string,
@@ -24,9 +26,34 @@ export class EVMTransaction {
     public gasPrice: BigNumberString | null,
     public gasOffered: BigNumberString | null,
     public feesPaid: BigNumberString | null,
-    public events: EVMEvent[] | null,
+    events: EVMEvent[] | null,
     public valueQuote: number | null,
-  ) {}
+  ) {
+    if (events != null) {
+      this.accountAddresses = this._getDescendants(events);
+    }
+    if (this.to) {
+      this.accountAddresses.add(this.to);
+    }
+    if (this.from) {
+      this.accountAddresses.add(this.from);
+    }
+  }
+
+  private _getDescendants(obj): Set<EVMAccountAddress> {
+    let result = new Set<EVMAccountAddress>();
+    for (const [key, value] of Object.entries(obj)) {
+      if (value && typeof value === "object") {
+        result = new Set([...result, ...this._getDescendants(value)]);
+      } else {
+        if (typeof value === "string") {
+          result.add(EVMAccountAddress(value));
+        }
+      }
+    }
+
+    return result;
+  }
 }
 
 export class EVMTransactionFilter {
@@ -68,7 +95,7 @@ export class EVMTransactionFilter {
     }
 
     if (this.addresses != undefined) {
-      const txaddrs = Array.from(this._getDescendants(tx));
+      const txaddrs = Array.from(tx.accountAddresses);
 
       if (txaddrs.length == 0) {
         return false;
@@ -80,20 +107,5 @@ export class EVMTransactionFilter {
     }
 
     return true;
-  }
-
-  private _getDescendants(obj): Set<EVMAccountAddress> {
-    let result = new Set<EVMAccountAddress>();
-    for (const [key, value] of Object.entries(obj)) {
-      if (value && typeof value === "object") {
-        result = new Set([...result, ...this._getDescendants(value)]);
-      } else {
-        if (typeof value === "string") {
-          result.add(EVMAccountAddress(value));
-        }
-      }
-    }
-
-    return result;
   }
 }
