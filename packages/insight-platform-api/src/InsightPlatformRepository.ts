@@ -40,7 +40,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   ) {}
 
   //
-  public deliverPreview(
+  public receivePreviews(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
     queryCid: IpfsCID,

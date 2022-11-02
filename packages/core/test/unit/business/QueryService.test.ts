@@ -350,6 +350,7 @@ describe("processRewardsPreview tests", () => {
             consentContractAddress,
             query,
             [],
+            null,
           );
           context.publicEvents.onQueryPosted.next(queryRequest);
           return okAsync(undefined);

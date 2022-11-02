@@ -10,6 +10,7 @@ import {
   LinkedAccount,
   EligibleReward,
   EarnedReward,
+  IDynamicRewardParameter,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -289,6 +290,7 @@ export interface ISnickerdoodleCore {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError

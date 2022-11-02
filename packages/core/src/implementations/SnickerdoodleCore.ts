@@ -69,6 +69,7 @@ import {
   DataWalletAddress,
   CeramicStreamID,
   EarnedReward,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -508,6 +509,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
