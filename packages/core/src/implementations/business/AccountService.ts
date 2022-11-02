@@ -535,17 +535,10 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getEarnedRewards();
   }
 
-<<<<<<< HEAD
   public addEarnedRewards(
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.addEarnedRewards(rewards);
-=======
-  public addEarnedReward(
-    reward: EarnedReward,
-  ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addEarnedReward(reward);
->>>>>>> develop
   }
 
   public getTranactions(
