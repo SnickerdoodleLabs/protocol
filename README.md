@@ -17,3 +17,18 @@ The visualization of insights returned from the DW network requires that a consu
 ## Getting Started
  
 If you would like to contribute to the Protocol, see [Getting Started](/documentation/GETTINGSTARTED.md). 
+
+# End to End Testing
+You can use this repository in conjuction with the Insight Platform repository to do an end to end test. You will need to create a "local" build of the extension, and dockerize the extension-onboarding package, to generate a docker image "snickerdoodlelabs/extension-onboarding:local". One version of this is available in NPM, but it may not be up to date.
+
+## Step 1
+Create the local build of the browser extension
+
+`cd packages/browserExtension`
+`yarn build-local`
+
+## Step 2
+Create an up to date version of the SPA
+`cd ../extension-onboarding`
+`yarn dockerize`
+
