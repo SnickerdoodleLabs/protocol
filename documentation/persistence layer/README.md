@@ -2,7 +2,11 @@
 
 This layer technically acts as the repository for personal off-chain data belonging to the end-user, and on-chain data about the linked accounts, their balances, NFTs, transactions, etc. 
 
-All this data is stored locally at the client side, and persistence package saves incremental backups on a cloud storage (which is Ceramic in our case). Each different type of data is represented with a key name.
+All this data is stored locally (in memory) at the client side, and persistence package saves incremental backups on a cloud storage (which is Ceramic in our case). 
+
+Each different type of data is represented with a key name.
+
+Please note that data objects must be string serializable to be handled by this layer.
 
 ---
 
@@ -11,7 +15,7 @@ After being unlocked, addAccount() can be called to store additional accounts (a
 
 [DataWalletPersistence.ts](/packages/persistence/src/DataWalletPersistence.ts) works with the following classes / interfaces to manage storage & backups of corresponding data.
 1. [IStorageUtils.ts](/packages/utils/src/IStorageUtils.ts)
-    - Stores age, given name, family name, gender, birthday, email, location, account balances & NFTs, ...
+    - Stores web2 and web3 user data including age, given name, family name, gender, birthday, email, location, account balances & NFTs, ...
     - Implemented by [LocalStorageUtils.ts](/packages/utils/src/LocalStorageUtils.ts)
         - In-memory key-value pairs
     - Updates to this set of data are commited to cloud storage, meaning old values will still persist but won't be returned to user.
