@@ -564,39 +564,56 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  protected memoryNFTs: IEVMNFT[] = [];
+  protected lastUpdate = 0;
   public updateAccountNFTs(
     nfts: IEVMNFT[],
   ): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this.persistentStorageUtils
-        .write(ELocalStorageKey.NFTS, JSON.stringify(nfts))
-        .andThen(() => {
-          return this.persistentStorageUtils
-            .write(ELocalStorageKey.NFTS_LAST_UPDATE, new Date().getTime())
-            .andThen(() => {
-              return okAsync(nfts);
-            });
-        });
+    return this.waitForRestore().andThen(() => {
+      // return this.persistentStorageUtils
+      //   .write(ELocalStorageKey.NFTS, JSON.stringify(nfts))
+      //   .andThen(() => {
+      //     return this.persistentStorageUtils
+      //       .write(ELocalStorageKey.NFTS_LAST_UPDATE, new Date().getTime())
+      //       .andThen(() => {
+      //         return okAsync(nfts);
+      //       });
+      //   });
+      this.lastUpdate = new Date().getTime();
+      this.memoryNFTs = nfts;
+      return okAsync(nfts);
     });
   }
 
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
-      return ResultUtils.combine([
-        this.configProvider.getConfig(),
-        this._checkAndRetrieveValue<number>(
-          ELocalStorageKey.NFTS_LAST_UPDATE,
-          0,
-        ),
-      ]).andThen(([config, lastUpdate]) => {
+      // return ResultUtils.combine([
+      //   this.configProvider.getConfig(),
+      //   this._checkAndRetrieveValue<number>(
+      //     ELocalStorageKey.NFTS_LAST_UPDATE,
+      //     0,
+      //   ),
+      // ]).andThen(([config, lastUpdate]) => {
+      //   const currTime = new Date().getTime();
+      //   if (currTime - lastUpdate < config.accountNFTPollingIntervalMS) {
+      //     return this._checkAndRetrieveValue<IEVMNFT[]>(
+      //       ELocalStorageKey.NFTS,
+      //       [],
+      //     );
+      //   }
+
+      //   // Just poll every time
+      //   return this.pollNFTs().mapErr(
+      //     (e) => new PersistenceError(`${e.name}: ${e.message}`),
+      //   );
+      // });
+      return this.configProvider.getConfig().andThen((config) => {
         const currTime = new Date().getTime();
-        if (currTime - lastUpdate < config.accountNFTPollingIntervalMS) {
-          return this._checkAndRetrieveValue<IEVMNFT[]>(
-            ELocalStorageKey.NFTS,
-            [],
-          );
+        if (currTime - this.lastUpdate < config.accountNFTPollingIntervalMS) {
+          return okAsync(this.memoryNFTs);
         }
 
+        // Just poll every time
         return this.pollNFTs().mapErr(
           (e) => new PersistenceError(`${e.name}: ${e.message}`),
         );
