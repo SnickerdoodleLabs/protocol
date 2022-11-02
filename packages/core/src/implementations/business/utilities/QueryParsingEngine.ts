@@ -12,6 +12,8 @@ import {
   ExpectedReward,
   URLString,
   ERewardType,
+  ChainId,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -84,6 +86,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     [InsightString[], EligibleReward[]],
     EvaluationError | QueryFormatError | QueryExpiredError
@@ -147,8 +150,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     if (typeof actualTypeData == "object") {
       if (actualTypeData != null) {
         return new ExpectedReward(
+          actualTypeData["compensationKey"],
           actualTypeData["description"],
-          URLString(actualTypeData["callback"]),
+          ChainId(actualTypeData["chainId"]),
+          actualTypeData["callback"],
           ERewardType.Direct,
         );
       }
@@ -156,12 +161,16 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     if (typeof actualTypeData == "string") {
       const rewardData = JSON.parse(actualTypeData);
       return new ExpectedReward(
-        rewardData["description"],
-        URLString(rewardData["callback"]),
+        actualTypeData["compensationKey"],
+        actualTypeData["description"],
+        ChainId(actualTypeData["chainId"]),
+        actualTypeData["callback"],
         ERewardType.Direct,
       );
     }
-    return new ExpectedReward("", URLString(""), ERewardType.Direct);
+
+    // Return to later - Andrew
+    return new ExpectedReward("", "", ChainId(0), "", ERewardType.Direct);
   }
 
   public evalCompensations(

@@ -28,7 +28,8 @@ import {
   URLString,
   EligibleReward,
   ERewardType,
-  QueryIdentifier
+  QueryIdentifier,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -91,21 +92,33 @@ export class InsightPlatformSimulator {
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCid = IpfsCID(req.body.queryCid);
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
-      const queries = (req.body.answeredQueries);
+      const queries = req.body.answeredQueries;
       const signature = Signature(req.body.signature);
 
       const value = {
         consentContractId,
         queryCid,
         dataWallet,
-        queries
+        queries,
       };
 
       this.logStream.write(JSON.stringify(req.body));
-      let reward = ([
-        new EligibleReward("c2", URLString("www.google.com"), ERewardType.Lazy),
-        new EligibleReward("c3", URLString("www.amazon.com"), ERewardType.Lazy),
-      ])
+      const reward = [
+        new EligibleReward(
+          "c2",
+          "description",
+          ChainId(1),
+          '{parameters: ["recipientAddress", "productId"],data: {trackingId: "982JJDSLAcx",},}',
+          ERewardType.Lazy,
+        ),
+        new EligibleReward(
+          "c3",
+          "description",
+          ChainId(1),
+          '{parameters: ["recipientAddress", "productId"],data: {trackingId: "982JJDSLAcx",},}',
+          ERewardType.Lazy,
+        ),
+      ];
 
       return this.cryptoUtils
         .verifyTypedData(
@@ -130,7 +143,7 @@ export class InsightPlatformSimulator {
           console.error(e);
           res.send(e);
         });
-    })
+    });
 
     this.app.post("/insights/responses", (req, res) => {
       console.log("Sending to Insight Responses");

@@ -18,7 +18,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
-  deliverPreview(
+  receivePreviews(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
     queryCid: IpfsCID,

@@ -14,6 +14,7 @@ import {
   QueryFormatError,
   SDQLQuery,
   UninitializedError,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -37,6 +38,7 @@ export interface IQueryService {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError

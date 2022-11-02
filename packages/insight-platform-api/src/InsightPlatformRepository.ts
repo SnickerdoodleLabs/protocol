@@ -40,7 +40,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   ) {}
 
   //
-  public deliverPreview(
+  public receivePreviews(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
     queryCid: IpfsCID,
@@ -111,6 +111,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           consentContractId: consentContractAddress,
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
+          // TODO add parameters, which are string[] of IDynamicRewardParameter
+          // TODO add queries: answeredQueries,
           returns: returns,
           signature: signature,
         });

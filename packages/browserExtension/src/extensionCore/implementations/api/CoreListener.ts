@@ -2,13 +2,16 @@ import {
   DataWalletAddress,
   EarnedReward,
   ERewardType,
+  IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
   ISnickerdoodleCoreType,
   LinkedAccount,
+  RecipientAddressType,
   SDQLQueryRequest,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
+import { query } from "express";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -80,11 +83,28 @@ export class CoreListener implements ICoreListener {
       return queryString;
     };
 
+    // DynamicRewardParameters added to be returned
+    const parameters: IDynamicRewardParameter[] = [];
+    request.rewardsPreview.forEach((element) => {
+      if (request.dataWalletAddress !== null) {
+        parameters.push({
+          recipientAddress: {
+            type: "address",
+            value: RecipientAddressType(element.callback),
+          },
+        });
+      }
+    });
+
     this.core
-      .processQuery(request.consentContractAddress, {
-        cid: request.query.cid,
-        query: getStringQuery(),
-      })
+      .processQuery(
+        request.consentContractAddress,
+        {
+          cid: request.query.cid,
+          query: getStringQuery(),
+        },
+        parameters,
+      )
       .map(() => {
         console.log(
           `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,

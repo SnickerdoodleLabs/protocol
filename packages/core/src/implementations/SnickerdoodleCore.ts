@@ -69,6 +69,7 @@ import {
   DataWalletAddress,
   CeramicStreamID,
   EarnedReward,
+  IDynamicRewardParameter,
   TokenId,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -521,6 +522,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -680,7 +682,9 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getEarnedRewards();
   }
-  addEarnedRewards(rewards: EarnedReward[]): ResultAsync<void, PersistenceError> {
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEarnedRewards(rewards);
