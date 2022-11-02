@@ -10,19 +10,14 @@ import {
   TokenId,
 } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
-import React, {
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  FC,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, FC, useCallback } from "react";
 
 import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useStyles } from "@extension-onboarding/components/Modals/RewardCard/RewardCard.style";
+import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
@@ -33,21 +28,7 @@ const RewardCard: FC = () => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
-
-  const invitationInfo = useMemo(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    return {
-      consentAddress: queryParams.get("consentAddress")
-        ? EVMContractAddress(queryParams.get("consentAddress")!)
-        : undefined,
-      tokenId: queryParams.get("tokenId")
-        ? BigNumberString(queryParams.get("tokenId")!)
-        : undefined,
-      signature: queryParams.get("signature")
-        ? Signature(queryParams.get("signature")!)
-        : undefined,
-    };
-  }, [window]);
+  const { invitationInfo } = useAppContext();
 
   useEffect(() => {
     getInvitationData();
@@ -57,6 +38,11 @@ const RewardCard: FC = () => {
     if (!invitationInfo.consentAddress) {
       return null;
     }
+    try {
+      if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
+        localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
+      }
+    } catch (e) {}
     return window.sdlDataWallet
       .checkInvitationStatus(
         invitationInfo.consentAddress,
