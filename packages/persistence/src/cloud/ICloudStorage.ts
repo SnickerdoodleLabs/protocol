@@ -12,6 +12,9 @@ export interface ICloudStorage {
   ): ResultAsync<CeramicStreamID, PersistenceError>;
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError>;
   unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
+
+  // this is the nuclear option
+  clear(): ResultAsync<void, PersistenceError>;
 }
 
 export const ICloudStorageType = Symbol.for("ICloudStorage");

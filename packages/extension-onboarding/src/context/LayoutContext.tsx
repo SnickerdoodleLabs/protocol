@@ -2,6 +2,7 @@ import LoadingSpinner from "@extension-onboarding/components/LoadingSpinner";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import AccountUnlinkingModal from "@extension-onboarding/components/Modals/AccountUnlinkingModal";
 import ConfirmationModal from "@extension-onboarding/components/Modals/ConfirmationModal";
+import CustomizableModal from "@extension-onboarding/components/Modals/CustomizableModal";
 import DataPermissionsModal from "@extension-onboarding/components/Modals/DataPermissionsModal";
 import PermissionSelectionModal from "@extension-onboarding/components/Modals/PermissionSelectionModal";
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
@@ -47,6 +48,15 @@ export const LayoutProvider: FC = ({ children }) => {
         return <PermissionSelectionModal />;
       case modalState.modalSelector === EModalSelectors.CONFIRMATION_MODAL:
         return <ConfirmationModal />;
+      case modalState.modalSelector === EModalSelectors.CUSTOMIZABLE_MODAL:
+        return (
+          <CustomizableModal
+            title={modalState?.customProps?.title}
+            message={modalState?.customProps?.message}
+            primaryButtonText={modalState?.customProps?.primaryButtonText}
+            secondaryButtonText={modalState?.customProps?.secondaryButtonText}
+          />
+        );
       default:
         return null;
     }

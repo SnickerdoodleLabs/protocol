@@ -56,8 +56,8 @@ describe("SDQLParser on avalanche", () => {
       expect(q1.contract.func).toBe("Transfer");
       expect(q1.contract.direction).toBe("from");
       expect(q1.contract.token).toBe("ERC20");
-      expect(q1.contract.blockrange.start).toBe(13001519);
-      expect(q1.contract.blockrange.end).toBe(14910334);
+      expect(q1.contract.timestampRange.start).toBe(13001519);
+      expect(q1.contract.timestampRange.end).toBe(14910334);
     });
 
     test("q2 is a conditional age query", () => {

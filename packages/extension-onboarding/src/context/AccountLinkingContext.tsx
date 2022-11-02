@@ -34,7 +34,7 @@ const AccountLinkingContext = createContext<IAccountLinkingContext>(
 export const AccountLinkingContextProvider: FC = ({ children }) => {
   const { providerList, linkedAccounts, isSDLDataWalletDetected } =
     useAppContext();
-  const { setModal } = useLayoutContext();
+  const { setModal, setLoadingStatus } = useLayoutContext();
 
   const { detectedProviders, unDetectedProviders, walletConnect } =
     useMemo(() => {
@@ -60,6 +60,10 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         },
       );
     }, [providerList.length]);
+
+  useEffect(() => {
+    setLoadingStatus(false);
+  }, [(linkedAccounts ?? []).length]);
 
   const getChain = (providerKey: EWalletProviderKeys) => {
     return providerKey === EWalletProviderKeys.PHANTOM
@@ -89,17 +93,19 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                       console.log(
                         "No existing linked accounts, calling sdlDataWallet.unlock()",
                       );
-                      return window.sdlDataWallet.unlock(
-                        account,
-                        signature,
-                        getChain(providerObj.key),
-                      );
+                      setLoadingStatus(true);
+                      return window.sdlDataWallet
+                        .unlock(account, signature, getChain(providerObj.key))
+                        .mapErr((e) => {
+                          setLoadingStatus(false);
+                        });
                     }
-                    return window.sdlDataWallet.addAccount(
-                      account,
-                      signature,
-                      getChain(providerObj.key),
-                    );
+                    setLoadingStatus(true);
+                    return window.sdlDataWallet
+                      .addAccount(account, signature, getChain(providerObj.key))
+                      .mapErr((e) => {
+                        setLoadingStatus(false);
+                      });
                   });
               } else {
                 setModal({
