@@ -1,19 +1,10 @@
+import { QueryObjectFactoryMocks } from "@core-tests/mock/mocks/QueryObjectFactoryMocks";
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
-import { avalanche3SchemaStr, ConditionGE, IQueryObjectFactory, QueryObjectFactory } from "@snickerdoodlelabs/query-parser";
+import {  ConditionGE } from "@snickerdoodlelabs/query-parser";
 import "reflect-metadata";
-import { SDQLQueryWrapperMocks } from "../../../mock/mocks";
-class QueryObjectFactoryMocks {
-  public wrapperMocks = new SDQLQueryWrapperMocks();
-  public schema = this.wrapperMocks.makeQueryWrapper(avalanche3SchemaStr);
-  factory(): IQueryObjectFactory {
-    return new QueryObjectFactory();
-  }
-}
 
 describe("test balance query parsing", () => {
   
-  
-
   test("q5 should have networkId 1 and and one ge (10) condition ", () => {
     const mocks = new QueryObjectFactoryMocks()
     const factory = mocks.factory();

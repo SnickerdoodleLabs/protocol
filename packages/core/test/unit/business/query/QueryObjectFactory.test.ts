@@ -1,14 +1,9 @@
+import { QueryObjectFactoryMocks } from "@core-tests/mock/mocks/QueryObjectFactoryMocks";
 import { SDQL_Name } from "@snickerdoodlelabs/objects";
-import { avalanche3SchemaStr, ConditionGE, IQueryObjectFactory, QueryObjectFactory } from "@snickerdoodlelabs/query-parser";
+
 import "reflect-metadata";
-import { SDQLQueryWrapperMocks } from "../../../mock/mocks";
-class QueryObjectFactoryMocks {
-  public wrapperMocks = new SDQLQueryWrapperMocks();
-  public schema = this.wrapperMocks.makeQueryWrapper(avalanche3SchemaStr);
-  factory(): IQueryObjectFactory {
-    return new QueryObjectFactory();
-  }
-}
+
+
 
 describe("test balance query parsing", () => {
   
