@@ -491,22 +491,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public updateAccountBalances(
-    balances: IEVMBalance[],
-  ): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this.persistentStorageUtils
-        .write(ELocalStorageKey.BALANCES, JSON.stringify(balances))
-        .andThen(() => {
-          return this.persistentStorageUtils
-            .write(ELocalStorageKey.BALANCES_LAST_UPDATE, new Date().getTime())
-            .andThen(() => {
-              return okAsync(balances);
-            });
-        });
-    });
-  }
-
   public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
     return ResultUtils.combine([
       this.waitForRestore(),
@@ -557,9 +541,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           }),
         );
       })
-      .andThen((balancesArr) => {
-        const balances = balancesArr.flat(2);
-        return this.updateAccountBalances(balances);
+      .map((balancesArr) => {
+        return balancesArr.flat(2);
       });
   }
 
@@ -596,22 +579,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             ),
           );
       }
-    });
-  }
-
-  public updateAccountNFTs(
-    nfts: IEVMNFT[],
-  ): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this.persistentStorageUtils
-        .write(ELocalStorageKey.NFTS, JSON.stringify(nfts))
-        .andThen(() => {
-          return this.persistentStorageUtils
-            .write(ELocalStorageKey.NFTS_LAST_UPDATE, new Date().getTime())
-            .andThen(() => {
-              return okAsync(nfts);
-            });
-        });
     });
   }
 
@@ -663,9 +630,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           }),
         );
       })
-      .andThen((nftArr) => {
-        const nfts = nftArr.flat(2);
-        return this.updateAccountNFTs(nfts);
+      .map((nftArr) => {
+        return nftArr.flat(2);
       });
   }
 
