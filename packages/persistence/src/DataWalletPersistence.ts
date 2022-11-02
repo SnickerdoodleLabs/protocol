@@ -105,6 +105,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   private restorePromise: Promise<void>;
   private resolveRestore: (() => void) | null = null;
 
+  private _balances?: ResultAsync<IEVMBalance[], PersistenceError>;
+  private _lastBalanceUpdate = 0;
+
+  private _nfts?: ResultAsync<IEVMNFT[], PersistenceError>;
+  private _lastNftUpdate = 0;
+
   public constructor(
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
@@ -502,26 +508,23 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return ResultUtils.combine([
-        this.configProvider.getConfig(),
-        this._checkAndRetrieveValue<number>(
-          ELocalStorageKey.BALANCES_LAST_UPDATE,
-          0,
-        ),
-      ]).andThen(([config, lastUpdate]) => {
-        const currTime = new Date().getTime();
-        if (currTime - lastUpdate < config.accountBalancePollingIntervalMS) {
-          return this._checkAndRetrieveValue<IEVMBalance[]>(
-            ELocalStorageKey.BALANCES,
-            [],
-          );
-        }
-
-        return this.pollBalances().mapErr(
-          (e) => new PersistenceError(`${e.name}: ${e.message}`),
-        );
-      });
+    return ResultUtils.combine([
+      this.waitForRestore(),
+      this.configProvider.getConfig(),
+    ]).andThen(([key, config]) => {
+      const currTime = new Date().getTime();
+      if (
+        this._balances != undefined &&
+        currTime - this._lastBalanceUpdate <
+          config.accountBalancePollingIntervalMS
+      ) {
+        return this._balances;
+      }
+      this._balances = this.pollBalances().mapErr(
+        (e) => new PersistenceError(`${e.name}: ${e.message}`),
+      );
+      this._lastBalanceUpdate = currTime;
+      return this._balances;
     });
   }
 
@@ -613,26 +616,22 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return ResultUtils.combine([
-        this.configProvider.getConfig(),
-        this._checkAndRetrieveValue<number>(
-          ELocalStorageKey.NFTS_LAST_UPDATE,
-          0,
-        ),
-      ]).andThen(([config, lastUpdate]) => {
-        const currTime = new Date().getTime();
-        if (currTime - lastUpdate < config.accountNFTPollingIntervalMS) {
-          return this._checkAndRetrieveValue<IEVMNFT[]>(
-            ELocalStorageKey.NFTS,
-            [],
-          );
-        }
-
-        return this.pollNFTs().mapErr(
-          (e) => new PersistenceError(`${e.name}: ${e.message}`),
-        );
-      });
+    return ResultUtils.combine([
+      this.waitForRestore(),
+      this.configProvider.getConfig(),
+    ]).andThen(([key, config]) => {
+      const currTime = new Date().getTime();
+      if (
+        this._nfts != undefined &&
+        currTime - this._lastNftUpdate < config.accountNFTPollingIntervalMS
+      ) {
+        return this._nfts;
+      }
+      this._nfts = this.pollNFTs().mapErr(
+        (e) => new PersistenceError("error fetching NFTs", e),
+      );
+      this._lastNftUpdate = currTime;
+      return this._nfts;
     });
   }
 
