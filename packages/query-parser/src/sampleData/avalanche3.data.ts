@@ -21,7 +21,7 @@ export const avalanche3SchemaStr = JSON.stringify(
           function: "Transfer",
           direction: "from",
           token: "ERC20",
-          timestamp: {
+          timestampRange: {
             start: 13001519,
             end: 14910334,
           },

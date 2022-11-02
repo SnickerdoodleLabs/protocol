@@ -28,7 +28,7 @@ RUN yarn compile
 
 WORKDIR /app/packages/extension-onboarding
 
-ARG BUILD_ENV=development
+ARG BUILD_ENV=PROD
 ENV __BUILD_ENV__ $BUILD_ENV
 
 ARG INFURA_ID=""
