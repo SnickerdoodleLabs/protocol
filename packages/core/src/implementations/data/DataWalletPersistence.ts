@@ -930,20 +930,21 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         );
       })
       .andThen(() => {
-        return ResultUtils.combine([
-          this.backupManagerProvider.getBackupManager(),
-          this.configProvider.getConfig(),
-        ]).andThen(([backupManager, config]) => {
-          return backupManager.getNumUpdates().andThen((numUpdates) => {
-            // console.log("chunk", numUpdates, config.backupChunkSizeTarget);
-            if (numUpdates >= config.backupChunkSizeTarget) {
-              return backupManager.dump().andThen((backup) => {
-                return this.cloudStorage
-                  .putBackup(backup)
-                  .andThen(() => okAsync(backupManager.clear()));
-              });
-            }
+        return this._placeBackups();
+      });
+  }
+
+  private _placeBackups(): ResultAsync<void, PersistenceError> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.popBackup().andThen((backup) => {
+          if (backup == null) {
             return okAsync(undefined);
+          }
+
+          return this.cloudStorage.putBackup(backup).andThen((streamID) => {
+            return this._placeBackups();
           });
         });
       });
