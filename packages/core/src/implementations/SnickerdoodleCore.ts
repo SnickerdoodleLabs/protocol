@@ -535,7 +535,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    return queryService.processQuery(consentContractAddress, query);
+    return queryService.processQuery(consentContractAddress, query, parameters);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {

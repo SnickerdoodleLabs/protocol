@@ -87,7 +87,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     returns: InsightString[],
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    parameters?: IDynamicRewardParameter[],
+    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
     const returnsString = JSON.stringify(returns);
     const signableData = {
@@ -95,7 +95,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       queryCid: queryCid,
       dataWallet: dataWalletAddress,
       returns: returnsString,
-      parameters: parameters,
+      rewardParameters: rewardParameters,
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -115,7 +115,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
           // TODO add parameters, which are string[] of IDynamicRewardParameter
-          parameters: parameters,
+          rewardParameters: rewardParameters,
           returns: returns,
           signature: signature,
         });
