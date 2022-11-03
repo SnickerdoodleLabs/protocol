@@ -6,13 +6,34 @@ import welcome3Right from "@extension-onboarding/assets/images/welcome-sc3-right
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { DOWNLOAD_URL } from "@extension-onboarding/constants";
 import { Box, Grid, Hidden } from "@material-ui/core";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SwipeableViews from "react-swipeable-views";
 import { autoPlay } from "react-swipeable-views-utils";
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const WebScreen = () => {
+  const [pageFocused, setPageFocused] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (pageFocused) {
+      window.location.reload();
+    }
+  }, [pageFocused]);
+
+  const onVisibilityChange = () => {
+    if (document.visibilityState === "visible") {
+      setPageFocused(true);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("visibilitychange", onVisibilityChange);
+    };
+  }, []);
+
   return (
     <Grid container>
       <Grid item xs={12} md={7}>
@@ -29,7 +50,7 @@ const WebScreen = () => {
             <PrimaryButton
               type="submit"
               onClick={() => {
-                window.open(DOWNLOAD_URL, "_self");
+                window.open(DOWNLOAD_URL, "_blank");
               }}
             >
               Install
