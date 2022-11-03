@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 
-import { IEVMNFT, LinkedAccount } from "@objects/businessObjects";
+import { EarnedReward, IEVMNFT, LinkedAccount } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
@@ -106,4 +106,6 @@ export interface ISdlDataWallet extends EventEmitter {
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, JsonRpcError>;
+  
+  getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError>;
 }

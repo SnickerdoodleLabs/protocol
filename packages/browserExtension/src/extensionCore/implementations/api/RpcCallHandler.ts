@@ -24,6 +24,7 @@ import {
   AccountAddress,
   TokenId,
   BigNumberString,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -142,6 +143,9 @@ export class RpcCallHandler implements IRpcCallHandler {
           this.getUnlockMessage(languageCode),
           res,
         ).call();
+      }
+      case EExternalActions.GET_EARNED_REWARDS: {
+        return new AsyncRpcResponseSender(this.getEarnedRewards(), res).call();
       }
       case EExternalActions.GET_ACCOUNTS:
       case EInternalActions.GET_ACCOUNTS: {
@@ -607,6 +611,13 @@ export class RpcCallHandler implements IRpcCallHandler {
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
     return this.accountService.getUnlockMessage(languageCode);
+  }
+
+  private getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountService.getEarnedRewards();
   }
 
   private getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
