@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 
 import { IEVMNFT, LinkedAccount } from "@objects/businessObjects";
-import { EChain, EWalletDataType } from "@objects/enum";
+import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import {
@@ -102,4 +102,14 @@ export interface ISdlDataWallet extends EventEmitter {
     chain: EChain,
     languageCode?: LanguageCode,
   ): ResultAsync<void, JsonRpcError>;
+
+  checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, JsonRpcError>;
+
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, JsonRpcError>;
 }

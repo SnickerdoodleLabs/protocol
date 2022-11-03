@@ -88,7 +88,7 @@ The contract sub-keyword is used in conjunction with the `network` sub-keyword. 
 - `function`: function ABI on the target smart contract
 - `direction`: was the user's account in the `to` or `from` field
 - `token`: is the contract an `ERC20` or `ERC721` standard
-- `timestamp`: did the account submit a matching transaction between `start` and `end` timestamp
+- `timestampRange`: did the account submit a matching transaction between `start` and `end` timestampRange
 
 #### enum_keys (required for queries with enum return type)
 The enum_keys sub-keyword is used in conjunction with the `enum` attribute type. Listing the keys that the attribute type supports.

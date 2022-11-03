@@ -34,7 +34,7 @@
                 "function": "Transfer",
                 "direction": "from",
                 "token": "ERC20",
-                "timestamp": {
+                "timestampRange": {
                     "start": 14759310,
                     "end": 14759317
                 }

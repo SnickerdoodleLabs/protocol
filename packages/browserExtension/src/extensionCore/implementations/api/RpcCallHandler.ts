@@ -1,4 +1,8 @@
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   Age,
   Invitation,
   CountryCode,
@@ -25,6 +29,7 @@ import {
   TokenId,
   BigNumberString,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -35,6 +40,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { parse } from "tldts";
 import { Runtime } from "webextension-polyfill";
 
+import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 import { AsyncRpcResponseSender } from "@implementations/utilities";
 import { IRpcCallHandler } from "@interfaces/api";
 import {
@@ -55,6 +61,10 @@ import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
 } from "@interfaces/utilities";
+import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@interfaces/utilities/IScamFilterSettingsUtils";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
 import { EExternalActions, EInternalActions } from "@shared/enums";
@@ -82,6 +92,8 @@ import {
   IUnlinkAccountParams,
   IAcceptInvitationParams,
   IScamFilterSettingsParams,
+  IGetConsentContractCIDParams,
+  ICheckInvitationStatusParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -89,17 +101,6 @@ import {
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-import { BigNumber } from "ethers";
-
-import {
-  IScamFilterSettingsUtils,
-  IScamFilterSettingsUtilsType,
-} from "@interfaces/utilities/IScamFilterSettingsUtils";
-import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -240,6 +241,23 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { ipfsCID } = params as IGetInvitationMetadataByCIDParams;
         return new AsyncRpcResponseSender(
           this.getInvitationMetadataByCID(ipfsCID),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.CHECK_INVITATION_STATUS: {
+        const { signature, consentAddress, tokenId } =
+          params as ICheckInvitationStatusParams;
+        return new AsyncRpcResponseSender(
+          this.checkInvitationStatus(consentAddress, signature, tokenId),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_CONTRACT_CID: {
+        const { consentAddress } = params as IGetConsentContractCIDParams;
+        return new AsyncRpcResponseSender(
+          this.getConsentContractCID(consentAddress),
           res,
         ).call();
       }
@@ -486,6 +504,29 @@ export class RpcCallHandler implements IRpcCallHandler {
         dataTypes,
       );
     });
+  }
+
+  private checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
+    return this._getTokenId(tokenId).andThen((tokenId) => {
+      return this.invitationService.checkInvitationStatus(
+        new Invitation(
+          "" as DomainName,
+          consentAddress,
+          tokenId,
+          signature ?? null,
+        ),
+      );
+    });
+  }
+
+  private getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
+    return this.invitationService.getConsentContractCID(consentAddress);
   }
 
   private _getTokenId(tokenId: BigNumberString | undefined) {

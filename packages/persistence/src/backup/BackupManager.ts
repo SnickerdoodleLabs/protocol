@@ -50,7 +50,11 @@ export class BackupManager {
     tableName: string,
     value: object,
   ): ResultAsync<void, PersistenceError> {
-    // console.log("Record update", tableName, value);
+    // this allows us to bypass transactions
+    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+      return this.volatile.putObject(tableName, value);
+    }
+
     this.tableUpdates[tableName].push(value);
     this.numUpdates += 1;
     return this.volatile.putObject(tableName, value);
@@ -60,7 +64,6 @@ export class BackupManager {
     key: string,
     value: object,
   ): ResultAsync<void, PersistenceError> {
-    // console.log("Field update", key, value);
     if (!(key in this.fieldUpdates)) {
       this.numUpdates += 1;
     }
@@ -126,13 +129,12 @@ export class BackupManager {
 
               return okAsync(undefined);
             }),
-          ).andThen((_) => {
+          ).andThen(() => {
             return ResultUtils.combine(
               Object.keys(unpacked.records).map((tableName) => {
                 const table = unpacked.records[tableName];
                 return ResultUtils.combine(
                   table.map((value) => {
-                    // TODO: figure out how to dedup records from chunk here
                     return this.volatile.putObject(tableName, value);
                   }),
                 );
@@ -140,9 +142,8 @@ export class BackupManager {
             );
           });
         })
-        .map((_) => {
+        .map(() => {
           console.log(`restored backup: ${backup.header.hash}`);
-          return undefined;
         });
     });
   }
