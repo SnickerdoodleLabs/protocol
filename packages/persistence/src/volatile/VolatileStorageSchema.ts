@@ -31,7 +31,6 @@ export const volatileStorageSchema = [
     ["timestamp", false],
     ["element", false],
   ]),
-  new VolatileTableIndex(ELocalStorageKey.LATEST_BLOCK, "contract", false),
   new VolatileTableIndex(ELocalStorageKey.EARNED_REWARDS, "queryCID", false, [
     ["type", false],
   ]),

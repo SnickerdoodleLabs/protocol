@@ -44,6 +44,7 @@ import {
   CeramicStreamID,
   EarnedReward,
   chainConfig,
+  CompoundKey,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -71,6 +72,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   private restorePromise: Promise<void>;
   private resolveRestore: (() => void) | null = null;
 
+  private latestBlockKey = new CompoundKey(ELocalStorageKey.LATEST_BLOCK, [
+    "contract",
+  ]);
+
   public constructor(
     @inject(IAccountNFTsType)
     protected accountNFTs: IAccountNFTs,
@@ -95,7 +100,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   private _checkAndRetrieveValue<T>(
-    key: ELocalStorageKey,
+    key: ELocalStorageKey | string,
     defaultVal: T,
   ): ResultAsync<T, PersistenceError> {
     return this.storageUtils.read<T>(key).map((val) => {
@@ -871,10 +876,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return this.backupManagerProvider
         .getBackupManager()
         .andThen((backupManager) => {
-          return backupManager.addRecord(ELocalStorageKey.LATEST_BLOCK, {
+          const latestBlock: LatestBlockEntry = {
             contract: contractAddress,
             block: blockNumber,
-          });
+          };
+          return backupManager.updateField(
+            this.latestBlockKey.getKey(latestBlock),
+            latestBlock,
+          );
         });
     });
   }
@@ -883,17 +892,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError> {
     return this.waitForRestore().andThen(() => {
-      return this.volatileStorage
-        .getObject<LatestBlockEntry>(
-          ELocalStorageKey.LATEST_BLOCK,
-          contractAddress.toString(),
-        )
-        .map((block) => {
-          if (block == null) {
-            return BlockNumber(-1);
-          }
-          return block.block;
-        });
+      const key = this.latestBlockKey.getKey({ contract: contractAddress });
+      return this._checkAndRetrieveValue(key, BlockNumber(0)); // should change this default to -1 since right now we are implying that we have block 0
     });
   }
 
