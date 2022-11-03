@@ -506,7 +506,7 @@ const Portfolio: FC = () => {
       </Box>
       <Box
         mt={3}
-        minHeight={400}
+        minHeight={440}
         border="1px solid rgba(207, 201, 200, 0.37)"
         borderRadius={8}
       >
@@ -525,7 +525,7 @@ const Portfolio: FC = () => {
             <Divider style={{ width: "100%" }} />
           </Box>
           <Grid item xs={6}>
-            <Box minHeight={400} display="flex" flexDirection="column">
+            <Box minHeight={440} display="flex" flexDirection="column">
               {isBalancesLoading ? (
                 <Box
                   display="flex"
@@ -626,7 +626,7 @@ const Portfolio: FC = () => {
             </Box>
           </Grid>
           <Grid item xs={6}>
-            <Box minHeight={400} ml={3} display="flex" flexDirection="column">
+            <Box minHeight={440} ml={3} display="flex" flexDirection="column">
               {isNFTsLoading ? (
                 <Box
                   display="flex"
@@ -646,7 +646,9 @@ const Portfolio: FC = () => {
                         )
                       : nftsToRender
                     )?.map((nftitem) => {
-                      return <NFTItem key={nftitem.contract} item={nftitem} />;
+                      return (
+                        <NFTItem key={JSON.stringify(nftitem)} item={nftitem} />
+                      );
                     })
                   ) : (
                     <Box width="100%" display="flex">
@@ -667,7 +669,13 @@ const Portfolio: FC = () => {
                 </Grid>
               )}
               {nftsPagination && (
-                <Box display="flex" marginTop="auto" justifyContent="flex-end">
+                <Box
+                  display="flex"
+                  marginTop="auto"
+                  justifyContent="flex-end"
+                  alignItems="center"
+                  py={0.5}
+                >
                   <Typography className={classes.paginationText}>
                     {`${
                       (nftsPagination.currentIndex - 1) * PAGINATION_RANGE + 1
