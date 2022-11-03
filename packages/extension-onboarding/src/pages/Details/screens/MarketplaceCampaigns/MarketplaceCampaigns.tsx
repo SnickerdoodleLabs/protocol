@@ -1,8 +1,8 @@
 import emptyReward from "@extension-onboarding/assets/images/empty-marketplace-rewads.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import RewardItem from "@extension-onboarding/components/RewardItem";
+import CampaignItem from "@extension-onboarding/components/CampaignItem";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/MarketPlaceRewards/MarketPlaceRewards.style";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/MarketplaceCampaigns/MarketplaceCampaigns.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import {
@@ -14,9 +14,9 @@ import React, { FC, useEffect, useState } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 
-const MarketPlaceRewards: FC = () => {
+const MarketPlaceCampaigns: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [rewardContractAddressesWithCID, setRewardContractAddressesWithCID] =
+  const [campaignContractAddressesWithCID, setCampaignContractAddressesWithCID] =
     useState<Record<EVMContractAddress, IpfsCID>>();
   const { setModal, closeModal, setLoadingStatus } = useLayoutContext();
   useEffect(() => {
@@ -24,12 +24,12 @@ const MarketPlaceRewards: FC = () => {
   }, []);
 
   useEffect(() => {
-    if (rewardContractAddressesWithCID) {
+    if (campaignContractAddressesWithCID) {
       if (isLoading) {
         setIsLoading(false);
       }
     }
-  }, [JSON.stringify(rewardContractAddressesWithCID)]);
+  }, [JSON.stringify(campaignContractAddressesWithCID)]);
 
   const getInvitations = () => {
     return window.sdlDataWallet
@@ -38,7 +38,7 @@ const MarketPlaceRewards: FC = () => {
         setIsLoading(false);
       })
       .map((metaData) => {
-        setRewardContractAddressesWithCID(metaData);
+        setCampaignContractAddressesWithCID(metaData);
       });
   };
 
@@ -53,9 +53,9 @@ const MarketPlaceRewards: FC = () => {
         setLoadingStatus(false);
       })
       .map(() => {
-        const metadata = { ...rewardContractAddressesWithCID };
+        const metadata = { ...campaignContractAddressesWithCID };
         delete metadata[consentContractAddress];
-        setRewardContractAddressesWithCID(metadata);
+        setCampaignContractAddressesWithCID(metadata);
         setLoadingStatus(false);
       });
   };
@@ -93,7 +93,7 @@ const MarketPlaceRewards: FC = () => {
   return (
     <Box>
       <Box mb={4}>
-        <Typography className={classes.title}>Available Rewards</Typography>
+        <Typography className={classes.title}>Available Campaigns</Typography>
         <Typography className={classes.description}>
           Find and claim more rewards.
         </Typography>
@@ -104,10 +104,10 @@ const MarketPlaceRewards: FC = () => {
         </Box>
       ) : (
         <Grid container spacing={2}>
-          {rewardContractAddressesWithCID &&
-          Object.keys(rewardContractAddressesWithCID).length ? (
-            Object.keys(rewardContractAddressesWithCID)?.map((key, index) => (
-              <RewardItem
+          {campaignContractAddressesWithCID &&
+          Object.keys(campaignContractAddressesWithCID).length ? (
+            Object.keys(campaignContractAddressesWithCID)?.map((key, index) => (
+              <CampaignItem
                 button={
                   <Typography
                     onClick={() => {
@@ -115,11 +115,11 @@ const MarketPlaceRewards: FC = () => {
                     }}
                     className={classes.link}
                   >
-                    Claim Reward
+                    Opt-in
                   </Typography>
                 }
                 key={key}
-                rewardCID={rewardContractAddressesWithCID[key]}
+                campaignCID={campaignContractAddressesWithCID[key]}
               />
             ))
           ) : (
@@ -140,4 +140,4 @@ const MarketPlaceRewards: FC = () => {
     </Box>
   );
 };
-export default MarketPlaceRewards;
+export default MarketPlaceCampaigns;
