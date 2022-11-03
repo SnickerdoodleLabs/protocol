@@ -559,6 +559,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return siftService.checkURL(domain);
   }
 
+  public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getEarnedRewards();
+  }
+
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
