@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/query-parser",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Utilitites for parsing and understanding SDQL Queries",
   "license": "MIT",
   "repository": {
@@ -34,7 +34,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
   },
   "type": "module",
   "types": "dist/index.d.ts",
