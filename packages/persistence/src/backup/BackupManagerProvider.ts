@@ -7,6 +7,7 @@ import { EVMPrivateKey, PersistenceError } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { BackupManager } from "@persistence/backup/BackupManager.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
@@ -58,20 +59,20 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         return schema.name;
       });
 
-    this.backupManager = this.waitForUnlock().andThen((key) => {
-      return this.configProvider.getConfig().andThen((config) => {
-        return okAsync(
-          new BackupManager(
-            key,
-            tableNames,
-            this.volatileStorage,
-            this.cryptoUtils,
-            this.storageUtils,
-            config.backupChunkSizeTarget,
-          ),
-        );
-      });
+    this.backupManager = ResultUtils.combine([
+      this.waitForUnlock(),
+      this.configProvider.getConfig(),
+    ]).map(([key, config]) => {
+      return new BackupManager(
+        key,
+        tableNames,
+        this.volatileStorage,
+        this.cryptoUtils,
+        this.storageUtils,
+        config.backupChunkSizeTarget,
+      );
     });
+
     return this.backupManager;
   }
 

@@ -56,17 +56,6 @@ export class BackupManager implements IBackupManager {
     return okAsync(this.chunkQueue.pop());
   }
 
-  private _checkSize(): ResultAsync<void, PersistenceError> {
-    if (this.numUpdates >= this.maxChunkSize) {
-      return this.dump().andThen((backup) => {
-        this.chunkQueue.push(backup);
-        return okAsync(this.clear());
-      });
-    }
-
-    return okAsync(undefined);
-  }
-
   public addRecord(
     tableName: string,
     value: object,
@@ -165,6 +154,17 @@ export class BackupManager implements IBackupManager {
           console.log(`restored backup: ${backup.header.hash}`);
         });
     });
+  }
+
+  private _checkSize(): ResultAsync<void, PersistenceError> {
+    if (this.numUpdates >= this.maxChunkSize) {
+      return this.dump().andThen((backup) => {
+        this.chunkQueue.push(backup);
+        return okAsync(this.clear());
+      });
+    }
+
+    return okAsync(undefined);
   }
 
   private _unpackBlob(
