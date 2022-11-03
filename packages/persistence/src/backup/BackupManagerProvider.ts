@@ -7,10 +7,15 @@ import { EVMPrivateKey, PersistenceError } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { BackupManager } from "@persistence/backup/BackupManager.js";
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
 import { IBackupManagerProvider } from "@persistence/backup/IBackupManagerProvider.js";
+import {
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "@persistence/IPersistenceConfigProvider.js";
 import {
   IVolatileStorage,
   IVolatileStorageType,
@@ -27,6 +32,8 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     @inject(IVolatileStorageType) protected volatileStorage: IVolatileStorage,
     @inject(IStorageUtilsType) protected storageUtils: IStorageUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IPersistenceConfigProviderType)
+    protected configProvider: IPersistenceConfigProvider,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -52,15 +59,20 @@ export class BackupManagerProvider implements IBackupManagerProvider {
         return schema.name;
       });
 
-    this.backupManager = this.waitForUnlock().map((key) => {
+    this.backupManager = ResultUtils.combine([
+      this.waitForUnlock(),
+      this.configProvider.getConfig(),
+    ]).map(([key, config]) => {
       return new BackupManager(
         key,
         tableNames,
         this.volatileStorage,
         this.cryptoUtils,
         this.storageUtils,
+        config.backupChunkSizeTarget,
       );
     });
+
     return this.backupManager;
   }
 
