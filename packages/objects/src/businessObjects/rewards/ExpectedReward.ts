@@ -1,8 +1,8 @@
-import { ChainId } from "..";
-
 import { ERewardType } from "@objects/enum";
+import { ChainId } from "@objects/primitives";
 
-export class EligibleReward {
+/* Must match returning EligibleReward exactly */
+export class ExpectedReward {
   public constructor(
     public compensationKey: string, // c3
     public description: string,
