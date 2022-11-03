@@ -1,7 +1,7 @@
 import { IEVMNFT } from "@snickerdoodlelabs/objects";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
 import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
-import { Box, Grid, Typography } from "@material-ui/core";
+import { Box, Grid, Typography, Tooltip } from "@material-ui/core";
 import React, { FC, useMemo } from "react";
 
 export interface INFTItemProps {
@@ -46,12 +46,14 @@ const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
         <img
           width={150}
           height={140}
-          style={{ borderRadius: "8px 8px 0px 0px" }}
+          style={{ borderRadius: "8px 8px 0px 0px", objectFit: "cover" }}
           src={getImage()}
         />
         <Box mt={-0.5} bgcolor="rgba(253, 243, 225, 0.6)">
           <Box p={2}>
-            <Typography className={classes.nftName}>{item?.name}</Typography>
+            <Typography className={classes.nftName}>
+              {item?.name || "_"}
+            </Typography>
           </Box>
         </Box>
       </Box>
