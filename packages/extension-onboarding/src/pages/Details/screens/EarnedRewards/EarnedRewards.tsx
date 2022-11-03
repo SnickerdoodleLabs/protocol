@@ -20,16 +20,7 @@ declare const window: IWindowWithSdlDataWallet;
 
 const EarnedRewards: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [rewards, setRewards] = useState<EarnedReward[]>([
-    {
-      queryCID: IpfsCID("3432"),
-      type: ERewardType.Direct,
-    },
-    {
-      queryCID: IpfsCID("3432"),
-      type: ERewardType.Direct,
-    },
-  ]);
+  const [rewards, setRewards] = useState<EarnedReward[]>();
 
   useEffect(() => {
     getRewards();
@@ -43,7 +34,7 @@ const EarnedRewards: FC = () => {
 
   const getRewards = () => {
     window.sdlDataWallet.getEarnedRewards().map((rewards) => {
-      // setRewards(rewards);
+      setRewards(rewards);
     });
   };
 
