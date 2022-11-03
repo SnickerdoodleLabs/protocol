@@ -6,7 +6,8 @@ import { useLocation } from "react-router-dom";
 
 export enum EScreens {
   OWNED_REWARDS = "owned-rewards",
-  MARKET_PLACE_REWARDS = "market-place-rewards",
+  OPTED_IN_CAMPAIGNS = "opted-in-campaigns",
+  MARKET_PLACE_CAMPAIGNS = "marketplace-campaigns",
   PORTFOLIO = "portfolio",
   SETTINGS = "settings",
   ON_CHAIN_INFO_SETTINGS = "on-chain-info-settings",
@@ -36,9 +37,15 @@ export const routes: IRoute[] = [
     icon: rewardsIcon,
     title: "Rewards",
     screen: null,
+    subroutes: [{ title: "My Rewards", screen: EScreens.OWNED_REWARDS }],
+  },
+  {
+    icon: rewardsIcon,
+    title: "Campaigns",
+    screen: null,
     subroutes: [
-      { title: "My Rewards", screen: EScreens.OWNED_REWARDS },
-      { title: "Available Rewards", screen: EScreens.MARKET_PLACE_REWARDS },
+      { title: "My Campaigns", screen: EScreens.OPTED_IN_CAMPAIGNS },
+      { title: "Available Campaigns", screen: EScreens.MARKET_PLACE_CAMPAIGNS },
     ],
   },
   {

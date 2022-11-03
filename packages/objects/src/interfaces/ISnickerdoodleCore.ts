@@ -329,6 +329,8 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | PersistenceError
   >;
+  
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 

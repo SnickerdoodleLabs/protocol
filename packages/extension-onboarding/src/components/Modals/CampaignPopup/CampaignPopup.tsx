@@ -15,14 +15,14 @@ import React, { useEffect, useState, FC, useCallback } from "react";
 import SDLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import RewardBG from "@extension-onboarding/assets/images/rewardBg.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import { useStyles } from "@extension-onboarding/components/Modals/RewardCard/RewardCard.style";
+import { useStyles } from "@extension-onboarding/components/Modals/CampaignPopup/CampaignPopup.style";
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
-const RewardCard: FC = () => {
+const CampaignPopup: FC = () => {
   const [invitationMeta, setInvitationMeta] = useState<IOpenSeaMetadata>();
   const [loading, setLoading] = useState<boolean>(false);
   const classes = useStyles();
@@ -271,7 +271,7 @@ const RewardCard: FC = () => {
                   color: "#222137",
                 }}
               >
-                Claim Your NFT!
+                Opt-in to Cohort!
               </Typography>
             </Box>
             <Box mb={2}>
@@ -297,7 +297,7 @@ const RewardCard: FC = () => {
                   onClick={onClaimClick}
                   className={classes.primaryButton}
                 >
-                  Claim Reward
+                 Opt-in
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 17 16"
@@ -334,4 +334,4 @@ const RewardCard: FC = () => {
     </>
   );
 };
-export default RewardCard;
+export default CampaignPopup;
