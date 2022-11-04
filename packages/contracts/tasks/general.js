@@ -1,18 +1,25 @@
-task("accounts", "Prints the list of accounts for configured HD Wallet", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
+task(
+  "accounts",
+  "Prints the list of accounts for configured HD Wallet",
+  async (taskArgs, hre) => {
+    const accounts = await hre.ethers.getSigners();
 
-  for (const account of accounts) {
-    let accountBalance = await account.getBalance();
-    console.log(
-      account.address,
-      "balance:",
-      hre.ethers.utils.formatEther(accountBalance),
-    );
-  }
-});
+    for (const account of accounts) {
+      let accountBalance = await account.getBalance();
+      console.log(
+        account.address,
+        "balance:",
+        hre.ethers.utils.formatEther(accountBalance),
+      );
+    }
+  },
+);
 
 task("accountBalance", "Prints the first account.")
-  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
   .setAction(async (taskArgs) => {
     const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
@@ -26,8 +33,39 @@ task("accountBalance", "Prints the first account.")
     );
   });
 
+task("erc721balanceOf", "Prints the first account.")
+  .addParam(
+    "contractaddress",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
+  .addParam(
+    "useraddress",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
+    const userAddress = taskArgs.userAddress;
+
+    const rewardsContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider,
+    );
+
+    let accountBalance = await rewardsContractHandle.balanceOf(useraddress);
+    console.log(
+      account.address,
+      "balance:",
+      hre.ethers.utils.formatEther(accountBalance),
+    );
+  });
+
 task("transactionCount", "Get the nonce of the current account.")
-  .addParam("accountnumber", "integer referencing the account to you in the configured HD Wallet")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
   .setAction(async (taskArgs) => {
     const accountnumber = taskArgs.accountnumber;
     const accounts = await hre.ethers.getSigners();
