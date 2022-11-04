@@ -65,7 +65,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "insights/preview"),
+          urlJoin(insightPlatformBaseUrl, "/insights/responses/preview"),
         );
 
         /* Following schema from .yaml file: */
@@ -89,17 +89,20 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
-
+    console.log("rewardParameters: ", rewardParameters);
     const returnsString = JSON.stringify(returns);
     const parameters = JSON.stringify([]);
     if (rewardParameters !== undefined) {
       const parameters = JSON.stringify(rewardParameters);
     }
+    console.log("rewardParameters: ", parameters);
+    console.log("deliverInsights - Verification Address: ", dataWalletAddress);
+    console.log("deliverInsights - dataWallet: ", dataWalletKey);
 
     const signableData = {
       consentContractId: consentContractAddress,
-      queryCid: queryCid,
       dataWallet: dataWalletAddress,
+      queryCid: queryCid,
       returns: returnsString,
       rewardParameters: parameters,
     } as Record<string, unknown>;

@@ -78,7 +78,7 @@ export class InsightPlatformSimulator {
     });
 
     /* Rewards Preview API - get Eligible Rewards*/
-    this.app.post("/insights/preview", (req, res) => {
+    this.app.post("/insights/responses/preview", (req, res) => {
       console.log("Sending prompt rewards preview to the Insights Platform");
       console.log("Req is this: ", req.body);
 
@@ -121,6 +121,9 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
+          console.log("Verification Address: ", verificationAddress);
+          console.log("dataWallet: ", dataWallet);
+
           if (verificationAddress !== dataWallet) {
             const err = new Error("`In bad wallet: ${verificationAddress}`");
             console.error(err);
@@ -161,6 +164,7 @@ export class InsightPlatformSimulator {
 
       this.logStream.write(JSON.stringify(req.body));
 
+      console.log("verifyTypedData");
       return this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
@@ -169,11 +173,15 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
+          console.log("Verification Address: ", verificationAddress);
+          console.log("dataWallet: ", dataWallet);
           if (verificationAddress !== dataWallet) {
             const err = new Error("`In bad wallet: ${verificationAddress}`");
             console.error(err);
             return errAsync(err);
           }
+          console.log("verificationAddress good");
+
           return okAsync(null);
         })
         .andThen(() => {
