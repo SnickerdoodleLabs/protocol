@@ -303,9 +303,7 @@ export class SDQLParser {
 
   private parseReturns(): ResultAsync<
     void,
-    DuplicateIdInSchema 
-    | QueryFormatError
-    | MissingASTError
+    DuplicateIdInSchema | QueryFormatError | MissingASTError
   > {
     try {
       const returnsSchema = this.schema.getReturnSchema();
@@ -322,33 +320,28 @@ export class SDQLParser {
         }
 
         if ("query" in schema) {
-          
-          const source = this.context.get(SDQL_Name(schema.query!)) as AST_Query | AST_Return;
+          const source = this.context.get(SDQL_Name(schema.query!)) as
+            | AST_Query
+            | AST_Return;
           if (null == source) {
-            return errAsync(new MissingASTError(schema.query!))
+            return errAsync(new MissingASTError(schema.query!));
           }
-          const returnExpr = new AST_ReturnExpr(
-            name,
-            source
-          );
+          const returnExpr = new AST_ReturnExpr(name, source);
           returns.push(returnExpr);
-
         } else if ("message" in schema) {
-
-          const source = new AST_Return(SDQL_Name(schema.name), schema.message!);
-          const returnExpr = new AST_ReturnExpr(
-            name,
-            source
+          const source = new AST_Return(
+            SDQL_Name(schema.name),
+            schema.message!,
           );
+          const returnExpr = new AST_ReturnExpr(name, source);
           returns.push(returnExpr);
-
         } else {
-
           // const err = new ReturnNotImplementedError(rName);
           // console.error(err);
           // throw err;
-          return errAsync(new QueryFormatError("Missing type definition", 0, schema));
-
+          return errAsync(
+            new QueryFormatError("Missing type definition", 0, schema),
+          );
         }
       }
 
@@ -383,9 +376,10 @@ export class SDQLParser {
 
         if (cName == "parameters") {
           // this is the parameters block
-          this.compensationParameters = compensationSchema[cName] as ISDQLCompensationParameters;
-
-        } else { 
+          this.compensationParameters = compensationSchema[
+            cName
+          ] as ISDQLCompensationParameters;
+        } else {
           // This is a compensation
           const name = SDQL_Name(cName);
           const schema = compensationSchema[cName] as ISDQLCompensations;
@@ -394,17 +388,15 @@ export class SDQLParser {
             schema.description,
             schema.chainId,
             schema.callback,
-            schema.alternatives ? schema.alternatives : []
+            schema.alternatives ? schema.alternatives : [],
           );
-  
+
           this.compensations.set(compensation.name, compensation);
           this.saveInContext(cName, compensation);
         }
-       
       }
 
       return okAsync(undefined);
-
     } catch (err) {
       if (err instanceof DuplicateIdInSchema) {
         return errAsync(err as DuplicateIdInSchema);
@@ -498,10 +490,9 @@ export class SDQLParser {
   }
 
   public queryIdsToDataPermissions(ids: string[]): DataPermissions {
-    
-    const queries:AST_Query[] = [];
+    const queries: AST_Query[] = [];
     ids.reduce<AST_Query[]>((queries, id) => {
-      const query = this.context.get(SDQL_Name(id))
+      const query = this.context.get(SDQL_Name(id));
       if (query != null) {
         queries.push(query as AST_Query);
       }
