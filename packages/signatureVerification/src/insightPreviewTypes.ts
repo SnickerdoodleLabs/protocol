@@ -6,6 +6,5 @@ export const insightPreviewTypes: Record<string, TypedDataField[]> = {
     { name: "queryCid", type: "string" },
     { name: "dataWallet", type: "address" },
     { name: "queries", type: "string" },
-    { name: "parameters", type: "string" },
   ],
 };

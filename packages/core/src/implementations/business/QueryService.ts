@@ -159,14 +159,15 @@ export class QueryService implements IQueryService {
             )
             .andThen((eligibleRewards) => {
               /* Compare server's rewards with your list */
-              if (!this.compareRewards(eligibleRewards, expectedRewards)) {
-                // No consent given!
-                return errAsync(
-                  new ServerRewardError(
-                    "Insight Platform Rewards do not match Expected Rewards!",
-                  ),
-                );
-              }
+
+              // if (!this.compareRewards(eligibleRewards, expectedRewards)) {
+              //   // No consent given!
+              //   return errAsync(
+              //     new ServerRewardError(
+              //       "Insight Platform Rewards do not match Expected Rewards!",
+              //     ),
+              //   );
+              // }
 
               const queryRequest = new SDQLQueryRequest(
                 consentContractAddress,
