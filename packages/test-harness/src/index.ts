@@ -142,7 +142,7 @@ core.getEvents().map(async (events) => {
 
   events.onQueryPosted.subscribe(async (queryRequest: SDQLQueryRequest) => {
     console.log(
-      `Recieved rewards preview from consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
+      `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
     );
 
     try {
@@ -303,10 +303,12 @@ function corePrompt(): ResultAsync<void, Error> {
   ]).andThen((answers) => {
     const sites: SiteVisit[] = [];
     const transactions: EVMTransaction[] = [];
+    const rewards: EarnedReward[] = [];
     const earnedReward = new EarnedReward(
       IpfsCID("LazyReward"),
       ERewardType.Lazy,
     );
+    rewards[0] = earnedReward;
 
     switch (answers.core) {
       case "unlock":
@@ -354,10 +356,11 @@ function corePrompt(): ResultAsync<void, Error> {
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
 
-      // case "addEarnedAward":
-      //   return core.addEarnedReward(earnedReward).map(console.log);
-      // case "getEarnedAwards":
-      //   return core.getEarnedRewards().map(console.log);
+      case "addEarnedAward":
+        return core.addEarnedRewards(rewards).map(console.log);
+
+      case "getEarnedAwards":
+        return core.getEarnedRewards().map(console.log);
       case "addEVMTransaction - Query's Network":
         /*
           Important!  Must use different hash values for transaction values!

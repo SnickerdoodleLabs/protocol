@@ -1,14 +1,7 @@
 import * as fs from "fs";
 
-import {
-  CryptoUtils,
-  ILogUtils,
-  ILogUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-import {
-  ConsentContract,
-  IMinimalForwarderRequest,
-} from "@snickerdoodlelabs/contracts-sdk";
+import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
   BigNumberString,
   ConsentContractError,
@@ -24,17 +17,17 @@ import {
   ISO8601DateString,
   SDQLString,
   Signature,
-  UnixTimestamp,
   URLString,
   EligibleReward,
   ERewardType,
-  QueryIdentifier,
   ChainId,
+  ExpectedReward,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
   insightDeliveryTypes,
+  insightPreviewTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
@@ -92,7 +85,7 @@ export class InsightPlatformSimulator {
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCid = IpfsCID(req.body.queryCid);
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
-      const queries = req.body.answeredQueries;
+      const queries = JSON.stringify(req.body.queries);
       const signature = Signature(req.body.signature);
 
       const value = {
@@ -102,28 +95,28 @@ export class InsightPlatformSimulator {
         queries,
       };
 
+      const expectedRewards: ExpectedReward[] = [];
+      expectedRewards[0] = new ExpectedReward(
+        "undefined",
+        "participate in the draw to win a CryptoPunk NFT",
+        ChainId(1),
+        "{ parameters: [Array], data: [Object] }",
+        ERewardType.Direct,
+      );
+      expectedRewards[1] = new ExpectedReward(
+        "undefined",
+        "a free CrazyApesClub NFT",
+        ChainId(1),
+        "{ parameters: [Array], data: [Object] }",
+        ERewardType.Direct,
+      );
+
       this.logStream.write(JSON.stringify(req.body));
-      const reward = [
-        new EligibleReward(
-          "c2",
-          "description",
-          ChainId(1),
-          '{parameters: ["recipientAddress", "productId"],data: {trackingId: "982JJDSLAcx",},}',
-          ERewardType.Lazy,
-        ),
-        new EligibleReward(
-          "c3",
-          "description",
-          ChainId(1),
-          '{parameters: ["recipientAddress", "productId"],data: {trackingId: "982JJDSLAcx",},}',
-          ERewardType.Lazy,
-        ),
-      ];
 
       return this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
-          insightDeliveryTypes,
+          insightPreviewTypes,
           value,
           signature,
         )
@@ -136,8 +129,7 @@ export class InsightPlatformSimulator {
           return okAsync(null);
         })
         .map(() => {
-          res.send("Reward Preview received successfully!");
-          res.send(reward);
+          res.send(expectedRewards);
         })
         .mapErr((e) => {
           console.error(e);
@@ -148,11 +140,15 @@ export class InsightPlatformSimulator {
     this.app.post("/insights/responses", (req, res) => {
       console.log("Sending to Insight Responses");
       console.log("Req is this: ", req.body);
+      console.log("/insights/responses ");
+
       console.log("req.body.consentContractId: ", req.body.consentContractId);
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCid = IpfsCID(req.body.queryCid);
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
       const returns = JSON.stringify(req.body.returns);
+      const rewardParameters = JSON.stringify(req.body.rewardParameters);
+
       const signature = Signature(req.body.signature);
 
       const value = {
@@ -160,6 +156,7 @@ export class InsightPlatformSimulator {
         queryCid,
         dataWallet,
         returns,
+        rewardParameters,
       };
 
       this.logStream.write(JSON.stringify(req.body));

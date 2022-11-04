@@ -89,13 +89,15 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
-    const returnsString = JSON.stringify(returns);
+    if (rewardParameters == undefined) {
+      rewardParameters = [];
+    }
     const signableData = {
       consentContractId: consentContractAddress,
       queryCid: queryCid,
       dataWallet: dataWalletAddress,
-      returns: returnsString,
-      rewardParameters: rewardParameters,
+      returns: JSON.stringify(returns),
+      rewardParameters: JSON.stringify(rewardParameters),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -114,15 +116,11 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           consentContractId: consentContractAddress,
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
-          // TODO add parameters, which are string[] of IDynamicRewardParameter
           rewardParameters: rewardParameters,
           returns: returns,
           signature: signature,
         });
       });
-    // .map((response) => {
-    //   console.log("Ajax response: " + JSON.stringify(response));
-    // });
   }
 
   public executeMetatransaction(
