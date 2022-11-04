@@ -931,6 +931,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       })
       .andThen(() => {
         return this._placeBackups();
+      })
+      .orElse((e) => {
+        this.logUtils.warning(
+          "error loading backups. wallet may contain incomplete data",
+          e,
+        );
+        return okAsync(undefined);
       });
   }
 
