@@ -310,10 +310,12 @@ function corePrompt(): ResultAsync<void, Error> {
   ]).andThen((answers) => {
     const sites: SiteVisit[] = [];
     const transactions: EVMTransaction[] = [];
+    const rewards: EarnedReward[] = [];
     const earnedReward = new EarnedReward(
       IpfsCID("LazyReward"),
       ERewardType.Lazy,
     );
+    rewards[0] = earnedReward;
 
     switch (answers.core) {
       case "unlock":
@@ -362,7 +364,7 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getSiteVisits().map(console.log);
 
       case "addEarnedAward":
-        return core.addEarnedReward(earnedReward).map(console.log);
+        return core.addEarnedRewards([earnedReward]).map(console.log);
 
       case "getEarnedAwards":
         return core.getEarnedRewards().map(console.log);

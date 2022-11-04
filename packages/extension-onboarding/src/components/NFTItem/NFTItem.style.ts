@@ -5,6 +5,7 @@ export const useStyles = makeStyles((theme) => ({
     borderRadius: 8,
     border: "1px solid #ECECEC",
     padding: 0,
+    width:"150px"
   },
   nftName: {
     width: 115,

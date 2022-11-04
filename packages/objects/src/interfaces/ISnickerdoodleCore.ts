@@ -8,6 +8,9 @@ import {
   PageInvitation,
   SiteVisit,
   LinkedAccount,
+  EligibleReward,
+  EarnedReward,
+  IDynamicRewardParameter,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -295,6 +298,7 @@ export interface ISnickerdoodleCore {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -325,6 +329,8 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | PersistenceError
   >;
+  
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
