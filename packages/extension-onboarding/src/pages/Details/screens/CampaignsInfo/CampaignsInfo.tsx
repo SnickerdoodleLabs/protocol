@@ -1,8 +1,8 @@
 import emptyReward from "@extension-onboarding/assets/images/empty-reward.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
-import RewardItem from "@extension-onboarding/components/RewardItem";
+import CampaignItem from "@extension-onboarding/components/CampaignItem";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/RewardsInfo/RewardsInfo.style";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignsInfo/CampaignsInfo.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
@@ -12,7 +12,7 @@ declare const window: IWindowWithSdlDataWallet;
 
 const RewardsInfo: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [rewardContractAddressesWithCID, setRewardContractAddressesWithCID] =
+  const [campaignContractAddressesWithCID, setCampaignContractAddressesWithCID] =
     useState<Record<EVMContractAddress, IpfsCID>>();
   const { setModal, setLoadingStatus } = useLayoutContext();
 
@@ -21,10 +21,10 @@ const RewardsInfo: FC = () => {
   }, []);
 
   useEffect(() => {
-    if (rewardContractAddressesWithCID) {
+    if (campaignContractAddressesWithCID) {
       setIsLoading(false);
     }
-  }, [JSON.stringify(rewardContractAddressesWithCID)]);
+  }, [JSON.stringify(campaignContractAddressesWithCID)]);
 
   const getInvitations = () => {
     return window.sdlDataWallet
@@ -33,7 +33,7 @@ const RewardsInfo: FC = () => {
         setIsLoading(false);
       })
       .map((metaData) => {
-        setRewardContractAddressesWithCID(metaData);
+        setCampaignContractAddressesWithCID(metaData);
       });
   };
 
@@ -45,9 +45,9 @@ const RewardsInfo: FC = () => {
         setLoadingStatus(false);
       })
       .map(() => {
-        const metadata = { ...rewardContractAddressesWithCID };
+        const metadata = { ...campaignContractAddressesWithCID };
         delete metadata[consentContractAddress];
-        setRewardContractAddressesWithCID(metadata);
+        setCampaignContractAddressesWithCID(metadata);
         setLoadingStatus(false);
       });
   };
@@ -59,9 +59,9 @@ const RewardsInfo: FC = () => {
         leaveCohort(consentContractAddress);
       },
       customProps: {
-        title: "Burn Reward",
-        content: "Are you sure you want to burn this reward?",
-        primaryButtonText: "Burn",
+        title: "Opt Out",
+        content: "Are you sure you want to opt-out from cohort?",
+        primaryButtonText: "Opt-out",
       },
     });
   };
@@ -71,7 +71,7 @@ const RewardsInfo: FC = () => {
   return (
     <Box>
       <Box mb={4}>
-        <Typography className={classes.title}>My Rewards</Typography>
+        <Typography className={classes.title}>My Campaigns</Typography>
         <Typography className={classes.description}>
           See what you've earned from sharing insights!
         </Typography>
@@ -82,10 +82,10 @@ const RewardsInfo: FC = () => {
         </Box>
       ) : (
         <Grid container spacing={2}>
-          {rewardContractAddressesWithCID &&
-          Object.keys(rewardContractAddressesWithCID).length ? (
-            Object.keys(rewardContractAddressesWithCID)?.map((key) => (
-              <RewardItem
+          {campaignContractAddressesWithCID &&
+          Object.keys(campaignContractAddressesWithCID).length ? (
+            Object.keys(campaignContractAddressesWithCID)?.map((key) => (
+              <CampaignItem
                 button={
                   <Typography
                     onClick={() => {
@@ -93,11 +93,11 @@ const RewardsInfo: FC = () => {
                     }}
                     className={classes.link}
                   >
-                    Burn
+                    Opt-out
                   </Typography>
                 }
                 key={key}
-                rewardCID={rewardContractAddressesWithCID[key]}
+                campaignCID={campaignContractAddressesWithCID[key]}
               />
             ))
           ) : (
