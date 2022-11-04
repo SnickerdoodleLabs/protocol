@@ -5,7 +5,7 @@ participant SDQL Protocol
 Data Wallet<-SDQL Protocol:query
 activate Data Wallet
 note over Data Wallet:Decide to Accept Query
-Data Wallet->Insight Platform:/insights/preview\nQuery Id\nIntended Responses/Insights\nExpected Rewards
+Data Wallet->Insight Platform://insights/responses/preview\nQuery Id\nIntended Responses/Insights\nExpected Rewards
 activate Insight Platform
 note over Insight Platform:Look at data intended to send vs. query, and calculate eligible rewards.\nThese should match the Expected Rewards from the Data Wallet\nCheck if the data wallet has already responded.\nIf so, not eligible for any rewards
 Data Wallet<-Insight Platform:Eligible Rewards

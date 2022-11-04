@@ -214,9 +214,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         },
         {
           name: ELocalStorageKey.EARNED_REWARDS,
-          keyPath: "queryCID",
-          autoIncrement: false,
-          indexBy: [["type", false]],
+          keyPath: "id",
+          autoIncrement: true,
+          indexBy: [
+            ["queryCID", false],
+            ["type", false],
+          ],
         },
       ],
     });
@@ -273,16 +276,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
-      return this.persistentStorageUtils
-        .read<EarnedReward[]>(ELocalStorageKey.EARNED_REWARDS)
-        .andThen((saved) => {
-          return this._getBackupManager().andThen((backupManager) => {
-            return backupManager.updateField(ELocalStorageKey.EARNED_REWARDS, [
-              ...(saved ?? []),
-              ...rewards,
-            ]);
-          });
-        });
+      return this._getBackupManager().andThen((backupManager) => {
+        return ResultUtils.combine(
+          rewards.map((tx) => {
+            return backupManager.addRecord(ELocalStorageKey.EARNED_REWARDS, tx);
+          }),
+        ).andThen(() => okAsync(undefined));
+      });
     });
   }
 

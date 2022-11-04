@@ -78,7 +78,7 @@ export class InsightPlatformSimulator {
     });
 
     /* Rewards Preview API - get Eligible Rewards*/
-    this.app.post("/insights/preview", (req, res) => {
+    this.app.post("/insights/responses/preview", (req, res) => {
       console.log("Sending prompt rewards preview to the Insights Platform");
       console.log("Req is this: ", req.body);
 
