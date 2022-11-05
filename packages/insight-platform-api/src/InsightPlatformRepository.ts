@@ -72,7 +72,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<EligibleReward[]>(url, {
           consentContractId: consentContractAddress,
-          queryCid: queryCid,
+          queryCID: queryCid,
           dataWallet: dataWalletAddress,
           queries: answeredQueries,
           signature: signature,

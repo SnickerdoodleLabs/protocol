@@ -7,7 +7,7 @@ sequenceDiagram
   participant S as SDQL Protocol
   S-->>D: query
   activate D
-  D-->>I:/insights/preview <br> Query Id <br>Intended Responses/Insights <br> Expected Rewards
+  D-->>I:/insights/responses/preview <br> Query Id <br>Intended Responses/Insights <br> Expected Rewards
 
   activate I
   note over I:Look at data intended to send vs. query, and calculate eligible rewards. <br>These should match the Expected Rewards from the Data Wallet <br>Check if the data wallet has already responded. <br>If so, not eligible for any rewards
