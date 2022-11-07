@@ -87,7 +87,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     returns: InsightString[],
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    rewardParameters?: string[],
+    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
     if (rewardParameters == undefined) {
       rewardParameters = [];

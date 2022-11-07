@@ -200,7 +200,7 @@ export class QueryService implements IQueryService {
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    rewardParameters?: string[],
+    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError

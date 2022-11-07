@@ -514,7 +514,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    parameters?: string[],
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
