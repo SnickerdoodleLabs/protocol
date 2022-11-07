@@ -130,3 +130,8 @@ export interface ICheckInvitationStatusParams {
   signature?: Signature | undefined;
   tokenId?: BigNumberString | undefined;
 }
+
+export interface IScamFilterSettingsParams {
+  isScamFilterActive: boolean;
+  showMessageEveryTime: boolean;
+}
