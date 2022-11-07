@@ -68,6 +68,7 @@ import {
   CeramicStreamID,
   EarnedReward,
   TokenBalance,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -512,6 +513,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -524,8 +526,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    // console.log("core.processQuery")
-    return queryService.processQuery(consentContractAddress, query);
+    return queryService.processQuery(consentContractAddress, query, parameters);
   }
 
   public isDataWalletAddressInitialized(): ResultAsync<boolean, never> {
@@ -645,14 +646,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountNFTs();
   }
 
-  /*
-  getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null; }[], PersistenceError> {
-    const accountService =
-      this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTransactionsArray();
-  }
-  */
-
   getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
@@ -680,10 +673,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getEarnedRewards();
   }
-  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.addEarnedReward(reward);
+    return accountService.addEarnedRewards(rewards);
   }
 
   public addTransactions(
@@ -693,19 +688,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addTransactions(transactions);
   }
-
-  // public addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError> {
-  //   const accountService =
-  //     this.iocContainer.get<IAccountService>(IAccountServiceType);
-
-  //   return accountService.addEarnedReward(reward);
-  // }
-
-  // public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
-  //   const accountService =
-  //     this.iocContainer.get<IAccountService>(IAccountServiceType);
-  //   return accountService.getEarnedRewards();
-  // }
 
   public dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(

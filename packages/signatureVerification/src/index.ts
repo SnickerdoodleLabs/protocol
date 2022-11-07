@@ -22,3 +22,4 @@ export * from "@signatureVerification/addCrumbTypes";
 export * from "@signatureVerification/executeMetatransactionTypes";
 export * from "@signatureVerification/forwardRequestTypes";
 export * from "@signatureVerification/insightDeliveryTypes";
+export * from "@signatureVerification/insightPreviewTypes";

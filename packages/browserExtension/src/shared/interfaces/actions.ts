@@ -124,7 +124,6 @@ export interface IScamFilterSettingsParams {
   isScamFilterActive: boolean;
   showMessageEveryTime: boolean;
 }
-
 export interface IGetConsentContractCIDParams {
   consentAddress: EVMContractAddress;
 }

@@ -144,19 +144,25 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public addEarnedReward(
-    reward: EarnedReward,
+  public addEarnedRewards(
+    rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen(() => {
-      return this.backupManagerProvider
-        .getBackupManager()
-        .andThen((backupManager) => {
-          return backupManager.addRecord(
-            ELocalStorageKey.EARNED_REWARDS,
-            reward,
-          );
-        });
-    });
+    return this.waitForUnlock()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              rewards.map((reward) => {
+                return backupManager.addRecord(
+                  ELocalStorageKey.EARNED_REWARDS,
+                  reward,
+                );
+              }),
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
   }
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {

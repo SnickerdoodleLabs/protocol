@@ -3,6 +3,7 @@ import { EventEmitter } from "events";
 import { ResultAsync } from "neverthrow";
 
 import {
+  EarnedReward,
   LinkedAccount,
   TokenBalance,
   WalletNFT,
@@ -116,4 +117,6 @@ export interface ISdlDataWallet extends EventEmitter {
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, JsonRpcError>;
+
+  getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError>;
 }
