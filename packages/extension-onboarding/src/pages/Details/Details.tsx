@@ -13,6 +13,7 @@ import MarketPlaceRewards from "@extension-onboarding/pages/Details/screens/Mark
 import OnChainInfo from "@extension-onboarding/pages/Details/screens/OnChainIfo";
 import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
 import Portfolio from "@extension-onboarding/pages/Details/screens/Portfolio";
+import ScamFilterSettings from "@extension-onboarding/pages/Details/screens/ScamFilterSettings";
 import RewardsInfo from "@extension-onboarding/pages/Details/screens/RewardsInfo";
 
 const Details = () => {
@@ -36,6 +37,9 @@ const Details = () => {
       }
       case EScreens.DEMOGRAPHIC_INFO_SETTINGS: {
         return <PersonalInfo />;
+      }
+      case EScreens.SCAM_FILTER_SETTINGS: {
+        return <ScamFilterSettings />;
       }
       default: {
         return null;

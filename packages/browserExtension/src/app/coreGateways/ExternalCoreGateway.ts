@@ -1,3 +1,4 @@
+import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import { EExternalActions } from "@shared/enums";
 import {
@@ -23,6 +24,7 @@ import {
   ISetDefaultPermissionsWithDataTypesParams,
   ISetApplyDefaultPermissionsParams,
   IUnlinkAccountParams,
+  IScamFilterSettingsParams,
   IGetConsentContractCIDParams,
   ICheckInvitationStatusParams,
 } from "@shared/interfaces/actions";
@@ -127,6 +129,22 @@ export class ExternalCoreGateway {
 
   public setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL);
+  }
+  public getScamFilterSettings(): ResultAsync<
+    IScamFilterPreferences,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_SCAM_FILTER_SETTINGS);
+  }
+
+  public setScamFilterSettings(
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_SCAM_FILTER_SETTINGS, {
+      isScamFilterActive,
+      showMessageEveryTime,
+    } as IScamFilterSettingsParams);
   }
 
   public rejectInvitation(id: UUID): ResultAsync<void, JsonRpcError> {

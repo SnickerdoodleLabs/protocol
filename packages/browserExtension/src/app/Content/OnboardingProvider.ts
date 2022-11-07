@@ -232,6 +232,15 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   public getDataWalletAddress() {
     return coreGateway.getDataWalletAddress();
   }
+  public getScamFilterSettings() {
+    return coreGateway.getScamFilterSettings();
+  }
+  public setScamFilterSettings(
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
+  ) {
+    return coreGateway.setScamFilterSettings(isScamFilterActive,showMessageEveryTime);
+  }
 }
 
 export default new OnboardingProvider();
