@@ -84,20 +84,18 @@ export class CoreListener implements ICoreListener {
     };
 
     // DynamicRewardParameters added to be returned
-    const parameters: string[] = [];
+    const parameters: IDynamicRewardParameter[] = [];
     // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
     request.rewardsPreview.forEach((element) => {
       if (request.dataWalletAddress !== null) {
-        parameters.push(
-          JSON.stringify({
-            recipientAddress: {
-              type: "address",
-              value: RecipientAddressType(
-                request.accounts[0].sourceAccountAddress,
-              ),
-            },
-          } as IDynamicRewardParameter),
-        );
+        parameters.push({
+          recipientAddress: {
+            type: "address",
+            value: RecipientAddressType(
+              request.accounts[0].sourceAccountAddress,
+            ),
+          },
+        } as IDynamicRewardParameter);
       }
     });
 
@@ -108,7 +106,7 @@ export class CoreListener implements ICoreListener {
           cid: request.query.cid,
           query: getStringQuery(),
         },
-        parameters as string[],
+        parameters as IDynamicRewardParameter[],
       )
       .map(() => {
         console.log(

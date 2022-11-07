@@ -86,7 +86,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-    parameters?: string[],
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     [InsightString[], EligibleReward[]],
     EvaluationError | QueryFormatError | QueryExpiredError

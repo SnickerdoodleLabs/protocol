@@ -36,7 +36,7 @@ export interface IInsightPlatformRepository {
     returns: InsightString[],
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    rewardParameters?: string[],
+    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError>;
 
   executeMetatransaction(
