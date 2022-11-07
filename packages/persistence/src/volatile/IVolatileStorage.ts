@@ -1,19 +1,9 @@
 import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
-export interface VolatileTableIndex {
-  name: string;
-  keyPath: string;
-  autoIncrement?: boolean;
-  indexBy?: [string, boolean][];
-}
+import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 
-export interface VolatileTableConfig {
-  name: string;
-  schema: VolatileTableIndex[];
-}
-
-export interface IVolatileStorageTable {
+export interface IVolatileStorage {
   persist(): ResultAsync<boolean, PersistenceError>;
   clearObjectStore(name: string): ResultAsync<void, PersistenceError>;
   putObject<T>(name: string, obj: T): ResultAsync<void, PersistenceError>;
@@ -41,7 +31,4 @@ export interface IVolatileStorageTable {
   ): ResultAsync<T[], PersistenceError>;
 }
 
-export interface IVolatileCursor<T> {
-  nextValue(): ResultAsync<T | null, PersistenceError>;
-  allValues(): ResultAsync<T[] | null, PersistenceError>;
-}
+export const IVolatileStorageType = Symbol.for("IVolatileStorage");

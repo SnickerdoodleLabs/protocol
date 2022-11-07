@@ -55,11 +55,9 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
-
 @injectable()
 export class QueryService implements IQueryService {
   // queryContractMap: Map<IpfsCID, EVMContractAddress> = new Map();
-
   public constructor(
     @inject(IQueryParsingEngineType)
     protected queryParsingEngine: IQueryParsingEngine,
@@ -103,7 +101,8 @@ export class QueryService implements IQueryService {
       this.sdqlQueryRepo.getByCID(queryId),
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
-    ]).andThen(([query, context, config]) => {
+      this.persistenceRepo.getAccounts(),
+    ]).andThen(([query, context, config, accounts]) => {
       if (query == null) {
         // Maybe it's not resolved in IPFS yet, we should store this CID and try again later.
         // If the client does have the cid key, but no query data yet, then it is not resolved in IPFS yet.
@@ -159,7 +158,6 @@ export class QueryService implements IQueryService {
             )
             .andThen((eligibleRewards) => {
               /* Compare server's rewards with your list */
-
               // if (!this.compareRewards(eligibleRewards, expectedRewards)) {
               //   // No consent given!
               //   return errAsync(
@@ -173,6 +171,7 @@ export class QueryService implements IQueryService {
                 consentContractAddress,
                 query,
                 eligibleRewards,
+                accounts,
                 context.dataWalletAddress!,
               );
 
@@ -245,10 +244,8 @@ export class QueryService implements IQueryService {
               )
               .map((earnedRewards) => {
                 console.log("insight delivery api call done");
-
                 /* For Direct Rewards, add EarnedRewards to the wallet */
                 this.persistenceRepo.addEarnedRewards(earnedRewards);
-
                 /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
                 /* Show Lazy Rewards in rewards tab? */
                 /* Web2 rewards are also EarnedRewards, TBD */

@@ -47,6 +47,7 @@ import {
   IpfsCID,
   ERewardType,
 } from "@snickerdoodlelabs/objects";
+import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
 import { BigNumber } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -60,11 +61,17 @@ import { TestWallet } from "@test-harness/TestWallet.js";
 
 const cryptoUtils = new CryptoUtils();
 
+const fakeDBVolatileStorage = new FakeDBVolatileStorage();
+
 // https://github.com/SBoudrias/Inquirer.js
-const core = new SnickerdoodleCore({
-  defaultInsightPlatformBaseUrl: "http://localhost:3006",
-  dnsServerAddress: "http://localhost:3006/dns",
-} as IConfigOverrides);
+const core = new SnickerdoodleCore(
+  {
+    defaultInsightPlatformBaseUrl: "http://localhost:3006",
+    dnsServerAddress: "http://localhost:3006/dns",
+  } as IConfigOverrides,
+  undefined,
+  fakeDBVolatileStorage,
+);
 
 const devAccountKeys = [
   new TestWallet(
@@ -357,7 +364,7 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getSiteVisits().map(console.log);
 
       case "addEarnedAward":
-        return core.addEarnedRewards(rewards).map(console.log);
+        return core.addEarnedRewards([earnedReward]).map(console.log);
 
       case "getEarnedAwards":
         return core.getEarnedRewards().map(console.log);
