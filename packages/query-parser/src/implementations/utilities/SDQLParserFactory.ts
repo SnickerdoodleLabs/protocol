@@ -3,7 +3,7 @@ import {
   QueryFormatError,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser.js";
@@ -14,7 +14,7 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/index.js";
-
+@injectable()
 export class SDQLParserFactory implements ISDQLParserFactory {
   constructor(
     @inject(IQueryObjectFactoryType)

@@ -341,6 +341,10 @@ export class AccountService implements IAccountService {
               ),
             );
           })
+          .andThen(() => {
+            // We need to post a backup immediately upon adding an account, so that we don't lose access
+            return this.dataWalletPersistence.postBackup();
+          })
           .map(() => {
             // Notify the outside world of what we did
             context.publicEvents.onAccountAdded.next(
@@ -446,6 +450,10 @@ export class AccountService implements IAccountService {
                   return this.dataWalletPersistence.removeAccount(
                     accountAddress,
                   );
+                })
+                .andThen(() => {
+                  // We need to post a backup immediately upon adding an account, so that we don't lose access
+                  return this.dataWalletPersistence.postBackup();
                 })
                 .map(() => {
                   // Notify the outside world of what we did

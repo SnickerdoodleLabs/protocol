@@ -1,16 +1,3 @@
-import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
-import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
-import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
-import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
-import NFTItem from "@extension-onboarding/components/NFTItem";
-import Switch from "@extension-onboarding/components/Switch";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import { useAppContext } from "@extension-onboarding/context/App";
-import InfoCard from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard";
-import TokenItem from "@extension-onboarding/pages/Details/screens/Portfolio/components/TokenItem";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   CircularProgress,
@@ -36,6 +23,20 @@ import {
 import clsx from "clsx";
 import { BigNumber } from "ethers";
 import React, { FC, useEffect, useMemo, useState } from "react";
+
+import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
+import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
+import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
+import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
+import NFTItem from "@extension-onboarding/components/NFTItem";
+import Switch from "@extension-onboarding/components/Switch";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
+import InfoCard from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard";
+import TokenItem from "@extension-onboarding/pages/Details/screens/Portfolio/components/TokenItem";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -664,53 +665,48 @@ const Portfolio: FC = () => {
                       </Box>
                     </Box>
                   )}
-                  {nftsPagination && (
-                    <Box
-                      display="flex"
-                      marginTop="auto"
-                      justifyContent="flex-end"
-                    >
-                      <Typography className={classes.paginationText}>
-                        {`${
-                          (nftsPagination.currentIndex - 1) * PAGINATION_RANGE +
-                          1
-                        } - ${
-                          nftsPagination.currentIndex * PAGINATION_RANGE <
-                          nftsPagination.totalItems
-                            ? nftsPagination.currentIndex * PAGINATION_RANGE
-                            : nftsPagination.totalItems
-                        } of ${nftsPagination.totalItems}`}
-                      </Typography>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setTokensPagination({
-                            ...nftsPagination,
-                            currentIndex: nftsPagination.currentIndex - 1,
-                          });
-                        }}
-                        disabled={nftsPagination.currentIndex === 1}
-                      >
-                        <KeyboardArrowLeft />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        disabled={
-                          nftsPagination.currentIndex ===
-                          nftsPagination.numberOfPages
-                        }
-                        onClick={() => {
-                          setTokensPagination({
-                            ...nftsPagination,
-                            currentIndex: nftsPagination.currentIndex + 1,
-                          });
-                        }}
-                      >
-                        <KeyboardArrowRight />
-                      </IconButton>
-                    </Box>
-                  )}
                 </Grid>
+              )}
+              {nftsPagination && (
+                <Box display="flex" marginTop="auto" justifyContent="flex-end">
+                  <Typography className={classes.paginationText}>
+                    {`${
+                      (nftsPagination.currentIndex - 1) * PAGINATION_RANGE + 1
+                    } - ${
+                      nftsPagination.currentIndex * PAGINATION_RANGE <
+                      nftsPagination.totalItems
+                        ? nftsPagination.currentIndex * PAGINATION_RANGE
+                        : nftsPagination.totalItems
+                    } of ${nftsPagination.totalItems}`}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setNftsPagination({
+                        ...nftsPagination,
+                        currentIndex: nftsPagination.currentIndex - 1,
+                      });
+                    }}
+                    disabled={nftsPagination.currentIndex === 1}
+                  >
+                    <KeyboardArrowLeft />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    disabled={
+                      nftsPagination.currentIndex ===
+                      nftsPagination.numberOfPages
+                    }
+                    onClick={() => {
+                      setNftsPagination({
+                        ...nftsPagination,
+                        currentIndex: nftsPagination.currentIndex + 1,
+                      });
+                    }}
+                  >
+                    <KeyboardArrowRight />
+                  </IconButton>
+                </Box>
               )}
             </Box>
           </Grid>

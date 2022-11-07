@@ -108,7 +108,7 @@
                                         "ERC721"
                                     ]
                                 },
-                                "blockrange": {
+                                "timestampRange": {
                                     "type": "object",
                                     "properties": {
                                         "start": {
@@ -130,11 +130,8 @@
                                 "function",
                                 "direction",
                                 "token",
-<<<<<<< HEAD
-                                "timestamp"
-=======
-                                "blockrange"
->>>>>>> feature/RewardHandoff
+                                "timestamp",
+                                "timestampRange"
                             ]
                         },
                         "conditions": {

@@ -69,6 +69,8 @@ import {
   DataWalletAddress,
   CeramicStreamID,
   EarnedReward,
+  IDynamicRewardParameter,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import {
   DataWalletPersistence,
@@ -189,6 +191,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+  }
+
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+    return cohortService.getConsentContractCID(consentAddress);
   }
 
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
@@ -508,6 +522,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -660,6 +675,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addSiteVisits(siteVisits);
+  }
+
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getEarnedRewards();
+  }
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.addEarnedRewards(rewards);
   }
 
   public addEVMTransactions(

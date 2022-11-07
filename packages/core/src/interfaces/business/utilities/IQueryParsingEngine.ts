@@ -9,6 +9,7 @@ import {
   SDQLQuery,
   QueryIdentifier,
   SDQL_Return,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { AST } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
@@ -26,6 +27,7 @@ export interface IQueryParsingEngine {
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     [InsightString[], EligibleReward[]],
     EvaluationError | QueryFormatError

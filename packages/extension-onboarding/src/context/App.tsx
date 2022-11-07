@@ -2,6 +2,7 @@ import { EAlertSeverity } from "@extension-onboarding/components/CustomizedAlert
 import {
   ALERT_MESSAGES,
   EWalletProviderKeys,
+  LOCAL_STORAGE_SDL_INVITATION_KEY,
 } from "@extension-onboarding/constants";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 import {
@@ -13,9 +14,12 @@ import { DataWalletGateway } from "@extension-onboarding/services/implementation
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   AccountAddress,
+  BigNumberString,
   DataWalletAddress,
   EChain,
+  EVMContractAddress,
   LinkedAccount,
+  Signature,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import React, {
@@ -24,6 +28,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -31,6 +36,12 @@ export interface ILinkedAccount {
   providerKey: EWalletProviderKeys;
   accountAddress: AccountAddress;
   chain: EChain;
+}
+
+export interface IInvitationInfo {
+  consentAddress: EVMContractAddress | undefined;
+  tokenId: BigNumberString | undefined;
+  signature: Signature | undefined;
 }
 
 export enum EAppModes {
@@ -49,6 +60,7 @@ export interface IAppContext {
   changeStepperStatus: (status: string) => void;
   appMode: EAppModes | undefined;
   stepperStatus: number;
+  invitationInfo: IInvitationInfo;
 }
 
 declare const window: IWindowWithSdlDataWallet;
@@ -66,7 +78,30 @@ export const AppContextProvider: FC = ({ children }) => {
     useState<boolean>(false);
   const [appMode, setAppMode] = useState<EAppModes>();
   const { setAlert } = useNotificationContext();
-  console.log({ appMode });
+
+  const invitationInfo: IInvitationInfo = useMemo(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    return {
+      consentAddress: queryParams.get("consentAddress")
+        ? EVMContractAddress(queryParams.get("consentAddress")!)
+        : undefined,
+      tokenId: queryParams.get("tokenId")
+        ? BigNumberString(queryParams.get("tokenId")!)
+        : undefined,
+      signature: queryParams.get("signature")
+        ? Signature(queryParams.get("signature")!)
+        : undefined,
+    };
+  }, [window]);
+
+  useEffect(() => {
+    if (invitationInfo.consentAddress) {
+      localStorage.setItem(
+        LOCAL_STORAGE_SDL_INVITATION_KEY,
+        JSON.stringify(invitationInfo),
+      );
+    }
+  }, [invitationInfo]);
 
   useEffect(() => {
     document.addEventListener(
@@ -222,6 +257,7 @@ export const AppContextProvider: FC = ({ children }) => {
         addAccount,
         stepperStatus,
         changeStepperStatus,
+        invitationInfo,
       }}
     >
       {children}

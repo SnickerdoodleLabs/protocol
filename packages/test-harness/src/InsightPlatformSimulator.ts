@@ -29,6 +29,7 @@ import {
   EligibleReward,
   ERewardType,
   QueryIdentifier,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -103,8 +104,20 @@ export class InsightPlatformSimulator {
 
       this.logStream.write(JSON.stringify(req.body));
       const reward = [
-        new EligibleReward("c2", URLString("www.google.com"), ERewardType.Lazy),
-        new EligibleReward("c3", URLString("www.amazon.com"), ERewardType.Lazy),
+        new EligibleReward(
+          "c2",
+          "description",
+          ChainId(1),
+          '{parameters: ["recipientAddress", "productId"],data: {trackingId: "982JJDSLAcx",},}',
+          ERewardType.Lazy,
+        ),
+        new EligibleReward(
+          "c3",
+          "description",
+          ChainId(1),
+          '{parameters: ["recipientAddress", "productId"],data: {trackingId: "982JJDSLAcx",},}',
+          ERewardType.Lazy,
+        ),
       ];
 
       return this.cryptoUtils

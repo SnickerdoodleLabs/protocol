@@ -37,6 +37,7 @@ export * from "@objects/primitives/FamilyName";
 export * from "@objects/primitives/ProviderUrl";
 export * from "@objects/primitives/PublicKey";
 export * from "@objects/primitives/QueryIdentifier";
+export * from "@objects/primitives/RecipientAddressType";
 export * from "@objects/primitives/SDQLString";
 export * from "@objects/primitives/SHA256Hash";
 export * from "@objects/primitives/Signature";

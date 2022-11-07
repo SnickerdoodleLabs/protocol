@@ -14,11 +14,12 @@ import {
   EarnedReward,
   ExpectedReward,
   QueryIdentifier,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
-  deliverPreview(
+  receivePreviews(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
     queryCid: IpfsCID,
@@ -35,6 +36,7 @@ export interface IInsightPlatformRepository {
     returns: InsightString[],
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError>;
 
   executeMetatransaction(

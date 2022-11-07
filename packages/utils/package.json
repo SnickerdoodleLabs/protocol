@@ -29,13 +29,13 @@
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "compile": "tsc --build && cd ../.. && yarn alias",
     "test": "yarn test:ci",
-    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests",
     "test:watch": "jest --watch --color --detectOpenHandles"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
     "@snickerdoodlelabs/objects": "workspace:^",
     "inversify": "^5.1.1",
-    "neverthrow": "^4.2.2"
+    "neverthrow": "^5.1.0"
   }
 }

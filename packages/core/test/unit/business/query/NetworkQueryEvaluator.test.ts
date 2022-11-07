@@ -5,7 +5,7 @@ import {
   BigNumberString,
   ChainId,
   EVMAccountAddress,
-  EVMTimestamp,
+  EVMTimestampRange,
   EVMChainCode,
   EVMContractAddress,
   EVMContractDirection,
@@ -119,14 +119,14 @@ describe("QueryEvaluator: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
@@ -178,14 +178,14 @@ describe("QueryEvaluator: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
 
     const filter = new EVMTransactionFilter(
       [chainId],
@@ -233,14 +233,14 @@ describe("QueryEvaluator: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
@@ -277,14 +277,14 @@ describe("Network Query Testing: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
 
     const filter = new EVMTransactionFilter(
       [chainId],
@@ -316,14 +316,14 @@ describe("Network Query Testing: ", () => {
         EVMContractFunction("Transfer"),
         EVMContractDirection.From,
         EVMToken("ERC20"),
-        new EVMTimestamp(UnixTimestamp(13001519), UnixTimestamp(14910334)),
+        new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
     const chainId = networkQuery.contract.networkId;
     const address = networkQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestamp.start;
-    const endTime = networkQuery.contract.timestamp.end;
+    const startTime = networkQuery.contract.timestampRange.start;
+    const endTime = networkQuery.contract.timestampRange.end;
 
     const filter = new EVMTransactionFilter(
       [chainId],

@@ -31,6 +31,7 @@ import {
   IDataWalletPersistence,
   QueryExpiredError,
   DataPermissions,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -147,7 +148,7 @@ export class QueryService implements IQueryService {
         })
         .andThen(([queryIdentifiers, expectedRewards]) => {
           return this.insightPlatformRepo
-            .deliverPreview(
+            .receivePreviews(
               context.dataWalletAddress!,
               consentContractAddress,
               query.cid,
@@ -171,6 +172,7 @@ export class QueryService implements IQueryService {
                 consentContractAddress,
                 query,
                 eligibleRewards,
+                context.dataWalletAddress!,
               );
 
               context.publicEvents.onQueryPosted.next(queryRequest);
@@ -198,6 +200,7 @@ export class QueryService implements IQueryService {
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -223,7 +226,7 @@ export class QueryService implements IQueryService {
         consentToken,
       ).andThen(() => {
         return this.queryParsingEngine
-          .handleQuery(query, consentToken!.dataPermissions)
+          .handleQuery(query, consentToken!.dataPermissions, parameters)
           .andThen((maps) => {
             const maps2 = maps as [InsightString[], EligibleReward[]];
             const insights = maps2[0];
@@ -237,6 +240,7 @@ export class QueryService implements IQueryService {
                 insights,
                 context.dataWalletKey!,
                 config.defaultInsightPlatformBaseUrl,
+                parameters,
               )
               .map((earnedRewards) => {
                 console.log("insight delivery api call done");

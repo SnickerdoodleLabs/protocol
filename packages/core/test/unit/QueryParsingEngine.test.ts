@@ -20,6 +20,7 @@ import {
   URLString,
   IChainTransaction,
   SDQL_Return,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -148,8 +149,10 @@ class QueryParsingMocks {
           actualTypeData["callback"]["data"],
         );
         return new ExpectedReward(
+          actualTypeData["compensationKey"],
           actualTypeData["description"],
-          URLString(actualTypeData["callback"]),
+          ChainId(actualTypeData["chainId"]),
+          actualTypeData["callback"],
           ERewardType.Direct,
         );
       }
@@ -168,13 +171,16 @@ class QueryParsingMocks {
         rewardData["callback"]["data"],
       );
       return new ExpectedReward(
+        rewardData["compensationKey"],
         rewardData["description"],
-        URLString(rewardData["callback"]),
+        ChainId(rewardData["chainId"]),
+        rewardData["callback"],
         ERewardType.Direct,
       );
     }
 
-    return new ExpectedReward("", URLString(""), ERewardType.Direct);
+    // Return to later - Andrew
+    return new ExpectedReward("", "", ChainId(0), "", ERewardType.Direct);
   }
 }
 
