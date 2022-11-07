@@ -131,7 +131,10 @@ export class ExternalCoreGateway {
   public setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL);
   }
-  public getScamFilterSettings(): ResultAsync<IScamFilterPreferences, JsonRpcError> {
+  public getScamFilterSettings(): ResultAsync<
+    IScamFilterPreferences,
+    JsonRpcError
+  > {
     return this._handler.call(EExternalActions.GET_SCAM_FILTER_SETTINGS);
   }
 
@@ -344,7 +347,7 @@ export class ExternalCoreGateway {
       consentAddress,
     } as IGetConsentContractCIDParams);
   }
-  
+
   public getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_EARNED_REWARDS);
   }

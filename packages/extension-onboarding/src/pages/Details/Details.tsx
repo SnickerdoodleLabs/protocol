@@ -7,11 +7,11 @@ import {
   EScreens,
   useAuthFlowRouteContext,
 } from "@extension-onboarding/context/AuthFlowRouteContext";
+import { useStyles } from "@extension-onboarding/pages/Details/Details.style";
 import CampaignsInfo from "@extension-onboarding/pages/Details/screens/CampaignsInfo";
+import DataPermissionSettings from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings";
 import EarnedRewards from "@extension-onboarding/pages/Details/screens/EarnedRewards";
 import MarketPlaceCampaigns from "@extension-onboarding/pages/Details/screens/MarketplaceCampaigns";
-import { useStyles } from "@extension-onboarding/pages/Details/Details.style";
-import DataPermissionSettings from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings";
 import OnChainInfo from "@extension-onboarding/pages/Details/screens/OnChainIfo";
 import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
 import Portfolio from "@extension-onboarding/pages/Details/screens/Portfolio";
