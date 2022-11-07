@@ -89,15 +89,18 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     rewardParameters?: string[],
   ): ResultAsync<EarnedReward[], AjaxError> {
-    if (rewardParameters == undefined) {
-      rewardParameters = [];
+    const returnsString = JSON.stringify(returns);
+    const parameters = JSON.stringify([]);
+    if (rewardParameters !== undefined) {
+      const parameters = JSON.stringify(rewardParameters);
     }
+
     const signableData = {
       consentContractId: consentContractAddress,
       queryCid: queryCid,
       dataWallet: dataWalletAddress,
-      returns: JSON.stringify(returns),
-      rewardParameters: JSON.stringify(rewardParameters),
+      returns: returnsString,
+      rewardParameters: parameters,
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -116,8 +119,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           consentContractId: consentContractAddress,
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
-          rewardParameters: rewardParameters,
           returns: returns,
+          rewardParameters: rewardParameters,
           signature: signature,
         });
       });
