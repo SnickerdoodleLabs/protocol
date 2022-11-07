@@ -896,6 +896,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       })
       .andThen(() => {
         return this._placeBackups();
+      })
+      .orElse((e) => {
+        this.logUtils.error("error loading backups", e);
+        return okAsync(undefined);
       });
   }
 
