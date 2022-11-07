@@ -120,3 +120,17 @@ export interface IInvitationDomainWithUUID {
 export interface ICheckURLParams {
   domain: DomainName;
 }
+export interface IScamFilterSettingsParams {
+  isScamFilterActive: boolean;
+  showMessageEveryTime: boolean;
+}
+
+export interface IGetConsentContractCIDParams {
+  consentAddress: EVMContractAddress;
+}
+
+export interface ICheckInvitationStatusParams {
+  consentAddress: EVMContractAddress;
+  signature?: Signature | undefined;
+  tokenId?: BigNumberString | undefined;
+}

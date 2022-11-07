@@ -55,7 +55,6 @@ const PermissionSelectionModal: FC = () => {
           buttonType="primary"
           onClick={() => {
             onPrimaryButtonClick();
-            closeModal();
           }}
         >
           Accept All

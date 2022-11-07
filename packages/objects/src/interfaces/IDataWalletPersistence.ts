@@ -16,7 +16,6 @@ import {
   Age,
   EmailAddressString,
   ChainId,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   GivenName,
@@ -144,14 +143,7 @@ export interface IDataWalletPersistence {
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
-  updateAccountBalances(
-    balances: TokenBalance[],
-  ): ResultAsync<TokenBalance[], PersistenceError>;
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
-
-  updateAccountNFTs(
-    nfts: WalletNFT[],
-  ): ResultAsync<WalletNFT[], PersistenceError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
 
   setLatestBlockNumber(

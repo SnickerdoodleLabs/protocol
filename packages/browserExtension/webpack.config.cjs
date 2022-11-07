@@ -163,6 +163,10 @@ var options = {
       __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: JSON.stringify(
         process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
       ),
+      __CERAMIC_NODE_URL__: JSON.stringify(process.env.__CERAMIC_NODE_URL__),
+      __CONTROL_CHAIN_PROVIDER_URL__: JSON.stringify(
+        process.env.__CONTROL_CHAIN_PROVIDER_URL__,
+      ),
       __COVALENT_API_KEY__: JSON.stringify(process.env.__COVALENT_API_KEY__),
       __MORALIS_API_KEY__: JSON.stringify(process.env.__MORALIS_API_KEY__),
       __DNS_SERVER_ADDRESS__: JSON.stringify(

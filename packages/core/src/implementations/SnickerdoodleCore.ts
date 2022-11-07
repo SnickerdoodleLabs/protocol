@@ -12,7 +12,6 @@ import {
   Age,
   AjaxError,
   BlockchainProviderError,
-  ChainId,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
@@ -67,16 +66,16 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
-  TokenBalance,
   EarnedReward,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import {
-  IndexedDBFactory,
-  IVolatileStorageFactory,
-  IVolatileStorageFactoryType,
   ICloudStorage,
   ICloudStorageType,
   CeramicCloudStorage,
+  IVolatileStorage,
+  IVolatileStorageType,
+  IndexedDBVolatileStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -121,7 +120,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public constructor(
     configOverrides?: IConfigOverrides,
     storageUtils?: IStorageUtils,
-    volatileStorage?: IVolatileStorageFactory,
+    volatileStorage?: IVolatileStorage,
     cloudStorage?: ICloudStorage,
   ) {
     this.iocContainer = new Container();
@@ -151,12 +150,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     if (volatileStorage != null) {
       this.iocContainer
-        .bind(IVolatileStorageFactoryType)
+        .bind(IVolatileStorageType)
         .toConstantValue(volatileStorage);
     } else {
       this.iocContainer
-        .bind(IVolatileStorageFactoryType)
-        .to(IndexedDBFactory)
+        .bind(IVolatileStorageType)
+        .to(IndexedDBVolatileStorage)
         .inSingletonScope();
     }
 
@@ -182,6 +181,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+  }
+
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+    return cohortService.getConsentContractCID(consentAddress);
   }
 
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {

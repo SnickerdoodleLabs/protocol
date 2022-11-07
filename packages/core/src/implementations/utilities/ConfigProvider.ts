@@ -4,6 +4,7 @@ import {
   ChainId,
   ControlChainInformation,
   ECurrencyCode,
+  EChain,
   IConfigOverrides,
   URLString,
 } from "@snickerdoodlelabs/objects";
@@ -109,6 +110,19 @@ export class ConfigProvider
       );
     }
     this.config.controlChainInformation = controlChainInformation;
+
+    // Now, if the control chain is the Dev Doodle Chain, 31337, we have to override it.
+    // The whole point of making a different chainID for dev and local was to avoid this,
+    // but it is unrealistic to assign a different ChainID for every sandbox. So instead,
+    // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
+    if (
+      overrides.controlChainProviderURL != null &&
+      this.config.controlChainId == EChain.DevDoodle
+    ) {
+      this.config.controlChainInformation.providerUrls = [
+        overrides.controlChainProviderURL,
+      ];
+    }
 
     // The rest of the config is easier
     this.config.supportedChains =

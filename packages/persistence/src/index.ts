@@ -1,3 +1,4 @@
+export * from "@persistence/ELocalStorageKey.js";
 export * from "@persistence/IPersistenceConfig.js";
 export * from "@persistence/IPersistenceConfigProvider.js";
 

@@ -86,6 +86,9 @@ import {
   ISetApplyDefaultPermissionsParams,
   IUnlinkAccountParams,
   IAcceptInvitationParams,
+  IScamFilterSettingsParams,
+  IGetConsentContractCIDParams,
+  ICheckInvitationStatusParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -93,6 +96,12 @@ import {
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
+
+import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@interfaces/utilities/IScamFilterSettingsUtils";
+import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -107,6 +116,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IScamFilterSettingsUtilsType)
+    protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
   ) {}
 
   public async handleRpcCall(
@@ -235,6 +246,23 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
 
+      case EExternalActions.CHECK_INVITATION_STATUS: {
+        const { signature, consentAddress, tokenId } =
+          params as ICheckInvitationStatusParams;
+        return new AsyncRpcResponseSender(
+          this.checkInvitationStatus(consentAddress, signature, tokenId),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_CONTRACT_CID: {
+        const { consentAddress } = params as IGetConsentContractCIDParams;
+        return new AsyncRpcResponseSender(
+          this.getConsentContractCID(consentAddress),
+          res,
+        ).call();
+      }
+
       case EExternalActions.UNLINK_ACCOUNT: {
         const { accountAddress, chain, languageCode, signature } =
           params as IUnlinkAccountParams;
@@ -309,6 +337,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { dataTypes, id } = params as IAcceptInvitationByUUIDParams;
         return new AsyncRpcResponseSender(
           this.acceptInvitationByUUID(dataTypes, id),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_SCAM_FILTER_SETTINGS: {
+        return new AsyncRpcResponseSender(
+          this.getScamFilterSettings(),
+          res,
+        ).call();
+      }
+      case EExternalActions.SET_SCAM_FILTER_SETTINGS: {
+        const { isScamFilterActive, showMessageEveryTime } =
+          params as IScamFilterSettingsParams;
+        return new AsyncRpcResponseSender(
+          this.setScamFilterSettings(isScamFilterActive, showMessageEveryTime),
           res,
         ).call();
       }
@@ -465,6 +507,29 @@ export class RpcCallHandler implements IRpcCallHandler {
     });
   }
 
+  private checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
+    return this._getTokenId(tokenId).andThen((tokenId) => {
+      return this.invitationService.checkInvitationStatus(
+        new Invitation(
+          "" as DomainName,
+          consentAddress,
+          tokenId,
+          signature ?? null,
+        ),
+      );
+    });
+  }
+
+  private getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
+    return this.invitationService.getConsentContractCID(consentAddress);
+  }
+
   private _getTokenId(tokenId: BigNumberString | undefined) {
     if (tokenId) {
       return okAsync(TokenId(BigInt(tokenId)));
@@ -513,6 +578,21 @@ export class RpcCallHandler implements IRpcCallHandler {
     option: boolean,
   ): ResultAsync<void, ExtensionStorageError> {
     return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(option);
+  }
+  private setScamFilterSettings(
+    isScamFilterActive,
+    showMessageEveryTime,
+  ): ResultAsync<void, ExtensionStorageError> {
+    return this.scamFilterSettingsUtils.setScamFilterSettings(
+      isScamFilterActive,
+      showMessageEveryTime,
+    );
+  }
+  private getScamFilterSettings(): ResultAsync<
+    IScamFilterPreferences,
+    ExtensionStorageError
+  > {
+    return this.scamFilterSettingsUtils.getScamFilterSettings();
   }
 
   private rejectInvitation(

@@ -512,7 +512,7 @@ const Portfolio: FC = () => {
       </Box>
       <Box
         mt={3}
-        minHeight={400}
+        minHeight={440}
         border="1px solid rgba(207, 201, 200, 0.37)"
         borderRadius={8}
       >
@@ -531,7 +531,7 @@ const Portfolio: FC = () => {
             <Divider style={{ width: "100%" }} />
           </Box>
           <Grid item xs={6}>
-            <Box minHeight={400} display="flex" flexDirection="column">
+            <Box minHeight={440} display="flex" flexDirection="column">
               {isBalancesLoading ? (
                 <Box
                   display="flex"
@@ -632,7 +632,7 @@ const Portfolio: FC = () => {
             </Box>
           </Grid>
           <Grid item xs={6}>
-            <Box minHeight={400} ml={3} display="flex" flexDirection="column">
+            <Box minHeight={440} ml={3} display="flex" flexDirection="column">
               {isNFTsLoading ? (
                 <Box
                   display="flex"
@@ -652,7 +652,9 @@ const Portfolio: FC = () => {
                         )
                       : nftsToRender
                     )?.map((nftitem) => {
-                      return <NFTItem key={nftitem.token} item={nftitem} />;
+                      return (
+                        <NFTItem key={JSON.stringify(nftitem)} item={nftitem} />
+                      );
                     })
                   ) : (
                     <Box width="100%" display="flex">
@@ -670,53 +672,54 @@ const Portfolio: FC = () => {
                       </Box>
                     </Box>
                   )}
-                  {nftsPagination && (
-                    <Box
-                      display="flex"
-                      marginTop="auto"
-                      justifyContent="flex-end"
-                    >
-                      <Typography className={classes.paginationText}>
-                        {`${
-                          (nftsPagination.currentIndex - 1) * PAGINATION_RANGE +
-                          1
-                        } - ${
-                          nftsPagination.currentIndex * PAGINATION_RANGE <
-                          nftsPagination.totalItems
-                            ? nftsPagination.currentIndex * PAGINATION_RANGE
-                            : nftsPagination.totalItems
-                        } of ${nftsPagination.totalItems}`}
-                      </Typography>
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setTokensPagination({
-                            ...nftsPagination,
-                            currentIndex: nftsPagination.currentIndex - 1,
-                          });
-                        }}
-                        disabled={nftsPagination.currentIndex === 1}
-                      >
-                        <KeyboardArrowLeft />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        disabled={
-                          nftsPagination.currentIndex ===
-                          nftsPagination.numberOfPages
-                        }
-                        onClick={() => {
-                          setTokensPagination({
-                            ...nftsPagination,
-                            currentIndex: nftsPagination.currentIndex + 1,
-                          });
-                        }}
-                      >
-                        <KeyboardArrowRight />
-                      </IconButton>
-                    </Box>
-                  )}
                 </Grid>
+              )}
+              {nftsPagination && (
+                <Box
+                  display="flex"
+                  marginTop="auto"
+                  justifyContent="flex-end"
+                  alignItems="center"
+                  py={0.5}
+                >
+                  <Typography className={classes.paginationText}>
+                    {`${
+                      (nftsPagination.currentIndex - 1) * PAGINATION_RANGE + 1
+                    } - ${
+                      nftsPagination.currentIndex * PAGINATION_RANGE <
+                      nftsPagination.totalItems
+                        ? nftsPagination.currentIndex * PAGINATION_RANGE
+                        : nftsPagination.totalItems
+                    } of ${nftsPagination.totalItems}`}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setNftsPagination({
+                        ...nftsPagination,
+                        currentIndex: nftsPagination.currentIndex - 1,
+                      });
+                    }}
+                    disabled={nftsPagination.currentIndex === 1}
+                  >
+                    <KeyboardArrowLeft />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    disabled={
+                      nftsPagination.currentIndex ===
+                      nftsPagination.numberOfPages
+                    }
+                    onClick={() => {
+                      setNftsPagination({
+                        ...nftsPagination,
+                        currentIndex: nftsPagination.currentIndex + 1,
+                      });
+                    }}
+                  >
+                    <KeyboardArrowRight />
+                  </IconButton>
+                </Box>
               )}
             </Box>
           </Grid>
