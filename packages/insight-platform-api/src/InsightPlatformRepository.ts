@@ -65,14 +65,14 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "insights/preview"),
+          urlJoin(insightPlatformBaseUrl, "/insights/responses/preview"),
         );
 
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<EligibleReward[]>(url, {
           consentContractId: consentContractAddress,
-          queryCid: queryCid,
+          queryCID: queryCid,
           dataWallet: dataWalletAddress,
           queries: answeredQueries,
           signature: signature,
@@ -124,9 +124,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           signature: signature,
         });
       });
-    // .map((response) => {
-    //   console.log("Ajax response: " + JSON.stringify(response));
-    // });
   }
 
   public executeMetatransaction(

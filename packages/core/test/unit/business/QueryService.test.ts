@@ -31,7 +31,6 @@ import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 import { ContextReplacementPlugin } from "webpack";
-
 import {
   dataWalletAddress,
   dataWalletKey,
@@ -50,15 +49,12 @@ import {
 } from "@core/interfaces/data/index.js";
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
-
 const AndrewContractAddress = EVMContractAddress("Andrew");
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
 const queryContent = SDQLString("Hello world!");
 // const sdqlQuery = new SDQLQuery(queryId, queryContent);
-
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalanche1SchemaStr));
-
 const insights: InsightString[] = [
   InsightString("Hello1"),
   InsightString("Hello2"),
@@ -68,7 +64,6 @@ const rewards: EligibleReward[] = [];
 const allPermissions = HexString32(
   "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
 );
-
 class QueryServiceMocks {
   public queryParsingEngine: IQueryParsingEngine;
   public sdqlQueryRepo: ISDQLQueryRepository;
@@ -78,14 +73,12 @@ class QueryServiceMocks {
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
   public persistenceRepo: IDataWalletPersistence;
-
   public consentToken = new ConsentToken(
     consentContractAddress,
     EVMAccountAddress(dataWalletAddress),
     TokenId(BigInt(0)),
     DataPermissions.createWithAllPermissions(),
   );
-
   public constructor() {
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
     this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
@@ -95,7 +88,6 @@ class QueryServiceMocks {
     this.configProvider = new ConfigProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.persistenceRepo = td.object<IDataWalletPersistence>();
-
     td.when(
       this.insightPlatformRepo.deliverInsights(
         dataWalletAddress,
@@ -106,7 +98,6 @@ class QueryServiceMocks {
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync([])); // success = EarnedReward[]
-
     td.when(
       this.insightPlatformRepo.deliverInsights(
         dataWalletAddress,
@@ -117,22 +108,18 @@ class QueryServiceMocks {
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError("mocked error"))); // error
-
     td.when(this.sdqlQueryRepo.getByCID(queryId)).thenReturn(
       okAsync(sdqlQuery),
     );
-
     td.when(
       this.consentContractRepo.isAddressOptedIn(
         consentContractAddress,
         EVMAccountAddress(dataWalletAddress),
       ),
     ).thenReturn(okAsync(true));
-
     td.when(
       this.consentContractRepo.getCurrentConsentToken(consentContractAddress),
     ).thenReturn(okAsync(this.consentToken));
-
     td.when(
       this.queryParsingEngine.handleQuery(
         sdqlQuery,
@@ -140,7 +127,6 @@ class QueryServiceMocks {
       ),
     ).thenReturn(okAsync([insights, rewards]));
   }
-
   public factory(): QueryService {
     return new QueryService(
       this.queryParsingEngine,
@@ -154,12 +140,10 @@ class QueryServiceMocks {
     );
   }
 }
-
 describe("processQuery tests", () => {
   const mocks = new QueryServiceMocks();
   const queryService = mocks.factory();
   const returns = JSON.stringify(insights);
-
   test("error if dataWalletAddress missing in context", async () => {
     await ResultUtils.combine([
       mocks.contextProvider.getContext(),
@@ -182,7 +166,6 @@ describe("processQuery tests", () => {
         });
     });
   });
-
   test("error if dataWallet missing in context", async () => {
     await ResultUtils.combine([
       mocks.contextProvider.getContext(),
@@ -205,11 +188,9 @@ describe("processQuery tests", () => {
         });
     });
   });
-
   test("processQuery success", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-
     await queryService
       .processQuery(consentContractAddress, sdqlQuery)
       .andThen((result) => {
@@ -224,13 +205,11 @@ describe("processQuery tests", () => {
       });
   });
 });
-
 // describe("onQueryPosted tests", () => {
 //   test("onQueryPosted: full run through", async () => {
 //     const mocks = new QueryServiceMocks();
 //     const contextMock = new ContextProviderMock();
 //     const configMock = new ConfigProviderMock();
-
 //     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
 //       okAsync(sdqlQuery),
 //     );
@@ -252,25 +231,19 @@ describe("processQuery tests", () => {
 //         td.matchers.anything(),
 //       ),
 //     ).thenReturn(okAsync([[], []]));
-
 //     const queryService = mocks.factory(); // new context
-
 //     const result = await queryService.onQueryPosted(
 //       AndrewContractAddress,
 //       queryId,
 //     );
-
 //     console.log("result", result);
-
 //     expect(result).toBeDefined();
 //   });
 // });
-
 describe("processRewardsPreview tests", () => {
   test("processRewardsPreview: full run through", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-
     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
       okAsync(sdqlQuery),
     );
@@ -316,7 +289,6 @@ describe("processRewardsPreview tests", () => {
     td.when(
       mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything()),
     ).thenReturn(okAsync([[], []]));
-
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getByCID(queryId),
       mocks.contextProvider.getContext(),
@@ -327,12 +299,10 @@ describe("processRewardsPreview tests", () => {
           new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
         );
       }
-
       if (context.dataWalletAddress == null) {
         // Need to wait for the wallet to unlock
         return okAsync(undefined);
       }
-
       // We have the query, next step is check if you actually have a consent token for this business
       return mocks.consentContractRepo
         .isAddressOptedIn(
@@ -349,6 +319,7 @@ describe("processRewardsPreview tests", () => {
           const queryRequest = new SDQLQueryRequest(
             consentContractAddress,
             query,
+            [],
             [],
             null,
           );

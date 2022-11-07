@@ -1,3 +1,32 @@
+import {
+  Age,
+  CountryCode,
+  DomainName,
+  EmailAddressString,
+  FamilyName,
+  Gender,
+  GivenName,
+  IEVMBalance,
+  IEVMNFT,
+  LanguageCode,
+  Signature,
+  UnixTimestamp,
+  UUID,
+  EVMContractAddress,
+  IOpenSeaMetadata,
+  IpfsCID,
+  EChain,
+  EWalletDataType,
+  AccountAddress,
+  LinkedAccount,
+  DataWalletAddress,
+  BigNumberString,
+  EInvitationStatus,
+  EarnedReward,
+} from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
+
 import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import { EExternalActions } from "@shared/enums";
@@ -30,34 +59,6 @@ import {
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
-import {
-  Age,
-  CountryCode,
-  DomainName,
-  EmailAddressString,
-  FamilyName,
-  Gender,
-  GivenName,
-  IEVMBalance,
-  IEVMNFT,
-  LanguageCode,
-  Signature,
-  UnixTimestamp,
-  UUID,
-  EVMContractAddress,
-  IOpenSeaMetadata,
-  IpfsCID,
-  EChain,
-  EWalletDataType,
-  AccountAddress,
-  LinkedAccount,
-  DataWalletAddress,
-  BigNumberString,
-  EInvitationStatus,
-  EarnedReward,
-} from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;
