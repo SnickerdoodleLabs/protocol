@@ -27,7 +27,7 @@ export interface IQueryParsingEngine {
   handleQuery(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-    parameters?: IDynamicRewardParameter[],
+    parameters?: string[],
   ): ResultAsync<
     [InsightString[], EligibleReward[]],
     EvaluationError | QueryFormatError
