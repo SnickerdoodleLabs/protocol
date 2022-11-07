@@ -5,11 +5,9 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 import {
   AST,
+  AST_Compensation,
   AST_ConditionExpr,
   AST_Expr,
   AST_Query,
@@ -25,6 +23,9 @@ import {
   Operator,
   TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
+import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 
 export class AST_Evaluator {
   /**
@@ -44,10 +45,10 @@ export class AST_Evaluator {
     this.operatorMap.set(ConditionIn, this.evalIn);
     this.operatorMap.set(ConditionGE, this.evalGE);
     this.operatorMap.set(ConditionL, this.evalL);
-
     this.expMap.set(Command_IF, this.evalIf);
     this.expMap.set(AST_ConditionExpr, this.evalConditionExpr);
     this.expMap.set(AST_ReturnExpr, this.evalReturnExpr);
+    this.expMap.set(AST_Compensation, this.evalCompensationExpr);
     this.expMap.set(Operator, this.evalOperator);
   }
 
@@ -237,7 +238,62 @@ export class AST_Evaluator {
     );
   }
 
-  //#endregion
+  public evalCompensationExpr(
+    eef: any,
+  ): ResultAsync<SDQL_Return, EvaluationError> {
+    if (TypeChecker.isIfCommand(eef)) {
+      return this.evalCompCondition(eef.conditionExpr).andThen(
+        (val): ResultAsync<SDQL_Return, EvaluationError> => {
+          if (val) {
+            return this.evalExpr(eef.trueExpr);
+          } else {
+            if (eef.falseExpr == null) {
+              return okAsync(SDQL_Return(null));
+            }
+            if (eef.falseExpr) {
+              return this.evalExpr(eef.falseExpr);
+            }
+            return errAsync(
+              new EvaluationError(`if ${eef.name} do not have a falseExpr`),
+            );
+          }
+        },
+      );
+    }
+
+    return okAsync(SDQL_Return(eef));
+    // return okAsync(SDQL_Return(new ExpectedReward(eef.description, URLString(eef.callback), eef.type)));
+  }
+
+  public evalQueryExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError> {
+    if (TypeChecker.isIfCommand(eef)) {
+      return this.evalCompCondition(eef.conditionExpr).andThen(
+        (val): ResultAsync<SDQL_Return, EvaluationError> => {
+          if (val == true) {
+            return okAsync(SDQL_Return(eef.conditionExpr.name));
+          } else {
+            return okAsync(SDQL_Return(null));
+          }
+        },
+      );
+    }
+
+    return okAsync(SDQL_Return(null));
+  }
+
+  public evalCompCondition(
+    expr: AST_ConditionExpr,
+  ): ResultAsync<SDQL_Return, EvaluationError> {
+    if (TypeChecker.isQuery(expr.source)) {
+      return this.evalQuery(expr.source as AST_Query);
+    } else if (TypeChecker.isOperator(expr.source)) {
+      return this.evalOperator(expr.source as Operator);
+    } else {
+      return errAsync<SDQL_Return, EvaluationError>(
+        new EvaluationError("Condition has wrong type"),
+      );
+    }
+  }
 
   public evalReturnExpr(
     expr: AST_ReturnExpr,
@@ -258,6 +314,12 @@ export class AST_Evaluator {
   }
 
   public evalReturn(r: AST_Return): ResultAsync<SDQL_Return, EvaluationError> {
+    return okAsync(SDQL_Return(r.message));
+  }
+
+  public evalCompensation(
+    r: AST_Return,
+  ): ResultAsync<SDQL_Return, EvaluationError> {
     return okAsync(SDQL_Return(r.message));
   }
 
