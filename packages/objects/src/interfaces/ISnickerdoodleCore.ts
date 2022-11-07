@@ -298,7 +298,7 @@ export interface ISnickerdoodleCore {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    parameters?: string[],
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -329,7 +329,7 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | PersistenceError
   >;
-  
+
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;

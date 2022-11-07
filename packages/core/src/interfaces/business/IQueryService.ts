@@ -38,7 +38,7 @@ export interface IQueryService {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    parameters?: string[],
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
