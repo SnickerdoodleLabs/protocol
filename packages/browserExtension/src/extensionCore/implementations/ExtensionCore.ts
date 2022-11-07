@@ -61,6 +61,8 @@ export class ExtensionCore {
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
       dnsServerAddress: config.dnsServerAddress,
+      ceramicNodeUrl: config.ceramicNodeUrl,
+      controlChainProviderURL: config.controlChainProviderUrl,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(
