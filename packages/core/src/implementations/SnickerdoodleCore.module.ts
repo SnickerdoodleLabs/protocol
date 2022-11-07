@@ -23,10 +23,15 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
   IEVMTransactionRepository,
   IEVMTransactionRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import {
+  BackupManagerProvider,
+  IBackupManagerProvider,
+  IBackupManagerProviderType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@snickerdoodlelabs/persistence";
@@ -60,6 +65,7 @@ import {
 import {
   ConsentContractRepository,
   CrumbsRepository,
+  DataWalletPersistence,
   DNSRepository,
   InvitationRepository,
   MetatransactionForwarderRepository,
@@ -205,16 +211,24 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(InvitationRepository)
       .inSingletonScope();
 
+    // Data Persistence and Indexing
+    bind<IDataWalletPersistence>(IDataWalletPersistenceType)
+      .to(DataWalletPersistence)
+      .inSingletonScope();
+    bind<IBackupManagerProvider>(IBackupManagerProviderType)
+      .to(BackupManagerProvider)
+      .inSingletonScope();
+
     // Utilities
-    bind<IConfigProvider>(IConfigProviderType)
-      .to(ConfigProvider)
-      .inSingletonScope();
-    bind<IIndexerConfigProvider>(IIndexerConfigProviderType)
-      .to(ConfigProvider)
-      .inSingletonScope();
-    bind<IPersistenceConfigProvider>(IPersistenceConfigProviderType)
-      .to(ConfigProvider)
-      .inSingletonScope();
+    const configProvider = new ConfigProvider();
+    bind<IConfigProvider>(IConfigProviderType).toConstantValue(configProvider);
+    bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
+      configProvider,
+    );
+    bind<IPersistenceConfigProvider>(
+      IPersistenceConfigProviderType,
+    ).toConstantValue(configProvider);
+
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();

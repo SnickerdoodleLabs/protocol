@@ -35,7 +35,7 @@ import {
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
-import { Tabs } from "webextension-polyfill";
+import Browser, { Tabs } from "webextension-polyfill";
 
 export class ExtensionCore {
   protected iocContainer: Container;
@@ -61,6 +61,8 @@ export class ExtensionCore {
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
       dnsServerAddress: config.dnsServerAddress,
+      ceramicNodeUrl: config.ceramicNodeUrl,
+      controlChainProviderURL: config.controlChainProviderUrl,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(
@@ -100,7 +102,7 @@ export class ExtensionCore {
     ]).map(() => {});
   }
 
-  private tryUnlock(): ResultAsync<void | Tabs.Tab, Error> {
+  private tryUnlock(): ResultAsync<void, Error> {
     const accountCookieUtils = this.iocContainer.get<IAccountCookieUtils>(
       IAccountCookieUtilsType,
     );
@@ -167,17 +169,17 @@ export class ExtensionCore {
             return accountCookieUtils
               .removeDataWalletAddressFromCookie()
               .andThen(() => {
-                return ExtensionUtils.openTab({
-                  url: config.onboardingUrl,
-                });
+                return ExtensionUtils.openUrlOrSwitchToUrlTab(
+                  config.onboardingUrl,
+                );
               });
           }
-          return ExtensionUtils.openTab({ url: config.onboardingUrl });
+          return ExtensionUtils.openUrlOrSwitchToUrlTab(config.onboardingUrl);
         }
       })
       .orElse((e) => {
         errorUtils.emit(e);
-        return ExtensionUtils.openTab({ url: config.onboardingUrl });
+        return ExtensionUtils.openUrlOrSwitchToUrlTab(config.onboardingUrl);
       });
   }
 }

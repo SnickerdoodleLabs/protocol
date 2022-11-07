@@ -82,6 +82,8 @@ import {
   IUnlinkAccountParams,
   IAcceptInvitationParams,
   IScamFilterSettingsParams,
+  IGetConsentContractCIDParams,
+  ICheckInvitationStatusParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -240,6 +242,23 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { ipfsCID } = params as IGetInvitationMetadataByCIDParams;
         return new AsyncRpcResponseSender(
           this.getInvitationMetadataByCID(ipfsCID),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.CHECK_INVITATION_STATUS: {
+        const { signature, consentAddress, tokenId } =
+          params as ICheckInvitationStatusParams;
+        return new AsyncRpcResponseSender(
+          this.checkInvitationStatus(consentAddress, signature, tokenId),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_CONTRACT_CID: {
+        const { consentAddress } = params as IGetConsentContractCIDParams;
+        return new AsyncRpcResponseSender(
+          this.getConsentContractCID(consentAddress),
           res,
         ).call();
       }
@@ -486,6 +505,29 @@ export class RpcCallHandler implements IRpcCallHandler {
         dataTypes,
       );
     });
+  }
+
+  private checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
+    return this._getTokenId(tokenId).andThen((tokenId) => {
+      return this.invitationService.checkInvitationStatus(
+        new Invitation(
+          "" as DomainName,
+          consentAddress,
+          tokenId,
+          signature ?? null,
+        ),
+      );
+    });
+  }
+
+  private getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
+    return this.invitationService.getConsentContractCID(consentAddress);
   }
 
   private _getTokenId(tokenId: BigNumberString | undefined) {
