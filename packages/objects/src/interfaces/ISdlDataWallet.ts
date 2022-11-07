@@ -21,6 +21,7 @@ import {
   UnixTimestamp,
 } from "@objects/primitives";
 import { ResultAsync } from "neverthrow";
+import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
 
 type JsonRpcError = unknown;
 export interface ISdlDataWallet extends EventEmitter {
@@ -79,6 +80,11 @@ export interface ISdlDataWallet extends EventEmitter {
   getDefaultPermissions(): ResultAsync<EWalletDataType[], JsonRpcError>;
   setDefaultPermissions(
     dataTypes: EWalletDataType[],
+  ): ResultAsync<void, JsonRpcError>;
+  getScamFilterSettings(): ResultAsync<IScamFilterPreferences, JsonRpcError>;
+  setScamFilterSettings(
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
   ): ResultAsync<void, JsonRpcError>;
   setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError>;
   acceptInvitation(

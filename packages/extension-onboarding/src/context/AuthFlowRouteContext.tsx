@@ -13,6 +13,7 @@ export enum EScreens {
   ON_CHAIN_INFO_SETTINGS = "on-chain-info-settings",
   DEMOGRAPHIC_INFO_SETTINGS = "demographic-info-settings",
   DATA_PERMISSIONS_SETTING = "data-permissions-setting",
+  SCAM_FILTER_SETTINGS = "scam-filter-settings",
 }
 
 export interface ISubroute {
@@ -56,6 +57,7 @@ export const routes: IRoute[] = [
       { title: "Web 3 Info", screen: EScreens.ON_CHAIN_INFO_SETTINGS },
       { title: "Web 2 Info", screen: EScreens.DEMOGRAPHIC_INFO_SETTINGS },
       { title: "Data Permissions", screen: EScreens.DATA_PERMISSIONS_SETTING },
+      { title: "Scam Filter", screen: EScreens.SCAM_FILTER_SETTINGS },
     ],
   },
 ];

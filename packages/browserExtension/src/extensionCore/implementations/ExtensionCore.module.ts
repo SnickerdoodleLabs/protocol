@@ -108,6 +108,8 @@ import {
   IScamFilterRepository,
   IScamFilterRepositoryType,
 } from "@interfaces/data/IScamFilterRepository";
+import { IScamFilterSettingsUtils, IScamFilterSettingsUtilsType } from "@interfaces/utilities/IScamFilterSettingsUtils";
+import { ScamFilterSettingsUtils } from "./utilities/ScamFilterSettingsUtils";
 
 export const extensionCoreModule = new ContainerModule(
   (
@@ -182,6 +184,9 @@ export const extensionCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IDataPermissionsUtils>(IDataPermissionsUtilsType)
       .to(DataPermissionsUtils)
+      .inSingletonScope();
+      bind<IScamFilterSettingsUtils>(IScamFilterSettingsUtilsType)
+      .to(ScamFilterSettingsUtils)
       .inSingletonScope();
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)
