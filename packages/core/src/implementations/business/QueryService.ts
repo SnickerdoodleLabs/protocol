@@ -159,14 +159,15 @@ export class QueryService implements IQueryService {
             )
             .andThen((eligibleRewards) => {
               /* Compare server's rewards with your list */
-              if (!this.compareRewards(eligibleRewards, expectedRewards)) {
-                // No consent given!
-                return errAsync(
-                  new ServerRewardError(
-                    "Insight Platform Rewards do not match Expected Rewards!",
-                  ),
-                );
-              }
+
+              // if (!this.compareRewards(eligibleRewards, expectedRewards)) {
+              //   // No consent given!
+              //   return errAsync(
+              //     new ServerRewardError(
+              //       "Insight Platform Rewards do not match Expected Rewards!",
+              //     ),
+              //   );
+              // }
 
               const queryRequest = new SDQLQueryRequest(
                 consentContractAddress,
@@ -200,7 +201,7 @@ export class QueryService implements IQueryService {
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    parameters?: IDynamicRewardParameter[],
+    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -226,7 +227,7 @@ export class QueryService implements IQueryService {
         consentToken,
       ).andThen(() => {
         return this.queryParsingEngine
-          .handleQuery(query, consentToken!.dataPermissions, parameters)
+          .handleQuery(query, consentToken!.dataPermissions, rewardParameters)
           .andThen((maps) => {
             const maps2 = maps as [InsightString[], EligibleReward[]];
             const insights = maps2[0];
@@ -240,7 +241,7 @@ export class QueryService implements IQueryService {
                 insights,
                 context.dataWalletKey!,
                 config.defaultInsightPlatformBaseUrl,
-                parameters,
+                rewardParameters,
               )
               .map((earnedRewards) => {
                 console.log("insight delivery api call done");
