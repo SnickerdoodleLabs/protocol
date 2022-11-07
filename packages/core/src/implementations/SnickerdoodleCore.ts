@@ -12,7 +12,6 @@ import {
   Age,
   AjaxError,
   BlockchainProviderError,
-  ChainId,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
@@ -68,17 +67,15 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
-  TokenId,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
-  DataWalletPersistence,
-  IndexedDBFactory,
-  IVolatileStorageFactory,
-  IVolatileStorageFactoryType,
   ICloudStorage,
   ICloudStorageType,
-  NullCloudStorage,
   CeramicCloudStorage,
+  IVolatileStorage,
+  IVolatileStorageType,
+  IndexedDBVolatileStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -88,7 +85,6 @@ import {
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
@@ -124,7 +120,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public constructor(
     configOverrides?: IConfigOverrides,
     storageUtils?: IStorageUtils,
-    volatileStorage?: IVolatileStorageFactory,
+    volatileStorage?: IVolatileStorage,
     cloudStorage?: ICloudStorage,
   ) {
     this.iocContainer = new Container();
@@ -143,11 +139,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    this.iocContainer
-      .bind(IDataWalletPersistenceType)
-      .to(DataWalletPersistence)
-      .inSingletonScope();
-
     if (cloudStorage != null) {
       this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
     } else {
@@ -159,12 +150,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     if (volatileStorage != null) {
       this.iocContainer
-        .bind(IVolatileStorageFactoryType)
+        .bind(IVolatileStorageType)
         .toConstantValue(volatileStorage);
     } else {
       this.iocContainer
-        .bind(IVolatileStorageFactoryType)
-        .to(IndexedDBFactory)
+        .bind(IVolatileStorageType)
+        .to(IndexedDBVolatileStorage)
         .inSingletonScope();
     }
 
