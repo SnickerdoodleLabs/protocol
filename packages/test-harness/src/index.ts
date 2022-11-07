@@ -47,6 +47,7 @@ import {
   IpfsCID,
   ERewardType,
 } from "@snickerdoodlelabs/objects";
+import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
 import { BigNumber } from "ethers";
 import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -60,11 +61,17 @@ import { TestWallet } from "@test-harness/TestWallet.js";
 
 const cryptoUtils = new CryptoUtils();
 
+const fakeDBVolatileStorage = new FakeDBVolatileStorage();
+
 // https://github.com/SBoudrias/Inquirer.js
-const core = new SnickerdoodleCore({
-  defaultInsightPlatformBaseUrl: "http://localhost:3006",
-  dnsServerAddress: "http://localhost:3006/dns",
-} as IConfigOverrides);
+const core = new SnickerdoodleCore(
+  {
+    defaultInsightPlatformBaseUrl: "http://localhost:3006",
+    dnsServerAddress: "http://localhost:3006/dns",
+  } as IConfigOverrides,
+  undefined,
+  fakeDBVolatileStorage,
+);
 
 const devAccountKeys = [
   new TestWallet(
@@ -272,8 +279,8 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "Add Site Visit - Google ", value: "addSiteVisit - google" },
     { name: "Add Site Visit - Facebook", value: "addSiteVisit - facebook" },
 
-    { name: "Add Earned Award", value: "addEarnedAward" },
-    { name: "Get Earned Awards", value: "getEarnedAwards" },
+    { name: "Add Earned Reward", value: "addEarnedReward" },
+    { name: "Get Earned Rewards", value: "getEarnedRewards" },
     new inquirer.Separator(),
     { name: "dump backup", value: "dumpBackup" },
     { name: "restore backup", value: "restoreBackup" },
@@ -353,11 +360,10 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
         return core.getSiteVisits().map(console.log);
-
-      // case "addEarnedAward":
-      //   return core.addEarnedReward(earnedReward).map(console.log);
-      // case "getEarnedAwards":
-      //   return core.getEarnedRewards().map(console.log);
+      case "addEarnedReward":
+        return core.addEarnedRewards([earnedReward]).map(console.log);
+      case "getEarnedRewards":
+        return core.getEarnedRewards().map(console.log);
       case "addEVMTransaction - Query's Network":
         /*
           Important!  Must use different hash values for transaction values!
