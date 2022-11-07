@@ -69,7 +69,6 @@ import {
   CeramicStreamID,
   EarnedReward,
   IDynamicRewardParameter,
-  TokenId,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
