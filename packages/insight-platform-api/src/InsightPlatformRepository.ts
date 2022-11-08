@@ -52,7 +52,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     const signableData = {
       consentContractId: consentContractAddress,
       dataWallet: dataWalletAddress,
-      queryCid: queryCid,
+      queryCID: queryCid,
       queries: JSON.stringify(answeredQueries),
     } as Record<string, unknown>;
 
@@ -90,9 +90,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
     const returnsString = JSON.stringify(returns);
-    const parameters = JSON.stringify([]);
+    let parameters = JSON.stringify([]);
     if (rewardParameters !== undefined) {
-      const parameters = JSON.stringify(rewardParameters);
+      parameters = JSON.stringify(rewardParameters);
     }
 
     const signableData = {
