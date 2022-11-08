@@ -9,6 +9,8 @@ import {
   IpfsCID,
   HexString32,
   EWalletDataType,
+  Signature,
+  TokenId,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -56,6 +58,10 @@ export interface IInvitationService {
   getAgreementPermissions(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<EWalletDataType[], SnickerDoodleCoreError>;
+
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");

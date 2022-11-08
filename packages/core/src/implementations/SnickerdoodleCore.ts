@@ -12,7 +12,6 @@ import {
   Age,
   AjaxError,
   BlockchainProviderError,
-  ChainId,
   ConsentContractError,
   ConsentContractRepositoryError,
   ConsentError,
@@ -68,16 +67,15 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
-  DataWalletPersistence,
-  IndexedDBFactory,
-  IVolatileStorageFactory,
-  IVolatileStorageFactoryType,
   ICloudStorage,
   ICloudStorageType,
-  NullCloudStorage,
   CeramicCloudStorage,
+  IVolatileStorage,
+  IVolatileStorageType,
+  IndexedDBVolatileStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -87,7 +85,6 @@ import {
 import { Container } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
 import {
@@ -123,7 +120,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public constructor(
     configOverrides?: IConfigOverrides,
     storageUtils?: IStorageUtils,
-    volatileStorage?: IVolatileStorageFactory,
+    volatileStorage?: IVolatileStorage,
     cloudStorage?: ICloudStorage,
   ) {
     this.iocContainer = new Container();
@@ -142,11 +139,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         .inSingletonScope();
     }
 
-    this.iocContainer
-      .bind(IDataWalletPersistenceType)
-      .to(DataWalletPersistence)
-      .inSingletonScope();
-
     if (cloudStorage != null) {
       this.iocContainer.bind(ICloudStorageType).toConstantValue(cloudStorage);
     } else {
@@ -158,12 +150,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
     if (volatileStorage != null) {
       this.iocContainer
-        .bind(IVolatileStorageFactoryType)
+        .bind(IVolatileStorageType)
         .toConstantValue(volatileStorage);
     } else {
       this.iocContainer
-        .bind(IVolatileStorageFactoryType)
-        .to(IndexedDBFactory)
+        .bind(IVolatileStorageType)
+        .to(IndexedDBVolatileStorage)
         .inSingletonScope();
     }
 
@@ -189,6 +181,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+  }
+
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    ConsentContractError | UninitializedError | BlockchainProviderError
+  > {
+    const cohortService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+    return cohortService.getConsentContractCID(consentAddress);
   }
 
   public getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never> {
@@ -368,11 +372,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | ConsentContractError
     | ConsentContractRepositoryError
   > {
-    const cohortService = this.iocContainer.get<IInvitationService>(
+    const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.checkInvitationStatus(invitation);
+    return invitationService.checkInvitationStatus(invitation);
   }
 
   public acceptInvitation(
@@ -387,11 +391,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | MinimalForwarderContractError
     | ConsentError
   > {
-    const cohortService = this.iocContainer.get<IInvitationService>(
+    const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.acceptInvitation(invitation, dataPermissions);
+    return invitationService.acceptInvitation(invitation, dataPermissions);
   }
 
   public rejectInvitation(
@@ -406,30 +410,38 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | ConsentContractError
     | ConsentContractRepositoryError
   > {
-    const cohortService = this.iocContainer.get<IInvitationService>(
+    const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.rejectInvitation(invitation);
+    return invitationService.rejectInvitation(invitation);
   }
 
   public leaveCohort(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
     | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
     | AjaxError
+    | PersistenceError
     | MinimalForwarderContractError
     | ConsentError
   > {
-    const cohortService = this.iocContainer.get<IInvitationService>(
+    const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.leaveCohort(consentContractAddress);
+    return invitationService.leaveCohort(consentContractAddress);
+  }
+
+  public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.getAcceptedInvitations();
   }
 
   public getInvitationsByDomain(
@@ -442,11 +454,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | AjaxError
     | IPFSError
   > {
-    const cohortService = this.iocContainer.get<IInvitationService>(
+    const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.getInvitationsByDomain(domain);
+    return invitationService.getInvitationsByDomain(domain);
   }
 
   public getAgreementFlags(
@@ -456,15 +468,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | ConsentContractRepositoryError
-    | AjaxError
+    | ConsentFactoryContractError
+    | PersistenceError
     | ConsentError
   > {
-    const cohortService = this.iocContainer.get<IInvitationService>(
+    const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.getAgreementFlags(consentContractAddress);
+    return invitationService.getAgreementFlags(consentContractAddress);
   }
 
   public getAvailableInvitationsCID(): ResultAsync<
@@ -475,34 +487,35 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     | ConsentContractError
     | ConsentFactoryContractError
   > {
-    const cohortService = this.iocContainer.get<IInvitationService>(
+    const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.getAvailableInvitationsCID();
+    return invitationService.getAvailableInvitationsCID();
   }
 
   public getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
-    | ConsentContractError
-    | UninitializedError
     | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
     | ConsentFactoryContractError
+    | PersistenceError
   > {
-    const cohortService = this.iocContainer.get<IInvitationService>(
+    const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.getAcceptedInvitationsCID();
+    return invitationService.getAcceptedInvitationsCID();
   }
   public getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
   ): ResultAsync<IOpenSeaMetadata, IPFSError> {
-    const cohortService = this.iocContainer.get<IInvitationService>(
+    const invitationService = this.iocContainer.get<IInvitationService>(
       IInvitationServiceType,
     );
 
-    return cohortService.getInvitationMetadataByCID(ipfsCID);
+    return invitationService.getInvitationMetadataByCID(ipfsCID);
   }
 
   public processQuery(
@@ -520,7 +533,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const queryService =
       this.iocContainer.get<IQueryService>(IQueryServiceType);
 
-    // console.log("core.processQuery")
     return queryService.processQuery(consentContractAddress, query);
   }
 
@@ -681,9 +693,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEarnedReward(reward);
   }
-
-
-
 
   public addEVMTransactions(
     transactions: EVMTransaction[],

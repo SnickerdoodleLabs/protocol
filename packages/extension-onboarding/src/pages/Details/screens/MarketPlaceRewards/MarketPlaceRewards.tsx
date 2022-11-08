@@ -18,7 +18,7 @@ const MarketPlaceRewards: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [rewardContractAddressesWithCID, setRewardContractAddressesWithCID] =
     useState<Record<EVMContractAddress, IpfsCID>>();
-  const { setModal, setLoadingStatus } = useLayoutContext();
+  const { setModal, closeModal, setLoadingStatus } = useLayoutContext();
   useEffect(() => {
     getInvitations();
   }, []);
@@ -72,6 +72,7 @@ const MarketPlaceRewards: FC = () => {
           modalSelector: EModalSelectors.PERMISSION_SELECTION,
           onPrimaryButtonClick: () => {
             acceptInvitation(null, consentContractAddress);
+            closeModal();
           },
           customProps: {
             onManageClicked: () => {
