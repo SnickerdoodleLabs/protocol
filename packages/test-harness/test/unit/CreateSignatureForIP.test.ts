@@ -1,7 +1,6 @@
 import "reflect-metadata";
 
-// import { SignatureGenerator } from "../../src/SignatureGenerator";
-import { DataWalletAddress, EVMContractAddress, InsightString, IpfsCID } from "@snickerdoodlelabs/objects";
+import { EVMContractAddress, EVMPrivateKey, InsightString, IpfsCID } from "@snickerdoodlelabs/objects";
 
 import { CryptoUtilsMocks } from "@test-harness-test/mocks/CryptoUtilsMocks";
 import { insightDeliveryTypes, snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
@@ -12,9 +11,6 @@ const consentContractAddress = EVMContractAddress(
 );
 const queryCid = IpfsCID(
     "QmQBy4Q5Ya8PY8byxNgnZT35Tc3V3VhoUun5VeJ3y9HBRE"
-);
-const dataWalletAddress = DataWalletAddress(
-    "0x2F5143277893dd718582a6a8601054203af41eaA"
 );
 const returns = [
     "not qualified",
@@ -28,36 +24,49 @@ describe("Sign proper data for InsigtPlatform APIs", () => {
 
     test("insights/responses", async () => {
 
+        const cryptoUtilMock = new CryptoUtilsMocks();
+        const cryptoUtils = cryptoUtilMock.factoryCryptoUtils();
+                
+        const generatedDataWalletKeyResult = await cryptoUtils.createEthereumPrivateKey();
+        const generatedDataWalletKey = generatedDataWalletKeyResult._unsafeUnwrap();
+
+        const derivedDWAddress = cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+            generatedDataWalletKey as EVMPrivateKey,
+        );
+
         const returnsString = JSON.stringify(returns);
         const signableData = { // aka "types"
           consentContractId: consentContractAddress,
           queryCid: queryCid,
-          dataWallet: dataWalletAddress,
+          dataWallet: derivedDWAddress,
           returns: returnsString,
         } as Record<string, unknown>;
-
-        const cryptoUtilMock = new CryptoUtilsMocks();
-        const cryptoUtils = cryptoUtilMock.factoryCryptoUtils();
-        
-        const randomDataWalletKeyResult = await cryptoUtils.createEthereumPrivateKey();
-        const randomDataWalletKey = randomDataWalletKeyResult._unsafeUnwrap();
     
-        const signature = await cryptoUtils.signTypedData(
+        const signatureResult = await cryptoUtils.signTypedData(
             snickerdoodleSigningDomain,
             insightDeliveryTypes,
             signableData,
-            randomDataWalletKey,
+            generatedDataWalletKey,
         );
+        const signature = signatureResult._unsafeUnwrap();
+        
+        // Resulting data must be verifiable.
+        const verifiedAccountAddressResult = await cryptoUtils.verifyTypedData(
+          snickerdoodleSigningDomain,
+          insightDeliveryTypes,
+          signableData,
+          signature,
+        );
+        const verifiedAccountAddress = verifiedAccountAddressResult._unsafeUnwrap();
+        
+        expect(verifiedAccountAddress).toEqual(derivedDWAddress);
 
-        const retVal = {
+        console.log({
             consentContractId: consentContractAddress,
             queryCid: queryCid,
-            dataWallet: dataWalletAddress,
-            returns: returns,
+            dataWallet: derivedDWAddress,
+            returns: returnsString,
             signature: signature,
-        };
-
-        console.log("insights/responses request body");
-        console.log(retVal);
+        });
     });
 });
