@@ -24,6 +24,8 @@ const dataWalletAddress = DataWalletAddress(
     "0x2F5143277893dd718582a6a8601054203af41eaA"
 );
 
+const queries = returns;
+
 
 describe("Create data for InsigtPlatform APIs", () => {
 
@@ -58,31 +60,18 @@ describe("Create data for InsigtPlatform APIs", () => {
             signature: signature,
         };
 
-        console.log("deliverInsigts request body");
+        console.log("insights/responses request body");
         console.log(retVal);
-
-
-        // const wallet = new TestWallet(
-        //     EChain.LocalDoodle,
-        //     EVMPrivateKey(privateKey),
-        //     cryptoUtils,
-        // )// has accountAddress derived from private key
-
-        // const signedMessage = await wallet.signMessage(message);
-
-        // Assert
-        // expect(signedMessage).toBeDefined();
-        // console.log(signedMessage);
     });
 
-    test("preview", async () => {
+    test("insights/responses/preview", async () => {
 
-        const returnsString = JSON.stringify(returns);
+        const queriesString = JSON.stringify(queries);
         const signableData = { // aka "types"
           consentContractId: consentContractAddress,
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
-          returns: returnsString,
+          queries: queriesString,
         } as Record<string, unknown>;
 
         const cryptoUtilMock = new CryptoUtilsMocks();
@@ -102,11 +91,11 @@ describe("Create data for InsigtPlatform APIs", () => {
             consentContractId: consentContractAddress,
             queryCid: queryCid,
             dataWallet: dataWalletAddress,
-            returns: returns,
+            queries: queries,
             signature: signature,
         };
 
-        console.log("deliverInsigts request body");
+        console.log("insights/responses/preview request body");
         console.log(retVal);
     });
 });
