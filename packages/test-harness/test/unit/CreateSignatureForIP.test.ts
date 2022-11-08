@@ -5,7 +5,6 @@ import { DataWalletAddress, EVMContractAddress, InsightString, IpfsCID } from "@
 
 import { CryptoUtilsMocks } from "@test-harness-test/mocks/CryptoUtilsMocks";
 import { insightDeliveryTypes, snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
-import { query1 } from "@test-harness/queries";
 
 
 const consentContractAddress = EVMContractAddress(
@@ -14,20 +13,18 @@ const consentContractAddress = EVMContractAddress(
 const queryCid = IpfsCID(
     "QmQBy4Q5Ya8PY8byxNgnZT35Tc3V3VhoUun5VeJ3y9HBRE"
 );
+const dataWalletAddress = DataWalletAddress(
+    "0x2F5143277893dd718582a6a8601054203af41eaA"
+);
 const returns = [
     "not qualified",
     "","unknown",
     "{}","[]","[]",
     "[{\"ticker\":\"1ed3loq\",\"address\":\"0A\",\"balance\":\"752\",\"networkId\":31338}]"
 ] as InsightString[]; // pass to deliverInsights as "insigts".
-const dataWalletAddress = DataWalletAddress(
-    "0x2F5143277893dd718582a6a8601054203af41eaA"
-);
-
-const queries = returns;
 
 
-describe("Create data for InsigtPlatform APIs", () => {
+describe("Sign proper data for InsigtPlatform APIs", () => {
 
     test("insights/responses", async () => {
 
@@ -61,41 +58,6 @@ describe("Create data for InsigtPlatform APIs", () => {
         };
 
         console.log("insights/responses request body");
-        console.log(retVal);
-    });
-
-    test("insights/responses/preview", async () => {
-
-        const queriesString = JSON.stringify(queries);
-        const signableData = { // aka "types"
-          consentContractId: consentContractAddress,
-          queryCid: queryCid,
-          dataWallet: dataWalletAddress,
-          queries: queriesString,
-        } as Record<string, unknown>;
-
-        const cryptoUtilMock = new CryptoUtilsMocks();
-        const cryptoUtils = cryptoUtilMock.factoryCryptoUtils();
-        
-        const randomDataWalletKeyResult = await cryptoUtils.createEthereumPrivateKey();
-        const randomDataWalletKey = randomDataWalletKeyResult._unsafeUnwrap();
-    
-        const signature = await cryptoUtils.signTypedData(
-            snickerdoodleSigningDomain,
-            insightDeliveryTypes,
-            signableData,
-            randomDataWalletKey,
-        );
-
-        const retVal = {
-            consentContractId: consentContractAddress,
-            queryCid: queryCid,
-            dataWallet: dataWalletAddress,
-            queries: queries,
-            signature: signature,
-        };
-
-        console.log("insights/responses/preview request body");
         console.log(retVal);
     });
 });
