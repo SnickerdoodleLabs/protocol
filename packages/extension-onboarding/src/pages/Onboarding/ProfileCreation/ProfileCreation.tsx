@@ -13,7 +13,7 @@ const ProfileCreation: FC = () => {
     <Box mt={15}>
       <Grid container>
         <Grid item sm={7}>
-          <Typography className={classes.title}>Built your Profile</Typography>
+          <Typography className={classes.title}>Build your Profile</Typography>
           <Box mb={5} mt={4}>
             <Typography className={classes.description}>
               This information is for your data wallet. No one has access to
