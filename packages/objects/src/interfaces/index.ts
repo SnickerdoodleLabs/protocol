@@ -10,6 +10,7 @@ export * from "@objects/interfaces/ISdlDataWallet";
 export * from "@objects/interfaces/ISDQLQueryObject";
 export * from "@objects/interfaces/ISnickerdoodleCore";
 export * from "@objects/interfaces/ISnickerdoodleCoreEvents";
+export * from "@objects/interfaces/IScamFilterPreferences";
 //export * from "@objects/interfaces/ITokenBalance";
 
 export * from "@objects/interfaces/chains";

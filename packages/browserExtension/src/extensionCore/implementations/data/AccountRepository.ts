@@ -1,6 +1,7 @@
 import {
   AccountAddress,
   DataWalletAddress,
+  EarnedReward,
   EChain,
   EVMAccountAddress,
   IEVMBalance,
@@ -23,9 +24,7 @@ import {
   IErrorUtils,
   IErrorUtilsType,
 } from "@interfaces/utilities";
-import {
-  SnickerDoodleCoreError,
-} from "@shared/objects/errors";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 @injectable()
 export class AccountRepository implements IAccountRepository {
@@ -36,6 +35,16 @@ export class AccountRepository implements IAccountRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
+
+  public getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.getEarnedRewards().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
   public getDataWalletForAccount(
     accountAddress: AccountAddress,
     signature: Signature,

@@ -2,9 +2,6 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   container: {
-    // position: "absolute",
-    // right: 20,
-    // top: -25,
     width: "260px",
     height: "114px",
     background: "white",
@@ -27,14 +24,14 @@ export const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontSize: "17px",
-    fontFamily: "'Shrikhand', cursive !important",
+    fontFamily: 'Shrikhand',
     fontStyle: "italic",
     padding: "24px 24px 16px 24px",
     color: "#222137",
   },
   learnMore: {
     fontSize: "10px",
-    fontFamily: "'Space Grotesk', sans-serif !important",
+    fontFamily: 'Space Grotesk',
     fontWeight: 500,
     textAlign: "right",
     padding: "0px 24px 16px 0px",
@@ -44,15 +41,12 @@ export const useStyles = makeStyles((theme) => ({
   },
   dontShow: {
     fontSize: "10px",
-    fontFamily: "'Space Grotesk', sans-serif !important",
+    fontFamily: 'Space Grotesk',
     fontWeight: 300,
     textAlign: "right",
     paddingRight: "24px",
     paddingTop: "0px",
     color: "#3E3E3E",
     marginTop: "-15px",
-  },
-  checkbox: {
-    transform: "scale(0.50)",
   },
 }));
