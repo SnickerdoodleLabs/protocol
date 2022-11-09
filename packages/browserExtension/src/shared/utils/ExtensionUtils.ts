@@ -99,6 +99,27 @@ export class ExtensionUtils {
     );
   };
 
+  public static openUrlOrSwitchToUrlTab = (
+    url: string,
+  ): ResultAsync<void, Error> => {
+    return ExtensionUtils.getCurrentWindow().andThen((currentWindow) => {
+      const windowId = currentWindow?.id;
+      if (windowId) {
+        return ExtensionUtils.getAllTabsOnWindow(windowId).andThen((tabs) => {
+          const onboardingTab = tabs.find(
+            (tab) => new URL(tab.url || "").origin === new URL(url).origin,
+          );
+          if (onboardingTab) {
+            return ExtensionUtils.switchToTab(onboardingTab.id).map(() => {});
+          }
+          return ExtensionUtils.openTab({ url }).map(() => {});
+        });
+      } else {
+        return ExtensionUtils.openTab({ url }).map(() => {});
+      }
+    });
+  };
+
   public static closeCurrenTab = () => {
     return ResultAsync.fromSafePromise(browser.tabs.getCurrent()).andThen(
       (windowDetails) => {
@@ -118,7 +139,10 @@ export class ExtensionUtils {
     browser.windows.remove(windowId);
   };
 
-  public static getAllWindows = () => {
+  public static getAllWindows = (): ResultAsync<
+    browser.Windows.Window[],
+    unknown
+  > => {
     return ResultAsync.fromSafePromise(browser.windows.getAll()).andThen(
       (windows) => {
         const error = ExtensionUtils.checkForError();
@@ -130,7 +154,10 @@ export class ExtensionUtils {
     );
   };
 
-  public static getActiveTabs = () => {
+  public static getActiveTabs = (): ResultAsync<
+    browser.Tabs.Tab[],
+    unknown
+  > => {
     return ResultAsync.fromSafePromise(
       browser.tabs.query({ active: true }),
     ).andThen((tabs) => {
@@ -156,7 +183,7 @@ export class ExtensionUtils {
     });
   }
 
-  public static getCurrentTab = () => {
+  public static getCurrentTab = (): ResultAsync<browser.Tabs.Tab, unknown> => {
     return ResultAsync.fromSafePromise(browser.tabs.getCurrent()).andThen(
       (tab) => {
         const err = ExtensionUtils.checkForError();
@@ -168,6 +195,25 @@ export class ExtensionUtils {
       },
     );
   };
+
+  public static getCurrentWindow = (): ResultAsync<
+    browser.Windows.Window,
+    Error
+  > => {
+    return ResultAsync.fromPromise(
+      browser.windows.getCurrent(),
+      (e) => e as Error,
+    ).andThen((tab) => {
+      const err = ExtensionUtils.checkForError();
+      if (err) {
+        return errAsync(err);
+      } else {
+        return okAsync(tab);
+      }
+    });
+  };
+
+  public static openOnboarding;
 
   public static switchToTab(
     tabId: number | undefined,

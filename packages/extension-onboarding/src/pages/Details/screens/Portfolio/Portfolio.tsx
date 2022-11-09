@@ -1,16 +1,3 @@
-import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
-import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
-import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
-import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
-import NFTItem from "@extension-onboarding/components/NFTItem";
-import Switch from "@extension-onboarding/components/Switch";
-import { EWalletProviderKeys } from "@extension-onboarding/constants";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import { useAppContext } from "@extension-onboarding/context/App";
-import InfoCard from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard";
-import TokenItem from "@extension-onboarding/pages/Details/screens/Portfolio/components/TokenItem";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   CircularProgress,
@@ -36,6 +23,20 @@ import {
 import clsx from "clsx";
 import { BigNumber } from "ethers";
 import React, { FC, useEffect, useMemo, useState } from "react";
+
+import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
+import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
+import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
+import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
+import NFTItem from "@extension-onboarding/components/NFTItem";
+import Switch from "@extension-onboarding/components/Switch";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
+import InfoCard from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard";
+import TokenItem from "@extension-onboarding/pages/Details/screens/Portfolio/components/TokenItem";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -506,7 +507,7 @@ const Portfolio: FC = () => {
       </Box>
       <Box
         mt={3}
-        minHeight={400}
+        minHeight={440}
         border="1px solid rgba(207, 201, 200, 0.37)"
         borderRadius={8}
       >
@@ -525,7 +526,7 @@ const Portfolio: FC = () => {
             <Divider style={{ width: "100%" }} />
           </Box>
           <Grid item xs={6}>
-            <Box minHeight={400} display="flex" flexDirection="column">
+            <Box minHeight={440} display="flex" flexDirection="column">
               {isBalancesLoading ? (
                 <Box
                   display="flex"
@@ -626,7 +627,7 @@ const Portfolio: FC = () => {
             </Box>
           </Grid>
           <Grid item xs={6}>
-            <Box minHeight={400} ml={3} display="flex" flexDirection="column">
+            <Box minHeight={440} ml={3} display="flex" flexDirection="column">
               {isNFTsLoading ? (
                 <Box
                   display="flex"
@@ -646,7 +647,9 @@ const Portfolio: FC = () => {
                         )
                       : nftsToRender
                     )?.map((nftitem) => {
-                      return <NFTItem key={nftitem.contract} item={nftitem} />;
+                      return (
+                        <NFTItem key={JSON.stringify(nftitem)} item={nftitem} />
+                      );
                     })
                   ) : (
                     <Box width="100%" display="flex">
@@ -667,7 +670,13 @@ const Portfolio: FC = () => {
                 </Grid>
               )}
               {nftsPagination && (
-                <Box display="flex" marginTop="auto" justifyContent="flex-end">
+                <Box
+                  display="flex"
+                  marginTop="auto"
+                  justifyContent="flex-end"
+                  alignItems="center"
+                  py={0.5}
+                >
                   <Typography className={classes.paginationText}>
                     {`${
                       (nftsPagination.currentIndex - 1) * PAGINATION_RANGE + 1

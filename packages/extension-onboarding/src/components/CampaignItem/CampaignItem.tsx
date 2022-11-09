@@ -1,5 +1,5 @@
 import BrokenImageIcon from "@material-ui/icons/BrokenImage";
-import { useStyles } from "@extension-onboarding/components/RewardItem/RewardItem.style";
+import { useStyles } from "@extension-onboarding/components/CampaignItem/CampaignItem.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, Grid } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
@@ -7,11 +7,11 @@ import { IOpenSeaMetadata, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { ReactNode, FC, useEffect, useState } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
-interface IRewardItemProps {
-  rewardCID: IpfsCID;
+interface ICampaignItemProps {
+  campaignCID: IpfsCID;
   button: ReactNode;
 }
-const RewardItem: FC<IRewardItemProps> = ({ rewardCID, button }) => {
+const CampaignItem: FC<ICampaignItemProps> = ({ campaignCID, button }) => {
   const [rewardItem, setRewardItem] = useState<IOpenSeaMetadata>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const classes = useStyles();
@@ -28,7 +28,7 @@ const RewardItem: FC<IRewardItemProps> = ({ rewardCID, button }) => {
 
   const getRewardItem = () => {
     window.sdlDataWallet
-      .getInvitationMetadataByCID(rewardCID)
+      .getInvitationMetadataByCID(campaignCID)
       .map((metadata) => {
         setRewardItem(metadata);
       })
@@ -68,4 +68,4 @@ const RewardItem: FC<IRewardItemProps> = ({ rewardCID, button }) => {
     </Grid>
   );
 };
-export default RewardItem;
+export default CampaignItem;

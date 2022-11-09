@@ -6,5 +6,6 @@ export const insightDeliveryTypes: Record<string, TypedDataField[]> = {
     { name: "queryCid", type: "string" },
     { name: "dataWallet", type: "address" },
     { name: "returns", type: "string" },
+    { name: "rewardParameters", type: "string" },
   ],
 };

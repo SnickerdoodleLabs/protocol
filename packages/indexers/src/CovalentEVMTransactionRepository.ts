@@ -289,27 +289,25 @@ export class CovalentEVMTransactionRepository
         ? BigNumberString(tx.gas_offered.toString())
         : null,
       tx.fees_paid != null ? BigNumberString(tx.fees_paid.toString()) : null,
-      null,
+      tx.log_events
+        ? tx.log_events.map((event) => {
+            return new EVMEvent(
+              event.tx_hash,
+              event.raw_log_data,
+              event.raw_log_topics,
+              event.sender_contract_decimals,
+              event.sender_name,
+              event.sender_contract_ticker_symbol,
+              event.sender_address,
+              event.sender_address_label,
+              event.sender_logo_url,
+              event.raw_log_data,
+              event.decoded,
+            );
+          })
+        : null,
       tx.value_quote,
     );
-
-    if (tx.log_events != null) {
-      busObj.events = tx.log_events.map((event) => {
-        return new EVMEvent(
-          event.tx_hash,
-          event.raw_log_data,
-          event.raw_log_topics,
-          event.sender_contract_decimals,
-          event.sender_name,
-          event.sender_contract_ticker_symbol,
-          event.sender_address,
-          event.sender_address_label,
-          event.sender_logo_url,
-          event.raw_log_data,
-          event.decoded,
-        );
-      });
-    }
 
     return busObj;
   }

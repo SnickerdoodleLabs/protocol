@@ -1,3 +1,33 @@
+import {
+  Age,
+  CountryCode,
+  DomainName,
+  EmailAddressString,
+  FamilyName,
+  Gender,
+  GivenName,
+  IEVMBalance,
+  IEVMNFT,
+  LanguageCode,
+  Signature,
+  UnixTimestamp,
+  UUID,
+  EVMContractAddress,
+  IOpenSeaMetadata,
+  IpfsCID,
+  EChain,
+  EWalletDataType,
+  AccountAddress,
+  LinkedAccount,
+  DataWalletAddress,
+  BigNumberString,
+  EInvitationStatus,
+  EarnedReward,
+} from "@snickerdoodlelabs/objects";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
+
+import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 import CoreHandler from "@app/coreGateways/handler/CoreHandler";
 import { EExternalActions } from "@shared/enums";
 import {
@@ -23,38 +53,12 @@ import {
   ISetDefaultPermissionsWithDataTypesParams,
   ISetApplyDefaultPermissionsParams,
   IUnlinkAccountParams,
+  IScamFilterSettingsParams,
   IGetConsentContractCIDParams,
   ICheckInvitationStatusParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
-import {
-  Age,
-  CountryCode,
-  DomainName,
-  EmailAddressString,
-  FamilyName,
-  Gender,
-  GivenName,
-  IEVMBalance,
-  IEVMNFT,
-  LanguageCode,
-  Signature,
-  UnixTimestamp,
-  UUID,
-  EVMContractAddress,
-  IOpenSeaMetadata,
-  IpfsCID,
-  EChain,
-  EWalletDataType,
-  AccountAddress,
-  LinkedAccount,
-  DataWalletAddress,
-  BigNumberString,
-  EInvitationStatus,
-} from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
-import { ResultAsync } from "neverthrow";
 
 export class ExternalCoreGateway {
   protected _handler: CoreHandler;
@@ -127,6 +131,22 @@ export class ExternalCoreGateway {
 
   public setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.SET_DEFAULT_PERMISSIONS_TO_ALL);
+  }
+  public getScamFilterSettings(): ResultAsync<
+    IScamFilterPreferences,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_SCAM_FILTER_SETTINGS);
+  }
+
+  public setScamFilterSettings(
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
+  ): ResultAsync<void, JsonRpcError> {
+    return this._handler.call(EExternalActions.SET_SCAM_FILTER_SETTINGS, {
+      isScamFilterActive,
+      showMessageEveryTime,
+    } as IScamFilterSettingsParams);
   }
 
   public rejectInvitation(id: UUID): ResultAsync<void, JsonRpcError> {
@@ -303,9 +323,7 @@ export class ExternalCoreGateway {
   > {
     return this._handler.call(EExternalActions.GET_DATA_WALLET_ADDRESS);
   }
-  public checkURL(
-    domain: DomainName,
-  ): ResultAsync<string, SnickerDoodleCoreError> {
+  public checkURL(domain: DomainName): ResultAsync<string, JsonRpcError> {
     return this._handler.call(EExternalActions.CHECK_URL, {
       domain,
     } as ICheckURLParams);
@@ -329,5 +347,9 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_CONTRACT_CID, {
       consentAddress,
     } as IGetConsentContractCIDParams);
+  }
+  
+  public getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_EARNED_REWARDS);
   }
 }
