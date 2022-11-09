@@ -53,6 +53,7 @@ export class ExtensionCore {
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
     const config = configProvider.getConfig();
 
+    const SIX_HOURS_MS = 21600000;
     const coreConfig = {
       controlChainId: config.controlChainId,
       supportedChains: config.supportedChains,
@@ -63,6 +64,10 @@ export class ExtensionCore {
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
+      accountBalancePollingIntervalMS: SIX_HOURS_MS,
+      accountIndexingPollingIntervalMS: SIX_HOURS_MS,
+      accountNFTPollingIntervalMS: SIX_HOURS_MS,
+      dataWalletBackupIntervalMS: SIX_HOURS_MS,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(
