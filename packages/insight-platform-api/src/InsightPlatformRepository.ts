@@ -120,7 +120,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           queryCid: queryCid,
           dataWallet: dataWalletAddress,
           returns: returns,
-          rewardParameters: rewardParameters,
+          rewardParameters: parameters,
           signature: signature,
         });
       });
