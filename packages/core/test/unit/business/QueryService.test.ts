@@ -205,14 +205,14 @@ describe("processQuery tests", () => {
       });
   });
 });
-// describe("onQueryPosted tests", () => {
-//   test("onQueryPosted: full run through", async () => {
-//     const mocks = new QueryServiceMocks();
-//     const contextMock = new ContextProviderMock();
-//     const configMock = new ConfigProviderMock();
-//     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
-//       okAsync(sdqlQuery),
-//     );
+describe("onQueryPosted tests", () => {
+  test("onQueryPosted: full run through", async () => {
+    const mocks = new QueryServiceMocks();
+    const contextMock = new ContextProviderMock();
+    const configMock = new ConfigProviderMock();
+    td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+      okAsync(sdqlQuery),
+    );
 //     td.when(mocks.contextProvider.getContext()).thenReturn(
 //       okAsync(td.matchers.anything()),
 //     );
@@ -247,89 +247,90 @@ describe("processRewardsPreview tests", () => {
     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
       okAsync(sdqlQuery),
     );
-    td.when(mocks.contextProvider.getContext()).thenReturn(
-      okAsync(
-        new CoreContext(
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-        ),
-      ),
-    );
-    td.when(mocks.configProvider.getConfig()).thenReturn(
-      okAsync(
-        new CoreConfig(
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-          td.matchers.anything(),
-        ),
-      ),
-    );
-    td.when(
-      mocks.consentContractRepo.isAddressOptedIn(
-        td.matchers.anything(),
-        td.matchers.anything(),
-      ),
-    ).thenReturn(okAsync(true));
-    td.when(
-      mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything()),
-    ).thenReturn(okAsync([[], []]));
-    await ResultUtils.combine([
-      mocks.sdqlQueryRepo.getByCID(queryId),
-      mocks.contextProvider.getContext(),
-      mocks.configProvider.getConfig(),
-    ]).andThen(([query, context, config]) => {
-      if (query == null) {
-        return errAsync(
-          new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
-        );
-      }
-      if (context.dataWalletAddress == null) {
-        // Need to wait for the wallet to unlock
-        return okAsync(undefined);
-      }
-      // We have the query, next step is check if you actually have a consent token for this business
-      return mocks.consentContractRepo
-        .isAddressOptedIn(
-          consentContractAddress,
-          EVMAccountAddress(context.dataWalletAddress),
-        )
-        .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getPreviews(
-            query,
-            new DataPermissions(allPermissions),
-          );
-        })
-        .andThen((rewardsPreviews) => {
-          const queryRequest = new SDQLQueryRequest(
-            consentContractAddress,
-            query,
-            [],
-            [],
-            null,
-          );
-          context.publicEvents.onQueryPosted.next(queryRequest);
-          return okAsync(undefined);
-        })
-        .mapErr((err) => {
-          expect(err.constructor).toBe(UninitializedError);
-          return err;
-        });
+
+    // td.when(mocks.contextProvider.getContext()).thenReturn(
+    //   okAsync(
+    //     new CoreContext(
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //     ),
+    //   ),
+    // );
+    // td.when(mocks.configProvider.getConfig()).thenReturn(
+    //   okAsync(
+    //     new CoreConfig(
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //       td.matchers.anything(),
+    //     ),
+    //   ),
+    // );
+    // td.when(
+    //   mocks.consentContractRepo.isAddressOptedIn(
+    //     td.matchers.anything(),
+    //     td.matchers.anything(),
+    //   ),
+    // ).thenReturn(okAsync(true));
+    // td.when(
+    //   mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything()),
+    // ).thenReturn(okAsync([[], []]));
+    // await ResultUtils.combine([
+    //   mocks.sdqlQueryRepo.getByCID(queryId),
+    //   mocks.contextProvider.getContext(),
+    //   mocks.configProvider.getConfig(),
+    // ]).andThen(([query, context, config]) => {
+    //   if (query == null) {
+    //     return errAsync(
+    //       new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
+    //     );
+    //   }
+    //   if (context.dataWalletAddress == null) {
+    //     // Need to wait for the wallet to unlock
+    //     return okAsync(undefined);
+    //   }
+    //   // We have the query, next step is check if you actually have a consent token for this business
+    //   return mocks.consentContractRepo
+    //     .isAddressOptedIn(
+    //       consentContractAddress,
+    //       EVMAccountAddress(context.dataWalletAddress),
+    //     )
+    //     .andThen((addressOptedIn) => {
+    //       return mocks.queryParsingEngine.getPreviews(
+    //         query,
+    //         new DataPermissions(allPermissions),
+    //       );
+    //     })
+    //     .andThen((rewardsPreviews) => {
+    //       const queryRequest = new SDQLQueryRequest(
+    //         consentContractAddress,
+    //         query,
+    //         [],
+    //         [],
+    //         null,
+    //       );
+    //       context.publicEvents.onQueryPosted.next(queryRequest);
+    //       return okAsync(undefined);
+    //     })
+    //     .mapErr((err) => {
+    //       expect(err.constructor).toBe(UninitializedError);
+    //       return err;
+    //     });
     });
   });
 });
