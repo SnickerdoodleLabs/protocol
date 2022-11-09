@@ -11,7 +11,7 @@ const config: Config.InitialOptions = {
     // "<rootDir>/src/**/*.ts",
 
     // Add other allowed folders to the list below.
-    "<rootDir>/dist/implementations/**/*.ts",
+    "<rootDir>/src/implementations/**/*.ts",
     "!<rootDir>/src/implementations/**/index.ts",
 
     // Disabled because we don't want it to end up in coverage report,
