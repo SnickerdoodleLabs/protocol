@@ -41,6 +41,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryRepository: IQueryRepository,
   ) {}
 
+  // TODO: rename this method as it's not getting the previews from insight platform.
   public getPreviews(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
@@ -64,6 +65,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           this.queryRepository,
         );
 
+        // TODO: user SDQLQueryUtils to extract q1, q2...query identifiers and c1, c2, compensation identifiers.
         return ResultUtils.combine([
           this.identifyQueries(astTree, astEvaluator, dataPermissions),
           this.evalCompensations(astTree, astEvaluator, dataPermissions),
