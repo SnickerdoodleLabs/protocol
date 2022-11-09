@@ -44,6 +44,10 @@ import {
   CeramicStreamID,
   EarnedReward,
   chainConfig,
+  AccountIndexingError,
+  IAccountIndexing,
+  IAccountIndexingType,
+  getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -78,6 +82,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   private _lastNftUpdate = 0;
 
   public constructor(
+    @inject(IAccountIndexingType) protected accountIndexing: IAccountIndexing,
     @inject(IAccountNFTsType)
     protected accountNFTs: IAccountNFTs,
     @inject(IAccountBalancesType) protected accountBalances: IAccountBalances,
@@ -407,19 +412,23 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+  public getAccountBalances(
+    refresh?: boolean,
+  ): ResultAsync<IEVMBalance[], PersistenceError> {
     return ResultUtils.combine([
       this.waitForRestore(),
       this.configProvider.getConfig(),
     ]).andThen(([key, config]) => {
       const currTime = new Date().getTime();
       if (
+        !refresh &&
         this._balances != undefined &&
         currTime - this._lastBalanceUpdate <
           config.accountBalancePollingIntervalMS
       ) {
         return this._balances;
       }
+
       this._balances = this.pollBalances().mapErr(
         (e) => new PersistenceError(`${e.name}: ${e.message}`),
       );
@@ -498,18 +507,22 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  public getAccountNFTs(
+    refresh?: boolean,
+  ): ResultAsync<IEVMNFT[], PersistenceError> {
     return ResultUtils.combine([
       this.waitForRestore(),
       this.configProvider.getConfig(),
     ]).andThen(([key, config]) => {
       const currTime = new Date().getTime();
       if (
+        !refresh &&
         this._nfts != undefined &&
         currTime - this._lastNftUpdate < config.accountNFTPollingIntervalMS
       ) {
         return this._nfts;
       }
+
       this._nfts = this.pollNFTs().mapErr(
         (e) => new PersistenceError("error fetching NFTs", e),
       );
@@ -744,6 +757,18 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public getEVMTransactions(
     filter?: EVMTransactionFilter,
+    refresh?: boolean,
+  ): ResultAsync<EVMTransaction[], PersistenceError> {
+    if (refresh) {
+      return this.pollTransactions().andThen(() =>
+        this._getStoredTransactions(filter),
+      );
+    }
+    return this._getStoredTransactions(filter);
+  }
+
+  private _getStoredTransactions(
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError> {
     return this.waitForRestore().andThen(() => {
       return this.volatileStorage
@@ -755,6 +780,90 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
           return transactions.filter((value) => filter.matches(value));
         });
+    });
+  }
+
+  public pollTransactions(): ResultAsync<void, PersistenceError> {
+    // Grab the linked accounts and the config
+    return this.getAccounts()
+      .andThen((linkedAccounts) => {
+        // Limit it to only EVM linked accounts
+        const evmAccounts = linkedAccounts.filter((la) => {
+          // Get the chainInfo for the linked account
+          const chainInfo = getChainInfoByChain(la.sourceChain);
+          return chainInfo.chainTechnology == EChainTechnology.EVM;
+        });
+
+        // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
+        // config.chainInformation is the list of supported chains,
+        return ResultUtils.combine(
+          evmAccounts.map((linkedAccount) => {
+            return ResultUtils.combine(
+              Array.from(chainConfig.keys()).map((chainId) => {
+                return this.getLatestTransactionForAccount(
+                  chainId,
+                  linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                ).andThen((tx) => {
+                  // TODO: Determine cold start timestamp
+                  let startTime = UnixTimestamp(0);
+                  if (tx != null && tx.timestamp != null) {
+                    startTime = tx.timestamp;
+                  }
+
+                  return this.getLatestTransactions(
+                    linkedAccount.sourceAccountAddress as EVMAccountAddress,
+                    startTime,
+                    chainId,
+                  );
+                });
+              }),
+            );
+          }),
+        );
+      })
+      .andThen((transactionsArr) => {
+        const transactions = transactionsArr.flat(2);
+        return this.addEVMTransactions(transactions); // let's not call if empty?
+      })
+      .mapErr((e) => new PersistenceError("error polling transactions", e));
+  }
+
+  protected getLatestTransactions(
+    accountAddress: EVMAccountAddress,
+    timestamp: UnixTimestamp,
+    chainId: ChainId,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
+    return ResultUtils.combine([
+      this.accountIndexing.getEVMTransactionRepository(),
+      this.accountIndexing.getSimulatorEVMTransactionRepository(),
+    ]).andThen(([evmRepo, simulatorRepo]) => {
+      // Get the chain info for the transaction
+      const chainInfo = getChainInfoByChainId(chainId);
+
+      if (chainInfo == null) {
+        this.logUtils.error(`No available chain info for chain ${chainId}`);
+        return okAsync([]);
+      }
+
+      switch (chainInfo.indexer) {
+        case EIndexer.EVM:
+          return evmRepo.getEVMTransactions(
+            chainId,
+            accountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Simulator:
+          return simulatorRepo.getEVMTransactions(
+            chainId,
+            accountAddress,
+            new Date(timestamp * 1000),
+          );
+        default:
+          this.logUtils.error(
+            `No available indexer repository for chain ${chainId}`,
+          );
+          return okAsync([]);
+      }
     });
   }
 

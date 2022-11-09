@@ -103,7 +103,9 @@ export interface IDataWalletPersistence {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
-  addEarnedRewards(rewards: EarnedReward[]): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   /**
@@ -144,10 +146,14 @@ export interface IDataWalletPersistence {
   ): ResultAsync<void, PersistenceError>;
   getEVMTransactions(
     filter?: EVMTransactionFilter,
+    refresh?: boolean,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
+  pollTransactions(): ResultAsync<void, PersistenceError>;
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getAccountBalances(
+    refresh?: boolean,
+  ): ResultAsync<IEVMBalance[], PersistenceError>;
+  getAccountNFTs(refresh?: boolean): ResultAsync<IEVMNFT[], PersistenceError>;
 
   setLatestBlockNumber(
     contractAddress: EVMContractAddress,
