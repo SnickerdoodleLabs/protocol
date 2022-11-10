@@ -232,7 +232,7 @@ const CampaignPopup: FC = () => {
               mt={2}
             >
               <Box>
-                <img width={244} height={145} src={invitationMeta.image} />
+                <img width="auto" height={145} src={invitationMeta.image} />
               </Box>
             </Box>
             <Box
