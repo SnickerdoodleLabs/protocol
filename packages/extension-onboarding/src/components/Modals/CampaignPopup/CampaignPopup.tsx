@@ -229,7 +229,7 @@ const CampaignPopup: FC = () => {
               mt={2}
             >
               <Box>
-                <img width={244} height={145} src={invitationMeta.image} />
+                <img width="auto" height={145} src={invitationMeta.image} />
               </Box>
             </Box>
             <Box
@@ -297,7 +297,7 @@ const CampaignPopup: FC = () => {
                   onClick={onClaimClick}
                   className={classes.primaryButton}
                 >
-                 Opt-in
+                  Opt-in
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 17 16"
