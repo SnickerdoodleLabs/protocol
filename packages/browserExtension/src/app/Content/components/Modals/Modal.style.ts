@@ -22,7 +22,7 @@ export const useGenericModalStyles = makeStyles((theme) =>
       minHeight: "50vh",
       flexDirection: "column",
       alignItems: "center",
-      padding: "unset",
+      padding: "unset !important",
     },
     image: {
       maxWidth: 204,
