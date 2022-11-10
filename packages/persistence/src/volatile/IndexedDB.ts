@@ -164,6 +164,7 @@ export class IndexedDB {
         const promise = new Promise((resolve, reject) => {
           // console.log("creating promise", obj);
           try {
+            const store = tx.objectStore(name);
             const request = store.put(obj);
             request.onsuccess = (event) => {
               resolve(undefined);
@@ -180,7 +181,6 @@ export class IndexedDB {
             console.log("error obj", obj);
             console.error("error", e);
             tx.abort();
-            clearTimeout(timeout);
             reject(new PersistenceError("Error updating object store", e));
           }
         });
