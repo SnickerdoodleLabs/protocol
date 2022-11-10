@@ -20,6 +20,7 @@ import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constant
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 
 declare const window: IWindowWithSdlDataWallet;
 const CampaignPopup: FC = () => {
@@ -29,6 +30,7 @@ const CampaignPopup: FC = () => {
   const [open, setOpen] = React.useState(true);
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
   const { invitationInfo } = useAppContext();
+  const { setVisualAlert } = useNotificationContext();
 
   useEffect(() => {
     getInvitationData();
@@ -126,6 +128,7 @@ const CampaignPopup: FC = () => {
       })
       .map(() => {
         setLoadingStatus(false);
+        setVisualAlert(true);
         setModal({
           modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
           onPrimaryButtonClick: () => {},
@@ -297,7 +300,7 @@ const CampaignPopup: FC = () => {
                   onClick={onClaimClick}
                   className={classes.primaryButton}
                 >
-                 Opt-in
+                  Opt-in
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 17 16"
