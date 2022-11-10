@@ -1,6 +1,7 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import { injectable, inject } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountIndexerPoller } from "@core/interfaces/api/index.js";
 import {
@@ -22,18 +23,24 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
   ) {}
 
   public initialize(): ResultAsync<void, never> {
-    return this.configProvider.getConfig().map((config) => {
+    return this.configProvider.getConfig().andThen((config) => {
       setInterval(() => {
         this.monitoringService.pollTransactions().mapErr((e) => {
           this.logUtils.error(e);
         });
       }, config.accountIndexingPollingIntervalMS);
+      this.monitoringService
+        .pollTransactions()
+        .mapErr((e) => this.logUtils.error(e));
 
       setInterval(() => {
         this.monitoringService.pollBackups().mapErr((e) => {
           this.logUtils.error(e);
         });
       }, config.dataWalletBackupIntervalMS);
+      this.monitoringService
+        .pollBackups()
+        .mapErr((e) => this.logUtils.error(e));
 
       // setInterval(() => {
       //   this.monitoringService.pollBalances().mapErr((e) => {
@@ -46,6 +53,8 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
       //     this.logUtils.error(e);
       //   });
       // }, config.accountNFTPollingIntervalMS);
+
+      return okAsync(undefined);
     });
   }
 }
