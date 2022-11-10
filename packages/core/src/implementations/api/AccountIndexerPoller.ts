@@ -38,8 +38,6 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this.contextProvider.getContext(),
-      this.monitoringService.pollTransactions(),
-      this.monitoringService.pollBackups(),
     ]).map(([config, context]) => {
       // Any time we add an account, we should poll the transactions
       context.publicEvents.onAccountAdded.subscribe(() => {
@@ -60,6 +58,15 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         this.monitoringService.pollTransactions().mapErr((e) => {
           this.logUtils.error(e);
         });
+      });
+
+      // When we startup, poll backups and transactions. However, we don't want the initialization
+      // to fail if these polls fail, so we have specific error handling
+      this.monitoringService.pollTransactions().mapErr((e) => {
+        this.logUtils.error(e);
+      });
+      this.monitoringService.pollBackups().mapErr((e) => {
+        this.logUtils.error(e);
       });
 
       // Set up some intervals for polling transactions and backups
