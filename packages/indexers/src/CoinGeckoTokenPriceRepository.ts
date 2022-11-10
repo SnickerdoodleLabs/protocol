@@ -14,9 +14,9 @@ import {
   TokenInfo,
 } from "@snickerdoodlelabs/objects";
 import {
-  IVolatileStorageFactory,
-  IVolatileStorageFactoryType,
-  IVolatileStorageTable,
+  ELocalStorageKey,
+  IVolatileStorage,
+  IVolatileStorageType,
 } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -27,8 +27,6 @@ import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
 } from "@indexers/IIndexerConfigProvider.js";
-
-const TABLE_NAME = "coins";
 
 interface ITokenHistoryResponse {
   id: string;
@@ -55,22 +53,14 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     AccountIndexingError
   >;
 
-  private _tokenInfoStore?: ResultAsync<
-    IVolatileStorageTable,
-    PersistenceError
-  >;
-
-  private _initialized?: ResultAsync<
-    IVolatileStorageTable,
-    AccountIndexingError
-  >;
+  private _initialized?: ResultAsync<void, AccountIndexingError>;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(IVolatileStorageFactoryType)
-    protected volatileStorageFactory: IVolatileStorageFactory,
+    @inject(IVolatileStorageType)
+    protected volatileStorage: IVolatileStorage,
   ) {}
 
   public getTokenInfo(
@@ -78,11 +68,11 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     contractAddress: TokenAddress,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
     return this._getTokens()
-      .andThen((tokenStore) => {
-        return tokenStore.getObject<TokenInfo>(TABLE_NAME, [
-          chainId.toString(),
-          contractAddress,
-        ]);
+      .andThen(() => {
+        return this.volatileStorage.getObject<TokenInfo>(
+          ELocalStorageKey.COIN_INFO,
+          [chainId.toString(), contractAddress],
+        );
       })
       .mapErr((e) => new AccountIndexingError("error fetching token info", e));
   }
@@ -158,19 +148,13 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     ].join("-");
   }
 
-  private _getTokens(): ResultAsync<
-    IVolatileStorageTable,
-    AccountIndexingError
-  > {
+  private _getTokens(): ResultAsync<void, AccountIndexingError> {
     if (this._initialized) {
       return this._initialized;
     }
 
-    this._initialized = ResultUtils.combine([
-      this._getAssetPlatforms(),
-      this._getTokenInfoStore(),
-    ])
-      .andThen(([platforms, store]) => {
+    this._initialized = this._getAssetPlatforms()
+      .andThen((platforms) => {
         return this.ajaxUtils
           .get<
             {
@@ -205,39 +189,22 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                       addr,
                     );
 
-                    results.push(store.putObject(TABLE_NAME, tokenInfo));
+                    results.push(
+                      this.volatileStorage.putObject(
+                        ELocalStorageKey.COIN_INFO,
+                        tokenInfo,
+                      ),
+                    );
                   }
                 }
 
                 return ResultUtils.combine(results);
               }),
-            ).map(() => store);
+            ).map(() => undefined);
           });
       })
       .mapErr((e) => new AccountIndexingError("error storing token info", e));
     return this._initialized;
-  }
-
-  private _getTokenInfoStore(): ResultAsync<
-    IVolatileStorageTable,
-    PersistenceError
-  > {
-    if (this._tokenInfoStore) {
-      return this._tokenInfoStore;
-    }
-
-    this._tokenInfoStore = this.volatileStorageFactory.getStore({
-      name: "tokenInfo",
-      schema: [
-        {
-          name: TABLE_NAME,
-          keyPath: ["chain", "address"],
-          autoIncrement: false,
-        },
-      ],
-    });
-    console.log(this._tokenInfoStore);
-    return this._tokenInfoStore;
   }
 
   private _getAssetPlatforms(): ResultAsync<

@@ -41,12 +41,11 @@ import {
   isAccountValidForChain,
   AccountAddress,
   SolanaAccountAddress,
-  WalletNFT,
-  isAccountValidForChain,
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
   TokenAddress,
   TransactionFilter,
+  getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -103,7 +102,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.resolveRestore = resolve;
     });
   }
-  
+
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
@@ -113,7 +112,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       .getTokenPrice(chainId, address, date)
       .mapErr((e) => new PersistenceError("unable to fetch token price", e));
   }
-  
+
   private _checkAndRetrieveValue<T>(
     key: ELocalStorageKey,
     defaultVal: T,

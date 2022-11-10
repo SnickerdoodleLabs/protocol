@@ -70,6 +70,7 @@ import {
   TokenAddress,
   TokenBalance,
   IDynamicRewardParameter,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,

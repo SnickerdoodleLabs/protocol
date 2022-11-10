@@ -19,4 +19,5 @@ export enum ELocalStorageKey {
   LATEST_BLOCK = "SD_LatestBlock",
   EARNED_REWARDS = "SD_EarnedRewards",
   ACCEPTED_INVITATIONS = "SD_OptedInAccounts",
+  COIN_INFO = "SD_CoinInfo",
 }
