@@ -9,12 +9,13 @@ import {
   Typography,
 } from "@material-ui/core";
 import Browser from "webextension-polyfill";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState, memo } from "react";
 import { useStyles } from "@extension-onboarding/components/CustomizedAlert/CustomizedAlert.style";
 import {
   EAlertSeverity,
   SEVERITY_COLORS,
 } from "@extension-onboarding/components/CustomizedAlert/CustomizedAlert.constants";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 
 export interface State extends SnackbarOrigin {
   open: boolean;
@@ -29,6 +30,7 @@ const CustomizedAlert: FC<ICustomizedAlertProps> = ({
   onClose,
   severity = EAlertSeverity.SUCCESS,
 }) => {
+  const {} = useNotificationContext();
   const classes = useStyles();
 
   const handleClose = () => {
@@ -37,7 +39,7 @@ const CustomizedAlert: FC<ICustomizedAlertProps> = ({
 
   return (
     <Snackbar
-      TransitionComponent={(props) => <Slide {...props} direction="down" />}
+      disableWindowBlurListener
       autoHideDuration={5000}
       open={true}
       className={classes.container}
@@ -56,4 +58,4 @@ const CustomizedAlert: FC<ICustomizedAlertProps> = ({
   );
 };
 
-export default CustomizedAlert;
+export default memo(CustomizedAlert);

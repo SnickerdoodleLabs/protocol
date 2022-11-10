@@ -56,7 +56,6 @@ export const useStyles = makeStyles((theme) => ({
   selectAccount: {
     width: 260,
     height: 55,
-    border: "1px solid #D9D9D9",
     borderRadius: 8,
     fontSize: 14,
     fontWeight: 500,

@@ -1,3 +1,4 @@
+import campaignIcon from "@extension-onboarding/assets/icons/campaign.svg";
 import portfolioIcon from "@extension-onboarding/assets/icons/portfolio.svg";
 import rewardsIcon from "@extension-onboarding/assets/icons/rewards.svg";
 import settingsIcon from "@extension-onboarding/assets/icons/settings.svg";
@@ -41,7 +42,7 @@ export const routes: IRoute[] = [
     subroutes: [{ title: "My Rewards", screen: EScreens.OWNED_REWARDS }],
   },
   {
-    icon: rewardsIcon,
+    icon: campaignIcon,
     title: "Campaigns",
     screen: null,
     subroutes: [
