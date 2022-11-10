@@ -8,12 +8,12 @@ import {
   PageInvitation,
   SiteVisit,
   LinkedAccount,
-  EligibleReward,
   EarnedReward,
   IDynamicRewardParameter,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
+  AccountIndexingError,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -91,6 +91,7 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<
     void,
     | PersistenceError
+    | AccountIndexingError
     | AjaxError
     | BlockchainProviderError
     | UninitializedError

@@ -46,6 +46,7 @@ import {
   EarnedReward,
   IpfsCID,
   ERewardType,
+  AccountIndexingError,
 } from "@snickerdoodlelabs/objects";
 import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
 import { BigNumber } from "ethers";
@@ -641,6 +642,7 @@ function setMaxCapacity(): ResultAsync<void, Error | ConsentContractError> {
 function unlockCore(): ResultAsync<
   void,
   | UnsupportedLanguageError
+  | AccountIndexingError
   | PersistenceError
   | AjaxError
   | BlockchainProviderError

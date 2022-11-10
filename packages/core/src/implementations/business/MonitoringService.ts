@@ -1,24 +1,11 @@
 import { ILogUtilsType, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   SiteVisit,
-  IAccountIndexing,
-  IAccountIndexingType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  EVMAccountAddress,
-  ChainId,
   AccountIndexingError,
-  EVMTransaction,
-  EIndexer,
-  UnixTimestamp,
   AjaxError,
   PersistenceError,
-  IAccountBalancesType,
-  IAccountBalances,
-  IAccountNFTsType,
-  IAccountNFTs,
-  getChainInfoByChain,
-  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";

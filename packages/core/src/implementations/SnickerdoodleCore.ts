@@ -69,6 +69,7 @@ import {
   CeramicStreamID,
   EarnedReward,
   IDynamicRewardParameter,
+  AccountIndexingError,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -231,12 +232,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   ): ResultAsync<
     void,
     | PersistenceError
+    | AccountIndexingError
     | AjaxError
-    | BlockchainProviderError
     | UninitializedError
+    | BlockchainProviderError
+    | UnsupportedLanguageError
     | CrumbsContractError
     | InvalidSignatureError
-    | UnsupportedLanguageError
     | MinimalForwarderContractError
   > {
     // Get all of our indexers and initialize them

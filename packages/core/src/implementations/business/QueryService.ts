@@ -220,39 +220,39 @@ export class QueryService implements IQueryService {
         consentContractAddress,
       ),
     ]).andThen(([context, config, consentToken]) => {
-      return this.validateContextConfig(
-        context as CoreContext,
-        config,
-        consentToken,
-      ).andThen(() => {
-        return this.queryParsingEngine
-          .handleQuery(query, consentToken!.dataPermissions, rewardParameters)
-          .andThen((maps) => {
-            const maps2 = maps as [InsightString[], EligibleReward[]];
-            const insights = maps2[0];
-            const rewards = maps2[1];
+      return this.validateContextConfig(context, config, consentToken)
+        .andThen(() => {
+          return this.queryParsingEngine.handleQuery(
+            query,
+            consentToken!.dataPermissions,
+            rewardParameters,
+          );
+        })
+        .andThen((maps) => {
+          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const insights = maps2[0];
+          const rewards = maps2[1];
 
-            return this.insightPlatformRepo
-              .deliverInsights(
-                context.dataWalletAddress!,
-                consentContractAddress,
-                query.cid,
-                insights,
-                context.dataWalletKey!,
-                config.defaultInsightPlatformBaseUrl,
-                rewardParameters,
-              )
-              .map((earnedRewards) => {
-                console.log("insight delivery api call done");
-                console.log("Earned Rewards: ", earnedRewards);
-                /* For Direct Rewards, add EarnedRewards to the wallet */
-                this.persistenceRepo.addEarnedRewards(earnedRewards);
-                /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
-                /* Show Lazy Rewards in rewards tab? */
-                /* Web2 rewards are also EarnedRewards, TBD */
-              });
-          });
-      });
+          return this.insightPlatformRepo.deliverInsights(
+            context.dataWalletAddress!,
+            consentContractAddress,
+            query.cid,
+            insights,
+            context.dataWalletKey!,
+            config.defaultInsightPlatformBaseUrl,
+            rewardParameters,
+          );
+        })
+        .andThen((earnedRewards) => {
+          // Let the world know we got rewards!
+          context.publicEvents.onQueryProcessed.next(earnedRewards);
+
+          /* For Direct Rewards, add EarnedRewards to the wallet */
+          return this.persistenceRepo.addEarnedRewards(earnedRewards);
+          /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
+          /* Show Lazy Rewards in rewards tab? */
+          /* Web2 rewards are also EarnedRewards, TBD */
+        });
     });
   }
 
