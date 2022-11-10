@@ -21,7 +21,7 @@ import {
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { urlJoin, urlJoinP } from "url-join-ts";
+import { urlJoinP } from "url-join-ts";
 
 import {
   IIndexerConfigProviderType,
@@ -71,7 +71,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
       .andThen(() => {
         return this.volatileStorage.getObject<TokenInfo>(
           ELocalStorageKey.COIN_INFO,
-          [chainId.toString(), contractAddress],
+          [chainId, contractAddress],
         );
       })
       .mapErr((e) => new AccountIndexingError("error fetching token info", e));
