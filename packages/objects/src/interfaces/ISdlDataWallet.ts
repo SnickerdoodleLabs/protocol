@@ -3,12 +3,14 @@ import { EventEmitter } from "events";
 import { ResultAsync } from "neverthrow";
 
 import {
+  EarnedReward,
   LinkedAccount,
   TokenBalance,
   WalletNFT,
 } from "@objects/businessObjects";
-import { EChain, EWalletDataType } from "@objects/enum";
+import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
+import { IScamFilterPreferences } from "@objects/interfaces/IScamFilterPreferences";
 import {
   AccountAddress,
   Age,
@@ -84,6 +86,11 @@ export interface ISdlDataWallet extends EventEmitter {
   setDefaultPermissions(
     dataTypes: EWalletDataType[],
   ): ResultAsync<void, JsonRpcError>;
+  getScamFilterSettings(): ResultAsync<IScamFilterPreferences, JsonRpcError>;
+  setScamFilterSettings(
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
+  ): ResultAsync<void, JsonRpcError>;
   setDefaultPermissionsToAll(): ResultAsync<void, JsonRpcError>;
   acceptInvitation(
     dataTypes: EWalletDataType[] | null,
@@ -100,4 +107,16 @@ export interface ISdlDataWallet extends EventEmitter {
     chain: EChain,
     languageCode?: LanguageCode,
   ): ResultAsync<void, JsonRpcError>;
+
+  checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, JsonRpcError>;
+
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, JsonRpcError>;
+
+  getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError>;
 }

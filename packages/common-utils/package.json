@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/common-utils",
-  "version": "0.0.13",
+  "version": "0.0.15",
   "description": "Common utils classes used in snickerdoodlelabs projects",
   "license": "MIT",
   "repository": {
@@ -35,7 +35,7 @@
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "prepare": "yarn build",
     "prepublish": "yarn build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
   },
   "type": "module",
   "module": "./dist/index.js",
@@ -46,8 +46,8 @@
     "axios": "^0.27.2",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
-    "neverthrow": "^4.3.1",
-    "neverthrow-result-utils": "^1.0.2",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
     "pino": "^8.1.0",
     "tweetnacl": "^1.0.3"
   }

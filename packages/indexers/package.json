@@ -30,7 +30,7 @@
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" lib",
     "prepare": "yarn build",
     "test": "yarn test:ci",
-    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests",
     "test:watch": "npx jest --watch --color --detectOpenHandles"
   },
   "type": "module",
@@ -41,8 +41,8 @@
     "@snickerdoodlelabs/persistence": "workspace:^",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
-    "neverthrow": "^4.3.1",
-    "neverthrow-result-utils": "^1.0.2",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
     "reflect-metadata": "^0.1.13",
     "url-join-ts": "^1.0.5"
   }

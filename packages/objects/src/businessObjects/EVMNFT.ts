@@ -1,4 +1,4 @@
-import { WalletNFT } from "@objects/businessObjects";
+import { WalletNFT } from "@objects/businessObjects/WalletNFT";
 import { EChainTechnology } from "@objects/enum";
 import {
   EVMContractAddress,

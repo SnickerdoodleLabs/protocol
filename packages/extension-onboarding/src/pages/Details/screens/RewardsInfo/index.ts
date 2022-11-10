@@ -1,1 +1,0 @@
-export { default } from "@extension-onboarding/pages/Details/screens/RewardsInfo/RewardsInfo";

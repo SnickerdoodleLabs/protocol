@@ -117,7 +117,9 @@ export interface IAccountService {
   ): ResultAsync<void, PersistenceError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
-  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
 
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;

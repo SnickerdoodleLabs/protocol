@@ -1,6 +1,7 @@
 import {
   AccountAddress,
   DataWalletAddress,
+  EarnedReward,
   EChain,
   EVMAccountAddress,
   WalletNFT,
@@ -34,6 +35,16 @@ export class AccountRepository implements IAccountRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
+
+  public getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.getEarnedRewards().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
   public getDataWalletForAccount(
     accountAddress: AccountAddress,
     signature: Signature,

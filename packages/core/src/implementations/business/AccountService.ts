@@ -544,10 +544,10 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getEarnedRewards();
   }
 
-  public addEarnedReward(
-    reward: EarnedReward,
+  public addEarnedRewards(
+    rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addEarnedReward(reward);
+    return this.dataWalletPersistence.addEarnedRewards(rewards);
   }
 
   public getTranactions(
