@@ -79,7 +79,7 @@ export class QueryService implements IQueryService {
 
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
+    queryCID: IpfsCID,
   ): ResultAsync<
     void,
     | ConsentContractError
@@ -94,11 +94,11 @@ export class QueryService implements IQueryService {
   > {
     // Get the IPFS data for the query. This is just "Get the query";
     // Cache
-    // if (!this.safeUpdateQueryContractMap(queryId, consentContractAddress)) {
-    //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryId}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryId)}`)); ))
+    // if (!this.safeUpdateQueryContractMap(queryCID, consentContractAddress)) {
+    //   return errAsync(new ConsentContractError(`Duplicate contract address for ${queryCID}. new = ${consentContractAddress}, existing = ${this.queryContractMap.get(queryCID)}`)); ))
     // }
     return ResultUtils.combine([
-      this.sdqlQueryRepo.getByCID(queryId),
+      this.sdqlQueryRepo.getByCID(queryCID),
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
       this.persistenceRepo.getAccounts(),
@@ -109,7 +109,7 @@ export class QueryService implements IQueryService {
         // Then we should store this CID and try again later
         // TODO: This is a temporary return
         return errAsync(
-          new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
+          new IPFSError(`CID ${queryCID} is not yet visible on IPFS`),
         );
       }
 

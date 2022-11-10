@@ -51,10 +51,10 @@ import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
 import { IConfigProvider } from "@core/interfaces/utilities/index.js";
 const AndrewContractAddress = EVMContractAddress("Andrew");
 const consentContractAddress = EVMContractAddress("Phoebe");
-const queryId = IpfsCID("Beep");
+const queryCID = IpfsCID("Beep");
 const queryContent = SDQLString("Hello world!");
-// const sdqlQuery = new SDQLQuery(queryId, queryContent);
-const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalanche1SchemaStr));
+// const sdqlQuery = new SDQLQuery(queryCID, queryContent);
+const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
 const insights: InsightString[] = [
   InsightString("Hello1"),
   InsightString("Hello2"),
@@ -92,7 +92,7 @@ class QueryServiceMocks {
       this.insightPlatformRepo.deliverInsights(
         dataWalletAddress,
         consentContractAddress,
-        queryId,
+        queryCID,
         insights,
         dataWalletKey,
         defaultInsightPlatformBaseUrl,
@@ -102,13 +102,13 @@ class QueryServiceMocks {
       this.insightPlatformRepo.deliverInsights(
         dataWalletAddress,
         consentContractAddress,
-        queryId,
+        queryCID,
         insightsError,
         dataWalletKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError("mocked error"))); // error
-    td.when(this.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+    td.when(this.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
     );
     td.when(
@@ -210,7 +210,7 @@ describe("processQuery tests", () => {
 //     const mocks = new QueryServiceMocks();
 //     const contextMock = new ContextProviderMock();
 //     const configMock = new ConfigProviderMock();
-//     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+//     td.when(mocks.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
 //       okAsync(sdqlQuery),
 //     );
 //     td.when(mocks.contextProvider.getContext()).thenReturn(
@@ -234,7 +234,7 @@ describe("processQuery tests", () => {
 //     const queryService = mocks.factory(); // new context
 //     const result = await queryService.onQueryPosted(
 //       AndrewContractAddress,
-//       queryId,
+//       queryCID,
 //     );
 //     console.log("result", result);
 //     expect(result).toBeDefined();
@@ -244,7 +244,7 @@ describe("processRewardsPreview tests", () => {
   test("processRewardsPreview: full run through", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+    td.when(mocks.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
     );
     td.when(mocks.contextProvider.getContext()).thenReturn(
@@ -290,13 +290,13 @@ describe("processRewardsPreview tests", () => {
       mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything()),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
-      mocks.sdqlQueryRepo.getByCID(queryId),
+      mocks.sdqlQueryRepo.getByCID(queryCID),
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig(),
     ]).andThen(([query, context, config]) => {
       if (query == null) {
         return errAsync(
-          new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
+          new IPFSError(`CID ${queryCID} is not yet visible on IPFS`),
         );
       }
       if (context.dataWalletAddress == null) {

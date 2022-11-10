@@ -44,7 +44,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public receivePreviews(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    queryCid: IpfsCID,
+    queryCID: IpfsCID,
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
@@ -52,7 +52,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     const signableData = {
       consentContractId: consentContractAddress,
       dataWallet: dataWalletAddress,
-      queryCID: queryCid,
+      queryCID: queryCID,
       queries: JSON.stringify(answeredQueries),
     } as Record<string, unknown>;
 
@@ -72,7 +72,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<EligibleReward[]>(url, {
           consentContractId: consentContractAddress,
-          queryCID: queryCid,
+          queryCID: queryCID,
           dataWallet: dataWalletAddress,
           queries: answeredQueries,
           signature: signature,
@@ -83,7 +83,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public deliverInsights(
     dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    queryCid: IpfsCID,
+    queryCID: IpfsCID,
     returns: InsightString[],
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
@@ -97,7 +97,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
     const signableData = {
       consentContractId: consentContractAddress,
-      queryCid: queryCid,
+      queryCID: queryCID,
       dataWallet: dataWalletAddress,
       returns: returnsString,
       rewardParameters: parameters,
@@ -117,10 +117,10 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         return this.ajaxUtils.post<EarnedReward[]>(url, {
           consentContractId: consentContractAddress,
-          queryCid: queryCid,
+          queryCID: queryCID,
           dataWallet: dataWalletAddress,
           returns: returns,
-          rewardParameters: parameters,
+          rewardParameters: rewardParameters,
           signature: signature,
         });
       });

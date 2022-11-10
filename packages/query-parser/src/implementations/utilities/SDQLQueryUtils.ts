@@ -169,9 +169,9 @@ export class SDQLQueryUtils {
   }
 
   protected getQueryPermissionChecks(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> []{
-      /// returns an array of check results where each check resolves to a queryId if permmission is given or null otherwise.
+      /// returns an array of check results where each check resolves to a queryCID if permmission is given or null otherwise.
       const checks: ResultAsync<SDQL_Name | null, never> [] = [];
-      for (const [queryId, query] of parser.queries) {
+      for (const [queryCID, query] of parser.queries) {
           checks.push(this.queryIdIfPermitted(parser, query, givenPermissions));
       }
 
