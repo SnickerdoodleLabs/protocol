@@ -10,8 +10,8 @@ export interface IPersistenceConfig {
   supportedChains: ChainId[];
   accountBalancePollingIntervalMS: number;
   accountNFTPollingIntervalMS: number;
-  chainInformation: Map<ChainId, ChainInformation>;
   backupChunkSizeTarget: number;
   ceramicModelAliases: ModelAliases<ModelTypes>;
   ceramicNodeURL: URLString;
+  chainInformation: Map<ChainId, ChainInformation>;
 }

@@ -3,7 +3,6 @@ import { ResultAsync } from "neverthrow";
 import {
   Invitation,
   DataPermissions,
-  EVMNFT,
   SDQLQuery,
   PageInvitation,
   SiteVisit,
@@ -11,6 +10,8 @@ import {
   TokenBalance,
   WalletNFT,
   TokenAddress,
+  EarnedReward,
+  IDynamicRewardParameter,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -51,6 +52,7 @@ import {
   IpfsCID,
   LanguageCode,
   Signature,
+  TokenId,
   UnixTimestamp,
 } from "@objects/primitives";
 
@@ -265,6 +267,13 @@ export interface ISnickerdoodleCore {
     | IPFSError
   >;
 
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     | UninitializedError
@@ -290,6 +299,7 @@ export interface ISnickerdoodleCore {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -320,6 +330,8 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | PersistenceError
   >;
+
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 

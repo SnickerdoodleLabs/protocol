@@ -28,8 +28,8 @@ import {
   BigNumberString,
   TokenBalance,
   WalletNFT,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -40,6 +40,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { parse } from "tldts";
 import { Runtime } from "webextension-polyfill";
 
+import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 import { AsyncRpcResponseSender } from "@implementations/utilities";
 import { IRpcCallHandler } from "@interfaces/api";
 import {
@@ -60,6 +61,10 @@ import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
 } from "@interfaces/utilities";
+import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@interfaces/utilities/IScamFilterSettingsUtils";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
 import { EExternalActions, EInternalActions } from "@shared/enums";
@@ -86,6 +91,9 @@ import {
   ISetApplyDefaultPermissionsParams,
   IUnlinkAccountParams,
   IAcceptInvitationParams,
+  IScamFilterSettingsParams,
+  IGetConsentContractCIDParams,
+  ICheckInvitationStatusParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -107,6 +115,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IScamFilterSettingsUtilsType)
+    protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
   ) {}
 
   public async handleRpcCall(
@@ -140,6 +150,9 @@ export class RpcCallHandler implements IRpcCallHandler {
           this.getUnlockMessage(languageCode),
           res,
         ).call();
+      }
+      case EExternalActions.GET_EARNED_REWARDS: {
+        return new AsyncRpcResponseSender(this.getEarnedRewards(), res).call();
       }
       case EExternalActions.GET_ACCOUNTS:
       case EInternalActions.GET_ACCOUNTS: {
@@ -235,6 +248,23 @@ export class RpcCallHandler implements IRpcCallHandler {
         ).call();
       }
 
+      case EExternalActions.CHECK_INVITATION_STATUS: {
+        const { signature, consentAddress, tokenId } =
+          params as ICheckInvitationStatusParams;
+        return new AsyncRpcResponseSender(
+          this.checkInvitationStatus(consentAddress, signature, tokenId),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_CONTRACT_CID: {
+        const { consentAddress } = params as IGetConsentContractCIDParams;
+        return new AsyncRpcResponseSender(
+          this.getConsentContractCID(consentAddress),
+          res,
+        ).call();
+      }
+
       case EExternalActions.UNLINK_ACCOUNT: {
         const { accountAddress, chain, languageCode, signature } =
           params as IUnlinkAccountParams;
@@ -309,6 +339,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { dataTypes, id } = params as IAcceptInvitationByUUIDParams;
         return new AsyncRpcResponseSender(
           this.acceptInvitationByUUID(dataTypes, id),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_SCAM_FILTER_SETTINGS: {
+        return new AsyncRpcResponseSender(
+          this.getScamFilterSettings(),
+          res,
+        ).call();
+      }
+      case EExternalActions.SET_SCAM_FILTER_SETTINGS: {
+        const { isScamFilterActive, showMessageEveryTime } =
+          params as IScamFilterSettingsParams;
+        return new AsyncRpcResponseSender(
+          this.setScamFilterSettings(isScamFilterActive, showMessageEveryTime),
           res,
         ).call();
       }
@@ -465,6 +509,29 @@ export class RpcCallHandler implements IRpcCallHandler {
     });
   }
 
+  private checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
+    return this._getTokenId(tokenId).andThen((tokenId) => {
+      return this.invitationService.checkInvitationStatus(
+        new Invitation(
+          "" as DomainName,
+          consentAddress,
+          tokenId,
+          signature ?? null,
+        ),
+      );
+    });
+  }
+
+  private getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
+    return this.invitationService.getConsentContractCID(consentAddress);
+  }
+
   private _getTokenId(tokenId: BigNumberString | undefined) {
     if (tokenId) {
       return okAsync(TokenId(BigInt(tokenId)));
@@ -513,6 +580,21 @@ export class RpcCallHandler implements IRpcCallHandler {
     option: boolean,
   ): ResultAsync<void, ExtensionStorageError> {
     return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(option);
+  }
+  private setScamFilterSettings(
+    isScamFilterActive,
+    showMessageEveryTime,
+  ): ResultAsync<void, ExtensionStorageError> {
+    return this.scamFilterSettingsUtils.setScamFilterSettings(
+      isScamFilterActive,
+      showMessageEveryTime,
+    );
+  }
+  private getScamFilterSettings(): ResultAsync<
+    IScamFilterPreferences,
+    ExtensionStorageError
+  > {
+    return this.scamFilterSettingsUtils.getScamFilterSettings();
   }
 
   private rejectInvitation(
@@ -565,6 +647,13 @@ export class RpcCallHandler implements IRpcCallHandler {
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
     return this.accountService.getUnlockMessage(languageCode);
+  }
+
+  private getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountService.getEarnedRewards();
   }
 
   private getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {

@@ -17,7 +17,6 @@ import {
   Age,
   EmailAddressString,
   ChainId,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   GivenName,
@@ -102,7 +101,7 @@ export interface IDataWalletPersistence {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
-  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(rewards: EarnedReward[]): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   /**
@@ -145,14 +144,7 @@ export interface IDataWalletPersistence {
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
-  updateAccountBalances(
-    balances: TokenBalance[],
-  ): ResultAsync<TokenBalance[], PersistenceError>;
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
-
-  updateAccountNFTs(
-    nfts: WalletNFT[],
-  ): ResultAsync<WalletNFT[], PersistenceError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
 
   setLatestBlockNumber(

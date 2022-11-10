@@ -1,6 +1,7 @@
 import {
   AccountAddress,
   DataWalletAddress,
+  EarnedReward,
   EChain,
   WalletNFT,
   LanguageCode,
@@ -45,6 +46,7 @@ export interface IAccountService {
     languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError>;
+  getEarnedRewards(): ResultAsync<EarnedReward[], SnickerDoodleCoreError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

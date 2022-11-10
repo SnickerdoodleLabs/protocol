@@ -1,4 +1,3 @@
-// export * from "@core/interfaces/objects/SDQL/exceptions"
 export * from "@query-parser/interfaces/objects/AST_Contract.js";
 export * from "@query-parser/interfaces/objects/AST.js";
 export * from "@query-parser/interfaces/objects/AST_Logic.js";
