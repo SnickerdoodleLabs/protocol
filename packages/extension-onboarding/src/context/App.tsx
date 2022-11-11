@@ -77,7 +77,7 @@ export const AppContextProvider: FC = ({ children }) => {
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
   const [appMode, setAppMode] = useState<EAppModes>();
-  const { setAlert } = useNotificationContext();
+  const { setAlert, setVisualAlert } = useNotificationContext();
 
   const invitationInfo: IInvitationInfo = useMemo(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -163,6 +163,7 @@ export const AppContextProvider: FC = ({ children }) => {
     data: { dataWalletAddress: DataWalletAddress };
   }) => {
     getUserAccounts().map(() => {
+      setVisualAlert(true);
       setAlert({
         message: ALERT_MESSAGES.ACCOUNT_ADDED,
         severity: EAlertSeverity.SUCCESS,
@@ -181,6 +182,7 @@ export const AppContextProvider: FC = ({ children }) => {
         ) ?? null,
       chain: notification.data.linkedAccount.sourceChain,
     } as ILinkedAccount);
+    setVisualAlert(true);
     setAlert({
       message: ALERT_MESSAGES.ACCOUNT_ADDED,
       severity: EAlertSeverity.SUCCESS,
