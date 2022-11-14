@@ -1,12 +1,12 @@
 import "reflect-metadata";
 
-import { EVMContractAddress, EVMPrivateKey, IDynamicRewardParameter, InsightString, IpfsCID } from "@snickerdoodlelabs/objects";
+import { BigNumberString, EVMAccountAddress, EVMContractAddress, EVMPrivateKey, HexString, IDynamicRewardParameter, InsightString, IpfsCID, Signature } from "@snickerdoodlelabs/objects";
 
 import { CryptoUtilsMocks } from "@test-harness-test/mocks/CryptoUtilsMocks";
-import { insightDeliveryTypes, insightPreviewTypes, snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
+import { executeMetatransactionTypes, insightDeliveryTypes, insightPreviewTypes, snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
 
 
-// Parameters for insights/responses
+// Parameters for /insights/responses
 const consentContractAddress = EVMContractAddress(
     "0xE451980132E65465d0a498c53f0b5227326Dd73F"
 );
@@ -22,11 +22,21 @@ const returns = [
 const rewardParameters = [
 
 ] as IDynamicRewardParameter[];
-// Parameters for insights/responses/preview
+
+// Parameters for /insights/responses/preview
 const answeredQueries = [
     "some string"
 ] as InsightString[]; // pass to deliverInsights as "insigts".
 
+// Parameters for /metatransaction
+const accountAddress = EVMAccountAddress(
+    "0xE451980132E65465d0a498c53f0b5227326Dd73F"
+);
+const nonce = BigNumberString("1");
+const data = HexString("0x00123456789abcdf");
+const evmAddCrumbMetatransactionSignature = Signature(
+    "evmAddCrumbMetatransactionSignature"
+  );
 
 describe("Sign proper data for InsigtPlatform APIs", () => {
 
@@ -121,10 +131,62 @@ describe("Sign proper data for InsigtPlatform APIs", () => {
 
         console.log({
             consentContractId: consentContractAddress,
-            queryCid: queryCid,
+            queryCID: queryCid,
             dataWallet: derivedDWAddress,
             queries: answeredQueries,
             signature: signature,
         });
     });
+
+
+    test("/metatransaction", async () => {
+
+        const cryptoUtilMock = new CryptoUtilsMocks();
+        const cryptoUtils = cryptoUtilMock.factoryCryptoUtils();
+        
+        const generatedDataWalletKeyResult = await cryptoUtils.createEthereumPrivateKey();
+        const generatedDataWalletKey = generatedDataWalletKeyResult._unsafeUnwrap();
+
+        const derivedDWAddress = cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+            generatedDataWalletKey as EVMPrivateKey,
+        );
+
+        const signableData = {
+            dataWallet: derivedDWAddress,
+            accountAddress: accountAddress,
+            contractAddress: consentContractAddress,
+            nonce: nonce,
+            data: data,
+            metatransactionSignature: evmAddCrumbMetatransactionSignature,
+          } as Record<string, unknown>;
+
+        const signatureResult = await cryptoUtils.signTypedData(
+            snickerdoodleSigningDomain,
+            executeMetatransactionTypes,
+            signableData,
+            generatedDataWalletKey,
+        );
+        const signature = signatureResult._unsafeUnwrap();
+
+        const verifiedAccountAddressResult = await cryptoUtils.verifyTypedData(
+            snickerdoodleSigningDomain,
+            executeMetatransactionTypes,
+            signableData,
+            signature,
+        );
+        const verifiedAccountAddress = verifiedAccountAddressResult._unsafeUnwrap();
+        
+        expect(verifiedAccountAddress).toEqual(derivedDWAddress);
+
+        console.log({
+            dataWalletAddress: derivedDWAddress,
+            accountAddress: accountAddress,
+            contractAddress: consentContractAddress,
+            nonce: nonce,
+            data: data,
+            metatransactionSignature: evmAddCrumbMetatransactionSignature,
+            requestSignature: signature,
+        });
+    });
+
 });
