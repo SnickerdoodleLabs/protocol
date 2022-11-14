@@ -244,6 +244,7 @@ export class QueryService implements IQueryService {
               )
               .map((earnedRewards) => {
                 console.log("insight delivery api call done");
+                console.log("Earned Rewards: ", earnedRewards);
                 /* For Direct Rewards, add EarnedRewards to the wallet */
                 this.persistenceRepo.addEarnedRewards(earnedRewards);
                 /* TODO: Currenlty just adding direct rewards and will ignore the others for now */

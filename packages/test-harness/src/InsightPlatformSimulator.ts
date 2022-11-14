@@ -22,6 +22,7 @@ import {
   ERewardType,
   ChainId,
   ExpectedReward,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -83,14 +84,16 @@ export class InsightPlatformSimulator {
       console.log("Req is this: ", req.body);
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
-      const queryCid = IpfsCID(req.body.queryCid);
+      const queryCID = IpfsCID(req.body.queryCID);
+      // console.log("queryCid: ", queryCID);
+
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
       const queries = JSON.stringify(req.body.queries);
       const signature = Signature(req.body.signature);
 
       const value = {
         consentContractId,
-        queryCid,
+        queryCID,
         dataWallet,
         queries,
       };
@@ -142,13 +145,12 @@ export class InsightPlatformSimulator {
       console.log("Req is this: ", req.body);
       console.log("/insights/responses ");
 
-      console.log("req.body.consentContractId: ", req.body.consentContractId);
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCid = IpfsCID(req.body.queryCid);
+      // console.log("queryCid: ", queryCid);
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
       const returns = JSON.stringify(req.body.returns);
       const rewardParameters = JSON.stringify(req.body.rewardParameters);
-
       const signature = Signature(req.body.signature);
 
       const value = {
@@ -160,7 +162,6 @@ export class InsightPlatformSimulator {
       };
 
       this.logStream.write(JSON.stringify(req.body));
-
       return this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
@@ -169,11 +170,12 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
-          if (verificationAddress !== dataWallet) {
-            const err = new Error("`In bad wallet: ${verificationAddress}`");
-            console.error(err);
-            return errAsync(err);
-          }
+          // if (verificationAddress !== dataWallet) {
+
+          //   const err = new Error("`In bad wallet: ${verificationAddress}`");
+          //   console.error(err);
+          //   return errAsync(err);
+          // }
           return okAsync(null);
         })
         .andThen(() => {
@@ -191,7 +193,12 @@ export class InsightPlatformSimulator {
           return errAsync(" Wallet has no Consent Tokens");
         })
         .map(() => {
-          res.send("Insights received successfully!");
+          const earnedRewards: EarnedReward[] = [];
+          earnedRewards[0] = new EarnedReward(
+            queryCid,
+            ERewardType.Direct,
+          );
+          res.send(earnedRewards);
         })
         .mapErr((e) => {
           console.error(e);
