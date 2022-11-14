@@ -5,11 +5,16 @@ export const useStyles = makeStyles((theme) => ({
     borderRadius: 8,
     border: "1px solid #ECECEC",
     padding: 0,
+    width:"150px"
   },
   nftName: {
+    width: 115,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
     fontFamily: "Space Grotesk",
     fontWeight: 600,
-    fontSize: 14,
+    fontSize: 12,
     color: "rgba(35, 32, 57, 0.87)",
   },
   nftTokenId: {

@@ -1,9 +1,10 @@
 import { Brand, make } from "ts-brand";
 
+import { IChainTransaction } from "../interfaces/chains";
+
+import { IEVMBalance, ITokenBalance } from "@objects/interfaces";
 import { ChainId } from "@objects/primitives/ChainId";
 import { URLString } from "@objects/primitives/URLString";
-import { IEVMBalance, ITokenBalance } from "@objects/interfaces";
-import { IChainTransaction } from "../interfaces/chains";
 
 //#region types
 export type SDQL_Name = Brand<string, "SDQL_Name">;
@@ -52,8 +53,4 @@ export const SDQL_Callback = make<SDQL_Callback>();
 
 export type SDQL_Returns = Brand<Array<string>, "SDQL_Returns">;
 export const SDQL_Returns = make<SDQL_Returns>();
-
-export type SDQL_Compensations = Brand<Array<string>, "SDQL_Compensations">; // not sure if arrays are suppored in make
-export const SDQL_Compensations = make<SDQL_Compensations>();
-
 //#endregion

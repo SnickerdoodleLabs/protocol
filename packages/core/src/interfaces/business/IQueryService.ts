@@ -1,4 +1,7 @@
 import {
+  EligibleReward,
+  QueryExpiredError,
+  ServerRewardError,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -11,6 +14,7 @@ import {
   QueryFormatError,
   SDQLQuery,
   UninitializedError,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -20,17 +24,21 @@ export interface IQueryService {
     queryId: IpfsCID,
   ): ResultAsync<
     void,
-    | IPFSError
     | ConsentContractError
     | ConsentContractRepositoryError
     | UninitializedError
     | BlockchainProviderError
     | AjaxError
-    | ConsentError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | ServerRewardError
   >;
+
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError

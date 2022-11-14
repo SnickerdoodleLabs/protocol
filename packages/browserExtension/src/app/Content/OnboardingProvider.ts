@@ -5,7 +5,9 @@ import {
   Age,
   BigNumberString,
   CountryCode,
+  EarnedReward,
   EChain,
+  EInvitationStatus,
   EmailAddressString,
   EVMContractAddress,
   EWalletDataType,
@@ -19,7 +21,7 @@ import {
   UnixTimestamp,
   UUID,
 } from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine } from "json-rpc-engine";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
@@ -33,6 +35,7 @@ import {
   PORT_NOTIFICATION,
 } from "@shared/constants/ports";
 import { TNotification } from "@shared/types/notification";
+import { ResultAsync } from "neverthrow";
 
 const localStream = new LocalMessageStream({
   name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -66,7 +69,26 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
+  public getEarnedRewards(): ResultAsync<EarnedReward[], unknown> {
+    return coreGateway.getEarnedRewards();
+  }
 
+  public checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, JsonRpcError> {
+    return coreGateway.checkInvitationStatus(
+      consentAddress,
+      signature,
+      tokenId,
+    );
+  }
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, JsonRpcError> {
+    return coreGateway.getContractCID(consentAddress);
+  }
   public getState() {
     return coreGateway.getState();
   }
@@ -213,6 +235,15 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   }
   public getDataWalletAddress() {
     return coreGateway.getDataWalletAddress();
+  }
+  public getScamFilterSettings() {
+    return coreGateway.getScamFilterSettings();
+  }
+  public setScamFilterSettings(
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
+  ) {
+    return coreGateway.setScamFilterSettings(isScamFilterActive,showMessageEveryTime);
   }
 }
 

@@ -50,6 +50,8 @@ paths:
                 signature:
                   type: string
                   format: hex-string
+                rewardParameters:
+                  $ref: '#/components/schemas/RewardParameters'
               required:
                 - consentContractId
                 - queryId
@@ -282,3 +284,10 @@ components:
       required:
         - subquery
         - data
+        
+    RewardParameters:
+      type: array
+      items:
+        type: string
+        description: stringified version of IDynamicRewardParameter
+        example: “{\“recipientAddress\“:{\“type\“:\“address\“,\“value\“:\“0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266\“}}”
