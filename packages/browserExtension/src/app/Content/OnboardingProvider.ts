@@ -5,6 +5,7 @@ import {
   Age,
   BigNumberString,
   CountryCode,
+  EarnedReward,
   EChain,
   EInvitationStatus,
   EmailAddressString,
@@ -67,6 +68,9 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     streamMiddleware.events.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
+  }
+  public getEarnedRewards(): ResultAsync<EarnedReward[], unknown> {
+    return coreGateway.getEarnedRewards();
   }
 
   public checkInvitationStatus(
@@ -231,6 +235,15 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   }
   public getDataWalletAddress() {
     return coreGateway.getDataWalletAddress();
+  }
+  public getScamFilterSettings() {
+    return coreGateway.getScamFilterSettings();
+  }
+  public setScamFilterSettings(
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
+  ) {
+    return coreGateway.setScamFilterSettings(isScamFilterActive,showMessageEveryTime);
   }
 }
 

@@ -14,7 +14,7 @@
     "postCompile": "npx webpack",
     "prepare": "yarn build",
     "start": "node scripts/webserver.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests"
   },
   "types": "dist/index.d.ts",
   "dependencies": {
@@ -42,6 +42,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-google-login": "^5.2.2",
+    "react-lottie": "^1.2.3",
     "react-router-dom": "^6.3.0",
     "react-swipeable-views": "^0.14.0",
     "react-swipeable-views-utils": "^0.14.0",

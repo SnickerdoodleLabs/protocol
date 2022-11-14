@@ -7,5 +7,6 @@ export const insightDeliveryTypes: Record<string, TypedDataField[]> = {
     { name: "tokenId", type: "uint256" },
     { name: "dataWallet", type: "address" },
     { name: "returns", type: "string" },
+    { name: "rewardParameters", type: "string" },
   ],
 };

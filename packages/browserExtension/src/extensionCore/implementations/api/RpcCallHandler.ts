@@ -1,4 +1,8 @@
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   Age,
   Invitation,
   CountryCode,
@@ -24,7 +28,9 @@ import {
   AccountAddress,
   TokenId,
   BigNumberString,
+  EarnedReward,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import {
   AsyncJsonRpcEngineNextCallback,
@@ -35,6 +41,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { parse } from "tldts";
 import { Runtime } from "webextension-polyfill";
 
+import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 import { AsyncRpcResponseSender } from "@implementations/utilities";
 import { IRpcCallHandler } from "@interfaces/api";
 import {
@@ -55,6 +62,10 @@ import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
 } from "@interfaces/utilities";
+import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@interfaces/utilities/IScamFilterSettingsUtils";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
 import { EExternalActions, EInternalActions } from "@shared/enums";
@@ -81,6 +92,7 @@ import {
   ISetApplyDefaultPermissionsParams,
   IUnlinkAccountParams,
   IAcceptInvitationParams,
+  IScamFilterSettingsParams,
   IGetConsentContractCIDParams,
   ICheckInvitationStatusParams,
 } from "@shared/interfaces/actions";
@@ -90,11 +102,6 @@ import {
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-import { BigNumber } from "ethers";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
@@ -109,6 +116,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IScamFilterSettingsUtilsType)
+    protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
   ) {}
 
   public async handleRpcCall(
@@ -142,6 +151,9 @@ export class RpcCallHandler implements IRpcCallHandler {
           this.getUnlockMessage(languageCode),
           res,
         ).call();
+      }
+      case EExternalActions.GET_EARNED_REWARDS: {
+        return new AsyncRpcResponseSender(this.getEarnedRewards(), res).call();
       }
       case EExternalActions.GET_ACCOUNTS:
       case EInternalActions.GET_ACCOUNTS: {
@@ -328,6 +340,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { dataTypes, id } = params as IAcceptInvitationByUUIDParams;
         return new AsyncRpcResponseSender(
           this.acceptInvitationByUUID(dataTypes, id),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_SCAM_FILTER_SETTINGS: {
+        return new AsyncRpcResponseSender(
+          this.getScamFilterSettings(),
+          res,
+        ).call();
+      }
+      case EExternalActions.SET_SCAM_FILTER_SETTINGS: {
+        const { isScamFilterActive, showMessageEveryTime } =
+          params as IScamFilterSettingsParams;
+        return new AsyncRpcResponseSender(
+          this.setScamFilterSettings(isScamFilterActive, showMessageEveryTime),
           res,
         ).call();
       }
@@ -556,6 +582,21 @@ export class RpcCallHandler implements IRpcCallHandler {
   ): ResultAsync<void, ExtensionStorageError> {
     return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(option);
   }
+  private setScamFilterSettings(
+    isScamFilterActive,
+    showMessageEveryTime,
+  ): ResultAsync<void, ExtensionStorageError> {
+    return this.scamFilterSettingsUtils.setScamFilterSettings(
+      isScamFilterActive,
+      showMessageEveryTime,
+    );
+  }
+  private getScamFilterSettings(): ResultAsync<
+    IScamFilterPreferences,
+    ExtensionStorageError
+  > {
+    return this.scamFilterSettingsUtils.getScamFilterSettings();
+  }
 
   private rejectInvitation(
     id: UUID,
@@ -607,6 +648,13 @@ export class RpcCallHandler implements IRpcCallHandler {
     languageCode: LanguageCode,
   ): ResultAsync<string, SnickerDoodleCoreError> {
     return this.accountService.getUnlockMessage(languageCode);
+  }
+
+  private getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountService.getEarnedRewards();
   }
 
   private getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {

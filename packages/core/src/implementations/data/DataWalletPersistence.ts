@@ -76,6 +76,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   private restorePromise: Promise<void>;
   private resolveRestore: (() => void) | null = null;
 
+  private _balances?: ResultAsync<IEVMBalance[], PersistenceError>;
+  private _lastBalanceUpdate = 0;
+
+  private _nfts?: ResultAsync<IEVMNFT[], PersistenceError>;
+  private _lastNftUpdate = 0;
+
   public constructor(
     @inject(IAccountNFTsType)
     protected accountNFTs: IAccountNFTs,
@@ -219,19 +225,25 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public addEarnedReward(
-    reward: EarnedReward,
+  public addEarnedRewards(
+    rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen(() => {
-      return this.backupManagerProvider
-        .getBackupManager()
-        .andThen((backupManager) => {
-          return backupManager.addRecord(
-            ELocalStorageKey.EARNED_REWARDS,
-            reward,
-          );
-        });
-    });
+    return this.waitForUnlock()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              rewards.map((reward) => {
+                return backupManager.addRecord(
+                  ELocalStorageKey.EARNED_REWARDS,
+                  reward,
+                );
+              }),
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
   }
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
@@ -473,43 +485,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public updateAccountBalances(
-    balances: IEVMBalance[],
-  ): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this.storageUtils
-        .write(ELocalStorageKey.BALANCES, JSON.stringify(balances))
-        .andThen(() => {
-          return this.storageUtils
-            .write(ELocalStorageKey.BALANCES_LAST_UPDATE, new Date().getTime())
-            .andThen(() => {
-              return okAsync(balances);
-            });
-        });
-    });
-  }
-
   public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return ResultUtils.combine([
-        this.configProvider.getConfig(),
-        this._checkAndRetrieveValue<number>(
-          ELocalStorageKey.BALANCES_LAST_UPDATE,
-          0,
-        ),
-      ]).andThen(([config, lastUpdate]) => {
-        const currTime = new Date().getTime();
-        if (currTime - lastUpdate < config.accountBalancePollingIntervalMS) {
-          return this._checkAndRetrieveValue<IEVMBalance[]>(
-            ELocalStorageKey.BALANCES,
-            [],
-          );
-        }
-
-        return this.pollBalances().mapErr(
-          (e) => new PersistenceError(`${e.name}: ${e.message}`),
-        );
-      });
+    return ResultUtils.combine([
+      this.waitForRestore(),
+      this.configProvider.getConfig(),
+    ]).andThen(([key, config]) => {
+      const currTime = new Date().getTime();
+      if (
+        this._balances != undefined &&
+        currTime - this._lastBalanceUpdate <
+          config.accountBalancePollingIntervalMS
+      ) {
+        return this._balances;
+      }
+      this._balances = this.pollBalances().mapErr(
+        (e) => new PersistenceError(`${e.name}: ${e.message}`),
+      );
+      this._lastBalanceUpdate = currTime;
+      return this._balances;
     });
   }
 
@@ -543,9 +536,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           }),
         );
       })
-      .andThen((balancesArr) => {
-        const balances = balancesArr.flat(2);
-        return this.updateAccountBalances(balances);
+      .map((balancesArr) => {
+        return balancesArr.flat(2);
       });
   }
 
@@ -584,43 +576,23 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public updateAccountNFTs(
-    nfts: IEVMNFT[],
-  ): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return this.storageUtils
-        .write(ELocalStorageKey.NFTS, JSON.stringify(nfts))
-        .andThen(() => {
-          return this.storageUtils
-            .write(ELocalStorageKey.NFTS_LAST_UPDATE, new Date().getTime())
-            .andThen(() => {
-              return okAsync(nfts);
-            });
-        });
-    });
-  }
-
   public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
-      return ResultUtils.combine([
-        this.configProvider.getConfig(),
-        this._checkAndRetrieveValue<number>(
-          ELocalStorageKey.NFTS_LAST_UPDATE,
-          0,
-        ),
-      ]).andThen(([config, lastUpdate]) => {
-        const currTime = new Date().getTime();
-        if (currTime - lastUpdate < config.accountNFTPollingIntervalMS) {
-          return this._checkAndRetrieveValue<IEVMNFT[]>(
-            ELocalStorageKey.NFTS,
-            [],
-          );
-        }
-
-        return this.pollNFTs().mapErr(
-          (e) => new PersistenceError(`${e.name}: ${e.message}`),
-        );
-      });
+    return ResultUtils.combine([
+      this.waitForRestore(),
+      this.configProvider.getConfig(),
+    ]).andThen(([key, config]) => {
+      const currTime = new Date().getTime();
+      if (
+        this._nfts != undefined &&
+        currTime - this._lastNftUpdate < config.accountNFTPollingIntervalMS
+      ) {
+        return this._nfts;
+      }
+      this._nfts = this.pollNFTs().mapErr(
+        (e) => new PersistenceError("error fetching NFTs", e),
+      );
+      this._lastNftUpdate = currTime;
+      return this._nfts;
     });
   }
 
@@ -652,9 +624,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           }),
         );
       })
-      .andThen((nftArr) => {
-        const nfts = nftArr.flat(2);
-        return this.updateAccountNFTs(nfts);
+      .map((nftArr) => {
+        return nftArr.flat(2);
       });
   }
 
@@ -1008,20 +979,25 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         );
       })
       .andThen(() => {
-        return ResultUtils.combine([
-          this.backupManagerProvider.getBackupManager(),
-          this.configProvider.getConfig(),
-        ]).andThen(([backupManager, config]) => {
-          return backupManager.getNumUpdates().andThen((numUpdates) => {
-            // console.log("chunk", numUpdates, config.backupChunkSizeTarget);
-            if (numUpdates >= config.backupChunkSizeTarget) {
-              return backupManager.dump().andThen((backup) => {
-                return this.cloudStorage
-                  .putBackup(backup)
-                  .andThen(() => okAsync(backupManager.clear()));
-              });
-            }
+        return this._placeBackups();
+      })
+      .orElse((e) => {
+        this.logUtils.error("error loading backups", e);
+        return okAsync(undefined);
+      });
+  }
+
+  private _placeBackups(): ResultAsync<void, PersistenceError> {
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.popBackup().andThen((backup) => {
+          if (backup == null) {
             return okAsync(undefined);
+          }
+
+          return this.cloudStorage.putBackup(backup).andThen((streamID) => {
+            return this._placeBackups();
           });
         });
       });
