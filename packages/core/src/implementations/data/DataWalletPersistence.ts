@@ -620,6 +620,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<IChainTransaction[], PersistenceError> {
     for (let i = 0; i < incomingTransaction.length; i++) {
       let valueQuote = incomingTransaction[i].valueQuote;
+      console.log("IncomingTransaction is: ", incomingTransaction[i]);
       if (valueQuote == null || valueQuote == undefined) {
         valueQuote = 0;
       }
@@ -633,13 +634,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           BigNumberString("0"),
           BigNumberString("0"),
         ),
-        // {
-        //   "chainId": incomingTransaction[i].chainId,
-        //   "incomingCount": BigNumberString("1"),
-        //   "incomingValue": BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString()),
-        //   "outgoingCount": BigNumberString("0"),
-        //   "outgoingValue": BigNumberString("0")
-        // }
       );
     }
     for (let i = 0; i < outgoingTransaction.length; i++) {
