@@ -27,7 +27,9 @@
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
-    "start": "yarn compile && node dist/index.js"
+    "start": "yarn compile && node dist/index.js",
+    "run-auto": "yarn compile && node dist/runauto.js"
+
   },
   "type": "module",
   "dependencies": {
