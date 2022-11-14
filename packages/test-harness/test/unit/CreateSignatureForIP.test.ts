@@ -53,7 +53,6 @@ describe("Sign proper data for InsigtPlatform APIs", () => {
             generatedDataWalletKey as EVMPrivateKey,
         );
 
-
         const signableData = { // aka "types"
           consentContractId: consentContractAddress,
           queryCid: queryCid,
@@ -81,6 +80,7 @@ describe("Sign proper data for InsigtPlatform APIs", () => {
         
         expect(verifiedAccountAddress).toEqual(derivedDWAddress);
 
+        console.log("/insights/responses");
         console.log({
             consentContractId: consentContractAddress,
             queryCid: queryCid,
@@ -129,6 +129,7 @@ describe("Sign proper data for InsigtPlatform APIs", () => {
         
         expect(verifiedAccountAddress).toEqual(derivedDWAddress);
 
+        console.log("/insights/responses/preview");
         console.log({
             consentContractId: consentContractAddress,
             queryCID: queryCid,
@@ -178,6 +179,7 @@ describe("Sign proper data for InsigtPlatform APIs", () => {
         
         expect(verifiedAccountAddress).toEqual(derivedDWAddress);
 
+        console.log("/metatransaction");
         console.log({
             dataWalletAddress: derivedDWAddress,
             accountAddress: accountAddress,
