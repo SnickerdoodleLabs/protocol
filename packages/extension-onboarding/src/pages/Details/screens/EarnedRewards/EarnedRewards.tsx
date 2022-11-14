@@ -43,9 +43,9 @@ const EarnedRewards: FC = () => {
   return (
     <Box>
       <Box mb={4}>
-        <Typography className={classes.title}>Owned Rewards</Typography>
+        <Typography className={classes.title}>My Rewards</Typography>
         <Typography className={classes.description}>
-          See what you've earned from sharing insights!
+        Check out what you've earned from sharing insights!
         </Typography>
       </Box>
       {isLoading ? (

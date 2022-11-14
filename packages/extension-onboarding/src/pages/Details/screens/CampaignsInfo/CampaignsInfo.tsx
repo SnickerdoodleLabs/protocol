@@ -73,7 +73,7 @@ const RewardsInfo: FC = () => {
       <Box mb={4}>
         <Typography className={classes.title}>My Campaigns</Typography>
         <Typography className={classes.description}>
-          See what you've earned from sharing insights!
+        Check out what you've earned from sharing insights!
         </Typography>
       </Box>
       {isLoading ? (
