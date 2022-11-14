@@ -7,7 +7,11 @@
     "jsx": "react",
     "target": "es5",
     "module": "commonjs",
-    "lib": ["es5", "es6", "dom"],
+    "lib": [
+      "es5",
+      "es6",
+      "dom"
+    ],
     "paths": {
       "@extension-onboarding/*": [
         "./*"
@@ -17,7 +21,6 @@
       ],
     }
   },
-
   "references": [
     {
       "path": "../common-utils"
@@ -32,6 +35,13 @@
       "path": "../signatureVerification"
     }
   ],
-  "include": ["./src/**/*.ts", "./src/**/*.tsx", "index.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.json",
+    "index.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
