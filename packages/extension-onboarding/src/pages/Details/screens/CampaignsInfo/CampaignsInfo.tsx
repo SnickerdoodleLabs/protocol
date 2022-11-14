@@ -1,4 +1,4 @@
-import emptyReward from "@extension-onboarding/assets/images/empty-reward.svg";
+import emptyCampaign from "@extension-onboarding/assets/images/empty-campaign.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import CampaignItem from "@extension-onboarding/components/CampaignItem";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
@@ -12,8 +12,10 @@ declare const window: IWindowWithSdlDataWallet;
 
 const RewardsInfo: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [campaignContractAddressesWithCID, setCampaignContractAddressesWithCID] =
-    useState<Record<EVMContractAddress, IpfsCID>>();
+  const [
+    campaignContractAddressesWithCID,
+    setCampaignContractAddressesWithCID,
+  ] = useState<Record<EVMContractAddress, IpfsCID>>();
   const { setModal, setLoadingStatus } = useLayoutContext();
 
   useEffect(() => {
@@ -73,7 +75,7 @@ const RewardsInfo: FC = () => {
       <Box mb={4}>
         <Typography className={classes.title}>My Campaigns</Typography>
         <Typography className={classes.description}>
-        Check out what you've earned from sharing insights!
+          Check out what you've earned from sharing insights!
         </Typography>
       </Box>
       {isLoading ? (
@@ -109,7 +111,10 @@ const RewardsInfo: FC = () => {
                 display="flex"
                 pt={20}
               >
-                <img style={{ width: 330, height: "auto" }} src={emptyReward} />
+                <img
+                  style={{ width: 330, height: "auto" }}
+                  src={emptyCampaign}
+                />
               </Box>
             </Box>
           )}

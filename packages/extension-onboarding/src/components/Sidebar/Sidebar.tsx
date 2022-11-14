@@ -1,4 +1,3 @@
-import contactIcon from "@extension-onboarding/assets/icons/contact.svg";
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
