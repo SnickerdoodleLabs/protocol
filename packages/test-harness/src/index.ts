@@ -288,6 +288,9 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "manual backup", value: "manualBackup" },
     { name: "clear cloud store", value: "clearCloudStore" },
     new inquirer.Separator(),
+    { name: "get ETH price", value: "btcPrice" },
+    { name: "get uniswap price", value: "uniPrice" },
+    new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
   ];
@@ -488,6 +491,10 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.postBackup().map(console.log);
       case "clearCloudStore":
         return core.clearCloudStore().map(console.log);
+      case "btcPrice":
+        return core.getTokenPrice(ChainId(1), null, new Date()).map(console.log);
+      case "uniPrice":
+        return core.getTokenPrice(ChainId(1), "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", new Date()).map(console.log);
     }
     return okAsync(undefined);
   });

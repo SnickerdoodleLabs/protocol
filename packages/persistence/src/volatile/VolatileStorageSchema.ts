@@ -35,4 +35,11 @@ export const volatileStorageSchema = [
   new VolatileTableIndex(ELocalStorageKey.EARNED_REWARDS, "queryCID", false, [
     ["type", false],
   ]),
+  new VolatileTableIndex(
+    ELocalStorageKey.COIN_INFO,
+    ["chain", "address"],
+    false,
+    undefined,
+    true,
+  ),
 ];

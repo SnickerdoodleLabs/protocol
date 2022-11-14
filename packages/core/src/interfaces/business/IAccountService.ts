@@ -23,6 +23,7 @@ import {
   AccountAddress,
   DataWalletAddress,
   CeramicStreamID,
+  TokenAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -122,6 +123,12 @@ export interface IAccountService {
 
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
+
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date: Date,
+  ): ResultAsync<number, PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

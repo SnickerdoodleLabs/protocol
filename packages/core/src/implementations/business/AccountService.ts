@@ -45,6 +45,7 @@ import {
   URLString,
   CeramicStreamID,
   EarnedReward,
+  TokenAddress,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -88,6 +89,14 @@ export class AccountService implements IAccountService {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContractFactoryType) protected contractFactory: IContractFactory,
   ) {}
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date: Date,
+  ): ResultAsync<number, PersistenceError> {
+    return this.dataWalletPersistence.getTokenPrice(chainId, address, date);
+  }
 
   public getUnlockMessage(
     languageCode: LanguageCode,

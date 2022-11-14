@@ -67,8 +67,10 @@ import {
   DataWalletAddress,
   CeramicStreamID,
   EarnedReward,
+  TokenAddress,
   TokenBalance,
   IDynamicRewardParameter,
+  ChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -716,5 +718,15 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.clearCloudStore();
+  }
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date: Date,
+  ): ResultAsync<number, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getTokenPrice(chainId, address, date);
   }
 }

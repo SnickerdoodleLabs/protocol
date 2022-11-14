@@ -41,7 +41,11 @@ import {
   isAccountValidForChain,
   AccountAddress,
   SolanaAccountAddress,
+  ITokenPriceRepositoryType,
+  ITokenPriceRepository,
+  TokenAddress,
   TransactionFilter,
+  getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -88,6 +92,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(ITokenPriceRepositoryType)
+    protected tokenPriceRepo: ITokenPriceRepository,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -95,6 +101,16 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     this.restorePromise = new Promise<void>((resolve) => {
       this.resolveRestore = resolve;
     });
+  }
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date: Date,
+  ): ResultAsync<number, PersistenceError> {
+    return this.tokenPriceRepo
+      .getTokenPrice(chainId, address, date)
+      .mapErr((e) => new PersistenceError("unable to fetch token price", e));
   }
 
   private _checkAndRetrieveValue<T>(
@@ -134,6 +150,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.resolveRestore!();
       });
+  }
+
+  private isAccountValidForChain(
+    chainId: ChainId,
+    account: LinkedAccount,
+  ): ResultAsync<boolean, PersistenceError> {
+    const targetChainInfo = getChainInfoByChainId(chainId);
+    const accountChainInfo = getChainInfoByChain(account.sourceChain);
+    return okAsync(
+      targetChainInfo.chainTechnology == accountChainInfo.chainTechnology,
+    );
   }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
