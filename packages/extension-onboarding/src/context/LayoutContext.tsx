@@ -7,7 +7,14 @@ import DataPermissionsModal from "@extension-onboarding/components/Modals/DataPe
 import PermissionSelectionModal from "@extension-onboarding/components/Modals/PermissionSelectionModal";
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
 import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal";
-import React, { FC, createContext, useContext, useState, useMemo } from "react";
+import React, {
+  FC,
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
 
 export interface IModal {
   modalSelector: EModalSelectors | null;
@@ -15,12 +22,26 @@ export interface IModal {
   customProps?: any;
 }
 
+export enum ELoadingIndicatorType {
+  DEFAULT,
+  LOTTIE,
+}
+export interface ILoaderInfo {
+  type: ELoadingIndicatorType;
+  file?: string;
+}
+
 interface ILayout {
-  setLoadingStatus: (loadingStatus: boolean) => void;
+  setLoadingStatus: (
+    loadingStatus: boolean,
+    type?: ELoadingIndicatorType,
+    file?: string,
+  ) => void;
   closeModal: () => void;
   setModal: (modalProps: IModal) => void;
   modalState: IModal;
   loading: boolean;
+  loaderInfo: ILoaderInfo | undefined;
 }
 
 const initialModalState: IModal = {
@@ -33,6 +54,7 @@ const LayoutContext = createContext<ILayout>({} as ILayout);
 
 export const LayoutProvider: FC = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loaderInfo, setLoaderInfo] = useState<ILoaderInfo>();
   const [modalState, setModalState] = useState<IModal>(initialModalState);
   const modalComponent = useMemo(() => {
     switch (true) {
@@ -62,7 +84,24 @@ export const LayoutProvider: FC = ({ children }) => {
     }
   }, [modalState]);
 
-  const setLoadingStatus = (loadingStatus: boolean) => {
+  useEffect(() => {
+    if (loaderInfo) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [JSON.stringify(loaderInfo)]);
+
+  const setLoadingStatus = (
+    loadingStatus: boolean,
+    type?: ELoadingIndicatorType,
+    file?: string,
+  ) => {
+    if (!loadingStatus) {
+      setLoaderInfo(undefined);
+    } else {
+      setLoaderInfo({ type: type ?? ELoadingIndicatorType.DEFAULT, file });
+    }
     setIsLoading(loadingStatus);
   };
 
@@ -82,6 +121,7 @@ export const LayoutProvider: FC = ({ children }) => {
         closeModal,
         modalState,
         loading: isLoading,
+        loaderInfo,
       }}
     >
       <LoadingSpinner />

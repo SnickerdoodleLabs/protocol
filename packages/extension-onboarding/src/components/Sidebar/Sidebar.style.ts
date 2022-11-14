@@ -46,4 +46,14 @@ export const useStyles = makeStyles((theme) => ({
   button: {
     cursor: "pointer",
   },
+  link: {
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "14.05px",
+    lineHeight: "17px",
+    marginLeft: 20,
+    cursor: "pointer",
+    textDecorationLine: "underline",
+    color: "#7D72AC",
+  },
 }));
