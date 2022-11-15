@@ -94,25 +94,28 @@ export class SolanaIndexer
           balances.map((balance) => {
             return ResultUtils.combine([
               this.tokenPriceRepo.getTokenInfo(chainId, balance.tokenAddress),
-              this.tokenPriceRepo.getTokenPrice(chainId, balance.tokenAddress, new Date()),
-            ])
-              .andThen(([tokenInfo, tokenPrice]) => {
-                if (tokenInfo == null) {
-                  return okAsync(undefined);
-                }
+              this.tokenPriceRepo.getTokenPrice(
+                chainId,
+                balance.tokenAddress,
+                new Date(),
+              ),
+            ]).andThen(([tokenInfo, tokenPrice]) => {
+              if (tokenInfo == null) {
+                return okAsync(undefined);
+              }
 
-                return okAsync(
-                  new TokenBalance(
-                    EChainTechnology.Solana,
-                    tokenInfo.symbol,
-                    chainId,
-                    tokenInfo.address,
-                    accountAddress,
-                    balance.tokenAmount.uiAmountString,
-                    BigNumberString(tokenPrice.toString()),
-                  ),
-                );
-              });
+              return okAsync(
+                new TokenBalance(
+                  EChainTechnology.Solana,
+                  tokenInfo.symbol,
+                  chainId,
+                  tokenInfo.address,
+                  accountAddress,
+                  balance.tokenAmount.uiAmountString,
+                  BigNumberString(tokenPrice.toString()),
+                ),
+              );
+            });
           }),
         ).map((balances) => {
           return balances.filter(
@@ -192,7 +195,7 @@ export class SolanaIndexer
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<SolanaTransaction[], AccountIndexingError | AjaxError> {
-    return this.ajaxUtils.
+    return okAsync([]); //TODO
   }
 
   private _getConnectionForChainId(
