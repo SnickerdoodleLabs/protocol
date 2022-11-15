@@ -8,3 +8,4 @@ export * from "@indexers/IIndexerConfig.js";
 export * from "@indexers/IIndexerConfigProvider.js";
 export * from "@indexers/MoralisEVMNftRepository.js";
 export * from "@indexers/SimulatorEVMTransactionRepository.js";
+export * from "@indexers/SolanaIndexer.js";

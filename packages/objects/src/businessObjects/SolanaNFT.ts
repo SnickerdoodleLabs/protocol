@@ -4,24 +4,13 @@ import {
   ChainId,
   SolanaAccountAddress,
   SolanaTokenAddress,
+  TickerSymbol,
 } from "@objects/primitives";
 
-export interface MetaplexInfo {
-  metadataUri: string;
-  masterEdition: boolean;
-  isMutable: boolean;
-  primarySaleHappened: boolean;
-  sellerFeeBasisPoints: number;
-  updateAuthority: string;
-}
-
-export class SolanaNFTMetadata {
+export class SolanaCollection {
   public constructor(
-    public mint: string,
-    public standard: string,
-    public name: string,
-    public symbol: string,
-    public metaplex: MetaplexInfo,
+    public address: SolanaTokenAddress,
+    public verified: boolean,
   ) {}
 }
 
@@ -29,10 +18,17 @@ export class SolanaNFT extends WalletNFT {
   public constructor(
     public chain: ChainId,
     public owner: SolanaAccountAddress,
-    public token: SolanaTokenAddress,
-    public mint: string,
-    public metadata: SolanaNFTMetadata,
+    public mint: SolanaTokenAddress,
+    public collection: SolanaCollection | null,
+    public metadataUri: string,
+    public isMutable: boolean,
+    public primarySaleHappened: boolean,
+    public sellerFeeBasisPoints: number,
+    public updateAuthority: SolanaAccountAddress,
+    public tokenStandard: number | null,
+    public symbol: TickerSymbol,
+    public name: string,
   ) {
-    super(EChainTechnology.Solana, chain, owner, token);
+    super(EChainTechnology.Solana, chain, owner, mint);
   }
 }

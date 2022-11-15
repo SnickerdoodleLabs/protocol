@@ -1,4 +1,3 @@
-import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -12,6 +11,7 @@ import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
+import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,

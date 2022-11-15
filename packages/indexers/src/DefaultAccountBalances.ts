@@ -1,4 +1,3 @@
-import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -7,16 +6,20 @@ import {
   IAccountBalances,
   IEVMAccountBalanceRepository,
   ISolanaBalanceRepository,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
+import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
+import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {
@@ -28,6 +31,8 @@ export class DefaultAccountBalances implements IAccountBalances {
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITokenPriceRepositoryType)
+    protected tokenPriceRepo: ITokenPriceRepository,
   ) {
     this.evm = new CovalentEVMTransactionRepository(
       this.configProvider,
@@ -35,7 +40,11 @@ export class DefaultAccountBalances implements IAccountBalances {
     );
 
     this.sim = new SimulatorEVMTransactionRepository();
-    this.sol = new DummySolanaIndexer();
+    this.sol = new SolanaIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+    );
   }
 
   public getEVMBalanceRepository(): ResultAsync<
