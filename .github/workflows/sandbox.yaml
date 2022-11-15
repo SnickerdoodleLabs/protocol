@@ -65,5 +65,5 @@ jobs:
         chmod 700 get_helm.sh
         ./get_helm.sh
         cd infra/
-        helm install  insight-platform-protocol ./insight-platform-protocol || true
+        helm install --set ENV=$JIRA_TICKET -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol || true
         helm upgrade --reuse-values --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA --set ENV=$JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 
