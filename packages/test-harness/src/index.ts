@@ -59,6 +59,8 @@ import { IPFSClient } from "@test-harness/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
 import { TestWallet } from "@test-harness/TestWallet.js";
 
+// #region initialization
+
 const cryptoUtils = new CryptoUtils();
 
 const fakeDBVolatileStorage = new FakeDBVolatileStorage();
@@ -201,6 +203,10 @@ core.getEvents().map(async (events) => {
     await mainPrompt();
   }
 });
+
+// #endregion initialization
+
+// #region prompt
 
 function mainPrompt(): ResultAsync<void, Error> {
   return prompt([
