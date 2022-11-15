@@ -53,9 +53,9 @@ import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BlockchainStuff } from "@test-harness/BlockchainStuff.js";
-import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator.js";
-import { IPFSClient } from "@test-harness/IPFSClient.js";
+import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
+import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
+import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
 import { TestWallet } from "@test-harness/TestWallet.js";
 

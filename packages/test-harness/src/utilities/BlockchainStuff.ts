@@ -21,7 +21,7 @@ import {
 import { ethers } from "ethers";
 import { ResultAsync } from "neverthrow";
 
-import { localChainAccounts } from "@test-harness/LocalChainAccounts.js";
+import { localChainAccounts } from "@test-harness/mocks/LocalChainAccounts.js";
 import { TestWallet } from "@test-harness/TestWallet.js";
 
 export class BlockchainStuff {
