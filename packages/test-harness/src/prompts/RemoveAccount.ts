@@ -4,7 +4,7 @@ import inquirer from "inquirer";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 
-export class SimulatorPrompt extends Prompt {
+export class RemoveAccount extends Prompt {
 
 
     public start(): ResultAsync<void, Error> {

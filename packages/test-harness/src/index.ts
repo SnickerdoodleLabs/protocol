@@ -121,7 +121,7 @@ const devAccountKeys = [
 const blockchain = new BlockchainStuff(devAccountKeys);
 const ipfs = new IPFSClient();
 
-const simulator = new InsightPlatformSimulator(blockchain, ipfs);
+const simulator = mainPromptNew.env.insightPlatform;
 const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.com");

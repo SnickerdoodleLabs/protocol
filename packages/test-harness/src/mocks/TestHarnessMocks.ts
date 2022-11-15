@@ -64,7 +64,7 @@ export class TestHarnessMocks {
     public blockchain = new BlockchainStuff(this.devAccountKeys);
     public ipfs = new IPFSClient();
 
-    // public simulator = new InsightPlatformSimulator(this.blockchain, this.ipfs);
+    public insightSimulator = new InsightPlatformSimulator(this.blockchain, this.ipfs);
     public languageCode = LanguageCode("en");
 
     public domainName = DomainName("snickerdoodle.com");
