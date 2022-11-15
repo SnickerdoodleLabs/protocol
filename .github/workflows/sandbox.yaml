@@ -66,4 +66,4 @@ jobs:
         ./get_helm.sh
         cd infra/
         helm install  insight-platform-protocol ./insight-platform-protocol || true
-        helm upgrade --reuse-values --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol 
+        helm upgrade --reuse-values --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA --set ENV=$JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 
