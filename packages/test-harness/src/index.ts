@@ -58,6 +58,12 @@ import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSim
 import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
 import { TestWallet } from "@test-harness/TestWallet.js";
+import { PromptFactory } from "@test-harness/utilities";
+
+// #region new prompt
+const promptFactory = new PromptFactory()
+const mainPromptNew = promptFactory.createDefault();
+// #endregion
 
 // #region initialization
 
@@ -200,7 +206,8 @@ core.getEvents().map(async (events) => {
 
   // Main event prompt. Core is up and running
   while (true) {
-    await mainPrompt();
+    // await mainPrompt();
+    await mainPromptNew.start();
   }
 });
 
