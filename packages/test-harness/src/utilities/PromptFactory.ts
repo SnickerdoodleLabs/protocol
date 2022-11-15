@@ -1,10 +1,7 @@
-import { TestHarnessMocks } from "@test-harness/mocks";
-import { Environment } from "@test-harness/mocks/Environment";
-import { MainPrompt } from "@test-harness/prompts";
-import { CorePrompt } from "@test-harness/prompts/CorePrompt";
-import { SimulatorPrompt } from "@test-harness/prompts/SimulatorPrompt";
-import { BusinessProfile } from "./BusinessProfile";
-import { DataWalletProfile } from "./DataWalletProfile";
+import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
+import { CorePrompt, MainPrompt, SimulatorPrompt } from "@test-harness/prompts/index.js";
+import { BusinessProfile } from "@test-harness/utilities/BusinessProfile.js";
+import { DataWalletProfile } from "@test-harness/utilities//DataWalletProfile.js";
 
 export class PromptFactory {
     public createDefault(): MainPrompt {

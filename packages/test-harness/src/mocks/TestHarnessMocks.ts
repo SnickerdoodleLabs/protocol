@@ -1,8 +1,8 @@
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import { DomainName, EChain, EVMContractAddress, EVMPrivateKey, IConfigOverrides, LanguageCode, PageInvitation, SolanaPrivateKey } from "@snickerdoodlelabs/objects";
-import { TestWallet } from "@test-harness/TestWallet";
-import { BlockchainStuff, IPFSClient } from "@test-harness/utilities";
+import { TestWallet } from "@test-harness/utilities/TestWallet.js";
+import { BlockchainStuff, IPFSClient } from "@test-harness/utilities/index.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
 import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
 
