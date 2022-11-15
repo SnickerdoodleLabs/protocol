@@ -1,10 +1,13 @@
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { DomainName, EChain, EVMContractAddress, EVMPrivateKey, IConfigOverrides, LanguageCode, PageInvitation, SolanaPrivateKey } from "@snickerdoodlelabs/objects";
+import { DomainName, EChain, EVMContractAddress, EVMPrivateKey, IConfigOverrides, LanguageCode, MetatransactionSignatureRequest, PageInvitation, Signature, SolanaPrivateKey, UnsupportedLanguageError } from "@snickerdoodlelabs/objects";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BlockchainStuff, IPFSClient } from "@test-harness/utilities/index.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
 import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
+import { ResultAsync } from "neverthrow";
+import { BigNumber } from "ethers";
+import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 
 export class TestHarnessMocks {
 
@@ -74,4 +77,7 @@ export class TestHarnessMocks {
 
     public consentContracts = new Array<EVMContractAddress>();
     public acceptedInvitations = new Array<PageInvitation>();
+
+    
+
 }

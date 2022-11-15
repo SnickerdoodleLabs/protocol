@@ -91,7 +91,7 @@ export class CorePrompt extends Prompt {
         ];
       
         // Only show the unlock option we are not already unlocked.
-        if (!this.env.unlocked) {
+        if (!this.env.dataWalletProfile.unlocked) {
           choices = [
             { name: "Unlock", value: "unlock" },
             new inquirer.Separator(),

@@ -1,7 +1,7 @@
 import { BusinessProfile, DataWalletProfile } from "@test-harness/utilities";
 import { TestHarnessMocks } from "@test-harness/mocks/TestHarnessMocks.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
-import { TouchableWithoutFeedbackBase } from "react-native";
+import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 
 export class Environment {
     public constructor(
@@ -14,8 +14,8 @@ export class Environment {
         return this.mocks.insightSimulator;
     }
 
-    public get unlocked(): boolean {
-        return false; // TODO wire up with a state.
+    public get core(): ISnickerdoodleCore {
+        return this.dataWalletProfile.core;
     }
 
 }

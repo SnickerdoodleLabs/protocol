@@ -9,3 +9,4 @@ export { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 export { AddAccount } from "@test-harness/prompts/AddAccount.js";
 export { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
 export { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
+export { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";

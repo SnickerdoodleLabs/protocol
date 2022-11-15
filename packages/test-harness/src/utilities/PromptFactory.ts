@@ -1,9 +1,9 @@
 import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
-import { CorePrompt, MainPrompt, SimulatorPrompt } from "@test-harness/prompts/index.js";
+import { ApproveQuery, CorePrompt, MainPrompt, SimulatorPrompt } from "@test-harness/prompts/index.js";
 import { BusinessProfile } from "@test-harness/utilities/BusinessProfile.js";
 import { DataWalletProfile } from "@test-harness/utilities//DataWalletProfile.js";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { IConfigOverrides, SDQLQueryRequest } from "@snickerdoodlelabs/objects";
+import { IConfigOverrides, ISnickerdoodleCore, SDQLQueryRequest } from "@snickerdoodlelabs/objects";
 import { okAsync } from "neverthrow";
 
 export class PromptFactory {
@@ -18,6 +18,12 @@ export class PromptFactory {
             mocks.fakeDBVolatileStorage,
         );
 
+
+        return core;
+    }
+
+    protected initCore(core: ISnickerdoodleCore, env: Environment): void {
+        
         core.getEvents().map(async (events) => {
             events.onAccountAdded.subscribe((addedAccount) => {
                 console.log(`Added account`);
@@ -34,31 +40,9 @@ export class PromptFactory {
                 );
         
                 try {
-                    await prompt([
-                        {
-                            type: "list",
-                            name: "approveQuery",
-                            message: "Approve running the query?",
-                            choices: [
-                                { name: "Yes", value: true },
-                                { name: "No", value: false },
-                            ],
-                        },
-                    ])
-                        .andThen((answers) => {
-                            if (!answers.approveQuery) {
-                                return okAsync(undefined);
-                            }
-        
-                            return core.processQuery(
-                                queryRequest.consentContractAddress,
-                                queryRequest.query,
-                            );
-                        })
-                        .mapErr((e) => {
-                            console.error(e);
-                            return e;
-                        });
+
+                    await new ApproveQuery(env, queryRequest);
+                        
                 } catch (e) {
                     console.error(e);
                 }
@@ -71,7 +55,7 @@ export class PromptFactory {
                     `Request account address: ${request.accountAddress}`,
                 );
         
-                await signMetatransactionRequest(request).mapErr((e) => {
+                await env.dataWalletProfile.signMetatransactionRequest(request).mapErr((e) => {
                     console.error(`Error signing forwarding request!`, e);
                     process.exit(1);
                 });
@@ -79,22 +63,23 @@ export class PromptFactory {
         
         });
 
-
-        return core;
     }
 
     public createDefault(): MainPrompt {
         const mocks = new TestHarnessMocks()
         const core = this.createCore(mocks)
         const env = new Environment(
-            new BusinessProfile(core),
-            new DataWalletProfile(),
+            new BusinessProfile(),
+            new DataWalletProfile(core, mocks),
             mocks
-        )
+        );
+
+        this.initCore(core, env);
+
         return new MainPrompt(
             env,
             new CorePrompt(env),
             new SimulatorPrompt(env)
-        )
+        );
     }
 }
