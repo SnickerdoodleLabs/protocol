@@ -45,8 +45,14 @@ const EarnedRewards: FC = () => {
       <Box mb={4}>
         <Typography className={classes.title}>My Rewards</Typography>
         <Typography className={classes.description}>
-        Check out what you've earned from sharing insights!
+          Check out what you've earned from sharing insights!
         </Typography>
+        <Box mt={2}>
+          <Typography className={classes.description}>
+            Once you've opted into a campaign, it can take up to 10 mins for
+            your reward to appear.
+          </Typography>
+        </Box>
       </Box>
       {isLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={15}>
