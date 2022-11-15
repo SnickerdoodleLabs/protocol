@@ -2,11 +2,11 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import inquirer from "inquirer";
 
-import { Prompt } from "@test-harness/prompts/Prompt";
-import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper";
-import { Environment } from "@test-harness/mocks/Environment";
-import { CorePrompt } from "@test-harness/prompts/CorePrompt";
-import { SimulatorPrompt } from "@test-harness/prompts/SimulatorPrompt";
+import { Prompt } from "@test-harness/prompts/Prompt.js";
+import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
+import { Environment } from "@test-harness/mocks/Environment.js";
+import { CorePrompt } from "@test-harness/prompts/CorePrompt.js";
+import { SimulatorPrompt } from "@test-harness/prompts/SimulatorPrompt.js";
 
 export class MainPrompt extends Prompt {
 

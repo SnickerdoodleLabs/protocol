@@ -1,5 +1,5 @@
 import { okAsync, ResultAsync } from "neverthrow";
-import { Prompt } from "@test-harness/prompts/Prompt";
+import { Prompt } from "@test-harness/prompts/Prompt.js";
 
 export class SimulatorPrompt extends Prompt {
 

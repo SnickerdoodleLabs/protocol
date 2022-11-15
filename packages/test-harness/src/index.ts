@@ -57,8 +57,7 @@ import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
 import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
-import { TestWallet } from "@test-harness/utilities/index";
-import { PromptFactory } from "@test-harness/utilities/PromptFactory.js";
+import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
 
 // #region new prompt
 const promptFactory = new PromptFactory()
