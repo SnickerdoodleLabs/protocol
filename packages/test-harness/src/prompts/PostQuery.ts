@@ -1,9 +1,9 @@
 import { okAsync, ResultAsync } from "neverthrow";
 
-import inquirer from "inquirer";
-import { Prompt } from "@test-harness/prompts/Prompt.js";
-import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { ConsentContractError, EVMContractAddress, SDQLString } from "@snickerdoodlelabs/objects";
+import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
+import { Prompt } from "@test-harness/prompts/Prompt.js";
+import inquirer from "inquirer";
 
 export class PostQuery extends Prompt {
 
