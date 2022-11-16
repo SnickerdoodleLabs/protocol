@@ -54,11 +54,18 @@ import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BlockchainStuff } from "@test-harness/BlockchainStuff.js";
-import { InsightPlatformSimulator } from "@test-harness/InsightPlatformSimulator.js";
-import { IPFSClient } from "@test-harness/IPFSClient.js";
+import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
+import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
+import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
-import { TestWallet } from "@test-harness/TestWallet.js";
+import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
+
+// #region new prompt
+const promptFactory = new PromptFactory()
+const mainPromptNew = promptFactory.createDefault();
+// #endregion
+
+// #region initialization
 
 const cryptoUtils = new CryptoUtils();
 
@@ -115,7 +122,7 @@ const devAccountKeys = [
 const blockchain = new BlockchainStuff(devAccountKeys);
 const ipfs = new IPFSClient();
 
-const simulator = new InsightPlatformSimulator(blockchain, ipfs);
+const simulator = mainPromptNew.env.insightPlatform;
 const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.com");
@@ -199,8 +206,13 @@ core.getEvents().map(async (events) => {
   // Main event prompt. Core is up and running
   while (true) {
     await mainPrompt();
+    // await mainPromptNew.start();
   }
 });
+
+// #endregion initialization
+
+// #region prompt
 
 function mainPrompt(): ResultAsync<void, Error> {
   return prompt([

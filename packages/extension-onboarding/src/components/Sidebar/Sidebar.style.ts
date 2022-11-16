@@ -47,13 +47,13 @@ export const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
   },
   link: {
+    fontFamily: "Space Grotesk",
     fontStyle: "normal",
     fontWeight: 500,
     fontSize: "14.05px",
     lineHeight: "17px",
     marginLeft: 20,
     cursor: "pointer",
-    textDecorationLine: "underline",
     color: "#7D72AC",
   },
 }));
