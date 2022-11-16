@@ -27,7 +27,6 @@
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
-    "start-old": "yarn compile && node dist/index.js",
     "start": "yarn compile && node dist/ConsoleApp.js"
   },
   "type": "module",
