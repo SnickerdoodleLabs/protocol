@@ -1,15 +1,28 @@
 import CustomizedAlert, {
   EAlertSeverity,
 } from "@extension-onboarding/components/CustomizedAlert";
-import React, { FC, createContext, useContext, useState } from "react";
+import VisualAlert from "@extension-onboarding/components/VisualAlert";
+import React, {
+  FC,
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 
 export interface IAlert {
   message: string | null;
   severity: EAlertSeverity | null;
 }
 
+export interface IVisualAlert {
+  display: boolean;
+  path?: string;
+}
 interface INotificationContext {
   setAlert: (alert: IAlert) => void;
+  setVisualAlert: (value: boolean, path?: string) => void;
 }
 const initialAlertState: IAlert = { message: null, severity: null };
 
@@ -19,24 +32,37 @@ const NotificationContext = createContext<INotificationContext>(
 
 export const NotificationContextProvider: FC = ({ children }) => {
   const [alert, _setAlert] = useState<IAlert>(initialAlertState);
+  const [visualAlert, _setVisualAlert] = useState<IVisualAlert>();
 
-  const setAlert = (alert: IAlert) => {
+  const setAlert = useCallback((alert: IAlert) => {
     _setAlert(alert);
-  };
+  }, []);
 
-  const resetAlert = () => {
-    _setAlert(initialAlertState);
-  };
+  const setVisualAlert = useCallback((value: boolean, path?: string) => {
+    if (!value) {
+      _setVisualAlert(undefined);
+    } else {
+      _setVisualAlert({ display: true, path });
+    }
+  }, []);
 
-  return (
-    <NotificationContext.Provider value={{ setAlert }}>
-      {alert.message && alert.severity && (
+  const alertComponent = useMemo(() => {
+    if (alert.message && alert.severity) {
+      return (
         <CustomizedAlert
-          onClose={resetAlert}
+          onClose={() => _setAlert(initialAlertState)}
           severity={alert.severity}
           message={alert.message}
         />
-      )}
+      );
+    }
+    return null;
+  }, [JSON.stringify(alert)]);
+
+  return (
+    <NotificationContext.Provider value={{ setAlert, setVisualAlert }}>
+      {visualAlert && <VisualAlert />}
+      {alertComponent}
       {children}
     </NotificationContext.Provider>
   );
