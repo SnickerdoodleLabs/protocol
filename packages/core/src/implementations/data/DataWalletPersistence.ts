@@ -45,7 +45,6 @@ import {
   CeramicStreamID,
   EarnedReward,
   Invitation,
-  DomainName,
   Signature,
   TokenId,
   chainConfig,
