@@ -63,6 +63,7 @@ export class ExtensionCore {
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
+      requestForDataCheckingFrequency: config.requestForDataCheckingFrequency
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

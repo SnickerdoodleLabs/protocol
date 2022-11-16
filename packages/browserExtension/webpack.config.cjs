@@ -164,6 +164,9 @@ var options = {
         process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__,
       ),
       __CERAMIC_NODE_URL__: JSON.stringify(process.env.__CERAMIC_NODE_URL__),
+      __REQUEST_FOR_DATA_EVENT_FREQ__: JSON.stringify(
+        process.env.__REQUEST_FOR_DATA_EVENT_FREQ__ || ""
+      ),
       __CONTROL_CHAIN_PROVIDER_URL__: JSON.stringify(
         process.env.__CONTROL_CHAIN_PROVIDER_URL__,
       ),
