@@ -194,16 +194,37 @@ export class InsightPlatformSimulator {
         })
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(
-            queryCid,
-            ERewardType.Direct,
-          );
+          earnedRewards[0] = new EarnedReward(queryCid, ERewardType.Direct);
           res.send(earnedRewards);
         })
         .mapErr((e) => {
           console.error(e);
           res.send(e);
         });
+    });
+
+    this.app.post("/getAuthorizedBackups", (req, res) => {
+      const dataWalletAddress = EVMAccountAddress(req.body.dataWallet);
+      const fileName = EVMContractAddress(req.body.file);
+      const signature = Signature(req.body.signature);
+
+      const signingData = {
+        dataWallet: dataWalletAddress,
+        fileName: fileName,
+      };
+
+      this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          executeMetatransactionTypes,
+          signingData,
+          signature,
+        )
+        .map((verificationAddress) => {
+          console.log("Verification Address: ", verificationAddress);
+          res.send("Success - SignedURL received!");
+        });
+      res.send("Boo!");
     });
 
     this.app.post("/metatransaction", (req, res) => {
