@@ -1,4 +1,3 @@
-import contactIcon from "@extension-onboarding/assets/icons/contact.svg";
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
@@ -143,27 +142,15 @@ const Sidebar = () => {
             );
           })}
         </Box>
-        <Box
-          alignSelf="flex-start"
-          marginTop="auto"
-          mb={4}
-          mx={3.5}
-          display="flex"
-        >
-          <Box
+        <Box alignSelf="flex-start" marginTop="auto" mb={3.5} display="flex">
+          <Typography
             onClick={() => {
               window.open(ZENDEKS_URL, "_blank");
             }}
-            borderRadius={8}
-            py={1}
-            display="flex"
-            className={classes.routeWrapper}
+            className={classes.link}
           >
-            <Box display="flex" mr={1.5}>
-              <img className={classes.mainRouteIcon} src={contactIcon} />
-            </Box>
-            <Typography className={classes.mainRouteText}>Contact</Typography>
-          </Box>
+            Contact with Us
+          </Typography>
         </Box>
         <Box pb={2.5} width="100%" justifyContent="flex-start">
           <Typography
