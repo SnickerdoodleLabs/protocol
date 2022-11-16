@@ -55,6 +55,8 @@ import {
   IConfigProviderType,
   IContextProvider,
   IContextProviderType,
+  IDataWalletUtils,
+  IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
 @injectable()
 export class QueryService implements IQueryService {
@@ -62,6 +64,8 @@ export class QueryService implements IQueryService {
   public constructor(
     @inject(IConsentTokenUtilsType)
     protected consentTokenUtils: IConsentTokenUtils,
+    @inject(IDataWalletUtilsType)
+    protected dataWalletUtils: IDataWalletUtils,
     @inject(IQueryParsingEngineType)
     protected queryParsingEngine: IQueryParsingEngine,
     @inject(ISDQLQueryRepositoryType)
@@ -122,57 +126,58 @@ export class QueryService implements IQueryService {
       }
 
       // We have the query, next step is check if you actually have a consent token for this business
-      return this.consentTokenUtils
-        .getCurrentConsentToken(consentContractAddress)
-        .andThen((consentToken) => {
-          if (consentToken == null) {
-            // No consent given!
-            return errAsync(
-              new ConsentError(
-                `No consent token for address ${context.dataWalletAddress}!`,
-              ),
-            );
-          }
-
-          return this.queryParsingEngine.getPreviews(
-            query,
-            consentToken!.dataPermissions,
+      return ResultUtils.combine([
+        this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
+        this.dataWalletUtils.deriveOptInPrivateKey(
+          consentContractAddress,
+          context.dataWalletKey!,
+        ),
+      ]).andThen(([consentToken, optInKey]) => {
+        if (consentToken == null) {
+          // No consent given!
+          return errAsync(
+            new ConsentError(
+              `No consent token for address ${context.dataWalletAddress}!`,
+            ),
           );
-        })
-        .andThen(([queryIdentifiers, expectedRewards]) => {
-          return this.insightPlatformRepo
-            .receivePreviews(
-              context.dataWalletAddress!,
+        }
+
+        return this.queryParsingEngine
+          .getPreviews(query, consentToken!.dataPermissions)
+          .andThen(([queryIdentifiers, expectedRewards]) => {
+            return this.insightPlatformRepo.receivePreviews(
               consentContractAddress,
+              consentToken.tokenId,
               query.cid,
-              context.dataWalletKey!,
+              optInKey,
               config.defaultInsightPlatformBaseUrl,
               queryIdentifiers,
               expectedRewards,
-            )
-            .andThen((eligibleRewards) => {
-              /* Compare server's rewards with your list */
-              // if (!this.compareRewards(eligibleRewards, expectedRewards)) {
-              //   // No consent given!
-              //   return errAsync(
-              //     new ServerRewardError(
-              //       "Insight Platform Rewards do not match Expected Rewards!",
-              //     ),
-              //   );
-              // }
+            );
+          })
+          .andThen((eligibleRewards) => {
+            /* Compare server's rewards with your list */
+            // if (!this.compareRewards(eligibleRewards, expectedRewards)) {
+            //   // No consent given!
+            //   return errAsync(
+            //     new ServerRewardError(
+            //       "Insight Platform Rewards do not match Expected Rewards!",
+            //     ),
+            //   );
+            // }
 
-              const queryRequest = new SDQLQueryRequest(
-                consentContractAddress,
-                query,
-                eligibleRewards,
-                accounts,
-                context.dataWalletAddress!,
-              );
+            const queryRequest = new SDQLQueryRequest(
+              consentContractAddress,
+              query,
+              eligibleRewards,
+              accounts,
+              context.dataWalletAddress!,
+            );
 
-              context.publicEvents.onQueryPosted.next(queryRequest);
-              return okAsync(undefined);
-            });
-        });
+            context.publicEvents.onQueryPosted.next(queryRequest);
+            return okAsync(undefined);
+          });
+      });
     });
   }
 
@@ -218,34 +223,41 @@ export class QueryService implements IQueryService {
         config,
         consentToken,
       ).andThen(() => {
-        return this.queryParsingEngine
-          .handleQuery(query, consentToken!.dataPermissions, rewardParameters)
-          .andThen((maps) => {
-            const maps2 = maps as [InsightString[], EligibleReward[]];
-            const insights = maps2[0];
-            const rewards = maps2[1];
+        return ResultUtils.combine([
+          this.queryParsingEngine.handleQuery(
+            query,
+            consentToken!.dataPermissions,
+            rewardParameters,
+          ),
+          this.dataWalletUtils.deriveOptInPrivateKey(
+            consentContractAddress,
+            context.dataWalletKey!,
+          ),
+        ]).andThen(([maps, optInKey]) => {
+          const maps2 = maps as [InsightString[], EligibleReward[]];
+          const insights = maps2[0];
+          const rewards = maps2[1];
 
-            return this.insightPlatformRepo
-              .deliverInsights(
-                context.dataWalletAddress!,
-                consentContractAddress,
-                consentToken!.tokenId,
-                query.cid,
-                insights,
-                context.dataWalletKey!,
-                config.defaultInsightPlatformBaseUrl,
-                rewardParameters,
-              )
-              .map((earnedRewards) => {
-                console.log("insight delivery api call done");
-                console.log("Earned Rewards: ", earnedRewards);
-                /* For Direct Rewards, add EarnedRewards to the wallet */
-                this.persistenceRepo.addEarnedRewards(earnedRewards);
-                /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
-                /* Show Lazy Rewards in rewards tab? */
-                /* Web2 rewards are also EarnedRewards, TBD */
-              });
-          });
+          return this.insightPlatformRepo
+            .deliverInsights(
+              consentContractAddress,
+              consentToken!.tokenId,
+              query.cid,
+              insights,
+              optInKey,
+              config.defaultInsightPlatformBaseUrl,
+              rewardParameters,
+            )
+            .map((earnedRewards) => {
+              console.log("insight delivery api call done");
+              console.log("Earned Rewards: ", earnedRewards);
+              /* For Direct Rewards, add EarnedRewards to the wallet */
+              this.persistenceRepo.addEarnedRewards(earnedRewards);
+              /* TODO: Currenlty just adding direct rewards and will ignore the others for now */
+              /* Show Lazy Rewards in rewards tab? */
+              /* Web2 rewards are also EarnedRewards, TBD */
+            });
+        });
       });
     });
   }

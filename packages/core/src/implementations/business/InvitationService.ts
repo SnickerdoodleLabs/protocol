@@ -312,7 +312,6 @@ export class InvitationService implements IInvitationService {
                 // .executeMetatransaction will sign everything and have the server run
                 // the metatransaction.
                 return this.insightPlatformRepo.executeMetatransaction(
-                  context.dataWalletAddress!, // data wallet address
                   optInAddress, // account address
                   invitation.consentContractAddress, // contract address
                   BigNumberString(BigNumber.from(nonce).toString()),
@@ -320,7 +319,7 @@ export class InvitationService implements IInvitationService {
                   BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
                   callData,
                   metatransactionSignature,
-                  context.dataWalletKey!,
+                  optInPrivateKey,
                   config.defaultInsightPlatformBaseUrl,
                 );
               })
@@ -466,7 +465,6 @@ export class InvitationService implements IInvitationService {
                   // .executeMetatransaction will sign everything and have the server run
                   // the metatransaction.
                   return this.insightPlatformRepo.executeMetatransaction(
-                    context.dataWalletAddress!, // data wallet address
                     optInAccountAddress, // account address
                     consentContractAddress, // contract address
                     BigNumberString(BigNumber.from(nonce).toString()),
@@ -474,7 +472,7 @@ export class InvitationService implements IInvitationService {
                     BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
                     callData,
                     metatransactionSignature,
-                    context.dataWalletKey!,
+                    optInPrivateKey,
                     config.defaultInsightPlatformBaseUrl,
                   );
                 });

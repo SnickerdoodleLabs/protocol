@@ -566,18 +566,18 @@ export class ConsentContract implements IConsentContract {
   }
 
   public getConsentToken(
-    optInInfo: OptInInfo,
+    tokenId: TokenId,
   ): ResultAsync<ConsentToken, ConsentContractError> {
     // Get the agreement flags of the user's current consent token
     return ResultUtils.combine([
-      this.ownerOf(optInInfo.tokenId),
-      this.agreementFlags(optInInfo.tokenId),
+      this.ownerOf(tokenId),
+      this.agreementFlags(tokenId),
     ]).andThen(([ownerAddress, agreementFlags]) => {
       return okAsync(
         new ConsentToken(
           this.contractAddress,
           ownerAddress,
-          optInInfo.tokenId,
+          tokenId,
           new DataPermissions(agreementFlags),
         ),
       );

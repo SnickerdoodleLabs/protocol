@@ -2,7 +2,6 @@ import { TypedDataField } from "@ethersproject/abstract-signer";
 
 export const executeMetatransactionTypes: Record<string, TypedDataField[]> = {
   ExecuteMetatransaction: [
-    { name: "dataWallet", type: "address" },
     { name: "accountAddress", type: "address" },
     { name: "contractAddress", type: "address" },
     { name: "nonce", type: "uint256" },

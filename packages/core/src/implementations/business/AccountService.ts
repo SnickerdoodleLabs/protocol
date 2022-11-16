@@ -323,8 +323,6 @@ export class AccountService implements IAccountService {
               .encryptString(context.dataWalletKey!, encryptionKey)
               .andThen((encryptedDataWalletKey) => {
                 return this.addCrumb(
-                  context.dataWalletAddress!,
-                  context.dataWalletKey!,
                   languageCode,
                   encryptedDataWalletKey,
                   derivedEOA.privateKey,
@@ -588,8 +586,6 @@ export class AccountService implements IAccountService {
   }
 
   protected addCrumb(
-    dataWalletAddress: DataWalletAddress,
-    dataWalletKey: EVMPrivateKey,
     languageCode: LanguageCode,
     encryptedDataWalletKey: AESEncryptedString,
     derivedEVMKey: EVMPrivateKey,
@@ -650,7 +646,6 @@ export class AccountService implements IAccountService {
             )
             .andThen((metatransactionSignature) => {
               return this.insightPlatformRepo.executeMetatransaction(
-                dataWalletAddress,
                 derivedEVMAccountAddress,
                 crumbsContract.contractAddress,
                 nonce,
@@ -658,7 +653,7 @@ export class AccountService implements IAccountService {
                 BigNumberString(BigNumber.from(10000000).toString()), // gas
                 callData,
                 metatransactionSignature,
-                dataWalletKey,
+                derivedEVMKey,
                 config.defaultInsightPlatformBaseUrl,
               );
             });
@@ -711,7 +706,6 @@ export class AccountService implements IAccountService {
             )
             .andThen((metatransactionSignature) => {
               return this.insightPlatformRepo.executeMetatransaction(
-                DataWalletAddress(dataWalletAccount.accountAddress),
                 derivedEVMAccount.accountAddress,
                 crumbsContract.contractAddress,
                 nonce,
@@ -786,8 +780,6 @@ export class AccountService implements IAccountService {
 
           // We can add the crumb directly
           return this.addCrumb(
-            dataWalletAddress,
-            dataWalletKey,
             languageCode,
             encryptedDataWallet,
             derivedEVMAccount.privateKey,

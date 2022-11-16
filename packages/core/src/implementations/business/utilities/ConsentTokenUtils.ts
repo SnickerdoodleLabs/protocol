@@ -40,7 +40,7 @@ export class ConsentTokenUtils {
   > {
     return this.persistenceRepo.getAcceptedInvitations().andThen((optIns) => {
       const currentOptIn = optIns.find((optIn) => {
-        optIn.consentContractAddress == consentContractAddress;
+        return optIn.consentContractAddress == consentContractAddress;
       });
       if (currentOptIn == null) {
         return okAsync(null);

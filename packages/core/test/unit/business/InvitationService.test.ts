@@ -5,6 +5,7 @@ import {
   BigNumberString,
   DomainName,
   EVMAccountAddress,
+  EVMPrivateKey,
   HexString,
   IDataWalletPersistence,
   InvitationDomain,
@@ -48,6 +49,7 @@ const optInCallData = HexString("0xOptIn");
 const optOutCallData = HexString("0xOptOut");
 const optInSignature = Signature("OptInSignature");
 const optOutSignature = Signature("OptOutSignature");
+const optInPrivateKey = EVMPrivateKey("optInPrivateKey");
 const domain = DomainName("phoebe.com");
 const url1 = URLString("phoebe.com/cute");
 const url2 = URLString("phoebe.com/loud");
@@ -94,7 +96,6 @@ class InvitationServiceMocks {
 
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         EVMAccountAddress(dataWalletAddress),
         consentContractAddress1,
         metatransactionNonce,
@@ -102,7 +103,7 @@ class InvitationServiceMocks {
         metatransactionGas,
         optInCallData,
         optInSignature,
-        dataWalletKey,
+        optInPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));

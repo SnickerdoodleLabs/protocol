@@ -21,28 +21,26 @@ import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
   receivePreviews(
-    dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
     queryCid: IpfsCID,
-    dataWalletKey: EVMPrivateKey,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
     expectedRewards: ExpectedReward[],
   ): ResultAsync<EligibleReward[], AjaxError>;
 
   deliverInsights(
-    dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCid: IpfsCID,
     returns: InsightString[],
-    dataWalletKey: EVMPrivateKey,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError>;
 
   executeMetatransaction(
-    dataWalletAddress: DataWalletAddress,
     accountAddress: EVMAccountAddress,
     contractAddress: EVMContractAddress,
     nonce: BigNumberString,
@@ -50,7 +48,7 @@ export interface IInsightPlatformRepository {
     gas: BigNumberString,
     data: HexString,
     metatransactionSignature: Signature,
-    dataWalletKey: EVMPrivateKey,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError>;
 }

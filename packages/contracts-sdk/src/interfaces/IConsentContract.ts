@@ -207,11 +207,11 @@ export interface IConsentContract {
   ): ResultAsync<Event[], ConsentContractError>;
 
   /**
-   * Returns consent tokens previously minted for the address
+   * Returns a consent token by the token ID
    * @param ownerAddress owner address
    */
   getConsentToken(
-    optInInfo: OptInInfo,
+    tokenId: TokenId,
   ): ResultAsync<ConsentToken, ConsentContractError>;
 
   /**

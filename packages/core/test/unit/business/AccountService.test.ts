@@ -70,13 +70,17 @@ const evmAccountAddress = EVMAccountAddress("evmAccountAddress");
 const solanaAccountAddress = SolanaAccountAddress("solanaAccountAddress");
 const evmSignature = Signature("evmSignature");
 const solanaSignature = Signature("solanaSignature");
+
+const evmDerivedPrivateKey = EVMPrivateKey("evmDerivedPrivateKey");
+const solanaDerivedPrivateKey = EVMPrivateKey("solanaDerivedPrivateKey");
+
 const evmDerivedEVMAccount = new ExternallyOwnedAccount(
   EVMAccountAddress("derivedEVMAccountAddress1"),
-  EVMPrivateKey("derivedEVMPrivateKey1"),
+  evmDerivedPrivateKey,
 );
 const solanaDerivedEVMAccount = new ExternallyOwnedAccount(
   EVMAccountAddress("derivedEVMAccountAddress2"),
-  EVMPrivateKey("derivedEVMPrivateKey2"),
+  solanaDerivedPrivateKey,
 );
 const evmChain = EChain.LocalDoodle;
 const solanaChain = EChain.Solana;
@@ -156,7 +160,6 @@ class AccountServiceMocks {
     // InsightPlatformRepo --------------------------------------------------
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -164,13 +167,12 @@ class AccountServiceMocks {
         metatransactionGas,
         evmEncodedCreateCrumbContent,
         evmAddCrumbMetatransactionSignature,
-        dataWalletKey,
+        evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         solanaDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         solanaDerivedNonce,
@@ -178,13 +180,12 @@ class AccountServiceMocks {
         metatransactionGas,
         solanaEncodedCreateCrumbContent,
         solanaAddCrumbMetatransactionSignature,
-        dataWalletKey,
+        solanaDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -192,13 +193,12 @@ class AccountServiceMocks {
         metatransactionGas,
         evmEncodedBurnCrumbContent,
         evmBurnCrumbMetatransactionSignature,
-        dataWalletKey,
+        evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         solanaDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         solanaDerivedNonce,
@@ -206,7 +206,7 @@ class AccountServiceMocks {
         metatransactionGas,
         solanaEncodedBurnCrumbContent,
         solanaBurnCrumbMetatransactionSignature,
-        dataWalletKey,
+        solanaDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
@@ -1042,7 +1042,6 @@ describe("AccountService unlock() tests", () => {
 
     td.when(
       mocks.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -1050,7 +1049,7 @@ describe("AccountService unlock() tests", () => {
         metatransactionGas,
         evmEncodedCreateCrumbContent,
         evmAddCrumbMetatransactionSignature,
-        dataWalletKey,
+        evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError()));
@@ -1392,7 +1391,6 @@ describe("AccountService addAccount() tests", () => {
 
     td.when(
       mocks.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -1400,7 +1398,7 @@ describe("AccountService addAccount() tests", () => {
         metatransactionGas,
         evmEncodedCreateCrumbContent,
         evmAddCrumbMetatransactionSignature,
-        dataWalletKey,
+        evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError()));

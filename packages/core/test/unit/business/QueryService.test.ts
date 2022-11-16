@@ -18,6 +18,7 @@ import {
   IPFSError,
   SDQLQueryRequest,
   HexString32,
+  EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
@@ -43,12 +44,16 @@ import {
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
-import { IConfigProvider } from "@core/interfaces/utilities/index.js";
+import {
+  IConfigProvider,
+  IDataWalletUtils,
+} from "@core/interfaces/utilities/index.js";
 
 const AndrewContractAddress = EVMContractAddress("Andrew");
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryId = IpfsCID("Beep");
 const queryContent = SDQLString("Hello world!");
+const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
 // const sdqlQuery = new SDQLQuery(queryId, queryContent);
 const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalanche1SchemaStr));
 const insights: InsightString[] = [
@@ -65,6 +70,7 @@ const allPermissions = HexString32(
 
 class QueryServiceMocks {
   public consentTokenUtils: IConsentTokenUtils;
+  public dataWalletUtils: IDataWalletUtils;
   public queryParsingEngine: IQueryParsingEngine;
   public sdqlQueryRepo: ISDQLQueryRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
@@ -83,6 +89,7 @@ class QueryServiceMocks {
 
   public constructor() {
     this.consentTokenUtils = td.object<IConsentTokenUtils>();
+    this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
     this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
@@ -93,7 +100,6 @@ class QueryServiceMocks {
     this.persistenceRepo = td.object<IDataWalletPersistence>();
     td.when(
       this.insightPlatformRepo.deliverInsights(
-        dataWalletAddress,
         consentContractAddress,
         tokenId,
         queryId,
@@ -104,12 +110,11 @@ class QueryServiceMocks {
     ).thenReturn(okAsync([])); // success = EarnedReward[]
     td.when(
       this.insightPlatformRepo.deliverInsights(
-        dataWalletAddress,
         consentContractAddress,
         tokenId,
         queryId,
         insightsError,
-        dataWalletKey,
+        derivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError("mocked error"))); // error
@@ -132,6 +137,7 @@ class QueryServiceMocks {
   public factory(): QueryService {
     return new QueryService(
       this.consentTokenUtils,
+      this.dataWalletUtils,
       this.queryParsingEngine,
       this.sdqlQueryRepo,
       this.insightPlatformRepo,
