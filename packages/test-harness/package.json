@@ -27,7 +27,8 @@
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
-    "start": "yarn compile && node dist/ConsoleApp.js"
+    "start": "yarn compile && node dist/ConsoleApp.js",
+    "test": "npx cucumber-js"
   },
   "type": "module",
   "dependencies": {
