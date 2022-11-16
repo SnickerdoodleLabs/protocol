@@ -1,22 +1,7 @@
-// initialize core
-// create app loop
+import "reflect-metadata";
+import process from "node:process";
+import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
 
-import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { IConfigOverrides } from "@snickerdoodlelabs/objects";
-import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
-
-
-const fakeDBVolatileStorage = new FakeDBVolatileStorage();
-
-// https://github.com/SBoudrias/Inquirer.js
-const core = new SnickerdoodleCore(
-    {
-        defaultInsightPlatformBaseUrl: "http://localhost:3006",
-        dnsServerAddress: "http://localhost:3006/dns",
-    } as IConfigOverrides,
-    undefined,
-    fakeDBVolatileStorage,
-);
 
 process
     .on("unhandledRejection", (reason, p) => {
@@ -28,3 +13,14 @@ process
         process.exit(1);
     });
 
+
+// #region new prompt
+const promptFactory = new PromptFactory()
+const mainPromptNew = promptFactory.createDefault();
+// #endregion
+
+// Main event prompt. Core is up and running
+while (true) {
+    // await mainPrompt();
+    await mainPromptNew.start();
+}

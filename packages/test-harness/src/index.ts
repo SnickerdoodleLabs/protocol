@@ -205,8 +205,8 @@ core.getEvents().map(async (events) => {
 
   // Main event prompt. Core is up and running
   while (true) {
-    // await mainPrompt();
-    await mainPromptNew.start();
+    await mainPrompt();
+    // await mainPromptNew.start();
   }
 });
 

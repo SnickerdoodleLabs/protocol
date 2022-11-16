@@ -1,5 +1,4 @@
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
 import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { BusinessProfile, DataWalletProfile } from "@test-harness/utilities/index.js";
 import { ResultAsync } from "neverthrow";

@@ -1,16 +1,16 @@
 import { okAsync, ResultAsync } from "neverthrow";
 
-import inquirer from "inquirer";
-import { Prompt } from "@test-harness/prompts/Prompt.js";
-import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { AESEncryptedString, Age, BigNumberString, ChainId, CountryCode, EarnedReward, EncryptedString, ERewardType, EVMAccountAddress, EVMTransaction, Gender, IDataWalletBackup, InitializationVector, IpfsCID, SiteVisit, UnixTimestamp, URLString } from "@snickerdoodlelabs/objects";
 import { Environment } from "@test-harness/mocks/Environment.js";
-import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
 import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
-import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
+import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
+import { Prompt } from "@test-harness/prompts/Prompt.js";
+import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
+import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
+import inquirer from "inquirer";
 
 export class CorePrompt extends Prompt {
 

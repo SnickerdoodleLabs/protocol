@@ -1,10 +1,10 @@
 import { okAsync, ResultAsync } from "neverthrow";
 
-import inquirer from "inquirer";
-import { Prompt } from "@test-harness/prompts/Prompt.js";
-import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { BlockchainProviderError, CrumbsContractError, EVMAccountAddress, PersistenceError, UninitializedError } from "@snickerdoodlelabs/objects";
+import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
+import { Prompt } from "@test-harness/prompts/Prompt.js";
 import { TestWallet } from "@test-harness/utilities/index.js";
+import inquirer from "inquirer";
 
 export class RemoveAccount extends Prompt {
 

@@ -1,6 +1,6 @@
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { MetatransactionSignatureRequest, Signature, UnsupportedLanguageError } from "@snickerdoodlelabs/objects";
+import { MetatransactionSignatureRequest, PageInvitation, Signature, UnsupportedLanguageError } from "@snickerdoodlelabs/objects";
 import { TestHarnessMocks } from "@test-harness/mocks";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
@@ -9,6 +9,8 @@ import { ResultAsync } from "neverthrow";
 export class DataWalletProfile {
 
     private _unlocked = false;
+    
+    public acceptedInvitations = new Array<PageInvitation>();
     
     public constructor(
         readonly core: SnickerdoodleCore,

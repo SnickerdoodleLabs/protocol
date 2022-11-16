@@ -9,6 +9,8 @@ import { ResultAsync } from "neverthrow";
 import { BigNumber } from "ethers";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 
+import { query1, query2 } from "@test-harness/queries/index.js";
+
 export class TestHarnessMocks {
 
     public cryptoUtils = new CryptoUtils();
@@ -75,9 +77,11 @@ export class TestHarnessMocks {
     public domainName3 = DomainName("snickerdoodle-protocol.snickerdoodle.dev");
     public domainName4 = DomainName("snickerdoodle-protocol.snickerdoodle.com");
 
-    public consentContracts = new Array<EVMContractAddress>();
-    public acceptedInvitations = new Array<PageInvitation>();
+    // public consentContracts = new Array<EVMContractAddress>();
+    // public acceptedInvitations = new Array<PageInvitation>();
 
+    public query1 = query1;
+    public query2 = query2;
     
 
 }
