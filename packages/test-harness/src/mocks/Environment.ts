@@ -2,6 +2,7 @@ import { BusinessProfile, DataWalletProfile } from "@test-harness/utilities";
 import { TestHarnessMocks } from "@test-harness/mocks/TestHarnessMocks.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
 import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 
 export class Environment {
     public constructor(
@@ -14,7 +15,7 @@ export class Environment {
         return this.mocks.insightSimulator;
     }
 
-    public get core(): ISnickerdoodleCore {
+    public get core(): SnickerdoodleCore {
         return this.dataWalletProfile.core;
     }
 

@@ -1,23 +1,24 @@
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
-import { ISnickerdoodleCore, MetatransactionSignatureRequest, Signature, UnsupportedLanguageError } from "@snickerdoodlelabs/objects";
+import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
+import { MetatransactionSignatureRequest, Signature, UnsupportedLanguageError } from "@snickerdoodlelabs/objects";
 import { TestHarnessMocks } from "@test-harness/mocks";
+import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
-import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 
 export class DataWalletProfile {
 
     private _unlocked = false;
     
     public constructor(
-        readonly core: ISnickerdoodleCore,
+        readonly core: SnickerdoodleCore,
         readonly mocks: TestHarnessMocks
     ) {}
 
     public get unlocked(): boolean {
         return this._unlocked; 
     }
-    
+
     public unlock() {
         this._unlocked = true;
     }
