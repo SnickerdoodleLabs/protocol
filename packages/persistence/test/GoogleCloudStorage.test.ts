@@ -69,6 +69,10 @@ describe("Google Cloud Storage Tests", () => {
 
     const data = "this is a test";
 
+    // const [files] = await storage
+    //   .bucket("ceramic-replacement-bucket")
+    //   .getFiles();
+
     await fsPromises.writeFile("testing123.txt", data, {
       flag: "w",
     });
