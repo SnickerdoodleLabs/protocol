@@ -3,7 +3,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import inquirer from "inquirer";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
-import { EarnedReward, ERewardType, EVMTransaction, IpfsCID, SiteVisit } from "@snickerdoodlelabs/objects";
+import { Age, CountryCode, EarnedReward, ERewardType, EVMTransaction, Gender, IpfsCID, SiteVisit, UnixTimestamp, URLString } from "@snickerdoodlelabs/objects";
 import { Environment } from "@test-harness/mocks/Environment.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
@@ -128,42 +128,42 @@ export class CorePrompt extends Prompt {
               return this.optInCampaign.start();
             case "optOutCampaign":
               return this.optOutCampaign.start();
-            // case "setAge to 15":
-            //   console.log("Age is set to 15");
-            //   return core.setAge(Age(15));
-            // case "setAge to 0":
-            //   console.log("Age is set to 0");
-            //   return core.setAge(Age(0));
-            // case "getAge":
-            //   return core.getAge().map(console.log);
-            // case "setGender":
-            //   console.log("Gender is set to male");
-            //   return core.setGender(Gender("male"));
-            // case "getAge":
-            //   return core.getGender().map(console.log);
-            // case "setLocation":
-            //   console.log("Location Country Code is US");
-            //   return core.setLocation(CountryCode("US"));
-            // case "getLocation":
-            //   return core.getLocation().map(console.log);
+            case "setAge to 15":
+              console.log("Age is set to 15");
+              return this.core.setAge(Age(15));
+            case "setAge to 0":
+              console.log("Age is set to 0");
+              return this.core.setAge(Age(0));
+            case "getAge":
+              return this.core.getAge().map(console.log);
+            case "setGender":
+              console.log("Gender is set to male");
+              return this.core.setGender(Gender("male"));
+            case "getAge":
+              return this.core.getGender().map(console.log);
+            case "setLocation":
+              console.log("Location Country Code is US");
+              return this.core.setLocation(CountryCode("US"));
+            case "getLocation":
+              return this.core.getLocation().map(console.log);
             // case "getTransactions":
-            //   return core.getTransactions().map(console.log);
-            // case "getAccounts":
-            //   return core.getAccounts().map(console.log);
-            // case "getNFTs":
-            //   return core.getAccountNFTs().map(console.log);
-            // case "getBalances":
-            //   return core.getAccountBalances().map(console.log);
+            //   return this.core.getTransactions().map(console.log);
+            case "getAccounts":
+              return this.core.getAccounts().map(console.log);
+            case "getNFTs":
+              return this.core.getAccountNFTs().map(console.log);
+            case "getBalances":
+              return this.core.getAccountBalances().map(console.log);
             // case "getTransactionMap":
-            //   return core.getTransactionsArray().map(console.log);
+            //   return this.core.getTransactionsArray().map(console.log);
             // case "getSiteVisitMap":
-            //   return core.getSiteVisitsMap().map(console.log);
+            //   return this.core.getSiteVisitsMap().map(console.log);
             // case "getSiteVisits":
-            //   return core.getSiteVisits().map(console.log);
+            //   return this.core.getSiteVisits().map(console.log);
             // case "addEarnedReward":
-            //   return core.addEarnedRewards([earnedReward]).map(console.log);
-            // case "getEarnedRewards":
-            //   return core.getEarnedRewards().map(console.log);
+            //   return this.core.addEarnedRewards([earnedReward]).map(console.log);
+            case "getEarnedRewards":
+              return this.core.getEarnedRewards().map(console.log);
             // case "addEVMTransaction - Query's Network":
             //   /*
             //     Important!  Must use different hash values for transaction values!
@@ -230,7 +230,7 @@ export class CorePrompt extends Prompt {
             //   console.log(
             //     `adding ${transactions.length} transactions for chain 43113`,
             //   );
-            //   return core.addEVMTransactions(transactions).map(console.log);
+            //   return this.core.addEVMTransactions(transactions).map(console.log);
             // case "addEVMTransaction - google":
             //   transactions[0] = new EVMTransaction(
             //     ChainId(1),
@@ -246,23 +246,23 @@ export class CorePrompt extends Prompt {
             //     null,
             //     Math.random() * 1000,
             //   );
-            //   return core.addEVMTransactions(transactions).map(console.log);
-            // case "addSiteVisit - google":
-            //   sites[0] = new SiteVisit(
-            //     URLString("www.google.com"),
-            //     UnixTimestamp(100),
-            //     UnixTimestamp(1000),
-            //   );
-            //   return core.addSiteVisits(sites).map(console.log);
-            // case "addSiteVisit - facebook":
-            //   sites[0] = new SiteVisit(
-            //     URLString("www.facebook.com"),
-            //     UnixTimestamp(100),
-            //     UnixTimestamp(1000),
-            //   );
-            //   return core.addSiteVisits(sites).map(console.log);
+            //   return this.core.addEVMTransactions(transactions).map(console.log);
+            case "addSiteVisit - google":
+              sites[0] = new SiteVisit(
+                URLString("www.google.com"),
+                UnixTimestamp(100),
+                UnixTimestamp(1000),
+              );
+              return this.core.addSiteVisits(sites).map(console.log);
+            case "addSiteVisit - facebook":
+              sites[0] = new SiteVisit(
+                URLString("www.facebook.com"),
+                UnixTimestamp(100),
+                UnixTimestamp(1000),
+              );
+              return this.core.addSiteVisits(sites).map(console.log);
             // case "dumpBackup":
-            //   return core.dumpBackup().map(console.log);
+            //   return this.core.dumpBackup().map(console.log);
             // case "restoreBackup":
             //   const backup: IDataWalletBackup = {
             //     header: {
@@ -278,15 +278,15 @@ export class CorePrompt extends Prompt {
             //       InitializationVector("xR+uHr2nJ3CfL0md"),
             //     ),
             //   };
-            //   return core
+            //   return this.core
             //     .restoreBackup(backup)
             //     .andThen(() =>
             //       okAsync(console.log("restored backup", backup.header.hash)),
             //     );
-            // case "manualBackup":
-            //   return core.postBackup().map(console.log);
-            // case "clearCloudStore":
-            //   return core.clearCloudStore().map(console.log);
+            case "manualBackup":
+              return this.core.postBackup().map(console.log);
+            case "clearCloudStore":
+              return this.core.clearCloudStore().map(console.log);
           }
           return okAsync(undefined);
         });
