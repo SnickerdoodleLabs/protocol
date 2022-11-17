@@ -30,6 +30,7 @@
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
     "start": "yarn compile && node dist/ConsoleApp.js",
+    "start-old": "yarn compile && node dist/index-deleted-but-kept-for-ref.js",
     "test": "npx cucumber-js",
     "test-check": "npx ts-node-esm ../../node_modules/@cucumber/cucumber/bin/cucumber-js -p default --dry-run"
   },
