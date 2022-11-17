@@ -81,14 +81,15 @@ describe("Sign proper data for InsigtPlatform APIs", () => {
         expect(verifiedAccountAddress).toEqual(derivedDWAddress);
 
         console.log("/insights/responses");
-        console.log({
-            consentContractId: consentContractAddress,
-            queryCid: queryCid,
-            dataWallet: derivedDWAddress,
-            returns: returns,
-            rewardParameters: rewardParameters,
-            signature: signature,
-        });
+        console.log("{" + "\n" +
+            "\"consentContractId\": \"" + consentContractAddress + "\",\n" +
+            "\"queryCid\": \"" + queryCid + "\",\n" +
+            "\"dataWallet\": \"" + derivedDWAddress + "\",\n" +
+            "\"returns\": \"" + returns + "\",\n" +
+            "\"rewardParameters\": \"" + rewardParameters + "\",\n" +
+            "\"signature\": \"" + signature + "\"\n" +
+            "}"
+        );
     });
 
 
@@ -130,13 +131,14 @@ describe("Sign proper data for InsigtPlatform APIs", () => {
         expect(verifiedAccountAddress).toEqual(derivedDWAddress);
 
         console.log("/insights/responses/preview");
-        console.log({
-            consentContractId: consentContractAddress,
-            queryCID: queryCid,
-            dataWallet: derivedDWAddress,
-            queries: answeredQueries,
-            signature: signature,
-        });
+        console.log("{" + "\n" +
+            "\"consentContractId\": \"" + consentContractAddress + "\",\n" +
+            "\"queryCID\": \"" + queryCid + "\",\n" +
+            "\"dataWallet\": \"" + derivedDWAddress + "\",\n" +
+            "\"queries\": \"" + answeredQueries + "\",\n" +
+            "\"signature\": \"" + signature + "\"\n" +
+            "}"
+        );
     });
 
 
@@ -180,15 +182,16 @@ describe("Sign proper data for InsigtPlatform APIs", () => {
         expect(verifiedAccountAddress).toEqual(derivedDWAddress);
 
         console.log("/metatransaction");
-        console.log({
-            dataWalletAddress: derivedDWAddress,
-            accountAddress: accountAddress,
-            contractAddress: consentContractAddress,
-            nonce: nonce,
-            data: data,
-            metatransactionSignature: evmAddCrumbMetatransactionSignature,
-            requestSignature: signature,
-        });
+        console.log("{" + "\n" +
+            "\"dataWalletAddress\": \"" + derivedDWAddress + "\",\n" +
+            "\"accountAddress\": \"" + accountAddress + "\",\n" +
+            "\"contractAddress\": \"" + consentContractAddress + "\",\n" +
+            "\"nonce\": \"" + nonce + "\",\n" +
+            "\"data\": \"" + data + "\",\n" +
+            "\"metatransactionSignature\": \"" + evmAddCrumbMetatransactionSignature + "\",\n" +
+            "\"requestSignature\": \"" + signature + "\"\n" +
+            "}"
+        );
     });
 
 });
