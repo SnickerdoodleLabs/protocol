@@ -1,4 +1,4 @@
-import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard/InfoCard.style";
+import { useStyles } from "@extension-onboarding/components/Portfolio/components/InfoCard/InfoCard.style";
 import { Box, Typography } from "@material-ui/core";
 import React, { FC } from "react";
 

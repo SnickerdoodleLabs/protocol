@@ -1,4 +1,3 @@
-import TokenItem from "@extension-onboarding/components/TokenItem/TokenItem";
 import {
   Box,
   CircularProgress,
@@ -20,26 +19,35 @@ import {
   TokenBalance,
   TickerSymbol,
   WalletNFT,
+  EChainTechnology,
+  EVMNFT,
+  SolanaNFT,
+  AccountAddress,
 } from "@snickerdoodlelabs/objects";
 import clsx from "clsx";
 import { BigNumber } from "ethers";
 import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useEffect, useMemo, useState } from "react";
-
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import phantomSmall from "@extension-onboarding/assets/icons/phantomSmall.svg";
 import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
 import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
-import NFTItem from "@extension-onboarding/components/NFTItem";
+import {
+  SolanaNFTItem,
+  EVMNFTItem,
+} from "@extension-onboarding/components/NFTItem";
 import Switch from "@extension-onboarding/components/Switch";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
-import InfoCard from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
+import InfoCard from "@extension-onboarding/components/Portfolio/components/InfoCard";
+import TokenItem from "@extension-onboarding/components/TokenItem";
+import { useStyles } from "@extension-onboarding/components/Portfolio/Portfolio.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -78,7 +86,12 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
 
 const PAGINATION_RANGE = 5;
 
-const Portfolio: FC = () => {
+interface IPortfolioProps {
+  selectedAccount?: AccountAddress;
+}
+
+const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
+  const { setModal } = useLayoutContext();
   const { linkedAccounts } = useAppContext();
   const [accountBalances, setAccountBalances] = useState<TokenBalance[]>();
   const [accountTestnetBalances, setAccountTestnetBalances] =
@@ -88,7 +101,9 @@ const Portfolio: FC = () => {
 
   const [isBalancesLoading, setIsBalancesLoading] = useState(true);
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
-  const [accountSelect, setAccountSelect] = useState<EVMAccountAddress>();
+  const [accountSelect, setAccountSelect] = useState<
+    AccountAddress | undefined
+  >(selectedAccount);
   const [chainSelect, setChainSelect] = useState<ChainId>();
   const [displayMode, setDisplayMode] = useState<EDisplayMode>(
     EDisplayMode.MAINNET,
@@ -187,7 +202,7 @@ const Portfolio: FC = () => {
 
       return {
         netWorth: balanceArr.reduce(
-          (acc, item) => acc + Number.parseFloat(item.balance),
+          (acc, item) => acc + Number.parseFloat(item.quoteBalance || "0"),
           0,
         ),
         numberOfTokens: new Set(balanceArr.map((balance) => balance.ticker))
@@ -228,6 +243,12 @@ const Portfolio: FC = () => {
               BigNumber.from(acc[item.ticker].balance)
                 .add(BigNumber.from(item.balance))
                 .toString(),
+            ),
+            quoteBalance: BigNumberString(
+              (
+                Number.parseFloat(acc[item.ticker].quoteBalance) +
+                Number.parseFloat(item.quoteBalance)
+              ).toString(),
             ),
           };
         } else {
@@ -662,10 +683,22 @@ const Portfolio: FC = () => {
                           nftsPagination.currentIndex * PAGINATION_RANGE,
                         )
                       : nftsToRender
-                    )?.map((nftitem) => {
-                      return (
-                        <NFTItem key={JSON.stringify(nftitem)} item={nftitem} />
-                      );
+                    )?.map((nftItem) => {
+                      if (nftItem.type === EChainTechnology.EVM) {
+                        return (
+                          <EVMNFTItem
+                            key={JSON.stringify(nftItem)}
+                            item={nftItem as EVMNFT}
+                          />
+                        );
+                      } else {
+                        return (
+                          <SolanaNFTItem
+                            key={JSON.stringify(nftItem)}
+                            item={nftItem as SolanaNFT}
+                          />
+                        );
+                      }
                     })
                   ) : (
                     <Box width="100%" display="flex">

@@ -92,4 +92,13 @@ export const useStyles = makeStyles((theme) => ({
     marginTop: "16px",
     gap: 10,
   },
+  wrapper: {
+    margin: "0 auto",
+    maxWidth: 1440,
+    minHeight: "100vh",
+    maxHeight: "100vh",
+    backgroundColor: "#fff",
+    paddingBottom: 80,
+    overflowY: "auto",
+  }
 }));
