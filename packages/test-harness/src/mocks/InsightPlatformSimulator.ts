@@ -1,5 +1,10 @@
 import * as fs from "fs";
+import { dirname } from "path";
+import { Stream } from "stream";
+import { fileURLToPath } from "url";
+import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
 
+import { Storage } from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -204,11 +209,13 @@ export class InsightPlatformSimulator {
     });
 
     this.app.post("/getAuthorizedBackups", (req, res) => {
+      const data = JSON.stringify(req.body.data);
       const dataWalletAddress = EVMAccountAddress(req.body.dataWallet);
       const fileName = EVMContractAddress(req.body.file);
       const signature = Signature(req.body.signature);
 
       const signingData = {
+        data: data,
         dataWallet: dataWalletAddress,
         fileName: fileName,
       };
@@ -221,8 +228,41 @@ export class InsightPlatformSimulator {
           signature,
         )
         .map((verificationAddress) => {
-          console.log("Verification Address: ", verificationAddress);
-          res.send("Success - SignedURL received!");
+          if (verificationAddress != EVMAccountAddress(dataWalletAddress)) {
+            console.error(
+              `Invalid signature. Data Wallet Address: ${dataWalletAddress}, verified address: ${verificationAddress}`,
+            );
+            // return errAsync(new Error("Invalid signature!"));
+          }
+          console.log(
+            `Verified signature from data wallet ${verificationAddress}!`,
+          );
+
+          const __filename = fileURLToPath(import.meta.url);
+          const __dirname = dirname(__filename);
+          console.log("__dirname: ", __dirname);
+
+          const storage = new Storage({
+            keyFilename: "../persistence/src/credentials.json",
+            projectId: "snickerdoodle-insight-stackdev",
+          });
+
+          const data = "this is a test";
+          fsPromises.writeFile(fileName, data, {
+            flag: "w",
+          });
+
+          const options = {
+            destination: "test-harness/"
+              .concat(dataWalletAddress)
+              .concat(fileName),
+          };
+          const bucketName = "ceramic-replacement-bucket";
+          storage
+            .bucket("ceramic-replacement-bucket")
+            .upload(fileName, options);
+
+          return 
         });
       res.send("Boo!");
     });

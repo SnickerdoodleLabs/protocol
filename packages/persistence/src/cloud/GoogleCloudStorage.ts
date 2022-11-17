@@ -98,7 +98,8 @@ export class GoogleCloudStorage implements ICloudStorage {
 
       //   console.log("Dirname 2: ", __dirname);
 
-      const data = new IDataWalletBackup;
+      // const data = new IDataWalletBackup;
+      const data = "asdf";
       fsPromises.writeFile("testing789.txt", data, {
         flag: "w",
       });
