@@ -27,7 +27,7 @@
     "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "build": "yarn clean && yarn compile",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
-    "compile": "tsc --build && cd ../.. && yarn alias",
+    "compile": "npx tsc --build && cd ../.. && yarn alias",
     "test": "yarn test:ci",
     "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests",
     "test:watch": "npx jest --watch --color --detectOpenHandles"
