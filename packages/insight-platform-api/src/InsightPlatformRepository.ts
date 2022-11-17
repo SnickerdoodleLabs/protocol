@@ -74,7 +74,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         return this.ajaxUtils.post<EligibleReward[]>(url, {
           consentContractId: consentContractAddress,
           queryCID: queryCID,
-          tokenId: tokenId,
+          tokenId: tokenId.toString(),
           queries: answeredQueries,
           signature: signature,
         });
@@ -86,16 +86,16 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     tokenId: TokenId,
     queryCID: IpfsCID,
     returns: InsightString[],
+    rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
       queryCID: queryCID,
       returns: JSON.stringify(returns),
-      rewardParameters: JSON.stringify(rewardParameters || []),
+      rewardParameters: JSON.stringify(rewardParameters),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -112,10 +112,10 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         return this.ajaxUtils.post<EarnedReward[]>(url, {
           consentContractId: consentContractAddress,
-          tokenId: tokenId,
+          tokenId: tokenId.toString(),
           queryCID: queryCID,
           returns: returns,
-          rewardParameters: rewardParameters || [],
+          rewardParameters: rewardParameters,
           signature: signature,
         });
       });

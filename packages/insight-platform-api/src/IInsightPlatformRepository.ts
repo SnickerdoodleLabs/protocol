@@ -27,7 +27,6 @@ export interface IInsightPlatformRepository {
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
-    expectedRewards: ExpectedReward[],
   ): ResultAsync<EligibleReward[], AjaxError>;
 
   deliverInsights(
@@ -35,9 +34,9 @@ export interface IInsightPlatformRepository {
     tokenId: TokenId,
     queryCid: IpfsCID,
     returns: InsightString[],
+    rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError>;
 
   executeMetatransaction(

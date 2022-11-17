@@ -29,7 +29,6 @@ import {
   IDataWalletPersistenceType,
   IDataWalletPersistence,
   QueryExpiredError,
-  DataPermissions,
   IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -60,7 +59,6 @@ import {
 } from "@core/interfaces/utilities/index.js";
 @injectable()
 export class QueryService implements IQueryService {
-  // queryContractMap: Map<IpfsCID, EVMContractAddress> = new Map();
   public constructor(
     @inject(IConsentTokenUtilsType)
     protected consentTokenUtils: IConsentTokenUtils,
@@ -145,37 +143,36 @@ export class QueryService implements IQueryService {
         return this.queryParsingEngine
           .getPreviews(query, consentToken!.dataPermissions)
           .andThen(([queryIdentifiers, expectedRewards]) => {
-            return this.insightPlatformRepo.receivePreviews(
-              consentContractAddress,
-              consentToken.tokenId,
-              query.cid,
-              optInKey,
-              config.defaultInsightPlatformBaseUrl,
-              queryIdentifiers,
-              expectedRewards,
-            );
-          })
-          .andThen((eligibleRewards) => {
-            /* Compare server's rewards with your list */
-            // if (!this.compareRewards(eligibleRewards, expectedRewards)) {
-            //   // No consent given!
-            //   return errAsync(
-            //     new ServerRewardError(
-            //       "Insight Platform Rewards do not match Expected Rewards!",
-            //     ),
-            //   );
-            // }
+            return this.insightPlatformRepo
+              .receivePreviews(
+                consentContractAddress,
+                consentToken.tokenId,
+                query.cid,
+                optInKey,
+                config.defaultInsightPlatformBaseUrl,
+                queryIdentifiers,
+              )
+              .map((eligibleRewards) => {
+                /* Compare server's rewards with your list */
+                // if (!this.compareRewards(eligibleRewards, expectedRewards)) {
+                //   // No consent given!
+                //   return errAsync(
+                //     new ServerRewardError(
+                //       "Insight Platform Rewards do not match Expected Rewards!",
+                //     ),
+                //   );
+                // }
 
-            const queryRequest = new SDQLQueryRequest(
-              consentContractAddress,
-              query,
-              eligibleRewards,
-              accounts,
-              context.dataWalletAddress!,
-            );
+                const queryRequest = new SDQLQueryRequest(
+                  consentContractAddress,
+                  query,
+                  eligibleRewards,
+                  accounts,
+                  context.dataWalletAddress!,
+                );
 
-            context.publicEvents.onQueryPosted.next(queryRequest);
-            return okAsync(undefined);
+                context.publicEvents.onQueryPosted.next(queryRequest);
+              });
           });
       });
     });
@@ -199,7 +196,7 @@ export class QueryService implements IQueryService {
   public processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    rewardParameters?: IDynamicRewardParameter[],
+    rewardParameters: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -238,15 +235,17 @@ export class QueryService implements IQueryService {
           const insights = maps2[0];
           const rewards = maps2[1];
 
+
+
           return this.insightPlatformRepo
             .deliverInsights(
               consentContractAddress,
               consentToken!.tokenId,
               query.cid,
               insights,
+              rewardParameters,
               optInKey,
               config.defaultInsightPlatformBaseUrl,
-              rewardParameters,
             )
             .map((earnedRewards) => {
               console.log("insight delivery api call done");

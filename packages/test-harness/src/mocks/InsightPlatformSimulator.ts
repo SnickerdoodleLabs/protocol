@@ -85,7 +85,7 @@ export class InsightPlatformSimulator {
       console.log("Req is this: ", req.body);
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
-      const tokenId = TokenId(req.body.tokenId);
+      const tokenId = TokenId(BigInt(req.body.tokenId));
       const queryCID = IpfsCID(req.body.queryCID);
       const queries = JSON.stringify(req.body.queries);
       const signature = Signature(req.body.signature);
@@ -159,20 +159,19 @@ export class InsightPlatformSimulator {
     });
 
     this.app.post("/insights/responses", (req, res) => {
-      console.log("Sending to Insight Responses");
+      console.log("Recieved Insight Response");
       console.log("Req is this: ", req.body);
-      console.log("/insights/responses ");
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
-      const queryCid = IpfsCID(req.body.queryCid);
-      const tokenId = TokenId(req.body.tokenId);
+      const queryCID = IpfsCID(req.body.queryCID);
+      const tokenId = TokenId(BigInt(req.body.tokenId));
       const returns = JSON.stringify(req.body.returns);
       const rewardParameters = JSON.stringify(req.body.rewardParameters);
       const signature = Signature(req.body.signature);
 
       const value = {
         consentContractId,
-        queryCid,
+        queryCID,
         tokenId,
         returns,
         rewardParameters,
@@ -210,7 +209,7 @@ export class InsightPlatformSimulator {
         })
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(queryCid, ERewardType.Direct);
+          earnedRewards[0] = new EarnedReward(queryCID, ERewardType.Direct);
           res.send(earnedRewards);
         })
         .mapErr((e) => {

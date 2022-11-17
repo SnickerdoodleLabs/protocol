@@ -179,6 +179,7 @@ core.getEvents().map(async (events) => {
           return core.processQuery(
             queryRequest.consentContractAddress,
             queryRequest.query,
+            [],
           );
         })
         .mapErr((e) => {

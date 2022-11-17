@@ -301,7 +301,7 @@ export interface ISnickerdoodleCore {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    parameters?: IDynamicRewardParameter[],
+    parameters: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError

@@ -201,7 +201,7 @@ describe("processQuery tests", () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
     await queryService
-      .processQuery(consentContractAddress, sdqlQuery)
+      .processQuery(consentContractAddress, sdqlQuery, [])
       .andThen((result) => {
         //console.log("result", result);
         expect(result).toBeUndefined();
