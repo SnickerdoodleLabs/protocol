@@ -46,7 +46,7 @@ class ConfigProvider implements IConfigProvider {
       __COVALENT_API_KEY__ === "" ? undefined : __COVALENT_API_KEY__,
       __MORALIS_API_KEY__ === "" ? undefined : __MORALIS_API_KEY__,
       __DNS_SERVER_ADDRESS__ === "" ? undefined : __DNS_SERVER_ADDRESS__,
-      __REQUEST_FOR_DATA_EVENT_FREQ__ === "" ? undefined : Number.parseInt(__REQUEST_FOR_DATA_EVENT_FREQ__),
+      Number.parseInt(__REQUEST_FOR_DATA_EVENT_FREQ__),
     );
   }
   public getConfig() {

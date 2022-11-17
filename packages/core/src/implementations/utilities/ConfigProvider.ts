@@ -83,7 +83,7 @@ export class ConfigProvider
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       "USD", // quoteCurrency
-      controlChainInformation.averageBlockMiningTime
+      4000 // polling interval for consent contracts on control chain
     );
   }
 
