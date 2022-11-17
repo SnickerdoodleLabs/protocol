@@ -52,16 +52,26 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
-  private _init(): ResultAsync<void, PersistenceError> {
+  private _init(): ResultAsync<
+    {
+      storage: Storage;
+      config: IPersistenceConfig;
+    },
+    PersistenceError
+  > {
     return this._configProvider.getConfig().andThen((config) => {
       this.config = config;
+      //   console.log("config: ", config);
       this.storage = new Storage({
         keyFilename: "../persistence/src/credentials.json",
         projectId: "snickerdoodle-insight-stackdev",
       });
 
-      console.log("storage: ", this.storage);
-      return okAsync(undefined);
+      //   console.log("storage: ", this.storage);
+      return okAsync({
+        storage: this.storage,
+        config: config,
+      });
     });
   }
 
@@ -82,13 +92,13 @@ export class GoogleCloudStorage implements ICloudStorage {
   putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<CeramicStreamID, PersistenceError> {
-    return this._init().andThen(() => {
+    return this._init().andThen(({ storage, config }) => {
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = dirname(__filename);
 
-      console.log("Dirname 2: ", __dirname);
+      //   console.log("Dirname 2: ", __dirname);
 
-      const data = "this is a test";
+      const data = new IDataWalletBackup;
       fsPromises.writeFile("testing789.txt", data, {
         flag: "w",
       });
@@ -108,7 +118,7 @@ export class GoogleCloudStorage implements ICloudStorage {
       this.storage
         .bucket("ceramic-replacement-bucket")
         .upload(filePath, options);
-      console.log(`${filePath} uploaded to ${bucketName}`);
+      //   console.log(`${filePath} uploaded to ${bucketName}`);
 
       this._lastRestore =
         backup.header.timestamp > this._lastRestore
@@ -122,13 +132,11 @@ export class GoogleCloudStorage implements ICloudStorage {
 
   /* Routinely upload a new file */
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
-    // The ID of your GCS bucket
-
-    return this._init().andThen(() => {
+    return this._init().andThen(({ storage, config }) => {
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = dirname(__filename);
 
-      console.log("Dirname 1: ", __dirname);
+      //   console.log("Polling config: ", config);
 
       const data = "this is a test";
       fsPromises.writeFile("testing456.txt", data, {
@@ -150,7 +158,7 @@ export class GoogleCloudStorage implements ICloudStorage {
       this.storage
         .bucket("ceramic-replacement-bucket")
         .upload(filePath, options);
-      console.log(`${filePath} uploaded to ${bucketName}`);
+      //   console.log(`${filePath} uploaded to ${bucketName}`);
       return okAsync([]);
     });
   }

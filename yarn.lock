@@ -33925,17 +33925,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tldts-core@npm:^5.7.100":
+"tldts-core@npm:^5.7.100, tldts-core@npm:^5.7.99":
   version: 5.7.100
   resolution: "tldts-core@npm:5.7.100"
   checksum: 78c0a329e2d190a8a9e73ea979acf9fc3465311039cfb7845d1d956a7e305a55c09a01295f69eec3d441e4ed6621033899ad3a73aef73a033fe0a0006d208e87
-  languageName: node
-  linkType: hard
-
-"tldts-core@npm:^5.7.97":
-  version: 5.7.97
-  resolution: "tldts-core@npm:5.7.97"
-  checksum: 9127dd0a5c3d8ebd7b61269f6f8c46aac52c6626fb8a40bdf2702047e97554572ca4a308bda5de5709b18343ce8ffb09aa6a64e4e915db11a12ff39fe379eaab
   languageName: node
   linkType: hard
 

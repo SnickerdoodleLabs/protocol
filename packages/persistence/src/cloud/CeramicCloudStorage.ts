@@ -221,6 +221,8 @@ export class CeramicCloudStorage implements ICloudStorage {
         found.map((backupID) => this._getBackup(backupID)),
       ).map((fetched) => {
         this._restored = new Set(recent);
+        console.log("FETCHED DATA!");
+        console.log(fetched);
         return fetched;
       });
     });
