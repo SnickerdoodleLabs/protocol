@@ -435,14 +435,7 @@ export class AccountService implements IAccountService {
               }
 
               // Remove the crumb
-              return this.removeCrumb(
-                new ExternallyOwnedAccount(
-                  EVMAccountAddress(context.dataWalletAddress!),
-                  context.dataWalletKey!,
-                ),
-                derivedEVMAccount,
-                crumbTokenId,
-              )
+              return this.removeCrumb(derivedEVMAccount, crumbTokenId)
                 .andThen(() => {
                   // Add the account to the data wallet
                   return this.dataWalletPersistence.removeAccount(
@@ -662,7 +655,6 @@ export class AccountService implements IAccountService {
   }
 
   protected removeCrumb(
-    dataWalletAccount: ExternallyOwnedAccount,
     derivedEVMAccount: ExternallyOwnedAccount,
     crumbId: TokenId,
   ): ResultAsync<
@@ -713,7 +705,7 @@ export class AccountService implements IAccountService {
                 BigNumberString(BigNumber.from(10000000).toString()), // gas
                 callData,
                 metatransactionSignature,
-                dataWalletAccount.privateKey,
+                derivedEVMAccount.privateKey,
                 config.defaultInsightPlatformBaseUrl,
               );
             });

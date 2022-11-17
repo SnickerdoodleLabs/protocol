@@ -19,6 +19,7 @@ import {
   SDQLQueryRequest,
   HexString32,
   EVMPrivateKey,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
 import { errAsync, okAsync } from "neverthrow";
@@ -26,10 +27,10 @@ import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
 import {
-  dataWalletAddress,
   dataWalletKey,
+  dataWalletAddress,
   defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks/index.js";
+} from "@core-tests/mock/mocks";
 import {
   ConfigProviderMock,
   ContextProviderMock,
@@ -67,6 +68,17 @@ const tokenId = TokenId(BigInt(0));
 const allPermissions = HexString32(
   "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
 );
+const dataPermissions = DataPermissions.createWithAllPermissions();
+
+//const rewardParameters = new Array<IDynamicRewardParameter>();
+const rewardParameters = [
+  {
+    recipientAddress: {
+      type: "address",
+      value: "CHARLIE",
+    },
+  } as IDynamicRewardParameter,
+];
 
 class QueryServiceMocks {
   public consentTokenUtils: IConsentTokenUtils;
@@ -84,7 +96,7 @@ class QueryServiceMocks {
     consentContractAddress,
     EVMAccountAddress(dataWalletAddress),
     tokenId,
-    DataPermissions.createWithAllPermissions(),
+    dataPermissions,
   );
 
   public constructor() {
@@ -98,6 +110,7 @@ class QueryServiceMocks {
     this.configProvider = new ConfigProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.persistenceRepo = td.object<IDataWalletPersistence>();
+
     td.when(
       this.insightPlatformRepo.deliverInsights(
         consentContractAddress,
@@ -105,7 +118,7 @@ class QueryServiceMocks {
         queryCID,
         insights,
         [],
-        dataWalletKey,
+        derivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync([])); // success = EarnedReward[]
@@ -120,6 +133,7 @@ class QueryServiceMocks {
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError("mocked error"))); // error
+
     td.when(this.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
     );
@@ -131,10 +145,21 @@ class QueryServiceMocks {
     ).thenReturn(okAsync(this.consentToken));
     td.when(
       this.queryParsingEngine.handleQuery(
-        sdqlQuery,
-        DataPermissions.createWithAllPermissions(),
+        //sdqlQuery,
+        td.matchers.anything(),
+        //dataPermissions,
+        td.matchers.anything(),
+        //rewardParameters,
+        td.matchers.anything(),
       ),
     ).thenReturn(okAsync([insights, rewards]));
+
+    td.when(
+      this.dataWalletUtils.deriveOptInPrivateKey(
+        consentContractAddress,
+        dataWalletKey,
+      ),
+    ).thenReturn(okAsync(derivedPrivateKey));
   }
   public factory(): QueryService {
     return new QueryService(
@@ -156,18 +181,11 @@ describe("processQuery tests", () => {
   const queryService = mocks.factory();
   const returns = JSON.stringify(insights);
   test("error if dataWalletAddress missing in context", async () => {
-    await ResultUtils.combine([
-      mocks.contextProvider.getContext(),
-      mocks.configProvider.getConfig(),
-    ]).andThen(([context, config]) => {
+    await mocks.contextProvider.getContext().andThen((context) => {
       const copyContext: CoreContext = { ...(context as CoreContext) };
       copyContext.dataWalletAddress = null;
       return queryService
-        .validateContextConfig(
-          copyContext,
-          config as CoreConfig,
-          mocks.consentToken,
-        )
+        .validateContextConfig(copyContext, mocks.consentToken)
         .andThen(() => {
           fail();
         })
@@ -177,19 +195,13 @@ describe("processQuery tests", () => {
         });
     });
   });
+
   test("error if dataWallet missing in context", async () => {
-    await ResultUtils.combine([
-      mocks.contextProvider.getContext(),
-      mocks.configProvider.getConfig(),
-    ]).andThen(([context, config]) => {
+    await mocks.contextProvider.getContext().andThen((context) => {
       const copyContext: CoreContext = { ...(context as CoreContext) };
       copyContext.dataWalletKey = null;
       return queryService
-        .validateContextConfig(
-          copyContext,
-          config as CoreConfig,
-          mocks.consentToken,
-        )
+        .validateContextConfig(copyContext, mocks.consentToken)
         .andThen(() => {
           fail();
         })
@@ -199,21 +211,24 @@ describe("processQuery tests", () => {
         });
     });
   });
+
   test("processQuery success", async () => {
+    // Arrange
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    await queryService
-      .processQuery(consentContractAddress, sdqlQuery, [])
-      .andThen((result) => {
-        //console.log("result", result);
-        expect(result).toBeUndefined();
-        // expect(result.isOk()).toBeTruthy();
-        return okAsync(true);
-      })
-      .orElse((err) => {
-        console.log(err);
-        fail();
-      });
+
+    // Act
+    const result = await queryService.processQuery(
+      consentContractAddress,
+      sdqlQuery,
+      rewardParameters,
+    );
+
+    // Assert
+    expect(result).toBeDefined();
+    expect(result.isErr()).toBeFalsy();
+    expect(result._unsafeUnwrap()).toBeUndefined();
+    mocks.contextProvider.assertEventCounts({});
   });
 });
 // describe("onQueryPosted tests", () => {

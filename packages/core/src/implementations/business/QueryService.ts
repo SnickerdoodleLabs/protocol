@@ -215,11 +215,7 @@ export class QueryService implements IQueryService {
       this.configProvider.getConfig(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([context, config, consentToken]) => {
-      return this.validateContextConfig(
-        context as CoreContext,
-        config,
-        consentToken,
-      ).andThen(() => {
+      return this.validateContextConfig(context, consentToken).andThen(() => {
         return ResultUtils.combine([
           this.queryParsingEngine.handleQuery(
             query,
@@ -234,8 +230,6 @@ export class QueryService implements IQueryService {
           const maps2 = maps as [InsightString[], EligibleReward[]];
           const insights = maps2[0];
           const rewards = maps2[1];
-
-
 
           return this.insightPlatformRepo
             .deliverInsights(
@@ -263,10 +257,8 @@ export class QueryService implements IQueryService {
 
   public validateContextConfig(
     context: CoreContext,
-    config: CoreConfig,
     consentToken: ConsentToken | null,
   ): ResultAsync<void, UninitializedError | ConsentError> {
-    // console.log(context);
     if (context.dataWalletAddress == null || context.dataWalletKey == null) {
       return errAsync(
         new UninitializedError("Data wallet has not been unlocked yet!"),
