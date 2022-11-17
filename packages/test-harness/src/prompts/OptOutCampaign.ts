@@ -4,7 +4,6 @@ import {
   ConsentContractError,
   ConsentContractRepositoryError,
   Invitation,
-  PageInvitation,
   PersistenceError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -62,13 +61,6 @@ export class OptOutCampaign extends Prompt {
             console.log(
               `Opted out of consent contract ${invitation.consentContractAddress}`,
             );
-
-            // Remove it from the list of opted-in contracts
-            const index = this.dataWalletProfile.acceptedInvitations.indexOf(
-              invitation,
-              0,
-            );
-            this.dataWalletProfile.acceptedInvitations.splice(index, 1);
           });
       })
       .mapErr((e) => {
