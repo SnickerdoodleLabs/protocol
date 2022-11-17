@@ -4,7 +4,7 @@ export const PERMISSION_NAMES = {
   [EWalletDataType.Gender]: "Gender",
   [EWalletDataType.Birthday]: "Birthday",
   [EWalletDataType.Location]: "Location",
-  [EWalletDataType.SiteVisits]: "Site Visits",
+  [EWalletDataType.SiteVisits]: "Sites Visited",
   [EWalletDataType.EVMTransactions]: "Transaction History",
   [EWalletDataType.AccountBalances]: "Token Balances",
   [EWalletDataType.AccountNFTs]: "NFTs",

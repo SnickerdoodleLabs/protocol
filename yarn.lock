@@ -6373,7 +6373,7 @@ __metadata:
     neverthrow-result-utils: ^2.0.2
     reflect-metadata: ^0.1.13
     rxjs: ^7.5.5
-    tldts: ^5.7.89
+    tldts: ^5.7.99
     url-join-ts: ^1.0.5
     uuid: ^8.3.0
   languageName: unknown
@@ -33585,6 +33585,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tldts-core@npm:^5.7.100":
+  version: 5.7.100
+  resolution: "tldts-core@npm:5.7.100"
+  checksum: 78c0a329e2d190a8a9e73ea979acf9fc3465311039cfb7845d1d956a7e305a55c09a01295f69eec3d441e4ed6621033899ad3a73aef73a033fe0a0006d208e87
+  languageName: node
+  linkType: hard
+
 "tldts-core@npm:^5.7.97":
   version: 5.7.97
   resolution: "tldts-core@npm:5.7.97"
@@ -33600,6 +33607,17 @@ __metadata:
   bin:
     tldts: bin/cli.js
   checksum: e280dc20bd59120c50059052a749f202dc0cedb14db2b2f2c1dcc90b41ded0c674aab7f5a0c0e1209af64a13de665ec67e211454cf0b4ae84bb69391bd086314
+  languageName: node
+  linkType: hard
+
+"tldts@npm:^5.7.99":
+  version: 5.7.100
+  resolution: "tldts@npm:5.7.100"
+  dependencies:
+    tldts-core: ^5.7.100
+  bin:
+    tldts: bin/cli.js
+  checksum: e647bbcd33618fa8bb51c6939074bc5380a84289dd17491fe748604352f4fc9d04621c72b1d8850c89b4f1323f5041cddc8a64119d9b184eb18b2d6a0a18319b
   languageName: node
   linkType: hard
 

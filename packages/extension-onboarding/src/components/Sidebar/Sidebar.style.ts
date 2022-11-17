@@ -46,4 +46,14 @@ export const useStyles = makeStyles((theme) => ({
   button: {
     cursor: "pointer",
   },
+  link: {
+    fontFamily: "Space Grotesk",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "14.05px",
+    lineHeight: "17px",
+    marginLeft: 20,
+    cursor: "pointer",
+    color: "#7D72AC",
+  },
 }));
