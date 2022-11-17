@@ -35,8 +35,8 @@ import express from "express";
 import { ResultAsync, errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BlockchainStuff } from "@test-harness/BlockchainStuff.js";
-import { IPFSClient } from "@test-harness/IPFSClient.js";
+import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
+import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 
 export class InsightPlatformSimulator {
   protected app: express.Express;
