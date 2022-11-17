@@ -33,6 +33,11 @@ import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
+import {
+  IDeliverInsightsParams,
+  IExecuteMetatransactionParams,
+  IReceivePreviewsParams,
+} from "@insightPlatform/params/index.js";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -77,7 +82,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           tokenId: tokenId.toString(),
           queries: answeredQueries,
           signature: signature,
-        });
+        } as IReceivePreviewsParams as unknown as Record<string, unknown>);
       });
   }
 
@@ -117,7 +122,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           returns: returns,
           rewardParameters: rewardParameters,
           signature: signature,
-        });
+        } as IDeliverInsightsParams as unknown as Record<string, unknown>);
       });
   }
 
@@ -159,11 +164,11 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           data: data,
           metatransactionSignature: metatransactionSignature,
           requestSignature: signature,
-        };
+        } as IExecuteMetatransactionParams;
 
         return this.ajaxUtils.post<IExecuteMetatransactionResponse>(
           url,
-          postBody,
+          postBody as unknown as Record<string, unknown>,
         );
       })
       .map(() => {});
