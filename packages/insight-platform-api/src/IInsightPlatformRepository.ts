@@ -23,7 +23,7 @@ export interface IInsightPlatformRepository {
   receivePreviews(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
-    queryCid: IpfsCID,
+    queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
@@ -32,7 +32,7 @@ export interface IInsightPlatformRepository {
   deliverInsights(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
-    queryCid: IpfsCID,
+    queryCID: IpfsCID,
     returns: InsightString[],
     rewardParameters: IDynamicRewardParameter[],
     signingKey: EVMPrivateKey,

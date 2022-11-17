@@ -209,7 +209,10 @@ export class InsightPlatformSimulator {
         })
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(queryCID, ERewardType.Direct);
+          earnedRewards[0] = new EarnedReward(
+            queryCID,
+            ERewardType.Direct,
+          );
           res.send(earnedRewards);
         })
         .mapErr((e) => {

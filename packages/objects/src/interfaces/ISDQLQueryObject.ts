@@ -15,7 +15,7 @@ export interface ISDQLQueryObject {
   description: string;
   business: string;
   queries: {
-    [queryId: string]: ISDQLQueryClause;
+    [queryCID: string]: ISDQLQueryClause;
   };
   returns: {
     [returnsObject: string]: ISDQLReturnProperties;
