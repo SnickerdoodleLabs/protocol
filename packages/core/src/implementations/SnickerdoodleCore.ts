@@ -182,8 +182,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         this.iocContainer.get<IConfigProvider>(IConfigProviderType);
 
       configProvider.setConfigOverrides(configOverrides);
-      console.log("@!#@!#@!#@!#@!#@!#@!#@!#@!#@!#@!#@!#@!#@!#");
-      console.log(configOverrides.requestForDataCheckingFrequency); //TODO: Remove
     }
   }
 
