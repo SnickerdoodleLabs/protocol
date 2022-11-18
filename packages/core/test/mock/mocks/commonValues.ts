@@ -11,7 +11,7 @@ import {
   EVMAccountAddress,
   ControlChainInformation,
 } from "@snickerdoodlelabs/objects";
-import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
+
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 
