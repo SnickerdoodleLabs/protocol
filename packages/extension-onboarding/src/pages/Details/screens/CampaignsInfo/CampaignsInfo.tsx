@@ -61,9 +61,9 @@ const RewardsInfo: FC = () => {
         leaveCohort(consentContractAddress);
       },
       customProps: {
-        title: "Opt Out",
-        content: "Are you sure you want to opt-out from cohort?",
-        primaryButtonText: "Opt-out",
+        title: "Leave",
+        content: "Are you sure you want to leave from cohort?",
+        primaryButtonText: "Leave",
       },
     });
   };
@@ -95,7 +95,7 @@ const RewardsInfo: FC = () => {
                     }}
                     className={classes.link}
                   >
-                    Opt-out
+                    Leave
                   </Typography>
                 }
                 key={key}
