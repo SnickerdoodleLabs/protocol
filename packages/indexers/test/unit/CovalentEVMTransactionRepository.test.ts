@@ -20,6 +20,8 @@ class CovalentEVMTransactionRepositoryMocks {
     moralisApiKey: "MoralisApiKey",
     quoteCurrency: ECurrencyCode.USD,
     supportedChains: [],
+    etherscanApiKey: "EtherscanApiKey",
+    alchemyKeys: new Map(),
   };
 
   constructor(public responseRepo) {

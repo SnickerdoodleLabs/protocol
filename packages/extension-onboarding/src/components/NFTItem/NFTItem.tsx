@@ -17,7 +17,9 @@ const NFTItem: FC<INFTItemProps> = ({ item }: INFTItemProps) => {
     nftImages = useMemo((): string[] => {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
       const regexpUrl = /(https?|ipfs)/i;
-      const splittedData = (item as EVMNFT).metadata?.split(regexpImage);
+
+      const metadataStr = JSON.stringify((item as EVMNFT).metadata);
+      const splittedData = metadataStr.split(regexpImage);
       const extractedImages: string[] = [];
       splittedData?.forEach((key) => {
         if (regexpImage.test(key)) {

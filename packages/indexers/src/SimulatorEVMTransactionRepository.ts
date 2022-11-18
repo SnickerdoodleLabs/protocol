@@ -38,10 +38,9 @@ export class SimulatorEVMTransactionRepository
         "erc721",
         accountAddress,
         TokenUri("tokenURI"),
-        "metadata",
+        { raw: "metadata" },
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
         "Fake Token #" + i,
-        TickerSymbol((Math.random() + 1).toString(36).substring(5)),
         chainId,
       );
       result.push(item);

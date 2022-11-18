@@ -3,6 +3,8 @@ import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
@@ -57,6 +59,7 @@ export class SolanaIndexer
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
   public getBalancesForAccount(
@@ -99,23 +102,28 @@ export class SolanaIndexer
                 balance.tokenAddress,
                 new Date(),
               ),
-            ]).andThen(([tokenInfo, tokenPrice]) => {
-              if (tokenInfo == null) {
-                return okAsync(undefined);
-              }
+            ])
+              .andThen(([tokenInfo, tokenPrice]) => {
+                if (tokenInfo == null) {
+                  return okAsync(undefined);
+                }
 
-              return okAsync(
-                new TokenBalance(
-                  EChainTechnology.Solana,
-                  tokenInfo.symbol,
-                  chainId,
-                  tokenInfo.address,
-                  accountAddress,
-                  balance.tokenAmount.uiAmountString,
-                  BigNumberString(tokenPrice.toString()),
-                ),
-              );
-            });
+                return okAsync(
+                  new TokenBalance(
+                    EChainTechnology.Solana,
+                    tokenInfo.symbol,
+                    chainId,
+                    tokenInfo.address,
+                    accountAddress,
+                    balance.tokenAmount.uiAmountString,
+                    BigNumberString(tokenPrice.toString()),
+                  ),
+                );
+              })
+              .orElse((e) => {
+                this.logUtils.error("error retrieving token info", e);
+                return okAsync(undefined);
+              });
           }),
         ).map((balances) => {
           return balances.filter(

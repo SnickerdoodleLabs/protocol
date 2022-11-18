@@ -8,6 +8,7 @@ import {
   ModelTypes,
   URLString,
   ECurrencyCode,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -30,5 +31,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
+    public etherscanApiKey: string,
+    public alchemyKeys: Map<EChain, string>,
   ) {}
 }

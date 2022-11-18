@@ -110,6 +110,20 @@ const devAccountKeys = [
     ),
     cryptoUtils,
   ),
+  new TestWallet(
+    EChain.Solana,
+    SolanaPrivateKey(
+      "3K725hiDLnh1H6qtxD7gLhuDPwvcdWUK1KA8sqK6ekrUKpRzhFxzynvKFZgPj1QWMWS8PZm4WXFQqVUdQFYK1Z8u",
+    ),
+    cryptoUtils,
+  ),
+  new TestWallet(
+    EChain.EthereumMainnet,
+    EVMPrivateKey(
+      "636c09be68403426bfa070af9225a7318f3cf2d28384fe89f9fa62402c3ac4c0",
+    ),
+    cryptoUtils,
+  ),
 ];
 
 const blockchain = new BlockchainStuff(devAccountKeys);
@@ -492,9 +506,17 @@ function corePrompt(): ResultAsync<void, Error> {
       case "clearCloudStore":
         return core.clearCloudStore().map(console.log);
       case "btcPrice":
-        return core.getTokenPrice(ChainId(1), null, new Date()).map(console.log);
+        return core
+          .getTokenPrice(ChainId(1), null, new Date())
+          .map(console.log);
       case "uniPrice":
-        return core.getTokenPrice(ChainId(1), "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984", new Date()).map(console.log);
+        return core
+          .getTokenPrice(
+            ChainId(1),
+            "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+            new Date(),
+          )
+          .map(console.log);
     }
     return okAsync(undefined);
   });

@@ -82,6 +82,8 @@ export const testCoreConfig = new CoreConfig(
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
+  "etherscan api key",
+  new Map(),
 );
 
 // #endregion

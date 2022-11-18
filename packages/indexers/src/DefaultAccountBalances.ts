@@ -1,6 +1,8 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IAccountBalances,
@@ -33,6 +35,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.evm = new CovalentEVMTransactionRepository(
       this.configProvider,
@@ -44,6 +47,7 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.configProvider,
       this.ajaxUtils,
       this.tokenPriceRepo,
+      this.logUtils,
     );
   }
 

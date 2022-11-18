@@ -23,6 +23,8 @@ class MoralisEVMNftRepositoryMocks {
     moralisApiKey: "MoralisApiKey",
     quoteCurrency: ECurrencyCode.USD,
     supportedChains: [],
+    etherscanApiKey: "EtherscanKey",
+    alchemyKeys: new Map(),
   };
 
   constructor(public responseRepo) {

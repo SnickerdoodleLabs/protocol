@@ -1,6 +1,8 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IAccountNFTs,
@@ -33,6 +35,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.evm = new MoralisEVMNftRepository(this.configProvider, this.ajaxUtils);
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
@@ -40,6 +43,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
       this.configProvider,
       this.ajaxUtils,
       this.tokenPriceRepo,
+      this.logUtils,
     );
   }
 

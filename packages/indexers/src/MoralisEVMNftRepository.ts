@@ -90,10 +90,9 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
         token.contract_type,
         EVMAccountAddress(token.owner_of),
         TokenUri(token.token_uri),
-        token.metadata,
+        { raw: token.metadata },
         BigNumberString(token.amount),
         token.name,
-        TickerSymbol(token.symbol),
         ChainId(chainId),
       );
     });

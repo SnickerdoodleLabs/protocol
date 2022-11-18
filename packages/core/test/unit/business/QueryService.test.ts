@@ -31,6 +31,7 @@ import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 import { ContextReplacementPlugin } from "webpack";
+
 import {
   dataWalletAddress,
   dataWalletKey,
@@ -260,6 +261,8 @@ describe("processRewardsPreview tests", () => {
     td.when(mocks.configProvider.getConfig()).thenReturn(
       okAsync(
         new CoreConfig(
+          td.matchers.anything(),
+          td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),

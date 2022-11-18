@@ -15,11 +15,10 @@ export class EVMNFT extends WalletNFT {
     public tokenId: BigNumberString,
     public contractType: string,
     public owner: EVMAccountAddress,
-    public tokenUri: TokenUri,
-    public metadata: string,
+    public tokenUri: TokenUri | undefined,
+    public metadata: object | undefined,
     public amount: BigNumberString,
     public name: string,
-    public ticker: TickerSymbol,
     public chain: ChainId,
   ) {
     super(EChainTechnology.EVM, chain, owner, token);
