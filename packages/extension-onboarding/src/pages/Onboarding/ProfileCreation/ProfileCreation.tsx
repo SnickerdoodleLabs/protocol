@@ -1,13 +1,14 @@
 import artboardImage from "@extension-onboarding/assets/images/artboard.png";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import ProfileForm from "@extension-onboarding/components/ProfileForm/ProfileForm";
-import { useAppContext } from "@extension-onboarding/context/App";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ProfileCreation/ProfileCreation.style";
 import { Button, Box, Typography, Grid } from "@material-ui/core";
 import React, { FC } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProfileCreation: FC = () => {
-  const { changeStepperStatus } = useAppContext();
+  const navigate = useNavigate();
   const classes = useStyles();
   return (
     <Box mt={15}>
@@ -23,7 +24,7 @@ const ProfileCreation: FC = () => {
             </Typography>
             <ProfileForm
               onSubmitted={() => {
-                changeStepperStatus("next");
+                navigate(EPaths.ONBOARDING_VIEW_DATA);
               }}
             />
           </Box>
@@ -35,7 +36,7 @@ const ProfileCreation: FC = () => {
       <Box className={classes.buttonContainer}>
         <Button
           onClick={() => {
-            changeStepperStatus("back");
+            navigate(EPaths.ONBOARDING_LINK_ACCOUNT);
           }}
         >
           Back
