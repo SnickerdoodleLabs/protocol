@@ -81,7 +81,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
-      Math.random() * 1000,
+      null,
     ),
     new EVMTransaction(
       ChainId(43113),
@@ -95,7 +95,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
-      Math.random() * 1000,
+      null,
     ),
     new EVMTransaction(
       ChainId(43113),
@@ -109,7 +109,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
-      Math.random() * 1000,
+      null,
     ),
     new EVMTransaction(
       ChainId(43113),
@@ -123,7 +123,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
-      Math.random() * 1000,
+      null,
     ),
   ];
 

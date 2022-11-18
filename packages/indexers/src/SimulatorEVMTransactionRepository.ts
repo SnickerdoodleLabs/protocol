@@ -104,7 +104,7 @@ export class SimulatorEVMTransactionRepository
         null,
         null,
         null,
-        Math.random() * 1000,
+        null,
       );
     }
     return okAsync(result);

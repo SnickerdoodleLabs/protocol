@@ -14,12 +14,13 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
+import { EthereumIndexer } from "./EthererumIndexer";
+
 import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
-import { MoralisEVMNftRepository } from "@indexers/MoralisEVMNftRepository.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
@@ -37,7 +38,12 @@ export class DefaultAccountNFTs implements IAccountNFTs {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.evm = new MoralisEVMNftRepository(this.configProvider, this.ajaxUtils);
+    this.evm = new EthereumIndexer(
+      configProvider,
+      ajaxUtils,
+      tokenPriceRepo,
+      logUtils,
+    );
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
     this.solRepo = new SolanaIndexer(
       this.configProvider,

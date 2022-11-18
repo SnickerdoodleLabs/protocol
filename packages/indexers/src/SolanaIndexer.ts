@@ -97,13 +97,14 @@ export class SolanaIndexer
           balances.map((balance) => {
             return ResultUtils.combine([
               this.tokenPriceRepo.getTokenInfo(chainId, balance.tokenAddress),
-              this.tokenPriceRepo.getTokenPrice(
-                chainId,
-                balance.tokenAddress,
-                new Date(),
-              ),
+              // disabling until we can stop the rate limit
+              // this.tokenPriceRepo.getTokenPrice(
+              //   chainId,
+              //   balance.tokenAddress,
+              //   new Date(),
+              // ),
             ])
-              .andThen(([tokenInfo, tokenPrice]) => {
+              .andThen(([tokenInfo]) => {
                 if (tokenInfo == null) {
                   return okAsync(undefined);
                 }
@@ -116,7 +117,7 @@ export class SolanaIndexer
                     tokenInfo.address,
                     accountAddress,
                     balance.tokenAmount.uiAmountString,
-                    BigNumberString(tokenPrice.toString()),
+                    BigNumberString("0"),
                   ),
                 );
               })

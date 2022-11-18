@@ -32,6 +32,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
     public etherscanApiKey: string,
+    public etherscanTransactionsBatchSize: number,
     public alchemyKeys: Map<EChain, string>,
   ) {}
 }

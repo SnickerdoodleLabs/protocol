@@ -83,6 +83,7 @@ export const testCoreConfig = new CoreConfig(
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
   "etherscan api key",
+  100, // etherscan tx batch size
   new Map(),
 );
 

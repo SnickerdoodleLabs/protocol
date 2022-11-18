@@ -85,6 +85,7 @@ export class ConfigProvider
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
       "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7", // etherscan api key
+      100,
       new Map([
         [EChain.EthereumMainnet, "3eifUc6etBiT_wAJj4PtgrM9gBbaqsGQ"],
         [EChain.Goerli, "TeZH8KKhEQiC8vi5AjJJnrAynMagsh2P"],

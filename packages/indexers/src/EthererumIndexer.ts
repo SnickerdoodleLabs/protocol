@@ -24,6 +24,8 @@ import {
   ITokenPriceRepository,
   TokenUri,
   EVMBlockNumber,
+  EVMTransactionHash,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   Network,
@@ -60,61 +62,19 @@ export class EthereumIndexer
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  private _getAlchemy(
-    chainID: ChainId,
-  ): ResultAsync<Alchemy, AccountIndexingError> {
-    if (this._mainnetAlchemy && this._testnetAlchemy) {
-      switch (chainID) {
-        case ChainId(EChain.EthereumMainnet):
-          return this._mainnetAlchemy;
-        case ChainId(EChain.Goerli):
-          return this._testnetAlchemy;
-        default:
-          return errAsync(
-            new AccountIndexingError(
-              "Unsupported chain for Ethereum indexer",
-              chainID,
-            ),
-          );
-      }
-    }
-
-    return this.configProvider.getConfig().andThen((config) => {
-      this._mainnetAlchemy = okAsync(
-        new Alchemy({
-          apiKey: config.alchemyKeys[EChain.EthereumMainnet],
-          network: Network.ETH_MAINNET,
-        }),
-      );
-      this._testnetAlchemy = okAsync(
-        new Alchemy({
-          apiKey: config.alchemyKeys[EChain.Goerli],
-          network: Network.ETH_GOERLI,
-        }),
-      );
-
-      return this._getAlchemy(chainID);
-    });
-  }
-
   public getEVMTransactions(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
-    // const data = await alchemy.core.getAssetTransfers({
-    //   fromBlock: "0x0",
-    //   fromAddress: "0x5c43B1eD97e52d009611D89b74fA829FE4ac56b1",
-    //   category: ["external", "internal", "erc20", "erc721", "erc1155"],
-    // });
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this._getEtherscanBaseURL(chainId),
       this._getBlockNumber(chainId, startTime),
       this._getBlockNumber(chainId, endTime),
     ]).andThen(([config, baseURL, fromBlock, toBlock]) => {
-      const url = urlJoinP(baseURL, ["api"], {
+      const params = {
         module: "account",
         action: "txlist",
         address: accountAddress,
@@ -124,9 +84,12 @@ export class EthereumIndexer
         offset: 100,
         sort: "asc",
         apikey: config.etherscanApiKey,
-      });
-
-      return okAsync([]);
+      };
+      return this._paginateTransactions(
+        chainId,
+        params,
+        config.etherscanTransactionsBatchSize,
+      );
     });
   }
 
@@ -218,6 +181,83 @@ export class EthereumIndexer
     });
   }
 
+  private _paginateTransactions(
+    chain: ChainId,
+    params: object,
+    maxRecords: number,
+  ): ResultAsync<EVMTransaction[], AccountIndexingError> {
+    return ResultUtils.combine([
+      this._getEtherscanBaseURL(chain),
+      this.configProvider.getConfig(),
+    ]).andThen(([baseUrl, config]) => {
+      const offset = config["offset"] as number;
+      const page = config["page"] as number;
+      if (offset * page > maxRecords) {
+        return okAsync([]);
+      }
+
+      const url = new URL(urlJoinP(baseUrl, ["api"], params));
+      return this.ajaxUtils
+        .get<{
+          status: string;
+          message: string;
+          result: {
+            blockNumber: string;
+            timeStamp: string;
+            hash: string;
+            nonce: string;
+            blockHash: string;
+            transactionIndex: string;
+            from: string;
+            to: string;
+            value: string;
+            gas: string;
+            gasPrice: string;
+            isError: string;
+            txreceipt_status: string;
+            input: string;
+            contractAddress: string;
+            cumulativeGasUsed: string;
+            gasUsed: string;
+            confirmations: string;
+            methodId: string;
+            functionName: string;
+          }[];
+        }>(url)
+        .andThen((response) => {
+          const txs = response.result.map((tx) => {
+            // etherscan uses "" instead of null
+            return new EVMTransaction(
+              chain,
+              EVMTransactionHash(tx.hash),
+              UnixTimestamp(Number.parseInt(tx.timeStamp)),
+              tx.blockNumber == "" ? null : Number.parseInt(tx.blockNumber),
+              tx.to == "" ? null : EVMAccountAddress(tx.to),
+              tx.from == "" ? null : EVMAccountAddress(tx.from),
+              tx.value == "" ? null : BigNumberString(tx.value),
+              tx.gasPrice == "" ? null : BigNumberString(tx.gasPrice),
+              tx.contractAddress == ""
+                ? null
+                : EVMContractAddress(tx.contractAddress),
+              tx.input == "" ? null : tx.input,
+              tx.methodId == "" ? null : tx.methodId,
+              tx.functionName == "" ? null : tx.functionName,
+            );
+          });
+
+          params["page"] += 1;
+          return this._paginateTransactions(chain, params, maxRecords).map(
+            (otherTxs) => {
+              return [...txs, ...otherTxs];
+            },
+          );
+        })
+        .mapErr(
+          (e) => new AccountIndexingError("error fetching transactions", e),
+        );
+    });
+  }
+
   private _getBlockNumber(
     chain: ChainId,
     timestamp: Date | undefined,
@@ -270,5 +310,42 @@ export class EthereumIndexer
           new AccountIndexingError("invalid chainId for etherscan"),
         );
     }
+  }
+
+  private _getAlchemy(
+    chainID: ChainId,
+  ): ResultAsync<Alchemy, AccountIndexingError> {
+    if (this._mainnetAlchemy && this._testnetAlchemy) {
+      switch (chainID) {
+        case ChainId(EChain.EthereumMainnet):
+          return this._mainnetAlchemy;
+        case ChainId(EChain.Goerli):
+          return this._testnetAlchemy;
+        default:
+          return errAsync(
+            new AccountIndexingError(
+              "Unsupported chain for Ethereum indexer",
+              chainID,
+            ),
+          );
+      }
+    }
+
+    return this.configProvider.getConfig().andThen((config) => {
+      this._mainnetAlchemy = okAsync(
+        new Alchemy({
+          apiKey: config.alchemyKeys[EChain.EthereumMainnet],
+          network: Network.ETH_MAINNET,
+        }),
+      );
+      this._testnetAlchemy = okAsync(
+        new Alchemy({
+          apiKey: config.alchemyKeys[EChain.Goerli],
+          network: Network.ETH_GOERLI,
+        }),
+      );
+
+      return this._getAlchemy(chainID);
+    });
   }
 }

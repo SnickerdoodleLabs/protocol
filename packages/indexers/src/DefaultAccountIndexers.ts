@@ -1,16 +1,22 @@
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IAccountIndexing,
   IEVMTransactionRepository,
   ISolanaTransactionRepository,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
+import { EthereumIndexer } from "./EthererumIndexer";
+import { SolanaIndexer } from "./SolanaIndexer";
+
 import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IIndexerConfigProvider,
@@ -28,14 +34,23 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
+    @inject(ITokenPriceRepositoryType)
+    protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.evm = new CovalentEVMTransactionRepository(
-      this.configProvider,
-      this.ajaxUtils,
+    this.evm = new EthereumIndexer(
+      configProvider,
+      ajaxUtils,
+      tokenPriceRepo,
+      logUtils,
     );
-
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
-    this.solRepo = new DummySolanaIndexer();
+    this.solRepo = new SolanaIndexer(
+      configProvider,
+      ajaxUtils,
+      tokenPriceRepo,
+      logUtils,
+    );
   }
 
   public getEVMTransactionRepository(): ResultAsync<

@@ -1,4 +1,10 @@
-import { ChainTransaction, EVMEvent } from "@objects/businessObjects";
+import { Interface } from "ethers/lib/utils";
+
+import {
+  ChainTransaction,
+  EVMFunctionParameter,
+  EVMFunctionSignature,
+} from "@objects/businessObjects";
 import {
   ChainId,
   EVMAccountAddress,
@@ -6,6 +12,7 @@ import {
   UnixTimestamp,
   EVMAccountAddressRegex,
   EVMTransactionHash,
+  EVMContractAddress,
 } from "@objects/primitives";
 
 /**
@@ -16,6 +23,7 @@ import {
  */
 export class EVMTransaction extends ChainTransaction {
   public accountAddresses: EVMAccountAddress[] | null; // null safety necessary for old transactions
+  public functionSignature: EVMFunctionSignature | null = null;
 
   public constructor(
     public chainId: ChainId,
@@ -26,22 +34,46 @@ export class EVMTransaction extends ChainTransaction {
     public from: EVMAccountAddress | null,
     public value: BigNumberString | null,
     public gasPrice: BigNumberString | null,
-    public gasOffered: BigNumberString | null,
-    public feesPaid: BigNumberString | null,
-    events: EVMEvent[] | null,
-    public valueQuote: number | null,
+    public contractAddress: EVMContractAddress | null,
+    public input: string | null,
+    public methodId: string | null,
+    public functionName: string | null,
   ) {
     super(chainId, hash, timestamp);
-    const addrs = new Set<EVMAccountAddress>();
-    if (events != null) {
-      this._getDescendants(events);
-    }
+    let addrs = new Set<EVMAccountAddress>();
     if (this.to) {
       addrs.add(this.to);
     }
     if (this.from) {
       addrs.add(this.from);
     }
+    if (this.input && this.functionName) {
+      try {
+        const iface = new Interface([`function ${this.functionName}`]);
+        const func = iface.getFunction(this.input.slice(0, 10));
+        const paramValues = iface.decodeFunctionData(func.name, this.input);
+
+        this.functionSignature = new EVMFunctionSignature(
+          func.name,
+          func.type,
+          func.inputs.map((input, i) => {
+            return new EVMFunctionParameter(
+              input.name,
+              input.type,
+              paramValues[i],
+            );
+          }),
+        );
+
+        addrs = new Set([
+          ...addrs,
+          ...this._getDescendants(this.functionSignature),
+        ]);
+      } catch (e) {
+        console.warn("error decoding transaction input", e);
+      }
+    }
+
     this.accountAddresses = Array.from(addrs);
   }
 

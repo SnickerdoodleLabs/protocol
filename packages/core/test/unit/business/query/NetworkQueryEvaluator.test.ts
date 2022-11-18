@@ -159,7 +159,7 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
-          0,
+          null,
         ),
       ]),
     );
@@ -216,7 +216,7 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
-          0,
+          null,
         ),
       ]),
     );

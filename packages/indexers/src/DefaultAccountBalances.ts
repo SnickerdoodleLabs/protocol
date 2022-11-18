@@ -14,7 +14,8 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
+import { EthereumIndexer } from "./EthererumIndexer";
+
 import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
 import {
   IIndexerConfigProvider,
@@ -37,11 +38,12 @@ export class DefaultAccountBalances implements IAccountBalances {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.evm = new CovalentEVMTransactionRepository(
-      this.configProvider,
-      this.ajaxUtils,
+    this.evm = new EthereumIndexer(
+      configProvider,
+      ajaxUtils,
+      tokenPriceRepo,
+      logUtils,
     );
-
     this.sim = new SimulatorEVMTransactionRepository();
     this.sol = new SolanaIndexer(
       this.configProvider,
