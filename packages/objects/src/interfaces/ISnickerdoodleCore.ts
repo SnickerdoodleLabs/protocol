@@ -364,7 +364,7 @@ export interface ISnickerdoodleCore {
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  postBackups(): ResultAsync<CeramicStreamID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 

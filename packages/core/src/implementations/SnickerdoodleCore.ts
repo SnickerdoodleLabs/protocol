@@ -706,11 +706,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
-  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+  public postBackups(): ResultAsync<CeramicStreamID[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.postBackup();
+    return persistence.postBackups();
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {

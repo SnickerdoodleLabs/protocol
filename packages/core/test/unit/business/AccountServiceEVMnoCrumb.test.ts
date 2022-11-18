@@ -32,7 +32,7 @@ import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import {  okAsync } from "neverthrow";
+import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import {
@@ -417,8 +417,8 @@ class AccountServiceMocks {
     td.when(
       this.dataWalletPersistence.removeAccount(solanaAccountAddress),
     ).thenReturn(okAsync(undefined));
-    td.when(this.dataWalletPersistence.postBackup()).thenReturn(
-      okAsync(ceramicStream),
+    td.when(this.dataWalletPersistence.postBackups()).thenReturn(
+      okAsync([ceramicStream]),
     );
 
     // ContractFactory --------------------------------------------------
@@ -536,6 +536,4 @@ describe("AccountService unlock() tests", () => {
       false,
     );
   });
-
- 
 });

@@ -906,7 +906,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         );
       })
       .andThen(() => {
-        return this._placeBackups();
+        return this.postBackups().map(() => undefined);
       })
       .orElse((e) => {
         this.logUtils.error("error loading backups", e);
@@ -914,17 +914,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  private _placeBackups(): ResultAsync<void, PersistenceError> {
+  public postBackups(): ResultAsync<CeramicStreamID[], PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
         return backupManager.popBackup().andThen((backup) => {
-          if (backup == null) {
-            return okAsync(undefined);
+          if (backup == undefined) {
+            return okAsync([]);
           }
 
           return this.cloudStorage.putBackup(backup).andThen((streamID) => {
-            return this._placeBackups();
+            return this.postBackups().map((ids) => {
+              return [streamID, ...ids];
+            });
           });
         });
       });
@@ -937,20 +939,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   > {
     const chainlist: IChainTransaction[] = [];
     return okAsync(chainlist);
-  }
-
-  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForRestore(),
-      this.backupManagerProvider.getBackupManager(),
-    ]).andThen(([key, backupManager]) => {
-      return backupManager.dump().andThen((backup) => {
-        return this.cloudStorage.putBackup(backup).andThen((id) => {
-          backupManager.clear();
-          return okAsync(id);
-        });
-      });
-    });
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {

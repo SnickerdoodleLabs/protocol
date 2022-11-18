@@ -53,14 +53,14 @@ import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
-import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
+import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
+import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 
 // #region new prompt
-const promptFactory = new PromptFactory()
+const promptFactory = new PromptFactory();
 const mainPromptNew = promptFactory.createDefault();
 // #endregion
 
@@ -496,7 +496,7 @@ function corePrompt(): ResultAsync<void, Error> {
             okAsync(console.log("restored backup", backup.header.hash)),
           );
       case "manualBackup":
-        return core.postBackup().map(console.log);
+        return core.postBackups().map(console.log);
       case "clearCloudStore":
         return core.clearCloudStore().map(console.log);
     }
