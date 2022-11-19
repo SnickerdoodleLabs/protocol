@@ -7,6 +7,7 @@ import {
 
 export interface IAccountBalances {
   getEVMBalanceRepository(): ResultAsync<IEVMAccountBalanceRepository, never>;
+  getETHBalanceRepository(): ResultAsync<IEVMAccountBalanceRepository, never>;
   getSolanaBalanceRepository(): ResultAsync<ISolanaBalanceRepository, never>;
   getSimulatorEVMBalanceRepository(): ResultAsync<
     IEVMAccountBalanceRepository,

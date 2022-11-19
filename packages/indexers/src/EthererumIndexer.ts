@@ -293,6 +293,7 @@ export class EthereumIndexer
               tx.input == "" ? null : tx.input,
               tx.methodId == "" ? null : tx.methodId,
               tx.functionName == "" ? null : tx.functionName,
+              null,
             );
           });
 

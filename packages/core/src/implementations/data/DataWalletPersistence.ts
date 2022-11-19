@@ -46,6 +46,7 @@ import {
   TokenAddress,
   TransactionFilter,
   getChainInfoByChainId,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -495,7 +496,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getEVMBalanceRepository(),
       this.accountBalances.getSolanaBalanceRepository(),
       this.accountBalances.getSimulatorEVMBalanceRepository(),
-    ]).andThen(([config, evmRepo, solRepo, simulatorRepo]) => {
+      this.accountBalances.getETHBalanceRepository(),
+    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, ethRepo]) => {
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         return errAsync(
@@ -503,6 +505,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             `No available chain info for chain ${chainId}`,
           ),
         );
+      }
+
+      switch (chainId) {
+        case EChain.EthereumMainnet:
+        case EChain.Goerli:
+          return ethRepo.getBalancesForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
       }
 
       switch (chainInfo.indexer) {
@@ -594,7 +605,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getEVMNftRepository(),
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
-    ]).andThen(([config, evmRepo, solRepo, simulatorRepo]) => {
+      this.accountNFTs.getETHNftRepository(),
+    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, ethRepo]) => {
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         return errAsync(
@@ -602,6 +614,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             `No available chain info for chain ${chainId}`,
           ),
         );
+      }
+
+      switch (chainId) {
+        case EChain.EthereumMainnet:
+        case EChain.Goerli:
+          return ethRepo.getTokensForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
+          );
       }
 
       switch (chainInfo.indexer) {

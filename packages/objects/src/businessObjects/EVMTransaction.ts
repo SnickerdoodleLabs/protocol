@@ -2,6 +2,7 @@ import { Interface } from "ethers/lib/utils";
 
 import {
   ChainTransaction,
+  EVMEvent,
   EVMFunctionParameter,
   EVMFunctionSignature,
 } from "@objects/businessObjects";
@@ -38,6 +39,7 @@ export class EVMTransaction extends ChainTransaction {
     public input: string | null,
     public methodId: string | null,
     public functionName: string | null,
+    events: EVMEvent[] | null,
   ) {
     super(chainId, hash, timestamp);
     let addrs = new Set<EVMAccountAddress>();
@@ -72,6 +74,10 @@ export class EVMTransaction extends ChainTransaction {
       } catch (e) {
         console.warn("error decoding transaction input", e);
       }
+    }
+
+    if (events) {
+      addrs = new Set([...addrs, ...this._getDescendants(events)]);
     }
 
     this.accountAddresses = Array.from(addrs);

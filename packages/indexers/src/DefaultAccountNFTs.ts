@@ -19,11 +19,13 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+import { MoralisEVMNftRepository } from "@indexers/MoralisEVMNftRepository.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountNFTs implements IAccountNFTs {
+  protected eth: IEVMNftRepository;
   protected evm: IEVMNftRepository;
   protected simulatorRepo: IEVMNftRepository;
   protected solRepo: ISolanaNFTRepository;
@@ -36,12 +38,13 @@ export class DefaultAccountNFTs implements IAccountNFTs {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.evm = new EthereumIndexer(
+    this.eth = new EthereumIndexer(
       configProvider,
       ajaxUtils,
       tokenPriceRepo,
       logUtils,
     );
+    this.evm = new MoralisEVMNftRepository(configProvider, ajaxUtils);
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
     this.solRepo = new SolanaIndexer(
       this.configProvider,
@@ -49,6 +52,10 @@ export class DefaultAccountNFTs implements IAccountNFTs {
       this.tokenPriceRepo,
       this.logUtils,
     );
+  }
+
+  public getETHNftRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.eth);
   }
 
   public getEVMNftRepository(): ResultAsync<IEVMNftRepository, never> {

@@ -21,6 +21,7 @@ import {
   ChainTransaction,
   SolanaAccountAddress,
   isAccountValidForChain,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
@@ -112,12 +113,23 @@ export class MonitoringService implements IMonitoringService {
       this.accountIndexing.getEVMTransactionRepository(),
       this.accountIndexing.getSolanaTransactionRepository(),
       this.accountIndexing.getSimulatorEVMTransactionRepository(),
-    ]).andThen(([config, evmRepo, solRepo, simulatorRepo]) => {
+      this.accountIndexing.getETHTransactionRepository(),
+    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, ethRepo]) => {
       // Get the chain info for the transaction
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         this.logUtils.error(`No available chain info for chain ${chainId}`);
         return okAsync([]);
+      }
+
+      switch (chainId) {
+        case EChain.EthereumMainnet:
+        case EChain.Goerli:
+          return ethRepo.getEVMTransactions(
+            chainId,
+            accountAddress as EVMAccountAddress,
+            new Date(timestamp * 1000),
+          );
       }
 
       switch (chainInfo.indexer) {
