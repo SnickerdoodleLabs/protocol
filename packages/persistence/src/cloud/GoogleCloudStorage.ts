@@ -200,6 +200,7 @@ export class GoogleCloudStorage implements ICloudStorage {
         (e) => new PersistenceError("unable to get backup index", e),
       ).andThen(() => {
         // Successful upload, now index it:
+        const id = "1";
         return this._getBackupIndex().andThen((backups) => {
           const index = [
             ...backups,
