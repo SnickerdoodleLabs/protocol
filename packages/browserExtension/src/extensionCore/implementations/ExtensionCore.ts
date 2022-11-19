@@ -53,6 +53,11 @@ export class ExtensionCore {
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
     const config = configProvider.getConfig();
 
+    const SIX_HOURS_MS = 21600000;
+
+    // These values are the defaults in the config provider
+    const UNREALISTIC_BUT_WORKING_POLL_INTERVAL = 5000;
+    const UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL = 10000;
     const coreConfig = {
       controlChainId: config.controlChainId,
       supportedChains: config.supportedChains,
@@ -63,6 +68,11 @@ export class ExtensionCore {
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
+      accountBalancePollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
+      accountIndexingPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
+      accountNFTPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
+      dataWalletBackupIntervalMS: UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL, // SIX_HOURS_MS
+      requestForDataCheckingFrequency: config.requestForDataCheckingFrequency
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

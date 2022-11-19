@@ -12,7 +12,7 @@ import {
   ControlChainInformation,
   ECurrencyCode,
 } from "@snickerdoodlelabs/objects";
-import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
+
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 
@@ -85,6 +85,7 @@ export const testCoreConfig = new CoreConfig(
   "etherscan api key",
   100, // etherscan tx batch size
   new Map(),
+  5000,
 );
 
 // #endregion

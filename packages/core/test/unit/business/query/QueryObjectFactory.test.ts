@@ -6,15 +6,9 @@ import {
   QueryObjectFactory,
 } from "@snickerdoodlelabs/query-parser";
 
+import { QueryObjectFactoryMocks } from "@core-tests/mock/mocks/QueryObjectFactoryMocks";
+
 import "reflect-metadata";
-import { SDQLQueryWrapperMocks } from "../../../mock/mocks";
-class QueryObjectFactoryMocks {
-  public wrapperMocks = new SDQLQueryWrapperMocks();
-  public schema = this.wrapperMocks.makeQueryWrapper(avalanche3SchemaStr);
-  factory(): IQueryObjectFactory {
-    return new QueryObjectFactory();
-  }
-}
 
 describe("test balance query parsing", () => {
   test("q4 should have networkId 43114 and no conditions", () => {

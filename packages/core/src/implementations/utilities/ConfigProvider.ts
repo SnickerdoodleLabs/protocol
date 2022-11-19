@@ -68,7 +68,7 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [/*ChainId(31338), */ChainId(-1), ChainId(1)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
+      [ChainId(31338)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
@@ -85,11 +85,12 @@ export class ConfigProvider
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
       "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7", // etherscan api key
-      100,
+      100, // etherscan tx batch size
       new Map([
         [EChain.EthereumMainnet, "3eifUc6etBiT_wAJj4PtgrM9gBbaqsGQ"],
         [EChain.Goerli, "TeZH8KKhEQiC8vi5AjJJnrAynMagsh2P"],
       ]),
+      4000, // polling interval for consent contracts on control chain
     );
   }
 
@@ -160,6 +161,8 @@ export class ConfigProvider
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
     this.config.ceramicNodeURL =
       overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
+    this.config.requestForDataCheckingFrequency =
+      overrides.requestForDataCheckingFrequency ?? this.config.requestForDataCheckingFrequency;
     this.config.ceramicModelAliases =
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
   }

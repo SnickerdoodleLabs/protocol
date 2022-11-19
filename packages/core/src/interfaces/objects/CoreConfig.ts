@@ -34,5 +34,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public etherscanApiKey: string,
     public etherscanTransactionsBatchSize: number,
     public alchemyKeys: Map<EChain, string>,
+    public requestForDataCheckingFrequency: number,
   ) {}
 }

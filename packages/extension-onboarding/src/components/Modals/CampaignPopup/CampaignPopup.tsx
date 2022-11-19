@@ -20,6 +20,7 @@ import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constant
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
 
 declare const window: IWindowWithSdlDataWallet;
 const CampaignPopup: FC = () => {
@@ -29,6 +30,7 @@ const CampaignPopup: FC = () => {
   const [open, setOpen] = React.useState(true);
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
   const { invitationInfo } = useAppContext();
+  const { setVisualAlert } = useNotificationContext();
 
   useEffect(() => {
     getInvitationData();
@@ -126,6 +128,7 @@ const CampaignPopup: FC = () => {
       })
       .map(() => {
         setLoadingStatus(false);
+        setVisualAlert(true);
         setModal({
           modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
           onPrimaryButtonClick: () => {},
@@ -229,7 +232,7 @@ const CampaignPopup: FC = () => {
               mt={2}
             >
               <Box>
-                <img width={244} height={145} src={invitationMeta.image} />
+                <img width="auto" height={145} src={invitationMeta.image} />
               </Box>
             </Box>
             <Box
@@ -271,7 +274,7 @@ const CampaignPopup: FC = () => {
                   color: "#222137",
                 }}
               >
-                Opt-in to Cohort!
+                Join to Cohort!
               </Typography>
             </Box>
             <Box mb={2}>
@@ -297,7 +300,7 @@ const CampaignPopup: FC = () => {
                   onClick={onClaimClick}
                   className={classes.primaryButton}
                 >
-                 Opt-in
+                  Join
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 17 16"
