@@ -12,6 +12,8 @@ import {
   TokenAddress,
   EarnedReward,
   IDynamicRewardParameter,
+  ChainTransaction,
+  TransactionFilter,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -373,6 +375,13 @@ export interface ISnickerdoodleCore {
     address: TokenAddress | null,
     date: Date,
   ): ResultAsync<number, PersistenceError>;
+
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError>
+  addTransactions(
+    transactions: ChainTransaction[],
+  ): ResultAsync<void, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");
