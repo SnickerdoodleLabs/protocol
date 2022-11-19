@@ -159,7 +159,7 @@ export class CeramicCloudStorage implements ICloudStorage {
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<CeramicStreamID, PersistenceError> {
-    return this._init().andThen(({ store, model, client }) => {
+    return this._init().andThen(({ model, client }) => {
       return ResultAsync.fromPromise(
         model.createTile("DataWalletBackup", backup),
         (e) => new PersistenceError("error creating backup tile", e),

@@ -1,8 +1,8 @@
 import * as fs from "fs";
+import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
 import { dirname } from "path";
 import { Stream } from "stream";
 import { fileURLToPath } from "url";
-import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
 
 import { Storage } from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
@@ -262,7 +262,7 @@ export class InsightPlatformSimulator {
             .bucket("ceramic-replacement-bucket")
             .upload(fileName, options);
 
-          return 
+          return;
         });
       res.send("Boo!");
     });
