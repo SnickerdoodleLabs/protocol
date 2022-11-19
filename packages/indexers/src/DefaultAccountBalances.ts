@@ -14,9 +14,7 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { EthereumIndexer } from "./EthererumIndexer";
-
-import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
+import { EthereumIndexer } from "@indexers/EthererumIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,

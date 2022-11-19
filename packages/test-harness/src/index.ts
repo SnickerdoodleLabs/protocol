@@ -398,7 +398,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
         );
         transactions[1] = new EVMTransaction(
           ChainId(43113),
@@ -412,7 +412,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
         );
         transactions[2] = new EVMTransaction(
           ChainId(43113),
@@ -426,7 +426,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
         );
         transactions[3] = new EVMTransaction(
           ChainId(43113),
@@ -440,7 +440,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
         );
 
         // {chainId\":43113,
@@ -462,7 +462,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
         );
         return core.addTransactions(transactions).map(console.log);
       case "addSiteVisit - google":

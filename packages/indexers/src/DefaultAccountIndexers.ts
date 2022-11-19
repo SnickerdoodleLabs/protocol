@@ -14,15 +14,13 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { EthereumIndexer } from "./EthererumIndexer";
-import { SolanaIndexer } from "./SolanaIndexer";
-
-import { DummySolanaIndexer } from "@indexers/DummySolanaIndexer.js";
+import { EthereumIndexer } from "@indexers/EthererumIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
+import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {

@@ -70,10 +70,9 @@ export class EthereumIndexer
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
-      this._getEtherscanBaseURL(chainId),
       this._getBlockNumber(chainId, startTime),
       this._getBlockNumber(chainId, endTime),
-    ]).andThen(([config, baseURL, fromBlock, toBlock]) => {
+    ]).andThen(([config, fromBlock, toBlock]) => {
       const params = {
         module: "account",
         action: "txlist",
@@ -85,6 +84,7 @@ export class EthereumIndexer
         sort: "asc",
         apikey: config.etherscanApiKey,
       };
+
       return this._paginateTransactions(
         chainId,
         params,
@@ -115,28 +115,66 @@ export class EthereumIndexer
                   return okAsync(undefined);
                 }
 
-                return okAsync(
-                  new TokenBalance(
-                    EChainTechnology.EVM,
-                    info.symbol,
-                    chainId,
-                    info.address,
-                    accountAddress,
-                    BigNumberString(balance.tokenBalance),
-                    BigNumberString("0"),
-                  ),
-                );
+                return ResultAsync.fromPromise(
+                  alchemy.core.getTokenMetadata(balance.contractAddress),
+                  (e) =>
+                    new AccountIndexingError(
+                      "error fetching token metadata from alchemy",
+                      e,
+                    ),
+                ).andThen((metadata) => {
+                  return okAsync(
+                    new TokenBalance(
+                      EChainTechnology.EVM,
+                      info.symbol,
+                      chainId,
+                      info.address,
+                      accountAddress,
+                      BigNumberString(
+                        (
+                          Number.parseInt(balance.tokenBalance, 16) /
+                          Math.pow(10, metadata.decimals || 0)
+                        ).toString(),
+                      ),
+                      BigNumberString("0"),
+                    ),
+                  );
+                });
               })
               .orElse((e) => {
                 this.logUtils.error("error fetching token info", e);
                 return okAsync(undefined);
               });
           }),
-        ).map((unfiltered) => {
-          return unfiltered.filter(
-            (item) => item != undefined,
-          ) as TokenBalance[];
-        });
+        )
+          .andThen((balances) => {
+            return ResultAsync.fromPromise(
+              alchemy.core.getBalance(accountAddress),
+              (e) =>
+                new AccountIndexingError(
+                  "error getting eth balance from alchemy",
+                  e,
+                ),
+            ).map((nativeBalance) => {
+              const nativeTokenBalance = new TokenBalance(
+                EChainTechnology.EVM,
+                TickerSymbol("ETH"),
+                chainId,
+                null,
+                accountAddress,
+                BigNumberString(
+                  ethers.utils.formatEther(nativeBalance).toString(),
+                ),
+                BigNumberString("0"),
+              );
+              return [nativeTokenBalance, ...balances];
+            });
+          })
+          .map((unfiltered) => {
+            return unfiltered.filter(
+              (item) => item != undefined,
+            ) as TokenBalance[];
+          });
       });
     });
   }
@@ -225,6 +263,19 @@ export class EthereumIndexer
           }[];
         }>(url)
         .andThen((response) => {
+          if (response.status != "1") {
+            if (response.result != null) {
+              return okAsync([]);
+            }
+
+            return errAsync(
+              new AccountIndexingError(
+                "error fetching transactions from etherscan",
+                response.message,
+              ),
+            );
+          }
+
           const txs = response.result.map((tx) => {
             // etherscan uses "" instead of null
             return new EVMTransaction(
@@ -286,8 +337,17 @@ export class EthereumIndexer
           message: string;
           result: BigNumberString;
         }>(url)
-        .map((resp) => {
-          return Number.parseInt(resp.result);
+        .andThen((resp) => {
+          if (resp.status != "1") {
+            // this is a bit noisy
+            // this.logUtils.warning(
+            //   "error fetching block number for timestamp from etherscan",
+            //   resp.status,
+            //   resp.message,
+            // );
+            return okAsync(0);
+          }
+          return okAsync(Number.parseInt(resp.result));
         })
         .mapErr(
           (e) => new AccountIndexingError("error loading block number", e),
