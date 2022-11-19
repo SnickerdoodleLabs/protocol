@@ -72,6 +72,7 @@ export class EVMTransaction extends ChainTransaction {
           ...this._getDescendants(this.functionSignature),
         ]);
       } catch (e) {
+        // this is also a bit noisy
         console.warn("error decoding transaction input", e);
       }
     }
