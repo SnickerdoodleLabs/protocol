@@ -89,7 +89,7 @@ export class EVMTransaction extends ChainTransaction {
       if (value && typeof value === "object") {
         result = new Set([...result, ...this._getDescendants(value)]);
       } else {
-        if (typeof value === "string") {
+        if (typeof value === "string" && value.match(EVMAccountAddressRegex)) {
           result.add(EVMAccountAddress(value));
         }
       }

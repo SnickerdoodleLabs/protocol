@@ -162,7 +162,7 @@ export class CorePrompt extends Prompt {
         case "getLocation":
           return this.core.getLocation().map(console.log);
         case "getTransactions":
-        //   return this.core.getTransactions().map(console.log;); # TODO
+          return this.core.getTransactions().map(console.log);
         case "getAccounts":
           return this.core.getAccounts().map(console.log);
         case "getNFTs":
