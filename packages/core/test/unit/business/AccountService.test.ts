@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ICrumbsContract,
   IMinimalForwarderContract,
@@ -130,6 +130,7 @@ class AccountServiceMocks {
   public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
   public contractFactory: IContractFactory;
+  public logUtils: ILogUtils;
 
   public minimalForwarderContract: IMinimalForwarderContract;
   public crumbsContract: ICrumbsContract;
@@ -153,6 +154,7 @@ class AccountServiceMocks {
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.contractFactory = td.object<IContractFactory>();
+    this.logUtils = td.object<ILogUtils>();
 
     this.minimalForwarderContract = td.object<IMinimalForwarderContract>();
     this.crumbsContract = td.object<ICrumbsContract>();
@@ -494,6 +496,7 @@ class AccountServiceMocks {
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contractFactory,
+      this.logUtils,
     );
   }
 }

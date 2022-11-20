@@ -23,7 +23,6 @@ import {
   ConsentContractRepositoryError,
   BlockchainProviderError,
   AjaxError,
-  EVMAccountAddress,
   BigNumberString,
   MinimalForwarderContractError,
   DomainName,
@@ -35,7 +34,6 @@ import {
   HexString32,
   TokenId,
   Signature,
-  HexString,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -264,7 +262,7 @@ export class InvitationService implements IInvitationService {
               });
             }
             return okAsync({
-              optInData: this.consentRepo.encodeRestrictedOptIn(
+              optInData: this.consentRepo.encodeAnonymousRestrictedOptIn(
                 invitation.consentContractAddress,
                 invitation.tokenId,
                 invitation.businessSignature,
@@ -298,7 +296,7 @@ export class InvitationService implements IInvitationService {
             // We need to take the types, and send it to the account signer
             const request = new MetatransactionRequest(
               invitation.consentContractAddress, // Contract address for the metatransaction
-              optInAddress, // EOA to run the transaction as (linked account, not derived)
+              optInAddress, // EOA to run the transaction as
               BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
               BigNumber.from(10000000), // The amount of gas to pay.
               BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
@@ -322,6 +320,21 @@ export class InvitationService implements IInvitationService {
                   optInPrivateKey,
                   config.defaultInsightPlatformBaseUrl,
                 );
+              })
+              .map(() => {
+                this.consentRepo
+                  .getConsentToken(invitation)
+                  .map((consentToken) => {
+                    if (consentToken == null) {
+                      this.logUtils.error(
+                        `No consent token created on ${invitation.consentContractAddress} with derived account ${optInAddress} and token ID ${invitation.tokenId}`,
+                      );
+                    } else {
+                      this.logUtils.log(
+                        `Opted in to ${invitation.consentContractAddress} with derived account ${consentToken.ownerAddress} and token ID ${consentToken.tokenId}`,
+                      );
+                    }
+                  });
               })
               .orElse((e) => {
                 // Metatransaction failed!
@@ -421,11 +434,11 @@ export class InvitationService implements IInvitationService {
         .andThen(([consentToken, optInPrivateKey]) => {
           if (consentToken == null) {
             // You're not actually opted in!
-            return errAsync(
-              new ConsentError(
-                "Cannot opt out of consent contract, you were not opted in!",
-              ),
+            // But we think we are. We should remove this from persistence
+            this.logUtils.warning(
+              "No consent token found for ${consentContractAddress}, but an opt-in is in the persistence. Removing from persistence!",
             );
+            return okAsync(undefined);
           }
 
           this.logUtils.debug("Existing consent token", consentToken);
@@ -447,45 +460,44 @@ export class InvitationService implements IInvitationService {
             ),
             this.forwarderRepo.getNonce(optInAccountAddress),
             this.configProvider.getConfig(),
-          ])
-            .andThen(([callData, nonce, config]) => {
-              const request = new MetatransactionRequest(
-                consentContractAddress, // Contract address for the metatransaction
-                optInAccountAddress, // EOA to run the transaction as
-                BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
-                BigNumber.from(10000000), // The amount of gas to pay.
-                BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-                callData, // The actual bytes of the request, encoded as a hex string
-              );
+          ]).andThen(([callData, nonce, config]) => {
+            const request = new MetatransactionRequest(
+              consentContractAddress, // Contract address for the metatransaction
+              optInAccountAddress, // EOA to run the transaction as
+              BigNumber.from(0), // The amount of doodle token to pay. Should be 0.
+              BigNumber.from(10000000), // The amount of gas to pay.
+              BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+              callData, // The actual bytes of the request, encoded as a hex string
+            );
 
-              return this.forwarderRepo
-                .signMetatransactionRequest(request, optInPrivateKey)
-                .andThen((metatransactionSignature) => {
-                  // Got the signature for the metatransaction, now we can execute it.
-                  // .executeMetatransaction will sign everything and have the server run
-                  // the metatransaction.
-                  return this.insightPlatformRepo.executeMetatransaction(
-                    optInAccountAddress, // account address
-                    consentContractAddress, // contract address
-                    BigNumberString(BigNumber.from(nonce).toString()),
-                    BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
-                    BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
-                    callData,
-                    metatransactionSignature,
-                    optInPrivateKey,
-                    config.defaultInsightPlatformBaseUrl,
-                  );
-                });
-            })
-            .andThen(() => {
-              return this.persistenceRepo.removeAcceptedInvitationsByContractAddress(
-                [consentContractAddress],
-              );
-            })
-            .map(() => {
-              // Notify the world that we've opted in to the cohort
-              context.publicEvents.onCohortLeft.next(consentContractAddress);
-            });
+            return this.forwarderRepo
+              .signMetatransactionRequest(request, optInPrivateKey)
+              .andThen((metatransactionSignature) => {
+                // Got the signature for the metatransaction, now we can execute it.
+                // .executeMetatransaction will sign everything and have the server run
+                // the metatransaction.
+                return this.insightPlatformRepo.executeMetatransaction(
+                  optInAccountAddress, // account address
+                  consentContractAddress, // contract address
+                  BigNumberString(BigNumber.from(nonce).toString()),
+                  BigNumberString(BigNumber.from(0).toString()), // The amount of doodle token to pay. Should be 0.
+                  BigNumberString(BigNumber.from(10000000).toString()), // The amount of gas to pay.
+                  callData,
+                  metatransactionSignature,
+                  optInPrivateKey,
+                  config.defaultInsightPlatformBaseUrl,
+                );
+              });
+          });
+        })
+        .andThen(() => {
+          return this.persistenceRepo.removeAcceptedInvitationsByContractAddress(
+            [consentContractAddress],
+          );
+        })
+        .map(() => {
+          // Notify the world that we've opted in to the cohort
+          context.publicEvents.onCohortLeft.next(consentContractAddress);
         });
     });
   }

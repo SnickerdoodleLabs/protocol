@@ -141,6 +141,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       accountAddress: accountAddress,
       contractAddress: contractAddress,
       nonce: nonce,
+      value: value,
+      gas: gas,
       data: data,
       metatransactionSignature: metatransactionSignature,
     } as Record<string, unknown>;

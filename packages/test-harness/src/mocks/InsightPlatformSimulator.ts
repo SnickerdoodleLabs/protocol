@@ -15,7 +15,6 @@ import {
   IpfsCID,
   ISDQLQueryObject,
   ISO8601DateString,
-  OptInInfo,
   SDQLString,
   Signature,
   TokenId,
@@ -24,6 +23,7 @@ import {
   ChainId,
   ExpectedReward,
   EarnedReward,
+  MinimalForwarderContractError,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -209,10 +209,7 @@ export class InsightPlatformSimulator {
         })
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(
-            queryCID,
-            ERewardType.Direct,
-          );
+          earnedRewards[0] = new EarnedReward(queryCID, ERewardType.Direct);
           res.send(earnedRewards);
         })
         .mapErr((e) => {
@@ -238,6 +235,8 @@ export class InsightPlatformSimulator {
         accountAddress: accountAddress,
         contractAddress: contractAddress,
         nonce: nonce,
+        value: value,
+        gas: gas,
         data: data,
         metatransactionSignature: metatransactionSignature,
       } as Record<string, unknown>;
@@ -279,7 +278,17 @@ export class InsightPlatformSimulator {
             metatransactionSignature,
           );
         })
-        .map(() => {
+        .andThen((tx) => {
+          return ResultAsync.fromPromise(tx.wait(), (e) => {
+            return new MinimalForwarderContractError(
+              "Wait for createCrumb() failed",
+              "Unknown",
+              e,
+            );
+          });
+        })
+        .map((receipt) => {
+          console.log("Metatransaction receipt", receipt);
           res.send("TokenId");
         })
         .mapErr((e) => {

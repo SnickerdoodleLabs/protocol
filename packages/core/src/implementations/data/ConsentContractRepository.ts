@@ -20,7 +20,7 @@ import {
   TokenUri,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IConsentContractRepository } from "@core/interfaces/data/index.js";
@@ -112,11 +112,19 @@ export class ConsentContractRepository implements IConsentContractRepository {
     ConsentToken | null,
     ConsentContractError | UninitializedError | BlockchainProviderError
   > {
-    return this.getConsentContract(optInInfo.consentContractAddress).andThen(
-      (consentContract) => {
-        return consentContract.getConsentToken(optInInfo.tokenId);
-      },
-    );
+    return this.getConsentContract(optInInfo.consentContractAddress)
+      .andThen((consentContract) => {
+        return consentContract.getConsentToken(
+          optInInfo.tokenId,
+        ) as ResultAsync<ConsentToken | null, ConsentContractError>;
+      })
+      .orElse((e) => {
+        this.logUtils.warning(
+          `Cannot call ownerOf or agreementFlags for token ID ${optInInfo.tokenId} on consent contract ${optInInfo.consentContractAddress}. Assuming it does not exist!`,
+          e,
+        );
+        return okAsync(null);
+      });
   }
 
   public isAddressOptedIn(

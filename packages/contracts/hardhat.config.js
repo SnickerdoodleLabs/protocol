@@ -65,6 +65,13 @@ module.exports = {
       gas: 6000000,
       gasPrice: 8000000000,
     },
+    localcli: {
+      accounts: accounts,
+      chainId: 31338,
+      url: "http://127.0.0.1:8545",
+      gas: 6000000,
+      gasPrice: 8000000000,
+    },
     dev: {
       accounts: accounts,
       chainId: 31337,
