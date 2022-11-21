@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe.only("Crumbs", () => {
+describe("Crumbs", () => {
   // declare variables to be used in tests
   let Crumbs;
   let crumbs;
