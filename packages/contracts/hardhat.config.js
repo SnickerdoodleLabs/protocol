@@ -32,7 +32,7 @@ const key = process.env.ETH_PRIVATE_KEY;
 const accounts = key ? [key] : { mnemonic };
 
 // we want to use a different chain id locally vs remotely
-const chainid = (process.env.NETWORK === 'local') ? 31338 : 31337;
+const chainid = process.env.NETWORK === "local" ? 31338 : 31337;
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -131,6 +131,11 @@ module.exports = {
   },
   gasReporter: {
     enabled: true,
+    currency: "USD",
+    coinmarketcap: "7b7b93e9-c654-4c62-a93d-0a52bc92c239",
+    token: "AVAX",
+    gasPriceApi:
+      "https://api.snowtrace.io/api?module=proxy&action=eth_gasPrice",
   },
   docgen: {
     path: "./docs",

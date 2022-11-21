@@ -97,7 +97,7 @@ const MarketPlaceCampaigns: FC = () => {
       <Box mb={4}>
         <Typography className={classes.title}>Available Campaigns</Typography>
         <Typography className={classes.description}>
-          Browse campaigns and opt in.
+          Browse campaigns and join.
         </Typography>
       </Box>
       {isLoading ? (
@@ -117,7 +117,7 @@ const MarketPlaceCampaigns: FC = () => {
                     }}
                     className={classes.link}
                   >
-                    Opt-in
+                    Join
                   </Typography>
                 }
                 key={key}
