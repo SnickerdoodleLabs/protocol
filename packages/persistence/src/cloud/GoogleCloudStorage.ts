@@ -186,6 +186,7 @@ export class GoogleCloudStorage implements ICloudStorage {
       this._init(),
       this._configProvider.getConfig(),
     ]).andThen(([{ client }, config]) => {
+      
       // Add data file to GCP
       config.ceramicNodeURL;
 
