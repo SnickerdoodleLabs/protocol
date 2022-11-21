@@ -20,6 +20,8 @@ import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useMemo, useState } from "react";
 declare const window: IWindowWithSdlDataWallet;
 
+
+
 const DataPermissionsSettings: FC = () => {
   const classes = useStyles();
   const [applyDefaults, setApplyDefaults] = useState<boolean>(false);
@@ -63,8 +65,8 @@ const DataPermissionsSettings: FC = () => {
       <Box>
         <Typography className={classes.title}>Data Permissions</Typography>
         <Typography className={classes.description}>
-          You can set permission for every data that you have in your data
-          wallet individually.
+        Consent to share aggregate, anonymized insights derived from your data.
+         You can set permissions individually, for each item. 
         </Typography>
         <Box mt={5}>
           <RadioGroup
@@ -77,13 +79,13 @@ const DataPermissionsSettings: FC = () => {
               className={classes.label}
               value={true}
               control={<Radio />}
-              label="Apply my settings for every rewards"
+              label="Apply my settings for all future rewards."
             />
             <FormControlLabel
               className={classes.label}
               value={false}
               control={<Radio />}
-              label="Ask me about my settings for everytime I accept the reward"
+              label="Ask me about my settings every time I accept a new reward."
             />
           </RadioGroup>
         </Box>
@@ -98,11 +100,13 @@ const DataPermissionsSettings: FC = () => {
                 </Typography>
               </Box>
               <Box mb={7} border="1px solid #D9D9D9" p={4} borderRadius={8}>
-                <Grid container spacing={2}>
-                  {item.dataTypes.map((dataType, index) => {
+                <Grid container  spacing={2} >
+             
+                  {item.dataTypes.map((dataType, index, arr) => {
                     return (
-                      <Grid key={index} item xs={sectionIndex === 0 ? 6 : 12}>
+                      <Grid key={index} item xs={PERMISSION_DESCRIPTIONS[dataType] ? 12 : 6 }   >
                         <Box
+                          m={PERMISSION_DESCRIPTIONS[dataType] ? 0 : 1}
                           mb={2}
                           display="flex"
                           alignItems="center"
@@ -111,9 +115,11 @@ const DataPermissionsSettings: FC = () => {
                           <Typography className={classes.switchLabel}>
                             {PERMISSION_NAMES[dataType]}
                           </Typography>
-                          <Box>
+                          <Box style={ PERMISSION_DESCRIPTIONS[dataType] ? {} :
+                              {  marginRight : index%2 === 1 ? "-8px" : "0px" }}>
                             <Switch
                               checked={permissionForm.includes(dataType)}
+                              
                               value={permissionForm.includes(dataType)}
                               onChange={(event) => {
                                 if (event.target.checked) {
@@ -141,11 +147,10 @@ const DataPermissionsSettings: FC = () => {
                             </Typography>
                           </Box>
                         )}
-                        {index === item.dataTypes.length - 1 ||
-                        (sectionIndex === 0 &&
-                          index === item.dataTypes.length - 2) ? null : (
-                          <Divider />
-                        )}
+                        { console.log(PERMISSION_DESCRIPTIONS[dataType] !== undefined)}
+                        { index+1 !== arr.length  &&  (     <Divider style={ PERMISSION_DESCRIPTIONS[dataType] ? {} :
+                        { marginRight : index%2 === 0 ? "-8px" : "0px ", marginLeft : index%2 === 1 ? "-8px" : "0px" }   }/ > )}
+                         
                       </Grid>
                     );
                   })}

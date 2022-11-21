@@ -74,7 +74,7 @@ const ScamFilterSettings: FC = () => {
       {!isLoading ? (
         <Box mt={4}>
           <Box display="flex" flexDirection="column">
-            <Box mb={2} display="flex" alignItems="center">
+            <Box  display="flex" alignItems="center">
               <Typography className={classes.sectionTitle}>
                 Scam Filter
               </Typography>
@@ -106,8 +106,12 @@ const ScamFilterSettings: FC = () => {
                 }}
               />
             </Box>
-            {scamFilterPreferences?.isScamFilterActive === true && (
-              <Box mb={2} border="1px solid #D9D9D9" p={4} borderRadius={8}>
+            {scamFilterPreferences?.isScamFilterActive === true ? (
+              <Box display="flex" flexDirection="column">
+              <Typography className={classes.description}>Scam filter is now active. Websites you visit will automatically be checked against our 
+              white list to filter out scams. Look for the Snickerdoodle "verified" message in the top right of 
+              your browser window.</Typography>
+              <Box mb={2} mt={2} border="1px solid #D9D9D9" p={4} borderRadius={8}>    
                 <Box display="flex" flexDirection="column">
                   <RadioGroup
                     value={scamFilterPreferences?.showMessageEveryTime ?? false}
@@ -128,7 +132,7 @@ const ScamFilterSettings: FC = () => {
                       }
                       value={true}
                       control={<Radio />}
-                      label={`Show “Verified” modal for each site every time on every visit`}
+                      label={`Show me a "verified" message for each website, every time I visit.`}
                     />
                     <Box width="100%" py={2}>
                       <Divider />
@@ -144,12 +148,13 @@ const ScamFilterSettings: FC = () => {
                       }
                       value={false}
                       control={<Radio />}
-                      label={`Show “Verified” modal for each site only once`}
+                      label={`Show me a "verified" message for each website, only the first time I visit.`}
                     />
                   </RadioGroup>
                 </Box>
               </Box>
-            )}
+              </Box>
+            ) : <Typography className={classes.description}>Scam filter is inactive. Websites you visit will not be verified against our white list.</Typography>}
           </Box>
         </Box>
       ) : (
