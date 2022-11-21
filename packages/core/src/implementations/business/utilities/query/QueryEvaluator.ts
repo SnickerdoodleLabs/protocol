@@ -145,7 +145,7 @@ export class QueryEvaluator implements IQueryEvaluator {
       // const err = new Error("In evalPropertyConditon, propertyVal is null!");
       // console.error(err);
       // throw err;
-      return SDQL_Return(false);
+      return SDQL_Return(null);
     }
     //console.log(`Evaluating property condition ${condition} against ${propertyVal}`);
     let val: number | AST_Expr = 0;
