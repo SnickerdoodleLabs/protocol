@@ -1,6 +1,7 @@
 import {
   AccountAddress,
   DataWalletAddress,
+  EarnedReward,
   EChain,
   IEVMBalance,
   IEVMNFT,
@@ -48,6 +49,7 @@ export interface IAccountRepository {
     languageCode: LanguageCode,
     chain: EChain,
   ): ResultAsync<DataWalletAddress | null, SnickerDoodleCoreError>;
+  getEarnedRewards(): ResultAsync<EarnedReward[], SnickerDoodleCoreError>;
 }
 
 export const IAccountRepositoryType = Symbol.for("IAccountRepository");

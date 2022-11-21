@@ -1,6 +1,7 @@
 import {
   AccountAddress,
   DataWalletAddress,
+  EarnedReward,
   EChain,
   IEVMBalance,
   IEVMNFT,
@@ -21,6 +22,13 @@ export class AccountService implements IAccountService {
     @inject(IAccountRepositoryType)
     protected accountRepository: IAccountRepository,
   ) {}
+
+  public getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountRepository.getEarnedRewards();
+  }
 
   public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.accountRepository.getAccounts();

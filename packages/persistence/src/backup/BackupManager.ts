@@ -16,22 +16,25 @@ import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IVolatileStorageTable } from "@persistence/volatile/index.js";
+import { IBackupManager } from "@persistence/backup/IBackupManager.js";
+import { IVolatileStorage } from "@persistence/volatile/index.js";
 
-export class BackupManager {
+export class BackupManager implements IBackupManager {
   private fieldUpdates: FieldMap = {};
   private tableUpdates: TableMap = {};
   private numUpdates = 0;
   private accountAddr: DataWalletAddress;
 
   private fieldHistory: Map<string, number> = new Map();
+  private chunkQueue: Array<IDataWalletBackup> = [];
 
   public constructor(
-    public privateKey: EVMPrivateKey,
+    protected privateKey: EVMPrivateKey,
     protected tableNames: string[],
-    protected volatile: IVolatileStorageTable,
+    protected volatileStorage: IVolatileStorage,
     protected cryptoUtils: ICryptoUtils,
-    protected persistent: IStorageUtils,
+    protected storageUtils: IStorageUtils,
+    public maxChunkSize: number,
   ) {
     this.accountAddr = DataWalletAddress(
       cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey),
@@ -46,21 +49,33 @@ export class BackupManager {
     this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
   }
 
+  public popBackup(): ResultAsync<
+    IDataWalletBackup | undefined,
+    PersistenceError
+  > {
+    return okAsync(this.chunkQueue.pop());
+  }
+
   public addRecord(
     tableName: string,
     value: object,
   ): ResultAsync<void, PersistenceError> {
-    // console.log("Record update", tableName, value);
+    // this allows us to bypass transactions
+    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+      return this.volatileStorage.putObject(tableName, value);
+    }
+
     this.tableUpdates[tableName].push(value);
     this.numUpdates += 1;
-    return this.volatile.putObject(tableName, value);
+    return this.volatileStorage
+      .putObject(tableName, value)
+      .andThen(() => this._checkSize());
   }
 
   public updateField(
     key: string,
     value: object,
   ): ResultAsync<void, PersistenceError> {
-    // console.log("Field update", key, value);
     if (!(key in this.fieldUpdates)) {
       this.numUpdates += 1;
     }
@@ -68,11 +83,7 @@ export class BackupManager {
     const timestamp = new Date().getTime();
     this.fieldUpdates[key] = [value, timestamp];
     this._updateFieldHistory(key, timestamp);
-    return this.persistent.write(key, value);
-  }
-
-  public getNumUpdates(): ResultAsync<number, never> {
-    return okAsync(this.numUpdates);
+    return this.storageUtils.write(key, value).andThen(() => this._checkSize());
   }
 
   public dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
@@ -116,35 +127,44 @@ export class BackupManager {
                   if (timestamp > this.fieldUpdates[fieldName][1]) {
                     this.fieldHistory[fieldName] = timestamp;
                     delete this.fieldUpdates[fieldName];
-                    return this.persistent.write(fieldName, value);
+                    return this.storageUtils.write(fieldName, value);
                   }
                 } else {
                   this.fieldHistory[fieldName] = timestamp;
-                  return this.persistent.write(fieldName, value);
+                  return this.storageUtils.write(fieldName, value);
                 }
               }
 
               return okAsync(undefined);
             }),
-          ).andThen((_) => {
+          ).andThen(() => {
             return ResultUtils.combine(
               Object.keys(unpacked.records).map((tableName) => {
                 const table = unpacked.records[tableName];
                 return ResultUtils.combine(
                   table.map((value) => {
-                    // TODO: figure out how to dedup records from chunk here
-                    return this.volatile.putObject(tableName, value);
+                    return this.volatileStorage.putObject(tableName, value);
                   }),
                 );
               }),
             );
           });
         })
-        .map((_) => {
+        .map(() => {
           console.log(`restored backup: ${backup.header.hash}`);
-          return undefined;
         });
     });
+  }
+
+  private _checkSize(): ResultAsync<void, PersistenceError> {
+    if (this.numUpdates >= this.maxChunkSize) {
+      return this.dump().andThen((backup) => {
+        this.chunkQueue.push(backup);
+        return okAsync(this.clear());
+      });
+    }
+
+    return okAsync(undefined);
   }
 
   private _unpackBlob(
@@ -173,15 +193,16 @@ export class BackupManager {
   private _verifyBackupSignature(
     backup: IDataWalletBackup,
   ): ResultAsync<boolean, PersistenceError> {
-    return this.cryptoUtils
-      .verifyEVMSignature(
-        this._generateSignatureMessage(
-          backup.header.hash,
-          backup.header.timestamp,
-        ),
-        Signature(backup.header.signature),
-      )
-      .andThen((addr) => okAsync(addr == EVMAccountAddress(this.accountAddr)));
+    return this._getContentHash(backup.blob).andThen((hash) => {
+      return this.cryptoUtils
+        .verifyEVMSignature(
+          this._generateSignatureMessage(hash, backup.header.timestamp),
+          Signature(backup.header.signature),
+        )
+        .andThen((addr) =>
+          okAsync(addr == EVMAccountAddress(this.accountAddr)),
+        );
+    });
   }
 
   private _generateBlob(): ResultAsync<AESEncryptedString, PersistenceError> {
@@ -206,8 +227,7 @@ export class BackupManager {
   private _getContentHash(
     blob: AESEncryptedString,
   ): ResultAsync<string, PersistenceError> {
-    // dummy value on write
-    return okAsync("");
+    return this.cryptoUtils.hashStringSHA256(JSON.stringify(blob));
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {

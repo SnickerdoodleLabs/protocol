@@ -48,10 +48,10 @@ export interface ISDQLQueryContract {
   function: string;
   direction: string;
   token: string;
-  timestamp: ISDQLTimestamp;
+  timestampRange: ISDQLTimestampRange;
 }
 
-export interface ISDQLTimestamp {
+export interface ISDQLTimestampRange {
   start: number;
   end: number;
 }

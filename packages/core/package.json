@@ -31,7 +31,7 @@
     "prepare": "yarn build",
     "test": "yarn test:ci",
     "test-integration": "cucumber-js --require-module ts-node/register --require-module tsconfig-paths/register --require 'test/integration/**/*.ts' test/integration/features/**/*.feature",
-    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --runInBand --coverage --passWithNoTests",
+    "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests",
     "test:watch": "jest --watch --color --detectOpenHandles"
   },
   "type": "module",
@@ -47,11 +47,11 @@
     "@snickerdoodlelabs/signature-verification": "workspace:^",
     "ethers": "^5.6.6",
     "inversify": "^5.1.1",
-    "neverthrow": "^4.3.1",
-    "neverthrow-result-utils": "^1.0.2",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
-    "tldts": "^5.7.89",
+    "tldts": "^5.7.99",
     "url-join-ts": "^1.0.5",
     "uuid": "^8.3.0"
   }

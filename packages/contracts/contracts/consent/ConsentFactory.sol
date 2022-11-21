@@ -31,15 +31,6 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @dev Mapping of deployed beacon proxy addresses to track that it is a Consent contract
     mapping(address => bool) public consentAddressCheck;
 
-    /// @dev Mapping of user address to an array of Consent contracts they have opted-in to
-    /// @dev User address => Consent address array
-    mapping(address => address[]) public addressToUserArray;
-
-    /// @dev Mapping of Consent contract address of a specific user's array to its index
-    /// @dev Used look up index in the array and check if it exists in the array
-    /// @dev User address => Consent address => index within the array
-    mapping(address => mapping(address => uint256)) public addressToUserArrayIndex;
-
     /// @dev Mapping of user address to contracts addresses they have specific roles for
     /// @dev User address => role => Consent address array
     mapping(address => mapping(bytes32 => address[])) public addressToUserRolesArray;
@@ -128,36 +119,6 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         emit ConsentDeployed(owner, beaconProxyAddress);
     }
 
-    /// @notice Function to add consent addresses that users have opted-in to
-    /// @param user Address of the user to update  
-    function addUserConsents(address user) external onlyConsentContract {
-        // retrieve the array of address a users has and add the latest
-        addressToUserArray[user].push(msg.sender);
-
-        // store the index of the last pushed element
-        addressToUserArrayIndex[user][msg.sender] = addressToUserArray[user].length - 1;
-    }
-
-    /// @notice Function to remove consent addresses that users have opted-in to
-    /// @dev This allows us to retrieve a list of Consent contract addresses the user has opted-in to
-    /// @param user Address of the user to update  
-    function removeUserConsents(address user) external onlyConsentContract {
-        
-        // retrieve the user's list of Consents
-        address[] memory consentList = addressToUserArray[user];
-
-        // get the requesting Consent address's index
-        uint256 indexToReplace = addressToUserArrayIndex[user][msg.sender];
-        // replace the index of interest with the last element in the array
-        addressToUserArray[user][indexToReplace] = consentList[consentList.length - 1];
-
-        // update the index of the element to be moved in the mapping
-        addressToUserArrayIndex[user][consentList[consentList.length - 1]] = indexToReplace;
-
-        // delete the last element now that is has been moved
-        addressToUserArray[user].pop();
-    }
-
     /// @notice Function to add roles a user address has on a specific contract
     /// @dev This allows us to retrieve a list of Consent contract addresses where the user has specific roles
     /// @param user Address of the user to update  
@@ -209,22 +170,6 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     function getUserDeployedConsentsByIndex(address user, uint256 startingIndex, uint256 endingIndex) external view returns(address[] memory) {
         
         return _queryList(startingIndex, endingIndex, addressToDeployedConsents[user]);
-    }
-
-    /// @notice Return the number Consent addresses that user is currently opted-in
-    /// @param user Address of the user   
-    /// @return count Count of user's current opted-in Consent contracts
-    function getUserConsentAddressesCount(address user) external view returns(uint256 count) {
-        return addressToUserArray[user].length;
-    }
-
-    /// @notice Return the an array of Consent addresses that user is currently opted-in by index
-    /// @param user Address of the user  
-    /// @param startingIndex Starting index of query   
-    /// @param endingIndex Ending index of query   
-    function getUserConsentAddressesByIndex(address user, uint256 startingIndex, uint256 endingIndex) external view returns(address[] memory) {
-        
-        return _queryList(startingIndex, endingIndex, addressToUserArray[user]);
     }
 
     /// @notice Return an array of user's consent addresses that they have specific roles in

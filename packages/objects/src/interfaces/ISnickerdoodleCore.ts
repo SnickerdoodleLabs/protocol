@@ -8,6 +8,9 @@ import {
   PageInvitation,
   SiteVisit,
   LinkedAccount,
+  EligibleReward,
+  EarnedReward,
+  IDynamicRewardParameter,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -48,6 +51,7 @@ import {
   IpfsCID,
   LanguageCode,
   Signature,
+  TokenId,
   UnixTimestamp,
 } from "@objects/primitives";
 
@@ -262,6 +266,13 @@ export interface ISnickerdoodleCore {
     | IPFSError
   >;
 
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
     | UninitializedError
@@ -287,6 +298,7 @@ export interface ISnickerdoodleCore {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters?: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -317,6 +329,8 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | PersistenceError
   >;
+
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
@@ -351,6 +365,7 @@ export interface ISnickerdoodleCore {
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

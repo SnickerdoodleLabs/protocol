@@ -32,25 +32,7 @@ export class ExtensionListener implements IExtensionListener {
   ): ResultAsync<void, Error> {
     console.debug("Icon clicked");
     const config = this.configProvider.getConfig();
-    if (tab.windowId) {
-      return ExtensionUtils.getAllTabsOnWindow(tab.windowId).andThen((tabs) => {
-        const onboardingTab = tabs.find(
-          (tab) =>
-            new URL(tab.url || "").origin ===
-            new URL(config.onboardingUrl).origin,
-        );
-        if (onboardingTab) {
-          return ExtensionUtils.switchToTab(onboardingTab.id).map(() => {});
-        }
-        return ExtensionUtils.openTab({ url: config.onboardingUrl }).map(
-          () => {},
-        );
-      });
-    } else {
-      return ExtensionUtils.openTab({ url: config.onboardingUrl }).map(
-        () => {},
-      );
-    }
+    return ExtensionUtils.openUrlOrSwitchToUrlTab(config.onboardingUrl);
     // when the below method is called onClick event not gonna fired again this can be called after onboarding is completed
   }
 }

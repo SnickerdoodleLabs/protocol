@@ -1,7 +1,10 @@
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
-import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import {
+  ELoadingIndicatorType,
+  useLayoutContext,
+} from "@extension-onboarding/context/LayoutContext";
 import { IProvider } from "@extension-onboarding/services/blockChainWalletProviders";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { EChain } from "@snickerdoodlelabs/objects";
@@ -34,7 +37,7 @@ const AccountLinkingContext = createContext<IAccountLinkingContext>(
 export const AccountLinkingContextProvider: FC = ({ children }) => {
   const { providerList, linkedAccounts, isSDLDataWalletDetected } =
     useAppContext();
-  const { setModal } = useLayoutContext();
+  const { setModal, setLoadingStatus } = useLayoutContext();
 
   const { detectedProviders, unDetectedProviders, walletConnect } =
     useMemo(() => {
@@ -60,6 +63,10 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
         },
       );
     }, [providerList.length]);
+
+  useEffect(() => {
+    setLoadingStatus(false);
+  }, [(linkedAccounts ?? []).length]);
 
   const getChain = (providerKey: EWalletProviderKeys) => {
     return providerKey === EWalletProviderKeys.PHANTOM
@@ -89,17 +96,19 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                       console.log(
                         "No existing linked accounts, calling sdlDataWallet.unlock()",
                       );
-                      return window.sdlDataWallet.unlock(
-                        account,
-                        signature,
-                        getChain(providerObj.key),
-                      );
+                      setLoadingStatus(true);
+                      return window.sdlDataWallet
+                        .unlock(account, signature, getChain(providerObj.key))
+                        .mapErr((e) => {
+                          setLoadingStatus(false);
+                        });
                     }
-                    return window.sdlDataWallet.addAccount(
-                      account,
-                      signature,
-                      getChain(providerObj.key),
-                    );
+                    setLoadingStatus(true);
+                    return window.sdlDataWallet
+                      .addAccount(account, signature, getChain(providerObj.key))
+                      .mapErr((e) => {
+                        setLoadingStatus(false);
+                      });
                   });
               } else {
                 setModal({

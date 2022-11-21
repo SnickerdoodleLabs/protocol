@@ -35,7 +35,7 @@ import {
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
-import { Tabs } from "webextension-polyfill";
+import Browser, { Tabs } from "webextension-polyfill";
 
 export class ExtensionCore {
   protected iocContainer: Container;
@@ -53,6 +53,11 @@ export class ExtensionCore {
       this.iocContainer.get<IConfigProvider>(IConfigProviderType);
     const config = configProvider.getConfig();
 
+    const SIX_HOURS_MS = 21600000;
+
+    // These values are the defaults in the config provider
+    const UNREALISTIC_BUT_WORKING_POLL_INTERVAL = 5000;
+    const UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL = 10000;
     const coreConfig = {
       controlChainId: config.controlChainId,
       supportedChains: config.supportedChains,
@@ -61,6 +66,13 @@ export class ExtensionCore {
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
       dnsServerAddress: config.dnsServerAddress,
+      ceramicNodeUrl: config.ceramicNodeUrl,
+      controlChainProviderURL: config.controlChainProviderUrl,
+      accountBalancePollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
+      accountIndexingPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
+      accountNFTPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
+      dataWalletBackupIntervalMS: UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL, // SIX_HOURS_MS
+      requestForDataCheckingFrequency: config.requestForDataCheckingFrequency
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(
@@ -100,7 +112,7 @@ export class ExtensionCore {
     ]).map(() => {});
   }
 
-  private tryUnlock(): ResultAsync<void | Tabs.Tab, Error> {
+  private tryUnlock(): ResultAsync<void, Error> {
     const accountCookieUtils = this.iocContainer.get<IAccountCookieUtils>(
       IAccountCookieUtilsType,
     );
@@ -167,17 +179,17 @@ export class ExtensionCore {
             return accountCookieUtils
               .removeDataWalletAddressFromCookie()
               .andThen(() => {
-                return ExtensionUtils.openTab({
-                  url: config.onboardingUrl,
-                });
+                return ExtensionUtils.openUrlOrSwitchToUrlTab(
+                  config.onboardingUrl,
+                );
               });
           }
-          return ExtensionUtils.openTab({ url: config.onboardingUrl });
+          return ExtensionUtils.openUrlOrSwitchToUrlTab(config.onboardingUrl);
         }
       })
       .orElse((e) => {
         errorUtils.emit(e);
-        return ExtensionUtils.openTab({ url: config.onboardingUrl });
+        return ExtensionUtils.openUrlOrSwitchToUrlTab(config.onboardingUrl);
       });
   }
 }

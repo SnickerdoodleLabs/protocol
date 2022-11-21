@@ -172,21 +172,23 @@ async function deploySift() {
   console.log("Sift deployed to:", sift.address);
   console.log("Sift Gas Fee:", sift_receipt.gasUsed.toString());
 
-  await sift.verifyURL("snickerdoodle.com", accounts[0].address)
-  .then((txResponse) => {
-    return txResponse.wait();
-  })
-  .then((txrct) => {
-    logTXDetails(txrct);
-  });
+  await sift
+    .verifyURL("snickerdoodle.com", accounts[0].address)
+    .then((txResponse) => {
+      return txResponse.wait();
+    })
+    .then((txrct) => {
+      logTXDetails(txrct);
+    });
 
-  await sift.maliciousURL("webthree.love", accounts[0].address)
-  .then((txResponse) => {
-    return txResponse.wait();
-  })
-  .then((txrct) => {
-    logTXDetails(txrct);
-  });
+  await sift
+    .maliciousURL("webthree.love", accounts[0].address)
+    .then((txResponse) => {
+      return txResponse.wait();
+    })
+    .then((txrct) => {
+      logTXDetails(txrct);
+    });
 }
 
 async function deployMinimalForwarder() {
@@ -209,6 +211,20 @@ async function deployMinimalForwarder() {
     "MinimalForwarder Gas Fee:",
     minimalForwarder_receipt.gasUsed.toString(),
   );
+}
+
+async function deployRewards() {
+  console.log("");
+  console.log("Deploying Test Reward contract...");
+
+  const Reward = await hre.ethers.getContractFactory("Reward");
+
+  // the MinimalForwarder does not require any arguments on deployment
+  const reward = await Reward.deploy();
+  const reward_receipt = await reward.deployTransaction.wait();
+
+  console.log("Reward deployed to:", reward.address);
+  console.log("Reward Gas Fee:", reward_receipt.gasUsed.toString());
 }
 
 // function that runs the full deployment of all contracts
@@ -238,6 +254,8 @@ async function fullDeployment() {
 
   await deployCrumbs();
   await deploySift();
+
+  await deployRewards();
 
   console.log("");
   console.log("Full deployment successful!");

@@ -43,7 +43,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 "function": "Transfer",
                 "direction": "from",
                 "token": "ERC20",
-                "timestamp": {
+                "timestampRange": {
                     "start": 13001519,
                     "end": 14910334
                 }
@@ -278,7 +278,7 @@ This query determines if a US-based user has received an ERC-721 token on the Et
                 "function": "Transfer",
                 "direction": "to",
                 "token": "ERC721",
-                "timestamp": {
+                "timestampRange": {
                     "start": 14801177,
                     "end": 14801190
                 }

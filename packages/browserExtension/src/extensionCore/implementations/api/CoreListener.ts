@@ -1,3 +1,22 @@
+import {
+  DataWalletAddress,
+  EarnedReward,
+  ERewardType,
+  IDynamicRewardParameter,
+  ISnickerdoodleCore,
+  ISnickerdoodleCoreEvents,
+  ISnickerdoodleCoreType,
+  LinkedAccount,
+  RecipientAddressType,
+  SDQLQueryRequest,
+  SDQLString,
+} from "@snickerdoodlelabs/objects";
+import { query } from "express";
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import Browser from "webextension-polyfill";
+
 import { BrowserUtils } from "@enviroment/shared/utils";
 import { ICoreListener } from "@interfaces/api";
 import {
@@ -6,18 +25,6 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@interfaces/utilities";
-import {
-  DataWalletAddress,
-  ISnickerdoodleCore,
-  ISnickerdoodleCoreEvents,
-  ISnickerdoodleCoreType,
-  LinkedAccount,
-  SDQLQueryRequest,
-  SDQLString,
-} from "@snickerdoodlelabs/objects";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import Browser from "webextension-polyfill";
 
 @injectable()
 export class CoreListener implements ICoreListener {
@@ -76,10 +83,35 @@ export class CoreListener implements ICoreListener {
       return queryString;
     };
 
+    // DynamicRewardParameters added to be returned
+    const parameters: IDynamicRewardParameter[] = [];
+    // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
+    request.rewardsPreview.forEach((element) => {
+      if (request.dataWalletAddress !== null) {
+        parameters.push({
+          recipientAddress: {
+            type: "address",
+            value: RecipientAddressType(
+              request.accounts[0].sourceAccountAddress,
+            ),
+          },
+        } as IDynamicRewardParameter);
+      }
+    });
+
     this.core
-      .processQuery(request.consentContractAddress, {
-        cid: request.query.cid,
-        query: getStringQuery(),
+      .processQuery(
+        request.consentContractAddress,
+        {
+          cid: request.query.cid,
+          query: getStringQuery(),
+        },
+        parameters as IDynamicRewardParameter[],
+      )
+      .map(() => {
+        console.log(
+          `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+        );
       })
       .mapErr((e) => {
         console.error(

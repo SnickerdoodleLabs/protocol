@@ -98,8 +98,8 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         consentFactoryInstance = IConsentFactory(consentFactoryAddress);
 
         // set trusted forwarder
-        trustedForwarder = 0xF7c6dC708550D89558110cAecD20a8A6a184427E; 
-        // trustedForwarder = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+        // trustedForwarder = 0xF7c6dC708550D89558110cAecD20a8A6a184427E; 
+        trustedForwarder = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
 
         // set the queryHorizon to be the current block number;
         queryHorizon = block.number;
@@ -143,9 +143,6 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         /// increase total supply count, this is 20,0000 gas
         totalSupply++;
-
-        /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender());
     }
 
     /// @notice Allows specific users to opt in to sharing their data
@@ -183,9 +180,6 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         /// increase total supply count
         totalSupply++;
-
-        /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender());
     }
 
     /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
@@ -223,9 +217,6 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         /// increase total supply count before interaction
         totalSupply++;
-
-        /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender());
     }
 
     /// @notice Allows users to opt out of sharing their data
@@ -473,9 +464,6 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         _updateCounterAndTokenFlags(tokenId, agreementFlagsArray[tokenId]);
 
         super._burn(tokenId);
-
-        /// remove user's consent contract to ConsentFactory
-        consentFactoryInstance.removeUserConsents(_msgSender());
     }
 
     function tokenURI(uint256 tokenId)
