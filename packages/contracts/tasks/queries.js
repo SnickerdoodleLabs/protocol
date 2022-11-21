@@ -90,8 +90,8 @@ function buildUrl(contract, chain){
   else if (contract.token === 'ERC721'){
     action = 'tokennfttx'
   }
-  const startblock = contract.timestamp.start;
-  const endblock = contract.timestamp.end;
+  const startblock = contract.timestampRange.start;
+  const endblock = contract.timestampRange.end;
   const address = contract.address;
   let domain
   let apikey

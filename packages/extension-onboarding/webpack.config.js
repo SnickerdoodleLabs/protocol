@@ -15,7 +15,7 @@ module.exports = {
     argon2: argon2,
   },
   context: __dirname,
-  mode: process.env.__BUILD_ENV__ === "PROD" ? "production" : "development",
+  mode: process.env.__BUILD_ENV__ === "dev" ? "development" : "production",
   entry: path.join(__dirname, "src/index.tsx"),
   output: {
     filename: "index.js",
@@ -97,10 +97,12 @@ module.exports = {
       fs: false,
     },
   },
-  devtool: process.env.__BUILD_ENV__ === "PROD" ? false : "eval-source-map",
+  devtool:
+    process.env.__BUILD_ENV__ === "dev" ? "eval-source-map" : "source-map",
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "src/index.html"),
+      favicon: "src/favicon/favicon.ico",
     }),
     new webpack.ProvidePlugin({
       Buffer: ["buffer", "Buffer"],

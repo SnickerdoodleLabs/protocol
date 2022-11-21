@@ -33,7 +33,7 @@ Official Avalanche Network testnet:
 
 - Consent Contract Factory: `0xC44C9B4375ab43D7974252c37bccb41F99910fA5`
 - Crumbs Contract: `0x97464F3547510fb430448F5216eC7D8e71D7C4eF`
-- Consent Implementation Contract: `0xc9E00efA115d607E7e682504E1f66c7379BF326e`
+- Consent Implementation Contract: `0x085dCEFc4477f24A9E9a91166bAe4690BEEF1423`
 - DoodleToken Contract: `TBD`
 - Snickerdoodle Timelock Contract: `TBD`
 - Snickerdoodle Governor Contract: `TBD`

@@ -14,6 +14,9 @@ import {
   IPFSError,
   PersistenceError,
   UninitializedError,
+  QueryFormatError,
+  QueryExpiredError,
+  EvaluationError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -89,7 +92,7 @@ export class BlockchainListener implements IBlockchainListener {
             console.error(e);
             return e;
           });
-        }, config.controlChainInformation.averageBlockMiningTime);
+        }, config.requestForDataCheckingFrequency);
       },
     );
   }
@@ -107,6 +110,9 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentContractError
     | ConsentError
     | PersistenceError
+    | QueryFormatError
+    | QueryExpiredError
+    | EvaluationError
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -122,6 +128,7 @@ export class BlockchainListener implements IBlockchainListener {
   ): ResultAsync<
     void,
     | BlockchainProviderError
+    | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
     | ConsentContractRepositoryError
@@ -129,7 +136,9 @@ export class BlockchainListener implements IBlockchainListener {
     | AjaxError
     | ConsentContractError
     | ConsentError
-    | PersistenceError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
   > {
     return this.consentContractRepository
       .getConsentContracts()

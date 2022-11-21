@@ -24,8 +24,8 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
     const result = SDQL_Return(false);
     const chainId = query.contract.networkId;
     const address = query.contract.address as EVMAccountAddress;
-    const startTime = query.contract.timestamp.start;
-    const endTime = query.contract.timestamp.end;
+    const startTime = query.contract.timestampRange.start;
+    const endTime = query.contract.timestampRange.end;
 
     const filter = new EVMTransactionFilter(
       [chainId],

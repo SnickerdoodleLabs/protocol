@@ -1,5 +1,10 @@
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
+import {
+  PRIVACY_POLICY_URL,
+  ZENDEKS_URL,
+} from "@extension-onboarding/constants";
 import {
   routes,
   useAuthFlowRouteContext,
@@ -9,7 +14,6 @@ import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import clsx from "clsx";
 import React, { useState } from "react";
-import LinkAccountModal from "../Modals/LinkAccountModal";
 
 const Sidebar = () => {
   const classes = useStyles();
@@ -137,6 +141,26 @@ const Sidebar = () => {
               </Box>
             );
           })}
+        </Box>
+        <Box alignSelf="flex-start" marginTop="auto" mb={3.5} display="flex">
+          <Typography
+            onClick={() => {
+              window.open(ZENDEKS_URL, "_blank");
+            }}
+            className={classes.link}
+          >
+            Contact with Us
+          </Typography>
+        </Box>
+        <Box pb={2.5} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(PRIVACY_POLICY_URL, "_blank");
+            }}
+          >
+            Privacy Policy
+          </Typography>
         </Box>
       </Box>
     </>

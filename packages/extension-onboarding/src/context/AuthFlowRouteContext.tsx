@@ -1,3 +1,4 @@
+import campaignIcon from "@extension-onboarding/assets/icons/campaign.svg";
 import portfolioIcon from "@extension-onboarding/assets/icons/portfolio.svg";
 import rewardsIcon from "@extension-onboarding/assets/icons/rewards.svg";
 import settingsIcon from "@extension-onboarding/assets/icons/settings.svg";
@@ -6,12 +7,14 @@ import { useLocation } from "react-router-dom";
 
 export enum EScreens {
   OWNED_REWARDS = "owned-rewards",
-  MARKET_PLACE_REWARDS = "market-place-rewards",
+  OPTED_IN_CAMPAIGNS = "opted-in-campaigns",
+  MARKET_PLACE_CAMPAIGNS = "marketplace-campaigns",
   PORTFOLIO = "portfolio",
   SETTINGS = "settings",
   ON_CHAIN_INFO_SETTINGS = "on-chain-info-settings",
   DEMOGRAPHIC_INFO_SETTINGS = "demographic-info-settings",
   DATA_PERMISSIONS_SETTING = "data-permissions-setting",
+  SCAM_FILTER_SETTINGS = "scam-filter-settings",
 }
 
 export interface ISubroute {
@@ -36,9 +39,15 @@ export const routes: IRoute[] = [
     icon: rewardsIcon,
     title: "Rewards",
     screen: null,
+    subroutes: [{ title: "My Rewards", screen: EScreens.OWNED_REWARDS }],
+  },
+  {
+    icon: campaignIcon,
+    title: "Campaigns",
+    screen: null,
     subroutes: [
-      { title: "My Rewards", screen: EScreens.OWNED_REWARDS },
-      { title: "Available Rewards", screen: EScreens.MARKET_PLACE_REWARDS },
+      { title: "My Campaigns", screen: EScreens.OPTED_IN_CAMPAIGNS },
+      { title: "Available Campaigns", screen: EScreens.MARKET_PLACE_CAMPAIGNS },
     ],
   },
   {
@@ -49,6 +58,7 @@ export const routes: IRoute[] = [
       { title: "Web 3 Info", screen: EScreens.ON_CHAIN_INFO_SETTINGS },
       { title: "Web 2 Info", screen: EScreens.DEMOGRAPHIC_INFO_SETTINGS },
       { title: "Data Permissions", screen: EScreens.DATA_PERMISSIONS_SETTING },
+      { title: "Scam Filter", screen: EScreens.SCAM_FILTER_SETTINGS },
     ],
   },
 ];

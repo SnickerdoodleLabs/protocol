@@ -12,6 +12,7 @@ import {
   AjaxError,
   BigNumberString,
   BlockchainProviderError,
+  CeramicStreamID,
   ChainId,
   EChain,
   EncryptedString,
@@ -113,6 +114,8 @@ const evmBurnCrumbMetatransactionSignature = Signature(
 const solanaBurnCrumbMetatransactionSignature = Signature(
   "solanaBurnCrumbMetatransactionSignature",
 );
+
+const ceramicStream = CeramicStreamID("ceramicStream");
 
 class AccountServiceMocks {
   public insightPlatformRepo: IInsightPlatformRepository;
@@ -421,6 +424,9 @@ class AccountServiceMocks {
     td.when(
       this.dataWalletPersistence.removeAccount(solanaAccountAddress),
     ).thenReturn(okAsync(undefined));
+    td.when(this.dataWalletPersistence.postBackup()).thenReturn(
+      okAsync(ceramicStream),
+    );
 
     // ContractFactory --------------------------------------------------
     td.when(this.contractFactory.factoryMinimalForwarderContract()).thenReturn(
