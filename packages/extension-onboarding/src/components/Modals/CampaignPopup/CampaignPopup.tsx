@@ -274,7 +274,7 @@ const CampaignPopup: FC = () => {
                   color: "#222137",
                 }}
               >
-                Opt-in to Cohort!
+                Join to Cohort!
               </Typography>
             </Box>
             <Box mb={2}>
@@ -300,7 +300,7 @@ const CampaignPopup: FC = () => {
                   onClick={onClaimClick}
                   className={classes.primaryButton}
                 >
-                  Opt-in
+                  Join
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 17 16"

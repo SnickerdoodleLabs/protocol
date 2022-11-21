@@ -25,7 +25,7 @@ task("createCrumb", "Creates a crumb")
     await crumbsContractHandle
       .createCrumb(crumbID, tokenURI)
       .then((txResponse) => {
-        return txResponse;
+        return txResponse.wait();
       })
       .then((txrct) => {
         logTXDetails(txrct);
@@ -51,10 +51,10 @@ task("burnCrumb", "Burns a crumb")
     );
 
     await crumbsContractHandle
-      .connect(signingAccount)
+      .connect(account)
       .burn(taskArgs.crumbid)
       .then((txResponse) => {
-        return txResponse;
+        return txResponse.wait();
       })
       .then((txrct) => {
         logTXDetails(txrct);
