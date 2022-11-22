@@ -7,12 +7,8 @@ import { Stream } from "stream";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
 
-import { CeramicClient } from "@ceramicnetwork/http-client";
-import { DataModel } from "@glazed/datamodel";
-import { DIDDataStore } from "@glazed/did-datastore";
-import { TileLoader } from "@glazed/tile-loader";
 import { Datastore, Key } from "@google-cloud/datastore";
-import { Storage } from "@google-cloud/storage";
+import { GetServiceAccountResponse, Storage } from "@google-cloud/storage";
 import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   AESEncryptedString,
@@ -25,6 +21,9 @@ import {
   InitializationVector,
   ModelTypes,
   PersistenceError,
+  IDataWalletPersistenceType,
+  IDataWalletPersistence,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, Result, ResultAsync } from "neverthrow";
@@ -48,21 +47,13 @@ export class GoogleCloudStorage implements ICloudStorage {
     null;
 
   private _storage?: Storage;
-  private config?: IPersistenceConfig;
-
-  private _ceramic?: CeramicClient;
-
-  private _loader?: TileLoader;
-  private _dataStore?: Datastore;
-  private _dataModel?: DataModel<ModelTypes>;
 
   private _restored: Set<string> = new Set();
-  s;
 
   public constructor(
     @inject(IPersistenceConfigProviderType)
     protected _configProvider: IPersistenceConfigProvider,
-    @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils,
+    @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils, // @inject(IDataWalletPersistenceType) // protected persistenceRepo: IDataWalletPersistence,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
@@ -76,42 +67,6 @@ export class GoogleCloudStorage implements ICloudStorage {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._resolveUnlock!(derivedKey);
     return okAsync(undefined);
-  }
-
-  private _init(): ResultAsync<
-    {
-      client: Storage;
-      store: Datastore;
-    },
-    PersistenceError
-  > {
-    return ResultUtils.combine([
-      this._getGoogleCloudClient(),
-      this._getGoogleCloudStore(),
-    ]).andThen(([gcpClient, gcpStore]) => {
-      if (this._dataStore != undefined && this._dataModel != undefined) {
-        return okAsync({
-          client: gcpClient,
-          store: gcpStore,
-        });
-      }
-
-      const taskKey = gcpStore.key("backupIndex");
-      const task = new AESEncryptedString(
-        EncryptedString(""),
-        InitializationVector("asdf"),
-      );
-      const entity = {
-        key: taskKey,
-        data: task,
-      };
-      gcpStore.upsert(entity);
-
-      return okAsync({
-        client: gcpClient,
-        store: gcpStore,
-      });
-    });
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
@@ -128,53 +83,31 @@ export class GoogleCloudStorage implements ICloudStorage {
     if (this._storage) {
       return okAsync(this._storage);
     }
-
     this._storage = new Storage({
       keyFilename: "../persistence/src/credentials.json",
       projectId: "snickerdoodle-insight-stackdev",
     });
-
     return okAsync(this._storage);
-  }
-
-  private _getGoogleCloudStore(): ResultAsync<Datastore, PersistenceError> {
-    if (this._dataStore) {
-      return okAsync(this._dataStore);
-    }
-
-    this._dataStore = new Datastore({
-      keyFilename: "../persistence/src/credentials.json",
-      projectId: "snickerdoodle-insight-stackdev",
-    });
-
-    return okAsync(this._dataStore);
   }
 
   protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
     return ResultAsync.fromSafePromise(this._unlockPromise);
   }
 
-  private _putBackupIndex(
-    backups: BackupIndexEntry[],
-  ): ResultAsync<void, PersistenceError> {
-    const payload = {
-      backups: backups,
-    };
-
-    return this._init().andThen(({ store }) => {
-      return this.waitForUnlock().andThen((key) => {
-        return this._cryptoUtils
-          .deriveAESKeyFromEVMPrivateKey(key)
-          .andThen((aesKey) => {
-            return this._cryptoUtils
-              .encryptString(JSON.stringify(payload), aesKey)
-              .andThen((encrypted) => {
-                return ResultAsync.fromPromise(
-                  store.set("backupIndex", encrypted),
-                  (e) => new PersistenceError("error putting backup index", e),
-                ).map(() => undefined);
-              });
-          });
+  private _init(): ResultAsync<
+    {
+      client: Storage;
+      config: IPersistenceConfig;
+    },
+    PersistenceError
+  > {
+    return ResultUtils.combine([
+      this._getGoogleCloudClient(),
+      this._configProvider.getConfig(),
+    ]).andThen(([gcpClient, config]) => {
+      return okAsync({
+        client: gcpClient,
+        config: config,
       });
     });
   }
@@ -182,75 +115,53 @@ export class GoogleCloudStorage implements ICloudStorage {
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<CeramicStreamID, PersistenceError> {
-    return ResultUtils.combine([
-      this._init(),
-      this._configProvider.getConfig(),
-    ]).andThen(([{ client }, config]) => {
-      
-      // Add data file to GCP
-      config.ceramicNodeURL;
+    const walletAddress = backup.header.hash;
+    const bucketName = "ceramic-replacement-bucket";
+    return this._init().andThen(({ client, config }) => {
+      const bucket = client.bucket(bucketName);
+      const file = bucket.file(
+        config.ceramicModelAliases.definitions.backupIndex,
+      );
 
-      const UploadOptions = {
-        destination: "adsf",
-        encryptionKey: config.ceramicNodeURL,
-      };
-      return ResultAsync.fromPromise(
-        client
-          .bucket("ceramic-replacement-bucket")
-          .upload(config.ceramicNodeURL, UploadOptions),
-        (e) => new PersistenceError("unable to get backup index", e),
-      ).andThen(() => {
-        // Successful upload, now index it:
-        const id = "1";
-        return this._getBackupIndex().andThen((backups) => {
-          const index = [
-            ...backups,
-            { id: id, timestamp: backup.header.timestamp },
-          ];
-
-          return this._putBackupIndex(index).map((_) => {
-            console.debug("CloudStorage", `Backup placed: ${id}`);
-            this._restored.add(id);
-            return CeramicStreamID(id);
-          });
-        });
+      const passthroughStream = new Stream.PassThrough();
+      passthroughStream.write(JSON.stringify(backup));
+      passthroughStream.end();
+      passthroughStream.pipe(file.createWriteStream()).on("finish", () => {
+        this._restored.add(file.metadata.generation);
+        this._backups.set(file.metadata.generation, backup);
       });
+      return okAsync(CeramicStreamID(""));
     });
   }
 
-  private _getBackupIndex(): ResultAsync<BackupIndexEntry[], PersistenceError> {
-    return this._init().andThen(({ store }) => {
+  pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return this._init().andThen(({ client, config }) => {
       return ResultAsync.fromPromise(
-        store.get(store.key("backupIndex")),
+        client.bucket("ceramic-replacement-bucket").getFiles({
+          autoPaginate: true,
+          versions: true,
+          prefix: config.ceramicModelAliases.definitions.backupIndex,
+        }),
         (e) => new PersistenceError("unable to get backup index", e),
-      ).andThen((encrypted) => {
-        if (encrypted == null) {
+      ).andThen((files) => {
+        const backups = files[0];
+        if (backups.length == 0) {
           return okAsync([]);
         }
-        return okAsync([]);
-        //   return this.waitForUnlock().andThen((key) => {
-        //     return this._cryptoUtils
-        //       .deriveAESKeyFromEVMPrivateKey(key)
-        //       .andThen((aesKey) => {
-        //         return this._cryptoUtils
-        //           .decryptAESEncryptedString(encrypted, aesKey)
-        //           .andThen((decrypted) => {
-        //             return okAsync(JSON.parse(decrypted) as BackupIndex);
-        //           });
-        //       });
-        //   });
-        // })
-        // .map((backups) => {
-        //   if (backups == null) {
-        //     return [];
-        //   }
-        //   return Object.values(backups.backups);
+
+        const recent = backups.map((record) => record.metadata.generation);
+        // record.metadata.generation
+        console.log("recent: ", recent);
+
+        const found = [...recent].filter((x) => this._restored.has(x));
+        console.log("found: ", found);
+
+        const walletBackups = found.map((generationID) => {
+          return this._backups.get(generationID) as IDataWalletBackup;
+        });
+
+        return okAsync(walletBackups);
       });
     });
-  }
-
-  /* Routinely upload a new file */
-  pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
-    return okAsync([]);
   }
 }

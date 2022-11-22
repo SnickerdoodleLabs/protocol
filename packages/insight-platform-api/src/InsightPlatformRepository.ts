@@ -26,6 +26,7 @@ import {
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
+  authorizationBackupTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -39,6 +40,38 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+
+  public getAuthBackups(
+    dataWalletAddress: DataWalletAddress,
+    consentContractAddress: EVMContractAddress,
+    insightPlatformBaseUrl: URLString,
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<EligibleReward[], AjaxError> {
+    const signableData = {
+      consentContractId: consentContractAddress,
+      dataWallet: dataWalletAddress,
+    } as Record<string, unknown>;
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        authorizationBackupTypes,
+        signableData,
+        dataWalletKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/getAuthorizedBackups"),
+        );
+
+        /* Following schema from .yaml file: */
+        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
+        return this.ajaxUtils.post<EligibleReward[]>(url, {
+          consentContractId: consentContractAddress,
+          dataWallet: dataWalletAddress,
+          signature: signature,
+        });
+      });
+  }
 
   //
   public receivePreviews(

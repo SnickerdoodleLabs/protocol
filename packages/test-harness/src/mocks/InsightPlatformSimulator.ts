@@ -232,35 +232,10 @@ export class InsightPlatformSimulator {
             console.error(
               `Invalid signature. Data Wallet Address: ${dataWalletAddress}, verified address: ${verificationAddress}`,
             );
-            // return errAsync(new Error("Invalid signature!"));
           }
           console.log(
             `Verified signature from data wallet ${verificationAddress}!`,
           );
-
-          const __filename = fileURLToPath(import.meta.url);
-          const __dirname = dirname(__filename);
-          console.log("__dirname: ", __dirname);
-
-          const storage = new Storage({
-            keyFilename: "../persistence/src/credentials.json",
-            projectId: "snickerdoodle-insight-stackdev",
-          });
-
-          const data = "this is a test";
-          fsPromises.writeFile(fileName, data, {
-            flag: "w",
-          });
-
-          const options = {
-            destination: "test-harness/"
-              .concat(dataWalletAddress)
-              .concat(fileName),
-          };
-          const bucketName = "ceramic-replacement-bucket";
-          storage
-            .bucket("ceramic-replacement-bucket")
-            .upload(fileName, options);
 
           return;
         });
