@@ -41,7 +41,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryRepository: IQueryRepository,
   ) {}
 
-  public getPreviews(
+  public getExpectedRewards(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
@@ -82,6 +82,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         });
       });
   }
+
 
   public handleQuery(
     query: SDQLQuery,

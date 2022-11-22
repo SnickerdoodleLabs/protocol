@@ -32,6 +32,8 @@ import {
   IDynamicRewardParameter,
   LinkedAccount,
   DataWalletAddress,
+  QueryIdentifier,
+  ExpectedReward
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -109,38 +111,71 @@ export class QueryService implements IQueryService {
       return this.getCurrentConsentToken(context, consentContractAddress)
         .andThen((consentToken) => {
 
-          return this.queryParsingEngine.getPreviews(
-            query, consentToken!.dataPermissions,
+          return this.queryParsingEngine.getExpectedRewards(
+            query, consentToken!.dataPermissions
           );
         })
         .andThen(([queryIdentifiers, expectedRewards]) => {
 
-          return this.insightPlatformRepo.receivePreviews(
-            context.dataWalletAddress!,
-            consentContractAddress,
-            query.cid,
-            context.dataWalletKey!,
-            config.defaultInsightPlatformBaseUrl,
-            queryIdentifiers,
-            expectedRewards,
-          )
-          .andThen((eligibleRewards) => {
-
-            return this.compareRewards(eligibleRewards, expectedRewards)
-            .andThen(() => {
-
-              return this.sendSDQLQueryRequest(
-                consentContractAddress,
-                query, eligibleRewards,
-                accounts, context
-              );
-            });
-          });
+            this.publishSDQLQueryRequestIfExptRewardsMatchEligRewards(
+              consentContractAddress,
+              query, 
+              eligibleRewards,
+              accounts,
+              context,
+              config,
+              queryIdentifiers,
+              expectedRewards
+            );
         });
     });
   }
 
-  protected sendSDQLQueryRequest(
+  protected publishSDQLQueryRequestIfExptRewardsMatchEligRewards(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    eligibleRewards: EligibleReward[],
+    accounts: LinkedAccount[],
+    context: CoreContext,
+    config: CoreConfig,
+    queryIdentifiers: QueryIdentifier[],
+    expectedRewards: ExpectedReward[]
+  ): ResultAsync<
+    void,
+    | ConsentContractError
+    | ConsentContractRepositoryError
+    | UninitializedError
+    | BlockchainProviderError
+    | AjaxError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
+    | ServerRewardError
+  > {
+      return this.insightPlatformRepo.receivePreviews(
+        context.dataWalletAddress!,
+        consentContractAddress,
+        query.cid,
+        context.dataWalletKey!,
+        config.defaultInsightPlatformBaseUrl,
+        queryIdentifiers,
+        expectedRewards,
+      )
+      .andThen((eligibleRewards) => {
+
+        return this.compareRewards(eligibleRewards, expectedRewards)
+        .andThen(() => {
+
+          return this.publishSDQLQueryRequest(
+            consentContractAddress,
+            query, eligibleRewards,
+            accounts, context
+          );
+        });
+      });
+  }
+
+  protected publishSDQLQueryRequest(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
     eligibleRewards: EligibleReward[],
