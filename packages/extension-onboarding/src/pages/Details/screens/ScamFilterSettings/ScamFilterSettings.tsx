@@ -141,7 +141,7 @@ const ScamFilterSettings: FC = () => {
                       }
                       value={true}
                       control={<Radio />}
-                      label={`Show “Verified” modal for each site every time on every visit`}
+                      label={`Show me a "verified" message for each website, every time I visit.`}
                     />
                     <Box width="100%" py={2}>
                       <Divider />
@@ -157,7 +157,7 @@ const ScamFilterSettings: FC = () => {
                       }
                       value={false}
                       control={<Radio />}
-                      label={`Show “Verified” modal for each site only once`}
+                      label={`Show me a "verified" message for each website, only the first time I visit.`}
                     />
                   </RadioGroup>
                 </Box>
