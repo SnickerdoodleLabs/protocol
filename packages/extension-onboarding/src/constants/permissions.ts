@@ -33,6 +33,10 @@ export const PERMISSIONS = [
 ];
 
 export const PERMISSION_DESCRIPTIONS = {
+  [EWalletDataType.Location]:
+    "Refers to location data you filled in, yourself or with google, while creating your data wallet",
+  [EWalletDataType.SiteVisits]:
+    "Web navigation history recorded while your Snickerdoodle extension is active",
   [EWalletDataType.EVMTransactions]:
     "Consent to share insights about your on-chain transaction history, such as what kinds of Dapps you've used in the past and how often you use them.",
   [EWalletDataType.AccountBalances]:
