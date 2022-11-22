@@ -5,7 +5,7 @@ async function getSignature(owner, contract, recipient, tokenId) {
   let msgHash;
   if (recipient === null) {
     msgHash = ethers.utils.solidityKeccak256(
-      ["address","uint256"],
+      ["address", "uint256"],
       [contract, tokenId],
     );
   } else {
@@ -131,7 +131,9 @@ describe("Consent", () => {
       // can't reduce the max capacity below current enrollment
       await expect(
         consent.connect(accounts[1]).updateMaxCapacity(0),
-      ).to.revertedWith("Consent: cannot reduce capacity below current enrollment.");
+      ).to.revertedWith(
+        "Consent: cannot reduce capacity below current enrollment.",
+      );
     });
   });
 
@@ -143,7 +145,7 @@ describe("Consent", () => {
         user1,
         consent.address,
         accounts[2].address.toLowerCase(),
-        1
+        1,
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
@@ -159,7 +161,7 @@ describe("Consent", () => {
         user1,
         consent.address,
         accounts[2].address.toLowerCase(),
-        1
+        1,
       );
 
       // user1 who is the owner signs user 2's address
@@ -168,7 +170,7 @@ describe("Consent", () => {
         user1,
         consent.address,
         accounts[2].address.toLowerCase(),
-        2
+        2,
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
@@ -191,7 +193,7 @@ describe("Consent", () => {
         user1,
         consent.address,
         accounts[2].address.toLowerCase(),
-        1
+        1,
       );
 
       // User 10 tries to call restricted opt in using signature the business entity signed for User 1
@@ -209,7 +211,7 @@ describe("Consent", () => {
         user1,
         consent.address,
         accounts[2].address.toLowerCase(),
-        1
+        1,
       );
 
       // pause the contract
@@ -230,14 +232,14 @@ describe("Consent", () => {
         user1,
         consent.address,
         accounts[2].address.toLowerCase(),
-        1
+        1,
       );
 
       let sig3 = await getSignature(
         user1,
         consent.address,
         accounts[3].address.toLowerCase(),
-        1
+        1,
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
@@ -260,7 +262,7 @@ describe("Consent", () => {
         user1,
         consent.address,
         accounts[2].address.toLowerCase(),
-        1
+        1,
       );
 
       // User 2 tries to call restricted opt in again with another token Id
@@ -278,14 +280,14 @@ describe("Consent", () => {
         user1,
         consent.address,
         accounts[2].address.toLowerCase(),
-        1
+        1,
       );
 
       let sig3 = await getSignature(
         user1,
         consent.address,
         accounts[3].address.toLowerCase(),
-        2
+        2,
       );
 
       // User 2 can now call restricted opt in if business entity has signed to approve them
@@ -305,7 +307,9 @@ describe("Consent", () => {
       // can't reduce the max capacity below current enrollment
       await expect(
         consent.connect(accounts[1]).updateMaxCapacity(0),
-      ).to.revertedWith("Consent: cannot reduce capacity below current enrollment.");
+      ).to.revertedWith(
+        "Consent: cannot reduce capacity below current enrollment.",
+      );
     });
   });
 
@@ -380,7 +384,12 @@ describe("Consent", () => {
     it("Does not allow approved user to call restricted opt-ins with a different token id.", async function () {
       // Business user signs user 2's address
       // pass in address in lowercase to match Solidity string conversion
-      let sig = await getSignature(user1, consent.address, accounts[2].address, 1);
+      let sig = await getSignature(
+        user1,
+        consent.address,
+        accounts[2].address,
+        1,
+      );
 
       // User 2 tries to call restricted opt in again with another token Id
       await expect(
@@ -396,7 +405,9 @@ describe("Consent", () => {
       let sig = await getSignature(user1, consent.address, null, 1);
       let sig2 = await getSignature(user1, consent.address, null, 2);
 
-      await consent.connect(accounts[2]).anonymousRestrictedOptIn(1, sampleAgreementFlag1, sig);
+      await consent
+        .connect(accounts[2])
+        .anonymousRestrictedOptIn(1, sampleAgreementFlag1, sig);
       await consent.connect(accounts[1]).updateMaxCapacity(1);
 
       // User 2 tries to call restricted opt in again with another token Id
@@ -670,12 +681,8 @@ describe("Consent", () => {
 
   describe("Agreement Flags", function () {
     it("Returns the correct agreement flags", async function () {
-      const agreementFlags = ethers.utils.formatBytes32String(
-        "1",
-      );
-      const nullFlags = ethers.utils.formatBytes32String(
-        "",
-      );
+      const agreementFlags = ethers.utils.formatBytes32String("1");
+      const nullFlags = ethers.utils.formatBytes32String("");
 
       // call opt in
       await consent.connect(accounts[1]).optIn(1, agreementFlags);
@@ -683,7 +690,9 @@ describe("Consent", () => {
       expect(await consent.agreementFlagsArray(1)).to.eq(agreementFlags);
 
       // if you call update with the existing flag array it will zero out all bytes
-      await consent.connect(accounts[1]).updateAgreementFlags(1, agreementFlags);
+      await consent
+        .connect(accounts[1])
+        .updateAgreementFlags(1, agreementFlags);
 
       expect(await consent.agreementFlagsArray(1)).to.eq(nullFlags);
 
@@ -693,9 +702,7 @@ describe("Consent", () => {
     });
 
     it("Only owner can change Agreement Flags", async function () {
-      const agreementFlags = ethers.utils.formatBytes32String(
-        "1",
-      );
+      const agreementFlags = ethers.utils.formatBytes32String("1");
 
       // call opt in
       await consent.connect(accounts[1]).optIn(1, agreementFlags);

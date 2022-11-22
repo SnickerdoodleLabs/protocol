@@ -4,14 +4,15 @@ import welcome2 from "@extension-onboarding/assets/images/welcome-sc2.svg";
 import welcome3Right from "@extension-onboarding/assets/images/welcome-sc3-right.svg";
 import welcome3 from "@extension-onboarding/assets/images/welcome-sc3.svg";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { useAppContext } from "@extension-onboarding/context/App";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/OnboardingWelcome/OnboardingWelcome.style";
 import { Box, Button, Grid, Hidden, MobileStepper } from "@material-ui/core";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@material-ui/icons";
 import React, { FC, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const OnboardingWelcome: FC = () => {
-  const { changeStepperStatus } = useAppContext();
+  const navigate = useNavigate();
   const [screenIndex, setScreenIndex] = useState<number>(0);
   const classes = useStyles();
   const handleNext = () => {
@@ -105,7 +106,7 @@ const OnboardingWelcome: FC = () => {
                 <PrimaryButton
                   type="submit"
                   onClick={() => {
-                    changeStepperStatus("next");
+                    navigate(EPaths.ONBOARDING_LINK_ACCOUNT);
                   }}
                 >
                   Get Started
