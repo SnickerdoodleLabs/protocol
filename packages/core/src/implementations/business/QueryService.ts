@@ -108,33 +108,27 @@ export class QueryService implements IQueryService {
 
       return this.getCurrentConsentToken(context, consentContractAddress)
         .andThen((consentToken) => {
+
           return this.queryParsingEngine.getPreviews( // QueryIdentifier[], ExpectedReward[]. 
-            query,
-            consentToken!.dataPermissions,
+            query, consentToken!.dataPermissions,
           );
         })
         .andThen(([queryIdentifiers, expectedRewards]) => {
 
           return this.insightPlatformRepo.receivePreviews(
-              context.dataWalletAddress!,
-              consentContractAddress,
-              query.cid,
-              context.dataWalletKey!,
-              config.defaultInsightPlatformBaseUrl,
-              queryIdentifiers,
-              expectedRewards,
-            )
-            .andThen((eligibleRewards) => {
+            context.dataWalletAddress!,
+            consentContractAddress,
+            query.cid,
+            context.dataWalletKey!,
+            config.defaultInsightPlatformBaseUrl,
+            queryIdentifiers,
+            expectedRewards,
+          )
+          .andThen((eligibleRewards) => {
 
-              if (!this.compareRewards(eligibleRewards, expectedRewards)) {
-                // No consent given!
-                return errAsync(
-                  new ServerRewardError(
-                    "Insight Platform Rewards do not match Expected Rewards!",
-                  ),
-                );
-              }
-
+            return this.compareRewards(eligibleRewards, expectedRewards)
+            .andThen(() => {
+              // Wrap the query & send to core
               const queryRequest = new SDQLQueryRequest(
                 consentContractAddress,
                 query,
@@ -142,11 +136,11 @@ export class QueryService implements IQueryService {
                 accounts,
                 context.dataWalletAddress!,
               );
-
-              // Send query to the core
               context.publicEvents.onQueryPosted.next(queryRequest);
+
               return okAsync(undefined);
             });
+          });
         });
     });
   }
@@ -175,13 +169,15 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     consentContractAddress: EVMContractAddress
   ): ResultAsync<
-    ConsentToken | null | undefined, 
-    ConsentError |
-    AjaxError | 
-    ConsentContractError | 
-    ConsentContractRepositoryError | 
-    UninitializedError | 
-    BlockchainProviderError> {
+    ConsentToken 
+    | null 
+    | undefined,
+    ConsentError 
+    | AjaxError 
+    | ConsentContractError
+    | ConsentContractRepositoryError 
+    | UninitializedError 
+    | BlockchainProviderError> {
       if (context.dataWalletAddress == null) {
         // Need to wait for the wallet to unlock
         return okAsync(undefined);
@@ -214,16 +210,19 @@ export class QueryService implements IQueryService {
   protected compareRewards(
     coreCreatedRewards: EligibleReward[],
     serverCreatedRewards: EligibleReward[],
-  ): boolean {
-    if (coreCreatedRewards.length !== serverCreatedRewards.length) {
-      return false;
-    }
-    return serverCreatedRewards.every((element, index) => {
-      if (element != coreCreatedRewards[index]) {
-        return false;
-      }
-      return true;
-    });
+  ): ResultAsync<void, ServerRewardError> {
+
+    if (
+      coreCreatedRewards.length !== serverCreatedRewards.length ||
+      !serverCreatedRewards.every((elem, index) => elem == coreCreatedRewards[index])
+    )     
+      return errAsync(
+        new ServerRewardError(
+          "Insight Platform Rewards do not match Expected Rewards!",
+        ),
+      );
+
+    return okAsync(undefined);
   }
 
   public processQuery(
