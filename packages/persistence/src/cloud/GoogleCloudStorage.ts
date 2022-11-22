@@ -9,7 +9,12 @@ import { promisify } from "util";
 
 import { Datastore, Key } from "@google-cloud/datastore";
 import { GetServiceAccountResponse, Storage } from "@google-cloud/storage";
-import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  CryptoUtils,
+  ICryptoUtilsType,
+  ILogUtils,
+  LogUtils,
+, ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
@@ -41,6 +46,7 @@ import {
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
 
+
 @injectable()
 export class GoogleCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, IDataWalletBackup>();
@@ -60,6 +66,8 @@ export class GoogleCloudStorage implements ICloudStorage {
     @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils, // @inject(IDataWalletPersistenceType) // protected persistenceRepo: IDataWalletPersistence,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
+    @inject(ILogUtilsType)
+    protected logUtils: ILogUtils,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
@@ -121,13 +129,16 @@ export class GoogleCloudStorage implements ICloudStorage {
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<CeramicStreamID, PersistenceError> {
-    const walletAddress = backup.header.hash;
     const bucketName = "ceramic-replacement-bucket";
     return this._init().andThen(({ client, config }) => {
       const bucket = client.bucket(bucketName);
       const file = bucket.file(
         config.ceramicModelAliases.definitions.backupIndex,
       );
+
+      /*
+        use deriveCeramicSeedFromEVMPrivateKey to create a unique file name
+      */
 
       const passthroughStream = new Stream.PassThrough();
       passthroughStream.write(JSON.stringify(backup));
@@ -166,10 +177,10 @@ export class GoogleCloudStorage implements ICloudStorage {
 
         const recent = backups.map((record) => record.metadata.generation);
         // record.metadata.generation
-        console.log("recent: ", recent);
+        this.logUtils.log("recent: ", recent);
 
-        const found = [...recent].filter((x) => this._restored.has(x));
-        console.log("found: ", found);
+        const found = [...recent].filter((x) => !this._restored.has(x));
+        this.logUtils.log("found: ", found);
 
         const walletBackups = found.map((generationID) => {
           return this._backups.get(generationID) as IDataWalletBackup;
