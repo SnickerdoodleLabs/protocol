@@ -1,18 +1,18 @@
 import * as confettiAnimation from "@extension-onboarding/assets/lotties/confetti.json";
 import { useStyles } from "@extension-onboarding/components/VisualAlert/VisualAlert.style";
 import { useNotificationContext } from "@extension-onboarding/context/NotificationContext";
-import { Box, makeStyles, Typography } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import React, { FC } from "react";
 import Lottie from "react-lottie";
 
-const VisualAlert = () => {
+const VisualAlert: FC = () => {
   const classes = useStyles();
   const { setVisualAlert } = useNotificationContext();
   const onAnimationEnd = () => {
     setVisualAlert(false);
   };
   return (
-    <Box className={classes.loadingWrapper}>
+    <Box className={classes.wrapper}>
       <Lottie
         isClickToPauseDisabled
         options={{

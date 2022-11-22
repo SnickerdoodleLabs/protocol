@@ -1,4 +1,4 @@
-import emptyReward from "@extension-onboarding/assets/images/empty-marketplace-rewads.svg";
+import emptyCampaign from "@extension-onboarding/assets/images/empty-campaign.svg";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import CampaignItem from "@extension-onboarding/components/CampaignItem";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
@@ -16,8 +16,10 @@ declare const window: IWindowWithSdlDataWallet;
 
 const MarketPlaceCampaigns: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [campaignContractAddressesWithCID, setCampaignContractAddressesWithCID] =
-    useState<Record<EVMContractAddress, IpfsCID>>();
+  const [
+    campaignContractAddressesWithCID,
+    setCampaignContractAddressesWithCID,
+  ] = useState<Record<EVMContractAddress, IpfsCID>>();
   const { setModal, closeModal, setLoadingStatus } = useLayoutContext();
   useEffect(() => {
     getInvitations();
@@ -95,7 +97,7 @@ const MarketPlaceCampaigns: FC = () => {
       <Box mb={4}>
         <Typography className={classes.title}>Available Campaigns</Typography>
         <Typography className={classes.description}>
-          Find and claim more rewards.
+          Browse campaigns and join.
         </Typography>
       </Box>
       {isLoading ? (
@@ -115,7 +117,7 @@ const MarketPlaceCampaigns: FC = () => {
                     }}
                     className={classes.link}
                   >
-                    Opt-in
+                    Join
                   </Typography>
                 }
                 key={key}
@@ -131,7 +133,10 @@ const MarketPlaceCampaigns: FC = () => {
                 display="flex"
                 pt={20}
               >
-                <img style={{ width: 330, height: "auto" }} src={emptyReward} />
+                <img
+                  style={{ width: 330, height: "auto" }}
+                  src={emptyCampaign}
+                />
               </Box>
             </Box>
           )}

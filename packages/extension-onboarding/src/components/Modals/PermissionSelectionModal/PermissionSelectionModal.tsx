@@ -47,6 +47,11 @@ const PermissionSelectionModal: FC = () => {
       </Typography>
       <Box mt={4} display="flex">
         <Box marginLeft="auto" mr={2}>
+          <Button buttonType="secondary" onClick={closeModal}>
+            Cancel
+          </Button>
+        </Box>
+        <Box mr={2}>
           <Button buttonType="secondary" onClick={onManageClicked}>
             Manage Settings
           </Button>
