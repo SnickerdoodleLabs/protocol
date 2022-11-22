@@ -1,0 +1,17 @@
+export enum EPaths {
+  ONBOARDING = "/onboarding",
+  ONBOARDING_WELCOME = "/onboarding/welcome",
+  ONBOARDING_LINK_ACCOUNT = "/onboarding/link-account",
+  ONBOARDING_BUILD_PROFILE = "/onboarding/build-profile",
+  ONBOARDING_VIEW_DATA = "/onboarding/view-data",
+  HOME = "/",
+  CAMPAIGNS = "/campaigns",
+  MY_REWARDS = "/my-rewards",
+  MY_CAMPAIGNS = "/campaigns/my-campaigns",
+  MARKETPLACE_CAMPAIGNS = "/campaigns/marketplace",
+  SETTINGS = "/settings",
+  WEB3_SETTINGS = "/settings/web3",
+  WEB2_SETTINGS = "/settings/web2",
+  DATA_PERMISSIONS_SETTING = "/settings/data-permissions",
+  SCAM_FILTER_SETTINGS = "/settings/scam-filter",
+}
