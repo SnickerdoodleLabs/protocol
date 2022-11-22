@@ -234,7 +234,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
           items.forEach((item) => {
             if (
               item.chain_identifier &&
-              item.chain_identifier in config.supportedChains
+              config.supportedChains.includes(ChainId(item.chain_identifier))
             ) {
               mapping.forward[item.id] = ChainId(item.chain_identifier);
               mapping.backward[ChainId(item.chain_identifier)] = item.id;

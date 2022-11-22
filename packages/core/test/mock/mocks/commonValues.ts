@@ -84,7 +84,6 @@ export const testCoreConfig = new CoreConfig(
   ECurrencyCode.USD,
   "etherscan api key",
   100, // etherscan tx batch size
-  new Map(),
   5000,
 );
 

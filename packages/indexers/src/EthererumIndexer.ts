@@ -27,15 +27,9 @@ import {
   EVMTransactionHash,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
-import {
-  Network,
-  Alchemy,
-  AssetTransfersWithMetadataParams,
-} from "alchemy-sdk";
-import { ethers } from "ethers";
-import { response } from "express";
+import { BigNumber, ethers } from "ethers";
 import { inject } from "inversify";
-import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
@@ -45,14 +39,8 @@ import {
 } from "@indexers/IIndexerConfigProvider.js";
 
 export class EthereumIndexer
-  implements
-    IEVMTransactionRepository,
-    IEVMAccountBalanceRepository,
-    IEVMNftRepository
+  implements IEVMTransactionRepository, IEVMAccountBalanceRepository
 {
-  private _mainnetAlchemy?: ResultAsync<Alchemy, AccountIndexingError>;
-  private _testnetAlchemy?: ResultAsync<Alchemy, AccountIndexingError>;
-
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -97,136 +85,100 @@ export class EthereumIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return this._getAlchemy(chainId).andThen((alchemy) => {
-      return ResultAsync.fromPromise(
-        alchemy.core.getTokenBalances(accountAddress),
-        (e) => new AccountIndexingError("error fetching token balances", e),
-      ).andThen((response) => {
-        return ResultUtils.combine(
-          response.tokenBalances.map((balance) => {
-            if (balance.tokenBalance == null) {
-              return okAsync(undefined);
-            }
+    return this.configProvider.getConfig().andThen((config) => {
+      const url = new URL(
+        urlJoinP("https://api.etherscan.io/", ["api"], {
+          module: "account",
+          action: "addresstokenbalance",
+          address: accountAddress,
+          page: 1,
+          offset: 1000,
+          apikey: config.etherscanApiKey,
+        }),
+      );
 
-            return this.tokenPriceRepo
-              .getTokenInfo(chainId, balance.contractAddress)
-              .andThen((info) => {
-                if (info == null) {
-                  return okAsync(undefined);
-                }
+      return this.ajaxUtils
+        .get<IEtherscanTokenBalanceResponse>(url)
+        .andThen((response) => {
+          if (response.status != "1") {
+            this.logUtils.error(
+              "error fetching erc20 balances from etherscan",
+              response.message,
+            );
+            return okAsync([]);
+          }
 
-                return ResultAsync.fromPromise(
-                  alchemy.core.getTokenMetadata(balance.contractAddress),
-                  (e) =>
-                    new AccountIndexingError(
-                      "error fetching token metadata from alchemy",
-                      e,
-                    ),
-                ).andThen((metadata) => {
+          return ResultUtils.combine(
+            response.result.map((item) => {
+              return this.tokenPriceRepo
+                .getTokenInfo(chainId, item.TokenAddress)
+                .andThen((info) => {
+                  if (info == null) {
+                    return okAsync(undefined);
+                  }
+
                   return okAsync(
                     new TokenBalance(
                       EChainTechnology.EVM,
-                      info.symbol,
+                      TickerSymbol(item.TokenSymbol),
                       chainId,
-                      info.address,
+                      EVMContractAddress(item.TokenAddress),
                       accountAddress,
                       BigNumberString(
-                        (
-                          Number.parseInt(balance.tokenBalance, 16) /
-                          Math.pow(10, metadata.decimals || 0)
-                        ).toString(),
+                        ethers.utils.formatUnits(
+                          BigNumber.from(item.TokenQuantity),
+                          BigNumber.from(item.TokenDivisor),
+                        ),
                       ),
                       BigNumberString("0"),
                     ),
                   );
                 });
-              })
-              .orElse((e) => {
-                this.logUtils.error("error fetching token info", e);
-                return okAsync(undefined);
-              });
-          }),
-        )
-          .andThen((balances) => {
-            return ResultAsync.fromPromise(
-              alchemy.core.getBalance(accountAddress),
-              (e) =>
-                new AccountIndexingError(
-                  "error getting eth balance from alchemy",
-                  e,
-                ),
-            ).map((nativeBalance) => {
-              const nativeTokenBalance = new TokenBalance(
+            }),
+          ).andThen((balances) => {
+            return okAsync(
+              balances.filter((x) => x != undefined) as TokenBalance[],
+            );
+          });
+        })
+        .andThen((balances) => {
+          const url = new URL(
+            urlJoinP("https://api.etherscan.io", ["api"], {
+              module: "account",
+              action: "balance",
+              address: accountAddress,
+              tag: "latest",
+              apikey: config.etherscanApiKey,
+            }),
+          );
+          return this.ajaxUtils
+            .get<IEtherscanNativeBalanceResponse>(url)
+            .map((response) => {
+              const nativeBalance = new TokenBalance(
                 EChainTechnology.EVM,
                 TickerSymbol("ETH"),
                 chainId,
                 null,
                 accountAddress,
                 BigNumberString(
-                  ethers.utils.formatEther(nativeBalance).toString(),
+                  ethers.utils.formatEther(BigNumber.from(response.result)),
                 ),
                 BigNumberString("0"),
               );
-              return [nativeTokenBalance, ...balances];
+              return [nativeBalance, ...balances];
             });
-          })
-          .map((unfiltered) => {
-            return unfiltered.filter(
-              (item) => item != undefined,
-            ) as TokenBalance[];
-          });
-      });
-    });
-  }
-
-  public getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    pageKey?: string,
-  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
-    return this._getAlchemy(chainId).andThen((alchemy) => {
-      return ResultAsync.fromPromise(
-        alchemy.nft.getNftsForOwner(accountAddress, { pageKey: pageKey }),
-        (e) => new AccountIndexingError("error fetching nfts", e),
-      ).andThen((response) => {
-        return okAsync(
-          response.ownedNfts.map((nft) => {
-            return new EVMNFT(
-              EVMContractAddress(nft.contract.address),
-              BigNumberString(nft.tokenId),
-              nft.tokenType,
-              accountAddress,
-              nft.tokenUri ? TokenUri(nft.tokenUri.raw) : undefined,
-              nft.rawMetadata,
-              BigNumberString(nft.balance.toString()),
-              nft.title,
-              chainId,
-            );
-          }),
-        ).andThen((nfts) => {
-          if (response.pageKey) {
-            return this.getTokensForAccount(
-              chainId,
-              accountAddress,
-              response.pageKey,
-            ).map((otherNfts) => {
-              return [...nfts, ...otherNfts];
-            });
-          }
-          return okAsync(nfts);
         });
-      });
     });
   }
 
   private _paginateTransactions(
     chain: ChainId,
-    params: object,
+    params: IEtherscanRequestParameters,
     maxRecords: number,
   ): ResultAsync<EVMTransaction[], AccountIndexingError> {
     return this._getEtherscanBaseURL(chain).andThen((baseUrl) => {
-      const offset = params["offset"] as number;
-      const page = params["page"] as number;
+      const offset = params.offset;
+      const page = params.page;
       if (offset * page > maxRecords) {
         return okAsync([]);
       }
@@ -269,7 +221,7 @@ export class EthereumIndexer
             );
           });
 
-          params["page"] += 1;
+          params.page += 1;
           return this._paginateTransactions(chain, params, maxRecords).map(
             (otherTxs) => {
               return [...txs, ...otherTxs];
@@ -344,43 +296,6 @@ export class EthereumIndexer
         );
     }
   }
-
-  private _getAlchemy(
-    chainID: ChainId,
-  ): ResultAsync<Alchemy, AccountIndexingError> {
-    if (this._mainnetAlchemy && this._testnetAlchemy) {
-      switch (chainID) {
-        case ChainId(EChain.EthereumMainnet):
-          return this._mainnetAlchemy;
-        case ChainId(EChain.Goerli):
-          return this._testnetAlchemy;
-        default:
-          return errAsync(
-            new AccountIndexingError(
-              "Unsupported chain for Ethereum indexer",
-              chainID,
-            ),
-          );
-      }
-    }
-
-    return this.configProvider.getConfig().andThen((config) => {
-      this._mainnetAlchemy = okAsync(
-        new Alchemy({
-          apiKey: config.alchemyKeys[EChain.EthereumMainnet],
-          network: Network.ETH_MAINNET,
-        }),
-      );
-      this._testnetAlchemy = okAsync(
-        new Alchemy({
-          apiKey: config.alchemyKeys[EChain.Goerli],
-          network: Network.ETH_GOERLI,
-        }),
-      );
-
-      return this._getAlchemy(chainID);
-    });
-  }
 }
 
 interface IEtherscanTransactionResponse {
@@ -408,4 +323,31 @@ interface IEtherscanTransactionResponse {
     methodId: string;
     functionName: string;
   }[];
+}
+
+interface IEtherscanTokenBalanceResponse {
+  status: string;
+  message: string;
+  result: {
+    TokenAddress: EVMContractAddress;
+    TokenName: string;
+    TokenSymbol: TickerSymbol;
+    TokenQuantity: BigNumberString;
+    TokenDivisor: BigNumberString;
+  }[];
+}
+
+interface IEtherscanNativeBalanceResponse {
+  status: string;
+  message: string;
+  result: string;
+}
+
+interface IEtherscanRequestParameters {
+  module: string;
+  action: string;
+  address: EVMAccountAddress;
+  page: number;
+  offset: number;
+  apikey: string;
 }

@@ -38,13 +38,14 @@ export class DefaultAccountNFTs implements IAccountNFTs {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.ethereum = new EthereumIndexer(
-      configProvider,
-      ajaxUtils,
-      tokenPriceRepo,
-      logUtils,
-    );
+    // this.ethereum = new EthereumIndexer(
+    //   configProvider,
+    //   ajaxUtils,
+    //   tokenPriceRepo,
+    //   logUtils,
+    // );
     this.evm = new MoralisEVMNftRepository(configProvider, ajaxUtils);
+    this.ethereum = this.evm;
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
     this.solRepo = new SolanaIndexer(
       this.configProvider,

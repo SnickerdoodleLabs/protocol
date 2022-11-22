@@ -33,7 +33,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public quoteCurrency: ECurrencyCode,
     public etherscanApiKey: string,
     public etherscanTransactionsBatchSize: number,
-    public alchemyKeys: Map<EChain, string>,
     public requestForDataCheckingFrequency: number,
   ) {}
 }
