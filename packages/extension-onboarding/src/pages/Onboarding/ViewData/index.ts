@@ -1,1 +1,1 @@
-export * from "@extension-onboarding/pages/Onboarding/ViewData/ViewData";
+export { default } from "@extension-onboarding/pages/Onboarding/ViewData/ViewData";

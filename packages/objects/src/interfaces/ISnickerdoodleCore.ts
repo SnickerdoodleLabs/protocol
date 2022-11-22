@@ -1,5 +1,7 @@
 import { ResultAsync } from "neverthrow";
 
+import { IDataWalletBackup } from "./IDataWalletBackup";
+
 import {
   Invitation,
   DataPermissions,
@@ -56,6 +58,7 @@ import {
   Signature,
   TokenId,
   UnixTimestamp,
+  URLString,
 } from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
@@ -333,7 +336,13 @@ export interface ISnickerdoodleCore {
     | PersistenceError
   >;
 
+  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
+  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
@@ -363,10 +372,13 @@ export interface ISnickerdoodleCore {
 
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
+  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError>;
+
   postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 
@@ -378,7 +390,7 @@ export interface ISnickerdoodleCore {
 
   getTransactions(
     filter?: TransactionFilter,
-  ): ResultAsync<ChainTransaction[], PersistenceError>
+  ): ResultAsync<ChainTransaction[], PersistenceError>;
   addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
