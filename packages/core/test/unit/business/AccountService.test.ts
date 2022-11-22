@@ -483,6 +483,30 @@ class AccountServiceMocks {
     td.when(this.crumbsContract.encodeBurnCrumb(tokenId2)).thenReturn(
       solanaEncodedBurnCrumbContent as never,
     );
+    td.when(this.crumbsContract.tokenURI(tokenId1)).thenReturn(
+      okAsync(
+        TokenUri(
+          JSON.stringify({
+            [languageCode]: {
+              d: evmEncryptedDataWallet.data,
+              iv: evmEncryptedDataWallet.initializationVector,
+            },
+          } as ICrumbContent),
+        ),
+      ),
+    );
+    td.when(this.crumbsContract.tokenURI(tokenId2)).thenReturn(
+      okAsync(
+        TokenUri(
+          JSON.stringify({
+            [languageCode]: {
+              d: solanaEncryptedDataWallet.data,
+              iv: solanaEncryptedDataWallet.initializationVector,
+            },
+          } as ICrumbContent),
+        ),
+      ),
+    );
     this.crumbsContract.contractAddress = crumbsContractAddress;
   }
 

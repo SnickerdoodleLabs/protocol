@@ -50,12 +50,9 @@ import {
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
 
-const AndrewContractAddress = EVMContractAddress("Andrew");
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryCID = IpfsCID("Beep");
-const queryContent = SDQLString("Hello world!");
 const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
-// const sdqlQuery = new SDQLQuery(queryCID, queryContent);
 const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
 const insights: InsightString[] = [
   InsightString("Hello1"),
@@ -70,12 +67,11 @@ const allPermissions = HexString32(
 );
 const dataPermissions = DataPermissions.createWithAllPermissions();
 
-//const rewardParameters = new Array<IDynamicRewardParameter>();
 const rewardParameters = [
   {
     recipientAddress: {
       type: "address",
-      value: "CHARLIE",
+      value: "Phoebe",
     },
   } as IDynamicRewardParameter,
 ];
@@ -117,7 +113,7 @@ class QueryServiceMocks {
         tokenId,
         queryCID,
         insights,
-        [],
+        rewardParameters,
         derivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
@@ -128,7 +124,7 @@ class QueryServiceMocks {
         tokenId,
         queryCID,
         insightsError,
-        [],
+        rewardParameters,
         derivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
@@ -145,12 +141,9 @@ class QueryServiceMocks {
     ).thenReturn(okAsync(this.consentToken));
     td.when(
       this.queryParsingEngine.handleQuery(
-        //sdqlQuery,
-        td.matchers.anything(),
-        //dataPermissions,
-        td.matchers.anything(),
-        //rewardParameters,
-        td.matchers.anything(),
+        sdqlQuery,
+        dataPermissions,
+        rewardParameters,
       ),
     ).thenReturn(okAsync([insights, rewards]));
 
