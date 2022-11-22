@@ -321,8 +321,7 @@ describe("processRewardsPreview tests", () => {
             [],
             null,
           );
-          console.log("3irfan");
-          console.log(context.publicEvents.onQueryPosted.next);
+
           context.publicEvents.onQueryPosted.next(queryRequest);
           return okAsync(undefined);
         })
