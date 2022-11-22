@@ -191,12 +191,9 @@ describe("processQuery tests", () => {
   test("processQuery success", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    await queryService
-      .processQuery(consentContractAddress, sdqlQuery)
+    await queryService.processQuery(consentContractAddress, sdqlQuery)
       .andThen((result) => {
-        //console.log("result", result);
         expect(result).toBeUndefined();
-        // expect(result.isOk()).toBeTruthy();
         return okAsync(true);
       })
       .orElse((err) => {
@@ -324,6 +321,8 @@ describe("processRewardsPreview tests", () => {
             [],
             null,
           );
+          console.log("3irfan");
+          console.log(context.publicEvents.onQueryPosted.next);
           context.publicEvents.onQueryPosted.next(queryRequest);
           return okAsync(undefined);
         })

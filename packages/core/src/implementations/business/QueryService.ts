@@ -30,8 +30,8 @@ import {
   IDataWalletPersistence,
   QueryExpiredError,
   IDynamicRewardParameter,
-  QueryIdentifier,
-  ExpectedReward,
+  LinkedAccount,
+  DataWalletAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -109,7 +109,7 @@ export class QueryService implements IQueryService {
       return this.getCurrentConsentToken(context, consentContractAddress)
         .andThen((consentToken) => {
 
-          return this.queryParsingEngine.getPreviews( // QueryIdentifier[], ExpectedReward[]. 
+          return this.queryParsingEngine.getPreviews(
             query, consentToken!.dataPermissions,
           );
         })
@@ -128,21 +128,38 @@ export class QueryService implements IQueryService {
 
             return this.compareRewards(eligibleRewards, expectedRewards)
             .andThen(() => {
-              // Wrap the query & send to core
-              const queryRequest = new SDQLQueryRequest(
-                consentContractAddress,
-                query,
-                eligibleRewards,
-                accounts,
-                context.dataWalletAddress!,
-              );
-              context.publicEvents.onQueryPosted.next(queryRequest);
 
-              return okAsync(undefined);
+              return this.sendSDQLQueryRequest(
+                consentContractAddress,
+                query, eligibleRewards,
+                accounts, context
+              );
             });
           });
         });
     });
+  }
+
+  protected sendSDQLQueryRequest(
+    consentContractAddress: EVMContractAddress,
+    query: SDQLQuery,
+    eligibleRewards: EligibleReward[],
+    accounts: LinkedAccount[],
+    context: CoreContext
+  ): ResultAsync<void, Error> {
+
+    // Wrap the query & send to core
+    const queryRequest = new SDQLQueryRequest(
+      consentContractAddress,
+      query,
+      eligibleRewards,
+      accounts,
+      context.dataWalletAddress!
+    );
+
+    context.publicEvents.onQueryPosted.next(queryRequest);
+
+    return okAsync(undefined);
   }
 
   protected getQueryByCID(
