@@ -34,6 +34,7 @@ import {
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
+  authorizationBackupTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
@@ -209,34 +210,29 @@ export class InsightPlatformSimulator {
     });
 
     this.app.post("/getAuthorizedBackups", (req, res) => {
-      const data = JSON.stringify(req.body.data);
-      const dataWalletAddress = EVMAccountAddress(req.body.dataWallet);
-      const fileName = EVMContractAddress(req.body.file);
+      console.log("simulator 1: ");
+
       const signature = Signature(req.body.signature);
+      console.log("simulator 2: ");
+
 
       const signingData = {
-        data: data,
-        dataWallet: dataWalletAddress,
-        fileName: fileName,
+        // data: data,
+        // dataWallet: dataWalletAddress,
+        // fileName: fileName,
       };
 
       this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
-          executeMetatransactionTypes,
+          authorizationBackupTypes,
           signingData,
           signature,
         )
         .map((verificationAddress) => {
-          if (verificationAddress != EVMAccountAddress(dataWalletAddress)) {
-            console.error(
-              `Invalid signature. Data Wallet Address: ${dataWalletAddress}, verified address: ${verificationAddress}`,
-            );
-          }
-          console.log(
-            `Verified signature from data wallet ${verificationAddress}!`,
-          );
+          console.log("simulator 3: ");
 
+          console.log("return val: ", verificationAddress);
           return;
         });
       res.send("Boo!");

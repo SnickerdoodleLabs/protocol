@@ -3,6 +3,7 @@
 import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
 import * as path from "path";
 import { dirname } from "path";
+import { config } from "process";
 import { Stream } from "stream";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
@@ -14,7 +15,8 @@ import {
   ICryptoUtilsType,
   ILogUtils,
   LogUtils,
-, ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+  ILogUtilsType,
+} from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
@@ -33,6 +35,7 @@ import {
   IDataWalletPersistenceType,
   IDataWalletPersistence,
   LinkedAccount,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, Result, ResultAsync } from "neverthrow";
@@ -45,7 +48,7 @@ import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
-
+import { AjaxError } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class GoogleCloudStorage implements ICloudStorage {
@@ -76,11 +79,15 @@ export class GoogleCloudStorage implements ICloudStorage {
 
   public unlock(
     derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
-    // Store the result
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this._resolveUnlock!(derivedKey);
-    return okAsync(undefined);
+  ): ResultAsync<void, AjaxError | PersistenceError> {
+    // return this._configProvider.getConfig().andThen((config) => {
+    const baseURL = URLString("http://localhost:3006");
+    return this.insightPlatformRepo
+      .getAuthBackups(derivedKey, baseURL)
+      .andThen((signedUrlResponse) => {
+        console.log("signedUrlResponse: ", signedUrlResponse);
+        return okAsync(undefined);
+      });
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
@@ -135,11 +142,9 @@ export class GoogleCloudStorage implements ICloudStorage {
       const file = bucket.file(
         config.ceramicModelAliases.definitions.backupIndex,
       );
-
       /*
         use deriveCeramicSeedFromEVMPrivateKey to create a unique file name
       */
-
       const passthroughStream = new Stream.PassThrough();
       passthroughStream.write(JSON.stringify(backup));
       passthroughStream.end();
@@ -151,16 +156,9 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
-  // private getSignedUrl() {
-  //   return this.insightPlatformRepo.getAuthBackups(
-  //     dataWalletAddress: DataWalletAddress,
-  //     consentContractAddress: EVMContractAddress,
-  //     insightPlatformBaseUrl: URLString,
-  //     dataWalletKey: EVMPrivateKey,
-  //   );
-  // }
-
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    // return okAsync([]);
+
     return this._init().andThen(({ client, config }) => {
       return ResultAsync.fromPromise(
         client.bucket("ceramic-replacement-bucket").getFiles({
@@ -170,6 +168,9 @@ export class GoogleCloudStorage implements ICloudStorage {
         }),
         (e) => new PersistenceError("unable to get backup index", e),
       ).andThen((files) => {
+        if (files == undefined) {
+          return okAsync([]);
+        }
         const backups = files[0];
         if (backups.length == 0) {
           return okAsync([]);
@@ -177,15 +178,13 @@ export class GoogleCloudStorage implements ICloudStorage {
 
         const recent = backups.map((record) => record.metadata.generation);
         // record.metadata.generation
-        this.logUtils.log("recent: ", recent);
-
-        const found = [...recent].filter((x) => !this._restored.has(x));
-        this.logUtils.log("found: ", found);
-
+        const found = [...recent].filter((x) => this._restored.has(x));
         const walletBackups = found.map((generationID) => {
           return this._backups.get(generationID) as IDataWalletBackup;
         });
-
+        if (walletBackups[0] == undefined) {
+          return okAsync([]);
+        }
         return okAsync(walletBackups);
       });
     });

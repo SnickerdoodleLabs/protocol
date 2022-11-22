@@ -21,6 +21,7 @@ import {
   EarnedReward,
   QueryIdentifier,
   IDynamicRewardParameter,
+  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -43,15 +44,17 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   ) {}
 
   public getAuthBackups(
-    dataWalletAddress: DataWalletAddress,
-    consentContractAddress: EVMContractAddress,
-    insightPlatformBaseUrl: URLString,
     dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
   ): ResultAsync<GetSignedUrlResponse, AjaxError> {
+    const address = DataWalletAddress("address");
+    const file = "string";
     const signableData = {
-      consentContractId: consentContractAddress,
-      dataWallet: dataWalletAddress,
+      dataWallet: address,
+      fileName: file,
     } as Record<string, unknown>;
+
+    console.log("HITTER: ");
     return this.cryptoUtils
       .signTypedData(
         snickerdoodleSigningDomain,
@@ -60,15 +63,16 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         dataWalletKey,
       )
       .andThen((signature) => {
+        console.log("HITTER 2: ");
         const url = new URL(
           urlJoin(insightPlatformBaseUrl, "/getAuthorizedBackups"),
         );
-
+        console.log("HITTER 3: ");
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<GetSignedUrlResponse>(url, {
-          consentContractId: consentContractAddress,
-          dataWallet: dataWalletAddress,
+          dataWallet: address,
+          fileName: file,
           signature: signature,
         });
       });
@@ -83,6 +87,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
   ): ResultAsync<EligibleReward[], AjaxError> {
+    console.log("insightPlatformBaseUrl: ", insightPlatformBaseUrl);
+
     const signableData = {
       consentContractId: consentContractAddress,
       dataWallet: dataWalletAddress,
@@ -123,6 +129,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
+    console.log("insightPlatformBaseUrl: ", insightPlatformBaseUrl);
+
     const signableData = {
       consentContractId: consentContractAddress,
       queryCid: queryCid,

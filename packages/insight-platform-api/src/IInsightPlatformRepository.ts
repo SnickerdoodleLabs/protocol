@@ -1,4 +1,5 @@
 import { GetSignedUrlResponse } from "@google-cloud/storage";
+import { PersistenceError } from "@snickerdoodlelabs/objects";
 import {
   AjaxError,
   BigNumberString,
@@ -21,10 +22,8 @@ import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
   getAuthBackups(
-    dataWalletAddress: DataWalletAddress,
-    consentContractAddress: EVMContractAddress,
-    insightPlatformBaseUrl: URLString,
     dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
   ): ResultAsync<GetSignedUrlResponse, AjaxError>;
 
   receivePreviews(
