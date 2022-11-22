@@ -214,15 +214,17 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return this._getBackupIndex().andThen((backups) => {
+      console.log("Backups: ", backups);
       const recent = backups.map((record) => record.id);
       const found = [...recent].filter((x) => !this._restored.has(x));
+      console.log("found: ", found);
+
       // console.debug("CloudStorage", `${found.length} new backups found`);
       return ResultUtils.combine(
         found.map((backupID) => this._getBackup(backupID)),
       ).map((fetched) => {
+        console.log("fetched: ", fetched);
         this._restored = new Set(recent);
-        console.log("FETCHED DATA!");
-        console.log(fetched);
         return fetched;
       });
     });
