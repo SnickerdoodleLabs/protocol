@@ -23,7 +23,7 @@ import {
  * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
 export class EVMTransaction extends ChainTransaction {
-  public accountAddresses: EVMAccountAddress[] | null; // null safety necessary for old transactions
+  public accountAddresses: EVMAccountAddress[]; // null safety necessary for old transactions
   public functionSignature: EVMFunctionSignature | null = null;
 
   public constructor(

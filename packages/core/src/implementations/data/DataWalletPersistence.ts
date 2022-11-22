@@ -500,8 +500,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getEVMBalanceRepository(),
       this.accountBalances.getSolanaBalanceRepository(),
       this.accountBalances.getSimulatorEVMBalanceRepository(),
-      this.accountBalances.getETHBalanceRepository(),
-    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, ethRepo]) => {
+      this.accountBalances.getEthereumBalanceRepository(),
+    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         return errAsync(
@@ -509,15 +509,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             `No available chain info for chain ${chainId}`,
           ),
         );
-      }
-
-      switch (chainId) {
-        case EChain.EthereumMainnet:
-        case EChain.Goerli:
-          return ethRepo.getBalancesForAccount(
-            chainId,
-            accountAddress as EVMAccountAddress,
-          );
       }
 
       switch (chainInfo.indexer) {
@@ -535,6 +526,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           return solRepo.getBalancesForAccount(
             chainId,
             accountAddress as SolanaAccountAddress,
+          );
+        case EIndexer.Ethereum:
+          return etherscanRepo.getBalancesForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
           );
         default:
           return errAsync(
@@ -609,8 +605,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getEVMNftRepository(),
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
-      this.accountNFTs.getETHNftRepository(),
-    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, ethRepo]) => {
+      this.accountNFTs.getEthereumNftRepository(),
+    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         return errAsync(
@@ -618,15 +614,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             `No available chain info for chain ${chainId}`,
           ),
         );
-      }
-
-      switch (chainId) {
-        case EChain.EthereumMainnet:
-        case EChain.Goerli:
-          return ethRepo.getTokensForAccount(
-            chainId,
-            accountAddress as EVMAccountAddress,
-          );
       }
 
       switch (chainInfo.indexer) {
@@ -644,6 +631,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           return solRepo.getTokensForAccount(
             chainId,
             accountAddress as SolanaAccountAddress,
+          );
+        case EIndexer.Ethereum:
+          return etherscanRepo.getTokensForAccount(
+            chainId,
+            accountAddress as EVMAccountAddress,
           );
         default:
           return errAsync(

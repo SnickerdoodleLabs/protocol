@@ -9,6 +9,8 @@ export interface ITokenPriceRepository {
     chainId: ChainId,
     contractAddress: TokenAddress,
   ): ResultAsync<TokenInfo | null, AccountIndexingError>;
+
+  // null implies native token
   getTokenPrice(
     chainId: ChainId,
     contractAddress: TokenAddress | null,

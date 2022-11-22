@@ -76,22 +76,7 @@ export class SolanaIndexer
       account: accountAddress,
     });
     return this.ajaxUtils
-      .get<
-        {
-          tokenAddress: SolanaTokenAddress;
-          tokenAmount: {
-            amount: BigNumberString;
-            decimals: number;
-            uiAmount: number;
-            uiAmountString: BigNumberString;
-          };
-          tokenAccount: string;
-          tokenName: string;
-          tokenIcon: URLString;
-          rentEpoch: number;
-          lamports: number;
-        }[]
-      >(new URL(url))
+      .get<ISolscanBalanceResponse>(new URL(url))
       .andThen((balances) => {
         return ResultUtils.combine(
           balances.map((balance) => {
@@ -171,30 +156,28 @@ export class SolanaIndexer
           (e) => new AccountIndexingError("error finding sol nfts", e),
         );
       })
-      .andThen((nfts) => {
-        return okAsync(
-          nfts.map((nft) => {
-            return new SolanaNFT(
-              chainId,
-              accountAddress,
-              SolanaTokenAddress(nft.address.toBase58()),
-              nft.collection
-                ? new SolanaCollection(
-                    SolanaTokenAddress(nft.collection?.address.toBase58()),
-                    nft.collection?.verified,
-                  )
-                : null,
-              nft.uri,
-              nft.isMutable,
-              nft.primarySaleHappened,
-              nft.sellerFeeBasisPoints,
-              SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
-              nft.tokenStandard,
-              TickerSymbol(nft.symbol),
-              nft.name,
-            );
-          }),
-        );
+      .map((nfts) => {
+        return nfts.map((nft) => {
+          return new SolanaNFT(
+            chainId,
+            accountAddress,
+            SolanaTokenAddress(nft.address.toBase58()),
+            nft.collection
+              ? new SolanaCollection(
+                  SolanaTokenAddress(nft.collection?.address.toBase58()),
+                  nft.collection?.verified,
+                )
+              : null,
+            nft.uri,
+            nft.isMutable,
+            nft.primarySaleHappened,
+            nft.sellerFeeBasisPoints,
+            SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
+            nft.tokenStandard,
+            TickerSymbol(nft.symbol),
+            nft.name,
+          );
+        });
       });
   }
 
@@ -220,3 +203,18 @@ export class SolanaIndexer
     }
   }
 }
+
+type ISolscanBalanceResponse = {
+  tokenAddress: SolanaTokenAddress;
+  tokenAmount: {
+    amount: BigNumberString;
+    decimals: number;
+    uiAmount: number;
+    uiAmountString: BigNumberString;
+  };
+  tokenAccount: string;
+  tokenName: string;
+  tokenIcon: URLString;
+  rentEpoch: number;
+  lamports: number;
+}[];

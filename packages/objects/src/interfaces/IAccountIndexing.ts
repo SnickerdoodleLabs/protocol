@@ -7,7 +7,10 @@ import {
 
 export interface IAccountIndexing {
   getEVMTransactionRepository(): ResultAsync<IEVMTransactionRepository, never>;
-  getETHTransactionRepository(): ResultAsync<IEVMTransactionRepository, never>;
+  getEthereumTransactionRepository(): ResultAsync<
+    IEVMTransactionRepository,
+    never
+  >;
   getSimulatorEVMTransactionRepository(): ResultAsync<
     IEVMTransactionRepository,
     never

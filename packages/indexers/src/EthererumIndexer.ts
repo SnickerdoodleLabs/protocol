@@ -224,44 +224,16 @@ export class EthereumIndexer
     params: object,
     maxRecords: number,
   ): ResultAsync<EVMTransaction[], AccountIndexingError> {
-    return ResultUtils.combine([
-      this._getEtherscanBaseURL(chain),
-      this.configProvider.getConfig(),
-    ]).andThen(([baseUrl, config]) => {
-      const offset = config["offset"] as number;
-      const page = config["page"] as number;
+    return this._getEtherscanBaseURL(chain).andThen((baseUrl) => {
+      const offset = params["offset"] as number;
+      const page = params["page"] as number;
       if (offset * page > maxRecords) {
         return okAsync([]);
       }
 
       const url = new URL(urlJoinP(baseUrl, ["api"], params));
       return this.ajaxUtils
-        .get<{
-          status: string;
-          message: string;
-          result: {
-            blockNumber: string;
-            timeStamp: string;
-            hash: string;
-            nonce: string;
-            blockHash: string;
-            transactionIndex: string;
-            from: string;
-            to: string;
-            value: string;
-            gas: string;
-            gasPrice: string;
-            isError: string;
-            txreceipt_status: string;
-            input: string;
-            contractAddress: string;
-            cumulativeGasUsed: string;
-            gasUsed: string;
-            confirmations: string;
-            methodId: string;
-            functionName: string;
-          }[];
-        }>(url)
+        .get<IEtherscanTransactionResponse>(url)
         .andThen((response) => {
           if (response.status != "1") {
             if (response.result != null) {
@@ -409,4 +381,31 @@ export class EthereumIndexer
       return this._getAlchemy(chainID);
     });
   }
+}
+
+interface IEtherscanTransactionResponse {
+  status: string;
+  message: string;
+  result: {
+    blockNumber: string;
+    timeStamp: string;
+    hash: string;
+    nonce: string;
+    blockHash: string;
+    transactionIndex: string;
+    from: string;
+    to: string;
+    value: string;
+    gas: string;
+    gasPrice: string;
+    isError: string;
+    txreceipt_status: string;
+    input: string;
+    contractAddress: string;
+    cumulativeGasUsed: string;
+    gasUsed: string;
+    confirmations: string;
+    methodId: string;
+    functionName: string;
+  }[];
 }

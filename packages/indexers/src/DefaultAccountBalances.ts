@@ -28,7 +28,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected evm: IEVMAccountBalanceRepository;
   protected sim: IEVMAccountBalanceRepository;
   protected sol: ISolanaBalanceRepository;
-  protected eth: IEVMAccountBalanceRepository;
+  protected ethereum: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -39,7 +39,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
     this.evm = new CovalentEVMTransactionRepository(configProvider, ajaxUtils);
-    this.eth = new EthereumIndexer(
+    this.ethereum = new EthereumIndexer(
       configProvider,
       ajaxUtils,
       tokenPriceRepo,
@@ -54,11 +54,11 @@ export class DefaultAccountBalances implements IAccountBalances {
     );
   }
 
-  public getETHBalanceRepository(): ResultAsync<
+  public getEthereumBalanceRepository(): ResultAsync<
     IEVMAccountBalanceRepository,
     never
   > {
-    return okAsync(this.eth);
+    return okAsync(this.ethereum);
   }
 
   public getEVMBalanceRepository(): ResultAsync<

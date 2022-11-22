@@ -113,23 +113,13 @@ export class MonitoringService implements IMonitoringService {
       this.accountIndexing.getEVMTransactionRepository(),
       this.accountIndexing.getSolanaTransactionRepository(),
       this.accountIndexing.getSimulatorEVMTransactionRepository(),
-      this.accountIndexing.getETHTransactionRepository(),
-    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, ethRepo]) => {
+      this.accountIndexing.getEthereumTransactionRepository(),
+    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
       // Get the chain info for the transaction
       const chainInfo = config.chainInformation.get(chainId);
       if (chainInfo == null) {
         this.logUtils.error(`No available chain info for chain ${chainId}`);
         return okAsync([]);
-      }
-
-      switch (chainId) {
-        case EChain.EthereumMainnet:
-        case EChain.Goerli:
-          return ethRepo.getEVMTransactions(
-            chainId,
-            accountAddress as EVMAccountAddress,
-            new Date(timestamp * 1000),
-          );
       }
 
       switch (chainInfo.indexer) {
@@ -149,6 +139,12 @@ export class MonitoringService implements IMonitoringService {
           return solRepo.getSolanaTransactions(
             chainId,
             accountAddress as SolanaAccountAddress,
+            new Date(timestamp * 1000),
+          );
+        case EIndexer.Ethereum:
+          return etherscanRepo.getEVMTransactions(
+            chainId,
+            accountAddress as EVMAccountAddress,
             new Date(timestamp * 1000),
           );
         default:

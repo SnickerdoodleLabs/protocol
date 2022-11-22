@@ -26,9 +26,9 @@ import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
   protected evm: IEVMTransactionRepository;
-  protected eth: IEVMTransactionRepository;
   protected simulatorRepo: IEVMTransactionRepository;
   protected solRepo: ISolanaTransactionRepository;
+  protected ethereum: IEVMTransactionRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -38,7 +38,7 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.eth = new EthereumIndexer(
+    this.ethereum = new EthereumIndexer(
       configProvider,
       ajaxUtils,
       tokenPriceRepo,
@@ -54,11 +54,11 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     );
   }
 
-  public getETHTransactionRepository(): ResultAsync<
+  public getEthereumTransactionRepository(): ResultAsync<
     IEVMTransactionRepository,
     never
   > {
-    return okAsync(this.eth);
+    return okAsync(this.ethereum);
   }
 
   public getEVMTransactionRepository(): ResultAsync<
