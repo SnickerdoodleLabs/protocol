@@ -51,7 +51,7 @@
     "neverthrow-result-utils": "^2.0.2",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.5",
-    "tldts": "^5.7.89",
+    "tldts": "^5.7.99",
     "url-join-ts": "^1.0.5",
     "uuid": "^8.3.0"
   }
