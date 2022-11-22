@@ -27,13 +27,15 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
     });
   };
 
-  if(!metadataString){
-    return  <img
-    width={150}
-    height={140}
-    style={{ borderRadius: "8px 8px 0px 0px", objectFit: "cover" }}
-    src={placeholder}
-  />
+  if (!metadataString) {
+    return (
+      <img
+        width={150}
+        height={140}
+        style={{ borderRadius: "8px 8px 0px 0px", objectFit: "cover" }}
+        src={placeholder}
+      />
+    );
   }
 
   return (
