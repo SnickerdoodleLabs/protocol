@@ -92,7 +92,7 @@ export class BlockchainListener implements IBlockchainListener {
             console.error(e);
             return e;
           });
-        }, config.controlChainInformation.averageBlockMiningTime);
+        }, config.requestForDataCheckingFrequency);
       },
     );
   }

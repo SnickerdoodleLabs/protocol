@@ -723,7 +723,7 @@ task("grantRole", "Grant specific role on the consent contract.")
   )
   .setAction(async (taskArgs) => {
     const accountnumber = taskArgs.accountnumber;
-    const accounts = hre.ethers.getSigners();
+    const accounts = await hre.ethers.getSigners();
     const account = accounts[accountnumber];
 
     const roleBytes = ethers.utils.id(taskArgs.role);
@@ -762,7 +762,7 @@ task("revokeRole", "Revokes a specific role on the consent contract.")
   )
   .setAction(async (taskArgs) => {
     const accountnumber = taskArgs.accountnumber;
-    const accounts = hre.ethers.getSigners();
+    const accounts = await hre.ethers.getSigners();
     const account = accounts[accountnumber];
 
     const roleBytes = ethers.utils.id(taskArgs.role);
