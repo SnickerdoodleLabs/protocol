@@ -3,7 +3,6 @@ import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import PersonalInfoCard from "@extension-onboarding/components/PersonalInfoCard";
 import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import { LOCAL_STORAGE_SDL_INVITATION_KEY } from "@extension-onboarding/constants";
-import { useAppContext } from "@extension-onboarding/context/App";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/ViewData/ViewData.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
@@ -12,7 +11,6 @@ import React, { FC } from "react";
 
 declare const window: IWindowWithSdlDataWallet;
 const ViewData: FC = () => {
-  const { changeStepperStatus } = useAppContext();
   const { setModal } = useLayoutContext();
   const classes = useStyles();
   return (
