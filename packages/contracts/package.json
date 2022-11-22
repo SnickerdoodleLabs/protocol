@@ -15,6 +15,7 @@
     "dockerize": "docker build -t snickerdoodlelabs/devchain:local -f Dockerfile --progress=plain ../..",
     "redocgen": "npx hardhat clean && npx hardhat compile && npx hardhat docgen && node scripts/docgenTitleFix.js"
   },
+  "type": "commonjs",
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
     "@openzeppelin/contracts-upgradeable": "^4.6.0",
