@@ -11,7 +11,7 @@ import {
   EVMAccountAddress,
   ControlChainInformation,
 } from "@snickerdoodlelabs/objects";
-import { snickerdoodleSigningDomain } from "@snickerdoodlelabs/signature-verification";
+
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 
@@ -79,6 +79,7 @@ export const testCoreConfig = new CoreConfig(
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   "USD",
+  5000
 );
 
 // #endregion
