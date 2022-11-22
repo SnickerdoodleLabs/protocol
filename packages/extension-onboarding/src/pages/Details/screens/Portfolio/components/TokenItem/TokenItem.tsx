@@ -4,7 +4,10 @@ import { ethers } from "ethers";
 import React, { FC } from "react";
 
 import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import {
+  tokenInfoObj,
+  stableCoins,
+} from "@extension-onboarding/constants/tokenInfo";
 interface ITokenItemProps {
   item: TokenBalance;
 }
@@ -40,7 +43,13 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
               opacity: 0.6,
             }}
           >
-            {ethers.utils.formatUnits(item.balance)} {item.ticker}
+            {stableCoins.includes(item.ticker) && parseInt(item.balance) > 0
+              ? `${
+                  item.balance.substr(0, item.balance.length - 6) +
+                  "," +
+                  item.balance.substr(-6)
+                } ${item.ticker}`
+              : `${ethers.utils.formatUnits(item.balance)} ${item.ticker}`}
           </Typography>
         </Box>
       </Box>

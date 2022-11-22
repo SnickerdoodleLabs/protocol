@@ -26,6 +26,7 @@ import React, { FC, useEffect, useMemo, useState } from "react";
 
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
+import phantomSmall from "@extension-onboarding/assets/icons/phantomSmall.svg";
 import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
 import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
 import NFTItem from "@extension-onboarding/components/NFTItem";
@@ -340,6 +341,24 @@ const Portfolio: FC = () => {
   console.log("balances", tokensToRender);
   console.log("nfts", nftsToRender);
 
+  const walletIcon = (walletProvider: EWalletProviderKeys) => {
+    switch (walletProvider) {
+      case EWalletProviderKeys.METAMASK:
+        return <img src={metamaskLogo} />;
+        break;
+      case EWalletProviderKeys.PHANTOM:
+        return <img src={phantomSmall} />;
+        break;
+      case EWalletProviderKeys.COINBASE:
+        return <img src={coinbaseSmall} />;
+        break;
+
+      default:
+        return <img src={metamaskLogo} />;
+        break;
+    }
+  };
+
   const classes = useStyles();
   return (
     <Box>
@@ -401,14 +420,7 @@ const Portfolio: FC = () => {
                     value={account.accountAddress}
                   >
                     <Box display="flex">
-                      <Box>
-                        {account.providerKey ===
-                        EWalletProviderKeys.METAMASK ? (
-                          <img src={metamaskLogo} />
-                        ) : (
-                          <img src={coinbaseSmall} />
-                        )}
-                      </Box>
+                      <Box>{walletIcon(account?.providerKey)}</Box>
                       <Typography className={classes.accountAddressText}>
                         {account.accountAddress.slice(0, 5)} ................
                         {account.accountAddress.slice(-4)}
