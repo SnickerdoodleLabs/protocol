@@ -1,10 +1,11 @@
 import InitialScreen from "@extension-onboarding/containers/Router/InitialScreen";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import {
+  AuthFlowRoutes,
   OnboardingRoutes,
-  AuthRequiredRoutes,
-  EPaths,
 } from "@extension-onboarding/containers/Router/Router.routes";
 import { useAppContext, EAppModes } from "@extension-onboarding/context/App";
+import RootRouteLayout from "@extension-onboarding/layouts/RootRouteLayout";
 import React, { FC, useMemo } from "react";
 import { Route, BrowserRouter, Routes, Navigate } from "react-router-dom";
 
@@ -14,13 +15,10 @@ const Router: FC = () => {
     if (!appMode) {
       return null;
     }
-    return (
-      appMode === EAppModes.ONBOARDING_FLOW
-        ? OnboardingRoutes
-        : AuthRequiredRoutes
-    ).map((route) => (
-      <Route key={route.name} path={route.path} element={route.component} />
-    ));
+    if (appMode === EAppModes.ONBOARDING_FLOW) {
+      return OnboardingRoutes;
+    }
+    return AuthFlowRoutes;
   }, [appMode]);
 
   return (
@@ -30,21 +28,22 @@ const Router: FC = () => {
       ) : (
         <BrowserRouter>
           <Routes>
-            <>
+            <Route element={<RootRouteLayout />}>
               {routes}
               <Route
                 path="*"
                 element={
                   <Navigate
+                    replace
                     to={
                       appMode === EAppModes.ONBOARDING_FLOW
-                        ? EPaths.ONBOARDING
+                        ? EPaths.ONBOARDING_WELCOME
                         : EPaths.HOME
                     }
                   />
                 }
               />
-            </>
+            </Route>
           </Routes>
         </BrowserRouter>
       )}
