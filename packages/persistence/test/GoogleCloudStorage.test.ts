@@ -94,6 +94,10 @@ describe("Google Cloud Storage Tests", () => {
       .bucket("ceramic-replacement-bucket")
       .getFilesStream();
 
+    const [url] = await storage
+      .bucket("")
+      .file("fileName")
+      .getSignedUrl(options);
     // _events: [Object: null prototype] {},
     // _eventsCount: 0,
     // _maxListeners: undefined,

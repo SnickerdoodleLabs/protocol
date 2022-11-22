@@ -1,3 +1,4 @@
+import { GetSignedUrlResponse } from "@google-cloud/storage";
 import {
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
@@ -46,7 +47,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     consentContractAddress: EVMContractAddress,
     insightPlatformBaseUrl: URLString,
     dataWalletKey: EVMPrivateKey,
-  ): ResultAsync<EligibleReward[], AjaxError> {
+  ): ResultAsync<GetSignedUrlResponse, AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
       dataWallet: dataWalletAddress,
@@ -65,7 +66,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<EligibleReward[]>(url, {
+        return this.ajaxUtils.post<GetSignedUrlResponse>(url, {
           consentContractId: consentContractAddress,
           dataWallet: dataWalletAddress,
           signature: signature,

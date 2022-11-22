@@ -11,6 +11,10 @@ import { Datastore, Key } from "@google-cloud/datastore";
 import { GetServiceAccountResponse, Storage } from "@google-cloud/storage";
 import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+} from "@snickerdoodlelabs/insight-platform-api";
+import {
   AESEncryptedString,
   BackupIndex,
   BackupIndexEntry,
@@ -54,6 +58,8 @@ export class GoogleCloudStorage implements ICloudStorage {
     @inject(IPersistenceConfigProviderType)
     protected _configProvider: IPersistenceConfigProvider,
     @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils, // @inject(IDataWalletPersistenceType) // protected persistenceRepo: IDataWalletPersistence,
+    @inject(IInsightPlatformRepositoryType)
+    protected insightPlatformRepo: IInsightPlatformRepository,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
@@ -133,6 +139,15 @@ export class GoogleCloudStorage implements ICloudStorage {
       return okAsync(CeramicStreamID(""));
     });
   }
+
+  // private getSignedUrl() {
+  //   return this.insightPlatformRepo.getAuthBackups(
+  //     dataWalletAddress: DataWalletAddress,
+  //     consentContractAddress: EVMContractAddress,
+  //     insightPlatformBaseUrl: URLString,
+  //     dataWalletKey: EVMPrivateKey,
+  //   );
+  // }
 
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return this._init().andThen(({ client, config }) => {
