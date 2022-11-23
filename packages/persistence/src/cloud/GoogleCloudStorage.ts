@@ -80,14 +80,22 @@ export class GoogleCloudStorage implements ICloudStorage {
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, AjaxError | PersistenceError> {
+    /* Commented out the call for signedURLReponse from Insight Platform 
+        -- currently buggy --
+    */
     // return this._configProvider.getConfig().andThen((config) => {
-    const baseURL = URLString("http://localhost:3006");
-    return this.insightPlatformRepo
-      .getAuthBackups(derivedKey, baseURL)
-      .andThen((signedUrlResponse) => {
-        console.log("signedUrlResponse: ", signedUrlResponse);
-        return okAsync(undefined);
-      });
+    // const baseURL = URLString("http://localhost:3006");
+    // return this.insightPlatformRepo
+    //   .getAuthBackups(derivedKey, baseURL)
+    //   .andThen((signedUrlResponse) => {
+    //     console.log("signedUrlResponse: ", signedUrlResponse);
+    //     return okAsync(undefined);
+    //   });
+
+    // Store the result
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    this._resolveUnlock!(derivedKey);
+    return okAsync(undefined);
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
