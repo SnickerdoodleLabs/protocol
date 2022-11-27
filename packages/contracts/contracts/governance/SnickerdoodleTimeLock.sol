@@ -24,7 +24,7 @@ contract SnickerdoodleTimelock is Initializable, TimelockControllerUpgradeable {
     ///@param proposers Initial list of addresses approved as proposers
     ///@param executors Initial list of addresses approved as executors
     function initialize(uint256 minDelay, address[] memory proposers, address[] memory executors) initializer public {
-        __TimelockController_init(minDelay, proposers, executors);
+        __TimelockController_init(minDelay, proposers, executors, address(0));
     }
     
 } 

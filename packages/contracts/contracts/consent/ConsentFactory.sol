@@ -4,8 +4,7 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/metatx/MinimalForwarderUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "./Consent.sol";
@@ -18,9 +17,13 @@ import "hardhat/console.sol";
 /// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contract Wizard with added features 
 /// @dev The contract adopts OZ's proxy upgrade pattern and is compatible with OZ's meta-transaction library  
 
-contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC2771ContextUpgradeable {
+contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable {
 
+    /// @dev The PAUSE_ROLE can pause all activity in the factory contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
+    /// @dev Address of the EIP2771-compatible trusted forwarder contract to be used by all consent contracts
+    address public trustedForwarder;
 
     /// Mapping of addresses to an array of its deployed beacon proxy addresses
     mapping(address => address[]) public addressToDeployedConsents;
@@ -50,10 +53,10 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     event ConsentDeployed(address indexed owner, address indexed consentAddress);
 
     /// @dev Sets the trustedForwarder address, calls the initialize function, then disables any initializers as recommended by OpenZeppelin
-    /// @param trustedForwarder Address of the trusted forwarder for meta tx
-    /// @dev consentImpAddress address of the Consent contract implementation address for the upgradeable beacon 
-    constructor(address trustedForwarder, address consentImpAddress) ERC2771ContextUpgradeable(trustedForwarder) {
-        initialize(consentImpAddress);
+    /// @param _trustedForwarder Address of the trusted forwarder for meta tx
+    /// @dev _consentImpAddress address of the Consent contract implementation address for the upgradeable beacon 
+    constructor(address _trustedForwarder, address _consentImpAddress) {
+        initialize(_trustedForwarder, _consentImpAddress);
         _disableInitializers();
     }
 
@@ -69,8 +72,9 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
 
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
-    /// @param consentImpAddress Uses the initializer modifier to to ensure the contract is only initialized once
-    function initialize(address consentImpAddress) initializer public  {
+    /// @dev _trustedForwarder Address of the EIP-2771 compatible meta-tx forwarder contract
+    /// @param _consentImpAddress Uses the initializer modifier to to ensure the contract is only initialized once
+    function initialize(address _trustedForwarder, address _consentImpAddress) initializer public  {
         __Pausable_init();
         __AccessControl_init();
 
@@ -78,9 +82,11 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         _grantRole(PAUSER_ROLE, msg.sender);
 
         // deploy the UpgradeableBeacon, transfer its ownership to the user and store its address
-        UpgradeableBeacon _upgradeableBeacon = new UpgradeableBeacon(consentImpAddress);
+        UpgradeableBeacon _upgradeableBeacon = new UpgradeableBeacon(_consentImpAddress);
         _upgradeableBeacon.transferOwnership(msg.sender);
         beaconAddress = address(_upgradeableBeacon);
+
+        trustedForwarder = _trustedForwarder;
     }
 
     /* CORE FUNCTIONS */
@@ -94,7 +100,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     function createConsent(address owner, string memory baseURI, string memory name) public {
 
         BeaconProxy beaconProxy = new BeaconProxy(beaconAddress, 
-        abi.encodeWithSelector(Consent(address(0)).initialize.selector, owner, baseURI, name, address(this)));
+        abi.encodeWithSelector(Consent(address(0)).initialize.selector, trustedForwarder, owner, baseURI, name, address(this)));
 
         address beaconProxyAddress = address(beaconProxy);
 
@@ -222,11 +228,13 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         return queriedList;
     }
 
-    /* OVERRIDES */
+    /* EIP-2771 MetaTX */
 
-    // The following functions are overrides required by Solidity.
+    function isTrustedForwarder(address forwarder) public view returns (bool) {
+        return forwarder == trustedForwarder;
+    }
 
-    function _msgSender() internal view virtual override(ContextUpgradeable, ERC2771ContextUpgradeable) returns (address sender) {
+    function _msgSender() internal view virtual override(ContextUpgradeable) returns (address sender) {
         if (isTrustedForwarder(msg.sender)) {
             // The assembly code is more direct than the Solidity version using `abi.decode`.
             assembly {
@@ -237,7 +245,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         }
     }
 
-    function _msgData() internal view virtual override(ContextUpgradeable, ERC2771ContextUpgradeable) returns (bytes calldata) {
+    function _msgData() internal view virtual override(ContextUpgradeable) returns (bytes calldata) {
         if (isTrustedForwarder(msg.sender)) {
             return msg.data[:msg.data.length - 20];
         } else {

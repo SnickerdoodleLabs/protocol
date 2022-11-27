@@ -5,8 +5,8 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
-import "@openzeppelin/contracts/metatx/MinimalForwarder.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 
 /// @title Crumbs 
@@ -20,7 +20,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgrad
 /// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
 /// @dev It is also compatible with OZ's meta-transaction library
 
-contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable, ERC2771ContextUpgradeable {
+contract Crumbs is Initializable, AccessControlEnumerableUpgradeable, PausableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, ERC2771ContextUpgradeable {
 
     /// @notice Mapping of address to respective crumbId that stores its JSON object
     mapping(address => uint256) public addressToCrumbId;
@@ -128,21 +128,22 @@ contract Crumbs is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable
 
     /// @dev Override to add require statement to make crumb tokens non-transferable
     /// @dev Remove an address's mapping to its crumb id once its transferred
-    function _beforeTokenTransfer(address from, address to, uint256 crumbId)
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
         internal
+        whenNotPaused
         override
-    {   
+    {
         // ensures crumbs are non-transferable
         require(from == address(0) || to == address(0), "Crumbs: Crumb tokens are non-transferrable");
         
         // carry out checks before transfer
-        super._beforeTokenTransfer(from, to, crumbId);
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
 
         // if checks pass, delete crumb id of sender
         delete addressToCrumbId[from];
 
         // update crumb id to the receiver
-        addressToCrumbId[to] = crumbId;
+        addressToCrumbId[to] = tokenId;
     }
 
     // The following functions are overrides required by Solidity.
