@@ -10,6 +10,6 @@ WORKDIR /root
 COPY . .
 
 # install contracts package dependencies
-#RUN npm install
+RUN npm install
 
-#ENTRYPOINT [ "/bin/bash", "entrypoint.sh" ]
+ENTRYPOINT [ "/bin/bash", "entrypoint.sh" ]
