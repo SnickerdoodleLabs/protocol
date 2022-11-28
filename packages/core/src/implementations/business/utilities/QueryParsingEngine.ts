@@ -64,6 +64,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           this.queryRepository,
         );
 
+        // TODO: use SDQLQueryUtils to extract q1, q2...query identifiers and c1, c2, compensation identifiers.
         return ResultUtils.combine([
           this.identifyQueries(astTree, astEvaluator, dataPermissions),
           this.evalCompensations(astTree, astEvaluator, dataPermissions),
