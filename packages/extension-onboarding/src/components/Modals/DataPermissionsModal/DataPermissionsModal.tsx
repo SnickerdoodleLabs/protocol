@@ -122,7 +122,7 @@ const DataPermissionsModal: FC = () => {
                 closeModal();
               }}
             >
-              Save Changes
+              Save & Claim Reward
             </Button>
           </Box>
         </Box>
