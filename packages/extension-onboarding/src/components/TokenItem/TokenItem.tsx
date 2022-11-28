@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
-import { TokenBalance } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
+import { EChainTechnology, TokenBalance } from "@snickerdoodlelabs/objects";
+import { BigNumber, ethers } from "ethers";
 import React, { FC } from "react";
 
 import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
@@ -49,7 +49,13 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
                   "," +
                   item.balance.substr(-6)
                 } ${item.ticker}`
-              : `${ethers.utils.formatUnits(item.balance)} ${item.ticker}`}
+              : item.type != EChainTechnology.Solana
+              ? `${ethers.utils.formatUnits(
+                  BigNumber.from(item.balance || "0"),
+                )} ${item.ticker}`
+              : `${ethers.utils.formatUnits(
+                  BigNumber.from(item.balance || "0").toNumber() / 10 ** 9,
+                )} ${item.ticker}`}
           </Typography>
         </Box>
       </Box>
@@ -72,7 +78,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
             padding: "10px",
           }}
         >
-          ${(Number.parseFloat(item.quoteBalance) || 0).toFixed(1)}
+          ${Number.parseFloat(item.quoteBalance || "0")}
         </Typography>
       </Box>
     </Box>
