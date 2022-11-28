@@ -14,6 +14,7 @@ import {
   EVMContractAddress,
   HexString32,
   InvalidParametersError,
+  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";
@@ -84,21 +85,6 @@ export interface IConsentContract {
     signature: Signature,
     agreementFlags: HexString32,
   ): HexString;
-
-  /**
-   * Create a consent token with providing the business signature
-   * Allows Signature Issuer to send anonymous invitation link to end user to opt in
-   * @param tokenId randomly generated token id
-   * @param agreementURI token uri data
-   * @param signature business or consent contract owner signature
-   * @param contractOverrides for overriding transaction gas object
-   */
-  anonymousRestrictedOptIn(
-    tokenId: TokenId,
-    agreementFlags: HexString32,
-    signature: Signature,
-    contractOverrides?: ContractOverrides,
-  ): ResultAsync<void, ConsentContractError>;
 
   /**
    * Burns a user's consent token to opt out of Consent contract
@@ -178,6 +164,14 @@ export interface IConsentContract {
   ): ResultAsync<number, ConsentContractError>;
 
   /**
+   * Returns the owner account for a token Id
+   * @param tokenId token Id
+   */
+  ownerOf(
+    tokenId: TokenId,
+  ): ResultAsync<EVMAccountAddress, ConsentContractError>;
+
+  /**
    * Returns the token uri for a specific token Id
    * @param tokenId token Id
    */
@@ -198,20 +192,12 @@ export interface IConsentContract {
   ): ResultAsync<Event[], ConsentContractError>;
 
   /**
-   * Returns consent tokens previously minted for the address
+   * Returns a consent token by the token ID
    * @param ownerAddress owner address
    */
-  getConsentTokensOfAddress(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken[], ConsentContractError>;
-
-  /**
-   * Returns a current consent token owned by address
-   * @param ownerAddress owner address
-   */
-  getCurrentConsentTokenOfAddress(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken | null, ConsentContractError>;
+  getConsentToken(
+    tokenId: TokenId,
+  ): ResultAsync<ConsentToken, ConsentContractError>;
 
   /**
    * Adds a domain to the contract storage

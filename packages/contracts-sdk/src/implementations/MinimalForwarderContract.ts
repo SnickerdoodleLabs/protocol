@@ -69,9 +69,15 @@ export class MinimalForwarderContract implements IMinimalForwarderContract {
   public execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<boolean, MinimalForwarderContractError> {
+  ): ResultAsync<
+    ethers.providers.TransactionResponse,
+    MinimalForwarderContractError
+  > {
     return ResultAsync.fromPromise(
-      this.contract.execute(request, signature) as Promise<boolean>,
+      this.contract.execute(
+        request,
+        signature,
+      ) as Promise<ethers.providers.TransactionResponse>,
       (e) => {
         return new MinimalForwarderContractError(
           `Unable to call execute()`,
