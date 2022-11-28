@@ -11,7 +11,7 @@ env:
   IMAGE: insight-platform
   REGISTRY_HOSTNAME: gcr.io
   GAR_LOCATION: us-central1
-  GKE_CLUSTER: sdl-cluster-dev-zvfsd
+  GKE_CLUSTER: sdl-cluster-dev-zitrz
   GKE_ZONE: us-central1-a
   PROJECT_ID: snickerdoodle-insight-stackdev
 
