@@ -243,7 +243,7 @@ describe("processRewardsPreview tests", () => {
     const queryService = mocks.factory(); // new context
     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
       okAsync(sdqlQuery),
-    ); // MAKES A LOT OF SENSE
+    ); // QQ: MAKES A LOT OF SENSE
     td.when(mocks.contextProvider.getContext()).thenReturn(
       okAsync(
         new CoreContext(
@@ -299,6 +299,8 @@ describe("processRewardsPreview tests", () => {
           new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
         );
       }
+      //QQ: We just mocked context
+      // What's the point of checking if DW address is null here?
       if (context.dataWalletAddress == null) {
         // Need to wait for the wallet to unlock
         return okAsync(undefined);
