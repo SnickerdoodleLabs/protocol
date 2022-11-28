@@ -98,12 +98,16 @@ const DataPermissionsSettings: FC = () => {
                 </Typography>
               </Box>
               <Box mb={7} border="1px solid #D9D9D9" p={4} borderRadius={8}>
-                <Grid container spacing={2}>
+                <Grid container>
                   {item.dataTypes.map((dataType, index) => {
                     return (
-                      <Grid key={index} item xs={sectionIndex === 0 ? 6 : 12}>
+                      <Grid
+                        key={index}
+                        item
+                        xs={PERMISSION_DESCRIPTIONS[dataType] ? 12 : 6}
+                      >
                         <Box
-                          mb={2}
+                          mb={1}
                           display="flex"
                           alignItems="center"
                           justifyContent="space-between"
@@ -141,10 +145,11 @@ const DataPermissionsSettings: FC = () => {
                             </Typography>
                           </Box>
                         )}
-                        {index === item.dataTypes.length - 1 ||
-                        (sectionIndex === 0 &&
-                          index === item.dataTypes.length - 2) ? null : (
-                          <Divider />
+                        {item.dataTypes.length != index + 1 && <Box mt={3} />}
+                        {item.dataTypes.length != index + 1 && (
+                          <Box mb={2}>
+                            <Divider />
+                          </Box>
                         )}
                       </Grid>
                     );

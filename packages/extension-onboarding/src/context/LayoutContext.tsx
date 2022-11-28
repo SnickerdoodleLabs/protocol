@@ -8,6 +8,7 @@ import PermissionSelectionModal from "@extension-onboarding/components/Modals/Pe
 import PhantomLinkingSteps from "@extension-onboarding/components/Modals/PhantomLinkingSteps";
 import ViewDetailsModal from "@extension-onboarding/components/Modals/ViewDetailsModal";
 import React, {
+  ReactNode,
   FC,
   createContext,
   useContext,
@@ -25,18 +26,16 @@ export interface IModal {
 export enum ELoadingIndicatorType {
   DEFAULT,
   LOTTIE,
+  COMPONENT,
 }
 export interface ILoaderInfo {
   type: ELoadingIndicatorType;
   file?: string;
+  component?: ReactNode;
 }
 
 interface ILayout {
-  setLoadingStatus: (
-    loadingStatus: boolean,
-    type?: ELoadingIndicatorType,
-    file?: string,
-  ) => void;
+  setLoadingStatus: (loadingStatus: boolean, loadingInfo?: ILoaderInfo) => void;
   closeModal: () => void;
   setModal: (modalProps: IModal) => void;
   modalState: IModal;
@@ -94,15 +93,14 @@ export const LayoutProvider: FC = ({ children }) => {
 
   const setLoadingStatus = (
     loadingStatus: boolean,
-    type?: ELoadingIndicatorType,
-    file?: string,
+    loadingInfo?: ILoaderInfo,
   ) => {
     if (!loadingStatus) {
       setLoaderInfo(undefined);
     } else {
-      setLoaderInfo({ type: type ?? ELoadingIndicatorType.DEFAULT, file });
+      setLoaderInfo(loadingInfo ?? { type: ELoadingIndicatorType.DEFAULT });
     }
-    setIsLoading(loadingStatus);
+    // setIsLoading(loadingStatus);
   };
 
   const closeModal = () => {
