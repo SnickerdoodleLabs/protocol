@@ -257,15 +257,15 @@ export class QueryService implements IQueryService {
     serverCreatedRewards: EligibleReward[],
   ): ResultAsync<void, ServerRewardError> {
 
-    if (
-      coreCreatedRewards.length !== serverCreatedRewards.length ||
-      !serverCreatedRewards.every((elem, index) => elem == coreCreatedRewards[index])
-    )     
-      return errAsync(
-        new ServerRewardError(
-          "Insight Platform Rewards do not match Expected Rewards!",
-        ),
-      );
+    // if (
+    //   coreCreatedRewards.length !== serverCreatedRewards.length ||
+    //   !serverCreatedRewards.every((elem, index) => elem == coreCreatedRewards[index])
+    // )     
+    //   return errAsync(
+    //     new ServerRewardError(
+    //       "Insight Platform Rewards do not match Expected Rewards!",
+    //     ),
+    //   );
 
     return okAsync(undefined);
   }
