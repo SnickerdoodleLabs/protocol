@@ -33,7 +33,9 @@ import {
   LinkedAccount,
   DataWalletAddress,
   QueryIdentifier,
-  ExpectedReward
+  ExpectedReward,
+  EVMPrivateKey,
+  URLString
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -84,18 +86,7 @@ export class QueryService implements IQueryService {
   public onQueryPosted(
     consentContractAddress: EVMContractAddress,
     queryId: IpfsCID,
-  ): ResultAsync<
-    void,
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | QueryFormatError
-    | EvaluationError
-    | QueryExpiredError
-    | ServerRewardError
-  > {
+  ): ResultAsync<void, EvaluationError> {
     // Get the IPFS data for the query. This is just "Get the query";
     // Cache
     // if (!this.safeUpdateQueryContractMap(queryId, consentContractAddress)) {
@@ -117,49 +108,31 @@ export class QueryService implements IQueryService {
         })
         .andThen(([queryIdentifiers, expectedRewards]) => {
 
-            this.publishSDQLQueryRequestIfExptRewardsMatchEligRewards(
-              consentContractAddress,
-              query, 
-              eligibleRewards,
-              accounts,
-              context,
-              config,
-              queryIdentifiers,
-              expectedRewards
-            );
+          return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+            consentContractAddress,
+            query, accounts, context,
+            config, queryIdentifiers,
+            expectedRewards
+          );
         });
     });
   }
 
-  protected publishSDQLQueryRequestIfExptRewardsMatchEligRewards(
+  protected publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    eligibleRewards: EligibleReward[],
     accounts: LinkedAccount[],
     context: CoreContext,
     config: CoreConfig,
     queryIdentifiers: QueryIdentifier[],
     expectedRewards: ExpectedReward[]
-  ): ResultAsync<
-    void,
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
-    | BlockchainProviderError
-    | AjaxError
-    | QueryFormatError
-    | EvaluationError
-    | QueryExpiredError
-    | ServerRewardError
-  > {
-      return this.insightPlatformRepo.receivePreviews(
-        context.dataWalletAddress!,
-        consentContractAddress,
-        query.cid,
-        context.dataWalletKey!,
-        config.defaultInsightPlatformBaseUrl,
+  ): ResultAsync<void, EvaluationError> {
+
+      return this.getEligibleRewardsFromInsightPlatform(
+        context, consentContractAddress,
+        query.cid, config,
         queryIdentifiers,
-        expectedRewards,
+        expectedRewards
       )
       .andThen((eligibleRewards) => {
 
@@ -173,6 +146,26 @@ export class QueryService implements IQueryService {
           );
         });
       });
+  }
+
+  protected getEligibleRewardsFromInsightPlatform(
+    context: CoreContext,
+    consentContractAddress: EVMContractAddress,
+    queryCid: IpfsCID,
+    config: CoreConfig,
+    answeredQueries: QueryIdentifier[],
+    expectedRewards: ExpectedReward[],
+  ): ResultAsync<EligibleReward[], AjaxError> {
+
+    return this.insightPlatformRepo.receivePreviews(
+      context.dataWalletAddress!,
+      consentContractAddress,
+      queryCid,
+      context.dataWalletKey!,
+      config.defaultInsightPlatformBaseUrl,
+      answeredQueries,
+      expectedRewards,
+    );
   }
 
   protected publishSDQLQueryRequest(

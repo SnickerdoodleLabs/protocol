@@ -285,7 +285,7 @@ describe("processRewardsPreview tests", () => {
       ),
     ).thenReturn(okAsync(true));
     td.when(
-      mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything()),
+      mocks.queryParsingEngine.getExpectedRewards(sdqlQuery, td.matchers.anything()),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getByCID(queryId),
@@ -308,7 +308,7 @@ describe("processRewardsPreview tests", () => {
           EVMAccountAddress(context.dataWalletAddress),
         )
         .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getPreviews(
+          return mocks.queryParsingEngine.getExpectedRewards(
             query,
             new DataPermissions(allPermissions),
           );
