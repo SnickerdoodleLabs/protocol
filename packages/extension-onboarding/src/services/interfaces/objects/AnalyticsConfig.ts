@@ -1,7 +1,7 @@
 export class AnalyticsConfig {
   constructor(
     public gaTrackingId: string,
-    public hjId: number,
-    public hjSv: number,
+    public hotJarId: number,
+    public hotJarSv: number,
   ) {}
 }

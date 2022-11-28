@@ -42,7 +42,7 @@ export const AnalyticsContextProvider: FC = ({ children }) => {
 
   const initializeAnalyticTools = () => {
     ReactGA.initialize(config.gaTrackingId);
-    hotjar.initialize(config.hjId, config.hjSv);
+    hotjar.initialize(config.hotJarId, config.hotJarSv);
   };
 
   const sendEvent = useCallback(
