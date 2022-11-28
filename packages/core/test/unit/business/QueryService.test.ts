@@ -243,7 +243,7 @@ describe("processRewardsPreview tests", () => {
     const queryService = mocks.factory(); // new context
     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
       okAsync(sdqlQuery),
-    );
+    ); // MAKES A LOT OF SENSE
     td.when(mocks.contextProvider.getContext()).thenReturn(
       okAsync(
         new CoreContext(
@@ -291,6 +291,8 @@ describe("processRewardsPreview tests", () => {
       mocks.sdqlQueryRepo.getByCID(queryId),
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig(),
+    //QQ: We just mocked sdqlQueryRepo.getByCID(queryId).
+    // What's the point of checking if it's not null here?
     ]).andThen(([query, context, config]) => {
       if (query == null) {
         return errAsync(
