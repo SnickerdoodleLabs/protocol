@@ -25,6 +25,7 @@ Local blockchain created by running the `snickerdoodlelabs/devchain` docker imag
 - Snickerdoodle Governor Contract: `0x5FC8d32690cc91D4c39d9d3abcBD16989F875707`
 - Sift Contract: `0xa513E6E4b8f2a923D98304ec87F64353C4D5C853`
 - Minimal Forwarder Contract: `0x5FbDB2315678afecb367f032d93F642f64180aa3`
+- Test Rewards Contract: `0x610178dA211FEF7D417bC0e6FeD39F05609AD788`
 
 ## Fuji Network
 

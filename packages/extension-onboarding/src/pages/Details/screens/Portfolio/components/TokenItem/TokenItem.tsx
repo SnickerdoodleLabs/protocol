@@ -1,5 +1,5 @@
 import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
-import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { tokenInfoObj ,stableCoins } from "@extension-onboarding/constants/tokenInfo";
 import { Box, Typography } from "@material-ui/core";
 import { IEVMBalance } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
@@ -39,7 +39,13 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
               opacity: 0.6,
             }}
           >
-            {ethers.utils.formatUnits(item.balance)} {item.ticker}
+            {stableCoins.includes(item.ticker) && parseInt(item.balance) > 0
+              ? `${
+                  item.balance.substr(0, item.balance.length - 6) +
+                  "," +
+                  item.balance.substr(-6)
+                } ${item.ticker}`
+              : `${ethers.utils.formatUnits(item.balance)} ${item.ticker}`}
           </Typography>
         </Box>
       </Box>
