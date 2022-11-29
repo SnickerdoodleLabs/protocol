@@ -1,6 +1,6 @@
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { BigNumberString, ChainId, DirectReward, EChain, ECredentialType, ERewardType, EVMAccountAddress, EVMPrivateKey, EVMTransaction, IpfsCID, LazyReward, MetatransactionSignatureRequest, PageInvitation, RewardFunctionParam, Signature, SiteVisit, TransactionReceipt, UnixTimestamp, UnsupportedLanguageError, URLString, Web2Credential, Web2Reward } from "@snickerdoodlelabs/objects";
+import { AESEncryptedString, BigNumberString, ChainId, DirectReward, EarnedReward, EChain, ECredentialType, EncryptedString, ERewardType, EVMAccountAddress, EVMPrivateKey, EVMTransaction, IDataWalletBackup, InitializationVector, IpfsCID, LazyReward, MetatransactionSignatureRequest, PageInvitation, RewardFunctionParam, Signature, SiteVisit, TransactionReceipt, UnixTimestamp, UnsupportedLanguageError, URLString, Web2Credential, Web2Reward } from "@snickerdoodlelabs/objects";
 import { TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
@@ -14,27 +14,27 @@ export class DataWalletProfile {
 
     private _unlocked = false;
     private _name = "default";
-    
+
     public acceptedInvitations = new Array<PageInvitation>();
-    
+
     public constructor(
         readonly core: SnickerdoodleCore,
         readonly mocks: TestHarnessMocks
-    ) {}
+    ) { }
 
     public get name(): string {
         return this._name;
     }
 
     public get unlocked(): boolean {
-        return this._unlocked; 
+        return this._unlocked;
     }
 
     public unlock() {
         this._unlocked = true;
     }
     // #region profile loading from files
-    public loadFromPath(pathInfo: {name: string, path:string}): ResultAsync<void, Error> {
+    public loadFromPath(pathInfo: { name: string, path: string }): ResultAsync<void, Error> {
 
         this._name = pathInfo.name;
 
@@ -49,7 +49,7 @@ export class DataWalletProfile {
             .andThen((content) => {
                 const accounts = JSON.parse(content);
                 const wallets = accounts.map((account) => new TestWallet(account.chainId as EChain, EVMPrivateKey(account.privateKey), this.mocks.cryptoUtils))
-                this.mocks.blockchain.updateAccounts(wallets); 
+                this.mocks.blockchain.updateAccounts(wallets);
                 console.log(`loaded accounts from ${accountPath}`)
                 return okAsync(undefined);
             })
@@ -63,14 +63,22 @@ export class DataWalletProfile {
         return ResultAsync.fromPromise(readFile(demographicPath, { encoding: 'utf8' }), (e) => e as Error)
             .andThen((content) => {
                 const demographic = JSON.parse(content);
-                this.core.setAge(demographic.age ?? null);
-                this.core.setGender(demographic.gender ?? null);
-                this.core.setLocation(demographic.location ?? null);
 
-                // TODO: add more
-                
-                console.log(`loaded demographic from ${demographicPath}`)
-                return okAsync(undefined);
+                return ResultAsync.combine(
+                    [
+                        this.core.setAge(demographic.age ?? null),
+                        this.core.setGender(demographic.gender ?? null),
+                        this.core.setLocation(demographic.location ?? null)
+                        // TODO: add more
+                    ]
+                )
+                    .andThen(() =>
+                        okAsync(console.log(`loaded demographic from ${demographicPath}`))
+                    );
+
+
+                // console.log(`loaded demographic from ${demographicPath}`)
+                // return okAsync(undefined);
             })
             .mapErr((e) => {
                 console.error(e);
@@ -81,16 +89,21 @@ export class DataWalletProfile {
 
         return ResultAsync.fromPromise(readFile(siteVisitsPath, { encoding: 'utf8' }), (e) => e as Error)
             .andThen((content) => {
+
                 const siteVisits = JSON.parse(content).map((sv) => new SiteVisit(
                     URLString(sv.url),
                     UnixTimestamp(sv.startTime),
                     UnixTimestamp(sv.endTime),
                 ));
 
-                this.core.addSiteVisits(siteVisits);
-                
-                console.log(`loaded site visits from ${siteVisitsPath}`)
-                return okAsync(undefined);
+                return this.core.addSiteVisits(siteVisits)
+                    .andThen(() =>
+                        okAsync(console.log(`loaded site visits from ${siteVisitsPath}`))
+                    );
+
+
+                // console.log(`loaded site visits from ${siteVisitsPath}`)
+                // return okAsync(undefined);
             })
             .mapErr((e) => {
                 console.error(e);
@@ -113,12 +126,15 @@ export class DataWalletProfile {
                     evmT.feesPaid ? BigNumberString(evmT.feesPaid) : null,
                     evmT.events,
                     evmT.valueQuote
-                  ));
-                
-                  this.core.addEVMTransactions(evmTransactions);
+                ));
 
-                console.log(`loaded evm transactions from ${evmTransactionsPath}`)
-                return okAsync(undefined);
+                return this.core.addEVMTransactions(evmTransactions)
+                    .andThen(() =>
+                        okAsync(console.log(`loaded evm transactions from ${evmTransactionsPath}`))
+                    );
+
+                // console.log(`loaded evm transactions from ${evmTransactionsPath}`)
+                // return okAsync(undefined);
             })
             .mapErr((e) => {
                 console.error(e);
@@ -128,9 +144,9 @@ export class DataWalletProfile {
     protected _loadEarnedRewards(earnedRewardsPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(earnedRewardsPath, { encoding: 'utf8' }), (e) => e as Error)
             .andThen((content) => {
-                const rewards = [];
+                const rewards = EarnedReward[];
                 JSON.parse(content).reduce((all, r) => {
-                    switch(r.type) {
+                    switch (r.type) {
                         case ERewardType.Direct:
                             all.push(new DirectReward(
                                 IpfsCID(r.queryCID),
@@ -160,9 +176,13 @@ export class DataWalletProfile {
                     }
                     return all;
                 }, rewards);
-                
-                console.log(`loaded earned rewards from ${earnedRewardsPath}`)
-                return okAsync(undefined);
+
+                return this.core.addEarnedRewards(rewards)
+                    .andThen(() =>
+                        okAsync(console.log(`loaded earned rewards from ${earnedRewardsPath}`))
+                    );
+                // console.log(`loaded earned rewards from ${earnedRewardsPath}`)
+                // return okAsync(undefined);
             })
             .mapErr((e) => {
                 console.error(e);
@@ -172,10 +192,25 @@ export class DataWalletProfile {
     protected _loadBackup(backupPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(backupPath, { encoding: 'utf8' }), (e) => e as Error)
             .andThen((content) => {
-                const accounts = JSON.parse(content);
-                
-                console.log(`loaded accounts from ${backupPath}`)
-                return okAsync(undefined);
+                const backupJson = JSON.parse(content);
+
+
+                const backup: IDataWalletBackup = {
+                    header: {
+                        hash: backupJson.hash,
+                        timestamp: UnixTimestamp(backupJson.timestamp),
+                        signature: backupJson.signature
+                    },
+                    blob: new AESEncryptedString(
+                        EncryptedString(backupJson.blob.data),
+                        InitializationVector(backupJson.blob.initializationVector),
+                    ),
+                };
+                return this.core
+                    .restoreBackup(backup)
+                    .andThen(() =>
+                        okAsync(console.log(`loaded backup from ${backupPath}`)),
+                    );
             })
             .mapErr((e) => {
                 console.error(e);
@@ -191,47 +226,47 @@ export class DataWalletProfile {
     ): ResultAsync<void, Error | TErr> {
         // This method needs to happen in nicer form in all form factors
         console.log(
-        `Metadata Transaction Requested!`,
-        `WARNING: This should no longer occur!`,
-        `Request account address: ${request.accountAddress}`,
+            `Metadata Transaction Requested!`,
+            `WARNING: This should no longer occur!`,
+            `Request account address: ${request.accountAddress}`,
         );
-    
+
         // We need to get a nonce for this account address from the forwarder contract
         return this.mocks.blockchain.minimalForwarder
-        .getNonce(request.accountAddress)
-        .andThen((nonce) => {
-            // We need to take the types, and send it to the account signer
-            const value = {
-            to: request.contractAddress, // Contract address for the metatransaction
-            from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
-            value: BigNumber.from(request.value), // The amount of doodle token to pay. Should be 0.
-            gas: BigNumber.from(request.gas), // The amount of gas to pay.
-            nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
-            data: request.data, // The actual bytes of the request, encoded as a hex string
-            } as IMinimalForwarderRequest;
-    
-            // Get the wallet we are going to sign with
-            const wallet = this.mocks.blockchain.getWalletForAddress(request.accountAddress);
-    
-            return wallet
-            .signMinimalForwarderRequest(value)
-            .andThen((metatransactionSignature) => {
-                console.log(
-                `Metatransaction signature generated: ${metatransactionSignature}`,
-                );
-    
-                return request.callback(metatransactionSignature, nonce);
+            .getNonce(request.accountAddress)
+            .andThen((nonce) => {
+                // We need to take the types, and send it to the account signer
+                const value = {
+                    to: request.contractAddress, // Contract address for the metatransaction
+                    from: request.accountAddress, // EOA to run the transaction as (linked account, not derived)
+                    value: BigNumber.from(request.value), // The amount of doodle token to pay. Should be 0.
+                    gas: BigNumber.from(request.gas), // The amount of gas to pay.
+                    nonce: BigNumber.from(nonce), // Nonce for the EOA, recovered from the MinimalForwarder.getNonce()
+                    data: request.data, // The actual bytes of the request, encoded as a hex string
+                } as IMinimalForwarderRequest;
+
+                // Get the wallet we are going to sign with
+                const wallet = this.mocks.blockchain.getWalletForAddress(request.accountAddress);
+
+                return wallet
+                    .signMinimalForwarderRequest(value)
+                    .andThen((metatransactionSignature) => {
+                        console.log(
+                            `Metatransaction signature generated: ${metatransactionSignature}`,
+                        );
+
+                        return request.callback(metatransactionSignature, nonce);
+                    });
             });
-        });
     }
-    
+
     public getSignatureForAccount(
         wallet: TestWallet,
-      ): ResultAsync<Signature, UnsupportedLanguageError> {
+    ): ResultAsync<Signature, UnsupportedLanguageError> {
         return this.core.getUnlockMessage(this.mocks.languageCode).andThen((message) => {
-          return wallet.signMessage(message);
+            return wallet.signMessage(message);
         });
-      }
-      
-    
+    }
+
+
 }
