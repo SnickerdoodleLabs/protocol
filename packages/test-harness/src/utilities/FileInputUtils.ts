@@ -6,6 +6,7 @@ import { DESIGN_PARAM_TYPES } from 'inversify/lib/constants/metadata_keys';
 
 export class FileInputUtils {
 
+    // TODO: use promise methods from fs https://nodejs.org/api/fs.html
     public isFile(filePath: string): boolean {
         const stat = fs.statSync(filePath);
         return stat.isFile();

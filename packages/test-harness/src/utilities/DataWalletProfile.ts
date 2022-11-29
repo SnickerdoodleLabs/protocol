@@ -8,6 +8,7 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import path from "path";
 // import fs from "fs";
 import { readFile } from "node:fs/promises";
+import { ResultUtils } from "neverthrow-result-utils";
 
 
 export class DataWalletProfile {
@@ -40,7 +41,15 @@ export class DataWalletProfile {
 
         const root = pathInfo.path;
 
-        return this._loadAccounts(path.join(root, "accounts.json"))
+        return ResultUtils.combine([
+            this._loadAccounts(path.join(root, "accounts.json")),
+            this._loadDemographic(path.join(root, "demographic.json")),
+            this._loadSiteVisits(path.join(root, "siteVisits.json")),
+            this._loadEVMTransactions(path.join(root, "evmTransactions.json")),
+            this._loadEarnedRewards(path.join(root, "earnedRewards.json")),
+            this._loadBackup(path.join(root, "backup.json"))
+        ])
+            .andThen((res) => okAsync(undefined))
 
     }
 
@@ -110,7 +119,7 @@ export class DataWalletProfile {
                 return new Error(`Unexpected IO error ${e.message}}`);
             });
     }
-    protected _loaEVMTransactions(evmTransactionsPath: string): ResultAsync<void, Error> {
+    protected _loadEVMTransactions(evmTransactionsPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(evmTransactionsPath, { encoding: 'utf8' }), (e) => e as Error)
             .andThen((content) => {
                 const evmTransactions = JSON.parse(content).map((evmT) => new EVMTransaction(
@@ -144,7 +153,7 @@ export class DataWalletProfile {
     protected _loadEarnedRewards(earnedRewardsPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(earnedRewardsPath, { encoding: 'utf8' }), (e) => e as Error)
             .andThen((content) => {
-                const rewards = EarnedReward[];
+                const rewards: EarnedReward[] = [];
                 JSON.parse(content).reduce((all, r) => {
                     switch (r.type) {
                         case ERewardType.Direct:
