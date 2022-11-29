@@ -86,10 +86,15 @@ export class CeramicCloudStorage implements ICloudStorage {
     return this._configProvider.getConfig().andThen((config) => {
       const ceramic = new CeramicClient(config.ceramicNodeURL);
       return this.waitForUnlock().andThen((privateKey) => {
+        console.log("privateKey: ", privateKey);
+
         return this._cryptoUtils
           .deriveCeramicSeedFromEVMPrivateKey(privateKey)
           .andThen((seed) => {
+            console.log("Seed: ", seed);
             return this._authenticateDID(seed).andThen((did) => {
+              console.log("did: ", did);
+
               ceramic.did = did;
               this._ceramic = ceramic;
               return okAsync(this._ceramic);

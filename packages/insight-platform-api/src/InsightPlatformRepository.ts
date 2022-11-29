@@ -46,11 +46,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public getAuthBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<GetSignedUrlResponse, AjaxError> {
-    const address = DataWalletAddress("address");
+    key: string,
+  ): ResultAsync<GetSignedUrlResponse[], AjaxError> {
+    console.log("getAuthBackups Key: ", key);
+
     const file = "string";
     const signableData = {
-      dataWallet: address,
       fileName: file,
     } as Record<string, unknown>;
 
@@ -62,13 +63,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         dataWalletKey,
       )
       .andThen((signature) => {
+        console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
         const url = new URL(
           urlJoin(insightPlatformBaseUrl, "/getAuthorizedBackups"),
         );
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<GetSignedUrlResponse>(url, {
-          dataWallet: address,
+        return this.ajaxUtils.post<GetSignedUrlResponse[]>(url, {
           fileName: file,
           signature: signature,
         });
@@ -90,6 +91,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       queryCID: queryCid,
       queries: JSON.stringify(answeredQueries),
     } as Record<string, unknown>;
+
+    console.log("Inside Receive Previews");
 
     return this.cryptoUtils
       .signTypedData(

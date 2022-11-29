@@ -4,7 +4,7 @@ import { dirname } from "path";
 import { Stream } from "stream";
 import { fileURLToPath } from "url";
 
-import { Storage } from "@google-cloud/storage";
+import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -210,18 +210,14 @@ export class InsightPlatformSimulator {
     });
 
     this.app.post("/getAuthorizedBackups", (req, res) => {
-      console.log("simulator 1: ");
-
       const signature = Signature(req.body.signature);
       console.log("simulator 2: ");
+      
 
-
+      const file = "string";
       const signingData = {
-        // data: data,
-        // dataWallet: dataWalletAddress,
-        // fileName: fileName,
+        fileName: file,
       };
-
       this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
@@ -229,13 +225,42 @@ export class InsightPlatformSimulator {
           signingData,
           signature,
         )
-        .map((verificationAddress) => {
-          console.log("simulator 3: ");
+        .map(async (verificationAddress) => {
+          console.log("Returning Storage");
+          const storage = new Storage({
+            keyFilename: "../persistence/src/credentials.json",
+            projectId: "snickerdoodle-insight-stackdev",
+          });
 
-          console.log("return val: ", verificationAddress);
-          return;
+          const readOptions: GetSignedUrlConfig = {
+            version: "v4",
+            action: "read",
+            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+          };
+          const writeOptions: GetSignedUrlConfig = {
+            version: "v4",
+            action: "write",
+            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+          };
+
+          const [readUrl] = await storage
+            .bucket("ceramic-replacement-bucket")
+            .file(
+              "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
+            )
+            .getSignedUrl(readOptions);
+
+          const [writeUrl] = await storage
+            .bucket("ceramic-replacement-bucket")
+            .file(
+              "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
+            )
+            .getSignedUrl(writeOptions);
+
+          console.log("readUrl: ", readUrl);
+          console.log("writeUrl: ", writeUrl);
+          res.send([readUrl, writeUrl]);
         });
-      res.send("Boo!");
     });
 
     this.app.post("/metatransaction", (req, res) => {

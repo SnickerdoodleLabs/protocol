@@ -24,7 +24,8 @@ export interface IInsightPlatformRepository {
   getAuthBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-  ): ResultAsync<GetSignedUrlResponse, AjaxError>;
+    key: string,
+  ): ResultAsync<GetSignedUrlResponse[], AjaxError>;
 
   receivePreviews(
     dataWalletAddress: DataWalletAddress,

@@ -9,7 +9,11 @@ import { fileURLToPath } from "url";
 import { promisify } from "util";
 
 import { Datastore, Key } from "@google-cloud/datastore";
-import { GetServiceAccountResponse, Storage } from "@google-cloud/storage";
+import {
+  GetServiceAccountResponse,
+  GetSignedUrlResponse,
+  Storage,
+} from "@google-cloud/storage";
 import {
   CryptoUtils,
   ICryptoUtilsType,
@@ -36,8 +40,15 @@ import {
   IDataWalletPersistence,
   LinkedAccount,
   URLString,
+  AjaxError,
+  DataWalletAddress,
+  EVMContractAddress,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
+import { DID } from "dids";
 import { inject, injectable } from "inversify";
+import { Ed25519Provider } from "key-did-provider-ed25519";
+import { getResolver } from "key-did-resolver";
 import { okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -48,7 +59,6 @@ import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
-import { AjaxError } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class GoogleCloudStorage implements ICloudStorage {
@@ -62,6 +72,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   private _storage?: Storage;
 
   private _restored: Set<string> = new Set();
+  private key?: EVMPrivateKey;
 
   public constructor(
     @inject(IPersistenceConfigProviderType)
@@ -80,26 +91,15 @@ export class GoogleCloudStorage implements ICloudStorage {
   public unlock(
     derivedKey: EVMPrivateKey,
   ): ResultAsync<void, AjaxError | PersistenceError> {
-    /* Commented out the call for signedURLReponse from Insight Platform 
-        -- currently buggy --
-    */
-    // return this._configProvider.getConfig().andThen((config) => {
-    // const baseURL = URLString("http://localhost:3006");
-    // return this.insightPlatformRepo
-    //   .getAuthBackups(derivedKey, baseURL)
-    //   .andThen((signedUrlResponse) => {
-    //     console.log("signedUrlResponse: ", signedUrlResponse);
-    //     return okAsync(undefined);
-    //   });
-
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._resolveUnlock!(derivedKey);
+    this.key = derivedKey;
     return okAsync(undefined);
   }
 
-  public clear(): ResultAsync<void, PersistenceError> {
-    return this._init().andThen(({ client }) => {
+  public clear(): ResultAsync<void, PersistenceError | AjaxError> {
+    return this._init().andThen(({ client, writeUrl }) => {
       return ResultAsync.fromPromise(
         client.bucket("ceramic-replacement-bucket").deleteFiles(),
         (e) =>
@@ -108,15 +108,61 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
-  private _getGoogleCloudClient(): ResultAsync<Storage, PersistenceError> {
-    if (this._storage) {
-      return okAsync(this._storage);
-    }
-    this._storage = new Storage({
-      keyFilename: "../persistence/src/credentials.json",
+  private _getSignedUrl(): ResultAsync<
+    GetSignedUrlResponse[],
+    PersistenceError | AjaxError
+  > {
+    console.log("Inside _getGoogleCloudClient");
+    console.log("Passed the storage phase!");
+
+    return ResultUtils.combine([this._configProvider.getConfig()]).andThen(
+      ([config]) => {
+        return this.waitForUnlock().andThen((privateKey) => {
+          console.log("privateKey: ", privateKey);
+          return this._cryptoUtils
+            .deriveCeramicSeedFromEVMPrivateKey(privateKey)
+            .andThen((seed) => {
+              console.log("Seed: ", seed);
+              return this._authenticateDID(seed).andThen((did) => {
+                console.log("did: ", did);
+                const baseURL = URLString("http://localhost:3006");
+                console.log("baseURL: ", baseURL);
+                if (this.key == undefined) {
+                  this.key = EVMPrivateKey("");
+                }
+                return this.insightPlatformRepo
+                  .getAuthBackups(this.key, baseURL, JSON.stringify(did))
+                  .andThen((signedUrls) => {
+                    console.log("signedUrlResponse: ", signedUrls);
+                    return okAsync(signedUrls);
+                  });
+              });
+            });
+        });
+      },
+    );
+  }
+
+  private _authenticateDID(
+    seed: Uint8Array,
+  ): ResultAsync<DID, PersistenceError> {
+    const provider = new Ed25519Provider(seed);
+    const did = new DID({ provider, resolver: getResolver() });
+    return ResultAsync.fromPromise(
+      did.authenticate(),
+      (e) => new PersistenceError("error authenticated ceramic DID", e),
+    ).andThen((_) => okAsync(did));
+  }
+
+  private _getGoogleCloudClient(): ResultAsync<
+    Storage,
+    PersistenceError | AjaxError
+  > {
+    const storage = new Storage({
+      keyFilename: "src/credentials.json",
       projectId: "snickerdoodle-insight-stackdev",
     });
-    return okAsync(this._storage);
+    return okAsync(storage);
   }
 
   protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
@@ -127,32 +173,41 @@ export class GoogleCloudStorage implements ICloudStorage {
     {
       client: Storage;
       config: IPersistenceConfig;
+      readUrl: GetSignedUrlResponse;
+      writeUrl: GetSignedUrlResponse;
     },
-    PersistenceError
+    PersistenceError | AjaxError
   > {
     return ResultUtils.combine([
       this._getGoogleCloudClient(),
       this._configProvider.getConfig(),
-    ]).andThen(([gcpClient, config]) => {
+      this._getSignedUrl(),
+    ]).andThen(([gcpClient, config, signedUrls]) => {
       return okAsync({
         client: gcpClient,
         config: config,
+        readUrl: signedUrls[0],
+        writeUrl: signedUrls[1],
       });
     });
   }
 
   public putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<CeramicStreamID, PersistenceError> {
+  ): ResultAsync<CeramicStreamID, PersistenceError | AjaxError> {
     const bucketName = "ceramic-replacement-bucket";
-    return this._init().andThen(({ client, config }) => {
+    return this._init().andThen(({ client, config, writeUrl }) => {
       const bucket = client.bucket(bucketName);
       const file = bucket.file(
         config.ceramicModelAliases.definitions.backupIndex,
       );
-      /*
-        use deriveCeramicSeedFromEVMPrivateKey to create a unique file name
-      */
+
+      console.log(
+        "config.ceramicModelAliases.definitions.backupIndex: ",
+        config.ceramicModelAliases.definitions.backupIndex,
+      );
+
+      console.log("writeurl: ", writeUrl);
       const passthroughStream = new Stream.PassThrough();
       passthroughStream.write(JSON.stringify(backup));
       passthroughStream.end();
@@ -164,10 +219,12 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
-  pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
-    // return okAsync([]);
-
+  pollBackups(): ResultAsync<
+    IDataWalletBackup[],
+    PersistenceError | AjaxError
+  > {
     return this._init().andThen(({ client, config }) => {
+      // Get a v4 signed URL for reading the file
       return ResultAsync.fromPromise(
         client.bucket("ceramic-replacement-bucket").getFiles({
           autoPaginate: true,

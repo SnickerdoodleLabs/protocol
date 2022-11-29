@@ -1,23 +1,24 @@
 import "reflect-metadata";
-// import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
+import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
 // import * as path from "path";
 import { dirname } from "path";
+// import { querystring } from "querystring";
+import { Stream } from "stream";
 import { fileURLToPath } from "url";
 
 import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
+import axios, { AxiosRequestConfig, AxiosPromise } from "axios";
+import { request, Request } from "express";
+import { fromSafePromise } from "neverthrow/dist";
+import { Curl } from "node-libcurl";
 
 import { GoogleCloudStorage } from "@persistence/cloud/GoogleCloudStorage";
 
 describe("Google Cloud Storage Tests", () => {
   test("Connect to the bucket", async () => {
-    const options: GetSignedUrlConfig = {
-      version: "v4",
-      action: "read",
-      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-      contentType: "text/plain",
-    };
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
+    console.log("__dirname: ", __dirname);
     const storage = new Storage({
       keyFilename: "src/credentials.json",
       projectId: "snickerdoodle-insight-stackdev",
@@ -32,7 +33,7 @@ describe("Google Cloud Storage Tests", () => {
       .setCorsConfiguration([
         {
           maxAgeSeconds: 3600,
-          method: ["PUT", "GET", "HEAD", "DELETE", "POST", "OPTIONS"],
+          method: ["POST"],
           origin: ["*"],
           responseHeader: [
             "Content-Type",
@@ -42,89 +43,138 @@ describe("Google Cloud Storage Tests", () => {
         },
       ]);
 
-    console.log("Cors: ", corsVals);
+    // console.log("Cors: ", corsVals);
 
+    // const [files2] = await storage
+    //   .bucket("ceramic-replacement-bucket")
+    //   .getFiles({
+    //     versions: true,
+    //   });
+
+    // // console.log("Files2: ", files2);
+    // files2.forEach((asdf) => {
+    //   // console.log(asdf.name, asdf.generation);
+    // });
+
+    // const allFiles = await storage
+    //   .bucket("ceramic-replacement-bucket")
+    //   .getFiles({
+    //     autoPaginate: true,
+    //     versions: true,
+    //     prefix:
+    //       "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
+    //   });
+
+    // const allFiles2 = await storage
+    //   .bucket("ceramic-replacement-bucket")
+    //   .getFiles({
+    //     autoPaginate: true,
+    //     versions: true,
+    //     prefix:
+    //       "ceramic-replacement-bucket/kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
+    //   })
+
+    const options: GetSignedUrlConfig = {
+      version: "v4",
+      action: "write",
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      contentType: "application/octet-stream",
+    };
+
+    const readOptions: GetSignedUrlConfig = {
+      version: "v4",
+      action: "read",
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+    };
+    const url = await storage
+      .bucket("ceramic-replacement-bucket")
+      .file("kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k")
+      .getSignedUrl(options);
+
+    console.log("url: ", url[0]);
+
+    await storage.bucket("ceramic-replacement-bucket").setCorsConfiguration([
+      {
+        maxAgeSeconds: 3600,
+        method: ["PUT", "GET", "HEAD", "DELETE", "POST", "OPTIONS"],
+        origin: ["*"],
+        responseHeader: [
+          "Content-Type",
+          "Access-Control-Allow-Origin",
+          "x-goog-resumable",
+        ],
+      },
+    ]);
+
+    const usedURL = null;
     const signedURL = await storage
       .bucket("ceramic-replacement-bucket")
-      .file("testing123.txt")
-      .getSignedUrl(options, function (err, url) {
+      .file("kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k")
+      .getSignedUrl(options, async function (err, url) {
         if (err) {
-          console.error("err");
-          console.error(err);
+          console.error("err: ", err);
         } else {
-          console.log("url");
+          console.log("url: ", url);
+          console.log("You can use this URL with any user agent, for example:");
+          console.log(
+            "curl -X PUT -H 'Content-Type: application/octet-stream' " +
+              `--upload-file my-file '${url}'`,
+          );
+          console.log("Generated PUT signed URL:");
           console.log(url);
+          const curlTest = new Curl();
+          const terminate = curlTest.close.bind(curlTest);
+
+          if (url !== undefined) {
+            curlTest.setOpt(Curl.option.URL, url);
+          }
+          curlTest.setOpt(Curl.option.POST, true);
+          curlTest.setOpt(
+            Curl.option.POSTFIELDS,
+            new URLSearchParams([
+              ["Content-Type", "application/octet-stream"],
+            ]).toString(),
+          );
+          curlTest.setOpt(Curl.option.HTTPPOST, [
+            { name: "credentials", file: "src/credentials.json" },
+          ]);
+
+          curlTest.on("end", function (statusCode, data, headers) {
+            console.info("Status code " + statusCode);
+            console.info("***");
+            console.info("Our response: " + data);
+            console.info("***");
+            console.info("Length: " + data.length);
+            console.info("***");
+            console.info("Total time taken: " + this.getInfo("TOTAL_TIME"));
+            this.close();
+          });
+
+          curlTest.on("error", terminate);
+          console.log("END ");
+          curlTest.perform();
+
+          // const passthroughStream = new Stream.PassThrough();
+          // passthroughStream.write(JSON.stringify("Andrew was here"));
+          // passthroughStream.end();
+          // passthroughStream
+          //   .pipe(url.createWriteStream())
+          //   .on("finish", () => {});
         }
-
-        console.log("Files: ", files.length);
-        console.log("signedURL: ", signedURL);
-        console.log("bucket is connected!");
       });
 
-    const [files2] = await storage
+    const file = await storage
       .bucket("ceramic-replacement-bucket")
-      .getFiles({
-        versions: true,
-      });
+      .file("kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k");
 
-    console.log("Files2: ", files2);
-    files2.forEach((asdf) => {
-      console.log(asdf.name, asdf.generation);
-    });
-
-    const allFiles = await storage
+    const ansURL = await storage
       .bucket("ceramic-replacement-bucket")
-      .getFiles({
-        autoPaginate: true,
-        versions: true,
-        prefix:
-          "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
-      });
-
-    const allFiles2 = await storage
-      .bucket("ceramic-replacement-bucket")
-      .getFiles({
-        autoPaginate: true,
-        versions: true,
-        prefix:
-          "ceramic-replacement-bucket/kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
-      });
-
-    const filesStream = await storage
-      .bucket("ceramic-replacement-bucket")
-      .getFilesStream();
-
-    const [url] = await storage
-      .bucket("")
-      .file("fileName")
+      .file("kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k")
       .getSignedUrl(options);
-    // _events: [Object: null prototype] {},
-    // _eventsCount: 0,
-    // _maxListeners: undefined,
-    // metadata: [Object],
-    // baseUrl: '/o',
-    // parent: [Bucket],
-    // id: 'kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k',
-    // createMethod: undefined,
-    // methods: [Object],
-    // interceptors: [],
-    // projectId: undefined,
-    // create: undefined,
-    // bucket: [Bucket],
-    // storage: [Storage],
-    // generation: 1669090291097922,
-    // kmsKeyName: undefined,
-    // userProject: undefined,
-    // name: 'kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k',
-    // acl: [Acl],
-    // crc32cGenerator: [Function: CRC32C_DEFAULT_VALIDATOR_GENERATOR],
-    // instanceRetryValue: true,
-    // instancePreconditionOpts: undefined,
-    // [Symbol(kCapture)]: false
 
-    console.log("allFiles: ", allFiles);
-    console.log("allFiles2: ", allFiles2);
-
-    console.log("filesStream: ", filesStream);
+    // const passthroughStream = new Stream.PassThrough();
+    // passthroughStream.write(JSON.stringify("Andrew was here"));
+    // passthroughStream.end();
+    // passthroughStream.pipe(file.createWriteStream()).on("finish", () => {});
   });
 });
