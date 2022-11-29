@@ -3,6 +3,7 @@ import {
   AESEncryptedString,
   BackupBlob,
   DataWalletAddress,
+  DataWalletBackupID,
   EVMAccountAddress,
   EVMPrivateKey,
   FieldMap,
@@ -28,6 +29,8 @@ export class BackupManager implements IBackupManager {
   private fieldHistory: Map<string, number> = new Map();
   private chunkQueue: Array<IDataWalletBackup> = [];
 
+  private restored: Set<DataWalletBackupID> = new Set();
+
   public constructor(
     protected privateKey: EVMPrivateKey,
     protected tableNames: string[],
@@ -42,6 +45,10 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
+  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
+    return okAsync(this.restored);
+  }
+
   public clear(): void {
     this.tableUpdates = {};
     this.fieldUpdates = {};
@@ -53,7 +60,17 @@ export class BackupManager implements IBackupManager {
     IDataWalletBackup | undefined,
     PersistenceError
   > {
-    return okAsync(this.chunkQueue.pop());
+    if (this.chunkQueue.length == 0) {
+      return this.dump().andThen((backup) => {
+        this.restored.add(DataWalletBackupID(backup.header.hash));
+        return okAsync(backup);
+      });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const backup = this.chunkQueue.pop()!;
+    this.restored.add(DataWalletBackupID(backup.header.hash));
+    return okAsync(backup);
   }
 
   public addRecord(
@@ -86,7 +103,7 @@ export class BackupManager implements IBackupManager {
     return this.storageUtils.write(key, value).andThen(() => this._checkSize());
   }
 
-  public dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
+  private dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
     return this._generateBlob().andThen((blob) => {
       return this._getContentHash(blob).andThen((hash) => {
         const timestamp = new Date().getTime();
@@ -151,7 +168,7 @@ export class BackupManager implements IBackupManager {
           });
         })
         .map(() => {
-          console.log(`restored backup: ${backup.header.hash}`);
+          this.restored.add(DataWalletBackupID(backup.header.hash));
         });
     });
   }

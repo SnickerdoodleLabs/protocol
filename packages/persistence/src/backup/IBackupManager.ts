@@ -1,4 +1,5 @@
 import {
+  DataWalletBackupID,
   IDataWalletBackup,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
@@ -11,9 +12,9 @@ export interface IBackupManager {
     value: object,
   ): ResultAsync<void, PersistenceError>;
   updateField(key: string, value: object): ResultAsync<void, PersistenceError>;
-  dump(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restore(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   popBackup(): ResultAsync<IDataWalletBackup | undefined, PersistenceError>;
+  getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError>;
 }
 
 export const IBackupManagerType = Symbol.for("IBackupManager");

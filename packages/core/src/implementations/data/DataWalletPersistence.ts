@@ -873,12 +873,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError> {
-    return this.backupManagerProvider
-      .getBackupManager()
-      .andThen((backupManager) => backupManager.dump());
-  }
-
   public restoreBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
@@ -896,21 +890,28 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public pollBackups(): ResultAsync<void, PersistenceError> {
-    return this.cloudStorage
-      .pollBackups()
-      .andThen((backups) => {
-        return ResultUtils.combine(
-          backups.map((backup) => {
-            return this.restoreBackup(backup);
-          }),
-        );
+    return this.backupManagerProvider
+      .getBackupManager()
+      .andThen((backupManager) => {
+        return backupManager.getRestored();
       })
-      .andThen(() => {
-        return this._placeBackups();
-      })
-      .orElse((e) => {
-        this.logUtils.error("error loading backups", e);
-        return okAsync(undefined);
+      .andThen((restored) => {
+        return this.cloudStorage
+          .pollBackups(restored)
+          .andThen((backups) => {
+            return ResultUtils.combine(
+              backups.map((backup) => {
+                return this.restoreBackup(backup);
+              }),
+            );
+          })
+          .andThen(() => {
+            return this._placeBackups();
+          })
+          .orElse((e) => {
+            this.logUtils.error("error loading backups", e);
+            return okAsync(undefined);
+          });
       });
   }
 
@@ -939,18 +940,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return okAsync(chainlist);
   }
 
-  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
-    return ResultUtils.combine([
-      this.waitForRestore(),
-      this.backupManagerProvider.getBackupManager(),
-    ]).andThen(([key, backupManager]) => {
-      return backupManager.dump().andThen((backup) => {
-        return this.cloudStorage.putBackup(backup).andThen((id) => {
-          backupManager.clear();
-          return okAsync(id);
-        });
-      });
-    });
+  public postBackup(): ResultAsync<void, PersistenceError> {
+    return this._placeBackups();
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {

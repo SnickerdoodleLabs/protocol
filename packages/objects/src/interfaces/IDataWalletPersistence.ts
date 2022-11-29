@@ -157,10 +157,9 @@ export interface IDataWalletPersistence {
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError>;
 
-  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  postBackup(): ResultAsync<void, PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 
