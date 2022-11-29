@@ -50,8 +50,10 @@ export class SolanaIndexer
     ISolanaNFTRepository,
     ISolanaTransactionRepository
 {
-  private mainnet_connection = new Connection(clusterApiUrl("mainnet-beta"));
-  private mainnet_metaplex = new Metaplex(this.mainnet_connection);
+  private _connections?: ResultAsync<
+    Map<EChain, [Connection, Metaplex]>,
+    never
+  >;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -192,14 +194,53 @@ export class SolanaIndexer
   private _getConnectionForChainId(
     chainId: ChainId,
   ): ResultAsync<[Connection, Metaplex], AccountIndexingError> {
-    switch (chainId) {
-      case ChainId(EChain.Solana):
-        return okAsync([this.mainnet_connection, this.mainnet_metaplex]);
-      default:
-        return errAsync(
-          new AccountIndexingError("invalid chain id for solana"),
-        );
+    return this._getConnections().andThen((connections) => {
+      switch (chainId) {
+        case ChainId(EChain.Solana):
+          return okAsync(connections[EChain.Solana]);
+        case ChainId(EChain.SolanaTestnet):
+          return okAsync(connections[EChain.SolanaTestnet]);
+        default:
+          return errAsync(
+            new AccountIndexingError("invalid chain id for solana"),
+          );
+      }
+    });
+  }
+
+  private _getConnections(): ResultAsync<
+    Map<EChain, [Connection, Metaplex]>,
+    never
+  > {
+    if (this._connections) {
+      return this._connections;
     }
+
+    this._connections = this.configProvider.getConfig().andThen((config) => {
+      return ResultUtils.combine([
+        this._getConnectionForEndpoint(config.alchemyEndpoints[EChain.Solana]),
+        this._getConnectionForEndpoint(
+          config.alchemyEndpoints[EChain.SolanaTestnet],
+        ),
+      ]).map(([mainnet, testnet]) => {
+        return new Map([
+          [EChain.Solana, mainnet],
+          [EChain.SolanaTestnet, testnet],
+        ]);
+      });
+    });
+
+    return this._connections;
+  }
+
+  private _getConnectionForEndpoint(
+    endpoint: string,
+  ): ResultAsync<[Connection, Metaplex], never> {
+    return this.configProvider.getConfig().map((config) => {
+      const connection = new Connection(config.alchemyEndpoints[EChain.Solana]);
+      const metaplex = new Metaplex(connection);
+      return [connection, metaplex];
+    });
   }
 }
 

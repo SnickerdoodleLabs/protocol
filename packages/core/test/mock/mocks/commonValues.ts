@@ -85,6 +85,7 @@ export const testCoreConfig = new CoreConfig(
   "etherscan api key",
   100, // etherscan tx batch size
   5000,
+  new Map(), // alchemy endpoints
 );
 
 // #endregion
