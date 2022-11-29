@@ -4,11 +4,15 @@ import { MetatransactionSignatureRequest, PageInvitation, Signature, Unsupported
 import { TestHarnessMocks } from "@test-harness/mocks";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
-import { ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import path from "path";
+// import fs from "fs";
+import { readFile } from "node:fs/promises";
 
 export class DataWalletProfile {
 
     private _unlocked = false;
+    private _name = "default";
     
     public acceptedInvitations = new Array<PageInvitation>();
     
@@ -17,6 +21,10 @@ export class DataWalletProfile {
         readonly mocks: TestHarnessMocks
     ) {}
 
+    public get name(): string {
+        return this._name;
+    }
+
     public get unlocked(): boolean {
         return this._unlocked; 
     }
@@ -24,7 +32,31 @@ export class DataWalletProfile {
     public unlock() {
         this._unlocked = true;
     }
+    // #region profile loading from files
+    public loadFromPath(pathInfo: {name: string, path:string}): ResultAsync<void, Error> {
 
+        this._name = pathInfo.name;
+
+        const root = pathInfo.path;
+
+        this._loadAccounts(path.join(root, "accounts.json"))
+
+        return okAsync(undefined)
+
+    }
+
+    protected _loadAccounts(accountPath: string): ResultAsync<void, Error> {
+        return ResultAsync.fromPromise(readFile(accountPath, { encoding: 'utf8' }), (e) => e as Error)
+            .andThen((buffer) => {
+                return okAsync(undefined);
+            })
+            .mapErr((e) => {
+                console.error(e);
+                return new Error(`Unexpected IO error ${e.message}}`);
+            });
+    }
+
+    // #endregion 
 
 
     public signMetatransactionRequest<TErr>(

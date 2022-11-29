@@ -31,8 +31,14 @@ export class Environment {
 
     }
 
-    public loadDataWalletProfile(profile: {name: string, path:string}): ResultAsync<void, Error> {
-        return okAsync(undefined)
+    public loadDataWalletProfile(pathInfo: {name: string, path:string}): ResultAsync<void, Error> {
+
+        // Questions
+        // 1. Do we need a new core?
+        // 2. Do we need a new mocks?
+        // 3. Do we need a new DataWalletProfile?
+        this.dataWalletProfile = new DataWalletProfile(this.core, this.mocks); // are we gonna destroy
+        return this.dataWalletProfile.loadFromPath(pathInfo);
     }
 
 }

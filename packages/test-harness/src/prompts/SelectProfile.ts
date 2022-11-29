@@ -22,18 +22,18 @@ export class SelectProfile extends DataWalletPrompt {
                         type: "list",
                         name: "walletProfileSelector",
                         message: "Which profile do you want to load?",
-                        choices: profiles.map((profile) => {
+                        choices: profiles.map((pathInfo) => {
                             return {
-                                name: profile.name,
-                                value: profile
+                                name: pathInfo.name,
+                                value: pathInfo
                             }
                         })
                     },
                 ])
             })
             .andThen((answers) => {
-                const profile = answers.walletProfileSelector as {name: string, path: string};
-                return this.env.loadDataWalletProfile(profile);
+                const pathInfo = answers.walletProfileSelector as {name: string, path: string};
+                return this.env.loadDataWalletProfile(pathInfo);
             })
             .map(() => {
                 console.log(`profile loaded`);
