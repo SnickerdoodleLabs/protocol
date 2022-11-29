@@ -1,6 +1,6 @@
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { EChain, EVMPrivateKey, MetatransactionSignatureRequest, PageInvitation, Signature, UnsupportedLanguageError } from "@snickerdoodlelabs/objects";
+import { BigNumberString, ChainId, DirectReward, EChain, ECredentialType, ERewardType, EVMAccountAddress, EVMPrivateKey, EVMTransaction, IpfsCID, LazyReward, MetatransactionSignatureRequest, PageInvitation, RewardFunctionParam, Signature, SiteVisit, TransactionReceipt, UnixTimestamp, UnsupportedLanguageError, URLString, Web2Credential, Web2Reward } from "@snickerdoodlelabs/objects";
 import { TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
@@ -51,6 +51,130 @@ export class DataWalletProfile {
                 const wallets = accounts.map((account) => new TestWallet(account.chainId as EChain, EVMPrivateKey(account.privateKey), this.mocks.cryptoUtils))
                 this.mocks.blockchain.updateAccounts(wallets); 
                 console.log(`loaded accounts from ${accountPath}`)
+                return okAsync(undefined);
+            })
+            .mapErr((e) => {
+                console.error(e);
+                return new Error(`Unexpected IO error ${e.message}}`);
+            });
+    }
+
+    protected _loadDemographic(demographicPath: string): ResultAsync<void, Error> {
+        return ResultAsync.fromPromise(readFile(demographicPath, { encoding: 'utf8' }), (e) => e as Error)
+            .andThen((content) => {
+                const demographic = JSON.parse(content);
+                this.core.setAge(demographic.age ?? null);
+                this.core.setGender(demographic.gender ?? null);
+                this.core.setLocation(demographic.location ?? null);
+
+                // TODO: add more
+                
+                console.log(`loaded demographic from ${demographicPath}`)
+                return okAsync(undefined);
+            })
+            .mapErr((e) => {
+                console.error(e);
+                return new Error(`Unexpected IO error ${e.message}}`);
+            });
+    }
+    protected _loadSiteVisits(siteVisitsPath: string): ResultAsync<void, Error> {
+
+        return ResultAsync.fromPromise(readFile(siteVisitsPath, { encoding: 'utf8' }), (e) => e as Error)
+            .andThen((content) => {
+                const siteVisits = JSON.parse(content).map((sv) => new SiteVisit(
+                    URLString(sv.url),
+                    UnixTimestamp(sv.startTime),
+                    UnixTimestamp(sv.endTime),
+                ));
+
+                this.core.addSiteVisits(siteVisits);
+                
+                console.log(`loaded site visits from ${siteVisitsPath}`)
+                return okAsync(undefined);
+            })
+            .mapErr((e) => {
+                console.error(e);
+                return new Error(`Unexpected IO error ${e.message}}`);
+            });
+    }
+    protected _loaEVMTransactions(evmTransactionsPath: string): ResultAsync<void, Error> {
+        return ResultAsync.fromPromise(readFile(evmTransactionsPath, { encoding: 'utf8' }), (e) => e as Error)
+            .andThen((content) => {
+                const evmTransactions = JSON.parse(content).map((evmT) => new EVMTransaction(
+                    ChainId(evmT.chainId),
+                    evmT.hash,
+                    evmT.timestamp,
+                    evmT.blockHeight,
+                    EVMAccountAddress(evmT.to),
+                    EVMAccountAddress(evmT.from),
+                    evmT.value ? BigNumberString(evmT.value) : null,
+                    evmT.gasPrice ? BigNumberString(evmT.gasPrice) : null,
+                    evmT.gasOffered ? BigNumberString(evmT.gasOffered) : null,
+                    evmT.feesPaid ? BigNumberString(evmT.feesPaid) : null,
+                    evmT.events,
+                    evmT.valueQuote
+                  ));
+                
+                  this.core.addEVMTransactions(evmTransactions);
+
+                console.log(`loaded evm transactions from ${evmTransactionsPath}`)
+                return okAsync(undefined);
+            })
+            .mapErr((e) => {
+                console.error(e);
+                return new Error(`Unexpected IO error ${e.message}}`);
+            });
+    }
+    protected _loadEarnedRewards(earnedRewardsPath: string): ResultAsync<void, Error> {
+        return ResultAsync.fromPromise(readFile(earnedRewardsPath, { encoding: 'utf8' }), (e) => e as Error)
+            .andThen((content) => {
+                const rewards = [];
+                JSON.parse(content).reduce((all, r) => {
+                    switch(r.type) {
+                        case ERewardType.Direct:
+                            all.push(new DirectReward(
+                                IpfsCID(r.queryCID),
+                                ChainId(r.chainId),
+                                EVMAccountAddress(r.eoa),
+                                TransactionReceipt(r.transactionReceipt)
+                            ));
+                            break
+                        case ERewardType.Lazy:
+                            all.push(new LazyReward(
+                                IpfsCID(r.queryCID),
+                                ChainId(r.chainId),
+                                EVMAccountAddress(r.eoa),
+                                r.functionName,
+                                r.functionParams as RewardFunctionParam[]
+                            ));
+                            break
+                        case ERewardType.Web2:
+                            all.push(new Web2Reward(
+                                IpfsCID(r.queryCID),
+                                URLString(r.url),
+                                r.credentialType as ECredentialType,
+                                Web2Credential(r.credential),
+                                r.instructions
+
+                            ));
+                    }
+                    return all;
+                }, rewards);
+                
+                console.log(`loaded earned rewards from ${earnedRewardsPath}`)
+                return okAsync(undefined);
+            })
+            .mapErr((e) => {
+                console.error(e);
+                return new Error(`Unexpected IO error ${e.message}}`);
+            });
+    }
+    protected _loadBackup(backupPath: string): ResultAsync<void, Error> {
+        return ResultAsync.fromPromise(readFile(backupPath, { encoding: 'utf8' }), (e) => e as Error)
+            .andThen((content) => {
+                const accounts = JSON.parse(content);
+                
+                console.log(`loaded accounts from ${backupPath}`)
                 return okAsync(undefined);
             })
             .mapErr((e) => {

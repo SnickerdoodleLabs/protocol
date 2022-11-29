@@ -20,7 +20,7 @@
         "queryCID": "someCID",
         "type": "Web2",
         "url": "hello.com",
-        "credentialType": "credentialType",
+        "credentialType": "UsernamePassword",
         "credential": "credential",
         "instructions": "at your own fisk"
     }
