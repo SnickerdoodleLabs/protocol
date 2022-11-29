@@ -1,4 +1,4 @@
-import { BusinessProfile, DataWalletProfile } from "@test-harness/utilities";
+import { BusinessProfile, DataWalletProfile } from "@test-harness/utilities/index.js";
 import { TestHarnessMocks } from "@test-harness/mocks/TestHarnessMocks.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
 import { ISnickerdoodleCore } from "@snickerdoodlelabs/objects";

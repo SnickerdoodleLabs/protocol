@@ -1,7 +1,7 @@
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
 import { EChain, EVMPrivateKey, MetatransactionSignatureRequest, PageInvitation, Signature, UnsupportedLanguageError } from "@snickerdoodlelabs/objects";
-import { TestHarnessMocks } from "@test-harness/mocks";
+import { TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -40,9 +40,7 @@ export class DataWalletProfile {
 
         const root = pathInfo.path;
 
-        this._loadAccounts(path.join(root, "accounts.json"))
-
-        return okAsync(undefined)
+        return this._loadAccounts(path.join(root, "accounts.json"))
 
     }
 
