@@ -35,7 +35,7 @@ import {
   PublicKey,
 } from "@solana/web3.js";
 import { inject } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
@@ -123,20 +123,20 @@ export class SolanaIndexer
             conn.getBalance(new PublicKey(accountAddress)),
             (e) => new AccountIndexingError("error getting native balance"),
           )
-            .andThen((nativeBalance) => {
-              return okAsync(
-                new TokenBalance(
-                  EChainTechnology.Solana,
-                  TickerSymbol("SOL"),
-                  chainId,
-                  null,
-                  accountAddress,
-                  BigNumberString(nativeBalance.toString()),
-                  BigNumberString("0"),
-                ),
-              );
+            .orElse((e) => {
+              this.logUtils.error("error fetching solana native balance", e);
+              return okAsync(0);
             })
-            .map((nativeBalance) => {
+            .map((nativeBalanceValue) => {
+              const nativeBalance = new TokenBalance(
+                EChainTechnology.Solana,
+                TickerSymbol("SOL"),
+                chainId,
+                null,
+                accountAddress,
+                BigNumberString(nativeBalanceValue.toString()),
+                BigNumberString("0"),
+              );
               return [nativeBalance, ...balances];
             });
         });
@@ -155,6 +155,10 @@ export class SolanaIndexer
             .findAllByOwner({ owner: new PublicKey(accountAddress) }),
           (e) => new AccountIndexingError("error finding sol nfts", e),
         );
+      })
+      .orElse((e) => {
+        this.logUtils.error("error fetching solana nfts", e);
+        return okAsync([]);
       })
       .map((nfts) => {
         return nfts.map((nft) => {
