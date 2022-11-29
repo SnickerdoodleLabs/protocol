@@ -122,23 +122,18 @@ export class SolanaIndexer
           return ResultAsync.fromPromise(
             conn.getBalance(new PublicKey(accountAddress)),
             (e) => new AccountIndexingError("error getting native balance"),
-          )
-            .orElse((e) => {
-              this.logUtils.error("error fetching solana native balance", e);
-              return okAsync(0);
-            })
-            .map((nativeBalanceValue) => {
-              const nativeBalance = new TokenBalance(
-                EChainTechnology.Solana,
-                TickerSymbol("SOL"),
-                chainId,
-                null,
-                accountAddress,
-                BigNumberString(nativeBalanceValue.toString()),
-                BigNumberString("0"),
-              );
-              return [nativeBalance, ...balances];
-            });
+          ).map((nativeBalanceValue) => {
+            const nativeBalance = new TokenBalance(
+              EChainTechnology.Solana,
+              TickerSymbol("SOL"),
+              chainId,
+              null,
+              accountAddress,
+              BigNumberString(nativeBalanceValue.toString()),
+              BigNumberString("0"),
+            );
+            return [nativeBalance, ...balances];
+          });
         });
       });
   }
