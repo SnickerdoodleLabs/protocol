@@ -15,3 +15,14 @@ export const tokenInfoObj: ITokenInfo = {
   MATIC: { displayName: "MATIC", iconSrc: polygonCircle },
   SOL: { displayName: "Sol", iconSrc: solanaCircle },
 };
+
+export const stableCoins = [
+  "USDC",
+  "USDT",
+  "BUSD",
+  "DAI",
+  "USDP",
+  "TUSD",
+  "USDD",
+  "EURS",
+];

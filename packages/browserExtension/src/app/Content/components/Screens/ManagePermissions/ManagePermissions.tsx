@@ -126,7 +126,7 @@ const ManagePermissions: FC<IManagePermissionsProps> = ({
                     onSaveClick(permissionForm);
                   }}
                 >
-                  Save Changes
+                  Save & Claim Reward
                 </Button>
               </Box>
             </Box>

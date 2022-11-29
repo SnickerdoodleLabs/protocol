@@ -57,9 +57,7 @@ export interface IAppContext {
   providerList: IProvider[];
   getUserAccounts(): ResultAsync<void, unknown>;
   addAccount(account: ILinkedAccount): void;
-  changeStepperStatus: (status: string) => void;
   appMode: EAppModes | undefined;
-  stepperStatus: number;
   invitationInfo: IInvitationInfo;
 }
 
@@ -70,9 +68,6 @@ const AppContext = createContext<IAppContext>({} as IAppContext);
 export const AppContextProvider: FC = ({ children }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [providerList, setProviderList] = useState<IProvider[]>([]);
-  const [stepperStatus, setStepperStatus] = useState(
-    parseInt(sessionStorage.getItem("onboardingCurrentScreenIndex") ?? "0"),
-  );
   const [linkedAccounts, setLinkedAccounts] = useState<ILinkedAccount[]>([]);
   const [isSDLDataWalletDetected, setSDLDataWalletDetected] =
     useState<boolean>(false);
@@ -229,23 +224,6 @@ export const AppContextProvider: FC = ({ children }) => {
     setLinkedAccounts((prev) => [...prev, account]);
   };
 
-  // TODO Change Stepper System
-  const changeStepperStatus = (status) => {
-    if (status === "next") {
-      sessionStorage.setItem(
-        "onboardingCurrentScreenIndex",
-        `${stepperStatus + 1}`,
-      );
-      setStepperStatus(stepperStatus + 1);
-    } else {
-      sessionStorage.setItem(
-        "onboardingCurrentScreenIndex",
-        `${stepperStatus - 1}`,
-      );
-      setStepperStatus(stepperStatus - 1);
-    }
-  };
-
   return (
     <AppContext.Provider
       value={{
@@ -257,8 +235,6 @@ export const AppContextProvider: FC = ({ children }) => {
         getUserAccounts,
         appMode,
         addAccount,
-        stepperStatus,
-        changeStepperStatus,
         invitationInfo,
       }}
     >

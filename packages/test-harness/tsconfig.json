@@ -8,6 +8,9 @@
       "@test-harness/*": [
         "./packages/test-harness/src/*"
       ],
+      "@test-harness-test/*": [
+        "./packages/test-harness/test/*"
+      ],
     }
   },
   "include": [
@@ -29,8 +32,5 @@
     {
       "path": "../persistence"
     }
-  ],
-  "ts-node": {
-    "require": ["tsconfig-paths/register"]
-  }
+  ]
 }
