@@ -71,6 +71,10 @@ export class BlockchainStuff {
     );
   }
 
+  public updateAccounts(newWallets: TestWallet[]) {
+    this.accountWallets = newWallets
+  }
+
   public getWalletForAddress(accountAddress: AccountAddress): TestWallet {
     const wallet = this.accountWallets.find((wal) => {
       return wal.accountAddress == accountAddress;

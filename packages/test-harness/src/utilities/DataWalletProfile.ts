@@ -1,6 +1,6 @@
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { MetatransactionSignatureRequest, PageInvitation, Signature, UnsupportedLanguageError } from "@snickerdoodlelabs/objects";
+import { EChain, EVMPrivateKey, MetatransactionSignatureRequest, PageInvitation, Signature, UnsupportedLanguageError } from "@snickerdoodlelabs/objects";
 import { TestHarnessMocks } from "@test-harness/mocks";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
@@ -8,6 +8,7 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import path from "path";
 // import fs from "fs";
 import { readFile } from "node:fs/promises";
+
 
 export class DataWalletProfile {
 
@@ -47,7 +48,11 @@ export class DataWalletProfile {
 
     protected _loadAccounts(accountPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(accountPath, { encoding: 'utf8' }), (e) => e as Error)
-            .andThen((buffer) => {
+            .andThen((content) => {
+                const accounts = JSON.parse(content);
+                const wallets = accounts.map((account) => new TestWallet(account.chainId as EChain, EVMPrivateKey(account.privateKey), this.mocks.cryptoUtils))
+                this.mocks.blockchain.updateAccounts(wallets); 
+                console.log(`loaded accounts from ${accountPath}`)
                 return okAsync(undefined);
             })
             .mapErr((e) => {
