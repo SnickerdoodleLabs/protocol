@@ -18,16 +18,6 @@ export class TestHarnessMocks {
     public fakeDBVolatileStorage = new FakeDBVolatileStorage();
 
 
-    // https://github.com/SBoudrias/Inquirer.js
-    public core = new SnickerdoodleCore(
-        {
-            defaultInsightPlatformBaseUrl: "http://localhost:3006",
-            dnsServerAddress: "http://localhost:3006/dns",
-        } as IConfigOverrides,
-        undefined,
-        this.fakeDBVolatileStorage,
-    );
-
     public devAccountKeys = [
         new TestWallet(
             EChain.LocalDoodle,

@@ -1,3 +1,4 @@
+import inquirer from "inquirer";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { AESEncryptedString, Age, BigNumberString, ChainId, CountryCode, EarnedReward, EncryptedString, ERewardType, EVMAccountAddress, EVMTransaction, Gender, IDataWalletBackup, InitializationVector, IpfsCID, SiteVisit, UnixTimestamp, URLString } from "@snickerdoodlelabs/objects";
@@ -9,8 +10,8 @@ import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
+import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
-import inquirer from "inquirer";
 
 export class CorePrompt extends Prompt {
 
@@ -20,6 +21,8 @@ export class CorePrompt extends Prompt {
     private removeAccount: RemoveAccount;
     private optInCampaign: OptInCampaign;
     private optOutCampaign: OptOutCampaign;
+
+    private selectProfile: SelectProfile;
     
     public constructor(
         public env: Environment,
@@ -32,11 +35,15 @@ export class CorePrompt extends Prompt {
         this.removeAccount = new RemoveAccount(this.env);
         this.optInCampaign = new OptInCampaign(this.env);
         this.optOutCampaign = new OptOutCampaign(this.env);
+        this.selectProfile = new SelectProfile(this.env);
+
 
     }
 
     public start(): ResultAsync<void, Error> {
         let choices = [
+          { name: "Select Profile", value: "selectProfile" },
+          new inquirer.Separator(),
           { name: "Add Account", value: "addAccount" },
           { name: "Remove Account", value: "removeAccount" },
           { name: "Check Account", value: "checkAccount" },
@@ -118,8 +125,12 @@ export class CorePrompt extends Prompt {
             case "unlock":
                 // return this.unlockCore.start();
                 return this.unlockCore.start();
+            case "selectProfile":
+              return this.selectProfile.start();
+              
             case "addAccount":
               return this.addAccount.start();
+
             case "checkAccount":
               return this.checkAccount.start();
             case "removeAccount":

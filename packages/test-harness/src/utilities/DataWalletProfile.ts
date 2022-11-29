@@ -25,6 +25,8 @@ export class DataWalletProfile {
         this._unlocked = true;
     }
 
+
+
     public signMetatransactionRequest<TErr>(
         request: MetatransactionSignatureRequest<TErr>,
     ): ResultAsync<void, Error | TErr> {
