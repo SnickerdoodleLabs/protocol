@@ -1,3 +1,4 @@
+import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -97,12 +98,21 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepo: ITokenPriceRepository,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
     });
     this.restorePromise = new Promise<void>((resolve) => {
       this.resolveRestore = resolve;
+    });
+
+    this.contextProvider.getContext().andThen((context) => {
+      context.publicEvents.onAccountAdded.subscribe((account) => {
+        this._nfts = undefined;
+        this._balances = undefined;
+      });
+      return okAsync(undefined);
     });
   }
 
