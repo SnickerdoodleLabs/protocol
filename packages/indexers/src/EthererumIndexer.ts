@@ -101,9 +101,10 @@ export class EthereumIndexer
         .get<IEtherscanTokenBalanceResponse>(url)
         .andThen((response) => {
           if (response.status != "1") {
-            this.logUtils.error(
+            this.logUtils.warning(
               "error fetching erc20 balances from etherscan",
               response.message,
+              "usually indicates that the address has no tokens",
             );
             return okAsync([]);
           }
@@ -126,8 +127,8 @@ export class EthereumIndexer
                       accountAddress,
                       BigNumberString(
                         ethers.utils.formatUnits(
-                          BigNumber.from(item.TokenQuantity),
-                          BigNumber.from(item.TokenDivisor),
+                          item.TokenQuantity,
+                          item.TokenDivisor,
                         ),
                       ),
                       BigNumberString("0"),
