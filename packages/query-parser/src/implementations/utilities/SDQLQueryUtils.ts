@@ -14,6 +14,7 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
 import {
   AST_Compensation,
   AST_Expr,
@@ -25,7 +26,6 @@ import {
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
 } from "@query-parser/interfaces/index.js";
-import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
 
 @injectable()
 export class SDQLQueryUtils {
@@ -89,7 +89,9 @@ export class SDQLQueryUtils {
       });
   }
 
-  protected extractCompensationIdFromAst(ast: AST_Expr | Command): CompensationId {
+  protected extractCompensationIdFromAst(
+    ast: AST_Expr | Command,
+  ): CompensationId {
     // console.log("extractCompensationIdFromAst: ast", ast);
     const compensationAst = this.getCompensationAstFromAst(ast);
     return CompensationId(compensationAst.name as string);
@@ -109,7 +111,9 @@ export class SDQLQueryUtils {
     return comIds;
   }
 
-  protected getCompensationAstFromAst(ast: AST_Expr | Command): AST_Compensation {
+  protected getCompensationAstFromAst(
+    ast: AST_Expr | Command,
+  ): AST_Compensation {
     switch (ast.constructor) {
       case Command_IF:
         return this.getCompensationAstFromAst((ast as Command_IF).trueExpr);
@@ -125,68 +129,74 @@ export class SDQLQueryUtils {
         );
     }
   }
-  
 
-  public getPermittedQueryIdsFromSchemaString(schemaString: SDQLString, givenPermissions: DataPermissions): ResultAsync<string[], 
-  | ParserError
-  | DuplicateIdInSchema
-  | QueryFormatError
-  | MissingTokenConstructorError
-  | QueryExpiredError
+  public getPermittedQueryIdsFromSchemaString(
+    schemaString: SDQLString,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<
+    string[],
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
   > {
-
-      return this.parserFactory.makeParser(IpfsCID(""), schemaString)
-          .andThen((parser) => {
-              return parser.buildAST()
-                  .andThen(() => {
-                      return this.getPermittedQueryIds(parser, givenPermissions);
-                  })
-          });
+    return this.parserFactory
+      .makeParser(IpfsCID(""), schemaString)
+      .andThen((parser) => {
+        return parser.buildAST().andThen(() => {
+          return this.getPermittedQueryIds(parser, givenPermissions);
+        });
+      });
   }
 
-  public getPermittedQueryIds(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<string[], 
-  | ParserError
-  | DuplicateIdInSchema
-  | QueryFormatError
-  | MissingTokenConstructorError
-  | QueryExpiredError
+  public getPermittedQueryIds(
+    parser: SDQLParser,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<
+    string[],
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
   > {
-
-      // for each query, check if permission is given
-      const checks = this.getQueryPermissionChecks(parser, givenPermissions);
-      return ResultUtils.combine(checks)
-          .andThen((resultIds) => {
-              return okAsync(
-                  resultIds.reduce<string[]>((acc, next)=>{
-                      if (next != null) {
-                          acc.push(next);
-                      }
-                      return acc;
-                  }, [])
-              );
-          })
-      
+    // for each query, check if permission is given
+    const checks = this.getQueryPermissionChecks(parser, givenPermissions);
+    return ResultUtils.combine(checks).andThen((resultIds) => {
+      return okAsync(
+        resultIds.reduce<string[]>((acc, next) => {
+          if (next != null) {
+            acc.push(next);
+          }
+          return acc;
+        }, []),
+      );
+    });
   }
 
-  protected getQueryPermissionChecks(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> []{
-      /// returns an array of check results where each check resolves to a queryId if permmission is given or null otherwise.
-      const checks: ResultAsync<SDQL_Name | null, never> [] = [];
-      for (const [queryId, query] of parser.queries) {
-          checks.push(this.queryIdIfPermitted(parser, query, givenPermissions));
-      }
+  protected getQueryPermissionChecks(
+    parser: SDQLParser,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<SDQL_Name | null, never>[] {
+    /// returns an array of check results where each check resolves to a queryId if permmission is given or null otherwise.
+    const checks: ResultAsync<SDQL_Name | null, never>[] = [];
+    for (const [queryId, query] of parser.queries) {
+      checks.push(this.queryIdIfPermitted(parser, query, givenPermissions));
+    }
 
-      return checks;
-
-  }
-  
-  protected queryIdIfPermitted(parser: SDQLParser, query:AST_Query, givenPermissions: DataPermissions): ResultAsync<SDQL_Name | null, never> {
-
-      const flag = parser.getQueryPermissionFlag(query);
-      if (givenPermissions.getFlag(flag)) {
-          return okAsync(query.name);
-      }
-      return okAsync(null);
+    return checks;
   }
 
-    
+  protected queryIdIfPermitted(
+    parser: SDQLParser,
+    query: AST_Query,
+    givenPermissions: DataPermissions,
+  ): ResultAsync<SDQL_Name | null, never> {
+    const flag = parser.getQueryPermissionFlag(query);
+    if (givenPermissions.getFlag(flag)) {
+      return okAsync(query.name);
+    }
+    return okAsync(null);
+  }
 }

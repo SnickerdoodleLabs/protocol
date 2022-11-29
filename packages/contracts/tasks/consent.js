@@ -1,4 +1,5 @@
 const { task } = require("hardhat/config.js");
+
 const {
   logTXDetails,
   consentBeacon,
@@ -130,8 +131,11 @@ task(
       });
   });
 
-  task("setMaxCapacity", "Set the enrollement capacity of the consent contracts.")
-  .addParam("capacity", "Integer value for the maximum number of consent tokens to be issued.")
+task("setMaxCapacity", "Set the enrollement capacity of the consent contracts.")
+  .addParam(
+    "capacity",
+    "Integer value for the maximum number of consent tokens to be issued.",
+  )
   .addParam("contractaddress", "address of the consent contract")
   .addParam(
     "accountnumber",
@@ -151,13 +155,14 @@ task(
       account,
     );
 
-    await consentContractHandle.updateMaxCapacity(capacity)
-    .then((txresponse) => {
-      return txresponse.wait();
-    })
-    .then((txrct) => {
-      logTXDetails(txrct);
-    });
+    await consentContractHandle
+      .updateMaxCapacity(capacity)
+      .then((txresponse) => {
+        return txresponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 task("checkBalanceOf", "Check balance of an address given a ERC721 address")
@@ -198,7 +203,7 @@ task("getBaseURI", "Check the baseURI parameter of a consent contract")
     });
   });
 
-  task("getMaxCapacity", "Check the maxCapacity parameter of a consent contract")
+task("getMaxCapacity", "Check the maxCapacity parameter of a consent contract")
   .addParam("contractaddress", "address of the consent contract")
   .setAction(async (taskArgs) => {
     const contractaddress = taskArgs.contractaddress;
@@ -213,6 +218,24 @@ task("getBaseURI", "Check the baseURI parameter of a consent contract")
 
     await consentContractHandle.maxCapacity().then((maxCapacity) => {
       console.log("Max Capcity is:", maxCapacity.toString());
+    });
+  });
+
+task("getOpenOptInDisabled", "Returns the status of the openOptInDisabled flag")
+  .addParam("contractaddress", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider,
+    );
+
+    await consentContractHandle.openOptInDisabled().then((optInStatus) => {
+      console.log("openOptInDisabled:", optInStatus);
     });
   });
 

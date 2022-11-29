@@ -4,7 +4,7 @@ export const insightPreviewTypes: Record<string, TypedDataField[]> = {
   InsightPreview: [
     { name: "consentContractId", type: "address" },
     { name: "queryCID", type: "string" },
-    { name: "dataWallet", type: "address" },
+    { name: "tokenId", type: "uint256" },
     { name: "queries", type: "string" },
   ],
 };

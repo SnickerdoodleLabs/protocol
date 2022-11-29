@@ -1,3 +1,4 @@
+import AccountLinkingIndicator from "@extension-onboarding/components/loadingIndicators/AccountLinking";
 import { EModalSelectors } from "@extension-onboarding/components/Modals/";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { useAppContext } from "@extension-onboarding/context/App";
@@ -96,14 +97,20 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                       console.log(
                         "No existing linked accounts, calling sdlDataWallet.unlock()",
                       );
-                      setLoadingStatus(true);
+                      setLoadingStatus(true, {
+                        type: ELoadingIndicatorType.COMPONENT,
+                        component: <AccountLinkingIndicator />,
+                      });
                       return window.sdlDataWallet
                         .unlock(account, signature, getChain(providerObj.key))
                         .mapErr((e) => {
                           setLoadingStatus(false);
                         });
                     }
-                    setLoadingStatus(true);
+                    setLoadingStatus(true, {
+                      type: ELoadingIndicatorType.COMPONENT,
+                      component: <AccountLinkingIndicator />,
+                    });
                     return window.sdlDataWallet
                       .addAccount(account, signature, getChain(providerObj.key))
                       .mapErr((e) => {

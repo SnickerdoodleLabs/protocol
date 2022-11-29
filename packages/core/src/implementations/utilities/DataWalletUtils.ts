@@ -14,6 +14,8 @@ import {
   ChainId,
   EChainTechnology,
   SolanaAccountAddress,
+  EVMAccountAddress,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { base58 } from "ethers/lib/utils.js";
@@ -97,6 +99,34 @@ export class DataWalletUtils implements IDataWalletUtils {
 
     // No match for the chain technology!
     throw new Error(`Unknown chainTechnology ${chainInfo.chainTechnology}`);
+  }
+
+  public deriveOptInPrivateKey(
+    consentContractAddress: EVMContractAddress,
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<EVMPrivateKey, never> {
+    return this.cryptoUtils
+      .signMessage(consentContractAddress, dataWalletKey)
+      .andThen((signature) => {
+        return this.cryptoUtils.deriveEVMPrivateKeyFromSignature(
+          signature,
+          HexString(consentContractAddress),
+        );
+      });
+  }
+
+  public deriveOptInAccountAddress(
+    consentContractAddress: EVMContractAddress,
+    dataWalletKey: EVMPrivateKey,
+  ): ResultAsync<EVMAccountAddress, never> {
+    return this.deriveOptInPrivateKey(
+      consentContractAddress,
+      dataWalletKey,
+    ).map((newPrivateKey) => {
+      return this.cryptoUtils.getEthereumAccountAddressFromPrivateKey(
+        newPrivateKey,
+      );
+    });
   }
 
   protected accountAddressToHex(accountAddress: AccountAddress): HexString {

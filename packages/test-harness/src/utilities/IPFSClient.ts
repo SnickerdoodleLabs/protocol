@@ -1,7 +1,6 @@
 import { IpfsCID } from "@snickerdoodlelabs/objects";
 import { IPFSHTTPClient, create } from "ipfs-http-client";
 import { ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 export class IPFSClient {
   protected ipfsClient: IPFSHTTPClient;
