@@ -107,8 +107,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.resolveRestore = resolve;
     });
 
+    // reset portfolio cache on account addition and removal
     this.contextProvider.getContext().andThen((context) => {
       context.publicEvents.onAccountAdded.subscribe((account) => {
+        this._nfts = undefined;
+        this._balances = undefined;
+      });
+      context.publicEvents.onAccountRemoved.subscribe((account) => {
         this._nfts = undefined;
         this._balances = undefined;
       });
