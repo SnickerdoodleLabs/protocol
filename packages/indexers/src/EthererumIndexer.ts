@@ -161,9 +161,7 @@ export class EthereumIndexer
                 chainId,
                 null,
                 accountAddress,
-                BigNumberString(
-                  ethers.utils.formatEther(BigNumber.from(response.result)),
-                ),
+                BigNumberString(ethers.utils.formatEther(response.result)),
                 BigNumberString("0"),
               );
               return [nativeBalance, ...balances];
