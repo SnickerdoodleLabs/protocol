@@ -367,7 +367,7 @@ function corePrompt(): ResultAsync<void, Error> {
       case "getBalances":
         return core.getAccountBalances().map(console.log);
       case "getTransactionMap":
-        return core.getTransactionMap().map(console.log);
+        return core.getTransactions().map(console.log);
       case "getSiteVisitMap":
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
