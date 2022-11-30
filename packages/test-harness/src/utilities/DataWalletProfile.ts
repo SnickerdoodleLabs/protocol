@@ -4,7 +4,7 @@ import { AESEncryptedString, BigNumberString, ChainId, DirectReward, EarnedRewar
 import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
-import { okAsync, ResultAsync } from "neverthrow";
+import { err, okAsync, ResultAsync } from "neverthrow";
 import path from "path";
 // import fs from "fs";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -162,6 +162,8 @@ export class DataWalletProfile {
 
         const root = pathInfo.path;
 
+        // this will leak memory as previous core will be populated with data if not unlocked before switching profiles.
+        
         return ResultUtils.combine([
             this._loadAccounts(path.join(root, "accounts.json")),
             this._loadDemographic(path.join(root, "demographic.json")),
@@ -178,6 +180,18 @@ export class DataWalletProfile {
 
     }
 
+    protected _loadOnError(e: Error, resourcePath: string): Error {
+
+        if (e.message.includes("ENOENT")) {
+            console.warn(`Could not load ${resourcePath}. Ignoring`)
+            return new Error(`Unexpected IO error ${e.message}}`);
+        } else {
+            console.error(e.message);
+            return e;
+        }
+
+    }
+
     protected _loadAccounts(accountPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(accountPath, { encoding: 'utf8' }), (e) => e as Error)
             .andThen((content) => {
@@ -187,10 +201,7 @@ export class DataWalletProfile {
                 console.log(`loaded accounts from ${accountPath}`)
                 return okAsync(undefined);
             })
-            .mapErr((e) => {
-                console.error(e);
-                return new Error(`Unexpected IO error ${e.message}}`);
-            });
+            .mapErr((e) => this._loadOnError(e, accountPath));
     }
 
     protected _loadDemographic(demographicPath: string): ResultAsync<void, Error> {
@@ -210,14 +221,8 @@ export class DataWalletProfile {
                         okAsync(console.log(`loaded demographic from ${demographicPath}`))
                     );
 
-
-                // console.log(`loaded demographic from ${demographicPath}`)
-                // return okAsync(undefined);
             })
-            .mapErr((e) => {
-                console.error(e);
-                return new Error(`Unexpected IO error ${e.message}}`);
-            });
+            .mapErr((e) => this._loadOnError(e, demographicPath));
     }
     protected _loadSiteVisits(siteVisitsPath: string): ResultAsync<void, Error> {
 
@@ -235,14 +240,8 @@ export class DataWalletProfile {
                         okAsync(console.log(`loaded site visits from ${siteVisitsPath}`))
                     );
 
-
-                // console.log(`loaded site visits from ${siteVisitsPath}`)
-                // return okAsync(undefined);
             })
-            .mapErr((e) => {
-                console.error(e);
-                return new Error(`Unexpected IO error ${e.message}}`);
-            });
+            .mapErr((e) => this._loadOnError(e, siteVisitsPath));
     }
     protected _loadEVMTransactions(evmTransactionsPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(evmTransactionsPath, { encoding: 'utf8' }), (e) => e as Error)
@@ -266,14 +265,8 @@ export class DataWalletProfile {
                     .andThen(() =>
                         okAsync(console.log(`loaded evm transactions from ${evmTransactionsPath}`))
                     );
-
-                // console.log(`loaded evm transactions from ${evmTransactionsPath}`)
-                // return okAsync(undefined);
             })
-            .mapErr((e) => {
-                console.error(e);
-                return new Error(`Unexpected IO error ${e.message}}`);
-            });
+            .mapErr((e) => this._loadOnError(e, evmTransactionsPath));
     }
     protected _loadEarnedRewards(earnedRewardsPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(earnedRewardsPath, { encoding: 'utf8' }), (e) => e as Error)
@@ -314,13 +307,8 @@ export class DataWalletProfile {
                     .andThen(() =>
                         okAsync(console.log(`loaded earned rewards from ${earnedRewardsPath}`))
                     );
-                // console.log(`loaded earned rewards from ${earnedRewardsPath}`)
-                // return okAsync(undefined);
             })
-            .mapErr((e) => {
-                console.error(e);
-                return new Error(`Unexpected IO error ${e.message}}`);
-            });
+            .mapErr((e) => this._loadOnError(e, earnedRewardsPath));
     }
     protected _loadBackup(backupPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(backupPath, { encoding: 'utf8' }), (e) => e as Error)
@@ -345,10 +333,7 @@ export class DataWalletProfile {
                         okAsync(console.log(`loaded backup from ${backupPath}`)),
                     );
             })
-            .mapErr((e) => {
-                console.error(e);
-                return new Error(`Unexpected IO error ${e.message}}`);
-            });
+            .mapErr((e) => this._loadOnError(e, backupPath));
     }
 
     // #endregion 
