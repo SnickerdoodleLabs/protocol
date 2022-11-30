@@ -14,7 +14,6 @@ import {
   EVMContractAddress,
   HexString32,
   InvalidParametersError,
-  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { EventFilter, Event, BigNumber } from "ethers";
 import { ResultAsync } from "neverthrow";

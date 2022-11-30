@@ -265,6 +265,9 @@ export class AST_Evaluator {
     // return okAsync(SDQL_Return(new ExpectedReward(eef.description, URLString(eef.callback), eef.type)));
   }
 
+  // TODO better name
+  // This is not returning a value that other expressions can use. 
+  // use the method from query-parser instead
   public evalQueryExpr(eef: any): ResultAsync<SDQL_Return, EvaluationError> {
     if (TypeChecker.isIfCommand(eef)) {
       return this.evalCompCondition(eef.conditionExpr).andThen(
