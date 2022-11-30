@@ -94,6 +94,7 @@ export class CorePrompt extends DataWalletPrompt {
         ];
 
         let choices = [
+          { name: "NOOP", value: "NOOP" },
           { name: "Switch Profile", value: "selectProfile" },
           new inquirer.Separator(),
           ...choicesWhenUnlocked,
@@ -105,8 +106,8 @@ export class CorePrompt extends DataWalletPrompt {
         // Only show the unlock option we are not already unlocked.
         if (!this.profile.unlocked) {
           choices = [
+            { name: "NOOP", value: "NOOP" },
             { name: "Select Profile", value: "selectProfile" },
-            new inquirer.Separator(),
             { name: "Unlock", value: "unlock" },
             new inquirer.Separator(),
             { name: "Cancel", value: "cancel" },
@@ -130,8 +131,9 @@ export class CorePrompt extends DataWalletPrompt {
           );
       
           switch (answers.core) {
+            case "NOOP": // this is super important as we have the accept query appearing from another thread
+                return okAsync(undefined);
             case "unlock":
-                // return this.unlockCore.start();
                 return this.unlockCore.start();
             case "selectProfile":
               return this.selectProfile.start();
