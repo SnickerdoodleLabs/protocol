@@ -42,6 +42,8 @@ export class CorePrompt extends DataWalletPrompt {
 
     public start(): ResultAsync<void, Error> {
 
+        console.log("Starting core prompt with unlock state:", this.profile.unlocked)
+        
         const choicesWhenUnlocked = [
           { name: "Add Account", value: "addAccount" },
           { name: "Remove Account", value: "removeAccount" },

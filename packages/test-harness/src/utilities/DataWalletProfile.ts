@@ -4,7 +4,7 @@ import { AESEncryptedString, BigNumberString, ChainId, DirectReward, EarnedRewar
 import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
-import { err, okAsync, ResultAsync } from "neverthrow";
+import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
 import path from "path";
 // import fs from "fs";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -19,11 +19,14 @@ export class DataWalletProfile {
 
     readonly core: SnickerdoodleCore;
     private _unlocked = false;
-    private _name = "default";
     private defaultPathInfo = {
         name: "default",
         path: "data/profiles/dataWallet/default"
     }
+    private _profilePathInfo = this.defaultPathInfo;
+
+    private _destroyed = false;
+
     private coreSubscriptions = new Array<Subscription>();
 
     public acceptedInvitations = new Array<PageInvitation>();
@@ -35,7 +38,7 @@ export class DataWalletProfile {
     }
 
     public get name(): string {
-        return this._name;
+        return this._profilePathInfo.name;
     }
 
     public get unlocked(): boolean {
@@ -44,6 +47,7 @@ export class DataWalletProfile {
 
     public destroy(): void {
         this.destroyCore();
+        this._destroyed = true;
     }
 
     protected destroyCore(): void {
@@ -124,9 +128,9 @@ export class DataWalletProfile {
     | InvalidSignatureError
     | UnsupportedLanguageError
     | MinimalForwarderContractError
+    | Error
 
     > {
-
         
         return this.getSignatureForAccount(wallet).andThen((signature) => {
             return this.core.unlock(
@@ -136,17 +140,37 @@ export class DataWalletProfile {
                 wallet.chain,
             );
         })
-        .map(() => {
+        .andThen(() => {
+
+
             this._unlocked = true;
             console.log(`Unlocked account ${wallet.accountAddress}!`);
+
+            return this.loadFromPathAfterUnlocked()
+            .map(() => {
+                console.log(`Loaded complete profile for newly unlocked wallet`);
+            });
         });
     }
 
-    public reset() {
+    // public reset() {
 
-        this._unlocked = false;
+    //     this._unlocked = false;
+    // }
+
+
+    protected _loadOnError(e: Error, resourcePath: string): Error {
+
+        if (e.message.includes("ENOENT")) {
+            console.warn(`Could not load ${resourcePath}. Ignoring`)
+            return new Error(`Ignorable IO error}`);
+        } else {
+            console.error(e.message);
+            return e;
+        }
+
     }
-
+    
     public loadDefaultProfile(): ResultAsync<void, Error> {
 
         return this.loadFromPath(this.defaultPathInfo);
@@ -154,18 +178,45 @@ export class DataWalletProfile {
     // #region profile loading from files
     public loadFromPath(pathInfo: { name: string, path: string }): ResultAsync<void, Error> {
 
-        console.log(`Loading data wallet profile from ${pathInfo.path}. Some promises will be resolved only after unlocking the core.`);
+        console.log(`Loading data wallet accounts from ${pathInfo.path}.`);
 
-        this.reset();
+        if (!this._destroyed) {
+            return errAsync(new Error("You must destroy your current wallet before loading a new profile."))
+        }
 
-        this._name = pathInfo.name;
+        // this.reset(); we don't need it because loading a profile is done after destroying a wallet
 
-        const root = pathInfo.path;
+        this._profilePathInfo = pathInfo;
+
+        const root = this._profilePathInfo.path;
 
         // this will leak memory as previous core will be populated with data if not unlocked before switching profiles.
         
         return ResultUtils.combine([
             this._loadAccounts(path.join(root, "accounts.json")),
+            // this._loadDemographic(path.join(root, "demographic.json")),
+            // this._loadSiteVisits(path.join(root, "siteVisits.json")),
+            // this._loadEVMTransactions(path.join(root, "evmTransactions.json")),
+            // this._loadEarnedRewards(path.join(root, "earnedRewards.json")),
+            // this._loadBackup(path.join(root, "backup.json"))
+        ])
+            .andThen((res) => {
+                // console.log(`Loaded data wallet accounts from ${this._profilePathInfo.path}.`);
+                return okAsync(undefined);
+            })
+        
+
+    }
+
+    public loadFromPathAfterUnlocked(): ResultAsync<void, Error> {
+
+        console.log(`Unlocked: Loading data wallet profile from ${this._profilePathInfo.path}.`);
+        const root = this._profilePathInfo.path;
+
+        // this will leak memory as previous core will be populated with data if not unlocked before switching profiles.
+        
+        return ResultUtils.combine([
+            // this._loadAccounts(path.join(root, "accounts.json")),
             this._loadDemographic(path.join(root, "demographic.json")),
             this._loadSiteVisits(path.join(root, "siteVisits.json")),
             this._loadEVMTransactions(path.join(root, "evmTransactions.json")),
@@ -173,22 +224,10 @@ export class DataWalletProfile {
             // this._loadBackup(path.join(root, "backup.json"))
         ])
             .andThen((res) => {
-                console.log(`Loaded data wallet profile from ${pathInfo.path}.`);
+                console.log(`Loaded data wallet profile from ${this._profilePathInfo.path}.`);
                 return okAsync(undefined);
             })
         
-
-    }
-
-    protected _loadOnError(e: Error, resourcePath: string): Error {
-
-        if (e.message.includes("ENOENT")) {
-            console.warn(`Could not load ${resourcePath}. Ignoring`)
-            return new Error(`Unexpected IO error ${e.message}}`);
-        } else {
-            console.error(e.message);
-            return e;
-        }
 
     }
 

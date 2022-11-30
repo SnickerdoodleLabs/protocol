@@ -18,6 +18,7 @@ export class UnlockCore extends DataWalletPrompt {
         | CrumbsContractError
         | InvalidSignatureError
         | MinimalForwarderContractError
+        | Error
     > {
 
         return inquiryWrapper([
