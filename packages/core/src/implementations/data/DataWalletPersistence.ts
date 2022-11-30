@@ -624,7 +624,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<IChainTransaction[], PersistenceError> {
     for (let i = 0; i < incomingTransaction.length; i++) {
       let valueQuote = incomingTransaction[i].valueQuote;
-      console.log("IncomingTransaction is: ", incomingTransaction[i]);
       if (valueQuote == null || valueQuote == undefined) {
         valueQuote = 0;
       }
@@ -722,10 +721,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     if (transactions.length == 0) {
       return okAsync(undefined);
     }
-
-    // console.log(
-    //   `addEVMTransactions #${transactions.length} for first chain id ${transactions[0].chainId}`,
-    // );
 
     return this.waitForRestore().andThen(([key]) => {
       return this.backupManagerProvider

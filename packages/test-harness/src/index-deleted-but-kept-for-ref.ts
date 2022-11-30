@@ -484,19 +484,6 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.dumpBackup().map(console.log);
 
       case "restoreBackup":
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = dirname(__filename);
-
-        const storage = new Storage({
-          keyFilename: "src/credentials.json",
-          projectId: "snickerdoodle-insight-stackdev",
-        });
-
-        // const [files] = await storage
-        //   .bucket("ceramic-replacement-bucket")
-        //   .getFiles();
-        // console.log("Files: ", files.length);
-
         const backup: IDataWalletBackup = {
           header: {
             hash: "$argon2id$v=19$m=4096,t=3,p=1$ChlKcS/rZO9dhyS9h+YiHA$yAqqsYNGAhfRMWMU0FmITwKmrw3kIEZcmG2RwJW25gA",

@@ -1,5 +1,4 @@
 import { GetSignedUrlResponse } from "@google-cloud/storage";
-import { PersistenceError } from "@snickerdoodlelabs/objects";
 import {
   AjaxError,
   BigNumberString,

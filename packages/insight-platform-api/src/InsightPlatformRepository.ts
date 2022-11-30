@@ -48,8 +48,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     fileName: string,
   ): ResultAsync<GetSignedUrlResponse, AjaxError> {
-    console.log("getAuthBackups Key: ", fileName);
-
     const signableData = {
       fileName: fileName,
     } as Record<string, unknown>;
@@ -62,7 +60,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         dataWalletKey,
       )
       .andThen((signature) => {
-        console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
+        // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
         const url = new URL(
           urlJoin(insightPlatformBaseUrl, "/getAuthorizedBackups"),
         );
@@ -90,8 +88,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       queryCID: queryCid,
       queries: JSON.stringify(answeredQueries),
     } as Record<string, unknown>;
-
-    console.log("Inside Receive Previews");
 
     return this.cryptoUtils
       .signTypedData(

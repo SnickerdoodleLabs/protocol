@@ -1,64 +1,25 @@
-// import { fs } from "fs";
-// import { path } from "path";
-import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
-import * as path from "path";
-import { dirname } from "path";
-import { config } from "process";
-import { Stream } from "stream";
-import { fileURLToPath } from "url";
-import { promisify } from "util";
-
-import { Datastore, Key } from "@google-cloud/datastore";
-import { ValueProto } from "@google-cloud/datastore/build/src/entity";
-import {
-  GetServiceAccountResponse,
-  GetSignedUrlConfig,
-  GetSignedUrlResponse,
-  Storage,
-} from "@google-cloud/storage";
+import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import {
   AxiosAjaxUtils,
   CryptoUtils,
   ICryptoUtilsType,
-  ILogUtils,
-  LogUtils,
-  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  AESEncryptedString,
-  BackupIndex,
-  BackupIndexEntry,
-  CeramicStreamID,
-  EncryptedString,
   EVMPrivateKey,
   IDataWalletBackup,
-  InitializationVector,
-  ModelTypes,
   PersistenceError,
-  IDataWalletPersistenceType,
-  IDataWalletPersistence,
-  LinkedAccount,
   URLString,
   AjaxError,
-  DataWalletAddress,
-  EVMContractAddress,
-  IpfsCID,
   EVMAccountAddress,
   UUID,
 } from "@snickerdoodlelabs/objects";
-import { DID } from "dids";
 import { inject, injectable } from "inversify";
-import { Ed25519Provider } from "key-did-provider-ed25519";
-import { getResolver } from "key-did-resolver";
 import { okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import combineReducers from "react-combine-reducers";
-
-import { IPersistenceConfig } from "..";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 import {
@@ -70,15 +31,9 @@ import {
 export class GoogleCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, IDataWalletBackup>();
   protected _lastRestore = 0;
-
   private _unlockPromise: Promise<EVMPrivateKey>;
   private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
     null;
-
-  private _storage?: Storage;
-
-  private _restored: Set<string> = new Set();
-  private key?: EVMPrivateKey;
 
   public constructor(
     @inject(IPersistenceConfigProviderType)
@@ -86,8 +41,6 @@ export class GoogleCloudStorage implements ICloudStorage {
     @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils, // @inject(IDataWalletPersistenceType) // protected persistenceRepo: IDataWalletPersistence,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
-    @inject(ILogUtilsType)
-    protected logUtils: ILogUtils,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;

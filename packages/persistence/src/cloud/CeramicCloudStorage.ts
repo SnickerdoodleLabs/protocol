@@ -86,15 +86,10 @@ export class CeramicCloudStorage implements ICloudStorage {
     return this._configProvider.getConfig().andThen((config) => {
       const ceramic = new CeramicClient(config.ceramicNodeURL);
       return this.waitForUnlock().andThen((privateKey) => {
-        console.log("privateKey: ", privateKey);
-
         return this._cryptoUtils
           .deriveCeramicSeedFromEVMPrivateKey(privateKey)
           .andThen((seed) => {
-            console.log("Seed: ", seed);
             return this._authenticateDID(seed).andThen((did) => {
-              console.log("did: ", did);
-
               ceramic.did = did;
               this._ceramic = ceramic;
               return okAsync(this._ceramic);
@@ -219,16 +214,13 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return this._getBackupIndex().andThen((backups) => {
-      console.log("Backups: ", backups);
       const recent = backups.map((record) => record.id);
       const found = [...recent].filter((x) => !this._restored.has(x));
-      console.log("found: ", found);
 
       // console.debug("CloudStorage", `${found.length} new backups found`);
       return ResultUtils.combine(
         found.map((backupID) => this._getBackup(backupID)),
       ).map((fetched) => {
-        console.log("fetched: ", fetched);
         this._restored = new Set(recent);
         return fetched;
       });

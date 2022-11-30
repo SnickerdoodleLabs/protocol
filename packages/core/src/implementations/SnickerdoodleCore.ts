@@ -707,10 +707,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
-  public postBackup(): ResultAsync<
-    void,
-    PersistenceError | AjaxError
-  > {
+  public postBackup(): ResultAsync<void, PersistenceError | AjaxError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
