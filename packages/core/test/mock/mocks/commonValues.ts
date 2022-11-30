@@ -13,7 +13,6 @@ import {
   ECurrencyCode,
 } from "@snickerdoodlelabs/objects";
 
-
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 
 export const externalAccountAddress1 = EVMAccountAddress(
@@ -85,7 +84,7 @@ export const testCoreConfig = new CoreConfig(
   "etherscan api key",
   100, // etherscan tx batch size
   5000,
-  new Map(), // alchemy endpoints
+  { solana: "", solanaTestnet: "" }, // alchemy endpoints
 );
 
 // #endregion
