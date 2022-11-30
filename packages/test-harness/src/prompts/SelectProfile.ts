@@ -16,29 +16,35 @@ export class SelectProfile extends DataWalletPrompt {
         return this.env.getDataWalletProfiles()
             .andThen((profiles) => {
                 // return okAsync(undefined);
-                
+
+                const profileChoices = profiles.map((pathInfo) => {
+                    return {
+                        name: pathInfo.name,
+                        value: pathInfo
+                    }
+                })
+
+                const choices = [
+                    { name: "Cancel", value: "Cancel" },
+                    ...profileChoices
+                ]
+
                 return inquiryWrapper([
                     {
                         type: "list",
                         name: "walletProfileSelector",
                         message: "Which profile do you want to load?",
-                        choices: profiles.map((pathInfo) => {
-                            return {
-                                name: pathInfo.name,
-                                value: pathInfo
-                            }
-                        })
+                        choices: choices
                     },
                 ])
             })
             .andThen((answers) => {
-                const pathInfo = answers.walletProfileSelector as {name: string, path: string};
+                if (answers.walletProfileSelector == "Cancel") {
+                    return okAsync(undefined);
+                }
 
-                // steps
-                // 1. replace core as unlock cannot be called twice. but we need to detach event handlers from the previous core
-                // 2. create a new core
-                // 3. initialize core
-                
+                const pathInfo = answers.walletProfileSelector as { name: string, path: string };
+
                 this.env.loadDataWalletProfile(pathInfo); // we cannot return this promise as it's halted till core is unlocked.
                 return okAsync(undefined)
             })
@@ -49,7 +55,7 @@ export class SelectProfile extends DataWalletPrompt {
                 console.error(e);
                 return e;
             });
-            
+
 
     }
 
