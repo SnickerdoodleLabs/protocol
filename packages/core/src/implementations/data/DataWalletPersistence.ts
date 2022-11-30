@@ -6,6 +6,7 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import {
   URLString,
+  DomainName,
   Age,
   ClickData,
   EmailAddressString,
@@ -62,6 +63,7 @@ import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import { parse } from "tldts";
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
@@ -150,20 +152,22 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addEarnedRewards(
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForUnlock().andThen(() => {
-      return this.backupManagerProvider
-        .getBackupManager()
-        .andThen((backupManager) => {
-          return ResultUtils.combine(
-            rewards.map((reward) => {
-              return backupManager.addRecord(
-                ELocalStorageKey.EARNED_REWARDS,
-                reward,
-              );
-            }),
-          ).map(() => undefined);
-        });
-    });
+    return this.waitForUnlock()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              rewards.map((reward) => {
+                return backupManager.addRecord(
+                  ELocalStorageKey.EARNED_REWARDS,
+                  reward,
+                );
+              }),
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
   }
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
@@ -229,7 +233,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         .getBackupManager()
         .andThen((backupManager) => {
           return ResultUtils.combine(
-            siteVisits.map((visit) => {
+            siteVisits.map((visit: SiteVisit) => {
+              const url = parse(visit.url);
+              visit.domain = url.domain ? DomainName(url.domain) : undefined;
               return backupManager.addRecord(
                 ELocalStorageKey.SITE_VISITS,
                 visit,
@@ -795,8 +801,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return this.getSiteVisits().andThen((siteVisits) => {
         const result = new Map<URLString, number>();
         siteVisits.forEach((siteVisit, _i, _arr) => {
-          const url = siteVisit.url;
-          const baseUrl = URLString(url);
+          const baseUrl = DomainName(
+            siteVisit.domain ? siteVisit.domain : siteVisit.url,
+          );
           baseUrl in result || (result[baseUrl] = 0);
           result[baseUrl] += 1;
         });
