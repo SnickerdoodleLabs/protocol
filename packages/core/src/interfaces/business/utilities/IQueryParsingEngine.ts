@@ -17,7 +17,7 @@ import { ResultAsync } from "neverthrow";
 import { AST_Evaluator } from "@core/implementations/business/index.js";
 
 export interface IQueryParsingEngine {
-  getPreviews(
+  getExpectedRewards(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
