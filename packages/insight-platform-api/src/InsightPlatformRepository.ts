@@ -46,13 +46,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public getAuthBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    key: string,
-  ): ResultAsync<GetSignedUrlResponse[], AjaxError> {
-    console.log("getAuthBackups Key: ", key);
+    fileName: string,
+  ): ResultAsync<GetSignedUrlResponse, AjaxError> {
+    console.log("getAuthBackups Key: ", fileName);
 
-    const file = "string";
     const signableData = {
-      fileName: file,
+      fileName: fileName,
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -69,8 +68,8 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         );
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<GetSignedUrlResponse[]>(url, {
-          fileName: file,
+        return this.ajaxUtils.post<GetSignedUrlResponse>(url, {
+          fileName: fileName,
           signature: signature,
         });
       });

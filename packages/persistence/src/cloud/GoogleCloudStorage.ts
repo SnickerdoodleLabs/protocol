@@ -9,12 +9,15 @@ import { fileURLToPath } from "url";
 import { promisify } from "util";
 
 import { Datastore, Key } from "@google-cloud/datastore";
+import { ValueProto } from "@google-cloud/datastore/build/src/entity";
 import {
   GetServiceAccountResponse,
+  GetSignedUrlConfig,
   GetSignedUrlResponse,
   Storage,
 } from "@google-cloud/storage";
 import {
+  AxiosAjaxUtils,
   CryptoUtils,
   ICryptoUtilsType,
   ILogUtils,
@@ -44,6 +47,8 @@ import {
   DataWalletAddress,
   EVMContractAddress,
   IpfsCID,
+  EVMAccountAddress,
+  UUID,
 } from "@snickerdoodlelabs/objects";
 import { DID } from "dids";
 import { inject, injectable } from "inversify";
@@ -51,6 +56,7 @@ import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
 import { okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import combineReducers from "react-combine-reducers";
 
 import { IPersistenceConfig } from "..";
 
@@ -94,128 +100,90 @@ export class GoogleCloudStorage implements ICloudStorage {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._resolveUnlock!(derivedKey);
-    this.key = derivedKey;
     return okAsync(undefined);
-  }
-
-  public clear(): ResultAsync<void, PersistenceError | AjaxError> {
-    return this._init().andThen(({ client, writeUrl }) => {
-      return ResultAsync.fromPromise(
-        client.bucket("ceramic-replacement-bucket").deleteFiles(),
-        (e) =>
-          new PersistenceError("unable to delete files from Google Cloud", e),
-      );
-    });
-  }
-
-  private _getSignedUrl(): ResultAsync<
-    GetSignedUrlResponse[],
-    PersistenceError | AjaxError
-  > {
-    console.log("Inside _getGoogleCloudClient");
-    console.log("Passed the storage phase!");
-
-    return ResultUtils.combine([this._configProvider.getConfig()]).andThen(
-      ([config]) => {
-        return this.waitForUnlock().andThen((privateKey) => {
-          console.log("privateKey: ", privateKey);
-          return this._cryptoUtils
-            .deriveCeramicSeedFromEVMPrivateKey(privateKey)
-            .andThen((seed) => {
-              console.log("Seed: ", seed);
-              return this._authenticateDID(seed).andThen((did) => {
-                console.log("did: ", did);
-                const baseURL = URLString("http://localhost:3006");
-                console.log("baseURL: ", baseURL);
-                if (this.key == undefined) {
-                  this.key = EVMPrivateKey("");
-                }
-                return this.insightPlatformRepo
-                  .getAuthBackups(this.key, baseURL, JSON.stringify(did))
-                  .andThen((signedUrls) => {
-                    console.log("signedUrlResponse: ", signedUrls);
-                    return okAsync(signedUrls);
-                  });
-              });
-            });
-        });
-      },
-    );
-  }
-
-  private _authenticateDID(
-    seed: Uint8Array,
-  ): ResultAsync<DID, PersistenceError> {
-    const provider = new Ed25519Provider(seed);
-    const did = new DID({ provider, resolver: getResolver() });
-    return ResultAsync.fromPromise(
-      did.authenticate(),
-      (e) => new PersistenceError("error authenticated ceramic DID", e),
-    ).andThen((_) => okAsync(did));
-  }
-
-  private _getGoogleCloudClient(): ResultAsync<
-    Storage,
-    PersistenceError | AjaxError
-  > {
-    const storage = new Storage({
-      keyFilename: "src/credentials.json",
-      projectId: "snickerdoodle-insight-stackdev",
-    });
-    return okAsync(storage);
   }
 
   protected waitForUnlock(): ResultAsync<EVMPrivateKey, never> {
     return ResultAsync.fromSafePromise(this._unlockPromise);
   }
 
-  private _init(): ResultAsync<
-    {
-      client: Storage;
-      config: IPersistenceConfig;
-      readUrl: GetSignedUrlResponse;
-      writeUrl: GetSignedUrlResponse;
-    },
-    PersistenceError | AjaxError
-  > {
-    return ResultUtils.combine([
-      this._getGoogleCloudClient(),
-      this._configProvider.getConfig(),
-      this._getSignedUrl(),
-    ]).andThen(([gcpClient, config, signedUrls]) => {
-      return okAsync({
-        client: gcpClient,
-        config: config,
-        readUrl: signedUrls[0],
-        writeUrl: signedUrls[1],
-      });
+  public clear(): ResultAsync<void, PersistenceError | AjaxError> {
+    const storage = new Storage({
+      keyFilename: "../persistence/src/credentials.json",
+      projectId: "snickerdoodle-insight-stackdev",
+    });
+    storage.bucket("ceramic-replacement-bucket").deleteFiles();
+    return okAsync(undefined);
+  }
+
+  protected getUUID(
+    addr: EVMAccountAddress,
+  ): ResultAsync<UUID, PersistenceError> {
+    const storage = new Storage({
+      keyFilename: "../persistence/src/credentials.json",
+      projectId: "snickerdoodle-insight-stackdev",
+    });
+    let version = "1";
+    return ResultAsync.fromPromise(
+      storage.bucket("ceramic-replacement-bucket").getFiles({
+        autoPaginate: true,
+        versions: true,
+        prefix: addr + "/",
+      }),
+      (e) =>
+        new PersistenceError(
+          "unable to retrieve GCP file version from data wallet {addr}",
+          e,
+        ),
+    ).andThen((allFiles) => {
+      if (allFiles[0].length !== 0) {
+        const inArray = allFiles[0];
+        const name = inArray[inArray.length - 1]["metadata"]["name"];
+        const versionString = name.split(/[/ ]+/).pop();
+        console.log("versionString: ", versionString);
+        const versionNumber = versionString.split("version");
+        console.log("versionNumber: ", versionNumber[1]);
+        console.log(parseInt(versionNumber[1]) + 1);
+        version = (parseInt(versionNumber[1]) + 1).toString();
+        console.log("Inner Version 1: ", version);
+      }
+      console.log("Inner Version 2: ", version);
+      return okAsync(UUID(version));
     });
   }
 
   public putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<CeramicStreamID, PersistenceError | AjaxError> {
-    const bucketName = "ceramic-replacement-bucket";
-    return this._init().andThen(({ client, config, writeUrl }) => {
-      const bucket = client.bucket(bucketName);
-      const file = bucket.file(
-        config.ceramicModelAliases.definitions.backupIndex,
-      );
-
-      console.log(
-        "config.ceramicModelAliases.definitions.backupIndex: ",
-        config.ceramicModelAliases.definitions.backupIndex,
-      );
-
-      console.log("writeurl: ", writeUrl);
-      const passthroughStream = new Stream.PassThrough();
-      passthroughStream.write(JSON.stringify(backup));
-      passthroughStream.end();
-      passthroughStream.pipe(file.createWriteStream()).on("finish", () => {
-        this._restored.add(file.metadata.generation);
-        this._backups.set(file.metadata.generation, backup);
+  ): ResultAsync<void, PersistenceError | AjaxError> {
+    return this.waitForUnlock().andThen((privateKey) => {
+      const addr =
+        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+      return ResultUtils.combine([this.getUUID(addr)]).andThen(([version]) => {
+        const baseURL = URLString("http://localhost:3006");
+        console.log("putBackup version: ", version);
+        return this.insightPlatformRepo
+          .getAuthBackups(privateKey, baseURL, addr + "/version" + version)
+          .andThen((signedUrl) => {
+            const ajaxUtils = new AxiosAjaxUtils();
+            try {
+              ajaxUtils
+                .put(new URL(signedUrl[0]!), JSON.stringify(backup), {
+                  headers: {
+                    "Content-Type": `multipart/form-data;`,
+                  },
+                })
+                .map((response) => {
+                  console.log("Response: ", response);
+                })
+                .mapErr((err) => {
+                  console.log("err: ", err);
+                });
+            } catch (e) {
+              console.error("error", e);
+            }
+            return okAsync(undefined);
+          });
       });
-      return okAsync(CeramicStreamID(""));
     });
   }
 
@@ -223,34 +191,37 @@ export class GoogleCloudStorage implements ICloudStorage {
     IDataWalletBackup[],
     PersistenceError | AjaxError
   > {
-    return this._init().andThen(({ client, config }) => {
-      // Get a v4 signed URL for reading the file
+    const options: GetSignedUrlConfig = {
+      version: "v4",
+      action: "write",
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+    };
+    const storage = new Storage({
+      keyFilename: "../persistence/src/credentials.json",
+      projectId: "snickerdoodle-insight-stackdev",
+    });
+    return this.waitForUnlock().andThen((privateKey) => {
+      const addr =
+        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       return ResultAsync.fromPromise(
-        client.bucket("ceramic-replacement-bucket").getFiles({
+        storage.bucket("ceramic-replacement-bucket").getFiles({
           autoPaginate: true,
           versions: true,
-          prefix: config.ceramicModelAliases.definitions.backupIndex,
+          prefix: addr + "/",
         }),
-        (e) => new PersistenceError("unable to get backup index", e),
-      ).andThen((files) => {
-        if (files == undefined) {
-          return okAsync([]);
+        (e) =>
+          new PersistenceError(
+            "unable to retrieve GCP file version from data wallet {addr}",
+            e,
+          ),
+      ).andThen((allFiles) => {
+        if (allFiles[0].length !== 0) {
+          const inArray = allFiles[0];
+          // allFiles[0].map(() => {
+          //   IDataWalletBackup
+          // })
         }
-        const backups = files[0];
-        if (backups.length == 0) {
-          return okAsync([]);
-        }
-
-        const recent = backups.map((record) => record.metadata.generation);
-        // record.metadata.generation
-        const found = [...recent].filter((x) => this._restored.has(x));
-        const walletBackups = found.map((generationID) => {
-          return this._backups.get(generationID) as IDataWalletBackup;
-        });
-        if (walletBackups[0] == undefined) {
-          return okAsync([]);
-        }
-        return okAsync(walletBackups);
+        return okAsync([]);
       });
     });
   }

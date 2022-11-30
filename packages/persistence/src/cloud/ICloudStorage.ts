@@ -10,7 +10,8 @@ import { ResultAsync } from "neverthrow";
 export interface ICloudStorage {
   putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<CeramicStreamID, PersistenceError | AjaxError>;
+  ): ResultAsync<void, PersistenceError | AjaxError>;
+
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError | AjaxError>;
   unlock(
     derivedKey: EVMPrivateKey,

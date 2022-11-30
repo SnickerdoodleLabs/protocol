@@ -933,10 +933,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return okAsync(chainlist);
   }
 
-  public postBackup(): ResultAsync<
-    CeramicStreamID,
-    PersistenceError | AjaxError
-  > {
+  public postBackup(): ResultAsync<void, PersistenceError | AjaxError> {
     return ResultUtils.combine([
       this.waitForRestore(),
       this.backupManagerProvider.getBackupManager(),
@@ -944,7 +941,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return backupManager.dump().andThen((backup) => {
         return this.cloudStorage.putBackup(backup).andThen((id) => {
           backupManager.clear();
-          return okAsync(id);
+          // return okAsync(id);
+          return okAsync(undefined);
         });
       });
     });

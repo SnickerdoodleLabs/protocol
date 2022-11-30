@@ -580,7 +580,7 @@ export class AccountService implements IAccountService {
   }
 
   public postBackup(): ResultAsync<
-    CeramicStreamID,
+    void,
     PersistenceError | AjaxError
   > {
     return this.dataWalletPersistence.postBackup();

@@ -211,12 +211,8 @@ export class InsightPlatformSimulator {
 
     this.app.post("/getAuthorizedBackups", (req, res) => {
       const signature = Signature(req.body.signature);
-      console.log("simulator 2: ");
-      
-
-      const file = "string";
       const signingData = {
-        fileName: file,
+        fileName: req.body.fileName,
       };
       this.cryptoUtils
         .verifyTypedData(
@@ -226,40 +222,31 @@ export class InsightPlatformSimulator {
           signature,
         )
         .map(async (verificationAddress) => {
-          console.log("Returning Storage");
           const storage = new Storage({
             keyFilename: "../persistence/src/credentials.json",
             projectId: "snickerdoodle-insight-stackdev",
           });
-
-          const readOptions: GetSignedUrlConfig = {
-            version: "v4",
-            action: "read",
-            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-          };
           const writeOptions: GetSignedUrlConfig = {
             version: "v4",
             action: "write",
             expires: Date.now() + 15 * 60 * 1000, // 15 minutes
           };
-
-          const [readUrl] = await storage
+          await storage
             .bucket("ceramic-replacement-bucket")
-            .file(
-              "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
-            )
-            .getSignedUrl(readOptions);
-
-          const [writeUrl] = await storage
-            .bucket("ceramic-replacement-bucket")
-            .file(
-              "kjzl6cwe1jw147v87ik1jkkhit8o20z8o3gdua5n65g3gyc6umsfmz80vphpl6k",
-            )
-            .getSignedUrl(writeOptions);
-
-          console.log("readUrl: ", readUrl);
-          console.log("writeUrl: ", writeUrl);
-          res.send([readUrl, writeUrl]);
+            .file(req.body.fileName)
+            .getSignedUrl(writeOptions, async function (err, url) {
+              if (err) {
+                console.error("err: ", err);
+              } else {
+                if (err) {
+                  console.error("err: ", err);
+                  res.send(err);
+                } else {
+                  console.error("url: ", url);
+                }
+                res.send([url]);
+              }
+            });
         });
     });
 
