@@ -41,9 +41,8 @@ export class CorePrompt extends Prompt {
     }
 
     public start(): ResultAsync<void, Error> {
-        let choices = [
-          { name: "Select Profile", value: "selectProfile" },
-          new inquirer.Separator(),
+
+        const choicesWhenUnlocked = [
           { name: "Add Account", value: "addAccount" },
           { name: "Remove Account", value: "removeAccount" },
           { name: "Check Account", value: "checkAccount" },
@@ -91,7 +90,13 @@ export class CorePrompt extends Prompt {
           { name: "dump backup", value: "dumpBackup" },
           { name: "restore backup", value: "restoreBackup" },
           { name: "manual backup", value: "manualBackup" },
-          { name: "clear cloud store", value: "clearCloudStore" },
+          { name: "clear cloud store", value: "clearCloudStore" }
+        ];
+
+        let choices = [
+          { name: "Switch Profile", value: "selectProfile" },
+          new inquirer.Separator(),
+          ...choicesWhenUnlocked,
           new inquirer.Separator(),
           { name: "Cancel", value: "cancel" },
           new inquirer.Separator(),
@@ -100,9 +105,12 @@ export class CorePrompt extends Prompt {
         // Only show the unlock option we are not already unlocked.
         if (!this.env.dataWalletProfile.unlocked) {
           choices = [
+            { name: "Select Profile", value: "selectProfile" },
+            new inquirer.Separator(),
             { name: "Unlock", value: "unlock" },
             new inquirer.Separator(),
-            ...choices,
+            { name: "Cancel", value: "cancel" },
+            new inquirer.Separator()
           ];
         }
       

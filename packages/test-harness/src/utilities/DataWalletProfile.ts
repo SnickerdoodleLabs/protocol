@@ -4,11 +4,13 @@ import { AESEncryptedString, BigNumberString, ChainId, DirectReward, EarnedRewar
 import { TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import path from "path";
 // import fs from "fs";
-import { readFile } from "node:fs/promises";
 import { ResultUtils } from "neverthrow-result-utils";
+import { readFile } from "node:fs/promises";
+
+import { AjaxError, BlockchainProviderError, CrumbsContractError, InvalidSignatureError, MinimalForwarderContractError, PersistenceError, UninitializedError } from "@snickerdoodlelabs/objects";
 
 
 export class DataWalletProfile {
@@ -35,8 +37,32 @@ export class DataWalletProfile {
         return this._unlocked;
     }
 
-    public unlock() {
-        this._unlocked = true;
+    public unlock(wallet: TestWallet): ResultAsync<void, 
+    
+    | PersistenceError
+    | AjaxError
+    | BlockchainProviderError
+    | UninitializedError
+    | CrumbsContractError
+    | InvalidSignatureError
+    | UnsupportedLanguageError
+    | MinimalForwarderContractError
+
+    > {
+
+        
+        return this.getSignatureForAccount(wallet).andThen((signature) => {
+            return this.core.unlock(
+                wallet.accountAddress,
+                signature,
+                this.mocks.languageCode,
+                wallet.chain,
+            );
+        })
+        .map(() => {
+            this._unlocked = true;
+            console.log(`Unlocked account ${wallet.accountAddress}!`);
+        });
     }
 
     public reset() {
@@ -51,7 +77,7 @@ export class DataWalletProfile {
     // #region profile loading from files
     public loadFromPath(pathInfo: { name: string, path: string }): ResultAsync<void, Error> {
 
-        console.log(`Loading data wallet profile from ${pathInfo.path}`);
+        console.log(`Loading data wallet profile from ${pathInfo.path}. Some promises will be resolved only after unlocking the core.`);
 
         this.reset();
 
@@ -67,7 +93,10 @@ export class DataWalletProfile {
             this._loadEarnedRewards(path.join(root, "earnedRewards.json")),
             // this._loadBackup(path.join(root, "backup.json"))
         ])
-            .andThen((res) => okAsync(undefined))
+            .andThen((res) => {
+                console.log(`Loaded data wallet profile from ${pathInfo.path}.`);
+                return okAsync(undefined);
+            })
         
 
     }
