@@ -143,7 +143,7 @@ export class MonitoringService implements IMonitoringService {
     });
   }
 
-  public pollBackups(): ResultAsync<void, PersistenceError> {
+  public pollBackups(): ResultAsync<void, PersistenceError | AjaxError> {
     return this.persistence.pollBackups();
   }
 }
