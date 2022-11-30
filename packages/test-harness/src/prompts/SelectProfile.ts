@@ -33,6 +33,12 @@ export class SelectProfile extends DataWalletPrompt {
             })
             .andThen((answers) => {
                 const pathInfo = answers.walletProfileSelector as {name: string, path: string};
+
+                // steps
+                // 1. replace core as unlock cannot be called twice. but we need to detach event handlers from the previous core
+                // 2. create a new core
+                // 3. initialize core
+                
                 return this.env.loadDataWalletProfile(pathInfo);
             })
             .map(() => {

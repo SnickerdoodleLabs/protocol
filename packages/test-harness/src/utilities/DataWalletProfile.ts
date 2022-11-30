@@ -1,7 +1,7 @@
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
-import { AESEncryptedString, BigNumberString, ChainId, DirectReward, EarnedReward, EChain, ECredentialType, EncryptedString, ERewardType, EVMAccountAddress, EVMPrivateKey, EVMTransaction, IDataWalletBackup, InitializationVector, IpfsCID, LazyReward, MetatransactionSignatureRequest, PageInvitation, RewardFunctionParam, Signature, SiteVisit, TransactionReceipt, UnixTimestamp, UnsupportedLanguageError, URLString, Web2Credential, Web2Reward } from "@snickerdoodlelabs/objects";
-import { TestHarnessMocks } from "@test-harness/mocks/index.js";
+import { AESEncryptedString, BigNumberString, ChainId, DirectReward, EarnedReward, EChain, ECredentialType, EncryptedString, ERewardType, EVMAccountAddress, EVMPrivateKey, EVMTransaction, IConfigOverrides, IDataWalletBackup, InitializationVector, IpfsCID, ISnickerdoodleCore, LazyReward, MetatransactionSignatureRequest, PageInvitation, RewardFunctionParam, SDQLQueryRequest, Signature, SiteVisit, TransactionReceipt, UnixTimestamp, UnsupportedLanguageError, URLString, Web2Credential, Web2Reward } from "@snickerdoodlelabs/objects";
+import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
 import { BigNumber } from "ethers";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -11,23 +11,28 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { readFile } from "node:fs/promises";
 
 import { AjaxError, BlockchainProviderError, CrumbsContractError, InvalidSignatureError, MinimalForwarderContractError, PersistenceError, UninitializedError } from "@snickerdoodlelabs/objects";
+import { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
+import { Subscription } from "rxjs"
 
 
 export class DataWalletProfile {
 
+    readonly core: SnickerdoodleCore;
     private _unlocked = false;
     private _name = "default";
     private defaultPathInfo = {
         name: "default",
         path: "data/profiles/dataWallet/default"
     }
+    private coreSubscriptions = new Array<Subscription>();
 
     public acceptedInvitations = new Array<PageInvitation>();
 
     public constructor(
-        readonly core: SnickerdoodleCore,
         readonly mocks: TestHarnessMocks
-    ) { }
+    ) { 
+        this.core = this.createCore(mocks);
+    }
 
     public get name(): string {
         return this._name;
@@ -37,6 +42,78 @@ export class DataWalletProfile {
         return this._unlocked;
     }
 
+    public destroy(): void {
+        this.destroyCore();
+    }
+
+    protected destroyCore(): void {
+
+        this.coreSubscriptions.map((subscription) => subscription.unsubscribe());
+        this.coreSubscriptions = new Array<Subscription>();
+
+    }
+    
+    protected createCore(mocks: TestHarnessMocks): SnickerdoodleCore {
+        const core = new SnickerdoodleCore(
+            {
+                defaultInsightPlatformBaseUrl: "http://localhost:3006",
+                dnsServerAddress: "http://localhost:3006/dns",
+            } as IConfigOverrides,
+            undefined,
+            mocks.fakeDBVolatileStorage,
+        );
+
+
+        return core;
+    }
+
+    public initCore(env: Environment): void {
+
+        if (this.coreSubscriptions.length > 0) {
+            this.destroyCore();
+        }
+        
+        this.core.getEvents().map(async (events) => {
+
+            this.coreSubscriptions.push(events.onAccountAdded.subscribe((addedAccount) => {
+                console.log(`Added account`);
+                console.log(addedAccount);
+            }));
+        
+            this.coreSubscriptions.push(events.onInitialized.subscribe((dataWalletAddress) => {
+                console.log(`Initialized with address ${dataWalletAddress}`);
+            }));
+        
+            this.coreSubscriptions.push(events.onQueryPosted.subscribe(async (queryRequest: SDQLQueryRequest) => {
+                console.log(
+                    `Recieved query for consentContract ${queryRequest.consentContractAddress} with id ${queryRequest.query.cid}`,
+                );
+        
+                try {
+
+                    await new ApproveQuery(env, queryRequest).start();
+                                            
+                } catch (e) {
+                    console.error(e);
+                }
+            }));
+        
+            this.coreSubscriptions.push(events.onMetatransactionSignatureRequested.subscribe(async (request) => {
+                // This method needs to happen in nicer form in all form factors
+                console.log(
+                    `Metadata Transaction Requested!`,
+                    `Request account address: ${request.accountAddress}`,
+                );
+        
+                await env.dataWalletProfile!.signMetatransactionRequest(request).mapErr((e) => {
+                    console.error(`Error signing forwarding request!`, e);
+                    process.exit(1);
+                });
+            }));
+        
+        });
+
+    }
     public unlock(wallet: TestWallet): ResultAsync<void, 
     
     | PersistenceError

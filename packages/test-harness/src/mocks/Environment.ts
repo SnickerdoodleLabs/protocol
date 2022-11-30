@@ -11,10 +11,13 @@ export class Environment {
     protected walletFolder = "data/profiles/dataWallet"
     public constructor(
         public businessProfile: BusinessProfile,
-        public dataWalletProfile: DataWalletProfile,
+        public dataWalletProfile: DataWalletProfile | null,
         public mocks: TestHarnessMocks
     ) {
         this.fioUtils = new FileInputUtils();
+        if (this.dataWalletProfile  == null) {
+            this.loadDefaultProfile()
+        }
     }
 
     public get insightPlatform(): InsightPlatformSimulator {
@@ -22,7 +25,7 @@ export class Environment {
     }
 
     public get core(): SnickerdoodleCore {
-        return this.dataWalletProfile.core;
+        return this.dataWalletProfile!.core;
     }
 
     public getDataWalletProfiles(): ResultAsync<{name: string, path:string}[], Error> {
@@ -31,14 +34,24 @@ export class Environment {
 
     }
 
+    protected recreateDataWallet(): void {
+        if (this.dataWalletProfile != null) {
+            this.dataWalletProfile.destroy(); // destroy the existing one
+        }
+        this.dataWalletProfile = new DataWalletProfile(this.mocks); 
+        this.dataWalletProfile!.initCore(this);
+    }
+
+    protected loadDefaultProfile(): ResultAsync<void, Error> {
+        this.recreateDataWallet();
+        return this.dataWalletProfile!.loadDefaultProfile();
+
+    }
+
     public loadDataWalletProfile(pathInfo: {name: string, path:string}): ResultAsync<void, Error> {
 
-        // Questions
-        // 1. Do we need a new core?
-        // 2. Do we need a new mocks?
-        // 3. Do we need a new DataWalletProfile?
-        this.dataWalletProfile = new DataWalletProfile(this.core, this.mocks); // are we gonna destroy
-        return this.dataWalletProfile.loadFromPath(pathInfo);
+        this.recreateDataWallet();
+        return this.dataWalletProfile!.loadFromPath(pathInfo);
     }
 
 }

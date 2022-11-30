@@ -8,12 +8,12 @@ import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
-import { Prompt } from "@test-harness/prompts/Prompt.js";
+import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
 
-export class CorePrompt extends Prompt {
+export class CorePrompt extends DataWalletPrompt {
 
     private unlockCore: UnlockCore;
     private addAccount: AddAccount;
@@ -103,7 +103,7 @@ export class CorePrompt extends Prompt {
         ];
       
         // Only show the unlock option we are not already unlocked.
-        if (!this.env.dataWalletProfile.unlocked) {
+        if (!this.profile.unlocked) {
           choices = [
             { name: "Select Profile", value: "selectProfile" },
             new inquirer.Separator(),
