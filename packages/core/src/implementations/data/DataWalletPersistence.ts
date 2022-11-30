@@ -468,9 +468,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       ) {
         return this._balances;
       }
-      this._balances = this.pollBalances().mapErr(
-        (e) => new PersistenceError(`${e.name}: ${e.message}`),
-      );
+      this._balances = this.pollBalances()
+        .mapErr((e) => new PersistenceError(`${e.name}: ${e.message}`))
+        .map((balances) => {
+          if (balances == null || balances == []) {
+            // clear cache if empty result
+            this._lastBalanceUpdate = 0;
+          }
+          return balances;
+        });
       this._lastBalanceUpdate = currTime;
       return this._balances;
     });
@@ -573,9 +579,18 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       ) {
         return this._nfts;
       }
-      this._nfts = this.pollNFTs().mapErr(
-        (e) => new PersistenceError("error fetching NFTs", e),
-      );
+      this._nfts = this.pollNFTs()
+        .mapErr((e) => new PersistenceError("error fetching NFTs", e))
+        .map((nfts) => {
+          if (nfts == null || nfts == []) {
+            // clear cache for retry
+            // TODO: since this is a combined result this
+            // won't detect failures with an individual chain.
+            // if etherscan falls over but solana is up for example.
+            this._lastNftUpdate = 0;
+          }
+          return nfts;
+        });
       this._lastNftUpdate = currTime;
       return this._nfts;
     });

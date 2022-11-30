@@ -1,5 +1,4 @@
-import { Metaplex, getAssetsFromJsonMetadata } from "@metaplex-foundation/js";
-import { Metadata } from "@metaplex-foundation/mpl-token-metadata";
+import { Metaplex } from "@metaplex-foundation/js";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -27,15 +26,9 @@ import {
   TickerSymbol,
   SolanaCollection,
 } from "@snickerdoodlelabs/objects";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import {
-  clusterApiUrl,
-  Connection,
-  GetProgramAccountsFilter,
-  PublicKey,
-} from "@solana/web3.js";
+import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { inject } from "inversify";
-import { errAsync, ok, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
@@ -128,7 +121,7 @@ export class SolanaIndexer
               chainId,
               null,
               accountAddress,
-              BigNumberString(nativeBalanceValue.toString()),
+              this._lamportsToSol(nativeBalanceValue),
               BigNumberString("0"),
             );
             return [nativeBalance, ...balances];
@@ -231,6 +224,10 @@ export class SolanaIndexer
     const connection = new Connection(endpoint);
     const metaplex = new Metaplex(connection);
     return okAsync([connection, metaplex]);
+  }
+
+  private _lamportsToSol(lamports: number): BigNumberString {
+    return BigNumberString((lamports / LAMPORTS_PER_SOL).toString());
   }
 }
 
