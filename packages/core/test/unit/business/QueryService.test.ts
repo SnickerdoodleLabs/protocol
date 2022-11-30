@@ -209,19 +209,16 @@ describe("processQuery tests", () => {
     // Arrange
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-
-    // Act
-    const result = await queryService.processQuery(
-      consentContractAddress,
-      sdqlQuery,
-      rewardParameters,
-    );
-
-    // Assert
-    expect(result).toBeDefined();
-    expect(result.isErr()).toBeFalsy();
-    expect(result._unsafeUnwrap()).toBeUndefined();
-    mocks.contextProvider.assertEventCounts({});
+    await queryService
+      .processQuery(consentContractAddress, sdqlQuery, rewardParameters)
+      .andThen((result) => {
+        expect(result).toBeUndefined();
+        return okAsync(true);
+      })
+      .orElse((err) => {
+        console.log(err);
+        fail();
+      });
   });
 });
 // describe("onQueryPosted tests", () => {
@@ -265,7 +262,7 @@ describe("processRewardsPreview tests", () => {
     const queryService = mocks.factory(); // new context
     td.when(mocks.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
-    );
+    ); // QQ: MAKES A LOT OF SENSE
     td.when(mocks.contextProvider.getContext()).thenReturn(
       okAsync(
         new CoreContext(
@@ -304,18 +301,25 @@ describe("processRewardsPreview tests", () => {
       mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
     ).thenReturn(okAsync(true));
     td.when(
-      mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything()),
+      mocks.queryParsingEngine.getExpectedRewards(
+        sdqlQuery,
+        td.matchers.anything(),
+      ),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getByCID(queryCID),
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig(),
+      //QQ: We just mocked sdqlQueryRepo.getByCID(queryId).
+      // What's the point of checking if it's not null here?
     ]).andThen(([query, context, config]) => {
       if (query == null) {
         return errAsync(
           new IPFSError(`CID ${queryCID} is not yet visible on IPFS`),
         );
       }
+      //QQ: We just mocked context
+      // What's the point of checking if DW address is null here?
       if (context.dataWalletAddress == null) {
         // Need to wait for the wallet to unlock
         return okAsync(undefined);
@@ -324,7 +328,7 @@ describe("processRewardsPreview tests", () => {
       return mocks.consentContractRepo
         .isAddressOptedIn(consentContractAddress)
         .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getPreviews(
+          return mocks.queryParsingEngine.getExpectedRewards(
             query,
             new DataPermissions(allPermissions),
           );
@@ -337,6 +341,7 @@ describe("processRewardsPreview tests", () => {
             [],
             null,
           );
+
           context.publicEvents.onQueryPosted.next(queryRequest);
           return okAsync(undefined);
         })

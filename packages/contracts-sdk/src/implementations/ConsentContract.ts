@@ -17,7 +17,6 @@ import {
   InvalidParametersError,
   ConsentToken,
   DataPermissions,
-  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
