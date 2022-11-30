@@ -22,10 +22,7 @@
 		},
 		{
 			"path": "../common-utils"
-		},
-		{
-			"path": "../insight-platform-api"
-		},
+		}
 	],
 	"include": ["./src/**/*.ts"],
 	"exclude": ["node_modules"]

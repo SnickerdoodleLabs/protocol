@@ -14,13 +14,15 @@ export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, IDataWalletBackup>();
   protected _lastRestore = 0;
 
-  putBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError> {
+  putBackup(
+    backup: IDataWalletBackup,
+  ): ResultAsync<CeramicStreamID, PersistenceError> {
     this._lastRestore =
       backup.header.timestamp > this._lastRestore
         ? backup.header.timestamp
         : this._lastRestore;
     this._backups[backup.header.hash] = backup;
-    return okAsync(undefined);
+    return okAsync(CeramicStreamID(""));
   }
 
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {

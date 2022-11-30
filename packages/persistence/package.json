@@ -28,7 +28,6 @@
     "build": "yarn clean && yarn compile",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "compile": "tsc --build && cd ../.. && yarn alias",
-    "gcp": "cd ../.. && yarn compile && cd packages/persistence && yarn test",
     "test": "yarn test:ci",
     "test:ci": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests",
     "test:watch": "npx jest --watch --color --detectOpenHandles"
@@ -47,16 +46,11 @@
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
-    "curl-request": "^1.1.1",
     "dids": "^3.3.0",
-    "fs": "^0.0.1-security",
     "inversify": "^5.1.1",
     "ipfs-only-hash": "^4.0.0",
     "key-did-provider-ed25519": "^2.0.1",
     "key-did-resolver": "^2.1.0",
-    "neverthrow": "^5.1.0",
-    "node-fetch": "^3.3.0",
-    "node-libcurl": "^3.0.0",
-    "querystring": "^0.2.1"
+    "neverthrow": "^5.1.0"
   }
 }

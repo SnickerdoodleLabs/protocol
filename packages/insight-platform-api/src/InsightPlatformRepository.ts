@@ -1,4 +1,3 @@
-import { GetSignedUrlResponse } from "@google-cloud/storage";
 import {
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
@@ -21,14 +20,12 @@ import {
   EarnedReward,
   QueryIdentifier,
   IDynamicRewardParameter,
-  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
-  authorizationBackupTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -42,36 +39,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
-
-  public getAuthBackups(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<GetSignedUrlResponse[], AjaxError> {
-    const signableData = {
-      fileName: fileName,
-    } as Record<string, unknown>;
-
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        authorizationBackupTypes,
-        signableData,
-        dataWalletKey,
-      )
-      .andThen((signature) => {
-        // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "/getAuthorizedBackups"),
-        );
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<GetSignedUrlResponse[]>(url, {
-          fileName: fileName,
-          signature: signature,
-        });
-      });
-  }
 
   //
   public receivePreviews(

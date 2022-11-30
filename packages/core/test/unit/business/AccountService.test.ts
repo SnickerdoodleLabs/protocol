@@ -425,7 +425,7 @@ class AccountServiceMocks {
       this.dataWalletPersistence.removeAccount(solanaAccountAddress),
     ).thenReturn(okAsync(undefined));
     td.when(this.dataWalletPersistence.postBackup()).thenReturn(
-      okAsync(undefined),
+      okAsync(ceramicStream),
     );
 
     // ContractFactory --------------------------------------------------

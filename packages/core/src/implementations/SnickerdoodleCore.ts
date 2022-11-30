@@ -78,7 +78,6 @@ import {
   IVolatileStorageType,
   IndexedDBVolatileStorage,
   NullCloudStorage,
-  GoogleCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -147,7 +146,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
-        .to(GoogleCloudStorage)
+        .to(NullCloudStorage)
         .inSingletonScope();
     }
 
@@ -707,14 +706,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
-  public postBackup(): ResultAsync<void, PersistenceError | AjaxError> {
+  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
     return persistence.postBackup();
   }
 
-  public clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError> {
+  public clearCloudStore(): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.clearCloudStore();
