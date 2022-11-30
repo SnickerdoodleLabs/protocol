@@ -165,11 +165,6 @@ export class InsightPlatformSimulator {
       };
 
       this.logStream.write(JSON.stringify(req.body));
-<<<<<<< HEAD:packages/test-harness/src/InsightPlatformSimulator.ts
-
-      console.log("verifyTypedData");
-=======
->>>>>>> 5f42c8c36c4e042ccf84476b3f57898b69fdf056:packages/test-harness/src/mocks/InsightPlatformSimulator.ts
       return this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
@@ -178,7 +173,6 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
-<<<<<<< HEAD:packages/test-harness/src/InsightPlatformSimulator.ts
           console.log("Verification Address: ", verificationAddress);
           console.log("dataWallet: ", dataWallet);
           if (verificationAddress !== dataWallet) {
@@ -188,14 +182,6 @@ export class InsightPlatformSimulator {
           }
           console.log("verificationAddress good");
 
-=======
-          // if (verificationAddress !== dataWallet) {
-
-          //   const err = new Error("`In bad wallet: ${verificationAddress}`");
-          //   console.error(err);
-          //   return errAsync(err);
-          // }
->>>>>>> 5f42c8c36c4e042ccf84476b3f57898b69fdf056:packages/test-harness/src/mocks/InsightPlatformSimulator.ts
           return okAsync(null);
         })
         .andThen(() => {
@@ -214,10 +200,7 @@ export class InsightPlatformSimulator {
         })
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(
-            queryCid,
-            ERewardType.Direct,
-          );
+          earnedRewards[0] = new EarnedReward(queryCid, ERewardType.Direct);
           res.send(earnedRewards);
         })
         .mapErr((e) => {

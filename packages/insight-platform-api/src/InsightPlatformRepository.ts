@@ -89,7 +89,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
-<<<<<<< HEAD
     console.log("rewardParameters: ", rewardParameters);
     const returnsString = JSON.stringify(returns);
     const parameters = JSON.stringify([]);
@@ -100,19 +99,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     console.log("deliverInsights - Verification Address: ", dataWalletAddress);
     console.log("deliverInsights - dataWallet: ", dataWalletKey);
 
-=======
->>>>>>> 5f42c8c36c4e042ccf84476b3f57898b69fdf056
     const signableData = {
       consentContractId: consentContractAddress,
       dataWallet: dataWalletAddress,
-<<<<<<< HEAD
       queryCid: queryCid,
       returns: returnsString,
       rewardParameters: parameters,
-=======
-      returns: JSON.stringify(returns),
-      rewardParameters: JSON.stringify(rewardParameters || []),
->>>>>>> 5f42c8c36c4e042ccf84476b3f57898b69fdf056
     } as Record<string, unknown>;
 
     return this.cryptoUtils
