@@ -41,8 +41,8 @@ export class PromptFactory {
         
                 try {
 
-                    await new ApproveQuery(env, queryRequest);
-                        
+                    await new ApproveQuery(env, queryRequest).start();
+                                            
                 } catch (e) {
                     console.error(e);
                 }

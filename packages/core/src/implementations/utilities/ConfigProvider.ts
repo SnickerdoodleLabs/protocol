@@ -83,6 +83,7 @@ export class ConfigProvider
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       "USD", // quoteCurrency
+      4000 // polling interval for consent contracts on control chain
     );
   }
 
@@ -153,6 +154,8 @@ export class ConfigProvider
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
     this.config.ceramicNodeURL =
       overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
+    this.config.requestForDataCheckingFrequency =
+      overrides.requestForDataCheckingFrequency ?? this.config.requestForDataCheckingFrequency;
     this.config.ceramicModelAliases =
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
   }

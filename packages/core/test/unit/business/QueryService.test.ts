@@ -191,12 +191,9 @@ describe("processQuery tests", () => {
   test("processQuery success", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    await queryService
-      .processQuery(consentContractAddress, sdqlQuery)
+    await queryService.processQuery(consentContractAddress, sdqlQuery)
       .andThen((result) => {
-        //console.log("result", result);
         expect(result).toBeUndefined();
-        // expect(result.isOk()).toBeTruthy();
         return okAsync(true);
       })
       .orElse((err) => {
@@ -246,7 +243,7 @@ describe("processRewardsPreview tests", () => {
     const queryService = mocks.factory(); // new context
     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
       okAsync(sdqlQuery),
-    );
+    ); // QQ: MAKES A LOT OF SENSE
     td.when(mocks.contextProvider.getContext()).thenReturn(
       okAsync(
         new CoreContext(
@@ -277,6 +274,7 @@ describe("processRewardsPreview tests", () => {
           td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
+          td.matchers.anything(),
         ),
       ),
     );
@@ -287,18 +285,22 @@ describe("processRewardsPreview tests", () => {
       ),
     ).thenReturn(okAsync(true));
     td.when(
-      mocks.queryParsingEngine.getPreviews(sdqlQuery, td.matchers.anything()),
+      mocks.queryParsingEngine.getExpectedRewards(sdqlQuery, td.matchers.anything()),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getByCID(queryId),
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig(),
+    //QQ: We just mocked sdqlQueryRepo.getByCID(queryId).
+    // What's the point of checking if it's not null here?
     ]).andThen(([query, context, config]) => {
       if (query == null) {
         return errAsync(
           new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
         );
       }
+      //QQ: We just mocked context
+      // What's the point of checking if DW address is null here?
       if (context.dataWalletAddress == null) {
         // Need to wait for the wallet to unlock
         return okAsync(undefined);
@@ -310,7 +312,7 @@ describe("processRewardsPreview tests", () => {
           EVMAccountAddress(context.dataWalletAddress),
         )
         .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getPreviews(
+          return mocks.queryParsingEngine.getExpectedRewards(
             query,
             new DataPermissions(allPermissions),
           );
@@ -323,6 +325,7 @@ describe("processRewardsPreview tests", () => {
             [],
             null,
           );
+
           context.publicEvents.onQueryPosted.next(queryRequest);
           return okAsync(undefined);
         })

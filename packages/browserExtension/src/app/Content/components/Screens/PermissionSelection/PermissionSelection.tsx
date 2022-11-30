@@ -29,6 +29,11 @@ const PermissionSelection: FC<IPermissionSelectionProps> = ({
           </Typography>
           <Box mt={4} display="flex">
             <Box marginLeft="auto" mr={2}>
+              <Button buttonType="secondary" onClick={emptyReward}>
+                Cancel
+              </Button>
+            </Box>
+            <Box mr={2}>
               <Button
                 buttonType="secondary"
                 onClick={() => {
