@@ -60,8 +60,8 @@ import { query1, query2 } from "@test-harness/queries/index.js";
 import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
 
 // #region new prompt
-const promptFactory = new PromptFactory()
-const mainPromptNew = promptFactory.createDefault();
+// const promptFactory = new PromptFactory()
+// const mainPromptNew = promptFactory.createDefault();
 // #endregion
 
 // #region initialization
@@ -121,7 +121,7 @@ const devAccountKeys = [
 const blockchain = new BlockchainStuff(devAccountKeys);
 const ipfs = new IPFSClient();
 
-const simulator = mainPromptNew.env.insightPlatform;
+const simulator = new InsightPlatformSimulator(blockchain, ipfs);
 const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.com");

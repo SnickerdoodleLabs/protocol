@@ -68,13 +68,17 @@ export class PromptFactory {
     public createDefault(): MainPrompt {
         const mocks = new TestHarnessMocks()
         const core = this.createCore(mocks)
+        const dataWalletProfile = new DataWalletProfile(core, mocks)
         const env = new Environment(
             new BusinessProfile(),
-            new DataWalletProfile(core, mocks),
+            dataWalletProfile,
             mocks
         );
-
+        
+        
+        dataWalletProfile.loadDefaultProfile();
         this.initCore(core, env);
+
 
         return new MainPrompt(
             env,

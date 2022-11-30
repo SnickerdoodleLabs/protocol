@@ -15,6 +15,10 @@ export class DataWalletProfile {
 
     private _unlocked = false;
     private _name = "default";
+    private defaultPathInfo = {
+        name: "default",
+        path: "data/profiles/dataWallet/default"
+    }
 
     public acceptedInvitations = new Array<PageInvitation>();
 
@@ -34,8 +38,22 @@ export class DataWalletProfile {
     public unlock() {
         this._unlocked = true;
     }
+
+    public reset() {
+
+        this._unlocked = false;
+    }
+
+    public loadDefaultProfile(): ResultAsync<void, Error> {
+
+        return this.loadFromPath(this.defaultPathInfo);
+    }
     // #region profile loading from files
     public loadFromPath(pathInfo: { name: string, path: string }): ResultAsync<void, Error> {
+
+        console.log(`Loading data wallet profile from ${pathInfo.path}`);
+
+        this.reset();
 
         this._name = pathInfo.name;
 
@@ -47,9 +65,10 @@ export class DataWalletProfile {
             this._loadSiteVisits(path.join(root, "siteVisits.json")),
             this._loadEVMTransactions(path.join(root, "evmTransactions.json")),
             this._loadEarnedRewards(path.join(root, "earnedRewards.json")),
-            this._loadBackup(path.join(root, "backup.json"))
+            // this._loadBackup(path.join(root, "backup.json"))
         ])
             .andThen((res) => okAsync(undefined))
+        
 
     }
 
@@ -153,8 +172,7 @@ export class DataWalletProfile {
     protected _loadEarnedRewards(earnedRewardsPath: string): ResultAsync<void, Error> {
         return ResultAsync.fromPromise(readFile(earnedRewardsPath, { encoding: 'utf8' }), (e) => e as Error)
             .andThen((content) => {
-                const rewards: EarnedReward[] = [];
-                JSON.parse(content).reduce((all, r) => {
+                const rewards = JSON.parse(content).reduce((all, r) => {
                     switch (r.type) {
                         case ERewardType.Direct:
                             all.push(new DirectReward(
@@ -184,7 +202,7 @@ export class DataWalletProfile {
                             ));
                     }
                     return all;
-                }, rewards);
+                }, [] as EarnedReward[]);
 
                 return this.core.addEarnedRewards(rewards)
                     .andThen(() =>
