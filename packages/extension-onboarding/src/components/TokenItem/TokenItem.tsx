@@ -43,15 +43,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
               opacity: 0.6,
             }}
           >
-            {stableCoins.includes(item.ticker) && parseInt(item.balance) > 0
-              ? `${Number.parseFloat(item.balance || "0") / 10 ** 6} ${
-                  item.ticker
-                }`
-              : item.type != EChainTechnology.Solana
-              ? `${Number.parseFloat(item.balance || "0")} ${item.ticker}`
-              : `${Number.parseFloat(item.balance || "0") / 10 ** 9} ${
-                  item.ticker
-                }`}
+            {`${item.balance || "0"} ${item.ticker}`}
           </Typography>
         </Box>
       </Box>
