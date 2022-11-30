@@ -50,10 +50,7 @@ export class SolanaIndexer
     ISolanaNFTRepository,
     ISolanaTransactionRepository
 {
-  private _connections?: ResultAsync<
-    Map<EChain, [Connection, Metaplex]>,
-    never
-  >;
+  private _connections?: ResultAsync<SolClients, never>;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -197,9 +194,9 @@ export class SolanaIndexer
     return this._getConnections().andThen((connections) => {
       switch (chainId) {
         case ChainId(EChain.Solana):
-          return okAsync(connections[EChain.Solana]);
+          return okAsync(connections.mainnet);
         case ChainId(EChain.SolanaTestnet):
-          return okAsync(connections[EChain.SolanaTestnet]);
+          return okAsync(connections.testnet);
         default:
           return errAsync(
             new AccountIndexingError("invalid chain id for solana"),
@@ -208,25 +205,20 @@ export class SolanaIndexer
     });
   }
 
-  private _getConnections(): ResultAsync<
-    Map<EChain, [Connection, Metaplex]>,
-    never
-  > {
+  private _getConnections(): ResultAsync<SolClients, never> {
     if (this._connections) {
       return this._connections;
     }
 
     this._connections = this.configProvider.getConfig().andThen((config) => {
       return ResultUtils.combine([
-        this._getConnectionForEndpoint(config.alchemyEndpoints[EChain.Solana]),
-        this._getConnectionForEndpoint(
-          config.alchemyEndpoints[EChain.SolanaTestnet],
-        ),
+        this._getConnectionForEndpoint(config.alchemyEndpoints.solana),
+        this._getConnectionForEndpoint(config.alchemyEndpoints.solanaTestnet),
       ]).map(([mainnet, testnet]) => {
-        return new Map([
-          [EChain.Solana, mainnet],
-          [EChain.SolanaTestnet, testnet],
-        ]);
+        return {
+          mainnet,
+          testnet,
+        };
       });
     });
 
@@ -236,13 +228,16 @@ export class SolanaIndexer
   private _getConnectionForEndpoint(
     endpoint: string,
   ): ResultAsync<[Connection, Metaplex], never> {
-    return this.configProvider.getConfig().map((config) => {
-      const connection = new Connection(config.alchemyEndpoints[EChain.Solana]);
-      const metaplex = new Metaplex(connection);
-      return [connection, metaplex];
-    });
+    const connection = new Connection(endpoint);
+    const metaplex = new Metaplex(connection);
+    return okAsync([connection, metaplex]);
   }
 }
+
+type SolClients = {
+  mainnet: [Connection, Metaplex];
+  testnet: [Connection, Metaplex];
+};
 
 type ISolscanBalanceResponse = {
   tokenAddress: SolanaTokenAddress;

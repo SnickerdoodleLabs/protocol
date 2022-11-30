@@ -7,5 +7,8 @@ export interface IIndexerConfig {
   etherscanTransactionsBatchSize: number;
   quoteCurrency: ECurrencyCode;
   supportedChains: ChainId[];
-  alchemyEndpoints: Map<EChain, string>;
+  alchemyEndpoints: {
+    solana: string;
+    solanaTestnet: string;
+  };
 }
