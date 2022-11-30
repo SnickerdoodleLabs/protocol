@@ -1,8 +1,4 @@
 import * as fs from "fs";
-import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
-import { dirname } from "path";
-import { Stream } from "stream";
-import { fileURLToPath } from "url";
 
 import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
@@ -23,7 +19,6 @@ import {
   SDQLString,
   Signature,
   URLString,
-  EligibleReward,
   ERewardType,
   ChainId,
   ExpectedReward,
@@ -226,6 +221,17 @@ export class InsightPlatformSimulator {
             keyFilename: "../persistence/src/credentials.json",
             projectId: "snickerdoodle-insight-stackdev",
           });
+          const readOptions: GetSignedUrlConfig = {
+            version: "v4",
+            action: "read",
+            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+          };
+
+          const readUrl = await storage
+            .bucket("ceramic-replacement-bucket")
+            .file(req.body.fileName)
+            .getSignedUrl(readOptions);
+
           const writeOptions: GetSignedUrlConfig = {
             version: "v4",
             action: "write",
@@ -234,7 +240,7 @@ export class InsightPlatformSimulator {
           await storage
             .bucket("ceramic-replacement-bucket")
             .file(req.body.fileName)
-            .getSignedUrl(writeOptions, async function (err, url) {
+            .getSignedUrl(writeOptions, async function (err, writeUrl) {
               if (err) {
                 console.error("err: ", err);
               } else {
@@ -242,9 +248,9 @@ export class InsightPlatformSimulator {
                   console.error("err: ", err);
                   res.send(err);
                 } else {
-                  console.error("url: ", url);
+                  console.error("url: ", writeUrl);
                 }
-                res.send([url]);
+                res.send([[readUrl[0]], [writeUrl]]);
               }
             });
         });

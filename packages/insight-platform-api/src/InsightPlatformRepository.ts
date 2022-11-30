@@ -47,7 +47,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
-  ): ResultAsync<GetSignedUrlResponse, AjaxError> {
+  ): ResultAsync<GetSignedUrlResponse[], AjaxError> {
     const signableData = {
       fileName: fileName,
     } as Record<string, unknown>;
@@ -66,7 +66,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         );
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<GetSignedUrlResponse>(url, {
+        return this.ajaxUtils.post<GetSignedUrlResponse[]>(url, {
           fileName: fileName,
           signature: signature,
         });
