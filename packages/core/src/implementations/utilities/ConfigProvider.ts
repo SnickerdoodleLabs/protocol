@@ -87,6 +87,12 @@ export class ConfigProvider
       "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7", // etherscan api key
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
+      {
+        solana:
+          "https://solana-mainnet.g.alchemy.com/v2/jTt7xNc-M5Tl3myKDWgsKULpB3tR7uDB",
+        solanaTestnet:
+          "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+      },
     );
   }
 
@@ -158,7 +164,8 @@ export class ConfigProvider
     this.config.ceramicNodeURL =
       overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
     this.config.requestForDataCheckingFrequency =
-      overrides.requestForDataCheckingFrequency ?? this.config.requestForDataCheckingFrequency;
+      overrides.requestForDataCheckingFrequency ??
+      this.config.requestForDataCheckingFrequency;
     this.config.ceramicModelAliases =
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
   }
