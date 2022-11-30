@@ -9,15 +9,13 @@ import { okAsync, Result, ResultAsync } from "neverthrow";
 export class Environment {
     protected fioUtils: FileInputUtils;
     protected walletFolder = "data/profiles/dataWallet"
+    public dataWalletProfile: DataWalletProfile | null = null;
     public constructor(
         public businessProfile: BusinessProfile,
-        public dataWalletProfile: DataWalletProfile | null,
         public mocks: TestHarnessMocks
     ) {
         this.fioUtils = new FileInputUtils();
-        if (this.dataWalletProfile  == null) {
-            this.loadDefaultProfile()
-        }
+        this.loadDefaultProfile()
     }
 
     public get insightPlatform(): InsightPlatformSimulator {
