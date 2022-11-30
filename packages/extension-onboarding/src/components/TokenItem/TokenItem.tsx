@@ -44,18 +44,14 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
             }}
           >
             {stableCoins.includes(item.ticker) && parseInt(item.balance) > 0
-              ? `${
-                  item.balance.substr(0, item.balance.length - 6) +
-                  "," +
-                  item.balance.substr(-6)
-                } ${item.ticker}`
+              ? `${Number.parseFloat(item.balance || "0") / 10 ** 6} ${
+                  item.ticker
+                }`
               : item.type != EChainTechnology.Solana
-              ? `${ethers.utils.formatUnits(
-                  BigNumber.from(item.balance || "0"),
-                )} ${item.ticker}`
-              : `${ethers.utils.formatUnits(
-                  BigNumber.from(item.balance || "0").toNumber() / 10 ** 9,
-                )} ${item.ticker}`}
+              ? `${Number.parseFloat(item.balance || "0")} ${item.ticker}`
+              : `${Number.parseFloat(item.balance || "0") / 10 ** 9} ${
+                  item.ticker
+                }`}
           </Typography>
         </Box>
       </Box>

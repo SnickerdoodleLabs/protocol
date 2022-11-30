@@ -48,7 +48,6 @@ import { useStyles } from "@extension-onboarding/components/Portfolio/Portfolio.
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 
-
 declare const window: IWindowWithSdlDataWallet;
 
 export enum EDisplayMode {
@@ -240,9 +239,10 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
           acc[item.ticker] = {
             ...acc[item.ticker],
             balance: BigNumberString(
-              BigNumber.from(acc[item.ticker].balance)
-                .add(BigNumber.from(item.balance))
-                .toString(),
+              (
+                Number.parseFloat(acc[item.ticker].balance) +
+                Number.parseFloat(item.balance)
+              ).toString(),
             ),
             quoteBalance: BigNumberString(
               (
