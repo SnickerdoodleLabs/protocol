@@ -124,7 +124,10 @@
     "copyfiles": "^2.3.0",
     "css-loader": "^5.0.1",
     "cucumber-tsflow": "^4.0.0-rc.7",
+<<<<<<< HEAD
     "curl-request": "^1.1.1",
+=======
+>>>>>>> develop
     "env-cmd": "^10.1.0",
     "eslint": "^8.8.0",
     "eslint-config-prettier": "^7.2.0",
@@ -180,7 +183,7 @@
     "ts-jest": "^29.0.1",
     "ts-jest-resolver": "^2.0.0",
     "ts-loader": "^8.0.14",
-    "ts-node": "~10.8.2",
+    "ts-node": "^10.8.0",
     "tsc-alias": "^1.2.6",
     "tsconfig-paths": "^3.9.0",
     "tsconfig-paths-webpack-plugin": "^3.3.0",

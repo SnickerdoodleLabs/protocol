@@ -64,4 +64,11 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "16px",
     color: "#232039",
   },
+  infoText: {
+    fonFamily: "Space Grotesk",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "14px",
+    lineHeight: "16px",
+  },
 }));

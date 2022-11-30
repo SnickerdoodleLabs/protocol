@@ -358,7 +358,7 @@ function corePrompt(): ResultAsync<void, Error> {
       case "setGender":
         console.log("Gender is set to male");
         return core.setGender(Gender("male"));
-      case "getAge":
+      case "getGender":
         return core.getGender().map(console.log);
       case "setLocation":
         console.log("Location Country Code is US");
@@ -374,7 +374,7 @@ function corePrompt(): ResultAsync<void, Error> {
       case "getBalances":
         return core.getAccountBalances().map(console.log);
       case "getTransactionMap":
-        return core.getTransactionsArray().map(console.log);
+        return core.getTransactions().map(console.log);
       case "getSiteVisitMap":
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
