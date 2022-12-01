@@ -158,8 +158,8 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<CeramicStreamID, PersistenceError> {
-    return this._init().andThen(({ store, model, client }) => {
+  ): ResultAsync<void, PersistenceError> {
+    return this._init().andThen(({ model, client }) => {
       return ResultAsync.fromPromise(
         model.createTile("DataWalletBackup", backup),
         (e) => new PersistenceError("error creating backup tile", e),
@@ -179,7 +179,7 @@ export class CeramicCloudStorage implements ICloudStorage {
             return this._putBackupIndex(index).map((_) => {
               console.debug("CloudStorage", `Backup placed: ${id}`);
               this._restored.add(id);
-              return CeramicStreamID(id);
+              // return CeramicStreamID(id);
             });
           });
         });
@@ -216,6 +216,7 @@ export class CeramicCloudStorage implements ICloudStorage {
     return this._getBackupIndex().andThen((backups) => {
       const recent = backups.map((record) => record.id);
       const found = [...recent].filter((x) => !this._restored.has(x));
+
       // console.debug("CloudStorage", `${found.length} new backups found`);
       return ResultUtils.combine(
         found.map((backupID) => this._getBackup(backupID)),
