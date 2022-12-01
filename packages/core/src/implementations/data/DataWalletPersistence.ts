@@ -455,6 +455,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public getAccountBalances(
     chains?: ChainId[],
+    accounts?: LinkedAccount[],
   ): ResultAsync<TokenBalance[], PersistenceError> {
     return ResultUtils.combine([
       this.getAccounts(),
@@ -462,7 +463,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ])
       .andThen(([linkedAccounts, config]) => {
         return ResultUtils.combine(
-          linkedAccounts.map((linkedAccount) => {
+          (accounts ?? linkedAccounts).map((linkedAccount) => {
             return ResultUtils.combine(
               (chains ?? config.supportedChains).map((chainId) => {
                 if (!isAccountValidForChain(chainId, linkedAccount)) {
@@ -575,6 +576,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public getAccountNFTs(
     chains?: ChainId[],
+    accounts?: LinkedAccount[],
   ): ResultAsync<WalletNFT[], PersistenceError> {
     return ResultUtils.combine([
       this.getAccounts(),
@@ -582,7 +584,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ])
       .andThen(([linkedAccounts, config]) => {
         return ResultUtils.combine(
-          linkedAccounts.map((linkedAccount) => {
+          (accounts ?? linkedAccounts).map((linkedAccount) => {
             return ResultUtils.combine(
               (chains ?? config.supportedChains).map((chainId) => {
                 if (!isAccountValidForChain(chainId, linkedAccount)) {

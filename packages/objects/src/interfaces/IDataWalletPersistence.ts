@@ -148,9 +148,11 @@ export interface IDataWalletPersistence {
 
   getAccountBalances(
     chains?: ChainId[],
+    accounts?: LinkedAccount[],
   ): ResultAsync<TokenBalance[], PersistenceError>;
   getAccountNFTs(
     chains?: ChainId[],
+    accounts?: LinkedAccount[],
   ): ResultAsync<WalletNFT[], PersistenceError>;
 
   setLatestBlockNumber(
