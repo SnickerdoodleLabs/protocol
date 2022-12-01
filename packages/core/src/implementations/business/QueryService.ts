@@ -28,14 +28,10 @@ import {
   ServerRewardError,
   IDataWalletPersistenceType,
   IDataWalletPersistence,
-  QueryExpiredError,
   IDynamicRewardParameter,
   LinkedAccount,
-  DataWalletAddress,
   QueryIdentifier,
   ExpectedReward,
-  EVMPrivateKey,
-  URLString
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -125,7 +121,7 @@ export class QueryService implements IQueryService {
     config: CoreConfig,
     permittedQueryIds: QueryIdentifier[],
     expectedRewards: ExpectedReward[]
-  ): ResultAsync<void, EvaluationError> {
+  ): ResultAsync<void, EvaluationError | ServerRewardError> {
 
       return this.getEligibleRewardsFromInsightPlatform(
         context, consentContractAddress,
@@ -135,15 +131,16 @@ export class QueryService implements IQueryService {
       )
       .andThen((eligibleRewards) => {
 
-        return this.compareRewards(eligibleRewards, expectedRewards)
-        .andThen(() => {
+          if (!this.areExpectedAndEligibleRewardsEqual(eligibleRewards, expectedRewards)) 
+            return errAsync( 
+              new ServerRewardError("Insight Platform Rewards do not match Expected Rewards!")
+            );
 
           return this.publishSDQLQueryRequest(
             consentContractAddress,
             query, eligibleRewards,
             accounts, context
           );
-        });
       });
   }
 
@@ -251,27 +248,19 @@ export class QueryService implements IQueryService {
   }
   
   // Will need refactoring when we include lazy rewards
-  protected compareRewards(
+  private areExpectedAndEligibleRewardsEqual(
     eligibleRewards: EligibleReward[],
     expectedRewards: ExpectedReward[],
-  ): ResultAsync<void, ServerRewardError> {
+  ): boolean {
 
     const expectedRewardKeysSet: Set<string> = new Set(
       expectedRewards.map((expectedReward) => expectedReward.compensationKey)
     );
-    if ( // Only comparing the keys is enough.
-      eligibleRewards.length != expectedRewards.length ||
-      !eligibleRewards.every(
-        elem => expectedRewardKeysSet.has(elem.compensationKey)
-      )
-    )
-      return errAsync(
-        new ServerRewardError(
-          "Insight Platform Rewards do not match Expected Rewards!",
-        ),
-      );
 
-    return okAsync(undefined);
+    return ( // Only comparing the keys is enough.
+      eligibleRewards.length == expectedRewards.length &&
+      eligibleRewards.every(elem => expectedRewardKeysSet.has(elem.compensationKey))
+    );
   }
 
   public processQuery(
