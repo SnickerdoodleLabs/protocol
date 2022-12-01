@@ -9,5 +9,7 @@ export class EligibleReward {
     public chainId: ChainId,
     public callback: string, // stringify the callback object
     public type: ERewardType,
+    public name?: string,
+    public image?: string //Define separate type?
   ) {}
 }

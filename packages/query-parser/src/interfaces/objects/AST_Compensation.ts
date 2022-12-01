@@ -7,5 +7,7 @@ export class AST_Compensation {
     readonly chainId: ChainId,
     readonly callback: ISDQLCallback,
     readonly alternatives: CompensationId[]
+    // readonly name?: string
+    // readonly image?: string
   ) {}
 }
