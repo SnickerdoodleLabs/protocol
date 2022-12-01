@@ -118,7 +118,9 @@ export const avalanche4SchemaStr = JSON.stringify({
       },
     },
     c1: {
+      name: "Sugar to your coffee",
       description: "10% discount code for Starbucks",
+      image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress"],
@@ -128,7 +130,9 @@ export const avalanche4SchemaStr = JSON.stringify({
       },
     },
     c2: {
+      name: "The CryptoPunk Draw",
       description: "participate in the draw to win a CryptoPunk NFT",
+      image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],
@@ -139,7 +143,9 @@ export const avalanche4SchemaStr = JSON.stringify({
       alternatives: ["c3"],
     },
     c3: {
+      name: "CrazyApesClub NFT distro",
       description: "a free CrazyApesClub NFT",
+      image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       chainId: 1,
       callback: {
         parameters: ["recipientAddress", "productId"],

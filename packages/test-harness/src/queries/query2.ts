@@ -101,7 +101,9 @@ export const query2 = {
 
     },
     c1: {
+      name: "Sugar to your coffee",
       description: "10% discount code for Starbucks",
+      image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
       chainId: 1,
       callback: {
         parameters: [
@@ -113,8 +115,9 @@ export const query2 = {
       }
     },
     c2: {
-      description:
-        "participate in the draw to win a CryptoPunk NFT",
+      name: "The CryptoPunk Draw",
+      description: "participate in the draw to win a CryptoPunk NFT",
+      image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       chainId: 1,
       callback: {
         parameters: [
@@ -128,7 +131,9 @@ export const query2 = {
       alternatives: ["c3"]
     },
     c3: {
+      name: "CrazyApesClub NFT distro",
       description: "a free CrazyApesClub NFT",
+      image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       chainId: 1,
       callback: {
         parameters: [
