@@ -408,7 +408,14 @@ describe("Reward Preview", () => {
     const permittedQueryIdsAndExpectedRewards = 
       permittedQueryIdsAndExpectedRewardsWrapped._unsafeUnwrap();
 
-    console.log("Output: ", permittedQueryIdsAndExpectedRewards);
+    const permittedQueryIds = permittedQueryIdsAndExpectedRewards[0];
+    const expectedRewards = permittedQueryIdsAndExpectedRewards[1];
+
+    expect(permittedQueryIds).toBeDefined();
+    expect(permittedQueryIds.length).toBeGreaterThan(0);
+
+    expect(expectedRewards).toBeDefined();
+    expect(permittedQueryIds.length).toBeGreaterThanOrEqual(expectedRewards.length);
   });
 
 });
