@@ -20,6 +20,7 @@ import {
   TokenBalance,
   EChainTechnology,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { urlJoinP, urlJoin } from "url-join-ts";
@@ -179,7 +180,12 @@ export class CovalentEVMTransactionRepository
                 chainId,
                 EVMContractAddress(tokenInfo.contract_address),
                 accountAddress,
-                tokenInfo.balance,
+                BigNumberString(
+                  ethers.utils.formatUnits(
+                    tokenInfo.balance,
+                    tokenInfo.contract_decimals,
+                  ),
+                ),
                 BigNumberString(tokenInfo.quote.toString()),
               );
             });
