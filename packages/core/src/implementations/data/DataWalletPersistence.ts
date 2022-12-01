@@ -83,11 +83,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   private resolveRestore: (() => void) | null = null;
 
   private _balanceCache?: ResultAsync<
-    PortfolioCache<TokenBalance[], AccountIndexingError>,
+    PortfolioCache<
+      TokenBalance[],
+      PersistenceError | AccountIndexingError | AjaxError
+    >,
     never
   >;
   private _nftCache?: ResultAsync<
-    PortfolioCache<WalletNFT[], AccountIndexingError>,
+    PortfolioCache<
+      WalletNFT[],
+      PersistenceError | AccountIndexingError | AjaxError
+    >,
     never
   >;
 
@@ -491,17 +497,22 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
-        return this.getLatestBalances(chainId, accountAddress).map((result) => {
-          context.publicEvents.onTokenBalanceUpdate.next(
-            new PortfolioUpdate(
-              accountAddress,
-              chainId,
-              new Date().getTime(),
-              result,
-            ),
-          );
-          return result;
-        });
+        const fetch = this.getLatestBalances(chainId, accountAddress).map(
+          (result) => {
+            context.publicEvents.onTokenBalanceUpdate.next(
+              new PortfolioUpdate(
+                accountAddress,
+                chainId,
+                new Date().getTime(),
+                result,
+              ),
+            );
+            return result;
+          },
+        );
+        return cache
+          .set(chainId, accountAddress, new Date().getTime(), fetch)
+          .andThen(() => fetch);
       });
     });
   }
@@ -604,17 +615,22 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         if (cacheResult != null) {
           return okAsync(cacheResult);
         }
-        return this.getLatestNFTs(chainId, accountAddress).map((result) => {
-          context.publicEvents.onNftBalanceUpdate.next(
-            new PortfolioUpdate(
-              accountAddress,
-              chainId,
-              new Date().getTime(),
-              result,
-            ),
-          );
-          return result;
-        });
+        const fetch = this.getLatestNFTs(chainId, accountAddress).map(
+          (result) => {
+            context.publicEvents.onNftBalanceUpdate.next(
+              new PortfolioUpdate(
+                accountAddress,
+                chainId,
+                new Date().getTime(),
+                result,
+              ),
+            );
+            return result;
+          },
+        );
+        return cache
+          .set(chainId, accountAddress, new Date().getTime(), fetch)
+          .andThen(() => fetch);
       });
     });
   }
@@ -931,7 +947,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   private _getBalanceCache(): ResultAsync<
-    PortfolioCache<TokenBalance[], AccountIndexingError>,
+    PortfolioCache<
+      TokenBalance[],
+      PersistenceError | AccountIndexingError | AjaxError
+    >,
     never
   > {
     if (this._balanceCache) {
@@ -940,16 +959,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
     this._balanceCache = this.configProvider.getConfig().andThen((config) => {
       return okAsync(
-        new PortfolioCache<TokenBalance[], AccountIndexingError>(
-          config.accountBalancePollingIntervalMS,
-        ),
+        new PortfolioCache<
+          TokenBalance[],
+          PersistenceError | AccountIndexingError | AjaxError
+        >(config.accountBalancePollingIntervalMS),
       );
     });
     return this._balanceCache;
   }
 
   private _getNftCache(): ResultAsync<
-    PortfolioCache<WalletNFT[], AccountIndexingError>,
+    PortfolioCache<
+      WalletNFT[],
+      PersistenceError | AccountIndexingError | AjaxError
+    >,
     never
   > {
     if (this._nftCache) {
@@ -958,9 +981,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
     this._nftCache = this.configProvider.getConfig().andThen((config) => {
       return okAsync(
-        new PortfolioCache<WalletNFT[], AccountIndexingError>(
-          config.accountNFTPollingIntervalMS,
-        ),
+        new PortfolioCache<
+          WalletNFT[],
+          PersistenceError | AccountIndexingError | AjaxError
+        >(config.accountNFTPollingIntervalMS),
       );
     });
     return this._nftCache;
