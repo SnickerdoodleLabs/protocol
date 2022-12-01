@@ -5,6 +5,7 @@ import {
   ChainId,
   CountryCode,
   EarnedReward,
+  EChain,
   EncryptedString,
   ERewardType,
   EVMAccountAddress,

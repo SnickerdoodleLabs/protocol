@@ -4,9 +4,11 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import {
   AccountIndexingError,
+  chainConfig,
   ChainId,
   EChain,
   ECurrencyCode,
+  getChainInfoByChainId,
   ITokenPriceRepository,
   PersistenceError,
   TickerSymbol,
@@ -54,6 +56,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   >;
 
   private _initialized?: ResultAsync<void, AccountIndexingError>;
+  private _nativeIds: Map<ChainId, string>;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -61,12 +64,39 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
     @inject(IVolatileStorageType)
     protected volatileStorage: IVolatileStorage,
-  ) {}
+  ) {
+    this._nativeIds = new Map();
+    chainConfig.forEach((value) => {
+      if (value.nativeTokenCoinGeckoId) {
+        this._nativeIds.set(value.chainId, value.nativeTokenCoinGeckoId);
+      }
+    });
+  }
 
   public getTokenInfo(
     chainId: ChainId,
-    contractAddress: TokenAddress,
+    contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
+    // look for null contract addresses since we can't null indexed values in indexeddb
+    if (contractAddress == null) {
+      if (!this._nativeIds.has(chainId)) {
+        return okAsync(null);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const id = this._nativeIds.get(chainId)!;
+      const chainInfo = getChainInfoByChainId(chainId);
+      return okAsync(
+        new TokenInfo(
+          id,
+          TickerSymbol(chainInfo.nativeCurrency.symbol),
+          chainInfo.name,
+          chainInfo.chain,
+          null,
+        ),
+      );
+    }
+
     return this._getTokens()
       .andThen(() => {
         return this.volatileStorage.getObject<TokenInfo>(

@@ -7,7 +7,7 @@ import { ChainId } from "@objects/primitives";
 export interface ITokenPriceRepository {
   getTokenInfo(
     chainId: ChainId,
-    contractAddress: TokenAddress,
+    contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, AccountIndexingError>;
 
   // null implies native token

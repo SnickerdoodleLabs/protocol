@@ -59,6 +59,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EIndexer.Ethereum,
       new NativeCurrencyInformation("ETH", 18, "ETH"),
       EChainType.Mainnet,
+      "ethereum",
     ),
   ],
   [
@@ -182,6 +183,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EIndexer.Solana,
       new NativeCurrencyInformation("Sol", 9, "SOL"),
       EChainType.Mainnet,
+      "solana",
     ),
   ],
 ]);

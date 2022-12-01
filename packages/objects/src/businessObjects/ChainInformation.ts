@@ -21,6 +21,7 @@ export class ChainInformation {
     public indexer: EIndexer,
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
+    public nativeTokenCoinGeckoId?: string,
   ) {}
 }
 

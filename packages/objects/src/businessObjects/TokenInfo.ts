@@ -8,6 +8,6 @@ export class TokenInfo {
     public symbol: TickerSymbol,
     public name: string,
     public chain: EChain,
-    public address: TokenAddress,
+    public address: TokenAddress | null,
   ) {}
 }
