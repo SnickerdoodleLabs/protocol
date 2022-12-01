@@ -101,38 +101,26 @@ export class SDQLQueryUtils {
   private getCompensationIdsByPermittedQueryIds(
     parser: SDQLParser,
     permittedQueryIds: string[]
-  ): ResultAsync<
-    CompensationId[],
-    | ParserError
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
-  > {
+  ): ResultAsync<CompensationId[], never> {
 
-    try {
-      const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
-      // console.log("queryPermissions", queryPermissions.getFlags());
-      // now queryPermissions must contain the permission for each compensation expr for eligibility
-      const eligibleComIds = new Set<CompensationId>();
-      // console.log("logicPermissions", parser.returnPermissions);
-      // console.log("compensationPermissions", parser.compensationPermissions);
-      const expressions = Array.from(parser.compensationPermissions.keys());
+    const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
+    // console.log("queryPermissions", queryPermissions.getFlags());
+    // now queryPermissions must contain the permission for each compensation expr for eligibility
+    const eligibleComIds = new Set<CompensationId>();
+    // console.log("logicPermissions", parser.returnPermissions);
+    // console.log("compensationPermissions", parser.compensationPermissions);
 
-      for (const compExpr of expressions) {
-        const comPermissions = parser.compensationPermissions.get(compExpr);
-        if (queryPermissions.contains(comPermissions!)) {
-          const comAst = parser.logicCompensations.get(compExpr);
-          const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
+    Array.from(parser.compensationPermissions.keys()).forEach((compExpr) => {
+      const comPermissions = parser.compensationPermissions.get(compExpr);
+      if (queryPermissions.contains(comPermissions!)) {
+        const comAst = parser.logicCompensations.get(compExpr);
+        const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
 
-          comIds.forEach((comId) => eligibleComIds.add(comId));
-        }
+        comIds.forEach((comId) => eligibleComIds.add(comId));
       }
+    });
 
-      return okAsync(Array.from(eligibleComIds.values()));
-    } catch (e) {
-      return errAsync(e as QueryFormatError);
-    }
+    return okAsync(Array.from(eligibleComIds.values()));
   }
 
   protected extractCompensationIdFromAst(ast: AST_Expr | Command): CompensationId {

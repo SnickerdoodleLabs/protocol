@@ -79,7 +79,7 @@ export interface ISDQLReturnProperties {
 }
 
 export interface ISDQLCompensationBlock {
-  [index: string | CompensationId]:
+  [index: CompensationId]:
     | ISDQLCompensationParameters
     | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;

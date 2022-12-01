@@ -56,14 +56,13 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       schemaString, dataPermissions
     ).andThen(([permittedQueryIds, expectedCompensationsMap]) => {
 
-      return this.ISDQLCompensationsMapToExpectedRewardList(expectedCompensationsMap)
-      .andThen((expectedRewardList) => {
+      const expectedRewardList = 
+        this.compensationsMapToExpectedRewards(expectedCompensationsMap);
 
         return okAsync<[QueryIdentifier[], ExpectedReward[]]>(
           [permittedQueryIds.map(QueryIdentifier), expectedRewardList]
         );
       });
-    });
   }
 
   public handleQuery(
@@ -102,21 +101,14 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       });
   }
 
-  protected ISDQLCompensationsMapToExpectedRewardList(
-    ISDQLCompensationsMap: Map<string, ISDQLCompensations>
-  ): ResultAsync<
-    ExpectedReward[],
-    QueryFormatError 
-    | ParserError 
-    | DuplicateIdInSchema 
-    | MissingTokenConstructorError 
-    | QueryExpiredError
-  > {
+  protected compensationsMapToExpectedRewards(
+    iSDQLCompensationsMap: Map<string, ISDQLCompensations>
+  ): ExpectedReward[] {
 
       const listToReturn: ExpectedReward[] = [];
-      for (const currentSDQLCompensationsKey in ISDQLCompensationsMap) {
+      for (const currentSDQLCompensationsKey in iSDQLCompensationsMap) {
         const currentSDQLCompensationsObject = 
-          ISDQLCompensationsMap[currentSDQLCompensationsKey];
+          iSDQLCompensationsMap[currentSDQLCompensationsKey];
 
         listToReturn.push( 
           new ExpectedReward(
@@ -129,7 +121,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         );
       }
 
-      return okAsync(listToReturn);
+      return listToReturn;
   }
 
   protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {
