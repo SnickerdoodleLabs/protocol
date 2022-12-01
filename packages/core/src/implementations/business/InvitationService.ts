@@ -239,28 +239,38 @@ export class InvitationService implements IInvitationService {
           )
           .andThen((optInPrivateKey) => {
             if (invitation.businessSignature == null) {
-              // Before optIn check TXT records to validate invitation
-              return this.consentContractHasMatchingTXT(
-                invitation.consentContractAddress,
-              ).andThen((res) => {
-                if (res) {
-                  return okAsync({
-                    optInData: this.consentRepo.encodeOptIn(
-                      invitation.consentContractAddress,
-                      invitation.tokenId,
-                      dataPermissions,
-                    ),
-                    context,
-                    optInPrivateKey,
-                  });
-                }
-                return errAsync(
-                  new ConsentError(
-                    `${invitation.consentContractAddress} is not valid public consent contract`,
+              // If the invitation includes a domain, we will check that DNS records
+              // just to be extra safe.
+              let invitationCheck = okAsync<void, ConsentError>(undefined);
+              if (invitation.domain != "") {
+                invitationCheck = this.consentContractHasMatchingTXT(
+                  invitation.consentContractAddress,
+                ).andThen((matchingTxt) => {
+                  if (!matchingTxt) {
+                    return errAsync(
+                      new ConsentError(
+                        `Invitation for contract ${invitation.consentContractAddress} does not have valid domain information. Check the DNS settings for a proper TXT record!`,
+                      ),
+                    );
+                  }
+                  return okAsync(undefined);
+                });
+              }
+              // Only thing left is the actual opt in data
+              return invitationCheck.map(() => {
+                return {
+                  optInData: this.consentRepo.encodeOptIn(
+                    invitation.consentContractAddress,
+                    invitation.tokenId,
+                    dataPermissions,
                   ),
-                );
+                  context,
+                  optInPrivateKey,
+                };
               });
             }
+
+            // It's a private invitation
             return okAsync({
               optInData: this.consentRepo.encodeAnonymousRestrictedOptIn(
                 invitation.consentContractAddress,
