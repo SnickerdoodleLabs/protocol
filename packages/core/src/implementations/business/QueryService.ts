@@ -107,7 +107,6 @@ export class QueryService implements IQueryService {
           );
         })
         .andThen(([queryIdentifiers, expectedRewards]) => {
-
           return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
             consentContractAddress,
             query, accounts, context,
@@ -253,19 +252,24 @@ export class QueryService implements IQueryService {
   
   // Will need refactoring when we include lazy rewards
   protected compareRewards(
-    coreCreatedRewards: EligibleReward[],
-    serverCreatedRewards: EligibleReward[],
+    eligibleRewards: EligibleReward[],
+    expectedRewards: ExpectedReward[],
   ): ResultAsync<void, ServerRewardError> {
 
-    // if (
-    //   coreCreatedRewards.length !== serverCreatedRewards.length ||
-    //   !serverCreatedRewards.every((elem, index) => elem == coreCreatedRewards[index])
-    // )     
-    //   return errAsync(
-    //     new ServerRewardError(
-    //       "Insight Platform Rewards do not match Expected Rewards!",
-    //     ),
-    //   );
+    const expectedRewardKeysSet: Set<string> = new Set(
+      expectedRewards.map((expectedReward) => expectedReward.compensationKey)
+    );
+    if ( // Only comparing the keys is enough.
+      eligibleRewards.length != expectedRewards.length ||
+      !eligibleRewards.every(
+        elem => expectedRewardKeysSet.has(elem.compensationKey)
+      )
+    )
+      return errAsync(
+        new ServerRewardError(
+          "Insight Platform Rewards do not match Expected Rewards!",
+        ),
+      );
 
     return okAsync(undefined);
   }

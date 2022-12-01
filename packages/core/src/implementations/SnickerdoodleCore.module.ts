@@ -38,9 +38,15 @@ import {
 import {
   IQueryObjectFactory,
   IQueryObjectFactoryType,
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
+  ISDQLQueryUtils,
+  ISDQLQueryUtilsType,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
   QueryObjectFactory,
+  SDQLParserFactory,
+  SDQLQueryUtils,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
@@ -264,6 +270,14 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IQueryRepository>(IQueryRepositoryType)
       .to(QueryRepository)
+      .inSingletonScope();
+
+    bind<ISDQLParserFactory>(ISDQLParserFactoryType)
+      .to(SDQLParserFactory)
+      .inSingletonScope();
+
+    bind<ISDQLQueryUtils>(ISDQLQueryUtilsType)
+      .to(SDQLQueryUtils)
       .inSingletonScope();
 
     bind<IQueryFactories>(IQueryFactoriesType)

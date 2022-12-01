@@ -32,18 +32,6 @@ export interface IQueryParsingEngine {
     [InsightString[], EligibleReward[]],
     EvaluationError | QueryFormatError
   >;
-
-  identifyQueries(
-    ast: AST,
-    astEvaluator: AST_Evaluator,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<SDQL_Return[], EvaluationError>;
-
-  evalCompensations(
-    ast: AST,
-    astEvaluator: AST_Evaluator,
-    dataPermissions: DataPermissions,
-  ): ResultAsync<SDQL_Return[], EvaluationError>;
 }
 
 export const IQueryParsingEngineType = Symbol.for("IQueryParsingEngine");

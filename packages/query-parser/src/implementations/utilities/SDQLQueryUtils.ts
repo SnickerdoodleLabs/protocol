@@ -3,6 +3,7 @@ import {
   DataPermissions,
   DuplicateIdInSchema,
   IpfsCID,
+  ISDQLCompensations,
   MissingTokenConstructorError,
   ParserError,
   QueryExpiredError,
@@ -87,6 +88,82 @@ export class SDQLQueryUtils {
           }
         });
       });
+  }
+
+  public extractPermittedQueryIdsAndExpectedCompensationBlocks(
+    schemaString: SDQLString,
+    dataPermissions: DataPermissions
+  ): ResultAsync<
+    [string[], Map<string, ISDQLCompensations>], 
+    QueryFormatError 
+    | ParserError 
+    | DuplicateIdInSchema 
+    | MissingTokenConstructorError 
+    | QueryExpiredError
+  > {
+
+    return this.parserFactory.makeParser(IpfsCID(""), schemaString)
+    .andThen((parser) => {
+
+      return parser.buildAST().andThen(() => {
+
+        return this.getPermittedQueryIds(parser, dataPermissions)
+        .andThen((permittedQueryIds) => {
+
+          return this.getExpectedCompensationIds(parser, permittedQueryIds)
+          .andThen((expectedCompensationIds) => {
+
+            const expectedCompensationBlocks: Map<string, ISDQLCompensations> = new Map();
+
+            const compensationSchema = parser.schema.getCompensationSchema();
+            for (const compensationName in compensationSchema) {
+              if (!expectedCompensationIds.includes(CompensationId(compensationName)))
+                continue;
+
+              expectedCompensationBlocks[compensationName] = // 'c1': ISDQLCompensations object
+                  compensationSchema[compensationName] as ISDQLCompensations;
+            }
+            
+            return okAsync<[string[], Map<string, ISDQLCompensations>]>(
+              [permittedQueryIds, expectedCompensationBlocks]
+            );
+          });
+        });
+      });
+    });
+  }
+
+  private getExpectedCompensationIds(
+    parser: SDQLParser,
+    permittedQueryIds: string[]
+  ): ResultAsync<
+    CompensationId[],
+    | ParserError
+    | DuplicateIdInSchema
+    | QueryFormatError
+    | MissingTokenConstructorError
+    | QueryExpiredError
+  > {
+
+    try {
+      const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
+      const eligibleComIds = new Set<CompensationId>();
+      const expressions = Array.from(parser.compensationPermissions.keys());
+
+      for (const compExpr of expressions) {
+        const comPermissions = parser.compensationPermissions.get(compExpr);
+        if (queryPermissions.contains(comPermissions!)) {
+          const comAst = parser.logicCompensations.get(compExpr);
+          const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
+
+          comIds.forEach((comId) => eligibleComIds.add(comId));
+        }
+      }
+
+      return okAsync(Array.from(eligibleComIds.values()));
+    } catch (e) {
+      return errAsync(e as QueryFormatError);
+    }
   }
 
   protected extractCompensationIdFromAst(ast: AST_Expr | Command): CompensationId {
@@ -187,6 +264,4 @@ export class SDQLQueryUtils {
       }
       return okAsync(null);
   }
-
-    
 }

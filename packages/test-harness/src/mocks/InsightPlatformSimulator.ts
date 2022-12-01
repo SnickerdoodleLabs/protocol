@@ -98,16 +98,23 @@ export class InsightPlatformSimulator {
         queries,
       };
 
-      const expectedRewards: ExpectedReward[] = [];
-      expectedRewards[0] = new ExpectedReward(
-        "undefined",
-        "participate in the draw to win a CryptoPunk NFT",
+      const eligibleRewards: EligibleReward[] = [];
+      eligibleRewards[0] = new EligibleReward(
+        "c1",
+        "10% discount code for Starbucks",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }",
+        "{ parameters: [Array], data: [Object] }", 
         ERewardType.Direct,
       );
-      expectedRewards[1] = new ExpectedReward(
-        "undefined",
+      eligibleRewards[1] = new EligibleReward(
+        "c2",
+        "participate in the draw to win a CryptoPunk NFT",
+        ChainId(1),
+        "{ parameters: [Array], data: [Object] }", 
+        ERewardType.Direct,
+      );
+      eligibleRewards[2] = new EligibleReward(
+        "c3",
         "a free CrazyApesClub NFT",
         ChainId(1),
         "{ parameters: [Array], data: [Object] }",
@@ -132,7 +139,7 @@ export class InsightPlatformSimulator {
           return okAsync(null);
         })
         .map(() => {
-          res.send(expectedRewards);
+          res.send(eligibleRewards);
         })
         .mapErr((e) => {
           console.error(e);
