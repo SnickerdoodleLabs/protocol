@@ -102,15 +102,15 @@ export class QueryService implements IQueryService {
       return this.getCurrentConsentToken(context, consentContractAddress)
         .andThen((consentToken) => {
 
-          return this.queryParsingEngine.getExpectedRewards(
+          return this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
             query, consentToken!.dataPermissions
           );
         })
-        .andThen(([queryIdentifiers, expectedRewards]) => {
+        .andThen(([permittedQueryIds, expectedRewards]) => {
           return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
             consentContractAddress,
             query, accounts, context,
-            config, queryIdentifiers,
+            config, permittedQueryIds,
             expectedRewards
           );
         });
@@ -123,14 +123,14 @@ export class QueryService implements IQueryService {
     accounts: LinkedAccount[],
     context: CoreContext,
     config: CoreConfig,
-    queryIdentifiers: QueryIdentifier[],
+    permittedQueryIds: QueryIdentifier[],
     expectedRewards: ExpectedReward[]
   ): ResultAsync<void, EvaluationError> {
 
       return this.getEligibleRewardsFromInsightPlatform(
         context, consentContractAddress,
         query.cid, config,
-        queryIdentifiers,
+        permittedQueryIds,
         expectedRewards
       )
       .andThen((eligibleRewards) => {

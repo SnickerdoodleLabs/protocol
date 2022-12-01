@@ -404,7 +404,7 @@ describe("Reward Preview", () => {
     const engine = mocks.factory();
 
     const permittedQueryIdsAndExpectedRewardsWrapped = 
-      await engine.getExpectedRewards(sdqlQuery4, new DataPermissions(allPermissions));
+      await engine.getPermittedQueryIdsAndExpectedRewards(sdqlQuery4, new DataPermissions(allPermissions));
     const permittedQueryIdsAndExpectedRewards = 
       permittedQueryIdsAndExpectedRewardsWrapped._unsafeUnwrap();
 
