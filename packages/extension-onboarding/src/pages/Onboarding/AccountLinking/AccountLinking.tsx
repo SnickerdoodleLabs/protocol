@@ -6,9 +6,12 @@ import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { useStyles } from "@extension-onboarding/pages/Onboarding/AccountLinking/AccountLinking.style";
+import { useNavigate } from "react-router-dom";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 
 const AccountLinking: FC = () => {
-  const { changeStepperStatus, linkedAccounts } = useAppContext();
+  const navigate = useNavigate();
+  const { linkedAccounts } = useAppContext();
 
   const classes = useStyles();
   return (
@@ -33,7 +36,7 @@ const AccountLinking: FC = () => {
       <Box className={classes.buttonContainer}>
         <Button
           onClick={() => {
-            changeStepperStatus("back");
+            navigate(EPaths.ONBOARDING_WELCOME);
           }}
         >
           Back
@@ -43,7 +46,7 @@ const AccountLinking: FC = () => {
             type="submit"
             disabled={!linkedAccounts.length}
             onClick={() => {
-              changeStepperStatus("next");
+              navigate(EPaths.ONBOARDING_BUILD_PROFILE);
             }}
           >
             Next

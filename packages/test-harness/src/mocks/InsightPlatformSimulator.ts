@@ -1,5 +1,6 @@
 import * as fs from "fs";
 
+import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -18,7 +19,6 @@ import {
   SDQLString,
   Signature,
   URLString,
-  EligibleReward,
   ERewardType,
   ChainId,
   ExpectedReward,
@@ -29,6 +29,7 @@ import {
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
+  authorizationBackupTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
@@ -194,15 +195,64 @@ export class InsightPlatformSimulator {
         })
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(
-            queryCid,
-            ERewardType.Direct,
-          );
+          earnedRewards[0] = new EarnedReward(queryCid, ERewardType.Direct);
           res.send(earnedRewards);
         })
         .mapErr((e) => {
           console.error(e);
           res.send(e);
+        });
+    });
+
+    this.app.post("/getAuthorizedBackups", (req, res) => {
+      const signature = Signature(req.body.signature);
+      const signingData = {
+        fileName: req.body.fileName,
+      };
+      this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          authorizationBackupTypes,
+          signingData,
+          signature,
+        )
+        .map(async (verificationAddress) => {
+          const storage = new Storage({
+            keyFilename: "../persistence/src/credentials.json",
+            projectId: "snickerdoodle-insight-stackdev",
+          });
+          const readOptions: GetSignedUrlConfig = {
+            version: "v4",
+            action: "read",
+            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+          };
+
+          const readUrl = await storage
+            .bucket("ceramic-replacement-bucket")
+            .file(req.body.fileName)
+            .getSignedUrl(readOptions);
+
+          const writeOptions: GetSignedUrlConfig = {
+            version: "v4",
+            action: "write",
+            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+          };
+          await storage
+            .bucket("ceramic-replacement-bucket")
+            .file(req.body.fileName)
+            .getSignedUrl(writeOptions, async function (err, writeUrl) {
+              if (err) {
+                console.error("err: ", err);
+              } else {
+                if (err) {
+                  console.error("err: ", err);
+                  res.send(err);
+                } else {
+                  console.error("url: ", writeUrl);
+                }
+                res.send([[readUrl[0]], [writeUrl]]);
+              }
+            });
         });
     });
 

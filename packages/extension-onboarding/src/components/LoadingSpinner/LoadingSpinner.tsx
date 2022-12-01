@@ -13,23 +13,42 @@ const LoadingSpinner: React.FC = () => {
   const { loading, loaderInfo } = useLayoutContext();
   const classes = useStyles();
 
+  console.log({ loaderInfo });
+
+  const getLoadingComponent = () => {
+    switch (loaderInfo?.type) {
+      case ELoadingIndicatorType.DEFAULT: {
+        return <CircularProgress />;
+      }
+      case ELoadingIndicatorType.COMPONENT: {
+        return loaderInfo?.component ? (
+          loaderInfo.component
+        ) : (
+          <CircularProgress />
+        );
+      }
+      case ELoadingIndicatorType.LOTTIE: {
+        return (
+          <Box width={200}>
+            <Lottie
+              options={{
+                ...LOTTIE_DEFAULT_OPTIONS,
+                animationData: loaderInfo?.file ?? defaultLoading,
+              }}
+            />
+          </Box>
+        );
+      }
+      default: {
+        return <CircularProgress />;
+      }
+    }
+  };
+
   return (
     <>
       {loading && (
-        <Box className={classes.loadingWrapper}>
-          {loaderInfo?.type == ELoadingIndicatorType.DEFAULT ? (
-            <CircularProgress />
-          ) : (
-            <Box width={200}>
-              <Lottie
-                options={{
-                  ...LOTTIE_DEFAULT_OPTIONS,
-                  animationData: loaderInfo?.file ?? defaultLoading,
-                }}
-              />
-            </Box>
-          )}
-        </Box>
+        <Box className={classes.loadingWrapper}>{getLoadingComponent()}</Box>
       )}
     </>
   );

@@ -124,6 +124,49 @@ paths:
                       type: string
         400:
           $ref: '#/components/responses/InvalidError'
+
+    /getAuthorizedBackups:
+    post:
+      tags:
+        - responses
+      description: Returns the list of authorized backups, in this case from ceramic-replacement-bucket on GCP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dataWallet:
+                  type: string
+                  format: snickerdoodle-account-address
+                fileName:
+                  description: The SDQL query file full of IPFS data that will be pushed to the GCP bucket. 
+                  type: file
+                  items:
+                    type: string
+                signature:
+                  type: string
+                  format: hex-string
+              required:
+                - dataWallet
+                - fileName
+                - signature
+      responses:
+        200:
+          description: Returns a signedURL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signedURL:
+                    description: A signedURL 
+                    type: array
+                    items:
+                      type: string
+        400:
+          $ref: '#/components/responses/GetBackupsError'
           
   /metatransaction:
     post:
