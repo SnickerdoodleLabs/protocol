@@ -85,8 +85,6 @@ export class InsightPlatformSimulator {
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
       const queryCID = IpfsCID(req.body.queryCID);
-      // console.log("queryCid: ", queryCID);
-
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
       const queries = JSON.stringify(req.body.queries);
       const signature = Signature(req.body.signature);
@@ -146,8 +144,7 @@ export class InsightPlatformSimulator {
       console.log("/insights/responses ");
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
-      const queryCid = IpfsCID(req.body.queryCid);
-      // console.log("queryCid: ", queryCid);
+      const queryCID = IpfsCID(req.body.queryCID);
       const dataWallet = EVMAccountAddress(req.body.dataWallet);
       const returns = JSON.stringify(req.body.returns);
       const rewardParameters = JSON.stringify(req.body.rewardParameters);
@@ -155,7 +152,7 @@ export class InsightPlatformSimulator {
 
       const value = {
         consentContractId,
-        queryCid,
+        queryCID,
         dataWallet,
         returns,
         rewardParameters,
@@ -194,7 +191,7 @@ export class InsightPlatformSimulator {
         })
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(queryCid, ERewardType.Direct);
+          earnedRewards[0] = new EarnedReward(queryCID, ERewardType.Direct);
           res.send(earnedRewards);
         })
         .mapErr((e) => {

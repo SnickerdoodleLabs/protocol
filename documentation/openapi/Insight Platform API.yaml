@@ -36,7 +36,7 @@ paths:
                 consentContractId:
                   type: string
                   format: ethereum-contract-address
-                queryId:
+                queryCID:
                   type: string
                   format: IPFS-CID
                 dataWallet:
@@ -54,7 +54,7 @@ paths:
                   $ref: '#/components/schemas/RewardParameters'
               required:
                 - consentContractId
-                - queryId
+                - queryCID
                 - dataWallet
                 - returns
                 - signature
@@ -89,7 +89,7 @@ paths:
                 consentContractId:
                   type: string
                   format: ethereum-contract-address
-                queryId:
+                queryCID:
                   type: string
                   format: IPFS-CID
                 dataWallet:
@@ -105,7 +105,7 @@ paths:
                   format: hex-string
               required:
                 - consentContractId
-                - queryId
+                - queryCID
                 - dataWallet
                 - queries
                 - signature

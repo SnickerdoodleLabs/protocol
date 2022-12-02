@@ -95,7 +95,7 @@ export class SDQLQueryWrapper {
   }
 
   public get queries(): {
-    [queryId: string]: ISDQLQueryClause;
+    [queryCID: string]: ISDQLQueryClause;
   } {
     return this.getQuerySchema();
   }
@@ -115,7 +115,7 @@ export class SDQLQueryWrapper {
   }
 
   getQuerySchema(): {
-    [queryId: string]: ISDQLQueryClause;
+    [queryCID: string]: ISDQLQueryClause;
   } {
     return this.internalObj.queries;
   }

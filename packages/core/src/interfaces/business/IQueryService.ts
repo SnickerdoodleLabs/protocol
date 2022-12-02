@@ -21,7 +21,7 @@ import { ResultAsync } from "neverthrow";
 export interface IQueryService {
   onQueryPosted(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
+    queryCID: IpfsCID,
   ): ResultAsync<
     void,
     | ConsentContractError
