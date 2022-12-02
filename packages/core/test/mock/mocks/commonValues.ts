@@ -12,7 +12,6 @@ import {
   ControlChainInformation,
 } from "@snickerdoodlelabs/objects";
 
-
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 
 export const externalAccountAddress1 = EVMAccountAddress(

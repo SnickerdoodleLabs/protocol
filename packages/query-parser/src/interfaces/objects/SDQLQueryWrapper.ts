@@ -95,7 +95,7 @@ export class SDQLQueryWrapper {
   }
 
   public get queries(): {
-    [queryCID: string]: ISDQLQueryClause;
+    [queryId: string]: ISDQLQueryClause;
   } {
     return this.getQuerySchema();
   }
@@ -115,7 +115,7 @@ export class SDQLQueryWrapper {
   }
 
   getQuerySchema(): {
-    [queryCID: string]: ISDQLQueryClause;
+    [queryId: string]: ISDQLQueryClause;
   } {
     return this.internalObj.queries;
   }
@@ -130,7 +130,7 @@ export class SDQLQueryWrapper {
   getCompensationSchema(): ISDQLCompensationBlock {
     return this.internalObj.compensations;
   }
-  
+
   getLogicSchema(): ISDQLLogicObjects {
     return this.internalObj.logic;
   }

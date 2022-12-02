@@ -39,9 +39,9 @@ paths:
                 queryCID:
                   type: string
                   format: IPFS-CID
-                dataWallet:
+                tokenId:
                   type: string
-                  format: snickerdoodle-account-address
+                  format: big-number-string
                 returns:
                   description: Each logic return is formatted as a string, with JSON data inside it
                   type: array
@@ -55,7 +55,7 @@ paths:
               required:
                 - consentContractId
                 - queryCID
-                - dataWallet
+                - tokenId
                 - returns
                 - signature
       responses:
@@ -92,9 +92,9 @@ paths:
                 queryCID:
                   type: string
                   format: IPFS-CID
-                dataWallet:
+                tokenId:
                   type: string
-                  format: snickerdoodle-account-address
+                  format: big-number-string
                 queries:
                   description: The list of queries that will be answered (q1, q3, q4) etc, based on the data permissions.
                   type: array
@@ -138,10 +138,6 @@ paths:
             schema:
               type: object
               properties:
-                dataWalletAddress:
-                  description: The address of the data wallet
-                  type: string
-                  format: ethereum-account-address
                 accountAddress:
                   type: string
                   format: ethereum-account-address
