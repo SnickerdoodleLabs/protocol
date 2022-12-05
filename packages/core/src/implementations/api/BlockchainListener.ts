@@ -140,8 +140,13 @@ export class BlockchainListener implements IBlockchainListener {
     | EvaluationError
     | QueryExpiredError
   > {
-    return this.consentContractRepository
-      .getConsentContracts()
+    return this.dataWalletPersistence
+      .getAcceptedInvitations()
+      .andThen((optIns) => {
+        return this.consentContractRepository.getConsentContracts(
+          optIns.map((oii) => oii.consentContractAddress),
+        );
+      })
       .andThen((consentContractsMap) => {
         return ResultUtils.combine(
           Array.from(consentContractsMap.values()).map((consentContract) => {

@@ -46,6 +46,7 @@ import {
   EarnedReward,
   IpfsCID,
   ERewardType,
+  Invitation,
 } from "@snickerdoodlelabs/objects";
 import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
 import { BigNumber } from "ethers";
@@ -130,7 +131,6 @@ const domainName3 = DomainName("snickerdoodle-protocol.snickerdoodle.dev");
 const domainName4 = DomainName("snickerdoodle-protocol.snickerdoodle.com");
 
 const consentContracts = new Array<EVMContractAddress>();
-const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
 
@@ -179,6 +179,7 @@ core.getEvents().map(async (events) => {
           return core.processQuery(
             queryRequest.consentContractAddress,
             queryRequest.query,
+            [],
           );
         })
         .mapErr((e) => {
@@ -937,7 +938,6 @@ function optInCampaign(): ResultAsync<
               console.log(
                 `Accepted invitation to ${invitation.url}, with token Id ${invitation.invitation.tokenId}`,
               );
-              acceptedInvitations.push(invitation);
             });
         });
       });
@@ -958,39 +958,41 @@ function optOutCampaign(): ResultAsync<
   | AjaxError
   | ConsentContractRepositoryError
 > {
-  return prompt([
-    {
-      type: "list",
-      name: "optOutCampaign",
-      message: "Please choose a campaign to opt out of:",
-      choices: [
-        ...acceptedInvitations.map((invitation) => {
-          return {
-            name: `${invitation.invitation.consentContractAddress}`,
-            value: invitation,
-          };
-        }),
-        new inquirer.Separator(),
-        { name: "Cancel", value: "cancel" },
-      ],
-    },
-  ])
-    .andThen((answers) => {
-      if (answers.optOutCampaign == "cancel") {
+  return core
+    .getAcceptedInvitations()
+    .andThen((invitations) => {
+      console.log(invitations);
+      if (invitations.length < 1) {
+        console.log("No accepted invitations to opt out of!");
         return okAsync(undefined);
       }
-      const invitation = answers.optOutCampaign as PageInvitation;
-      return core
-        .leaveCohort(invitation.invitation.consentContractAddress)
-        .map(() => {
+      return prompt([
+        {
+          type: "list",
+          name: "optOutCampaign",
+          message: "Please choose a campaign to opt out of:",
+          choices: [
+            ...invitations.map((invitation) => {
+              return {
+                name: `${invitation.consentContractAddress}`,
+                value: invitation,
+              };
+            }),
+            new inquirer.Separator(),
+            { name: "Cancel", value: "cancel" },
+          ],
+        },
+      ]).andThen((answers) => {
+        if (answers.optOutCampaign == "cancel") {
+          return okAsync(undefined);
+        }
+        const invitation = answers.optOutCampaign as Invitation;
+        return core.leaveCohort(invitation.consentContractAddress).map(() => {
           console.log(
-            `Opted out of consent contract ${invitation.invitation.consentContractAddress}`,
+            `Opted out of consent contract ${invitation.consentContractAddress}`,
           );
-
-          // Remove it from the list of opted-in contracts
-          const index = acceptedInvitations.indexOf(invitation, 0);
-          acceptedInvitations.splice(index, 1);
         });
+      });
     })
     .mapErr((e) => {
       console.error(e);
