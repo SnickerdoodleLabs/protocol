@@ -1,8 +1,5 @@
 import { ResultAsync } from "neverthrow";
 
-import { IChainTransaction } from "./chains";
-import { IDataWalletBackup } from "./IDataWalletBackup";
-
 import {
   Invitation,
   DataPermissions,
@@ -11,7 +8,6 @@ import {
   PageInvitation,
   SiteVisit,
   LinkedAccount,
-  EligibleReward,
   EarnedReward,
   IDynamicRewardParameter,
   EVMTransactionFilter,
@@ -37,6 +33,8 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
+import { IChainTransaction } from "@objects/interfaces/chains";
+import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
