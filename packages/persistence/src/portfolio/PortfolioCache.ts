@@ -4,10 +4,7 @@ import { ResultAsync, okAsync } from "neverthrow";
 import { PortfolioCacheItem } from "@persistence/portfolio/PortfolioCacheItem.js";
 
 export class PortfolioCache<T, E> {
-  private _cache = new Map<
-    [ChainId, AccountAddress],
-    PortfolioCacheItem<T, E>
-  >();
+  private _cache = new Map<string, PortfolioCacheItem<T, E>>();
   public constructor(public lifespanMS: number) {}
 
   public get(
@@ -26,10 +23,10 @@ export class PortfolioCache<T, E> {
     chainId: ChainId,
     address: AccountAddress,
   ): ResultAsync<PortfolioCacheItem<T, E> | null, never> {
-    if (this._cache.has([chainId, address])) {
+    if (this._cache.has(PortfolioCache.getKey(chainId, address))) {
       const current = new Date().getTime();
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const cached = this._cache.get([chainId, address])!;
+      const cached = this._cache.get(PortfolioCache.getKey(chainId, address))!;
       if (current - cached.timestamp < this.lifespanMS) {
         return okAsync(cached);
       }
@@ -46,7 +43,7 @@ export class PortfolioCache<T, E> {
     return this._get(chainId, address).andThen((item) => {
       if (item == null || timestamp - item.timestamp < this.lifespanMS) {
         this._cache.set(
-          [chainId, address],
+          PortfolioCache.getKey(chainId, address),
           new PortfolioCacheItem(timestamp, result),
         );
       }
@@ -58,7 +55,14 @@ export class PortfolioCache<T, E> {
     chainId: ChainId,
     address: AccountAddress,
   ): ResultAsync<void, never> {
-    this._cache.set([chainId, address], new PortfolioCacheItem<T, E>());
+    this._cache.set(
+      PortfolioCache.getKey(chainId, address),
+      new PortfolioCacheItem<T, E>(),
+    );
     return okAsync(undefined);
+  }
+
+  public static getKey(chainId: ChainId, address: AccountAddress): string {
+    return [chainId, address].toString();
   }
 }
