@@ -5,6 +5,7 @@ import {
   EarnedReward,
   TransactionFilter,
   TokenBalance,
+  Invitation,
   LinkedAccount,
   SiteVisit,
   ChainTransaction,
@@ -69,6 +70,29 @@ export interface IDataWalletPersistence {
    * This method returns all the Ethereum accounts that are registered in the data wallet.
    */
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
+
+  /**
+   * Returns the list of consent contracts that the user has opted in to.
+   */
+  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
+
+  /**
+   * Adds a list of addresses from the list of addresses the user has opted in to.
+   * IMPORTANT: This does not actually opt them in, it just persists the fact
+   * @param addressesToAdd
+   */
+  addAcceptedInvitations(
+    infoToAdd: Invitation[],
+  ): ResultAsync<void, PersistenceError>;
+
+  /**
+   * Removes a list of addresses from the list of addresses the user has opted in to.
+   * IMPORTANT: This does not actually opt them out, it just records the opt-out
+   * @param addressesToRemove
+   */
+  removeAcceptedInvitationsByContractAddress(
+    addressesToRemove: EVMContractAddress[],
+  ): ResultAsync<void, PersistenceError>;
 
   /**
    * This is an example method for adding data to the wallet. In this case, it would be a "click",

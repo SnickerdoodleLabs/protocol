@@ -47,6 +47,7 @@ import {
   IpfsCID,
   ERewardType,
   EVMTransactionHash,
+  Invitation,
 } from "@snickerdoodlelabs/objects";
 import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
 import { BigNumber } from "ethers";
@@ -54,14 +55,14 @@ import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
-import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
+import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
+import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 
 // #region new prompt
-const promptFactory = new PromptFactory()
+const promptFactory = new PromptFactory();
 const mainPromptNew = promptFactory.createDefault();
 // #endregion
 
@@ -145,7 +146,6 @@ const domainName3 = DomainName("snickerdoodle-protocol.snickerdoodle.dev");
 const domainName4 = DomainName("snickerdoodle-protocol.snickerdoodle.com");
 
 const consentContracts = new Array<EVMContractAddress>();
-const acceptedInvitations = new Array<PageInvitation>();
 
 let unlocked = false;
 
@@ -194,6 +194,7 @@ core.getEvents().map(async (events) => {
           return core.processQuery(
             queryRequest.consentContractAddress,
             queryRequest.query,
+            [],
           );
         })
         .mapErr((e) => {
@@ -369,7 +370,7 @@ function corePrompt(): ResultAsync<void, Error> {
       case "setGender":
         console.log("Gender is set to male");
         return core.setGender(Gender("male"));
-      case "getAge":
+      case "getGender":
         return core.getGender().map(console.log);
       case "setLocation":
         console.log("Location Country Code is US");
@@ -385,7 +386,7 @@ function corePrompt(): ResultAsync<void, Error> {
       case "getBalances":
         return core.getAccountBalances().map(console.log);
       case "getTransactionMap":
-        return core.getTransactionsArray().map(console.log);
+        return core.getTransactions().map(console.log);
       case "getSiteVisitMap":
         return core.getSiteVisitsMap().map(console.log);
       case "getSiteVisits":
@@ -974,7 +975,6 @@ function optInCampaign(): ResultAsync<
               console.log(
                 `Accepted invitation to ${invitation.url}, with token Id ${invitation.invitation.tokenId}`,
               );
-              acceptedInvitations.push(invitation);
             });
         });
       });
@@ -995,39 +995,41 @@ function optOutCampaign(): ResultAsync<
   | AjaxError
   | ConsentContractRepositoryError
 > {
-  return prompt([
-    {
-      type: "list",
-      name: "optOutCampaign",
-      message: "Please choose a campaign to opt out of:",
-      choices: [
-        ...acceptedInvitations.map((invitation) => {
-          return {
-            name: `${invitation.invitation.consentContractAddress}`,
-            value: invitation,
-          };
-        }),
-        new inquirer.Separator(),
-        { name: "Cancel", value: "cancel" },
-      ],
-    },
-  ])
-    .andThen((answers) => {
-      if (answers.optOutCampaign == "cancel") {
+  return core
+    .getAcceptedInvitations()
+    .andThen((invitations) => {
+      console.log(invitations);
+      if (invitations.length < 1) {
+        console.log("No accepted invitations to opt out of!");
         return okAsync(undefined);
       }
-      const invitation = answers.optOutCampaign as PageInvitation;
-      return core
-        .leaveCohort(invitation.invitation.consentContractAddress)
-        .map(() => {
+      return prompt([
+        {
+          type: "list",
+          name: "optOutCampaign",
+          message: "Please choose a campaign to opt out of:",
+          choices: [
+            ...invitations.map((invitation) => {
+              return {
+                name: `${invitation.consentContractAddress}`,
+                value: invitation,
+              };
+            }),
+            new inquirer.Separator(),
+            { name: "Cancel", value: "cancel" },
+          ],
+        },
+      ]).andThen((answers) => {
+        if (answers.optOutCampaign == "cancel") {
+          return okAsync(undefined);
+        }
+        const invitation = answers.optOutCampaign as Invitation;
+        return core.leaveCohort(invitation.consentContractAddress).map(() => {
           console.log(
-            `Opted out of consent contract ${invitation.invitation.consentContractAddress}`,
+            `Opted out of consent contract ${invitation.consentContractAddress}`,
           );
-
-          // Remove it from the list of opted-in contracts
-          const index = acceptedInvitations.indexOf(invitation, 0);
-          acceptedInvitations.splice(index, 1);
         });
+      });
     })
     .mapErr((e) => {
       console.error(e);

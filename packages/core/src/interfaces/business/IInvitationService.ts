@@ -71,9 +71,11 @@ export interface IInvitationService {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentContractError
-    | ConsentContractRepositoryError
     | ConsentError
+    | PersistenceError
   >;
+
+  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
 
   getConsentContractCID(
     consentAddress: EVMContractAddress,
@@ -99,6 +101,7 @@ export interface IInvitationService {
     | BlockchainProviderError
     | ConsentFactoryContractError
     | ConsentContractError
+    | PersistenceError
   >;
 
   getInvitationMetadataByCID(
@@ -109,12 +112,12 @@ export interface IInvitationService {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     HexString32,
-    | BlockchainProviderError
-    | UninitializedError
     | ConsentContractError
-    | ConsentContractRepositoryError
-    | AjaxError
+    | UninitializedError
+    | BlockchainProviderError
     | ConsentError
+    | PersistenceError
+    | ConsentFactoryContractError
   >;
 
   getAvailableInvitationsCID(): ResultAsync<

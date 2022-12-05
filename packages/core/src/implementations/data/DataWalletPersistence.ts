@@ -35,6 +35,9 @@ import {
   ChainTransaction,
   CeramicStreamID,
   EarnedReward,
+  Invitation,
+  Signature,
+  TokenId,
   chainConfig,
   TokenBalance,
   WalletNFT,
@@ -46,9 +49,8 @@ import {
   ITokenPriceRepository,
   TokenAddress,
   TransactionFilter,
-  getChainInfoByChainId,
-  EChain,
   PortfolioUpdate,
+  JSONString,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -189,6 +191,79 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         ELocalStorageKey.ACCOUNT,
       );
     });
+  }
+
+  public getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError> {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._checkAndRetrieveValue<JSONString>(
+          ELocalStorageKey.ACCEPTED_INVITATIONS,
+          JSONString("[]"),
+        );
+      })
+      .map((json) => {
+        const storedInvitations = JSON.parse(json) as InvitationForStorage[];
+        return storedInvitations.map((storedInvitation) => {
+          return InvitationForStorage.toInvitation(storedInvitation);
+        });
+      });
+  }
+
+  public addAcceptedInvitations(
+    invitations: Invitation[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForRestore()
+      .andThen(() => {
+        return ResultUtils.combine([
+          this.backupManagerProvider.getBackupManager(),
+          this._checkAndRetrieveValue<JSONString>(
+            ELocalStorageKey.ACCEPTED_INVITATIONS,
+            JSONString("[]"),
+          ),
+        ]);
+      })
+      .andThen(([backupManager, json]) => {
+        const storedInvitations = JSON.parse(json) as InvitationForStorage[];
+
+        // Convert and add the new invitations
+        const allInvitations = storedInvitations.concat(
+          invitations.map((invitation) => {
+            return InvitationForStorage.fromInvitation(invitation);
+          }),
+        );
+
+        return backupManager.updateField(
+          ELocalStorageKey.ACCEPTED_INVITATIONS,
+          JSONString(JSON.stringify(allInvitations)),
+        );
+      });
+  }
+
+  public removeAcceptedInvitationsByContractAddress(
+    addressesToRemove: EVMContractAddress[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForRestore()
+      .andThen(() => {
+        return ResultUtils.combine([
+          this.backupManagerProvider.getBackupManager(),
+          this._checkAndRetrieveValue<JSONString>(
+            ELocalStorageKey.ACCEPTED_INVITATIONS,
+            JSONString("[]"),
+          ),
+        ]);
+      })
+      .andThen(([backupManager, json]) => {
+        const storedInvitations = JSON.parse(json) as InvitationForStorage[];
+
+        const invitations = storedInvitations.filter((optIn) => {
+          return !addressesToRemove.includes(optIn.consentContractAddress);
+        });
+
+        return backupManager.updateField(
+          ELocalStorageKey.ACCEPTED_INVITATIONS,
+          JSONString(JSON.stringify(invitations)),
+        );
+      });
   }
 
   public addEarnedRewards(
@@ -346,7 +421,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.waitForRestore().andThen(([key]) => {
+    return this.waitForRestore().andThen(() => {
       return this._checkAndRetrieveValue(ELocalStorageKey.AGE, null);
     });
   }
@@ -994,6 +1069,33 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       );
     });
     return this._nftCache;
+  }
+}
+
+class InvitationForStorage {
+  public constructor(
+    public domain: DomainName,
+    public consentContractAddress: EVMContractAddress,
+    public tokenId: string,
+    public businessSignature: Signature | null,
+  ) {}
+
+  static toInvitation(src: InvitationForStorage): Invitation {
+    return new Invitation(
+      src.domain,
+      src.consentContractAddress,
+      TokenId(BigInt(src.tokenId)),
+      src.businessSignature,
+    );
+  }
+
+  static fromInvitation(src: Invitation): InvitationForStorage {
+    return new InvitationForStorage(
+      src.domain,
+      src.consentContractAddress,
+      src.tokenId.toString(),
+      src.businessSignature,
+    );
   }
 }
 

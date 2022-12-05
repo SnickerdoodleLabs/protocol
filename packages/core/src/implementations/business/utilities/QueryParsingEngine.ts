@@ -41,7 +41,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryRepository: IQueryRepository,
   ) {}
 
-  public getPreviews(
+  public getExpectedRewards(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
@@ -64,6 +64,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           this.queryRepository,
         );
 
+        // TODO: use SDQLQueryUtils to extract q1, q2...query identifiers and c1, c2, compensation identifiers.
         return ResultUtils.combine([
           this.identifyQueries(astTree, astEvaluator, dataPermissions),
           this.evalCompensations(astTree, astEvaluator, dataPermissions),
@@ -82,6 +83,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         });
       });
   }
+
 
   public handleQuery(
     query: SDQLQuery,
