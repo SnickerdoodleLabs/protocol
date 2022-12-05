@@ -46,6 +46,7 @@ import {
   CeramicStreamID,
   CountryCode,
   DataWalletAddress,
+  DataWalletBackupID,
   DomainName,
   EmailAddressString,
   EVMContractAddress,
@@ -385,7 +386,7 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<EVMTransaction[], PersistenceError>;
   getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
 
-  postBackup(): ResultAsync<void, PersistenceError>;
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 

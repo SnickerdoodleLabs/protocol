@@ -45,6 +45,7 @@ import {
   URLString,
   CeramicStreamID,
   EarnedReward,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -343,7 +344,7 @@ export class AccountService implements IAccountService {
           })
           .andThen(() => {
             // We need to post a backup immediately upon adding an account, so that we don't lose access
-            return this.dataWalletPersistence.postBackup();
+            return this.dataWalletPersistence.postBackups();
           })
           .map(() => {
             // Notify the outside world of what we did
@@ -453,7 +454,7 @@ export class AccountService implements IAccountService {
                 })
                 .andThen(() => {
                   // We need to post a backup immediately upon adding an account, so that we don't lose access
-                  return this.dataWalletPersistence.postBackup();
+                  return this.dataWalletPersistence.postBackups();
                 })
                 .map(() => {
                   // Notify the outside world of what we did
@@ -579,8 +580,8 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.addEVMTransactions(transactions);
   }
 
-  public postBackup(): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.postBackup();
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+    return this.dataWalletPersistence.postBackups();
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {

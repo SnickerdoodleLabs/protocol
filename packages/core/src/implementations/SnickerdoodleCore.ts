@@ -69,6 +69,7 @@ import {
   CeramicStreamID,
   EarnedReward,
   IDynamicRewardParameter,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -699,11 +700,11 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
-  public postBackup(): ResultAsync<void, PersistenceError> {
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
-    return persistence.postBackup();
+    return persistence.postBackups();
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {

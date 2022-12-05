@@ -494,7 +494,7 @@ function corePrompt(): ResultAsync<void, Error> {
             okAsync(console.log("restored backup", backup.header.hash)),
           );
       case "manualBackup":
-        return core.postBackup().map(console.log);
+        return core.postBackups().map(console.log);
       case "clearCloudStore":
         return core.clearCloudStore().map(console.log);
     }

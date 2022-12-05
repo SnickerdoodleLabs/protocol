@@ -45,6 +45,7 @@ import {
   CeramicStreamID,
   EarnedReward,
   chainConfig,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -906,7 +907,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             );
           })
           .andThen(() => {
-            return this._placeBackups();
+            return this.postBackups().map(() => undefined);
           })
           .orElse((e) => {
             this.logUtils.error("error loading backups", e);
@@ -915,17 +916,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  private _placeBackups(): ResultAsync<void, PersistenceError> {
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
         return backupManager.popBackup().andThen((backup) => {
-          if (backup == null) {
-            return okAsync(undefined);
+          if (backup == undefined) {
+            return okAsync([]);
           }
 
           return this.cloudStorage.putBackup(backup).andThen((streamID) => {
-            return this._placeBackups();
+            return this.postBackups().map((ids) => {
+              return [streamID, ...ids];
+            });
           });
         });
       });
@@ -938,10 +941,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   > {
     const chainlist: IChainTransaction[] = [];
     return okAsync(chainlist);
-  }
-
-  public postBackup(): ResultAsync<void, PersistenceError> {
-    return this._placeBackups();
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {

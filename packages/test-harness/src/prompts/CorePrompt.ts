@@ -296,7 +296,7 @@ export class CorePrompt extends Prompt {
               okAsync(console.log("restored backup", backup.header.hash)),
             );
         case "manualBackup":
-          return this.core.postBackup().map(console.log);
+          return this.core.postBackups().map(console.log);
         case "clearCloudStore":
           return this.core.clearCloudStore().map(console.log);
       }
