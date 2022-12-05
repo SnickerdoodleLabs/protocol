@@ -6,21 +6,18 @@ import {
   CountryCode,
   DataPermissions,
   ERewardType,
-  EvaluationError,
   ExpectedReward,
   Gender,
   HexString32,
   IDataWalletPersistence,
   IpfsCID,
-  QueryExpiredError,
-  QueryFormatError,
   QueryIdentifier,
   SDQLQuery,
   SDQLString,
-  URLString,
   IChainTransaction,
   SDQL_Return,
   ChainId,
+  ISDQLCompensations,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -30,13 +27,9 @@ import {
   ISDQLQueryWrapperFactory,
   QueryObjectFactory,
   SDQLQueryWrapperFactory,
-  AST,
-  ISDQLParserFactory,
-  SDQLParserFactory,
-  SDQLQueryUtils,
+  ISDQLQueryUtils,
 } from "@snickerdoodlelabs/query-parser";
-import { errAsync, okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
+import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
 
@@ -67,24 +60,6 @@ const noPermissions = HexString32(
 );
 
 
-class SDQLQueryUtilsMocks {
-    
-  protected parserFactory:ISDQLParserFactory;
-  readonly queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
-  readonly queryObjectFactory = new QueryObjectFactory();
-
-  constructor() {
-      this.parserFactory = new SDQLParserFactory(this.queryObjectFactory, this.queryWrapperFactory);
-  }
-
-  public factory(): SDQLQueryUtils {
-      return new SDQLQueryUtils(
-          this.parserFactory,
-          this.queryWrapperFactory
-      );
-  }
-}
-
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = new BalanceQueryEvaluator(
@@ -94,8 +69,7 @@ class QueryParsingMocks {
     this.persistenceRepo,
   );
 
-  public queryUtilsMock = new SDQLQueryUtilsMocks();
-  public queryUtils = this.queryUtilsMock.factory();
+  public queryUtils = td.object<ISDQLQueryUtils>();
 
   public queryObjectFactory: IQueryObjectFactory;
   public queryFactories: IQueryFactories;
@@ -130,6 +104,30 @@ class QueryParsingMocks {
     );
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
+
+    td.when(
+      this.queryUtils.extractPermittedQueryIdsAndExpectedCompensationBlocks(
+        sdqlQuery4.query, new DataPermissions(allPermissions)
+      )
+    ).thenReturn(okAsync(
+      [
+        ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'],
+        new Map(Object.entries({
+          c1: {
+            description: 'Only the chainId is compared, so this can be random.',
+            chainId: ChainId(1),
+          } as ISDQLCompensations,
+          c2: {
+            description: 'Only the chainId is compared, so this can be random.',
+            chainId: ChainId(1),
+          } as ISDQLCompensations,
+          c4: {
+            description: 'Only the chainId is compared, so this can be random.',
+            chainId: ChainId(1),
+          } as ISDQLCompensations,
+        }))
+      ]
+    ));
 
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,
@@ -397,25 +395,3 @@ describe("Testing avalanche 4", () => {
   });
 });
 */
-
-describe("Reward Preview", () => {
-  test("Showcase expected rewards", async () => {
-    const mocks = new QueryParsingMocks();
-    const engine = mocks.factory();
-
-    const permittedQueryIdsAndExpectedRewardsWrapped = 
-      await engine.getPermittedQueryIdsAndExpectedRewards(sdqlQuery4, new DataPermissions(allPermissions));
-    const permittedQueryIdsAndExpectedRewards = 
-      permittedQueryIdsAndExpectedRewardsWrapped._unsafeUnwrap();
-
-    const permittedQueryIds = permittedQueryIdsAndExpectedRewards[0];
-    const expectedRewards = permittedQueryIdsAndExpectedRewards[1];
-
-    expect(permittedQueryIds).toBeDefined();
-    expect(permittedQueryIds.length).toBeGreaterThan(0);
-
-    expect(expectedRewards).toBeDefined();
-    expect(permittedQueryIds.length).toBeGreaterThanOrEqual(expectedRewards.length);
-  });
-
-});
