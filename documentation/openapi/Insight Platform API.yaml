@@ -125,6 +125,40 @@ paths:
         400:
           $ref: '#/components/responses/InvalidError'
 
+    
+    /getGoogleStorage:
+    post:
+      tags:
+        - responses
+      description: Returns the Google Storage bucket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                signature:
+                  type: string
+                  format: hex-string
+              required:
+      responses:
+        200:
+          description: Returns a storage bucket
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signedURL:
+                    description: Storage bucket
+                    type: bucket
+                    items:
+                      type: bucket
+        400:
+          $ref: '#/components/responses/GetBackupsError'
+
+
     /getAuthorizedBackups:
     post:
       tags:

@@ -1,4 +1,4 @@
-import { GetSignedUrlResponse } from "@google-cloud/storage";
+import { Storage, GetSignedUrlResponse, Bucket } from "@google-cloud/storage";
 import {
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
@@ -42,6 +42,34 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
+
+  public getGoogleCloudStorage(
+    dataWalletKey: EVMPrivateKey,
+    fileName: string,
+  ): ResultAsync<Bucket, AjaxError> {
+    const baseURL = URLString("http://localhost:3006");
+    const signableData = {
+      fileName: fileName,
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        authorizationBackupTypes,
+        signableData,
+        dataWalletKey,
+      )
+      .andThen((signature) => {
+        console.log("getGoogleCloudStorage - SIGNED CORRECTLY!");
+        const url = new URL(urlJoin(baseURL, "/getGoogleStorage"));
+        /* Following schema from .yaml file: */
+        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
+        return this.ajaxUtils.post<Bucket>(url, {
+          fileName: fileName,
+          signature: signature,
+        });
+      });
+  }
 
   public getAuthBackups(
     dataWalletKey: EVMPrivateKey,

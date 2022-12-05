@@ -79,6 +79,7 @@ import {
   IndexedDBVolatileStorage,
   NullCloudStorage,
   GoogleCloudStorage,
+  // GoogleCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
@@ -148,6 +149,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer
         .bind(ICloudStorageType)
         .to(GoogleCloudStorage)
+        // .to(NullCloudStorage)
         .inSingletonScope();
     }
 

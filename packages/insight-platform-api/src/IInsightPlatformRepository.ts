@@ -1,4 +1,4 @@
-import { GetSignedUrlResponse } from "@google-cloud/storage";
+import { Storage, GetSignedUrlResponse, Bucket } from "@google-cloud/storage";
 import {
   AjaxError,
   BigNumberString,
@@ -20,6 +20,11 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
+  getGoogleCloudStorage(
+    dataWalletKey: EVMPrivateKey,
+    fileName: string,
+  ): ResultAsync<Bucket, AjaxError>;
+
   getAuthBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
