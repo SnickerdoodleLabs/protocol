@@ -99,6 +99,8 @@ export class InsightPlatformSimulator {
       const eligibleRewards: EligibleReward[] = [];
       eligibleRewards[0] = new EligibleReward(
         "c1",
+        "Sugar to your coffee",
+        IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
         "10% discount code for Starbucks",
         ChainId(1),
         "{ parameters: [Array], data: [Object] }", 
@@ -106,6 +108,8 @@ export class InsightPlatformSimulator {
       );
       eligibleRewards[1] = new EligibleReward(
         "c2",
+        "The CryptoPunk Draw",
+        IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
         "participate in the draw to win a CryptoPunk NFT",
         ChainId(1),
         "{ parameters: [Array], data: [Object] }", 
@@ -113,6 +117,8 @@ export class InsightPlatformSimulator {
       );
       eligibleRewards[2] = new EligibleReward(
         "c3",
+        "CrazyApesClub NFT distro",
+        IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
         "a free CrazyApesClub NFT",
         ChainId(1),
         "{ parameters: [Array], data: [Object] }",
