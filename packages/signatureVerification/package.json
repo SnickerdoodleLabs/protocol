@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/signature-verification",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Verification type definitions for insight platform calls",
   "license": "MIT",
   "repository": {
