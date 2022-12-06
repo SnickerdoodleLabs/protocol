@@ -210,9 +210,9 @@ export class InsightPlatformSimulator {
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
           earnedRewards[0] = new EarnedReward(
+            queryCID, 
             "Sugar to your coffee",
             IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
-            queryCID, 
             ERewardType.Direct
           );
           res.send(earnedRewards);
