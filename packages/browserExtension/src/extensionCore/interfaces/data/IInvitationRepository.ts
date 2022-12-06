@@ -1,4 +1,3 @@
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   DataPermissions,
@@ -8,13 +7,10 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
   HexString32,
-  BlockchainProviderError,
-  ConsentContractError,
-  Signature,
-  TokenId,
-  UninitializedError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IInvitationRepository {
   getInvitationsByDomain(
