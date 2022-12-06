@@ -37,7 +37,7 @@ const Router: FC = () => {
                     replace
                     to={
                       appMode === EAppModes.ONBOARDING_FLOW
-                        ? EPaths.ONBOARDING_WELCOME
+                        ? EPaths.ONBOARDING_LINK_ACCOUNT
                         : EPaths.HOME
                     }
                   />

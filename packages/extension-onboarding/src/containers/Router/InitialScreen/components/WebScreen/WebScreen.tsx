@@ -1,20 +1,21 @@
-import card1 from "@extension-onboarding/assets/images/card1.svg";
-import card2 from "@extension-onboarding/assets/images/card2.svg";
-import card3 from "@extension-onboarding/assets/images/card3.svg";
-import welcome1 from "@extension-onboarding/assets/images/welcome-sc1.svg";
-import welcome3Right from "@extension-onboarding/assets/images/welcome-sc3-right.svg";
-import PrimaryButton from "@extension-onboarding/components/PrimaryButton";
-import { DOWNLOAD_URL } from "@extension-onboarding/constants";
-import { Box, Grid, Hidden } from "@material-ui/core";
+import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import sdlCircle from "@extension-onboarding/assets/images/sdl-circle.svg";
+import sdlLogo from "@extension-onboarding/assets/images/sdl-logo.png";
+import videoBg from "@extension-onboarding/assets/images/video-bg.svg";
+import Button from "@extension-onboarding/components/Button";
+import {
+  DOWNLOAD_URL,
+  PRODUCT_VIDEO_URL,
+} from "@extension-onboarding/constants";
+import { useStyles } from "@extension-onboarding/containers/Router/InitialScreen/components/WebScreen/WebScreen.style";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { Box, Grid, Typography } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
-import SwipeableViews from "react-swipeable-views";
-import { autoPlay } from "react-swipeable-views-utils";
-
-const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const WebScreen = () => {
   const [pageFocused, setPageFocused] = useState<boolean>(false);
-
+  const { invitationInfo } = useAppContext();
+  const classes = useStyles();
   useEffect(() => {
     if (pageFocused) {
       window.location.reload();
@@ -35,44 +36,67 @@ const WebScreen = () => {
   }, []);
 
   return (
-    <Grid container>
-      <Grid item xs={12} md={7}>
-        <Box
-          height="100vh"
-          pl={15}
-          pr={6}
-          display="flex"
-          flexDirection="column"
-          bgcolor="#fff"
-        >
-          <Box marginY="auto">
-            <img style={{ width: "100%" }} src={welcome1} />
-            <PrimaryButton
-              type="submit"
-              onClick={() => {
-                window.open(DOWNLOAD_URL, "_blank");
-              }}
-            >
-              Install
-            </PrimaryButton>
-          </Box>
-        </Box>
-      </Grid>
-      <Hidden smDown>
-        <Grid item md={5}>
-          <Box height="100vh" display="flex" bgcolor="#F8D798">
-            <Box width="70%" margin="auto">
-              <AutoPlaySwipeableViews interval={4500}>
-                <img style={{ width: "100%" }} src={welcome3Right} />
-                <img style={{ width: "100%" }} src={card1} />
-                <img style={{ width: "100%" }} src={card2} />
-                <img style={{ width: "100%" }} src={card3} />
-              </AutoPlaySwipeableViews>
+    <Box bgcolor="#fff" py={8} px={15}>
+      <img src={snickerDoodleLogo} />
+      <Box mt={4}>
+        <Grid container alignItems="flex-end">
+          <Grid item xs={6}>
+            <Box width="100%" mb={3} marginTop="auto">
+              {invitationInfo.consentAddress && invitationInfo.brandIcon ? (
+                <Box mb={4}>
+                  <img
+                    className={classes.icon}
+                    src={invitationInfo.brandIcon}
+                  />
+
+                  <img
+                    className={classes.icon}
+                    style={{ marginLeft: -15 }}
+                    src={sdlCircle}
+                  />
+                </Box>
+              ) : (
+                <Box mb={2}>
+                  <img width="45%" src={sdlLogo} />
+                </Box>
+              )}
+              <Typography className={classes.title}>
+                Welcome to Snickerdoodle
+              </Typography>
+              <Typography className={classes.description}>
+                Snickerdoodle connects you with the brands you love
+              </Typography>
+              <Box my={4}>
+                <Typography className={classes.info}>
+                  You need to download
+                  <b> Snickerdoodle Data Wallet Extension </b>
+                  to earn your NFT reward
+                </Typography>
+              </Box>
+              <Button
+                style={{ width: 187 }}
+                onClick={() => {
+                  window.open(DOWNLOAD_URL, "_blank");
+                }}
+              >
+                Install
+              </Button>
             </Box>
-          </Box>
+          </Grid>
+
+          <Grid item xs={6}>
+            <Box display="flex" width="100%" position="relative">
+              <img width="100%" src={videoBg} />
+              <Box position="absolute" bottom="15%" right="2%">
+                <video className={classes.video} controls>
+                  <source src={PRODUCT_VIDEO_URL} />
+                </video>
+              </Box>
+            </Box>
+          </Grid>
         </Grid>
-      </Hidden>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
 
