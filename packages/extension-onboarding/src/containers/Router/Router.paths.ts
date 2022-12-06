@@ -1,9 +1,10 @@
 export enum EPaths {
   ONBOARDING = "/onboarding",
-  ONBOARDING_WELCOME = "/onboarding/welcome",
+  // ONBOARDING_WELCOME = "/onboarding/welcome",
   ONBOARDING_LINK_ACCOUNT = "/onboarding/link-account",
   ONBOARDING_BUILD_PROFILE = "/onboarding/build-profile",
-  ONBOARDING_VIEW_DATA = "/onboarding/view-data",
+  // ONBOARDING_VIEW_DATA = "/onboarding/view-data",
+  ONBOARDING_OPT_IN = "/onboarding/opt-in",
   HOME = "/",
   CAMPAIGNS = "/campaigns",
   MY_REWARDS = "/my-rewards",

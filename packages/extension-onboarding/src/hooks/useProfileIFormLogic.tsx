@@ -47,10 +47,13 @@ const useProfileIFormLogic = (): {
     date_of_birth: yup
       .date()
       .max(new Date(), "Please enter valid Date!")
-      .required("Date of Birth is required")
+      // .required("Date of Birth is required")
       .typeError("Please enter valid Date!")
       .nullable(),
-    gender: yup.string().required("Gender is required").nullable(),
+    gender: yup
+      .string()
+      // required("Gender is required").
+      .nullable(),
   });
 
   useEffect(() => {
