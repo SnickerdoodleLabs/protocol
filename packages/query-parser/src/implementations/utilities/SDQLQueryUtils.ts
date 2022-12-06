@@ -51,7 +51,9 @@ export class SDQLQueryUtils {
     .andThen((parser) => {
 
       return parser.buildAST()
-      .andThen(() => this.getCompensationIdsByPermittedQueryIds(parser, queryIds));
+      .andThen(() => okAsync(
+        this.getCompensationIdsByPermittedQueryIds(parser, queryIds)
+      ));
     });
   }
 
@@ -75,8 +77,8 @@ export class SDQLQueryUtils {
         return this.getPermittedQueryIds(parser, dataPermissions)
         .andThen((permittedQueryIds) => {
 
-          return this.getCompensationIdsByPermittedQueryIds(parser, permittedQueryIds)
-          .andThen((expectedCompensationIds) => {
+          const expectedCompensationIds = 
+            this.getCompensationIdsByPermittedQueryIds(parser, permittedQueryIds)
 
             const expectedCompensationBlocks: Map<string, ISDQLCompensations> = new Map();
 
@@ -92,7 +94,6 @@ export class SDQLQueryUtils {
             return okAsync<[string[], Map<string, ISDQLCompensations>]>(
               [permittedQueryIds, expectedCompensationBlocks]
             );
-          });
         });
       });
     });
@@ -101,7 +102,7 @@ export class SDQLQueryUtils {
   private getCompensationIdsByPermittedQueryIds(
     parser: SDQLParser,
     permittedQueryIds: string[]
-  ): ResultAsync<CompensationId[], never> {
+  ): CompensationId[] {
 
     const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
     // console.log("queryPermissions", queryPermissions.getFlags());
@@ -110,8 +111,7 @@ export class SDQLQueryUtils {
     // console.log("logicPermissions", parser.returnPermissions);
     // console.log("compensationPermissions", parser.compensationPermissions);
 
-    Array.from(parser.compensationPermissions.keys()).forEach((compExpr) => {
-      const comPermissions = parser.compensationPermissions.get(compExpr);
+    parser.compensationPermissions.forEach((comPermissions, compExpr) => {
       if (queryPermissions.contains(comPermissions!)) {
         const comAst = parser.logicCompensations.get(compExpr);
         const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
@@ -120,7 +120,7 @@ export class SDQLQueryUtils {
       }
     });
 
-    return okAsync(Array.from(eligibleComIds.values()));
+    return Array.from(eligibleComIds);
   }
 
   protected extractCompensationIdFromAst(
