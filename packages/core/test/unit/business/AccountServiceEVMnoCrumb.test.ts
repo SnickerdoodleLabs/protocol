@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ICrumbsContract,
   IMinimalForwarderContract,
@@ -32,7 +32,7 @@ import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import {  okAsync } from "neverthrow";
+import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import {
@@ -122,11 +122,13 @@ class AccountServiceMocks {
 
   public minimalForwarderContract: IMinimalForwarderContract;
   public crumbsContract: ICrumbsContract;
+  public logUtils: ILogUtils;
 
   public constructor(unlockInProgress = false, unlocked = false) {
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.crumbsRepo = td.object<ICrumbsRepository>();
     this.dataWalletPersistence = td.object<IDataWalletPersistence>();
+    this.logUtils = td.object<ILogUtils>();
 
     // Setup the context an locked, none in progress
     this.contextProvider = new ContextProviderMock(
@@ -149,7 +151,6 @@ class AccountServiceMocks {
     // InsightPlatformRepo --------------------------------------------------
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -163,7 +164,6 @@ class AccountServiceMocks {
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         solanaDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         solanaDerivedNonce,
@@ -177,7 +177,6 @@ class AccountServiceMocks {
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -191,7 +190,6 @@ class AccountServiceMocks {
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         solanaDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         solanaDerivedNonce,
@@ -487,6 +485,7 @@ class AccountServiceMocks {
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contractFactory,
+      this.logUtils,
     );
   }
 }
@@ -536,6 +535,4 @@ describe("AccountService unlock() tests", () => {
       false,
     );
   });
-
- 
 });

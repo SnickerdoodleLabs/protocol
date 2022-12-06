@@ -21,7 +21,7 @@ import { ResultAsync } from "neverthrow";
 export interface IQueryService {
   onQueryPosted(
     consentContractAddress: EVMContractAddress,
-    queryId: IpfsCID,
+    queryCID: IpfsCID,
   ): ResultAsync<
     void,
     | ConsentContractError
@@ -38,7 +38,7 @@ export interface IQueryService {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    parameters?: IDynamicRewardParameter[],
+    parameters: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError

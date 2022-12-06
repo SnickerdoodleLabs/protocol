@@ -18,11 +18,13 @@ import {
   ISO8601DateString,
   SDQLString,
   Signature,
+  TokenId,
   URLString,
   ERewardType,
   ChainId,
   ExpectedReward,
   EarnedReward,
+  MinimalForwarderContractError,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -85,17 +87,15 @@ export class InsightPlatformSimulator {
       console.log("Req is this: ", req.body);
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
+      const tokenId = TokenId(BigInt(req.body.tokenId));
       const queryCID = IpfsCID(req.body.queryCID);
-      // console.log("queryCid: ", queryCID);
-
-      const dataWallet = EVMAccountAddress(req.body.dataWallet);
       const queries = JSON.stringify(req.body.queries);
       const signature = Signature(req.body.signature);
 
       const value = {
         consentContractId,
         queryCID,
-        dataWallet,
+        tokenId,
         queries,
       };
 
@@ -125,12 +125,31 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
-          if (verificationAddress !== dataWallet) {
-            const err = new Error("`In bad wallet: ${verificationAddress}`");
-            console.error(err);
-            return errAsync(err);
-          }
-          return okAsync(null);
+          console.log(
+            `Preview requested from ${verificationAddress} for token ${tokenId} on contract ${consentContractId}`,
+          );
+
+          // Go to the blockchain and make sure this token exists and is owned by this address
+          const contract =
+            this.blockchain.getConsentContract(consentContractId);
+
+          return contract.getConsentToken(tokenId).andThen((consentToken) => {
+            if (consentToken == null) {
+              const err = new Error(`No consent token found for id ${tokenId}`);
+              console.error(err);
+              return errAsync(err);
+            }
+
+            if (consentToken.ownerAddress != verificationAddress) {
+              const err = new Error(
+                `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
+              );
+              console.error(err);
+              return errAsync(err);
+            }
+
+            return okAsync(undefined);
+          });
         })
         .map(() => {
           res.send(expectedRewards);
@@ -142,22 +161,20 @@ export class InsightPlatformSimulator {
     });
 
     this.app.post("/insights/responses", (req, res) => {
-      console.log("Sending to Insight Responses");
+      console.log("Recieved Insight Response");
       console.log("Req is this: ", req.body);
-      console.log("/insights/responses ");
 
       const consentContractId = EVMContractAddress(req.body.consentContractId);
-      const queryCid = IpfsCID(req.body.queryCid);
-      // console.log("queryCid: ", queryCid);
-      const dataWallet = EVMAccountAddress(req.body.dataWallet);
+      const queryCID = IpfsCID(req.body.queryCID);
+      const tokenId = TokenId(BigInt(req.body.tokenId));
       const returns = JSON.stringify(req.body.returns);
       const rewardParameters = JSON.stringify(req.body.rewardParameters);
       const signature = Signature(req.body.signature);
 
       const value = {
         consentContractId,
-        queryCid,
-        dataWallet,
+        queryCID,
+        tokenId,
         returns,
         rewardParameters,
       };
@@ -171,31 +188,30 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
-          // if (verificationAddress !== dataWallet) {
-
-          //   const err = new Error("`In bad wallet: ${verificationAddress}`");
-          //   console.error(err);
-          //   return errAsync(err);
-          // }
-          return okAsync(null);
-        })
-        .andThen(() => {
           const contract =
             this.blockchain.getConsentContract(consentContractId);
-          return contract.getConsentTokensOfAddress(dataWallet);
-        })
-        .andThen((tokens) => {
-          console.log("tokens: ", tokens);
-          if (tokens.length > 0) {
-            return okAsync(null);
-          }
-          console.log("tokens error: ");
-          res.send("Error: Wallet has no Consent Tokens");
-          return errAsync(" Wallet has no Consent Tokens");
+
+          return contract.getConsentToken(tokenId).andThen((consentToken) => {
+            if (consentToken == null) {
+              const err = new Error(`No consent token found for id ${tokenId}`);
+              console.error(err);
+              return errAsync(err);
+            }
+
+            if (consentToken.ownerAddress != verificationAddress) {
+              const err = new Error(
+                `Consent token ${tokenId} is not owned by the verification address ${verificationAddress}`,
+              );
+              console.error(err);
+              return errAsync(err);
+            }
+
+            return okAsync(undefined);
+          });
         })
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(queryCid, ERewardType.Direct);
+          earnedRewards[0] = new EarnedReward(queryCID, ERewardType.Direct);
           res.send(earnedRewards);
         })
         .mapErr((e) => {
@@ -324,7 +340,6 @@ export class InsightPlatformSimulator {
     this.app.post("/metatransaction", (req, res) => {
       // Gather all the parameters
       const accountAddress = EVMAccountAddress(req.body.accountAddress);
-      const dataWalletAddress = DataWalletAddress(req.body.dataWalletAddress);
       const contractAddress = EVMContractAddress(req.body.contractAddress);
       const nonce = BigNumberString(req.body.nonce);
       const value = BigNumberString(req.body.value);
@@ -336,10 +351,11 @@ export class InsightPlatformSimulator {
       );
 
       const signingData = {
-        dataWallet: dataWalletAddress,
         accountAddress: accountAddress,
         contractAddress: contractAddress,
         nonce: nonce,
+        value: value,
+        gas: gas,
         data: data,
         metatransactionSignature: metatransactionSignature,
       } as Record<string, unknown>;
@@ -353,15 +369,15 @@ export class InsightPlatformSimulator {
           signature,
         )
         .andThen((verificationAddress) => {
-          if (verificationAddress != EVMAccountAddress(dataWalletAddress)) {
+          if (verificationAddress != accountAddress) {
             console.error(
-              `Invalid signature. Data Wallet Address: ${dataWalletAddress}, verified address: ${verificationAddress}`,
+              `Invalid signature. Metatransaction request is signed by ${verificationAddress} but is for account ${accountAddress}`,
             );
             return errAsync(new Error("Invalid signature!"));
           }
 
           console.log(
-            `Verified signature from data wallet ${verificationAddress}!`,
+            `Verified signature for metatransaction for account ${verificationAddress}!`,
           );
 
           const forwarderRequest = {
@@ -381,7 +397,17 @@ export class InsightPlatformSimulator {
             metatransactionSignature,
           );
         })
-        .map(() => {
+        .andThen((tx) => {
+          return ResultAsync.fromPromise(tx.wait(), (e) => {
+            return new MinimalForwarderContractError(
+              "Wait for createCrumb() failed",
+              "Unknown",
+              e,
+            );
+          });
+        })
+        .map((receipt) => {
+          console.log("Metatransaction receipt", receipt);
           res.send("TokenId");
         })
         .mapErr((e) => {
