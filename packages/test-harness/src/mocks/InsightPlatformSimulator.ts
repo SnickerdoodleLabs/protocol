@@ -204,6 +204,48 @@ export class InsightPlatformSimulator {
         });
     });
 
+    this.app.post("/getWalletBackups", (req, res) => {
+      const signature = Signature(req.body.signature);
+      const signingData = {
+        fileName: req.body.fileName,
+      };
+      this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          authorizationBackupTypes,
+          signingData,
+          signature,
+        )
+        .map(async (verificationAddress) => {
+          const storage = new Storage({
+            keyFilename: "../persistence/src/credentials.json",
+            projectId: "snickerdoodle-insight-stackdev",
+          });
+          const bucket = storage.bucket("ceramic-replacement-bucket");
+          // const files = bucket.getFiles({ prefix: req.body.fileName + "/" }),
+
+          storage
+            .bucket("ceramic-replacement-bucket")
+            .getFiles(
+              { prefix: req.body.fileName + "/" },
+              async function (err, files) {
+                if (err) {
+                  console.error("err: ", err);
+                } else {
+                  if (err) {
+                    console.error("err: ", err);
+                    res.send(err);
+                  } else {
+                    console.error("files: ", files);
+                  }
+                  res.send(files);
+                }
+              },
+            );
+          // res.send(files);
+        });
+    });
+
     this.app.post("/getGoogleStorage", (req, res) => {
       const signature = Signature(req.body.signature);
       const signingData = {
