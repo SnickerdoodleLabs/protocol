@@ -53,18 +53,11 @@ export class FileInputUtils {
     return okAsync(files);
   }
 
-  public getFilePaths(
-    from: string,
-  ): ResultAsync<{ name: string; path: string }[], Error> {
+  public getFilePaths(from: string): ResultAsync<Map<string, string>, Error> {
     return this.getFiles(from).andThen((fNames) => {
-      const fPaths = fNames.map((fname) => {
-        const item = {
-          name: fname,
-          path: path.join(from, fname),
-        };
-        return item;
-      });
-      return okAsync(fPaths);
+      return okAsync(
+        new Map(fNames.map((fname) => [fname, path.join(from, fname)])),
+      );
     });
   }
 }
