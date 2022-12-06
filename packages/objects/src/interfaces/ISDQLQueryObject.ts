@@ -8,6 +8,7 @@ import {
   URLString,
 } from "@objects/primitives";
 import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
+import { RewardImage } from "@objects/primitives/RewardImage";
 export interface ISDQLQueryObject {
   version: string;
   timestamp: ISO8601DateString;
@@ -88,7 +89,7 @@ export interface ISDQLCompensationBlock {
 export interface ISDQLCompensations {
   name?: string;
   description: string;
-  image?: string; //Define separate type?
+  image?: RewardImage;
   chainId: ChainId;
   callback: ISDQLCallback;
   alternatives?: CompensationId[];

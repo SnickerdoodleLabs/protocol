@@ -6,6 +6,7 @@ import {
   IpfsCID,
   TransactionReceipt,
 } from "@objects/primitives";
+import { RewardImage } from "@objects/primitives/RewardImage";
 
 export class DirectReward extends EarnedReward {
   constructor(
@@ -13,7 +14,9 @@ export class DirectReward extends EarnedReward {
     readonly chainId: ChainId,
     readonly eoa: EVMAccountAddress,
     readonly transactionReceipt: TransactionReceipt,
+    readonly name?: string,
+    readonly image?: RewardImage
   ) {
-    super(queryCID, ERewardType.Direct);
+    super(queryCID, ERewardType.Direct, name, image);
   }
 }

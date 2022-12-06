@@ -6,6 +6,7 @@ import {
   IpfsCID,
   RewardFunctionParam,
 } from "@objects/primitives";
+import { RewardImage } from "@objects/primitives/RewardImage";
 
 export class LazyReward extends EarnedReward {
   constructor(
@@ -14,7 +15,9 @@ export class LazyReward extends EarnedReward {
     readonly eoa: EVMAccountAddress,
     readonly functionName: string,
     readonly functionParams: RewardFunctionParam[],
+    readonly name?: string,
+    readonly image?: RewardImage
   ) {
-    super(queryCID, ERewardType.Lazy);
+    super(queryCID, ERewardType.Lazy, name, image);
   }
 }
