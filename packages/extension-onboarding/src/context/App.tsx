@@ -20,6 +20,7 @@ import {
   EVMContractAddress,
   LinkedAccount,
   Signature,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import React, {
@@ -42,6 +43,8 @@ export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
   tokenId: BigNumberString | undefined;
   signature: Signature | undefined;
+  // temporary
+  brandIcon: URLString | undefined;
 }
 
 export enum EAppModes {
@@ -76,6 +79,14 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const invitationInfo: IInvitationInfo = useMemo(() => {
     const queryParams = new URLSearchParams(window.location.search);
+    if (
+      localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY) &&
+      !queryParams.get("consentAddress")
+    ) {
+      return JSON.parse(
+        localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)!,
+      );
+    }
     return {
       consentAddress: queryParams.get("consentAddress")
         ? EVMContractAddress(queryParams.get("consentAddress")!)
@@ -85,6 +96,9 @@ export const AppContextProvider: FC = ({ children }) => {
         : undefined,
       signature: queryParams.get("signature")
         ? Signature(queryParams.get("signature")!)
+        : undefined,
+      brandIcon: queryParams.get("brandIcon")
+        ? URLString(queryParams.get("brandIcon")!)
         : undefined,
     };
   }, [window]);
