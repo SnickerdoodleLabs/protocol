@@ -1,5 +1,6 @@
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import sdlCircle from "@extension-onboarding/assets/images/sdl-circle.svg";
+import sdlLogo from "@extension-onboarding/assets/images/sdl-logo.png";
 import videoBg from "@extension-onboarding/assets/images/video-bg.svg";
 import Button from "@extension-onboarding/components/Button";
 import {
@@ -41,7 +42,7 @@ const WebScreen = () => {
         <Grid container alignItems="flex-end">
           <Grid item xs={6}>
             <Box width="100%" mb={3} marginTop="auto">
-              {invitationInfo.consentAddress && invitationInfo.brandIcon && (
+              {invitationInfo.consentAddress && invitationInfo.brandIcon ? (
                 <Box mb={4}>
                   <img
                     className={classes.icon}
@@ -53,6 +54,10 @@ const WebScreen = () => {
                     style={{ marginLeft: -15 }}
                     src={sdlCircle}
                   />
+                </Box>
+              ) : (
+                <Box mb={2}>
+                  <img width="45%" src={sdlLogo} />
                 </Box>
               )}
               <Typography className={classes.title}>
