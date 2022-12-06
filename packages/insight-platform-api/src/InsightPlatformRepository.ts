@@ -101,9 +101,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     if (rewardParameters !== undefined) {
       const parameters = JSON.stringify(rewardParameters);
     }
-    console.log("rewardParameters: ", parameters);
-    console.log("deliverInsights - Verification Address: ", dataWalletAddress);
-    console.log("deliverInsights - dataWallet: ", dataWalletKey);
 
     const signableData = {
       consentContractId: consentContractAddress,
