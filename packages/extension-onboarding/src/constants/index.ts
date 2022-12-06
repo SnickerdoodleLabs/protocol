@@ -1,6 +1,6 @@
 export const ALERT_MESSAGES = {
   ACCOUNT_ADDED:
-    "Your  account has successfully been linked. Let’s continue to link more accounts! The more wallets you connect, the more rewards you get!",
+    "You have successfully linked your account to your personal Data Wallet!",
   PROFILE_FILLED_WITH_GOOGLE_DATA:
     "Your profile info has been auto-filled with your Google profile info.",
 };
@@ -25,3 +25,6 @@ export const PRIVACY_POLICY_URL =
 
 export const ZENDEKS_URL =
   "https://data-wallet.zendesk.com/hc/en-us/requests/new";
+
+export const PRODUCT_VIDEO_URL =
+  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4";

@@ -44,7 +44,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
   return (
     <Box>
       <Box mb={5} mt={4}>
-        {isGoogleButtonVisible && (
+        {/* {isGoogleButtonVisible && (
           <Box my={5}>
             <Box mb={2}>
               <Typography className={classes.socialLoginTitle}>
@@ -61,7 +61,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
               isSignedIn={false}
             />
           </Box>
-        )}
+        )} */}
         <Formik
           initialValues={formValues}
           onSubmit={onFormSubmit}
@@ -120,7 +120,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
                   </Box> */}
                   <Box /* ml={3} */>
                     <Typography className={classes.formLabel}>
-                      Date of Birth
+                      Date of Birth (Optional)
                     </Typography>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
@@ -163,7 +163,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
                 <Box /* display="flex" */ mt={3}>
                   <Box>
                     <Typography className={classes.formLabel}>
-                      Country
+                      Country (Optional)
                     </Typography>
                     <Field
                       className={classes.selectInput}
@@ -173,11 +173,12 @@ const ProfileForm: FC<ProfileFormProps> = ({
                       name="country_code"
                       placeholder="Country"
                       value={
-                        values.country_code ||
-                        (() => {
-                          setFieldValue("country_code", "US");
-                          return "US";
-                        })()
+                        values.country_code
+                        //  ||
+                        // (() => {
+                        //   setFieldValue("country_code", "US");
+                        //   return "US";
+                        // })()
                       }
                     >
                       <MenuItem selected value="US">
@@ -193,13 +194,13 @@ const ProfileForm: FC<ProfileFormProps> = ({
                   {/* todo delete mt */}
                   <Box /* ml={3} */ mt={3}>
                     <Typography className={classes.formLabel}>
-                      Gender
+                      Gender (Optional)
                     </Typography>
                     <Box mt={1}>
                       <Field
                         component={RadioGroup}
                         row
-                        required
+                        // required
                         name="gender"
                         value={values.gender}
                         onChange={(event) => {

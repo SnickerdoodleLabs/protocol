@@ -395,7 +395,9 @@ const Portfolio: FC = () => {
         </Grid>
       </Grid>
       <Box mt={5}>
-        <Typography className={classes.subTitle}>Accounts</Typography>
+        <Typography id="portfolio-test" className={classes.subTitle}>
+          Accounts
+        </Typography>
         <Box display="flex" justifyContent="space-between">
           <Box>
             <Select

@@ -31,28 +31,28 @@ export interface IRoute {
 export const routes: IRoute[] = [
   {
     icon: portfolioIcon,
-    title: "My Portfolio",
+    title: "My Data Dashboard",
     path: EPaths.HOME,
     subroutes: null,
   },
   {
     icon: rewardsIcon,
-    title: "Rewards",
-    path: null,
-    subroutes: [{ title: "My Rewards", path: EPaths.MY_REWARDS }],
+    title: "Rewards MarketPlace",
+    path: EPaths.MY_REWARDS,
+    subroutes: null,
   },
-  {
-    icon: campaignIcon,
-    title: "Campaigns",
-    path: null,
-    subroutes: [
-      { title: "My Campaigns", path: EPaths.MY_CAMPAIGNS },
-      { title: "Available Campaigns", path: EPaths.MARKETPLACE_CAMPAIGNS },
-    ],
-  },
+  // {
+  //   icon: campaignIcon,
+  //   title: "Campaigns",
+  //   path: null,
+  //   subroutes: [
+  //     { title: "My Campaigns", path: EPaths.MY_CAMPAIGNS },
+  //     { title: "Available Campaigns", path: EPaths.MARKETPLACE_CAMPAIGNS },
+  //   ],
+  // },
   {
     icon: settingsIcon,
-    title: "Settings",
+    title: "Data Settings",
     path: null,
     subroutes: [
       { title: "Web 3 Info", path: EPaths.WEB3_SETTINGS },
@@ -97,6 +97,7 @@ const Sidebar = () => {
           color="#F2F4F7"
           alignItems="center"
           justifyContent="center"
+          id="sb-link-account"
         >
           <Box display="flex" mr={1}>
             <AddIcon className={classes.linkAccountButtonIcon} />
@@ -122,6 +123,7 @@ const Sidebar = () => {
                 flexDirection="column"
               >
                 <Box
+                  id={`sb-${index}`}
                   onClick={() => {
                     if (route.path) {
                       navigate(route.path);
@@ -136,9 +138,9 @@ const Sidebar = () => {
                   {...(isActive && { bgcolor: "#DAD8E9" })}
                   className={classes.routeWrapper}
                 >
-                  <Box display="flex" mr={1.5}>
+                  {/* <Box display="flex" mr={1.5}>
                     <img className={classes.mainRouteIcon} src={route.icon} />
-                  </Box>
+                  </Box> */}
                   <Typography
                     className={clsx(classes.mainRouteText, {
                       [classes.textActive]: isActive,
