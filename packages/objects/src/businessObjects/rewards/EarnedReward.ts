@@ -2,5 +2,10 @@ import { ERewardType } from "@objects/enum/ERewardType";
 import { IpfsCID } from "@objects/primitives";
 
 export class EarnedReward {
-  constructor(readonly queryCID: IpfsCID, readonly type: ERewardType) {} // Add name and image to lazy reward web3 reward web2 reward.
+  constructor(
+    readonly queryCID: IpfsCID, 
+    readonly name: string,
+    readonly image: IpfsCID,
+    readonly type: ERewardType
+  ) {}
 }

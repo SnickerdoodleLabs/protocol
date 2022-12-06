@@ -325,6 +325,8 @@ function corePrompt(): ResultAsync<void, Error> {
     const transactions: EVMTransaction[] = [];
     const earnedReward = new EarnedReward(
       IpfsCID("LazyReward"),
+      "Dummy reward name",
+      IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
       ERewardType.Lazy,
     );
 
