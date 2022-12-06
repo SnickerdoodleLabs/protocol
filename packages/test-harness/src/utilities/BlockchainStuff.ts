@@ -72,7 +72,7 @@ export class BlockchainStuff {
   }
 
   public updateAccounts(newWallets: TestWallet[]) {
-    this.accountWallets = newWallets
+    this.accountWallets = newWallets;
   }
 
   public getWalletForAddress(accountAddress: AccountAddress): TestWallet {
