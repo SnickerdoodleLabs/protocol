@@ -88,9 +88,9 @@ export interface ISDQLCompensationBlock {
 }
 
 export interface ISDQLCompensations {
-  name?: string;
+  name: string;
+  image: IpfsCID;
   description: string;
-  image?: IpfsCID;
   chainId: ChainId;
   callback: ISDQLCallback;
   alternatives?: CompensationId[];

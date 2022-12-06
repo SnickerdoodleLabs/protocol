@@ -228,8 +228,8 @@ export class QueryService implements IQueryService {
 
   // Will need refactoring when we include lazy rewards
   protected compareRewards(
-    coreCreatedRewards: EligibleReward[],
     serverCreatedRewards: EligibleReward[],
+    coreCreatedRewards: ExpectedReward[],
   ): ResultAsync<void, ServerRewardError> {
     // if (
     //   coreCreatedRewards.length !== serverCreatedRewards.length ||

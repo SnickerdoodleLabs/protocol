@@ -10,13 +10,13 @@ import {
 
 export class DirectReward extends EarnedReward {
   constructor(
+    readonly name: string,
+    readonly image: IpfsCID,
     readonly queryCID: IpfsCID,
     readonly chainId: ChainId,
     readonly eoa: EVMAccountAddress,
     readonly transactionReceipt: TransactionReceipt,
-    readonly name?: string,
-    readonly image?: IpfsCID
   ) {
-    super(queryCID, ERewardType.Direct, name, image);
+    super(name, image, queryCID, ERewardType.Direct);
   }
 }
