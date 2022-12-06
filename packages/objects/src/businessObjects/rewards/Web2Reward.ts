@@ -1,7 +1,6 @@
 import { EarnedReward } from "@objects/businessObjects/rewards/EarnedReward";
 import { ECredentialType, ERewardType } from "@objects/enum";
 import { IpfsCID, URLString, Web2Credential } from "@objects/primitives";
-import { RewardImage } from "@objects/primitives/RewardImage";
 
 export class Web2Reward extends EarnedReward {
 
@@ -12,7 +11,7 @@ export class Web2Reward extends EarnedReward {
         readonly credential: Web2Credential,
         readonly instructions: string,
         readonly name?: string,
-        readonly image?: RewardImage
+        readonly image?: IpfsCID
 
     ) {
         super(queryCID, ERewardType.Web2, name, image)
