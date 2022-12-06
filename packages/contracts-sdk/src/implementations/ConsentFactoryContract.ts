@@ -37,7 +37,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   // Function to help user create consent
   // After creating consent, call getUserDeployedConsentsCount to get total number of deployed consents
-  // Then use getUserConsentAddressesByIndex to get list of count
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
@@ -155,50 +154,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     });
   }
 
-  // Gets the count of Consent address user has opted into
-  public getUserConsentAddressesCount(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<number, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.getUserConsentAddressesCount(
-        ownerAddress,
-      ) as Promise<BigNumber>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getUserConsentAddressesCount()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((count) => {
-      return count.toNumber();
-    });
-  }
-
-  // Gets the array of Consent addresses user has opted into
-  // Index values can be anywhere between the count obtained from getUserConsentAddressesCount
-  // eg. If user has [0x123, 0xabc, 0x456] Consent contracts, query with startingIndex 0 and endingIndex 2 to get full list
-  public getUserConsentAddressesByIndex(
-    ownerAddress: EVMAccountAddress,
-    startingIndex: number,
-    endingIndex: number,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.getUserConsentAddressesByIndex(
-        ownerAddress,
-        startingIndex,
-        endingIndex,
-      ) as Promise<EVMContractAddress[]>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getUserConsentAddressesByIndex()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    );
-  }
-
   // Gets the count of Consent addresses user has specific roles for
   public getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
@@ -243,16 +198,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
           (e as IBlockchainError).reason,
           e,
         );
-      },
-    );
-  }
-
-  public getOptedInConsentContractAddressForAccount(
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
-    return this.getUserConsentAddressesCount(accountAddress).andThen(
-      (count) => {
-        return this.getUserConsentAddressesByIndex(accountAddress, 0, count);
       },
     );
   }

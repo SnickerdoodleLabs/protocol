@@ -58,6 +58,7 @@ import {
 import {
   AccountService,
   BalanceQueryEvaluator,
+  ConsentTokenUtils,
   InvitationService,
   MonitoringService,
   NetworkQueryEvaluator,
@@ -111,6 +112,8 @@ import {
 import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
   INetworkQueryEvaluator,
   INetworkQueryEvaluatorType,
   IQueryEvaluator,
@@ -185,6 +188,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(SiftContractService)
       .inSingletonScope();
 
+    bind<IConsentTokenUtils>(IConsentTokenUtilsType)
+      .to(ConsentTokenUtils)
+      .inSingletonScope();
     bind<IQueryParsingEngine>(IQueryParsingEngineType)
       .to(QueryParsingEngine)
       .inSingletonScope();

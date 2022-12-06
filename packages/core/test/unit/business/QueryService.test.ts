@@ -10,61 +10,75 @@ import {
   InsightString,
   SDQLQuery,
   SDQLString,
-  Signature,
   UninitializedError,
   DataPermissions,
   ConsentToken,
   TokenId,
   IDataWalletPersistence,
-  URLString,
-  ERewardType,
   IPFSError,
-  ConsentError,
   SDQLQueryRequest,
-  ExpectedReward,
   HexString32,
+  EVMPrivateKey,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
-import { insightDeliveryTypes } from "@snickerdoodlelabs/signature-verification";
-import { query } from "express";
 import { errAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
-import { ContextReplacementPlugin } from "webpack";
+
 import {
-  dataWalletAddress,
   dataWalletKey,
+  dataWalletAddress,
   defaultInsightPlatformBaseUrl,
-  testCoreConfig,
-} from "@core-tests/mock/mocks/index.js";
+} from "@core-tests/mock/mocks";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
 import { QueryService } from "@core/implementations/business/index.js";
-import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
+import {
+  IConsentTokenUtils,
+  IQueryParsingEngine,
+} from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
-import { IConfigProvider } from "@core/interfaces/utilities/index.js";
-const AndrewContractAddress = EVMContractAddress("Andrew");
+import {
+  IConfigProvider,
+  IDataWalletUtils,
+} from "@core/interfaces/utilities/index.js";
+
 const consentContractAddress = EVMContractAddress("Phoebe");
-const queryId = IpfsCID("Beep");
-const queryContent = SDQLString("Hello world!");
-// const sdqlQuery = new SDQLQuery(queryId, queryContent);
-const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalanche1SchemaStr));
+const queryCID = IpfsCID("Beep");
+const derivedPrivateKey = EVMPrivateKey("derivedPrivateKey");
+const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche1SchemaStr));
 const insights: InsightString[] = [
   InsightString("Hello1"),
   InsightString("Hello2"),
 ];
 const insightsError: InsightString[] = [InsightString("Ajax Error producer")];
 const rewards: EligibleReward[] = [];
+const tokenId = TokenId(BigInt(0));
+
 const allPermissions = HexString32(
   "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
 );
+const dataPermissions = DataPermissions.createWithAllPermissions();
+
+const rewardParameters = [
+  {
+    recipientAddress: {
+      type: "address",
+      value: "Phoebe",
+    },
+  } as IDynamicRewardParameter,
+];
+
 class QueryServiceMocks {
+  public consentTokenUtils: IConsentTokenUtils;
+  public dataWalletUtils: IDataWalletUtils;
   public queryParsingEngine: IQueryParsingEngine;
   public sdqlQueryRepo: ISDQLQueryRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
@@ -73,13 +87,17 @@ class QueryServiceMocks {
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
   public persistenceRepo: IDataWalletPersistence;
+
   public consentToken = new ConsentToken(
     consentContractAddress,
     EVMAccountAddress(dataWalletAddress),
-    TokenId(BigInt(0)),
-    DataPermissions.createWithAllPermissions(),
+    tokenId,
+    dataPermissions,
   );
+
   public constructor() {
+    this.consentTokenUtils = td.object<IConsentTokenUtils>();
+    this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.queryParsingEngine = td.object<IQueryParsingEngine>();
     this.sdqlQueryRepo = td.object<ISDQLQueryRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
@@ -88,47 +106,58 @@ class QueryServiceMocks {
     this.configProvider = new ConfigProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.persistenceRepo = td.object<IDataWalletPersistence>();
+
     td.when(
       this.insightPlatformRepo.deliverInsights(
-        dataWalletAddress,
         consentContractAddress,
-        queryId,
+        tokenId,
+        queryCID,
         insights,
-        dataWalletKey,
+        rewardParameters,
+        derivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync([])); // success = EarnedReward[]
     td.when(
       this.insightPlatformRepo.deliverInsights(
-        dataWalletAddress,
         consentContractAddress,
-        queryId,
+        tokenId,
+        queryCID,
         insightsError,
-        dataWalletKey,
+        rewardParameters,
+        derivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError("mocked error"))); // error
-    td.when(this.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+
+    td.when(this.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
     );
     td.when(
-      this.consentContractRepo.isAddressOptedIn(
-        consentContractAddress,
-        EVMAccountAddress(dataWalletAddress),
-      ),
+      this.consentContractRepo.isAddressOptedIn(consentContractAddress),
     ).thenReturn(okAsync(true));
     td.when(
-      this.consentContractRepo.getCurrentConsentToken(consentContractAddress),
+      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ).thenReturn(okAsync(this.consentToken));
     td.when(
       this.queryParsingEngine.handleQuery(
         sdqlQuery,
-        DataPermissions.createWithAllPermissions(),
+        dataPermissions,
+        rewardParameters,
       ),
     ).thenReturn(okAsync([insights, rewards]));
+
+    td.when(
+      this.dataWalletUtils.deriveOptInPrivateKey(
+        consentContractAddress,
+        dataWalletKey,
+      ),
+    ).thenReturn(okAsync(derivedPrivateKey));
   }
   public factory(): QueryService {
     return new QueryService(
+      this.consentTokenUtils,
+      this.dataWalletUtils,
       this.queryParsingEngine,
       this.sdqlQueryRepo,
       this.insightPlatformRepo,
@@ -145,18 +174,11 @@ describe("processQuery tests", () => {
   const queryService = mocks.factory();
   const returns = JSON.stringify(insights);
   test("error if dataWalletAddress missing in context", async () => {
-    await ResultUtils.combine([
-      mocks.contextProvider.getContext(),
-      mocks.configProvider.getConfig(),
-    ]).andThen(([context, config]) => {
+    await mocks.contextProvider.getContext().andThen((context) => {
       const copyContext: CoreContext = { ...(context as CoreContext) };
       copyContext.dataWalletAddress = null;
       return queryService
-        .validateContextConfig(
-          copyContext,
-          config as CoreConfig,
-          mocks.consentToken,
-        )
+        .validateContextConfig(copyContext, mocks.consentToken)
         .andThen(() => {
           fail();
         })
@@ -166,19 +188,13 @@ describe("processQuery tests", () => {
         });
     });
   });
+
   test("error if dataWallet missing in context", async () => {
-    await ResultUtils.combine([
-      mocks.contextProvider.getContext(),
-      mocks.configProvider.getConfig(),
-    ]).andThen(([context, config]) => {
+    await mocks.contextProvider.getContext().andThen((context) => {
       const copyContext: CoreContext = { ...(context as CoreContext) };
       copyContext.dataWalletKey = null;
       return queryService
-        .validateContextConfig(
-          copyContext,
-          config as CoreConfig,
-          mocks.consentToken,
-        )
+        .validateContextConfig(copyContext, mocks.consentToken)
         .andThen(() => {
           fail();
         })
@@ -188,10 +204,13 @@ describe("processQuery tests", () => {
         });
     });
   });
+
   test("processQuery success", async () => {
+    // Arrange
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    await queryService.processQuery(consentContractAddress, sdqlQuery)
+    await queryService
+      .processQuery(consentContractAddress, sdqlQuery, rewardParameters)
       .andThen((result) => {
         expect(result).toBeUndefined();
         return okAsync(true);
@@ -207,7 +226,7 @@ describe("processQuery tests", () => {
 //     const mocks = new QueryServiceMocks();
 //     const contextMock = new ContextProviderMock();
 //     const configMock = new ConfigProviderMock();
-//     td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+//     td.when(mocks.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
 //       okAsync(sdqlQuery),
 //     );
 //     td.when(mocks.contextProvider.getContext()).thenReturn(
@@ -231,7 +250,7 @@ describe("processQuery tests", () => {
 //     const queryService = mocks.factory(); // new context
 //     const result = await queryService.onQueryPosted(
 //       AndrewContractAddress,
-//       queryId,
+//       queryCID,
 //     );
 //     console.log("result", result);
 //     expect(result).toBeDefined();
@@ -241,7 +260,7 @@ describe("processRewardsPreview tests", () => {
   test("processRewardsPreview: full run through", async () => {
     const mocks = new QueryServiceMocks();
     const queryService = mocks.factory(); // new context
-    td.when(mocks.sdqlQueryRepo.getByCID(queryId)).thenReturn(
+    td.when(mocks.sdqlQueryRepo.getByCID(queryCID)).thenReturn(
       okAsync(sdqlQuery),
     ); // QQ: MAKES A LOT OF SENSE
     td.when(mocks.contextProvider.getContext()).thenReturn(
@@ -279,24 +298,21 @@ describe("processRewardsPreview tests", () => {
       ),
     );
     td.when(
-      mocks.consentContractRepo.isAddressOptedIn(
-        td.matchers.anything(),
-        td.matchers.anything(),
-      ),
+      mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
     ).thenReturn(okAsync(true));
     td.when(
       mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(sdqlQuery, td.matchers.anything()),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
-      mocks.sdqlQueryRepo.getByCID(queryId),
+      mocks.sdqlQueryRepo.getByCID(queryCID),
       mocks.contextProvider.getContext(),
       mocks.configProvider.getConfig(),
-    //QQ: We just mocked sdqlQueryRepo.getByCID(queryId).
-    // What's the point of checking if it's not null here?
+      //QQ: We just mocked sdqlQueryRepo.getByCID(queryId).
+      // What's the point of checking if it's not null here?
     ]).andThen(([query, context, config]) => {
       if (query == null) {
         return errAsync(
-          new IPFSError(`CID ${queryId} is not yet visible on IPFS`),
+          new IPFSError(`CID ${queryCID} is not yet visible on IPFS`),
         );
       }
       //QQ: We just mocked context
@@ -307,10 +323,7 @@ describe("processRewardsPreview tests", () => {
       }
       // We have the query, next step is check if you actually have a consent token for this business
       return mocks.consentContractRepo
-        .isAddressOptedIn(
-          consentContractAddress,
-          EVMAccountAddress(context.dataWalletAddress),
-        )
+        .isAddressOptedIn(consentContractAddress)
         .andThen((addressOptedIn) => {
           return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
             query,

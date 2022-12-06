@@ -43,13 +43,13 @@ import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
-const queryId = IpfsCID("Beep");
+const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(
-  queryId,
+  queryCID,
   SDQLString(avalanche1ExpiredSchemaStr),
 );
-const sdqlQuery = new SDQLQuery(queryId, SDQLString(avalanche2SchemaStr));
-const sdqlQuery4 = new SDQLQuery(queryId, SDQLString(avalanche4SchemaStr));
+const sdqlQuery = new SDQLQuery(queryCID, SDQLString(avalanche2SchemaStr));
+const sdqlQuery4 = new SDQLQuery(queryCID, SDQLString(avalanche4SchemaStr));
 
 const country = CountryCode("1");
 const allPermissions = HexString32(
