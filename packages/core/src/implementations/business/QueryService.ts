@@ -9,12 +9,8 @@ import {
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
   AjaxError,
-  BlockchainProviderError,
-  ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
   EvaluationError,
-  EVMAccountAddress,
   EVMContractAddress,
   InsightString,
   IpfsCID,
@@ -33,8 +29,6 @@ import {
   QueryIdentifier,
   ExpectedReward,
   EVMPrivateKey,
-  URLString,
-  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";

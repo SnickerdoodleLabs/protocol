@@ -7,7 +7,6 @@ import {
   ConsentContractError,
   ConsentFactoryContractError,
   ConsentName,
-  DataWalletAddress,
   DomainName,
   EVMAccountAddress,
   EVMContractAddress,
@@ -21,9 +20,9 @@ import {
   URLString,
   ERewardType,
   ChainId,
-  ExpectedReward,
   EarnedReward,
   MinimalForwarderContractError,
+  EligibleReward,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
