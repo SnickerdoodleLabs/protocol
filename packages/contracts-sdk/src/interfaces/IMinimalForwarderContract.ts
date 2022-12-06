@@ -22,7 +22,10 @@ export interface IMinimalForwarderContract {
   execute(
     request: IMinimalForwarderRequest,
     signature: Signature,
-  ): ResultAsync<boolean, MinimalForwarderContractError>;
+  ): ResultAsync<
+    ethers.providers.TransactionResponse,
+    MinimalForwarderContractError
+  >;
 
   getContract(): ethers.Contract;
 }

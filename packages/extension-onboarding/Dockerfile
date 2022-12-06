@@ -6,7 +6,6 @@ WORKDIR /app
 COPY .yarn .yarn
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY packages/browserExtension/package.json ./packages/browserExtension/
-COPY packages/cinnamon/package.json ./packages/cinnamon/
 COPY packages/common-utils/package.json ./packages/common-utils/
 COPY packages/contracts/package.json ./packages/contracts/
 COPY packages/contracts-sdk/package.json ./packages/contracts-sdk/
@@ -36,6 +35,15 @@ ENV __INFURA_ID__ $INFURA_ID
 
 ARG GAPI_CLIENT_ID=""
 ENV __GAPI_CLIENT_ID__ $GAPI_CLIENT_ID
+
+ARG GA_TRACKING_ID="UA-219658390-2"
+ENV __GA_TRACKING_ID__ $GA_TRACKING_ID
+
+ARG HOTJAR_ID="3259314"
+ENV __HOTJAR_ID__ $HOTJAR_ID
+
+ARG HOTJAR_SNIPPET_VERSION="6"
+ENV __HOTJAR_SNIPPET_VERSION__ $HOTJAR_SNIPPET_VERSION
 
 RUN yarn build
 
