@@ -84,24 +84,6 @@ export class DataWalletProfile {
     this._destroyed = true;
   }
 
-  protected destroyCore(): void {
-    this.coreSubscriptions.map((subscription) => subscription.unsubscribe());
-    this.coreSubscriptions = new Array<Subscription>();
-  }
-
-  protected createCore(mocks: TestHarnessMocks): SnickerdoodleCore {
-    const core = new SnickerdoodleCore(
-      {
-        defaultInsightPlatformBaseUrl: "http://localhost:3006",
-        dnsServerAddress: "http://localhost:3006/dns",
-      } as IConfigOverrides,
-      undefined,
-      mocks.fakeDBVolatileStorage,
-    );
-
-    return core;
-  }
-
   public initCore(env: Environment): void {
     if (this.coreSubscriptions.length > 0) {
       this.destroyCore();
@@ -190,6 +172,24 @@ export class DataWalletProfile {
       });
   }
 
+  protected destroyCore(): void {
+    this.coreSubscriptions.map((subscription) => subscription.unsubscribe());
+    this.coreSubscriptions = new Array<Subscription>();
+  }
+
+  protected createCore(mocks: TestHarnessMocks): SnickerdoodleCore {
+    const core = new SnickerdoodleCore(
+      {
+        defaultInsightPlatformBaseUrl: "http://localhost:3006",
+        dnsServerAddress: "http://localhost:3006/dns",
+      } as IConfigOverrides,
+      undefined,
+      mocks.fakeDBVolatileStorage,
+    );
+
+    return core;
+  }
+
   protected _loadOnError(e: Error, resourcePath: string): Error {
     if (e.message.includes("ENOENT")) {
       console.warn(`Could not load ${resourcePath}. Ignoring`);
@@ -263,11 +263,8 @@ export class DataWalletProfile {
   }
 
   protected _loadAccounts(accountPath: string): ResultAsync<void, Error> {
-    return ResultAsync.fromPromise(
-      readFile(accountPath, { encoding: "utf8" }),
-      (e) => e as Error,
-    )
-      .andThen((content) => {
+    return this.readFile(accountPath, "utf-8")
+      .map((content) => {
         const accounts = JSON.parse(content);
         const wallets = accounts.map(
           (account) =>
@@ -279,7 +276,6 @@ export class DataWalletProfile {
         );
         this.mocks.blockchain.updateAccounts(wallets);
         console.log(`loaded accounts from ${accountPath}`);
-        return okAsync(undefined);
       })
       .mapErr((e) => this._loadOnError(e, accountPath));
   }
@@ -287,10 +283,7 @@ export class DataWalletProfile {
   protected _loadDemographic(
     demographicPath: string,
   ): ResultAsync<void, Error> {
-    return ResultAsync.fromPromise(
-      readFile(demographicPath, { encoding: "utf8" }),
-      (e) => e as Error,
-    )
+    return this.readFile(demographicPath, "utf-8")
       .andThen((content) => {
         const demographic = JSON.parse(content);
 
@@ -306,10 +299,7 @@ export class DataWalletProfile {
       .mapErr((e) => this._loadOnError(e, demographicPath));
   }
   protected _loadSiteVisits(siteVisitsPath: string): ResultAsync<void, Error> {
-    return ResultAsync.fromPromise(
-      readFile(siteVisitsPath, { encoding: "utf8" }),
-      (e) => e as Error,
-    )
+    return this.readFile(siteVisitsPath, "utf-8")
       .andThen((content) => {
         const siteVisits = JSON.parse(content).map(
           (sv) =>
@@ -331,10 +321,7 @@ export class DataWalletProfile {
   protected _loadEVMTransactions(
     evmTransactionsPath: string,
   ): ResultAsync<void, Error> {
-    return ResultAsync.fromPromise(
-      readFile(evmTransactionsPath, { encoding: "utf8" }),
-      (e) => e as Error,
-    )
+    return this.readFile(evmTransactionsPath, "utf-8")
       .andThen((content) => {
         const evmTransactions = JSON.parse(content).map(
           (evmT) =>
@@ -369,10 +356,7 @@ export class DataWalletProfile {
   protected _loadEarnedRewards(
     earnedRewardsPath: string,
   ): ResultAsync<void, Error> {
-    return ResultAsync.fromPromise(
-      readFile(earnedRewardsPath, { encoding: "utf8" }),
-      (e) => e as Error,
-    )
+    return this.readFile(earnedRewardsPath, "utf-8")
       .andThen((content) => {
         const rewards = JSON.parse(content).reduce((all, r) => {
           switch (r.type) {
@@ -422,10 +406,7 @@ export class DataWalletProfile {
       .mapErr((e) => this._loadOnError(e, earnedRewardsPath));
   }
   protected _loadBackup(backupPath: string): ResultAsync<void, Error> {
-    return ResultAsync.fromPromise(
-      readFile(backupPath, { encoding: "utf8" }),
-      (e) => e as Error,
-    )
+    return this.readFile(backupPath, "utf-8")
       .andThen((content) => {
         const backupJson = JSON.parse(content);
 
@@ -447,6 +428,13 @@ export class DataWalletProfile {
           );
       })
       .mapErr((e) => this._loadOnError(e, backupPath));
+  }
+
+  private readFile(
+    path: string,
+    encoding: BufferEncoding,
+  ): ResultAsync<string, Error> {
+    return ResultAsync.fromPromise(readFile(path, encoding), (e) => e as Error);
   }
 
   // #endregion
