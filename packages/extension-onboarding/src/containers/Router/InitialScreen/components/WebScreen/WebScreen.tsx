@@ -63,14 +63,14 @@ const WebScreen = () => {
               <Typography className={classes.title}>
                 Welcome to Snickerdoodle
               </Typography>
-              <Typography className={classes.description}>
-                Snickerdoodle connects you with the brands you love
-              </Typography>
-              <Box my={4}>
+              <Box pr={3}>
+                <Typography className={classes.description}>
+                  The matchmaker between you, your data, and the brands you love
+                </Typography>
+              </Box>
+              <Box width="80%" my={4}>
                 <Typography className={classes.info}>
-                  You need to download
-                  <b> Snickerdoodle Data Wallet Extension </b>
-                  to earn your NFT reward
+                  Install the Snickerdoodle browser extension to claim your NFT!
                 </Typography>
               </Box>
               <Button
@@ -79,7 +79,7 @@ const WebScreen = () => {
                   window.open(DOWNLOAD_URL, "_blank");
                 }}
               >
-                Install
+                Get Extension
               </Button>
             </Box>
           </Grid>
