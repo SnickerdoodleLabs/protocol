@@ -1,4 +1,12 @@
-import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
+import {
+  GetSignedUrlConfig,
+  Storage,
+  GetSignedUrlConfig,
+  Storage,
+  Bucket,
+  GetSignedUrlResponse,
+  GetFilesResponse,
+} from "@google-cloud/storage";
 import {
   AxiosAjaxUtils,
   CryptoUtils,
@@ -172,50 +180,54 @@ export class GoogleCloudStorage implements ICloudStorage {
       const baseURL = URLString("http://localhost:3006");
       const dataBackups: IDataWalletBackup[] = [];
 
-      console.log("Unlocked: ", addr);
-      return ResultAsync.fromPromise(
-        storage
-          .bucket("ceramic-replacement-bucket")
-          .getFiles({ prefix: addr + "/" }),
-        (e) =>
-          new PersistenceError(
-            "unable to retrieve GCP file version from data wallet {addr}",
-            e,
-          ),
-      ).andThen((files) => {
-        const ajaxUtils = new AxiosAjaxUtils();
-        const fileArray = files[0];
-        console.log("files: ", files);
+      // console.log("Unlocked: ", addr);
+      // return ResultAsync.fromPromise(
+      //   this.insightPlatformRepo.getWalletBackups(privateKey, baseURL, addr + "/")
+      //   // storage
+      //   //   .bucket("ceramic-replacement-bucket")
+      //   //   .getFiles({ prefix: addr + "/" }),
+      //   (e) =>
+      //     new PersistenceError(
+      //       "unable to retrieve GCP file version from data wallet {addr}",
+      //       e,
+      //     ),
+      // )
+      return this.insightPlatformRepo
+        .getWalletBackups(privateKey, baseURL, addr + "/")
+        .andThen((files) => {
+          const ajaxUtils = new AxiosAjaxUtils();
+          const fileArray = files[0];
+          console.log("files: ", files);
 
-        return ResultUtils.combine(
-          fileArray.map((file) => {
-            return ResultAsync.fromPromise(
-              file.getSignedUrl(readOptions),
-              (e) => new PersistenceError("Error pinning stream", e),
-            ).andThen((vas) => {
-              return okAsync(vas);
-            });
-          }),
-        ).andThen((signedUrls) => {
-          console.log("signedUrls: ", signedUrls);
-          console.log("signedUrls[0]: ", signedUrls[0]);
           return ResultUtils.combine(
-            signedUrls.map((signedUrl) => {
+            fileArray.map((file) => {
               return ResultAsync.fromPromise(
-                ajaxUtils.get(new URL(signedUrl[0])).then((innerValue) => {
-                  return (innerValue["value"] as IDataWalletBackup);
-                }),
-                (e) => new AjaxError("unable let {addr}", e),
-              ).andThen((qwe) => {
-                return okAsync(qwe as IDataWalletBackup);
+                file.getSignedUrl(readOptions),
+                (e) => new PersistenceError("Error pinning stream", e),
+              ).andThen((vas) => {
+                return okAsync(vas);
               });
             }),
-          ).andThen((po) => {
-            console.log("po: ", po);
-            return okAsync(po);
+          ).andThen((signedUrls) => {
+            console.log("signedUrls: ", signedUrls);
+            console.log("signedUrls[0]: ", signedUrls[0]);
+            return ResultUtils.combine(
+              signedUrls.map((signedUrl) => {
+                return ResultAsync.fromPromise(
+                  ajaxUtils.get(new URL(signedUrl[0])).then((innerValue) => {
+                    return innerValue["value"] as IDataWalletBackup;
+                  }),
+                  (e) => new AjaxError("unable let {addr}", e),
+                ).andThen((qwe) => {
+                  return okAsync(qwe as IDataWalletBackup);
+                });
+              }),
+            ).andThen((po) => {
+              console.log("po: ", po);
+              return okAsync(po);
+            });
           });
         });
-      });
     });
   }
 }

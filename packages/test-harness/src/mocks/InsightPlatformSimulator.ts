@@ -1,5 +1,12 @@
 import * as fs from "fs";
 
+import {
+  GetSignedUrlConfig,
+  Storage,
+  Bucket,
+  GetSignedUrlResponse,
+  GetFilesResponse,
+} from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
