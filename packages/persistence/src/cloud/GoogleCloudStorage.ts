@@ -160,17 +160,12 @@ export class GoogleCloudStorage implements ICloudStorage {
     IDataWalletBackup[],
     PersistenceError | AjaxError
   > {
-    const storage = new Storage({
-      keyFilename: "src/credentials.json",
-      projectId: "snickerdoodle-insight-stackdev",
-    });
     const readOptions: GetSignedUrlConfig = {
       version: "v4",
       action: "read",
       expires: Date.now() + 15 * 60 * 1000, // 15 minutes
     };
     const ajaxUtils = new AxiosAjaxUtils();
-    let val;
 
     return this.waitForUnlock().andThen((privateKey) => {
       const addr =
@@ -178,18 +173,9 @@ export class GoogleCloudStorage implements ICloudStorage {
       const baseURL = URLString("http://localhost:3006");
       const dataBackups: IDataWalletBackup[] = [];
 
-      // console.log("Unlocked: ", addr);
-      // return ResultAsync.fromPromise(
-      //   this.insightPlatformRepo.getWalletBackups(privateKey, baseURL, addr + "/")
-      //   // storage
-      //   //   .bucket("ceramic-replacement-bucket")
-      //   //   .getFiles({ prefix: addr + "/" }),
-      //   (e) =>
-      //     new PersistenceError(
-      //       "unable to retrieve GCP file version from data wallet {addr}",
-      //       e,
-      //     ),
-      // )
+      console.log("PollBackups: ");
+      console.log("privateKey: ", privateKey);
+
       return this.insightPlatformRepo
         .getWalletBackups(privateKey, baseURL, addr + "/")
         .andThen((files) => {

@@ -65,7 +65,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         dataWalletKey,
       )
       .andThen((signature) => {
-        console.log("getGoogleCloudStorage - SIGNED CORRECTLY!");
+        console.log("Get Wallet Backups Signature!");
         const url = new URL(urlJoin(baseURL, "/getWalletBackups"));
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
