@@ -1,10 +1,4 @@
-import {
-  GetSignedUrlConfig,
-  Storage,
-  Bucket,
-  GetSignedUrlResponse,
-  GetFilesResponse,
-} from "@google-cloud/storage";
+import { GetSignedUrlConfig } from "@google-cloud/storage";
 import {
   AxiosAjaxUtils,
   CryptoUtils,
@@ -20,8 +14,6 @@ import {
   PersistenceError,
   URLString,
   AjaxError,
-  EVMAccountAddress,
-  UUID,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, Result, ResultAsync } from "neverthrow";
@@ -66,73 +58,35 @@ export class GoogleCloudStorage implements ICloudStorage {
     return ResultAsync.fromSafePromise(this._unlockPromise);
   }
 
+  /* Currently deletes everything on GCP */
   public clear(): ResultAsync<void, PersistenceError | AjaxError> {
-    const storage = new Storage({
-      keyFilename: "../persistence/src/credentials.json",
-      projectId: "snickerdoodle-insight-stackdev",
-    });
-    storage.bucket("ceramic-replacement-bucket").deleteFiles();
-    return okAsync(undefined);
-  }
-
-  protected getUUID(
-    addr: EVMAccountAddress,
-  ): ResultAsync<UUID, PersistenceError> {
-    const storage = new Storage({
-      keyFilename: "../persistence/src/credentials.json",
-      projectId: "snickerdoodle-insight-stackdev",
-    });
-    let version = "1";
-    console.log("version: ", version);
-    return ResultAsync.fromPromise(
-      storage.bucket("ceramic-replacement-bucket").getFiles({
-        autoPaginate: true,
-        versions: true,
-        prefix: addr + "/",
-      }),
-      (e) =>
-        new PersistenceError(
-          "unable to retrieve GCP file version from data wallet {addr}",
-          e,
-        ),
-    ).andThen((allFiles) => {
-      console.log("allFiles: ", allFiles);
-      console.log("allFiles[0]: ", allFiles[0]);
-      console.log("allFiles[0]: ", allFiles[0].length);
-
-      if (allFiles[0].length !== 0) {
-        const inArray = allFiles[0];
-        console.log("inArray: ", inArray);
-
-        const name = inArray[inArray.length - 1]["metadata"]["name"];
-        const versionString = name.split(/[/ ]+/).pop();
-        console.log("versionString: ", versionString);
-        const versionNumber = versionString.split("version");
-        console.log("versionNumber: ", versionNumber[1]);
-        console.log(parseInt(versionNumber[1]) + 1);
-        version = (parseInt(versionNumber[1]) + 1).toString();
-        console.log("Inner Version 1: ", version);
-      }
-      console.log("Inner Version 2: ", version);
-      return okAsync(UUID(version));
+    return this.waitForUnlock().andThen((privateKey) => {
+      const baseURL = URLString("http://localhost:3006");
+      return this.insightPlatformRepo.clearAllBackups(privateKey, baseURL, "");
     });
   }
 
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError | AjaxError> {
+    const baseURL = URLString("http://localhost:3006");
     return this.waitForUnlock().andThen((privateKey) => {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      return ResultUtils.combine([this.getUUID(addr)]).andThen(([version]) => {
-        const baseURL = URLString("http://localhost:3006");
+      return ResultUtils.combine([
+        this.insightPlatformRepo.getRecentVersion(
+          privateKey,
+          baseURL,
+          addr + "/",
+        ),
+      ]).andThen(([version]) => {
+        console.log("Data Wallet address: ", addr);
         console.log("putBackup version: ", version);
         return this.insightPlatformRepo
           .getAuthBackups(privateKey, baseURL, addr + "/version" + version)
           .andThen((signedUrl) => {
             console.log("Putbackups signedUrl [0][0]: ", signedUrl[0][0]!);
             console.log("Putbackups signedUrl [1][0]: ", signedUrl[1][0]!);
-
             const ajaxUtils = new AxiosAjaxUtils();
             try {
               ajaxUtils
@@ -156,7 +110,7 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
-  pollBackups(): ResultAsync<
+  public pollBackups(): ResultAsync<
     IDataWalletBackup[],
     PersistenceError | AjaxError
   > {
@@ -175,36 +129,56 @@ export class GoogleCloudStorage implements ICloudStorage {
 
       console.log("PollBackups: ");
       console.log("privateKey: ", privateKey);
+      console.log("addr: ", addr);
 
       return this.insightPlatformRepo
         .getWalletBackups(privateKey, baseURL, addr + "/")
         .andThen((files) => {
+          if (files == undefined) {
+            console.log("pollBackups returns: []");
+            return okAsync([]);
+          }
+          if (files.length == 0) {
+            console.log("pollBackups length is 0");
+            return okAsync([]);
+          }
           const ajaxUtils = new AxiosAjaxUtils();
-          const fileArray = files[0];
-          console.log("files: ", files);
+          console.log("fileArray ", files);
+          console.log("fileArray[0] ", files[0]);
 
+          let version = 0;
           return ResultUtils.combine(
-            fileArray.map((file) => {
-              return ResultAsync.fromPromise(
-                file.getSignedUrl(readOptions),
-                (e) => new PersistenceError("Error pinning stream", e),
-              ).andThen((vas) => {
-                return okAsync(vas);
-              });
+            files.map((file) => {
+              version = version + 1;
+              return this.insightPlatformRepo.getSignedUrl(
+                privateKey,
+                baseURL,
+                addr + "/version" + version,
+              );
             }),
           ).andThen((signedUrls) => {
-            console.log("signedUrls: ", signedUrls);
-            console.log("signedUrls[0]: ", signedUrls[0]);
             return ResultUtils.combine(
               signedUrls.map((signedUrl) => {
-                return ResultAsync.fromPromise(
-                  ajaxUtils.get(new URL(signedUrl[0])).then((innerValue) => {
-                    return innerValue["value"] as IDataWalletBackup;
-                  }),
-                  (e) => new AjaxError("unable let {addr}", e),
-                ).andThen((qwe) => {
-                  return okAsync(qwe as IDataWalletBackup);
-                });
+                if (signedUrl == undefined) {
+                  console.log("signedUrl: ", signedUrl);
+                }
+
+                console.log("INNER signedUrl: ", signedUrl);
+
+                if (signedUrl !== undefined) {
+                  return ResultAsync.fromPromise(
+                    ajaxUtils
+                      .get(new URL(signedUrl as string))
+                      .then((innerValue) => {
+                        return innerValue["value"] as IDataWalletBackup;
+                      }),
+                    (e) => new AjaxError("unable let {addr}", e),
+                  ).andThen((qwe) => {
+                    console.log("qwe: ", qwe);
+                    return okAsync(qwe as IDataWalletBackup);
+                  });
+                }
+                return okAsync({} as IDataWalletBackup);
               }),
             ).andThen((po) => {
               console.log("po: ", po);
@@ -214,4 +188,6 @@ export class GoogleCloudStorage implements ICloudStorage {
         });
     });
   }
+
+  // });
 }

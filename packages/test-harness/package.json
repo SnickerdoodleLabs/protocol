@@ -30,7 +30,7 @@
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
-    "gcp": "cd ../.. && yarn compile && cd packages/test-harness && yarn start-old",
+    "gcp": "cd ../.. && yarn compile && cd packages/test-harness && yarn start",
     "start": "yarn compile && node dist/ConsoleApp.js",
     "start-old": "yarn compile && node dist/index-deleted-but-kept-for-ref.js",
     "test-int": "npx cucumber-js",

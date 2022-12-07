@@ -6,6 +6,8 @@ import {
   Bucket,
   GetSignedUrlResponse,
   GetFilesResponse,
+  File,
+  GetFilesCallback,
 } from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
@@ -216,6 +218,7 @@ export class InsightPlatformSimulator {
       const signingData = {
         fileName: req.body.fileName,
       };
+
       this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
@@ -229,27 +232,111 @@ export class InsightPlatformSimulator {
             projectId: "snickerdoodle-insight-stackdev",
           });
           const bucket = storage.bucket("ceramic-replacement-bucket");
-          // const files = bucket.getFiles({ prefix: req.body.fileName + "/" }),
+          const name = req.body.fileName as string;
 
+          await storage
+            .bucket("ceramic-replacement-bucket")
+            .getFiles({ prefix: name }, async function (err, files) {
+              if (err) {
+                console.error("err: ", err);
+                res.send([]);
+              } else {
+                console.log("getWalletBackups files: ", files);
+                res.send(files);
+              }
+            });
+        });
+    });
+
+    this.app.post("/getSignedUrl", (req, res) => {
+      const signature = Signature(req.body.signature);
+      const signingData = {
+        fileName: req.body.fileName,
+      };
+      this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          authorizationBackupTypes,
+          signingData,
+          signature,
+        )
+        .map(async (verificationAddress) => {
+          console.log("SIMULATOR getSignedUrl: ", req.body.fileName);
+          const storage = new Storage({
+            keyFilename: "../persistence/src/credentials.json",
+            projectId: "snickerdoodle-insight-stackdev",
+          });
+          const readOptions: GetSignedUrlConfig = {
+            version: "v4",
+            action: "read",
+            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+          };
+
+          await storage
+            .bucket("ceramic-replacement-bucket")
+            .file(req.body.fileName)
+            .getSignedUrl(readOptions, async function (err, writeUrl) {
+              console.log("getSignedUrl url: ", writeUrl);
+              if (err) {
+                console.error("err: ", err);
+                res.send(err);
+              } else {
+                res.send(writeUrl);
+              }
+            });
+        });
+    });
+
+    this.app.post("/getRecentVersion", (req, res) => {
+      const signature = Signature(req.body.signature);
+      const signingData = {
+        fileName: req.body.fileName,
+      };
+      this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          authorizationBackupTypes,
+          signingData,
+          signature,
+        )
+        .map(async (verificationAddress) => {
+          console.log("getRecentVersion: ", req.body.fileName);
+          const storage = new Storage({
+            keyFilename: "../persistence/src/credentials.json",
+            projectId: "snickerdoodle-insight-stackdev",
+          });
           storage
             .bucket("ceramic-replacement-bucket")
-            .getFiles(
-              { prefix: req.body.fileName + "/" },
-              async function (err, files) {
-                if (err) {
-                  console.error("err: ", err);
-                } else {
-                  if (err) {
-                    console.error("err: ", err);
-                    res.send(err);
-                  } else {
-                    console.error("files: ", files);
+            .getFiles({ prefix: req.body.fileName }, function (err, files) {
+              console.log("Recent version files: ", files);
+              if (err) {
+                console.error("err: ", err);
+                res.send("1");
+              } else {
+                if (files !== undefined) {
+                  console.log("files: ", files);
+                  if (files.length == 0) {
+                    res.send("1");
                   }
-                  res.send(files);
+                  if (files.length > 0) {
+                    const inArray = files[files.length - 1];
+                    // const inArray = allFiles[0];
+                    console.log("inArray: ", inArray);
+
+                    // inArray["metadata"]["name"];
+                    const name = inArray["metadata"]["name"];
+                    const versionString = name.split(/[/ ]+/).pop();
+                    console.log("versionString: ", versionString);
+                    const versionNumber = versionString.split("version");
+                    console.log("versionNumber: ", versionNumber[1]);
+                    console.log(parseInt(versionNumber[1]) + 1);
+                    const version = (parseInt(versionNumber[1]) + 1).toString();
+                    console.log("Inner Version 1: ", version);
+                    res.send(version);
+                  }
                 }
-              },
-            );
-          // res.send(files);
+              }
+            });
         });
     });
 
@@ -273,6 +360,28 @@ export class InsightPlatformSimulator {
           const bucket = storage.bucket("ceramic-replacement-bucket");
           bucket.file("");
           res.send(bucket);
+        });
+    });
+
+    this.app.post("/clearAllBackups", (req, res) => {
+      const signature = Signature(req.body.signature);
+      const signingData = {
+        fileName: req.body.fileName,
+      };
+      this.cryptoUtils
+        .verifyTypedData(
+          snickerdoodleSigningDomain,
+          authorizationBackupTypes,
+          signingData,
+          signature,
+        )
+        .map(async (verificationAddress) => {
+          const storage = new Storage({
+            keyFilename: "../persistence/src/credentials.json",
+            projectId: "snickerdoodle-insight-stackdev",
+          });
+          storage.bucket("ceramic-replacement-bucket").deleteFiles();
+          res.send(undefined);
         });
     });
 
@@ -315,13 +424,8 @@ export class InsightPlatformSimulator {
             .getSignedUrl(writeOptions, async function (err, writeUrl) {
               if (err) {
                 console.error("err: ", err);
+                res.send(err);
               } else {
-                if (err) {
-                  console.error("err: ", err);
-                  res.send(err);
-                } else {
-                  console.error("url: ", writeUrl);
-                }
                 res.send([[readUrl[0]], [writeUrl]]);
               }
             });
