@@ -254,11 +254,10 @@ export class DataWalletProfile {
       this._loadEVMTransactions(path.join(root, "evmTransactions.json")),
       this._loadEarnedRewards(path.join(root, "earnedRewards.json")),
       // this._loadBackup(path.join(root, "backup.json"))
-    ]).andThen((res) => {
+    ]).map((res) => {
       console.log(
         `Loaded data wallet profile from ${this._profilePathInfo.path}.`,
       );
-      return okAsync(undefined);
     });
   }
 
@@ -292,12 +291,12 @@ export class DataWalletProfile {
           this.core.setGender(demographic.gender ?? null),
           this.core.setLocation(demographic.location ?? null),
           // TODO: add more
-        ]).andThen(() =>
-          okAsync(console.log(`loaded demographic from ${demographicPath}`)),
-        );
+        ]);
       })
+      .map(() => console.log(`loaded demographic from ${demographicPath}`))
       .mapErr((e) => this._loadOnError(e, demographicPath));
   }
+
   protected _loadSiteVisits(siteVisitsPath: string): ResultAsync<void, Error> {
     return this.readFile(siteVisitsPath, "utf-8")
       .andThen((content) => {
@@ -310,12 +309,9 @@ export class DataWalletProfile {
             ),
         );
 
-        return this.core
-          .addSiteVisits(siteVisits)
-          .andThen(() =>
-            okAsync(console.log(`loaded site visits from ${siteVisitsPath}`)),
-          );
+        return this.core.addSiteVisits(siteVisits);
       })
+      .map(() => console.log(`loaded site visits from ${siteVisitsPath}`))
       .mapErr((e) => this._loadOnError(e, siteVisitsPath));
   }
   protected _loadEVMTransactions(
@@ -341,16 +337,11 @@ export class DataWalletProfile {
             ),
         );
 
-        return this.core
-          .addEVMTransactions(evmTransactions)
-          .andThen(() =>
-            okAsync(
-              console.log(
-                `loaded evm transactions from ${evmTransactionsPath}`,
-              ),
-            ),
-          );
+        return this.core.addEVMTransactions(evmTransactions);
       })
+      .map(() =>
+        console.log(`loaded evm transactions from ${evmTransactionsPath}`),
+      )
       .mapErr((e) => this._loadOnError(e, evmTransactionsPath));
   }
   protected _loadEarnedRewards(
@@ -395,14 +386,9 @@ export class DataWalletProfile {
           return all;
         }, [] as EarnedReward[]);
 
-        return this.core
-          .addEarnedRewards(rewards)
-          .andThen(() =>
-            okAsync(
-              console.log(`loaded earned rewards from ${earnedRewardsPath}`),
-            ),
-          );
+        return this.core.addEarnedRewards(rewards);
       })
+      .map(() => console.log(`loaded earned rewards from ${earnedRewardsPath}`))
       .mapErr((e) => this._loadOnError(e, earnedRewardsPath));
   }
   protected _loadBackup(backupPath: string): ResultAsync<void, Error> {
@@ -421,12 +407,9 @@ export class DataWalletProfile {
             InitializationVector(backupJson.blob.initializationVector),
           ),
         };
-        return this.core
-          .restoreBackup(backup)
-          .andThen(() =>
-            okAsync(console.log(`loaded backup from ${backupPath}`)),
-          );
+        return this.core.restoreBackup(backup);
       })
+      .map(() => console.log(`loaded backup from ${backupPath}`))
       .mapErr((e) => this._loadOnError(e, backupPath));
   }
 

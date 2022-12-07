@@ -54,10 +54,9 @@ export class FileInputUtils {
   }
 
   public getFilePaths(from: string): ResultAsync<Map<string, string>, Error> {
-    return this.getFiles(from).andThen((fNames) => {
-      return okAsync(
+    return this.getFiles(from).map(
+      (fNames) =>
         new Map(fNames.map((fname) => [fname, path.join(from, fname)])),
-      );
-    });
+    );
   }
 }

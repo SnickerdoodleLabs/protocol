@@ -318,9 +318,7 @@ export class CorePrompt extends DataWalletPrompt {
           };
           return this.core
             .restoreBackup(backup)
-            .andThen(() =>
-              okAsync(console.log("restored backup", backup.header.hash)),
-            );
+            .map(() => console.log("restored backup", backup.header.hash));
         case "manualBackup":
           return this.core.postBackup().map(console.log);
         case "clearCloudStore":
