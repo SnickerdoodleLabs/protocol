@@ -2,7 +2,6 @@ import {
   PersistenceError,
   IDataWalletBackup,
   EVMPrivateKey,
-  CeramicStreamID,
   AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
@@ -10,7 +9,7 @@ import { ResultAsync } from "neverthrow";
 export interface ICloudStorage {
   putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<CeramicStreamID, PersistenceError | AjaxError>;
+  ): ResultAsync<void, PersistenceError | AjaxError>;
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError | AjaxError>;
   unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError | AjaxError>;
 

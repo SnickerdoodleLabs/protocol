@@ -42,7 +42,6 @@ import {
   getChainInfoByChain,
   IChainTransaction,
   ChainTransaction,
-  CeramicStreamID,
   EarnedReward,
   chainConfig,
 } from "@snickerdoodlelabs/objects";
@@ -124,7 +123,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public unlock(
     derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<void, PersistenceError | AjaxError> {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.resolveUnlock!(derivedKey);
@@ -914,7 +913,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  private _placeBackups(): ResultAsync<void, PersistenceError> {
+  private _placeBackups(): ResultAsync<void, PersistenceError | AjaxError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
@@ -939,7 +938,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return okAsync(chainlist);
   }
 
-  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+  public postBackup(): ResultAsync<void, PersistenceError | AjaxError> {
     return ResultUtils.combine([
       this.waitForRestore(),
       this.backupManagerProvider.getBackupManager(),
@@ -953,7 +952,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public clearCloudStore(): ResultAsync<void, PersistenceError> {
+  public clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError> {
     return this.cloudStorage.clear();
   }
 }

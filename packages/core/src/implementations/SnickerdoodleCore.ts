@@ -66,7 +66,6 @@ import {
   LinkedAccount,
   AccountAddress,
   DataWalletAddress,
-  CeramicStreamID,
   EarnedReward,
   IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
@@ -706,14 +705,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
-  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
+  public postBackup(): ResultAsync<void, PersistenceError | AjaxError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
     return persistence.postBackup();
   }
 
-  public clearCloudStore(): ResultAsync<void, PersistenceError> {
+  public clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.clearCloudStore();

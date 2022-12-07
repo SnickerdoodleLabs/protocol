@@ -7,7 +7,6 @@ import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   BackupIndex,
   BackupIndexEntry,
-  CeramicStreamID,
   EVMPrivateKey,
   IDataWalletBackup,
   ModelTypes,
@@ -25,6 +24,7 @@ import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
+import { AjaxError } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class CeramicCloudStorage implements ICloudStorage {
@@ -158,7 +158,7 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<CeramicStreamID, PersistenceError> {
+  ): ResultAsync<void, PersistenceError | AjaxError> {
     return this._init().andThen(({ store, model, client }) => {
       return ResultAsync.fromPromise(
         model.createTile("DataWalletBackup", backup),
@@ -179,7 +179,6 @@ export class CeramicCloudStorage implements ICloudStorage {
             return this._putBackupIndex(index).map((_) => {
               console.debug("CloudStorage", `Backup placed: ${id}`);
               this._restored.add(id);
-              return CeramicStreamID(id);
             });
           });
         });
