@@ -1,10 +1,11 @@
 import "reflect-metadata";
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
   BigNumberString,
   DomainName,
   EVMAccountAddress,
+  EVMPrivateKey,
   HexString,
   IDataWalletPersistence,
   InvitationDomain,
@@ -29,13 +30,17 @@ import {
 } from "@core-tests/mock/utilities";
 import { InvitationService } from "@core/implementations/business/index.js";
 import { IInvitationService } from "@core/interfaces/business/index.js";
+import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
   IInvitationRepository,
   IMetatransactionForwarderRepository,
 } from "@core/interfaces/data/index.js";
-import { IContextProvider } from "@core/interfaces/utilities/index.js";
+import {
+  IContextProvider,
+  IDataWalletUtils,
+} from "@core/interfaces/utilities/index.js";
 
 const metatransactionNonce = BigNumberString("nonce");
 const metatransactionValue = BigNumberString("value");
@@ -44,6 +49,7 @@ const optInCallData = HexString("0xOptIn");
 const optOutCallData = HexString("0xOptOut");
 const optInSignature = Signature("OptInSignature");
 const optOutSignature = Signature("OptOutSignature");
+const optInPrivateKey = EVMPrivateKey("optInPrivateKey");
 const domain = DomainName("phoebe.com");
 const url1 = URLString("phoebe.com/cute");
 const url2 = URLString("phoebe.com/loud");
@@ -61,17 +67,21 @@ const invitationDomain = new InvitationDomain(
 );
 
 class InvitationServiceMocks {
+  public consentTokenUtils: IConsentTokenUtils;
   public persistenceRepo: IDataWalletPersistence;
   public consentRepo: IConsentContractRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
   public dnsRepository: IDNSRepository;
   public invitationRepo: IInvitationRepository;
   public forwarderRepo: IMetatransactionForwarderRepository;
+  public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
   public contextProvider: IContextProvider;
   public configProvider: ConfigProviderMock;
+  public logUtils: ILogUtils;
 
   public constructor() {
+    this.consentTokenUtils = td.object<IConsentTokenUtils>();
     this.persistenceRepo = td.object<IDataWalletPersistence>();
     this.consentRepo = td.object<IConsentContractRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
@@ -79,12 +89,13 @@ class InvitationServiceMocks {
     this.invitationRepo = td.object<IInvitationRepository>();
     this.forwarderRepo = td.object<IMetatransactionForwarderRepository>();
     this.contextProvider = new ContextProviderMock();
+    this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.configProvider = new ConfigProviderMock();
+    this.logUtils = td.object<ILogUtils>();
 
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         EVMAccountAddress(dataWalletAddress),
         consentContractAddress1,
         metatransactionNonce,
@@ -92,7 +103,7 @@ class InvitationServiceMocks {
         metatransactionGas,
         optInCallData,
         optInSignature,
-        dataWalletKey,
+        optInPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
@@ -125,15 +136,18 @@ class InvitationServiceMocks {
 
   public factory(): IInvitationService {
     return new InvitationService(
+      this.consentTokenUtils,
       this.persistenceRepo,
       this.consentRepo,
       this.insightPlatformRepo,
       this.dnsRepository,
       this.invitationRepo,
       this.forwarderRepo,
+      this.dataWalletUtils,
       this.cryptoUtils,
       this.contextProvider,
       this.configProvider,
+      this.logUtils,
     );
   }
 }
