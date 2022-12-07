@@ -115,6 +115,8 @@ export class GoogleCloudStorage implements ICloudStorage {
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError | AjaxError> {
+    return okAsync(undefined);
+/*
     return this.waitForUnlock().andThen((privateKey) => {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
@@ -148,6 +150,7 @@ export class GoogleCloudStorage implements ICloudStorage {
           });
       });
     });
+    */
   }
 
   pollBackups(): ResultAsync<

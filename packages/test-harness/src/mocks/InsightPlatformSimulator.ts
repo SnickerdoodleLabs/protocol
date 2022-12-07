@@ -141,68 +141,68 @@ export class InsightPlatformSimulator {
         });
     });
 
-    this.app.post("/insights/responses", (req, res) => {
-      console.log("Sending to Insight Responses");
-      console.log("Req is this: ", req.body);
-      console.log("/insights/responses ");
+    // this.app.post("/insights/responses", (req, res) => {
+    //   console.log("Sending to Insight Responses");
+    //   console.log("Req is this: ", req.body);
+    //   console.log("/insights/responses ");
 
-      const consentContractId = EVMContractAddress(req.body.consentContractId);
-      const queryCid = IpfsCID(req.body.queryCid);
-      // console.log("queryCid: ", queryCid);
-      const dataWallet = EVMAccountAddress(req.body.dataWallet);
-      const returns = JSON.stringify(req.body.returns);
-      const rewardParameters = JSON.stringify(req.body.rewardParameters);
-      const signature = Signature(req.body.signature);
+    //   const consentContractId = EVMContractAddress(req.body.consentContractId);
+    //   const queryCid = IpfsCID(req.body.queryCid);
+    //   // console.log("queryCid: ", queryCid);
+    //   const dataWallet = EVMAccountAddress(req.body.dataWallet);
+    //   const returns = JSON.stringify(req.body.returns);
+    //   const rewardParameters = JSON.stringify(req.body.rewardParameters);
+    //   const signature = Signature(req.body.signature);
 
-      const value = {
-        consentContractId,
-        queryCid,
-        dataWallet,
-        returns,
-        rewardParameters,
-      };
+    //   const value = {
+    //     consentContractId,
+    //     queryCid,
+    //     dataWallet,
+    //     returns,
+    //     rewardParameters,
+    //   };
 
-      this.logStream.write(JSON.stringify(req.body));
-      return this.cryptoUtils
-        .verifyTypedData(
-          snickerdoodleSigningDomain,
-          insightDeliveryTypes,
-          value,
-          signature,
-        )
-        .andThen((verificationAddress) => {
-          // if (verificationAddress !== dataWallet) {
+    //   this.logStream.write(JSON.stringify(req.body));
+    //   return this.cryptoUtils
+    //     .verifyTypedData(
+    //       snickerdoodleSigningDomain,
+    //       insightDeliveryTypes,
+    //       value,
+    //       signature,
+    //     )
+    //     .andThen((verificationAddress) => {
+    //       // if (verificationAddress !== dataWallet) {
 
-          //   const err = new Error("`In bad wallet: ${verificationAddress}`");
-          //   console.error(err);
-          //   return errAsync(err);
-          // }
-          return okAsync(null);
-        })
-        .andThen(() => {
-          const contract =
-            this.blockchain.getConsentContract(consentContractId);
-          return contract.getConsentTokensOfAddress(dataWallet);
-        })
-        .andThen((tokens) => {
-          console.log("tokens: ", tokens);
-          if (tokens.length > 0) {
-            return okAsync(null);
-          }
-          console.log("tokens error: ");
-          res.send("Error: Wallet has no Consent Tokens");
-          return errAsync(" Wallet has no Consent Tokens");
-        })
-        .map(() => {
-          const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(queryCid, ERewardType.Direct);
-          res.send(earnedRewards);
-        })
-        .mapErr((e) => {
-          console.error(e);
-          res.send(e);
-        });
-    });
+    //       //   const err = new Error("`In bad wallet: ${verificationAddress}`");
+    //       //   console.error(err);
+    //       //   return errAsync(err);
+    //       // }
+    //       return okAsync(null);
+    //     })
+    //     .andThen(() => {
+    //       const contract =
+    //         this.blockchain.getConsentContract(consentContractId);
+    //       return contract.getConsentTokensOfAddress(dataWallet);
+    //     })
+    //     .andThen((tokens) => {
+    //       console.log("tokens: ", tokens);
+    //       if (tokens.length > 0) {
+    //         return okAsync(null);
+    //       }
+    //       console.log("tokens error: ");
+    //       res.send("Error: Wallet has no Consent Tokens");
+    //       return errAsync(" Wallet has no Consent Tokens");
+    //     })
+    //     .map(() => {
+    //       const earnedRewards: EarnedReward[] = [];
+    //       earnedRewards[0] = new EarnedReward(queryCid, ERewardType.Direct);
+    //       res.send(earnedRewards);
+    //     })
+    //     .mapErr((e) => {
+    //       console.error(e);
+    //       res.send(e);
+    //     });
+    // });
 
     this.app.post("/getAuthorizedBackups", (req, res) => {
       const signature = Signature(req.body.signature);

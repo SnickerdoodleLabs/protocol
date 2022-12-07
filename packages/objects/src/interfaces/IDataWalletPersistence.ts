@@ -12,7 +12,7 @@ import {
   LinkedAccount,
   SiteVisit,
 } from "@objects/businessObjects";
-import { PersistenceError } from "@objects/errors";
+import { AjaxError, PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import {
@@ -51,7 +51,9 @@ export interface IDataWalletPersistence {
    * and using "return this.unlocked.andThen()" at the beginning of the other methods.
    * @param derivedKey
    */
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
+  unlock(
+    derivedKey: EVMPrivateKey,
+  ): ResultAsync<void, PersistenceError | AjaxError>;
 
   /**
    * This method adds an account to the data wallet. Only these accounts may unlock the
@@ -127,7 +129,9 @@ export interface IDataWalletPersistence {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
-  addEarnedRewards(rewards: EarnedReward[]): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   /**
@@ -183,9 +187,9 @@ export interface IDataWalletPersistence {
 
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
-  pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
-  clearCloudStore(): ResultAsync<void, PersistenceError>;
+  pollBackups(): ResultAsync<void, PersistenceError | AjaxError>;
+  postBackup(): ResultAsync<void, PersistenceError | AjaxError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
