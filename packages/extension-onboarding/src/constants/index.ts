@@ -27,4 +27,4 @@ export const ZENDEKS_URL =
   "https://data-wallet.zendesk.com/hc/en-us/requests/new";
 
 export const PRODUCT_VIDEO_URL =
-  "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4";
+  "https://drive.google.com/uc?export=download&id=1mZiacL0rqevXF15Kfnz_dvogVf_RNO3v";

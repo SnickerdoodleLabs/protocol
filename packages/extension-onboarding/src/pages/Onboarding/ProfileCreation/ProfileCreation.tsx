@@ -79,8 +79,13 @@ const ProfileCreation: FC = () => {
                 <img src={artboardImage} style={{ width: "100%" }} />
               </Box>
             )}
+            <Box mb={1.5}>
+              <Typography className={classes.infoText}>
+                Last Step On The Way to Your Data Safe...
+              </Typography>
+            </Box>
             <Button fullWidth type="submit" form="profile-create-form">
-              Go to Data Wallet
+              Go to Data Safe
             </Button>
           </Grid>
         </Grid>
