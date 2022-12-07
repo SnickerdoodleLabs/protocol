@@ -114,12 +114,6 @@ export class GoogleCloudStorage implements ICloudStorage {
     IDataWalletBackup[],
     PersistenceError | AjaxError
   > {
-    const readOptions: GetSignedUrlConfig = {
-      version: "v4",
-      action: "read",
-      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-    };
-    const ajaxUtils = new AxiosAjaxUtils();
 
     return this.waitForUnlock().andThen((privateKey) => {
       const addr =
@@ -127,24 +121,16 @@ export class GoogleCloudStorage implements ICloudStorage {
       const baseURL = URLString("http://localhost:3006");
       const dataBackups: IDataWalletBackup[] = [];
 
-      console.log("PollBackups: ");
-      console.log("privateKey: ", privateKey);
-      console.log("addr: ", addr);
-
       return this.insightPlatformRepo
         .getWalletBackups(privateKey, baseURL, addr + "/")
         .andThen((files) => {
           if (files == undefined) {
-            console.log("pollBackups returns: []");
             return okAsync([]);
           }
           if (files.length == 0) {
-            console.log("pollBackups length is 0");
             return okAsync([]);
           }
           const ajaxUtils = new AxiosAjaxUtils();
-          console.log("fileArray ", files);
-          console.log("fileArray[0] ", files[0]);
 
           let version = 0;
           return ResultUtils.combine(
@@ -163,8 +149,6 @@ export class GoogleCloudStorage implements ICloudStorage {
                   console.log("signedUrl: ", signedUrl);
                 }
 
-                console.log("INNER signedUrl: ", signedUrl);
-
                 if (signedUrl !== undefined) {
                   return ResultAsync.fromPromise(
                     ajaxUtils
@@ -173,21 +157,18 @@ export class GoogleCloudStorage implements ICloudStorage {
                         return innerValue["value"] as IDataWalletBackup;
                       }),
                     (e) => new AjaxError("unable let {addr}", e),
-                  ).andThen((qwe) => {
-                    console.log("qwe: ", qwe);
-                    return okAsync(qwe as IDataWalletBackup);
+                  ).andThen((backup) => {
+                    return okAsync(backup as IDataWalletBackup);
                   });
                 }
                 return okAsync({} as IDataWalletBackup);
               }),
-            ).andThen((po) => {
-              console.log("po: ", po);
-              return okAsync(po);
+            ).andThen((dataWalletBackups) => {
+              console.log("dataWalletBackups: ", dataWalletBackups);
+              return okAsync(dataWalletBackups);
             });
           });
         });
     });
   }
-
-  // });
 }
