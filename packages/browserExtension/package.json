@@ -18,6 +18,7 @@
     "build-setup-prod": "git status && git checkout main && git pull && yarn install; true && yarn build-prod && open .",
     "build:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/build.js",
     "compile": "cd ../.. && yarn compile",
+    "gcp": "cd ../.. && yarn compile && cd packages/browserExtension && yarn build-demo-03",
     "prettier": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
     "start": "yarn precompile && yarn compile && node utils/webserver.cjs",
     "start:v2:firefox": "__PLATFORM__=firefox __MANIFEST_VERSION__=v2 node utils/webserver.js",

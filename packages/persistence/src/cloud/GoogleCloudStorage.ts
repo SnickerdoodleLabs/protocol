@@ -1,8 +1,6 @@
 import {
   GetSignedUrlConfig,
   Storage,
-  GetSignedUrlConfig,
-  Storage,
   Bucket,
   GetSignedUrlResponse,
   GetFilesResponse,

@@ -1,7 +1,7 @@
 import {
-  GetSignedUrlConfig,
   Storage,
   Bucket,
+  GetSignedUrlConfig,
   GetSignedUrlResponse,
   GetFilesResponse,
 } from "@google-cloud/storage";
@@ -33,6 +33,7 @@ import {
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
+  authorizationBackupTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
