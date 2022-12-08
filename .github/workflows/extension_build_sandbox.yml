@@ -2,7 +2,7 @@ name: Extension Build
 
 on:
   push:
-    branches: develop
+    branches: *
 env:
   GITHUB_SHA: ${{ github.sha }} 
   GITHUB_REF: ${{ github.ref }} 
