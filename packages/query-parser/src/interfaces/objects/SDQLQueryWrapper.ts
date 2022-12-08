@@ -130,7 +130,7 @@ export class SDQLQueryWrapper {
   getCompensationSchema(): ISDQLCompensationBlock {
     return this.internalObj.compensations;
   }
-  
+
   getLogicSchema(): ISDQLLogicObjects {
     return this.internalObj.logic;
   }

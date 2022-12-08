@@ -15,6 +15,7 @@ export * from "@objects/businessObjects/Invitation";
 export * from "@objects/businessObjects/InvitationDomain";
 export * from "@objects/businessObjects/LinkedAccount";
 export * from "@objects/businessObjects/MetatransactionSignatureRequest";
+export * from "@objects/businessObjects/OptInInfo";
 export * from "@objects/businessObjects/PageInvitation";
 export * from "@objects/businessObjects/RequestForData";
 export * from "@objects/businessObjects/Reward";

@@ -12,7 +12,6 @@ import {
   ControlChainInformation,
 } from "@snickerdoodlelabs/objects";
 
-
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 
 export const externalAccountAddress1 = EVMAccountAddress(
@@ -32,11 +31,11 @@ export const consentContractAddress2 = EVMContractAddress(
   "consentContractAddress1",
 );
 
-export const queryId = IpfsCID("queryId");
+export const queryCID = IpfsCID("queryCID");
 
 export const qureyString = SDQLString("qurey");
 
-export const SDQuery = new SDQLQuery(queryId, qureyString);
+export const SDQuery = new SDQLQuery(queryCID, qureyString);
 
 // #region for config provider mock
 

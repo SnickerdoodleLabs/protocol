@@ -48,9 +48,10 @@ import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { Subscription } from "rxjs";
 
-import { Environment, TestHarnessMocks } from "@test-harness/mocks/index.js";
 import { ApproveQuery } from "@test-harness/prompts/ApproveQuery.js";
 import { TestWallet } from "@test-harness/utilities/TestWallet.js";
+
+import { Environment, TestHarnessMocks } from "@test-harness/mocks";
 
 export class DataWalletProfile {
   readonly core: SnickerdoodleCore;
