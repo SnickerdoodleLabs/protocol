@@ -27,5 +27,5 @@ jobs:
           
       - uses: actions/upload-artifact@v3
         with:
-          name: dev-extension
+          name: sandbox-extension
           path: packages/browserExtension/build-*
