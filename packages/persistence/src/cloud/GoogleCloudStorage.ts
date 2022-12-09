@@ -60,30 +60,48 @@ export class GoogleCloudStorage implements ICloudStorage {
 
   /* Currently deletes everything on GCP */
   public clear(): ResultAsync<void, PersistenceError | AjaxError> {
-    return this.waitForUnlock().andThen((privateKey) => {
-      const baseURL = URLString("http://localhost:3006");
-      return this.insightPlatformRepo.clearAllBackups(privateKey, baseURL, "");
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this._configProvider.getConfig(),
+    ]).andThen(([privateKey, config]) => {
+      // const baseURL = URLString("http://localhost:3001/v0");
+      return this.insightPlatformRepo.clearAllBackups(
+        privateKey,
+        config.defaultInsightPlatformBaseUrl,
+        "",
+      );
     });
   }
 
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError | AjaxError> {
-    const baseURL = URLString("http://localhost:3006");
-    return this.waitForUnlock().andThen((privateKey) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this._configProvider.getConfig(),
+    ]).andThen(([privateKey, baseURL]) => {
+      // const baseURL = URLString("http://localhost:3001/v0");
+      const defaultInsightPlatformBaseUrl =
+        baseURL.defaultInsightPlatformBaseUrl;
+      console.log("Base URL: ", defaultInsightPlatformBaseUrl);
+
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       return ResultUtils.combine([
         this.insightPlatformRepo.getRecentVersion(
           privateKey,
-          baseURL,
+          defaultInsightPlatformBaseUrl,
           addr + "/",
         ),
       ]).andThen(([version]) => {
         console.log("Data Wallet address: ", addr);
         console.log("putBackup version: ", version);
         return this.insightPlatformRepo
-          .getAuthBackups(privateKey, baseURL, addr + "/version" + version)
+          .getAuthBackups(
+            privateKey,
+            defaultInsightPlatformBaseUrl,
+            addr + "/version" + version,
+          )
           .andThen((signedUrl) => {
             console.log("Putbackups signedUrl [0][0]: ", signedUrl[0][0]!);
             console.log("Putbackups signedUrl [1][0]: ", signedUrl[1][0]!);
@@ -114,15 +132,25 @@ export class GoogleCloudStorage implements ICloudStorage {
     IDataWalletBackup[],
     PersistenceError | AjaxError
   > {
-
-    return this.waitForUnlock().andThen((privateKey) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this._configProvider.getConfig(),
+    ]).andThen(([privateKey, config]) => {
+      console.log(
+        "config.defaultInsightPlatformBaseUrl: ",
+        config.defaultInsightPlatformBaseUrl,
+      );
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      const baseURL = URLString("http://localhost:3006");
+      // const baseURL = URLString("http://localhost:9001");
       const dataBackups: IDataWalletBackup[] = [];
 
       return this.insightPlatformRepo
-        .getWalletBackups(privateKey, baseURL, addr + "/")
+        .getWalletBackups(
+          privateKey,
+          config.defaultInsightPlatformBaseUrl,
+          addr + "/",
+        )
         .andThen((files) => {
           if (files == undefined) {
             return okAsync([]);
@@ -138,7 +166,7 @@ export class GoogleCloudStorage implements ICloudStorage {
               version = version + 1;
               return this.insightPlatformRepo.getSignedUrl(
                 privateKey,
-                baseURL,
+                config.defaultInsightPlatformBaseUrl,
                 addr + "/version" + version,
               );
             }),

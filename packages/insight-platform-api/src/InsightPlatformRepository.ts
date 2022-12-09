@@ -55,7 +55,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     fileName: string,
   ): ResultAsync<string | undefined, AjaxError> {
-    const baseURL = URLString("http://localhost:3006");
     const signableData = {
       fileName: fileName,
     } as Record<string, unknown>;
@@ -69,7 +68,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         console.log("Get Wallet Backups Signature!");
-        const url = new URL(urlJoin(baseURL, "/getSignedUrl"));
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrl"));
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<string | undefined>(url, {
@@ -79,13 +78,11 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       });
   }
 
-
   public getWalletBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
   ): ResultAsync<File[] | undefined, AjaxError> {
-    const baseURL = URLString("http://localhost:3006");
     const signableData = {
       fileName: fileName,
     } as Record<string, unknown>;
@@ -99,7 +96,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         console.log("Get Wallet Backups Signature!");
-        const url = new URL(urlJoin(baseURL, "/getWalletBackups"));
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/getWalletBackups"),
+        );
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<File[] | undefined>(url, {
@@ -111,9 +110,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
   public getGoogleCloudStorage(
     dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
     fileName: string,
   ): ResultAsync<Bucket, AjaxError> {
-    const baseURL = URLString("http://localhost:3006");
     const signableData = {
       fileName: fileName,
     } as Record<string, unknown>;
@@ -127,7 +126,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         console.log("getGoogleCloudStorage - SIGNED CORRECTLY!");
-        const url = new URL(urlJoin(baseURL, "/getGoogleStorage"));
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/getGoogleStorage"),
+        );
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<Bucket>(url, {

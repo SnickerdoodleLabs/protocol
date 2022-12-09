@@ -8,4 +8,5 @@ export interface IPersistenceConfig {
   backupChunkSizeTarget: number;
   ceramicModelAliases: ModelAliases<ModelTypes>;
   ceramicNodeURL: URLString;
+  defaultInsightPlatformBaseUrl: URLString;
 }
