@@ -40,19 +40,13 @@ export interface IInsightPlatformRepository {
     fileName: string,
   ): ResultAsync<void, AjaxError>;
 
-  getSignedUrl(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<string | undefined, AjaxError>;
+  // getSignedUrl(
+  //   dataWalletKey: EVMPrivateKey,
+  //   insightPlatformBaseUrl: URLString,
+  //   fileName: string,
+  // ): ResultAsync<string | undefined, AjaxError>;
 
-  getGoogleCloudStorage(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<Bucket, AjaxError>;
-
-  getAuthBackups(
+  getSignedUrls(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,

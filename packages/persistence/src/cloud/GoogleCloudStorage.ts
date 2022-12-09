@@ -1,5 +1,8 @@
+import { parse } from "@babel/core";
 import { GetSignedUrlConfig } from "@google-cloud/storage";
 import {
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
   AxiosAjaxUtils,
   CryptoUtils,
   ICryptoUtilsType,
@@ -18,6 +21,7 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
+import * as xml2js from "xml2js";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 import {
@@ -39,6 +43,8 @@ export class GoogleCloudStorage implements ICloudStorage {
     @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils, // @inject(IDataWalletPersistenceType) // protected persistenceRepo: IDataWalletPersistence,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
+    @inject(IAxiosAjaxUtilsType)
+    protected ajaxUtils: AxiosAjaxUtils,
   ) {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
@@ -80,35 +86,56 @@ export class GoogleCloudStorage implements ICloudStorage {
       this.waitForUnlock(),
       this._configProvider.getConfig(),
     ]).andThen(([privateKey, baseURL]) => {
-      // const baseURL = URLString("http://localhost:3001/v0");
       const defaultInsightPlatformBaseUrl =
         baseURL.defaultInsightPlatformBaseUrl;
       console.log("Base URL: ", defaultInsightPlatformBaseUrl);
-
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      return ResultUtils.combine([
-        this.insightPlatformRepo.getRecentVersion(
-          privateKey,
-          defaultInsightPlatformBaseUrl,
-          addr + "/",
-        ),
-      ]).andThen(([version]) => {
-        console.log("Data Wallet address: ", addr);
+      const dataWalletFolder = URLString(
+        "https://storage.googleapis.com/ceramic-replacement-bucket?prefix=" +
+          addr,
+      );
+
+      // getRecentVersion
+      return ResultAsync.fromPromise(
+        this.ajaxUtils.get(new URL(dataWalletFolder as string)),
+        (e) => new AjaxError("unable let {addr}", e),
+      ).andThen((files) => {
+        console.log("files: ", files);
+        const version = "1";
+        // if (files !== undefined) {
+        //   console.log("In undefined: ");
+
+        //   if (files.length > 0) {
+        //     const inArray = files[files.length - 1];
+        //     // const inArray = allFiles[0];
+        //     console.log("inArray: ", inArray);
+
+        //     // inArray["metadata"]["name"];
+        //     const name = inArray["metadata"]["name"];
+        //     const versionString = name.split(/[/ ]+/).pop();
+        //     console.log("versionString: ", versionString);
+        //     const versionNumber = versionString.split("version");
+        //     console.log("versionNumber: ", versionNumber[1]);
+        //     console.log(parseInt(versionNumber[1]) + 1);
+
+        //     version = (parseInt(versionNumber[1]) + 1).toString();
+        //     console.log("Inner Version 1: ", version);
+        //   }
+        // }
         console.log("putBackup version: ", version);
         return this.insightPlatformRepo
-          .getAuthBackups(
+          .getSignedUrls(
             privateKey,
             defaultInsightPlatformBaseUrl,
             addr + "/version" + version,
           )
           .andThen((signedUrl) => {
-            console.log("Putbackups signedUrl [0][0]: ", signedUrl[0][0]!);
-            console.log("Putbackups signedUrl [1][0]: ", signedUrl[1][0]!);
-            const ajaxUtils = new AxiosAjaxUtils();
+            const writeUrl = signedUrl[1][0]!;
+            console.log("writeUrl: ", writeUrl);
             try {
-              ajaxUtils
-                .put(new URL(signedUrl[1][0]!), JSON.stringify(backup), {
+              this.ajaxUtils
+                .put(new URL(writeUrl), JSON.stringify(backup), {
                   headers: {
                     "Content-Type": `multipart/form-data;`,
                   },
@@ -135,68 +162,44 @@ export class GoogleCloudStorage implements ICloudStorage {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
-    ]).andThen(([privateKey, config]) => {
-      console.log(
-        "config.defaultInsightPlatformBaseUrl: ",
-        config.defaultInsightPlatformBaseUrl,
-      );
-      const addr =
-        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      // const baseURL = URLString("http://localhost:9001");
-      const dataBackups: IDataWalletBackup[] = [];
-
-      return this.insightPlatformRepo
-        .getWalletBackups(
-          privateKey,
+    ])
+      .andThen(([privateKey, config]) => {
+        console.log(
+          "config.defaultInsightPlatformBaseUrl: ",
           config.defaultInsightPlatformBaseUrl,
-          addr + "/",
-        )
-        .andThen((files) => {
-          if (files == undefined) {
-            return okAsync([]);
-          }
-          if (files.length == 0) {
-            return okAsync([]);
-          }
-          const ajaxUtils = new AxiosAjaxUtils();
+        );
+        const addr =
+          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+        // const dataWalletFolder = URLString(
+        //   "https://storage.googleapis.com/ceramic-replacement-bucket?prefix=" +
+        //     addr,
+        // );
+        const dataWalletFolder =
+          "https://storage.googleapis.com/ceramic-replacement-bucket?prefix=0x02a3679d514eb373e1963bFF99B1A1de44aCE065";
 
-          let version = 0;
-          return ResultUtils.combine(
-            files.map((file) => {
-              version = version + 1;
-              return this.insightPlatformRepo.getSignedUrl(
-                privateKey,
-                config.defaultInsightPlatformBaseUrl,
-                addr + "/version" + version,
-              );
+        const dataBackups: IDataWalletBackup[] = [];
+        return ResultAsync.fromPromise(
+          this.ajaxUtils
+            .get<XMLDocument>(new URL(dataWalletFolder))
+            .then((xmlDoc) => {
+              console.log("Inner - ", xmlDoc);
+              return xmlDoc["value"] as XMLDocument;
             }),
-          ).andThen((signedUrls) => {
-            return ResultUtils.combine(
-              signedUrls.map((signedUrl) => {
-                if (signedUrl == undefined) {
-                  console.log("signedUrl: ", signedUrl);
-                }
-
-                if (signedUrl !== undefined) {
-                  return ResultAsync.fromPromise(
-                    ajaxUtils
-                      .get(new URL(signedUrl as string))
-                      .then((innerValue) => {
-                        return innerValue["value"] as IDataWalletBackup;
-                      }),
-                    (e) => new AjaxError("unable let {addr}", e),
-                  ).andThen((backup) => {
-                    return okAsync(backup as IDataWalletBackup);
-                  });
-                }
-                return okAsync({} as IDataWalletBackup);
-              }),
-            ).andThen((dataWalletBackups) => {
-              console.log("dataWalletBackups: ", dataWalletBackups);
-              return okAsync(dataWalletBackups);
-            });
-          });
+          (e) => new AjaxError("unable let {addr}", e),
+        ).andThen((files) => {
+          return okAsync(files as XMLDocument);
         });
-    });
+      })
+      .andThen((xmlDoc) => {
+        console.log("xmlDoc: ", xmlDoc);
+        xmlDoc.getElementsByTagName("ListBucketResult");
+        console.log(
+          "Contents: ",
+          xmlDoc.getElementsByTagName("ListBucketResult"),
+        );
+        // const contents = xmlDoc.getElementById("Contents");
+
+        return okAsync([]);
+      });
   }
 }

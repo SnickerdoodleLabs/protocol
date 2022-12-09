@@ -9,12 +9,17 @@ import {
   Storage,
   ServiceAccount,
 } from "@google-cloud/storage";
-import { AxiosAjaxUtils, CryptoUtils } from "@snickerdoodlelabs/common-utils";
+import {
+  AxiosAjaxUtils,
+  CryptoUtils,
+  IAxiosAjaxUtils,
+} from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
 import {
+  IDataWalletBackup,
+  URLString,
   AjaxError,
   EVMPrivateKey,
-  IDataWalletBackup,
   PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import { ok, okAsync, Result, ResultAsync } from "neverthrow";
@@ -30,17 +35,20 @@ class GoogleCloudMocks {
   public _configProvider: IPersistenceConfigProvider;
   public _cryptoUtils: CryptoUtils;
   public insightPlatformRepo: IInsightPlatformRepository;
+  public ajaxAxiosUtils: AxiosAjaxUtils;
 
   public constructor() {
     this._configProvider = td.object<IPersistenceConfigProvider>();
     this._cryptoUtils = td.object<CryptoUtils>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
+    this.ajaxAxiosUtils = td.object<AxiosAjaxUtils>();
   }
   public factory(): GoogleCloudStorage {
     return new GoogleCloudStorage(
       this._configProvider,
       this._cryptoUtils,
       this.insightPlatformRepo,
+      this.ajaxAxiosUtils,
     );
   }
 }
@@ -67,27 +75,15 @@ describe("Google Cloud Storage Tests", () => {
       .getSignedUrl(fileOptions);
 
     const ajaxUtils = new AxiosAjaxUtils();
-    console.log("signedUrl[0]: ", signedUrl[0]);
 
-    storage.bucket("ceramic-replacement-bucket").getFiles(
-      { prefix: "0x427fF45755aBF7c3023d9f091909A0CF5Ef35742/" },
-      // .getFiles(
-      //   { prefix: req.body.fileName + "/" },
-      async function (err, files) {
-        console.log("Files: ", files?.length);
-        if (err) {
-          console.error("err: ", err);
-        } else {
-          if (err) {
-            // console.error("err: ", err);
-            // res.send(err);
-          } else {
-            // console.error("files: ", files);
-            // res.send(files);
-          }
-          // res.send(files);
-        }
-      },
+    const baseURL = URLString(
+      "https://storage.googleapis.com/ceramic-replacement-bucket?prefix=0x02a3679d514eb373e1963bFF99B1A1de44aCE065",
+    );
+    console.log(
+      "utils :",
+      ajaxUtils.get(new URL(baseURL as string)).then((innerValue) => {
+        return innerValue["value"] as IDataWalletBackup;
+      }),
     );
   });
 });
