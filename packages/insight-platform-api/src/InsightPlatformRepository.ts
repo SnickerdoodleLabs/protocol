@@ -25,6 +25,7 @@ import {
   BigNumberString,
   InsightString,
   URLString,
+  TokenId,
   EligibleReward,
   EarnedReward,
   QueryIdentifier,
@@ -43,6 +44,11 @@ import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
+import {
+  IDeliverInsightsParams,
+  IExecuteMetatransactionParams,
+  IReceivePreviewsParams,
+} from "@insightPlatform/params/index.js";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -230,17 +236,17 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   }
   //
   public receivePreviews(
-    dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    queryCid: IpfsCID,
-    dataWalletKey: EVMPrivateKey,
+    tokenId: TokenId,
+    queryCID: IpfsCID,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
   ): ResultAsync<EligibleReward[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
-      dataWallet: dataWalletAddress,
-      queryCID: queryCid,
+      tokenId: tokenId,
+      queryCID: queryCID,
       queries: JSON.stringify(answeredQueries),
     } as Record<string, unknown>;
 
@@ -249,7 +255,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         snickerdoodleSigningDomain,
         insightPreviewTypes,
         signableData,
-        dataWalletKey,
+        signingKey,
       )
       .andThen((signature) => {
         const url = new URL(
@@ -260,29 +266,29 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<EligibleReward[]>(url, {
           consentContractId: consentContractAddress,
-          queryCID: queryCid,
-          dataWallet: dataWalletAddress,
+          queryCID: queryCID,
+          tokenId: tokenId.toString(),
           queries: answeredQueries,
           signature: signature,
-        });
+        } as IReceivePreviewsParams as unknown as Record<string, unknown>);
       });
   }
 
   public deliverInsights(
-    dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    queryCid: IpfsCID,
+    tokenId: TokenId,
+    queryCID: IpfsCID,
     returns: InsightString[],
-    dataWalletKey: EVMPrivateKey,
+    rewardParameters: IDynamicRewardParameter[],
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
-      queryCid: queryCid,
-      dataWallet: dataWalletAddress,
+      tokenId: tokenId,
+      queryCID: queryCID,
       returns: JSON.stringify(returns),
-      rewardParameters: JSON.stringify(rewardParameters || []),
+      rewardParameters: JSON.stringify(rewardParameters),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -290,7 +296,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         snickerdoodleSigningDomain,
         insightDeliveryTypes,
         signableData,
-        dataWalletKey,
+        signingKey,
       )
       .andThen((signature) => {
         const url = new URL(
@@ -299,17 +305,16 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         return this.ajaxUtils.post<EarnedReward[]>(url, {
           consentContractId: consentContractAddress,
-          queryCid: queryCid,
-          dataWallet: dataWalletAddress,
+          tokenId: tokenId.toString(),
+          queryCID: queryCID,
           returns: returns,
-          rewardParameters: rewardParameters || [],
+          rewardParameters: rewardParameters,
           signature: signature,
-        });
+        } as IDeliverInsightsParams as unknown as Record<string, unknown>);
       });
   }
 
   public executeMetatransaction(
-    dataWalletAddress: DataWalletAddress,
     accountAddress: EVMAccountAddress,
     contractAddress: EVMContractAddress,
     nonce: BigNumberString,
@@ -317,14 +322,15 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     gas: BigNumberString,
     data: HexString,
     metatransactionSignature: Signature,
-    dataWalletKey: EVMPrivateKey,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError> {
     const signingData = {
-      dataWallet: dataWalletAddress,
       accountAddress: accountAddress,
       contractAddress: contractAddress,
       nonce: nonce,
+      value: value,
+      gas: gas,
       data: data,
       metatransactionSignature: metatransactionSignature,
     } as Record<string, unknown>;
@@ -334,13 +340,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         snickerdoodleSigningDomain,
         executeMetatransactionTypes,
         signingData,
-        dataWalletKey,
+        signingKey,
       )
       .andThen((signature) => {
         const url = new URL(urlJoin(insightPlatformBaseUrl, "metatransaction"));
 
         const postBody = {
-          dataWalletAddress: dataWalletAddress,
           accountAddress: accountAddress,
           contractAddress: contractAddress,
           nonce: nonce,
@@ -349,11 +354,11 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           data: data,
           metatransactionSignature: metatransactionSignature,
           requestSignature: signature,
-        };
+        } as IExecuteMetatransactionParams;
 
         return this.ajaxUtils.post<IExecuteMetatransactionResponse>(
           url,
-          postBody,
+          postBody as unknown as Record<string, unknown>,
         );
       })
       .map(() => {});

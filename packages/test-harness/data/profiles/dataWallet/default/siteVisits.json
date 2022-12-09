@@ -1,0 +1,12 @@
+[
+    {
+        "url": "www.google.com",
+        "startTime": 100,
+        "endTime": 1000
+    },
+    {
+        "url": "www.facebook.com",
+        "startTime": 200,
+        "endTime": 500
+    }
+]
