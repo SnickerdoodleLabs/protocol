@@ -229,10 +229,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         });
       });
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> sandbox/DEMO-03
   //
   public receivePreviews(
     dataWalletAddress: DataWalletAddress,
