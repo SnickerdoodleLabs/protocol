@@ -7,13 +7,14 @@ export class Web2Reward extends EarnedReward {
     constructor(
         readonly queryCID: IpfsCID,
         readonly name: string,
-        readonly image: IpfsCID,
+        readonly image: IpfsCID | URLString | null,
+        readonly description: string,
         readonly url: URLString,
         readonly credentialType: ECredentialType,
         readonly credential: Web2Credential,
         readonly instructions: string
     ) {
-        super(queryCID, name, image, ERewardType.Direct);
+        super(queryCID, name, image, description, ERewardType.Direct);
     }
 
 }
