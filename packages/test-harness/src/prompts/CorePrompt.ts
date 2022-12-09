@@ -113,6 +113,7 @@ export class CorePrompt extends Prompt {
             IpfsCID("LazyReward"),
             "Dummy reward name",
             IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+            "dummy desc",
             ERewardType.Lazy,
           );
       

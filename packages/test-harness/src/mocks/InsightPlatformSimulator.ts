@@ -225,6 +225,7 @@ export class InsightPlatformSimulator {
             queryCID, 
             "Sugar to your coffee",
             IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+            "dummy desc",
             ERewardType.Direct
           );
           res.send(earnedRewards);
