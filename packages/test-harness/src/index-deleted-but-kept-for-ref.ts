@@ -54,15 +54,15 @@ import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
-import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
+import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
+import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 
 // #region new prompt
-const promptFactory = new PromptFactory()
-const mainPromptNew = promptFactory.createDefault();
+// const promptFactory = new PromptFactory()
+// const mainPromptNew = promptFactory.createDefault();
 // #endregion
 
 // #region initialization
@@ -122,7 +122,7 @@ const devAccountKeys = [
 const blockchain = new BlockchainStuff(devAccountKeys);
 const ipfs = new IPFSClient();
 
-const simulator = mainPromptNew.env.insightPlatform;
+const simulator = new InsightPlatformSimulator(blockchain, ipfs);
 const languageCode = LanguageCode("en");
 
 const domainName = DomainName("snickerdoodle.com");
@@ -496,9 +496,7 @@ function corePrompt(): ResultAsync<void, Error> {
         };
         return core
           .restoreBackup(backup)
-          .andThen(() =>
-            okAsync(console.log("restored backup", backup.header.hash)),
-          );
+          .map(() => console.log("restored backup", backup.header.hash));
       case "manualBackup":
         return core.postBackup().map(console.log);
       case "clearCloudStore":
