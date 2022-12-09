@@ -5,15 +5,20 @@ import {
   EVMAccountAddress,
   IpfsCID,
   TransactionReceipt,
+  URLString,
 } from "@objects/primitives";
+
 
 export class DirectReward extends EarnedReward {
   constructor(
     readonly queryCID: IpfsCID,
+    readonly name: string,
+    readonly image: IpfsCID | null,
+    readonly description: string,
     readonly chainId: ChainId,
     readonly eoa: EVMAccountAddress,
     readonly transactionReceipt: TransactionReceipt,
   ) {
-    super(queryCID, ERewardType.Direct);
+    super(queryCID, name, image, description, ERewardType.Direct);
   }
 }

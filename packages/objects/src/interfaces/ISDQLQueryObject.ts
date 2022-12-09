@@ -5,9 +5,11 @@ import {
   ChainId,
   CompensationId,
   EVMContractAddress,
+  IpfsCID,
   URLString,
 } from "@objects/primitives";
 import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
+
 export interface ISDQLQueryObject {
   version: string;
   timestamp: ISO8601DateString;
@@ -86,6 +88,8 @@ export interface ISDQLCompensationBlock {
 }
 
 export interface ISDQLCompensations {
+  name: string;
+  image: IpfsCID | URLString | null;
   description: string;
   chainId: ChainId;
   callback: ISDQLCallback;
