@@ -49,6 +49,7 @@
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/utils": "workspace:^",
     "dids": "^3.3.0",
+    "fs": "^0.0.1-security",
     "inversify": "^5.1.1",
     "ipfs-only-hash": "^4.0.0",
     "key-did-provider-ed25519": "^2.0.1",

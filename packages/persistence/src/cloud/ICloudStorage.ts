@@ -1,4 +1,5 @@
 import {
+  AjaxError,
   PersistenceError,
   IDataWalletBackup,
   EVMPrivateKey,
@@ -11,7 +12,9 @@ export interface ICloudStorage {
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError | AjaxError>;
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError | AjaxError>;
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError | AjaxError>;
+  unlock(
+    derivedKey: EVMPrivateKey,
+  ): ResultAsync<void, PersistenceError | AjaxError>;
 
   // this is the nuclear option
   clear(): ResultAsync<void, PersistenceError | AjaxError>;

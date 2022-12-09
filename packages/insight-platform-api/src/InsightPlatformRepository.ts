@@ -1,3 +1,4 @@
+import { GetSignedUrlResponse } from "@google-cloud/storage";
 import {
   GetSignedUrlConfig,
   Storage,
@@ -29,6 +30,7 @@ import {
   EarnedReward,
   QueryIdentifier,
   IDynamicRewardParameter,
+  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -227,6 +229,10 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         });
       });
   }
+<<<<<<< HEAD
+=======
+
+>>>>>>> sandbox/DEMO-03
   //
   public receivePreviews(
     dataWalletAddress: DataWalletAddress,

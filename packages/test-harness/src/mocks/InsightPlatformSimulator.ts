@@ -27,7 +27,6 @@ import {
   SDQLString,
   Signature,
   URLString,
-  EligibleReward,
   ERewardType,
   ChainId,
   ExpectedReward,

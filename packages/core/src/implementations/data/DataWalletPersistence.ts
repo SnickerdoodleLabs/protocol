@@ -636,13 +636,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           BigNumberString("0"),
           BigNumberString("0"),
         ),
-        // {
-        //   "chainId": incomingTransaction[i].chainId,
-        //   "incomingCount": BigNumberString("1"),
-        //   "incomingValue": BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString()),
-        //   "outgoingCount": BigNumberString("0"),
-        //   "outgoingValue": BigNumberString("0")
-        // }
       );
     }
     for (let i = 0; i < outgoingTransaction.length; i++) {
@@ -727,10 +720,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     if (transactions.length == 0) {
       return okAsync(undefined);
     }
-
-    // console.log(
-    //   `addEVMTransactions #${transactions.length} for first chain id ${transactions[0].chainId}`,
-    // );
 
     return this.waitForRestore().andThen(([key]) => {
       return this.backupManagerProvider
@@ -946,7 +935,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return backupManager.dump().andThen((backup) => {
         return this.cloudStorage.putBackup(backup).andThen((id) => {
           backupManager.clear();
-          return okAsync(id);
+          // return okAsync(id);
+          return okAsync(undefined);
         });
       });
     });

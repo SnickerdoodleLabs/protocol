@@ -102,7 +102,9 @@ export interface IDataWalletPersistence {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
-  addEarnedRewards(rewards: EarnedReward[]): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   /**
@@ -158,7 +160,7 @@ export interface IDataWalletPersistence {
 
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
-  pollBackups(): ResultAsync<void, PersistenceError>;
+  pollBackups(): ResultAsync<void, PersistenceError | AjaxError>;
   postBackup(): ResultAsync<void, PersistenceError | AjaxError>;
   clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
 }

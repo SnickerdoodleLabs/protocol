@@ -1,6 +1,12 @@
 import "reflect-metadata";
-import process from "node:process";
 
+import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
+import process from "node:process";
+import * as path from "path";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+import { Storage } from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
@@ -53,14 +59,14 @@ import inquirer from "inquirer";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { InsightPlatformSimulator } from "@test-harness/mocks/InsightPlatformSimulator.js";
-import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 import { query1, query2 } from "@test-harness/queries/index.js";
+import { BlockchainStuff } from "@test-harness/utilities/BlockchainStuff.js";
 import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
+import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 
 // #region new prompt
-const promptFactory = new PromptFactory()
+const promptFactory = new PromptFactory();
 const mainPromptNew = promptFactory.createDefault();
 // #endregion
 
@@ -250,6 +256,7 @@ function mainPrompt(): ResultAsync<void, Error> {
 
 function corePrompt(): ResultAsync<void, Error> {
   let choices = [
+    { name: "Receive Backup", value: "restoreBackup" },
     { name: "Add Account", value: "addAccount" },
     { name: "Remove Account", value: "removeAccount" },
     { name: "Check Account", value: "checkAccount" },
@@ -475,6 +482,7 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.addSiteVisits(sites).map(console.log);
       case "dumpBackup":
         return core.dumpBackup().map(console.log);
+
       case "restoreBackup":
         const backup: IDataWalletBackup = {
           header: {
@@ -495,6 +503,7 @@ function corePrompt(): ResultAsync<void, Error> {
           .andThen(() =>
             okAsync(console.log("restored backup", backup.header.hash)),
           );
+
       case "manualBackup":
         return core.postBackup().map(console.log);
       case "clearCloudStore":
