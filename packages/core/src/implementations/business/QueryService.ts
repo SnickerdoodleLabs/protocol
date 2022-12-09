@@ -9,12 +9,8 @@ import {
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
   AjaxError,
-  BlockchainProviderError,
-  ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
   EvaluationError,
-  EVMAccountAddress,
   EVMContractAddress,
   InsightString,
   IpfsCID,
@@ -28,15 +24,11 @@ import {
   ServerRewardError,
   IDataWalletPersistenceType,
   IDataWalletPersistence,
-  QueryExpiredError,
   IDynamicRewardParameter,
   LinkedAccount,
-  DataWalletAddress,
   QueryIdentifier,
   ExpectedReward,
   EVMPrivateKey,
-  URLString,
-  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -104,33 +96,30 @@ export class QueryService implements IQueryService {
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
       this.persistenceRepo.getAccounts(),
-    ]).andThen(([query, context, config, accounts]) => {
-      return ResultUtils.combine([
-        this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
-        this.dataWalletUtils.deriveOptInPrivateKey(
-          consentContractAddress,
-          context.dataWalletKey!,
-        ),
-      ]).andThen(([consentToken, optInKey]) => {
-        if (consentToken == null) {
-          return errAsync(new EvaluationError(`Consent token not found!`));
-        }
-        return this.queryParsingEngine
-          .getExpectedRewards(query, consentToken.dataPermissions)
-          .andThen(([queryIdentifiers, expectedRewards]) => {
-            return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
-              consentToken,
-              optInKey,
-              consentContractAddress,
-              query,
-              accounts,
-              context,
-              config,
-              queryIdentifiers,
-              expectedRewards,
-            );
-          });
-      });
+      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
+    ]).andThen(([query, context, config, accounts, consentToken]) => {
+      return this.dataWalletUtils
+        .deriveOptInPrivateKey(consentContractAddress, context.dataWalletKey!)
+        .andThen((optInKey) => {
+          if (consentToken == null) {
+            return errAsync(new EvaluationError(`Consent token not found!`));
+          }
+          return this.queryParsingEngine
+            .getExpectedRewards(query, consentToken.dataPermissions)
+            .andThen(([queryIdentifiers, expectedRewards]) => {
+              return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+                consentToken,
+                optInKey,
+                consentContractAddress,
+                query,
+                accounts,
+                context,
+                config,
+                queryIdentifiers,
+                expectedRewards,
+              );
+            });
+        });
     });
   }
 
