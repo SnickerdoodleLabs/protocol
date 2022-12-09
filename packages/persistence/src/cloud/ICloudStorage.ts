@@ -1,5 +1,4 @@
 import {
-  AjaxError,
   PersistenceError,
   IDataWalletBackup,
   EVMPrivateKey,

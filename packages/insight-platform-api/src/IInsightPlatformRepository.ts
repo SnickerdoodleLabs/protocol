@@ -1,10 +1,8 @@
-import { GetSignedUrlResponse } from "@google-cloud/storage";
 import {
   GetSignedUrlConfig,
   Storage,
   Bucket,
   GetSignedUrlResponse,
-  GetFilesResponse,
   File,
   GetFilesCallback,
 } from "@google-cloud/storage";
