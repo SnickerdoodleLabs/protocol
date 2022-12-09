@@ -1,8 +1,8 @@
 import {
-  CeramicStreamID,
   EVMPrivateKey,
   IDataWalletBackup,
   PersistenceError,
+  AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -14,7 +14,9 @@ export class NullCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, IDataWalletBackup>();
   protected _lastRestore = 0;
 
-  putBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError> {
+  putBackup(
+    backup: IDataWalletBackup,
+  ): ResultAsync<void, PersistenceError | AjaxError> {
     this._lastRestore =
       backup.header.timestamp > this._lastRestore
         ? backup.header.timestamp

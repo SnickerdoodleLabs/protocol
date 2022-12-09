@@ -1,4 +1,11 @@
-import { GetSignedUrlResponse } from "@google-cloud/storage";
+import {
+  GetSignedUrlConfig,
+  Storage,
+  Bucket,
+  GetSignedUrlResponse,
+  File,
+  GetFilesCallback,
+} from "@google-cloud/storage";
 import {
   AjaxError,
   BigNumberString,
@@ -20,11 +27,41 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
+  getRecentVersion(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<string, AjaxError>;
+
+  clearAllBackups(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<void, AjaxError>;
+
+  getSignedUrl(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<string | undefined, AjaxError>;
+
+  getGoogleCloudStorage(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<Bucket, AjaxError>;
+
   getAuthBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
   ): ResultAsync<GetSignedUrlResponse[], AjaxError>;
+
+  getWalletBackups(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<File[] | undefined, AjaxError>;
 
   receivePreviews(
     dataWalletAddress: DataWalletAddress,

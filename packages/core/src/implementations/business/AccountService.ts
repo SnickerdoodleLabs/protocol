@@ -43,7 +43,6 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
   URLString,
-  CeramicStreamID,
   EarnedReward,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -579,10 +578,7 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.addEVMTransactions(transactions);
   }
 
-  public postBackup(): ResultAsync<
-    void,
-    PersistenceError | AjaxError
-  > {
+  public postBackup(): ResultAsync<void, PersistenceError | AjaxError> {
     return this.dataWalletPersistence.postBackup();
   }
 

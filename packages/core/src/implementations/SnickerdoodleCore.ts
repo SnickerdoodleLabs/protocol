@@ -66,7 +66,6 @@ import {
   LinkedAccount,
   AccountAddress,
   DataWalletAddress,
-  CeramicStreamID,
   EarnedReward,
   IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
@@ -147,7 +146,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
-        .to(NullCloudStorage)
+        // .to(NullCloudStorage)
+        .to(GoogleCloudStorage)
         .inSingletonScope();
     }
 

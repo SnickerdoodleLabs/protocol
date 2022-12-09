@@ -7,7 +7,6 @@ import { CryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
   BackupIndex,
   BackupIndexEntry,
-  CeramicStreamID,
   EVMPrivateKey,
   IDataWalletBackup,
   ModelTypes,
@@ -25,6 +24,7 @@ import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@persistence/IPersistenceConfigProvider.js";
+import { AjaxError } from "@snickerdoodlelabs/objects";
 
 @injectable()
 export class CeramicCloudStorage implements ICloudStorage {

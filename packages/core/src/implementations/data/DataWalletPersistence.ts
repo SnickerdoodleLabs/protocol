@@ -42,7 +42,6 @@ import {
   getChainInfoByChain,
   IChainTransaction,
   ChainTransaction,
-  CeramicStreamID,
   EarnedReward,
   chainConfig,
 } from "@snickerdoodlelabs/objects";

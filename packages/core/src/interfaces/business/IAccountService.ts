@@ -23,7 +23,6 @@ import {
   MinimalForwarderContractError,
   AccountAddress,
   DataWalletAddress,
-  CeramicStreamID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 

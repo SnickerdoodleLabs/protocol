@@ -29,7 +29,6 @@ import {
   BlockNumber,
   UnixTimestamp,
   AccountAddress,
-  CeramicStreamID,
 } from "@objects/primitives";
 
 /**
@@ -50,9 +49,7 @@ export interface IDataWalletPersistence {
    * and using "return this.unlocked.andThen()" at the beginning of the other methods.
    * @param derivedKey
    */
-  unlock(
-    derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError | AjaxError>;
+  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError | AjaxError>;
 
   /**
    * This method adds an account to the data wallet. Only these accounts may unlock the
