@@ -144,6 +144,9 @@ export class CorePrompt extends DataWalletPrompt {
       const transactions: EVMTransaction[] = [];
       const earnedReward = new EarnedReward(
         IpfsCID("LazyReward"),
+        "Dummy reward name",
+        IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+        "dummy desc",
         ERewardType.Lazy,
       );
 
