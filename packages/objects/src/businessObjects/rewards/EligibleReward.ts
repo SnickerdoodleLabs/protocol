@@ -5,7 +5,7 @@ export class EligibleReward {
   public constructor(
     public compensationKey: string, // c3
     public name: string,
-    public image: IpfsCID | URLString | null,
+    public image: IpfsCID | null,
     public description: string,
     public chainId: ChainId,
     public callback: string, // stringify the callback object
