@@ -8,12 +8,11 @@ import {
   URLString,
 } from "@objects/primitives";
 
-
 export class LazyReward extends EarnedReward {
   constructor(
     readonly queryCID: IpfsCID,
     readonly name: string,
-    readonly image: IpfsCID | URLString | null,
+    readonly image: IpfsCID | null,
     readonly description: string,
     readonly chainId: ChainId,
     readonly eoa: EVMAccountAddress,
