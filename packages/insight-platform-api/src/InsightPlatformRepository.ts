@@ -1,13 +1,4 @@
 import {
-  GetSignedUrlConfig,
-  Storage,
-  Bucket,
-  GetSignedUrlResponse,
-  GetFilesResponse,
-  File,
-  GetFilesCallback,
-} from "@google-cloud/storage";
-import {
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
   ICryptoUtilsType,
@@ -47,6 +38,7 @@ import {
   IDeliverInsightsParams,
   IExecuteMetatransactionParams,
   IReceivePreviewsParams,
+  ISignedUrlParams,
 } from "@insightPlatform/params/index.js";
 
 const baseURL = URLString("http://localhost:3001/v0");
@@ -102,9 +94,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrl"));
-        return this.ajaxUtils.post<URLString>(url, {
+        const postBody = {
           fileName: fileName,
           signature: signature,
+        } as ISignedUrlParams;
+        return this.ajaxUtils.post<URLString>(url, {
+          postBody,
         });
       });
   }
