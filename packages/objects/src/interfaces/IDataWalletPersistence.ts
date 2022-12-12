@@ -1,7 +1,3 @@
-import { ResultAsync } from "neverthrow";
-
-import { IChainTransaction } from "./chains";
-
 import {
   ClickData,
   EarnedReward,
@@ -31,6 +27,9 @@ import {
   UnixTimestamp,
   AccountAddress,
 } from "@objects/primitives";
+import { ResultAsync } from "neverthrow";
+
+import { IChainTransaction } from "./chains";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -50,7 +49,9 @@ export interface IDataWalletPersistence {
    * and using "return this.unlocked.andThen()" at the beginning of the other methods.
    * @param derivedKey
    */
-  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError | AjaxError>;
+  unlock(
+    derivedKey: EVMPrivateKey,
+  ): ResultAsync<void, PersistenceError | AjaxError>;
 
   /**
    * This method adds an account to the data wallet. Only these accounts may unlock the
@@ -184,9 +185,9 @@ export interface IDataWalletPersistence {
 
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
-  pollBackups(): ResultAsync<void, PersistenceError | AjaxError>;
-  postBackup(): ResultAsync<void, PersistenceError | AjaxError>;
-  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
+  pollBackups(): ResultAsync<void, PersistenceError>;
+  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

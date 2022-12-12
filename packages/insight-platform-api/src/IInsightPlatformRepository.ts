@@ -28,44 +28,17 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
-  getRecentVersion(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<string, AjaxError>;
-
   clearAllBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
   ): ResultAsync<void, AjaxError>;
 
-  // getSignedUrl(
-  //   dataWalletKey: EVMPrivateKey,
-  //   insightPlatformBaseUrl: URLString,
-  //   fileName: string,
-  // ): ResultAsync<string | undefined, AjaxError>;
-
   getSignedUrls(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
   ): ResultAsync<GetSignedUrlResponse[], AjaxError>;
-
-  getWalletBackups(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<File[] | undefined, AjaxError>;
-
-  receivePreviews(
-    consentContractAddress: EVMContractAddress,
-    tokenId: TokenId,
-    queryCID: IpfsCID,
-    signingKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    answeredQueries: QueryIdentifier[],
-  ): ResultAsync<EligibleReward[], AjaxError>;
 
   deliverInsights(
     consentContractAddress: EVMContractAddress,

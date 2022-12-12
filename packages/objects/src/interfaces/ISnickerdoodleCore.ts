@@ -1,8 +1,5 @@
 import { ResultAsync } from "neverthrow";
 
-import { IChainTransaction } from "./chains";
-import { IDataWalletBackup } from "./IDataWalletBackup";
-
 import {
   Invitation,
   DataPermissions,
@@ -59,6 +56,8 @@ import {
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
+import { IChainTransaction } from "./chains";
+import { IDataWalletBackup } from "./IDataWalletBackup";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -341,14 +340,10 @@ export interface ISnickerdoodleCore {
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
 
-  addEVMTransactions(
-    transactions: EVMTransaction[],
-  ): ResultAsync<void, PersistenceError>;
+  addEVMTransactions(transactions: EVMTransaction[],): ResultAsync<void, PersistenceError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
-  addEarnedRewards(
-    rewards: EarnedReward[],
-  ): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(rewards: EarnedReward[],): ResultAsync<void, PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
@@ -383,10 +378,8 @@ export interface ISnickerdoodleCore {
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
-  postBackup(): ResultAsync<void, PersistenceError | AjaxError>;
-  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
   getTransactions(
-    filter?: EVMTransactionFilter,
+    filter?: EVMTransactionFilter
   ): ResultAsync<EVMTransaction[], PersistenceError>;
   getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
 

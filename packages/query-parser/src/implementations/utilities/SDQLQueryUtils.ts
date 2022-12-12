@@ -3,6 +3,7 @@ import {
   DataPermissions,
   DuplicateIdInSchema,
   IpfsCID,
+  ISDQLCompensations,
   MissingTokenConstructorError,
   ParserError,
   QueryExpiredError,
@@ -46,47 +47,80 @@ export class SDQLQueryUtils {
     | MissingTokenConstructorError
     | QueryExpiredError
   > {
-    return this.parserFactory
-      .makeParser(IpfsCID(""), schemaString)
-      .andThen((parser) => {
-        return parser.buildAST().andThen(() => {
-          try {
-            const queryPermissions = parser.queryIdsToDataPermissions(queryIds);
+    return this.parserFactory.makeParser(IpfsCID(""), schemaString)
+    .andThen((parser) => {
 
-            // console.log("queryPermissions", queryPermissions.getFlags());
+      return parser.buildAST()
+      .andThen(() => okAsync(
+        this.getCompensationIdsByPermittedQueryIds(parser, queryIds)
+      ));
+    });
+  }
 
-            // now queryPermissions must contain the permission for each compensation expr for eligibility
+  public extractPermittedQueryIdsAndExpectedCompensationBlocks(
+    schemaString: SDQLString,
+    dataPermissions: DataPermissions
+  ): ResultAsync<
+    [string[], Map<string, ISDQLCompensations>], 
+    QueryFormatError 
+    | ParserError 
+    | DuplicateIdInSchema 
+    | MissingTokenConstructorError 
+    | QueryExpiredError
+  > {
 
-            const eligibleComIds = new Set<CompensationId>();
+    return this.parserFactory.makeParser(IpfsCID(""), schemaString)
+    .andThen((parser) => {
 
-            // console.log("logicPermissions", parser.returnPermissions);
-            // console.log("compensationPermissions", parser.compensationPermissions);
-            const expressions = Array.from(
-              parser.compensationPermissions.keys(),
-            );
+      return parser.buildAST().andThen(() => {
 
-            for (const compExpr of expressions) {
-              // console.log(`compExpr`, compExpr);
-              const comPermissions =
-                parser.compensationPermissions.get(compExpr);
-              // console.log(`${compExpr} comPermissions`, comPermissions!.getFlags());
-              if (queryPermissions.contains(comPermissions!)) {
-                const comAst = parser.logicCompensations.get(compExpr);
-                // const compensationId = this.extractCompensationIdFromAst(comAst!)
-                // eligibleComIds.add(compensationId);
-                const comIds =
-                  this.extractCompensationIdFromAstWithAlternatives(comAst!);
-                comIds.forEach((comId) => {
-                  eligibleComIds.add(comId);
-                });
-              }
+        return this.getPermittedQueryIds(parser, dataPermissions)
+        .andThen((permittedQueryIds) => {
+
+          const expectedCompensationIds = 
+            this.getCompensationIdsByPermittedQueryIds(parser, permittedQueryIds)
+
+            const expectedCompensationBlocks: Map<string, ISDQLCompensations> = new Map();
+
+            const compensationSchema = parser.schema.getCompensationSchema();
+            for (const compensationName in compensationSchema) {
+              if (!expectedCompensationIds.includes(CompensationId(compensationName)))
+                continue;
+
+              expectedCompensationBlocks[compensationName] = // 'c1': ISDQLCompensations object
+                  compensationSchema[compensationName] as ISDQLCompensations;
             }
-            return okAsync(Array.from(eligibleComIds.values()));
-          } catch (e) {
-            return errAsync(e as QueryFormatError);
-          }
+            
+            return okAsync<[string[], Map<string, ISDQLCompensations>]>(
+              [permittedQueryIds, expectedCompensationBlocks]
+            );
         });
       });
+    });
+  }
+
+  private getCompensationIdsByPermittedQueryIds(
+    parser: SDQLParser,
+    permittedQueryIds: string[]
+  ): CompensationId[] {
+
+    const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
+    // console.log("queryPermissions", queryPermissions.getFlags());
+    // now queryPermissions must contain the permission for each compensation expr for eligibility
+    const eligibleComIds = new Set<CompensationId>();
+    // console.log("logicPermissions", parser.returnPermissions);
+    // console.log("compensationPermissions", parser.compensationPermissions);
+
+    parser.compensationPermissions.forEach((comPermissions, compExpr) => {
+      if (queryPermissions.contains(comPermissions!)) {
+        const comAst = parser.logicCompensations.get(compExpr);
+        const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
+
+        comIds.forEach((comId) => eligibleComIds.add(comId));
+      }
+    });
+
+    return Array.from(eligibleComIds);
   }
 
   protected extractCompensationIdFromAst(

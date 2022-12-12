@@ -1,12 +1,6 @@
 import "reflect-metadata";
-
-import { readFileSync, writeFileSync, promises as fsPromises } from "fs";
 import process from "node:process";
-import * as path from "path";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
 
-import { Storage } from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import { SnickerdoodleCore } from "@snickerdoodlelabs/core";
@@ -257,7 +251,6 @@ function mainPrompt(): ResultAsync<void, Error> {
 
 function corePrompt(): ResultAsync<void, Error> {
   let choices = [
-    { name: "Receive Backup", value: "restoreBackup" },
     { name: "Add Account", value: "addAccount" },
     { name: "Remove Account", value: "removeAccount" },
     { name: "Check Account", value: "checkAccount" },
@@ -332,6 +325,9 @@ function corePrompt(): ResultAsync<void, Error> {
     const transactions: EVMTransaction[] = [];
     const earnedReward = new EarnedReward(
       IpfsCID("LazyReward"),
+      "Dummy reward name",
+      IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+      "dummy description",
       ERewardType.Lazy,
     );
 
@@ -483,7 +479,6 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.addSiteVisits(sites).map(console.log);
       case "dumpBackup":
         return core.dumpBackup().map(console.log);
-
       case "restoreBackup":
         const backup: IDataWalletBackup = {
           header: {

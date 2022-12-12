@@ -16,7 +16,6 @@ import {
   ConsentContractError,
   ConsentFactoryContractError,
   ConsentName,
-  DataWalletAddress,
   DomainName,
   EVMAccountAddress,
   EVMContractAddress,
@@ -30,16 +29,15 @@ import {
   URLString,
   ERewardType,
   ChainId,
-  ExpectedReward,
   EarnedReward,
   MinimalForwarderContractError,
+  EligibleReward,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
-  authorizationBackupTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
@@ -107,16 +105,29 @@ export class InsightPlatformSimulator {
         queries,
       };
 
-      const expectedRewards: ExpectedReward[] = [];
-      expectedRewards[0] = new ExpectedReward(
-        "undefined",
-        "participate in the draw to win a CryptoPunk NFT",
+      const eligibleRewards: EligibleReward[] = [];
+      eligibleRewards[0] = new EligibleReward(
+        "c1",
+        "Sugar to your coffee",
+        IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+        "10% discount code for Starbucks",
         ChainId(1),
-        "{ parameters: [Array], data: [Object] }",
+        "{ parameters: [Array], data: [Object] }", 
         ERewardType.Direct,
       );
-      expectedRewards[1] = new ExpectedReward(
-        "undefined",
+      eligibleRewards[1] = new EligibleReward(
+        "c2",
+        "The CryptoPunk Draw",
+        IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
+        "participate in the draw to win a CryptoPunk NFT",
+        ChainId(1),
+        "{ parameters: [Array], data: [Object] }", 
+        ERewardType.Direct,
+      );
+      eligibleRewards[2] = new EligibleReward(
+        "c3",
+        "CrazyApesClub NFT distro",
+        IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
         "a free CrazyApesClub NFT",
         ChainId(1),
         "{ parameters: [Array], data: [Object] }",
@@ -160,7 +171,7 @@ export class InsightPlatformSimulator {
           });
         })
         .map(() => {
-          res.send(expectedRewards);
+          res.send(eligibleRewards);
         })
         .mapErr((e) => {
           console.error(e);
@@ -219,7 +230,13 @@ export class InsightPlatformSimulator {
         })
         .map(() => {
           const earnedRewards: EarnedReward[] = [];
-          earnedRewards[0] = new EarnedReward(queryCID, ERewardType.Direct);
+          earnedRewards[0] = new EarnedReward(
+            queryCID, 
+            "Sugar to your coffee",
+            IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+            "dummy desc",
+            ERewardType.Direct
+          );
           res.send(earnedRewards);
         })
         .mapErr((e) => {

@@ -356,6 +356,9 @@ export class DataWalletProfile {
               all.push(
                 new DirectReward(
                   IpfsCID(r.queryCID),
+                  "direct reward name",
+                  IpfsCID("QmTYj6dCVn5R7u7m3X2pypSfAM4oF7zFFhgweneUEvXrmY"),
+                  "direct reward description",
                   ChainId(r.chainId),
                   EVMAccountAddress(r.eoa),
                   TransactionReceipt(r.transactionReceipt),
@@ -366,6 +369,9 @@ export class DataWalletProfile {
               all.push(
                 new LazyReward(
                   IpfsCID(r.queryCID),
+                  "lazy reward name",
+                  IpfsCID("QmTYj6dCVn5R7u7m3X2pypSfAM4oF7zFFhgweneUEvXrmY"),
+                  "lazy reward description",
                   ChainId(r.chainId),
                   EVMAccountAddress(r.eoa),
                   r.functionName,
@@ -377,6 +383,9 @@ export class DataWalletProfile {
               all.push(
                 new Web2Reward(
                   IpfsCID(r.queryCID),
+                  "Winnie the Pooh",
+                  null,
+                  "Notice the resemblance?",
                   URLString(r.url),
                   r.credentialType as ECredentialType,
                   Web2Credential(r.credential),

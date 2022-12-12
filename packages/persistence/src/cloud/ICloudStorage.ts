@@ -16,7 +16,7 @@ export interface ICloudStorage {
   ): ResultAsync<void, PersistenceError | AjaxError>;
 
   // this is the nuclear option
-  clear(): ResultAsync<void, PersistenceError | AjaxError>;
+  clear(): ResultAsync<void, PersistenceError>;
 }
 
 export const ICloudStorageType = Symbol.for("ICloudStorage");
