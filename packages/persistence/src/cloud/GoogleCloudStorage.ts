@@ -1,5 +1,3 @@
-import { parse } from "@babel/core";
-import { GetSignedUrlConfig } from "@google-cloud/storage";
 import {
   IAxiosAjaxUtils,
   IAxiosAjaxUtilsType,
@@ -21,14 +19,12 @@ import {
 import { inject, injectable } from "inversify";
 import { ok, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import * as xml2js from "xml2js";
 
+import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 import {
   IGoogleFileBackup,
   IGoogleWalletBackupDirectory,
-} from "./IGoogleBackup";
-
-import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
+} from "@persistence/cloud/IGoogleBackup.js";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
@@ -45,7 +41,7 @@ export class GoogleCloudStorage implements ICloudStorage {
   public constructor(
     @inject(IPersistenceConfigProviderType)
     protected _configProvider: IPersistenceConfigProvider,
-    @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils, // @inject(IDataWalletPersistenceType) // protected persistenceRepo: IDataWalletPersistence,
+    @inject(ICryptoUtilsType) protected _cryptoUtils: CryptoUtils,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(IAxiosAjaxUtilsType)
@@ -95,14 +91,13 @@ export class GoogleCloudStorage implements ICloudStorage {
       console.log("Base URL: ", defaultInsightPlatformBaseUrl);
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      const dataWalletFolder = URLString(
+      const dataWalletFolder =
         "https://storage.googleapis.com/storage/v1/b/ceramic-replacement-bucket/o?prefix=" +
-          addr,
-      );
+        addr;
 
       return ResultUtils.combine([
         this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
-          new URL(dataWalletFolder as string),
+          new URL(dataWalletFolder),
         ),
       ]).andThen(([backupsDirectory]) => {
         console.log("backupsArray: ", backupsDirectory);
@@ -119,17 +114,11 @@ export class GoogleCloudStorage implements ICloudStorage {
           .andThen((signedUrl) => {
             const writeUrl = signedUrl[1][0]!;
             console.log("writeUrl: ", writeUrl);
-            try {
-              this.ajaxUtils.put(new URL(writeUrl), JSON.stringify(backup), {
-                headers: {
-                  "Content-Type": `multipart/form-data;`,
-                },
-              });
-            } catch {
-              throw new AjaxError(
-                "Ajax Error: Trouble pushing backup to Google Cloud Storage",
-              );
-            }
+            this.ajaxUtils.put(new URL(writeUrl), JSON.stringify(backup), {
+              headers: {
+                "Content-Type": `multipart/form-data;`,
+              },
+            });
             return okAsync(undefined);
           });
       });
@@ -168,13 +157,12 @@ export class GoogleCloudStorage implements ICloudStorage {
       );
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      const dataWalletFolder = URLString(
+      const dataWalletFolder =
         "https://storage.googleapis.com/storage/v1/b/ceramic-replacement-bucket/o?prefix=" +
-          addr,
-      );
+        addr;
       console.log("Address: ", addr);
       return this.ajaxUtils
-        .get<IGoogleWalletBackupDirectory>(new URL(dataWalletFolder as string))
+        .get<IGoogleWalletBackupDirectory>(new URL(dataWalletFolder))
         .andThen((backupsDirectory) => {
           const files = backupsDirectory.items;
           if (files == undefined) {
@@ -197,6 +185,18 @@ export class GoogleCloudStorage implements ICloudStorage {
           console.log("dataWalletBackups: ", dataWalletBackups);
           return okAsync(dataWalletBackups);
         });
+    });
+  }
+
+  protected getFileListing(
+    dataWalletFolder: string,
+  ): ResultAsync<IGoogleWalletBackupDirectory, PersistenceError | AjaxError> {
+    return this.waitForUnlock().andThen((privateKey) => {
+      return this._configProvider.getConfig().andThen((config) => {
+        return this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
+          new URL(dataWalletFolder as string),
+        );
+      });
     });
   }
 }

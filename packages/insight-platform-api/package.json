@@ -38,7 +38,6 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "dependencies": {
-    "@google-cloud/storage": "^6.7.0",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/objects": "workspace:^",
     "@snickerdoodlelabs/signature-verification": "workspace:^",
