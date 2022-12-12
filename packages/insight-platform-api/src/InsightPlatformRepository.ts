@@ -105,9 +105,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "/getAuthorizedBackups"),
-        );
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrls"));
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<GetSignedUrlResponse[]>(url, {
