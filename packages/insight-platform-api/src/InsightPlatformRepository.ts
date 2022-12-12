@@ -105,7 +105,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         console.log("Get Wallet Backups Signature!");
-        const url = new URL(urlJoin(baseURL, "/getWalletBackups"));
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/getWalletBackups"),
+        );
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<File[] | undefined>(url, {
@@ -133,7 +135,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
-        const url = new URL(urlJoin(baseURL, "/clearAllBackups"));
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/clearAllBackups"),
+        );
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<void>(url, {
@@ -161,7 +165,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
-        const url = new URL(urlJoin(baseURL, "/getRecentVersion"));
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/getRecentVersion"),
+        );
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<string>(url, {
@@ -189,7 +195,9 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
-        const url = new URL(urlJoin(baseURL, "/getAuthorizedBackups"));
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/getAuthorizedBackups"),
+        );
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<GetSignedUrlResponse[]>(url, {

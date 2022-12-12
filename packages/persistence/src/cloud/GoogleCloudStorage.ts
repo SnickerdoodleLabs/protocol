@@ -19,9 +19,14 @@ import {
   AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, Result, ResultAsync } from "neverthrow";
+import { ok, okAsync, Result, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import * as xml2js from "xml2js";
+
+import {
+  IGoogleFileBackup,
+  IGoogleWalletBackupDirectory,
+} from "./IGoogleBackup";
 
 import { ICloudStorage } from "@persistence/cloud/ICloudStorage.js";
 import {
@@ -70,7 +75,6 @@ export class GoogleCloudStorage implements ICloudStorage {
       this.waitForUnlock(),
       this._configProvider.getConfig(),
     ]).andThen(([privateKey, config]) => {
-      // const baseURL = URLString("http://localhost:3001/v0");
       return this.insightPlatformRepo.clearAllBackups(
         privateKey,
         config.defaultInsightPlatformBaseUrl,
@@ -92,38 +96,20 @@ export class GoogleCloudStorage implements ICloudStorage {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       const dataWalletFolder = URLString(
-        "https://storage.googleapis.com/ceramic-replacement-bucket?prefix=" +
+        "https://storage.googleapis.com/storage/v1/b/ceramic-replacement-bucket/o?prefix=" +
           addr,
       );
 
-      // getRecentVersion
-      return ResultAsync.fromPromise(
-        this.ajaxUtils.get(new URL(dataWalletFolder as string)),
-        (e) => new AjaxError("unable let {addr}", e),
-      ).andThen((files) => {
-        console.log("files: ", files);
-        const version = "1";
-        // if (files !== undefined) {
-        //   console.log("In undefined: ");
-
-        //   if (files.length > 0) {
-        //     const inArray = files[files.length - 1];
-        //     // const inArray = allFiles[0];
-        //     console.log("inArray: ", inArray);
-
-        //     // inArray["metadata"]["name"];
-        //     const name = inArray["metadata"]["name"];
-        //     const versionString = name.split(/[/ ]+/).pop();
-        //     console.log("versionString: ", versionString);
-        //     const versionNumber = versionString.split("version");
-        //     console.log("versionNumber: ", versionNumber[1]);
-        //     console.log(parseInt(versionNumber[1]) + 1);
-
-        //     version = (parseInt(versionNumber[1]) + 1).toString();
-        //     console.log("Inner Version 1: ", version);
-        //   }
-        // }
-        console.log("putBackup version: ", version);
+      return ResultUtils.combine([
+        this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
+          new URL(dataWalletFolder as string),
+        ),
+      ]).andThen(([backupsDirectory]) => {
+        console.log("backupsArray: ", backupsDirectory);
+        console.log("backupsArray items: ", backupsDirectory.items);
+        const files = backupsDirectory.items;
+        const version = this.getVersionNumber(files);
+        console.log("version: ", version);
         return this.insightPlatformRepo
           .getSignedUrls(
             privateKey,
@@ -134,25 +120,38 @@ export class GoogleCloudStorage implements ICloudStorage {
             const writeUrl = signedUrl[1][0]!;
             console.log("writeUrl: ", writeUrl);
             try {
-              this.ajaxUtils
-                .put(new URL(writeUrl), JSON.stringify(backup), {
-                  headers: {
-                    "Content-Type": `multipart/form-data;`,
-                  },
-                })
-                .map((response) => {
-                  console.log("Response: ", response);
-                })
-                .mapErr((err) => {
-                  console.log("err: ", err);
-                });
-            } catch (e) {
-              console.error("error", e);
+              this.ajaxUtils.put(new URL(writeUrl), JSON.stringify(backup), {
+                headers: {
+                  "Content-Type": `multipart/form-data;`,
+                },
+              });
+            } catch {
+              throw new AjaxError(
+                "Ajax Error: Trouble pushing backup to Google Cloud Storage",
+              );
             }
             return okAsync(undefined);
           });
       });
     });
+  }
+
+  private getVersionNumber(files: IGoogleFileBackup[]): string {
+    if (files == undefined) {
+      return "1";
+    } else if (files.length == 0) {
+      return "1";
+    } else {
+      const name = files[files.length - 1]["name"];
+      const versionString = name.split(/[/ ]+/).pop();
+      if (versionString == undefined) {
+        return "1";
+      } else {
+        const versionNumber = versionString.split("version");
+        const version = (parseInt(versionNumber[1]) + 1).toString();
+        return version;
+      }
+    }
   }
 
   public pollBackups(): ResultAsync<
@@ -162,44 +161,42 @@ export class GoogleCloudStorage implements ICloudStorage {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
-    ])
-      .andThen(([privateKey, config]) => {
-        console.log(
-          "config.defaultInsightPlatformBaseUrl: ",
-          config.defaultInsightPlatformBaseUrl,
-        );
-        const addr =
-          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-        // const dataWalletFolder = URLString(
-        //   "https://storage.googleapis.com/ceramic-replacement-bucket?prefix=" +
-        //     addr,
-        // );
-        const dataWalletFolder =
-          "https://storage.googleapis.com/ceramic-replacement-bucket?prefix=0x02a3679d514eb373e1963bFF99B1A1de44aCE065";
-
-        const dataBackups: IDataWalletBackup[] = [];
-        return ResultAsync.fromPromise(
-          this.ajaxUtils
-            .get<XMLDocument>(new URL(dataWalletFolder))
-            .then((xmlDoc) => {
-              console.log("Inner - ", xmlDoc);
-              return xmlDoc["value"] as XMLDocument;
+    ]).andThen(([privateKey, config]) => {
+      console.log(
+        "config.defaultInsightPlatformBaseUrl: ",
+        config.defaultInsightPlatformBaseUrl,
+      );
+      const addr =
+        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+      const dataWalletFolder = URLString(
+        "https://storage.googleapis.com/storage/v1/b/ceramic-replacement-bucket/o?prefix=" +
+          addr,
+      );
+      console.log("Address: ", addr);
+      return this.ajaxUtils
+        .get<IGoogleWalletBackupDirectory>(new URL(dataWalletFolder as string))
+        .andThen((backupsDirectory) => {
+          const files = backupsDirectory.items;
+          if (files == undefined) {
+            return okAsync([]);
+          }
+          if (files.length == 0) {
+            return okAsync([]);
+          }
+          return ResultUtils.combine(
+            files.map((file) => {
+              return this.ajaxUtils
+                .get<IDataWalletBackup>(new URL(file.mediaLink as string))
+                .andThen((DWBackup) => {
+                  return okAsync(DWBackup);
+                });
             }),
-          (e) => new AjaxError("unable let {addr}", e),
-        ).andThen((files) => {
-          return okAsync(files as XMLDocument);
+          );
+        })
+        .andThen((dataWalletBackups) => {
+          console.log("dataWalletBackups: ", dataWalletBackups);
+          return okAsync(dataWalletBackups);
         });
-      })
-      .andThen((xmlDoc) => {
-        console.log("xmlDoc: ", xmlDoc);
-        xmlDoc.getElementsByTagName("ListBucketResult");
-        console.log(
-          "Contents: ",
-          xmlDoc.getElementsByTagName("ListBucketResult"),
-        );
-        // const contents = xmlDoc.getElementById("Contents");
-
-        return okAsync([]);
-      });
+    });
   }
 }
