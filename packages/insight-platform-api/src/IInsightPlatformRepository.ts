@@ -33,11 +33,11 @@ export interface IInsightPlatformRepository {
     insightPlatformBaseUrl: URLString,
     fileName: string,
   ): ResultAsync<void, AjaxError>;
-  getSignedUrls(
+  getSignedUrl(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
-  ): ResultAsync<GetSignedUrlResponse[], AjaxError>;
+  ): ResultAsync<GetSignedUrlResponse, AjaxError>;
 
   receivePreviews(
     consentContractAddress: EVMContractAddress,

@@ -72,6 +72,7 @@ export class ConfigProvider
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
+      "ceramic-replacement-bucket",
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts

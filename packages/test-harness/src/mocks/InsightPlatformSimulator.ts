@@ -268,7 +268,7 @@ export class InsightPlatformSimulator {
         });
     });
 
-    this.app.post("/getSignedUrls", (req, res) => {
+    this.app.post("/getSignedUrl", (req, res) => {
       const signature = Signature(req.body.signature);
       const signingData = {
         fileName: req.body.fileName,

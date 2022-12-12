@@ -578,12 +578,16 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.addEVMTransactions(transactions);
   }
 
-  public postBackup(): ResultAsync<void, PersistenceError | AjaxError> {
-    return this.dataWalletPersistence.postBackup();
+  public postBackup(): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.postBackup().mapErr((error) => {
+      return new PersistenceError((error as Error).message, error);
+    });
   }
 
-  public clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError> {
-    return this.dataWalletPersistence.clearCloudStore();
+  public clearCloudStore(): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.clearCloudStore().mapErr((error) => {
+      return new PersistenceError((error as Error).message, error);
+    });
   }
 
   protected addCrumb(

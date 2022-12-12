@@ -88,11 +88,13 @@ export class GoogleCloudStorage implements ICloudStorage {
     ]).andThen(([privateKey, baseURL]) => {
       const defaultInsightPlatformBaseUrl =
         baseURL.defaultInsightPlatformBaseUrl;
-      console.log("Base URL: ", defaultInsightPlatformBaseUrl);
+      const defaultGoogleCloudBucket = baseURL.defaultGoogleCloudBucket;
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       const dataWalletFolder =
-        "https://storage.googleapis.com/storage/v1/b/ceramic-replacement-bucket/o?prefix=" +
+        "https://storage.googleapis.com/storage/v1/b/" +
+        defaultGoogleCloudBucket +
+        "/o?prefix=" +
         addr;
 
       return ResultUtils.combine([
@@ -100,20 +102,16 @@ export class GoogleCloudStorage implements ICloudStorage {
           new URL(dataWalletFolder),
         ),
       ]).andThen(([backupsDirectory]) => {
-        console.log("backupsArray: ", backupsDirectory);
-        console.log("backupsArray items: ", backupsDirectory.items);
         const files = backupsDirectory.items;
         const version = this.getVersionNumber(files);
-        console.log("version: ", version);
         return this.insightPlatformRepo
-          .getSignedUrls(
+          .getSignedUrl(
             privateKey,
             defaultInsightPlatformBaseUrl,
             addr + "/version" + version,
           )
           .andThen((signedUrl) => {
-            const writeUrl = signedUrl[1][0]!;
-            console.log("writeUrl: ", writeUrl);
+            const writeUrl = signedUrl[0]!;
             this.ajaxUtils.put(new URL(writeUrl), JSON.stringify(backup), {
               headers: {
                 "Content-Type": `multipart/form-data;`,
@@ -151,16 +149,11 @@ export class GoogleCloudStorage implements ICloudStorage {
       this.waitForUnlock(),
       this._configProvider.getConfig(),
     ]).andThen(([privateKey, config]) => {
-      console.log(
-        "config.defaultInsightPlatformBaseUrl: ",
-        config.defaultInsightPlatformBaseUrl,
-      );
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       const dataWalletFolder =
         "https://storage.googleapis.com/storage/v1/b/ceramic-replacement-bucket/o?prefix=" +
         addr;
-      console.log("Address: ", addr);
       return this.ajaxUtils
         .get<IGoogleWalletBackupDirectory>(new URL(dataWalletFolder))
         .andThen((backupsDirectory) => {
@@ -182,7 +175,6 @@ export class GoogleCloudStorage implements ICloudStorage {
           );
         })
         .andThen((dataWalletBackups) => {
-          console.log("dataWalletBackups: ", dataWalletBackups);
           return okAsync(dataWalletBackups);
         });
     });

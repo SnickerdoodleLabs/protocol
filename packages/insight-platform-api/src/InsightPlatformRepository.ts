@@ -87,11 +87,11 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       });
   }
 
-  public getSignedUrls(
+  public getSignedUrl(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
-  ): ResultAsync<GetSignedUrlResponse[], AjaxError> {
+  ): ResultAsync<GetSignedUrlResponse, AjaxError> {
     const signableData = {
       fileName: fileName,
     } as Record<string, unknown>;
@@ -104,11 +104,10 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         dataWalletKey,
       )
       .andThen((signature) => {
-        // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
-        const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrls"));
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrl"));
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<GetSignedUrlResponse[]>(url, {
+        return this.ajaxUtils.post<GetSignedUrlResponse>(url, {
           fileName: fileName,
           signature: signature,
         });
@@ -163,7 +162,6 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<EarnedReward[], AjaxError> {
-    console.log("rewardParameters: ", rewardParameters);
     const returnsString = JSON.stringify(returns);
     const parameters = JSON.stringify([]);
     if (rewardParameters !== undefined) {
