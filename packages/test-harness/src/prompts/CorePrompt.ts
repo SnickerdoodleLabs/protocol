@@ -280,7 +280,7 @@ export class CorePrompt extends DataWalletPrompt {
         case "addEVMTransaction - google":
           transactions[0] = new EVMTransaction(
             ChainId(1),
-            "null",
+            EVMTransactionHash("null"),
             UnixTimestamp(100),
             null,
             null,
