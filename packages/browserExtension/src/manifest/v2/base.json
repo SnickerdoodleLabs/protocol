@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Data-Wallet",
-  "description": "Snickerdoodle's Data Wallet",
+  "name": "Snickerdoodle:Rewards for Anonymized Data",
+  "description": "Get Incredible Rewards for Sharing Anonymous NFT & Token Data",
   "options_page": "options.html",
   "background": {
     "scripts": ["background.bundle.js"],
