@@ -260,7 +260,7 @@ export class InsightPlatformSimulator {
         )
         .map(async (verificationAddress) => {
           const storage = new Storage({
-            keyFilename: "../persistence/src/credentials.json",
+            keyFilename: "../test-harness/src/credentials.json",
             projectId: "snickerdoodle-insight-stackdev",
           });
           storage.bucket("ceramic-replacement-bucket").deleteFiles();
@@ -282,36 +282,20 @@ export class InsightPlatformSimulator {
         )
         .map(async (verificationAddress) => {
           const storage = new Storage({
-            keyFilename: "../persistence/src/credentials.json",
+            keyFilename: "../test-harness/src/credentials.json",
             projectId: "snickerdoodle-insight-stackdev",
           });
-          const readOptions: GetSignedUrlConfig = {
-            version: "v4",
-            action: "read",
-            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-          };
-
-          const readUrl = await storage
-            .bucket("ceramic-replacement-bucket")
-            .file(req.body.fileName)
-            .getSignedUrl(readOptions);
-
           const writeOptions: GetSignedUrlConfig = {
             version: "v4",
             action: "write",
             expires: Date.now() + 15 * 60 * 1000, // 15 minutes
           };
-          await storage
+          const writeUrl = await storage
             .bucket("ceramic-replacement-bucket")
             .file(req.body.fileName)
-            .getSignedUrl(writeOptions, async function (err, writeUrl) {
-              if (err) {
-                console.error("err: ", err);
-                res.send(err);
-              } else {
-                res.send([[readUrl[0]], [writeUrl]]);
-              }
-            });
+            .getSignedUrl(writeOptions);
+
+          res.send(URLString(writeUrl[0]));
         });
     });
 

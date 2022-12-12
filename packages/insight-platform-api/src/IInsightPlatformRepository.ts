@@ -37,7 +37,7 @@ export interface IInsightPlatformRepository {
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
-  ): ResultAsync<GetSignedUrlResponse, AjaxError>;
+  ): ResultAsync<URLString, AjaxError>;
 
   receivePreviews(
     consentContractAddress: EVMContractAddress,

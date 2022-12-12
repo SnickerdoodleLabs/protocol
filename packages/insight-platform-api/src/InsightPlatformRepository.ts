@@ -78,10 +78,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         const url = new URL(
           urlJoin(insightPlatformBaseUrl, "/clearAllBackups"),
         );
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<void>(url, {
-          fileName: fileName,
           signature: signature,
         });
       });
@@ -91,7 +88,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
-  ): ResultAsync<GetSignedUrlResponse, AjaxError> {
+  ): ResultAsync<URLString, AjaxError> {
     const signableData = {
       fileName: fileName,
     } as Record<string, unknown>;
@@ -105,9 +102,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       )
       .andThen((signature) => {
         const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrl"));
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<GetSignedUrlResponse>(url, {
+        return this.ajaxUtils.post<URLString>(url, {
           fileName: fileName,
           signature: signature,
         });
