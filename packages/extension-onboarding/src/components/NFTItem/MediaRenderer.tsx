@@ -1,8 +1,7 @@
 import React, { useEffect, useState, FC } from "react";
-import MetadaParser, {
+import NftMetadataParser, {
   INFT,
 } from "@extension-onboarding/components/NFTItem/NftMetadataParser";
-import NftMetadataParser from "@extension-onboarding/components/NFTItem/NftMetadataParser";
 import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
 
 interface IMediaRendererProps {

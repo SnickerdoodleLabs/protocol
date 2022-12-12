@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
-import { AjaxError, UnixTimestamp } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
-
-import { IGoogleObject } from "@extension-onboarding/services/interfaces/data/IGoogleObject";
 import { IPIIRepository } from "@extension-onboarding/services/interfaces/data/IPIIRepository";
-import { PII } from "@extension-onboarding/services/interfaces/objects";
+import {
+  IGoogleObject,
+  PII,
+} from "@extension-onboarding/services/interfaces/objects";
+import { IAxiosAjaxUtils } from "@snickerdoodlelabs/common-utils";
+import { AjaxError } from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 
 export class PIIRepository implements IPIIRepository {
   constructor(protected ajaxUtil: IAxiosAjaxUtils) {}

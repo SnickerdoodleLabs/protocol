@@ -1,11 +1,9 @@
+import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
+import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Grid, Typography } from "@material-ui/core";
 import { SolanaNFT } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
-
-import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
-import { useAppContext } from "@extension-onboarding/context/App";
-
-import MediaRenderer from "./MediaRenderer";
 
 export interface ISolanaNFTItemProps {
   item: SolanaNFT;
@@ -28,10 +26,9 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
       setMetadata({});
       return;
     }
-    return apiGateway.axiosAjaxUtil
-      .get<any>(new URL(item.metadataUri), {
-        headers: { Accept: "application/json" },
-      })
+    return apiGateway.NFTMetadataService.fetchNFTMetadata(
+      new URL(item.metadataUri),
+    )
       .map((_metadata) => {
         setMetadata(_metadata);
       })

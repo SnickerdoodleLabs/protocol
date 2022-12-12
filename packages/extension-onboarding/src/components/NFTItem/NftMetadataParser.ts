@@ -63,7 +63,7 @@ class NftMetadataParser {
     let nftImages: string[];
     try {
       const regexpImage = /(\"image.*?\":.*?\"(.*?)\\?\")/;
-      const regexpUrl = /(https?|ipfs)/i;
+      const regexpUrl = /(https?|ipfs|data)/i;
       const splittedData = metadataString?.split(regexpImage);
       const extractedImages: string[] = [];
       splittedData?.forEach((key) => {

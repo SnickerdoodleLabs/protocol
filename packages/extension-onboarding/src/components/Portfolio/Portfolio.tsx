@@ -111,15 +111,12 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
   const [nftsPagination, setNftsPagination] = useState<IPagination>();
 
   useEffect(() => {
-    initializeBalances();
-    initializeNfts();
-  }, []);
-
-  useEffect(() => {
-    setIsBalancesLoading(true);
-    setIsNFTsLoading(true);
-    initializeBalances();
-    initializeNfts();
+    if (linkedAccounts.length) {
+      setIsBalancesLoading(true);
+      setIsNFTsLoading(true);
+      initializeBalances();
+      initializeNfts();
+    }
   }, [linkedAccounts.length]);
 
   useEffect(() => {
