@@ -171,10 +171,12 @@ export class SolanaIndexer
             );
           })
           .filter((val, i, arr) => {
-            i ==
+            return (
+              i ==
               arr.findIndex((ind) => {
                 return ind.mint == val.mint;
-              });
+              })
+            );
           }); // remove duplicates
       });
   }
