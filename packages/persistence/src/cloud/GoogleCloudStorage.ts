@@ -109,9 +109,6 @@ export class GoogleCloudStorage implements ICloudStorage {
           );
         })
         .andThen((signedUrl) => {
-          console.log("addr: ", addr);
-          console.log("signedUrl: ", typeof signedUrl);
-          console.log("signedUrl: ", signedUrl);
           if (signedUrl === typeof URLString) {
             this.ajaxUtils
               .put(new URL(signedUrl), JSON.stringify(backup), {
@@ -170,7 +167,6 @@ export class GoogleCloudStorage implements ICloudStorage {
         );
       })
       .andThen((dataWalletBackups) => {
-        console.log("dataWalletBackups: ", dataWalletBackups);
         return okAsync(dataWalletBackups);
       });
   }
