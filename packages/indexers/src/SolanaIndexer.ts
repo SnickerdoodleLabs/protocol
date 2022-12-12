@@ -148,27 +148,34 @@ export class SolanaIndexer
         return okAsync([]);
       })
       .map((nfts) => {
-        return nfts.map((nft) => {
-          return new SolanaNFT(
-            chainId,
-            accountAddress,
-            SolanaTokenAddress(nft.address.toBase58()),
-            nft.collection
-              ? new SolanaCollection(
-                  SolanaTokenAddress(nft.collection?.address.toBase58()),
-                  nft.collection?.verified,
-                )
-              : null,
-            nft.uri,
-            nft.isMutable,
-            nft.primarySaleHappened,
-            nft.sellerFeeBasisPoints,
-            SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
-            nft.tokenStandard,
-            TickerSymbol(nft.symbol),
-            nft.name,
-          );
-        });
+        return nfts
+          .map((nft) => {
+            return new SolanaNFT(
+              chainId,
+              accountAddress,
+              SolanaTokenAddress(nft.address.toBase58()),
+              nft.collection
+                ? new SolanaCollection(
+                    SolanaTokenAddress(nft.collection?.address.toBase58()),
+                    nft.collection?.verified,
+                  )
+                : null,
+              nft.uri,
+              nft.isMutable,
+              nft.primarySaleHappened,
+              nft.sellerFeeBasisPoints,
+              SolanaAccountAddress(nft.updateAuthorityAddress.toBase58()),
+              nft.tokenStandard,
+              TickerSymbol(nft.symbol),
+              nft.name,
+            );
+          })
+          .filter((val, i, arr) => {
+            i ==
+              arr.findIndex((ind) => {
+                return ind.mint == val.mint;
+              });
+          }); // remove duplicates
       });
   }
 
