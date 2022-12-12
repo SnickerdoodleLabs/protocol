@@ -36,6 +36,7 @@ import {
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
+  cloudBackupTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -69,7 +70,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     return this.cryptoUtils
       .signTypedData(
         snickerdoodleSigningDomain,
-        authorizationBackupTypes,
+        cloudBackupTypes,
         signableData,
         dataWalletKey,
       )
@@ -98,7 +99,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     return this.cryptoUtils
       .signTypedData(
         snickerdoodleSigningDomain,
-        authorizationBackupTypes,
+        cloudBackupTypes,
         signableData,
         dataWalletKey,
       )

@@ -186,8 +186,8 @@ export interface IDataWalletPersistence {
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
-  clearCloudStore(): ResultAsync<void, PersistenceError>;
+  postBackup(): ResultAsync<void, PersistenceError | AjaxError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

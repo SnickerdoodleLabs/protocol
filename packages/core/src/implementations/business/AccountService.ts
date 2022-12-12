@@ -582,7 +582,7 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.postBackup();
   }
 
-  public clearCloudStore(): ResultAsync<void, PersistenceError> {
+  public clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError> {
     return this.dataWalletPersistence.clearCloudStore();
   }
 

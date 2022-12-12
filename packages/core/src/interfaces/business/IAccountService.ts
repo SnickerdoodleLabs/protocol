@@ -120,8 +120,8 @@ export interface IAccountService {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
-  clearCloudStore(): ResultAsync<void, PersistenceError>;
+  postBackup(): ResultAsync<void, PersistenceError | AjaxError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");
