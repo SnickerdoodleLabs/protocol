@@ -5,7 +5,6 @@ import {
   ChainId,
   CountryCode,
   EarnedReward,
-  EChain,
   EncryptedString,
   ERewardType,
   EVMAccountAddress,
@@ -25,20 +24,23 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { Environment } from "@test-harness/mocks/Environment.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
 import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
+import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
-import { Prompt } from "@test-harness/prompts/Prompt.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
+import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
 
-export class CorePrompt extends Prompt {
+export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
   private addAccount: AddAccount;
   private checkAccount: CheckAccount;
   private removeAccount: RemoveAccount;
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
+
+  private selectProfile: SelectProfile;
 
   public constructor(public env: Environment) {
     super(env);
@@ -49,10 +51,16 @@ export class CorePrompt extends Prompt {
     this.removeAccount = new RemoveAccount(this.env);
     this.optInCampaign = new OptInCampaign(this.env);
     this.optOutCampaign = new OptOutCampaign(this.env);
+    this.selectProfile = new SelectProfile(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
-    let choices = [
+    console.log(
+      "Starting core prompt with unlock state:",
+      this.profile.unlocked,
+    );
+
+    const choicesWhenUnlocked = [
       { name: "Add Account", value: "addAccount" },
       { name: "Remove Account", value: "removeAccount" },
       { name: "Check Account", value: "checkAccount" },
@@ -101,17 +109,27 @@ export class CorePrompt extends Prompt {
       { name: "restore backup", value: "restoreBackup" },
       { name: "manual backup", value: "manualBackup" },
       { name: "clear cloud store", value: "clearCloudStore" },
+    ];
+
+    let choices = [
+      { name: "NOOP", value: "NOOP" },
+      { name: "Switch Profile", value: "selectProfile" },
+      new inquirer.Separator(),
+      ...choicesWhenUnlocked,
       new inquirer.Separator(),
       { name: "Cancel", value: "cancel" },
       new inquirer.Separator(),
     ];
 
     // Only show the unlock option we are not already unlocked.
-    if (!this.env.dataWalletProfile.unlocked) {
+    if (!this.profile.unlocked) {
       choices = [
+        { name: "NOOP", value: "NOOP" },
+        { name: "Select Profile", value: "selectProfile" },
         { name: "Unlock", value: "unlock" },
         new inquirer.Separator(),
-        ...choices,
+        { name: "Cancel", value: "cancel" },
+        new inquirer.Separator(),
       ];
     }
 
@@ -127,15 +145,23 @@ export class CorePrompt extends Prompt {
       const transactions: EVMTransaction[] = [];
       const earnedReward = new EarnedReward(
         IpfsCID("LazyReward"),
+        "Dummy reward name",
+        IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+        "dummy desc",
         ERewardType.Lazy,
       );
 
       switch (answers.core) {
+        case "NOOP": // this is super important as we have the accept query appearing from another thread
+          return okAsync(undefined);
         case "unlock":
-          // return this.unlockCore.start();
           return this.unlockCore.start();
+        case "selectProfile":
+          return this.selectProfile.start();
+
         case "addAccount":
           return this.addAccount.start();
+
         case "checkAccount":
           return this.checkAccount.start();
         case "removeAccount":
@@ -163,7 +189,7 @@ export class CorePrompt extends Prompt {
         case "getLocation":
           return this.core.getLocation().map(console.log);
         case "getTransactions":
-          return this.core.getTransactions().map(console.log);
+        //   return this.core.getTransactions().map(console.log;); # TODO
         case "getAccounts":
           return this.core.getAccounts().map(console.log);
         case "getNFTs":
@@ -254,7 +280,7 @@ export class CorePrompt extends Prompt {
         case "addEVMTransaction - google":
           transactions[0] = new EVMTransaction(
             ChainId(1),
-            EVMTransactionHash("null"),
+            "null",
             UnixTimestamp(100),
             null,
             null,
@@ -301,9 +327,7 @@ export class CorePrompt extends Prompt {
           };
           return this.core
             .restoreBackup(backup)
-            .andThen(() =>
-              okAsync(console.log("restored backup", backup.header.hash)),
-            );
+            .map(() => console.log("restored backup", backup.header.hash));
         case "manualBackup":
           return this.core.postBackup().map(console.log);
         case "clearCloudStore":

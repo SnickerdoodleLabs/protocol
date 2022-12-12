@@ -19,7 +19,7 @@ export abstract class Prompt {
     return this.env.mocks;
   }
   public get dataWalletProfile(): DataWalletProfile {
-    return this.env.dataWalletProfile;
+    return this.env.dataWalletProfile!;
   }
   public get businessProfile(): BusinessProfile {
     return this.env.businessProfile;

@@ -84,45 +84,42 @@ export const avalanche1SchemaStr = JSON.stringify(
 
       },
       c1: {
+        name: "Sugar to your coffee",
+        image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
         description: "10% discount code for Starbucks",
         chainId: 1,
         callback: {
-          parameters: [
-            "recipientAddress"
-          ],
+          parameters: ["recipientAddress"],
           data: {
             trackingId: "982JJDSLAcx",
-          }
-        }
+          },
+        },
       },
       c2: {
-        description:
-          "participate in the draw to win a CryptoPunk NFT",
+        name: "The CryptoPunk Draw",
+        image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
+        description: "participate in the draw to win a CryptoPunk NFT",
         chainId: 1,
         callback: {
-          parameters: [
-            "recipientAddress",
-            "productId"
-          ],
+          parameters: ["recipientAddress", "productId"],
           data: {
             trackingId: "982JJDSLAcx",
-          }
+          },
         },
-        alternatives: ["c3"]
+        alternatives: ["c3"],
       },
       c3: {
+        name: "CrazyApesClub NFT distro",
+        image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
         description: "a free CrazyApesClub NFT",
         chainId: 1,
         callback: {
-          parameters: [
-            "recipientAddress",
-            "productId"
-          ],
+          parameters: ["recipientAddress", "productId"],
           data: {
             trackingId: "982JJDSLAcx",
-          }
+          },
         },
-        alternatives: ["c2"]
+        alternatives: ["c2"],
       },
     },
     logic:{
