@@ -49,25 +49,28 @@ export class BackupManager implements IBackupManager {
     return okAsync(this.restored);
   }
 
-  public clear(): void {
+  public clear(): ResultAsync<void, never> {
     this.tableUpdates = {};
     this.fieldUpdates = {};
     this.numUpdates = 0;
     this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
+    return okAsync(undefined);
   }
 
   public popBackup(): ResultAsync<
     IDataWalletBackup | undefined,
     PersistenceError
   > {
+    // console.log("pop", this.numUpdates, this.tableUpdates, this.fieldUpdates);
+
     if (this.chunkQueue.length == 0) {
       if (this.numUpdates == 0) {
         return okAsync(undefined);
       }
 
-      return this.dump().map((backup) => {
+      return this.dump().andThen((backup) => {
         this.restored.add(DataWalletBackupID(backup.header.hash));
-        return backup;
+        return this.clear().map(() => backup);
       });
     }
 
@@ -181,7 +184,7 @@ export class BackupManager implements IBackupManager {
     if (this.numUpdates >= this.maxChunkSize) {
       return this.dump().andThen((backup) => {
         this.chunkQueue.push(backup);
-        return okAsync(this.clear());
+        return this.clear();
       });
     }
 

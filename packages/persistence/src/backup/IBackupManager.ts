@@ -6,7 +6,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IBackupManager {
-  clear(): void;
+  clear(): ResultAsync<void, never>;
   addRecord(
     tableName: string,
     value: object,
