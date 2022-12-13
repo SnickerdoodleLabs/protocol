@@ -31,7 +31,7 @@ export interface IInsightPlatformRepository {
   clearAllBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    fileName: string,
+    walletAddress: EVMAccountAddress,
   ): ResultAsync<void, AjaxError>;
   getSignedUrl(
     dataWalletKey: EVMPrivateKey,

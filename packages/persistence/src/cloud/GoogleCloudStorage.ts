@@ -70,6 +70,8 @@ export class GoogleCloudStorage implements ICloudStorage {
       this.waitForUnlock(),
       this._configProvider.getConfig(),
     ]).andThen(([privateKey, config]) => {
+      const addr =
+        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
       return this.getWalletListing()
         .andThen((walletFiles) => {
           const mostRecentFile =
@@ -80,7 +82,7 @@ export class GoogleCloudStorage implements ICloudStorage {
           return this.insightPlatformRepo.clearAllBackups(
             privateKey,
             config.defaultInsightPlatformBaseUrl,
-            googleFile.name,
+            addr,
           );
         });
     });
@@ -109,7 +111,7 @@ export class GoogleCloudStorage implements ICloudStorage {
           );
         })
         .andThen((signedUrl) => {
-          if (signedUrl === typeof URLString) {
+          // if (signedUrl === typeof URLString) {
             this.ajaxUtils
               .put(new URL(signedUrl), JSON.stringify(backup), {
                 headers: {
@@ -119,7 +121,7 @@ export class GoogleCloudStorage implements ICloudStorage {
               .mapErr((e) => {
                 new PersistenceError(`${e.name}: ${e.message}`);
               });
-          }
+          // }
           return okAsync(undefined);
         });
     });

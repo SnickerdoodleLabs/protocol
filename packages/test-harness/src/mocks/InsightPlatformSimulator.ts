@@ -250,7 +250,7 @@ export class InsightPlatformSimulator {
     this.app.post("/clearAllBackups", (req, res) => {
       const signature = Signature(req.body.signature);
       const signingData = {
-        fileName: req.body.fileName,
+        fileName: req.body.walletAddress,
       };
       this.cryptoUtils
         .verifyTypedData(
