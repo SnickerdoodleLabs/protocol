@@ -56,34 +56,11 @@ class GoogleCloudMocks {
 describe("Google Cloud Storage Tests", () => {
   test("Connect to the bucket", async () => {
     const storage = new Storage({
-      keyFilename: "src/credentials.json",
+      keyFilename: "../test-harness/src/credentials.json",
       projectId: "snickerdoodle-insight-stackdev",
     });
-    const fileOptions: GetSignedUrlConfig = {
-      version: "v4",
-      action: "read",
-      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-    };
-    // const bucketOptions: GetBucketSignedUrlConfig = {
-    //   version: "v4",
-    //   action: "read",
-    //   expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-    // };
-    const signedUrl = await storage
+    storage
       .bucket("ceramic-replacement-bucket")
-      .file("0x05E1587afCf321A17a76553BC04C865fbe63AF72/version1")
-      .getSignedUrl(fileOptions);
-
-    const ajaxUtils = new AxiosAjaxUtils();
-
-    const baseURL = URLString(
-      "https://storage.googleapis.com/ceramic-replacement-bucket?prefix=0x02a3679d514eb373e1963bFF99B1A1de44aCE065",
-    );
-    console.log(
-      "utils :",
-      ajaxUtils.get(new URL(baseURL as string)).then((innerValue) => {
-        return innerValue["value"] as IDataWalletBackup;
-      }),
-    );
+      .deleteFiles({ prefix: "0xBb5127297267eB5711bA9088d974FdA6c891b29E/" });
   });
 });

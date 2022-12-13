@@ -1,6 +1,6 @@
-import { Signature } from "@snickerdoodlelabs/objects";
+import { EVMAccountAddress, Signature } from "@snickerdoodlelabs/objects";
 
 export interface IClearCloudBackupsParams {
-  fileName: string;
+  walletAddress: EVMAccountAddress;
   signature: Signature;
 }

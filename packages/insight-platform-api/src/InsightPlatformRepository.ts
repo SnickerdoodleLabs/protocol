@@ -28,6 +28,7 @@ import {
   insightDeliveryTypes,
   insightPreviewTypes,
   cloudBackupTypes,
+  clearCloudBackupsTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -35,6 +36,7 @@ import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
 import {
+  IClearCloudBackupsParams,
   IDeliverInsightsParams,
   IExecuteMetatransactionParams,
   IReceivePreviewsParams,
@@ -53,16 +55,16 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
   public clearAllBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    fileName: string,
+    walletAddress: EVMAccountAddress,
   ): ResultAsync<void, AjaxError> {
     const signableData = {
-      fileName: fileName,
+      walletAddress: walletAddress,
     } as Record<string, unknown>;
 
     return this.cryptoUtils
       .signTypedData(
         snickerdoodleSigningDomain,
-        cloudBackupTypes,
+        clearCloudBackupsTypes,
         signableData,
         dataWalletKey,
       )
@@ -70,9 +72,14 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         const url = new URL(
           urlJoin(insightPlatformBaseUrl, "/clearAllBackups"),
         );
-        return this.ajaxUtils.post<void>(url, {
+        const postBody = {
+          walletAddress: walletAddress,
           signature: signature,
-        });
+        } as IClearCloudBackupsParams;
+        return this.ajaxUtils.post<void>(
+          url,
+          postBody as unknown as Record<string, unknown>,
+        );
       });
   }
 
@@ -98,9 +105,10 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           fileName: fileName,
           signature: signature,
         } as ISignedUrlParams;
-        return this.ajaxUtils.post<URLString>(url, {
-          postBody,
-        });
+        return this.ajaxUtils.post<URLString>(
+          url,
+          postBody as unknown as Record<string, unknown>,
+        );
       });
   }
   //
