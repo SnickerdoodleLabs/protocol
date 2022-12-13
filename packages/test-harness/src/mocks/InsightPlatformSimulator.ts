@@ -38,7 +38,8 @@ import {
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
-  cloudBackupTypes,
+  clearCloudBackupsTypes,
+  signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { BigNumber } from "ethers";
 import express from "express";
@@ -254,7 +255,7 @@ export class InsightPlatformSimulator {
       this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
-          cloudBackupTypes,
+          clearCloudBackupsTypes,
           signingData,
           signature,
         )
@@ -276,7 +277,7 @@ export class InsightPlatformSimulator {
       this.cryptoUtils
         .verifyTypedData(
           snickerdoodleSigningDomain,
-          cloudBackupTypes,
+          signedUrlTypes,
           signingData,
           signature,
         )
