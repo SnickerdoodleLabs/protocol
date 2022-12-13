@@ -1,7 +1,7 @@
 title Ad Sense Flow
 participant Data Wallet
 participant Ad Host
-participant Brand
+participant Business
 participant Ad Surface
 participant Insight Platform
 participant Consent Contract
@@ -23,19 +23,19 @@ Ad Host<-Insight Platform:SurfaceId
 deactivate Insight Platform
 deactivate Ad Host
 ==Campaign Registration==
-Brand->Insight Platform:createAdCampaign(displayCount, adDetails)
+Business->Insight Platform:createAdCampaign(displayCount, adDetails)
 activate Insight Platform
 Insight Platform->Insight Platform:Generate DisplayCount nonces\nCalculate Merkle Root
 Insight Platform->IPFS:Post Ad Metadata
 activate IPFS
 Insight Platform<-IPFS:Ad CID
 deactivate IPFS
-Insight Platform->Consent Contract:mintAdCampaign(merkleRoot, recievingAccount, adCID)\nDeposits funds from Escrow Wallet for Brand\nRegisters receiving account for funds
+Insight Platform->Consent Contract:mintAdCampaign(merkleRoot, recievingAccount, adCID)\nDeposits funds from Escrow Wallet for Business\nRegisters receiving account for funds
 activate Consent Contract
 Consent Contract->Consent Contract:Mint AdCampaign NFT with merkle root
 Insight Platform<-Consent Contract:AdCampaign TokenId
 deactivate Consent Contract
-Brand<-Insight Platform:
+Business<-Insight Platform:
 deactivate Insight Platform
 ==Ad Display Flow==
 note over Data Wallet:Detect Ad Surface available

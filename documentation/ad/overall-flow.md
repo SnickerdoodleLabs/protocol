@@ -1,7 +1,7 @@
 # Components
 
 1. **Ad Host**: Some client that hosts some surfaces to show an ad. The browser extension is a host.
-2. **Brand**
+2. **Business**: Whoever wants to show ads
 3. **Ad Surface**:  a generic place where ads are displayed. Could be a space on your website (like AdSense ads), or an interstitial marker in a video, or a billboard
 4. **Surface Registry**: We issue a token to each AdSurface, which would need to, perhaps, stake token, in order to be listed as an AdSurface. The registry holds the tokens and issues surface ids.
 
