@@ -21,6 +21,7 @@ export class AST_Expr {
       | Operator
       | boolean
       | number
-      | string,
+      | string
+      | null
   ) {}
 }
