@@ -61,6 +61,10 @@ export class BackupManager implements IBackupManager {
     PersistenceError
   > {
     if (this.chunkQueue.length == 0) {
+      if (this.numUpdates == 0) {
+        return okAsync(undefined);
+      }
+
       return this.dump().map((backup) => {
         this.restored.add(DataWalletBackupID(backup.header.hash));
         return backup;
