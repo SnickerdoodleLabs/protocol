@@ -18,6 +18,7 @@ import {
   InsightString,
   IpfsCID,
   Signature,
+  TokenId,
   URLString,
   EarnedReward,
   ExpectedReward,
@@ -27,64 +28,37 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IInsightPlatformRepository {
-  getRecentVersion(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<string, AjaxError>;
-
   clearAllBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    fileName: string,
+    walletAddress: EVMAccountAddress,
   ): ResultAsync<void, AjaxError>;
-
   getSignedUrl(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
-  ): ResultAsync<string | undefined, AjaxError>;
-
-  getGoogleCloudStorage(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<Bucket, AjaxError>;
-
-  getAuthBackups(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<GetSignedUrlResponse[], AjaxError>;
-
-  getWalletBackups(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<File[] | undefined, AjaxError>;
+  ): ResultAsync<URLString, AjaxError>;
 
   receivePreviews(
-    dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    queryCid: IpfsCID,
-    dataWalletKey: EVMPrivateKey,
+    tokenId: TokenId,
+    queryCID: IpfsCID,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
-    expectedRewards: ExpectedReward[],
   ): ResultAsync<EligibleReward[], AjaxError>;
 
   deliverInsights(
-    dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    queryCid: IpfsCID,
+    tokenId: TokenId,
+    queryCID: IpfsCID,
     returns: InsightString[],
-    dataWalletKey: EVMPrivateKey,
+    rewardParameters: IDynamicRewardParameter[],
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError>;
 
   executeMetatransaction(
-    dataWalletAddress: DataWalletAddress,
     accountAddress: EVMAccountAddress,
     contractAddress: EVMContractAddress,
     nonce: BigNumberString,
@@ -92,7 +66,7 @@ export interface IInsightPlatformRepository {
     gas: BigNumberString,
     data: HexString,
     metatransactionSignature: Signature,
-    dataWalletKey: EVMPrivateKey,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError>;
 }

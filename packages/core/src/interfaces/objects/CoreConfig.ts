@@ -18,6 +18,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public controlChainInformation: ControlChainInformation,
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
+    public defaultGoogleCloudBucket: string,
+
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
     public accountNFTPollingIntervalMS: number,
@@ -29,6 +31,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,
     public quoteCurrency: string,
-    public requestForDataCheckingFrequency: number
+    public requestForDataCheckingFrequency: number,
   ) {}
 }

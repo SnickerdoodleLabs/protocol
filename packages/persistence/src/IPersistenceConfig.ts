@@ -9,4 +9,5 @@ export interface IPersistenceConfig {
   ceramicModelAliases: ModelAliases<ModelTypes>;
   ceramicNodeURL: URLString;
   defaultInsightPlatformBaseUrl: URLString;
+  defaultGoogleCloudBucket: string;
 }

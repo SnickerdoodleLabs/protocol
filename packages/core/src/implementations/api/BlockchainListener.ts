@@ -85,16 +85,26 @@ export class BlockchainListener implements IBlockchainListener {
      */
     this.logUtils.debug("Initializing Blockchain Listener");
 
-    return ResultUtils.combine([this.configProvider.getConfig()]).map(
-      ([config]) => {
-        setInterval(() => {
-          this.controlChainBlockMined(config).mapErr((e) => {
-            console.error(e);
-            return e;
-          });
-        }, config.requestForDataCheckingFrequency);
-      },
-    );
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).map(([config, context]) => {
+      // Start polling
+      setInterval(() => {
+        this.controlChainBlockMined(config).mapErr((e) => {
+          this.logUtils.error(e);
+          return e;
+        });
+      }, config.requestForDataCheckingFrequency);
+
+      // Subscribe to the opt-in event, and immediately do a poll
+      context.publicEvents.onCohortJoined.subscribe(() => {
+        this.controlChainBlockMined(config).mapErr((e) => {
+          this.logUtils.error(e);
+          return e;
+        });
+      });
+    });
   }
 
   protected controlChainBlockMined(
@@ -140,8 +150,13 @@ export class BlockchainListener implements IBlockchainListener {
     | EvaluationError
     | QueryExpiredError
   > {
-    return this.consentContractRepository
-      .getConsentContracts()
+    return this.dataWalletPersistence
+      .getAcceptedInvitations()
+      .andThen((optIns) => {
+        return this.consentContractRepository.getConsentContracts(
+          optIns.map((oii) => oii.consentContractAddress),
+        );
+      })
       .andThen((consentContractsMap) => {
         return ResultUtils.combine(
           Array.from(consentContractsMap.values()).map((consentContract) => {

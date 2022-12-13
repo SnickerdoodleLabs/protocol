@@ -18,7 +18,7 @@ export interface IMonitoringService {
     void,
     PersistenceError | AccountIndexingError | AjaxError
   >;
-  pollBackups(): ResultAsync<void, PersistenceError | AjaxError>;
+  pollBackups(): ResultAsync<void, PersistenceError>;
   siteVisited(siteVisit: SiteVisit): ResultAsync<void, PersistenceError>;
 }
 

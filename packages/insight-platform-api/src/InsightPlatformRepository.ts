@@ -1,13 +1,4 @@
 import {
-  GetSignedUrlConfig,
-  Storage,
-  Bucket,
-  GetSignedUrlResponse,
-  GetFilesResponse,
-  File,
-  GetFilesCallback,
-} from "@google-cloud/storage";
-import {
   IAxiosAjaxUtilsType,
   IAxiosAjaxUtils,
   ICryptoUtilsType,
@@ -25,24 +16,34 @@ import {
   BigNumberString,
   InsightString,
   URLString,
+  TokenId,
   EligibleReward,
   EarnedReward,
   QueryIdentifier,
   IDynamicRewardParameter,
-  PersistenceError,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
   insightDeliveryTypes,
   insightPreviewTypes,
-  authorizationBackupTypes,
+  clearCloudBackupsTypes,
+  signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
+import {
+  IClearCloudBackupsParams,
+  IDeliverInsightsParams,
+  IExecuteMetatransactionParams,
+  IReceivePreviewsParams,
+  ISignedUrlParams,
+} from "@insightPlatform/params/index.js";
+
+const baseURL = URLString("http://localhost:3001/v0");
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -51,11 +52,42 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public clearAllBackups(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    walletAddress: EVMAccountAddress,
+  ): ResultAsync<void, AjaxError> {
+    const signableData = {
+      walletAddress: walletAddress,
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        clearCloudBackupsTypes,
+        signableData,
+        dataWalletKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/clearAllBackups"),
+        );
+        const postBody = {
+          walletAddress: walletAddress,
+          signature: signature,
+        } as IClearCloudBackupsParams;
+        return this.ajaxUtils.post<void>(
+          url,
+          postBody as unknown as Record<string, unknown>,
+        );
+      });
+  }
+
   public getSignedUrl(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     fileName: string,
-  ): ResultAsync<string | undefined, AjaxError> {
+  ): ResultAsync<URLString, AjaxError> {
     const signableData = {
       fileName: fileName,
     } as Record<string, unknown>;
@@ -63,184 +95,35 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     return this.cryptoUtils
       .signTypedData(
         snickerdoodleSigningDomain,
-        authorizationBackupTypes,
+        signedUrlTypes,
         signableData,
         dataWalletKey,
       )
       .andThen((signature) => {
-        console.log("Get Wallet Backups Signature!");
         const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrl"));
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<string | undefined>(url, {
+        const postBody = {
           fileName: fileName,
           signature: signature,
-        });
-      });
-  }
-
-  public getWalletBackups(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<File[] | undefined, AjaxError> {
-    const signableData = {
-      fileName: fileName,
-    } as Record<string, unknown>;
-
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        authorizationBackupTypes,
-        signableData,
-        dataWalletKey,
-      )
-      .andThen((signature) => {
-        console.log("Get Wallet Backups Signature!");
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "/getWalletBackups"),
+        } as ISignedUrlParams;
+        return this.ajaxUtils.post<URLString>(
+          url,
+          postBody as unknown as Record<string, unknown>,
         );
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<File[] | undefined>(url, {
-          fileName: fileName,
-          signature: signature,
-        });
-      });
-  }
-
-  public getGoogleCloudStorage(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<Bucket, AjaxError> {
-    const signableData = {
-      fileName: fileName,
-    } as Record<string, unknown>;
-
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        authorizationBackupTypes,
-        signableData,
-        dataWalletKey,
-      )
-      .andThen((signature) => {
-        console.log("getGoogleCloudStorage - SIGNED CORRECTLY!");
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "/getGoogleStorage"),
-        );
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<Bucket>(url, {
-          fileName: fileName,
-          signature: signature,
-        });
-      });
-  }
-
-  public clearAllBackups(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<void, AjaxError> {
-    const signableData = {
-      fileName: fileName,
-    } as Record<string, unknown>;
-
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        authorizationBackupTypes,
-        signableData,
-        dataWalletKey,
-      )
-      .andThen((signature) => {
-        // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "/clearAllBackups"),
-        );
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<void>(url, {
-          fileName: fileName,
-          signature: signature,
-        });
-      });
-  }
-
-  getRecentVersion(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<string, AjaxError> {
-    const signableData = {
-      fileName: fileName,
-    } as Record<string, unknown>;
-
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        authorizationBackupTypes,
-        signableData,
-        dataWalletKey,
-      )
-      .andThen((signature) => {
-        // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "/getRecentVersion"),
-        );
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<string>(url, {
-          fileName: fileName,
-          signature: signature,
-        });
-      });
-  }
-
-  public getAuthBackups(
-    dataWalletKey: EVMPrivateKey,
-    insightPlatformBaseUrl: URLString,
-    fileName: string,
-  ): ResultAsync<GetSignedUrlResponse[], AjaxError> {
-    const signableData = {
-      fileName: fileName,
-    } as Record<string, unknown>;
-
-    return this.cryptoUtils
-      .signTypedData(
-        snickerdoodleSigningDomain,
-        authorizationBackupTypes,
-        signableData,
-        dataWalletKey,
-      )
-      .andThen((signature) => {
-        // console.log("GET AUTH BACKUPS - SIGNED CORRECTLY!");
-        const url = new URL(
-          urlJoin(insightPlatformBaseUrl, "/getAuthorizedBackups"),
-        );
-        /* Following schema from .yaml file: */
-        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<GetSignedUrlResponse[]>(url, {
-          fileName: fileName,
-          signature: signature,
-        });
       });
   }
   //
   public receivePreviews(
-    dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    queryCid: IpfsCID,
-    dataWalletKey: EVMPrivateKey,
+    tokenId: TokenId,
+    queryCID: IpfsCID,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
   ): ResultAsync<EligibleReward[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
-      dataWallet: dataWalletAddress,
-      queryCID: queryCid,
+      tokenId: tokenId,
+      queryCID: queryCID,
       queries: JSON.stringify(answeredQueries),
     } as Record<string, unknown>;
 
@@ -249,7 +132,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         snickerdoodleSigningDomain,
         insightPreviewTypes,
         signableData,
-        dataWalletKey,
+        signingKey,
       )
       .andThen((signature) => {
         const url = new URL(
@@ -260,29 +143,35 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
         return this.ajaxUtils.post<EligibleReward[]>(url, {
           consentContractId: consentContractAddress,
-          queryCID: queryCid,
-          dataWallet: dataWalletAddress,
+          queryCID: queryCID,
+          tokenId: tokenId.toString(),
           queries: answeredQueries,
           signature: signature,
-        });
+        } as IReceivePreviewsParams as unknown as Record<string, unknown>);
       });
   }
 
   public deliverInsights(
-    dataWalletAddress: DataWalletAddress,
     consentContractAddress: EVMContractAddress,
-    queryCid: IpfsCID,
+    tokenId: TokenId,
+    queryCID: IpfsCID,
     returns: InsightString[],
-    dataWalletKey: EVMPrivateKey,
+    rewardParameters: IDynamicRewardParameter[],
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
-    rewardParameters?: IDynamicRewardParameter[],
   ): ResultAsync<EarnedReward[], AjaxError> {
+    const returnsString = JSON.stringify(returns);
+    const parameters = JSON.stringify([]);
+    if (rewardParameters !== undefined) {
+      const parameters = JSON.stringify(rewardParameters);
+    }
+
     const signableData = {
       consentContractId: consentContractAddress,
-      queryCid: queryCid,
-      dataWallet: dataWalletAddress,
+      tokenId: tokenId,
+      queryCID: queryCID,
       returns: JSON.stringify(returns),
-      rewardParameters: JSON.stringify(rewardParameters || []),
+      rewardParameters: JSON.stringify(rewardParameters),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -290,7 +179,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         snickerdoodleSigningDomain,
         insightDeliveryTypes,
         signableData,
-        dataWalletKey,
+        signingKey,
       )
       .andThen((signature) => {
         const url = new URL(
@@ -299,17 +188,16 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         return this.ajaxUtils.post<EarnedReward[]>(url, {
           consentContractId: consentContractAddress,
-          queryCid: queryCid,
-          dataWallet: dataWalletAddress,
+          tokenId: tokenId.toString(),
+          queryCID: queryCID,
           returns: returns,
-          rewardParameters: rewardParameters || [],
+          rewardParameters: rewardParameters,
           signature: signature,
-        });
+        } as IDeliverInsightsParams as unknown as Record<string, unknown>);
       });
   }
 
   public executeMetatransaction(
-    dataWalletAddress: DataWalletAddress,
     accountAddress: EVMAccountAddress,
     contractAddress: EVMContractAddress,
     nonce: BigNumberString,
@@ -317,14 +205,15 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     gas: BigNumberString,
     data: HexString,
     metatransactionSignature: Signature,
-    dataWalletKey: EVMPrivateKey,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError> {
     const signingData = {
-      dataWallet: dataWalletAddress,
       accountAddress: accountAddress,
       contractAddress: contractAddress,
       nonce: nonce,
+      value: value,
+      gas: gas,
       data: data,
       metatransactionSignature: metatransactionSignature,
     } as Record<string, unknown>;
@@ -334,13 +223,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         snickerdoodleSigningDomain,
         executeMetatransactionTypes,
         signingData,
-        dataWalletKey,
+        signingKey,
       )
       .andThen((signature) => {
         const url = new URL(urlJoin(insightPlatformBaseUrl, "metatransaction"));
 
         const postBody = {
-          dataWalletAddress: dataWalletAddress,
           accountAddress: accountAddress,
           contractAddress: contractAddress,
           nonce: nonce,
@@ -349,11 +237,11 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           data: data,
           metatransactionSignature: metatransactionSignature,
           requestSignature: signature,
-        };
+        } as IExecuteMetatransactionParams;
 
         return this.ajaxUtils.post<IExecuteMetatransactionResponse>(
           url,
-          postBody,
+          postBody as unknown as Record<string, unknown>,
         );
       })
       .map(() => {});

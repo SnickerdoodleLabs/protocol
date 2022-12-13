@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { okAsync, ResultAsync } from "neverthrow";
 import * as td from "testdouble";
 

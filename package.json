@@ -155,6 +155,7 @@
     "merge-jsons-webpack-plugin": "^2.0.1",
     "metro-react-native-babel-preset": "^0.59.0",
     "monaco-editor-webpack-plugin": "2.0.0",
+    "node-sass": "^6.0.0",
     "os-browserify": "^0.3.0",
     "postcss": "^8.2.4",
     "postcss-loader": "^4.2.0",

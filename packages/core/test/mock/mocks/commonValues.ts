@@ -12,7 +12,6 @@ import {
   ControlChainInformation,
 } from "@snickerdoodlelabs/objects";
 
-
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 
 export const externalAccountAddress1 = EVMAccountAddress(
@@ -32,11 +31,11 @@ export const consentContractAddress2 = EVMContractAddress(
   "consentContractAddress1",
 );
 
-export const queryId = IpfsCID("queryId");
+export const queryCID = IpfsCID("queryCID");
 
 export const qureyString = SDQLString("qurey");
 
-export const SDQuery = new SDQLQuery(queryId, qureyString);
+export const SDQuery = new SDQLQuery(queryCID, qureyString);
 
 // #region for config provider mock
 
@@ -59,7 +58,10 @@ export const modelAliases = {
   tiles: {},
 };
 
-export const defaultInsightPlatformBaseUrl = URLString("http://localhost:3000/v0");
+export const defaultInsightPlatformBaseUrl = URLString(
+  "http://localhost:3000/v0",
+);
+export const defaultGoogleCloudBucket = "ceramic-replacement-bucket";
 
 export const testCoreConfig = new CoreConfig(
   controlChainId,
@@ -68,6 +70,7 @@ export const testCoreConfig = new CoreConfig(
   controlChainInformation,
   URLString("http://ipfstest.com/whatever"),
   defaultInsightPlatformBaseUrl, // defaultInsightPlatformBaseUrl
+  defaultGoogleCloudBucket, // defaultGoogleCloudBucket
   5000, // polling interval indexing,
   5000, // polling interval balance
   5000, // polling interval NFT
@@ -79,7 +82,7 @@ export const testCoreConfig = new CoreConfig(
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   "USD",
-  5000
+  5000,
 );
 
 // #endregion

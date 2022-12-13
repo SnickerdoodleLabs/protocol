@@ -36,12 +36,12 @@ paths:
                 consentContractId:
                   type: string
                   format: ethereum-contract-address
-                queryId:
+                queryCID:
                   type: string
                   format: IPFS-CID
-                dataWallet:
+                tokenId:
                   type: string
-                  format: snickerdoodle-account-address
+                  format: big-number-string
                 returns:
                   description: Each logic return is formatted as a string, with JSON data inside it
                   type: array
@@ -54,8 +54,8 @@ paths:
                   $ref: '#/components/schemas/RewardParameters'
               required:
                 - consentContractId
-                - queryId
-                - dataWallet
+                - queryCID
+                - tokenId
                 - returns
                 - signature
       responses:
@@ -89,12 +89,12 @@ paths:
                 consentContractId:
                   type: string
                   format: ethereum-contract-address
-                queryId:
+                queryCID:
                   type: string
                   format: IPFS-CID
-                dataWallet:
+                tokenId:
                   type: string
-                  format: snickerdoodle-account-address
+                  format: big-number-string
                 queries:
                   description: The list of queries that will be answered (q1, q3, q4) etc, based on the data permissions.
                   type: array
@@ -105,7 +105,7 @@ paths:
                   format: hex-string
               required:
                 - consentContractId
-                - queryId
+                - queryCID
                 - dataWallet
                 - queries
                 - signature
@@ -124,49 +124,6 @@ paths:
                       type: string
         400:
           $ref: '#/components/responses/InvalidError'
-
-    /getAuthorizedBackups:
-    post:
-      tags:
-        - responses
-      description: Returns the list of authorized backups, in this case from ceramic-replacement-bucket on GCP.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                dataWallet:
-                  type: string
-                  format: snickerdoodle-account-address
-                fileName:
-                  description: The SDQL query file full of IPFS data that will be pushed to the GCP bucket. 
-                  type: file
-                  items:
-                    type: string
-                signature:
-                  type: string
-                  format: hex-string
-              required:
-                - dataWallet
-                - fileName
-                - signature
-      responses:
-        200:
-          description: Returns a signedURL
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  signedURL:
-                    description: A signedURL 
-                    type: array
-                    items:
-                      type: string
-        400:
-          $ref: '#/components/responses/GetBackupsError'
           
   /metatransaction:
     post:
@@ -181,10 +138,6 @@ paths:
             schema:
               type: object
               properties:
-                dataWalletAddress:
-                  description: The address of the data wallet
-                  type: string
-                  format: ethereum-account-address
                 accountAddress:
                   type: string
                   format: ethereum-account-address
