@@ -1,6 +1,16 @@
 import { SDQLParser } from "@query-parser/implementations";
 import { ResultAsync } from "neverthrow";
-import { CompensationId, DuplicateIdInSchema, IpfsCID, MissingTokenConstructorError, ParserError, QueryExpiredError, QueryFormatError, SDQLString, DataPermissions } from "@snickerdoodlelabs/objects";
+import { 
+    CompensationId, 
+    DuplicateIdInSchema, 
+    MissingTokenConstructorError, 
+    ParserError, 
+    QueryExpiredError, 
+    QueryFormatError, 
+    SDQLString, 
+    DataPermissions,
+    ISDQLCompensations
+} from "@snickerdoodlelabs/objects";
 
 export interface ISDQLQueryUtils {
     
@@ -28,10 +38,21 @@ export interface ISDQLQueryUtils {
     | MissingTokenConstructorError
     | QueryExpiredError
     >;
+
+    extractPermittedQueryIdsAndExpectedCompensationBlocks(
+        schemaString: SDQLString, dataPermissions: DataPermissions
+    ): ResultAsync<
+        [string[], Map<string, ISDQLCompensations>], 
+        QueryFormatError 
+        | ParserError 
+        | DuplicateIdInSchema 
+        | MissingTokenConstructorError 
+        | QueryExpiredError
+    >;
 }
 
 
 export const ISDQLQueryUtilsType = Symbol.for(
     "ISDQLQueryUtils",
-  );
+);
   

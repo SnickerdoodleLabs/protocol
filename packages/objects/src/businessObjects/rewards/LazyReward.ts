@@ -5,16 +5,20 @@ import {
   EVMAccountAddress,
   IpfsCID,
   RewardFunctionParam,
+  URLString,
 } from "@objects/primitives";
 
 export class LazyReward extends EarnedReward {
   constructor(
     readonly queryCID: IpfsCID,
+    readonly name: string,
+    readonly image: IpfsCID | null,
+    readonly description: string,
     readonly chainId: ChainId,
     readonly eoa: EVMAccountAddress,
     readonly functionName: string,
     readonly functionParams: RewardFunctionParam[],
   ) {
-    super(queryCID, ERewardType.Lazy);
+    super(queryCID, name, image, description, ERewardType.Lazy);
   }
 }
