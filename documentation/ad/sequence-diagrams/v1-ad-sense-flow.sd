@@ -1,0 +1,103 @@
+title Ad Sense Flow
+participant Data Wallet
+participant Ad Host
+participant Brand
+participant Ad Surface
+participant Insight Platform
+participant Consent Contract
+participant Surface Registry
+participant IPFS
+==Ad Surface Registration==
+Ad Host->Insight Platform:Register Account\nEstablish escrow wallet
+activate Insight Platform
+activate Ad Host
+Ad Host<-Insight Platform:Complete
+deactivate Insight Platform
+Ad Host->Insight Platform:registerAdSurface()
+activate Insight Platform
+Insight Platform->Surface Registry:registerAdSurface()\nSigned via Insight Platform &\nescrow wallet\nToken is staked
+activate Surface Registry
+Insight Platform<-Surface Registry:SurfaceId
+deactivate Surface Registry
+Ad Host<-Insight Platform:SurfaceId
+deactivate Insight Platform
+deactivate Ad Host
+==Campaign Registration==
+Brand->Insight Platform:createAdCampaign(displayCount, adDetails)
+activate Insight Platform
+Insight Platform->Insight Platform:Generate DisplayCount nonces\nCalculate Merkle Root
+Insight Platform->IPFS:Post Ad Metadata
+activate IPFS
+Insight Platform<-IPFS:Ad CID
+deactivate IPFS
+Insight Platform->Consent Contract:mintAdCampaign(merkleRoot, recievingAccount, adCID)\nDeposits funds from Escrow Wallet for Brand\nRegisters receiving account for funds
+activate Consent Contract
+Consent Contract->Consent Contract:Mint AdCampaign NFT with merkle root
+Insight Platform<-Consent Contract:AdCampaign TokenId
+deactivate Consent Contract
+Brand<-Insight Platform:
+deactivate Insight Platform
+==Ad Display Flow==
+note over Data Wallet:Detect Ad Surface available
+activate Data Wallet
+Data Wallet->Ad Surface:getSurfaceId()
+activate Ad Surface
+Data Wallet<-Ad Surface:SurfaceId
+deactivate Ad Surface
+Data Wallet->Surface Registry:getSurfaceDetails(SurfaceId)
+activate Surface Registry
+Data Wallet<-Surface Registry:Surface Metadata
+deactivate Surface Registry
+Data Wallet->Ad Surface:Set/Confirm Add Surface Details\nWe can manually set surface details in things like \nweb browsers
+note over Data Wallet:Check active received queries with Advertisement blocks\nCheck for matching advertisements\nChoose a specific ad to show, based on query data and surface metadata
+Data Wallet->Insight Platform:getAdNonce(optInAccountAddress, tokenId,SurfaceId)
+activate Insight Platform
+Insight Platform->Insight Platform:Choose a nonce from the list\nLock it up for some time
+Data Wallet<-Insight Platform:AdNonce
+deactivate Insight Platform
+Data Wallet->Data Wallet:Sign AdNonce with Opt In Key
+Data Wallet->Ad Surface:showAdvertisement(adIpfsCID, adNonceSignature)
+activate Ad Surface
+Ad Surface->Ad Surface:Verify signature is legit
+Ad Surface->IPFS:Retrieve Advertisement
+activate IPFS
+Ad Surface<-IPFS:Advertisement metadata\nIncludes Consent Contract ID
+deactivate IPFS
+Ad Surface->Ad Surface:Verify that the ad metadata looks correct
+Ad Surface->Ad Surface:Display Ad\nGenerate some kind of DisplayProof\nIncludes hash of metadata (only knowable if metadata retrieved from IPFS)
+Ad Surface->Insight Platform:getAdProofNonce(accountAddress, tokenId,\nadNonceSignature, SurfaceId, DisplayProof)
+activate Insight Platform
+Insight Platform->Insight Platform:Record intent to display ad
+Insight Platform->Insight Platform:Sign AdNonceSignature with Ad Host key
+Ad Surface<-Insight Platform:AdProofSignature
+deactivateafter Insight Platform
+Data Wallet<-Ad Surface:Proof of Display\nAnd AdProofSignature
+deactivate Ad Surface
+Data Wallet->Data Wallet:Sign proof of display + AdNonce + AdProofNonce with OptInPrivateKey\nThis will be traceable to the generated AdNonce
+Data Wallet->Insight Platform:Submit AdViewedSignature
+activate Insight Platform
+deactivate Data Wallet
+Insight Platform->Insight Platform:Record AdViewedSignature
+deactivate Insight Platform
+==Signature Submission==
+note over Insight Platform:All AdCampaign Tokens Used
+activate Insight Platform
+Insight Platform->Insight Platform:Calculate Merkle Root using AdViewedSignatures
+note over Insight Platform:This is the magic step
+Insight Platform->Consent Contract:completeAdCampaign(viewingRoot)
+activate Consent Contract
+Consent Contract->Consent Contract:Release funds to Insight Platform Wallet
+Insight Platform<-Consent Contract:Funds
+deactivate Consent Contract
+Insight Platform->Insight Platform:Distribute funds to Ad Hosts
+Ad Host<-Insight Platform:Funds\n(Web3 or Fiat)
+deactivate Insight Platform
+==Data Wallet Query Processing==
+activate Data Wallet
+note over Data Wallet:Data Wallet decides all ads are viewed-\nQuery is ready to be processed\nHas collected proof of viewership
+Data Wallet->Insight Platform:POST /responses\nUpdate to include ProofOfDisplay and AdProofNonce list
+activate Insight Platform
+Insight Platform->Insight Platform:Verify proof of ads\nIssue Rewards
+Data Wallet<-Insight Platform:EarnedRewards
+deactivateafter Data Wallet
+deactivateafter Insight Platform
