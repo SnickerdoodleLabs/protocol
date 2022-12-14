@@ -33,6 +33,8 @@ import {
   TokenAddress,
   TokenInfo,
   TokenMarketData,
+  URLString,
+  SiteVisit,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -56,6 +58,8 @@ import {
   IPIIServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
+  IUserSiteInteractionService,
+  IUserSiteInteractionServiceType,
 } from "@interfaces/business";
 import {
   IScamFilterService,
@@ -128,6 +132,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IScamFilterSettingsUtilsType)
     protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
+    @inject(IUserSiteInteractionServiceType)
+    protected userSiteInteractionService: IUserSiteInteractionService,
   ) {}
 
   public async handleRpcCall(
@@ -265,6 +271,12 @@ export class RpcCallHandler implements IRpcCallHandler {
       }
       case EExternalActions.GET_LOCATION: {
         return new AsyncRpcResponseSender(this.getLocation(), res).call();
+      }
+      case EExternalActions.GET_SITE_VISITS: {
+        return new AsyncRpcResponseSender(this.getSiteVisits(), res).call();
+      }
+      case EExternalActions.GET_SITE_VISITS_MAP: {
+        return new AsyncRpcResponseSender(this.getSiteVisitsMap(), res).call();
       }
       case EExternalActions.GET_ACCEPTED_INVITATIONS_CID: {
         return new AsyncRpcResponseSender(
@@ -792,5 +804,14 @@ export class RpcCallHandler implements IRpcCallHandler {
     SnickerDoodleCoreError
   > {
     return this.piiService.getLocation();
+  }
+  private getSiteVisits(): ResultAsync<SiteVisit[], SnickerDoodleCoreError> {
+    return this.userSiteInteractionService.getSiteVisits();
+  }
+  private getSiteVisitsMap(): ResultAsync<
+    Map<URLString, number>,
+    SnickerDoodleCoreError
+  > {
+    return this.userSiteInteractionService.getSiteVisitsMap();
   }
 }

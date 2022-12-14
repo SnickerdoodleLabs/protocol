@@ -10,6 +10,7 @@ import {
   TokenInfo,
   TokenMarketData,
   WalletNFT,
+  SiteVisit,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
@@ -30,6 +31,7 @@ import {
   LanguageCode,
   Signature,
   UnixTimestamp,
+  URLString,
 } from "@objects/primitives";
 
 type JsonRpcError = unknown;
@@ -136,4 +138,8 @@ export interface ISdlDataWallet extends EventEmitter {
   ): ResultAsync<IpfsCID, JsonRpcError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError>;
+
+  getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError>;
+
+  getSiteVisitsMap(): ResultAsync<Record<URLString, number>, JsonRpcError>;
 }

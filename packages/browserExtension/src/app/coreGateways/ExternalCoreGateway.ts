@@ -27,6 +27,8 @@ import {
   TokenAddress,
   TokenInfo,
   TokenMarketData,
+  SiteVisit,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -385,5 +387,16 @@ export class ExternalCoreGateway {
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_EARNED_REWARDS);
+  }
+
+  public getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_SITE_VISITS);
+  }
+
+  public getSiteVisitsMap(): ResultAsync<
+    Record<URLString, number>,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_SITE_VISITS_MAP);
   }
 }
