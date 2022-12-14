@@ -256,7 +256,7 @@ export class BackupManager implements IBackupManager {
     return this.cryptoUtils
       .hashStringSHA256(JSON.stringify(blob))
       .map((hash) => {
-        return hash.replace("/", "-");
+        return hash.toString().replace(new RegExp("/", "g"), "-");
       });
   }
 
