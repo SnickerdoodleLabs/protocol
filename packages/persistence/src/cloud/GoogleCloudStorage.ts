@@ -15,6 +15,7 @@ import {
   PersistenceError,
   URLString,
   AjaxError,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ok, okAsync, Result, ResultAsync } from "neverthrow";
@@ -34,6 +35,7 @@ import {
 export class GoogleCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, IDataWalletBackup>();
   protected _lastRestore = 0;
+  private _cachedCloudBackups: Set<string> = new Set();
   private _unlockPromise: Promise<EVMPrivateKey>;
   private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
     null;
@@ -54,7 +56,7 @@ export class GoogleCloudStorage implements ICloudStorage {
 
   public unlock(
     derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, AjaxError | PersistenceError> {
+  ): ResultAsync<void, PersistenceError> {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._resolveUnlock!(derivedKey);
@@ -90,7 +92,7 @@ export class GoogleCloudStorage implements ICloudStorage {
 
   public putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<void, PersistenceError | AjaxError> {
+  ): ResultAsync<DataWalletBackupID, PersistenceError | AjaxError> {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
@@ -99,6 +101,9 @@ export class GoogleCloudStorage implements ICloudStorage {
         config.defaultInsightPlatformBaseUrl;
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+
+      // can use this instead for filtering data
+      // backup.header.hash;
 
       return ResultUtils.combine([this.getWalletListing()])
         .andThen(([backupsDirectory]) => {
@@ -112,7 +117,6 @@ export class GoogleCloudStorage implements ICloudStorage {
         })
         .andThen((signedUrl) => {
           // if (signedUrl === typeof URLString) {
-          console.log("signedUrl: ", signedUrl);
           this.ajaxUtils
             .put(new URL(signedUrl), JSON.stringify(backup), {
               headers: {
@@ -122,8 +126,9 @@ export class GoogleCloudStorage implements ICloudStorage {
             .mapErr((e) => {
               new PersistenceError(`${e.name}: ${e.message}`);
             });
+
           // }
-          return okAsync(undefined);
+          return okAsync(DataWalletBackupID(""));
         });
     });
   }
@@ -136,6 +141,9 @@ export class GoogleCloudStorage implements ICloudStorage {
     } else {
       console.log("files: ", files);
       const name = files[files.length - 1]["name"];
+      // if (!name.includes("version")) {
+      //   name = "version" + name;
+      // }
       console.log("name: ", name);
       const versionString = name.split(/[/ ]+/).pop();
       if (versionString == undefined) {
@@ -153,10 +161,9 @@ export class GoogleCloudStorage implements ICloudStorage {
     }
   }
 
-  public pollBackups(): ResultAsync<
-    IDataWalletBackup[],
-    PersistenceError | AjaxError
-  > {
+  public pollBackups(
+    restored: Set<DataWalletBackupID>,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError | AjaxError> {
     return this.getWalletListing()
       .andThen((backupsDirectory) => {
         const files = backupsDirectory.items;
@@ -166,8 +173,19 @@ export class GoogleCloudStorage implements ICloudStorage {
         if (files.length == 0) {
           return okAsync([]);
         }
+
+        const found = [...files].filter(
+          (x) => !this._cachedCloudBackups.has(x.name),
+        );
+
+        const cachedBackups = found.map((foundFile) =>
+          this._cachedCloudBackups.add(foundFile.name),
+        );
+
+        // Now iterate only through the found hashes
+
         return ResultUtils.combine(
-          files.map((file) => {
+          found.map((file) => {
             return this.ajaxUtils
               .get<IDataWalletBackup>(new URL(file.mediaLink as string))
               .andThen((DWBackup) => {

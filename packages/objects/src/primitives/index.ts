@@ -12,6 +12,7 @@ export * from "@objects/primitives/CountryCode";
 export * from "@objects/primitives/CryptoTokenSymbol";
 export * from "@objects/primitives/CurrencyAlphabeticCode";
 export * from "@objects/primitives/DataWalletAddress";
+export * from "@objects/primitives/DataWalletBackupID";
 export * from "@objects/primitives/DomainName";
 export * from "@objects/primitives/EmailAddressString";
 export * from "@objects/primitives/EncryptedString";

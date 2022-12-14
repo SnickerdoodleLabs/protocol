@@ -23,6 +23,8 @@ import {
   MinimalForwarderContractError,
   AccountAddress,
   DataWalletAddress,
+  CeramicStreamID,
+  DataWalletBackupID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -120,7 +122,10 @@ export interface IAccountService {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
-  postBackup(): ResultAsync<void, PersistenceError>;
+  postBackups(): ResultAsync<
+    DataWalletBackupID[],
+    PersistenceError | AjaxError
+  >;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 

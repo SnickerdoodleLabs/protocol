@@ -1,3 +1,7 @@
+import { ResultAsync } from "neverthrow";
+
+import { IChainTransaction } from "./chains";
+
 import {
   ClickData,
   EarnedReward,
@@ -26,10 +30,9 @@ import {
   BlockNumber,
   UnixTimestamp,
   AccountAddress,
+  CeramicStreamID,
+  DataWalletBackupID,
 } from "@objects/primitives";
-import { ResultAsync } from "neverthrow";
-
-import { IChainTransaction } from "./chains";
 
 /**
  * This is technically a repository, but since the form factor may need to override where
@@ -183,10 +186,12 @@ export interface IDataWalletPersistence {
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError>;
 
-  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackup(): ResultAsync<void, PersistenceError | AjaxError>;
+  postBackups(): ResultAsync<
+    DataWalletBackupID[],
+    PersistenceError | AjaxError
+  >;
   clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
 }
 
