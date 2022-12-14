@@ -282,6 +282,7 @@ export class ExprParser {
   getExecutableFromContext(token: Token): ParserContextDataTypes {
     let nameStr = "";
     switch (token.type) {
+      case TokenType.ad:
       case TokenType.query:
       case TokenType.return:
       case TokenType.compensation:

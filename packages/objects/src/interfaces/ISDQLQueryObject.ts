@@ -7,6 +7,7 @@ import {
   EVMContractAddress,
   IpfsCID,
   URLString,
+  AdId
 } from "@objects/primitives";
 import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
 
@@ -16,6 +17,7 @@ export interface ISDQLQueryObject {
   expiry: ISO8601DateString;
   description: string;
   business: string;
+  ads: ISDQLAdsBlock;
   queries: {
     [queryId: string]: ISDQLQueryClause;
   };
@@ -80,6 +82,23 @@ export interface ISDQLReturnProperties {
   query?: string;
 }
 
+export interface ISDQLAdsBlock {
+  [index: AdId]: ISDQLAd;
+}
+
+export interface ISDQLAd {
+  name: string;
+  contentUrl: IpfsCID | URLString;
+  text: string;
+  //To be defined as a separate type
+  type: "banner" | "popup";
+  //To be defined as a separate type
+  placement: "right corner" | null;
+  //To be defined as a separate type
+  platform: "mobile" | "web";
+  weight: number;
+}
+
 export interface ISDQLCompensationBlock {
   [index: CompensationId]:
     | ISDQLCompensationParameters
@@ -117,5 +136,6 @@ export interface ISDQLCompensationParameters {
 
 export interface ISDQLLogicObjects {
   returns: string[];
+  ads: string[];
   compensations: string[];
 }

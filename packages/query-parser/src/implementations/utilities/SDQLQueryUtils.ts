@@ -74,6 +74,9 @@ export class SDQLQueryUtils {
 
       return parser.buildAST().andThen(() => {
 
+        console.log("muktadir2");
+        console.log(parser.ads);
+
         return this.getPermittedQueryIds(parser, dataPermissions)
         .andThen((permittedQueryIds) => {
 
