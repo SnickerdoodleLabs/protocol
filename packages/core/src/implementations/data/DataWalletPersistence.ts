@@ -108,7 +108,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.resolveUnlock = resolve;
     });
     this.restorePromise = new Promise<void>((resolve) => {
-      this.resolveRestore = resolve;
+      this.resolveRestore = () => {
+        this.contextProvider.getContext().map((ctx) => {
+          ctx.publicEvents.onInitialRestore.next(null);
+        });
+        resolve();
+      };
     });
   }
 
@@ -129,12 +134,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return ResultUtils.combine<EVMPrivateKey, void, never, never>([
       ResultAsync.fromSafePromise(this.unlockPromise),
       ResultAsync.fromSafePromise(this.restorePromise),
-    ]).andThen(([key]) => {
-      return this.contextProvider.getContext().map((ctx) => {
-        ctx.publicEvents.onInitialRestore.next(null);
-        return key;
-      });
-    });
+    ]).map(([key]) => key);
   }
 
   public unlock(
