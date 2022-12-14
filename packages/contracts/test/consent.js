@@ -440,7 +440,7 @@ describe("Consent", () => {
 
       // call opt out with another account that does not own the token
       await expect(consent.connect(accounts[2]).optOut(1)).to.revertedWith(
-        "ERC721: caller is not token owner nor approved",
+        "ERC721: caller is not token owner or approved"
       );
     });
   });
@@ -503,7 +503,7 @@ describe("Consent", () => {
           accounts[2].address,
           1,
         ),
-      ).to.revertedWith("ERC721: caller is not token owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner or approved");
 
       // check token balance of the account has 1
       await expect(
@@ -514,7 +514,7 @@ describe("Consent", () => {
             accounts[2].address,
             1,
           ),
-      ).to.revertedWith("ERC721: caller is not token owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner or approved");
     });
   });
 
