@@ -1,4 +1,3 @@
-import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -69,6 +68,11 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { parse } from "tldts";
+
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
