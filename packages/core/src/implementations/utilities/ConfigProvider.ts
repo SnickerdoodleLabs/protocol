@@ -76,7 +76,7 @@ export class ConfigProvider
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
-      10000, // backup interval
+      21600000, // backup interval
       50, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
