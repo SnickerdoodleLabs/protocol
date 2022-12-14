@@ -22,7 +22,9 @@ import {
   TokenAddress,
   TokenInfo,
   TokenMarketData,
+  SiteVisit,
   UnixTimestamp,
+  URLString,
   UUID,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
@@ -269,6 +271,12 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
       isScamFilterActive,
       showMessageEveryTime,
     );
+  }
+  public getSiteVisits(): ResultAsync<SiteVisit[], unknown> {
+    return coreGateway.getSiteVisits();
+  }
+  public getSiteVisitsMap(): ResultAsync<Record<URLString, number>, unknown> {
+    return coreGateway.getSiteVisitsMap();
   }
 }
 

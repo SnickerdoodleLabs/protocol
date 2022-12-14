@@ -16,8 +16,13 @@ import OnboardingWelcome from "@extension-onboarding/pages/Onboarding/Onboarding
 import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
 import ViewData from "@extension-onboarding/pages/Onboarding/ViewData";
+import BrowserActivity from "@extension-onboarding/pages/Details/screens/BrowserActivity";
 import React from "react";
 import { Route } from "react-router-dom";
+import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayout";
+import Rewards from "@extension-onboarding/pages/Details/screens/Rewards";
+import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
+import NFTs from "@extension-onboarding/pages/Details/screens/NFTs";
 
 export const OnboardingRoutes = (
   <Route>
@@ -41,6 +46,13 @@ export const AuthFlowRoutes = (
   <Route element={<ProductTourLayout />}>
     <Route element={<AuthFlowLayout />}>
       <Route path={EPaths.HOME} element={<Portfolio />} />
+      <Route element={<DataDashBoardLayout />}>
+        <Route path={EPaths.REWARDS} element={<Rewards />} />
+        <Route path={EPaths.TOKENS} element={<Tokens />} />
+        <Route path={EPaths.NFTS} element={<NFTs />} />
+        <Route path={EPaths.BROWSER_ACTIVITY} element={<BrowserActivity />} />
+        <Route path={EPaths.PERSONAL_INFO} element={<PersonalInfo />} />
+      </Route>
       <Route path={EPaths.MY_REWARDS} element={<MarketplaceRewardsTemp />} />
       {/* <Route path={EPaths.MY_CAMPAIGNS} element={<CampaignsInfo />} />
       <Route

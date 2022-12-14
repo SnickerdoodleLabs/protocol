@@ -1,11 +1,17 @@
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
-import { SiteVisit } from "@snickerdoodlelabs/objects";
+import { SiteVisit, URLString } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 export interface IUserSiteInteractionService {
   addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, SnickerDoodleCoreError>;
+  getSiteVisits(): ResultAsync<SiteVisit[], SnickerDoodleCoreError>;
+
+  getSiteVisitsMap(): ResultAsync<
+    Map<URLString, number>,
+    SnickerDoodleCoreError
+  >;
 }
 
 export const IUserSiteInteractionServiceType = Symbol.for(
