@@ -1,3 +1,4 @@
+import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities";
 import {
   ICryptoUtils,
   ICryptoUtilsType,
@@ -97,6 +98,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
@@ -123,7 +125,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return ResultUtils.combine<EVMPrivateKey, void, never, never>([
       ResultAsync.fromSafePromise(this.unlockPromise),
       ResultAsync.fromSafePromise(this.restorePromise),
-    ]).map(([key]) => key);
+    ]).andThen(([key]) => {
+      return this.contextProvider.getContext().map((ctx) => {
+        ctx.publicEvents.onInitialRestore.next(null);
+        return key;
+      });
+    });
   }
 
   public unlock(
