@@ -35,7 +35,6 @@ import {
 export class GoogleCloudStorage implements ICloudStorage {
   protected _backups = new Map<string, IDataWalletBackup>();
   protected _lastRestore = 0;
-  private _cachedCloudBackups: Set<string> = new Set();
   private _unlockPromise: Promise<EVMPrivateKey>;
   private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
     null;
@@ -108,11 +107,10 @@ export class GoogleCloudStorage implements ICloudStorage {
       return ResultUtils.combine([this.getWalletListing()])
         .andThen(([backupsDirectory]) => {
           const files = backupsDirectory.items;
-          const version = this.getVersionNumber(files);
           return this.insightPlatformRepo.getSignedUrl(
             privateKey,
             defaultInsightPlatformBaseUrl,
-            addr + "/version" + version,
+            addr + "/" + backup.header.hash,
           );
         })
         .andThen((signedUrl) => {
@@ -145,12 +143,12 @@ export class GoogleCloudStorage implements ICloudStorage {
       //   name = "version" + name;
       // }
       console.log("name: ", name);
-      const versionString = name.split(/[/ ]+/).pop();
-      if (versionString == undefined) {
+      const fileName = name.split(/[/ ]+/).pop();
+      if (fileName == undefined) {
         return "1000000";
       } else {
-        console.log("versionString: ", versionString);
-        const versionNumber = versionString.split("version");
+        console.log("versionString: ", fileName);
+        const versionNumber = fileName.split("version");
         console.log("versionNumber: ", versionNumber);
         const number = parseInt(versionNumber[1]);
         const upgrade = number + 1;
@@ -174,24 +172,20 @@ export class GoogleCloudStorage implements ICloudStorage {
           return okAsync([]);
         }
 
-        const found = [...files].filter(
-          (x) => !this._cachedCloudBackups.has(x.name),
-        );
-
-        const cachedBackups = found.map((foundFile) =>
-          this._cachedCloudBackups.add(foundFile.name),
-        );
-
         // Now iterate only through the found hashes
-
         return ResultUtils.combine(
-          found.map((file) => {
-            return this.ajaxUtils
-              .get<IDataWalletBackup>(new URL(file.mediaLink as string))
-              .andThen((DWBackup) => {
-                return okAsync(DWBackup);
-              });
-          }),
+          files
+            .filter((file) => {
+              const name = file.name.split(/[/ ]+/).pop();
+              return restored.has(DataWalletBackupID(name!));
+            })
+            .map((file) => {
+              return this.ajaxUtils
+                .get<IDataWalletBackup>(new URL(file.mediaLink as string))
+                .andThen((DWBackup) => {
+                  return okAsync(DWBackup);
+                });
+            }),
         );
       })
       .andThen((dataWalletBackups) => {

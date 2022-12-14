@@ -234,6 +234,8 @@ export class BackupManager implements IBackupManager {
       new BackupBlob(this.fieldUpdates, this.tableUpdates),
     );
 
+    console.log("rawBlob: ", rawBlob);
+
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
@@ -251,7 +253,11 @@ export class BackupManager implements IBackupManager {
   private _getContentHash(
     blob: AESEncryptedString,
   ): ResultAsync<string, PersistenceError> {
-    return this.cryptoUtils.hashStringSHA256(JSON.stringify(blob));
+    return this.cryptoUtils
+      .hashStringSHA256(JSON.stringify(blob))
+      .map((hash) => {
+        return hash.replace("/", "-");
+      });
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {
