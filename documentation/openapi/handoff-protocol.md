@@ -46,6 +46,8 @@ sequenceDiagram
 
         },
         "c1":{
+            "name": "Sugar to your coffee",
+            "image": "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
             "description": "10% discount code for Starbucks",
             "chainId": 1,
             "callback": {
@@ -56,6 +58,8 @@ sequenceDiagram
             }
         },
         "c2":{
+            "name": "The CryptoPunk Draw",
+            "image": "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
             "description": "participate in the draw to win a CryptoPunk NFT",
             "chainId": 1,
             "callback": {
@@ -67,6 +71,8 @@ sequenceDiagram
             }
         },
         "c3":{
+            "name": "CrazyApesClub NFT distro",
+            "image": "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
             "description": "a free CrazyApesClub NFT",
             "chainId": 1,
             "callback": {
@@ -83,6 +89,8 @@ sequenceDiagram
             
         },
         "c4":{
+            "name": "CrazyApesClub Avalanche distro",
+            "image": "KC3PBE33tq432RLMi8mWNuTPLGKc98mb8wBQsMnRxWqxMs",
             "description": "a free CrazyApesClub NFT on Avalanche",
             "chainId": 43114,
             "callback": {
@@ -99,6 +107,8 @@ sequenceDiagram
             
         },
         "c5":{
+            "name": "CrazyApesClub Solana distro",
+            "image": "8mb8wBQxWqxMsC3PBE33tq4K2RLMi8mWsMnRNuTPLGKc93",
             "description": "a free CrazyApesClub NFT on Solana",
             "chainId": -1,
             "callback": {

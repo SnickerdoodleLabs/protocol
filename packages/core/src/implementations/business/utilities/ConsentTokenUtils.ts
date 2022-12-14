@@ -28,6 +28,8 @@ export class ConsentTokenUtils {
     protected consentRepo: IConsentContractRepository,
   ) {}
 
+  // This is nearly identical to ConsentContractRepo.getConsentToken, but does the lookup
+  // of accepted invites for you.
   public getCurrentConsentToken(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<

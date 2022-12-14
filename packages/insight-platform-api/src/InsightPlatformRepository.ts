@@ -95,6 +95,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<EarnedReward[], AjaxError> {
+    console.log("rewardParameters: ", rewardParameters);
+    const returnsString = JSON.stringify(returns);
+    const parameters = JSON.stringify([]);
+    if (rewardParameters !== undefined) {
+      const parameters = JSON.stringify(rewardParameters);
+    }
+
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,

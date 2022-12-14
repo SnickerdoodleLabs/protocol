@@ -1,0 +1,27 @@
+[
+    {
+        "queryCID": "someCID",
+        "type": "Direct",
+        "chainId": 43113,
+        "eoa": "0x14791697260E4c9A71f18484C9f997B308e59325",
+        "transactionReceipt": "Fake transactionReceipt"
+    },
+    
+    {
+        "queryCID": "someCID",
+        "type": "Lazy",
+        "chainId": 43113,
+        "eoa": "0x14791697260E4c9A71f18484C9f997B308e59325",
+        "functionName": "lazyFunc",
+        "functionParams": ["val1", "val2"]
+    },
+    
+    {
+        "queryCID": "someCID",
+        "type": "Web2",
+        "url": "hello.com",
+        "credentialType": "UsernamePassword",
+        "credential": "credential",
+        "instructions": "at your own fisk"
+    }
+]

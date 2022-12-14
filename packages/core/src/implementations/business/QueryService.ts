@@ -9,12 +9,8 @@ import {
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
   AjaxError,
-  BlockchainProviderError,
-  ConsentContractError,
-  ConsentContractRepositoryError,
   ConsentError,
   EvaluationError,
-  EVMAccountAddress,
   EVMContractAddress,
   InsightString,
   IpfsCID,
@@ -28,15 +24,11 @@ import {
   ServerRewardError,
   IDataWalletPersistenceType,
   IDataWalletPersistence,
-  QueryExpiredError,
   IDynamicRewardParameter,
   LinkedAccount,
-  DataWalletAddress,
   QueryIdentifier,
   ExpectedReward,
   EVMPrivateKey,
-  URLString,
-  OptInInfo,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -104,33 +96,30 @@ export class QueryService implements IQueryService {
       this.contextProvider.getContext(),
       this.configProvider.getConfig(),
       this.persistenceRepo.getAccounts(),
-    ]).andThen(([query, context, config, accounts]) => {
-      return ResultUtils.combine([
-        this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
-        this.dataWalletUtils.deriveOptInPrivateKey(
-          consentContractAddress,
-          context.dataWalletKey!,
-        ),
-      ]).andThen(([consentToken, optInKey]) => {
-        if (consentToken == null) {
-          return errAsync(new EvaluationError(`Consent token not found!`));
-        }
-        return this.queryParsingEngine
-          .getExpectedRewards(query, consentToken.dataPermissions)
-          .andThen(([queryIdentifiers, expectedRewards]) => {
-            return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
-              consentToken,
-              optInKey,
-              consentContractAddress,
-              query,
-              accounts,
-              context,
-              config,
-              queryIdentifiers,
-              expectedRewards,
-            );
-          });
-      });
+      this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
+    ]).andThen(([query, context, config, accounts, consentToken]) => {
+      return this.dataWalletUtils
+        .deriveOptInPrivateKey(consentContractAddress, context.dataWalletKey!)
+        .andThen((optInKey) => {
+          if (consentToken == null) {
+            return errAsync(new EvaluationError(`Consent token not found!`));
+          }
+          return this.queryParsingEngine
+            .getPermittedQueryIdsAndExpectedRewards(query, consentToken.dataPermissions)
+            .andThen(([queryIdentifiers, expectedRewards]) => {
+              return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+                consentToken,
+                optInKey,
+                consentContractAddress,
+                query,
+                accounts,
+                context,
+                config,
+                queryIdentifiers,
+                expectedRewards,
+              );
+            });
+        });
     });
   }
 
@@ -142,20 +131,25 @@ export class QueryService implements IQueryService {
     accounts: LinkedAccount[],
     context: CoreContext,
     config: CoreConfig,
-    queryIdentifiers: QueryIdentifier[],
-    expectedRewards: ExpectedReward[],
-  ): ResultAsync<void, EvaluationError> {
-    return this.getEligibleRewardsFromInsightPlatform(
-      consentToken,
-      optInKey,
-      context,
-      consentContractAddress,
-      query.cid,
-      config,
-      queryIdentifiers,
-    ).andThen((eligibleRewards) => {
-      return this.compareRewards(eligibleRewards, expectedRewards).andThen(
-        () => {
+    permittedQueryIds: QueryIdentifier[],
+    expectedRewards: ExpectedReward[]
+  ): ResultAsync<void, EvaluationError | ServerRewardError> {
+
+      return this.getEligibleRewardsFromInsightPlatform(
+        consentToken,
+        optInKey,
+        consentContractAddress,
+        query.cid,
+        config,
+        permittedQueryIds,
+      )
+      .andThen((eligibleRewards) => {
+
+          if (!this.areExpectedAndEligibleRewardsEqual(eligibleRewards, expectedRewards)) 
+            return errAsync( 
+              new ServerRewardError("Insight Platform Rewards do not match Expected Rewards!")
+            );
+
           return this.publishSDQLQueryRequest(
             consentContractAddress,
             query,
@@ -163,15 +157,12 @@ export class QueryService implements IQueryService {
             accounts,
             context,
           );
-        },
-      );
-    });
+      });
   }
 
   protected getEligibleRewardsFromInsightPlatform(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
-    context: CoreContext,
     consentContractAddress: EVMContractAddress,
     queryCID: IpfsCID,
     config: CoreConfig,
@@ -227,21 +218,19 @@ export class QueryService implements IQueryService {
   }
 
   // Will need refactoring when we include lazy rewards
-  protected compareRewards(
-    coreCreatedRewards: EligibleReward[],
-    serverCreatedRewards: EligibleReward[],
-  ): ResultAsync<void, ServerRewardError> {
-    // if (
-    //   coreCreatedRewards.length !== serverCreatedRewards.length ||
-    //   !serverCreatedRewards.every((elem, index) => elem == coreCreatedRewards[index])
-    // )
-    //   return errAsync(
-    //     new ServerRewardError(
-    //       "Insight Platform Rewards do not match Expected Rewards!",
-    //     ),
-    //   );
+  private areExpectedAndEligibleRewardsEqual(
+    eligibleRewards: EligibleReward[],
+    expectedRewards: ExpectedReward[],
+  ): boolean {
 
-    return okAsync(undefined);
+    const expectedRewardKeysSet: Set<string> = new Set(
+      expectedRewards.map((expectedReward) => expectedReward.compensationKey)
+    );
+
+    return ( // Only comparing the keys is enough.
+      eligibleRewards.length == expectedRewards.length &&
+      eligibleRewards.every(elem => expectedRewardKeysSet.has(elem.compensationKey))
+    );
   }
 
   public processQuery(

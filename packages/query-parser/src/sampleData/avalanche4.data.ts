@@ -118,6 +118,8 @@ export const avalanche4SchemaStr = JSON.stringify({
       },
     },
     c1: {
+      name: "Sugar to your coffee",
+      image: "QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR",
       description: "10% discount code for Starbucks",
       chainId: 1,
       callback: {
@@ -128,6 +130,8 @@ export const avalanche4SchemaStr = JSON.stringify({
       },
     },
     c2: {
+      name: "The CryptoPunk Draw",
+      image: "33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ",
       description: "participate in the draw to win a CryptoPunk NFT",
       chainId: 1,
       callback: {
@@ -139,6 +143,8 @@ export const avalanche4SchemaStr = JSON.stringify({
       alternatives: ["c3"],
     },
     c3: {
+      name: "CrazyApesClub NFT distro",
+      image: "GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8",
       description: "a free CrazyApesClub NFT",
       chainId: 1,
       callback: {

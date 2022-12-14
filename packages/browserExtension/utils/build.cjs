@@ -1,7 +1,7 @@
 // These values are appropriate for Develop environment
 // Do this as the first thing so that any code reading it knows the right env.
-process.env.BABEL_ENV = "production";
-process.env.NODE_ENV = "production";
+process.env.BABEL_ENV = "development";
+process.env.NODE_ENV = "development";
 process.env.ASSET_PATH = "/";
 
 var path = require("path");
@@ -15,7 +15,7 @@ var config = require("../webpack.config.cjs");
 const buildEnv = process.argv[2];
 console.log(`Building extension for ${buildEnv} to build-${buildEnv}`);
 
-config.mode = "production";
+config.mode = "development";
 
 webpack(config, function (err) {
   if (err) throw err;
