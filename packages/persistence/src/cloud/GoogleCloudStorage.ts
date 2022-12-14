@@ -172,6 +172,7 @@ export class GoogleCloudStorage implements ICloudStorage {
           return okAsync([]);
         }
 
+        console.log("backupsDirectory.items: ", backupsDirectory.items);
         // Now iterate only through the found hashes
         return ResultUtils.combine(
           files
