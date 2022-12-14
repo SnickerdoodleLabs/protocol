@@ -23,6 +23,8 @@ import {
   WalletNFT,
   TokenBalance,
   EarnedReward,
+  ChainId,
+  TokenAddress,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -56,6 +58,7 @@ import {
   IScamFilterSettingsParams,
   IGetConsentContractCIDParams,
   ICheckInvitationStatusParams,
+  IGetTokenPriceParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
@@ -245,6 +248,17 @@ export class ExternalCoreGateway {
   }
   public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_BALANCES);
+  }
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date?: Date,
+  ): ResultAsync<number, JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_TOKEN_PRICE, {
+      chainId,
+      address,
+      date,
+    } as IGetTokenPriceParams);
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);

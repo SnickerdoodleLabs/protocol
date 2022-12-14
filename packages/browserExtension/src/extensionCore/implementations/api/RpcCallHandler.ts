@@ -29,6 +29,8 @@ import {
   TokenBalance,
   WalletNFT,
   EarnedReward,
+  ChainId,
+  TokenAddress,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -50,6 +52,8 @@ import {
   IInvitationServiceType,
   IPIIService,
   IPIIServiceType,
+  ITokenPriceService,
+  ITokenPriceServiceType,
 } from "@interfaces/business";
 import {
   IScamFilterService,
@@ -94,6 +98,7 @@ import {
   IScamFilterSettingsParams,
   IGetConsentContractCIDParams,
   ICheckInvitationStatusParams,
+  IGetTokenPriceParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -106,6 +111,8 @@ import { mapToObj } from "@shared/utils/objectUtils";
 export class RpcCallHandler implements IRpcCallHandler {
   constructor(
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(ITokenPriceServiceType)
+    protected tokenPriceService: ITokenPriceService,
     @inject(IAccountServiceType) protected accountService: IAccountService,
     @inject(IPIIServiceType) protected piiService: IPIIService,
     @inject(IInvitationServiceType)
@@ -157,6 +164,13 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_ACCOUNTS:
       case EInternalActions.GET_ACCOUNTS: {
         return new AsyncRpcResponseSender(this.getAccounts(), res).call();
+      }
+      case EExternalActions.GET_TOKEN_PRICE: {
+        const { chainId, address, date } = params as IGetTokenPriceParams;
+        return new AsyncRpcResponseSender(
+          this.getTokenPrice(chainId, address, date),
+          res,
+        ).call();
       }
       case EExternalActions.GET_ACCOUNT_BALANCES:
       case EInternalActions.GET_ACCOUNT_BALANCES: {
@@ -658,6 +672,14 @@ export class RpcCallHandler implements IRpcCallHandler {
 
   private getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.accountService.getAccounts();
+  }
+
+  private getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    date?: Date,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.tokenPriceService.getTokenPrice(chainId, address, date);
   }
 
   private getAccountBalances(): ResultAsync<

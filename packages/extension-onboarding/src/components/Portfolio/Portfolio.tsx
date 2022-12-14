@@ -47,6 +47,8 @@ import TokenItem from "@extension-onboarding/components/TokenItem";
 import { useStyles } from "@extension-onboarding/components/Portfolio/Portfolio.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { ResultUtils } from "neverthrow-result-utils";
+import { okAsync } from "neverthrow";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -137,27 +139,52 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
       .mapErr((e) => {
         setIsBalancesLoading(false);
       })
-      .map((result) => {
-        const structeredBalances = result.reduce(
-          (acc, item) => {
-            const isMainnetItem = mainnetSupportedChainIds.includes(
-              item.chainId,
-            );
-            if (isMainnetItem) {
-              acc.mainnetBalances = [...acc.mainnetBalances, item];
-            } else {
-              acc.testnetBalances = [...acc.testnetBalances, item];
+      .andThen((results) => {
+        return ResultUtils.combine(
+          results.map((res) => {
+            if (!res.balance) {
+              return okAsync(0);
             }
+            return window.sdlDataWallet
+              .getTokenPrice(res.chainId, res.tokenAddress)
+              .orElse((e) => okAsync(0));
+          }),
+        ).map((prices) => {
+          const balances = prices.reduce((acc, price, index) => {
+            acc = [
+              ...acc,
+              {
+                ...results[index],
+                quoteBalance: BigNumberString(
+                  (
+                    price * Number.parseFloat(results[index].balance)
+                  ).toString(),
+                ),
+              },
+            ];
             return acc;
-          },
-          { mainnetBalances: [], testnetBalances: [] } as {
-            mainnetBalances: TokenBalance[];
-            testnetBalances: TokenBalance[];
-          },
-        );
-        setAccountBalances(structeredBalances.mainnetBalances);
-        setAccountTestnetBalances(structeredBalances.testnetBalances);
-        setIsBalancesLoading(false);
+          }, [] as TokenBalance[]);
+          const structeredBalances = balances.reduce(
+            (acc, item) => {
+              const isMainnetItem = mainnetSupportedChainIds.includes(
+                item.chainId,
+              );
+              if (isMainnetItem) {
+                acc.mainnetBalances = [...acc.mainnetBalances, item];
+              } else {
+                acc.testnetBalances = [...acc.testnetBalances, item];
+              }
+              return acc;
+            },
+            { mainnetBalances: [], testnetBalances: [] } as {
+              mainnetBalances: TokenBalance[];
+              testnetBalances: TokenBalance[];
+            },
+          );
+          setAccountBalances(structeredBalances.mainnetBalances);
+          setAccountTestnetBalances(structeredBalances.testnetBalances);
+          setIsBalancesLoading(false);
+        });
       });
   };
 
@@ -253,6 +280,9 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
         }
         return acc;
       }, {} as { [key: TickerSymbol]: TokenBalance }),
+    ).sort(
+      (a, b) =>
+        Number.parseFloat(b.quoteBalance) - Number.parseFloat(a.quoteBalance),
     );
   };
 
@@ -272,14 +302,25 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
         );
       }
       if (accountSelect && !chainSelect) {
-        return balanceArr.filter(
-          (item) => item.accountAddress === accountSelect,
-        );
+        return balanceArr
+          .filter((item) => item.accountAddress === accountSelect)
+          .sort(
+            (a, b) =>
+              Number.parseFloat(b.quoteBalance) -
+              Number.parseFloat(a.quoteBalance),
+          );
       }
-      return balanceArr.filter(
-        (item) =>
-          item.accountAddress === accountSelect && item.chainId === chainSelect,
-      );
+      return balanceArr
+        .filter(
+          (item) =>
+            item.accountAddress === accountSelect &&
+            item.chainId === chainSelect,
+        )
+        .sort(
+          (a, b) =>
+            Number.parseFloat(b.quoteBalance) -
+            Number.parseFloat(a.quoteBalance),
+        );
     } else {
       return null;
     }
