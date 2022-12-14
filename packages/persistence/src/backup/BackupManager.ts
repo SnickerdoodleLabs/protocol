@@ -234,8 +234,6 @@ export class BackupManager implements IBackupManager {
       new BackupBlob(this.fieldUpdates, this.tableUpdates),
     );
 
-    console.log("rawBlob: ", rawBlob);
-
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
