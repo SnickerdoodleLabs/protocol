@@ -65,13 +65,16 @@ export class EthereumIndexer
         module: "account",
         action: "txlist",
         address: accountAddress,
-        startblock: fromBlock,
-        endblock: endTime ? toBlock : undefined,
+        startblock: fromBlock + 1, // start is inclusive
         page: 1,
         offset: 100,
         sort: "asc",
         apikey: config.etherscanApiKey,
       };
+
+      if (endTime != undefined) {
+        params["endblock"] = toBlock;
+      }
 
       return this._paginateTransactions(
         chainId,

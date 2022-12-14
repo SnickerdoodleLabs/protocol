@@ -49,12 +49,20 @@ export class EVMTransaction extends ChainTransaction {
     if (this.from) {
       addrs.add(this.from);
     }
-    if (this.input && this.functionName) {
+    if (
+      this.input &&
+      this.functionName &&
+      this.methodId &&
+      !this.functionName.startsWith(this.methodId)
+    ) {
       try {
         const iface = new Interface([`function ${this.functionName}`]);
         const func = iface.getFunction(this.input.slice(0, 10));
         const paramValues = iface.decodeFunctionData(func.name, this.input);
 
+        // filter out unrecognized methodIDs
+        // we may want to do a secondary lookup on failure here:
+        // https://www.4byte.directory/docs/
         this.functionSignature = new EVMFunctionSignature(
           func.name,
           func.type,
