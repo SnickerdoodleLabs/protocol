@@ -112,15 +112,16 @@ export class GoogleCloudStorage implements ICloudStorage {
         })
         .andThen((signedUrl) => {
           // if (signedUrl === typeof URLString) {
-            this.ajaxUtils
-              .put(new URL(signedUrl), JSON.stringify(backup), {
-                headers: {
-                  "Content-Type": `multipart/form-data;`,
-                },
-              })
-              .mapErr((e) => {
-                new PersistenceError(`${e.name}: ${e.message}`);
-              });
+          console.log("signedUrl: ", signedUrl);
+          this.ajaxUtils
+            .put(new URL(signedUrl), JSON.stringify(backup), {
+              headers: {
+                "Content-Type": `multipart/form-data;`,
+              },
+            })
+            .mapErr((e) => {
+              new PersistenceError(`${e.name}: ${e.message}`);
+            });
           // }
           return okAsync(undefined);
         });
@@ -129,17 +130,24 @@ export class GoogleCloudStorage implements ICloudStorage {
 
   protected getVersionNumber(files: IGoogleFileBackup[]): string {
     if (files == undefined) {
-      return "1";
+      return "1000000";
     } else if (files.length == 0) {
-      return "1";
+      return "1000000";
     } else {
+      console.log("files: ", files);
       const name = files[files.length - 1]["name"];
+      console.log("name: ", name);
       const versionString = name.split(/[/ ]+/).pop();
       if (versionString == undefined) {
-        return "1";
+        return "1000000";
       } else {
+        console.log("versionString: ", versionString);
         const versionNumber = versionString.split("version");
-        const version = (parseInt(versionNumber[1]) + 1).toString();
+        console.log("versionNumber: ", versionNumber);
+        const number = parseInt(versionNumber[1]);
+        const upgrade = number + 1;
+        const version = upgrade.toString();
+        console.log("version: ", version);
         return version;
       }
     }
