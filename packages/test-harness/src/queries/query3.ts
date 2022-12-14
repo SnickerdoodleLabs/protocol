@@ -31,11 +31,6 @@ export const query3 = {
         ge: 18,
       },
     },
-    // q2: {
-    //   name: "gender",
-    //   return: "enum",
-    //   enum_keys: ["female", "male", "nonbinary", "unknown"],
-    // }
   },
   returns: {
     r1: {
@@ -90,8 +85,8 @@ export const query3 = {
       // "if($q1and$q2=='nonbinary')then$a2",
     ],
     compensations: [
-      // "if$a1then$c1", 
-      // "if$a2then$c2"
+      "if$q1then$c1", 
+      "if$a1then$c2"
     ],
   },
 };

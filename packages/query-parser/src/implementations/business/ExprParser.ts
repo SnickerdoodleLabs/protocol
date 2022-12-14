@@ -92,6 +92,7 @@ export class ExprParser {
       switch (token.type) {
         // when token is a literal or a variable
         case TokenType.number:
+        case TokenType.ad:
         case TokenType.query:
         case TokenType.return:
         case TokenType.compensation:
@@ -231,6 +232,7 @@ export class ExprParser {
 
   buildAstFromPostfix(postFix: Array<Token>): AST_Expr | Command {
     const exprTypes: Array<TokenType> = [
+      TokenType.ad,
       TokenType.query,
       TokenType.return,
       TokenType.compensation,
