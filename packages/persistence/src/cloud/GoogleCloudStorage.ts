@@ -112,7 +112,6 @@ export class GoogleCloudStorage implements ICloudStorage {
         })
         .andThen((signedUrl) => {
           // if (signedUrl === typeof URLString) {
-          console.log("signedUrl: ", signedUrl);
           this.ajaxUtils
             .put(new URL(signedUrl), JSON.stringify(backup), {
               headers: {
