@@ -817,10 +817,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return okAsync(undefined);
     }
 
-    // console.log(
-    //   `addEVMTransactions #${transactions.length} for first chain id ${transactions[0].chainId}`,
-    // );
-
     return this.waitForRestore().andThen(([key]) => {
       return this.backupManagerProvider
         .getBackupManager()
@@ -984,11 +980,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return backupManager.getRestored();
       })
       .andThen((restored) => {
-        console.log(
-          "--- THESE ARE THE RESTORED BACKUPS FROM DATA WALLET SIDE! ---",
-        );
-        console.log(restored);
-
         return this.cloudStorage
           .pollBackups(restored)
           .andThen((backups) => {
