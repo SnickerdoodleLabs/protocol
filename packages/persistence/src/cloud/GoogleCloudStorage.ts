@@ -133,20 +133,15 @@ export class GoogleCloudStorage implements ICloudStorage {
     } else if (files.length == 0) {
       return "1000000";
     } else {
-      console.log("files: ", files);
       const name = files[files.length - 1]["name"];
-      console.log("name: ", name);
       const versionString = name.split(/[/ ]+/).pop();
       if (versionString == undefined) {
         return "1000000";
       } else {
-        console.log("versionString: ", versionString);
         const versionNumber = versionString.split("version");
-        console.log("versionNumber: ", versionNumber);
         const number = parseInt(versionNumber[1]);
         const upgrade = number + 1;
         const version = upgrade.toString();
-        console.log("version: ", version);
         return version;
       }
     }
