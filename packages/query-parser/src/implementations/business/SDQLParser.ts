@@ -232,6 +232,12 @@ export class SDQLParser {
       );
     }
 
+    // if (schema.logic["ads"] === undefined) {
+    //   return errAsync(
+    //     new QueryFormatError("schema missing logic->ads"),
+    //   );
+    // }
+
     return okAsync(undefined);
   }
   // #endregion
