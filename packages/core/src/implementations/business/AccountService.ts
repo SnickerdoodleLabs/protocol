@@ -580,7 +580,9 @@ export class AccountService implements IAccountService {
   }
 
   public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
-    return this.dataWalletPersistence.postBackups();
+    return this.dataWalletPersistence
+      .postBackups()
+      .mapErr((e) => new PersistenceError("error posting backups", e));
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
