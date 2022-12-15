@@ -73,21 +73,22 @@ export class GoogleCloudStorage implements ICloudStorage {
     ]).andThen(([privateKey, config]) => {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-        return this.insightPlatformRepo.clearAllBackups(
-          privateKey,
-          config.defaultInsightPlatformBaseUrl,
-          addr,
-        );
+      return this.insightPlatformRepo.clearAllBackups(
+        privateKey,
+        config.defaultInsightPlatformBaseUrl,
+        addr,
+      );
     });
   }
 
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError | AjaxError> {
-      return ResultUtils.combine([
-        this.waitForUnlock(),
-        this._configProvider.getConfig(),
-      ]).andThen(([privateKey, config]) => {
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this._configProvider.getConfig(),
+    ])
+      .andThen(([privateKey, config]) => {
         const defaultInsightPlatformBaseUrl =
           config.defaultInsightPlatformBaseUrl;
         const addr =
@@ -97,64 +98,69 @@ export class GoogleCloudStorage implements ICloudStorage {
           privateKey,
           defaultInsightPlatformBaseUrl,
           addr + "/" + backup.header.hash,
-        )
+        );
       })
-        .andThen((signedUrl) => {
-          // if (signedUrl === typeof URLString) {
-            return this.ajaxUtils
-              .put<DataWalletBackupID>(new URL(signedUrl), JSON.stringify(backup), {
-                headers: {
-                  "Content-Type": `multipart/form-data;`,
-                },
-            });
-          // }
-    });
+      .andThen((signedUrl) => {
+        // if (signedUrl === typeof URLString) {
+        return this.ajaxUtils
+          .put<undefined>(new URL(signedUrl), JSON.stringify(backup), {
+            headers: {
+              "Content-Type": `multipart/form-data;`,
+            },
+          })
+          .map(() => DataWalletBackupID(backup.header.hash));
+        // }
+      });
   }
 
   public pollBackups(
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<IDataWalletBackup[], PersistenceError | AjaxError> {
-    return this.getWalletListing()
-      .andThen((backupsDirectory) => {
-        const files = backupsDirectory.items;
-        if (files == undefined) {
-          return okAsync([]);
-        }
-        if (files.length == 0) {
-          return okAsync([]);
-        }
+    return this.getWalletListing().andThen((backupsDirectory) => {
+      const files = backupsDirectory.items;
+      if (files == undefined) {
+        return okAsync([]);
+      }
+      if (files.length == 0) {
+        return okAsync([]);
+      }
 
-        // Now iterate only through the found hashes
-        return ResultUtils.combine(
-          files
-            .filter((file) => {
-              const name = file.name.split(/[/ ]+/).pop();
-              return restored.has(DataWalletBackupID(name!));
-            })
-            .map((file) => {
-              return this.ajaxUtils
-                .get<IDataWalletBackup>(new URL(file.mediaLink as string));
-            }),
-        );
-      });
+      // Now iterate only through the found hashes
+      return ResultUtils.combine(
+        files
+          .filter((file) => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const name = file.name.split(/[/ ]+/).pop()!;
+            return !restored.has(DataWalletBackupID(name));
+          })
+          .map((file) => {
+            return this.ajaxUtils.get<IDataWalletBackup>(
+              new URL(file.mediaLink as string),
+            );
+          }),
+      );
+    });
   }
 
   protected getWalletListing(): ResultAsync<
     IGoogleWalletBackupDirectory,
     PersistenceError | AjaxError
   > {
-    return ResultUtils.combine([this.waitForUnlock(), this._configProvider.getConfig()]).andThen(([privateKey, config]) => {
-        const defaultGoogleCloudBucket = config.defaultGoogleCloudBucket;
-        const addr =
-          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-        const dataWalletFolder =
-          "https://storage.googleapis.com/storage/v1/b/" +
-          defaultGoogleCloudBucket +
-          "/o?prefix=" +
-          addr;
-        return this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
-          new URL(dataWalletFolder),
-        );
-      });
+    return ResultUtils.combine([
+      this.waitForUnlock(),
+      this._configProvider.getConfig(),
+    ]).andThen(([privateKey, config]) => {
+      const defaultGoogleCloudBucket = config.defaultGoogleCloudBucket;
+      const addr =
+        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+      const dataWalletFolder =
+        "https://storage.googleapis.com/storage/v1/b/" +
+        defaultGoogleCloudBucket +
+        "/o?prefix=" +
+        addr;
+      return this.ajaxUtils.get<IGoogleWalletBackupDirectory>(
+        new URL(dataWalletFolder),
+      );
+    });
   }
 }
