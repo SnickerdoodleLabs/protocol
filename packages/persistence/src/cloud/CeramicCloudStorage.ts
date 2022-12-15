@@ -13,6 +13,7 @@ import {
   IDataWalletBackup,
   ModelTypes,
   PersistenceError,
+  AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { DID } from "dids";
 import { inject, injectable } from "inversify";
@@ -49,7 +50,7 @@ export class CeramicCloudStorage implements ICloudStorage {
     });
   }
 
-  public clear(): ResultAsync<void, PersistenceError> {
+  public clear(): ResultAsync<void, PersistenceError | AjaxError> {
     return this._init().andThen(({ store, client }) => {
       return this._getBackupIndex().andThen((entries) => {
         return ResultUtils.combine(
@@ -158,36 +159,38 @@ export class CeramicCloudStorage implements ICloudStorage {
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError> {
-    return this._init().andThen(({ store, model, client }) => {
-      return ResultAsync.fromPromise(
-        model.createTile("DataWalletBackup", backup),
-        (e) => new PersistenceError("error creating backup tile", e),
-      ).andThen((doc) => {
+    return this._init()
+      .andThen(({ store, model, client }) => {
         return ResultAsync.fromPromise(
-          client.pin.add(doc.id, true),
-          (e) => new PersistenceError("unable to pin backup tile", e),
-        ).andThen(() => {
-          // only index if pin was successful
-          const id = doc.id.toUrl();
-          return this._getBackupIndex().andThen((backups) => {
-            const index = [
-              ...backups,
-              { id: id, timestamp: backup.header.timestamp },
-            ];
+          model.createTile("DataWalletBackup", backup),
+          (e) => new PersistenceError("error creating backup tile", e),
+        ).andThen((doc) => {
+          return ResultAsync.fromPromise(
+            client.pin.add(doc.id, true),
+            (e) => new PersistenceError("unable to pin backup tile", e),
+          ).andThen(() => {
+            // only index if pin was successful
+            const id = doc.id.toUrl();
+            return this._getBackupIndex().andThen((backups) => {
+              const index = [
+                ...backups,
+                { id: id, timestamp: backup.header.timestamp },
+              ];
 
-            return this._putBackupIndex(index).map((_) => {
-              console.debug("CloudStorage", `Backup placed: ${id}`);
-              return DataWalletBackupID(id);
+              return this._putBackupIndex(index).map((_) => {
+                console.debug("CloudStorage", `Backup placed: ${id}`);
+                return DataWalletBackupID(id);
+              });
             });
           });
         });
-      });
-    });
+      })
+      .mapErr((e) => new PersistenceError("error putting backup", e));
   }
 
   private _putBackupIndex(
     backups: BackupIndexEntry[],
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<void, PersistenceError | AjaxError> {
     const payload = {
       backups: backups,
     };

@@ -41,7 +41,6 @@ import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCore
 import {
   AccountAddress,
   Age,
-  CeramicStreamID,
   CountryCode,
   DataWalletAddress,
   DataWalletBackupID,
@@ -387,8 +386,11 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<EVMTransaction[], PersistenceError>;
   getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
 
-  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
-  clearCloudStore(): ResultAsync<void, PersistenceError>;
+  postBackups(): ResultAsync<
+    DataWalletBackupID[],
+    PersistenceError | AjaxError
+  >;
+  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

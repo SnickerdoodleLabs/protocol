@@ -18,6 +18,7 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
+import { ELocalStorageKey } from "@persistence/ELocalStorageKey.js";
 import { IVolatileStorage } from "@persistence/volatile/index.js";
 
 export class BackupManager implements IBackupManager {
@@ -28,8 +29,6 @@ export class BackupManager implements IBackupManager {
 
   private fieldHistory: Map<string, number> = new Map();
   private chunkQueue: Array<IDataWalletBackup> = [];
-
-  private restored: Set<DataWalletBackupID> = new Set();
 
   public constructor(
     protected privateKey: EVMPrivateKey,
@@ -46,7 +45,14 @@ export class BackupManager implements IBackupManager {
   }
 
   public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
-    return okAsync(this.restored);
+    return this.volatileStorage
+      .getAll<RestoredBackupRecord>(ELocalStorageKey.RESTORED_BACKUPS)
+      .map((restored) => {
+        return restored.map((item) => item.id);
+      })
+      .map((restored) => {
+        return new Set(restored);
+      });
   }
 
   public clear(): ResultAsync<void, never> {
@@ -61,23 +67,21 @@ export class BackupManager implements IBackupManager {
     IDataWalletBackup | undefined,
     PersistenceError
   > {
-    // console.log("pop", this.numUpdates, this.tableUpdates, this.fieldUpdates);
-
     if (this.chunkQueue.length == 0) {
       if (this.numUpdates == 0) {
         return okAsync(undefined);
       }
 
       return this.dump().andThen((backup) => {
-        this.restored.add(DataWalletBackupID(backup.header.hash));
-        return this.clear().map(() => backup);
+        return this._addRestored(backup).andThen(() => {
+          return this.clear().map(() => backup);
+        });
       });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const backup = this.chunkQueue.pop()!;
-    this.restored.add(DataWalletBackupID(backup.header.hash));
-    return okAsync(backup);
+    return this._addRestored(backup).map(() => backup);
   }
 
   public addRecord(
@@ -133,51 +137,59 @@ export class BackupManager implements IBackupManager {
   public restore(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    return this._verifyBackupSignature(backup).andThen((valid) => {
-      if (!valid) {
-        return errAsync(new PersistenceError("invalid backup signature"));
-      }
+    return this._wasRestored(DataWalletBackupID(backup.header.hash)).andThen(
+      (wasRestored) => {
+        if (wasRestored) {
+          return okAsync(undefined);
+        }
 
-      return this._unpackBlob(backup.blob)
-        .andThen((unpacked) => {
-          return ResultUtils.combine(
-            Object.keys(unpacked.fields).map((fieldName) => {
-              const [value, timestamp] = unpacked.fields[fieldName];
-              if (
-                !(fieldName in this.fieldHistory) ||
-                timestamp > this.fieldHistory[fieldName]
-              ) {
-                if (this.fieldUpdates.hasOwnProperty(fieldName)) {
-                  if (timestamp > this.fieldUpdates[fieldName][1]) {
-                    this.fieldHistory[fieldName] = timestamp;
-                    delete this.fieldUpdates[fieldName];
-                    return this.storageUtils.write(fieldName, value);
+        return this._verifyBackupSignature(backup).andThen((valid) => {
+          if (!valid) {
+            return errAsync(new PersistenceError("invalid backup signature"));
+          }
+
+          return this._unpackBlob(backup.blob)
+            .andThen((unpacked) => {
+              return ResultUtils.combine(
+                Object.keys(unpacked.fields).map((fieldName) => {
+                  const [value, timestamp] = unpacked.fields[fieldName];
+                  if (
+                    !(fieldName in this.fieldHistory) ||
+                    timestamp > this.fieldHistory[fieldName]
+                  ) {
+                    if (this.fieldUpdates.hasOwnProperty(fieldName)) {
+                      if (timestamp > this.fieldUpdates[fieldName][1]) {
+                        this.fieldHistory[fieldName] = timestamp;
+                        delete this.fieldUpdates[fieldName];
+                        return this.storageUtils.write(fieldName, value);
+                      }
+                    } else {
+                      this.fieldHistory[fieldName] = timestamp;
+                      return this.storageUtils.write(fieldName, value);
+                    }
                   }
-                } else {
-                  this.fieldHistory[fieldName] = timestamp;
-                  return this.storageUtils.write(fieldName, value);
-                }
-              }
 
-              return okAsync(undefined);
-            }),
-          ).andThen(() => {
-            return ResultUtils.combine(
-              Object.keys(unpacked.records).map((tableName) => {
-                const table = unpacked.records[tableName];
+                  return okAsync(undefined);
+                }),
+              ).andThen(() => {
                 return ResultUtils.combine(
-                  table.map((value) => {
-                    return this.volatileStorage.putObject(tableName, value);
+                  Object.keys(unpacked.records).map((tableName) => {
+                    const table = unpacked.records[tableName];
+                    return ResultUtils.combine(
+                      table.map((value) => {
+                        return this.volatileStorage.putObject(tableName, value);
+                      }),
+                    );
                   }),
                 );
-              }),
-            );
-          });
-        })
-        .map(() => {
-          this.restored.add(DataWalletBackupID(backup.header.hash));
+              });
+            })
+            .andThen(() => {
+              return this._addRestored(backup);
+            });
         });
-    });
+      },
+    );
   }
 
   private _checkSize(): ResultAsync<void, PersistenceError> {
@@ -251,7 +263,11 @@ export class BackupManager implements IBackupManager {
   private _getContentHash(
     blob: AESEncryptedString,
   ): ResultAsync<string, PersistenceError> {
-    return this.cryptoUtils.hashStringSHA256(JSON.stringify(blob));
+    return this.cryptoUtils
+      .hashStringSHA256(JSON.stringify(blob))
+      .map((hash) => {
+        return hash.toString().replace(new RegExp("/", "g"), "-");
+      });
   }
 
   private _updateFieldHistory(field: string, timestamp: number): void {
@@ -259,4 +275,26 @@ export class BackupManager implements IBackupManager {
       this.fieldHistory[field] = timestamp;
     }
   }
+
+  private _addRestored(
+    backup: IDataWalletBackup,
+  ): ResultAsync<void, PersistenceError> {
+    return this.volatileStorage.putObject(ELocalStorageKey.RESTORED_BACKUPS, {
+      id: DataWalletBackupID(backup.header.hash),
+    });
+  }
+
+  private _wasRestored(
+    id: DataWalletBackupID,
+  ): ResultAsync<boolean, PersistenceError> {
+    return this.volatileStorage
+      .getObject<RestoredBackupRecord>(ELocalStorageKey.RESTORED_BACKUPS, id)
+      .map((result) => {
+        return result != null;
+      });
+  }
+}
+
+interface RestoredBackupRecord {
+  id: DataWalletBackupID;
 }

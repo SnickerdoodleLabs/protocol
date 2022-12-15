@@ -71,8 +71,8 @@ export class ExtensionCore {
       accountBalancePollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
       accountIndexingPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
       accountNFTPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
-      dataWalletBackupIntervalMS: UNREALISTIC_BUT_WORKING_BACKUP_INTERVAL, // SIX_HOURS_MS
-      requestForDataCheckingFrequency: config.requestForDataCheckingFrequency
+      dataWalletBackupIntervalMS: SIX_HOURS_MS,
+      requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

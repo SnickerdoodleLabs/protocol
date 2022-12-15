@@ -42,7 +42,6 @@ import {
   getChainInfoByChain,
   IChainTransaction,
   ChainTransaction,
-  CeramicStreamID,
   EarnedReward,
   Invitation,
   Signature,
@@ -69,6 +68,11 @@ import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { parse } from "tldts";
+
+import {
+  IContextProvider,
+  IContextProviderType,
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
@@ -98,12 +102,18 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     @inject(IPersistenceConfigProviderType)
     protected configProvider: IPersistenceConfigProvider,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
+    @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {
     this.unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this.resolveUnlock = resolve;
     });
     this.restorePromise = new Promise<void>((resolve) => {
-      this.resolveRestore = resolve;
+      this.resolveRestore = () => {
+        this.contextProvider.getContext().map((ctx) => {
+          ctx.publicEvents.onInitialRestore.next(null);
+        });
+        resolve();
+      };
     });
   }
 
@@ -129,7 +139,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public unlock(
     derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<void, PersistenceError | AjaxError> {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.resolveUnlock!(derivedKey);
@@ -807,10 +817,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       return okAsync(undefined);
     }
 
-    // console.log(
-    //   `addEVMTransactions #${transactions.length} for first chain id ${transactions[0].chainId}`,
-    // );
-
     return this.waitForRestore().andThen(([key]) => {
       return this.backupManagerProvider
         .getBackupManager()
@@ -993,7 +999,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+  public postBackups(): ResultAsync<
+    DataWalletBackupID[],
+    PersistenceError | AjaxError
+  > {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
@@ -1021,7 +1030,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
-    return this.cloudStorage.clear();
+    return this.cloudStorage.clear().mapErr((error) => {
+      return new PersistenceError((error as Error).message, error);
+    });
   }
 }
 
