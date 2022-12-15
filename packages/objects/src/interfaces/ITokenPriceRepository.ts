@@ -1,6 +1,10 @@
 import { ResultAsync } from "neverthrow";
 
-import { TokenAddress, TokenInfo } from "@objects/businessObjects";
+import {
+  TokenAddress,
+  TokenInfo,
+  TokenMarketData,
+} from "@objects/businessObjects";
 import { AccountIndexingError } from "@objects/errors";
 import { ChainId, UnixTimestamp } from "@objects/primitives";
 
@@ -16,6 +20,10 @@ export interface ITokenPriceRepository {
     contractAddress: TokenAddress | null,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError>;
+
+  getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], AccountIndexingError>;
 }
 
 export const ITokenPriceRepositoryType = Symbol.for("ITokenPriceRepository");

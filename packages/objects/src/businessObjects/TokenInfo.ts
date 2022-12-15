@@ -1,6 +1,6 @@
 import { TokenAddress } from "@objects/businessObjects";
 import { EChain } from "@objects/enum";
-import { TickerSymbol } from "@objects/primitives";
+import { TickerSymbol, URLString } from "@objects/primitives";
 
 export class TokenInfo {
   public constructor(
