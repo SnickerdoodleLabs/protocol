@@ -88,15 +88,15 @@ export interface ISDQLAdsBlock {
 
 export interface ISDQLAd {
   name: string;
-  contentUrl: IpfsCID | URLString;
+  content: {
+    type: "image" | "video",
+    src: IpfsCID | URLString
+  },
   text: string;
-  //To be defined as a separate type
   type: "banner" | "popup";
-  //To be defined as a separate type
-  placement: "right corner" | null;
-  //To be defined as a separate type
-  platform: "mobile" | "web";
   weight: number;
+  expiry: ISO8601DateString;
+  keywords: string[];
 }
 
 export interface ISDQLCompensationBlock {

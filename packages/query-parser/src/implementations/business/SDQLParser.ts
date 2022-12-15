@@ -256,12 +256,12 @@ export class SDQLParser {
         const singleAdSchema = adsSchema[key] as ISDQLAd;
         const ad = new AST_Ad(
           SDQL_Name(singleAdSchema.name),
-          singleAdSchema.contentUrl,
+          singleAdSchema.content,
           singleAdSchema.text,
           singleAdSchema.type,
-          singleAdSchema.placement,
-          singleAdSchema.platform,
-          singleAdSchema.weight
+          singleAdSchema.weight,
+          singleAdSchema.expiry,
+          singleAdSchema.keywords
         );
 
         this.ads.set(adKey, ad);

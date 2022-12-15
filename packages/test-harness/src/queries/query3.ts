@@ -7,21 +7,16 @@ export const query3 = {
   ads: {
     a1: {
       name: "Image ad name",
-      contentUrl: "https://mycdn.com/img1",
+      content: {
+        type: "image",
+        src: "https://mycdn.com/img1"
+      },
       text: "Example ad text",
       type: "banner",
-      placement: "right_corner",
-      platform: "all",
-      weight: 100
+      weight: 100,
+      expiry: "2039-11-13T20:20:39Z",
+      keywords: ["muktadir", "charlie", "todd"]
     },
-    // a2: {
-    //   name: "Video ad name",
-    //   contentUrl:"https://mycdn.com/video1",
-    //   text: "Another example ad text",
-    //   type: "popup",
-    //   placement: "",
-    //   platform: "all"
-    // }
   },
   queries: {
     q1: {
