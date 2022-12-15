@@ -190,7 +190,7 @@ export interface IDataWalletPersistence {
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date: Date,
+    timestamp: UnixTimestamp,
   ): ResultAsync<number, PersistenceError>;
 
   dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;

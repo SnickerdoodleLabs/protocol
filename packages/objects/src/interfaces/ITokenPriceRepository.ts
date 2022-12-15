@@ -2,7 +2,7 @@ import { ResultAsync } from "neverthrow";
 
 import { TokenAddress, TokenInfo } from "@objects/businessObjects";
 import { AccountIndexingError } from "@objects/errors";
-import { ChainId } from "@objects/primitives";
+import { ChainId, UnixTimestamp } from "@objects/primitives";
 
 export interface ITokenPriceRepository {
   getTokenInfo(
@@ -14,7 +14,7 @@ export interface ITokenPriceRepository {
   getTokenPrice(
     chainId: ChainId,
     contractAddress: TokenAddress | null,
-    date: Date,
+    timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError>;
 }
 

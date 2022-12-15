@@ -125,24 +125,23 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
 
     // reset portfolio cache on account addition and removal
-    this.contextProvider.getContext().andThen((context) => {
+    this.contextProvider.getContext().map((context) => {
       context.publicEvents.onAccountAdded.subscribe((account) =>
         this._clearPortfolioCaches(account),
       );
       context.publicEvents.onAccountRemoved.subscribe((account) =>
         this._clearPortfolioCaches(account),
       );
-      return okAsync(undefined);
     });
   }
 
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date: Date,
+    timestamp: UnixTimestamp,
   ): ResultAsync<number, PersistenceError> {
     return this.tokenPriceRepo
-      .getTokenPrice(chainId, address, date)
+      .getTokenPrice(chainId, address, timestamp)
       .mapErr((e) => new PersistenceError("unable to fetch token price", e));
   }
 

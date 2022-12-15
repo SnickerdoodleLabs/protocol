@@ -1,7 +1,5 @@
 import { ResultAsync } from "neverthrow";
 
-import { IDataWalletBackup } from "./IDataWalletBackup";
-
 import {
   Invitation,
   DataPermissions,
@@ -37,6 +35,7 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
+import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
@@ -388,7 +387,7 @@ export interface ISnickerdoodleCore {
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date: Date,
+    timestamp: UnixTimestamp,
   ): ResultAsync<number, PersistenceError>;
 
   getTransactions(

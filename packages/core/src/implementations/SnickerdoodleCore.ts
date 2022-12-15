@@ -733,10 +733,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date: Date,
+    timestamp: UnixTimestamp,
   ): ResultAsync<number, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTokenPrice(chainId, address, date);
+    return accountService.getTokenPrice(chainId, address, timestamp);
   }
 }

@@ -24,6 +24,7 @@ import {
   DataWalletAddress,
   CeramicStreamID,
   TokenAddress,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -127,7 +128,7 @@ export interface IAccountService {
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date: Date,
+    timestamp: UnixTimestamp,
   ): ResultAsync<number, PersistenceError>;
 }
 

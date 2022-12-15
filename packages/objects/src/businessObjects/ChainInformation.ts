@@ -1,5 +1,5 @@
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
-import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
+import { ChainId, EVMContractAddress, ProviderUrl, URLString } from "@objects/primitives";
 
 export class NativeCurrencyInformation {
   public constructor(
@@ -22,6 +22,7 @@ export class ChainInformation {
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
     public nativeTokenCoinGeckoId?: string,
+    public etherscanEndpointURL?: URLString,
   ) {}
 }
 

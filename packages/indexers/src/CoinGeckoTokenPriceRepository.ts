@@ -14,6 +14,7 @@ import {
   TickerSymbol,
   TokenAddress,
   TokenInfo,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import {
   ELocalStorageKey,
@@ -110,9 +111,9 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   public getTokenPrice(
     chainId: ChainId,
     contractAddress: TokenAddress | null,
-    date: Date,
+    timestamp: UnixTimestamp,
   ): ResultAsync<number, AccountIndexingError> {
-    const dateString = this.formatDate(date);
+    const dateString = this.formatDate(new Date(timestamp * 1000));
     return ResultUtils.combine([
       this._getAssetPlatforms(),
       this.configProvider.getConfig(),

@@ -240,10 +240,10 @@ export class SolanaIndexer
   }
 }
 
-type SolClients = {
+interface SolClients {
   mainnet: [Connection, Metaplex];
   testnet: [Connection, Metaplex];
-};
+}
 
 type ISolscanBalanceResponse = {
   tokenAddress: SolanaTokenAddress;

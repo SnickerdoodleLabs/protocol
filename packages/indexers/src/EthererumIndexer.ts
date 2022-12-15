@@ -10,24 +10,20 @@ import {
   ChainId,
   EVMAccountAddress,
   EVMTransaction,
-  EVMNFT,
   IEVMAccountBalanceRepository,
-  IEVMNftRepository,
   IEVMTransactionRepository,
   TokenBalance,
-  EChain,
   TickerSymbol,
   BigNumberString,
   EChainTechnology,
   EVMContractAddress,
   ITokenPriceRepositoryType,
   ITokenPriceRepository,
-  TokenUri,
-  EVMBlockNumber,
   EVMTransactionHash,
   UnixTimestamp,
+  getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -178,62 +174,69 @@ export class EthereumIndexer
     params: IEtherscanRequestParameters,
     maxRecords: number,
   ): ResultAsync<EVMTransaction[], AccountIndexingError> {
-    return this._getEtherscanBaseURL(chain).andThen((baseUrl) => {
-      const offset = params.offset;
-      const page = params.page;
-      if (offset * page > maxRecords) {
-        return okAsync([]);
-      }
+    return this._getEtherscanBaseURL(chain)
+      .map((baseUrl) => {
+        const offset = params.offset;
+        const page = params.page;
+        if (offset * page > maxRecords) {
+          return undefined;
+        }
 
-      const url = new URL(urlJoinP(baseUrl, ["api"], params));
-      return this.ajaxUtils
-        .get<IEtherscanTransactionResponse>(url)
-        .andThen((response) => {
-          if (response.status != "1") {
-            if (response.result != null) {
-              return okAsync([]);
+        return new URL(urlJoinP(baseUrl, ["api"], params));
+      })
+      .andThen((url) => {
+        if (url == undefined) {
+          return okAsync([]);
+        }
+
+        return this.ajaxUtils
+          .get<IEtherscanTransactionResponse>(url)
+          .andThen((response) => {
+            if (response.status != "1") {
+              if (response.result != null) {
+                return okAsync([]);
+              }
+
+              return errAsync(
+                new AccountIndexingError(
+                  "error fetching transactions from etherscan",
+                  response.message,
+                ),
+              );
             }
 
-            return errAsync(
-              new AccountIndexingError(
-                "error fetching transactions from etherscan",
-                response.message,
-              ),
-            );
-          }
+            const txs = response.result.map((tx) => {
+              // etherscan uses "" instead of null
+              return new EVMTransaction(
+                chain,
+                EVMTransactionHash(tx.hash),
+                UnixTimestamp(Number.parseInt(tx.timeStamp)),
+                tx.blockNumber == "" ? null : Number.parseInt(tx.blockNumber),
+                tx.to == "" ? null : EVMAccountAddress(tx.to),
+                tx.from == "" ? null : EVMAccountAddress(tx.from),
+                tx.value == "" ? null : BigNumberString(tx.value),
+                tx.gasPrice == "" ? null : BigNumberString(tx.gasPrice),
+                tx.contractAddress == ""
+                  ? null
+                  : EVMContractAddress(tx.contractAddress),
+                tx.input == "" ? null : tx.input,
+                tx.methodId == "" ? null : tx.methodId,
+                tx.functionName == "" ? null : tx.functionName,
+                null,
+              );
+            });
 
-          const txs = response.result.map((tx) => {
-            // etherscan uses "" instead of null
-            return new EVMTransaction(
-              chain,
-              EVMTransactionHash(tx.hash),
-              UnixTimestamp(Number.parseInt(tx.timeStamp)),
-              tx.blockNumber == "" ? null : Number.parseInt(tx.blockNumber),
-              tx.to == "" ? null : EVMAccountAddress(tx.to),
-              tx.from == "" ? null : EVMAccountAddress(tx.from),
-              tx.value == "" ? null : BigNumberString(tx.value),
-              tx.gasPrice == "" ? null : BigNumberString(tx.gasPrice),
-              tx.contractAddress == ""
-                ? null
-                : EVMContractAddress(tx.contractAddress),
-              tx.input == "" ? null : tx.input,
-              tx.methodId == "" ? null : tx.methodId,
-              tx.functionName == "" ? null : tx.functionName,
-              null,
+            params.page += 1;
+            return this._paginateTransactions(chain, params, maxRecords).map(
+              (otherTxs) => {
+                return [...txs, ...otherTxs];
+              },
             );
-          });
-
-          params.page += 1;
-          return this._paginateTransactions(chain, params, maxRecords).map(
-            (otherTxs) => {
-              return [...txs, ...otherTxs];
-            },
+          })
+          .mapErr(
+            (e) => new AccountIndexingError("error fetching transactions", e),
           );
-        })
-        .mapErr(
-          (e) => new AccountIndexingError("error fetching transactions", e),
-        );
-    });
+      });
   }
 
   private _getBlockNumber(
@@ -259,11 +262,7 @@ export class EthereumIndexer
       );
 
       return this.ajaxUtils
-        .get<{
-          status: string;
-          message: string;
-          result: BigNumberString;
-        }>(url)
+        .get<IEtherscanBlockNumberResponse>(url)
         .andThen((resp) => {
           if (resp.status != "1") {
             // this is a bit noisy
@@ -285,17 +284,18 @@ export class EthereumIndexer
   private _getEtherscanBaseURL(
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
-    switch (chain) {
-      case ChainId(EChain.EthereumMainnet):
-        return okAsync("https://api.etherscan.io");
-      case ChainId(EChain.Goerli):
-        return okAsync("https://api-goerli.etherscan.io/");
-      case ChainId(EChain.Kovan):
-        return okAsync("https://api-kovan.etherscan.io/");
-      default:
+    try {
+      const chainInfo = getChainInfoByChainId(chain);
+      if (chainInfo.etherscanEndpointURL == undefined) {
         return errAsync(
-          new AccountIndexingError("invalid chainId for etherscan"),
+          new AccountIndexingError("no etherscan endpoint for chainID", chain),
         );
+      }
+      return okAsync(chainInfo.etherscanEndpointURL);
+    } catch (e) {
+      return errAsync(
+        new AccountIndexingError("error fetching chain information", e),
+      );
     }
   }
 }
@@ -352,4 +352,10 @@ interface IEtherscanRequestParameters {
   page: number;
   offset: number;
   apikey: string;
+}
+
+interface IEtherscanBlockNumberResponse {
+  status: string;
+  message: string;
+  result: BigNumberString;
 }

@@ -526,14 +526,18 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.clearCloudStore().map(console.log);
       case "btcPrice":
         return core
-          .getTokenPrice(ChainId(1), null, new Date())
+          .getTokenPrice(
+            ChainId(1),
+            null,
+            UnixTimestamp(Math.floor(Date.now() / 1000)),
+          )
           .map(console.log);
       case "uniPrice":
         return core
           .getTokenPrice(
             ChainId(1),
             "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
-            new Date(),
+            UnixTimestamp(Math.floor(Date.now() / 1000)),
           )
           .map(console.log);
     }
