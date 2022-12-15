@@ -1,5 +1,6 @@
 import {
   CeramicStreamID,
+  DataWalletBackupID,
   EVMPrivateKey,
   IDataWalletBackup,
   PersistenceError,
@@ -16,13 +17,13 @@ export class NullCloudStorage implements ICloudStorage {
 
   putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<CeramicStreamID, PersistenceError> {
+  ): ResultAsync<DataWalletBackupID, PersistenceError> {
     this._lastRestore =
       backup.header.timestamp > this._lastRestore
         ? backup.header.timestamp
         : this._lastRestore;
     this._backups[backup.header.hash] = backup;
-    return okAsync(CeramicStreamID(""));
+    return okAsync(DataWalletBackupID(""));
   }
 
   pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
