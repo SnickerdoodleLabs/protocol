@@ -198,10 +198,7 @@ export interface IDataWalletPersistence {
 
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackups(): ResultAsync<
-    DataWalletBackupID[],
-    PersistenceError | AjaxError
-  >;
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 

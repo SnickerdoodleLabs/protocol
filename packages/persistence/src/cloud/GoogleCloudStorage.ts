@@ -66,24 +66,26 @@ export class GoogleCloudStorage implements ICloudStorage {
     return ResultAsync.fromSafePromise(this._unlockPromise);
   }
 
-  public clear(): ResultAsync<void, PersistenceError | AjaxError> {
+  public clear(): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
-    ]).andThen(([privateKey, config]) => {
-      const addr =
-        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      return this.insightPlatformRepo.clearAllBackups(
-        privateKey,
-        config.defaultInsightPlatformBaseUrl,
-        addr,
-      );
-    });
+    ])
+      .andThen(([privateKey, config]) => {
+        const addr =
+          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+        return this.insightPlatformRepo.clearAllBackups(
+          privateKey,
+          config.defaultInsightPlatformBaseUrl,
+          addr,
+        );
+      })
+      .mapErr((e) => new PersistenceError("error clearing gcp", e));
   }
 
   public putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<DataWalletBackupID, PersistenceError | AjaxError> {
+  ): ResultAsync<DataWalletBackupID, PersistenceError> {
     return ResultUtils.combine([
       this.waitForUnlock(),
       this._configProvider.getConfig(),
@@ -110,36 +112,39 @@ export class GoogleCloudStorage implements ICloudStorage {
           })
           .map(() => DataWalletBackupID(backup.header.hash));
         // }
-      });
+      })
+      .mapErr((e) => new PersistenceError("error putting backup", e));
   }
 
   public pollBackups(
     restored: Set<DataWalletBackupID>,
-  ): ResultAsync<IDataWalletBackup[], PersistenceError | AjaxError> {
-    return this.getWalletListing().andThen((backupsDirectory) => {
-      const files = backupsDirectory.items;
-      if (files == undefined) {
-        return okAsync([]);
-      }
-      if (files.length == 0) {
-        return okAsync([]);
-      }
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return this.getWalletListing()
+      .andThen((backupsDirectory) => {
+        const files = backupsDirectory.items;
+        if (files == undefined) {
+          return okAsync([]);
+        }
+        if (files.length == 0) {
+          return okAsync([]);
+        }
 
-      // Now iterate only through the found hashes
-      return ResultUtils.combine(
-        files
-          .filter((file) => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const name = file.name.split(/[/ ]+/).pop()!;
-            return !restored.has(DataWalletBackupID(name));
-          })
-          .map((file) => {
-            return this.ajaxUtils.get<IDataWalletBackup>(
-              new URL(file.mediaLink as string),
-            );
-          }),
-      );
-    });
+        // Now iterate only through the found hashes
+        return ResultUtils.combine(
+          files
+            .filter((file) => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const name = file.name.split(/[/ ]+/).pop()!;
+              return !restored.has(DataWalletBackupID(name));
+            })
+            .map((file) => {
+              return this.ajaxUtils.get<IDataWalletBackup>(
+                new URL(file.mediaLink as string),
+              );
+            }),
+        );
+      })
+      .mapErr((e) => new PersistenceError("error fetching backups", e));
   }
 
   protected getWalletListing(): ResultAsync<

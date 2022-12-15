@@ -970,10 +970,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public postBackups(): ResultAsync<
-    DataWalletBackupID[],
-    PersistenceError | AjaxError
-  > {
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
