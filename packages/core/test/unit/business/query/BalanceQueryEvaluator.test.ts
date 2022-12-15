@@ -1,35 +1,25 @@
 import "reflect-metadata";
 
 import {
-  IDataWalletPersistence,
-  IEVMBalance,
-  Age,
-  ChainId,
+  Age, BigNumberString, ChainId,
   EVMAccountAddress,
   EVMContractAddress,
-  Gender,
-  SDQL_Name,
-  SDQL_OperatorName,
-  URLString,
-  TickerSymbol,
-  BigNumberString,
+  Gender, IDataWalletPersistence,
+  IEVMBalance, SDQL_Name,
+  SDQL_OperatorName, TickerSymbol, URLString
 } from "@snickerdoodlelabs/objects";
 import {
-  AST_BalanceQuery,
-  ConditionE,
+  AST_BalanceQuery, BalanceQueryEvaluator, ConditionE,
   ConditionG,
   ConditionGE,
   ConditionIn,
   ConditionL,
   ConditionLE,
+  IBalanceQueryEvaluator
 } from "@snickerdoodlelabs/query-parser";
-import { BigNumber } from "ethers";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 20),

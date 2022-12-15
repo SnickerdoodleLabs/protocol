@@ -28,18 +28,18 @@ import {
   QueryObjectFactory,
   SDQLQueryWrapperFactory,
   ISDQLQueryUtils,
+  QueryEvaluator,
+  BalanceQueryEvaluator,
+  NetworkQueryEvaluator
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 import { BaseOf } from "ts-brand";
 
 import {
-  QueryEvaluator,
   QueryParsingEngine,
   QueryRepository,
 } from "@core/implementations/business";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 

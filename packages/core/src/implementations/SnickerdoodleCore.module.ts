@@ -10,33 +10,38 @@ import {
   ITimeUtils,
   ITimeUtilsType,
   LogUtils,
-  TimeUtils,
+  TimeUtils
 } from "@snickerdoodlelabs/common-utils";
 import {
   CovalentEVMTransactionRepository,
   IIndexerConfigProvider,
-  IIndexerConfigProviderType,
+  IIndexerConfigProviderType
 } from "@snickerdoodlelabs/indexers";
 import {
   IInsightPlatformRepository,
   IInsightPlatformRepositoryType,
-  InsightPlatformRepository,
+  InsightPlatformRepository
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   IEVMTransactionRepository,
-  IEVMTransactionRepositoryType,
+  IEVMTransactionRepositoryType
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManagerProvider,
   IBackupManagerProvider,
   IBackupManagerProviderType,
   IPersistenceConfigProvider,
-  IPersistenceConfigProviderType,
+  IPersistenceConfigProviderType
 } from "@snickerdoodlelabs/persistence";
 import {
-  IQueryObjectFactory,
+  BalanceQueryEvaluator, IBalanceQueryEvaluator,
+  IBalanceQueryEvaluatorType,
+  INetworkQueryEvaluator,
+  INetworkQueryEvaluatorType,
+  IQueryEvaluator,
+  IQueryEvaluatorType, IQueryObjectFactory,
   IQueryObjectFactoryType,
   ISDQLParserFactory,
   ISDQLParserFactoryType,
@@ -44,30 +49,29 @@ import {
   ISDQLQueryUtilsType,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
+  NetworkQueryEvaluator,
+  QueryEvaluator,
   QueryObjectFactory,
   SDQLParserFactory,
   SDQLQueryUtils,
-  SDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory
 } from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
 
 import {
   AccountIndexerPoller,
-  BlockchainListener,
+  BlockchainListener
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
-  BalanceQueryEvaluator,
   ConsentTokenUtils,
   InvitationService,
   MonitoringService,
-  NetworkQueryEvaluator,
   ProfileService,
-  QueryEvaluator,
   QueryParsingEngine,
   QueryRepository,
   QueryService,
-  SiftContractService,
+  SiftContractService
 } from "@core/implementations/business/index.js";
 import {
   ConsentContractRepository,
@@ -77,23 +81,23 @@ import {
   InvitationRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
-  SiftContractRepository,
+  SiftContractRepository
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,
-  QueryFactories,
+  QueryFactories
 } from "@core/implementations/utilities/factory/index.js";
 import {
   BlockchainProvider,
   ConfigProvider,
   ContextProvider,
-  DataWalletUtils,
+  DataWalletUtils
 } from "@core/implementations/utilities/index.js";
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
-  IBlockchainListenerType,
+  IBlockchainListenerType
 } from "@core/interfaces/api/index.js";
 import {
   IAccountService,
@@ -107,21 +111,15 @@ import {
   IQueryService,
   IQueryServiceType,
   ISiftContractService,
-  ISiftContractServiceType,
+  ISiftContractServiceType
 } from "@core/interfaces/business/index.js";
 import {
-  IBalanceQueryEvaluator,
-  IBalanceQueryEvaluatorType,
   IConsentTokenUtils,
   IConsentTokenUtilsType,
-  INetworkQueryEvaluator,
-  INetworkQueryEvaluatorType,
-  IQueryEvaluator,
-  IQueryEvaluatorType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
   IQueryRepository,
-  IQueryRepositoryType,
+  IQueryRepositoryType
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
@@ -137,13 +135,13 @@ import {
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
   ISiftContractRepository,
-  ISiftContractRepositoryType,
+  ISiftContractRepositoryType
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
   IContractFactoryType,
   IQueryFactories,
-  IQueryFactoriesType,
+  IQueryFactoriesType
 } from "@core/interfaces/utilities/factory/index.js";
 import {
   IBlockchainProvider,
@@ -153,7 +151,7 @@ import {
   IContextProvider,
   IContextProviderType,
   IDataWalletUtils,
-  IDataWalletUtilsType,
+  IDataWalletUtilsType
 } from "@core/interfaces/utilities/index.js";
 
 export const snickerdoodleCoreModule = new ContainerModule(

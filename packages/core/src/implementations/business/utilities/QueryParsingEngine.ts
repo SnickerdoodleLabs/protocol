@@ -1,38 +1,39 @@
 import {
   DataPermissions,
-  EligibleReward,
-  EvaluationError,
+  EligibleReward, 
+  ERewardType, 
+  EvaluationError, 
+  ExpectedReward, 
+  IDynamicRewardParameter, 
   InsightString,
-  IpfsCID,
+  IpfsCID, 
+  ISDQLCompensations, 
   QueryExpiredError,
-  QueryFormatError,
+  QueryFormatError, 
+  QueryIdentifier, 
   SDQLQuery,
-  SDQL_Return,
-  QueryIdentifier,
-  ExpectedReward,
-  ERewardType,
-  IDynamicRewardParameter,
-  ParserError,
-  DuplicateIdInSchema,
-  MissingTokenConstructorError,
-  ISDQLCompensations,
+  SDQL_Return
 } from "@snickerdoodlelabs/objects";
-import { AST, ISDQLQueryUtils, ISDQLQueryUtilsType } from "@snickerdoodlelabs/query-parser";
+import { 
+  AST, 
+  ISDQLQueryUtils, 
+  ISDQLQueryUtilsType 
+} from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { BaseOf } from "ts-brand";
 
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
 import {
   IQueryParsingEngine,
   IQueryRepository,
-  IQueryRepositoryType,
+  IQueryRepositoryType
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IQueryFactories,
-  IQueryFactoriesType,
+  IQueryFactoriesType
 } from "@core/interfaces/utilities/factory/index.js";
+import { AST_Evaluator } from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {

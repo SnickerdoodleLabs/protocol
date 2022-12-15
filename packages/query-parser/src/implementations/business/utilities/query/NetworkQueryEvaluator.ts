@@ -1,4 +1,7 @@
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
+import { 
+  INetworkQueryEvaluator,
+  AST_NetworkQuery
+} from "@snickerdoodlelabs/query-parser";
 import {
   EVMAccountAddress,
   EVMTransactionFilter,
@@ -7,9 +10,10 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
+
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
 
 @injectable()
 export class NetworkQueryEvaluator implements INetworkQueryEvaluator {

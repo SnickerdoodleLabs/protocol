@@ -1,21 +1,20 @@
 import {
-  IpfsCID,
-  SDQLString,
-  QueryFormatError,
+  IpfsCID, 
+  QueryFormatError, 
+  SDQLString
 } from "@snickerdoodlelabs/objects";
 import {
-  AST,
+  AST, 
+  AST_Evaluator, 
   IQueryObjectFactory,
   IQueryObjectFactoryType,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
-  SDQLParser,
-  SDQLQueryWrapper,
+  SDQLParser
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
-import { AST_Evaluator } from "@core/implementations/business/index.js";
 import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 

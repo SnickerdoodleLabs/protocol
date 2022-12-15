@@ -1,22 +1,21 @@
 import "reflect-metadata";
 
 import {
-  Age,
+  Age, 
+  BigNumberString, 
   ChainId,
   EVMAccountAddress,
-  EVMContractAddress,
-  Gender,
-  SDQL_Name,
-  SDQL_OperatorName,
-  URLString,
-  TickerSymbol,
-  BigNumberString,
+  EVMContractAddress, 
+  EVMTransaction, 
+  Gender, 
+  IChainTransaction, 
   IDataWalletPersistence,
-  IEVMBalance,
-  IChainTransaction,
-  EVMTransaction,
-  UnixTimestamp,
-
+  IEVMBalance, 
+  SDQL_Name,
+  SDQL_OperatorName, 
+  TickerSymbol, 
+  UnixTimestamp, 
+  URLString
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -25,15 +24,12 @@ import {
   ConditionGE,
   ConditionL,
   ConditionLE,
+  QueryEvaluator,
+  IBalanceQueryEvaluator,
+  INetworkQueryEvaluator
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
-
-import { QueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
-import {
-  IBalanceQueryEvaluator,
-  INetworkQueryEvaluator,
-} from "@core/interfaces/business/utilities/query/index.js";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];

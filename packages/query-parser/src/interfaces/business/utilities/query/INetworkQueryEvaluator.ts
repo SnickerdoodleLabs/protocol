@@ -1,7 +1,9 @@
-import { IQueryTypeEvaluator } from "@core/interfaces/business/utilities/query/IQueryTypeEvaluator";
-import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
 import { PersistenceError, SDQL_Return } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+import { 
+    IQueryTypeEvaluator,
+    AST_NetworkQuery
+} from "@snickerdoodlelabs/query-parser";
 
 export interface INetworkQueryEvaluator extends IQueryTypeEvaluator {
     eval (

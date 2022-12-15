@@ -4,12 +4,12 @@ import {
   Age,
   BigNumberString,
   ChainId,
-  EVMAccountAddress,
-  EVMTimestampRange,
+  EVMAccountAddress, 
   EVMChainCode,
   EVMContractAddress,
   EVMContractDirection,
-  EVMContractFunction,
+  EVMContractFunction, 
+  EVMTimestampRange, 
   EVMToken,
   EVMTransaction,
   EVMTransactionFilter,
@@ -19,17 +19,17 @@ import {
   SDQL_Name,
   TickerSymbol,
   UnixTimestamp,
-  URLString,
+  URLString
 } from "@snickerdoodlelabs/objects";
 import {
-  AST_NetworkQuery,
-  AST_Contract,
+  AST_Contract, 
+  AST_NetworkQuery, 
+  NetworkQueryEvaluator, 
+  IBalanceQueryEvaluator
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 class NetworkQueryEvaluatorMocks {

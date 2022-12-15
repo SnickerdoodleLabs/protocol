@@ -1,16 +1,18 @@
 import {
   IpfsCID,
   PersistenceError,
-  SDQL_Return,
+  SDQL_Return
 } from "@snickerdoodlelabs/objects";
-import { AST_Query } from "@snickerdoodlelabs/query-parser";
+import {
+  AST_Query,
+  IQueryEvaluator,
+  IQueryEvaluatorType,
+} from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import {
-  IQueryEvaluator,
-  IQueryEvaluatorType,
-  IQueryRepository,
+  IQueryRepository
 } from "@core/interfaces/business/utilities/index.js";
 
 @injectable()

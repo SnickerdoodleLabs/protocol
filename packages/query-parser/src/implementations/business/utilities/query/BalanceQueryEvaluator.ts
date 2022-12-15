@@ -1,6 +1,5 @@
 import {
   BigNumberString,
-  ChainId,
   EvalNotImplementedError,
   EVMContractAddress,
   IDataWalletPersistence,
@@ -9,20 +8,19 @@ import {
   ITokenBalance,
   PersistenceError,
   SDQL_Return,
-  TickerSymbol,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import {
-  AST_BalanceQuery,
+import { 
+  ConditionL,
   ConditionE,
   ConditionG,
   ConditionGE,
-  ConditionL,
   ConditionLE,
+  AST_BalanceQuery, 
+  IBalanceQueryEvaluator
 } from "@snickerdoodlelabs/query-parser";
 
 @injectable()

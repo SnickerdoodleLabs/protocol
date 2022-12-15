@@ -2,27 +2,25 @@ import "reflect-metadata";
 
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
 import {
-    Age,
-    CountryCode, IDataWalletPersistence, IpfsCID
+  Age,
+  CountryCode, IDataWalletPersistence, IpfsCID
 } from "@snickerdoodlelabs/objects";
-import {
-    IQueryObjectFactory,
-    ISDQLQueryWrapperFactory,
-    SDQLQueryWrapperFactory
-} from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import {
-    NetworkQueryEvaluator,
-    QueryEvaluator,
-    QueryRepository
-} from "@core/implementations/business/utilities";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+import { QueryRepository } from "@core/implementations/business/utilities";
 import { QueryFactories } from "@core/implementations/utilities/factory";
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import {
+  NetworkQueryEvaluator,
+  QueryEvaluator,
+  IBalanceQueryEvaluator, 
+  INetworkQueryEvaluator,
+  BalanceQueryEvaluator,
+  IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory
+} from "@snickerdoodlelabs/query-parser";
 
 // const ast = new AST(
 //     Version("0.1"),

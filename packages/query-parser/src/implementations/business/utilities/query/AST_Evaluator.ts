@@ -5,7 +5,19 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import {
+
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { IQueryRepository } from "@snickerdoodlelabs/core/src/interfaces/business/utilities/query/IQueryRepository";
+import { 
+  ConditionOr,
+  Command_IF,
+  ConditionAnd,
+  ConditionG,
+  ConditionGE,
+  ConditionIn,
+  ConditionL,
+  Operator,
+  TypeChecker,
   AST,
   AST_Compensation,
   AST_ConditionExpr,
@@ -13,19 +25,7 @@ import {
   AST_Query,
   AST_Return,
   AST_ReturnExpr,
-  Command_IF,
-  ConditionAnd,
-  ConditionG,
-  ConditionGE,
-  ConditionIn,
-  ConditionL,
-  ConditionOr,
-  Operator,
-  TypeChecker,
 } from "@snickerdoodlelabs/query-parser";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import { IQueryRepository } from "@core/interfaces/business/utilities/index.js";
 
 export class AST_Evaluator {
   /**

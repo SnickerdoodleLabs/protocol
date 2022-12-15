@@ -8,11 +8,17 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import {
+
+import { inject, injectable } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
+import { 
+  INetworkQueryEvaluator,
+  INetworkQueryEvaluatorType,
+  AST_PropertyQuery,
   AST_BalanceQuery,
   AST_Expr,
   AST_NetworkQuery,
-  AST_PropertyQuery,
   AST_Query,
   Condition,
   ConditionE,
@@ -21,19 +27,10 @@ import {
   ConditionIn,
   ConditionL,
   ConditionLE,
-} from "@snickerdoodlelabs/query-parser";
-import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
-import {
+  IQueryEvaluator,
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator.js";
-import {
-  INetworkQueryEvaluator,
-  INetworkQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator.js";
-import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
+} from "@snickerdoodlelabs/query-parser";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
