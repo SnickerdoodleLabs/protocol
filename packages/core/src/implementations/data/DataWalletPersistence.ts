@@ -1029,7 +1029,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return okAsync(chainlist);
   }
 
-  public clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError> {
+  public clearCloudStore(): ResultAsync<void, PersistenceError> {
     return this.cloudStorage.clear().mapErr((error) => {
       return new PersistenceError((error as Error).message, error);
     });

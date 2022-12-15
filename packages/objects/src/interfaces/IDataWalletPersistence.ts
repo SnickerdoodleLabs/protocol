@@ -192,7 +192,7 @@ export interface IDataWalletPersistence {
     DataWalletBackupID[],
     PersistenceError | AjaxError
   >;
-  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
