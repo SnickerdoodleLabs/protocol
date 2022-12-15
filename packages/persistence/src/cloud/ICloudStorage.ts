@@ -2,7 +2,6 @@ import {
   PersistenceError,
   IDataWalletBackup,
   EVMPrivateKey,
-  CeramicStreamID,
   DataWalletBackupID,
   AjaxError,
 } from "@snickerdoodlelabs/objects";

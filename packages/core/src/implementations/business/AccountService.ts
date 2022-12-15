@@ -579,7 +579,11 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.addEVMTransactions(transactions);
   }
 
-  public clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError> {
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+    return this.dataWalletPersistence.postBackups();
+  }
+
+  public clearCloudStore(): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.clearCloudStore();
   }
 
