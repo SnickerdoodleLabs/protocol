@@ -65,7 +65,7 @@ export interface ISdlDataWallet extends EventEmitter {
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date?: Date,
+    timestamp?: UnixTimestamp,
   ): ResultAsync<number, JsonRpcError>;
   getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError>;

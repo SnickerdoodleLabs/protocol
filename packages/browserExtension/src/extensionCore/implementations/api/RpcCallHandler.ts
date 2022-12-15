@@ -166,9 +166,9 @@ export class RpcCallHandler implements IRpcCallHandler {
         return new AsyncRpcResponseSender(this.getAccounts(), res).call();
       }
       case EExternalActions.GET_TOKEN_PRICE: {
-        const { chainId, address, date } = params as IGetTokenPriceParams;
+        const { chainId, address, timestamp } = params as IGetTokenPriceParams;
         return new AsyncRpcResponseSender(
-          this.getTokenPrice(chainId, address, date),
+          this.getTokenPrice(chainId, address, timestamp),
           res,
         ).call();
       }
@@ -677,9 +677,9 @@ export class RpcCallHandler implements IRpcCallHandler {
   private getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date?: Date,
+    timestamp?: UnixTimestamp,
   ): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.tokenPriceService.getTokenPrice(chainId, address, date);
+    return this.tokenPriceService.getTokenPrice(chainId, address, timestamp);
   }
 
   private getAccountBalances(): ResultAsync<

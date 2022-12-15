@@ -139,5 +139,5 @@ export interface ICheckInvitationStatusParams {
 export interface IGetTokenPriceParams {
   chainId: ChainId;
   address: TokenAddress | null;
-  date?: Date;
+  timestamp?: UnixTimestamp;
 }

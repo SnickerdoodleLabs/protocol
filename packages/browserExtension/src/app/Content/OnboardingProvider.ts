@@ -74,9 +74,9 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date?: Date | undefined,
+    timestamp?: UnixTimestamp,
   ): ResultAsync<number, unknown> {
-    return coreGateway.getTokenPrice(chainId, address, date);
+    return coreGateway.getTokenPrice(chainId, address, timestamp);
   }
   public getEarnedRewards(): ResultAsync<EarnedReward[], unknown> {
     return coreGateway.getEarnedRewards();

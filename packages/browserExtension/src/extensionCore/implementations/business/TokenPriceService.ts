@@ -4,7 +4,11 @@ import {
   ITokenPriceRepositoryType,
 } from "@interfaces/data";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
-import { ChainId, TokenAddress } from "@snickerdoodlelabs/objects";
+import {
+  ChainId,
+  TokenAddress,
+  UnixTimestamp,
+} from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -17,8 +21,8 @@ export class TokenPriceService implements ITokenPriceService {
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date?: Date,
+    timestamp?: UnixTimestamp,
   ): ResultAsync<number, SnickerDoodleCoreError> {
-    return this.tokenPriceRepository.getTokenPrice(chainId, address, date);
+    return this.tokenPriceRepository.getTokenPrice(chainId, address, timestamp);
   }
 }

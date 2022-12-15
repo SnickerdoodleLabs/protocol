@@ -252,12 +252,12 @@ export class ExternalCoreGateway {
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
-    date?: Date,
+    timestamp?: UnixTimestamp,
   ): ResultAsync<number, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_TOKEN_PRICE, {
       chainId,
       address,
-      date,
+      timestamp,
     } as IGetTokenPriceParams);
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
