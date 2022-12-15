@@ -8,7 +8,26 @@ import {
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Bar } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -55,22 +74,62 @@ export default () => {
 
   const filteredSiteVisits = useMemo(() => {
     if (!siteVisits) {
-      return null;
+      return [];
     }
     const initialTime = getUnixTime(selectedInterval);
-    return siteVisits
-      .filter((siteVisit) => siteVisit.startTime >= initialTime)
-      .reduce((acc, val) => {
-        if (acc[val.domain || val.url]) {
-          acc[val.domain || val.url] += 1;
-        } else {
-          acc[val.domain || val.url] = 1;
-        }
-        return acc;
-      }, {} as Record<URLString, number>);
+    return Object.entries(
+      siteVisits
+        .filter((siteVisit) => siteVisit.startTime >= initialTime)
+        .reduce((acc, val) => {
+          if (acc[val.domain || val.url]) {
+            acc[val.domain || val.url] += 1;
+          } else {
+            acc[val.domain || val.url] = 1;
+          }
+          return acc;
+        }, {} as Record<URLString, number>),
+    )
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
   }, [siteVisits, selectedInterval]);
 
-  // console.log(filteredSiteVisits);
+  const data = {
+    labels: filteredSiteVisits.map((i) => i[0]),
+    datasets: [
+      {
+        data: filteredSiteVisits.map((i) => i[1]),
+        backgroundColor: "#7F79B0",
+      },
+    ],
+  };
+
+  const options = {
+    indexAxis: "y" as const,
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          precision: 0,
+        },
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        grid: {
+          display: false,
+        },
+      },
+    },
+    elements: {
+      bar: {},
+    },
+    responsive: true,
+  };
 
   useEffect(() => {
     getSiteVisits();
@@ -78,27 +137,45 @@ export default () => {
 
   return (
     <>
+      <Box mb={2}>
+        <Box display="flex" mb={1} alignItems="center">
+          <Typography className={classes.title}>
+            Most Visited Domains
+          </Typography>
+        </Box>
+        <Typography className={classes.description}>
+          List of your most visited domains.
+        </Typography>
+      </Box>
       {siteVisits && (
         <Box display="flex" flexDirection="row-reverse">
           {Object.keys(ETimeInterval)
             .filter((key) => isNaN(Number(key)))
             .map((key, index) => {
               return (
-                <Button
+                <Box
+                  borderRadius={16}
+                  py={0.5}
+                  px={1.5}
+                  mx={1}
+                  {...(ETimeInterval[key] === selectedInterval && {
+                    bgcolor: "#F2F2F8",
+                  })}
+                  className={classes.btn}
                   key={index}
                   onClick={() => {
                     setSelectedInterVal(ETimeInterval[key]);
                   }}
                 >
-                  {DISPLAY_NAMES[ETimeInterval[key]]}
-                </Button>
+                  <Typography className={classes.btnText}>
+                    {DISPLAY_NAMES[ETimeInterval[key]]}
+                  </Typography>
+                </Box>
               );
             })}
         </Box>
       )}
-      <Box>
-        <p>{JSON.stringify(filteredSiteVisits, null, 4)}</p>
-      </Box>
+      <Bar options={options} data={data} />
     </>
   );
 };

@@ -19,7 +19,8 @@ export class DataWalletProfileRepository
       window.sdlDataWallet.getBirthday(),
       window.sdlDataWallet.getLocation(),
       window.sdlDataWallet.getGender(),
-    ]).map(([_, birthday, country_code, gender]) => {
+      window.sdlDataWallet.getAge(),
+    ]).map(([_, birthday, country_code, gender, age]) => {
       return new PII(
         null,
         null,
@@ -29,6 +30,7 @@ export class DataWalletProfileRepository
         null,
         null,
         gender,
+        age,
       );
     });
   }

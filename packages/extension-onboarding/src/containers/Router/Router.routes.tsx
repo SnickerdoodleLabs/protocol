@@ -23,6 +23,7 @@ import DataDashBoardLayout from "@extension-onboarding/layouts/DataDashboardLayo
 import Rewards from "@extension-onboarding/pages/Details/screens/Rewards";
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 import NFTs from "@extension-onboarding/pages/Details/screens/NFTs";
+import DataDashboarPersonalInfo from "@extension-onboarding/pages/Details/screens/DataDashboarPersonalInfo";
 
 export const OnboardingRoutes = (
   <Route>
@@ -45,13 +46,16 @@ export const OnboardingRoutes = (
 export const AuthFlowRoutes = (
   <Route element={<ProductTourLayout />}>
     <Route element={<AuthFlowLayout />}>
-      <Route path={EPaths.HOME} element={<Portfolio />} />
+      <Route path={EPaths.HOME} element={<p>home</p>} />
       <Route element={<DataDashBoardLayout />}>
         <Route path={EPaths.REWARDS} element={<Rewards />} />
         <Route path={EPaths.TOKENS} element={<Tokens />} />
         <Route path={EPaths.NFTS} element={<NFTs />} />
         <Route path={EPaths.BROWSER_ACTIVITY} element={<BrowserActivity />} />
-        <Route path={EPaths.PERSONAL_INFO} element={<PersonalInfo />} />
+        <Route
+          path={EPaths.PERSONAL_INFO}
+          element={<DataDashboarPersonalInfo />}
+        />
       </Route>
       <Route path={EPaths.MY_REWARDS} element={<MarketplaceRewardsTemp />} />
       {/* <Route path={EPaths.MY_CAMPAIGNS} element={<CampaignsInfo />} />
