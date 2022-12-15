@@ -2,6 +2,7 @@ import {
   AccountAddress,
   ChainId,
   DataWalletAddress,
+  DataWalletBackupID,
   EVMContractAddress,
   EVMTransaction,
   ISnickerdoodleCoreEvents,
@@ -25,6 +26,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onMetatransactionSignatureRequested: Subject<MetatransactionSignatureRequest>;
   public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
   public onNftBalanceUpdate: Subject<PortfolioUpdate<WalletNFT[]>>;
+  public onBackupRestored: Subject<DataWalletBackupID>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -37,5 +39,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onMetatransactionSignatureRequested = new Subject();
     this.onTokenBalanceUpdate = new Subject();
     this.onNftBalanceUpdate = new Subject();
+    this.onBackupRestored = new Subject();
   }
 }

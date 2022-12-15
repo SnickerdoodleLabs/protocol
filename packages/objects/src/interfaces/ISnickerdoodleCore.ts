@@ -45,6 +45,7 @@ import {
   ChainId,
   CountryCode,
   DataWalletAddress,
+  DataWalletBackupID,
   DomainName,
   EmailAddressString,
   EVMContractAddress,
@@ -338,7 +339,6 @@ export interface ISnickerdoodleCore {
     | PersistenceError
   >;
 
-  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
@@ -381,7 +381,7 @@ export interface ISnickerdoodleCore {
   getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
   getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError>;
 
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 
   getTokenPrice(

@@ -8,6 +8,7 @@ import {
   BackupIndex,
   BackupIndexEntry,
   CeramicStreamID,
+  DataWalletBackupID,
   EVMPrivateKey,
   IDataWalletBackup,
   ModelTypes,
@@ -33,8 +34,6 @@ export class CeramicCloudStorage implements ICloudStorage {
   private _loader?: TileLoader;
   private _dataStore?: DIDDataStore<ModelTypes>;
   private _dataModel?: DataModel<ModelTypes>;
-
-  private _restored: Set<string> = new Set();
 
   private _unlockPromise: Promise<EVMPrivateKey>;
   private _resolveUnlock: ((dataWalletKey: EVMPrivateKey) => void) | null =
@@ -158,7 +157,7 @@ export class CeramicCloudStorage implements ICloudStorage {
 
   public putBackup(
     backup: IDataWalletBackup,
-  ): ResultAsync<CeramicStreamID, PersistenceError> {
+  ): ResultAsync<DataWalletBackupID, PersistenceError> {
     return this._init().andThen(({ store, model, client }) => {
       return ResultAsync.fromPromise(
         model.createTile("DataWalletBackup", backup),
@@ -178,8 +177,7 @@ export class CeramicCloudStorage implements ICloudStorage {
 
             return this._putBackupIndex(index).map((_) => {
               console.debug("CloudStorage", `Backup placed: ${id}`);
-              this._restored.add(id);
-              return CeramicStreamID(id);
+              return DataWalletBackupID(id);
             });
           });
         });
@@ -212,17 +210,16 @@ export class CeramicCloudStorage implements ICloudStorage {
     });
   }
 
-  public pollBackups(): ResultAsync<IDataWalletBackup[], PersistenceError> {
+  public pollBackups(
+    restored: Set<DataWalletBackupID>,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
     return this._getBackupIndex().andThen((backups) => {
-      const recent = backups.map((record) => record.id);
-      const found = [...recent].filter((x) => !this._restored.has(x));
+      const recent = backups.map((record) => DataWalletBackupID(record.id));
+      const found = [...recent].filter((x) => !restored.has(x));
       // console.debug("CloudStorage", `${found.length} new backups found`);
       return ResultUtils.combine(
         found.map((backupID) => this._getBackup(backupID)),
-      ).map((fetched) => {
-        this._restored = new Set(recent);
-        return fetched;
-      });
+      );
     });
   }
 

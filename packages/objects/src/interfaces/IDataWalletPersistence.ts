@@ -29,6 +29,7 @@ import {
   UnixTimestamp,
   AccountAddress,
   CeramicStreamID,
+  DataWalletBackupID,
 } from "@objects/primitives";
 
 /**
@@ -187,16 +188,9 @@ export interface IDataWalletPersistence {
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError>;
 
-  getTokenPrice(
-    chainId: ChainId,
-    address: TokenAddress | null,
-    timestamp: UnixTimestamp,
-  ): ResultAsync<number, PersistenceError>;
-
-  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 }
 

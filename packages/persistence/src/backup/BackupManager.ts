@@ -3,6 +3,7 @@ import {
   AESEncryptedString,
   BackupBlob,
   DataWalletAddress,
+  DataWalletBackupID,
   EVMAccountAddress,
   EVMPrivateKey,
   FieldMap,
@@ -28,6 +29,8 @@ export class BackupManager implements IBackupManager {
   private fieldHistory: Map<string, number> = new Map();
   private chunkQueue: Array<IDataWalletBackup> = [];
 
+  private restored: Set<DataWalletBackupID> = new Set();
+
   public constructor(
     protected privateKey: EVMPrivateKey,
     protected tableNames: string[],
@@ -42,18 +45,39 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
-  public clear(): void {
+  public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
+    return okAsync(this.restored);
+  }
+
+  public clear(): ResultAsync<void, never> {
     this.tableUpdates = {};
     this.fieldUpdates = {};
     this.numUpdates = 0;
     this.tableNames.forEach((tableName) => (this.tableUpdates[tableName] = []));
+    return okAsync(undefined);
   }
 
   public popBackup(): ResultAsync<
     IDataWalletBackup | undefined,
     PersistenceError
   > {
-    return okAsync(this.chunkQueue.pop());
+    // console.log("pop", this.numUpdates, this.tableUpdates, this.fieldUpdates);
+
+    if (this.chunkQueue.length == 0) {
+      if (this.numUpdates == 0) {
+        return okAsync(undefined);
+      }
+
+      return this.dump().andThen((backup) => {
+        this.restored.add(DataWalletBackupID(backup.header.hash));
+        return this.clear().map(() => backup);
+      });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const backup = this.chunkQueue.pop()!;
+    this.restored.add(DataWalletBackupID(backup.header.hash));
+    return okAsync(backup);
   }
 
   public addRecord(
@@ -86,7 +110,7 @@ export class BackupManager implements IBackupManager {
     return this.storageUtils.write(key, value).andThen(() => this._checkSize());
   }
 
-  public dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
+  private dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
     return this._generateBlob().andThen((blob) => {
       return this._getContentHash(blob).andThen((hash) => {
         const timestamp = new Date().getTime();
@@ -151,7 +175,7 @@ export class BackupManager implements IBackupManager {
           });
         })
         .map(() => {
-          console.log(`restored backup: ${backup.header.hash}`);
+          this.restored.add(DataWalletBackupID(backup.header.hash));
         });
     });
   }
@@ -160,7 +184,7 @@ export class BackupManager implements IBackupManager {
     if (this.numUpdates >= this.maxChunkSize) {
       return this.dump().andThen((backup) => {
         this.chunkQueue.push(backup);
-        return okAsync(this.clear());
+        return this.clear();
       });
     }
 
