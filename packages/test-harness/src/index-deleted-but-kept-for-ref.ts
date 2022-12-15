@@ -477,8 +477,6 @@ function corePrompt(): ResultAsync<void, Error> {
           UnixTimestamp(1000),
         );
         return core.addSiteVisits(sites).map(console.log);
-      case "dumpBackup":
-        return core.dumpBackup().map(console.log);
       case "restoreBackup":
         const backup: IDataWalletBackup = {
           header: {
@@ -498,7 +496,7 @@ function corePrompt(): ResultAsync<void, Error> {
           .restoreBackup(backup)
           .map(() => console.log("restored backup", backup.header.hash));
       case "manualBackup":
-        return core.postBackup().map(console.log);
+        return core.postBackups().map(console.log);
       case "clearCloudStore":
         return core.clearCloudStore().map(console.log);
     }
