@@ -53,7 +53,6 @@ export class SDQLParser {
   public logicAds = new Map<string, AST_Expr | Command>();
   public returnPermissions = new Map<string, DataPermissions>();
   public compensationPermissions = new Map<string, DataPermissions>();
-  public eligibleAds = new Map<string, DataPermissions>();
 
   public exprParser: ExprParser | null = null;
 
@@ -122,7 +121,6 @@ export class SDQLParser {
               this.logicAds,
               this.returnPermissions,
               this.compensationPermissions,
-              this.eligibleAds
             ),
           ),
         );
@@ -504,9 +502,7 @@ export class SDQLParser {
       this.returnPermissions = this.parseLogicPermissions(
         logicSchema["returns"],
       );
-      // this.adPermissions = this.parseLogicPermissions(
-      //   logicSchema["ads"],
-      // );
+
       this.compensationPermissions = this.parseLogicPermissions(
         logicSchema["compensations"],
       );

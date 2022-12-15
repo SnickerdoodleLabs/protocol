@@ -17,6 +17,18 @@ export const query3 = {
       expiry: "2039-11-13T20:20:39Z",
       keywords: ["muktadir", "charlie", "todd"]
     },
+    a2: {
+      name: "Second Image ad name",
+      content: {
+        type: "image",
+        src: "https://mycdn.com/img1"
+      },
+      text: "Second Example ad text",
+      type: "banner",
+      weight: 10,
+      expiry: "2039-11-13T20:20:39Z",
+      keywords: ["messi", "xavi", "iniesta"]
+    },
   },
   queries: {
     q1: {
@@ -69,19 +81,28 @@ export const query3 = {
         },
       },
     },
+    c3: {
+      name: "CrazyApesClub NFT distro 2",
+      image: "tq432RLMic98mbKCGsMnRxWqxMsKPL8wBQ333PBEmWNuT8",
+      description: "another free CrazyApesClub NFT",
+      chainId: 1,
+      callback: {
+        parameters: ["recipientAddress", "productId"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      },
+    },
   },
   logic: {
     returns: [
-      // "if($q1>20and$q2)then$r1else$r2",
       "$r1", "$r2",
     ],
     ads: [
-      "if$q1then$a1",
-      // "if($q1and$q2=='nonbinary')then$a2",
+      "if$q1then$a1", "$a2"
     ],
     compensations: [
-      "if$q1then$c1", 
-      "if$a1then$c2"
+      "if$q1then$c1", "if$a1then$c2", "if($a1and$a2)then$c3"
     ],
   },
 };
