@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Snickerdoodle:Rewards for Anonymized Data",
-  "description": "Get Incredible Rewards for Sharing Anonymous NFT & Token Data",
+  "name": "Snickerdoodle: Own Your Data. Get Rewards.",
+  "description": "Get Incredible Rewards for Sharing Anonymous Data, All In One Place. Reclaim Your Cookies!",
   "options_page": "options.html",
   "background": {
     "scripts": ["background.bundle.js"],
