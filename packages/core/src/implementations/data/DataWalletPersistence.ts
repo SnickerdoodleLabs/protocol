@@ -1029,20 +1029,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return okAsync(chainlist);
   }
 
-  // public postBackup(): ResultAsync<void, PersistenceError | AjaxError> {
-  //   return ResultUtils.combine([
-  //     this.waitForRestore(),
-  //     this.backupManagerProvider.getBackupManager(),
-  //   ]).andThen(([key, backupManager]) => {
-  //     return backupManager.dump().andThen((backup) => {
-  //       return this.cloudStorage.putBackup(backup).andThen((id) => {
-  //         backupManager.clear();
-  //         return okAsync(undefined);
-  //       });
-  //     });
-  //   });
-  // }
-
   public clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError> {
     return this.cloudStorage.clear();
   }

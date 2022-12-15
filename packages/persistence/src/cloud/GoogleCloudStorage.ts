@@ -101,9 +101,6 @@ export class GoogleCloudStorage implements ICloudStorage {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
 
-      // can use this instead for filtering data
-      // backup.header.hash;
-
       return ResultUtils.combine([this.getWalletListing()])
         .andThen(([backupsDirectory]) => {
           const files = backupsDirectory.items;
@@ -131,34 +128,6 @@ export class GoogleCloudStorage implements ICloudStorage {
     });
   }
 
-  protected getVersionNumber(files: IGoogleFileBackup[]): string {
-    if (files == undefined) {
-      return "1000000";
-    } else if (files.length == 0) {
-      return "1000000";
-    } else {
-      // console.log("files: ", files);
-      const name = files[files.length - 1]["name"];
-      // if (!name.includes("version")) {
-      //   name = "version" + name;
-      // }
-      // console.log("name: ", name);
-      const fileName = name.split(/[/ ]+/).pop();
-      if (fileName == undefined) {
-        return "1000000";
-      } else {
-        // console.log("versionString: ", fileName);
-        const versionNumber = fileName.split("version");
-        // console.log("versionNumber: ", versionNumber);
-        const number = parseInt(versionNumber[1]);
-        const upgrade = number + 1;
-        const version = upgrade.toString();
-        // console.log("version: ", version);
-        return version;
-      }
-    }
-  }
-
   public pollBackups(
     restored: Set<DataWalletBackupID>,
   ): ResultAsync<IDataWalletBackup[], PersistenceError | AjaxError> {
@@ -172,7 +141,6 @@ export class GoogleCloudStorage implements ICloudStorage {
           return okAsync([]);
         }
 
-        console.log("backupsDirectory.items: ", backupsDirectory.items);
         // Now iterate only through the found hashes
         return ResultUtils.combine(
           files
@@ -198,10 +166,7 @@ export class GoogleCloudStorage implements ICloudStorage {
     IGoogleWalletBackupDirectory,
     PersistenceError | AjaxError
   > {
-    return this.waitForUnlock().andThen((privateKey) => {
-      return this._configProvider.getConfig().andThen((config) => {
-        const defaultInsightPlatformBaseUrl =
-          config.defaultInsightPlatformBaseUrl;
+    return ResultUtils.combine([this.waitForUnlock(), this._configProvider.getConfig()]).andThen(([privateKey, config]) => {
         const defaultGoogleCloudBucket = config.defaultGoogleCloudBucket;
         const addr =
           this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
@@ -214,6 +179,5 @@ export class GoogleCloudStorage implements ICloudStorage {
           new URL(dataWalletFolder),
         );
       });
-    });
   }
 }

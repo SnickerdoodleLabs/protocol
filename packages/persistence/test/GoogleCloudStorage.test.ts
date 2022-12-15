@@ -3,31 +3,15 @@ import "reflect-metadata";
 import * as crypto from "crypto";
 
 import {
-  Bucket,
-  GetBucketSignedUrlConfig,
-  GetSignedUrlConfig,
   Storage,
-  ServiceAccount,
 } from "@google-cloud/storage";
 import {
   AxiosAjaxUtils,
   CryptoUtils,
-  IAxiosAjaxUtils,
 } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
-import {
-  IDataWalletBackup,
-  URLString,
-  AjaxError,
-  EVMPrivateKey,
-  PersistenceError,
-} from "@snickerdoodlelabs/objects";
-import { ok, okAsync, Result, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import * as td from "testdouble";
 
-// from google.oauth2 import service_account
-// import { Service_Account } from "google.oauth2";
 import { GoogleCloudStorage } from "@persistence/cloud";
 import { IPersistenceConfigProvider } from "@persistence/IPersistenceConfigProvider";
 

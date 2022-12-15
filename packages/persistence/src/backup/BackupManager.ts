@@ -61,8 +61,6 @@ export class BackupManager implements IBackupManager {
     IDataWalletBackup | undefined,
     PersistenceError
   > {
-    // console.log("pop", this.numUpdates, this.tableUpdates, this.fieldUpdates);
-
     if (this.chunkQueue.length == 0) {
       if (this.numUpdates == 0) {
         return okAsync(undefined);
