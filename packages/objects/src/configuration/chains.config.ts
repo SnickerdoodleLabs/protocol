@@ -5,7 +5,7 @@ import {
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
-import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
+import { ChainId, EVMContractAddress, ProviderUrl, URLString } from "@objects/primitives";
 
 export const chainConfig = new Map<ChainId, ChainInformation>([
   [
@@ -60,6 +60,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("ETH", 18, "ETH"),
       EChainType.Mainnet,
       "ethereum",
+      URLString("https://api.etherscan.io/"),
     ),
   ],
   [
@@ -75,6 +76,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EIndexer.Ethereum,
       new NativeCurrencyInformation("ETH", 18, "ETH"),
       EChainType.Testnet,
+      URLString("https://api-goerli.etherscan.io/"),
     ),
   ],
   [
