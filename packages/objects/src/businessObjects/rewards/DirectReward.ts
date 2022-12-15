@@ -8,7 +8,6 @@ import {
   URLString,
 } from "@objects/primitives";
 
-
 export class DirectReward extends EarnedReward {
   constructor(
     readonly queryCID: IpfsCID,

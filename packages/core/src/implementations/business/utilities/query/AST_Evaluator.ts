@@ -79,7 +79,9 @@ export class AST_Evaluator {
      */
 
     if (TypeChecker.isPrimitiveExpr(expr)) {
-      const val = SDQL_Return((expr as AST_Expr).source as SDQL_Return);
+      const val = SDQL_Return( //Evaluate "null" as false
+        (expr as AST_Expr).source ?? false as SDQL_Return
+      );
       return okAsync(val);
     } else {
       const evaluator = this.expMap.get(expr.constructor);

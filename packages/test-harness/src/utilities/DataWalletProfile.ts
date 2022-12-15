@@ -357,7 +357,7 @@ export class DataWalletProfile {
                 new DirectReward(
                   IpfsCID(r.queryCID),
                   "direct reward name",
-                  IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
+                  IpfsCID("QmTYj6dCVn5R7u7m3X2pypSfAM4oF7zFFhgweneUEvXrmY"),
                   "direct reward description",
                   ChainId(r.chainId),
                   EVMAccountAddress(r.eoa),
@@ -370,7 +370,7 @@ export class DataWalletProfile {
                 new LazyReward(
                   IpfsCID(r.queryCID),
                   "lazy reward name",
-                  IpfsCID("PL8wBuTGsMnR3P8tQmbWqxBEKC33432RLMiMqsKc98xmWN"),
+                  IpfsCID("QmTYj6dCVn5R7u7m3X2pypSfAM4oF7zFFhgweneUEvXrmY"),
                   "lazy reward description",
                   ChainId(r.chainId),
                   EVMAccountAddress(r.eoa),
@@ -384,7 +384,7 @@ export class DataWalletProfile {
                 new Web2Reward(
                   IpfsCID(r.queryCID),
                   "Winnie the Pooh",
-                  URLString("https://i.kym-cdn.com/entries/icons/facebook/000/031/452/cover7.jpg"),
+                  null,
                   "Notice the resemblance?",
                   URLString(r.url),
                   r.credentialType as ECredentialType,

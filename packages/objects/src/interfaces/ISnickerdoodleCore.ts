@@ -8,7 +8,6 @@ import {
   PageInvitation,
   SiteVisit,
   LinkedAccount,
-  EligibleReward,
   EarnedReward,
   IDynamicRewardParameter,
   EVMTransactionFilter,
@@ -34,15 +33,17 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
+import { IChainTransaction } from "@objects/interfaces/chains";
+import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   AccountAddress,
   Age,
-  CeramicStreamID,
   CountryCode,
   DataWalletAddress,
+  DataWalletBackupID,
   DomainName,
   EmailAddressString,
   EVMContractAddress,
@@ -57,8 +58,6 @@ import {
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
-import { IChainTransaction } from "./chains";
-import { IDataWalletBackup } from "./IDataWalletBackup";
 
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
@@ -338,13 +337,16 @@ export interface ISnickerdoodleCore {
     | PersistenceError
   >;
 
-  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
 
-  addEVMTransactions(transactions: EVMTransaction[],): ResultAsync<void, PersistenceError>;
+  addEVMTransactions(
+    transactions: EVMTransaction[],
+  ): ResultAsync<void, PersistenceError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
-  addEarnedRewards(rewards: EarnedReward[],): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
@@ -380,12 +382,15 @@ export interface ISnickerdoodleCore {
   getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
   getTransactions(
-    filter?: EVMTransactionFilter
+    filter?: EVMTransactionFilter,
   ): ResultAsync<EVMTransaction[], PersistenceError>;
   getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
 
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
-  clearCloudStore(): ResultAsync<void, PersistenceError>;
+  postBackups(): ResultAsync<
+    DataWalletBackupID[],
+    PersistenceError | AjaxError
+  >;
+  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

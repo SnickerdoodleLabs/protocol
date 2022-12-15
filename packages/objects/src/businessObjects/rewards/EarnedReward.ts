@@ -3,10 +3,10 @@ import { IpfsCID, URLString } from "@objects/primitives";
 
 export class EarnedReward {
   constructor(
-    readonly queryCID: IpfsCID, 
+    readonly queryCID: IpfsCID,
     readonly name: string,
-    readonly image: IpfsCID | URLString | null,
+    readonly image: IpfsCID | null,
     readonly description: string,
-    readonly type: ERewardType
+    readonly type: ERewardType,
   ) {}
 }
