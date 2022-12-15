@@ -297,6 +297,7 @@ describe("processRewardsPreview tests", () => {
           td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
+          td.matchers.anything(),
         ),
       ),
     );
@@ -304,7 +305,10 @@ describe("processRewardsPreview tests", () => {
       mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
     ).thenReturn(okAsync(true));
     td.when(
-      mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(sdqlQuery, td.matchers.anything()),
+      mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
+        sdqlQuery,
+        td.matchers.anything(),
+      ),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
       mocks.sdqlQueryRepo.getByCID(queryCID),

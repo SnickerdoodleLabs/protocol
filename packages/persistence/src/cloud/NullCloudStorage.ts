@@ -4,6 +4,7 @@ import {
   EVMPrivateKey,
   IDataWalletBackup,
   PersistenceError,
+  AjaxError,
 } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";

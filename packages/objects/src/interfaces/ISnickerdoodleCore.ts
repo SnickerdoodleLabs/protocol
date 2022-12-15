@@ -41,7 +41,6 @@ import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCore
 import {
   AccountAddress,
   Age,
-  CeramicStreamID,
   ChainId,
   CountryCode,
   DataWalletAddress,

@@ -33,7 +33,6 @@ import {
   LinkedAccount,
   getChainInfoByChain,
   ChainTransaction,
-  CeramicStreamID,
   EarnedReward,
   Invitation,
   Signature,
@@ -122,7 +121,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.resolveUnlock = resolve;
     });
     this.restorePromise = new Promise<void>((resolve) => {
-      this.resolveRestore = resolve;
+      this.resolveRestore = () => {
+        this.contextProvider.getContext().map((ctx) => {
+          ctx.publicEvents.onInitialRestore.next(null);
+        });
+        resolve();
+      };
     });
 
     // reset portfolio cache on account addition and removal
@@ -168,7 +172,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public unlock(
     derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError> {
+  ): ResultAsync<void, PersistenceError | AjaxError> {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.resolveUnlock!(derivedKey);
@@ -966,7 +970,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+  public postBackups(): ResultAsync<
+    DataWalletBackupID[],
+    PersistenceError | AjaxError
+  > {
     return this.backupManagerProvider
       .getBackupManager()
       .andThen((backupManager) => {
@@ -994,7 +1001,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
-    return this.cloudStorage.clear();
+    return this.cloudStorage.clear().mapErr((error) => {
+      return new PersistenceError((error as Error).message, error);
+    });
   }
 
   private _clearPortfolioCaches(

@@ -79,6 +79,7 @@
     "@cucumber/cucumber": "^8.8.0",
     "@cucumber/pretty-formatter": "^1.0.0",
     "@glazed/devtools": "^0.2.0",
+    "@google-cloud/storage": "^6.7.0",
     "@jest/types": "^29.0.3",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",

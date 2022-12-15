@@ -62,8 +62,8 @@ import { PromptFactory, TestWallet } from "@test-harness/utilities/index.js";
 import { IPFSClient } from "@test-harness/utilities/IPFSClient.js";
 
 // #region new prompt
-// const promptFactory = new PromptFactory()
-// const mainPromptNew = promptFactory.createDefault();
+const promptFactory = new PromptFactory();
+const mainPromptNew = promptFactory.createDefault();
 // #endregion
 
 // #region initialization
@@ -517,7 +517,10 @@ function corePrompt(): ResultAsync<void, Error> {
         };
         return core
           .restoreBackup(backup)
-          .map(() => console.log("restored backup", backup.header.hash));
+          .andThen(() =>
+            okAsync(console.log("restored backup", backup.header.hash)),
+          );
+
       case "manualBackup":
         return core.postBackups().map(console.log);
       case "clearCloudStore":

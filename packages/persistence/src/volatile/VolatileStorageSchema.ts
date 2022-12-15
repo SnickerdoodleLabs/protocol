@@ -39,6 +39,11 @@ export const volatileStorageSchema = [
     ELocalStorageKey.COIN_INFO,
     ["chain", "address"],
     false,
+  ),
+  new VolatileTableIndex(
+    ELocalStorageKey.RESTORED_BACKUPS,
+    "id",
+    false,
     undefined,
     true,
   ),

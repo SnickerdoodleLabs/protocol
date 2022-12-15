@@ -20,6 +20,8 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public controlChainInformation: ControlChainInformation,
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
+    public defaultGoogleCloudBucket: string,
+
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
     public accountNFTPollingIntervalMS: number,
