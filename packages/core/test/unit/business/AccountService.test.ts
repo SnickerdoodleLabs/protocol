@@ -120,7 +120,7 @@ const solanaBurnCrumbMetatransactionSignature = Signature(
   "solanaBurnCrumbMetatransactionSignature",
 );
 
-const dataWalletBackupID = DataWalletBackupID("ceramicStream");
+const dataWalletBackupID = DataWalletBackupID("dataWalletBackup");
 
 class AccountServiceMocks {
   public insightPlatformRepo: IInsightPlatformRepository;

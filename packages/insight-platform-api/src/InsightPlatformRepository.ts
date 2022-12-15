@@ -43,8 +43,6 @@ import {
   ISignedUrlParams,
 } from "@insightPlatform/params/index.js";
 
-const baseURL = URLString("http://localhost:3001/v0");
-
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
   public constructor(

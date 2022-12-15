@@ -122,11 +122,7 @@ export interface IAccountService {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
-  postBackups(): ResultAsync<
-    DataWalletBackupID[],
-    PersistenceError | AjaxError
-  >;
-  clearCloudStore(): ResultAsync<void, PersistenceError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

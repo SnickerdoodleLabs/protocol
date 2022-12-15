@@ -73,58 +73,41 @@ export class GoogleCloudStorage implements ICloudStorage {
     ]).andThen(([privateKey, config]) => {
       const addr =
         this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
-      return this.getWalletListing()
-        .andThen((walletFiles) => {
-          const mostRecentFile =
-            walletFiles.items[walletFiles.items.length - 1];
-          return okAsync(mostRecentFile);
-        })
-        .andThen((googleFile) => {
-          return this.insightPlatformRepo.clearAllBackups(
-            privateKey,
-            config.defaultInsightPlatformBaseUrl,
-            addr,
-          );
-        });
+        return this.insightPlatformRepo.clearAllBackups(
+          privateKey,
+          config.defaultInsightPlatformBaseUrl,
+          addr,
+        );
     });
   }
 
   public putBackup(
     backup: IDataWalletBackup,
   ): ResultAsync<DataWalletBackupID, PersistenceError | AjaxError> {
-    return ResultUtils.combine([
-      this.waitForUnlock(),
-      this._configProvider.getConfig(),
-    ]).andThen(([privateKey, config]) => {
-      const defaultInsightPlatformBaseUrl =
-        config.defaultInsightPlatformBaseUrl;
-      const addr =
-        this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
+      return ResultUtils.combine([
+        this.waitForUnlock(),
+        this._configProvider.getConfig(),
+      ]).andThen(([privateKey, config]) => {
+        const defaultInsightPlatformBaseUrl =
+          config.defaultInsightPlatformBaseUrl;
+        const addr =
+          this._cryptoUtils.getEthereumAccountAddressFromPrivateKey(privateKey);
 
-      return ResultUtils.combine([this.getWalletListing()])
-        .andThen(([backupsDirectory]) => {
-          const files = backupsDirectory.items;
-          return this.insightPlatformRepo.getSignedUrl(
-            privateKey,
-            defaultInsightPlatformBaseUrl,
-            addr + "/" + backup.header.hash,
-          );
-        })
+        return this.insightPlatformRepo.getSignedUrl(
+          privateKey,
+          defaultInsightPlatformBaseUrl,
+          addr + "/" + backup.header.hash,
+        )
+      })
         .andThen((signedUrl) => {
           // if (signedUrl === typeof URLString) {
-          this.ajaxUtils
-            .put(new URL(signedUrl), JSON.stringify(backup), {
-              headers: {
-                "Content-Type": `multipart/form-data;`,
-              },
-            })
-            .mapErr((e) => {
-              new PersistenceError(`${e.name}: ${e.message}`);
+            return this.ajaxUtils
+              .put<DataWalletBackupID>(new URL(signedUrl), JSON.stringify(backup), {
+                headers: {
+                  "Content-Type": `multipart/form-data;`,
+                },
             });
-
           // }
-          return okAsync(DataWalletBackupID(""));
-        });
     });
   }
 
@@ -150,15 +133,9 @@ export class GoogleCloudStorage implements ICloudStorage {
             })
             .map((file) => {
               return this.ajaxUtils
-                .get<IDataWalletBackup>(new URL(file.mediaLink as string))
-                .andThen((DWBackup) => {
-                  return okAsync(DWBackup);
-                });
+                .get<IDataWalletBackup>(new URL(file.mediaLink as string));
             }),
         );
-      })
-      .andThen((dataWalletBackups) => {
-        return okAsync(dataWalletBackups);
       });
   }
 
