@@ -2,19 +2,21 @@ import emptyCampaign from "@extension-onboarding/assets/images/empty-campaign.sv
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import CampaignItem from "@extension-onboarding/components/CampaignItem";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/MarketplaceCampaigns/MarketplaceCampaigns.style";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/BrowseRewards/BrowseRewards.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
+import BrokenImageIcon from "@material-ui/icons/BrokenImage";
 import {
   EVMContractAddress,
   EWalletDataType,
   IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
+import { Skeleton } from "@material-ui/lab";
 
 declare const window: IWindowWithSdlDataWallet;
 
-const MarketPlaceCampaigns: FC = () => {
+const BrowseRewards: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [
     campaignContractAddressesWithCID,
@@ -94,6 +96,10 @@ const MarketPlaceCampaigns: FC = () => {
 
   const classes = useStyles();
 
+  const obj = [{ image: "", rewardName: "" }];
+
+ 
+
   return (
     <Box>
       <Box mb={5}>
@@ -126,59 +132,85 @@ const MarketPlaceCampaigns: FC = () => {
         </Box>
       ) : (
         <Grid container spacing={2}>
-          {campaignContractAddressesWithCID &&
-          Object.keys(campaignContractAddressesWithCID).length ? (
-            Object.keys(campaignContractAddressesWithCID)?.map((key, index) => (
-              <CampaignItem
-                button={
-                  <Box display="flex">
-                    {/*   <Box>
-                      <Typography
-                        onClick={() => {
-                          onReviewClick(key as EVMContractAddress);
-                        }}
-                        className={classes.link}
-                      >
-                        {}
-                        Review
-                      </Typography>
-                    </Box> */}
-                    <Box>
-                      <Typography
-                        onClick={() => {
-                          onClaimClick(key as EVMContractAddress);
-                        }}
-                        className={classes.link}
-                      >
-                        {}
-                        Claim
-                      </Typography>
-                    </Box>
-                  </Box>
-                }
-                key={key}
-                campaignCID={campaignContractAddressesWithCID[key]}
-              />
-            ))
-          ) : (
-            <Box width="100%" display="flex">
+          {obj.map((rewardItem, index) => (
+            <Grid item xs={12} sm={3}>
               <Box
-                justifyContent="center"
-                alignItems="center"
                 width="100%"
                 display="flex"
-                pt={20}
+                flexDirection="column"
+                justifyContent="center"
+                border="1px solid #D9D9D9"
+                borderRadius={8}
               >
-                <img
-                  style={{ width: 330, height: "auto" }}
-                  src={emptyCampaign}
-                />
+                <Box mx="auto" p={2} width="calc(100% - 32px)">
+                  {rewardItem ? (
+                    <img className={classes.image} src={rewardItem?.image} />
+                  ) : isLoading ? (
+                    <Box className={classes.imageLoader}>
+                      <Skeleton variant="rect" width="100%" height="100%" />
+                    </Box>
+                  ) : (
+                    <Box className={classes.imageLoader}>
+                      <BrokenImageIcon className={classes.brokenImageIcon} />
+                    </Box>
+                  )}
+                  <Box mt={1.5}>
+                    <Typography
+                      style={{
+                        fontFamily: "Space Grotesk",
+                        fontWeight: 700,
+                        fontSize: 16,
+                        lineHeight: "20px",
+                        color: "rgba(35, 32, 57, 0.87)",
+                      }}
+                    >
+                      {rewardItem?.rewardName}
+                    </Typography>
+                  </Box>
+                  <Typography
+                    style={{
+                      fontFamily: "Space Grotesk",
+                      fontWeight: 400,
+                      fontSize: 16,
+                      lineHeight: "24px",
+                      color: "#9E9E9E",
+                    }}
+                  >
+                    Limited collection
+                  </Typography>
+                  <Box display="flex" mt={1}>
+                    <Box display="flex">
+                      <Box>
+                        <Typography
+                          onClick={() => {
+                          window.location.href="/rewards/marketplace/reward/QmTPfcSAr5FKWDmjbyudNae5NMAreqZfYqWUGFzvuWZQDh"
+                          }}
+                          className={classes.link}
+                        >
+                          {}
+                          Review
+                        </Typography>
+                      </Box>
+                      <Box ml={3}>
+                        <Typography
+                          onClick={() => {
+                            onClaimClick("key" as EVMContractAddress);
+                          }}
+                          className={classes.link}
+                        >
+                          {}
+                          Claim
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Box>
               </Box>
-            </Box>
-          )}
+            </Grid>
+          ))}
         </Grid>
       )}
     </Box>
   );
 };
-export default MarketPlaceCampaigns;
+export default BrowseRewards;

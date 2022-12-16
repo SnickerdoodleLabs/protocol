@@ -5,6 +5,7 @@ import { Box, IconButton } from "@material-ui/core";
 import React, { FC, useEffect, useState } from "react";
 import MarketPlaceIntroduction from "@extension-onboarding/assets/images/rewards-marketplace-introduction.svg";
 import CloseIcon from "@material-ui/icons/Close";
+import BrowseRewards from "@extension-onboarding/pages/Details/screens/BrowseRewards/BrowseRewards";
 
 const MarketplaceRewardsTemp: FC = () => {
   const [showIntroduction, setShowIntroduction] = useState(true);
@@ -42,7 +43,7 @@ const MarketplaceRewardsTemp: FC = () => {
       )}
       <EarnedRewards />
       <Box mt={8} mb={20}>
-        <MarketplaceCampaigns />
+        <BrowseRewards />
       </Box>
     </>
   );
