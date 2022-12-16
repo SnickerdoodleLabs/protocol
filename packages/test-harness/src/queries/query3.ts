@@ -29,6 +29,18 @@ export const query3 = {
       expiry: "2039-11-13T20:20:39Z",
       keywords: ["messi", "xavi", "iniesta"]
     },
+    a3: {
+      name: "Second Image ad name",
+      content: {
+        type: "video",
+        src: "https://mycdn.com/vid1"
+      },
+      text: "third Example ad text",
+      type: "banner",
+      weight: 11,
+      expiry: "2034-11-13T20:20:39Z",
+      keywords: ["a", "b", "c"]
+    },
   },
   queries: {
     q1: {
@@ -93,6 +105,18 @@ export const query3 = {
         },
       },
     },
+    c4: {
+      name: "I'm out of compensation names",
+      image: "98mbKqxMsKPL8wBMnRxW32RLMicQ333PBEmWNutq4CGsT8",
+      description: "some string",
+      chainId: 1,
+      callback: {
+        parameters: ["recipientAddress", "productId"],
+        data: {
+          trackingId: "982JJDSLAcx",
+        },
+      },
+    },
   },
   logic: {
     returns: [
@@ -102,7 +126,9 @@ export const query3 = {
       "if$q1then$a1", "$a2"
     ],
     compensations: [
-      "if$q1then$c1", "if$a1then$c2", "if($a1and$a2)then$c3"
+      "if$q1then$c1", "if$a1then$c2", 
+      "if($a1and$a2)then$c3",
+      "if($q1and$a2and$a3)then$c4", // c4 won't be expected
     ],
   },
 };
