@@ -20,6 +20,8 @@ import {
   LanguageCode,
   Signature,
   TokenAddress,
+  TokenInfo,
+  TokenMarketData,
   UnixTimestamp,
   UUID,
 } from "@snickerdoodlelabs/objects";
@@ -70,6 +72,17 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     streamMiddleware.events.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
+  }
+  public getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], unknown> {
+    return coreGateway.getTokenMarketData(ids);
+  }
+  public getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, unknown> {
+    return coreGateway.getTokenInfo(chainId, contractAddress);
   }
   public getTokenPrice(
     chainId: ChainId,
@@ -252,7 +265,10 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     isScamFilterActive: boolean,
     showMessageEveryTime: boolean,
   ) {
-    return coreGateway.setScamFilterSettings(isScamFilterActive,showMessageEveryTime);
+    return coreGateway.setScamFilterSettings(
+      isScamFilterActive,
+      showMessageEveryTime,
+    );
   }
 }
 

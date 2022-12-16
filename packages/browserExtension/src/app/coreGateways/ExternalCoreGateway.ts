@@ -25,6 +25,8 @@ import {
   EarnedReward,
   ChainId,
   TokenAddress,
+  TokenInfo,
+  TokenMarketData,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -59,6 +61,8 @@ import {
   IGetConsentContractCIDParams,
   ICheckInvitationStatusParams,
   IGetTokenPriceParams,
+  IGetTokenMarketDataParams,
+  IGetTokenInfoParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
@@ -259,6 +263,22 @@ export class ExternalCoreGateway {
       address,
       timestamp,
     } as IGetTokenPriceParams);
+  }
+  public getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_TOKEN_MARKET_DATA, {
+      ids,
+    } as IGetTokenMarketDataParams);
+  }
+  public getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_TOKEN_INFO, {
+      chainId,
+      contractAddress,
+    } as IGetTokenInfoParams);
   }
   public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);

@@ -7,6 +7,8 @@ import {
   LinkedAccount,
   TokenAddress,
   TokenBalance,
+  TokenInfo,
+  TokenMarketData,
   WalletNFT,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
@@ -67,6 +69,14 @@ export interface ISdlDataWallet extends EventEmitter {
     address: TokenAddress | null,
     timestamp?: UnixTimestamp,
   ): ResultAsync<number, JsonRpcError>;
+  getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], JsonRpcError>;
+
+  getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, JsonRpcError>;
   getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError>;
   closeTab(): ResultAsync<void, JsonRpcError>;

@@ -7,6 +7,8 @@ import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   ChainId,
   TokenAddress,
+  TokenInfo,
+  TokenMarketData,
   UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -18,6 +20,17 @@ export class TokenPriceService implements ITokenPriceService {
     @inject(ITokenPriceRepositoryType)
     protected tokenPriceRepository: ITokenPriceRepository,
   ) {}
+  public getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], SnickerDoodleCoreError> {
+    return this.tokenPriceRepository.getTokenMarketData(ids);
+  }
+  public getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, SnickerDoodleCoreError> {
+    return this.tokenPriceRepository.getTokenInfo(chainId, contractAddress);
+  }
   public getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,

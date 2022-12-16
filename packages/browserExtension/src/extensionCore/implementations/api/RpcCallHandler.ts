@@ -31,6 +31,8 @@ import {
   EarnedReward,
   ChainId,
   TokenAddress,
+  TokenInfo,
+  TokenMarketData,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -99,6 +101,8 @@ import {
   IGetConsentContractCIDParams,
   ICheckInvitationStatusParams,
   IGetTokenPriceParams,
+  IGetTokenMarketDataParams,
+  IGetTokenInfoParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -169,6 +173,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { chainId, address, timestamp } = params as IGetTokenPriceParams;
         return new AsyncRpcResponseSender(
           this.getTokenPrice(chainId, address, timestamp),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_TOKEN_MARKET_DATA: {
+        const { ids } = params as IGetTokenMarketDataParams;
+        return new AsyncRpcResponseSender(
+          this.getTokenMarketData(ids),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_TOKEN_INFO: {
+        const { chainId, contractAddress } = params as IGetTokenInfoParams;
+        return new AsyncRpcResponseSender(
+          this.getTokenInfo(chainId, contractAddress),
           res,
         ).call();
       }
@@ -680,6 +698,17 @@ export class RpcCallHandler implements IRpcCallHandler {
     timestamp?: UnixTimestamp,
   ): ResultAsync<number, SnickerDoodleCoreError> {
     return this.tokenPriceService.getTokenPrice(chainId, address, timestamp);
+  }
+  private getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], SnickerDoodleCoreError> {
+    return this.tokenPriceService.getTokenMarketData(ids);
+  }
+  private getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, SnickerDoodleCoreError> {
+    return this.tokenPriceService.getTokenInfo(chainId, contractAddress);
   }
 
   private getAccountBalances(): ResultAsync<

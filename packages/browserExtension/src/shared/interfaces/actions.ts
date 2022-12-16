@@ -141,3 +141,12 @@ export interface IGetTokenPriceParams {
   address: TokenAddress | null;
   timestamp?: UnixTimestamp;
 }
+
+export interface IGetTokenMarketDataParams {
+  ids: string[];
+}
+
+export interface IGetTokenInfoParams {
+  chainId: ChainId;
+  contractAddress: TokenAddress | null;
+}
