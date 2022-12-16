@@ -16,13 +16,13 @@ Local blockchain created by running the `snickerdoodlelabs/devchain` docker imag
 
 ## Fuji Network
 
-Official Avalanche Network testnet:
+Official Avalanche Testnet:
 
-- Consent Contract Factory: `0xC44C9B4375ab43D7974252c37bccb41F99910fA5`
-- Crumbs Contract: `0x97464F3547510fb430448F5216eC7D8e71D7C4eF`
-- Consent Implementation Contract: `0x085dCEFc4477f24A9E9a91166bAe4690BEEF1423`
-- DoodleToken Contract: `TBD`
-- Snickerdoodle Timelock Contract: `TBD`
-- Snickerdoodle Governor Contract: `TBD`
-- Sift Contract: `0x1007D88962A3c0c4A11649480168B6456355d91a`
-- Minimal Forwarder Contract: `0xF7c6dC708550D89558110cAecD20a8A6a184427E`
+- Minimal Forwarder: `0x53B638B1615Ea061098b10CA1E97F5BFC395f0D3`
+- Consent Implementation: `0x86b31385Bf42C8149a97CF13630d06B61CAD7aF8`
+- Consent Factory: `0xF891204124eb67e64b5AF6b36FcFa55E0885a301`
+- Protocol Token: `TBD`
+- Timelock Controller: `TBD`
+- Governor Contract: `TBD`
+- Crumbs: `0x97464F3547510fb430448F5216eC7D8e71D7C4eF`
+- Sift: `0x1007D88962A3c0c4A11649480168B6456355d91a`
