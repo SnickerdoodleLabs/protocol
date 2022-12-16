@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Data-Wallet",
-  "description": "Snickerdoodle's Data Wallet",
+  "name": "Snickerdoodle: Own Your Data. Get Rewards.",
+  "description": "Get Incredible Rewards for Sharing Anonymous Data, All In One Place. Reclaim Your Cookies!",
   "options_page": "options.html",
   "background": {
     "scripts": ["background.bundle.js"],

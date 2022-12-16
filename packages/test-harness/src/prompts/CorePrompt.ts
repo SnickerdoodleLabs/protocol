@@ -302,8 +302,6 @@ export class CorePrompt extends DataWalletPrompt {
             UnixTimestamp(1000),
           );
           return this.core.addSiteVisits(sites).map(console.log);
-        case "dumpBackup":
-          return this.core.dumpBackup().map(console.log);
         case "restoreBackup":
           const backup: IDataWalletBackup = {
             header: {
@@ -321,9 +319,11 @@ export class CorePrompt extends DataWalletPrompt {
           };
           return this.core
             .restoreBackup(backup)
-            .map(() => console.log("restored backup", backup.header.hash));
+            .andThen(() =>
+              okAsync(console.log("restored backup", backup.header.hash)),
+            );
         case "manualBackup":
-          return this.core.postBackup().map(console.log);
+          return this.core.postBackups().map(console.log);
         case "clearCloudStore":
           return this.core.clearCloudStore().map(console.log);
       }
