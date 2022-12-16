@@ -72,7 +72,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
             padding: "10px",
           }}
         >
-          ${(Number.parseFloat(item.quoteBalance) || 0).toFixed(1)}
+          ${(Number.parseFloat(item.balance) || 0).toFixed(1)}
         </Typography>
       </Box>
     </Box>

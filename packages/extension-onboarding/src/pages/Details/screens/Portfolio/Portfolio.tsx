@@ -1,4 +1,4 @@
-import TokenItem from "@extension-onboarding/components/TokenItem";
+import TokenItem from "@extension-onboarding/components/TokenItem/TokenItem";
 import {
   Box,
   CircularProgress,
@@ -187,7 +187,7 @@ const Portfolio: FC = () => {
 
       return {
         netWorth: balanceArr.reduce(
-          (acc, item) => acc + Number.parseFloat(item.quoteBalance),
+          (acc, item) => acc + Number.parseFloat(item.balance),
           0,
         ),
         numberOfTokens: new Set(balanceArr.map((balance) => balance.ticker))
@@ -228,9 +228,6 @@ const Portfolio: FC = () => {
               BigNumber.from(acc[item.ticker].balance)
                 .add(BigNumber.from(item.balance))
                 .toString(),
-            ),
-            quoteBalance: BigNumberString(
-              (acc[item.ticker].quoteBalance + item.quoteBalance).toString(),
             ),
           };
         } else {

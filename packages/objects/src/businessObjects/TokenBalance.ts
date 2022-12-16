@@ -19,10 +19,10 @@ export class TokenBalance {
     public balance: BigNumberString,
     public decimals: number,
   ) {}
+}
 
-  public formatValue(): BigNumberString {
-    return BigNumberString(
-      utils.formatUnits(BigNumber.from(this.balance), this.decimals),
-    );
-  }
+export function formatValue(balance: TokenBalance): BigNumberString {
+  return BigNumberString(
+    utils.formatUnits(BigNumber.from(balance.balance), balance.decimals),
+  );
 }
