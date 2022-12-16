@@ -11,7 +11,7 @@ import {
   SDQL_Return,
   TickerSymbol,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -38,14 +38,12 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     return this.dataWalletPersistence
       .getAccountBalances()
       .andThen((balances) => {
-        // console.log("line 41 balances", balances);
         if (query.networkId == null) {
           return okAsync(balances);
         }
         const networkBalances = balances.filter(
           (balance) => balance.chainId == query.networkId,
         );
-        // console.log("line 48 networkBalances", networkBalances);
         return okAsync(networkBalances);
       })
       .andThen((excessValues) => {
@@ -135,20 +133,33 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     query: AST_BalanceQuery,
     balanceArray: ITokenBalance[],
   ): ResultAsync<ITokenBalance[], PersistenceError> {
-    const balanceMap = new Map<EVMContractAddress, ITokenBalance>();
+    const balanceMap = new Map<
+      `${ChainId}-${EVMContractAddress}`,
+      ITokenBalance
+    >();
 
-    balanceArray.forEach((d) => {
-      const getObject = balanceMap.get(d.address);
+    const nonZeroBalanceArray = balanceArray.filter((item) => {
+      const ethValue = ethers.BigNumber.from(item.balance);
+      return ethValue.eq(0) === false;
+    });
+
+    nonZeroBalanceArray.forEach((d) => {
+      const networkIdAndAddress: `${ChainId}-${EVMContractAddress}` = `${d.networkId}-${d.address}`;
+      const getObject = balanceMap.get(networkIdAndAddress);
 
       if (getObject) {
-        balanceMap.set(d.address, {
+        balanceMap.set(networkIdAndAddress, {
           ticker: getObject.ticker,
-          balance:  BigNumberString((BigNumber.from(getObject.balance).add(BigNumber.from(d.balance))).toString()),
+          balance: BigNumberString(
+            BigNumber.from(getObject.balance)
+              .add(BigNumber.from(d.balance))
+              .toString(),
+          ),
           networkId: getObject.networkId,
           address: getObject.address,
         });
       } else {
-        balanceMap.set(d.address, {
+        balanceMap.set(networkIdAndAddress, {
           ticker: d.ticker,
           balance: d.balance,
           networkId: d.networkId,
@@ -161,7 +172,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     balanceMap.forEach((element, key) => {
       returnedArray.push({
         ticker: element.ticker,
-        address: key,
+        address: element.address,
         balance: BigNumberString(element.balance.toString()),
         networkId: element.networkId,
       });
