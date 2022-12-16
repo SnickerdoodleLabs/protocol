@@ -230,12 +230,6 @@ export class SDQLParser {
       );
     }
 
-    // if (schema.logic["ads"] === undefined) {
-    //   return errAsync(
-    //     new QueryFormatError("schema missing logic->ads"),
-    //   );
-    // }
-
     return okAsync(undefined);
   }
   // #endregion
@@ -253,6 +247,7 @@ export class SDQLParser {
         const adKey = SDQL_Name(key); //'a1'
         const singleAdSchema = adsSchema[key] as ISDQLAd;
         const ad = new AST_Ad(
+          adKey,
           SDQL_Name(singleAdSchema.name),
           singleAdSchema.content,
           singleAdSchema.text,

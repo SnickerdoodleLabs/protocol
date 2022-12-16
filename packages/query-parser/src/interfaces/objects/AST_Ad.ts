@@ -1,4 +1,5 @@
 import { 
+  AdId,
   IpfsCID, 
   ISO8601DateString, 
   SDQL_Name, 
@@ -7,6 +8,7 @@ import {
 
 export class AST_Ad {
   constructor(
+    readonly key: SDQL_Name, //a1, a2, ..
     readonly name: SDQL_Name,
     readonly content: {
       readonly type: "image" | "video",
