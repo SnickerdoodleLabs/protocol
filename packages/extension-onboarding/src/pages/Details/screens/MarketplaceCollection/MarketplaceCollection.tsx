@@ -2,15 +2,75 @@ import { useStyles } from "@extension-onboarding/pages/Details/screens/Marketpla
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
-
+import SearchIcon from "@material-ui/icons/Search";
 import React, { FC, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
+import {
+  ChainId,
+  DirectReward,
+  EVMAccountAddress,
+  EVMContractAddress,
+  IpfsCID,
+  TransactionReceipt,
+} from "@snickerdoodlelabs/objects";
+import RewardComponent from "./RewardComponent";
+import externalURLIcon from "@extension-onboarding/assets/icons/external-url.svg";
 declare const window: IWindowWithSdlDataWallet;
 
 const MarketPlaceCollection: FC = () => {
   let { brand } = useParams();
   const classes = useStyles();
+  const onReviewClick = (arg0: EVMContractAddress) => {
+    throw new Error("Function not implemented.");
+  };
+
+  const onClaimClick = (arg0: EVMContractAddress) => {
+    throw new Error("Function not implemented.");
+  };
+
+  const obj = [
+    {
+      queryCID: "test" as IpfsCID,
+      name: "testName" as string,
+      image:
+        "https://www.mshowto.org/images/articles/2021/10/testnedir.jpg" as IpfsCID | null,
+      description: "test",
+      chainId: ChainId(1),
+      eoa: "sadsadsa" as EVMAccountAddress,
+      transactionReceipt: "sada" as TransactionReceipt,
+    } as DirectReward,
+    {
+      queryCID: "test" as IpfsCID,
+      name: "testName" as string,
+      image:
+        "https://www.mshowto.org/images/articles/2021/10/testnedir.jpg" as IpfsCID | null,
+      description: "test",
+      chainId: ChainId(1),
+      eoa: "sadsadsa" as EVMAccountAddress,
+      transactionReceipt: "sada" as TransactionReceipt,
+    } as DirectReward,
+    {
+      queryCID: "test" as IpfsCID,
+      name: "testName" as string,
+      image:
+        "https://www.mshowto.org/images/articles/2021/10/testnedir.jpg" as IpfsCID | null,
+      description: "test",
+      chainId: ChainId(1),
+      eoa: "sadsadsa" as EVMAccountAddress,
+      transactionReceipt: "sada" as TransactionReceipt,
+    } as DirectReward,
+    {
+      queryCID: "test" as IpfsCID,
+      name: "testName" as string,
+      image:
+        "https://www.mshowto.org/images/articles/2021/10/testnedir.jpg" as IpfsCID | null,
+      description: "test",
+      chainId: ChainId(1),
+      eoa: "sadsadsa" as EVMAccountAddress,
+      transactionReceipt: "sada" as TransactionReceipt,
+    } as DirectReward,
+  ];
+
   return (
     <Box>
       <Box display="flex" alignItems="center" mb={4}>
@@ -91,7 +151,7 @@ const MarketPlaceCollection: FC = () => {
           SDL
         </Typography>
       </Box>
-      <Box>
+      <Box mb={4}>
         <Typography
           style={{
             fontFamily: "Space Grotesk",
@@ -130,17 +190,25 @@ const MarketPlaceCollection: FC = () => {
               >
                 Created by
               </Typography>
-              <Typography
-                style={{
-                  fontFamily: "Space Grotesk",
-                  fontWeight: 500,
-                  fontSize: 14,
-                  lineHeight: "20px",
-                  color: "rgba(35, 32, 57, 0.87)",
-                }}
-              >
-                Adidas
-              </Typography>
+              <Box display="flex" justifyContent="space-between">
+                <Box>
+                  <Typography
+                    style={{
+                      fontFamily: "Space Grotesk",
+                      fontWeight: 500,
+                      fontSize: 14,
+                      lineHeight: "20px",
+                      color: "rgba(35, 32, 57, 0.87)",
+                    }}
+                  >
+                    Adidas
+                  </Typography>
+                </Box>
+
+                <Box onClick={() => {}} style={{ cursor: "pointer" }}>
+                  <img src={externalURLIcon} />
+                </Box>
+              </Box>
             </Box>
           </Grid>
 
@@ -173,7 +241,7 @@ const MarketPlaceCollection: FC = () => {
                   color: "rgba(35, 32, 57, 0.87)",
                 }}
               >
-                Adidas
+                7,778
               </Typography>
             </Box>
           </Grid>
@@ -207,7 +275,7 @@ const MarketPlaceCollection: FC = () => {
                   color: "rgba(35, 32, 57, 0.87)",
                 }}
               >
-                Adidas
+                59872
               </Typography>
             </Box>
           </Grid>
@@ -223,19 +291,47 @@ const MarketPlaceCollection: FC = () => {
               py={1}
               px={2}
             >
-              <Typography
-                style={{
-                  fontFamily: "Space Grotesk",
-                  fontWeight: 500,
-                  fontSize: 14,
-                  lineHeight: "20px",
-                  color: "rgba(35, 32, 57, 0.87)",
-                }}
-              >
-                View official site
-              </Typography>
+              <Box>
+                <Typography
+                  style={{
+                    fontFamily: "Space Grotesk",
+                    fontWeight: 500,
+                    fontSize: 14,
+                    lineHeight: "20px",
+                    color: "rgba(35, 32, 57, 0.87)",
+                  }}
+                >
+                  View official site
+                </Typography>
+                  
+              </Box>
+              <Box ml={2} onClick={() => {}} style={{ cursor: "pointer" }}>
+                <img src={externalURLIcon} />
+              </Box>
             </Box>
           </Grid>
+        </Grid>
+      </Box>
+      <Box
+        my={4}
+        width={580}
+        height={56}
+        borderRadius={8}
+        border="1px solid #ECECEC"
+        display="flex"
+        alignItems="center"
+        style={{}}
+      >
+       {/*  <SearchIcon />
+        <Typography>Search</Typography> */}
+      </Box>
+      <Box>
+        <Grid container spacing={2}>
+          {obj.map((reward, index) => (
+            <Grid item xs={3}>
+              <RewardComponent reward={reward as DirectReward} />
+            </Grid>
+          ))}
         </Grid>
       </Box>
     </Box>
