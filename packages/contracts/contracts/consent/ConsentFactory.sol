@@ -152,7 +152,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         listingsTotal += 1; 
     }
 
-    /// @notice Returns an array of cids from the marketplace linked list
+    /// @notice Returns an array of cids from the marketplace linked list and the next active slot for pagination
     /// @param _startingSlot slot to start at in the linked list
     /// @param numSlots number of entries to return
     function getListings(uint256 _startingSlot, uint256 numSlots) public view returns (string [] memory, uint256 activeSlot) {
