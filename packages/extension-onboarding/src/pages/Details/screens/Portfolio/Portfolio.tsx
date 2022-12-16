@@ -1,3 +1,4 @@
+import TokenItem from "@extension-onboarding/components/TokenItem";
 import {
   Box,
   CircularProgress,
@@ -22,6 +23,8 @@ import {
 } from "@snickerdoodlelabs/objects";
 import clsx from "clsx";
 import { BigNumber } from "ethers";
+import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useEffect, useMemo, useState } from "react";
 
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
@@ -35,7 +38,6 @@ import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
 import InfoCard from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard";
-import TokenItem from "@extension-onboarding/pages/Details/screens/Portfolio/components/TokenItem";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 

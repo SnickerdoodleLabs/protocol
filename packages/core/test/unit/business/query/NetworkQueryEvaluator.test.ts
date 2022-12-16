@@ -45,42 +45,42 @@ class NetworkQueryEvaluatorMocks {
   public transactionsArray = new Array<ChainTransaction>();
 
   public accountBalances = new Array<TokenBalance>(
-    {
-      ticker: TickerSymbol("ETH"),
-      chainId: ChainId(1),
-      accountAddress: EVMAccountAddress("GOOD1"),
-      balance: BigNumberString("18"),
-      tokenAddress: EVMContractAddress("9dkj13nd"),
-      quoteBalance: BigNumberString("0"),
-      type: EChainTechnology.EVM,
-    },
-    {
-      ticker: TickerSymbol("ETH"),
-      chainId: ChainId(1),
-      accountAddress: EVMAccountAddress("GOOD2"),
-      balance: BigNumberString("25"),
-      tokenAddress: EVMContractAddress("0pemc726"),
-      quoteBalance: BigNumberString("0"),
-      type: EChainTechnology.EVM,
-    },
-    {
-      ticker: TickerSymbol("BLAH"),
-      chainId: ChainId(901398),
-      accountAddress: EVMAccountAddress("BAD"),
-      balance: BigNumberString("26"),
-      tokenAddress: EVMContractAddress("lp20xk3c"),
-      quoteBalance: BigNumberString("0"),
-      type: EChainTechnology.EVM,
-    },
-    {
-      ticker: TickerSymbol("ETH"),
-      chainId: ChainId(1),
-      accountAddress: EVMAccountAddress("GOOD3"),
-      balance: BigNumberString("36"),
-      tokenAddress: EVMContractAddress("m12s93io"),
-      quoteBalance: BigNumberString("0"),
-      type: EChainTechnology.EVM,
-    },
+    new TokenBalance(
+      EChainTechnology.EVM,
+      TickerSymbol("ETH"),
+      ChainId(1),
+      EVMContractAddress("9dkj13nd"),
+      EVMAccountAddress("GOOD1"),
+      BigNumberString("18"),
+      18,
+    ),
+    new TokenBalance(
+      EChainTechnology.EVM,
+      TickerSymbol("ETH"),
+      ChainId(1),
+      EVMContractAddress("0pemc726"),
+      EVMAccountAddress("GOOD2"),
+      BigNumberString("25"),
+      18,
+    ),
+    new TokenBalance(
+      EChainTechnology.EVM,
+      TickerSymbol("BLAH"),
+      ChainId(901398),
+      EVMContractAddress("lp20xk3c"),
+      EVMAccountAddress("BAD"),
+      BigNumberString("26"),
+      18,
+    ),
+    new TokenBalance(
+      EChainTechnology.EVM,
+      TickerSymbol("ETH"),
+      ChainId(1),
+      EVMContractAddress("m12s93io"),
+      EVMAccountAddress("GOOD3"),
+      BigNumberString("36"),
+      18,
+    ),
   );
 
   public constructor() {
