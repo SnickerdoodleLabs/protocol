@@ -150,9 +150,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       .andThen(() => {
         return this.pollBackups();
       })
-      .map(() => {
+      .andThen(() => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.resolveRestore!();
+        return this.contextProvider.getContext().map((ctx) => {
+          ctx.publicEvents.onInitialRestore.next(null);
+        });
       });
   }
 
