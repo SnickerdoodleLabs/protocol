@@ -58,11 +58,11 @@ describe("ConsentFactory", () => {
 
   describe("addListing", function () {
 
-    it("add listings to the Marketplace", async function () {
+    it("test marketplace listings functionality", async function () {
       const slot2 = 2;
       const slot3 = 3; 
       const slot4 = 4; 
-      const slot5 = 5; 
+      const slot5 = 5; // this will be our invalid slot param
 
       const cid2 = "a";
       const cid3 = "b";
@@ -115,6 +115,36 @@ describe("ConsentFactory", () => {
             .connect(owner)
             .insertListing(slot2, slot3, slot5, cid3),
         ).to.revertedWith("ConsentFactory: invalid upstream slot");
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsTotal(),
+        ).to.eq(3);
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsHead(),
+        ).to.eq(slot4);
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .getListings(slot5, 3),
+        ).to.revertedWith("ConsentFactory: invalid slot");
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .getListings(slot4, 4),
+        ).to.revertedWith("ConsentFactory: total listings are less than requested slots");
+
+        expect(
+         await consentFactory
+            .connect(owner)
+            .getListings(slot4, 3),
+        ).to.eql([cid4, cid3, cid2]);
     });
   });
 

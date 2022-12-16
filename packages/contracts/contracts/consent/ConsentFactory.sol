@@ -30,7 +30,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     uint256 public listingsHead;
 
     /// @dev the total number of listings in the marketplact
-    uint256 listingsTotal;
+    uint256 public listingsTotal;
 
     /// @dev mapping from listing slot to Listing object
     mapping (uint256 => Listing) public listings;
@@ -158,7 +158,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     function getListings(uint256 _startingSlot, uint256 numSlots) public view returns (string [] memory){
 
         // the new linked list entry must be between two existing entries
-        require(numSlots < listingsTotal, "ConsentFactory: total listings are less that requested slots");
+        require(numSlots <= listingsTotal, "ConsentFactory: total listings are less than requested slots");
         string[] memory cids = new string[](numSlots);
 
         uint256 activeSlot =  _startingSlot;
