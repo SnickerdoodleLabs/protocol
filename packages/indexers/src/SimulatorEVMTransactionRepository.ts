@@ -67,7 +67,7 @@ export class SimulatorEVMTransactionRepository
         ),
         accountAddress,
         BigNumberString(Math.floor(Math.random() * 1000) + ""),
-        BigNumberString(`${Math.random() * 1000}`),
+        18,
       );
       result.push(item);
     }

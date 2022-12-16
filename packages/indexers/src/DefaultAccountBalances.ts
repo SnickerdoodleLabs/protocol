@@ -15,7 +15,7 @@ import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
-import { EthereumIndexer } from "@indexers/EthererumIndexer.js";
+import { EthereumIndexer } from "@indexers/EthereumIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,

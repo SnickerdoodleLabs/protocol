@@ -186,7 +186,7 @@ export class CovalentEVMTransactionRepository
                     tokenInfo.contract_decimals,
                   ),
                 ),
-                BigNumberString(tokenInfo.quote.toString()),
+                tokenInfo.contract_decimals,
               );
             });
           });

@@ -25,6 +25,7 @@ import {
   ITokenPriceRepository,
   TickerSymbol,
   SolanaCollection,
+  getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { inject } from "inversify";
@@ -93,8 +94,8 @@ export class SolanaIndexer
                     chainId,
                     tokenInfo.address,
                     accountAddress,
-                    balance.tokenAmount.uiAmountString,
-                    BigNumberString("0"),
+                    balance.tokenAmount.amount,
+                    balance.tokenAmount.decimals,
                   ),
                 );
               })
@@ -121,8 +122,8 @@ export class SolanaIndexer
               chainId,
               null,
               accountAddress,
-              this._lamportsToSol(nativeBalanceValue),
-              BigNumberString("0"),
+              BigNumberString(nativeBalanceValue.toString()),
+              getChainInfoByChainId(chainId).nativeCurrency.decimals,
             );
             return [nativeBalance, ...balances];
           });

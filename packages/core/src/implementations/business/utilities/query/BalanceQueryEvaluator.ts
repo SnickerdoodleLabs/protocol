@@ -124,19 +124,18 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
       const getObject = balanceMap.get(this._getTokenAddress(d));
 
       if (getObject) {
-        balanceMap.set(this._getTokenAddress(d), {
-          ticker: getObject.ticker,
-          balance: BigNumberString(
-            BigNumber.from(getObject.balance)
-              .add(BigNumber.from(d.balance))
-              .toString(),
+        balanceMap.set(
+          this._getTokenAddress(d),
+          new TokenBalance(
+            getObject.type,
+            getObject.ticker,
+            getObject.chainId,
+            this._getTokenAddress(getObject),
+            getObject.accountAddress,
+            getObject.balance,
+            getObject.decimals,
           ),
-          chainId: getObject.chainId,
-          accountAddress: getObject.accountAddress,
-          quoteBalance: BigNumberString("-1"),
-          tokenAddress: this._getTokenAddress(getObject),
-          type: getObject.type,
-        });
+        );
       } else {
         balanceMap.set(this._getTokenAddress(d), d);
       }
