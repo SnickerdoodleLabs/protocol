@@ -82,7 +82,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
     /// @dev _trustedForwarder Address of the EIP-2771 compatible meta-tx forwarder contract
     /// @param _consentImpAddress Uses the initializer modifier to to ensure the contract is only initialized once
-    function initialize(address _trustedForwarder, address _consentImpAddress) initializer public  {
+    function initialize(address _trustedForwarder, address _consentImpAddress) initializer public {
         __Pausable_init();
         __AccessControl_init();
 
@@ -107,7 +107,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @param _newSlot New linked list entry that will point to _downstream slot
     /// @param _upstream upstream pointer that will point to _newSlot  
     /// @param cid IPFS address of the listing content
-    function insertListing(uint256 _downstream, uint256 _newSlot, uint256 _upstream, string memory cid) public {
+    function insertListing(uint256 _downstream, uint256 _newSlot, uint256 _upstream, string memory cid) public onlyRole(DEFAULT_ADMIN_ROLE) {
 
         // the new linked list entry must be between two existing entries
         require(_upstream > _newSlot, "ConsentFactory: _upstream must be greater than _newSlot");
@@ -138,7 +138,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @dev _newSlot -> oldHeadSlot
     /// @param _newHead Downstream pointer that will be pointed to by _newSlot
     /// @param cid IPFS address of the listing content
-    function newListingHead(uint256 _newHead, string memory cid) public {
+    function newListingHead(uint256 _newHead, string memory cid) public onlyRole(DEFAULT_ADMIN_ROLE) {
 
         // the new linked list entry must be between two existing entries
         require(_newHead > listingsHead, "ConsentFactory: The new head must be greater than old head");
@@ -155,21 +155,24 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @notice Returns an array of cids from the marketplace linked list
     /// @param _startingSlot slot to start at in the linked list
     /// @param numSlots number of entries to return
-    function getListings(uint256 _startingSlot, uint256 numSlots) public view returns (string [] memory){
+    function getListings(uint256 _startingSlot, uint256 numSlots) public view returns (string [] memory, uint256 activeSlot) {
 
         // the new linked list entry must be between two existing entries
         require(numSlots <= listingsTotal, "ConsentFactory: total listings are less than requested slots");
         string[] memory cids = new string[](numSlots);
 
-        uint256 activeSlot =  _startingSlot;
+        activeSlot =  _startingSlot;
         // loop over the slots 
         for (uint i = 0; i < numSlots; i++) {
             Listing memory listing = listings[activeSlot];
             require(listing.next >= 1, "ConsentFactory: invalid slot");
             cids[i] = listing.cid;
             activeSlot = listing.next;
+            if (activeSlot == 1) {
+                break;
+            }
         }
-        return cids;
+        return (cids, activeSlot);
     }
 
     /// @notice Creates a new Beacon Proxy contract pointing to the UpgradableBeacon 

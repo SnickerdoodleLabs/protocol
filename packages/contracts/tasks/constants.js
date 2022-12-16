@@ -106,13 +106,13 @@ const consentBeacon = function () {
 const consentFactory = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "localhost") {
-    return "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "doodle") {
-    return "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+    return "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
   } else if (hre.hardhatArguments.network == "rinkeby") {
     return "";
   } else if (hre.hardhatArguments.network == "mumbai") {
@@ -136,13 +136,13 @@ const consentFactory = function () {
 const crumbsContract = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
   } else if (hre.hardhatArguments.network == "doodle") {
-    return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
   } else if (hre.hardhatArguments.network == "localhost") {
-    return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+    return "0x610178dA211FEF7D417bC0e6FeD39F05609AD788";
   } else if (hre.hardhatArguments.network == "mumbai") {
     return "";
   } else if (hre.hardhatArguments.network == "polygon") {
@@ -165,13 +165,13 @@ const crumbsContract = function () {
 const siftContract = function () {
   const hre = require("hardhat");
   if (hre.hardhatArguments.network == "dev") {
-    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
   } else if (hre.hardhatArguments.network == "localhost") {
-    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
   } else if (hre.hardhatArguments.network == "doodle") {
-    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
   } else if (hre.hardhatArguments.network == "hardhat") {
-    return "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+    return "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e";
   } else if (hre.hardhatArguments.network == "mumbai") {
     return "";
   } else if (hre.hardhatArguments.network == "polygon") {

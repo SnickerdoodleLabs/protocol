@@ -125,7 +125,7 @@ describe("ConsentFactory", () => {
         expect(
           await consentFactory
             .connect(owner)
-            .listingsHead(),
+            .listingsHead()
         ).to.eq(slot4);
 
         await expect(
@@ -140,11 +140,12 @@ describe("ConsentFactory", () => {
             .getListings(slot4, 4),
         ).to.revertedWith("ConsentFactory: total listings are less than requested slots");
 
+        const finalSlot = ethers.BigNumber.from(1);
         expect(
          await consentFactory
             .connect(owner)
             .getListings(slot4, 3),
-        ).to.eql([cid4, cid3, cid2]);
+        ).to.eql([[cid4, cid3, cid2], finalSlot]);
     });
   });
 
