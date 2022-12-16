@@ -18,6 +18,6 @@ export class ExtensionConfig {
     public covalentApiKey?: string,
     public moralisApiKey?: string,
     public dnsServerAddress?: URLString,
-    public requestForDataCheckingFrequency?: number
+    public requestForDataCheckingFrequency?: number,
   ) {}
 }

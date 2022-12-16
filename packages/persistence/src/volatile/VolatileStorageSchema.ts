@@ -35,4 +35,11 @@ export const volatileStorageSchema = [
   new VolatileTableIndex(ELocalStorageKey.EARNED_REWARDS, "queryCID", false, [
     ["type", false],
   ]),
+  new VolatileTableIndex(
+    ELocalStorageKey.RESTORED_BACKUPS,
+    "id",
+    false,
+    undefined,
+    true,
+  ),
 ];
