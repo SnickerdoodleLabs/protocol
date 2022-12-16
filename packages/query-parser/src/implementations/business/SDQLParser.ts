@@ -1,6 +1,7 @@
 import "reflect-metadata";
 
 import {
+  AdId,
   DataPermissions,
   DuplicateIdInSchema,
   EWalletDataType,
@@ -53,6 +54,7 @@ export class SDQLParser {
   public logicAds = new Map<string, AST_Expr | Command>();
   public returnPermissions = new Map<string, DataPermissions>();
   public compensationPermissions = new Map<string, DataPermissions>();
+  public adPermissions = new Map<string, DataPermissions>();
 
   public exprParser: ExprParser | null = null;
 
@@ -121,6 +123,7 @@ export class SDQLParser {
               this.logicAds,
               this.returnPermissions,
               this.compensationPermissions,
+              this.adPermissions
             ),
           ),
         );
@@ -501,6 +504,10 @@ export class SDQLParser {
       this.compensationPermissions = this.parseLogicPermissions(
         logicSchema["compensations"],
       );
+
+      this.adPermissions = this.parseLogicPermissions(
+        logicSchema["ads"],
+      );
       return okAsync(undefined);
     } catch (err) {
       return errAsync(err as MissingWalletDataTypeError);
@@ -512,10 +519,19 @@ export class SDQLParser {
   ): Map<string, DataPermissions> {
     const permMap = new Map();
     for (const expression of expressions) {
-      const queryDeps = this.exprParser!.getDependencies(expression);
+      const queryDeps = this.exprParser!.getQueryDependencies(expression);
       permMap.set(expression, this.queriesToDataPermission(queryDeps));
     }
     return permMap;
+  }
+
+  public parseAdDependencies(
+    compensationExpression: string,
+  ): AST_Ad[] {
+    const adDependencies = this.exprParser!.getAdDependencies(compensationExpression);
+    return Array.from(
+      new Set(adDependencies)
+    );
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {

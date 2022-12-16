@@ -20,6 +20,7 @@ import {
   Command_IF,
   ConditionAnd,
   ConditionOr,
+  AST_Ad,
 } from "@query-parser/interfaces/index.js";
 
 export class ExprParser {
@@ -355,7 +356,7 @@ export class ExprParser {
 
   // #region parse dependencies only
 
-  getDependencies(exprStr: string): AST_Query[] {
+  getQueryDependencies(exprStr: string): AST_Query[] {
     const tokenizer = new Tokenizer(exprStr);
     const tokens = tokenizer.all();
 
@@ -369,6 +370,22 @@ export class ExprParser {
         if (r.source instanceof AST_Query) {
           deps.push(r.source);
         }
+      }
+      return deps;
+    }, deps);
+
+    return deps;
+  }
+
+  getAdDependencies(exprStr: string): AST_Ad[] {
+    const tokenizer = new Tokenizer(exprStr);
+    const tokens = tokenizer.all();
+
+    const deps: AST_Ad[] = [];
+
+    tokens.reduce((deps, token) => {
+      if (token.type == TokenType.ad) {
+        deps.push(this.getExecutableFromContext(token) as AST_Ad);
       }
       return deps;
     }, deps);

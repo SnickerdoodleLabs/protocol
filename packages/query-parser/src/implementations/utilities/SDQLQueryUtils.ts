@@ -1,4 +1,5 @@
 import {
+  AdId,
   CompensationId,
   DataPermissions,
   DuplicateIdInSchema,
@@ -17,6 +18,7 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
 import {
+  AST_Ad,
   AST_Compensation,
   AST_Expr,
   AST_Query,
@@ -105,18 +107,20 @@ export class SDQLQueryUtils {
   ): CompensationId[] {
 
     const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
-    // console.log("queryPermissions", queryPermissions.getFlags());
-    // now queryPermissions must contain the permission for each compensation expr for eligibility
+    const eligibleAdIds = this.getEligibleAdIdsByQueryPermissions(parser, queryPermissions);
+
     const eligibleComIds = new Set<CompensationId>();
-    // console.log("logicPermissions", parser.returnPermissions);
-    // console.log("compensationPermissions", parser.compensationPermissions);
-
     parser.compensationPermissions.forEach((comPermissions, compExpr) => {
-      if (queryPermissions.contains(comPermissions!)) {
-        const comAst = parser.logicCompensations.get(compExpr);
-        const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
 
-        comIds.forEach((comId) => eligibleComIds.add(comId));
+      if (queryPermissions.contains(comPermissions!)) {
+        const adDependencies = parser.parseAdDependencies(compExpr);
+        if (adDependencies.every((dep) => eligibleAdIds.has(AdId(dep.key)))) {
+
+          const comAst = parser.logicCompensations.get(compExpr);
+          const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
+
+          comIds.forEach((comId) => eligibleComIds.add(comId));
+        }
       }
     });
 
@@ -160,6 +164,43 @@ export class SDQLQueryUtils {
         );
         throw new QueryFormatError(
           "Unknown expression to extract compensation from.",
+        );
+    }
+  }
+
+  private getEligibleAdIdsByQueryPermissions(
+    parser: SDQLParser,
+    queryPermissions: DataPermissions
+  ): Set<AdId> {
+    const eligibleAdIds = new Set<AdId>();
+
+    parser.adPermissions.forEach((adPermissions, adLogicExpr) => {
+      if (queryPermissions.contains(adPermissions!)) {
+        const adAstExpr = parser.logicAds.get(adLogicExpr);
+        const adAst = this.getAdAstFromAst(adAstExpr!);
+
+        eligibleAdIds.add(AdId(adAst.key));
+      }
+    });
+
+    return eligibleAdIds;
+  }
+
+  protected getAdAstFromAst(
+    ast: AST_Expr | Command,
+  ): AST_Ad {
+    switch (ast.constructor) {
+      case Command_IF:
+        return this.getAdAstFromAst((ast as Command_IF).trueExpr);
+      case AST_Ad:
+        return ast as AST_Ad;
+      default:
+        console.error(
+          "getAdAstFromAst: Unknown expression to extract ad from.",
+          ast,
+        );
+        throw new QueryFormatError(
+          "Unknown expression to extract ad from.",
         );
     }
   }

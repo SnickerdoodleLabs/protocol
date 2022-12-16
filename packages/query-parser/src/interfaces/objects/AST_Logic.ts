@@ -15,6 +15,7 @@ export class AST_Logic {
     readonly ads: Map<string, AST_Expr | Command>,
     readonly returnPermissions: Map<string, DataPermissions>,
     readonly compenstationPermissions: Map<string, DataPermissions>,
+    readonly adPermissions: Map<string, DataPermissions>,
   ) {}
 
   public getReturnPermissions(expr: string): DataPermissions {
@@ -23,5 +24,9 @@ export class AST_Logic {
 
   public getCompensationPermissions(expr: string): DataPermissions {
     return this.compenstationPermissions.get(expr)!;
+  }
+
+  public getAdPermissions(expr: string): DataPermissions {
+    return this.adPermissions.get(expr)!;
   }
 }
