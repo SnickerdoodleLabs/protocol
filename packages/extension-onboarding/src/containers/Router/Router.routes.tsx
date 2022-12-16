@@ -24,6 +24,7 @@ import Rewards from "@extension-onboarding/pages/Details/screens/Rewards";
 import Tokens from "@extension-onboarding/pages/Details/screens/Tokens";
 import NFTs from "@extension-onboarding/pages/Details/screens/NFTs";
 import DataDashboarPersonalInfo from "@extension-onboarding/pages/Details/screens/DataDashboarPersonalInfo";
+import MarketPlaceCollection from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/MarketplaceCollection";
 
 export const OnboardingRoutes = (
   <Route>
@@ -58,6 +59,10 @@ export const AuthFlowRoutes = (
         />
       </Route>
       <Route path={EPaths.MY_REWARDS} element={<MarketplaceRewardsTemp />} />
+      <Route
+        path={EPaths.MARKETPLACE_COLLECTION}
+        element={<MarketPlaceCollection />}
+      />
       {/* <Route path={EPaths.MY_CAMPAIGNS} element={<CampaignsInfo />} />
       <Route
         path={EPaths.MARKETPLACE_CAMPAIGNS}

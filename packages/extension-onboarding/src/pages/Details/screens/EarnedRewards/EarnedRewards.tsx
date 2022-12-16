@@ -42,17 +42,16 @@ const EarnedRewards: FC = () => {
 
   return (
     <Box>
-      <Box mb={4}>
+      <Box mb={5}>
         <Typography className={classes.title}>My Rewards</Typography>
+      </Box>
+      <Box mb={2}>
+        <Typography className={classes.subTitle}>Earned Rewards</Typography>
+      </Box>
+      <Box mb={2}>
         <Typography className={classes.description}>
-          Check out what you've earned from sharing insights!
+          Your NFTs, from linked accounts and newly earned rewards.
         </Typography>
-        <Box mt={2}>
-          <Typography className={classes.description}>
-            Once you've opted into a campaign, it can take up to 10 mins for
-            your reward to appear.
-          </Typography>
-        </Box>
       </Box>
       {isLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={15}>
@@ -60,42 +59,49 @@ const EarnedRewards: FC = () => {
         </Box>
       ) : (
         <>
-          {rewards?.length ? (
-            rewards?.map((reward, index) => {
-              let rewardComponent;
-              if (reward.type === ERewardType.Direct) {
-                rewardComponent = (
-                  <DirectRewardItem
-                    key={index}
-                    reward={reward as DirectReward}
+          <Grid container spacing={2}>
+            {rewards?.length ? (
+              rewards?.map((reward, index) => {
+                let rewardComponent;
+                if (reward.type === ERewardType.Direct) {
+                  rewardComponent = (
+                    <Grid item xs={3}>
+                      <DirectRewardItem
+                        key={index}
+                        reward={reward as DirectReward}
+                      />
+                    </Grid>
+                  );
+                }
+                if (reward.type === ERewardType.Lazy) {
+                  rewardComponent = (
+                    <LazyRewardItem key={index} reward={reward as LazyReward} />
+                  );
+                }
+                if (reward.type === ERewardType.Web2) {
+                  rewardComponent = (
+                    <Web2RewardItem key={index} reward={reward as Web2Reward} />
+                  );
+                }
+                return rewardComponent;
+              })
+            ) : (
+              <Box width="100%" display="flex">
+                <Box
+                  justifyContent="center"
+                  alignItems="center"
+                  width="100%"
+                  display="flex"
+                  pt={20}
+                >
+                  <img
+                    style={{ width: 330, height: "auto" }}
+                    src={emptyReward}
                   />
-                );
-              }
-              if (reward.type === ERewardType.Lazy) {
-                rewardComponent = (
-                  <LazyRewardItem key={index} reward={reward as LazyReward} />
-                );
-              }
-              if (reward.type === ERewardType.Web2) {
-                rewardComponent = (
-                  <Web2RewardItem key={index} reward={reward as Web2Reward} />
-                );
-              }
-              return rewardComponent;
-            })
-          ) : (
-            <Box width="100%" display="flex">
-              <Box
-                justifyContent="center"
-                alignItems="center"
-                width="100%"
-                display="flex"
-                pt={20}
-              >
-                <img style={{ width: 330, height: "auto" }} src={emptyReward} />
+                </Box>
               </Box>
-            </Box>
-          )}
+            )}
+          </Grid>
         </>
       )}
     </Box>

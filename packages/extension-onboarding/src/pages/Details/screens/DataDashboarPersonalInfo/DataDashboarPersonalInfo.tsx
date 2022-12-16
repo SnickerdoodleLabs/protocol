@@ -83,9 +83,9 @@ export default () => {
             />
             <Typography
               style={{
-                color: permissionForm.includes(item.dataType)
-                  ? "#000"
-                  : "transparent",
+                visibility: permissionForm.includes(item.dataType)
+                  ? "visible"
+                  : "hidden",
               }}
             >
               Rented
