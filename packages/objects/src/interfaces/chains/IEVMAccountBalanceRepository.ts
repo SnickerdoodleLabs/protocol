@@ -5,8 +5,9 @@ import {
   BigNumberString,
   EVMContractAddress,
   TickerSymbol,
+  ChainId,
+  EVMAccountAddress,
 } from "@objects/primitives";
-import { ChainId, EVMAccountAddress } from "@objects/primitives";
 export interface IEVMBalance {
   ticker: TickerSymbol;
   chainId: ChainId;
@@ -36,17 +37,16 @@ export class ChainTransaction {
     incomingValue: BigNumberString,
     incomingCount: BigNumberString,
     outgoingValue: BigNumberString,
-    outgoingCount: BigNumberString
-  ){
+    outgoingCount: BigNumberString,
+  ) {
     this.chainId = chain;
     this.incomingValue = incomingValue;
     this.incomingCount = incomingCount;
     this.outgoingValue = outgoingValue;
     this.outgoingCount = outgoingCount;
-  };
+  }
 
-
-/*
+  /*
   constructor() {
     // SUPPORTED_CHAINS is a comma-separated list
     // Need to split it into an array
@@ -70,10 +70,7 @@ export class ChainTransaction {
     );
   }
   */
-
 }
-
-
 
 export interface ITokenBalance {
   ticker: TickerSymbol;
@@ -81,8 +78,6 @@ export interface ITokenBalance {
   address: EVMContractAddress; // This is the token contract address
   balance: BigNumberString;
 }
-
-
 
 export interface IEVMAccountBalanceRepository {
   getBalancesForAccount(
