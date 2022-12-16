@@ -67,23 +67,24 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(EChain.EthereumMainnet)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
+      [ChainId(EChain.LocalDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
+      "ceramic-replacement-bucket",
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
-      10000, // backup interval
-      10, // backup chunk size target
+      60000, // backup interval
+      50, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       "USD", // quoteCurrency
-      4000 // polling interval for consent contracts on control chain
+      4000, // polling interval for consent contracts on control chain
     );
   }
 
