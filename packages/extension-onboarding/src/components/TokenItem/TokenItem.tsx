@@ -71,14 +71,10 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
             padding: "10px",
           }}
         >
-          $
-          {(
-            Number.parseFloat(item.balance || "0") *
-            (item.marketaData?.currentPrice ?? 0)
-          ).toFixed(4)}
+          ${item.quoteBalance.toFixed(4)}
         </Typography>
       </Box>
     </Box>
   );
 };
-export default TokenItem; 
+export default TokenItem;

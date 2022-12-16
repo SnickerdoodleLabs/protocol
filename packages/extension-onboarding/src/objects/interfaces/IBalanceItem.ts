@@ -7,4 +7,5 @@ import {
 export interface IBalanceItem extends TokenBalance {
   tokenInfo: TokenInfo | null;
   marketaData: TokenMarketData | null;
+  quoteBalance: number;
 }

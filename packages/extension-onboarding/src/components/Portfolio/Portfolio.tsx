@@ -21,11 +21,11 @@ import {
   EVMNFT,
   SolanaNFT,
   AccountAddress,
+  formatValue,
 } from "@snickerdoodlelabs/objects";
 import clsx from "clsx";
 import { BigNumber } from "ethers";
 import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useEffect, useMemo, useState } from "react";
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
@@ -46,7 +46,6 @@ import { useStyles } from "@extension-onboarding/components/Portfolio/Portfolio.
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { ResultUtils } from "neverthrow-result-utils";
-import { okAsync } from "neverthrow";
 import { IBalanceItem } from "@extension-onboarding/objects";
 
 declare const window: IWindowWithSdlDataWallet;
@@ -135,6 +134,9 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
   const initializeBalances = () => {
     window.sdlDataWallet
       .getAccountBalances()
+      .map((balances) =>
+        balances.map((b) => ({ ...b, balance: formatValue(b) })),
+      )
       .andThen((balanceResults) =>
         ResultUtils.combine(
           balanceResults.map((balanceItem) =>
@@ -159,16 +161,25 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
             const combinedBalances = balancesWithTokenInfo.reduce(
               (acc, item) => {
                 if (!item.tokenInfo) {
-                  acc = [...acc, { ...item, marketaData: null }];
+                  acc = [
+                    ...acc,
+                    { ...item, marketaData: null, quoteBalance: 0 },
+                  ];
                 } else {
                   const marketData = res.filter(
                     (marketData) => marketData.id == item.tokenInfo!.id,
                   );
+                  const marketDataRes = marketData.length
+                    ? marketData[0]
+                    : null;
                   acc = [
                     ...acc,
                     {
                       ...item,
                       marketaData: marketData.length ? marketData[0] : null,
+                      quoteBalance:
+                        Number.parseFloat(item.balance || "0") *
+                        (marketDataRes?.currentPrice ?? 0),
                     },
                   ];
                 }
@@ -284,12 +295,7 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
                 Number.parseFloat(item.balance)
               ).toString(),
             ),
-            quoteBalance: BigNumberString(
-              (
-                Number.parseFloat(acc[item.ticker].quoteBalance) +
-                Number.parseFloat(item.quoteBalance)
-              ).toString(),
-            ),
+            quoteBalance: acc[item.ticker].quoteBalance + item.quoteBalance,
           };
         } else {
           acc[item.ticker] = item;
