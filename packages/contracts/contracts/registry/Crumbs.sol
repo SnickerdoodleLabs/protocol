@@ -4,23 +4,24 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/metatx/ERC2771ContextUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 
 /// @title Crumbs 
-/// @author Sean Sing
-/// @notice Snickerdoodle Protocol's Crumbs Contract
+/// @author Snickerdoodle Labs
+/// @notice Synamint Protocol Crumbs Contract
 /// @dev A crumb is a non-transferable ERC721 NFT that holds the JSON object (for SDL's parsing) of a user within the token uri
 /// @dev Any user can create a crumb, store and update the JSON object 
 /// @dev The ERC721's tokenId is labelled crumbId in this contract
 /// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter 
-/// @dev ERC2771ContextUpgradeable's features were directly embedded into the contract (see isTrustedForwarder for details)
 /// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
 /// @dev It is also compatible with OZ's meta-transaction library
 
-contract Crumbs is Initializable, AccessControlEnumerableUpgradeable, PausableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable, ERC2771ContextUpgradeable {
+contract Crumbs is Initializable, AccessControlEnumerableUpgradeable, PausableUpgradeable, ERC721URIStorageUpgradeable, ERC721BurnableUpgradeable {
+
+    /// @dev Trusted forwarder address for meta-transactions 
+    address public trustedForwarder;
 
     /// @notice Mapping of address to respective crumbId that stores its JSON object
     mapping(address => uint256) public addressToCrumbId;
@@ -48,19 +49,15 @@ contract Crumbs is Initializable, AccessControlEnumerableUpgradeable, PausableUp
     /// @param tokenURI New token URI
     event CrumbUpdated(address indexed owner, uint256 indexed crumbId, string tokenURI);
 
-    /// @dev Initializes the contract with the base URI, then disables any initializers as recommended by OpenZeppelin
-    constructor(address trustedForwarder, string memory baseURInew) ERC2771ContextUpgradeable(trustedForwarder) {
-        initialize(baseURInew);
-        _disableInitializers();
-    }
-
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
-    function initialize(string memory baseURI_) initializer public {
+    function initialize(address trustedForwarder_, string memory baseURI_) initializer public {
         __ERC721_init("Crumbs", "CRU");
         __ERC721URIStorage_init();
         __ERC721Burnable_init();
         __AccessControl_init();
+
+        trustedForwarder = trustedForwarder_;
 
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         setBaseURI(baseURI_);
@@ -173,7 +170,14 @@ contract Crumbs is Initializable, AccessControlEnumerableUpgradeable, PausableUp
         return super.supportsInterface(interfaceId);
     }
 
-    function _msgSender() internal view virtual override(ContextUpgradeable, ERC2771ContextUpgradeable) returns (address sender) {
+    /// @dev Inherited from ERC2771ContextUpgradeable to embed its features directly in this contract 
+    /// @dev This is a workaround as ERC2771ContextUpgradeable does not have an _init() function
+    /// @dev Allows the factory to deploy a BeaconProxy that initiates a Consent contract without a constructor 
+    function isTrustedForwarder(address forwarder) public view virtual returns (bool) {
+        return forwarder == trustedForwarder;
+    }
+
+    function _msgSender() internal view virtual override(ContextUpgradeable) returns (address sender) {
         if (isTrustedForwarder(msg.sender)) {
             // The assembly code is more direct than the Solidity version using `abi.decode`.
             assembly {
@@ -184,7 +188,7 @@ contract Crumbs is Initializable, AccessControlEnumerableUpgradeable, PausableUp
         }
     }
 
-    function _msgData() internal view virtual override(ContextUpgradeable, ERC2771ContextUpgradeable) returns (bytes calldata) {
+    function _msgData() internal view virtual override(ContextUpgradeable) returns (bytes calldata) {
         if (isTrustedForwarder(msg.sender)) {
             return msg.data[:msg.data.length - 20];
         } else {

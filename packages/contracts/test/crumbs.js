@@ -19,7 +19,7 @@ describe("Crumbs", () => {
     // deploy the Crumbs contract before each test
     Crumbs = await ethers.getContractFactory("Crumbs");
 
-    crumbs = await Crumbs.deploy(trustedForwarder.address, "www.crumbs.com/");
+    crumbs = await upgrades.deployProxy(Crumbs, [trustedForwarder.address, "www.crumbs.com/"]);
 
     await crumbs.deployed();
   });

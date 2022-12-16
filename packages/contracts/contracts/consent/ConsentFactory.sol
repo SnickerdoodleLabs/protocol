@@ -12,13 +12,28 @@ import "./Consent.sol";
 import "hardhat/console.sol";
 
 /// @title Consent Factory
-/// @author Sean Sing
-/// @notice Snickerdoodle Protocol's Consent Factory Contract 
+/// @author Snickerdoodle Labs
+/// @notice Synamint Protocol Consent Registry Factory Contract 
 /// @dev This contract deploys new BeaconProxy instances that all point to the latest Consent implementation contract via the UpgradeableBeacon 
 /// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contract Wizard with added features 
 /// @dev The contract adopts OZ's proxy upgrade pattern and is compatible with OZ's meta-transaction library  
 
 contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable {
+
+    /// @dev Listing object for storing marketplace listings
+    struct Listing{
+      uint256 next;
+      string cid;
+    }
+
+    /// @dev starting slot of the linked list
+    uint256 public listingsHead;
+
+    /// @dev the total number of listings in the marketplact
+    uint256 listingsTotal;
+
+    /// @dev mapping from listing slot to Listing object
+    mapping (uint256 => Listing) public listings;
 
     /// @dev The PAUSE_ROLE can pause all activity in the factory contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -53,14 +68,6 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @param consentAddress Indexed address of the deployed Consent contract Beacon Proxy
     event ConsentDeployed(address indexed owner, address indexed consentAddress);
 
-    /// @dev Sets the trustedForwarder address, calls the initialize function, then disables any initializers as recommended by OpenZeppelin
-    /// @param _trustedForwarder Address of the trusted forwarder for meta tx
-    /// @dev _consentImpAddress address of the Consent contract implementation address for the upgradeable beacon 
-    constructor(address _trustedForwarder, address _consentImpAddress) {
-        initialize(_trustedForwarder, _consentImpAddress);
-        _disableInitializers();
-    }
-
     /* MODIFIERS */
 
     /// @notice Modified to check if a caller of a function is a Consent contract
@@ -88,9 +95,82 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         beaconAddress = address(_upgradeableBeacon);
 
         trustedForwarder = _trustedForwarder;
+        listingsHead = 1; // head slot is 1, this value must be >=1
+        listingsTotal = 0; 
     }
 
     /* CORE FUNCTIONS */
+
+    /// @notice Inserts a new listing into the Listing linked-list mapping
+    /// @dev _upstream -> _newSlot -> _downstream
+    /// @param _downstream Downstream pointer that will be pointed to by _newSlot
+    /// @param _newSlot New linked list entry that will point to _downstream slot
+    /// @param _upstream upstream pointer that will point to _newSlot  
+    /// @param cid IPFS address of the listing content
+    function insertListing(uint256 _downstream, uint256 _newSlot, uint256 _upstream, string memory cid) public {
+
+        // the new linked list entry must be between two existing entries
+        require(_upstream > _newSlot, "ConsentFactory: _upstream must be greater than _newSlot");
+        require(_newSlot > _downstream, "ConsentFactory: _newSlot must be greater than _downstream");
+
+        // the upstream entry must exist and it must point to the specified downstream listing
+        // if the next variable is 0, it means the slot is uninitialized and thus it is invalid
+        Listing memory listingA = listings[_upstream];
+        require(listingA.next >= 1, "ConsentFactory: invalid upstream slot");
+        require(listingA.next == _downstream, "ConsentFactory: _upstream listing points to different downstream listing");
+
+        // ensure the downstream listing exists. 
+        // if the next variable is 0, it means the slot is uninitialized
+        Listing memory listingB = listings[_downstream];
+        require(listingB.next >= 1, "ConsentFactory: invalid downstream slot");
+        
+        // make the upstream slot point to the new slot
+        listings[_upstream] = Listing(_newSlot, listingA.cid);
+
+        // make the new slot point to the downstream
+        // downstream slot can remain as it is
+        listings[_newSlot] = Listing(_downstream, cid);
+
+        listingsTotal += 1; 
+    }
+
+    /// @notice Creates a new head listing in the marketplace listing map
+    /// @dev _newSlot -> oldHeadSlot
+    /// @param _newHead Downstream pointer that will be pointed to by _newSlot
+    /// @param cid IPFS address of the listing content
+    function newListingHead(uint256 _newHead, string memory cid) public {
+
+        // the new linked list entry must be between two existing entries
+        require(_newHead > listingsHead, "ConsentFactory: The new head must be greater than old head");
+
+        // make the new head point to the old head
+        listings[_newHead] = Listing(listingsHead, cid);
+
+        // update the head variable
+        listingsHead = _newHead;
+
+        listingsTotal += 1; 
+    }
+
+    /// @notice Returns an array of cids from the marketplace linked list
+    /// @param _startingSlot slot to start at in the linked list
+    /// @param numSlots number of entries to return
+    function getListings(uint256 _startingSlot, uint256 numSlots) public view returns (string [] memory){
+
+        // the new linked list entry must be between two existing entries
+        require(numSlots < listingsTotal, "ConsentFactory: total listings are less that requested slots");
+        string[] memory cids = new string[](numSlots);
+
+        uint256 activeSlot =  _startingSlot;
+        // loop over the slots 
+        for (uint i = 0; i < numSlots; i++) {
+            Listing memory listing = listings[activeSlot];
+            require(listing.next >= 1, "ConsentFactory: invalid slot");
+            cids[i] = listing.cid;
+            activeSlot = listing.next;
+        }
+        return cids;
+    }
 
     /// @notice Creates a new Beacon Proxy contract pointing to the UpgradableBeacon 
     /// @dev This Beacon Proxy points to the UpgradableBeacon with the latest Consent implementation contract

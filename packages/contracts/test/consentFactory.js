@@ -46,11 +46,76 @@ describe("ConsentFactory", () => {
     // deploy the Consent factory contract before each test
     // the Consent factory also deploys the UpgradeableBeacon contract
     ConsentFactory = await ethers.getContractFactory("ConsentFactory");
-    consentFactory = await ConsentFactory.deploy(
-      trustedForwarder.address,
-      consentImpAddress,
+    consentFactory = await upgrades.deployProxy(
+      ConsentFactory,
+      [
+        trustedForwarder.address,
+        consentImpAddress
+      ]
     );
     await consentFactory.deployed();
+  });
+
+  describe("addListing", function () {
+
+    it("add listings to the Marketplace", async function () {
+      const slot2 = 2;
+      const slot3 = 3; 
+      const slot4 = 4; 
+      const slot5 = 5; 
+
+      const cid2 = "a";
+      const cid3 = "b";
+      const cid4 = "c";
+
+      await consentFactory
+        .connect(owner)
+        .newListingHead(slot2, cid2).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        await consentFactory
+        .connect(owner)
+        .newListingHead(slot4, cid4).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .newListingHead(slot3, cid3),
+        ).to.revertedWith("ConsentFactory: The new head must be greater than old head");
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .insertListing(slot4, slot3, slot2, cid3),
+        ).to.revertedWith("ConsentFactory: _upstream must be greater than _newSlot");
+
+        await consentFactory
+        .connect(owner)
+        .insertListing(slot2, slot3, slot4, cid3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .insertListing(slot2, slot3, slot4, cid3),
+        ).to.revertedWith("ConsentFactory: _upstream listing points to different downstream listing");
+
+        await expect(
+          consentFactory
+            .connect(owner)
+            .insertListing(slot2, slot3, slot5, cid3),
+        ).to.revertedWith("ConsentFactory: invalid upstream slot");
+    });
   });
 
   describe("createConsent", function () {

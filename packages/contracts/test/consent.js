@@ -52,9 +52,12 @@ describe("Consent", () => {
     // deploy the Consent factory contract before each test
     // the Consent factory also deploys the UpgradeableBeacon contract
     ConsentFactory = await ethers.getContractFactory("ConsentFactory");
-    consentFactory = await ConsentFactory.deploy(
-      trustedForwarder.address,
-      consentImpAddress,
+    consentFactory = await upgrades.deployProxy(
+      ConsentFactory,
+      [
+        trustedForwarder.address,
+              consentImpAddress,
+      ]
     );
     await consentFactory.deployed();
 

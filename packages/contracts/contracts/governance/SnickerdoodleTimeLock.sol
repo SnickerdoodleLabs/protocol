@@ -5,10 +5,10 @@ import "@openzeppelin/contracts-upgradeable/governance/TimelockControllerUpgrade
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /// @title Consent 
-/// @author Sean Sing
-/// @notice Snickerdoodle Protocol's DAO Timelock Contract 
-/// @dev Snickerdoodle (SDL) adopts OpenZeppelin's (OZ) Governor Library
-/// @dev The contract adopts OZ's proxy upgrade pattern 
+/// @author Snickerdoodle Labs
+/// @notice Synamint Protocol DAO Governance Timelock Contract 
+/// @dev Based on OpenZeppelin's (OZ) Governor Library
+/// @dev This contract adopts OZ's proxy upgrade pattern 
 
 contract SnickerdoodleTimelock is Initializable, TimelockControllerUpgradeable {
 

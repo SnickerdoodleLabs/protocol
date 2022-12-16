@@ -9,8 +9,8 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 
 /// @title Sift 
-/// @author Sean Sing
-/// @notice Snickerdoodle Protocol's Sift Contract
+/// @author Snickerdoodle Labs
+/// @notice Synamint Protocol Sift Contract
 /// @dev The Sift contract is a simple registry that tracks verified or malicious urls
 /// @dev If a url has been verified by the Snickerdoodle team, it is minted with a Sift ERC721 token with a 'VERIFIED' tokenURI
 /// @dev If a url has been identified as malicious, it is minted a 'MALICIOUS' tokenURI
