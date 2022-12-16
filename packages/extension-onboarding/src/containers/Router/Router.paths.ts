@@ -10,6 +10,7 @@ export enum EPaths {
   MY_REWARDS = "/my-rewards",
   MY_CAMPAIGNS = "/campaigns/my-campaigns",
   MARKETPLACE_CAMPAIGNS = "/campaigns/marketplace",
+  MARKETPLACE_COLLECTION = "/rewards/marketplace/:brand",
   SETTINGS = "/settings",
   WEB3_SETTINGS = "/settings/web3",
   WEB2_SETTINGS = "/settings/web2",
