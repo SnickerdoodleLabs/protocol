@@ -20,7 +20,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onTransaction: Subject<EVMTransaction>;
   public onMetatransactionSignatureRequested: Subject<MetatransactionSignatureRequest>;
   public onBackupRestored: Subject<DataWalletBackupID>;
-  public onInitialRestore: Subject<null>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -32,6 +31,5 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onTransaction = new Subject();
     this.onMetatransactionSignatureRequested = new Subject();
     this.onBackupRestored = new Subject();
-    this.onInitialRestore = new Subject();
   }
 }

@@ -1,4 +1,8 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -23,6 +27,8 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
     @inject(IContextProviderType)
     protected contextProvider: IContextProvider,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -33,14 +39,12 @@ export class AccountIndexerPoller implements IAccountIndexerPoller {
         });
       }, config.dataWalletBackupIntervalMS);
 
-      this.contextProvider.getContext().map((ctx) => {
-        ctx.publicEvents.onInitialRestore.subscribe(() => {
-          setInterval(() => {
-            this.monitoringService.pollTransactions().mapErr((e) => {
-              this.logUtils.error(e);
-            });
-          }, config.accountIndexingPollingIntervalMS);
-        });
+      this.persistence.waitForRestore().map(() => {
+        setInterval(() => {
+          this.monitoringService.pollTransactions().mapErr((e) => {
+            this.logUtils.error(e);
+          });
+        }, config.accountIndexingPollingIntervalMS);
       });
     });
   }
