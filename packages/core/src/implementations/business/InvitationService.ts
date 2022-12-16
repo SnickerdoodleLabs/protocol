@@ -100,110 +100,156 @@ export class InvitationService implements IInvitationService {
     | BlockchainProviderError
     | AjaxError
   > {
+    let cleanupActions = okAsync<void, PersistenceError>(undefined);
     return ResultUtils.combine([
       this.persistenceRepo.getRejectedCohorts(),
+      this.persistenceRepo.getAcceptedInvitations(),
+      // isAddressOptedIn() just checks for a balance- it does not require that the persistence
+      // layer actually know about the token
       this.consentRepo.isAddressOptedIn(invitation.consentContractAddress),
       this.consentRepo.getAvailableOptInCount(
         invitation.consentContractAddress,
       ),
       this.consentRepo.isOpenOptInDisabled(invitation.consentContractAddress),
-    ]).andThen(
-      ([
-        rejectedConsentContracts,
-        optedIn,
-        availableOptIns,
-        openOptInDisabled,
-      ]) => {
-        const rejected = rejectedConsentContracts.includes(
-          invitation.consentContractAddress,
-        );
+    ])
+      .andThen(
+        ([
+          rejectedConsentContracts,
+          acceptedInvitations,
+          optedInOnChain,
+          availableOptIns,
+          openOptInDisabled,
+        ]) => {
+          const rejected = rejectedConsentContracts.includes(
+            invitation.consentContractAddress,
+          );
 
-        // If we are opted in, that wins
-        if (optedIn) {
-          return okAsync(EInvitationStatus.Accepted);
-        }
+          const acceptedInvitation = acceptedInvitations.find((ai) => {
+            return (
+              ai.consentContractAddress.toLowerCase() ==
+              invitation.consentContractAddress.toLowerCase()
+            );
+          });
 
-        // Next winner, the reject list
-        if (rejected) {
-          return okAsync(EInvitationStatus.Rejected);
-        }
+          // If we are opted in, that wins
+          if (optedInOnChain) {
+            // Check if know about the opt-in in the persistence
+            if (acceptedInvitation != null) {
+              // Persistence and chain match!
+              return okAsync(EInvitationStatus.Accepted);
+            }
+            // There's no known accepted invitation
+            // Add it to the persistence, then return Accepted
+            return this.persistenceRepo
+              .addAcceptedInvitations([invitation])
+              .map(() => {
+                return EInvitationStatus.Accepted;
+              });
+          }
 
-        // Next up, if there are no slots available, then it's an Invalid invitation
-        if (availableOptIns == 0) {
-          return okAsync(EInvitationStatus.OutOfCapacity);
-        }
+          // If we are opted in in the persistence, but not on chain, we need to update the persistence
+          if (acceptedInvitation != null && !optedInOnChain) {
+            // This is a problem
+            // We need to fix the persistence and then evaluate the rest of this stuff.
+            // Fortunately the rest of the stuff doesn't care about acceptedInvitation,
+            // so we'll just add a cleanupAction.
+            cleanupActions =
+              this.persistenceRepo.removeAcceptedInvitationsByContractAddress([
+                invitation.consentContractAddress,
+              ]);
+          }
 
-        // If invitation has bussiness signature verify signature
-        if (invitation.businessSignature) {
-          // If business signature exist then open optIn should be disabled
-          if (!openOptInDisabled) {
+          // Next winner, the reject list
+          if (rejected) {
+            return okAsync(EInvitationStatus.Rejected);
+          }
+
+          // Next up, if there are no slots available, then it's an Invalid invitation
+          if (availableOptIns == 0) {
+            return okAsync(EInvitationStatus.OutOfCapacity);
+          }
+
+          // If invitation has bussiness signature verify signature
+          if (invitation.businessSignature) {
+            // If business signature exist then open optIn should be disabled
+            if (!openOptInDisabled) {
+              return okAsync(EInvitationStatus.Invalid);
+            }
+
+            // Check if the consent token already exists
+            // If it does, it means this invitation has already been claimed
+            return this.consentRepo
+              .getConsentToken(invitation)
+              .andThen((existingConsentToken) => {
+                // If the existing consent token exists, it must NOT be owned by us- we'd have found
+                // the token via isAddressOptedIn() above. So somebody else has gotten this invitation.
+                if (existingConsentToken != null) {
+                  return okAsync(EInvitationStatus.Occupied);
+                }
+                return this.isValidSignatureForInvitation(
+                  invitation.consentContractAddress,
+                  invitation.tokenId,
+                  invitation.businessSignature!,
+                ).map((validSignature) => {
+                  return validSignature
+                    ? EInvitationStatus.New
+                    : EInvitationStatus.Invalid;
+                });
+              });
+          }
+
+          // If business signature does not exist then open optIn should not be disabled
+          if (openOptInDisabled) {
             return okAsync(EInvitationStatus.Invalid);
           }
-          return this.consentRepo
-            .getTokenURI(invitation.consentContractAddress, invitation.tokenId)
-            .orElse((e) => {
-              return okAsync(null);
-            })
-            .andThen((tokenUri) => {
-              if (tokenUri) {
-                return okAsync(EInvitationStatus.Occupied);
+
+          // If invitation belongs any domain verify URLs
+          if (invitation.domain) {
+            // Not rejected or already in the cohort, we need to verify the invitation
+            return ResultUtils.combine([
+              this.consentRepo.getInvitationUrls(
+                invitation.consentContractAddress,
+              ),
+              this.getConsentContractAddressesFromDNS(invitation.domain),
+            ]).map(([urls, consentContractAddresses]) => {
+              // Derive a list of domains from a list of URLs
+
+              const domains = urls
+                .map((url) => {
+                  if (url.includes("https://") || url.includes("http://")) {
+                    return new URL(url).href;
+                  }
+                  return new URL(`http://${url}`).href;
+                })
+                .map((href) => getDomain(href));
+
+              // We need to remove the subdomain so it would match with the saved domains in the blockchain
+              const domainStr = getDomain(invitation.domain);
+              // The contract must include the domain
+              if (!domains.includes(domainStr)) {
+                return EInvitationStatus.Invalid;
               }
-              return this.isValidSignatureForInvitation(
-                invitation.consentContractAddress,
-                invitation.tokenId,
-                invitation.businessSignature!,
-              );
-            })
-            .map((res) => {
-              return res ? EInvitationStatus.New : EInvitationStatus.Invalid;
+              if (
+                !consentContractAddresses.includes(
+                  invitation.consentContractAddress,
+                )
+              ) {
+                return EInvitationStatus.Invalid;
+              }
+
+              return EInvitationStatus.New;
             });
-        }
-
-        // If business signature does not exist then open optIn should not be disabled
-        if (openOptInDisabled) {
-          return okAsync(EInvitationStatus.Invalid);
-        }
-
-        // If invitation belongs any domain verify URLs
-        if (invitation.domain) {
-          // Not rejected or already in the cohort, we need to verify the invitation
-          return ResultUtils.combine([
-            this.consentRepo.getInvitationUrls(
-              invitation.consentContractAddress,
-            ),
-            this.getConsentContractAddressesFromDNS(invitation.domain),
-          ]).map(([urls, consentContractAddresses]) => {
-            // Derive a list of domains from a list of URLs
-
-            const domains = urls
-              .map((url) => {
-                if (url.includes("https://") || url.includes("http://")) {
-                  return new URL(url).href;
-                }
-                return new URL(`http://${url}`).href;
-              })
-              .map((href) => getDomain(href));
-
-            // We need to remove the subdomain so it would match with the saved domains in the blockchain
-            const domainStr = getDomain(invitation.domain);
-            // The contract must include the domain
-            if (!domains.includes(domainStr)) {
-              return EInvitationStatus.Invalid;
-            }
-            if (
-              !consentContractAddresses.includes(
-                invitation.consentContractAddress,
-              )
-            ) {
-              return EInvitationStatus.Invalid;
-            }
-
-            return EInvitationStatus.New;
-          });
-        }
-        return okAsync(EInvitationStatus.New);
-      },
-    );
+          }
+          return okAsync(EInvitationStatus.New);
+        },
+      )
+      .andThen((invitationStatus) => {
+        // If there are any cleanup actions, do them now.
+        // Right now, this should just be fixing our persistence.
+        return cleanupActions.map(() => {
+          return invitationStatus;
+        });
+      });
   }
 
   public acceptInvitation(

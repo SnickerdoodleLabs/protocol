@@ -1,5 +1,6 @@
 import {
   DataWalletAddress,
+  DataWalletBackupID,
   EVMContractAddress,
   EVMTransaction,
   ISnickerdoodleCoreEvents,
@@ -18,6 +19,7 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onCohortLeft: Subject<EVMContractAddress>;
   public onTransaction: Subject<EVMTransaction>;
   public onMetatransactionSignatureRequested: Subject<MetatransactionSignatureRequest>;
+  public onBackupRestored: Subject<DataWalletBackupID>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -28,5 +30,6 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onCohortLeft = new Subject();
     this.onTransaction = new Subject();
     this.onMetatransactionSignatureRequested = new Subject();
+    this.onBackupRestored = new Subject();
   }
 }

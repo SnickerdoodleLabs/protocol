@@ -11,6 +11,7 @@ import {
   AESKey,
   BigNumberString,
   CeramicStreamID,
+  DataWalletBackupID,
   EChain,
   EncryptedString,
   EVMAccountAddress,
@@ -108,7 +109,7 @@ const solanaBurnCrumbMetatransactionSignature = Signature(
   "solanaBurnCrumbMetatransactionSignature",
 );
 
-const ceramicStream = CeramicStreamID("ceramicStream");
+const dataWalletBackupID = DataWalletBackupID("ceramicStream");
 
 class AccountServiceMocks {
   public insightPlatformRepo: IInsightPlatformRepository;
@@ -415,8 +416,8 @@ class AccountServiceMocks {
     td.when(
       this.dataWalletPersistence.removeAccount(solanaAccountAddress),
     ).thenReturn(okAsync(undefined));
-    td.when(this.dataWalletPersistence.postBackup()).thenReturn(
-      okAsync(ceramicStream),
+    td.when(this.dataWalletPersistence.postBackups()).thenReturn(
+      okAsync([dataWalletBackupID]),
     );
 
     // ContractFactory --------------------------------------------------

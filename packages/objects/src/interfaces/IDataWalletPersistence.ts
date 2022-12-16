@@ -12,7 +12,7 @@ import {
   LinkedAccount,
   SiteVisit,
 } from "@objects/businessObjects";
-import { PersistenceError } from "@objects/errors";
+import { AjaxError, PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import {
@@ -31,6 +31,7 @@ import {
   UnixTimestamp,
   AccountAddress,
   CeramicStreamID,
+  DataWalletBackupID,
 } from "@objects/primitives";
 
 /**
@@ -127,7 +128,9 @@ export interface IDataWalletPersistence {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
-  addEarnedRewards(rewards: EarnedReward[]): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
   /**
@@ -181,11 +184,14 @@ export interface IDataWalletPersistence {
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError>;
 
-  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  postBackups(): ResultAsync<
+    DataWalletBackupID[],
+    PersistenceError | AjaxError
+  >;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
+  waitForRestore(): ResultAsync<EVMPrivateKey, never>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
