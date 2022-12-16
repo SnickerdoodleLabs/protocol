@@ -16,8 +16,6 @@ import {
   ChainId,
   EChainType,
   EVMAccountAddress,
-  TokenBalance,
-  TickerSymbol,
   WalletNFT,
   EChainTechnology,
   EVMNFT,
@@ -49,6 +47,7 @@ import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfa
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { ResultUtils } from "neverthrow-result-utils";
 import { okAsync } from "neverthrow";
+import { IBalanceItem } from "@extension-onboarding/objects";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -94,9 +93,9 @@ interface IPortfolioProps {
 const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
   const { setModal } = useLayoutContext();
   const { linkedAccounts } = useAppContext();
-  const [accountBalances, setAccountBalances] = useState<TokenBalance[]>();
+  const [accountBalances, setAccountBalances] = useState<IBalanceItem[]>();
   const [accountTestnetBalances, setAccountTestnetBalances] =
-    useState<TokenBalance[]>();
+    useState<IBalanceItem[]>();
   const [accountNFTs, setAccountNFTs] = useState<WalletNFT[]>();
   const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
 
@@ -133,58 +132,72 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
     }
   }, [JSON.stringify(accountNFTs)]);
 
-  const initializeBalances = async () => {
+  const initializeBalances = () => {
     window.sdlDataWallet
       .getAccountBalances()
-      .mapErr((e) => {
-        setIsBalancesLoading(false);
-      })
-      .andThen((results) => {
-        return ResultUtils.combine(
-          results.map((res) => {
-            if (!res.balance) {
-              return okAsync(0);
-            }
-            return window.sdlDataWallet
-              .getTokenPrice(res.chainId, res.tokenAddress)
-              .orElse((e) => okAsync(0));
-          }),
-        ).map((prices) => {
-          const balances = prices.reduce((acc, price, index) => {
-            acc = [
-              ...acc,
-              {
-                ...results[index],
-                quoteBalance: BigNumberString(
-                  (
-                    price * Number.parseFloat(results[index].balance)
-                  ).toString(),
-                ),
+      .andThen((balanceResults) =>
+        ResultUtils.combine(
+          balanceResults.map((balanceItem) =>
+            window.sdlDataWallet
+              .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
+              .orElse((e) => okAsync(null)),
+          ),
+        ).map((tokenInfo) =>
+          balanceResults.map((balanceItem, index) => ({
+            ...balanceItem,
+            tokenInfo: tokenInfo[index],
+          })),
+        ),
+      )
+      .andThen((balancesWithTokenInfo) => {
+        return window.sdlDataWallet
+          .getTokenMarketData(
+            balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
+          )
+          .orElse((e) => okAsync([]))
+          .map((res) => {
+            const combinedBalances = balancesWithTokenInfo.reduce(
+              (acc, item) => {
+                if (!item.tokenInfo) {
+                  acc = [...acc, { ...item, marketaData: null }];
+                } else {
+                  const marketData = res.filter(
+                    (marketData) => marketData.id == item.tokenInfo!.id,
+                  );
+                  acc = [
+                    ...acc,
+                    {
+                      ...item,
+                      marketaData: marketData.length ? marketData[0] : null,
+                    },
+                  ];
+                }
+
+                return acc;
               },
-            ];
-            return acc;
-          }, [] as TokenBalance[]);
-          const structeredBalances = balances.reduce(
-            (acc, item) => {
-              const isMainnetItem = mainnetSupportedChainIds.includes(
-                item.chainId,
-              );
-              if (isMainnetItem) {
-                acc.mainnetBalances = [...acc.mainnetBalances, item];
-              } else {
-                acc.testnetBalances = [...acc.testnetBalances, item];
-              }
-              return acc;
-            },
-            { mainnetBalances: [], testnetBalances: [] } as {
-              mainnetBalances: TokenBalance[];
-              testnetBalances: TokenBalance[];
-            },
-          );
-          setAccountBalances(structeredBalances.mainnetBalances);
-          setAccountTestnetBalances(structeredBalances.testnetBalances);
-          setIsBalancesLoading(false);
-        });
+              [] as IBalanceItem[],
+            );
+            const structeredBalances = combinedBalances.reduce(
+              (acc, item) => {
+                const isMainnetItem = mainnetSupportedChainIds.includes(
+                  item.chainId,
+                );
+                if (isMainnetItem) {
+                  acc.mainnetBalances = [...acc.mainnetBalances, item];
+                } else {
+                  acc.testnetBalances = [...acc.testnetBalances, item];
+                }
+                return acc;
+              },
+              { mainnetBalances: [], testnetBalances: [] } as {
+                mainnetBalances: IBalanceItem[];
+                testnetBalances: IBalanceItem[];
+              },
+            );
+            setAccountBalances(structeredBalances.mainnetBalances);
+            setAccountTestnetBalances(structeredBalances.testnetBalances);
+            setIsBalancesLoading(false);
+          });
       });
   };
 
@@ -225,7 +238,10 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
 
       return {
         netWorth: balanceArr.reduce(
-          (acc, item) => acc + Number.parseFloat(item.quoteBalance || "0"),
+          (acc, item) =>
+            acc +
+            Number.parseFloat(item.balance || "0") *
+              (item.marketaData?.currentPrice ?? 0),
           0,
         ),
         numberOfTokens: new Set(balanceArr.map((balance) => balance.ticker))
@@ -256,7 +272,7 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
     setAccountSelect(value);
   };
 
-  const getGroupedBalances = (balanceArr: TokenBalance[]): TokenBalance[] => {
+  const getGroupedBalances = (balanceArr: IBalanceItem[]): IBalanceItem[] => {
     return Object.values(
       balanceArr.reduce((acc, item) => {
         if (acc[item.ticker]) {
@@ -279,14 +295,17 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
           acc[item.ticker] = item;
         }
         return acc;
-      }, {} as { [key: TickerSymbol]: TokenBalance }),
+      }, {} as { [key: string]: IBalanceItem }),
     ).sort(
       (a, b) =>
-        Number.parseFloat(b.quoteBalance) - Number.parseFloat(a.quoteBalance),
+        Number.parseFloat(b.balance || "0") *
+          (b.marketaData?.currentPrice ?? 0) -
+        Number.parseFloat(a.balance || "0") *
+          (a.marketaData?.currentPrice ?? 0),
     );
   };
 
-  const tokensToRender: TokenBalance[] | null = useMemo(() => {
+  const tokensToRender: IBalanceItem[] | null = useMemo(() => {
     if (accountBalances && accountTestnetBalances) {
       const balanceArr =
         EDisplayMode.MAINNET === displayMode
@@ -306,8 +325,10 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
           .filter((item) => item.accountAddress === accountSelect)
           .sort(
             (a, b) =>
-              Number.parseFloat(b.quoteBalance) -
-              Number.parseFloat(a.quoteBalance),
+              Number.parseFloat(b.balance || "0") *
+                (b.marketaData?.currentPrice ?? 0) -
+              Number.parseFloat(a.balance || "0") *
+                (a.marketaData?.currentPrice ?? 0),
           );
       }
       return balanceArr
@@ -318,8 +339,10 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
         )
         .sort(
           (a, b) =>
-            Number.parseFloat(b.quoteBalance) -
-            Number.parseFloat(a.quoteBalance),
+            Number.parseFloat(b.balance || "0") *
+              (b.marketaData?.currentPrice ?? 0) -
+            Number.parseFloat(a.balance || "0") *
+              (a.marketaData?.currentPrice ?? 0),
         );
     } else {
       return null;
@@ -395,9 +418,6 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
     }
     return testnetSupportedChainIds;
   }, [displayMode]);
-
-  console.log("balances", tokensToRender);
-  console.log("nfts", nftsToRender);
 
   const walletIcon = (walletProvider: EWalletProviderKeys) => {
     switch (walletProvider) {

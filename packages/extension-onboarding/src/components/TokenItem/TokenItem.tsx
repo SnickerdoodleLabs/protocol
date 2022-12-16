@@ -8,8 +8,9 @@ import {
   tokenInfoObj,
   stableCoins,
 } from "@extension-onboarding/constants/tokenInfo";
+import { IBalanceItem } from "@extension-onboarding/objects";
 interface ITokenItemProps {
-  item: TokenBalance;
+  item: IBalanceItem;
 }
 
 const TokenItem: FC<ITokenItemProps> = ({ item }) => {
@@ -18,7 +19,11 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
       <img
         width={36}
         height={36}
-        src={tokenInfoObj[item.ticker]?.iconSrc ?? defaultToken}
+        src={
+          item.marketaData?.image
+            ? item.marketaData?.image
+            : tokenInfoObj[item.ticker]?.iconSrc ?? defaultToken
+        }
       />
       <Box ml={3}>
         <Box>
@@ -66,7 +71,11 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
             padding: "10px",
           }}
         >
-          ${Number.parseFloat(item.quoteBalance || "0").toFixed(4)}
+          $
+          {(
+            Number.parseFloat(item.balance || "0") *
+            (item.marketaData?.currentPrice ?? 0)
+          ).toFixed(4)}
         </Typography>
       </Box>
     </Box>
