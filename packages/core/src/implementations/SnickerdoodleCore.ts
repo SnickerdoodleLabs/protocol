@@ -744,7 +744,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     chainId: ChainId,
     contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
-    console.log("HEREEEE");
     const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
       ITokenPriceRepositoryType,
     );
@@ -754,7 +753,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public getTokenMarketData(
     ids: string[],
   ): ResultAsync<TokenMarketData[], AccountIndexingError> {
-    console.log("HEREEEE3333");
     const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
       ITokenPriceRepositoryType,
     );
