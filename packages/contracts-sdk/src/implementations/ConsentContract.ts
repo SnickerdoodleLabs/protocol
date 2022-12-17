@@ -926,6 +926,59 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
+  public listingsTotal(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.listingsTotal() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call listingsTotal()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((listingsTotal) => BlockNumber(listingsTotal.toNumber()));
+  }
+
+  public listingsHead(): ResultAsync<number, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.listingsHead() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call listingsHead()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((listingsHead) => BlockNumber(listingsHead.toNumber()));
+  }
+
+  public getMarketplaceListings(
+    listingCount?: number,
+  ): ResultAsync<IpfsCID[], ConsentContractError> {
+    const listingsTotalAsync =
+      listingCount == null ? this.listingsTotal() : okAsync(listingCount);
+
+    return ResultUtils.combine([
+      this.listingsHead(),
+      listingsTotalAsync,
+    ]).andThen(([listingsHead, listingsTotal]) => {
+      return ResultAsync.fromPromise(
+        this.contract.getListings(listingsHead, listingsTotal) as Promise<
+          [IpfsCID[]]
+        >,
+        (e) => {
+          return new ConsentContractError(
+            "Unable to call getListings()",
+            (e as IBlockchainError).reason,
+            e,
+          );
+        },
+      ).map(([listingsArray]) => {
+        return listingsArray;
+      });
+    });
+  }
+
   public filters = {
     Transfer: (
       fromAddress: EVMAccountAddress | null,
