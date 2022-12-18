@@ -5,6 +5,7 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   IBlockchainError,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -13,6 +14,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
@@ -224,6 +226,59 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
         }
       });
       return consents;
+    });
+  }
+
+  public listingsTotal(): ResultAsync<number, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.listingsTotal() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call listingsTotal()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((listingsTotal) => listingsTotal.toNumber());
+  }
+
+  public listingsHead(): ResultAsync<number, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.listingsHead() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call listingsHead()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((listingsHead) => listingsHead.toNumber());
+  }
+
+  public getMarketplaceListings(
+    listingCount?: number,
+  ): ResultAsync<IpfsCID[], ConsentFactoryContractError> {
+    const listingsTotalAsync =
+      listingCount == null ? this.listingsTotal() : okAsync(listingCount);
+
+    return ResultUtils.combine([
+      this.listingsHead(),
+      listingsTotalAsync,
+    ]).andThen(([listingsHead, listingsTotal]) => {
+      return ResultAsync.fromPromise(
+        this.contract.getListings(listingsHead, listingsTotal) as Promise<
+          [IpfsCID[]]
+        >,
+        (e) => {
+          return new ConsentFactoryContractError(
+            "Unable to call getListings()",
+            (e as IBlockchainError).reason,
+            e,
+          );
+        },
+      ).map(([listingsArray]) => {
+        return listingsArray;
+      });
     });
   }
 }

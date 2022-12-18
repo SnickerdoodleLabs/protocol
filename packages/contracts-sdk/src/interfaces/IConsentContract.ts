@@ -326,17 +326,6 @@ export interface IConsentContract {
     >,
   ): ResultAsync<Signature, InvalidParametersError>;
 
-  /**
-   * Marketplace Listings
-   */
-  listingsTotal(): ResultAsync<number, ConsentContractError>;
-
-  listingsHead(): ResultAsync<number, ConsentContractError>;
-
-  getMarketplaceListings(
-    listingCount?: number,
-  ): ResultAsync<IpfsCID[], ConsentContractError>;
-
   filters: IConsentContractFilters;
 }
 
