@@ -21,7 +21,8 @@ export class NftMetadataParseUtils {
     }
     let metadataObj = null;
     try {
-      metadataObj = JSON.parse(metadataString);
+      const obj = JSON.parse(metadataString);
+      metadataObj = obj.raw ? JSON.parse(obj.raw) : obj;
     } catch (e) {
       metadataObj = null;
     }

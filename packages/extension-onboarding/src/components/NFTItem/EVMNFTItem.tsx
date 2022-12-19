@@ -35,6 +35,7 @@ export const EVMNFTItem: FC<IEVMNFTItemProps> = ({
           </Typography>
         </Box>
         <Typography
+          className={classes.review}
           onClick={() =>
             navigate(EPaths.NFT_DETAIL, {
               state: {
