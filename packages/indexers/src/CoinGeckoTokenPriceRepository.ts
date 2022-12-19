@@ -52,8 +52,8 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   ) {
     this._nativeIds = new Map();
     chainConfig.forEach((value) => {
-      if (value.nativeTokenCoinGeckoId) {
-        this._nativeIds.set(value.chainId, value.nativeTokenCoinGeckoId);
+      if (value.nativeCurrency.coinGeckoId) {
+        this._nativeIds.set(value.chainId, value.nativeCurrency.coinGeckoId);
       }
     });
   }
