@@ -1,4 +1,3 @@
-import TokenItem from "@extension-onboarding/components/TokenItem/TokenItem";
 import {
   Box,
   CircularProgress,
@@ -17,29 +16,37 @@ import {
   ChainId,
   EChainType,
   EVMAccountAddress,
-  TokenBalance,
-  TickerSymbol,
   WalletNFT,
+  EChainTechnology,
+  EVMNFT,
+  SolanaNFT,
+  AccountAddress,
+  formatValue,
 } from "@snickerdoodlelabs/objects";
 import clsx from "clsx";
 import { BigNumber } from "ethers";
 import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import React, { FC, useEffect, useMemo, useState } from "react";
-
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import phantomSmall from "@extension-onboarding/assets/icons/phantomSmall.svg";
 import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
 import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
-import NFTItem from "@extension-onboarding/components/NFTItem";
+import {
+  SolanaNFTItem,
+  EVMNFTItem,
+} from "@extension-onboarding/components/NFTItem";
 import Switch from "@extension-onboarding/components/Switch";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
 import { useAppContext } from "@extension-onboarding/context/App";
-import InfoCard from "@extension-onboarding/pages/Details/screens/Portfolio/components/InfoCard";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/Portfolio/Portfolio.style";
+import InfoCard from "@extension-onboarding/components/Portfolio/components/InfoCard";
+import TokenItem from "@extension-onboarding/components/TokenItem";
+import { useStyles } from "@extension-onboarding/components/Portfolio/Portfolio.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { ResultUtils } from "neverthrow-result-utils";
+import { IBalanceItem } from "@extension-onboarding/objects";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -78,17 +85,24 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
 
 const PAGINATION_RANGE = 5;
 
-const Portfolio: FC = () => {
+interface IPortfolioProps {
+  selectedAccount?: AccountAddress;
+}
+
+const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
+  const { setModal } = useLayoutContext();
   const { linkedAccounts } = useAppContext();
-  const [accountBalances, setAccountBalances] = useState<TokenBalance[]>();
+  const [accountBalances, setAccountBalances] = useState<IBalanceItem[]>();
   const [accountTestnetBalances, setAccountTestnetBalances] =
-    useState<TokenBalance[]>();
+    useState<IBalanceItem[]>();
   const [accountNFTs, setAccountNFTs] = useState<WalletNFT[]>();
   const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
 
   const [isBalancesLoading, setIsBalancesLoading] = useState(true);
   const [isNFTsLoading, setIsNFTsLoading] = useState(true);
-  const [accountSelect, setAccountSelect] = useState<EVMAccountAddress>();
+  const [accountSelect, setAccountSelect] = useState<
+    AccountAddress | undefined
+  >(selectedAccount);
   const [chainSelect, setChainSelect] = useState<ChainId>();
   const [displayMode, setDisplayMode] = useState<EDisplayMode>(
     EDisplayMode.MAINNET,
@@ -97,15 +111,12 @@ const Portfolio: FC = () => {
   const [nftsPagination, setNftsPagination] = useState<IPagination>();
 
   useEffect(() => {
-    initializeBalances();
-    initializeNfts();
-  }, []);
-
-  useEffect(() => {
-    setIsBalancesLoading(true);
-    setIsNFTsLoading(true);
-    initializeBalances();
-    initializeNfts();
+    if (linkedAccounts.length) {
+      setIsBalancesLoading(true);
+      setIsNFTsLoading(true);
+      initializeBalances();
+      initializeNfts();
+    }
   }, [linkedAccounts.length]);
 
   useEffect(() => {
@@ -120,33 +131,84 @@ const Portfolio: FC = () => {
     }
   }, [JSON.stringify(accountNFTs)]);
 
-  const initializeBalances = async () => {
+  const initializeBalances = () => {
     window.sdlDataWallet
       .getAccountBalances()
-      .mapErr((e) => {
-        setIsBalancesLoading(false);
-      })
-      .map((result) => {
-        const structeredBalances = result.reduce(
-          (acc, item) => {
-            const isMainnetItem = mainnetSupportedChainIds.includes(
-              item.chainId,
+      .map((balances) =>
+        balances.map((b) => ({ ...b, balance: formatValue(b) })),
+      )
+      .andThen((balanceResults) =>
+        ResultUtils.combine(
+          balanceResults.map((balanceItem) =>
+            window.sdlDataWallet
+              .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
+              .orElse((e) => okAsync(null)),
+          ),
+        ).map((tokenInfo) =>
+          balanceResults.map((balanceItem, index) => ({
+            ...balanceItem,
+            tokenInfo: tokenInfo[index],
+          })),
+        ),
+      )
+      .andThen((balancesWithTokenInfo) => {
+        return window.sdlDataWallet
+          .getTokenMarketData(
+            balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
+          )
+          .orElse((e) => okAsync([]))
+          .map((res) => {
+            const combinedBalances = balancesWithTokenInfo.reduce(
+              (acc, item) => {
+                if (!item.tokenInfo) {
+                  acc = [
+                    ...acc,
+                    { ...item, marketaData: null, quoteBalance: 0 },
+                  ];
+                } else {
+                  const marketData = res.filter(
+                    (marketData) => marketData.id == item.tokenInfo!.id,
+                  );
+                  const marketDataRes = marketData.length
+                    ? marketData[0]
+                    : null;
+                  acc = [
+                    ...acc,
+                    {
+                      ...item,
+                      marketaData: marketData.length ? marketData[0] : null,
+                      quoteBalance:
+                        Number.parseFloat(item.balance || "0") *
+                        (marketDataRes?.currentPrice ?? 0),
+                    },
+                  ];
+                }
+
+                return acc;
+              },
+              [] as IBalanceItem[],
             );
-            if (isMainnetItem) {
-              acc.mainnetBalances = [...acc.mainnetBalances, item];
-            } else {
-              acc.testnetBalances = [...acc.testnetBalances, item];
-            }
-            return acc;
-          },
-          { mainnetBalances: [], testnetBalances: [] } as {
-            mainnetBalances: TokenBalance[];
-            testnetBalances: TokenBalance[];
-          },
-        );
-        setAccountBalances(structeredBalances.mainnetBalances);
-        setAccountTestnetBalances(structeredBalances.testnetBalances);
-        setIsBalancesLoading(false);
+            const structeredBalances = combinedBalances.reduce(
+              (acc, item) => {
+                const isMainnetItem = mainnetSupportedChainIds.includes(
+                  item.chainId,
+                );
+                if (isMainnetItem) {
+                  acc.mainnetBalances = [...acc.mainnetBalances, item];
+                } else {
+                  acc.testnetBalances = [...acc.testnetBalances, item];
+                }
+                return acc;
+              },
+              { mainnetBalances: [], testnetBalances: [] } as {
+                mainnetBalances: IBalanceItem[];
+                testnetBalances: IBalanceItem[];
+              },
+            );
+            setAccountBalances(structeredBalances.mainnetBalances);
+            setAccountTestnetBalances(structeredBalances.testnetBalances);
+            setIsBalancesLoading(false);
+          });
       });
   };
 
@@ -187,7 +249,10 @@ const Portfolio: FC = () => {
 
       return {
         netWorth: balanceArr.reduce(
-          (acc, item) => acc + Number.parseFloat(item.balance),
+          (acc, item) =>
+            acc +
+            Number.parseFloat(item.balance || "0") *
+              (item.marketaData?.currentPrice ?? 0),
           0,
         ),
         numberOfTokens: new Set(balanceArr.map((balance) => balance.ticker))
@@ -218,27 +283,35 @@ const Portfolio: FC = () => {
     setAccountSelect(value);
   };
 
-  const getGroupedBalances = (balanceArr: TokenBalance[]): TokenBalance[] => {
+  const getGroupedBalances = (balanceArr: IBalanceItem[]): IBalanceItem[] => {
     return Object.values(
       balanceArr.reduce((acc, item) => {
         if (acc[item.ticker]) {
           acc[item.ticker] = {
             ...acc[item.ticker],
             balance: BigNumberString(
-              BigNumber.from(acc[item.ticker].balance)
-                .add(BigNumber.from(item.balance))
-                .toString(),
+              (
+                Number.parseFloat(acc[item.ticker].balance) +
+                Number.parseFloat(item.balance)
+              ).toString(),
             ),
+            quoteBalance: acc[item.ticker].quoteBalance + item.quoteBalance,
           };
         } else {
           acc[item.ticker] = item;
         }
         return acc;
-      }, {} as { [key: TickerSymbol]: TokenBalance }),
+      }, {} as { [key: string]: IBalanceItem }),
+    ).sort(
+      (a, b) =>
+        Number.parseFloat(b.balance || "0") *
+          (b.marketaData?.currentPrice ?? 0) -
+        Number.parseFloat(a.balance || "0") *
+          (a.marketaData?.currentPrice ?? 0),
     );
   };
 
-  const tokensToRender: TokenBalance[] | null = useMemo(() => {
+  const tokensToRender: IBalanceItem[] | null = useMemo(() => {
     if (accountBalances && accountTestnetBalances) {
       const balanceArr =
         EDisplayMode.MAINNET === displayMode
@@ -254,14 +327,29 @@ const Portfolio: FC = () => {
         );
       }
       if (accountSelect && !chainSelect) {
-        return balanceArr.filter(
-          (item) => item.accountAddress === accountSelect,
-        );
+        return balanceArr
+          .filter((item) => item.accountAddress === accountSelect)
+          .sort(
+            (a, b) =>
+              Number.parseFloat(b.balance || "0") *
+                (b.marketaData?.currentPrice ?? 0) -
+              Number.parseFloat(a.balance || "0") *
+                (a.marketaData?.currentPrice ?? 0),
+          );
       }
-      return balanceArr.filter(
-        (item) =>
-          item.accountAddress === accountSelect && item.chainId === chainSelect,
-      );
+      return balanceArr
+        .filter(
+          (item) =>
+            item.accountAddress === accountSelect &&
+            item.chainId === chainSelect,
+        )
+        .sort(
+          (a, b) =>
+            Number.parseFloat(b.balance || "0") *
+              (b.marketaData?.currentPrice ?? 0) -
+            Number.parseFloat(a.balance || "0") *
+              (a.marketaData?.currentPrice ?? 0),
+        );
     } else {
       return null;
     }
@@ -336,9 +424,6 @@ const Portfolio: FC = () => {
     }
     return testnetSupportedChainIds;
   }, [displayMode]);
-
-  console.log("balances", tokensToRender);
-  console.log("nfts", nftsToRender);
 
   const walletIcon = (walletProvider: EWalletProviderKeys) => {
     switch (walletProvider) {
@@ -662,10 +747,22 @@ const Portfolio: FC = () => {
                           nftsPagination.currentIndex * PAGINATION_RANGE,
                         )
                       : nftsToRender
-                    )?.map((nftitem) => {
-                      return (
-                        <NFTItem key={JSON.stringify(nftitem)} item={nftitem} />
-                      );
+                    )?.map((nftItem) => {
+                      if (nftItem.type === EChainTechnology.EVM) {
+                        return (
+                          <EVMNFTItem
+                            key={JSON.stringify(nftItem)}
+                            item={nftItem as EVMNFT}
+                          />
+                        );
+                      } else {
+                        return (
+                          <SolanaNFTItem
+                            key={JSON.stringify(nftItem)}
+                            item={nftItem as SolanaNFT}
+                          />
+                        );
+                      }
                     })
                   ) : (
                     <Box width="100%" display="flex">

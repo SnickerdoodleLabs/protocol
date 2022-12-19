@@ -5,7 +5,10 @@ import { ResultAsync } from "neverthrow";
 import {
   EarnedReward,
   LinkedAccount,
+  TokenAddress,
   TokenBalance,
+  TokenInfo,
+  TokenMarketData,
   WalletNFT,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
@@ -15,6 +18,7 @@ import {
   AccountAddress,
   Age,
   BigNumberString,
+  ChainId,
   CountryCode,
   DataWalletAddress,
   EmailAddressString,
@@ -60,6 +64,19 @@ export interface ISdlDataWallet extends EventEmitter {
   setLocation(location: CountryCode): ResultAsync<void, JsonRpcError>;
   getLocation(): ResultAsync<CountryCode | null, JsonRpcError>;
   getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError>;
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp?: UnixTimestamp,
+  ): ResultAsync<number, JsonRpcError>;
+  getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], JsonRpcError>;
+
+  getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, JsonRpcError>;
   getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError>;
   closeTab(): ResultAsync<void, JsonRpcError>;

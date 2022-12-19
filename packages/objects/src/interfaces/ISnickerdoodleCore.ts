@@ -14,9 +14,12 @@ import {
   IDynamicRewardParameter,
   ChainTransaction,
   TransactionFilter,
+  TokenMarketData,
+  TokenInfo,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
+  AccountIndexingError,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -388,6 +391,15 @@ export interface ISnickerdoodleCore {
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
   ): ResultAsync<number, PersistenceError>;
+
+  getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], AccountIndexingError>;
+
+  getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, AccountIndexingError>;
 
   getTransactions(
     filter?: TransactionFilter,

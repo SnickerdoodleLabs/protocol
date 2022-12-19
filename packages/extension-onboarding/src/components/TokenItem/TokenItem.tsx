@@ -1,6 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
-import { TokenBalance } from "@snickerdoodlelabs/objects";
-import { ethers } from "ethers";
+import { EChainTechnology, TokenBalance } from "@snickerdoodlelabs/objects";
+import { BigNumber, ethers } from "ethers";
 import React, { FC } from "react";
 
 import defaultToken from "@extension-onboarding/assets/icons/default-token.png";
@@ -8,8 +8,9 @@ import {
   tokenInfoObj,
   stableCoins,
 } from "@extension-onboarding/constants/tokenInfo";
+import { IBalanceItem } from "@extension-onboarding/objects";
 interface ITokenItemProps {
-  item: TokenBalance;
+  item: IBalanceItem;
 }
 
 const TokenItem: FC<ITokenItemProps> = ({ item }) => {
@@ -18,7 +19,11 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
       <img
         width={36}
         height={36}
-        src={tokenInfoObj[item.ticker]?.iconSrc ?? defaultToken}
+        src={
+          item.marketaData?.image
+            ? item.marketaData?.image
+            : tokenInfoObj[item.ticker]?.iconSrc ?? defaultToken
+        }
       />
       <Box ml={3}>
         <Box>
@@ -43,13 +48,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
               opacity: 0.6,
             }}
           >
-            {stableCoins.includes(item.ticker) && parseInt(item.balance) > 0
-              ? `${
-                  item.balance.substr(0, item.balance.length - 6) +
-                  "," +
-                  item.balance.substr(-6)
-                } ${item.ticker}`
-              : `${ethers.utils.formatUnits(item.balance)} ${item.ticker}`}
+            {`${item.balance || "0"} ${item.ticker}`}
           </Typography>
         </Box>
       </Box>
@@ -72,7 +71,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
             padding: "10px",
           }}
         >
-          ${(Number.parseFloat(item.balance) || 0).toFixed(1)}
+          ${item.quoteBalance.toFixed(4)}
         </Typography>
       </Box>
     </Box>
