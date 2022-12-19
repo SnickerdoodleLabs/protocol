@@ -70,7 +70,7 @@ class BalanceQueryEvaluatorMocks {
 }
 
 describe("BalanceQueryEvaluator", () => {
-  test("Return only ETH and MATIC non-zero values", async () => {
+  test("Return only ETH and MATIC: sample data 1", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       "array",
@@ -145,7 +145,7 @@ describe("BalanceQueryEvaluator", () => {
     expect(result["value"][1].networkId).toEqual(1);
   });
 
-  test("Return only ETH and MATIC non-zero values", async () => {
+  test("Return only ETH and MATIC: sample data 2", async () => {
     const balanceQuery = new AST_BalanceQuery(
       SDQL_Name("q7"),
       "array",
