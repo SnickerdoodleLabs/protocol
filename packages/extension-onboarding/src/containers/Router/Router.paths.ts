@@ -21,4 +21,5 @@ export enum EPaths {
   NFTS = "/data-dashboard/nfts",
   BROWSER_ACTIVITY = "/data-dashboard/browser-activity",
   PERSONAL_INFO = "/data-dashboard/personal-info",
+  NFT_DETAIL = "/data-dashboard/nfts/detail",
 }

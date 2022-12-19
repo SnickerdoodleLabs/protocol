@@ -1,9 +1,11 @@
 import MediaRenderer from "@extension-onboarding/components/NFTItem/MediaRenderer";
 import { useStyles } from "@extension-onboarding/components/NFTItem/NFTItem.style";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { Box, Grid, Typography } from "@material-ui/core";
 import { SolanaNFT } from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 
 export interface ISolanaNFTItemProps {
   item: SolanaNFT;
@@ -16,6 +18,7 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
   const { apiGateway } = useAppContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [metadata, setMetadata] = useState<any>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     getMetadata();
@@ -44,21 +47,37 @@ export const SolanaNFTItem: FC<ISolanaNFTItemProps> = ({
   }, [JSON.stringify(metadata)]);
 
   return (
-    <Grid item className={classes.card}>
-      <Box>
+    <Grid item sm={3}>
+      <Box
+        border="1px solid #D9D9D9"
+        display="flex"
+        flexDirection="column"
+        borderRadius={12}
+        p={1.5}
+      >
         {!isLoading && (
           <MediaRenderer
             metadataString={metadata ? JSON.stringify(metadata) : null}
           />
         )}
-
-        <Box mt={-0.5} bgcolor="rgba(253, 243, 225, 0.6)">
-          <Box p={2}>
-            <Typography className={classes.nftName}>
-              {item?.name || "_"}
-            </Typography>
-          </Box>
+        <Box my={3}>
+          <Typography className={classes.nftName}>
+            {item?.name || "_"}
+          </Typography>
         </Box>
+        <Typography
+          className={classes.review}
+          onClick={() =>
+            navigate(EPaths.NFT_DETAIL, {
+              state: {
+                item,
+                metadataString: metadata ? JSON.stringify(metadata) : null,
+              },
+            })
+          }
+        >
+          Review
+        </Typography>
       </Box>
     </Grid>
   );

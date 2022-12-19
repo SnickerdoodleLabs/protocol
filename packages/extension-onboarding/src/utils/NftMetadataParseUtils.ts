@@ -1,28 +1,9 @@
+import { EContentType, INFT } from "@extension-onboarding/objects";
 import { okAsync, ResultAsync } from "neverthrow";
-export interface INFT {
-  imageUrl: string | null;
-  animationUrl: string | null;
-  externalUrl: string | null;
-  contentType: EContentType | null;
-  contentUrls: Record<EContentType, string>[] | null;
-  attributes: Record<string, string> | null;
-}
-
-export enum EContentType {
-  UNKNOWN,
-  AUDIO,
-  VIDEO,
-  TEXT,
-  HTML,
-}
-
-export enum EAttributeDisplayMode {
-  STRING,
-  NUMBER,
-  PERCENTAGE,
-}
 
 const emptytNft: INFT = {
+  name: null,
+  description: null,
   imageUrl: null,
   animationUrl: null,
   externalUrl: null,
@@ -31,7 +12,7 @@ const emptytNft: INFT = {
   attributes: null,
 };
 
-class NftMetadataParser {
+export class NftMetadataParseUtils {
   public static getParsedNFT = (
     metadataString: string,
   ): ResultAsync<INFT, never> => {
@@ -47,9 +28,9 @@ class NftMetadataParser {
     if (!metadataObj) {
       return okAsync(emptytNft);
     }
-
-    console.log(typeof metadataObj);
     return okAsync({
+      name: this.getName(metadataObj),
+      description: this.getDescription(metadataObj),
       imageUrl: this.getImageUrl(metadataString),
       animationUrl: this.getAnimationUrl(metadataObj),
       externalUrl: this.getExternalUrl(metadataObj),
@@ -78,7 +59,9 @@ class NftMetadataParser {
     } catch (e) {
       nftImages = [];
     }
-    return nftImages?.[0] ? NftMetadataParser.normalizeUrl(nftImages[0]) : null;
+    return nftImages?.[0]
+      ? NftMetadataParseUtils.normalizeUrl(nftImages[0])
+      : null;
   }
 
   private static getContentType(metadataObj) {
@@ -87,13 +70,13 @@ class NftMetadataParser {
 
   private static getAnimationUrl(metadataObj) {
     return metadataObj.animation_url
-      ? NftMetadataParser.normalizeUrl(metadataObj.animation_url)
+      ? NftMetadataParseUtils.normalizeUrl(metadataObj.animation_url)
       : null;
   }
 
   private static getExternalUrl(metadataObj) {
     return metadataObj.external_url
-      ? NftMetadataParser.normalizeUrl(metadataObj.external_url)
+      ? NftMetadataParseUtils.normalizeUrl(metadataObj.external_url)
       : null;
   }
 
@@ -103,6 +86,13 @@ class NftMetadataParser {
 
   private static getAttributes(metadataObj) {
     return metadataObj.attributes ?? null;
+  }
+
+  private static getName(metadataObj) {
+    return metadataObj.name ?? null;
+  }
+  private static getDescription(metadataObj) {
+    return metadataObj.description ?? null;
   }
 
   private static normalizeUrl(url: string): string {
@@ -115,5 +105,3 @@ class NftMetadataParser {
     return res;
   }
 }
-
-export default NftMetadataParser;
