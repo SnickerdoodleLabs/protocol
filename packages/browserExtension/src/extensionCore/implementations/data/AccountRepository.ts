@@ -4,13 +4,13 @@ import {
   EarnedReward,
   EChain,
   EVMAccountAddress,
-  IEVMBalance,
-  IEVMNFT,
+  WalletNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   LanguageCode,
   LinkedAccount,
   Signature,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -66,7 +66,7 @@ export class AccountRepository implements IAccountRepository {
   }
 
   public getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.core.getAccountBalances().mapErr((error) => {
@@ -75,7 +75,7 @@ export class AccountRepository implements IAccountRepository {
     });
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
     return this.core.getAccountNFTs().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

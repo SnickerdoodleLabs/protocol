@@ -1,9 +1,17 @@
 import { ResultAsync } from "neverthrow";
 
-import { IEVMAccountBalanceRepository } from "./chains/IEVMAccountBalanceRepository";
+import {
+  ISolanaBalanceRepository,
+  IEVMAccountBalanceRepository,
+} from "@objects/interfaces";
 
 export interface IAccountBalances {
   getEVMBalanceRepository(): ResultAsync<IEVMAccountBalanceRepository, never>;
+  getEthereumBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  >;
+  getSolanaBalanceRepository(): ResultAsync<ISolanaBalanceRepository, never>;
   getSimulatorEVMBalanceRepository(): ResultAsync<
     IEVMAccountBalanceRepository,
     never

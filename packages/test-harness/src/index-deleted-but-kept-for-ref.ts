@@ -46,6 +46,7 @@ import {
   EarnedReward,
   IpfsCID,
   ERewardType,
+  EVMTransactionHash,
   Invitation,
 } from "@snickerdoodlelabs/objects";
 import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
@@ -114,6 +115,20 @@ const devAccountKeys = [
     EChain.Solana,
     SolanaPrivateKey(
       "2r6dcz3uhSoqGnnpvFhj6Fp6bRmAoZxiBifj6UXh8AgXteVMa8So69Pp39tM9DXD2KLpFuGaaD2CBNA6Mbz8agKn",
+    ),
+    cryptoUtils,
+  ),
+  new TestWallet(
+    EChain.Solana,
+    SolanaPrivateKey(
+      "3K725hiDLnh1H6qtxD7gLhuDPwvcdWUK1KA8sqK6ekrUKpRzhFxzynvKFZgPj1QWMWS8PZm4WXFQqVUdQFYK1Z8u",
+    ),
+    cryptoUtils,
+  ),
+  new TestWallet(
+    EChain.EthereumMainnet,
+    EVMPrivateKey(
+      "636c09be68403426bfa070af9225a7318f3cf2d28384fe89f9fa62402c3ac4c0",
     ),
     cryptoUtils,
   ),
@@ -300,6 +315,9 @@ function corePrompt(): ResultAsync<void, Error> {
     { name: "manual backup", value: "manualBackup" },
     { name: "clear cloud store", value: "clearCloudStore" },
     new inquirer.Separator(),
+    { name: "get ETH price", value: "btcPrice" },
+    { name: "get uniswap price", value: "uniPrice" },
+    new inquirer.Separator(),
     { name: "Cancel", value: "cancel" },
     new inquirer.Separator(),
   ];
@@ -386,7 +404,7 @@ function corePrompt(): ResultAsync<void, Error> {
         */
         transactions[0] = new EVMTransaction(
           ChainId(43113),
-          "firstHash",
+          EVMTransactionHash("firstHash"),
           UnixTimestamp(100),
           null,
           EVMAccountAddress("send200"),
@@ -396,11 +414,12 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
+          null,
         );
         transactions[1] = new EVMTransaction(
           ChainId(43113),
-          "secondHash",
+          EVMTransactionHash("secondHash"),
           UnixTimestamp(100),
           null,
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
@@ -410,11 +429,12 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
+          null,
         );
         transactions[2] = new EVMTransaction(
           ChainId(43113),
-          "thirdHash",
+          EVMTransactionHash("thirdHash"),
           UnixTimestamp(100),
           null,
           EVMAccountAddress("send300"),
@@ -424,11 +444,12 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
+          null,
         );
         transactions[3] = new EVMTransaction(
           ChainId(43113),
-          "fourthHash",
+          EVMTransactionHash("fourthHash"),
           UnixTimestamp(100),
           null,
           EVMAccountAddress("send50"),
@@ -438,7 +459,8 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
+          null,
         );
 
         // {chainId\":43113,
@@ -446,11 +468,11 @@ function corePrompt(): ResultAsync<void, Error> {
         console.log(
           `adding ${transactions.length} transactions for chain 43113`,
         );
-        return core.addEVMTransactions(transactions).map(console.log);
+        return core.addTransactions(transactions).map(console.log);
       case "addEVMTransaction - google":
         transactions[0] = new EVMTransaction(
           ChainId(1),
-          "null",
+          EVMTransactionHash("null"),
           UnixTimestamp(100),
           null,
           null,
@@ -460,9 +482,10 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
-          Math.random() * 1000,
+          null,
+          null,
         );
-        return core.addEVMTransactions(transactions).map(console.log);
+        return core.addTransactions(transactions).map(console.log);
       case "addSiteVisit - google":
         sites[0] = new SiteVisit(
           URLString("www.google.com"),
@@ -502,6 +525,22 @@ function corePrompt(): ResultAsync<void, Error> {
         return core.postBackups().map(console.log);
       case "clearCloudStore":
         return core.clearCloudStore().map(console.log);
+      case "btcPrice":
+        return core
+          .getTokenPrice(
+            ChainId(1),
+            null,
+            UnixTimestamp(Math.floor(Date.now() / 1000)),
+          )
+          .map(console.log);
+      case "uniPrice":
+        return core
+          .getTokenPrice(
+            ChainId(1),
+            "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+            UnixTimestamp(Math.floor(Date.now() / 1000)),
+          )
+          .map(console.log);
     }
     return okAsync(undefined);
   });

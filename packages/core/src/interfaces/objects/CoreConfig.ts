@@ -7,6 +7,8 @@ import {
   ControlChainInformation,
   ModelTypes,
   URLString,
+  ECurrencyCode,
+  EChain,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfig } from "@snickerdoodlelabs/persistence";
 
@@ -30,7 +32,13 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public dnsServerAddress: URLString,
     public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,
-    public quoteCurrency: string,
+    public quoteCurrency: ECurrencyCode,
+    public etherscanApiKey: string,
+    public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
+    public alchemyEndpoints: {
+      solana: string;
+      solanaTestnet: string;
+    },
   ) {}
 }

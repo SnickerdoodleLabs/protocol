@@ -3,4 +3,5 @@ export enum EIndexer {
   Solana = 1,
   Monero = 2,
   Simulator = 3,
+  Ethereum = 4,
 }
