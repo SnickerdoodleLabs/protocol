@@ -71,6 +71,11 @@ import {
   IDynamicRewardParameter,
   ChainId,
   DataWalletBackupID,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
+  AccountIndexingError,
+  TokenInfo,
+  TokenMarketData,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -733,5 +738,24 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTokenPrice(chainId, address, timestamp);
+  }
+
+  public getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, AccountIndexingError> {
+    const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
+      ITokenPriceRepositoryType,
+    );
+    return tokenPriceRepo.getTokenInfo(chainId, contractAddress);
+  }
+
+  public getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], AccountIndexingError> {
+    const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
+      ITokenPriceRepositoryType,
+    );
+    return tokenPriceRepo.getTokenMarketData(ids);
   }
 }
