@@ -6,6 +6,10 @@ import {
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
 import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
 
+const getExplorerUrl = function (this: ChainInformation, txHash: string) {
+  return this.explorerURL + txHash;
+};
+
 export const chainConfig = new Map<ChainId, ChainInformation>([
   [
     ChainId(EChain.DevDoodle),
@@ -61,6 +65,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("ETH", 18, "ETH"),
       EChainType.Mainnet,
       "https://etherscan.io/tx/",
+      getExplorerUrl,
     ),
   ],
   [
@@ -77,6 +82,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("ETH", 18, "ETH"),
       EChainType.Testnet,
       "https://goerli.etherscan.io/tx/",
+      getExplorerUrl,
     ),
   ],
   [
@@ -93,6 +99,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("ETH", 18, "ETH"),
       EChainType.Testnet,
       "https://kovan.etherscan.io/tx/",
+      getExplorerUrl,
     ),
   ],
   [
@@ -113,6 +120,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("MATIC", 18, "MATIC"),
       EChainType.Testnet,
       "https=//mumbai.polygonscan.com/tx/",
+      getExplorerUrl,
     ),
   ],
   [
@@ -133,6 +141,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("MATIC", 18, "MATIC"),
       EChainType.Mainnet,
       "https=//polygonscan.com/tx/",
+      getExplorerUrl,
     ),
   ],
 
@@ -154,6 +163,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("AVAX", 18, "AVAX"),
       EChainType.Mainnet,
       "https=//snowtrace.io/block/",
+      getExplorerUrl,
     ),
   ],
 
@@ -191,6 +201,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("Sol", 9, "SOL"),
       EChainType.Mainnet,
       "https://explorer.solana.com/tx/",
+      getExplorerUrl,
     ),
   ],
 ]);

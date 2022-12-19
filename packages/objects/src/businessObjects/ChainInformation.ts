@@ -27,11 +27,8 @@ export class ChainInformation {
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
     public explorerURL: string,
+    public getExplorerURL: (txHash: string) => string,
   ) {}
-
-  getExplorerURL(txHash: HexString) {
-    return this.explorerURL + txHash;
-  }
 }
 
 export class ControlChainInformation extends ChainInformation {
@@ -64,6 +61,9 @@ export class ControlChainInformation extends ChainInformation {
       nativeCurrency,
       type,
       explorerURL,
+      function (txHash: string) {
+        return explorerURL + txHash;
+      },
     );
   }
 }
