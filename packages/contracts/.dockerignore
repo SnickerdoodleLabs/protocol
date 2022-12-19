@@ -1,9 +1,10 @@
 .env
 README.md
-node_modules/*
-artifacts/*
-cache/*
-.openzeppelin/*
-docs/*
-etc/*
-test/*
+package-lock.json
+Dockerfile
+DEPLOYMENTS.md
+node_modules/
+artifacts/
+cache/
+.openzeppelin/
+docs/

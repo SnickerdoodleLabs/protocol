@@ -3,7 +3,6 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-const hre = require("hardhat");
 const { ethers, upgrades } = require("hardhat");
 const { logTXDetails } = require("../tasks/constants.js");
 
@@ -17,7 +16,7 @@ let doodleTokenAddress;
 let timelockAddress;
 
 async function setLocalAccounts() {
-  accounts = await hre.ethers.getSigners();
+  accounts = await ethers.getSigners();
   owner = accounts[0];
   console.log(owner.address);
 
@@ -25,12 +24,29 @@ async function setLocalAccounts() {
   tokenDistributor = accounts[18];
 }
 
+async function deployMinimalForwarder() {
+  console.log("");
+  console.log("Deploying MinimalForwarder contract...");
+
+  const MinimalForwarder = await ethers.getContractFactory(
+    "MinimalForwarderUpgradeable",
+  );
+
+  // the MinimalForwarder does not require any arguments on deployment
+  const upgradeableMinimalForwarder = await upgrades.deployProxy(MinimalForwarder, []);
+  await upgradeableMinimalForwarder.deployed();
+
+  trustedForwarderAddress = upgradeableMinimalForwarder.address;
+
+  console.log("MinimalForwarder deployed to:", trustedForwarderAddress);
+}
+
 // function to deploy the consent contract
 async function deployConsent() {
   console.log("");
   console.log("Deploying Consent implementation contract...");
 
-  const Consent = await hre.ethers.getContractFactory("Consent");
+  const Consent = await ethers.getContractFactory("Consent");
   const consent = await Consent.deploy();
   const consent_receipt = await consent.deployTransaction.wait();
   consentAddress = consent.address;
@@ -44,21 +60,22 @@ async function deployConsentFactory() {
   console.log("");
   console.log("Deploying Consent Factory contract...");
 
-  const ConsentFactory = await hre.ethers.getContractFactory("ConsentFactory");
+  const ConsentFactory = await ethers.getContractFactory("ConsentFactory");
 
   // the Consent Factory contract requires one argument on deployment:
   // the address of the trusted forwarder who will pay for the meta tx fees
-  const consentFactory = await ConsentFactory.deploy(
-    trustedForwarderAddress,
-    consentAddress,
-  );
-  const consentFactory_receipt = await consentFactory.deployTransaction.wait();
+  const upgradeableConsentFactory = await upgrades.deployProxy(ConsentFactory, [trustedForwarderAddress, consentAddress])
+  await upgradeableConsentFactory.deployed();
 
-  console.log("ConsentFactory deployed to:", consentFactory.address);
-  console.log(
-    "ConsentFactory Gas Fee:",
-    consentFactory_receipt.gasUsed.toString(),
-  );
+  console.log("ConsentFactory deployed to:", upgradeableConsentFactory.address);
+
+  await upgradeableConsentFactory.newListingHead(5, "QmTPfcSAr5FKWDmjbyudNae5NMAreqZfYqWUGFzvuWZQDh").then(
+    (txrcpt) => {
+      return txrcpt.wait();
+    })
+    .then((txrct) => {
+      logTXDetails(txrct);
+    });
 }
 
 // function that deploys the Doodle Token
@@ -66,7 +83,7 @@ async function deployDoodleToken(distributorAddress) {
   console.log("");
   console.log("Deploying Doodle Token contract...");
 
-  const DoodleToken = await hre.ethers.getContractFactory("DoodleToken");
+  const DoodleToken = await ethers.getContractFactory("DoodleToken");
 
   // the DoodleToken contract requires one argument on deployment:
   // the distribution address that will receive the max token supply
@@ -78,29 +95,12 @@ async function deployDoodleToken(distributorAddress) {
   console.log("DoodleToken Gas Fee:", doodleToken_receipt.gasUsed.toString());
 }
 
-// function that deploys the Doodle Token
-async function deployWDoodleToken(distributorAddress) {
-  console.log("");
-  console.log("Deploying Wrapped Doodle Token contract...");
-
-  const WDoodleToken = await hre.ethers.getContractFactory("WDoodleToken");
-
-  // the WDoodleToken contract requires one argument on deployment:
-  // the distribution address that will receive the max token supply
-  const wDoodleToken = await WDoodleToken.deploy(distributorAddress);
-  const wDoodleToken_receipt = await wDoodleToken.deployTransaction.wait();
-  doodleTokenAddress = wDoodleToken.address;
-
-  console.log("WDoodleToken deployed to:", wDoodleToken.address);
-  console.log("WDoodleToken Gas Fee:", wDoodleToken_receipt.gasUsed.toString());
-}
-
 // function that deploys the Timelock Controller
 async function deployTimelockController() {
   console.log("");
   console.log("Deploying Timelock Controller contract...");
 
-  const Timelock = await hre.ethers.getContractFactory("SnickerdoodleTimelock");
+  const Timelock = await ethers.getContractFactory("SnickerdoodleTimelock");
 
   // the SnickerdoodleTimeLock contract requires 3 arguments on deployment:
   // the min Delay in seconds
@@ -122,7 +122,7 @@ async function deploySnickerdoodleDAO() {
   console.log("");
   console.log("Deploying SnickerdoodleGovernor (DAO) contract...");
 
-  const Governor = await hre.ethers.getContractFactory("SnickerdoodleGovernor");
+  const Governor = await ethers.getContractFactory("SnickerdoodleGovernor");
 
   // the SnickerdoodleGovernor contract requires 2 arguments on deployment:
   // the address of the ERC20Votes token
@@ -142,19 +142,15 @@ async function deployCrumbs() {
   console.log("");
   console.log("Deploying Crumbs contract...");
 
-  const Crumbs = await hre.ethers.getContractFactory("Crumbs");
+  const Crumbs = await ethers.getContractFactory("Crumbs");
 
   // the Crumbs contract requires 2 arguments on deployment:
   // the address of the trusted forwarder address
   // the base uri
-  const crumbs = await Crumbs.deploy(
-    trustedForwarderAddress,
-    "www.crumbs.com/",
-  );
-  const crumbs_receipt = await crumbs.deployTransaction.wait();
+  const crumbs = await upgrades.deployProxy(Crumbs, [trustedForwarderAddress, "www.crumbs.com/"])
+  await crumbs.deployed();
 
   console.log("Crumbs deployed to:", crumbs.address);
-  console.log("Crumbs Gas Fee:", crumbs_receipt.gasUsed.toString());
 }
 
 // function that deploys the SnickerdoodleGovernor contract (DAO)
@@ -162,7 +158,7 @@ async function deploySift() {
   console.log("");
   console.log("Deploying Sift contract...");
 
-  const Sift = await hre.ethers.getContractFactory("Sift");
+  const Sift = await ethers.getContractFactory("Sift");
 
   // the Sift contract requires 1 argument on deployment:
   // the base uri
@@ -191,33 +187,11 @@ async function deploySift() {
     });
 }
 
-async function deployMinimalForwarder() {
-  console.log("");
-  console.log("Deploying MinimalForwarder contract...");
-
-  const MinimalForwarder = await hre.ethers.getContractFactory(
-    "MinimalForwarder",
-  );
-
-  // the MinimalForwarder does not require any arguments on deployment
-  const minimalForwarder = await MinimalForwarder.deploy();
-  const minimalForwarder_receipt =
-    await minimalForwarder.deployTransaction.wait();
-
-  trustedForwarderAddress = minimalForwarder.address;
-
-  console.log("MinimalForwarder deployed to:", minimalForwarder.address);
-  console.log(
-    "MinimalForwarder Gas Fee:",
-    minimalForwarder_receipt.gasUsed.toString(),
-  );
-}
-
 async function deployRewards() {
   console.log("");
   console.log("Deploying Test Reward contract...");
 
-  const Reward = await hre.ethers.getContractFactory("Reward");
+  const Reward = await ethers.getContractFactory("Reward");
 
   // the MinimalForwarder does not require any arguments on deployment
   const reward = await Reward.deploy();
@@ -237,24 +211,14 @@ async function fullDeployment() {
   // await hre.run('compile');
 
   await setLocalAccounts();
-
   await deployMinimalForwarder();
-
   await deployConsent();
   await deployConsentFactory();
-
-  // If deploying to subnet, deploy the wrappedDoodleToken instead
-  if (hre.network.name == "subnet") {
-    await deployWDoodleToken(tokenDistributor.address);
-  } else {
-    await deployDoodleToken(tokenDistributor.address);
-  }
+  await deployDoodleToken(tokenDistributor.address);
   await deployTimelockController();
   await deploySnickerdoodleDAO();
-
   await deployCrumbs();
   await deploySift();
-
   await deployRewards();
 
   console.log("");
