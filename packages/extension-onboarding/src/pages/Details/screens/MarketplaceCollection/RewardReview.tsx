@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import React, { FC, useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   ChainId,
   DirectReward,
@@ -23,78 +23,33 @@ import {
 import RewardComponent from "./RewardComponent";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 
 declare const window: IWindowWithSdlDataWallet;
 
 const RewardReview: FC = () => {
-  const { setModal, closeModal, setLoadingStatus } = useLayoutContext();
-  const [
-    campaignContractAddressesWithCID,
-    setCampaignContractAddressesWithCID,
-  ] = useState<Record<EVMContractAddress, IpfsCID>>();
-
-  let { id } = useParams();
+  const navigate = useNavigate();
   const classes = useStyles();
   const [ipfsRewards, setIpfsRewards] = useState<any>({});
+  const { rewardItem } = (useLocation().state || {}) as {
+    rewardItem: any;
+  };
+
   useEffect(() => {
-    fetch(`https://cloudflare-ipfs.com/ipfs/${id}`).then((res) => {
-      res.json().then((data) => {
-        setIpfsRewards(data);
-      });
-    });
+    if (!rewardItem) {
+      navigate(EPaths.MARKETPLACE_COLLECTION, { replace: true });
+    } else {
+      setIpfsRewards(rewardItem);
+    }
   }, []);
 
-  const acceptInvitation = (
-    dataTypes: EWalletDataType[] | null,
-    consentContractAddress: EVMContractAddress,
-  ) => {
-    setLoadingStatus(true);
-    return window.sdlDataWallet
-      .acceptInvitation(dataTypes, consentContractAddress)
-      .mapErr((e) => {
-        setLoadingStatus(false);
-      })
-      .map(() => {
-        const metadata = { ...campaignContractAddressesWithCID };
-        delete metadata[consentContractAddress];
-        setCampaignContractAddressesWithCID(metadata);
-        setLoadingStatus(false);
-      });
-  };
   const ipfsParse = (ipfs: string) => {
     let a;
     if (ipfs) {
       a = ipfs.replace("ipfs://", "");
     }
     return `https://cloudflare-ipfs.com/ipfs/${a}`;
-  };
-
-  const onClaimClick = (consentContractAddress: EVMContractAddress) => {
-    return window.sdlDataWallet
-      .getApplyDefaultPermissionsOption()
-      .map((option) => {
-        if (option) {
-          acceptInvitation(null, consentContractAddress);
-          return;
-        }
-        setModal({
-          modalSelector: EModalSelectors.PERMISSION_SELECTION,
-          onPrimaryButtonClick: () => {
-            acceptInvitation(null, consentContractAddress);
-            closeModal();
-          },
-          customProps: {
-            onManageClicked: () => {
-              setModal({
-                modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
-                onPrimaryButtonClick: (dataTpes: EWalletDataType[]) => {
-                  acceptInvitation(dataTpes, consentContractAddress);
-                },
-              });
-            },
-          },
-        });
-      });
   };
 
   return (
@@ -159,7 +114,7 @@ const RewardReview: FC = () => {
                     color: "#2D2944",
                   }}
                 >
-                  {ipfsRewards.description}
+                  {ipfsRewards?.description}
                 </Typography>
               </Box>
             </Grid>
@@ -191,7 +146,7 @@ const RewardReview: FC = () => {
                       color: "#232039",
                     }}
                   >
-                    {ipfsRewards.name}
+                    {ipfsRewards?.name}
                   </Typography>
                 </Box>
 
@@ -242,7 +197,7 @@ const RewardReview: FC = () => {
                     <ul>
                       {ipfsRewards?.attributes
                         ?.filter(
-                          (d) => d.trait_type === "requiredPermissions",
+                          (d) => d?.trait_type === "requiredPermissions",
                         )[0]
                         .value.map((data) => {
                           return (
