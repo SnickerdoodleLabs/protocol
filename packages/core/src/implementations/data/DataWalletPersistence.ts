@@ -121,12 +121,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.resolveUnlock = resolve;
     });
     this.restorePromise = new Promise<void>((resolve) => {
-      this.resolveRestore = () => {
-        this.contextProvider.getContext().map((ctx) => {
-          ctx.publicEvents.onInitialRestore.next(null);
-        });
-        resolve();
-      };
+      this.resolveRestore = resolve;
     });
 
     // reset portfolio cache on account addition and removal
@@ -163,7 +158,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return ResultAsync.fromSafePromise(this.unlockPromise);
   }
 
-  protected waitForRestore(): ResultAsync<EVMPrivateKey, never> {
+  public waitForRestore(): ResultAsync<EVMPrivateKey, never> {
     return ResultUtils.combine<EVMPrivateKey, void, never, never>([
       ResultAsync.fromSafePromise(this.unlockPromise),
       ResultAsync.fromSafePromise(this.restorePromise),
@@ -172,7 +167,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
   public unlock(
     derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError | AjaxError> {
+  ): ResultAsync<void, PersistenceError> {
     // Store the result
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.resolveUnlock!(derivedKey);
@@ -186,7 +181,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       .map(() => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.resolveRestore!();
-      });
+      }).mapErr((e) => new PersistenceError("error unlocking data wallet", e));
   }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {

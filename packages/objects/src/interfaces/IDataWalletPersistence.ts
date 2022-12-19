@@ -50,9 +50,7 @@ export interface IDataWalletPersistence {
    * and using "return this.unlocked.andThen()" at the beginning of the other methods.
    * @param derivedKey
    */
-  unlock(
-    derivedKey: EVMPrivateKey,
-  ): ResultAsync<void, PersistenceError | AjaxError>;
+  unlock(derivedKey: EVMPrivateKey): ResultAsync<void, PersistenceError>;
 
   /**
    * This method adds an account to the data wallet. Only these accounts may unlock the
@@ -200,6 +198,7 @@ export interface IDataWalletPersistence {
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
+  waitForRestore(): ResultAsync<EVMPrivateKey, never>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

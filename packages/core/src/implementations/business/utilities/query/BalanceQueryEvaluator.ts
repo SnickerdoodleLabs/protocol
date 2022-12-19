@@ -2,15 +2,12 @@ import {
   BigNumberString,
   ChainId,
   EvalNotImplementedError,
-  EVMContractAddress,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
   TokenBalance,
   PersistenceError,
   SDQL_Return,
-  TickerSymbol,
   TokenAddress,
-  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
@@ -20,7 +17,7 @@ import {
   ConditionL,
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
@@ -39,14 +36,12 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     return this.dataWalletPersistence
       .getAccountBalances()
       .andThen((balances) => {
-        // console.log("line 41 balances", balances);
         if (query.networkId == null) {
           return okAsync(balances);
         }
         const networkBalances = balances.filter(
           (balance) => balance.chainId == query.networkId,
         );
-        // console.log("line 48 networkBalances", networkBalances);
         return okAsync(networkBalances);
       })
       .andThen((balanceArray) => {
@@ -118,41 +113,39 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
     query: AST_BalanceQuery,
     balanceArray: TokenBalance[],
   ): ResultAsync<TokenBalance[], PersistenceError> {
-    const balanceMap = new Map<TokenAddress, TokenBalance>();
+    const balanceMap = new Map<`${ChainId}-${TokenAddress}`, TokenBalance>();
 
-    balanceArray.forEach((d) => {
-      const getObject = balanceMap.get(this._getTokenAddress(d));
+    const nonZeroBalanceArray = balanceArray.filter((item) => {
+      const ethValue = ethers.BigNumber.from(item.balance);
+      return !ethValue.eq(0);
+    });
+
+    nonZeroBalanceArray.forEach((d) => {
+      const networkIdAndAddress: `${ChainId}-${TokenAddress}` = `${d.chainId}-${d.tokenAddress}`;
+      const getObject = balanceMap.get(networkIdAndAddress);
 
       if (getObject) {
         balanceMap.set(
-          this._getTokenAddress(d),
+          networkIdAndAddress,
           new TokenBalance(
             getObject.type,
             getObject.ticker,
             getObject.chainId,
-            this._getTokenAddress(getObject),
+            getObject.tokenAddress || "NATIVE",
             getObject.accountAddress,
-            getObject.balance,
+            BigNumberString(
+              BigNumber.from(getObject.balance)
+                .add(BigNumber.from(d.balance))
+                .toString(),
+            ),
             getObject.decimals,
           ),
         );
       } else {
-        balanceMap.set(this._getTokenAddress(d), d);
+        balanceMap.set(networkIdAndAddress, d);
       }
     });
 
-    const returnedArray: TokenBalance[] = [];
-    balanceMap.forEach((element, key) => {
-      returnedArray.push(element);
-    });
-
-    return okAsync(returnedArray);
-  }
-
-  private _getTokenAddress(balance: TokenBalance): TokenAddress {
-    return (
-      (balance.tokenAddress as EVMContractAddress) ||
-      EVMContractAddress("NATIVE")
-    );
+    return okAsync(Array.from(balanceMap.values()));
   }
 }

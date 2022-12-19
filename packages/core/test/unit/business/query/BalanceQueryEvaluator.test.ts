@@ -174,18 +174,18 @@ describe("BalanceQueryEvaluator", () => {
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
-    console.log("Result is: ", result["value"]);
-    expect(result["value"][0].tokenAddress).toEqual("Contract 1");
-    expect(result["value"][0].chainId).toEqual(1);
-    expect(result["value"][0].balance).toEqual("15");
+    console.log(result);
+    expect(result["value"][0]["address"]).toEqual("Contract 1");
+    expect(result["value"][0]["networkId"]).toEqual(1);
+    expect(result["value"][0]["balance"]).toEqual("15");
 
-    expect(result["value"][1].tokenAddress).toEqual("Contract 2");
-    expect(result["value"][1].chainId).toEqual(2);
-    expect(result["value"][1].balance).toEqual("25");
+    expect(result["value"][1]["address"]).toEqual("Contract 2");
+    expect(result["value"][1].networkId).toEqual(2);
+    expect(result["value"][1]["balance"]).toEqual("25");
 
-    expect(result["value"][2].tokenAddress).toEqual("Contract 3");
-    expect(result["value"][2].chainId).toEqual(3);
-    expect(result["value"][2].balance).toEqual("30");
+    expect(result["value"][2]["address"]).toEqual("Contract 3");
+    expect(result["value"][2].networkId).toEqual(3);
+    expect(result["value"][2]["balance"]).toEqual("30");
   });
 
   test("3 EVMBalances, Same Contract Addresses", async () => {
@@ -1015,7 +1015,7 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const result = await repo.eval(balanceQuery);
-    // console.log(result);
+    console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0].tokenAddress).toEqual("Contract 2");
     expect(result["value"][0].chainId).toEqual(1);
