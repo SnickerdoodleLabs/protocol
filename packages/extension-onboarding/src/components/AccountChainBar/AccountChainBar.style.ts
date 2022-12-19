@@ -2,29 +2,49 @@ import { makeStyles } from "@material-ui/core/styles";
 
 export const useStyles = makeStyles((theme) => ({
   title: {
-    fontFamily: "'Space Grotesk'",
-    fontStyle: "normal",
-    fontWeight: 700,
-    fontSize: "20px",
-    lineHeight: "26px",
+    fontFamily: "Shrikhand",
+    fontSize: 36,
+    fontWeight: 400,
     color: "#232039",
   },
   description: {
-    fontFamily: "'Space Grotesk'",
-    fontStyle: "normal",
+    fontFamily: "Space Grotesk",
     fontWeight: 400,
-    fontSize: "14px",
-    lineHeight: "20px",
-    letterSpacing: "0.25px",
-    color: "#616161",
+    fontSize: 18,
+    lineHeight: "23px",
   },
+
   subTitle: {
     fontFamily: "Space Grotesk",
     color: "#232039",
     fontSize: 16,
     fontWeight: 500,
   },
-
+  cardTitle: {
+    fontFamily: "Space Grotesk",
+    color: "#5D5A74",
+    fontSize: 16,
+    fontWeight: 700,
+    lineHeight: "20px",
+    letterSpacing: "0.25px",
+  },
+  cardDescription: {
+    fontFamily: "Space Grotesk",
+    color: "#5D5A74",
+    fontSize: 34,
+    fontWeight: 400,
+    lineHeight: "36px",
+    letterSpacing: "0.25px",
+    paddingTop: 8,
+  },
+  cardBackground: {
+    background: "rgba(253, 243, 225, 0.5)",
+    border: "1px solid  #ECECEC",
+  },
+  cardBackground2: {
+    background: "rgba(185, 182, 211, 0.2)",
+    border: "1px solid  #ECECEC",
+  },
   cardTokenText: {
     fontFamily: "Space Grotesk",
     color: "#5D5A74",
