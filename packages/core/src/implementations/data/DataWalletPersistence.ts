@@ -181,7 +181,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       .map(() => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.resolveRestore!();
-      }).mapErr((e) => new PersistenceError("error unlocking data wallet", e));
+      })
+      .mapErr((e) => new PersistenceError("error unlocking data wallet", e));
   }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
@@ -607,45 +608,55 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getSolanaBalanceRepository(),
       this.accountBalances.getSimulatorEVMBalanceRepository(),
       this.accountBalances.getEthereumBalanceRepository(),
-    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
-      const chainInfo = config.chainInformation.get(chainId);
-      if (chainInfo == null) {
-        return errAsync(
-          new AccountIndexingError(
-            `No available chain info for chain ${chainId}`,
-          ),
-        );
-      }
-
-      switch (chainInfo.indexer) {
-        case EIndexer.EVM:
-          return evmRepo.getBalancesForAccount(
-            chainId,
-            accountAddress as EVMAccountAddress,
-          );
-        case EIndexer.Simulator:
-          return simulatorRepo.getBalancesForAccount(
-            chainId,
-            accountAddress as EVMAccountAddress,
-          );
-        case EIndexer.Solana:
-          return solRepo.getBalancesForAccount(
-            chainId,
-            accountAddress as SolanaAccountAddress,
-          );
-        case EIndexer.Ethereum:
-          return etherscanRepo.getBalancesForAccount(
-            chainId,
-            accountAddress as EVMAccountAddress,
-          );
-        default:
+    ])
+      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
+        const chainInfo = config.chainInformation.get(chainId);
+        if (chainInfo == null) {
           return errAsync(
             new AccountIndexingError(
-              `No available balance repository for chain ${chainId}`,
+              `No available chain info for chain ${chainId}`,
             ),
           );
-      }
-    });
+        }
+
+        switch (chainInfo.indexer) {
+          case EIndexer.EVM:
+            return evmRepo.getBalancesForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Simulator:
+            return simulatorRepo.getBalancesForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Solana:
+            return solRepo.getBalancesForAccount(
+              chainId,
+              accountAddress as SolanaAccountAddress,
+            );
+          case EIndexer.Ethereum:
+            return etherscanRepo.getBalancesForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          default:
+            return errAsync(
+              new AccountIndexingError(
+                `No available balance repository for chain ${chainId}`,
+              ),
+            );
+        }
+      })
+      .orElse((e) => {
+        this.logUtils.error(
+          "error fetching balances",
+          chainId,
+          accountAddress,
+          e,
+        );
+        return okAsync([]);
+      });
   }
 
   public getAccountNFTs(
@@ -728,45 +739,50 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
-    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
-      const chainInfo = config.chainInformation.get(chainId);
-      if (chainInfo == null) {
-        return errAsync(
-          new AccountIndexingError(
-            `No available chain info for chain ${chainId}`,
-          ),
-        );
-      }
-
-      switch (chainInfo.indexer) {
-        case EIndexer.EVM:
-          return evmRepo.getTokensForAccount(
-            chainId,
-            accountAddress as EVMAccountAddress,
-          );
-        case EIndexer.Simulator:
-          return simulatorRepo.getTokensForAccount(
-            chainId,
-            accountAddress as EVMAccountAddress,
-          );
-        case EIndexer.Solana:
-          return solRepo.getTokensForAccount(
-            chainId,
-            accountAddress as SolanaAccountAddress,
-          );
-        case EIndexer.Ethereum:
-          return etherscanRepo.getTokensForAccount(
-            chainId,
-            accountAddress as EVMAccountAddress,
-          );
-        default:
+    ])
+      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
+        const chainInfo = config.chainInformation.get(chainId);
+        if (chainInfo == null) {
           return errAsync(
             new AccountIndexingError(
-              `No available token repository for chain ${chainId}`,
+              `No available chain info for chain ${chainId}`,
             ),
           );
-      }
-    });
+        }
+
+        switch (chainInfo.indexer) {
+          case EIndexer.EVM:
+            return evmRepo.getTokensForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Simulator:
+            return simulatorRepo.getTokensForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Solana:
+            return solRepo.getTokensForAccount(
+              chainId,
+              accountAddress as SolanaAccountAddress,
+            );
+          case EIndexer.Ethereum:
+            return etherscanRepo.getTokensForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          default:
+            return errAsync(
+              new AccountIndexingError(
+                `No available token repository for chain ${chainId}`,
+              ),
+            );
+        }
+      })
+      .orElse((e) => {
+        this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
+        return okAsync([]);
+      });
   }
 
   public getTransactionsArray(): ResultAsync<
