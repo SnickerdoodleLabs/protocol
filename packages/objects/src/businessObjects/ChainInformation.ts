@@ -1,5 +1,10 @@
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
-import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
+import {
+  ChainId,
+  EVMContractAddress,
+  HexString,
+  ProviderUrl,
+} from "@objects/primitives";
 
 export class NativeCurrencyInformation {
   public constructor(
@@ -21,6 +26,8 @@ export class ChainInformation {
     public indexer: EIndexer,
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
+    public explorerURL: string,
+    public getExplorerURL: (txHash: string) => string,
   ) {}
 }
 
@@ -36,6 +43,7 @@ export class ControlChainInformation extends ChainInformation {
     public indexer: EIndexer,
     public nativeCurrency: NativeCurrencyInformation,
     public type: EChainType,
+    public explorerURL: string,
     public consentFactoryContractAddress: EVMContractAddress,
     public crumbsContractAddress: EVMContractAddress,
     public metatransactionForwarderAddress: EVMContractAddress,
@@ -52,6 +60,10 @@ export class ControlChainInformation extends ChainInformation {
       indexer,
       nativeCurrency,
       type,
+      explorerURL,
+      function (txHash: string) {
+        return explorerURL + txHash;
+      },
     );
   }
 }
