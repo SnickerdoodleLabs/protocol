@@ -107,8 +107,14 @@ describe("ConsentFactory", () => {
         await expect(
           consentFactory
             .connect(owner)
+            .insertListing(slot3, slot2, slot4, cid2),
+        ).to.revertedWith("ConsentFactory: _newSlot must be greater than _downstream");
+
+        await expect(
+          consentFactory
+            .connect(owner)
             .insertListing(slot2, slot3, slot4, cid3),
-        ).to.revertedWith("ConsentFactory: _upstream listing points to different downstream listing");
+        ).to.revertedWith("ConsentFactory: _upstream listing points to different _downstream listing");
 
         await expect(
           consentFactory
@@ -133,12 +139,6 @@ describe("ConsentFactory", () => {
             .connect(owner)
             .getListings(slot5, 3),
         ).to.revertedWith("ConsentFactory: invalid slot");
-
-        await expect(
-          consentFactory
-            .connect(owner)
-            .getListings(slot4, 4),
-        ).to.revertedWith("ConsentFactory: total listings are less than requested slots");
 
         const finalSlot = ethers.BigNumber.from(1);
         expect(

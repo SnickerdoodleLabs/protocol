@@ -93,31 +93,32 @@ task(
     });
   });
 
-  task(
-    "getMarketplaceListings",
-    "Get CIDs containing marketplace listing content",
-  )
-    .addParam("howmany", "how many listings to return")
-    .setAction(async (taskArgs) => {
-      const howmany = taskArgs.howmany;
-      const provider = await hre.ethers.provider;
-  
-      // attach the first signer account to the consent contract handle
-      const consentContractFactorHandle = new hre.ethers.Contract(
-        consentFactory(),
-        CCFactory().abi,
-        provider,
-      );
-  
-      await consentContractFactorHandle.listingsHead()
+task(
+  "getMarketplaceListings",
+  "Get CIDs containing marketplace listing content",
+)
+  .addParam("howmany", "how many listings to return")
+  .setAction(async (taskArgs) => {
+    const howmany = taskArgs.howmany;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractFactorHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      provider,
+    );
+
+    await consentContractFactorHandle
+      .listingsHead()
       .then((listingsHead) => {
         return consentContractFactorHandle.getListings(listingsHead, howmany);
       })
       .then((output) => {
         console.log("CIDs", output[0]);
-        console.log("Next Active Listing", output[1].toNumber());
-      })
-    });
+        console.log("Next Active Listing:", output[1].toNumber());
+      });
+  });
 
 task(
   "setQueryHorizon",

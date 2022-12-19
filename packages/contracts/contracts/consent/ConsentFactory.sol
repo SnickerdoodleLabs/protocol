@@ -29,7 +29,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @dev starting slot of the linked list
     uint256 public listingsHead;
 
-    /// @dev the total number of listings in the marketplact
+    /// @dev the total number of listings in the marketplace
     uint256 public listingsTotal;
 
     /// @dev mapping from listing slot to Listing object
@@ -117,12 +117,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         // if the next variable is 0, it means the slot is uninitialized and thus it is invalid
         Listing memory listingA = listings[_upstream];
         require(listingA.next >= 1, "ConsentFactory: invalid upstream slot");
-        require(listingA.next == _downstream, "ConsentFactory: _upstream listing points to different downstream listing");
-
-        // ensure the downstream listing exists. 
-        // if the next variable is 0, it means the slot is uninitialized
-        Listing memory listingB = listings[_downstream];
-        require(listingB.next >= 1, "ConsentFactory: invalid downstream slot");
+        require(listingA.next == _downstream, "ConsentFactory: _upstream listing points to different _downstream listing");
         
         // make the upstream slot point to the new slot
         listings[_upstream] = Listing(_newSlot, listingA.cid);
@@ -157,8 +152,6 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @param numSlots number of entries to return
     function getListings(uint256 _startingSlot, uint256 numSlots) public view returns (string [] memory, uint256 activeSlot) {
 
-        // the new linked list entry must be between two existing entries
-        require(numSlots <= listingsTotal, "ConsentFactory: total listings are less than requested slots");
         string[] memory cids = new string[](numSlots);
 
         activeSlot =  _startingSlot;
@@ -169,6 +162,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
             cids[i] = listing.cid;
             activeSlot = listing.next;
             if (activeSlot == 1) {
+                // slot 1 is the EOL slot
                 break;
             }
         }
