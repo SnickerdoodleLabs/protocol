@@ -84,6 +84,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
   ): ResultAsync<ITokenBalance[], never> {
     for (const condition of query.conditions) {
       let val: BigNumber = BigNumber.from(0);
+      console.log("condition: ", condition);
 
       switch (condition.constructor) {
         case ConditionGE:
@@ -91,6 +92,9 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           balanceArray = balanceArray.filter((balance) =>
             BigNumber.from(balance.balance).gte(val),
           );
+          console.log("val: ", val);
+          console.log("balanceArray: ", balanceArray);
+
           break;
 
         case ConditionG:
@@ -105,6 +109,8 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           balanceArray = balanceArray.filter((balance) =>
             BigNumber.from(balance.balance).lt(val),
           );
+          console.log("val: ", val);
+          console.log("balanceArray: ", balanceArray);
           break;
 
         case ConditionE:
@@ -126,6 +132,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
           throw new EvalNotImplementedError(condition.constructor.name);
       }
     }
+    console.log("Final Balance Array: ", balanceArray);
     return okAsync(balanceArray);
   }
 
@@ -177,7 +184,7 @@ export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
         networkId: element.networkId,
       });
     });
-
+    console.log("returnedArray: ", returnedArray);
     return okAsync(returnedArray);
   }
 }
