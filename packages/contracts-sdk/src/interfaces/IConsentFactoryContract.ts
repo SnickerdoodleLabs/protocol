@@ -10,6 +10,7 @@ import { ResultAsync } from "neverthrow";
 
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { MarketplaceListing } from "./objects";
 
 export interface IConsentFactoryContract {
   /**
@@ -99,6 +100,7 @@ export interface IConsentFactoryContract {
   listingsHead(): ResultAsync<number, ConsentFactoryContractError>;
 
   getMarketplaceListings(
-    listingCount?: number,
-  ): ResultAsync<IpfsCID[], ConsentFactoryContractError>;
+    count?: number,
+    headAt?: number,
+  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError>;
 }

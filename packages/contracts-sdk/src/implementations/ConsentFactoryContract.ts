@@ -13,8 +13,11 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ResultUtils } from "neverthrow-result-utils";
+import {
+  ConsentRoles,
+  MarketplaceListing,
+} from "@contracts-sdk/interfaces/objects";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
@@ -256,30 +259,32 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
   }
 
   public getMarketplaceListings(
-    listingCount?: number,
-  ): ResultAsync<IpfsCID[], ConsentFactoryContractError> {
+    count?: number,
+    headAt?: number,
+  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError> {
     const listingsTotalAsync =
-      listingCount == null ? this.listingsTotal() : okAsync(listingCount);
+      count == null ? this.listingsTotal() : okAsync(count);
 
-    return ResultUtils.combine([
-      this.listingsHead(),
-      listingsTotalAsync,
-    ]).andThen(([listingsHead, listingsTotal]) => {
-      return ResultAsync.fromPromise(
-        this.contract.getListings(listingsHead, listingsTotal) as Promise<
-          [IpfsCID[]]
-        >,
-        (e) => {
-          return new ConsentFactoryContractError(
-            "Unable to call getListings()",
-            (e as IBlockchainError).reason,
-            e,
-          );
-        },
-      ).map(([listingsArray]) => {
-        return listingsArray;
-      });
-    });
+    const headAtAsync = headAt == null ? this.listingsHead() : okAsync(headAt);
+
+    return ResultUtils.combine([headAtAsync, listingsTotalAsync]).andThen(
+      ([listingsHead, listingsTotal]) => {
+        return ResultAsync.fromPromise(
+          this.contract.getListings(listingsHead, listingsTotal) as Promise<
+            [IpfsCID[], BigNumber]
+          >,
+          (e) => {
+            return new ConsentFactoryContractError(
+              "Unable to call getListings()",
+              (e as IBlockchainError).reason,
+              e,
+            );
+          },
+        ).map((listings) => {
+          return new MarketplaceListing(listings[0], listings[1].toNumber());
+        });
+      },
+    );
   }
 }
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event
