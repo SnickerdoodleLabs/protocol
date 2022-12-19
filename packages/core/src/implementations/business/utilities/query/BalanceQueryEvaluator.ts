@@ -11,11 +11,6 @@ import {
   SDQL_Return,
   TickerSymbol,
 } from "@snickerdoodlelabs/objects";
-import { BigNumber, ethers } from "ethers";
-import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {
   AST_BalanceQuery,
   ConditionE,
@@ -24,6 +19,11 @@ import {
   ConditionL,
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
+import { BigNumber, ethers } from "ethers";
+import { inject, injectable } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {
