@@ -24,6 +24,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EIndexer.Simulator,
       new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
       EChainType.Hardhat,
+      "",
       EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
       EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Crumbs Contract
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
@@ -43,6 +44,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EIndexer.Simulator,
       new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
       EChainType.Hardhat,
+      "",
       EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
       EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Crumbs Contract
       EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
@@ -178,6 +180,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EIndexer.EVM,
       new NativeCurrencyInformation("AVAX", 18, "AVAX"),
       EChainType.Testnet,
+      "https://testnet.snowtrace.io/block/",
       EVMContractAddress("0xF891204124eb67e64b5AF6b36FcFa55E0885a301"), // Consent Contract Factory
       EVMContractAddress("0x97464F3547510fb430448F5216eC7D8e71D7C4eF"), // Crumbs Contract
       EVMContractAddress("0x53B638B1615Ea061098b10CA1E97F5BFC395f0D3"), // Metatransaction Forwarder Contract
