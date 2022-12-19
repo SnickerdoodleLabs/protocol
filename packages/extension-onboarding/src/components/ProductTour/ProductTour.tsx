@@ -80,25 +80,25 @@ const Tooltip = ({
 
 const steps: Step[] = [
   {
-    title: "About My Data Dashboard",
-    target: `#sb-${0}`,
-    disableBeacon: true,
-    content: (
-      <>
-        Link, view, anonymize, and monetize your data, all in one place. You are
-        in control. No one has access to your raw data except you.
-      </>
-    ),
-    placement: "right-start",
-  },
-  {
     title: "What is a Reward Marketplace",
-    target: `#sb-${1}`,
+    target: `#sb-${0}`,
     disableBeacon: true,
     content: (
       <>
         Choose digital collectibles on marketplace. Earn them by renting your
         anonymized data.
+      </>
+    ),
+    placement: "right-start",
+  },
+  {
+    title: "About My Data Dashboard",
+    target: `#sb-${1}`,
+    disableBeacon: true,
+    content: (
+      <>
+        Link, view, anonymize, and monetize your data, all in one place. You are
+        in control. No one has access to your raw data except you.
       </>
     ),
     placement: "right-start",
@@ -151,7 +151,7 @@ const ProductTour: FC<IProductTourProps> = ({}: IProductTourProps) => {
       ETourCompleteState.COMPLETED,
     );
     setIsActive(false);
-    navigate(EPaths.MY_REWARDS);
+    navigate(EPaths.MARKETPLACE_COLLECTION);
   };
 
   const handleCallBack = (data: CallBackProps) => {

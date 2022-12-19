@@ -41,7 +41,6 @@ interface ILink {
 }
 
 const LINKS: ILink[] = [
-  { path: EPaths.REWARDS, title: "Rewards" },
   { path: EPaths.TOKENS, title: "Tokens" },
   { path: EPaths.NFTS, title: "NFTs" },
   { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },

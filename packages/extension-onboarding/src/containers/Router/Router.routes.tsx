@@ -49,9 +49,7 @@ export const OnboardingRoutes = (
 export const AuthFlowRoutes = (
   <Route element={<ProductTourLayout />}>
     <Route element={<AuthFlowLayout />}>
-      <Route path={EPaths.HOME} element={<p>home</p>} />
       <Route element={<DataDashBoardLayout />}>
-        <Route path={EPaths.REWARDS} element={<Rewards />} />
         <Route path={EPaths.TOKENS} element={<Tokens />} />
         <Route path={EPaths.NFTS} element={<NFTs />} />
         <Route path={EPaths.BROWSER_ACTIVITY} element={<BrowserActivity />} />
