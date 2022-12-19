@@ -180,12 +180,7 @@ export class CovalentEVMTransactionRepository
                 chainId,
                 EVMContractAddress(tokenInfo.contract_address),
                 accountAddress,
-                BigNumberString(
-                  ethers.utils.formatUnits(
-                    tokenInfo.balance,
-                    tokenInfo.contract_decimals,
-                  ),
-                ),
+                BigNumberString(tokenInfo.balance),
                 tokenInfo.contract_decimals,
               );
             });
