@@ -166,7 +166,7 @@ describe("BalanceQueryEvaluator", () => {
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
-    //console.log(result);
+    console.log(result);
     expect(result["value"][0]["address"]).toEqual("Contract 1");
     expect(result["value"][0]["networkId"]).toEqual(1);
     expect(result["value"][0]["balance"]).toEqual("15");
@@ -919,37 +919,53 @@ describe("BalanceQueryEvaluator", () => {
 
     td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
       okAsync(
-        new Array<IEVMBalance>(
+        new Array<IEVMBalance | any>(
           {
-            ticker: TickerSymbol("ETH"),
-            chainId: ChainId(1),
-            accountAddress: EVMAccountAddress("GOOD1"),
-            balance: BigNumberString("9"),
-            contractAddress: EVMContractAddress("Contract 1"),
+            ticker: "MATIC",
+            chainId: 80001,
+            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            balance: "0",
+            contractAddress: "0x0000000000000000000000000000000000001010",
             quoteBalance: 0,
           },
           {
-            ticker: TickerSymbol("ETH"),
-            chainId: ChainId(1),
-            accountAddress: EVMAccountAddress("GOOD2"),
-            balance: BigNumberString("29"),
-            contractAddress: EVMContractAddress("Contract 2"),
+            ticker: "AVAX",
+            chainId: 43113,
+            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            balance: "0",
+            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
           {
-            ticker: TickerSymbol("AVAX"),
-            chainId: ChainId(1),
-            accountAddress: EVMAccountAddress("GOOD3"),
-            balance: BigNumberString("29"),
-            contractAddress: EVMContractAddress("Contract 2"),
+            ticker: "ETH",
+            chainId: 1,
+            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            balance: "5906596049814560",
+            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            quoteBalance: 7.5055704,
+          },
+          {
+            ticker: "MATIC",
+            chainId: 1,
+            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            balance: "14338174027714340563",
+            contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
             quoteBalance: 0,
           },
           {
-            ticker: TickerSymbol("AVAX"),
-            chainId: ChainId(1),
-            accountAddress: EVMAccountAddress("GOOD3"),
-            balance: BigNumberString("1000"),
-            contractAddress: EVMContractAddress("Contract 3"),
+            ticker: "MATIC",
+            chainId: 137,
+            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            balance: "0",
+            contractAddress: "0x0000000000000000000000000000000000001010",
+            quoteBalance: 0,
+          },
+          {
+            ticker: "AVAX",
+            chainId: 43114,
+            accountAddress: "0x33e9bb9d95fad829f18932ef22bda059a34d24c4",
+            balance: "0",
+            contractAddress: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
             quoteBalance: 0,
           },
         ),
@@ -957,7 +973,7 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const result = await repo.eval(balanceQuery);
-    // console.log(result);
+    console.log(result);
     expect(result["value"].length).toEqual(1);
     expect(result["value"][0]["address"]).toEqual("Contract 2");
     expect(result["value"][0].networkId).toEqual(1);
@@ -1050,7 +1066,4 @@ describe("BalanceQueryEvaluator", () => {
     // console.log(result);
     expect(result["value"].length).toEqual(0);
   });
-
-
-  
 });
