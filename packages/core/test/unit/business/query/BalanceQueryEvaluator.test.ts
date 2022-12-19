@@ -372,7 +372,6 @@ describe("BalanceQueryEvaluator", () => {
     const repo = mocks.factory();
 
     const result = await repo.eval(balanceQuery);
-    console.log(result);
     expect(result["value"].length).toEqual(2);
     expect(result["value"][0].ticker).toEqual("ETH");
     expect(result["value"][1].ticker).toEqual("MATIC");
@@ -451,8 +450,6 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const result = await repo.eval(balanceQuery);
-    console.log(result);
-
     expect(result["value"].length).toEqual(4);
     expect(result["value"][0].ticker).toEqual("MATIC");
     expect(result["value"][1].ticker).toEqual("AVAX");
