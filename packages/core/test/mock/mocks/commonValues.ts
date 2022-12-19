@@ -10,6 +10,7 @@ import {
   SDQLString,
   EVMAccountAddress,
   ControlChainInformation,
+  ECurrencyCode,
 } from "@snickerdoodlelabs/objects";
 
 import { CoreConfig } from "@core/interfaces/objects/index.js";
@@ -81,8 +82,11 @@ export const testCoreConfig = new CoreConfig(
   URLString("http://dnsServerAddress"),
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
-  "USD",
+  ECurrencyCode.USD,
+  "etherscan api key",
+  100, // etherscan tx batch size
   5000,
+  { solana: "", solanaTestnet: "" }, // alchemy endpoints
 );
 
 // #endregion

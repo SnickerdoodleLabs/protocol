@@ -1,10 +1,11 @@
 import {
   ChainInformation,
   ControlChainInformation,
+  LinkedAccount,
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
-import { ChainId, EVMContractAddress, ProviderUrl } from "@objects/primitives";
+import { ChainId, EVMContractAddress, ProviderUrl, URLString } from "@objects/primitives";
 
 const getExplorerUrl = function (this: ChainInformation, txHash: string) {
   return this.explorerURL + txHash;
@@ -61,11 +62,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [],
       10000,
-      EIndexer.EVM,
-      new NativeCurrencyInformation("ETH", 18, "ETH"),
+      EIndexer.Ethereum,
+      new NativeCurrencyInformation("ETH", 18, "ETH", "ethereum"),
       EChainType.Mainnet,
       "https://etherscan.io/tx/",
       getExplorerUrl,
+      URLString("https://api.etherscan.io/"),
     ),
   ],
   [
@@ -78,11 +80,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [],
       10000,
-      EIndexer.EVM,
+      EIndexer.Ethereum,
       new NativeCurrencyInformation("ETH", 18, "ETH"),
       EChainType.Testnet,
       "https://goerli.etherscan.io/tx/",
       getExplorerUrl,
+      URLString("https://api-goerli.etherscan.io/"),
     ),
   ],
   [
@@ -196,9 +199,9 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainTechnology.Solana,
       true,
       [],
-      10000,
+      400,
       EIndexer.Solana,
-      new NativeCurrencyInformation("Sol", 9, "SOL"),
+      new NativeCurrencyInformation("Sol", 9, "SOL", "solana"),
       EChainType.Mainnet,
       "https://explorer.solana.com/tx/",
       getExplorerUrl,
@@ -222,4 +225,13 @@ export function getChainInfoByChainId(chainId: ChainId): ChainInformation {
   }
 
   return chainInfo;
+}
+
+export function isAccountValidForChain(
+  chainId: ChainId,
+  account: LinkedAccount,
+): boolean {
+  const targetChainInfo = getChainInfoByChainId(chainId);
+  const accountChainInfo = getChainInfoByChain(account.sourceChain);
+  return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
 }

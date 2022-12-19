@@ -2,7 +2,7 @@ import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
 import {
   ChainId,
   EVMContractAddress,
-  HexString,
+  URLString,
   ProviderUrl,
 } from "@objects/primitives";
 
@@ -11,6 +11,7 @@ export class NativeCurrencyInformation {
     public name: string,
     public decimals: number,
     public symbol: string,
+    public coinGeckoId?: string,
   ) {}
 }
 
@@ -28,6 +29,7 @@ export class ChainInformation {
     public type: EChainType,
     public explorerURL: string,
     public getExplorerURL: (txHash: string) => string,
+    public etherscanEndpointURL?: URLString,
   ) {}
 }
 
