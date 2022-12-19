@@ -30,22 +30,21 @@ export interface IRoute {
 
 export const routes: IRoute[] = [
   {
+    icon: rewardsIcon,
+    title: "Rewards MarketPlace",
+    path: EPaths.MY_REWARDS,
+    subroutes: null,
+  },
+  {
     icon: portfolioIcon,
     title: "My Data Dashboard",
-    path: EPaths.HOME,
+    path: null,
     subroutes: [
-      { path: EPaths.REWARDS, title: "Rewards" },
       { path: EPaths.TOKENS, title: "Tokens" },
       { path: EPaths.NFTS, title: "NFTs" },
       { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
       { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
     ],
-  },
-  {
-    icon: rewardsIcon,
-    title: "Rewards MarketPlace",
-    path: EPaths.MY_REWARDS,
-    subroutes: null,
   },
   // {
   //   icon: campaignIcon,
