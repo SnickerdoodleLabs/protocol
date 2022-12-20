@@ -58,6 +58,10 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     });
   }
 
+  public addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError> {
+    return this.volatileStorage.putObject(ELocalStorageKey.COIN_INFO, info);
+  }
+
   public getTokenMarketData(
     ids: string[],
   ): ResultAsync<TokenMarketData[], AccountIndexingError> {

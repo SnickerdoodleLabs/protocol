@@ -21,7 +21,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public ipfsFetchBaseUrl: URLString,
     public defaultInsightPlatformBaseUrl: URLString,
     public defaultGoogleCloudBucket: string,
-
     public accountIndexingPollingIntervalMS: number,
     public accountBalancePollingIntervalMS: number,
     public accountNFTPollingIntervalMS: number,
@@ -33,12 +32,14 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,
     public quoteCurrency: ECurrencyCode,
-    public etherscanApiKey: string,
+    public etherscanApiKeys: Map<ChainId, string>,
     public etherscanTransactionsBatchSize: number,
     public requestForDataCheckingFrequency: number,
     public alchemyEndpoints: {
       solana: string;
       solanaTestnet: string;
+      polygon: string;
+      polygonMumbai: string;
     },
     public restoreTimeoutMS: number,
   ) {}

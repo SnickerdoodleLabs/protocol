@@ -9,5 +9,6 @@ export class TokenInfo {
     public name: string,
     public chain: EChain,
     public address: TokenAddress | null,
+    public decimals?: number,
   ) {}
 }
