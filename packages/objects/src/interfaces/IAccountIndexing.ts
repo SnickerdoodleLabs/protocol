@@ -19,6 +19,10 @@ export interface IAccountIndexing {
     ISolanaTransactionRepository,
     never
   >;
+  getPolygonTransactionRepository(): ResultAsync<
+    IEVMTransactionRepository,
+    never
+  >;
 }
 
 export const IAccountIndexingType = Symbol.for("IAccountIndexing");

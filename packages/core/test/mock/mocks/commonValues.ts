@@ -83,10 +83,11 @@ export const testCoreConfig = new CoreConfig(
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
   ECurrencyCode.USD,
-  "etherscan api key",
+  new Map(),
   100, // etherscan tx batch size
   5000,
-  { solana: "", solanaTestnet: "" }, // alchemy endpoints
+  { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
+  10000,
 );
 
 // #endregion

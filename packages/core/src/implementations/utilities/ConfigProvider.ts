@@ -85,7 +85,14 @@ export class ConfigProvider
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
       ECurrencyCode.USD, // quoteCurrency
-      "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7", // etherscan api key
+      new Map([
+        [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
+        [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
+        [ChainId(137), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
+        [ChainId(80001), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
+        [ChainId(43114), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
+        [ChainId(43113), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
+      ]), // etherscan api key
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
       {
@@ -93,7 +100,10 @@ export class ConfigProvider
           "https://solana-mainnet.g.alchemy.com/v2/jTt7xNc-M5Tl3myKDWgsKULpB3tR7uDB",
         solanaTestnet:
           "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+        polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
+        polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
       },
+      10000,
     );
   }
 
