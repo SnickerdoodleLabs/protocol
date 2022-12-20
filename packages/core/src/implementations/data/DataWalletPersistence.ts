@@ -177,11 +177,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ])
       .map(() => {
         this.configProvider.getConfig().map((config) => {
-          const timeout = setTimeout(
+          const timeout = setTimeout(() => {
+            this.logUtils.error("Backup restore timed out");
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            () => this.resolveRestore!(),
-            config.restoreTimeoutMS,
-          );
+            this.resolveRestore!();
+          }, config.restoreTimeoutMS);
           this.pollBackups().map(() => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.resolveRestore!();
