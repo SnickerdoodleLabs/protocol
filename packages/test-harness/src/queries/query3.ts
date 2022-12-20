@@ -30,7 +30,7 @@ export const query3 = {
       keywords: ["messi", "xavi", "iniesta"]
     },
     a3: {
-      name: "Second Image ad name",
+      name: "Third Image ad name",
       content: {
         type: "video",
         src: "https://mycdn.com/vid1"
@@ -48,6 +48,22 @@ export const query3 = {
       return: "boolean",
       conditions: {
         ge: 18,
+      },
+    },
+    q2: {
+      name: "network",
+      return: "boolean",
+      chain: "AVAX",
+      contract: {
+        networkid: "43114",
+        address: "0x9366d30feba284e62900f6295bc28c9906f33172",
+        function: "Transfer",
+        direction: "from",
+        token: "ERC20",
+        timestampRange: {
+          start: 13001519,
+          end: 14910334,
+        },
       },
     },
   },
@@ -126,9 +142,10 @@ export const query3 = {
       "if$q1then$a1", "$a2"
     ],
     compensations: [
-      "if$q1then$c1", "if$a1then$c2", 
-      "if($a1and$a2)then$c3",
-      "if($q1and$a2and$a3)then$c4", // c4 won't be expected
+      "if$q2then$c1", // Will be expected
+      "if$a1then$c2", // Will be expected
+      "if($a1and$a2)then$c3", // Will be expected
+      "if$a3then$c4", // WON'T be expected
     ],
   },
 };
