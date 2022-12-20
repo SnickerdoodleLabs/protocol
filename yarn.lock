@@ -3598,16 +3598,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ipld/dag-cbor@npm:^6.0.3":
-  version: 6.0.15
-  resolution: "@ipld/dag-cbor@npm:6.0.15"
-  dependencies:
-    cborg: ^1.5.4
-    multiformats: ^9.5.4
-  checksum: c4ac8d7d271b9dd093c43495b1f24c3cdb7f10487aac529c2010c53a3320439ac9b17f53f02177e022735a1aae3d921f359c7020f765b72f94799ec3ff8e7207
-  languageName: node
-  linkType: hard
-
 "@ipld/dag-cbor@npm:^7.0.0, @ipld/dag-cbor@npm:^7.0.1, @ipld/dag-cbor@npm:^7.0.2":
   version: 7.0.3
   resolution: "@ipld/dag-cbor@npm:7.0.3"
@@ -5945,21 +5935,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts-upgradeable@npm:^4.6.0":
+"@openzeppelin/contracts-upgradeable@npm:4.8.0":
   version: 4.8.0
   resolution: "@openzeppelin/contracts-upgradeable@npm:4.8.0"
   checksum: c39f3a719830c068d0ae413a8beee4072fa19f777b55bf6155fe21023414eab0633a641318845ac50929837b71848de1efbd00d4c181ddd6d8b735ceb0a82070
   languageName: node
   linkType: hard
 
-"@openzeppelin/contracts@npm:^4.6.0":
+"@openzeppelin/contracts@npm:4.8.0":
   version: 4.8.0
   resolution: "@openzeppelin/contracts@npm:4.8.0"
   checksum: dfab51a7f91735cfb1e94dd5074736b0dac0207e4ebf26eb46b32defd3b67adce5a36b248daa7b841c21be74863c1e37cf92ed194a9c36d3f8c5326d1a24242a
   languageName: node
   linkType: hard
 
-"@openzeppelin/hardhat-upgrades@npm:^1.17.0":
+"@openzeppelin/hardhat-upgrades@npm:^1.21.0":
   version: 1.22.0
   resolution: "@openzeppelin/hardhat-upgrades@npm:1.22.0"
   dependencies:
@@ -6581,11 +6571,9 @@ __metadata:
   dependencies:
     "@nomiclabs/hardhat-ethers": ^2.0.6
     "@nomiclabs/hardhat-waffle": ^2.0.3
-    "@openzeppelin/contracts": ^4.6.0
-    "@openzeppelin/contracts-upgradeable": ^4.6.0
-    "@openzeppelin/hardhat-upgrades": ^1.17.0
-    ajv: ^8.11.0
-    axios: ^0.27.2
+    "@openzeppelin/contracts": 4.8.0
+    "@openzeppelin/contracts-upgradeable": 4.8.0
+    "@openzeppelin/hardhat-upgrades": ^1.21.0
     chai: ^4.3.6
     dotenv: ^16.0.1
     ethereum-waffle: ^3.4.4
@@ -6595,11 +6583,9 @@ __metadata:
     hardhat-docgen: ^1.3.0
     hardhat-gas-reporter: ^1.0.8
     hardhat-tracer: ^1.1.0-rc.5
-    ipfs-http-client: ^56.0.3
     it-all: ^1.0.6
     solidity-coverage: ^0.7.21
     solidity-docgen: ^0.6.0-beta.16
-    uint8arrays: ^3.0.0
   languageName: unknown
   linkType: soft
 
@@ -9290,7 +9276,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^8.0.0, ajv@npm:^8.10.0, ajv@npm:^8.11.0, ajv@npm:^8.5.0, ajv@npm:^8.8.0, ajv@npm:^8.8.2":
+"ajv@npm:^8.0.0, ajv@npm:^8.10.0, ajv@npm:^8.5.0, ajv@npm:^8.8.0, ajv@npm:^8.8.2":
   version: 8.11.2
   resolution: "ajv@npm:8.11.2"
   dependencies:
@@ -14265,16 +14251,6 @@ __metadata:
     "@ipld/dag-cbor": ^7.0.1
     multiformats: ^9.5.1
   checksum: 8b1f0e188a5bc1ac048913c01c79c7c25004332a967c1c82878d063c0b36cfeb855a84671db072ca1ebb1d82bb86eca1097b1477aa0661ad2ffdecb579aa67f9
-  languageName: node
-  linkType: hard
-
-"dag-jose@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "dag-jose@npm:1.0.0"
-  dependencies:
-    "@ipld/dag-cbor": ^6.0.3
-    multiformats: ^9.0.2
-  checksum: 2d95e938f08c383718dd6f07d92063f164bb85be831f624f122687ca3f4d365a76320c3f6f16cfbe013c581198504728abd226567775ef35fb40176e1cb23112
   languageName: node
   linkType: hard
 
@@ -20946,19 +20922,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ipfs-core-types@npm:^0.10.3":
-  version: 0.10.3
-  resolution: "ipfs-core-types@npm:0.10.3"
-  dependencies:
-    "@ipld/dag-pb": ^2.1.3
-    interface-datastore: ^6.0.2
-    ipfs-unixfs: ^6.0.3
-    multiaddr: ^10.0.0
-    multiformats: ^9.5.1
-  checksum: 2a36b0ac72b98011aed333b57253d87fd5888e9e102fa3dd8f9e2dcf1b5e8c8f5582fbe3957ec24a445cec207943ea4ce4cc839770a794b273fd8b66a7a0de9d
-  languageName: node
-  linkType: hard
-
 "ipfs-core-types@npm:^0.9.0":
   version: 0.9.0
   resolution: "ipfs-core-types@npm:0.9.0"
@@ -20995,34 +20958,6 @@ __metadata:
     timeout-abort-controller: ^2.0.0
     uint8arrays: ^3.0.0
   checksum: af46717a69cf2e4f1bfbd77c7c1951eaa8b9619bdb888ca971849dc2d2468aceb0238e2f47ae45568478b2ceb1428ae7061239afc92aac06691f7bea9e21e4eb
-  languageName: node
-  linkType: hard
-
-"ipfs-core-utils@npm:^0.14.3":
-  version: 0.14.3
-  resolution: "ipfs-core-utils@npm:0.14.3"
-  dependencies:
-    any-signal: ^3.0.0
-    blob-to-it: ^1.0.1
-    browser-readablestream-to-it: ^1.0.1
-    debug: ^4.1.1
-    err-code: ^3.0.1
-    ipfs-core-types: ^0.10.3
-    ipfs-unixfs: ^6.0.3
-    ipfs-utils: ^9.0.6
-    it-all: ^1.0.4
-    it-map: ^1.0.4
-    it-peekable: ^1.0.2
-    it-to-stream: ^1.0.0
-    merge-options: ^3.0.4
-    multiaddr: ^10.0.0
-    multiaddr-to-uri: ^8.0.0
-    multiformats: ^9.5.1
-    nanoid: ^3.1.23
-    parse-duration: ^1.0.0
-    timeout-abort-controller: ^3.0.0
-    uint8arrays: ^3.0.0
-  checksum: ed1bceef0677e050a06db3cc0fdd659ffaac256d89fedfa01633747675c1519ba01985d5adf5db40d7d82631028c363564a2c53678b9a665c54c75d287065d08
   languageName: node
   linkType: hard
 
@@ -21122,32 +21057,6 @@ __metadata:
     stream-to-it: ^0.2.2
     uint8arrays: ^3.0.0
   checksum: b44394475dd9f6ef2e68cf22fb5bacf93c1a8967712f12a56baf9e90f183d625569bcabfe2e7c0d1cd2f0a2eed577ab8282f5a737552faf83d3b8a82d7910494
-  languageName: node
-  linkType: hard
-
-"ipfs-http-client@npm:^56.0.3":
-  version: 56.0.3
-  resolution: "ipfs-http-client@npm:56.0.3"
-  dependencies:
-    "@ipld/dag-cbor": ^7.0.0
-    "@ipld/dag-json": ^8.0.1
-    "@ipld/dag-pb": ^2.1.3
-    any-signal: ^3.0.0
-    dag-jose: ^1.0.0
-    debug: ^4.1.1
-    err-code: ^3.0.1
-    ipfs-core-types: ^0.10.3
-    ipfs-core-utils: ^0.14.3
-    ipfs-utils: ^9.0.6
-    it-first: ^1.0.6
-    it-last: ^1.0.4
-    merge-options: ^3.0.4
-    multiaddr: ^10.0.0
-    multiformats: ^9.5.1
-    parse-duration: ^1.0.0
-    stream-to-it: ^0.2.2
-    uint8arrays: ^3.0.0
-  checksum: d45fe955b368655ff37bbaeaa72eb968399cffb6ac1ae44bd7898d834259fbe8b2394b73626d2338cd753b57b4f99ebaa8e7dfbead887c73f36c0070185cd9d6
   languageName: node
   linkType: hard
 
@@ -21300,7 +21209,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ipfs-utils@npm:^9.0.1, ipfs-utils@npm:^9.0.2, ipfs-utils@npm:^9.0.6":
+"ipfs-utils@npm:^9.0.1, ipfs-utils@npm:^9.0.2":
   version: 9.0.9
   resolution: "ipfs-utils@npm:9.0.9"
   dependencies:
@@ -34081,15 +33990,6 @@ __metadata:
     native-abort-controller: ^1.0.4
     retimer: ^3.0.0
   checksum: 7f57cb6d5f4dcdcefe9c89deacc70c07ecafdba32d51333eca6aaf91e70bbff7e6ad13d9c098480d27a6f360383685f84819a3f475a5cfe8d3f3c7da465d1da7
-  languageName: node
-  linkType: hard
-
-"timeout-abort-controller@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "timeout-abort-controller@npm:3.0.0"
-  dependencies:
-    retimer: ^3.0.0
-  checksum: c74387e6472a1e151d89b4af8c2a18ac72d566f3cd6ec9b203e3cda969fb5c54acba0a8d20cda8e9772efda52e27bea59c3423bab785b65f0287c9419184607e
   languageName: node
   linkType: hard
 

@@ -3,19 +3,35 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
-const hre = require("hardhat");
-//const { ethers, upgrades } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 // declare variables that need to be referenced by other functions
 let trustedForwarderAddress;
 let consentAddress;
+
+async function deployMinimalForwarder() {
+  console.log("");
+  console.log("Deploying MinimalForwarder contract...");
+
+  const MinimalForwarder = await ethers.getContractFactory(
+    "MinimalForwarderUpgradeable",
+  );
+
+  // the MinimalForwarder does not require any arguments on deployment
+  const upgradeableMinimalForwarder = await upgrades.deployProxy(MinimalForwarder, []);
+  await upgradeableMinimalForwarder.deployed();
+
+  trustedForwarderAddress = upgradeableMinimalForwarder.address;
+
+  console.log("MinimalForwarder deployed to:", trustedForwarderAddress);
+}
 
 // function to deploy the consent contract
 async function deployConsent() {
   console.log("");
   console.log("Deploying Consent implementation contract...");
 
-  const Consent = await hre.ethers.getContractFactory("Consent");
+  const Consent = await ethers.getContractFactory("Consent");
   const consent = await Consent.deploy();
   const consent_receipt = await consent.deployTransaction.wait();
   consentAddress = consent.address;
@@ -29,79 +45,14 @@ async function deployConsentFactory() {
   console.log("");
   console.log("Deploying Consent Factory contract...");
 
-  const ConsentFactory = await hre.ethers.getContractFactory("ConsentFactory");
+  const ConsentFactory = await ethers.getContractFactory("ConsentFactory");
 
   // the Consent Factory contract requires one argument on deployment:
   // the address of the trusted forwarder who will pay for the meta tx fees
-  const consentFactory = await ConsentFactory.deploy(
-    trustedForwarderAddress,
-    consentAddress,
-  );
-  const consentFactory_receipt = await consentFactory.deployTransaction.wait();
+  const upgradeableConsentFactory = await upgrades.deployProxy(ConsentFactory, [trustedForwarderAddress, consentAddress])
+  await upgradeableConsentFactory.deployed();
 
-  console.log("ConsentFactory deployed to:", consentFactory.address);
-  console.log(
-    "ConsentFactory Gas Fee:",
-    consentFactory_receipt.gasUsed.toString(),
-  );
-}
-
-// function that deploys the SnickerdoodleGovernor contract (DAO)
-async function deployCrumbs() {
-  console.log("");
-  console.log("Deploying Crumbs contract...");
-
-  const Crumbs = await hre.ethers.getContractFactory("Crumbs");
-
-  // the Crumbs contract requires 2 arguments on deployment:
-  // the address of the trusted forwarder address
-  // the base uri
-  const crumbs = await Crumbs.deploy(
-    trustedForwarderAddress,
-    "www.crumbs.com/",
-  );
-  const crumbs_receipt = await crumbs.deployTransaction.wait();
-
-  console.log("Crumbs deployed to:", crumbs.address);
-  console.log("Crumbs Gas Fee:", crumbs_receipt.gasUsed.toString());
-}
-
-// function that deploys the SnickerdoodleGovernor contract (DAO)
-async function deploySift() {
-  console.log("");
-  console.log("Deploying Sift contract...");
-
-  const Sift = await hre.ethers.getContractFactory("Sift");
-
-  // the Sift contract requires 1 argument on deployment:
-  // the base uri
-  const sift = await Sift.deploy("www.sift.com/");
-  const sift_receipt = await sift.deployTransaction.wait();
-
-  console.log("Sift deployed to:", sift.address);
-  console.log("Sift Gas Fee:", sift_receipt.gasUsed.toString());
-}
-
-async function deployMinimalForwarder() {
-  console.log("");
-  console.log("Deploying MinimalForwarder contract...");
-
-  const MinimalForwarder = await hre.ethers.getContractFactory(
-    "MinimalForwarder",
-  );
-
-  // the MinimalForwarder does not require any arguments on deployment
-  const minimalForwarder = await MinimalForwarder.deploy();
-  const minimalForwarder_receipt =
-    await minimalForwarder.deployTransaction.wait();
-
-  trustedForwarderAddress = minimalForwarder.address;
-
-  console.log("MinimalForwarder deployed to:", minimalForwarder.address);
-  console.log(
-    "MinimalForwarder Gas Fee:",
-    minimalForwarder_receipt.gasUsed.toString(),
-  );
+  console.log("ConsentFactory deployed to:", upgradeableConsentFactory.address);
 }
 
 // function that runs the full deployment of all contracts
@@ -109,8 +60,6 @@ async function fullDeployment() {
   await deployMinimalForwarder();
   await deployConsent();
   await deployConsentFactory();
-  await deployCrumbs();
-  await deploySift();
 
   console.log("");
   console.log("Full deployment successful!");
