@@ -117,16 +117,13 @@ export const AppContextProvider: FC = ({ children }) => {
       "SD_WALLET_EXTENSION_CONNECTED",
       onWalletConnected,
     );
+    return () => {
+      document.removeEventListener(
+        "SD_WALLET_EXTENSION_CONNECTED",
+        onWalletConnected,
+      );
+    };
   }, []);
-
-  useEffect(() => {
-    if (isLoading === false) {
-      // document.removeEventListener(
-      //   "SD_WALLET_EXTENSION_CONNECTED",
-      //   onWalletConnected,
-      // );
-    }
-  }, [isLoading]);
 
   useEffect(() => {
     console.warn("window changed");
