@@ -630,6 +630,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
+            case EIndexer.Polygon:
               return evmRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
@@ -646,11 +647,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               );
             case EIndexer.Ethereum:
               return etherscanRepo.getBalancesForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Polygon:
-              return maticRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );

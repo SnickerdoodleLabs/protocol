@@ -27,7 +27,7 @@ import {
   PolygonTransaction,
   EPolygonTransactionType,
 } from "@snickerdoodlelabs/objects";
-import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
+// import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -42,10 +42,10 @@ import {
 export class PolygonIndexer
   implements IEVMAccountBalanceRepository, IEVMTransactionRepository
 {
-  private _metadataCache = new Map<
-    `${EVMContractAddress}-${ChainId}`,
-    TokenMetadataResponse
-  >();
+  //   private _metadataCache = new Map<
+  //     `${EVMContractAddress}-${ChainId}`,
+  //     TokenMetadataResponse
+  //   >();
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -60,71 +60,72 @@ export class PolygonIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return this._getAlchemyClient(chainId).andThen((alchemy) => {
-      return ResultUtils.combine([
-        ResultAsync.fromPromise(
-          alchemy.core.getTokenBalances(accountAddress),
-          (e) =>
-            new AccountIndexingError("error fetching balances from alchemy", e),
-        ).andThen((response) => {
-          return ResultUtils.combine(
-            response.tokenBalances.map((balance) => {
-              if (balance.tokenBalance == null) {
-                return okAsync(null);
-              }
+    return okAsync([]);
+    // return this._getAlchemyClient(chainId).andThen((alchemy) => {
+    //   return ResultUtils.combine([
+    //     ResultAsync.fromPromise(
+    //       alchemy.core.getTokenBalances(accountAddress),
+    //       (e) =>
+    //         new AccountIndexingError("error fetching balances from alchemy", e),
+    //     ).andThen((response) => {
+    //       return ResultUtils.combine(
+    //         response.tokenBalances.map((balance) => {
+    //           if (balance.tokenBalance == null) {
+    //             return okAsync(null);
+    //           }
 
-              const balanceValue = BigNumber.from(
-                balance.tokenBalance,
-              ).toString();
-              if (balanceValue == "0") {
-                return okAsync(null);
-              }
+    //           const balanceValue = BigNumber.from(
+    //             balance.tokenBalance,
+    //           ).toString();
+    //           if (balanceValue == "0") {
+    //             return okAsync(null);
+    //           }
 
-              return this._getTokenMetadata(
-                chainId,
-                EVMContractAddress(balance.contractAddress),
-              ).andThen((metadata) => {
-                if (metadata.decimals == null || metadata.symbol == null) {
-                  return okAsync(null);
-                }
+    //           return this._getTokenMetadata(
+    //             chainId,
+    //             EVMContractAddress(balance.contractAddress),
+    //           ).andThen((metadata) => {
+    //             if (metadata.decimals == null || metadata.symbol == null) {
+    //               return okAsync(null);
+    //             }
 
-                return okAsync(
-                  new TokenBalance(
-                    EChainTechnology.EVM,
-                    TickerSymbol(metadata.symbol),
-                    chainId,
-                    EVMContractAddress(balance.contractAddress),
-                    accountAddress,
-                    BigNumberString(
-                      BigNumber.from(balance.tokenBalance).toString(),
-                    ),
-                    metadata.decimals,
-                  ),
-                );
-              });
-            }),
-          ).map((arr) => arr.filter((x) => x != null) as TokenBalance[]);
-        }),
-        ResultAsync.fromPromise(
-          alchemy.core.getBalance(accountAddress),
-          (e) =>
-            new AccountIndexingError("error fetching native matic balance", e),
-        ),
-      ]).andThen(([tokenBalances, nativeBalance]) => {
-        tokenBalances.push(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol("MATIC"),
-            chainId,
-            null,
-            accountAddress,
-            BigNumberString(nativeBalance.toString()),
-            getChainInfoByChainId(chainId).nativeCurrency.decimals,
-          ),
-        );
-        return okAsync(tokenBalances);
-      });
-    });
+    //             return okAsync(
+    //               new TokenBalance(
+    //                 EChainTechnology.EVM,
+    //                 TickerSymbol(metadata.symbol),
+    //                 chainId,
+    //                 EVMContractAddress(balance.contractAddress),
+    //                 accountAddress,
+    //                 BigNumberString(
+    //                   BigNumber.from(balance.tokenBalance).toString(),
+    //                 ),
+    //                 metadata.decimals,
+    //               ),
+    //             );
+    //           });
+    //         }),
+    //       ).map((arr) => arr.filter((x) => x != null) as TokenBalance[]);
+    //     }),
+    //     ResultAsync.fromPromise(
+    //       alchemy.core.getBalance(accountAddress),
+    //       (e) =>
+    //         new AccountIndexingError("error fetching native matic balance", e),
+    //     ),
+    //   ]).andThen(([tokenBalances, nativeBalance]) => {
+    //     tokenBalances.push(
+    //       new TokenBalance(
+    //         EChainTechnology.EVM,
+    //         TickerSymbol("MATIC"),
+    //         chainId,
+    //         null,
+    //         accountAddress,
+    //         BigNumberString(nativeBalance.toString()),
+    //         getChainInfoByChainId(chainId).nativeCurrency.decimals,
+    //       ),
+    //     );
+    //     return okAsync(tokenBalances);
+    //   });
+    // });
   }
 
   public getEVMTransactions(
@@ -367,54 +368,54 @@ export class PolygonIndexer
       });
   }
 
-  private _getTokenMetadata(
-    chain: ChainId,
-    address: EVMContractAddress,
-  ): ResultAsync<TokenMetadataResponse, AccountIndexingError> {
-    const cacheResult = this._metadataCache.get(`${address}-${chain}`);
-    if (cacheResult) {
-      return okAsync(cacheResult);
-    }
+  //   private _getTokenMetadata(
+  //     chain: ChainId,
+  //     address: EVMContractAddress,
+  //   ): ResultAsync<TokenMetadataResponse, AccountIndexingError> {
+  //     const cacheResult = this._metadataCache.get(`${address}-${chain}`);
+  //     if (cacheResult) {
+  //       return okAsync(cacheResult);
+  //     }
 
-    return this._getAlchemyClient(chain)
-      .andThen((alchemy) => {
-        return ResultAsync.fromPromise(
-          alchemy.core.getTokenMetadata(address),
-          (e) => new AccountIndexingError("error fetching token metadata", e),
-        );
-      })
-      .map((metadata) => {
-        this._metadataCache.set(`${address}-${chain}`, metadata);
-        return metadata;
-      });
-  }
+  //     return this._getAlchemyClient(chain)
+  //       .andThen((alchemy) => {
+  //         return ResultAsync.fromPromise(
+  //           alchemy.core.getTokenMetadata(address),
+  //           (e) => new AccountIndexingError("error fetching token metadata", e),
+  //         );
+  //       })
+  //       .map((metadata) => {
+  //         this._metadataCache.set(`${address}-${chain}`, metadata);
+  //         return metadata;
+  //       });
+  //   }
 
-  private _getAlchemyClient(
-    chain: ChainId,
-  ): ResultAsync<Alchemy, AccountIndexingError> {
-    return this.configProvider.getConfig().andThen((config) => {
-      switch (chain) {
-        case ChainId(EChain.Polygon):
-          return okAsync(
-            new Alchemy({
-              apiKey: config.alchemyEndpoints.polygon,
-              network: Network.MATIC_MAINNET,
-            }),
-          );
-        case ChainId(EChain.Mumbai):
-          return okAsync(
-            new Alchemy({
-              apiKey: config.alchemyEndpoints.polygonMumbai,
-              network: Network.MATIC_MUMBAI,
-            }),
-          );
-        default:
-          return errAsync(
-            new AccountIndexingError("no alchemy app for chainId", chain),
-          );
-      }
-    });
-  }
+  //   private _getAlchemyClient(
+  //     chain: ChainId,
+  //   ): ResultAsync<Alchemy, AccountIndexingError> {
+  //     return this.configProvider.getConfig().andThen((config) => {
+  //       switch (chain) {
+  //         case ChainId(EChain.Polygon):
+  //           return okAsync(
+  //             new Alchemy({
+  //               apiKey: config.alchemyEndpoints.polygon,
+  //               network: Network.MATIC_MAINNET,
+  //             }),
+  //           );
+  //         case ChainId(EChain.Mumbai):
+  //           return okAsync(
+  //             new Alchemy({
+  //               apiKey: config.alchemyEndpoints.polygonMumbai,
+  //               network: Network.MATIC_MUMBAI,
+  //             }),
+  //           );
+  //         default:
+  //           return errAsync(
+  //             new AccountIndexingError("no alchemy app for chainId", chain),
+  //           );
+  //       }
+  //     });
+  //   }
 
   protected _getEtherscanApiKey(
     chain: ChainId,
