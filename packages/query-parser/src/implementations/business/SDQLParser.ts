@@ -519,7 +519,7 @@ export class SDQLParser {
   ): Map<string, DataPermissions> {
     const permMap = new Map();
     for (const expression of expressions) {
-      const queryDeps = this.exprParser!.getQueryDependencies(expression);
+      const queryDeps = this.parseQueryDependencies(expression);
       permMap.set(expression, this.queriesToDataPermission(queryDeps));
     }
     return permMap;
@@ -531,6 +531,15 @@ export class SDQLParser {
     const adDependencies = this.exprParser!.getAdDependencies(compensationExpression);
     return Array.from(
       new Set(adDependencies)
+    );
+  }
+
+  public parseQueryDependencies(
+    compensationExpression: string,
+  ): AST_Query[] {
+    const queryDependencies = this.exprParser!.getQueryDependencies(compensationExpression);
+    return Array.from(
+      new Set(queryDependencies)
     );
   }
 
