@@ -121,12 +121,16 @@ export const AppContextProvider: FC = ({ children }) => {
 
   useEffect(() => {
     if (isLoading === false) {
-      document.removeEventListener(
-        "SD_WALLET_EXTENSION_CONNECTED",
-        onWalletConnected,
-      );
+      // document.removeEventListener(
+      //   "SD_WALLET_EXTENSION_CONNECTED",
+      //   onWalletConnected,
+      // );
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    console.warn("window changed");
+  }, [window?.sdlDataWallet]);
 
   useEffect(() => {
     if (isSDLDataWalletDetected) {
@@ -152,6 +156,19 @@ export const AppContextProvider: FC = ({ children }) => {
         subscribeToAccountAdding();
         sessionStorage.setItem("appMode", EAppModes.ONBOARDING_FLOW.toString());
         setAppMode(EAppModes.ONBOARDING_FLOW);
+      }
+    });
+  };
+
+  const refreshNotificationSubscriptions = () => {
+    window?.sdlDataWallet?.getDataWalletAddress().map((dataWalletAddress) => {
+      if (dataWalletAddress) {
+        getUserAccounts();
+        subscribeToAccountAdding();
+        subscribeToAccountRemoving();
+      } else {
+        subscribeToAccountInitiating();
+        subscribeToAccountAdding();
       }
     });
   };
@@ -206,6 +223,9 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const onWalletConnected = useCallback(() => {
     // Phantom wallet can not initiate window phantom object at time
+    if (isSDLDataWalletDetected) {
+      return refreshNotificationSubscriptions();
+    }
     setSDLDataWalletDetected(true);
     setTimeout(() => {
       checkDataWalletAddressAndInitializeApp();

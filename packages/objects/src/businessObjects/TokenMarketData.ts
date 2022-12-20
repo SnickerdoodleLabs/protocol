@@ -10,6 +10,7 @@ export class TokenMarketData {
     public marketCap: number,
     public marketCapRank: number,
     public priceChange24h: number,
+    public priceChangePercentage24h: number,
     public circulatingSupply: number,
     public totalSupply: number,
     public maxSupply: number | null,

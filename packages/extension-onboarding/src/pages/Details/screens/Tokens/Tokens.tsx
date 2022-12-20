@@ -68,12 +68,7 @@ const chartOptions = {
   },
   plugins: {
     legend: {
-      display: true,
-      position: "right" as const,
-      onClick: () => {},
-      labels: {
-        usePointStyle: true,
-      },
+      display: false,
     },
   },
 };
@@ -279,10 +274,40 @@ export default () => {
     accountTestnetBalances,
   ]);
 
-  const bgColors = useMemo(() => {
+  const { totalItems, totalBalance } = useMemo(() => {
     if (!tokensToRender) {
+      return { totalItems: 0, totalBalance: 0 };
+    } else {
+      return {
+        totalItems: tokensToRender.length,
+        totalBalance:
+          tokensToRender?.reduce((acc, item) => {
+            return (acc += item.quoteBalance);
+          }, 0) || 0,
+      };
     }
   }, [tokensToRender]);
+
+  const restTokensPercentage = useMemo(() => {
+    if (
+      !tokensToRender?.length ||
+      tokensToRender.length <= 4 ||
+      totalBalance == 0
+    ) {
+      return 0;
+    } else {
+      return (
+        100 *
+        (((totalBalance || 0) -
+          (tokensToRender
+            ?.slice(0, 4)
+            .reduce((acc, item) => (acc += item.quoteBalance), 0) || 0)) /
+          totalBalance)
+      );
+    }
+  }, [tokensToRender, totalBalance]);
+
+  console.log(restTokensPercentage);
 
   useEffect(() => {
     if (tokensToRender) {
@@ -314,7 +339,9 @@ export default () => {
                 Total Token Value
               </Typography>
             </Box>
-            <Typography className={classes.infoCardValue}>$</Typography>
+            <Typography className={classes.infoCardValue}>
+              ${(totalBalance || 0).toFixed(2)}
+            </Typography>
           </Box>
           <Box
             p={3}
@@ -327,39 +354,108 @@ export default () => {
                 Number of Tokens
               </Typography>
             </Box>
-            <Typography className={classes.infoCardValue}>$</Typography>
+            <Typography className={classes.infoCardValue}>
+              {totalItems || 0}
+            </Typography>
           </Box>
         </Grid>
         <Grid item xs={6}>
-          {tokensToRender?.length && (
-            <Box width="60%">
-              <Pie
-                options={chartOptions}
-                data={{
-                  labels: tokensToRender?.map((i) => i.ticker) ?? [],
-                  datasets: [
-                    {
-                      data:
-                        tokensToRender?.map((i) => i.quoteBalance || 0) ?? [],
-                      backgroundColor:
-                        tokensToRender?.reduce((acc, _, index) => {
-                          acc = [
-                            ...acc,
-                            colorGenarator(
-                              index * (1 / tokensToRender.length),
-                            ).hex(),
-                          ];
-                          return acc;
-                        }, [] as string[]) ?? "#7F79B0",
-                    },
-                  ],
-                }}
-              />
-            </Box>
-          )}
+          <Box display="flex">
+            {(tokensToRender?.length || 0) > 0 && (
+              <Box maxWidth="245px" mr={5}>
+                {totalBalance == 0 ? (
+                  <Box
+                    width={245}
+                    height={245}
+                    borderRadius={125}
+                    bgcolor="#f0f0f0"
+                  />
+                ) : (
+                  <Pie
+                    options={chartOptions}
+                    data={{
+                      labels:
+                        tokensToRender?.map(
+                          (i) => i.marketaData?.name ?? i.ticker,
+                        ) ?? [],
+                      datasets: [
+                        {
+                          data:
+                            tokensToRender?.map((i) => i.quoteBalance || 0) ??
+                            [],
+                          backgroundColor:
+                            tokensToRender?.reduce((acc, _, index) => {
+                              acc = [
+                                ...acc,
+                                colorGenarator(index * (1 / totalItems)).hex(),
+                              ];
+                              return acc;
+                            }, [] as string[]) ?? "#7F79B0",
+                        },
+                      ],
+                    }}
+                  />
+                )}
+              </Box>
+            )}
+            {(tokensToRender?.length || 0) > 0 && (
+              <Box mt={2} maxHeight={245} overflow="auto">
+                {tokensToRender?.slice(0, 4).map((item, index) => {
+                  return (
+                    <Box mb={0.5}>
+                      <Box display="flex" alignItems="center">
+                        <Box
+                          mr={2}
+                          width={8}
+                          height={8}
+                          borderRadius={4}
+                          bgcolor={colorGenarator(
+                            index * (1 / tokensToRender.length),
+                          ).hex()}
+                        />
+                        <Typography className={classes.metricTitle}>
+                          {item.marketaData?.name || item.ticker}
+                        </Typography>
+                      </Box>
+                      <Box ml={2.5} mt={0.5}>
+                        <Typography className={classes.metricValue}>
+                          {(
+                            (100 * item.quoteBalance) /
+                            (totalBalance || 1)
+                          ).toFixed(2)}
+                          %
+                        </Typography>
+                      </Box>
+                    </Box>
+                  );
+                })}
+                {restTokensPercentage != 0 && (
+                  <Box mb={0.5}>
+                    <Box display="flex" alignItems="center">
+                      <Box
+                        mr={2}
+                        width={8}
+                        height={8}
+                        borderRadius={4}
+                        bgcolor="#B9B6D3"
+                      />
+                      <Typography className={classes.metricTitle}>
+                        Others
+                      </Typography>
+                    </Box>
+                    <Box ml={2.5} mt={0.5}>
+                      <Typography className={classes.metricValue}>
+                        {restTokensPercentage.toFixed(2)}%
+                      </Typography>
+                    </Box>
+                  </Box>
+                )}
+              </Box>
+            )}
+          </Box>
         </Grid>
       </Grid>
-      <Box mb={3}>
+      <Box mt={4} mb={3}>
         <Box mb={0.5}>
           <Typography className={classes.title}>Tokens</Typography>
         </Box>
@@ -383,6 +479,7 @@ export default () => {
             <>
               <Box display="flex" py={2} px={3} justifyContent="space-between">
                 <Typography className={classes.tableTitle}>Name</Typography>
+                <Typography className={classes.tableTitle}>Trend</Typography>
                 <Typography className={classes.tableTitle}>Value</Typography>
               </Box>
               {(tokensPagination
@@ -394,8 +491,7 @@ export default () => {
               ).map((token, index) => {
                 return (
                   <Box
-                    key={index}
-                    mb={3}
+                    key={JSON.stringify(token)}
                     {...(index % 2 === 0 && {
                       bgcolor: "rgba(245, 244, 245, 0.52)",
                     })}

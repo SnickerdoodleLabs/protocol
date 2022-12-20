@@ -50,4 +50,22 @@ export const useStyles = makeStyles((theme) => ({
     lineHeight: "18px",
     color: "#616161",
   },
+  metricTitle: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "12px",
+    lineHeight: "15px",
+    display: "flex",
+    alignItems: "flex-end",
+    color: "#757575",
+  },
+  metricValue: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "16px",
+    lineHeight: "20px",
+    color: "#212121",
+  },
 }));
