@@ -144,8 +144,8 @@ export class MoralisEVMPortfolioRepository
         this.ajaxUtils
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           .get<IMoralisNFTResponse>(new URL(requestConfig.url!), requestConfig)
-          .andThen((response) => {
-            return this.getPages(chainId, accountAddress, response).andThen(
+          .andThen((next) => {
+            return this.getPages(chainId, accountAddress, next).andThen(
               (nftArr) => {
                 return okAsync(nftArr.concat(items));
               },
