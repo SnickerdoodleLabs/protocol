@@ -12,6 +12,7 @@ import {
   HexString32,
   Signature,
   TokenId,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -26,6 +27,22 @@ export class InvitationRepository implements IInvitationRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
+
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+    return this.core.getMarketplaceListings(count, headAt).mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
+  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.core.getListingsTotal().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
 
   public getConsentContractCID(
     consentAddress: EVMContractAddress,

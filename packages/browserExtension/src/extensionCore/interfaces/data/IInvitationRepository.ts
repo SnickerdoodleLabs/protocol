@@ -7,6 +7,7 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
   HexString32,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -46,6 +47,11 @@ export interface IInvitationRepository {
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
+  getMarketplaceListings(
+    count?: number,
+    headAt?: number,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError>;
+  getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError>;
 }
 
 export const IInvitationRepositoryType = Symbol.for("IInvitationRepository");

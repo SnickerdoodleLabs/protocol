@@ -16,6 +16,7 @@ import {
   TransactionFilter,
   TokenMarketData,
   TokenInfo,
+  MarketplaceListing,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -407,6 +408,17 @@ export interface ISnickerdoodleCore {
   addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
+  getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<
+    MarketplaceListing,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+  getListingsTotal(): ResultAsync<
+    number,
+    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+  >;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

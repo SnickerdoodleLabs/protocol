@@ -11,6 +11,7 @@ import {
   TokenMarketData,
   WalletNFT,
   SiteVisit,
+  MarketplaceListing,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EWalletDataType } from "@objects/enum";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
@@ -142,4 +143,11 @@ export interface ISdlDataWallet extends EventEmitter {
   getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError>;
 
   getSiteVisitsMap(): ResultAsync<Record<URLString, number>, JsonRpcError>;
+
+  getMarketplaceListings(
+    count?: number,
+    headAt?: number,
+  ): ResultAsync<MarketplaceListing, JsonRpcError>;
+
+  getListingsTotal(): ResultAsync<number, JsonRpcError>;
 }
