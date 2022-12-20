@@ -103,6 +103,7 @@ export class ConfigProvider
         polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
         polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
       },
+      10000,
     );
   }
 
