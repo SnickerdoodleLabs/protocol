@@ -130,17 +130,15 @@ export class SDQLQueryUtils {
   ): CompensationId[] {
 
     const adCompensationIds = new Set<CompensationId>();
-    parser.compensationPermissions.forEach((comPermissions, compExpr) => {
 
+    parser.logicCompensations.forEach((comAst, compExpr) => {
       const adDependencies = parser.parseAdDependencies(compExpr);
       if (
         adDependencies.length > 0 && // Is an ad compensation
         this.adListContainsAllAdDependencies(adIds, adDependencies)
       ) {
 
-        const comAst = parser.logicCompensations.get(compExpr);
         const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
-
         comIds.forEach((comId) => adCompensationIds.add(comId));
       }
     });
