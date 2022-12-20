@@ -40,5 +40,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
       solana: string;
       solanaTestnet: string;
     },
+    public restoreTimeoutMS: number,
   ) {}
 }

@@ -176,8 +176,18 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.backupManagerProvider.unlock(derivedKey),
     ])
       .map(() => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.pollBackups().map(() => this.resolveRestore!());
+        this.configProvider.getConfig().map((config) => {
+          const timeout = setTimeout(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            () => this.resolveRestore!(),
+            config.restoreTimeoutMS,
+          );
+          this.pollBackups().map(() => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.resolveRestore!();
+            clearTimeout(timeout);
+          });
+        });
       })
       .mapErr((e) => new PersistenceError("error unlocking data wallet", e));
   }

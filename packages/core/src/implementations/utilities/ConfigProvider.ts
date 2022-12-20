@@ -94,6 +94,7 @@ export class ConfigProvider
         solanaTestnet:
           "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
       },
+      10000,
     );
   }
 
