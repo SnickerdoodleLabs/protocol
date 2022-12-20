@@ -38,6 +38,7 @@ export class SDQLQueryUtils {
     @inject(ISDQLQueryWrapperFactoryType)
     readonly queryWrapperFactory: ISDQLQueryWrapperFactory,
   ) {}
+
   public getEligibleCompensations(
     schemaString: SDQLString,
     queryIds: string[],
@@ -107,14 +108,14 @@ export class SDQLQueryUtils {
   ): CompensationId[] {
 
     const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
-    const eligibleAdIds = this.getEligibleAdIdsByQueryPermissions(parser, queryPermissions);
+    const permittedAdIds = this.getPermittedAdIdsByQueryPermissions(parser, queryPermissions);
 
     const eligibleComIds = new Set<CompensationId>();
     parser.compensationPermissions.forEach((comPermissions, compExpr) => {
 
       if (queryPermissions.contains(comPermissions!)) {
         const adDependencies = parser.parseAdDependencies(compExpr);
-        if (adDependencies.every((dep) => eligibleAdIds.has(AdId(dep.key)))) {
+        if (adDependencies.every((dep) => permittedAdIds.has(AdId(dep.key)))) {
 
           const comAst = parser.logicCompensations.get(compExpr);
           const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
@@ -168,22 +169,22 @@ export class SDQLQueryUtils {
     }
   }
 
-  private getEligibleAdIdsByQueryPermissions(
+  private getPermittedAdIdsByQueryPermissions(
     parser: SDQLParser,
     queryPermissions: DataPermissions
   ): Set<AdId> {
-    const eligibleAdIds = new Set<AdId>();
+    const permittedAdIds = new Set<AdId>();
 
     parser.adPermissions.forEach((adPermissions, adLogicExpr) => {
       if (queryPermissions.contains(adPermissions!)) {
         const adAstExpr = parser.logicAds.get(adLogicExpr);
         const adAst = this.getAdAstFromAst(adAstExpr!);
 
-        eligibleAdIds.add(AdId(adAst.key));
+        permittedAdIds.add(AdId(adAst.key));
       }
     });
 
-    return eligibleAdIds;
+    return permittedAdIds;
   }
 
   protected getAdAstFromAst(
