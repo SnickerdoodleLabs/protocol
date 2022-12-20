@@ -1,3 +1,4 @@
+import Portfolio from "@extension-onboarding/components/Portfolio";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import AuthFlowLayout from "@extension-onboarding/layouts/AutFlowLayout";
 import OnboardingLayout from "@extension-onboarding/layouts/OnboardingLayout";
@@ -7,7 +8,6 @@ import EarnedRewards from "@extension-onboarding/pages/Details/screens/EarnedRew
 import MarketPlaceCampaigns from "@extension-onboarding/pages/Details/screens/MarketplaceCampaigns";
 import OnChainIfo from "@extension-onboarding/pages/Details/screens/OnChainIfo";
 import PersonalInfo from "@extension-onboarding/pages/Details/screens/PersonalInfo";
-import Portfolio from "@extension-onboarding/pages/Details/screens/Portfolio";
 import ScamFilterSettings from "@extension-onboarding/pages/Details/screens/ScamFilterSettings";
 import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinking";
 import OnboardingWelcome from "@extension-onboarding/pages/Onboarding/OnboardingWelcome";

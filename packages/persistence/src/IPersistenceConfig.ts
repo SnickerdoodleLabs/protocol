@@ -1,5 +1,10 @@
 import { ModelAliases } from "@glazed/types";
-import { ChainId, ModelTypes, URLString } from "@snickerdoodlelabs/objects";
+import {
+  ChainId,
+  ChainInformation,
+  ModelTypes,
+  URLString,
+} from "@snickerdoodlelabs/objects";
 
 export interface IPersistenceConfig {
   supportedChains: ChainId[];
@@ -8,6 +13,8 @@ export interface IPersistenceConfig {
   backupChunkSizeTarget: number;
   ceramicModelAliases: ModelAliases<ModelTypes>;
   ceramicNodeURL: URLString;
+  chainInformation: Map<ChainId, ChainInformation>;
   defaultInsightPlatformBaseUrl: URLString;
   defaultGoogleCloudBucket: string;
+  restoreTimeoutMS: number;
 }

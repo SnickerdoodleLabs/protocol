@@ -51,7 +51,8 @@
     "start": "docker-compose up",
     "test": "yarn compile && yarn workspaces foreach -p run test",
     "yeet": "yarn workspaces foreach -p run docker-push",
-    "yoink": "docker-compose pull"
+    "yoink": "docker-compose pull",
+    "testScript": "npx run scripts/test.mjs"
   },
   "husky": {
     "hooks": {

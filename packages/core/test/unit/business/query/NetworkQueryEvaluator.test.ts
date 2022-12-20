@@ -12,14 +12,17 @@ import {
   EVMContractFunction,
   EVMToken,
   EVMTransaction,
-  EVMTransactionFilter,
+  TransactionFilter,
   Gender,
   IDataWalletPersistence,
-  IEVMBalance,
+  TokenBalance,
   SDQL_Name,
   TickerSymbol,
   UnixTimestamp,
   URLString,
+  ChainTransaction,
+  EChainTechnology,
+  EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_NetworkQuery,
@@ -30,7 +33,6 @@ import * as td from "testdouble";
 
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
-import { IChainTransaction } from "@snickerdoodlelabs/objects";
 
 class NetworkQueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
@@ -40,41 +42,45 @@ class NetworkQueryEvaluatorMocks {
     [URLString("www.snickerdoodlelabs.io"), 10],
   ]);
 
-  public transactionsArray = new Array<IChainTransaction>();
+  public transactionsArray = new Array<ChainTransaction>();
 
-  public accountBalances = new Array<IEVMBalance>(
-    {
-      ticker: TickerSymbol("ETH"),
-      chainId: ChainId(1),
-      accountAddress: EVMAccountAddress("GOOD1"),
-      balance: BigNumberString("18"),
-      contractAddress: EVMContractAddress("9dkj13nd"),
-      quoteBalance: 0,
-    },
-    {
-      ticker: TickerSymbol("ETH"),
-      chainId: ChainId(1),
-      accountAddress: EVMAccountAddress("GOOD2"),
-      balance: BigNumberString("25"),
-      contractAddress: EVMContractAddress("0pemc726"),
-      quoteBalance: 0,
-    },
-    {
-      ticker: TickerSymbol("BLAH"),
-      chainId: ChainId(901398),
-      accountAddress: EVMAccountAddress("BAD"),
-      balance: BigNumberString("26"),
-      contractAddress: EVMContractAddress("lp20xk3c"),
-      quoteBalance: 0,
-    },
-    {
-      ticker: TickerSymbol("ETH"),
-      chainId: ChainId(1),
-      accountAddress: EVMAccountAddress("GOOD3"),
-      balance: BigNumberString("36"),
-      contractAddress: EVMContractAddress("m12s93io"),
-      quoteBalance: 0,
-    },
+  public accountBalances = new Array<TokenBalance>(
+    new TokenBalance(
+      EChainTechnology.EVM,
+      TickerSymbol("ETH"),
+      ChainId(1),
+      EVMContractAddress("9dkj13nd"),
+      EVMAccountAddress("GOOD1"),
+      BigNumberString("18"),
+      18,
+    ),
+    new TokenBalance(
+      EChainTechnology.EVM,
+      TickerSymbol("ETH"),
+      ChainId(1),
+      EVMContractAddress("0pemc726"),
+      EVMAccountAddress("GOOD2"),
+      BigNumberString("25"),
+      18,
+    ),
+    new TokenBalance(
+      EChainTechnology.EVM,
+      TickerSymbol("BLAH"),
+      ChainId(901398),
+      EVMContractAddress("lp20xk3c"),
+      EVMAccountAddress("BAD"),
+      BigNumberString("26"),
+      18,
+    ),
+    new TokenBalance(
+      EChainTechnology.EVM,
+      TickerSymbol("ETH"),
+      ChainId(1),
+      EVMContractAddress("m12s93io"),
+      EVMAccountAddress("GOOD3"),
+      BigNumberString("36"),
+      18,
+    ),
   );
 
   public constructor() {
@@ -130,20 +136,20 @@ describe("QueryEvaluator: ", () => {
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
-    const filter = new EVMTransactionFilter(
+    const filter = new TransactionFilter(
       [chainId],
       [address],
-      [hash],
+      [EVMTransactionHash(hash)],
       startTime,
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
     ).thenReturn(
       okAsync([
         new EVMTransaction(
           ChainId(43114),
-          "",
+          EVMTransactionHash(""),
           UnixTimestamp(13001519),
           null,
           null,
@@ -153,7 +159,8 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
-          0,
+          null,
+          null,
         ),
       ]),
     );
@@ -187,20 +194,20 @@ describe("QueryEvaluator: ", () => {
     const startTime = networkQuery.contract.timestampRange.start;
     const endTime = networkQuery.contract.timestampRange.end;
 
-    const filter = new EVMTransactionFilter(
+    const filter = new TransactionFilter(
       [chainId],
       [address],
-      [hash],
+      [EVMTransactionHash(hash)],
       startTime,
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
     ).thenReturn(
       okAsync([
         new EVMTransaction(
           ChainId(43114),
-          "",
+          EVMTransactionHash(""),
           UnixTimestamp(13001519),
           null,
           null,
@@ -210,7 +217,8 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
-          0,
+          null,
+          null,
         ),
       ]),
     );
@@ -244,15 +252,15 @@ describe("QueryEvaluator: ", () => {
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
-    const filter = new EVMTransactionFilter(
+    const filter = new TransactionFilter(
       [chainId],
       [address],
-      [hash],
+      [EVMTransactionHash(hash)],
       startTime,
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);
@@ -286,15 +294,15 @@ describe("Network Query Testing: ", () => {
     const startTime = networkQuery.contract.timestampRange.start;
     const endTime = networkQuery.contract.timestampRange.end;
 
-    const filter = new EVMTransactionFilter(
+    const filter = new TransactionFilter(
       [chainId],
       [address],
-      [hash],
+      [EVMTransactionHash(hash)],
       startTime,
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);
@@ -325,15 +333,15 @@ describe("Network Query Testing: ", () => {
     const startTime = networkQuery.contract.timestampRange.start;
     const endTime = networkQuery.contract.timestampRange.end;
 
-    const filter = new EVMTransactionFilter(
+    const filter = new TransactionFilter(
       [chainId],
       [address],
-      [hash],
+      [EVMTransactionHash(hash)],
       startTime,
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getEVMTransactions(td.matchers.anything()),
+      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);

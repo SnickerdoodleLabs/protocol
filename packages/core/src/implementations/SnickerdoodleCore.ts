@@ -25,7 +25,7 @@ import {
   EvaluationError,
   EVMContractAddress,
   EVMTransaction,
-  EVMTransactionFilter,
+  TransactionFilter,
   FamilyName,
   Gender,
   GivenName,
@@ -37,8 +37,7 @@ import {
   IDataWalletBackup,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
-  IEVMNFT,
+  WalletNFT,
   InvalidParametersError,
   InvalidSignatureError,
   Invitation,
@@ -61,14 +60,22 @@ import {
   UnsupportedLanguageError,
   URLString,
   EScamFilterStatus,
-  IChainTransaction,
+  ChainTransaction,
   EChain,
   LinkedAccount,
   AccountAddress,
   DataWalletAddress,
   EarnedReward,
+  TokenAddress,
+  TokenBalance,
   IDynamicRewardParameter,
+  ChainId,
   DataWalletBackupID,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
+  AccountIndexingError,
+  TokenInfo,
+  TokenMarketData,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -639,26 +646,26 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   getTransactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError> {
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTranactions(filter);
   }
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountBalances();
   }
 
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getAccountNFTs();
   }
 
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError> {
+  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTransactionsArray();
@@ -693,12 +700,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
-  public addEVMTransactions(
-    transactions: EVMTransaction[],
+  public addTransactions(
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.addEVMTransactions(transactions);
+    return accountService.addTransactions(transactions);
   }
 
   public restoreBackup(
@@ -710,19 +717,45 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return persistence.restoreBackup(backup);
   }
 
-  public postBackups(): ResultAsync<
-    DataWalletBackupID[],
-    PersistenceError | AjaxError
-  > {
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
     const persistence = this.iocContainer.get<IDataWalletPersistence>(
       IDataWalletPersistenceType,
     );
     return persistence.postBackups();
   }
 
-  public clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError> {
+  public clearCloudStore(): ResultAsync<void, PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.clearCloudStore();
+  }
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, PersistenceError> {
+    const accountService =
+      this.iocContainer.get<IAccountService>(IAccountServiceType);
+    return accountService.getTokenPrice(chainId, address, timestamp);
+  }
+
+  public getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, AccountIndexingError> {
+    const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
+      ITokenPriceRepositoryType,
+    );
+    return tokenPriceRepo.getTokenInfo(chainId, contractAddress);
+  }
+
+  public getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], AccountIndexingError> {
+    const tokenPriceRepo = this.iocContainer.get<ITokenPriceRepository>(
+      ITokenPriceRepositoryType,
+    );
+    return tokenPriceRepo.getTokenMarketData(ids);
   }
 }
