@@ -4,11 +4,13 @@ import {
   ConsentName,
   EVMAccountAddress,
   EVMContractAddress,
+  IpfsCID,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
+import { MarketplaceListing } from "./objects";
 
 export interface IConsentFactoryContract {
   /**
@@ -89,4 +91,16 @@ export interface IConsentFactoryContract {
     EVMContractAddress[],
     ConsentFactoryContractError
   >;
+
+  /**
+   * Marketplace Listings
+   */
+  listingsTotal(): ResultAsync<number, ConsentFactoryContractError>;
+
+  listingsHead(): ResultAsync<number, ConsentFactoryContractError>;
+
+  getMarketplaceListings(
+    count?: number,
+    headAt?: number,
+  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError>;
 }
