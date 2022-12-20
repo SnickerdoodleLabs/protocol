@@ -9,6 +9,7 @@ import {
   ERewardType,
   EVMAccountAddress,
   EVMTransaction,
+  EVMTransactionHash,
   Gender,
   IDataWalletBackup,
   InitializationVector,
@@ -188,7 +189,7 @@ export class CorePrompt extends DataWalletPrompt {
         case "getLocation":
           return this.core.getLocation().map(console.log);
         case "getTransactions":
-        //   return this.core.getTransactions().map(console.log;); # TODO
+          return this.core.getTransactions().map(console.log);
         case "getAccounts":
           return this.core.getAccounts().map(console.log);
         case "getNFTs":
@@ -211,7 +212,7 @@ export class CorePrompt extends DataWalletPrompt {
               */
           transactions[0] = new EVMTransaction(
             ChainId(43113),
-            "firstHash",
+            EVMTransactionHash("firstHash"),
             UnixTimestamp(100),
             null,
             EVMAccountAddress("send200"),
@@ -221,11 +222,12 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            Math.random() * 1000,
+            null,
+            null,
           );
           transactions[1] = new EVMTransaction(
             ChainId(43113),
-            "secondHash",
+            EVMTransactionHash("secondHash"),
             UnixTimestamp(100),
             null,
             EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
@@ -235,11 +237,12 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            Math.random() * 1000,
+            null,
+            null,
           );
           transactions[2] = new EVMTransaction(
             ChainId(43113),
-            "thirdHash",
+            EVMTransactionHash("thirdHash"),
             UnixTimestamp(100),
             null,
             EVMAccountAddress("send300"),
@@ -249,11 +252,12 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            Math.random() * 1000,
+            null,
+            null,
           );
           transactions[3] = new EVMTransaction(
             ChainId(43113),
-            "fourthHash",
+            EVMTransactionHash("fourthHash"),
             UnixTimestamp(100),
             null,
             EVMAccountAddress("send50"),
@@ -263,7 +267,8 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            Math.random() * 1000,
+            null,
+            null,
           );
 
           // {chainId\":43113,
@@ -271,11 +276,11 @@ export class CorePrompt extends DataWalletPrompt {
           console.log(
             `adding ${transactions.length} transactions for chain 43113`,
           );
-          return this.core.addEVMTransactions(transactions).map(console.log);
+          return this.core.addTransactions(transactions).map(console.log);
         case "addEVMTransaction - google":
           transactions[0] = new EVMTransaction(
             ChainId(1),
-            "null",
+            EVMTransactionHash("null"),
             UnixTimestamp(100),
             null,
             null,
@@ -285,9 +290,10 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
-            Math.random() * 1000,
+            null,
+            null,
           );
-          return this.core.addEVMTransactions(transactions).map(console.log);
+          return this.core.addTransactions(transactions).map(console.log);
         case "addSiteVisit - google":
           sites[0] = new SiteVisit(
             URLString("www.google.com"),

@@ -4,7 +4,12 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IndexedDBCursor } from "@persistence/volatile/IndexedDBCursor.js";
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
+import { VolatileKey } from "@persistence/volatile/IVolatileStorage.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
+
+function _getCompoundIndexName(key: (string | number)[]): string {
+  return key.join(",");
+}
 
 export class IndexedDB {
   private _db?: IDBDatabase;
@@ -22,6 +27,10 @@ export class IndexedDB {
     }
 
     const promise = new Promise<IDBDatabase>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new PersistenceError("timeout"));
+      }, 1000);
+
       try {
         const request = this.dbFactory.open(this.name);
 
@@ -43,12 +52,19 @@ export class IndexedDB {
               keyPathObj,
             );
             storeInfo.indexBy?.forEach(([name, unique]) => {
-              objectStore.createIndex(name, name, { unique: unique });
+              if (Array.isArray(name)) {
+                objectStore.createIndex(_getCompoundIndexName(name), name, {
+                  unique: unique,
+                });
+              } else {
+                objectStore.createIndex(name, name, { unique: unique });
+              }
             });
           });
         };
       } catch (e) {
         console.error(e);
+        clearTimeout(timeout);
         reject(e);
       }
     });
@@ -84,29 +100,44 @@ export class IndexedDB {
     );
   }
 
-  private getObjectStore(
+  private getTransaction(
     name: string,
     mode: IDBTransactionMode,
-  ): ResultAsync<IDBObjectStore, PersistenceError> {
+  ): ResultAsync<IDBTransaction, PersistenceError> {
     return this.initialize().andThen((db) => {
-      const tx = db.transaction(name, mode);
-      return okAsync(tx.objectStore(name));
+      return okAsync(db.transaction(name, mode));
+      // return okAsync(tx.objectStore(name));
     });
   }
 
   public clearObjectStore(name: string): ResultAsync<void, PersistenceError> {
     return ResultUtils.combine([
       this.initialize(),
-      this.getObjectStore(name, "readwrite"),
-    ]).andThen(([_db, store]) => {
+      this.getTransaction(name, "readwrite"),
+    ]).andThen(([_db, tx]) => {
       const promise = new Promise((resolve, reject) => {
-        const req = store.clear();
-        req.onsuccess = function (evt) {
-          resolve(store);
-        };
-        req.onerror = function (evt) {
-          reject(new PersistenceError("error clearing object store"));
-        };
+        const timeout = setTimeout(() => {
+          reject(new PersistenceError("timeout"));
+        }, 1000);
+
+        try {
+          const store = tx.objectStore(name);
+          const req = store.clear();
+          req.onsuccess = function (evt) {
+            clearTimeout(timeout);
+            tx.commit();
+            resolve(store);
+          };
+          req.onerror = function (evt) {
+            clearTimeout(timeout);
+            tx.abort();
+            reject(new PersistenceError("error clearing object store"));
+          };
+        } catch (e) {
+          clearTimeout(timeout);
+          tx.abort();
+          reject(new PersistenceError("error clearing store", e));
+        }
       });
 
       return ResultAsync.fromPromise(
@@ -127,12 +158,13 @@ export class IndexedDB {
 
     return this.initialize()
       .andThen((db) => {
-        return this.getObjectStore(name, "readwrite");
+        return this.getTransaction(name, "readwrite");
       })
-      .andThen((store) => {
+      .andThen((tx) => {
         const promise = new Promise((resolve, reject) => {
           // console.log("creating promise", obj);
           try {
+            const store = tx.objectStore(name);
             const request = store.put(obj);
             request.onsuccess = (event) => {
               resolve(undefined);
@@ -148,6 +180,7 @@ export class IndexedDB {
           } catch (e) {
             console.log("error obj", obj);
             console.error("error", e);
+            tx.abort();
             reject(new PersistenceError("Error updating object store", e));
           }
         });
@@ -165,15 +198,30 @@ export class IndexedDB {
     key: string,
   ): ResultAsync<void, PersistenceError> {
     return this.initialize().andThen((db) => {
-      return this.getObjectStore(name, "readwrite").andThen((store) => {
+      return this.getTransaction(name, "readwrite").andThen((tx) => {
         const promise = new Promise((resolve, reject) => {
-          const request = store.delete(key);
-          request.onsuccess = (event) => {
-            resolve(undefined);
-          };
-          request.onerror = (event) => {
-            reject(new PersistenceError("error updating object store"));
-          };
+          const timeout = setTimeout(() => {
+            reject(new PersistenceError("timeout"));
+          }, 1000);
+
+          try {
+            const store = tx.objectStore(name);
+            const request = store.delete(key);
+            request.onsuccess = (event) => {
+              clearTimeout(timeout);
+              tx.commit();
+              resolve(undefined);
+            };
+            request.onerror = (event) => {
+              clearTimeout(timeout);
+              tx.abort();
+              reject(new PersistenceError("error updating object store"));
+            };
+          } catch (e) {
+            clearTimeout(timeout);
+            tx.abort();
+            reject(new PersistenceError("error removing object", e));
+          }
         });
 
         return ResultAsync.fromPromise(
@@ -186,16 +234,19 @@ export class IndexedDB {
 
   public getObject<T>(
     name: string,
-    key: string,
+    key: VolatileKey,
   ): ResultAsync<T | null, PersistenceError> {
     return this.initialize().andThen((db) => {
-      return this.getObjectStore(name, "readonly").andThen((store) => {
+      return this.getTransaction(name, "readonly").andThen((tx) => {
         const promise = new Promise((resolve, reject) => {
+          const store = tx.objectStore(name);
           const request = store.get(key);
           request.onsuccess = (event) => {
+            tx.commit();
             resolve(request.result);
           };
           request.onerror = (event) => {
+            tx.abort();
             reject(new PersistenceError("error reading from object store"));
           };
         });
@@ -216,7 +267,10 @@ export class IndexedDB {
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError> {
     return this.initialize().andThen((db) => {
-      return this.getObjectStore(name, mode ?? "readonly").andThen((store) => {
+      const indexString = Array.isArray(query);
+
+      return this.getTransaction(name, mode ?? "readonly").andThen((tx) => {
+        const store = tx.objectStore(name);
         let request: IDBRequest<IDBCursorWithValue | null>;
         if (indexName == undefined) {
           request = store.openCursor(query, direction);
@@ -235,8 +289,9 @@ export class IndexedDB {
     indexName?: string,
   ): ResultAsync<T[], PersistenceError> {
     return this.initialize().andThen((db) => {
-      return this.getObjectStore(name, "readonly").andThen((store) => {
+      return this.getTransaction(name, "readonly").andThen((tx) => {
         const promise = new Promise<T[]>((resolve, reject) => {
+          const store = tx.objectStore(name);
           let request: IDBRequest<T[]>;
           if (indexName == undefined) {
             request = store.getAll();
@@ -268,8 +323,9 @@ export class IndexedDB {
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError> {
     return this.initialize().andThen((db) => {
-      return this.getObjectStore(name, "readonly").andThen((store) => {
+      return this.getTransaction(name, "readonly").andThen((tx) => {
         const promise = new Promise<T[]>((resolve, reject) => {
+          const store = tx.objectStore(name);
           let request: IDBRequest<any[]>;
           if (indexName == undefined) {
             request = store.getAllKeys(query, count);

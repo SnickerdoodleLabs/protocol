@@ -6,8 +6,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IEVMBalance,
-  IEVMNFT,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -22,7 +20,13 @@ import {
   DataWalletAddress,
   BigNumberString,
   EInvitationStatus,
+  WalletNFT,
+  TokenBalance,
   EarnedReward,
+  ChainId,
+  TokenAddress,
+  TokenInfo,
+  TokenMarketData,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -56,6 +60,9 @@ import {
   IScamFilterSettingsParams,
   IGetConsentContractCIDParams,
   ICheckInvitationStatusParams,
+  IGetTokenPriceParams,
+  IGetTokenMarketDataParams,
+  IGetTokenInfoParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
@@ -243,10 +250,37 @@ export class ExternalCoreGateway {
   public getAccounts(): ResultAsync<LinkedAccount[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNTS);
   }
-  public getAccountBalances(): ResultAsync<IEVMBalance[], JsonRpcError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_BALANCES);
   }
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], JsonRpcError> {
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp?: UnixTimestamp,
+  ): ResultAsync<number, JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_TOKEN_PRICE, {
+      chainId,
+      address,
+      timestamp,
+    } as IGetTokenPriceParams);
+  }
+  public getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_TOKEN_MARKET_DATA, {
+      ids,
+    } as IGetTokenMarketDataParams);
+  }
+  public getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_TOKEN_INFO, {
+      chainId,
+      contractAddress,
+    } as IGetTokenInfoParams);
+  }
+  public getAccountNFTs(): ResultAsync<WalletNFT[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);
   }
 
@@ -348,7 +382,7 @@ export class ExternalCoreGateway {
       consentAddress,
     } as IGetConsentContractCIDParams);
   }
-  
+
   public getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_EARNED_REWARDS);
   }

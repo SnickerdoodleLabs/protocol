@@ -3,18 +3,23 @@ import { ResultAsync } from "neverthrow";
 import {
   Invitation,
   DataPermissions,
-  IEVMNFT,
   SDQLQuery,
   PageInvitation,
   SiteVisit,
   LinkedAccount,
+  TokenBalance,
+  WalletNFT,
+  TokenAddress,
   EarnedReward,
   IDynamicRewardParameter,
-  EVMTransactionFilter,
-  EVMTransaction,
+  ChainTransaction,
+  TransactionFilter,
+  TokenMarketData,
+  TokenInfo,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
+  AccountIndexingError,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -33,14 +38,13 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
-import { IChainTransaction } from "@objects/interfaces/chains";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   AccountAddress,
   Age,
+  ChainId,
   CountryCode,
   DataWalletAddress,
   DataWalletBackupID,
@@ -339,10 +343,6 @@ export interface ISnickerdoodleCore {
 
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
 
-  addEVMTransactions(
-    transactions: EVMTransaction[],
-  ): ResultAsync<void, PersistenceError>;
-
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
   addEarnedRewards(
     rewards: EarnedReward[],
@@ -379,18 +379,34 @@ export interface ISnickerdoodleCore {
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
-  getTransactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError>;
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
+  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError>;
 
-  postBackups(): ResultAsync<
-    DataWalletBackupID[],
-    PersistenceError | AjaxError
-  >;
-  clearCloudStore(): ResultAsync<void, PersistenceError | AjaxError>;
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
+  clearCloudStore(): ResultAsync<void, PersistenceError>;
+
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, PersistenceError>;
+
+  getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], AccountIndexingError>;
+
+  getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, AccountIndexingError>;
+
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError>;
+  addTransactions(
+    transactions: ChainTransaction[],
+  ): ResultAsync<void, PersistenceError>;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

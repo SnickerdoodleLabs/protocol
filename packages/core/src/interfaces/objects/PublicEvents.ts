@@ -1,4 +1,6 @@
 import {
+  AccountAddress,
+  ChainId,
   DataWalletAddress,
   DataWalletBackupID,
   EVMContractAddress,
@@ -6,7 +8,10 @@ import {
   ISnickerdoodleCoreEvents,
   LinkedAccount,
   MetatransactionSignatureRequest,
+  PortfolioUpdate,
   SDQLQueryRequest,
+  TokenBalance,
+  WalletNFT,
 } from "@snickerdoodlelabs/objects";
 import { Subject } from "rxjs";
 
@@ -19,8 +24,9 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
   public onCohortLeft: Subject<EVMContractAddress>;
   public onTransaction: Subject<EVMTransaction>;
   public onMetatransactionSignatureRequested: Subject<MetatransactionSignatureRequest>;
+  public onTokenBalanceUpdate: Subject<PortfolioUpdate<TokenBalance[]>>;
+  public onNftBalanceUpdate: Subject<PortfolioUpdate<WalletNFT[]>>;
   public onBackupRestored: Subject<DataWalletBackupID>;
-  public onInitialRestore: Subject<null>;
 
   public constructor() {
     this.onInitialized = new Subject();
@@ -31,7 +37,8 @@ export class PublicEvents implements ISnickerdoodleCoreEvents {
     this.onCohortLeft = new Subject();
     this.onTransaction = new Subject();
     this.onMetatransactionSignatureRequested = new Subject();
+    this.onTokenBalanceUpdate = new Subject();
+    this.onNftBalanceUpdate = new Subject();
     this.onBackupRestored = new Subject();
-    this.onInitialRestore = new Subject();
   }
 }

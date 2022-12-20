@@ -51,6 +51,20 @@ export class TestHarnessMocks {
       ),
       this.cryptoUtils,
     ),
+    new TestWallet(
+      EChain.EthereumMainnet,
+      EVMPrivateKey(
+        "636c09be68403426bfa070af9225a7318f3cf2d28384fe89f9fa62402c3ac4c0",
+      ),
+      this.cryptoUtils,
+    ),
+    new TestWallet(
+      EChain.Solana,
+      SolanaPrivateKey(
+        "3K725hiDLnh1H6qtxD7gLhuDPwvcdWUK1KA8sqK6ekrUKpRzhFxzynvKFZgPj1QWMWS8PZm4WXFQqVUdQFYK1Z8u",
+      ),
+      this.cryptoUtils,
+    ),
   ];
 
   public blockchain = new BlockchainStuff(this.devAccountKeys);
