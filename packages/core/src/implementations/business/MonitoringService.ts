@@ -89,7 +89,7 @@ export class MonitoringService implements IMonitoringService {
                         "error fetching transactions",
                         chainId,
                         linkedAccount.sourceAccountAddress,
-                        chainId,
+                        e,
                       );
                       return okAsync([]);
                     });
