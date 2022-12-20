@@ -8,15 +8,21 @@ import {
   AjaxError,
   BigNumberString,
   ChainId,
+  EChainTechnology,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
+  getChainInfoByChainId,
+  IEVMAccountBalanceRepository,
   IEVMNftRepository,
   TickerSymbol,
+  TokenBalance,
   TokenUri,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
@@ -24,46 +30,71 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 
-interface IMoralisNFTResponse {
-  total: number;
-  page: number;
-  page_size: number;
-  status: string;
-  cursor: string | null;
-
-  result: {
-    token_address: string;
-    token_id: string;
-    owner_of: string;
-    block_number: string;
-    block_number_minted: string;
-    token_hash: string;
-    amount: string;
-    updated_at: string;
-    contract_type: string;
-    name: string;
-    symbol: string;
-    token_uri: string;
-    metadata: string;
-  }[];
-
-  last_token_uri_sync: string | null;
-  last_metadata_sync: string | null;
-}
-
 @injectable()
-export class MoralisEVMNftRepository implements IEVMNftRepository {
+export class MoralisEVMPortfolioRepository
+  implements IEVMNftRepository, IEVMAccountBalanceRepository
+{
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
+  public getBalancesForAccount(
+    chainId: ChainId,
+    accountAddress: EVMAccountAddress,
+  ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
+    return ResultUtils.combine([
+      this.generateQueryConfig(chainId, accountAddress, "erc20"),
+      this.generateQueryConfig(chainId, accountAddress, "balance"),
+    ]).andThen(([tokenRequest, balanceRequest]) => {
+      return ResultUtils.combine([
+        this.ajaxUtils.get<IMoralisBalanceResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(tokenRequest.url!),
+          tokenRequest,
+        ),
+        this.ajaxUtils.get<IMoralisNativeBalanceResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(balanceRequest.url!),
+          balanceRequest,
+        ),
+      ]).map(([tokenResponse, balanceResponse]) => {
+        const tokenBalances = tokenResponse.map((item) => {
+          return new TokenBalance(
+            EChainTechnology.EVM,
+            item.symbol,
+            chainId,
+            item.token_address,
+            accountAddress,
+            item.balance,
+            item.decimals,
+          );
+        });
+
+        const chainInfo = getChainInfoByChainId(chainId);
+        tokenBalances.push(
+          new TokenBalance(
+            EChainTechnology.EVM,
+            TickerSymbol(chainInfo.nativeCurrency.symbol),
+            chainId,
+            null,
+            accountAddress,
+            balanceResponse.balance,
+            chainInfo.nativeCurrency.decimals,
+          ),
+        );
+
+        return tokenBalances;
+      });
+    });
+  }
+
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    return this.generateQueryConfig(chainId, accountAddress)
+    return this.generateQueryConfig(chainId, accountAddress, "nft")
       .andThen((requestConfig) => {
         return this.ajaxUtils
           .get<IMoralisNFTResponse>(
@@ -126,6 +157,7 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
   private generateQueryConfig(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
+    endpoint: string,
     cursor?: string,
     contracts?: EVMContractAddress[],
   ): ResultAsync<IRequestConfig, never> {
@@ -142,7 +174,7 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
 
     const url = urlJoinP(
       "https://deep-index.moralis.io",
-      ["api", "v2", accountAddress.toString(), "nft"],
+      ["api", "v2", accountAddress.toString(), endpoint],
       params,
     );
 
@@ -158,4 +190,45 @@ export class MoralisEVMNftRepository implements IEVMNftRepository {
       return result;
     });
   }
+}
+
+interface IMoralisNFTResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  status: string;
+  cursor: string | null;
+
+  result: {
+    token_address: string;
+    token_id: string;
+    owner_of: string;
+    block_number: string;
+    block_number_minted: string;
+    token_hash: string;
+    amount: string;
+    updated_at: string;
+    contract_type: string;
+    name: string;
+    symbol: string;
+    token_uri: string;
+    metadata: string;
+  }[];
+
+  last_token_uri_sync: string | null;
+  last_metadata_sync: string | null;
+}
+
+type IMoralisBalanceResponse = {
+  token_address: EVMContractAddress;
+  name: string;
+  symbol: TickerSymbol;
+  logo: URLString | null;
+  thumbnail: URLString | null;
+  decimals: number;
+  balance: BigNumberString;
+}[];
+
+interface IMoralisNativeBalanceResponse {
+  balance: BigNumberString;
 }

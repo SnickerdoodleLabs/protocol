@@ -20,6 +20,7 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
@@ -40,7 +41,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.evm = new CovalentEVMTransactionRepository(configProvider, ajaxUtils);
+    this.evm = new MoralisEVMPortfolioRepository(configProvider, ajaxUtils);
     this.ethereum = new EtherscanIndexer(
       configProvider,
       ajaxUtils,

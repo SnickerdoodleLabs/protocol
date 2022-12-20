@@ -18,7 +18,7 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
-import { MoralisEVMNftRepository } from "@indexers/MoralisEVMNftRepository.js";
+import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
@@ -43,7 +43,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
     //   tokenPriceRepo,
     //   logUtils,
     // );
-    this.evm = new MoralisEVMNftRepository(configProvider, ajaxUtils);
+    this.evm = new MoralisEVMPortfolioRepository(configProvider, ajaxUtils);
     this.ethereum = this.evm;
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
     this.solRepo = new SolanaIndexer(
