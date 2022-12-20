@@ -68,7 +68,7 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(EChain.Avalanche)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
+      [ChainId(EChain.LocalDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl

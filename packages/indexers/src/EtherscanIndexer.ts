@@ -193,7 +193,10 @@ export class EtherscanIndexer
         return this.ajaxUtils
           .get<IEtherscanTransactionResponse>(url)
           .andThen((response) => {
-            if (response.status != "1") {
+            if (
+              response.status != "1" ||
+              response.message == "No transactions found"
+            ) {
               if (response.result != null) {
                 return okAsync([]);
               }
@@ -234,9 +237,9 @@ export class EtherscanIndexer
               },
             );
           })
-          .mapErr(
-            (e) => new AccountIndexingError("error fetching transactions", e),
-          );
+          .mapErr((e) => {
+            return new AccountIndexingError("error fetching transactions", e);
+          });
       });
   }
 
