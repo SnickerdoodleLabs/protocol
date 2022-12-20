@@ -137,6 +137,7 @@ export class MoralisEVMPortfolioRepository
     return this.generateQueryConfig(
       chainId,
       accountAddress,
+      "nft",
       response.cursor,
     ).andThen((requestConfig) => {
       return (
