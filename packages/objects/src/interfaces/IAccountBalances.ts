@@ -16,6 +16,10 @@ export interface IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   >;
+  getPolygonBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  >;
 }
 
 export const IAccountBalancesType = Symbol.for("IAccountBalances");
