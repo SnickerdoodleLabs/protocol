@@ -29,9 +29,6 @@ const key = process.env.ETH_PRIVATE_KEY;
 // if no private key is found in .env, use the public known mnemonic
 const accounts = key ? [key] : { mnemonic };
 
-// we want to use a different chain id locally vs remotely
-const chainid = 31337;
-
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -50,7 +47,7 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      chainId: chainid,
+      chainId: 31337,
       mining: {
         auto: true,
         interval: 5000,
