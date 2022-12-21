@@ -30,8 +30,10 @@ After being unlocked, addAccount() can be called to store additional accounts (a
     - Periodically dumps these records as blob wrapped with metadata, to be sent to cloud storage
 4. [ICloudStorage.ts](/packages/persistence/src/cloud/ICloudStorage.ts)
     - To putBackup() and pollBackups()
-    - Implemented by [CeramicCloudStorage.ts](/packages/persistence/src/cloud/CeramicCloudStorage.ts)
-    
+    - Implemented by an Envelope of cloud storage functions: 
+        - [CeramicCloudStorage.ts](/packages/persistence/src/cloud/CeramicCloudStorage.ts)
+        - [GoogleCloudStorage.ts](/packages/persistence/src/cloud/GoogleCloudStorage.ts)
+        
 ---
 
 ```mermaid
