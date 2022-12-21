@@ -5,12 +5,12 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   IpfsCID,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
 import { ContractOverrides } from "@contracts-sdk/interfaces/objects/ContractOverrides";
-import { MarketplaceListing } from "./objects";
 
 export interface IConsentFactoryContract {
   /**
