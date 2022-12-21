@@ -44,6 +44,7 @@ sequenceDiagram
     AdS->>P: Store Ad Signature (queryCID, AdId, Signature)
     P->>AdS: Ad Signatures for queryCID
     AdS->>IP: If all the ads are displayed, <br>Insights, All Ad signatures, Reward Parameters
+    IP ->>AdS: Rewards
     deactivate AdS
 
 ```
