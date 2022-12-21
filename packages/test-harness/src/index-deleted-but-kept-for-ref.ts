@@ -84,21 +84,21 @@ const core = new SnickerdoodleCore(
 
 const devAccountKeys = [
   new TestWallet(
-    EChain.LocalDoodle,
+    EChain.DevDoodle,
     EVMPrivateKey(
       "0x0123456789012345678901234567890123456789012345678901234567890123",
     ),
     cryptoUtils,
   ),
   new TestWallet(
-    EChain.LocalDoodle,
+    EChain.DevDoodle,
     EVMPrivateKey(
       "0x1234567890123456789012345678901234567890123456789012345678901234",
     ),
     cryptoUtils,
   ),
   new TestWallet(
-    EChain.LocalDoodle,
+    EChain.DevDoodle,
     EVMPrivateKey(
       "cd34642d879fe59110689ff87a080aad52b383daeb5ad945fd6da20b954d2542",
     ),

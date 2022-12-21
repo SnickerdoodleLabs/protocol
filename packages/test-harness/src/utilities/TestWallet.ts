@@ -65,7 +65,7 @@ export class TestWallet {
   ): ResultAsync<Signature, never> {
     // Get the chain info for the doodle chain
     const doodleChainConfig = chainConfig.get(
-      ChainId(31338),
+      ChainId(31337),
     ) as ControlChainInformation;
 
     const chainInfo = getChainInfoByChain(this.chain);
