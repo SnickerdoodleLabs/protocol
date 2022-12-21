@@ -1,6 +1,6 @@
 {
   "name": "@snickerdoodlelabs/contracts-sdk",
-  "version": "0.0.25",
+  "version": "0.0.27",
   "description": "SDK for snickerdoodlelabs contracts wrappers",
   "license": "MIT",
   "repository": {

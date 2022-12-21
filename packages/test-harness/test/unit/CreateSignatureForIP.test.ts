@@ -17,7 +17,7 @@ const returns = [
     "not qualified",
     "","unknown",
     "{}","[]","[]",
-    "[{\"ticker\":\"1ed3loq\",\"address\":\"0A\",\"balance\":\"752\",\"networkId\":31338}]"
+    "[{\"ticker\":\"1ed3loq\",\"address\":\"0A\",\"balance\":\"752\",\"networkId\":31337}]"
 ] as InsightString[]; // pass to deliverInsights as "insigts".
 const rewardParameters = [
 

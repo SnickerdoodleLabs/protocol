@@ -6,6 +6,7 @@ import {
   EVMContractAddress,
   IBlockchainError,
   IpfsCID,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -14,10 +15,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { ResultUtils } from "neverthrow-result-utils";
-import {
-  ConsentRoles,
-  MarketplaceListing,
-} from "@contracts-sdk/interfaces/objects";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
