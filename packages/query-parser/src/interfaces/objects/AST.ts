@@ -4,7 +4,8 @@ import { AST_Compensation } from "@query-parser/interfaces/objects/AST_Compensat
 import { AST_Logic } from "@query-parser/interfaces/objects/AST_Logic.js";
 import { AST_Query } from "@query-parser/interfaces/objects/AST_Query.js";
 import { AST_Returns } from "@query-parser/interfaces/objects/AST_Returns.js";
-import { AST_Ad } from "./AST_Ad";
+import { AST_Ad } from "@query-parser/interfaces";
+
 
 export class AST {
   constructor(

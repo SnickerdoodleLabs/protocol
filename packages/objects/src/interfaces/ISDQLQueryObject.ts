@@ -90,7 +90,7 @@ export interface ISDQLAd {
   name: string;
   content: {
     type: "image" | "video",
-    src: IpfsCID | URLString
+    src: IpfsCID
   },
   text: string;
   type: "banner" | "popup";
