@@ -275,18 +275,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     // Get all of our indexers and initialize them
     // TODO
 
-    const configProvider =
-      this.iocContainer.get<IConfigProvider>(IConfigProviderType);
-
-    configProvider.getConfig().map((config) => {
-      console.log("config: ", config);
-      console.log("cccc supportedChains", config.supportedChains);
-      console.log(
-        "cccc providerUrls",
-        config.chainInformation.get(config.controlChainId)?.providerUrls,
-      );
-    });
-
     const blockchainProvider = this.iocContainer.get<IBlockchainProvider>(
       IBlockchainProviderType,
     );
