@@ -16,4 +16,5 @@ export interface IPersistenceConfig {
   chainInformation: Map<ChainId, ChainInformation>;
   defaultInsightPlatformBaseUrl: URLString;
   defaultGoogleCloudBucket: string;
+  restoreTimeoutMS: number;
 }

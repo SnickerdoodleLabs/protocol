@@ -6,7 +6,12 @@ import {
 } from "@objects/businessObjects";
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
 import { AccountIndexingError } from "@objects/errors";
-import { ChainId, EVMContractAddress, ProviderUrl, URLString } from "@objects/primitives";
+import {
+  ChainId,
+  EVMContractAddress,
+  ProviderUrl,
+  URLString,
+} from "@objects/primitives";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 const getExplorerUrl = function (this: ChainInformation, txHash: string) {
@@ -23,26 +28,6 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainTechnology.EVM,
       true,
       [ProviderUrl("https://doodlechain.dev.snickerdoodle.dev")],
-      4000,
-      EIndexer.Simulator,
-      new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
-      EChainType.Hardhat,
-      "",
-      EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
-      EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Crumbs Contract
-      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0"), // Sift Contract
-    ),
-  ],
-  [
-    ChainId(EChain.LocalDoodle),
-    new ControlChainInformation(
-      "Local Doodle Chain",
-      ChainId(EChain.LocalDoodle),
-      EChain.LocalDoodle,
-      EChainTechnology.EVM,
-      true,
-      [ProviderUrl("http://127.0.0.1:8545")],
       4000,
       EIndexer.Simulator,
       new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
