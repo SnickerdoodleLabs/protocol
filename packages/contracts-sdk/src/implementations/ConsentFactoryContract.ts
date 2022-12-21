@@ -15,8 +15,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { ResultUtils } from "neverthrow-result-utils";
-import { ConsentRoles } from "@contracts-sdk/interfaces/"
-
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
