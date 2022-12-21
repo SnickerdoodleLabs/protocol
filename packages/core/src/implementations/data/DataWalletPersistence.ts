@@ -175,12 +175,20 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.cloudStorage.unlock(derivedKey),
       this.backupManagerProvider.unlock(derivedKey),
     ])
-      .andThen(() => {
-        return this.pollBackups();
-      })
       .map(() => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.resolveRestore!();
+        this.configProvider.getConfig().map((config) => {
+          // set the backup restore to timeout as to not block
+          const timeout = setTimeout(() => {
+            this.logUtils.error("Backup restore timed out");
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.resolveRestore!();
+          }, config.restoreTimeoutMS);
+          this.pollBackups().map(() => {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.resolveRestore!();
+            clearTimeout(timeout);
+          });
+        });
       })
       .mapErr((e) => new PersistenceError("error unlocking data wallet", e));
   }
@@ -531,6 +539,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public getAccountBalances(
     chains?: ChainId[],
     accounts?: LinkedAccount[],
+    filterEmpty = true,
   ): ResultAsync<TokenBalance[], PersistenceError> {
     return ResultUtils.combine([
       this.getAccounts(),
@@ -555,7 +564,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         );
       })
       .map((balancesArr) => {
-        return balancesArr.flat(2);
+        return balancesArr.flat(2).filter((x) => {
+          return !filterEmpty || x.balance != "0";
+        });
       })
       .mapErr((e) => new PersistenceError("error aggregating balances", e));
   }
