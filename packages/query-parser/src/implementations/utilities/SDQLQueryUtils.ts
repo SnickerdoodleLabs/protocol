@@ -124,28 +124,6 @@ export class SDQLQueryUtils {
     return Array.from( new Set( queryCompensations.concat(adCompensations) ) )
   }
 
-  private getExpectedCompensationIdsByAdIds(
-    parser: SDQLParser,
-    adIds: string[]
-  ): CompensationId[] {
-
-    const adCompensationIds = new Set<CompensationId>();
-
-    parser.logicCompensations.forEach((comAst, compExpr) => {
-      const adDependencies = parser.parseAdDependencies(compExpr);
-      if (
-        adDependencies.length > 0 && // Is an ad compensation
-        this.adListContainsAllAdDependencies(adIds, adDependencies)
-      ) {
-
-        const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
-        comIds.forEach((comId) => adCompensationIds.add(comId));
-      }
-    });
-
-    return Array.from(adCompensationIds);
-  }
-
   private getExpectedCompensationIdsByQueryIds(
     parser: SDQLParser,
     queryIds: string[]
@@ -213,6 +191,42 @@ export class SDQLQueryUtils {
     }
   }
 
+  public getExpectedCompensationIdsByEligibleAdIds(
+    parser: SDQLParser,
+    eligibleAdIds: string[]
+  ): CompensationId[] {
+    return this.getExpectedCompensationIdsByAdIds(parser, eligibleAdIds);
+  }
+
+  public getExpectedCompensationIdsBySeenAdIds(
+    parser: SDQLParser,
+    seenAdIds: string[]
+  ): CompensationId[] {
+    return this.getExpectedCompensationIdsByAdIds(parser, seenAdIds);
+  }
+
+  public getExpectedCompensationIdsByAdIds(
+    parser: SDQLParser,
+    adIds: string[]
+  ): CompensationId[] {
+
+    const adCompensationIds = new Set<CompensationId>();
+
+    parser.logicCompensations.forEach((comAst, compExpr) => {
+      const adDependencies = parser.parseAdDependencies(compExpr);
+      if (
+        adDependencies.length > 0 && // Is an ad compensation
+        this.adListContainsAllAdDependencies(adIds, adDependencies)
+      ) {
+
+        const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
+        comIds.forEach((comId) => adCompensationIds.add(comId));
+      }
+    });
+
+    return Array.from(adCompensationIds);
+  }
+
   private getPermittedAdIdsByPermittedQueryIds(
     parser: SDQLParser,
     permittedQueryIds: string[]
@@ -249,6 +263,13 @@ export class SDQLQueryUtils {
           "Unknown expression to extract ad from.",
         );
     }
+  }
+
+  private adListContainsAllAdDependencies (
+    permittedAdIds: string[],
+    adDependencies: AST_Ad[]
+  ): boolean {
+    return adDependencies.every(ad => permittedAdIds.includes(ad.key));
   }
 
   public getPermittedQueryIdsFromSchemaString(
@@ -319,13 +340,6 @@ export class SDQLQueryUtils {
       return okAsync(query.name);
     }
     return okAsync(null);
-  }
-
-  private adListContainsAllAdDependencies (
-    permittedAdIds: string[],
-    adDependencies: AST_Ad[]
-  ): boolean {
-    return adDependencies.every(ad => permittedAdIds.includes(ad.key));
   }
 
   private getDependenciesByCompensationId(
