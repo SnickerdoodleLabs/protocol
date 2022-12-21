@@ -177,7 +177,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     ])
       .map(() => {
         this.configProvider.getConfig().map((config) => {
-          // set the backup restore to timeout as to not block
+          // set the backup restore to timeout as to not block unlocks
           const timeout = setTimeout(() => {
             this.logUtils.error("Backup restore timed out");
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
