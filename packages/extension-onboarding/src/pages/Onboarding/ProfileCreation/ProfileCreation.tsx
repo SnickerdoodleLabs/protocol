@@ -66,11 +66,11 @@ const ProfileCreation: FC = () => {
             )}
             <Box mb={1.5}>
               <Typography className={classes.infoText}>
-                Last Step On The Way to Your Data Safe...
+                Last Step On The Way to Your Data Wallet...
               </Typography>
             </Box>
             <Button fullWidth type="submit" form="profile-create-form">
-              Go to Data Safe
+              Go to Data Wallet
             </Button>
           </Grid>
         </Grid>

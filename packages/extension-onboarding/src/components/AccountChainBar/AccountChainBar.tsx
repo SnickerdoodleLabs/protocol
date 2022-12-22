@@ -5,7 +5,10 @@ import { useStyles } from "@extension-onboarding/components/AccountChainBar/Acco
 import Switch from "@extension-onboarding/components/Switch";
 import { EWalletProviderKeys } from "@extension-onboarding/constants";
 import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
-import { useAppContext } from "@extension-onboarding/context/App";
+import {
+  ILinkedAccount,
+  useAppContext,
+} from "@extension-onboarding/context/App";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, MenuItem, Select, Typography } from "@material-ui/core";
 import {
@@ -86,8 +89,8 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
     return testnetSupportedChainIds;
   }, [displayMode]);
 
-  const walletIcon = (walletProvider: EWalletProviderKeys) => {
-    switch (walletProvider) {
+  const walletIcon = (walletProvider: ILinkedAccount) => {
+    switch (walletProvider.providerKey) {
       case EWalletProviderKeys.METAMASK:
         return <img src={metamaskLogo} />;
         break;
@@ -99,7 +102,22 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
         break;
 
       default:
-        return <img src={metamaskLogo} />;
+        return (
+          <Box
+            width={40}
+            height={40}
+            borderRadius={20}
+            bgcolor="#8079B4"
+            justifyContent="center"
+            alignItems="center"
+            display="flex"
+          >
+            <Typography style={{ fontSize: 12, color: "white" }}>
+              {walletProvider.accountAddress.slice(0, 2)}..
+              {walletProvider.accountAddress.slice(-1)}
+            </Typography>
+          </Box>
+        );
         break;
     }
   };
@@ -109,7 +127,7 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
       <Typography id="portfolio-test" className={classes.subTitle}>
         Accounts
       </Typography>
-      <Box display="flex" justifyContent="space-between">
+      <Box mt={0.5} display="flex" justifyContent="space-between">
         <Box>
           <Select
             className={classes.selectAccount}
@@ -128,7 +146,7 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
                   value={account.accountAddress}
                 >
                   <Box display="flex">
-                    <Box>{walletIcon(account?.providerKey)}</Box>
+                    <Box>{walletIcon(account)}</Box>
                     <Typography className={classes.accountAddressText}>
                       {account.accountAddress.slice(0, 5)} ................
                       {account.accountAddress.slice(-4)}
@@ -147,7 +165,7 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
               px={1.5}
               borderRadius={16}
               {...(!chainSelect && {
-                bgcolor: "rgba(245, 244, 245, 0.52)",
+                bgcolor: "#F3F2F8",
               })}
               style={{
                 cursor: "pointer",
@@ -179,7 +197,10 @@ const AccountChainBar: FC<IAccountChainBarProps> = ({
                     setChainSelect(chainId);
                   }}
                 >
-                  <img src={iconSrc} style={{ width: 24, height: 24 }} />
+                  <img
+                    src={iconSrc}
+                    style={{ width: 24, height: 24, marginRight: 8 }}
+                  />
                   <Typography className={classes.buttonText}>
                     {chainConfig.get(chainId)?.name}
                   </Typography>

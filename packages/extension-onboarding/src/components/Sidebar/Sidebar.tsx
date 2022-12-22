@@ -1,4 +1,4 @@
-import campaignIcon from "@extension-onboarding/assets/icons/campaign.svg";
+import sdlLogoSafe from "@extension-onboarding/assets/images/sdl-logo-safe.svg";
 import portfolioIcon from "@extension-onboarding/assets/icons/portfolio.svg";
 import rewardsIcon from "@extension-onboarding/assets/icons/rewards.svg";
 import settingsIcon from "@extension-onboarding/assets/icons/settings.svg";
@@ -58,11 +58,11 @@ export const routes: IRoute[] = [
   // },
   {
     icon: settingsIcon,
-    title: "Data Settings",
+    title: "Settings",
     path: null,
     subroutes: [
-      { title: "Web 3 Info", path: EPaths.WEB3_SETTINGS },
-      { title: "Web 2 Info", path: EPaths.WEB2_SETTINGS },
+      { title: "Crypto Accounts", path: EPaths.WEB3_SETTINGS },
+      { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
       { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
       { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
     ],
@@ -87,7 +87,7 @@ const Sidebar = () => {
       )}
       <Box display="flex" flexDirection="column" className={classes.container}>
         <Box mt={4.5}>
-          <img src={snickerDoodleLogo} />
+          <img src={sdlLogoSafe} />
         </Box>
         <Box
           onClick={() => {
@@ -172,13 +172,14 @@ const Sidebar = () => {
                       display="flex"
                       flexDirection="column"
                     >
-                      {subroutes.map((subroute, index) => {
+                      {subroutes.map((subroute, subrouteIndex) => {
                         return (
                           <Box
                             className={classes.routeWrapper}
-                            key={index}
+                            key={`${index}-${subrouteIndex}`}
                             onClick={() => {
                               navigate(subroute.path);
+                              setLastClickedIndex(index);
                             }}
                             mb={index === subroutes.length - 1 ? 0 : 3}
                           >
@@ -200,7 +201,7 @@ const Sidebar = () => {
             );
           })}
         </Box>
-        <Box alignSelf="flex-start" marginTop="auto" mb={3.5} display="flex">
+        <Box alignSelf="flex-start" marginTop="auto" mb={2} display="flex">
           <Typography
             onClick={() => {
               window.open(ZENDEKS_URL, "_blank");
@@ -210,7 +211,7 @@ const Sidebar = () => {
             Contact Us
           </Typography>
         </Box>
-        <Box mb={3.5} width="100%" justifyContent="flex-start">
+        <Box mb={2} width="100%" justifyContent="flex-start">
           <Typography
             className={classes.link}
             onClick={() => {

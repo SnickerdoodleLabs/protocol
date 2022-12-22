@@ -80,13 +80,14 @@ const Tooltip = ({
 
 const steps: Step[] = [
   {
-    title: "What is a Reward Marketplace",
+    title: "What is a Reward Marketplace?",
     target: `#sb-${0}`,
     disableBeacon: true,
     content: (
       <>
-        Choose digital collectibles on marketplace. Earn them by renting your
-        anonymized data.
+        Choose digital collectibles on marketplace.
+        <br />
+        Earn them by renting your anonymized data.
       </>
     ),
     placement: "right-start",
@@ -179,7 +180,7 @@ const ProductTour: FC<IProductTourProps> = ({}: IProductTourProps) => {
 
       case ETourState.START_TOUR_MODAL:
         return (
-          <ProductTourStart onNextClick={startTour} onCancelClick={startTour} />
+          <ProductTourStart onNextClick={startTour} onCancelClick={endTour} />
         );
       case ETourState.ACTIVE:
         return (

@@ -120,8 +120,6 @@ export const useStyles = makeStyles((theme) => ({
     fontSize: 12,
   },
   buttonText: {
-    paddingLeft: "8px",
-    textTransform: "none",
     fontFamily: "Space Grotesk",
     fontWeight: 500,
     fontSize: 16,
