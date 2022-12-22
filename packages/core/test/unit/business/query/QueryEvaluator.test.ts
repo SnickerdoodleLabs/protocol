@@ -19,6 +19,7 @@ import {
   EVMTransactionHash,
   EChainTechnology,
   EChain,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -84,6 +85,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
+      null,
     ),
     new EVMTransaction(
       ChainId(43113),
@@ -93,6 +95,7 @@ class QueryEvaluatorMocks {
       EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
       EVMAccountAddress("get1000"),
       BigNumberString("1000"),
+      null,
       null,
       null,
       null,
@@ -114,6 +117,7 @@ class QueryEvaluatorMocks {
       null,
       null,
       null,
+      null,
     ),
     new EVMTransaction(
       ChainId(43113),
@@ -123,6 +127,7 @@ class QueryEvaluatorMocks {
       EVMAccountAddress("send50"),
       EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
       BigNumberString("50"),
+      null,
       null,
       null,
       null,
@@ -178,7 +183,7 @@ class QueryEvaluatorMocks {
     ),
   );
 
-  public transactionsFlow = new Array<ChainTransaction>();
+  public transactionsFlow = new Array<TransactionPaymentCounter>();
   // {
   //   chainId: ChainId(1),
   //   incomingValue: BigNumberString("1"),

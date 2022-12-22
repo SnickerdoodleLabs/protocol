@@ -76,6 +76,7 @@ import {
   AccountIndexingError,
   TokenInfo,
   TokenMarketData,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -665,7 +666,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountNFTs();
   }
 
-  getTransactionValueByChain(): ResultAsync<ChainTransaction[], PersistenceError> {
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    PersistenceError
+  > {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTransactionValueByChain();

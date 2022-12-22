@@ -227,7 +227,7 @@ export class EtherscanIndexer
                 tx.methodId == "" ? null : tx.methodId,
                 tx.functionName == "" ? null : tx.functionName,
                 null,
-                tx.value,
+                tx.value_quote,
               );
             });
 
@@ -325,6 +325,7 @@ interface IEtherscanTransactionResponse {
     confirmations: string;
     methodId: string;
     functionName: string;
+    value_quote: number | null;
   }[];
 }
 

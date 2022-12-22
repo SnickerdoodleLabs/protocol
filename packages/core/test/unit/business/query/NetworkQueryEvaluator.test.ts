@@ -156,6 +156,7 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           null,
+          null,
         ),
       ]),
     );
@@ -207,6 +208,7 @@ describe("QueryEvaluator: ", () => {
           null,
           null,
           EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
+          null,
           null,
           null,
           null,
