@@ -1,18 +1,22 @@
 import {
-    ChainId,
     IpfsCID,
+    ISO8601DateString,
 } from "@objects/primitives";
 
 
 export class EligibleAd {
     public constructor(
-    //   public compensationKey: string, // c3
-    //   public name: string,
-    //   public image: IpfsCID,
-    //   public description: string,
-    //   public chainId: ChainId,
-    //   public callback: string, // stringify the callback object
-    //   public type: ERewardType,
+        public id: string, // IpfsCID + Ad key
+        public key: string,
+        public name: string,
+        public content: {
+            type: "image" | "video",
+            src: IpfsCID
+        },
+        public text: string | null,
+        public type: "banner" | "popup",
+        public weight: number,
+        public expiry: ISO8601DateString,
+        public keywords: string[]
     ) {}
 }
-  
