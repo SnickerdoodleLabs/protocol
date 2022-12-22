@@ -539,6 +539,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public getAccountBalances(
     chains?: ChainId[],
     accounts?: LinkedAccount[],
+    filterEmpty = true,
   ): ResultAsync<TokenBalance[], PersistenceError> {
     return ResultUtils.combine([
       this.getAccounts(),
@@ -563,7 +564,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         );
       })
       .map((balancesArr) => {
-        return balancesArr.flat(2);
+        return balancesArr.flat(2).filter((x) => {
+          return !filterEmpty || x.balance != "0";
+        });
       })
       .mapErr((e) => new PersistenceError("error aggregating balances", e));
   }
