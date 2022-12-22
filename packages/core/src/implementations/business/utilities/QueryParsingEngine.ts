@@ -58,7 +58,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
             this.queryUtils.getCompensationIdsByPermittedQueryIds(parser, permittedQueryIds)
     
             return okAsync<[QueryIdentifier[], CompensationIdentifier[]]>(
-              [permittedQueryIds.map(QueryIdentifier), expectedCompensationIds]
+              [permittedQueryIds, expectedCompensationIds]
             );
           });
       });
