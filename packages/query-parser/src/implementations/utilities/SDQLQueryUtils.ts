@@ -36,6 +36,8 @@ export class SDQLQueryUtils {
     @inject(ISDQLQueryWrapperFactoryType)
     readonly queryWrapperFactory: ISDQLQueryWrapperFactory,
   ) {}
+
+
   public getEligibleCompensations(
     schemaString: SDQLString,
     queryIds: string[],
@@ -57,49 +59,7 @@ export class SDQLQueryUtils {
     });
   }
 
-  public extractPermittedQueryIdsAndExpectedCompensationBlocks(
-    schemaString: SDQLString,
-    dataPermissions: DataPermissions
-  ): ResultAsync<
-    [string[], Map<string, ISDQLCompensations>], 
-    QueryFormatError 
-    | ParserError 
-    | DuplicateIdInSchema 
-    | MissingTokenConstructorError 
-    | QueryExpiredError
-  > {
-
-    return this.parserFactory.makeParser(IpfsCID(""), schemaString)
-    .andThen((parser) => {
-
-      return parser.buildAST().andThen(() => {
-
-        return this.getPermittedQueryIds(parser, dataPermissions)
-        .andThen((permittedQueryIds) => {
-
-          const expectedCompensationIds = 
-            this.getCompensationIdsByPermittedQueryIds(parser, permittedQueryIds)
-
-            const expectedCompensationBlocks: Map<string, ISDQLCompensations> = new Map();
-
-            const compensationSchema = parser.schema.getCompensationSchema();
-            for (const compensationName in compensationSchema) {
-              if (!expectedCompensationIds.includes(CompensationId(compensationName)))
-                continue;
-
-              expectedCompensationBlocks[compensationName] = // 'c1': ISDQLCompensations object
-                  compensationSchema[compensationName] as ISDQLCompensations;
-            }
-            
-            return okAsync<[string[], Map<string, ISDQLCompensations>]>(
-              [permittedQueryIds, expectedCompensationBlocks]
-            );
-        });
-      });
-    });
-  }
-
-  private getCompensationIdsByPermittedQueryIds(
+  public getCompensationIdsByPermittedQueryIds(
     parser: SDQLParser,
     permittedQueryIds: string[]
   ): CompensationId[] {
@@ -162,6 +122,22 @@ export class SDQLQueryUtils {
           "Unknown expression to extract compensation from.",
         );
     }
+  }
+
+  public extractPermittedQueryIdsByDataPermissions(
+    parser: SDQLParser,
+    dataPermissions: DataPermissions
+  ): ResultAsync<
+    string[],
+    QueryFormatError 
+    | ParserError
+    | MissingTokenConstructorError 
+    | QueryExpiredError
+  > {
+
+    return parser.buildAST().andThen(
+      () => this.getPermittedQueryIds(parser, dataPermissions)
+    );
   }
 
   public getPermittedQueryIdsFromSchemaString(

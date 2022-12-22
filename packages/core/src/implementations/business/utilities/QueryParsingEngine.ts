@@ -11,7 +11,7 @@ import {
   QueryIdentifier,
   ExpectedReward,
   IDynamicRewardParameter,
-  ISDQLCompensations,
+  CompensationId,
 } from "@snickerdoodlelabs/objects";
 import { AST, ISDQLQueryUtils, ISDQLQueryUtilsType } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -46,17 +46,26 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError> {
     const schemaString = query.query;
+    const queryCid = query.cid;
 
-    return this.queryUtils.extractPermittedQueryIdsAndExpectedCompensationBlocks(
-      schemaString, dataPermissions
-    ).andThen(([permittedQueryIds, expectedCompensationsMap]) => {
+    return this.queryFactories.makeParserAsync(queryCid, schemaString)
+      .andThen((parser) => {
 
-      const expectedRewardList = 
-        this.compensationsMapToExpectedRewards(expectedCompensationsMap);
+        return this.queryUtils.extractPermittedQueryIdsByDataPermissions(
+          parser, dataPermissions
+        ).andThen((permittedQueryIds) => {
+      
+          const expectedCompensationIds = 
+            this.queryUtils.getCompensationIdsByPermittedQueryIds(parser, permittedQueryIds)
+    
+          const expectedRewardList = 
+            this.compensationIdsToExpectedRewards(expectedCompensationIds);
+    
+            return okAsync<[QueryIdentifier[], ExpectedReward[]]>(
+              [permittedQueryIds.map(QueryIdentifier), expectedRewardList]
+            );
+          });
 
-        return okAsync<[QueryIdentifier[], ExpectedReward[]]>(
-          [permittedQueryIds.map(QueryIdentifier), expectedRewardList]
-        );
       });
   }
 
@@ -96,16 +105,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
       });
   }
 
-  protected compensationsMapToExpectedRewards(
-    iSDQLCompensationsMap: Map<string, ISDQLCompensations>
+  protected compensationIdsToExpectedRewards(
+    compensationIds: CompensationId[]
   ): ExpectedReward[] {
-
-      const listToReturn: ExpectedReward[] = [];
-      for (const currentSDQLCompensationsKey in iSDQLCompensationsMap) {
-        listToReturn.push( new ExpectedReward(currentSDQLCompensationsKey) );
-      }
-
-      return listToReturn;
+      return compensationIds.map((c) => new ExpectedReward(c));
   }
 
   protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {

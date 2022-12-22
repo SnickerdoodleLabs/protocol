@@ -23,6 +23,16 @@ export interface ISDQLQueryUtils {
     | QueryExpiredError
     >;
 
+    extractPermittedQueryIdsByDataPermissions(
+        parser: SDQLParser, dataPermissions: DataPermissions
+    ): ResultAsync<
+        string[], 
+        QueryFormatError 
+        | ParserError 
+        | MissingTokenConstructorError 
+        | QueryExpiredError
+    >;
+
     getPermittedQueryIdsFromSchemaString(schemaString: SDQLString, givenPermissions: DataPermissions): ResultAsync<string[], 
     | ParserError
     | DuplicateIdInSchema
@@ -39,16 +49,10 @@ export interface ISDQLQueryUtils {
     | QueryExpiredError
     >;
 
-    extractPermittedQueryIdsAndExpectedCompensationBlocks(
-        schemaString: SDQLString, dataPermissions: DataPermissions
-    ): ResultAsync<
-        [string[], Map<string, ISDQLCompensations>], 
-        QueryFormatError 
-        | ParserError 
-        | DuplicateIdInSchema 
-        | MissingTokenConstructorError 
-        | QueryExpiredError
-    >;
+    getCompensationIdsByPermittedQueryIds(
+        parser: SDQLParser,
+        permittedQueryIds: string[]
+    ): CompensationId[];
 }
 
 
