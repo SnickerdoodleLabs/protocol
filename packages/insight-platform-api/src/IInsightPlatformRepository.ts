@@ -21,7 +21,6 @@ import {
   TokenId,
   URLString,
   EarnedReward,
-  ExpectedReward,
   QueryIdentifier,
   IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";

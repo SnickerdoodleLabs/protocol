@@ -264,7 +264,6 @@ export class AST_Evaluator {
     }
 
     return okAsync(SDQL_Return(eef));
-    // return okAsync(SDQL_Return(new ExpectedReward(eef.description, URLString(eef.callback), eef.type)));
   }
 
   public evalCompCondition(

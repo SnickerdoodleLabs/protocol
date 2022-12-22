@@ -10,11 +10,7 @@ import {
   SDQL_Return,
   QueryIdentifier,
   ExpectedReward,
-  ERewardType,
   IDynamicRewardParameter,
-  ParserError,
-  DuplicateIdInSchema,
-  MissingTokenConstructorError,
   ISDQLCompensations,
 } from "@snickerdoodlelabs/objects";
 import { AST, ISDQLQueryUtils, ISDQLQueryUtilsType } from "@snickerdoodlelabs/query-parser";
@@ -50,7 +46,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     dataPermissions: DataPermissions,
   ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError> {
     const schemaString = query.query;
-    const cid: IpfsCID = query.cid;
 
     return this.queryUtils.extractPermittedQueryIdsAndExpectedCompensationBlocks(
       schemaString, dataPermissions
@@ -107,18 +102,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
 
       const listToReturn: ExpectedReward[] = [];
       for (const currentSDQLCompensationsKey in iSDQLCompensationsMap) {
-        const currentSDQLCompensationsObject = 
-          iSDQLCompensationsMap[currentSDQLCompensationsKey];
-
-        listToReturn.push( 
-          new ExpectedReward(
-            currentSDQLCompensationsKey,
-            currentSDQLCompensationsObject.description,
-            currentSDQLCompensationsObject.chainId,
-            JSON.stringify(currentSDQLCompensationsObject.callback),
-            ERewardType.Direct
-          )
-        );
+        listToReturn.push( new ExpectedReward(currentSDQLCompensationsKey) );
       }
 
       return listToReturn;

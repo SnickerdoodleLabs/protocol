@@ -183,10 +183,6 @@ class QueryParsingMocks {
         );
         return new ExpectedReward(
           actualTypeData["compensationKey"],
-          actualTypeData["description"],
-          ChainId(actualTypeData["chainId"]),
-          actualTypeData["callback"],
-          ERewardType.Direct,
         );
       }
     }
@@ -205,15 +201,11 @@ class QueryParsingMocks {
       );
       return new ExpectedReward(
         rewardData["compensationKey"],
-        rewardData["description"],
-        ChainId(rewardData["chainId"]),
-        rewardData["callback"],
-        ERewardType.Direct,
       );
     }
 
     // Return to later - Andrew
-    return new ExpectedReward("", "", ChainId(0), "", ERewardType.Direct);
+    return new ExpectedReward("");
   }
 }
 
