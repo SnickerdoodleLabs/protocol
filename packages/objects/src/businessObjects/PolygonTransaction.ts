@@ -42,6 +42,7 @@ export class PolygonTransaction extends EVMTransaction {
       null,
       null,
       null,
+      null,
     );
   }
 }

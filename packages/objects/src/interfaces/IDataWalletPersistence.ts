@@ -11,6 +11,7 @@ import {
   ChainTransaction,
   WalletNFT,
   TokenAddress,
+  ITransactionPaymentCounter,
 } from "@objects/businessObjects";
 import { AjaxError, PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
@@ -153,12 +154,10 @@ export interface IDataWalletPersistence {
   // return an array of Chain Transaction
   // getTransactionsMap(): ResultAsync<Array<IChainTransaction>, PersistenceError>;
 
-  // getTransactionsArray(): ResultAsync<
-  //   { chainId: ChainId; items: EVMTransaction[] | null }[],
-  //   PersistenceError
-  // >;
-
-  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError>;
+  getTransactionValueByChain(): ResultAsync<
+    ITransactionPaymentCounter[],
+    PersistenceError
+  >;
 
   getLatestTransactionForAccount(
     chainId: ChainId,

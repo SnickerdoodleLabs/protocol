@@ -109,7 +109,7 @@ export interface IAccountService {
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
-  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError>;
+  getTransactionValueByChain(): ResultAsync<ChainTransaction[], PersistenceError>;
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;

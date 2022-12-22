@@ -129,7 +129,7 @@ export class QueryEvaluator implements IQueryEvaluator {
             return okAsync(SDQL_Return(url_visited_count));
           });
       case "chain_transactions":
-        return this.dataWalletPersistence.getTransactionsArray().andThen((transactionArray) => {
+        return this.dataWalletPersistence.getTransactionValueByChain().andThen((transactionArray) => {
           return okAsync(SDQL_Return(transactionArray));
         });
       default:

@@ -197,7 +197,7 @@ export class CorePrompt extends DataWalletPrompt {
         case "getBalances":
           return this.core.getAccountBalances().map(console.log);
         case "getTransactionMap":
-          return this.core.getTransactionsArray().map(console.log);
+          return this.core.getTransactionValueByChain().map(console.log);
         case "getSiteVisitMap":
           return this.core.getSiteVisitsMap().map(console.log);
         case "getSiteVisits":
@@ -224,6 +224,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            null,
           );
           transactions[1] = new EVMTransaction(
             ChainId(43113),
@@ -233,6 +234,7 @@ export class CorePrompt extends DataWalletPrompt {
             EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
             EVMAccountAddress("get1000"),
             BigNumberString("1000"),
+            null,
             null,
             null,
             null,
@@ -254,6 +256,7 @@ export class CorePrompt extends DataWalletPrompt {
             null,
             null,
             null,
+            null,
           );
           transactions[3] = new EVMTransaction(
             ChainId(43113),
@@ -263,6 +266,7 @@ export class CorePrompt extends DataWalletPrompt {
             EVMAccountAddress("send50"),
             EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
             BigNumberString("50"),
+            null,
             null,
             null,
             null,
@@ -282,6 +286,7 @@ export class CorePrompt extends DataWalletPrompt {
             ChainId(1),
             EVMTransactionHash("null"),
             UnixTimestamp(100),
+            null,
             null,
             null,
             null,

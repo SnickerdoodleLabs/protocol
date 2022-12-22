@@ -665,10 +665,10 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountNFTs();
   }
 
-  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError> {
+  getTransactionValueByChain(): ResultAsync<ChainTransaction[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTransactionsArray();
+    return accountService.getTransactionValueByChain();
   }
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError> {

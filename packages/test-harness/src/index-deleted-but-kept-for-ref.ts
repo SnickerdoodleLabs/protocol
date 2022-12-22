@@ -416,6 +416,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
+          null,
         );
         transactions[1] = new EVMTransaction(
           ChainId(43113),
@@ -425,6 +426,7 @@ function corePrompt(): ResultAsync<void, Error> {
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           EVMAccountAddress("get1000"),
           BigNumberString("1000"),
+          null,
           null,
           null,
           null,
@@ -446,6 +448,7 @@ function corePrompt(): ResultAsync<void, Error> {
           null,
           null,
           null,
+          null,
         );
         transactions[3] = new EVMTransaction(
           ChainId(43113),
@@ -455,6 +458,7 @@ function corePrompt(): ResultAsync<void, Error> {
           EVMAccountAddress("send50"),
           EVMAccountAddress("0x14791697260E4c9A71f18484C9f997B308e59325"),
           BigNumberString("50"),
+          null,
           null,
           null,
           null,
@@ -474,6 +478,7 @@ function corePrompt(): ResultAsync<void, Error> {
           ChainId(1),
           EVMTransactionHash("null"),
           UnixTimestamp(100),
+          null,
           null,
           null,
           null,

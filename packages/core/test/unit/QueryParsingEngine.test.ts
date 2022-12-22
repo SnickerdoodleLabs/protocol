@@ -98,7 +98,7 @@ class QueryParsingMocks {
       this.persistenceRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    td.when(this.persistenceRepo.getTransactionsArray()).thenReturn(
+    td.when(this.persistenceRepo.getTransactionValueByChain()).thenReturn(
       okAsync(new Array<ChainTransaction>()),
     );
 

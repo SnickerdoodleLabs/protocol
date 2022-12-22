@@ -811,7 +811,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getTransactionValueByChain(): ResultAsync<
-    IChainTransaction[],
+    ITransactionPaymentCounter[],
     PersistenceError
   > {
     return this.getAccounts().andThen((accounts) => {
