@@ -88,7 +88,7 @@ export class SDQLQueryUtils {
   ): CompensationIdentifier {
     // console.log("extractCompensationIdFromAst: ast", ast);
     const compensationAst = this.getCompensationAstFromAst(ast);
-    return CompensationId(compensationAst.name as string);
+    return CompensationIdentifier(compensationAst.name as string);
   }
 
   protected extractCompensationIdFromAstWithAlternatives(
@@ -97,7 +97,7 @@ export class SDQLQueryUtils {
     // console.log("extractCompensationIdFromAst: ast", ast);
     const comIds = new Set<CompensationIdentifier>();
     const compensationAst = this.getCompensationAstFromAst(ast);
-    comIds.add(CompensationId(compensationAst.name as string));
+    comIds.add(CompensationIdentifier(compensationAst.name as string));
     for (const altId of compensationAst.alternatives) {
       comIds.add(altId);
     }
