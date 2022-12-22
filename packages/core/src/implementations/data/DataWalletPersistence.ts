@@ -51,6 +51,7 @@ import {
   PortfolioUpdate,
   DataWalletBackupID,
   JSONString,
+  EVMTransaction,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -805,12 +806,143 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public getTransactionsArray(): ResultAsync<
-    ChainTransaction[],
+  public getTransactionValueByChain(): ResultAsync<
+    IChainTransaction[],
     PersistenceError
   > {
-    return okAsync([]);
+    return this.getAccounts().andThen((accounts) => {
+      return ResultUtils.combine(
+        accounts.map((account) => {
+          return ResultUtils.combine([
+            this.volatileStorage
+              .getCursor<EVMTransaction>(
+                ELocalStorageKey.TRANSACTIONS,
+                "to",
+                account.sourceAccountAddress,
+              )
+              .andThen((cursor) => cursor.allValues().map((evm) => evm!)),
+            this.volatileStorage
+              .getCursor<EVMTransaction>(
+                ELocalStorageKey.TRANSACTIONS,
+                "from",
+                account.sourceAccountAddress,
+              )
+              .andThen((cursor) => cursor.allValues().map((evm) => evm!)),
+          ]).andThen(([toTransactions, fromTransactions]) => {
+            return this.pushTransaction(toTransactions, fromTransactions, []);
+          });
+        }),
+      ).andThen(([transactionsArray]) => {
+        return this.compoundTransaction(transactionsArray);
+      });
+    });
   }
+
+  protected pushTransaction(
+    incomingTransaction: EVMTransaction[],
+    outgoingTransaction: EVMTransaction[],
+    chainTransaction: IChainTransaction[],
+  ): ResultAsync<IChainTransaction[], PersistenceError> {
+    for (let i = 0; i < incomingTransaction.length; i++) {
+      let valueQuote = incomingTransaction[i].valueQuote;
+      if (valueQuote == null || valueQuote == undefined) {
+        valueQuote = 0;
+      }
+      chainTransaction.push(
+        new ChainTransaction(
+          incomingTransaction[i].chainId,
+          BigNumberString("1"),
+          BigNumberString(
+            BigNumber.from(BigInt(Math.round(valueQuote))).toString(),
+          ),
+          BigNumberString("0"),
+          BigNumberString("0"),
+        ),
+        // {
+        //   "chainId": incomingTransaction[i].chainId,
+        //   "incomingCount": BigNumberString("1"),
+        //   "incomingValue": BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString()),
+        //   "outgoingCount": BigNumberString("0"),
+        //   "outgoingValue": BigNumberString("0")
+        // }
+      );
+    }
+    for (let i = 0; i < outgoingTransaction.length; i++) {
+      let valueQuote = outgoingTransaction[i].valueQuote;
+      if (valueQuote == null || valueQuote == undefined) {
+        valueQuote = 0;
+      }
+      chainTransaction.push({
+        chainId: outgoingTransaction[i].chainId,
+        incomingCount: BigNumberString("0"),
+        incomingValue: BigNumberString("0"),
+        outgoingCount: BigNumberString("1"),
+        outgoingValue: BigNumberString(
+          BigNumber.from(BigInt(Math.round(valueQuote))).toString(),
+        ),
+      });
+    }
+
+    return okAsync(chainTransaction);
+  }
+
+  protected compoundTransaction(
+    chainTransaction: IChainTransaction[],
+  ): ResultAsync<IChainTransaction[], PersistenceError> {
+    const flowMap = new Map<ChainId, IChainTransaction>();
+    chainTransaction.forEach((obj) => {
+      const getObject = flowMap.get(obj.chainId)!;
+      if (flowMap.has(obj.chainId)) {
+        flowMap.set(obj.chainId, {
+          chainId: obj.chainId,
+          outgoingValue: BigNumberString(
+            BigNumber.from(obj.outgoingValue.toString())
+              .add(getObject.outgoingValue.toString())
+              .toString(),
+          ),
+          outgoingCount: BigNumberString(
+            BigNumber.from(obj.outgoingCount.toString())
+              .add(getObject.outgoingCount.toString())
+              .toString(),
+          ),
+          incomingValue: BigNumberString(
+            BigNumber.from(obj.incomingValue.toString())
+              .add(getObject.incomingValue.toString())
+              .toString(),
+          ),
+          incomingCount: BigNumberString(
+            BigNumber.from(obj.incomingCount.toString())
+              .add(getObject.incomingCount.toString())
+              .toString(),
+          ),
+        });
+      } else {
+        flowMap.set(obj.chainId, {
+          chainId: obj.chainId,
+          outgoingValue: BigNumberString(
+            BigNumber.from(obj.outgoingValue.toString()).toString(),
+          ),
+          outgoingCount: BigNumberString(
+            BigNumber.from(obj.outgoingCount.toString()).toString(),
+          ),
+          incomingValue: BigNumberString(
+            BigNumber.from(obj.incomingValue.toString()).toString(),
+          ),
+          incomingCount: BigNumberString(
+            BigNumber.from(obj.incomingCount.toString()).toString(),
+          ),
+        });
+      }
+    });
+
+    const outputFlow: IChainTransaction[] = [];
+    flowMap.forEach((element, key) => {
+      outputFlow.push(element);
+    });
+
+    return okAsync(outputFlow);
+  }
+
 
   public addTransactions(
     transactions: ChainTransaction[],

@@ -561,15 +561,11 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getTransactions(filter);
   }
 
-  // public getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError> {
-  //   return this.dataWalletPersistence.getTransactionsArray();
-  // }
-
-  public getTransactionsArray(): ResultAsync<
+  public getTransactionValueByChain(): ResultAsync<
     ChainTransaction[],
     PersistenceError
   > {
-    return this.dataWalletPersistence.getTransactionsArray();
+    return this.dataWalletPersistence.getTransactionValueByChain();
   }
 
   public getSiteVisitsMap(): ResultAsync<
