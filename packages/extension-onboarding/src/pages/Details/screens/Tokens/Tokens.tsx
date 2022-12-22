@@ -70,6 +70,14 @@ const chartOptions = {
     legend: {
       display: false,
     },
+    tooltip: {
+      callbacks: {
+        label: (context) => {
+          console.log(context);
+          return `${context.label} - $${context.formattedValue}`;
+        },
+      },
+    },
   },
 };
 
@@ -109,6 +117,8 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
     testnetSupportedChainIds: ChainId[];
   },
 );
+
+const CHART_ITEM_COUNT = 2;
 
 export default () => {
   const classes = useStyles();
@@ -288,23 +298,31 @@ export default () => {
     }
   }, [tokensToRender]);
 
-  const restTokensPercentage = useMemo(() => {
-    if (
-      !tokensToRender?.length ||
-      tokensToRender.length <= 4 ||
-      totalBalance == 0
-    ) {
-      return 0;
-    } else {
-      return (
-        100 *
-        (((totalBalance || 0) -
-          (tokensToRender
-            ?.slice(0, 4)
-            .reduce((acc, item) => (acc += item.quoteBalance), 0) || 0)) /
-          totalBalance)
-      );
+  const charItemsToRender = useMemo(() => {
+    if (!tokensToRender?.length || totalBalance == 0) {
+      return undefined;
     }
+
+    const nonZeroHighestItems = tokensToRender
+      .slice(0, CHART_ITEM_COUNT)
+      .filter((item) => item.quoteBalance != 0);
+
+    const restItemBalance = tokensToRender
+      .slice(CHART_ITEM_COUNT)
+      .reduce((acc, item) => (acc += item.quoteBalance), 0);
+
+    const options = {
+      labels: [
+        ...nonZeroHighestItems.map((i) => i.marketaData?.name ?? i.ticker),
+        ...(restItemBalance != 0 ? ["Others"] : []),
+      ],
+      data: [
+        ...nonZeroHighestItems.map((i) => i.quoteBalance || 0),
+        ...(restItemBalance != 0 ? [restItemBalance] : []),
+      ],
+    };
+
+    return options;
   }, [tokensToRender, totalBalance]);
 
   useEffect(() => {
@@ -373,7 +391,7 @@ export default () => {
               Token Value Breakdown
             </Typography>
             <Box display="flex" justifyContent="center" mt={4}>
-              {(tokensToRender?.length || 0) > 0 && (
+              {(charItemsToRender?.data?.length || 0) > 0 && (
                 <Box maxWidth="190px" mr={5}>
                   {totalBalance == 0 ? (
                     <Box
@@ -386,25 +404,27 @@ export default () => {
                     <Pie
                       options={chartOptions}
                       data={{
-                        labels:
-                          tokensToRender?.map(
-                            (i) => i.marketaData?.name ?? i.ticker,
-                          ) ?? [],
+                        labels: charItemsToRender?.labels,
                         datasets: [
                           {
-                            data:
-                              tokensToRender?.map((i) => i.quoteBalance || 0) ??
-                              [],
+                            data: charItemsToRender?.data,
                             backgroundColor:
-                              tokensToRender?.reduce((acc, _, index) => {
-                                acc = [
-                                  ...acc,
-                                  colorGenarator(
-                                    index * (1 / totalItems),
-                                  ).hex(),
-                                ];
-                                return acc;
-                              }, [] as string[]) ?? "#7F79B0",
+                              charItemsToRender?.data?.reduce(
+                                (acc, _, index) => {
+                                  acc = [
+                                    ...acc,
+                                    colorGenarator(
+                                      index *
+                                        (1 /
+                                          (charItemsToRender.data.length - 1 ||
+                                            1)),
+                                    ).hex(),
+                                  ];
+                                  return acc;
+                                },
+                                [] as string[],
+                              ) ?? "#7F79B0",
+                            borderWidth: 0,
                           },
                         ],
                       }}
@@ -412,9 +432,9 @@ export default () => {
                   )}
                 </Box>
               )}
-              {(tokensToRender?.length || 0) > 0 && (
+              {(charItemsToRender?.data?.length || 0) > 0 && (
                 <Box mt={2} maxHeight={245} overflow="auto">
-                  {tokensToRender?.slice(0, 4).map((item, index) => {
+                  {charItemsToRender?.data?.map((item, index) => {
                     return (
                       <Box mb={0.5}>
                         <Box display="flex" alignItems="center">
@@ -424,46 +444,22 @@ export default () => {
                             height={8}
                             borderRadius={4}
                             bgcolor={colorGenarator(
-                              index * (1 / tokensToRender.length),
+                              index *
+                                (1 / (charItemsToRender.data.length - 1 || 1)),
                             ).hex()}
                           />
                           <Typography className={classes.metricTitle}>
-                            {item.marketaData?.name || item.ticker}
+                            {charItemsToRender.labels[index]}
                           </Typography>
                         </Box>
                         <Box ml={2.5} mt={0.5}>
                           <Typography className={classes.metricValue}>
-                            {(
-                              (100 * item.quoteBalance) /
-                              (totalBalance || 1)
-                            ).toFixed(2)}
-                            %
+                            {((100 * item) / (totalBalance || 1)).toFixed(2)}%
                           </Typography>
                         </Box>
                       </Box>
                     );
                   })}
-                  {restTokensPercentage != 0 && (
-                    <Box mb={0.5}>
-                      <Box display="flex" alignItems="center">
-                        <Box
-                          mr={2}
-                          width={8}
-                          height={8}
-                          borderRadius={4}
-                          bgcolor="#B9B6D3"
-                        />
-                        <Typography className={classes.metricTitle}>
-                          Others
-                        </Typography>
-                      </Box>
-                      <Box ml={2.5} mt={0.5}>
-                        <Typography className={classes.metricValue}>
-                          {restTokensPercentage.toFixed(2)}%
-                        </Typography>
-                      </Box>
-                    </Box>
-                  )}
                 </Box>
               )}
             </Box>
