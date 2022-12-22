@@ -1,18 +1,18 @@
 import {
-  CompensationId,
+  CompensationIdentifier,
   DataPermissions,
   DuplicateIdInSchema,
   IpfsCID,
-  ISDQLCompensations,
   MissingTokenConstructorError,
   ParserError,
   QueryExpiredError,
   QueryFormatError,
+  QueryIdentifier,
   SDQLString,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
@@ -40,9 +40,9 @@ export class SDQLQueryUtils {
 
   public getEligibleCompensations(
     schemaString: SDQLString,
-    queryIds: string[],
+    queryIds: QueryIdentifier[],
   ): ResultAsync<
-    CompensationId[],
+    CompensationIdentifier[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -61,13 +61,13 @@ export class SDQLQueryUtils {
 
   public getCompensationIdsByPermittedQueryIds(
     parser: SDQLParser,
-    permittedQueryIds: string[]
-  ): CompensationId[] {
+    permittedQueryIds: QueryIdentifier[]
+  ): CompensationIdentifier[] {
 
     const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
     // console.log("queryPermissions", queryPermissions.getFlags());
     // now queryPermissions must contain the permission for each compensation expr for eligibility
-    const eligibleComIds = new Set<CompensationId>();
+    const eligibleComIds = new Set<CompensationIdentifier>();
     // console.log("logicPermissions", parser.returnPermissions);
     // console.log("compensationPermissions", parser.compensationPermissions);
 
@@ -85,7 +85,7 @@ export class SDQLQueryUtils {
 
   protected extractCompensationIdFromAst(
     ast: AST_Expr | Command,
-  ): CompensationId {
+  ): CompensationIdentifier {
     // console.log("extractCompensationIdFromAst: ast", ast);
     const compensationAst = this.getCompensationAstFromAst(ast);
     return CompensationId(compensationAst.name as string);
@@ -93,9 +93,9 @@ export class SDQLQueryUtils {
 
   protected extractCompensationIdFromAstWithAlternatives(
     ast: AST_Expr | Command,
-  ): Set<CompensationId> {
+  ): Set<CompensationIdentifier> {
     // console.log("extractCompensationIdFromAst: ast", ast);
-    const comIds = new Set<CompensationId>();
+    const comIds = new Set<CompensationIdentifier>();
     const compensationAst = this.getCompensationAstFromAst(ast);
     comIds.add(CompensationId(compensationAst.name as string));
     for (const altId of compensationAst.alternatives) {
@@ -128,7 +128,7 @@ export class SDQLQueryUtils {
     schemaString: SDQLString,
     givenPermissions: DataPermissions,
   ): ResultAsync<
-    string[],
+    QueryIdentifier[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -146,7 +146,7 @@ export class SDQLQueryUtils {
     parser: SDQLParser,
     dataPermissions: DataPermissions
   ): ResultAsync<
-    string[],
+    QueryIdentifier[],
     QueryFormatError 
     | ParserError
     | MissingTokenConstructorError 
@@ -162,7 +162,7 @@ export class SDQLQueryUtils {
     parser: SDQLParser,
     givenPermissions: DataPermissions,
   ): ResultAsync<
-    string[],
+    QueryIdentifier[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -173,9 +173,9 @@ export class SDQLQueryUtils {
     const checks = this.getQueryPermissionChecks(parser, givenPermissions);
     return ResultUtils.combine(checks).andThen((resultIds) => {
       return okAsync(
-        resultIds.reduce<string[]>((acc, next) => {
+        resultIds.reduce<QueryIdentifier[]>((acc, next) => {
           if (next != null) {
-            acc.push(next);
+            acc.push( QueryIdentifier(next) );
           }
           return acc;
         }, []),

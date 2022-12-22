@@ -20,7 +20,7 @@ import {
   EarnedReward,
   QueryIdentifier,
   IDynamicRewardParameter,
-  CompensationId,
+  CompensationIdentifier,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -117,7 +117,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
-  ): ResultAsync<CompensationId[], AjaxError> {
+  ): ResultAsync<CompensationIdentifier[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
@@ -139,7 +139,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<CompensationId[]>(url, {
+        return this.ajaxUtils.post<CompensationIdentifier[]>(url, {
           consentContractId: consentContractAddress,
           queryCID: queryCID,
           tokenId: tokenId.toString(),

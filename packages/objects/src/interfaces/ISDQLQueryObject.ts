@@ -3,7 +3,7 @@
 import {
   AccountAddress,
   ChainId,
-  CompensationId,
+  CompensationIdentifier,
   EVMContractAddress,
   IpfsCID,
   URLString,
@@ -81,7 +81,7 @@ export interface ISDQLReturnProperties {
 }
 
 export interface ISDQLCompensationBlock {
-  [index: CompensationId]:
+  [index: CompensationIdentifier]:
     | ISDQLCompensationParameters
     | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;
@@ -93,7 +93,7 @@ export interface ISDQLCompensations {
   description: string;
   chainId: ChainId;
   callback: ISDQLCallback;
-  alternatives?: CompensationId[];
+  alternatives?: CompensationIdentifier[];
 }
 
 export interface ISDQLCallback {

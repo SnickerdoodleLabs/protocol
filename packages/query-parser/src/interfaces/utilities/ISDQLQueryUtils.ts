@@ -1,7 +1,7 @@
 import { SDQLParser } from "@query-parser/implementations";
 import { ResultAsync } from "neverthrow";
 import { 
-    CompensationId, 
+    CompensationIdentifier, 
     DuplicateIdInSchema, 
     MissingTokenConstructorError, 
     ParserError, 
@@ -9,13 +9,14 @@ import {
     QueryFormatError, 
     SDQLString, 
     DataPermissions,
-    ISDQLCompensations
+    ISDQLCompensations,
+    QueryIdentifier
 } from "@snickerdoodlelabs/objects";
 
 export interface ISDQLQueryUtils {
     
-    getEligibleCompensations(schemaString: SDQLString, queryIds: string[]): 
-    ResultAsync<CompensationId[], 
+    getEligibleCompensations(schemaString: SDQLString, queryIds: QueryIdentifier[]): 
+    ResultAsync<CompensationIdentifier[], 
     | ParserError 
     | DuplicateIdInSchema
     | QueryFormatError
@@ -26,14 +27,14 @@ export interface ISDQLQueryUtils {
     extractPermittedQueryIdsFromParser(
         parser: SDQLParser, dataPermissions: DataPermissions
     ): ResultAsync<
-        string[], 
+    QueryIdentifier[], 
         QueryFormatError 
         | ParserError 
         | MissingTokenConstructorError 
         | QueryExpiredError
     >;
 
-    getPermittedQueryIdsFromSchemaString(schemaString: SDQLString, givenPermissions: DataPermissions): ResultAsync<string[], 
+    getPermittedQueryIdsFromSchemaString(schemaString: SDQLString, givenPermissions: DataPermissions): ResultAsync<QueryIdentifier[], 
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -41,7 +42,7 @@ export interface ISDQLQueryUtils {
     | QueryExpiredError
     >;
 
-    getPermittedQueryIds(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<string[], 
+    getPermittedQueryIds(parser: SDQLParser, givenPermissions: DataPermissions): ResultAsync<QueryIdentifier[], 
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -51,8 +52,8 @@ export interface ISDQLQueryUtils {
 
     getCompensationIdsByPermittedQueryIds(
         parser: SDQLParser,
-        permittedQueryIds: string[]
-    ): CompensationId[];
+        permittedQueryIds: QueryIdentifier[]
+    ): CompensationIdentifier[];
 }
 
 

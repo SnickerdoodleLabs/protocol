@@ -28,7 +28,7 @@ import {
   QueryIdentifier,
   EVMPrivateKey,
   EligibleReward,
-  CompensationId,
+  CompensationIdentifier,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -132,7 +132,7 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     config: CoreConfig,
     permittedQueryIds: QueryIdentifier[],
-    expectedCompIds: CompensationId[]
+    expectedCompIds: CompensationIdentifier[]
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
 
       return this.getEligibleCompIdsFromInsightPlatform(
@@ -167,7 +167,7 @@ export class QueryService implements IQueryService {
     queryCID: IpfsCID,
     config: CoreConfig,
     answeredQueries: QueryIdentifier[],
-  ): ResultAsync<CompensationId[], AjaxError> {
+  ): ResultAsync<CompensationIdentifier[], AjaxError> {
     return this.insightPlatformRepo.receiveEligibleCompensationIds(
       consentContractAddress,
       consentToken.tokenId,
@@ -181,7 +181,7 @@ export class QueryService implements IQueryService {
   protected publishSDQLQueryRequest(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    eligibleCompIds: CompensationId[],
+    eligibleCompIds: CompensationIdentifier[],
     accounts: LinkedAccount[],
     context: CoreContext,
   ): ResultAsync<void, Error> {
@@ -219,8 +219,8 @@ export class QueryService implements IQueryService {
 
   // Will need refactoring when we include lazy rewards
   private areExpectedAndEligibleCompIdsEqual(
-    eligibleCompIds: CompensationId[],
-    expectedCompIds: CompensationId[],
+    eligibleCompIds: CompensationIdentifier[],
+    expectedCompIds: CompensationIdentifier[],
   ): boolean {
     if (eligibleCompIds.length != expectedCompIds.length) {
       return false;
