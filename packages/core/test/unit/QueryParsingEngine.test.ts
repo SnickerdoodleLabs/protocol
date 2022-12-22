@@ -5,8 +5,6 @@ import {
   Age,
   CountryCode,
   DataPermissions,
-  ERewardType,
-  ExpectedReward,
   Gender,
   HexString32,
   IDataWalletPersistence,
@@ -16,8 +14,6 @@ import {
   SDQLString,
   ChainTransaction,
   SDQL_Return,
-  ChainId,
-  ISDQLCompensations,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -104,36 +100,6 @@ class QueryParsingMocks {
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
-    // td.when(
-    //   this.queryUtils.extractPermittedQueryIdsAndExpectedCompensationBlocks(
-    //     sdqlQuery4.query,
-    //     new DataPermissions(allPermissions),
-    //   ),
-    // ).thenReturn(
-    //   okAsync([
-    //     ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"],
-    //     new Map(
-    //       Object.entries({
-    //         c1: {
-    //           description:
-    //             "Only the chainId is compared, so this can be random.",
-    //           chainId: ChainId(1),
-    //         } as ISDQLCompensations,
-    //         c2: {
-    //           description:
-    //             "Only the chainId is compared, so this can be random.",
-    //           chainId: ChainId(1),
-    //         } as ISDQLCompensations,
-    //         c4: {
-    //           description:
-    //             "Only the chainId is compared, so this can be random.",
-    //           chainId: ChainId(1),
-    //         } as ISDQLCompensations,
-    //       }),
-    //     ),
-    //   ]),
-    // );
-
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,
       this.balanceQueryEvaluator,
@@ -161,52 +127,6 @@ class QueryParsingMocks {
     }
   }
 
-  // TODO: Add Lazy and Web2 Reward Implementation
-  public SDQLReturnToExpectedReward(sdqlR: SDQL_Return): ExpectedReward {
-    const actualTypeData = sdqlR as BaseOf<SDQL_Return>;
-
-    if (typeof actualTypeData == "object") {
-      if (actualTypeData != null) {
-        console.log("rewardData: ", JSON.stringify(actualTypeData));
-        console.log(
-          "rewardData['description']: ",
-          actualTypeData["description"],
-        );
-        console.log("rewardData['callback']: ", actualTypeData["callback"]);
-        console.log(
-          "rewardData['callback']['parameters']: ",
-          actualTypeData["callback"]["parameters"],
-        );
-        console.log(
-          "rewardData['callback']['data']: ",
-          actualTypeData["callback"]["data"],
-        );
-        return new ExpectedReward(
-          actualTypeData["compensationKey"],
-        );
-      }
-    }
-    if (typeof actualTypeData == "string") {
-      const rewardData = JSON.parse(actualTypeData);
-      console.log("rewardData: ", rewardData);
-      console.log("rewardData['description']: ", rewardData["description"]);
-      console.log("rewardData['callback']: ", rewardData["callback"]);
-      console.log(
-        "rewardData['callback']['parameters']: ",
-        rewardData["callback"]["parameters"],
-      );
-      console.log(
-        "rewardData['callback']['data']: ",
-        rewardData["callback"]["data"],
-      );
-      return new ExpectedReward(
-        rewardData["compensationKey"],
-      );
-    }
-
-    // Return to later - Andrew
-    return new ExpectedReward("");
-  }
 }
 
 /*

@@ -1,16 +1,6 @@
 import {
-  GetSignedUrlConfig,
-  Storage,
-  Bucket,
-  GetSignedUrlResponse,
-  File,
-  GetFilesCallback,
-} from "@google-cloud/storage";
-import {
   AjaxError,
   BigNumberString,
-  DataWalletAddress,
-  EligibleReward,
   EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
@@ -38,14 +28,14 @@ export interface IInsightPlatformRepository {
     fileName: string,
   ): ResultAsync<URLString, AjaxError>;
 
-  receivePreviews(
+  receiveEligibleCompensationIds(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
-  ): ResultAsync<EligibleReward[], AjaxError>;
+  ): ResultAsync<string[], AjaxError>;
 
   deliverInsights(
     consentContractAddress: EVMContractAddress,

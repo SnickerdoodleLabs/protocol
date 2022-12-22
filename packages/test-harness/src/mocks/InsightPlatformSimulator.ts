@@ -3,11 +3,6 @@ import * as fs from "fs";
 import {
   GetSignedUrlConfig,
   Storage,
-  Bucket,
-  GetSignedUrlResponse,
-  GetFilesResponse,
-  File,
-  GetFilesCallback,
 } from "@google-cloud/storage";
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
@@ -28,10 +23,8 @@ import {
   TokenId,
   URLString,
   ERewardType,
-  ChainId,
   EarnedReward,
   MinimalForwarderContractError,
-  EligibleReward,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -107,35 +100,8 @@ export class InsightPlatformSimulator {
         queries,
       };
 
-      const eligibleRewards: EligibleReward[] = [];
-      eligibleRewards[0] = new EligibleReward(
-        "c1",
-        "Sugar to your coffee",
-        IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
-        "10% discount code for Starbucks",
-        ChainId(1),
-        "{ parameters: [Array], data: [Object] }", 
-        ERewardType.Direct,
-      );
-      eligibleRewards[1] = new EligibleReward(
-        "c2",
-        "The CryptoPunk Draw",
-        IpfsCID("33tq432RLMiMsKc98mbKC3P8NuTGsMnRxWqxBEmWPL8wBQ"),
-        "participate in the draw to win a CryptoPunk NFT",
-        ChainId(1),
-        "{ parameters: [Array], data: [Object] }", 
-        ERewardType.Direct,
-      );
-      eligibleRewards[2] = new EligibleReward(
-        "c3",
-        "CrazyApesClub NFT distro",
-        IpfsCID("GsMnRxWqxMsKc98mbKC3PBEmWNuTPL8wBQ33tq432RLMi8"),
-        "a free CrazyApesClub NFT",
-        ChainId(1),
-        "{ parameters: [Array], data: [Object] }",
-        ERewardType.Direct,
-      );
-
+      const eligibleCompIds: string[] = ['c1', 'c2', 'c3'];
+      
       this.logStream.write(JSON.stringify(req.body));
 
       return this.cryptoUtils
@@ -173,7 +139,7 @@ export class InsightPlatformSimulator {
           });
         })
         .map(() => {
-          res.send(eligibleRewards);
+          res.send(eligibleCompIds);
         })
         .mapErr((e) => {
           console.error(e);

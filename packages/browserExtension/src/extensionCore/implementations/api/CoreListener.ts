@@ -1,7 +1,5 @@
 import {
   DataWalletAddress,
-  EarnedReward,
-  ERewardType,
   IDynamicRewardParameter,
   ISnickerdoodleCore,
   ISnickerdoodleCoreEvents,
@@ -11,10 +9,8 @@ import {
   SDQLQueryRequest,
   SDQLString,
 } from "@snickerdoodlelabs/objects";
-import { query } from "express";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import Browser from "webextension-polyfill";
 
 import { BrowserUtils } from "@enviroment/shared/utils";
@@ -86,7 +82,7 @@ export class CoreListener implements ICoreListener {
     // DynamicRewardParameters added to be returned
     const parameters: IDynamicRewardParameter[] = [];
     // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
-    request.rewardsPreview.forEach((element) => {
+    request.eligibleCompIds.forEach((compId) => {
       if (request.dataWalletAddress !== null) {
         parameters.push({
           recipientAddress: {

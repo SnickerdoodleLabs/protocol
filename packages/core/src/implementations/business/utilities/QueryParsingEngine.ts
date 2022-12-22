@@ -9,9 +9,7 @@ import {
   SDQLQuery,
   SDQL_Return,
   QueryIdentifier,
-  ExpectedReward,
   IDynamicRewardParameter,
-  CompensationId,
 } from "@snickerdoodlelabs/objects";
 import { AST, ISDQLQueryUtils, ISDQLQueryUtilsType } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -41,10 +39,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryUtils: ISDQLQueryUtils
   ) {}
 
-  public getPermittedQueryIdsAndExpectedRewards(
+  public getPermittedQueryIdsAndExpectedCompIds(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-  ): ResultAsync<[QueryIdentifier[], ExpectedReward[]], EvaluationError> {
+  ): ResultAsync<[QueryIdentifier[], string[]], EvaluationError> {
     const schemaString = query.query;
     const queryCid = query.cid;
 
@@ -58,11 +56,8 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           const expectedCompensationIds = 
             this.queryUtils.getCompensationIdsByPermittedQueryIds(parser, permittedQueryIds)
     
-          const expectedRewardList = 
-            this.compensationIdsToExpectedRewards(expectedCompensationIds);
-    
-            return okAsync<[QueryIdentifier[], ExpectedReward[]]>(
-              [permittedQueryIds.map(QueryIdentifier), expectedRewardList]
+            return okAsync<[QueryIdentifier[], string[]]>(
+              [permittedQueryIds.map(QueryIdentifier), expectedCompensationIds]
             );
           });
 
@@ -103,12 +98,6 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           );
         });
       });
-  }
-
-  protected compensationIdsToExpectedRewards(
-    compensationIds: CompensationId[]
-  ): ExpectedReward[] {
-      return compensationIds.map((c) => new ExpectedReward(c));
   }
 
   protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {

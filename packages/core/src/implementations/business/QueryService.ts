@@ -17,7 +17,6 @@ import {
   IPFSError,
   QueryFormatError,
   UninitializedError,
-  EligibleReward,
   SDQLQuery,
   SDQLQueryRequest,
   ConsentToken,
@@ -27,8 +26,8 @@ import {
   IDynamicRewardParameter,
   LinkedAccount,
   QueryIdentifier,
-  ExpectedReward,
   EVMPrivateKey,
+  EligibleReward,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -105,9 +104,9 @@ export class QueryService implements IQueryService {
             return errAsync(new EvaluationError(`Consent token not found!`));
           }
           return this.queryParsingEngine
-            .getPermittedQueryIdsAndExpectedRewards(query, consentToken.dataPermissions)
-            .andThen(([queryIdentifiers, expectedRewards]) => {
-              return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+            .getPermittedQueryIdsAndExpectedCompIds(query, consentToken.dataPermissions)
+            .andThen(([queryIdentifiers, expectedCompIds]) => {
+              return this.publishSDQLQueryRequestIfExpectedAndEligibleCompIdsMatch(
                 consentToken,
                 optInKey,
                 consentContractAddress,
@@ -116,14 +115,14 @@ export class QueryService implements IQueryService {
                 context,
                 config,
                 queryIdentifiers,
-                expectedRewards,
+                expectedCompIds,
               );
             });
         });
     });
   }
 
-  protected publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+  protected publishSDQLQueryRequestIfExpectedAndEligibleCompIdsMatch(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
     consentContractAddress: EVMContractAddress,
@@ -132,10 +131,10 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     config: CoreConfig,
     permittedQueryIds: QueryIdentifier[],
-    expectedRewards: ExpectedReward[]
+    expectedCompIds: string[]
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
 
-      return this.getEligibleRewardsFromInsightPlatform(
+      return this.getEligibleCompIdsFromInsightPlatform(
         consentToken,
         optInKey,
         consentContractAddress,
@@ -143,9 +142,9 @@ export class QueryService implements IQueryService {
         config,
         permittedQueryIds,
       )
-      .andThen((eligibleRewards) => {
+      .andThen((eligibleCompIds) => {
 
-          if (!this.areExpectedAndEligibleRewardsEqual(eligibleRewards, expectedRewards)) 
+          if (!this.areExpectedAndEligibleCompIdsEqual(eligibleCompIds, expectedCompIds)) 
             return errAsync( 
               new ServerRewardError("Insight Platform Rewards do not match Expected Rewards!")
             );
@@ -153,22 +152,22 @@ export class QueryService implements IQueryService {
           return this.publishSDQLQueryRequest(
             consentContractAddress,
             query,
-            eligibleRewards,
+            eligibleCompIds,
             accounts,
             context,
           );
       });
   }
 
-  protected getEligibleRewardsFromInsightPlatform(
+  protected getEligibleCompIdsFromInsightPlatform(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
     consentContractAddress: EVMContractAddress,
     queryCID: IpfsCID,
     config: CoreConfig,
     answeredQueries: QueryIdentifier[],
-  ): ResultAsync<EligibleReward[], AjaxError> {
-    return this.insightPlatformRepo.receivePreviews(
+  ): ResultAsync<string[], AjaxError> {
+    return this.insightPlatformRepo.receiveEligibleCompensationIds(
       consentContractAddress,
       consentToken.tokenId,
       queryCID,
@@ -181,7 +180,7 @@ export class QueryService implements IQueryService {
   protected publishSDQLQueryRequest(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    eligibleRewards: EligibleReward[],
+    eligibleCompIds: string[],
     accounts: LinkedAccount[],
     context: CoreContext,
   ): ResultAsync<void, Error> {
@@ -189,7 +188,7 @@ export class QueryService implements IQueryService {
     const queryRequest = new SDQLQueryRequest(
       consentContractAddress,
       query,
-      eligibleRewards,
+      eligibleCompIds,
       accounts,
       context.dataWalletAddress!,
     );
@@ -218,19 +217,21 @@ export class QueryService implements IQueryService {
   }
 
   // Will need refactoring when we include lazy rewards
-  private areExpectedAndEligibleRewardsEqual(
-    eligibleRewards: EligibleReward[],
-    expectedRewards: ExpectedReward[],
+  private areExpectedAndEligibleCompIdsEqual(
+    eligibleCompIds: string[],
+    expectedCompIds: string[],
   ): boolean {
+    if (eligibleCompIds.length != expectedCompIds.length) {
+      return false;
+    }
 
-    const expectedRewardKeysSet: Set<string> = new Set(
-      expectedRewards.map((expectedReward) => expectedReward.compensationKey)
-    );
-
-    return ( // Only comparing the keys is enough.
-      eligibleRewards.length == expectedRewards.length &&
-      eligibleRewards.every(elem => expectedRewardKeysSet.has(elem.compensationKey))
-    );
+    const eligibleCompIdsSet = new Set(eligibleCompIds);
+    for (const currentCompId of expectedCompIds) {
+      if (!eligibleCompIdsSet.has(currentCompId))
+        return false;
+    }
+    
+    return true;
   }
 
   public processQuery(

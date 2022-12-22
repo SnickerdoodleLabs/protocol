@@ -306,7 +306,7 @@ describe("processRewardsPreview tests", () => {
       mocks.consentContractRepo.isAddressOptedIn(td.matchers.anything()),
     ).thenReturn(okAsync(true));
     td.when(
-      mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
+      mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedCompIds(
         sdqlQuery,
         td.matchers.anything(),
       ),
@@ -333,7 +333,7 @@ describe("processRewardsPreview tests", () => {
       return mocks.consentContractRepo
         .isAddressOptedIn(consentContractAddress)
         .andThen((addressOptedIn) => {
-          return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
+          return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedCompIds(
             query,
             new DataPermissions(allPermissions),
           );

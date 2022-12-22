@@ -1,7 +1,6 @@
 import {
   DataPermissions,
   EligibleReward,
-  ExpectedReward,
   EvaluationError,
   QueryExpiredError,
   InsightString,
@@ -13,11 +12,11 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryParsingEngine {
-  getPermittedQueryIdsAndExpectedRewards(
+  getPermittedQueryIdsAndExpectedCompIds(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    [QueryIdentifier[], ExpectedReward[]],
+    [QueryIdentifier[], string[]],
     EvaluationError | QueryFormatError | QueryExpiredError
   >;
   handleQuery(

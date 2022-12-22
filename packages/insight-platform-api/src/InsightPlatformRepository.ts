@@ -17,7 +17,6 @@ import {
   InsightString,
   URLString,
   TokenId,
-  EligibleReward,
   EarnedReward,
   QueryIdentifier,
   IDynamicRewardParameter,
@@ -39,7 +38,7 @@ import {
   IClearCloudBackupsParams,
   IDeliverInsightsParams,
   IExecuteMetatransactionParams,
-  IReceivePreviewsParams,
+  IReceiveEligibleCompIdsParams,
   ISignedUrlParams,
 } from "@insightPlatform/params/index.js";
 
@@ -110,14 +109,14 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
       });
   }
   //
-  public receivePreviews(
+  public receiveEligibleCompensationIds(
     consentContractAddress: EVMContractAddress,
     tokenId: TokenId,
     queryCID: IpfsCID,
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
-  ): ResultAsync<EligibleReward[], AjaxError> {
+  ): ResultAsync<string[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
       tokenId: tokenId,
@@ -139,13 +138,13 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
 
         /* Following schema from .yaml file: */
         /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
-        return this.ajaxUtils.post<EligibleReward[]>(url, {
+        return this.ajaxUtils.post<string[]>(url, {
           consentContractId: consentContractAddress,
           queryCID: queryCID,
           tokenId: tokenId.toString(),
           queries: answeredQueries,
           signature: signature,
-        } as IReceivePreviewsParams as unknown as Record<string, unknown>);
+        } as IReceiveEligibleCompIdsParams as unknown as Record<string, unknown>);
       });
   }
 

@@ -1,5 +1,4 @@
 import {
-  EligibleReward,
   QueryExpiredError,
   ServerRewardError,
   AjaxError,

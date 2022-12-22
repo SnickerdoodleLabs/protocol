@@ -5,7 +5,7 @@ import {
   Signature,
 } from "@snickerdoodlelabs/objects";
 
-export interface IReceivePreviewsParams {
+export interface IReceiveEligibleCompIdsParams {
   consentContractId: EVMContractAddress;
   queryCID: IpfsCID;
   tokenId: string;
