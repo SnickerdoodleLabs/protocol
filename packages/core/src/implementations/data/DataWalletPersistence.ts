@@ -884,9 +884,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   protected compoundTransaction(
-    chainTransaction: IChainTransaction[],
-  ): ResultAsync<IChainTransaction[], PersistenceError> {
-    const flowMap = new Map<ChainId, IChainTransaction>();
+    chainTransaction: ITransactionPaymentCounter[],
+  ): ResultAsync<ITransactionPaymentCounter[], PersistenceError> {
+    const flowMap = new Map<ChainId, ITransactionPaymentCounter>();
     chainTransaction.forEach((obj) => {
       const getObject = flowMap.get(obj.chainId)!;
       if (flowMap.has(obj.chainId)) {
@@ -932,14 +932,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       }
     });
 
-    const outputFlow: IChainTransaction[] = [];
+    const outputFlow: ITransactionPaymentCounter[] = [];
     flowMap.forEach((element, key) => {
       outputFlow.push(element);
     });
 
     return okAsync(outputFlow);
   }
-
 
   public addTransactions(
     transactions: ChainTransaction[],
