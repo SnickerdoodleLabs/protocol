@@ -72,10 +72,7 @@ const chartOptions = {
     },
     tooltip: {
       callbacks: {
-        label: (context) => {
-          console.log(context);
-          return `${context.label} - $${context.formattedValue}`;
-        },
+        label: (context) => `${context.label} - $${context.formattedValue}`,
       },
     },
   },
@@ -118,7 +115,7 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
   },
 );
 
-const CHART_ITEM_COUNT = 2;
+const CHART_ITEM_COUNT = 3;
 
 export default () => {
   const classes = useStyles();
