@@ -50,6 +50,7 @@ export class ControlChainInformation extends ChainInformation {
     public crumbsContractAddress: EVMContractAddress,
     public metatransactionForwarderAddress: EVMContractAddress,
     public siftContractAddress: EVMContractAddress,
+    public etherscanEndpointURL?: URLString,
   ) {
     super(
       name,
@@ -66,6 +67,7 @@ export class ControlChainInformation extends ChainInformation {
       function (txHash: string) {
         return explorerURL + txHash;
       },
+      etherscanEndpointURL ? URLString(etherscanEndpointURL) : undefined,
     );
   }
 }

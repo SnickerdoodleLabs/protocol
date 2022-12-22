@@ -22,6 +22,8 @@ import {
   EVMTransactionHash,
   UnixTimestamp,
   getChainInfoByChainId,
+  URLString,
+  getEtherscanBaseURLForChain,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
 import { inject } from "inversify";
@@ -34,7 +36,7 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 
-export class EthereumIndexer
+export class EtherscanIndexer
   implements IEVMTransactionRepository, IEVMAccountBalanceRepository
 {
   public constructor(
@@ -54,18 +56,19 @@ export class EthereumIndexer
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return ResultUtils.combine([
       this.configProvider.getConfig(),
+      this._getEtherscanApiKey(chainId),
       this._getBlockNumber(chainId, startTime),
       this._getBlockNumber(chainId, endTime),
-    ]).andThen(([config, fromBlock, toBlock]) => {
+    ]).andThen(([config, apiKey, fromBlock, toBlock]) => {
       const params = {
         module: "account",
         action: "txlist",
         address: accountAddress,
-        startblock: fromBlock + 1, // start is inclusive
+        startblock: fromBlock + 1, // start is inclusive. this occasionally fails when we are fully caught up but the poller eats the error.
         page: 1,
         offset: 100,
         sort: "asc",
-        apikey: config.etherscanApiKey,
+        apikey: apiKey,
       };
 
       if (endTime != undefined) {
@@ -84,15 +87,18 @@ export class EthereumIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return this.configProvider.getConfig().andThen((config) => {
+    return ResultUtils.combine([
+      this._getEtherscanApiKey(chainId),
+      getEtherscanBaseURLForChain(chainId),
+    ]).andThen(([apiKey, baseURL]) => {
       const url = new URL(
-        urlJoinP("https://api.etherscan.io/", ["api"], {
+        urlJoinP(baseURL, ["api"], {
           module: "account",
           action: "addresstokenbalance",
           address: accountAddress,
           page: 1,
           offset: 1000,
-          apikey: config.etherscanApiKey,
+          apikey: apiKey,
         }),
       );
 
@@ -138,12 +144,12 @@ export class EthereumIndexer
         })
         .andThen((balances) => {
           const url = new URL(
-            urlJoinP("https://api.etherscan.io", ["api"], {
+            urlJoinP(baseURL, ["api"], {
               module: "account",
               action: "balance",
               address: accountAddress,
               tag: "latest",
-              apikey: config.etherscanApiKey,
+              apikey: apiKey,
             }),
           );
           return this.ajaxUtils
@@ -164,12 +170,12 @@ export class EthereumIndexer
     });
   }
 
-  private _paginateTransactions(
+  protected _paginateTransactions(
     chain: ChainId,
     params: IEtherscanRequestParameters,
     maxRecords: number,
   ): ResultAsync<EVMTransaction[], AccountIndexingError> {
-    return this._getEtherscanBaseURL(chain)
+    return getEtherscanBaseURLForChain(chain)
       .map((baseUrl) => {
         const offset = params.offset;
         const page = params.page;
@@ -187,7 +193,10 @@ export class EthereumIndexer
         return this.ajaxUtils
           .get<IEtherscanTransactionResponse>(url)
           .andThen((response) => {
-            if (response.status != "1") {
+            if (
+              response.status != "1" ||
+              response.message == "No transactions found"
+            ) {
               if (response.result != null) {
                 return okAsync([]);
               }
@@ -228,9 +237,9 @@ export class EthereumIndexer
               },
             );
           })
-          .mapErr(
-            (e) => new AccountIndexingError("error fetching transactions", e),
-          );
+          .mapErr((e) => {
+            return new AccountIndexingError("error fetching transactions", e);
+          });
       });
   }
 
@@ -243,16 +252,16 @@ export class EthereumIndexer
     }
 
     return ResultUtils.combine([
-      this._getEtherscanBaseURL(chain),
-      this.configProvider.getConfig(),
-    ]).andThen(([baseUrl, config]) => {
+      getEtherscanBaseURLForChain(chain),
+      this._getEtherscanApiKey(chain),
+    ]).andThen(([baseUrl, apiKey]) => {
       const url = new URL(
         urlJoinP(baseUrl, ["api"], {
           module: "block",
           action: "getblocknobytime",
           timestamp: (timestamp.getTime() / 1000).toFixed(0),
           closest: "before",
-          apikey: config.etherscanApiKey,
+          apikey: apiKey,
         }),
       );
 
@@ -276,22 +285,18 @@ export class EthereumIndexer
     });
   }
 
-  private _getEtherscanBaseURL(
+  protected _getEtherscanApiKey(
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
-    try {
-      const chainInfo = getChainInfoByChainId(chain);
-      if (chainInfo.etherscanEndpointURL == undefined) {
+    return this.configProvider.getConfig().andThen((config) => {
+      if (!config.etherscanApiKeys.has(chain)) {
         return errAsync(
-          new AccountIndexingError("no etherscan endpoint for chainID", chain),
+          new AccountIndexingError("no etherscan api key for chain", chain),
         );
       }
-      return okAsync(chainInfo.etherscanEndpointURL);
-    } catch (e) {
-      return errAsync(
-        new AccountIndexingError("error fetching chain information", e),
-      );
-    }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return okAsync(config.etherscanApiKeys.get(chain)!);
+    });
   }
 }
 

@@ -5,7 +5,9 @@ import {
   NativeCurrencyInformation,
 } from "@objects/businessObjects";
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
+import { AccountIndexingError } from "@objects/errors";
 import { ChainId, EVMContractAddress, ProviderUrl, URLString } from "@objects/primitives";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 const getExplorerUrl = function (this: ChainInformation, txHash: string) {
   return this.explorerURL + txHash;
@@ -119,11 +121,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
         ),
       ],
       10000,
-      EIndexer.EVM,
+      EIndexer.Polygon,
       new NativeCurrencyInformation("MATIC", 18, "MATIC"),
       EChainType.Testnet,
-      "https=//mumbai.polygonscan.com/tx/",
+      "https://mumbai.polygonscan.com/tx/",
       getExplorerUrl,
+      URLString("https://api-testnet.polygonscan.com/"),
     ),
   ],
   [
@@ -140,11 +143,12 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
         ),
       ],
       10000,
-      EIndexer.EVM,
+      EIndexer.Polygon,
       new NativeCurrencyInformation("MATIC", 18, "MATIC"),
       EChainType.Mainnet,
       "https=//polygonscan.com/tx/",
       getExplorerUrl,
+      URLString("https://api.polygonscan.com/"),
     ),
   ],
 
@@ -167,6 +171,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainType.Mainnet,
       "https=//snowtrace.io/block/",
       getExplorerUrl,
+      URLString("https://api.snowtrace.io/"),
     ),
   ],
 
@@ -188,6 +193,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EVMContractAddress("0x97464F3547510fb430448F5216eC7D8e71D7C4eF"), // Crumbs Contract
       EVMContractAddress("0xF7c6dC708550D89558110cAecD20a8A6a184427E"), // Metatransaction Forwarder Contract
       EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
+      URLString("https://api.snowtrace.io/"),
     ),
   ],
   [
@@ -234,4 +240,22 @@ export function isAccountValidForChain(
   const targetChainInfo = getChainInfoByChainId(chainId);
   const accountChainInfo = getChainInfoByChain(account.sourceChain);
   return targetChainInfo.chainTechnology == accountChainInfo.chainTechnology;
+}
+
+export function getEtherscanBaseURLForChain(
+  chain: ChainId,
+): ResultAsync<string, AccountIndexingError> {
+  try {
+    const chainInfo = getChainInfoByChainId(chain);
+    if (chainInfo.etherscanEndpointURL == undefined) {
+      return errAsync(
+        new AccountIndexingError("no etherscan endpoint for chainID", chain),
+      );
+    }
+    return okAsync(chainInfo.etherscanEndpointURL);
+  } catch (e) {
+    return errAsync(
+      new AccountIndexingError("error fetching chain information", e),
+    );
+  }
 }
