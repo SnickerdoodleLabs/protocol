@@ -4,7 +4,7 @@ import { SDQLParserFactory } from "@query-parser/implementations/utilities/SDQLP
 import { ISDQLParserFactory, ISDQLQueryWrapperFactory } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { DataPermissions, EWalletDataType, SDQLString } from "@snickerdoodlelabs/objects";
+import { CompensationIdentifier, DataPermissions, EWalletDataType, QueryIdentifier, SDQLString } from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
 class SDQLQueryUtilsMocks {
@@ -31,8 +31,8 @@ describe("SDQLQueryUtils query to compensation tests", () => {
 
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
-        const queryIds = ['q1'];
-        const expected = ['c1'];
+        const queryIds = [QueryIdentifier('q1')];
+        const expected = [CompensationIdentifier('c1')];
 
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
@@ -47,8 +47,8 @@ describe("SDQLQueryUtils query to compensation tests", () => {
 
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
-        const queryIds = ['q2'];
-        const expected = ['c2', 'c3'];
+        const queryIds = [QueryIdentifier('q2')];
+        const expected = [CompensationIdentifier('c2'), CompensationIdentifier('c3')];
 
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
@@ -62,8 +62,8 @@ describe("SDQLQueryUtils query to compensation tests", () => {
 
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
-        const queryIds = ['q3'];
-        const expected = ["c3", "c2"];
+        const queryIds = [QueryIdentifier('q3')];
+        const expected = [CompensationIdentifier("c3"), CompensationIdentifier("c2")];
 
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
@@ -77,8 +77,12 @@ describe("SDQLQueryUtils query to compensation tests", () => {
 
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
-        const queryIds = ['q1', 'q2'] ;
-        const expected = ['c1', 'c2', 'c3'];
+        const queryIds = [QueryIdentifier('q1'), QueryIdentifier('q2')] ;
+        const expected = [
+            CompensationIdentifier('c1'), 
+            CompensationIdentifier('c2'), 
+            CompensationIdentifier('c3')
+        ];
 
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
@@ -115,7 +119,7 @@ describe("SDQLQueryUtils permission to query tests", () => {
         const givenPermissions = DataPermissions.createWithPermissions([
             EWalletDataType.Age
         ])
-        const expected = ['q2'];
+        const expected = [QueryIdentifier('q2')];
     
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getPermittedQueryIdsFromSchemaString(schemaString, givenPermissions);
@@ -130,7 +134,7 @@ describe("SDQLQueryUtils permission to query tests", () => {
         const givenPermissions = DataPermissions.createWithPermissions([
             EWalletDataType.Location
         ])
-        const expected = ['q3'];
+        const expected = [QueryIdentifier('q3')];
     
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getPermittedQueryIdsFromSchemaString(schemaString, givenPermissions);
@@ -146,7 +150,7 @@ describe("SDQLQueryUtils permission to query tests", () => {
         const givenPermissions = DataPermissions.createWithPermissions([
             EWalletDataType.AccountBalances
         ])
-        const expected = ['q4'];
+        const expected = [QueryIdentifier('q4')];
     
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getPermittedQueryIdsFromSchemaString(schemaString, givenPermissions);
@@ -163,7 +167,7 @@ describe("SDQLQueryUtils permission to query tests", () => {
             EWalletDataType.Age,
             EWalletDataType.Location
         ])
-        const expected = ['q2', 'q3'];
+        const expected = [QueryIdentifier('q2'), QueryIdentifier('q3')];
     
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getPermittedQueryIdsFromSchemaString(schemaString, givenPermissions);
@@ -182,7 +186,12 @@ describe("SDQLQueryUtils permission to query tests", () => {
             EWalletDataType.Location,
             EWalletDataType.AccountBalances
         ])
-        const expected = ['q1', 'q2', 'q3', 'q4'];
+        const expected = [
+            QueryIdentifier('q1'), 
+            QueryIdentifier('q2'), 
+            QueryIdentifier('q3'), 
+            QueryIdentifier('q4')
+        ];
     
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getPermittedQueryIdsFromSchemaString(schemaString, givenPermissions);
@@ -191,8 +200,4 @@ describe("SDQLQueryUtils permission to query tests", () => {
         expect(result._unsafeUnwrap()).toEqual(expected);
 
     });
-    
-
-
-
 });
