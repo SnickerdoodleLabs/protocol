@@ -124,22 +124,6 @@ export class SDQLQueryUtils {
     }
   }
 
-  public extractPermittedQueryIdsByDataPermissions(
-    parser: SDQLParser,
-    dataPermissions: DataPermissions
-  ): ResultAsync<
-    string[],
-    QueryFormatError 
-    | ParserError
-    | MissingTokenConstructorError 
-    | QueryExpiredError
-  > {
-
-    return parser.buildAST().andThen(
-      () => this.getPermittedQueryIds(parser, dataPermissions)
-    );
-  }
-
   public getPermittedQueryIdsFromSchemaString(
     schemaString: SDQLString,
     givenPermissions: DataPermissions,
@@ -154,10 +138,24 @@ export class SDQLQueryUtils {
     return this.parserFactory
       .makeParser(IpfsCID(""), schemaString)
       .andThen((parser) => {
-        return parser.buildAST().andThen(() => {
-          return this.getPermittedQueryIds(parser, givenPermissions);
-        });
+        return this.extractPermittedQueryIdsFromParser(parser, givenPermissions);
       });
+  }
+
+  public extractPermittedQueryIdsFromParser(
+    parser: SDQLParser,
+    dataPermissions: DataPermissions
+  ): ResultAsync<
+    string[],
+    QueryFormatError 
+    | ParserError
+    | MissingTokenConstructorError 
+    | QueryExpiredError
+  > {
+
+    return parser.buildAST().andThen(
+      () => this.getPermittedQueryIds(parser, dataPermissions)
+    );
   }
 
   public getPermittedQueryIds(

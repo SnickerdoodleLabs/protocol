@@ -51,7 +51,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     return this.queryFactories.makeParserAsync(queryCid, schemaString)
       .andThen((parser) => {
 
-        return this.queryUtils.extractPermittedQueryIdsByDataPermissions(
+        return this.queryUtils.extractPermittedQueryIdsFromParser(
           parser, dataPermissions
         ).andThen((permittedQueryIds) => {
       

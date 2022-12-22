@@ -104,35 +104,35 @@ class QueryParsingMocks {
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
-    td.when(
-      this.queryUtils.extractPermittedQueryIdsAndExpectedCompensationBlocks(
-        sdqlQuery4.query,
-        new DataPermissions(allPermissions),
-      ),
-    ).thenReturn(
-      okAsync([
-        ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"],
-        new Map(
-          Object.entries({
-            c1: {
-              description:
-                "Only the chainId is compared, so this can be random.",
-              chainId: ChainId(1),
-            } as ISDQLCompensations,
-            c2: {
-              description:
-                "Only the chainId is compared, so this can be random.",
-              chainId: ChainId(1),
-            } as ISDQLCompensations,
-            c4: {
-              description:
-                "Only the chainId is compared, so this can be random.",
-              chainId: ChainId(1),
-            } as ISDQLCompensations,
-          }),
-        ),
-      ]),
-    );
+    // td.when(
+    //   this.queryUtils.extractPermittedQueryIdsAndExpectedCompensationBlocks(
+    //     sdqlQuery4.query,
+    //     new DataPermissions(allPermissions),
+    //   ),
+    // ).thenReturn(
+    //   okAsync([
+    //     ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"],
+    //     new Map(
+    //       Object.entries({
+    //         c1: {
+    //           description:
+    //             "Only the chainId is compared, so this can be random.",
+    //           chainId: ChainId(1),
+    //         } as ISDQLCompensations,
+    //         c2: {
+    //           description:
+    //             "Only the chainId is compared, so this can be random.",
+    //           chainId: ChainId(1),
+    //         } as ISDQLCompensations,
+    //         c4: {
+    //           description:
+    //             "Only the chainId is compared, so this can be random.",
+    //           chainId: ChainId(1),
+    //         } as ISDQLCompensations,
+    //       }),
+    //     ),
+    //   ]),
+    // );
 
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,

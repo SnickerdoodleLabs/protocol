@@ -23,7 +23,7 @@ export interface ISDQLQueryUtils {
     | QueryExpiredError
     >;
 
-    extractPermittedQueryIdsByDataPermissions(
+    extractPermittedQueryIdsFromParser(
         parser: SDQLParser, dataPermissions: DataPermissions
     ): ResultAsync<
         string[], 
