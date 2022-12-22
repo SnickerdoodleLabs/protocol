@@ -5,7 +5,7 @@ import {
   TokenInfo,
   TokenMarketData,
 } from "@objects/businessObjects";
-import { AccountIndexingError } from "@objects/errors";
+import { AccountIndexingError, PersistenceError } from "@objects/errors";
 import { ChainId, UnixTimestamp } from "@objects/primitives";
 
 export interface ITokenPriceRepository {
@@ -13,6 +13,8 @@ export interface ITokenPriceRepository {
     chainId: ChainId,
     contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, AccountIndexingError>;
+
+  addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError>;
 
   // null implies native token
   getTokenPrice(

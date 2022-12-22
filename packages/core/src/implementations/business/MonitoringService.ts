@@ -84,7 +84,15 @@ export class MonitoringService implements IMonitoringService {
                       linkedAccount.sourceAccountAddress,
                       startTime,
                       chainId,
-                    );
+                    ).orElse((e) => {
+                      this.logUtils.error(
+                        "error fetching transactions",
+                        chainId,
+                        linkedAccount.sourceAccountAddress,
+                        e,
+                      );
+                      return okAsync([]);
+                    });
                   });
               }),
             );
@@ -114,46 +122,55 @@ export class MonitoringService implements IMonitoringService {
       this.accountIndexing.getSolanaTransactionRepository(),
       this.accountIndexing.getSimulatorEVMTransactionRepository(),
       this.accountIndexing.getEthereumTransactionRepository(),
-    ]).andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
-      // Get the chain info for the transaction
-      const chainInfo = config.chainInformation.get(chainId);
-      if (chainInfo == null) {
-        this.logUtils.error(`No available chain info for chain ${chainId}`);
-        return okAsync([]);
-      }
-
-      switch (chainInfo.indexer) {
-        case EIndexer.EVM:
-          return evmRepo.getEVMTransactions(
-            chainId,
-            accountAddress as EVMAccountAddress,
-            new Date(timestamp * 1000),
-          );
-        case EIndexer.Simulator:
-          return simulatorRepo.getEVMTransactions(
-            chainId,
-            accountAddress as EVMAccountAddress,
-            new Date(timestamp * 1000),
-          );
-        case EIndexer.Solana:
-          return solRepo.getSolanaTransactions(
-            chainId,
-            accountAddress as SolanaAccountAddress,
-            new Date(timestamp * 1000),
-          );
-        case EIndexer.Ethereum:
-          return etherscanRepo.getEVMTransactions(
-            chainId,
-            accountAddress as EVMAccountAddress,
-            new Date(timestamp * 1000),
-          );
-        default:
-          this.logUtils.error(
-            `No available indexer repository for chain ${chainId}`,
-          );
+      this.accountIndexing.getPolygonTransactionRepository(),
+    ]).andThen(
+      ([config, evmRepo, solRepo, simulatorRepo, etherscanRepo, maticRepo]) => {
+        // Get the chain info for the transaction
+        const chainInfo = config.chainInformation.get(chainId);
+        if (chainInfo == null) {
+          this.logUtils.error(`No available chain info for chain ${chainId}`);
           return okAsync([]);
-      }
-    });
+        }
+
+        switch (chainInfo.indexer) {
+          case EIndexer.EVM:
+            return evmRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Simulator:
+            return simulatorRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Solana:
+            return solRepo.getSolanaTransactions(
+              chainId,
+              accountAddress as SolanaAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Ethereum:
+            return etherscanRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Polygon:
+            return maticRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          default:
+            this.logUtils.error(
+              `No available indexer repository for chain ${chainId}`,
+            );
+            return okAsync([]);
+        }
+      },
+    );
   }
 
   public pollBackups(): ResultAsync<void, PersistenceError> {

@@ -15,11 +15,12 @@ import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
-import { EthereumIndexer } from "@indexers/EthereumIndexer.js";
+import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
@@ -28,7 +29,7 @@ export class DefaultAccountIndexers implements IAccountIndexing {
   protected evm: IEVMTransactionRepository;
   protected simulatorRepo: IEVMTransactionRepository;
   protected solRepo: ISolanaTransactionRepository;
-  protected ethereum: IEVMTransactionRepository;
+  protected matic: IEVMTransactionRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -38,13 +39,12 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     protected tokenPriceRepo: ITokenPriceRepository,
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {
-    this.ethereum = new EthereumIndexer(
+    this.evm = new EtherscanIndexer(
       configProvider,
       ajaxUtils,
       tokenPriceRepo,
       logUtils,
     );
-    this.evm = new CovalentEVMTransactionRepository(configProvider, ajaxUtils);
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
     this.solRepo = new SolanaIndexer(
       configProvider,
@@ -52,13 +52,26 @@ export class DefaultAccountIndexers implements IAccountIndexing {
       tokenPriceRepo,
       logUtils,
     );
+    this.matic = new PolygonIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+  }
+
+  public getPolygonTransactionRepository(): ResultAsync<
+    IEVMTransactionRepository,
+    never
+  > {
+    return okAsync(this.matic);
   }
 
   public getEthereumTransactionRepository(): ResultAsync<
     IEVMTransactionRepository,
     never
   > {
-    return okAsync(this.ethereum);
+    return okAsync(this.evm);
   }
 
   public getEVMTransactionRepository(): ResultAsync<
