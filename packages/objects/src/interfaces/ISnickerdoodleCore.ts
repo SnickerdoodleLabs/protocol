@@ -17,7 +17,6 @@ import {
   TokenMarketData,
   TokenInfo,
   TransactionPaymentCounter,
-  ITransactionPaymentCounter,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -384,7 +383,7 @@ export interface ISnickerdoodleCore {
   getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
   getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
   getTransactionValueByChain(): ResultAsync<
-    ITransactionPaymentCounter[],
+    TransactionPaymentCounter[],
     PersistenceError
   >;
 

@@ -337,7 +337,6 @@ export class DataWalletProfile {
               evmT.methodId ?? null,
               evmT.functionName ?? null,
               evmT.events,
-              evmT.value_quote,
             ),
         );
 

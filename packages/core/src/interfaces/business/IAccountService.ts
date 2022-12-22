@@ -26,7 +26,6 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
-  ITransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -112,7 +111,7 @@ export interface IAccountService {
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
   getTransactionValueByChain(): ResultAsync<
-    ITransactionPaymentCounter[],
+    TransactionPaymentCounter[],
     PersistenceError
   >;
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;

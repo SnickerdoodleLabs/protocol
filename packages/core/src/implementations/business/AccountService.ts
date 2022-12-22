@@ -50,7 +50,6 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
-  ITransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -564,7 +563,7 @@ export class AccountService implements IAccountService {
   }
 
   public getTransactionValueByChain(): ResultAsync<
-    ITransactionPaymentCounter[],
+    TransactionPaymentCounter[],
     PersistenceError
   > {
     return this.dataWalletPersistence.getTransactionValueByChain();

@@ -77,7 +77,6 @@ import {
   TokenInfo,
   TokenMarketData,
   TransactionPaymentCounter,
-  ITransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -668,7 +667,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   getTransactionValueByChain(): ResultAsync<
-    ITransactionPaymentCounter[],
+    TransactionPaymentCounter[],
     PersistenceError
   > {
     const accountService =

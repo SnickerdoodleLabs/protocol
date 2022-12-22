@@ -299,7 +299,6 @@ export class CovalentEVMTransactionRepository
             );
           })
         : null,
-      tx.value_quote,
     );
     return busObj;
   }
