@@ -4,6 +4,7 @@ import {
   ILogUtils,
   ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+import { BigNumber, ethers } from "ethers";
 import {
   URLString,
   DomainName,
@@ -52,6 +53,9 @@ import {
   DataWalletBackupID,
   JSONString,
   EVMTransaction,
+  ITransactionPaymentCounter,
+  TransactionPaymentCounter,
+  BigNumberString,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -841,15 +845,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   protected pushTransaction(
     incomingTransaction: EVMTransaction[],
     outgoingTransaction: EVMTransaction[],
-    chainTransaction: IChainTransaction[],
-  ): ResultAsync<IChainTransaction[], PersistenceError> {
+    chainTransaction: ITransactionPaymentCounter[],
+  ): ResultAsync<ITransactionPaymentCounter[], PersistenceError> {
     for (let i = 0; i < incomingTransaction.length; i++) {
       let valueQuote = incomingTransaction[i].valueQuote;
       if (valueQuote == null || valueQuote == undefined) {
         valueQuote = 0;
       }
       chainTransaction.push(
-        new ChainTransaction(
+        new TransactionPaymentCounter(
           incomingTransaction[i].chainId,
           BigNumberString("1"),
           BigNumberString(
@@ -858,13 +862,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           BigNumberString("0"),
           BigNumberString("0"),
         ),
-        // {
-        //   "chainId": incomingTransaction[i].chainId,
-        //   "incomingCount": BigNumberString("1"),
-        //   "incomingValue": BigNumberString((BigNumber.from(BigInt(Math.round(valueQuote)))).toString()),
-        //   "outgoingCount": BigNumberString("0"),
-        //   "outgoingValue": BigNumberString("0")
-        // }
       );
     }
     for (let i = 0; i < outgoingTransaction.length; i++) {
