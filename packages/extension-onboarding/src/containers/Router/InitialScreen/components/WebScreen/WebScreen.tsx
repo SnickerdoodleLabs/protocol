@@ -42,35 +42,18 @@ const WebScreen = () => {
         <Grid container alignItems="flex-end">
           <Grid item xs={6}>
             <Box width="100%" mb={3} marginTop="auto">
-              {invitationInfo.consentAddress && invitationInfo.brandIcon ? (
-                <Box mb={4}>
-                  <img
-                    className={classes.icon}
-                    src={invitationInfo.brandIcon}
-                  />
-
-                  <img
-                    className={classes.icon}
-                    style={{ marginLeft: -15 }}
-                    src={sdlCircle}
-                  />
-                </Box>
-              ) : (
-                <Box mb={2}>
-                  <img width="45%" src={sdlLogo} />
-                </Box>
-              )}
+              <Box mb={5}>
+                <video className={classes.video} controls>
+                  <source src={PRODUCT_VIDEO_URL} />
+                </video>
+              </Box>
               <Typography className={classes.title}>
                 Welcome to Snickerdoodle
               </Typography>
-              <Box pr={3}>
+              <Box pr={3} mb={5}>
                 <Typography className={classes.description}>
-                  The matchmaker between you, your data, and the brands you love
-                </Typography>
-              </Box>
-              <Box width="80%" my={4}>
-                <Typography className={classes.info}>
-                  Install the Snickerdoodle browser extension to claim your NFT!
+                  The matchmaker between you, your <br></br> data, and the
+                  brands you love
                 </Typography>
               </Box>
               <Button
@@ -86,12 +69,19 @@ const WebScreen = () => {
 
           <Grid item xs={6}>
             <Box display="flex" width="100%" position="relative">
-              <img width="100%" src={videoBg} />
-              <Box position="absolute" bottom="15%" right="2%">
-                <video className={classes.video} controls>
-                  <source src={PRODUCT_VIDEO_URL} />
-                </video>
+              <Box
+                style={{ position: "absolute", right: "10%", bottom: "8%" }}
+              >
+                {invitationInfo.rewardImage && (
+                  <img
+                    height="340px"
+                    width="341px"
+                    style={{ objectFit: "cover" }}
+                    src={invitationInfo.rewardImage}
+                  />
+                )}
               </Box>
+              <img src={videoBg} />
             </Box>
           </Grid>
         </Grid>

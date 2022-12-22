@@ -25,6 +25,7 @@ import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { isValidURL } from "@extension-onboarding/utils";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -35,6 +36,7 @@ const RewardReview: FC = () => {
   const { rewardItem } = (useLocation().state || {}) as {
     rewardItem: any;
   };
+  const { setInvitationInfo } = useAppContext();
 
   useEffect(() => {
     if (!rewardItem) {
@@ -45,11 +47,27 @@ const RewardReview: FC = () => {
   }, []);
 
   const ipfsParse = (ipfs: string) => {
-    let a;
-    if (ipfs) {
-      a = ipfs.replace("ipfs://", "");
+    if (!ipfs) {
+      return "";
     }
-    return `https://cloudflare-ipfs.com/ipfs/${a}`;
+    return `https://cloudflare-ipfs.com/ipfs/${ipfs.replace("ipfs://", "")}`;
+  };
+
+  const onClaimClick = (url: string) => {
+    if (!url) {
+      return null;
+    }
+    const isURL = isValidURL(url);
+    if (isURL) {
+      return window.open(url, "_blank");
+    } else {
+      return setInvitationInfo({
+        consentAddress: url as EVMContractAddress,
+        signature: undefined,
+        tokenId: undefined,
+        rewardImage: undefined,
+      });
+    }
   };
 
   return (
@@ -233,6 +251,9 @@ const RewardReview: FC = () => {
                         <b>5466</b> People Claimed
                       </Typography>
                       <Button
+                        onClick={() => {
+                          onClaimClick(ipfsRewards?.external_url);
+                        }}
                         style={{
                           padding: "12px 24px",
                           background: "#5A5292",

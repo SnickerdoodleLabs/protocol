@@ -101,7 +101,7 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
             height={50}
             width={135}
             data={{
-              labels: priceHistory.prices.map((item) => item[0]),
+              labels: priceHistory.prices.map((item) => new Date(item[0])),
               datasets: [{ data: priceHistory.prices.map((item) => item[1]) }],
             }}
             options={{

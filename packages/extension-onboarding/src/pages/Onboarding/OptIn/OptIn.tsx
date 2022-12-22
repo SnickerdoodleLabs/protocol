@@ -118,9 +118,9 @@ const OptIn: FC = () => {
         pt={15}
         justifyContent="center"
       >
-        {invitationInfo.brandIcon && (
+     {/*    {invitationInfo.brandIcon && (
           <img width={100} height={100} src={invitationInfo.brandIcon} />
-        )}
+        )} */}
         <img
           width={100}
           style={{ marginLeft: -15 }}

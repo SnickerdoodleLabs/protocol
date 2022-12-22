@@ -28,17 +28,6 @@ const AccountLinking: FC = () => {
     <>
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <img src={snickerDoodleLogo} />
-        {invitationInfo.consentAddress && invitationInfo.brandIcon && (
-          <Box py={2} px={4} style={{ backgroundImage: `url(${iconBg})` }}>
-            <img width={75} height={75} src={invitationInfo.brandIcon} />
-            <img
-              width={75}
-              style={{ marginLeft: -15 }}
-              height={75}
-              src={sdlCircle}
-            />
-          </Box>
-        )}
       </Box>
       <Box mt={4}>
         <Grid container direction="row" alignItems="flex-start" spacing={2}>
@@ -46,7 +35,7 @@ const AccountLinking: FC = () => {
             <Box pt={6} px={4}>
               <img src={accountLinking} />
             </Box>
-            <Box flexDirection="column" display="flex" px={4}>
+            <Box flexDirection="column" display="flex" px={4} mt={3}>
               <h3 className={classes.title}>Welcome to Snickerdoodle</h3>
               <p className={classes.description}>
                 Snickerdoodle connects you with the brands you love
@@ -54,17 +43,23 @@ const AccountLinking: FC = () => {
             </Box>
           </Grid>
           <Grid item sm={6}>
-            <h3 className={classes.title}>
-              Join with your crypto account, and earn rewards
-            </h3>
-            <p className={classes.descriptionSmall}>
-              Link your account to view your web3 activity in your secure
-              personal Data Wallet and claim your reward.
-              <br />
-              <br /> You will only share your public key and consent to
-              authenticate your account. You are linking your data, not making a
-              transfer or incurring any gas fees.
-            </p>
+            <Box mb={3}>
+              <h3 className={classes.title}>
+                Create your account with<br></br>
+                your crypto wallet and get<br></br>
+                ready to earn rewards
+              </h3>
+              <p className={classes.descriptionSmall}>
+                Link your account to view your web3 activity in your secure
+                personal<br></br>
+                Data Wallet and claim your reward.
+                <br />
+                <br /> You will only share your public key and consent to
+                authenticate your account. You are linking your data, not making
+                a transfer or incurring <br></br>
+                any gas fees.
+              </p>
+            </Box>
             <WalletProviders />
           </Grid>
         </Grid>

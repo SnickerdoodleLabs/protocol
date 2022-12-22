@@ -30,3 +30,6 @@ export const ZENDEKS_URL =
 
 export const PRODUCT_VIDEO_URL =
   "https://drive.google.com/uc?export=download&id=1mZiacL0rqevXF15Kfnz_dvogVf_RNO3v";
+
+  export const FAQ_URL =
+  "https://data-wallet.zendesk.com/hc/en-us/sections/10560934964109-FAQ";

@@ -6,6 +6,7 @@ import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleL
 import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
 import {
+  FAQ_URL,
   PRIVACY_POLICY_URL,
   ZENDEKS_URL,
 } from "@extension-onboarding/constants";
@@ -31,7 +32,7 @@ export interface IRoute {
 export const routes: IRoute[] = [
   {
     icon: rewardsIcon,
-    title: "Rewards MarketPlace",
+    title: "Rewards Marketplace",
     path: EPaths.MY_REWARDS,
     subroutes: null,
   },
@@ -206,7 +207,17 @@ const Sidebar = () => {
             }}
             className={classes.link}
           >
-            Contact with Us
+            Contact Us
+          </Typography>
+        </Box>
+        <Box mb={3.5} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(FAQ_URL, "_blank");
+            }}
+          >
+            FAQ
           </Typography>
         </Box>
         <Box pb={2.5} width="100%" justifyContent="flex-start">

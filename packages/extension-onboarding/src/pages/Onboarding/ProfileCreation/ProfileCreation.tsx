@@ -1,5 +1,5 @@
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
-import artboardImage from "@extension-onboarding/assets/images/artboard.png";
+import artboardImage from "@extension-onboarding/assets/images/artboard.svg";
 import sdlCircle from "@extension-onboarding/assets/images/sdl-circle.svg";
 import Button from "@extension-onboarding/components/Button";
 import ProfileForm from "@extension-onboarding/components/ProfileForm/ProfileForm";
@@ -26,13 +26,13 @@ const ProfileCreation: FC = () => {
               </Typography>
               <Box mb={5} mt={4}>
                 <Typography className={classes.description}>
-                  No one can access this personal information until you use
-                  Snickerdoodle to anonymize it and rent it out to brands of
-                  your choice.
+                No one can access this personal information, not even Snickerdoodle.<br></br>
+                 YOU use Snickerdoodle to anonymize your data and rent it out to<br></br>
+                  brands of your choice, directly. 
                   <br />
                   <br />
-                  Add more information to maximize reward opportunities while
-                  keeping your data securely in one place.
+                  Add more information to maximize reward opportunities while keeping<br></br>
+                  your data securely in one place.
                 </Typography>
                 <ProfileForm
                   onSubmitted={() => {
@@ -52,21 +52,6 @@ const ProfileCreation: FC = () => {
                 display="flex"
                 flexDirection="column"
               >
-                {invitationInfo.brandIcon && (
-                  <Box mb={4}>
-                    <img
-                      width={120}
-                      height={120}
-                      src={invitationInfo.brandIcon}
-                    />
-                    <img
-                      width={120}
-                      style={{ marginLeft: -15 }}
-                      height={120}
-                      src={sdlCircle}
-                    />
-                  </Box>
-                )}
                 <img width="60%" src={campaignImg} />
                 {campaignName && (
                   <Typography className={classes.itemName}>
@@ -75,7 +60,7 @@ const ProfileCreation: FC = () => {
                 )}
               </Box>
             ) : (
-              <Box mb={8}>
+              <Box mb={3}>
                 <img src={artboardImage} style={{ width: "100%" }} />
               </Box>
             )}
