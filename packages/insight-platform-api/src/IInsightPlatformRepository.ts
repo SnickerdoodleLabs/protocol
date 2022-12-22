@@ -13,6 +13,7 @@ import {
   EarnedReward,
   QueryIdentifier,
   IDynamicRewardParameter,
+  CompensationId,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -35,7 +36,7 @@ export interface IInsightPlatformRepository {
     signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
     answeredQueries: QueryIdentifier[],
-  ): ResultAsync<string[], AjaxError>;
+  ): ResultAsync<CompensationId[], AjaxError>;
 
   deliverInsights(
     consentContractAddress: EVMContractAddress,

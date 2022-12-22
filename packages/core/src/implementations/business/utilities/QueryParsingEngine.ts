@@ -10,6 +10,7 @@ import {
   SDQL_Return,
   QueryIdentifier,
   IDynamicRewardParameter,
+  CompensationId,
 } from "@snickerdoodlelabs/objects";
 import { AST, ISDQLQueryUtils, ISDQLQueryUtilsType } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -42,7 +43,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
   public getPermittedQueryIdsAndExpectedCompIds(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
-  ): ResultAsync<[QueryIdentifier[], string[]], EvaluationError> {
+  ): ResultAsync<[QueryIdentifier[], CompensationId[]], EvaluationError> {
     const schemaString = query.query;
     const queryCid = query.cid;
 
@@ -56,11 +57,10 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           const expectedCompensationIds = 
             this.queryUtils.getCompensationIdsByPermittedQueryIds(parser, permittedQueryIds)
     
-            return okAsync<[QueryIdentifier[], string[]]>(
+            return okAsync<[QueryIdentifier[], CompensationId[]]>(
               [permittedQueryIds.map(QueryIdentifier), expectedCompensationIds]
             );
           });
-
       });
   }
 

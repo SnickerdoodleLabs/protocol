@@ -8,6 +8,7 @@ import {
   SDQLQuery,
   QueryIdentifier,
   IDynamicRewardParameter,
+  CompensationId,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -16,7 +17,7 @@ export interface IQueryParsingEngine {
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<
-    [QueryIdentifier[], string[]],
+    [QueryIdentifier[], CompensationId[]],
     EvaluationError | QueryFormatError | QueryExpiredError
   >;
   handleQuery(
