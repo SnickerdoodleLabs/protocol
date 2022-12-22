@@ -307,8 +307,6 @@ export default () => {
     }
   }, [tokensToRender, totalBalance]);
 
-  console.log(restTokensPercentage);
-
   useEffect(() => {
     if (tokensToRender) {
       setTokensPagination(getPaginationObject(tokensToRender.length));

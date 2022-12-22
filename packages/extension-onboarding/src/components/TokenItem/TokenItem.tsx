@@ -47,7 +47,6 @@ const TokenItem: FC<ITokenItemProps> = ({ item }) => {
       });
     }
   }, []);
-  console.log(priceHistory);
   return (
     <Box
       display="flex"

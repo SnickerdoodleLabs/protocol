@@ -111,7 +111,6 @@ const CampaignPopup: FC = () => {
     return window.sdlDataWallet
       .acceptInvitation(dataTypes, consentContractAddress, tokenId, signature)
       .mapErr((e) => {
-        console.log("ERRORRR", e);
         setModal({
           modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
           onPrimaryButtonClick: () => {},

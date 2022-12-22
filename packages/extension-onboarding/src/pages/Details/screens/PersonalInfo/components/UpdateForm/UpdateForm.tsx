@@ -131,7 +131,7 @@ const UpdateForm: FC<IUpdateFormProps> = ({
                           invalidDateMessage=""
                           maxDateMessage=""
                           minDateMessage=""
-                          onError={(e) => console.log(e)}
+                          onError={(e) => {}}
                           value={values.date_of_birth}
                           onChange={(date, value) => {
                             setFieldValue(
