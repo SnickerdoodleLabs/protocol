@@ -40,7 +40,7 @@ export class EVMTransaction extends ChainTransaction {
     public methodId: string | null,
     public functionName: string | null,
     events: EVMEvent[] | null,
-    public valueQuote: number | null,
+    public valueQuote: string | null,
   ) {
     super(chainId, hash, timestamp);
     let addrs = new Set<EVMAccountAddress>();

@@ -227,6 +227,7 @@ export class EtherscanIndexer
                 tx.methodId == "" ? null : tx.methodId,
                 tx.functionName == "" ? null : tx.functionName,
                 null,
+                tx.value,
               );
             });
 
