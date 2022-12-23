@@ -7,4 +7,7 @@ export const SPA_PATHS = {
   portfoilo: "portfolio",
   settings: "settings",
   rewards: "rewards",
+  rewardsMarketplace:"my-rewards",
+  dashboard:"data-dashboard/tokens",
+
 };

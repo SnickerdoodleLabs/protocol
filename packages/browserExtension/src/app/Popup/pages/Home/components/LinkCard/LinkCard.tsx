@@ -14,7 +14,7 @@ const LinkCard = ({ navigateTo, icon, title }: ILinkCardProps) => {
   const classes = useStyles();
   const navigate = () => {
     window.open(
-      `${config.getConfig().onboardingUrl}?screen=${navigateTo}`,
+      `${config.getConfig().onboardingUrl}${navigateTo}`,
       "_blank",
     );
   };

@@ -18,14 +18,14 @@ const Home: FC = () => {
           </Box>
           <Box mt={1}>
             <LinkCard
-              navigateTo={SPA_PATHS.portfoilo}
+              navigateTo={SPA_PATHS.rewardsMarketplace}
               icon={Browser.runtime.getURL("assets/icons/portfolio.svg")}
-              title="My Portfolio"
+              title="Rewards Martketplace"
             />
             <LinkCard
-              navigateTo={SPA_PATHS.rewards}
+              navigateTo={SPA_PATHS.dashboard}
               icon={Browser.runtime.getURL("assets/icons/rewards.svg")}
-              title="Rewards"
+              title="My Data Dashboard"
             />
             <LinkCard
               navigateTo={SPA_PATHS.settings}
