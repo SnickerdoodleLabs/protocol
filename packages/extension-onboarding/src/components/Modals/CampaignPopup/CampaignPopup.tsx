@@ -48,11 +48,6 @@ const CampaignPopup: FC = () => {
     if (!invitationInfo.consentAddress) {
       return null;
     }
-    try {
-      if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
-        localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
-      }
-    } catch (e) {}
     return window.sdlDataWallet
       .checkInvitationStatus(
         invitationInfo.consentAddress,
@@ -83,7 +78,11 @@ const CampaignPopup: FC = () => {
             signature: undefined,
             rewardImage: undefined,
           });
-          localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
+          try {
+            if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
+              localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
+            }
+          } catch (e) {}
           setModal({
             modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
             onPrimaryButtonClick: () => {},
@@ -225,6 +224,11 @@ const CampaignPopup: FC = () => {
       signature: undefined,
       rewardImage: undefined,
     });
+    try {
+      if (localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)) {
+        localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
+      }
+    } catch (e) {}
     setInvitationMeta(undefined);
     setOpen(false);
   };
