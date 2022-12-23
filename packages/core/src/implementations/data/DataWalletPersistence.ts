@@ -923,8 +923,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             counter.outgoingValue *= marketData.currentPrice;
             retVal.push(counter);
           } else {
-            counter.incomingValue = -1;
-            counter.outgoingValue = -1;
+            counter.incomingValue = 0;
+            counter.outgoingValue = 0;
             retVal.push(counter);
           }
         });
