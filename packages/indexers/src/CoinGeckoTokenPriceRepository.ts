@@ -58,6 +58,36 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     });
   }
 
+  public getMarketDataForTokens(
+    tokens: { chain: ChainId; address: TokenAddress | null }[],
+  ): ResultAsync<
+    Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
+    AccountIndexingError
+  > {
+    const ids = new Map<string, `${ChainId}-${TokenAddress}`>();
+    return ResultUtils.combine(
+      tokens.map((token) => {
+        return this.getTokenInfo(token.chain, token.address).map((info) => {
+          if (info != null) {
+            ids.set(info.id, `${token.chain}-${token.address}`);
+          }
+        });
+      }),
+    ).andThen(() => {
+      return this.getTokenMarketData([...ids.keys()]).map((marketData) => {
+        const returnVal = new Map<
+          `${ChainId}-${TokenAddress}`,
+          TokenMarketData
+        >();
+        marketData.forEach((data) => {
+          const key = ids.get(data.id)!;
+          returnVal.set(key, data);
+        });
+        return returnVal;
+      });
+    });
+  }
+
   public addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError> {
     return this.volatileStorage.putObject(ELocalStorageKey.COIN_INFO, info);
   }

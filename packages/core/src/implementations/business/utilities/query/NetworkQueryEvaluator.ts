@@ -86,7 +86,7 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
 
     if (query.name == "chain_transactions") {
       return this.dataWalletPersistence
-        .getTransactionsArray()
+        .getTransactionValueByChain()
         .andThen((transactionsArray) => {
           // console.log("URL count: ", url_visited_count);
           return okAsync(SDQL_Return(transactionsArray));

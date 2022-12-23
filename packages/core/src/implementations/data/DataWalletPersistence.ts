@@ -51,6 +51,11 @@ import {
   PortfolioUpdate,
   DataWalletBackupID,
   JSONString,
+  EVMTransaction,
+  TransactionPaymentCounter,
+  BigNumberString,
+  addBigNumberString,
+  getChainInfoByChainId,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -66,6 +71,7 @@ import {
   PortfolioCache,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
+import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -808,11 +814,125 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public getTransactionsArray(): ResultAsync<
-    ChainTransaction[],
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
     PersistenceError
   > {
-    return okAsync([]);
+    return this.getAccounts().andThen((accounts) => {
+      return ResultUtils.combine(
+        accounts.map((account) => {
+          return ResultUtils.combine([
+            this.volatileStorage
+              .getCursor<EVMTransaction>(
+                ELocalStorageKey.TRANSACTIONS,
+                "to",
+                account.sourceAccountAddress,
+              )
+              .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
+            this.volatileStorage
+              .getCursor<EVMTransaction>(
+                ELocalStorageKey.TRANSACTIONS,
+                "from",
+                account.sourceAccountAddress,
+              )
+              .andThen((cursor) => cursor.allValues().map((evm) => evm || [])),
+          ]).andThen(([toTransactions, fromTransactions]) => {
+            return this.pushTransaction(toTransactions, fromTransactions, []);
+          });
+        }),
+      ).andThen((transactionsArray) => {
+        return this.compoundTransaction(transactionsArray.flat(1));
+      });
+    });
+  }
+
+  protected pushTransaction(
+    incomingTransactions: EVMTransaction[],
+    outgoingTransactions: EVMTransaction[],
+    counters: TransactionPaymentCounter[],
+  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
+    incomingTransactions.forEach((tx) => {
+      counters.push(
+        new TransactionPaymentCounter(
+          tx.chainId,
+          this._getTxValue(tx),
+          1,
+          0,
+          0,
+        ),
+      );
+    });
+    outgoingTransactions.forEach((tx) => {
+      counters.push(
+        new TransactionPaymentCounter(
+          tx.chainId,
+          0,
+          0,
+          this._getTxValue(tx),
+          1,
+        ),
+      );
+    });
+    return okAsync(counters);
+  }
+
+  protected _getTxValue(tx: EVMTransaction): number {
+    const decimals = getChainInfoByChainId(tx.chainId).nativeCurrency.decimals;
+    return Number.parseFloat(
+      ethers.utils.formatUnits(tx.value || "0", decimals).toString(),
+    );
+  }
+
+  protected compoundTransaction(
+    chainTransaction: TransactionPaymentCounter[],
+  ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
+    const flowMap = new Map<ChainId, TransactionPaymentCounter>();
+    chainTransaction.forEach((obj) => {
+      const getObject = flowMap.get(obj.chainId);
+      if (getObject == null) {
+        flowMap.set(obj.chainId, obj);
+      } else {
+        flowMap.set(
+          obj.chainId,
+          new TransactionPaymentCounter(
+            obj.chainId,
+            obj.incomingValue + getObject.incomingValue,
+            obj.incomingCount + getObject.incomingCount,
+            obj.outgoingValue + getObject.outgoingValue,
+            obj.outgoingCount + getObject.outgoingCount,
+          ),
+        );
+      }
+    });
+
+    return this.tokenPriceRepo
+      .getMarketDataForTokens(
+        [...flowMap.keys()].map((chain) => {
+          return { chain: chain, address: null };
+        }),
+      )
+      .map((marketDataMap) => {
+        console.log(marketDataMap);
+
+        const retVal: TransactionPaymentCounter[] = [];
+        flowMap.forEach((counter, chainId) => {
+          const marketData = marketDataMap.get(`${chainId}-${null}`);
+          console.log(marketData);
+          if (marketData != null) {
+            counter.incomingValue *= marketData.currentPrice;
+            counter.outgoingValue *= marketData.currentPrice;
+            retVal.push(counter);
+          } else {
+            counter.incomingValue = 0;
+            counter.outgoingValue = 0;
+            retVal.push(counter);
+          }
+        });
+        return retVal;
+      })
+      .mapErr((e) => new PersistenceError("error compounding transactions", e));
+
+    return okAsync([...flowMap.values()]);
   }
 
   public addTransactions(
