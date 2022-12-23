@@ -52,7 +52,6 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_Query>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
-
     if (query instanceof AST_NetworkQuery) {
       return this.networkQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
@@ -129,9 +128,11 @@ export class QueryEvaluator implements IQueryEvaluator {
             return okAsync(SDQL_Return(url_visited_count));
           });
       case "chain_transactions":
-        return this.dataWalletPersistence.getTransactionsArray().andThen((transactionArray) => {
-          return okAsync(SDQL_Return(transactionArray));
-        });
+        return this.dataWalletPersistence
+          .getTransactionValueByChain()
+          .andThen((transactionArray) => {
+            return okAsync(SDQL_Return(transactionArray));
+          });
       default:
         return okAsync(result);
     }
