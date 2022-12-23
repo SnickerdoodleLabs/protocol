@@ -9,6 +9,7 @@ const PermissionSelectionModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
   const { onPrimaryButtonClick, customProps } = modalState;
   const onManageClicked: () => void = customProps.onManageClicked;
+  const onCloseClicked: () => void = customProps.onCloseClicked;
 
   const classes = useStyles();
   return (
@@ -36,7 +37,10 @@ const PermissionSelectionModal: FC = () => {
           disableRipple
           disableTouchRipple
           aria-label="close"
-          onClick={closeModal}
+          onClick={() => {
+            onCloseClicked();
+            closeModal();
+          }}
         >
           <CloseIcon />
         </IconButton>
@@ -47,7 +51,13 @@ const PermissionSelectionModal: FC = () => {
       </Typography>
       <Box mt={4} display="flex">
         <Box marginLeft="auto" mr={2}>
-          <Button buttonType="secondary" onClick={closeModal}>
+          <Button
+            buttonType="secondary"
+            onClick={() => {
+              onCloseClicked();
+              closeModal();
+            }}
+          >
             Cancel
           </Button>
         </Box>

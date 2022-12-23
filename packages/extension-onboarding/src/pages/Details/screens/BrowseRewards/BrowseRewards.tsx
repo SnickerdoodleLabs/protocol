@@ -14,11 +14,6 @@ const BrowseRewards: FC = () => {
 
   const classes = useStyles();
 
-  const tempMarketplaceListings = {
-    cids: [IpfsCID("QmTPfcSAr5FKWDmjbyudNae5NMAreqZfYqWUGFzvuWZQDh")],
-    nextHead: 1,
-  };
-
   useEffect(() => {
     window.sdlDataWallet.getMarketplaceListings().map((result) => {
       setMarketplaceListings(result);

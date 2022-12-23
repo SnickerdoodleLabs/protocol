@@ -121,7 +121,6 @@ const BrowseRewardItem: FC<IBrowseRewardItemProps> = ({ cid }) => {
                     }}
                     className={classes.link}
                   >
-                    {}
                     Review
                   </Typography>
                 </Box>
@@ -132,7 +131,6 @@ const BrowseRewardItem: FC<IBrowseRewardItemProps> = ({ cid }) => {
                     }}
                     className={classes.link}
                   >
-                    {}
                     Claim
                   </Typography>
                 </Box>

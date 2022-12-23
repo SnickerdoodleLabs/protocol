@@ -112,33 +112,7 @@ export const AppContextProvider: FC = ({ children }) => {
         ? URLString(queryParams.get("rewardImage")!)
         : undefined,
     });
-  }, [window]);
-
-  // const invitationInfo: IInvitationInfo = useMemo(() => {
-  //   const queryParams = new URLSearchParams(window.location.search);
-  //   if (
-  //     localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY) &&
-  //     !queryParams.get("consentAddress")
-  //   ) {
-  //     return JSON.parse(
-  //       localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)!,
-  //     );
-  //   }
-  //   return {
-  //     consentAddress: queryParams.get("consentAddress")
-  //       ? EVMContractAddress(queryParams.get("consentAddress")!)
-  //       : undefined,
-  //     tokenId: queryParams.get("tokenId")
-  //       ? BigNumberString(queryParams.get("tokenId")!)
-  //       : undefined,
-  //     signature: queryParams.get("signature")
-  //       ? Signature(queryParams.get("signature")!)
-  //       : undefined,
-  //     brandIcon: queryParams.get("brandIcon")
-  //       ? URLString(queryParams.get("brandIcon")!)
-  //       : undefined,
-  //   };
-  // }, [window]);
+  }, [JSON.stringify(window.location.search)]);
 
   useEffect(() => {
     if (invitationInfo.consentAddress) {
@@ -147,7 +121,11 @@ export const AppContextProvider: FC = ({ children }) => {
         JSON.stringify(invitationInfo),
       );
     }
-  }, [invitationInfo]);
+  }, [JSON.stringify(invitationInfo)]);
+
+  const updateInvitationInfo = (invitationInfo: IInvitationInfo) => {
+    setInvitationInfo(invitationInfo);
+  };
 
   useEffect(() => {
     document.addEventListener(
@@ -304,7 +282,7 @@ export const AppContextProvider: FC = ({ children }) => {
         appMode,
         addAccount,
         invitationInfo,
-        setInvitationInfo,
+        setInvitationInfo: updateInvitationInfo,
       }}
     >
       {children}

@@ -29,14 +29,22 @@ const CampaignPopup: FC = () => {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   const { setModal, setLoadingStatus, closeModal } = useLayoutContext();
-  const { invitationInfo } = useAppContext();
+  const { invitationInfo, setInvitationInfo } = useAppContext();
   const { setVisualAlert } = useNotificationContext();
 
   useEffect(() => {
-    getInvitationData();
+    if (invitationInfo.consentAddress) {
+      getInvitationData();
+    }
   }, [JSON.stringify(invitationInfo)]);
 
-  const getInvitationData = useCallback(() => {
+  useEffect(() => {
+    if (invitationMeta) {
+      setOpen(true);
+    }
+  }, [JSON.stringify(invitationMeta)]);
+
+  const getInvitationData = () => {
     if (!invitationInfo.consentAddress) {
       return null;
     }
@@ -69,6 +77,13 @@ const CampaignPopup: FC = () => {
             EInvitationStatus.Occupied,
           ].includes(invitationStatus)
         ) {
+          setInvitationInfo({
+            consentAddress: undefined,
+            tokenId: undefined,
+            signature: undefined,
+            rewardImage: undefined,
+          });
+          localStorage.removeItem(LOCAL_STORAGE_SDL_INVITATION_KEY);
           setModal({
             modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
             onPrimaryButtonClick: () => {},
@@ -99,7 +114,7 @@ const CampaignPopup: FC = () => {
         setLoading(false);
         return okAsync(undefined);
       });
-  }, [invitationInfo]);
+  };
 
   const acceptInvitation = (
     dataTypes: EWalletDataType[] | null,
@@ -111,6 +126,7 @@ const CampaignPopup: FC = () => {
     return window.sdlDataWallet
       .acceptInvitation(dataTypes, consentContractAddress, tokenId, signature)
       .mapErr((e) => {
+        handleClose();
         setModal({
           modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
           onPrimaryButtonClick: () => {},
@@ -128,6 +144,7 @@ const CampaignPopup: FC = () => {
       .map(() => {
         setLoadingStatus(false);
         setVisualAlert(true);
+        handleClose();
         setModal({
           modalSelector: EModalSelectors.CUSTOMIZABLE_MODAL,
           onPrimaryButtonClick: () => {},
@@ -169,6 +186,9 @@ const CampaignPopup: FC = () => {
             closeModal();
           },
           customProps: {
+            onCloseClicked: () => {
+              handleClose();
+            },
             onManageClicked: () => {
               setModal({
                 modalSelector: EModalSelectors.MANAGE_PERMISSIONS,
@@ -179,6 +199,11 @@ const CampaignPopup: FC = () => {
                     invitationInfo.tokenId,
                     invitationInfo.signature,
                   );
+                },
+                customProps: {
+                  onCloseClicked: () => {
+                    handleClose();
+                  },
                 },
               });
             },
@@ -194,6 +219,12 @@ const CampaignPopup: FC = () => {
   }
 
   const handleClose = () => {
+    setInvitationInfo({
+      consentAddress: undefined,
+      tokenId: undefined,
+      signature: undefined,
+      rewardImage: undefined,
+    });
     setInvitationMeta(undefined);
     setOpen(false);
   };
