@@ -27,21 +27,8 @@ const BrowseRewards: FC = () => {
           Browse Available Rewards
         </Typography>
       </Box>
-      <Box mb={2}>
-        <Typography className={classes.subTitle}>Featured Rewards</Typography>
-        <Box mt={2} mb={5}>
-          <img style={{ width: "100%" }} src={featuredRewards} />
-        </Box>
-      </Box>
-      <Box mb={2}>
-        <Typography className={classes.subTitle}>
-          Browse Available Rewards
-        </Typography>
-      </Box>
-      <Box mb={2}>
-        <Typography className={classes.description}>
-          Your NFTs, from linked accounts and newly earned rewards.
-        </Typography>
+      <Box mt={2} mb={5}>
+        <img style={{ width: "100%" }} src={featuredRewards} />
       </Box>
       {isLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={15}>

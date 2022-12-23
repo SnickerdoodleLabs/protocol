@@ -12,7 +12,7 @@ const OnChainInfo: FC = () => {
   return (
     <Box>
       <Box mb={5}>
-        <Typography className={classes.title}>Web 3 Info</Typography>
+        <Typography className={classes.title}>Crypto Account Settings</Typography>
         <Typography className={classes.description}>
           Add or remove wallets to control what web 3 data you store in your
           data wallet.
