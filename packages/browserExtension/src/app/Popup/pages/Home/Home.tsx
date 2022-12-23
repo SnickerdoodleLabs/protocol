@@ -19,12 +19,12 @@ const Home: FC = () => {
           <Box mt={1}>
             <LinkCard
               navigateTo={SPA_PATHS.rewardsMarketplace}
-              icon={Browser.runtime.getURL("assets/icons/portfolio.svg")}
+              icon={Browser.runtime.getURL("assets/icons/rewards.svg")}
               title="Rewards Martketplace"
             />
             <LinkCard
               navigateTo={SPA_PATHS.dashboard}
-              icon={Browser.runtime.getURL("assets/icons/rewards.svg")}
+              icon={Browser.runtime.getURL("assets/icons/portfolio.svg")}
               title="My Data Dashboard"
             />
             <LinkCard
