@@ -4,6 +4,7 @@ import {
   AccountAddress,
   Age,
   BigNumberString,
+  ChainId,
   CountryCode,
   EarnedReward,
   EChain,
@@ -18,8 +19,14 @@ import {
   ISdlDataWallet,
   LanguageCode,
   Signature,
+  TokenAddress,
+  TokenInfo,
+  TokenMarketData,
+  SiteVisit,
   UnixTimestamp,
+  URLString,
   UUID,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -68,6 +75,35 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     streamMiddleware.events.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
+  }
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, unknown> {
+    return coreGateway.getMarketplaceListings(count, headAt);
+  }
+
+  public getListingsTotal(): ResultAsync<number, unknown> {
+    return coreGateway.getListingsTotal();
+  }
+
+  public getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], unknown> {
+    return coreGateway.getTokenMarketData(ids);
+  }
+  public getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, unknown> {
+    return coreGateway.getTokenInfo(chainId, contractAddress);
+  }
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp?: UnixTimestamp,
+  ): ResultAsync<number, unknown> {
+    return coreGateway.getTokenPrice(chainId, address, timestamp);
   }
   public getEarnedRewards(): ResultAsync<EarnedReward[], unknown> {
     return coreGateway.getEarnedRewards();
@@ -243,7 +279,16 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
     isScamFilterActive: boolean,
     showMessageEveryTime: boolean,
   ) {
-    return coreGateway.setScamFilterSettings(isScamFilterActive,showMessageEveryTime);
+    return coreGateway.setScamFilterSettings(
+      isScamFilterActive,
+      showMessageEveryTime,
+    );
+  }
+  public getSiteVisits(): ResultAsync<SiteVisit[], unknown> {
+    return coreGateway.getSiteVisits();
+  }
+  public getSiteVisitsMap(): ResultAsync<Record<URLString, number>, unknown> {
+    return coreGateway.getSiteVisitsMap();
   }
 }
 

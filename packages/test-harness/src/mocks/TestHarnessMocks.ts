@@ -30,21 +30,21 @@ export class TestHarnessMocks {
 
   public devAccountKeys = [
     new TestWallet(
-      EChain.LocalDoodle,
+      EChain.DevDoodle,
       EVMPrivateKey(
         "0x0123456789012345678901234567890123456789012345678901234567890123",
       ),
       this.cryptoUtils,
     ),
     new TestWallet(
-      EChain.LocalDoodle,
+      EChain.DevDoodle,
       EVMPrivateKey(
         "0x1234567890123456789012345678901234567890123456789012345678901234",
       ),
       this.cryptoUtils,
     ),
     new TestWallet(
-      EChain.LocalDoodle,
+      EChain.DevDoodle,
       EVMPrivateKey(
         "cd34642d879fe59110689ff87a080aad52b383daeb5ad945fd6da20b954d2542",
       ),
@@ -61,6 +61,20 @@ export class TestHarnessMocks {
       EChain.Solana,
       SolanaPrivateKey(
         "2r6dcz3uhSoqGnnpvFhj6Fp6bRmAoZxiBifj6UXh8AgXteVMa8So69Pp39tM9DXD2KLpFuGaaD2CBNA6Mbz8agKn",
+      ),
+      this.cryptoUtils,
+    ),
+    new TestWallet(
+      EChain.EthereumMainnet,
+      EVMPrivateKey(
+        "636c09be68403426bfa070af9225a7318f3cf2d28384fe89f9fa62402c3ac4c0",
+      ),
+      this.cryptoUtils,
+    ),
+    new TestWallet(
+      EChain.Solana,
+      SolanaPrivateKey(
+        "3K725hiDLnh1H6qtxD7gLhuDPwvcdWUK1KA8sqK6ekrUKpRzhFxzynvKFZgPj1QWMWS8PZm4WXFQqVUdQFYK1Z8u",
       ),
       this.cryptoUtils,
     ),

@@ -13,7 +13,7 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  CovalentEVMTransactionRepository,
+  CoinGeckoTokenPriceRepository,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
@@ -25,8 +25,8 @@ import {
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMTransactionRepository,
-  IEVMTransactionRepositoryType,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import {
   BackupManagerProvider,
@@ -75,6 +75,7 @@ import {
   DataWalletPersistence,
   DNSRepository,
   InvitationRepository,
+  MarketplaceRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
   SiftContractRepository,
@@ -132,6 +133,8 @@ import {
   IDNSRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
+  IMarketplaceRepository,
+  IMarketplaceRepositoryType,
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
   ISDQLQueryRepository,
@@ -210,11 +213,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMetatransactionForwarderRepository>(
       IMetatransactionForwarderRepositoryType,
     ).to(MetatransactionForwarderRepository);
+    bind<IMarketplaceRepository>(IMarketplaceRepositoryType).to(
+      MarketplaceRepository,
+    );
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
-      .inSingletonScope();
-    bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
-      .to(CovalentEVMTransactionRepository)
       .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
@@ -229,6 +232,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IBackupManagerProvider>(IBackupManagerProviderType)
       .to(BackupManagerProvider)
+      .inSingletonScope();
+    bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
+      .to(CoinGeckoTokenPriceRepository)
       .inSingletonScope();
 
     // Utilities

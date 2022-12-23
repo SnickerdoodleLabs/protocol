@@ -22,7 +22,6 @@ export interface IProvider {
 
 const configProvider = new ConfigProvider();
 const config = configProvider.getConfig();
-console.log("blockChainWallerProvidersConfig", config);
 
 export const getProviderList = (): IProvider[] => {
   return [

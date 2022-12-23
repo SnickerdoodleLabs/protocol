@@ -1,7 +1,7 @@
 import BrokenImageIcon from "@material-ui/icons/BrokenImage";
 import { useStyles } from "@extension-onboarding/components/CampaignItem/CampaignItem.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, Grid } from "@material-ui/core";
+import { Box, Grid, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
 import { IOpenSeaMetadata, IpfsCID } from "@snickerdoodlelabs/objects";
 import React, { ReactNode, FC, useEffect, useState } from "react";
@@ -44,7 +44,6 @@ const CampaignItem: FC<ICampaignItemProps> = ({ campaignCID, button }) => {
         display="flex"
         flexDirection="column"
         justifyContent="center"
-        textAlign="center"
         border="1px solid #D9D9D9"
         borderRadius={8}
       >
@@ -60,9 +59,33 @@ const CampaignItem: FC<ICampaignItemProps> = ({ campaignCID, button }) => {
               <BrokenImageIcon className={classes.brokenImageIcon} />
             </Box>
           )}
-        </Box>
-        <Box mt={3} mb={2}>
-          {button}
+          <Box mt={1.5}>
+            <Typography
+              style={{
+                fontFamily: "Space Grotesk",
+                fontWeight: 700,
+                fontSize: 16,
+                lineHeight: "20px",
+                color: "rgba(35, 32, 57, 0.87)",
+              }}
+            >
+              {rewardItem?.rewardName}
+            </Typography>
+          </Box>
+          <Typography
+            style={{
+              fontFamily: "Space Grotesk",
+              fontWeight: 400,
+              fontSize: 16,
+              lineHeight: "24px",
+              color: "#9E9E9E",
+            }}
+          >
+            Limited collection
+          </Typography>
+          <Box display="flex" mt={1}>
+            <Box>{button}</Box>
+          </Box>
         </Box>
       </Box>
     </Grid>

@@ -20,6 +20,7 @@ import {
   EVMContractAddress,
   LinkedAccount,
   Signature,
+  URLString,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import React, {
@@ -42,6 +43,8 @@ export interface IInvitationInfo {
   consentAddress: EVMContractAddress | undefined;
   tokenId: BigNumberString | undefined;
   signature: Signature | undefined;
+  // temporary
+  rewardImage: URLString | undefined;
 }
 
 export enum EAppModes {
@@ -59,7 +62,15 @@ export interface IAppContext {
   addAccount(account: ILinkedAccount): void;
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
+  setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
 }
+
+const INITIAL_INVITATION_INFO: IInvitationInfo = {
+  consentAddress: undefined,
+  tokenId: undefined,
+  signature: undefined,
+  rewardImage: undefined,
+};
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -73,10 +84,21 @@ export const AppContextProvider: FC = ({ children }) => {
     useState<boolean>(false);
   const [appMode, setAppMode] = useState<EAppModes>();
   const { setAlert, setVisualAlert } = useNotificationContext();
+  const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
+    INITIAL_INVITATION_INFO,
+  );
 
-  const invitationInfo: IInvitationInfo = useMemo(() => {
+  useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
-    return {
+    if (
+      localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY) &&
+      !queryParams.get("consentAddress")
+    ) {
+      return setInvitationInfo(
+        JSON.parse(localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)!),
+      );
+    }
+    return setInvitationInfo({
       consentAddress: queryParams.get("consentAddress")
         ? EVMContractAddress(queryParams.get("consentAddress")!)
         : undefined,
@@ -86,8 +108,11 @@ export const AppContextProvider: FC = ({ children }) => {
       signature: queryParams.get("signature")
         ? Signature(queryParams.get("signature")!)
         : undefined,
-    };
-  }, [window]);
+      rewardImage: queryParams.get("rewardImage")
+        ? URLString(queryParams.get("rewardImage")!)
+        : undefined,
+    });
+  }, [JSON.stringify(window.location.search)]);
 
   useEffect(() => {
     if (invitationInfo.consentAddress) {
@@ -96,23 +121,28 @@ export const AppContextProvider: FC = ({ children }) => {
         JSON.stringify(invitationInfo),
       );
     }
-  }, [invitationInfo]);
+  }, [JSON.stringify(invitationInfo)]);
+
+  const updateInvitationInfo = (invitationInfo: IInvitationInfo) => {
+    setInvitationInfo(invitationInfo);
+  };
 
   useEffect(() => {
     document.addEventListener(
       "SD_WALLET_EXTENSION_CONNECTED",
       onWalletConnected,
     );
-  }, []);
-
-  useEffect(() => {
-    if (isLoading === false) {
+    return () => {
       document.removeEventListener(
         "SD_WALLET_EXTENSION_CONNECTED",
         onWalletConnected,
       );
-    }
-  }, [isLoading]);
+    };
+  }, []);
+
+  useEffect(() => {
+    console.warn("window changed");
+  }, [window?.sdlDataWallet]);
 
   useEffect(() => {
     if (isSDLDataWalletDetected) {
@@ -138,6 +168,19 @@ export const AppContextProvider: FC = ({ children }) => {
         subscribeToAccountAdding();
         sessionStorage.setItem("appMode", EAppModes.ONBOARDING_FLOW.toString());
         setAppMode(EAppModes.ONBOARDING_FLOW);
+      }
+    });
+  };
+
+  const refreshNotificationSubscriptions = () => {
+    window?.sdlDataWallet?.getDataWalletAddress().map((dataWalletAddress) => {
+      if (dataWalletAddress) {
+        getUserAccounts();
+        subscribeToAccountAdding();
+        subscribeToAccountRemoving();
+      } else {
+        subscribeToAccountInitiating();
+        subscribeToAccountAdding();
       }
     });
   };
@@ -192,6 +235,9 @@ export const AppContextProvider: FC = ({ children }) => {
 
   const onWalletConnected = useCallback(() => {
     // Phantom wallet can not initiate window phantom object at time
+    if (isSDLDataWalletDetected) {
+      return refreshNotificationSubscriptions();
+    }
     setSDLDataWalletDetected(true);
     setTimeout(() => {
       checkDataWalletAddressAndInitializeApp();
@@ -236,6 +282,7 @@ export const AppContextProvider: FC = ({ children }) => {
         appMode,
         addAccount,
         invitationInfo,
+        setInvitationInfo: updateInvitationInfo,
       }}
     >
       {children}

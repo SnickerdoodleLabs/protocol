@@ -14,10 +14,11 @@ import {
   QueryIdentifier,
   SDQLQuery,
   SDQLString,
-  IChainTransaction,
+  ChainTransaction,
   SDQL_Return,
   ChainId,
   ISDQLCompensations,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -59,7 +60,6 @@ const noPermissions = HexString32(
   "0x0000000000000000000000000000000000000000000000000000000000000000",
 );
 
-
 class QueryParsingMocks {
   public persistenceRepo = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = new BalanceQueryEvaluator(
@@ -96,38 +96,44 @@ class QueryParsingMocks {
     );
 
     td.when(
-      this.persistenceRepo.getEVMTransactions(td.matchers.anything()),
+      this.persistenceRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    td.when(this.persistenceRepo.getTransactionsArray()).thenReturn(
-      okAsync(new Array<IChainTransaction>()),
+    td.when(this.persistenceRepo.getTransactionValueByChain()).thenReturn(
+      okAsync(new Array<TransactionPaymentCounter>()),
     );
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));
 
     td.when(
       this.queryUtils.extractPermittedQueryIdsAndExpectedCompensationBlocks(
-        sdqlQuery4.query, new DataPermissions(allPermissions)
-      )
-    ).thenReturn(okAsync(
-      [
-        ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8'],
-        new Map(Object.entries({
-          c1: {
-            description: 'Only the chainId is compared, so this can be random.',
-            chainId: ChainId(1),
-          } as ISDQLCompensations,
-          c2: {
-            description: 'Only the chainId is compared, so this can be random.',
-            chainId: ChainId(1),
-          } as ISDQLCompensations,
-          c4: {
-            description: 'Only the chainId is compared, so this can be random.',
-            chainId: ChainId(1),
-          } as ISDQLCompensations,
-        }))
-      ]
-    ));
+        sdqlQuery4.query,
+        new DataPermissions(allPermissions),
+      ),
+    ).thenReturn(
+      okAsync([
+        ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8"],
+        new Map(
+          Object.entries({
+            c1: {
+              description:
+                "Only the chainId is compared, so this can be random.",
+              chainId: ChainId(1),
+            } as ISDQLCompensations,
+            c2: {
+              description:
+                "Only the chainId is compared, so this can be random.",
+              chainId: ChainId(1),
+            } as ISDQLCompensations,
+            c4: {
+              description:
+                "Only the chainId is compared, so this can be random.",
+              chainId: ChainId(1),
+            } as ISDQLCompensations,
+          }),
+        ),
+      ]),
+    );
 
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,
@@ -138,7 +144,11 @@ class QueryParsingMocks {
   }
 
   public factory() {
-    return new QueryParsingEngine(this.queryFactories, this.queryRepository, this.queryUtils);
+    return new QueryParsingEngine(
+      this.queryFactories,
+      this.queryRepository,
+      this.queryUtils,
+    );
   }
 
   public SDQLReturnToQueryIdentifier(sdqlR: SDQL_Return): QueryIdentifier {

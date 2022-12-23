@@ -78,4 +78,21 @@ export const useStyles = makeStyles((theme) => ({
       backgroundColor: "#fff !important",
     },
   },
+  itemName: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 700,
+    fontSize: "24px",
+    lineHeight: "30px",
+    textAlign: "center",
+    textTransform: "uppercase",
+  },
+  infoText: {
+    textAlign: "center",
+    fontFamily: "'Helvetica'",
+    fontStyle: "normal",
+    fontWeight: 400,
+    fontSize: "16px",
+    color: "#5A5292",
+  },
 }));

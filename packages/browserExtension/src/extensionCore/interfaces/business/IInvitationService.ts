@@ -11,6 +11,7 @@ import {
   EWalletDataType,
   Signature,
   TokenId,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -62,6 +63,13 @@ export interface IInvitationService {
   getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
+
+  getMarketplaceListings(
+    count?: number,
+    headAt?: number,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError>;
+
+  getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError>;
 }
 
 export const IInvitationServiceType = Symbol.for("IInvitationService");

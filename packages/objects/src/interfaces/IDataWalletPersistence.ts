@@ -1,25 +1,24 @@
 import { ResultAsync } from "neverthrow";
 
-import { IChainTransaction } from "./chains";
-
 import {
   ClickData,
   EarnedReward,
-  EVMTransaction,
-  EVMTransactionFilter,
-  IEVMNFT,
+  TransactionFilter,
+  TokenBalance,
   Invitation,
   LinkedAccount,
   SiteVisit,
+  ChainTransaction,
+  WalletNFT,
+  TokenAddress,
+  TransactionPaymentCounter,
 } from "@objects/businessObjects";
 import { AjaxError, PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import {
   Age,
   EmailAddressString,
   ChainId,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   GivenName,
@@ -155,26 +154,30 @@ export interface IDataWalletPersistence {
   // return an array of Chain Transaction
   // getTransactionsMap(): ResultAsync<Array<IChainTransaction>, PersistenceError>;
 
-  // getTransactionsArray(): ResultAsync<
-  //   { chainId: ChainId; items: EVMTransaction[] | null }[],
-  //   PersistenceError
-  // >;
-
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    PersistenceError
+  >;
 
   getLatestTransactionForAccount(
     chainId: ChainId,
-    address: EVMAccountAddress,
-  ): ResultAsync<EVMTransaction | null, PersistenceError>;
-  addEVMTransactions(
-    transactions: EVMTransaction[],
+    address: AccountAddress,
+  ): ResultAsync<ChainTransaction | null, PersistenceError>;
+  addTransactions(
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
-  getEVMTransactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError>;
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError>;
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<TokenBalance[], PersistenceError>;
+  getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], PersistenceError>;
 
   setLatestBlockNumber(
     contractAddress: EVMContractAddress,
@@ -184,12 +187,15 @@ export interface IDataWalletPersistence {
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError>;
 
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, PersistenceError>;
+
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackups(): ResultAsync<
-    DataWalletBackupID[],
-    PersistenceError | AjaxError
-  >;
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
   waitForRestore(): ResultAsync<EVMPrivateKey, never>;
 }
