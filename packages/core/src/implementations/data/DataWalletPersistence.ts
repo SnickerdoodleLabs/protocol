@@ -888,14 +888,14 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
     const flowMap = new Map<ChainId, TransactionPaymentCounter>();
     chainTransaction.forEach((obj) => {
-      const getObject = flowMap.get(obj.chain);
+      const getObject = flowMap.get(obj.chainId);
       if (getObject == null) {
-        flowMap.set(obj.chain, obj);
+        flowMap.set(obj.chainId, obj);
       } else {
         flowMap.set(
-          obj.chain,
+          obj.chainId,
           new TransactionPaymentCounter(
-            obj.chain,
+            obj.chainId,
             obj.incomingValue + getObject.incomingValue,
             obj.incomingCount + getObject.incomingCount,
             obj.outgoingValue + getObject.outgoingValue,
