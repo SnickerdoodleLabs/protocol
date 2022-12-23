@@ -18,6 +18,7 @@ import {
   SDQL_Return,
   ChainId,
   ISDQLCompensations,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   avalanche1ExpiredSchemaStr,
@@ -98,8 +99,8 @@ class QueryParsingMocks {
       this.persistenceRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
 
-    td.when(this.persistenceRepo.getTransactionsArray()).thenReturn(
-      okAsync(new Array<ChainTransaction>()),
+    td.when(this.persistenceRepo.getTransactionValueByChain()).thenReturn(
+      okAsync(new Array<TransactionPaymentCounter>()),
     );
 
     td.when(this.persistenceRepo.getAccountBalances()).thenReturn(okAsync([]));

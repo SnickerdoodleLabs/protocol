@@ -26,6 +26,13 @@ export interface ITokenPriceRepository {
   getTokenMarketData(
     ids: string[],
   ): ResultAsync<TokenMarketData[], AccountIndexingError>;
+
+  getMarketDataForTokens(
+    tokens: { chain: ChainId; address: TokenAddress | null }[],
+  ): ResultAsync<
+    Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
+    AccountIndexingError
+  >;
 }
 
 export const ITokenPriceRepositoryType = Symbol.for("ITokenPriceRepository");

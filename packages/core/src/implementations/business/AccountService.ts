@@ -49,6 +49,7 @@ import {
   TokenAddress,
   UnixTimestamp,
   DataWalletBackupID,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -561,15 +562,11 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getTransactions(filter);
   }
 
-  // public getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError> {
-  //   return this.dataWalletPersistence.getTransactionsArray();
-  // }
-
-  public getTransactionsArray(): ResultAsync<
-    ChainTransaction[],
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
     PersistenceError
   > {
-    return this.dataWalletPersistence.getTransactionsArray();
+    return this.dataWalletPersistence.getTransactionValueByChain();
   }
 
   public getSiteVisitsMap(): ResultAsync<
