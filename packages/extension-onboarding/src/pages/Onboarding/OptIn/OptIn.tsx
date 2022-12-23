@@ -117,17 +117,7 @@ const OptIn: FC = () => {
         height={300}
         pt={15}
         justifyContent="center"
-      >
-     {/*    {invitationInfo.brandIcon && (
-          <img width={100} height={100} src={invitationInfo.brandIcon} />
-        )} */}
-        <img
-          width={100}
-          style={{ marginLeft: -15 }}
-          height={100}
-          src={sdlCircle}
-        />
-      </Box>
+      ></Box>
       <Box display="flex" alignItems="center" flexDirection="column">
         <img
           style={{ marginTop: -200 }}
