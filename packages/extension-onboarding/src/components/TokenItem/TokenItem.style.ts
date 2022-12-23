@@ -99,4 +99,20 @@ export const useStyles = makeStyles((theme) => ({
     marginTop: "16px",
     gap: 10,
   },
+  quoteBalance: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "16px",
+    lineHeight: "160%",
+    color: "#5D5A74",
+  },
+  priceChange: {
+    fontFamily: "'Space Grotesk'",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "12.64px",
+    lineHeight: "160%",
+    opacity: "0.6",
+  },
 }));

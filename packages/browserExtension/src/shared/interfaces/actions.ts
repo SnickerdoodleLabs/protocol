@@ -150,3 +150,8 @@ export interface IGetTokenInfoParams {
   chainId: ChainId;
   contractAddress: TokenAddress | null;
 }
+
+export interface IGetMarketplaceListingsParams {
+  count?: number;
+  headAt?: number;
+}

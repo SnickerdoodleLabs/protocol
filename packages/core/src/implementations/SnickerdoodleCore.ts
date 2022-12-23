@@ -76,6 +76,7 @@ import {
   AccountIndexingError,
   TokenInfo,
   TokenMarketData,
+  MarketplaceListing,
   TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -193,6 +194,29 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+  }
+
+  public getListingsTotal(): ResultAsync<
+    number,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  > {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+    return invitationService.getListingsTotal();
+  }
+
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<
+    MarketplaceListing,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  > {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+    return invitationService.getMarketplaceListings(count, headAt);
   }
 
   public getConsentContractCID(

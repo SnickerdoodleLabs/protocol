@@ -75,6 +75,7 @@ import {
   DataWalletPersistence,
   DNSRepository,
   InvitationRepository,
+  MarketplaceRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
   SiftContractRepository,
@@ -132,6 +133,8 @@ import {
   IDNSRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
+  IMarketplaceRepository,
+  IMarketplaceRepositoryType,
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
   ISDQLQueryRepository,
@@ -210,6 +213,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMetatransactionForwarderRepository>(
       IMetatransactionForwarderRepositoryType,
     ).to(MetatransactionForwarderRepository);
+    bind<IMarketplaceRepository>(IMarketplaceRepositoryType).to(
+      MarketplaceRepository,
+    );
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
       .inSingletonScope();
@@ -219,7 +225,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
       .inSingletonScope();
-    
+
     // Data Persistence and Indexing
     bind<IDataWalletPersistence>(IDataWalletPersistenceType)
       .to(DataWalletPersistence)

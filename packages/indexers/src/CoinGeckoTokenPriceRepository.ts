@@ -123,6 +123,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                 item.market_cap,
                 item.market_cap_rank,
                 item.price_change_24h,
+                item.price_change_percentage_24h,
                 item.circulating_supply,
                 item.total_supply,
                 item.max_supply,

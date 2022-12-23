@@ -27,6 +27,9 @@ import {
   TokenAddress,
   TokenInfo,
   TokenMarketData,
+  SiteVisit,
+  URLString,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -63,6 +66,7 @@ import {
   IGetTokenPriceParams,
   IGetTokenMarketDataParams,
   IGetTokenInfoParams,
+  IGetMarketplaceListingsParams,
 } from "@shared/interfaces/actions";
 import { IExternalState } from "@shared/interfaces/states";
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
@@ -385,5 +389,30 @@ export class ExternalCoreGateway {
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], JsonRpcError> {
     return this._handler.call(EExternalActions.GET_EARNED_REWARDS);
+  }
+
+  public getSiteVisits(): ResultAsync<SiteVisit[], JsonRpcError> {
+    return this._handler.call(EExternalActions.GET_SITE_VISITS);
+  }
+
+  public getSiteVisitsMap(): ResultAsync<
+    Record<URLString, number>,
+    JsonRpcError
+  > {
+    return this._handler.call(EExternalActions.GET_SITE_VISITS_MAP);
+  }
+
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_MARKETPLACE_LISTINGS, {
+      count,
+      headAt,
+    } as IGetMarketplaceListingsParams);
+  }
+
+  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
+    return this._handler.call(EExternalActions.GET_LISTING_TOTAL);
   }
 }

@@ -9,7 +9,6 @@ import { MobileStepper } from "@material-ui/core";
 
 const MobileScreen = () => {
   const [step, setStep] = useState<number>(0);
-  console.log("hello");
   return (
     <>
       <SwipeableViews onChangeIndex={setStep} index={step}>

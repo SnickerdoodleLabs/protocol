@@ -90,14 +90,34 @@ const MarketPlaceCampaigns: FC = () => {
       });
   };
 
+  const onReviewClick = (consentContractAddress: EVMContractAddress) => {};
+
   const classes = useStyles();
 
   return (
     <Box>
-      <Box mb={4}>
-        <Typography className={classes.title}>Available Campaigns</Typography>
+      <Box mb={5}>
+        <Typography className={classes.title}>
+          Browse Available Rewards
+        </Typography>
+      </Box>
+      <Box mb={2}>
+        <Typography className={classes.subTitle}>Featured Rewards</Typography>
+        <Box mt={2} mb={5}>
+          <img
+            style={{ width: "100%" }}
+            src="https://i.ibb.co/TBfCbXB/Group-626053.png"
+          />
+        </Box>
+      </Box>
+      <Box mb={2}>
+        <Typography className={classes.subTitle}>
+          Browse Available Rewards
+        </Typography>
+      </Box>
+      <Box mb={2}>
         <Typography className={classes.description}>
-          Browse campaigns and join.
+          Your NFTs, from linked accounts and newly earned rewards.
         </Typography>
       </Box>
       {isLoading ? (
@@ -111,14 +131,30 @@ const MarketPlaceCampaigns: FC = () => {
             Object.keys(campaignContractAddressesWithCID)?.map((key, index) => (
               <CampaignItem
                 button={
-                  <Typography
-                    onClick={() => {
-                      onClaimClick(key as EVMContractAddress);
-                    }}
-                    className={classes.link}
-                  >
-                    Join
-                  </Typography>
+                  <Box display="flex">
+                    {/*   <Box>
+                      <Typography
+                        onClick={() => {
+                          onReviewClick(key as EVMContractAddress);
+                        }}
+                        className={classes.link}
+                      >
+                        {}
+                        Review
+                      </Typography>
+                    </Box> */}
+                    <Box>
+                      <Typography
+                        onClick={() => {
+                          onClaimClick(key as EVMContractAddress);
+                        }}
+                        className={classes.link}
+                      >
+                        {}
+                        Claim
+                      </Typography>
+                    </Box>
+                  </Box>
                 }
                 key={key}
                 campaignCID={campaignContractAddressesWithCID[key]}

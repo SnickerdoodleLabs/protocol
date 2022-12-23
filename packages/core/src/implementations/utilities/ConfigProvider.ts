@@ -7,6 +7,7 @@ import {
   EChain,
   IConfigOverrides,
   URLString,
+  ProviderUrl,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
@@ -50,7 +51,7 @@ export class ConfigProvider
   protected config: CoreConfig;
 
   public constructor() {
-    const controlChainId = ChainId(31338);
+    const controlChainId = ChainId(31337);
     const controlChainInformation = chainConfig.get(controlChainId);
 
     if (controlChainInformation == null) {
@@ -68,7 +69,7 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(EChain.LocalDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
+      [ChainId(EChain.DevDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
@@ -135,12 +136,10 @@ export class ConfigProvider
     // The whole point of making a different chainID for dev and local was to avoid this,
     // but it is unrealistic to assign a different ChainID for every sandbox. So instead,
     // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
-    if (
-      overrides.controlChainProviderURL != null &&
-      this.config.controlChainId == EChain.DevDoodle
-    ) {
+    if (this.config.controlChainId == EChain.DevDoodle) {
       this.config.controlChainInformation.providerUrls = [
-        overrides.controlChainProviderURL,
+        overrides.controlChainProviderURL ||
+          ProviderUrl("http://127.0.0.1:8545"),
       ];
     }
 

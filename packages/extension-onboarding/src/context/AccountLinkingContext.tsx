@@ -94,9 +94,6 @@ export const AccountLinkingContextProvider: FC = ({ children }) => {
                   .getDataWalletAddress()
                   .andThen((address) => {
                     if (!linkedAccounts.length && !address) {
-                      console.log(
-                        "No existing linked accounts, calling sdlDataWallet.unlock()",
-                      );
                       setLoadingStatus(true, {
                         type: ELoadingIndicatorType.COMPONENT,
                         component: <AccountLinkingIndicator />,
