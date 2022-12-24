@@ -18,9 +18,9 @@ Local blockchain created by running the `snickerdoodlelabs/devchain` docker imag
 
 Official Avalanche Testnet:
 
-- Minimal Forwarder: `0x444Dc34cCFEBAb2f933c9aa5C293372Ab4E33f30`
-- Consent Implementation: `0x347dDD9fb7D34988b7F12246E561AA518917af75`
-- Consent Factory: `0x125E435b3aA16fc9928181712D3aA60c686A7829`
+- Minimal Forwarder: `0xdB5c885944d903Ac5c146eef400D2ee20572d357`
+- Consent Implementation: `0x6f191A40beE0dbAAd2bdeEB1A0733C9f8355c97C`
+- Consent Factory: `0x2231A160C7a7bba5a9dDbaF6a44A7EF76Ef74C77`
 - Protocol Token: `TBD`
 - Timelock Controller: `TBD`
 - Governor Contract: `TBD`
