@@ -174,9 +174,9 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("AVAX", 18, "AVAX"),
       EChainType.Testnet,
       "https://testnet.snowtrace.io/block/",
-      EVMContractAddress("0x125E435b3aA16fc9928181712D3aA60c686A7829"), // Consent Contract Factory
+      EVMContractAddress("0x2231A160C7a7bba5a9dDbaF6a44A7EF76Ef74C77"), // Consent Contract Factory
       EVMContractAddress("0x97464F3547510fb430448F5216eC7D8e71D7C4eF"), // Crumbs Contract
-      EVMContractAddress("0x444Dc34cCFEBAb2f933c9aa5C293372Ab4E33f30"), // Metatransaction Forwarder Contract
+      EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
       EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
       URLString("https://api.snowtrace.io/"),
     ),
