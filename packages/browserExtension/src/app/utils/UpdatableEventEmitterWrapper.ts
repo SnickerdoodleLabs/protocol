@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 export class UpdatableEventEmitterWrapper extends EventEmitter {
   public constructor(
     protected eventEmitter: EventEmitter,
-    public eventType: string,
+    protected eventType: string,
   ) {
     super();
     this.init(eventEmitter);
