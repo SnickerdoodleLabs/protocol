@@ -1,5 +1,5 @@
 import Browser from "webextension-polyfill";
-export class OnboardingProviderInjector {
+class OnboardingProviderInjectionUtils {
   public static inject() {
     try {
       const node = document.head || document.documentElement;
@@ -12,7 +12,7 @@ export class OnboardingProviderInjector {
         Browser.runtime.getURL("injectables/onboarding.bundle.js"),
       );
       node.appendChild(script);
-      OnboardingProviderInjector._notify();
+      OnboardingProviderInjectionUtils._notify();
     } catch (e) {
       console.error("sdlDataWallet onboarding provider injection failed", e);
     }
@@ -21,3 +21,5 @@ export class OnboardingProviderInjector {
     document.dispatchEvent(new CustomEvent("SD_WALLET_EXTENSION_CONNECTED"));
   }
 }
+
+export default OnboardingProviderInjectionUtils;

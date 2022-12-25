@@ -6,7 +6,7 @@ import PermissionSelection from "@app/Content/components/Screens/PermissionSelec
 import RewardCard from "@app/Content/components/Screens/RewardCard";
 import { EAPP_STATE, IRewardItem } from "@app/Content/constants";
 import usePath from "@app/Content/hooks/usePath";
-import { OnboardingProviderInjector } from "@app/Content/utils/OnboardingProviderInjector";
+import OnboardingProviderInjectionUtils from "@app/Content/utils/OnboardingProviderInjectionUtils";
 import { ExternalCoreGateway } from "@app/coreGateways/index";
 import {
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -84,7 +84,7 @@ const connect = () => {
       new URL(ConfigProvider.getConfig().onboardingUrl).origin ===
       window.location.origin
     ) {
-      OnboardingProviderInjector.inject();
+      OnboardingProviderInjectionUtils.inject();
     }
   } else {
     coreGateway.updateRpcEngine(rpcEngine);
