@@ -332,15 +332,13 @@ task(
   "getTrustedForwarder",
   "returns the trusted forwarder address of a consent contract",
 )
-  .addParam("contractaddress", "address of the consent contract")
   .setAction(async (taskArgs) => {
-    const contractaddress = taskArgs.contractaddress;
     const provider = await hre.ethers.provider;
 
     // attach the first signer account to the consent contract handle
     const consentContractHandle = new hre.ethers.Contract(
-      contractaddress,
-      CC().abi,
+      consentFactory(),
+      CCFactory().abi,
       provider,
     );
 
@@ -494,7 +492,7 @@ task("addTopMarketplaceListing", "Add a new marketplace listing to top slot")
   .addParam("cid", "IPFS address of the listing content.")
   .addParam(
     "accountnumber",
-    "integer referencing the account to you in the configured HD Wallet",
+    "integer referencing the account to use in the configured HD Wallet",
   )
   .setAction(async (taskArgs) => {
     const newslot = taskArgs.newslot;
@@ -509,8 +507,6 @@ task("addTopMarketplaceListing", "Add a new marketplace listing to top slot")
       CCFactory().abi,
       account,
     );
-
-    console.log("");
 
     await consentFactoryContractHandle
       .newListingHead(newslot, cid)

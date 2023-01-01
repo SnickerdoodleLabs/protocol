@@ -120,7 +120,7 @@ const consentFactory = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "0xF891204124eb67e64b5AF6b36FcFa55E0885a301";
+    return "0x2231A160C7a7bba5a9dDbaF6a44A7EF76Ef74C77";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
