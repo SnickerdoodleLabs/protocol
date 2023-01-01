@@ -7,7 +7,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
-import "@openzeppelin/contracts-upgradeable/metatx/MinimalForwarderUpgradeable.sol";
 import "./Consent.sol";
 import "hardhat/console.sol";
 
@@ -17,7 +16,6 @@ import "hardhat/console.sol";
 /// @dev This contract deploys new BeaconProxy instances that all point to the latest Consent implementation contract via the UpgradeableBeacon 
 /// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contract Wizard with added features 
 /// @dev The contract adopts OZ's proxy upgrade pattern and is compatible with OZ's meta-transaction library  
-
 contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable {
 
     /// @dev Listing object for storing marketplace listings

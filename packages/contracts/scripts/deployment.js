@@ -29,7 +29,7 @@ async function deployMinimalForwarder() {
   console.log("Deploying MinimalForwarder contract...");
 
   const MinimalForwarder = await ethers.getContractFactory(
-    "MinimalForwarderUpgradeable",
+    "SynamintForwarderUpgradeable",
   );
 
   // the MinimalForwarder does not require any arguments on deployment
