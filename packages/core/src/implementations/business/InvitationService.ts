@@ -34,6 +34,7 @@ import {
   HexString32,
   TokenId,
   Signature,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -55,6 +56,8 @@ import {
   IInvitationRepository,
   IMetatransactionForwarderRepositoryType,
   IMetatransactionForwarderRepository,
+  IMarketplaceRepositoryType,
+  IMarketplaceRepository,
 } from "@core/interfaces/data/index.js";
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {
@@ -82,6 +85,8 @@ export class InvitationService implements IInvitationService {
     protected invitationRepo: IInvitationRepository,
     @inject(IMetatransactionForwarderRepositoryType)
     protected forwarderRepo: IMetatransactionForwarderRepository,
+    @inject(IMarketplaceRepositoryType)
+    protected marketplaceRepo: IMarketplaceRepository,
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
@@ -747,6 +752,23 @@ export class InvitationService implements IInvitationService {
           });
       },
     );
+  }
+
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<
+    MarketplaceListing,
+    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+  > {
+    return this.marketplaceRepo.getMarketplaceListings(count, headAt);
+  }
+
+  public getListingsTotal(): ResultAsync<
+    number,
+    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+  > {
+    return this.marketplaceRepo.getListingsTotal();
   }
 
   protected isValidSignatureForInvitation(

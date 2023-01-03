@@ -4,11 +4,10 @@ import {
   PERMISSION_DESCRIPTIONS,
   PERMISSION_NAMES,
 } from "@extension-onboarding/constants/permissions";
+import usePermissionSettingsLogic from "@extension-onboarding/hooks/usePermissionSettingsLogic";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings/DataPermissionsSettings.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
-  Button,
   Divider,
   FormControlLabel,
   Grid,
@@ -16,47 +15,17 @@ import {
   RadioGroup,
   Typography,
 } from "@material-ui/core";
-import { EWalletDataType } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useMemo, useState } from "react";
-declare const window: IWindowWithSdlDataWallet;
+import React, { FC } from "react";
 
 const DataPermissionsSettings: FC = () => {
+  const {
+    permissionForm,
+    handleApplyDefaultOptionChange,
+    applyDefaults,
+    addPermission,
+    removePermission,
+  } = usePermissionSettingsLogic();
   const classes = useStyles();
-  const [applyDefaults, setApplyDefaults] = useState<boolean>(false);
-  const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
-
-  useEffect(() => {
-    getApplyDefaultOption();
-    getPermissions();
-  }, []);
-
-  const getApplyDefaultOption = () => {
-    return window.sdlDataWallet
-      .getApplyDefaultPermissionsOption()
-      .map((option) => setApplyDefaults(option));
-  };
-
-  const getPermissions = () => {
-    return window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
-      setPermissionForm(permissions.filter((item) => !!PERMISSION_NAMES[item]));
-    });
-  };
-
-  const setPermissions = (dataTypes: EWalletDataType[]) => {
-    return window.sdlDataWallet.setDefaultPermissions(dataTypes).andThen(() => {
-      return getPermissions();
-    });
-  };
-
-  const handleApplyDefaultOptionChange = (optionStr: "true" | "false") => {
-    const option = optionStr === "true";
-
-    window.sdlDataWallet
-      .setApplyDefaultPermissionsOption(option)
-      .andThen(() => {
-        return getApplyDefaultOption();
-      });
-  };
 
   return (
     <Box>
@@ -121,16 +90,9 @@ const DataPermissionsSettings: FC = () => {
                               value={permissionForm.includes(dataType)}
                               onChange={(event) => {
                                 if (event.target.checked) {
-                                  setPermissions([
-                                    ...(permissionForm ?? []),
-                                    dataType,
-                                  ]);
+                                  addPermission(dataType);
                                 } else {
-                                  setPermissions(
-                                    permissionForm?.filter(
-                                      (_dataType) => _dataType != dataType,
-                                    ),
-                                  );
+                                  removePermission(dataType);
                                 }
                               }}
                             />

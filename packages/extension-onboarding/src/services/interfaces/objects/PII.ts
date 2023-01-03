@@ -17,5 +17,6 @@ export class PII {
     public phone_number: string | null = null,
     public photo_url: string | null = null,
     public gender: Gender | null = null,
+    public age: number | null = null,
   ) {}
 }

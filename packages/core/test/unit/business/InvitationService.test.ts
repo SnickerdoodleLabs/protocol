@@ -35,6 +35,7 @@ import {
   IConsentContractRepository,
   IDNSRepository,
   IInvitationRepository,
+  IMarketplaceRepository,
   IMetatransactionForwarderRepository,
 } from "@core/interfaces/data/index.js";
 import {
@@ -73,6 +74,7 @@ class InvitationServiceMocks {
   public insightPlatformRepo: IInsightPlatformRepository;
   public dnsRepository: IDNSRepository;
   public invitationRepo: IInvitationRepository;
+  public marketplaceRepo: IMarketplaceRepository;
   public forwarderRepo: IMetatransactionForwarderRepository;
   public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
@@ -87,6 +89,7 @@ class InvitationServiceMocks {
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.dnsRepository = td.object<IDNSRepository>();
     this.invitationRepo = td.object<IInvitationRepository>();
+    this.marketplaceRepo = td.object<IMarketplaceRepository>();
     this.forwarderRepo = td.object<IMetatransactionForwarderRepository>();
     this.contextProvider = new ContextProviderMock();
     this.dataWalletUtils = td.object<IDataWalletUtils>();
@@ -143,6 +146,7 @@ class InvitationServiceMocks {
       this.dnsRepository,
       this.invitationRepo,
       this.forwarderRepo,
+      this.marketplaceRepo,
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contextProvider,

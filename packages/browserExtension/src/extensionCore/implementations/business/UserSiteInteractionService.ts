@@ -5,7 +5,7 @@ import {
 } from "@interfaces/data";
 
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
-import { SiteVisit } from "@snickerdoodlelabs/objects";
+import { SiteVisit, URLString } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
@@ -20,5 +20,16 @@ export class UserSiteInteractionService implements IUserSiteInteractionService {
     siteVisits: SiteVisit[],
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.userSiteInteractionRepository.addSiteVisits(siteVisits);
+  }
+
+  public getSiteVisits(): ResultAsync<SiteVisit[], SnickerDoodleCoreError> {
+    return this.userSiteInteractionRepository.getSiteVisits();
+  }
+
+  public getSiteVisitsMap(): ResultAsync<
+    Map<URLString, number>,
+    SnickerDoodleCoreError
+  > {
+    return this.userSiteInteractionRepository.getSiteVisitsMap();
   }
 }

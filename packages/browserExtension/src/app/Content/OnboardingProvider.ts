@@ -22,8 +22,11 @@ import {
   TokenAddress,
   TokenInfo,
   TokenMarketData,
+  SiteVisit,
   UnixTimestamp,
+  URLString,
   UUID,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
@@ -73,6 +76,17 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
       _this.emit(resp.type, resp);
     });
   }
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, unknown> {
+    return coreGateway.getMarketplaceListings(count, headAt);
+  }
+
+  public getListingsTotal(): ResultAsync<number, unknown> {
+    return coreGateway.getListingsTotal();
+  }
+
   public getTokenMarketData(
     ids: string[],
   ): ResultAsync<TokenMarketData[], unknown> {
@@ -269,6 +283,12 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
       isScamFilterActive,
       showMessageEveryTime,
     );
+  }
+  public getSiteVisits(): ResultAsync<SiteVisit[], unknown> {
+    return coreGateway.getSiteVisits();
+  }
+  public getSiteVisitsMap(): ResultAsync<Record<URLString, number>, unknown> {
+    return coreGateway.getSiteVisitsMap();
   }
 }
 

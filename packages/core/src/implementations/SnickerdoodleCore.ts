@@ -76,6 +76,8 @@ import {
   AccountIndexingError,
   TokenInfo,
   TokenMarketData,
+  MarketplaceListing,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -192,6 +194,29 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+  }
+
+  public getListingsTotal(): ResultAsync<
+    number,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  > {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+    return invitationService.getListingsTotal();
+  }
+
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<
+    MarketplaceListing,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  > {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+    return invitationService.getMarketplaceListings(count, headAt);
   }
 
   public getConsentContractCID(
@@ -665,10 +690,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.getAccountNFTs();
   }
 
-  getTransactionsArray(): ResultAsync<ChainTransaction[], PersistenceError> {
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    PersistenceError
+  > {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getTransactionsArray();
+    return accountService.getTransactionValueByChain();
   }
 
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError> {

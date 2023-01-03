@@ -30,13 +30,13 @@ export class WalletConnectProvider implements IWalletProvider {
       chainId,
       qrcodeModalOptions,
     });
-    return ResultAsync.fromPromise(provider.enable(), (e) =>
-      console.log(e),
-    ).andThen((accounts) => {
-      this._web3Provider = new ethers.providers.Web3Provider(provider);
-      const account = accounts[0];
-      return okAsync(account as AccountAddress);
-    });
+    return ResultAsync.fromPromise(provider.enable(), (e) => {}).andThen(
+      (accounts) => {
+        this._web3Provider = new ethers.providers.Web3Provider(provider);
+        const account = accounts[0];
+        return okAsync(account as AccountAddress);
+      },
+    );
   }
 
   public getSignature(message: string): ResultAsync<Signature, unknown> {
@@ -46,7 +46,7 @@ export class WalletConnectProvider implements IWalletProvider {
     const signer = this._web3Provider.getSigner();
     return ResultAsync.fromPromise(
       signer.signMessage(new TextEncoder().encode(message)),
-      (e) => console.log(e),
+      (e) => {},
     ).map((signature) => Signature(signature));
   }
 }

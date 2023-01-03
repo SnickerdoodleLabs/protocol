@@ -6,7 +6,12 @@ import {
 } from "@objects/businessObjects";
 import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
 import { AccountIndexingError } from "@objects/errors";
-import { ChainId, EVMContractAddress, ProviderUrl, URLString } from "@objects/primitives";
+import {
+  ChainId,
+  EVMContractAddress,
+  ProviderUrl,
+  URLString,
+} from "@objects/primitives";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 
 const getExplorerUrl = function (this: ChainInformation, txHash: string) {
@@ -28,30 +33,10 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
       EChainType.Hardhat,
       "",
-      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Consent Contract Factory
-      EVMContractAddress("0x0165878A594ca255338adfa4d48449f69242Eb8F"), // Crumbs Contract
-      EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"), // Sift Contract
-    ),
-  ],
-  [
-    ChainId(EChain.LocalDoodle),
-    new ControlChainInformation(
-      "Local Doodle Chain",
-      ChainId(EChain.LocalDoodle),
-      EChain.LocalDoodle,
-      EChainTechnology.EVM,
-      true,
-      [ProviderUrl("http://127.0.0.1:8545")],
-      4000,
-      EIndexer.Simulator,
-      new NativeCurrencyInformation("DOODLE", 18, "DOODLE"),
-      EChainType.Hardhat,
-      "",
-      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Consent Contract Factory
-      EVMContractAddress("0x0165878A594ca255338adfa4d48449f69242Eb8F"), // Crumbs Contract
-      EVMContractAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3"), // Metatransaction Forwarder Contract
-      EVMContractAddress("0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"), // Sift Contract
+      EVMContractAddress("0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"), // Consent Contract Factory
+      EVMContractAddress("0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"), // Crumbs Contract
+      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"), // Metatransaction Forwarder Contract
+      EVMContractAddress("0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0"), // Sift Contract
     ),
   ],
   [
@@ -90,23 +75,23 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       URLString("https://api-goerli.etherscan.io/"),
     ),
   ],
-  [
-    ChainId(EChain.Kovan),
-    new ChainInformation(
-      "Kovan",
-      ChainId(EChain.Kovan),
-      EChain.Kovan,
-      EChainTechnology.EVM,
-      true,
-      [],
-      10000,
-      EIndexer.EVM,
-      new NativeCurrencyInformation("ETH", 18, "ETH"),
-      EChainType.Testnet,
-      "https://kovan.etherscan.io/tx/",
-      getExplorerUrl,
-    ),
-  ],
+  // [
+  //   ChainId(EChain.Kovan),
+  //   new ChainInformation(
+  //     "Kovan",
+  //     ChainId(EChain.Kovan),
+  //     EChain.Kovan,
+  //     EChainTechnology.EVM,
+  //     true,
+  //     [],
+  //     10000,
+  //     EIndexer.EVM,
+  //     new NativeCurrencyInformation("ETH", 18, "ETH"),
+  //     EChainType.Testnet,
+  //     "https://kovan.etherscan.io/tx/",
+  //     getExplorerUrl,
+  //   ),
+  // ],
   [
     ChainId(EChain.Mumbai),
     new ChainInformation(
@@ -189,9 +174,9 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       new NativeCurrencyInformation("AVAX", 18, "AVAX"),
       EChainType.Testnet,
       "https://testnet.snowtrace.io/block/",
-      EVMContractAddress("0xC44C9B4375ab43D7974252c37bccb41F99910fA5"), // Consent Contract Factory
+      EVMContractAddress("0x2231A160C7a7bba5a9dDbaF6a44A7EF76Ef74C77"), // Consent Contract Factory
       EVMContractAddress("0x97464F3547510fb430448F5216eC7D8e71D7C4eF"), // Crumbs Contract
-      EVMContractAddress("0xF7c6dC708550D89558110cAecD20a8A6a184427E"), // Metatransaction Forwarder Contract
+      EVMContractAddress("0xdB5c885944d903Ac5c146eef400D2ee20572d357"), // Metatransaction Forwarder Contract
       EVMContractAddress("0x1007D88962A3c0c4A11649480168B6456355d91a"), // Sift Contract
       URLString("https://api.snowtrace.io/"),
     ),
