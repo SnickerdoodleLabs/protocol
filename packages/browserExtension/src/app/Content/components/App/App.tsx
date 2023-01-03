@@ -1,3 +1,15 @@
+import { DomainName, EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
+import endOfStream from "end-of-stream";
+import PortStream from "extension-port-stream";
+import { JsonRpcEngine } from "json-rpc-engine";
+import { createStreamMiddleware } from "json-rpc-middleware-stream";
+import { okAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import ObjectMultiplex from "obj-multiplex";
+import pump from "pump";
+import React, { useEffect, useMemo, useState } from "react";
+
+import { parse } from "tldts";
 import ScamFilterComponent, {
   EScamFilterStatus,
 } from "@app/Content/components/ScamFilterComponent";
@@ -17,17 +29,6 @@ import {
 } from "@shared/interfaces/actions";
 import ConfigProvider from "@shared/utils/ConfigProvider";
 import { VersionUtils } from "@shared/utils/VersionUtils";
-import { DomainName, EWalletDataType, UUID } from "@snickerdoodlelabs/objects";
-import endOfStream from "end-of-stream";
-import PortStream from "extension-port-stream";
-import { JsonRpcEngine } from "json-rpc-engine";
-import { createStreamMiddleware } from "json-rpc-middleware-stream";
-import { okAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import ObjectMultiplex from "obj-multiplex";
-import pump from "pump";
-import React, { useEffect, useMemo, useState } from "react";
-import { parse } from "tldts";
 import Browser, { urlbar } from "webextension-polyfill";
 
 interface ISafeURLHistory {
@@ -98,7 +99,7 @@ const App = () => {
         if (scamSettings.showMessageEveryTime) {
           setScamFilterStatus(scamStatus as EScamFilterStatus);
         } else {
-          let arr: ISafeURLHistory[] = [];
+          const arr: ISafeURLHistory[] = [];
           Browser.storage.local.get("safeURLHistory").then((history) => {
             if (history?.safeURLHistory?.length > 0) {
               const isVisited = history.safeURLHistory.find(
@@ -240,7 +241,10 @@ const App = () => {
   return (
     <>
       {scamFilterStatus && (
-        <ScamFilterComponent scamFilterStatus={scamFilterStatus} coreGateway={coreGateway} />
+        <ScamFilterComponent
+          scamFilterStatus={scamFilterStatus}
+          coreGateway={coreGateway}
+        />
       )}
       {renderComponent}
     </>

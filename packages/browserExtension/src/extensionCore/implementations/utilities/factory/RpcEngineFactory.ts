@@ -3,7 +3,7 @@ import endOfStream from "end-of-stream";
 import { inject, injectable } from "inversify";
 import { JsonRpcEngine, createAsyncMiddleware } from "json-rpc-engine";
 import { createEngineStream } from "json-rpc-middleware-stream";
-import { err, ok } from "neverthrow";
+import { err, okAsync } from "neverthrow";
 import pump from "pump";
 import { Runtime } from "webextension-polyfill";
 
@@ -19,10 +19,10 @@ export class RpcEngineFactory implements IRpcEngineFactory {
     @inject(IRpcCallHandlerType) protected rpcCallHandler: IRpcCallHandler,
   ) {}
 
-  public createRrpcEngine(
+  public createRpcEngine(
     remotePort: Runtime.Port,
     origin: EPortNames | URLString,
-    stream: any,
+    stream: pump.Stream,
   ) {
     // create rpc handler engine
     const rpcEngine = new JsonRpcEngine();
@@ -37,8 +37,10 @@ export class RpcEngineFactory implements IRpcEngineFactory {
         );
       }),
     );
+
     // create rpc stream duplex
     const engineStream = createEngineStream({ engine: rpcEngine });
+
     // pipe incoming stream to engineStream
     pump(stream, engineStream, stream, (error) => {
       err(error);
@@ -55,6 +57,6 @@ export class RpcEngineFactory implements IRpcEngineFactory {
     endOfStream(stream, () => {
       connectionId && appContext.removeConnection(origin, connectionId);
     });
-    return ok(rpcEngine);
+    return okAsync(rpcEngine);
   }
 }

@@ -36,15 +36,15 @@ export class CoreListener implements ICoreListener {
   ) {}
 
   public initialize(): ResultAsync<void, never> {
-    this.core.getEvents().map((events: ISnickerdoodleCoreEvents) => {
+    return this.core.getEvents().map((events: ISnickerdoodleCoreEvents) => {
       events.onInitialized.subscribe(this.onInitialized.bind(this));
       events.onAccountAdded.subscribe(this.onAccountAdded.bind(this));
       events.onAccountRemoved.subscribe(this.onAccountRemoved.bind(this));
       events.onQueryPosted.subscribe(this.onQueryPosted.bind(this));
     });
-    return okAsync(undefined);
   }
-  private onInitialized(dataWalletAddress: DataWalletAddress) {
+
+  private onInitialized(dataWalletAddress: DataWalletAddress): void {
     // @TODO move it to right place
     BrowserUtils.browserAction.getPopup({}).then((popup) => {
       if (!popup) {
@@ -55,19 +55,19 @@ export class CoreListener implements ICoreListener {
     });
     this.accountCookieUtils.writeDataWalletAddressToCookie(dataWalletAddress);
     this.contextProvider.setAccountContext(dataWalletAddress);
-    console.log("onInitialized", dataWalletAddress);
-    return okAsync(undefined);
-  }
-
-  private onAccountAdded(account: LinkedAccount) {
-    this.contextProvider.onAccountAdded(account);
-    console.log("onAccountAdded", account);
-    return okAsync(undefined);
-  }
-
-  private onQueryPosted(request: SDQLQueryRequest) {
     console.log(
-      `onQueryPosted. Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+      `Extension: Initialized data wallet with address ${dataWalletAddress}`,
+    );
+  }
+
+  private onAccountAdded(account: LinkedAccount): void {
+    this.contextProvider.onAccountAdded(account);
+    console.log(`Extension: account ${account.sourceAccountAddress} added`);
+  }
+
+  private onQueryPosted(request: SDQLQueryRequest): void {
+    console.log(
+      `Extension: query posted with contract address: ${request.consentContractAddress} and CID: ${request.query.cid}`,
     );
     console.debug(request.query.query);
 
@@ -99,6 +99,7 @@ export class CoreListener implements ICoreListener {
       }
     });
 
+    // TODO: This is the hook location, particularly important when we do Ads.
     this.core
       .processQuery(
         request.consentContractAddress,
@@ -110,18 +111,19 @@ export class CoreListener implements ICoreListener {
       )
       .map(() => {
         console.log(
-          `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+          `Extension: Processed query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
         );
       })
       .mapErr((e) => {
         console.error(
-          `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+          `Extension: Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
         );
         console.error(e);
       });
   }
 
-  private onAccountRemoved(account: LinkedAccount) {
+  private onAccountRemoved(account: LinkedAccount): void {
+    console.log(`Extension: account ${account.sourceAccountAddress} removed`);
     this.accountCookieUtils.removeAccountInfoFromCookie(
       account.sourceAccountAddress,
     );

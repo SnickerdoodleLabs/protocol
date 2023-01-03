@@ -55,7 +55,7 @@ export class PortConnectionRepository implements IPortConnectionRepository {
 
   private _setupInternalConnection(remotePort: Runtime.Port) {
     const portStream = new PortStream(remotePort);
-    this.rpcEngineFactory.createRrpcEngine(
+    this.rpcEngineFactory.createRpcEngine(
       remotePort,
       remotePort.name as EPortNames,
       portStream,
@@ -69,19 +69,23 @@ export class PortConnectionRepository implements IPortConnectionRepository {
     const { origin: onboardingUrlOrigin } = new URL(onboardingUrl);
 
     const portStream = new PortStream(remotePort);
+
     // create multiplex to enable substreams
     const portStreamMux = new ObjectMultiplex();
+
     // pipe port stream to multiplexer
     pump(portStream, portStreamMux, portStream);
+
     // create content script handler
-    this.rpcEngineFactory.createRrpcEngine(
+    this.rpcEngineFactory.createRpcEngine(
       remotePort,
       origin as URLString,
       portStreamMux.createStream(CONTENT_SCRIPT_SUBSTREAM),
     );
+
     // create injected onboarding handler if orgins match
     if (origin === onboardingUrlOrigin) {
-      this.rpcEngineFactory.createRrpcEngine(
+      this.rpcEngineFactory.createRpcEngine(
         remotePort,
         origin as URLString,
         portStreamMux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),

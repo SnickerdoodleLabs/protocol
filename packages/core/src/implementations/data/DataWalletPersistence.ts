@@ -200,7 +200,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
-    return this.waitForRestore().andThen((store) => {
+    // getAccounts is also special in that it will not block for a restore- it will return whatever
+    // is in volatile storage immediately.
+    return this.waitForUnlock().andThen((store) => {
       return this.volatileStorage.getAll<LinkedAccount>(
         ELocalStorageKey.ACCOUNT,
       );
@@ -388,7 +390,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    // addAccount() is special in that we don't wait for restore before adding it- just for the
+    // unlock
+    return this.waitForUnlock()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })

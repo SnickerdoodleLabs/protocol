@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { okAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { Runtime } from "webextension-polyfill";
 
 import { IPortConnectionService } from "@interfaces/business";
@@ -15,8 +15,7 @@ export class PortConnectionService implements IPortConnectionService {
     protected portRepository: IPortConnectionRepository,
   ) {}
 
-  public connectRemote(connectionPort: Runtime.Port) {
-    this.portRepository.connectRemote(connectionPort);
-    return okAsync(undefined);
+  public connectRemote(connectionPort: Runtime.Port): ResultAsync<void, never> {
+    return this.portRepository.connectRemote(connectionPort);
   }
 }
