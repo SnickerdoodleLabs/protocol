@@ -198,6 +198,7 @@ export interface IDataWalletPersistence {
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
   waitForRestore(): ResultAsync<EVMPrivateKey, never>;
+  restoreInProgress(): ResultAsync<boolean, never>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

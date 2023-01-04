@@ -44,10 +44,9 @@ const modelAliases = {
 @injectable()
 export class ConfigProvider
   implements
-    IConfigProvider,
-    IIndexerConfigProvider,
-    IPersistenceConfigProvider
-{
+  IConfigProvider,
+  IIndexerConfigProvider,
+  IPersistenceConfigProvider {
   protected config: CoreConfig;
 
   public constructor() {
@@ -104,7 +103,7 @@ export class ConfigProvider
         polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
         polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
       },
-      10000,
+      3000, // backup restore timeout
     );
   }
 
@@ -139,7 +138,7 @@ export class ConfigProvider
     if (this.config.controlChainId == EChain.DevDoodle) {
       this.config.controlChainInformation.providerUrls = [
         overrides.controlChainProviderURL ||
-          ProviderUrl("http://127.0.0.1:8545"),
+        ProviderUrl("http://127.0.0.1:8545"),
       ];
     }
 

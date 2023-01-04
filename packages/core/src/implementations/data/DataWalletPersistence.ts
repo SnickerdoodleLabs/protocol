@@ -182,17 +182,35 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.backupManagerProvider.unlock(derivedKey),
     ])
       .map(() => {
-        this.configProvider.getConfig().map((config) => {
+        console.log("pre poll");
+
+        ResultUtils.combine([
+          this.configProvider.getConfig(),
+          this.contextProvider.getContext(),
+        ]).map(([config, context]) => {
+          context.restoreInProgress = true;
+          this.contextProvider.setContext(context);
+          let timeoutCleared = false;
+          console.log("context set");
+
           // set the backup restore to timeout as to not block unlocks
           const timeout = setTimeout(() => {
+            console.log("timeout");
             this.logUtils.error("Backup restore timed out");
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.resolveRestore!();
+            timeoutCleared = true;
           }, config.restoreTimeoutMS);
+
           this.pollBackups().map(() => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.resolveRestore!();
-            clearTimeout(timeout);
+            console.log("poll finished");
+            context.restoreInProgress = true;
+            this.contextProvider.setContext(context);
+            if (!timeoutCleared) {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              this.resolveRestore!();
+              clearTimeout(timeout);
+            }
           });
         });
       })
@@ -300,7 +318,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             ).map(() => undefined);
           });
       })
-      .map(() => {});
+      .map(() => { });
   }
 
   public getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
@@ -374,7 +392,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 visit,
               );
             }),
-          ).map(() => {});
+          ).map(() => { });
         });
     });
   }
@@ -1146,6 +1164,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  public restoreInProgress(): ResultAsync<boolean, never> {
+    return this.contextProvider.getContext().map((context) => context.restoreInProgress);
+  }
+
   // rename this. its bad.
   public returnProperTransactions(): ResultAsync<
     ChainTransaction[],
@@ -1231,7 +1253,7 @@ class InvitationForStorage {
     public consentContractAddress: EVMContractAddress,
     public tokenId: string,
     public businessSignature: Signature | null,
-  ) {}
+  ) { }
 
   static toInvitation(src: InvitationForStorage): Invitation {
     return new Invitation(
