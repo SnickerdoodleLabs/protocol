@@ -182,8 +182,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.backupManagerProvider.unlock(derivedKey),
     ])
       .map(() => {
-        console.log("pre poll");
-
         ResultUtils.combine([
           this.configProvider.getConfig(),
           this.contextProvider.getContext(),
@@ -191,11 +189,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           context.restoreInProgress = true;
           this.contextProvider.setContext(context);
           let timeoutCleared = false;
-          console.log("context set");
 
           // set the backup restore to timeout as to not block unlocks
           const timeout = setTimeout(() => {
-            console.log("timeout");
             this.logUtils.error("Backup restore timed out");
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             this.resolveRestore!();
@@ -203,7 +199,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           }, config.restoreTimeoutMS);
 
           this.pollBackups().map(() => {
-            console.log("poll finished");
             context.restoreInProgress = true;
             this.contextProvider.setContext(context);
             if (!timeoutCleared) {
