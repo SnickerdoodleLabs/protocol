@@ -24,5 +24,5 @@ Official Avalanche Testnet:
 - Protocol Token: `TBD`
 - Timelock Controller: `TBD`
 - Governor Contract: `TBD`
-- Crumbs: `0x97464F3547510fb430448F5216eC7D8e71D7C4eF`
+- Crumbs: `0x49a04d6545b1511742033b0ddF6a2Ba880A69287`
 - Sift: `0x1007D88962A3c0c4A11649480168B6456355d91a`
