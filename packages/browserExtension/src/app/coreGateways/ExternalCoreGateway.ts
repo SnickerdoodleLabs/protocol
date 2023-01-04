@@ -76,6 +76,11 @@ export class ExternalCoreGateway {
   constructor(protected rpcEngine: JsonRpcEngine) {
     this._handler = new CoreHandler(rpcEngine);
   }
+
+  public updateRpcEngine(rpcEngine: JsonRpcEngine) {
+    this._handler.updateRpcEngine(rpcEngine);
+  }
+
   public getState(): ResultAsync<IExternalState, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_STATE);
   }

@@ -43,36 +43,60 @@ import {
 } from "@shared/constants/ports";
 import { TNotification } from "@shared/types/notification";
 import { ResultAsync } from "neverthrow";
+import { UpdatableEventEmitterWrapper } from "@app/utils/UpdatableEventEmitterWrapper";
 
-const localStream = new LocalMessageStream({
-  name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
-  target: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
-});
-const mux = new ObjectMultiplex();
-pump(localStream, mux, localStream);
-const streamMiddleware = createStreamMiddleware();
-pump(
-  streamMiddleware.stream,
-  mux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
-  streamMiddleware.stream,
-);
-const rpcEngine = new JsonRpcEngine();
-rpcEngine.push(streamMiddleware.middleware);
+let coreGateway: ExternalCoreGateway;
+let eventEmitter: UpdatableEventEmitterWrapper;
 
-const coreGateway = new ExternalCoreGateway(rpcEngine);
+const initConnection = () => {
+  const localStream = new LocalMessageStream({
+    name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
+    target: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
+  });
+  const mux = new ObjectMultiplex();
+  pump(localStream, mux, localStream);
+  const _streamMiddleware = createStreamMiddleware();
+  pump(
+    _streamMiddleware.stream,
+    mux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
+    _streamMiddleware.stream,
+  );
+  const rpcEngine = new JsonRpcEngine();
+  rpcEngine.push(_streamMiddleware.middleware);
 
-const clearMux = () => {
-  mux.destroy();
-  document.removeEventListener("extension-stream-channel-closed", clearMux);
+  if (!coreGateway) {
+    coreGateway = new ExternalCoreGateway(rpcEngine);
+    eventEmitter = new UpdatableEventEmitterWrapper(
+      _streamMiddleware.events,
+      PORT_NOTIFICATION,
+    );
+  } else {
+    coreGateway.updateRpcEngine(rpcEngine);
+    eventEmitter.update(_streamMiddleware.events);
+  }
+
+  const clearMuxAndUpdate = () => {
+    mux.destroy();
+    document.removeEventListener(
+      "extension-stream-channel-closed",
+      clearMuxAndUpdate,
+    );
+    initConnection();
+  };
+  document.addEventListener(
+    "extension-stream-channel-closed",
+    clearMuxAndUpdate,
+  );
 };
-document.addEventListener("extension-stream-channel-closed", clearMux);
+
+initConnection();
 
 export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   constructor() {
     super();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
-    streamMiddleware.events.on(PORT_NOTIFICATION, (resp: TNotification) => {
+    eventEmitter.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
   }
