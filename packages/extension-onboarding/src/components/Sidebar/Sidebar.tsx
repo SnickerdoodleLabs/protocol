@@ -182,7 +182,7 @@ const Sidebar = () => {
                               navigate(subroute.path);
                               setLastClickedIndex(index);
                             }}
-                            mb={index === subroutes.length - 1 ? 0 : 3}
+                            mb={subrouteIndex === subroutes.length - 1 ? 0 : 3}
                           >
                             <Typography
                               className={clsx(classes.subrouteText, {
