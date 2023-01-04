@@ -6,6 +6,10 @@ import { v4 } from "uuid";
 export default class CoreHandler {
   constructor(protected rpcEngine: JsonRpcEngine) {}
 
+  public updateRpcEngine(rpcEngine: JsonRpcEngine) {
+    this.rpcEngine = rpcEngine;
+  }
+
   public call<T, K>(method, params?): ResultAsync<T, K> {
     return ResultAsync.fromPromise<T, K>(
       new Promise((resolve, reject) => {

@@ -19,6 +19,10 @@ export class InternalCoreGateway {
     this._handler = new CoreHandler(rpcEngine);
   }
 
+  public updateRpcEngine(rpcEngine: JsonRpcEngine) {
+    this._handler.updateRpcEngine(rpcEngine);
+  }
+
   public getState(): ResultAsync<IInternalState, JsonRpcError> {
     return this._handler.call(EInternalActions.GET_STATE);
   }
