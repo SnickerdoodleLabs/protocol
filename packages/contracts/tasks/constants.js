@@ -148,7 +148,7 @@ const crumbsContract = function () {
   } else if (hre.hardhatArguments.network == "polygon") {
     return "";
   } else if (hre.hardhatArguments.network == "fuji") {
-    return "0x97464F3547510fb430448F5216eC7D8e71D7C4eF";
+    return "0x49a04d6545b1511742033b0ddF6a2Ba880A69287";
   } else if (hre.hardhatArguments.network == "avalanche") {
     return "";
   } else if (hre.hardhatArguments.network == "fantom") {
