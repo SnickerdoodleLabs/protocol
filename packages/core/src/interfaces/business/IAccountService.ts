@@ -127,11 +127,6 @@ export interface IAccountService {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
-  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
-  addEligibleAds(
-    ads: EligibleAd[],
-  ): ResultAsync<void, PersistenceError>;
-
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
 

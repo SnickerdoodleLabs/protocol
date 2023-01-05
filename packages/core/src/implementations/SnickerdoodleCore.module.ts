@@ -99,6 +99,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMonitoringService,
@@ -158,6 +160,7 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+import { AdService } from "./business/AdService";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -182,6 +185,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
+      .inSingletonScope();
+    bind<IAdService>(IAdServiceType)
+      .to(AdService)
       .inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)

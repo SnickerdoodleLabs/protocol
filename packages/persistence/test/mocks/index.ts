@@ -1,1 +1,1 @@
-export * from "./BackupManagerProviderMocks";
+export * from "@persistence-test/mocks/BackupManagerProviderMocks";
