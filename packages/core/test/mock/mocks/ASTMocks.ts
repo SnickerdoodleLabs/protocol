@@ -1,28 +1,26 @@
 import "reflect-metadata";
 
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
 import {
-    Age,
-    CountryCode, IDataWalletPersistence, IpfsCID
-} from "@snickerdoodlelabs/objects";
-import {
-    IQueryObjectFactory,
-    ISDQLQueryWrapperFactory,
-    SDQLQueryWrapperFactory
+  IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import {
-    NetworkQueryEvaluator,
-    QueryEvaluator,
-    QueryRepository
-} from "@core/implementations/business/utilities";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
+  NetworkQueryEvaluator,
+  QueryEvaluator,
+  QueryRepository,
+} from "@core/implementations/business/utilities/index.js";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+import { QueryFactories } from "@core/implementations/utilities/factory/index.js";
+import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/index.js";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
+import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
 
 // const ast = new AST(
 //     Version("0.1"),
@@ -75,5 +73,3 @@ export class ASTMocks {
     );
   }
 }
-
-

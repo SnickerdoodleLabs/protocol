@@ -1,8 +1,6 @@
 import {
   EVMAccountAddress,
   TransactionFilter,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
@@ -10,7 +8,11 @@ import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
+import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class NetworkQueryEvaluator implements INetworkQueryEvaluator {

@@ -6,8 +6,6 @@ import {
   ConsentToken,
   EVMContractAddress,
   HexString32,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   PersistenceError,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
@@ -17,6 +15,8 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
 
 @injectable()

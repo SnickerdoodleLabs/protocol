@@ -11,14 +11,11 @@ import {
   URLString,
   TickerSymbol,
   BigNumberString,
-  IDataWalletPersistence,
   TokenBalance,
-  ChainTransaction,
   EVMTransaction,
   UnixTimestamp,
   EVMTransactionHash,
   EChainTechnology,
-  EChain,
   TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -37,6 +34,7 @@ import {
   IBalanceQueryEvaluator,
   INetworkQueryEvaluator,
 } from "@core/interfaces/business/utilities/query/index.js";
+import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];

@@ -2,8 +2,6 @@ import {
   BigNumberString,
   ChainId,
   EvalNotImplementedError,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   TokenBalance,
   PersistenceError,
   SDQL_Return,
@@ -21,7 +19,11 @@ import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class BalanceQueryEvaluator implements IBalanceQueryEvaluator {

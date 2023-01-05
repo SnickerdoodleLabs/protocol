@@ -24,7 +24,6 @@ import {
   EmailAddressString,
   EvaluationError,
   EVMContractAddress,
-  EVMTransaction,
   TransactionFilter,
   FamilyName,
   Gender,
@@ -35,8 +34,6 @@ import {
   IAccountNFTsType,
   IConfigOverrides,
   IDataWalletBackup,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   WalletNFT,
   InvalidParametersError,
   InvalidSignatureError,
@@ -117,6 +114,10 @@ import {
   ISiftContractService,
   ISiftContractServiceType,
 } from "@core/interfaces/business/index.js";
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,

@@ -18,18 +18,14 @@ import {
   BlockchainProviderError,
   ChainId,
   ChainTransaction,
-  ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
   EChain,
   EVMAccountAddress,
   EVMPrivateKey,
-  EVMTransaction,
   TransactionFilter,
   ExternallyOwnedAccount,
   ICrumbContent,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   TokenBalance,
   WalletNFT,
   InvalidParametersError,
@@ -64,6 +60,8 @@ import { IAccountService } from "@core/interfaces/business/index.js";
 import {
   ICrumbsRepository,
   ICrumbsRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,

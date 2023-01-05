@@ -12,7 +12,6 @@ import {
   EmailAddressString,
   GivenName,
   Gender,
-  IDataWalletPersistence,
   FamilyName,
   PersistenceError,
   SiteVisit,
@@ -77,6 +76,7 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { parse } from "tldts";
 
+import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
   IContextProviderType,

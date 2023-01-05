@@ -3,12 +3,9 @@ import {
   SiteVisit,
   IAccountIndexing,
   IAccountIndexingType,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   EVMAccountAddress,
   ChainId,
   AccountIndexingError,
-  EVMTransaction,
   EIndexer,
   UnixTimestamp,
   AjaxError,
@@ -21,13 +18,16 @@ import {
   ChainTransaction,
   SolanaAccountAddress,
   isAccountValidForChain,
-  EChain,
 } from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IMonitoringService } from "@core/interfaces/business/index.js";
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
 import {
   IContextProvider,
   IConfigProvider,

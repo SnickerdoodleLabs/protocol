@@ -23,8 +23,6 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -129,6 +127,8 @@ import {
   IConsentContractRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
   IDNSRepository,
   IDNSRepositoryType,
   IInvitationRepository,

@@ -14,7 +14,6 @@ import {
   DataPermissions,
   ConsentToken,
   TokenId,
-  IDataWalletPersistence,
   IPFSError,
   SDQLQueryRequest,
   HexString32,
@@ -30,7 +29,7 @@ import {
   dataWalletKey,
   dataWalletAddress,
   defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks";
+} from "@core-tests/mock/mocks/index.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
@@ -42,6 +41,7 @@ import {
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
+  IDataWalletPersistence,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";

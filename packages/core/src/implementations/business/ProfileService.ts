@@ -7,13 +7,15 @@ import {
   EmailAddressString,
   CountryCode,
   Age,
-  IDataWalletPersistenceType,
-  IDataWalletPersistence,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IProfileService } from "@core/interfaces/business/index.js";
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class ProfileService implements IProfileService {

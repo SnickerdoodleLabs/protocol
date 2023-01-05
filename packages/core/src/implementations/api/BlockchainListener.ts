@@ -9,8 +9,6 @@ import {
   ConsentError,
   ConsentFactoryContractError,
   EVMContractAddress,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   IPFSError,
   PersistenceError,
   UninitializedError,
@@ -32,6 +30,8 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
 import { CoreConfig } from "@core/interfaces/objects/index.js";
 import {

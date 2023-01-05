@@ -1,5 +1,3 @@
-import { ResultAsync } from "neverthrow";
-
 import {
   ClickData,
   EarnedReward,
@@ -12,10 +10,8 @@ import {
   WalletNFT,
   TokenAddress,
   TransactionPaymentCounter,
-} from "@objects/businessObjects";
-import { AjaxError, PersistenceError } from "@objects/errors";
-import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
-import {
+  PersistenceError,
+  IDataWalletBackup,
   Age,
   EmailAddressString,
   ChainId,
@@ -29,9 +25,9 @@ import {
   BlockNumber,
   UnixTimestamp,
   AccountAddress,
-  CeramicStreamID,
   DataWalletBackupID,
-} from "@objects/primitives";
+} from "@snickerdoodlelabs/objects";
+import { ResultAsync } from "neverthrow";
 
 /**
  * This is technically a repository, but since the form factor may need to override where

@@ -14,7 +14,6 @@ import {
   EVMTransaction,
   TransactionFilter,
   Gender,
-  IDataWalletPersistence,
   TokenBalance,
   SDQL_Name,
   TickerSymbol,
@@ -33,6 +32,7 @@ import * as td from "testdouble";
 
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
 
 class NetworkQueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();

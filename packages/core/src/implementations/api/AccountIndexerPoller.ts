@@ -1,16 +1,16 @@
 import { ILogUtils, ILogUtilsType } from "@snickerdoodlelabs/common-utils";
-import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
-} from "@snickerdoodlelabs/objects";
 import { injectable, inject } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 
 import { IAccountIndexerPoller } from "@core/interfaces/api/index.js";
 import {
   IMonitoringServiceType,
   IMonitoringService,
 } from "@core/interfaces/business/index.js";
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,

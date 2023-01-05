@@ -9,12 +9,10 @@ import {
   ExpectedReward,
   Gender,
   HexString32,
-  IDataWalletPersistence,
   IpfsCID,
   QueryIdentifier,
   SDQLQuery,
   SDQLString,
-  ChainTransaction,
   SDQL_Return,
   ChainId,
   ISDQLCompensations,
@@ -38,11 +36,14 @@ import {
   QueryEvaluator,
   QueryParsingEngine,
   QueryRepository,
-} from "@core/implementations/business";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { IQueryFactories } from "@core/interfaces/utilities/factory";
+} from "@core/implementations/business/index.js";
+import {
+  BalanceQueryEvaluator,
+  NetworkQueryEvaluator,
+} from "@core/implementations/business/utilities/query/index.js";
+import { QueryFactories } from "@core/implementations/utilities/factory/index.js";
+import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
+import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(

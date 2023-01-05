@@ -17,8 +17,6 @@ import {
   DataPermissions,
   ConsentError,
   EVMContractAddress,
-  IDataWalletPersistenceType,
-  IDataWalletPersistence,
   ConsentContractError,
   ConsentContractRepositoryError,
   BlockchainProviderError,
@@ -58,6 +56,8 @@ import {
   IMetatransactionForwarderRepository,
   IMarketplaceRepositoryType,
   IMarketplaceRepository,
+  IDataWalletPersistenceType,
+  IDataWalletPersistence,
 } from "@core/interfaces/data/index.js";
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
 import {

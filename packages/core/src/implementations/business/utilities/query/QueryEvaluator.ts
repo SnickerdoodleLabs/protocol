@@ -3,8 +3,6 @@ import {
   CountryCode,
   EvalNotImplementedError,
   Gender,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
@@ -28,12 +26,14 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator.js";
-import {
   INetworkQueryEvaluator,
   INetworkQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator.js";
-import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
+  IQueryEvaluator,
+} from "@core/interfaces/business/utilities/query/index.js";
+import {
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {

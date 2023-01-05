@@ -7,32 +7,30 @@ import {
   EVMAccountAddress,
   EVMPrivateKey,
   HexString,
-  IDataWalletPersistence,
   InvitationDomain,
   IpfsCID,
   Signature,
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
-import { errAsync, okAsync } from "neverthrow";
+import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import {
   dataWalletAddress,
-  dataWalletKey,
-  externalAccountAddress1,
   consentContractAddress1,
   defaultInsightPlatformBaseUrl,
 } from "@core-tests/mock/mocks/commonValues.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
-} from "@core-tests/mock/utilities";
+} from "@core-tests/mock/utilities/index.js";
 import { InvitationService } from "@core/implementations/business/index.js";
 import { IInvitationService } from "@core/interfaces/business/index.js";
 import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
+  IDataWalletPersistence,
   IDNSRepository,
   IInvitationRepository,
   IMarketplaceRepository,

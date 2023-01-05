@@ -20,7 +20,6 @@ import {
   ExternallyOwnedAccount,
   HexString,
   ICrumbContent,
-  IDataWalletPersistence,
   InitializationVector,
   LanguageCode,
   LinkedAccount,
@@ -40,14 +39,17 @@ import {
   dataWalletAddress,
   dataWalletKey,
   defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks/commonValues";
+} from "@core-tests/mock/mocks/index.js";
 import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
 import { AccountService } from "@core/implementations/business/index.js";
 import { IAccountService } from "@core/interfaces/business/index.js";
-import { ICrumbsRepository } from "@core/interfaces/data/index.js";
+import {
+  ICrumbsRepository,
+  IDataWalletPersistence,
+} from "@core/interfaces/data/index.js";
 import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
 import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";

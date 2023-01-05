@@ -22,8 +22,6 @@ import {
   SDQLQueryRequest,
   ConsentToken,
   ServerRewardError,
-  IDataWalletPersistenceType,
-  IDataWalletPersistence,
   IDynamicRewardParameter,
   LinkedAccount,
   QueryIdentifier,
@@ -44,6 +42,8 @@ import {
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
   ISDQLQueryRepository,
   ISDQLQueryRepositoryType,
 } from "@core/interfaces/data/index.js";

@@ -1,7 +1,6 @@
 import "reflect-metadata";
 
 import {
-  IDataWalletPersistence,
   TokenBalance,
   Age,
   ChainId,
@@ -24,12 +23,12 @@ import {
   ConditionL,
   ConditionLE,
 } from "@snickerdoodlelabs/query-parser";
-import { BigNumber } from "ethers";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 20),
