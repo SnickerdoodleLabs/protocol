@@ -11,6 +11,7 @@ const PermissionSelectionModal: FC = () => {
   const onManageClicked: () => void = customProps.onManageClicked;
   const onCloseClicked: () => void = customProps.onCloseClicked;
 
+
   const classes = useStyles();
   return (
     <Dialog

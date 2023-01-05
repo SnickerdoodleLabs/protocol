@@ -3,7 +3,7 @@ import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import AuthFlowLayout from "@extension-onboarding/layouts/AutFlowLayout";
 import OnboardingLayout from "@extension-onboarding/layouts/OnboardingLayout";
 import ProductTourLayout from "@extension-onboarding/layouts/ProductTourLayout";
-import CampaignsInfo from "@extension-onboarding/pages/Details/screens/CampaignsInfo";
+import CampaignSettings from "@extension-onboarding/pages/Details/screens/CampaignSettings";
 import DataPermissionsSettings from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings";
 import EarnedRewards from "@extension-onboarding/pages/Details/screens/EarnedRewards";
 import MarketPlaceCampaigns from "@extension-onboarding/pages/Details/screens/MarketplaceCampaigns";
@@ -72,6 +72,7 @@ export const AuthFlowRoutes = (
       /> */}
       <Route path={EPaths.WEB3_SETTINGS} element={<OnChainIfo />} />
       <Route path={EPaths.WEB2_SETTINGS} element={<PersonalInfo />} />
+      <Route path={EPaths.CAMPAIGN_SETTINGS} element={<CampaignSettings />} />
       <Route
         path={EPaths.DATA_PERMISSIONS_SETTING}
         element={<DataPermissionsSettings />}
