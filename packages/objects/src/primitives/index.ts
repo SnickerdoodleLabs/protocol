@@ -16,6 +16,7 @@ export * from "@objects/primitives/DataWalletBackupID";
 export * from "@objects/primitives/DomainName";
 export * from "@objects/primitives/EmailAddressString";
 export * from "@objects/primitives/EncryptedString";
+export * from "@objects/primitives/AdContentType";
 
 export * from "@objects/primitives/EVMChainCode";
 export * from "@objects/primitives/EVMAccountAddress";

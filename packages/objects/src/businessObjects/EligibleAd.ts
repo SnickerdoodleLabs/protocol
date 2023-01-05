@@ -1,22 +1,25 @@
 import {
     IpfsCID,
-    ISO8601DateString,
+    UnixTimestamp,
 } from "@objects/primitives";
+import { AdContent } from "@objects/businessObjects";
+import { AdDisplayType } from "@objects/primitives/AdDisplayType";
 
 
 export class EligibleAd {
     public constructor(
-        public id: string, // IpfsCID + Ad key
-        public key: string,
+        public queryCID: IpfsCID,
+        public key: string, // 'a1'
         public name: string,
-        public content: {
-            type: "image" | "video",
-            src: IpfsCID
-        },
+        public content: AdContent,
         public text: string | null,
-        public type: "banner" | "popup",
+        public displayType: AdDisplayType,
         public weight: number,
-        public expiry: ISO8601DateString,
+        public expiry: UnixTimestamp,
         public keywords: string[]
     ) {}
+
+    public getUniqueId(): string {
+        return this.queryCID + this.key;
+    }
 }

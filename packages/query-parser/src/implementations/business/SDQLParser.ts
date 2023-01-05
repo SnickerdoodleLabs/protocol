@@ -457,9 +457,12 @@ export class SDQLParser {
       this.logicCompensations = this.parseLogicExpressions(
         logicSchema.compensations,
       );
-      this.logicAds = this.parseLogicExpressions(
-        logicSchema.ads,
-      );
+
+      if (logicSchema.ads) {
+        this.logicAds = this.parseLogicExpressions(
+          logicSchema.ads,
+        );
+      }
 
       return okAsync(undefined);
     } catch (err) {
@@ -505,9 +508,12 @@ export class SDQLParser {
         logicSchema["compensations"],
       );
 
-      this.adPermissions = this.parseLogicPermissions(
-        logicSchema["ads"],
-      );
+      if (logicSchema["ads"]) {
+        this.adPermissions = this.parseLogicPermissions(
+          logicSchema["ads"],
+        );
+      }
+
       return okAsync(undefined);
     } catch (err) {
       return errAsync(err as MissingWalletDataTypeError);
