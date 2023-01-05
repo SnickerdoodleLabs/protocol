@@ -58,6 +58,36 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     });
   }
 
+  public getMarketDataForTokens(
+    tokens: { chain: ChainId; address: TokenAddress | null }[],
+  ): ResultAsync<
+    Map<`${ChainId}-${TokenAddress}`, TokenMarketData>,
+    AccountIndexingError
+  > {
+    const ids = new Map<string, `${ChainId}-${TokenAddress}`>();
+    return ResultUtils.combine(
+      tokens.map((token) => {
+        return this.getTokenInfo(token.chain, token.address).map((info) => {
+          if (info != null) {
+            ids.set(info.id, `${token.chain}-${token.address}`);
+          }
+        });
+      }),
+    ).andThen(() => {
+      return this.getTokenMarketData([...ids.keys()]).map((marketData) => {
+        const returnVal = new Map<
+          `${ChainId}-${TokenAddress}`,
+          TokenMarketData
+        >();
+        marketData.forEach((data) => {
+          const key = ids.get(data.id)!;
+          returnVal.set(key, data);
+        });
+        return returnVal;
+      });
+    });
+  }
+
   public addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError> {
     return this.volatileStorage.putObject(ELocalStorageKey.COIN_INFO, info);
   }
@@ -93,6 +123,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                 item.market_cap,
                 item.market_cap_rank,
                 item.price_change_24h,
+                item.price_change_percentage_24h,
                 item.circulating_supply,
                 item.total_supply,
                 item.max_supply,

@@ -2,7 +2,7 @@ import emptyCampaign from "@extension-onboarding/assets/images/empty-campaign.sv
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import CampaignItem from "@extension-onboarding/components/CampaignItem";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignsInfo/CampaignsInfo.style";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/CampaignSettings/CampaignSettings.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import { EVMContractAddress, IpfsCID } from "@snickerdoodlelabs/objects";
@@ -74,16 +74,13 @@ const RewardsInfo: FC = () => {
     <Box>
       <Box mb={4}>
         <Typography className={classes.title}>My Campaigns</Typography>
-        <Typography className={classes.description}>
-          Check out what you've earned from sharing insights!
-        </Typography>
       </Box>
       {isLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={15}>
           <CircularProgress />
         </Box>
       ) : (
-        <Grid container spacing={2}>
+        <>
           {campaignContractAddressesWithCID &&
           Object.keys(campaignContractAddressesWithCID).length ? (
             Object.keys(campaignContractAddressesWithCID)?.map((key) => (
@@ -118,7 +115,7 @@ const RewardsInfo: FC = () => {
               </Box>
             </Box>
           )}
-        </Grid>
+        </>
       )}
     </Box>
   );

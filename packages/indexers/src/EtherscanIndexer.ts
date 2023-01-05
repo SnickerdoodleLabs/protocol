@@ -324,6 +324,7 @@ interface IEtherscanTransactionResponse {
     confirmations: string;
     methodId: string;
     functionName: string;
+    value_quote: number | null;
   }[];
 }
 

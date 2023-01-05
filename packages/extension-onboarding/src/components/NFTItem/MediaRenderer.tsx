@@ -1,8 +1,8 @@
 import React, { useEffect, useState, FC } from "react";
-import NftMetadataParser, {
-  INFT,
-} from "@extension-onboarding/components/NFTItem/NftMetadataParser";
+import { NftMetadataParseUtils } from "@extension-onboarding/utils";
 import placeholder from "@extension-onboarding/assets/images/image-placeholder.png";
+import { useNavigate } from "react-router";
+import { INFT } from "@extension-onboarding/objects";
 
 interface IMediaRendererProps {
   metadataString: string | null;
@@ -10,7 +10,6 @@ interface IMediaRendererProps {
 
 const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
   const [nftData, setNftData] = useState<null | INFT>();
-
   useEffect(() => {
     getNftData();
   }, []);
@@ -21,7 +20,7 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
     if (!metadataString) {
       setNftData(null);
     }
-    NftMetadataParser.getParsedNFT(metadataString!).map((res) => {
+    NftMetadataParseUtils.getParsedNFT(metadataString!).map((res) => {
       setNftData(res);
     });
   };
@@ -29,9 +28,9 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
   if (!metadataString) {
     return (
       <img
-        width={150}
+        width="100%"
         height={140}
-        style={{ borderRadius: "8px 8px 0px 0px", objectFit: "cover" }}
+        style={{ borderRadius: "8px", objectFit: "cover" }}
         src={placeholder}
       />
     );
@@ -41,9 +40,9 @@ const MediaRenderer: FC<IMediaRendererProps> = ({ metadataString }) => {
     <>
       {nftData && (
         <img
-          width={150}
+          width="100%"
           height={140}
-          style={{ borderRadius: "8px 8px 0px 0px", objectFit: "cover" }}
+          style={{ borderRadius: "8px", objectFit: "cover" }}
           src={nftData.imageUrl || placeholder}
         />
       )}

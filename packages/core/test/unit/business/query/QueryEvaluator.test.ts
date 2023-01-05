@@ -19,6 +19,7 @@ import {
   EVMTransactionHash,
   EChainTechnology,
   EChain,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_PropertyQuery,
@@ -178,7 +179,7 @@ class QueryEvaluatorMocks {
     ),
   );
 
-  public transactionsFlow = new Array<ChainTransaction>();
+  public transactionsFlow = new Array<TransactionPaymentCounter>();
   // {
   //   chainId: ChainId(1),
   //   incomingValue: BigNumberString("1"),
@@ -214,7 +215,7 @@ class QueryEvaluatorMocks {
       okAsync(this.URLmap),
     );
 
-    td.when(this.dataWalletPersistence.getTransactionsArray()).thenReturn(
+    td.when(this.dataWalletPersistence.getTransactionValueByChain()).thenReturn(
       okAsync(this.transactionsFlow),
     );
 

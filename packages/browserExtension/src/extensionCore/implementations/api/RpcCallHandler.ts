@@ -33,6 +33,9 @@ import {
   TokenAddress,
   TokenInfo,
   TokenMarketData,
+  URLString,
+  SiteVisit,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -56,6 +59,8 @@ import {
   IPIIServiceType,
   ITokenPriceService,
   ITokenPriceServiceType,
+  IUserSiteInteractionService,
+  IUserSiteInteractionServiceType,
 } from "@interfaces/business";
 import {
   IScamFilterService,
@@ -103,6 +108,7 @@ import {
   IGetTokenPriceParams,
   IGetTokenMarketDataParams,
   IGetTokenInfoParams,
+  IGetMarketplaceListingsParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -128,6 +134,8 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IScamFilterSettingsUtilsType)
     protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
+    @inject(IUserSiteInteractionServiceType)
+    protected userSiteInteractionService: IUserSiteInteractionService,
   ) {}
 
   public async handleRpcCall(
@@ -266,6 +274,12 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_LOCATION: {
         return new AsyncRpcResponseSender(this.getLocation(), res).call();
       }
+      case EExternalActions.GET_SITE_VISITS: {
+        return new AsyncRpcResponseSender(this.getSiteVisits(), res).call();
+      }
+      case EExternalActions.GET_SITE_VISITS_MAP: {
+        return new AsyncRpcResponseSender(this.getSiteVisitsMap(), res).call();
+      }
       case EExternalActions.GET_ACCEPTED_INVITATIONS_CID: {
         return new AsyncRpcResponseSender(
           this.getAcceptedInvitationsCID(),
@@ -287,6 +301,18 @@ export class RpcCallHandler implements IRpcCallHandler {
           this.checkInvitationStatus(consentAddress, signature, tokenId),
           res,
         ).call();
+      }
+
+      case EExternalActions.GET_MARKETPLACE_LISTINGS: {
+        const { count, headAt } = params as IGetMarketplaceListingsParams;
+        return new AsyncRpcResponseSender(
+          this.getMarketplaceListings(count, headAt),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_LISTING_TOTAL: {
+        return new AsyncRpcResponseSender(this.getListingsTotal(), res).call();
       }
 
       case EExternalActions.GET_CONTRACT_CID: {
@@ -558,6 +584,17 @@ export class RpcCallHandler implements IRpcCallHandler {
     });
   }
 
+  private getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+    return this.invitationService.getMarketplaceListings(count, headAt);
+  }
+
+  private getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.invitationService.getListingsTotal();
+  }
+
   private getConsentContractCID(
     consentAddress: EVMContractAddress,
   ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
@@ -792,5 +829,14 @@ export class RpcCallHandler implements IRpcCallHandler {
     SnickerDoodleCoreError
   > {
     return this.piiService.getLocation();
+  }
+  private getSiteVisits(): ResultAsync<SiteVisit[], SnickerDoodleCoreError> {
+    return this.userSiteInteractionService.getSiteVisits();
+  }
+  private getSiteVisitsMap(): ResultAsync<
+    Map<URLString, number>,
+    SnickerDoodleCoreError
+  > {
+    return this.userSiteInteractionService.getSiteVisitsMap();
   }
 }
