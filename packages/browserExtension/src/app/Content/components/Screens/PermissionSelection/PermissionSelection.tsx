@@ -3,12 +3,14 @@ import BasicModal from "@app/Content/components/Modals/BasicModal";
 import { useStyles } from "@app/Content/components/Screens/PermissionSelection/PermissionSelection.style";
 import { EAPP_STATE } from "@app/Content/constants";
 import { Box, Typography } from "@material-ui/core";
+import { JsonRpcError } from "json-rpc-engine";
+import { ResultAsync } from "neverthrow";
 import React, { FC } from "react";
 
 interface IPermissionSelectionProps {
   emptyReward: () => void;
   changeAppState: (state: EAPP_STATE) => void;
-  acceptInvitation: () => void;
+  acceptInvitation: () => ResultAsync<void, JsonRpcError>;
 }
 
 const PermissionSelection: FC<IPermissionSelectionProps> = ({
@@ -43,7 +45,19 @@ const PermissionSelection: FC<IPermissionSelectionProps> = ({
                 Manage Settings
               </Button>
             </Box>
-            <Button buttonType="primary" onClick={acceptInvitation}>
+            <Button
+              buttonType="primary"
+              onClick={async (e) => {
+                e.currentTarget.disabled = true;
+                try {
+                  await acceptInvitation();
+                } catch (err) {
+                  console.log("Error happened while accepting invitation: ", e);
+                } finally {
+                  e.currentTarget.disabled = false;
+                }
+              }}
+            >
               Accept All
             </Button>
           </Box>

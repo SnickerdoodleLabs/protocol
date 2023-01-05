@@ -209,7 +209,7 @@ const App = () => {
   };
 
   const acceptInvitation = () => {
-    coreGateway
+    return coreGateway
       .acceptInvitationByUUID(null, invitationDomain?.id as UUID)
       .map(() => emptyReward());
   };
