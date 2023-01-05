@@ -74,9 +74,6 @@ const RewardsInfo: FC = () => {
     <Box>
       <Box mb={4}>
         <Typography className={classes.title}>My Campaigns</Typography>
-        <Typography className={classes.description}>
-          Check out what you've earned from sharing insights!
-        </Typography>
       </Box>
       {isLoading ? (
         <Box display="flex" alignItems="center" justifyContent="center" mt={15}>
