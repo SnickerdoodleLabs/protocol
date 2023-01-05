@@ -244,7 +244,7 @@ const RewardReview: FC = () => {
                                   textAlign: "justify",
                                 }}
                               >
-                                {EWalletDataType[data]}
+                                {data}
                               </Typography>
                             </li>
                           );
