@@ -57,6 +57,7 @@ import {
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
+  AdService,
   BalanceQueryEvaluator,
   ConsentTokenUtils,
   InvitationService,
@@ -160,7 +161,6 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
-import { AdService } from "./business/AdService";
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
