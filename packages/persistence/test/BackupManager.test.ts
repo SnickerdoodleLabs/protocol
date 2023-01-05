@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { EligibleAd, EVMPrivateKey, IpfsCID, ISO8601DateString, PersistenceError } from "@snickerdoodlelabs/objects";
+import { EligibleAd, EVMPrivateKey, IpfsCID, ISO8601DateString } from "@snickerdoodlelabs/objects";
 import { ELocalStorageKey } from "@persistence/ELocalStorageKey";
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
 
