@@ -56,6 +56,7 @@ import {
   BigNumberString,
   addBigNumberString,
   getChainInfoByChainId,
+  EligibleAd,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -305,6 +306,30 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.waitForUnlock().andThen(() => {
       return this.volatileStorage.getAll<EarnedReward>(
         ELocalStorageKey.EARNED_REWARDS,
+      );
+    });
+  }
+
+  public addEligibleAds(
+    ads: EligibleAd[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              ads.map((ad) => backupManager.addRecord(ELocalStorageKey.ELIGIBLE_ADS, ad))
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
+  }
+
+  public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    return this.waitForRestore().andThen(() => {
+      return this.volatileStorage.getAll<EligibleAd>(
+        ELocalStorageKey.ELIGIBLE_ADS,
       );
     });
   }

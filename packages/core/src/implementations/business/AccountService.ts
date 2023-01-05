@@ -50,6 +50,7 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
+  EligibleAd,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -554,6 +555,16 @@ export class AccountService implements IAccountService {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.addEarnedRewards(rewards);
+  }
+
+  public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    return this.dataWalletPersistence.getEligibleAds();
+  }
+
+  public addEligibleAds(
+    ads: EligibleAd[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.dataWalletPersistence.addEligibleAds(ads);
   }
 
   public getTranactions(

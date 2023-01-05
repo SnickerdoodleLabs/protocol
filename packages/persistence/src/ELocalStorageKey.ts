@@ -21,4 +21,5 @@ export enum ELocalStorageKey {
   ACCEPTED_INVITATIONS = "SD_OptedInAccounts",
   COIN_INFO = "SD_CoinInfo",
   RESTORED_BACKUPS = "SD_RestoredBackups",
+  ELIGIBLE_ADS = 'SD_EligibleAds',
 }

@@ -26,6 +26,7 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
+  EligibleAd,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -124,6 +125,11 @@ export interface IAccountService {
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
   addEarnedRewards(
     rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
+
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+  addEligibleAds(
+    ads: EligibleAd[],
   ): ResultAsync<void, PersistenceError>;
 
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
