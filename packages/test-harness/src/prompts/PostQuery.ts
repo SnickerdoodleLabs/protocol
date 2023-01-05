@@ -38,6 +38,10 @@ export class PostQuery extends Prompt {
                 name: `Query 2`,
                 value: 2,
               },
+              {
+                name: `Query 3 - Ads`,
+                value: 3,
+              },
               new inquirer.Separator(),
               { name: "Cancel", value: "cancel" },
             ],
@@ -53,6 +57,8 @@ export class PostQuery extends Prompt {
                 queryText = SDQLString(JSON.stringify(this.mocks.query1));
               } else if (queryId === 2) {
                 queryText = SDQLString(JSON.stringify(this.mocks.query2));
+            }  else if (queryId === 3) {
+                queryText = SDQLString(JSON.stringify(this.mocks.query3));
               }
       
               return this.mocks.insightSimulator.postQuery(contractAddress, queryText);
