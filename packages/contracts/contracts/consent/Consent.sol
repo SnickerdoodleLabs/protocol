@@ -22,6 +22,9 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
     address consentFactoryAddress;
     IConsentFactory consentFactoryInstance;
 
+    /// @dev attributes which this consent contract stakes against
+    mapping(bytes32 => uint256) public attributes;
+
     /// @dev Role bytes
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");

@@ -20,18 +20,25 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
 
     /// @dev Listing object for storing marketplace listings
     struct Listing{
-      uint256 next;
-      string cid;
+      uint256 next; // pointer to the next active slot
+      address consentContract; // address of the target consent contract
+      uint256 timePosted; // unix timestamp when the listing was posted or updated
+      uint256 timeExpiring; // unix timestamp when the listing expires and can be replaced
     }
 
     /// @dev starting slot of the linked list
-    uint256 public listingsHead;
+    mapping(bytes32 => uint256) public listingHeads;
 
     /// @dev the total number of listings in the marketplace
-    uint256 public listingsTotal;
+    mapping(bytes32 => uint256) public listingTotals; 
 
-    /// @dev mapping from listing slot to Listing object
-    mapping (uint256 => Listing) public listings;
+    /// @dev the default amount of time, in seconds, that a listing is valid for
+    uint256 public listingDuration; 
+
+    /// @dev nested mapping
+    /// @dev first layer maps from hashed attribute string to a linked list
+    /// @dev second layer is the linked list mapping structure
+    mapping(bytes32 => mapping(uint256 => Listing)) listings; 
 
     /// @dev The PAUSE_ROLE can pause all activity in the factory contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -66,6 +73,12 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @param consentAddress Indexed address of the deployed Consent contract Beacon Proxy
     event ConsentDeployed(address indexed owner, address indexed consentAddress);
 
+    /// @notice Emitted when a Consent contract's Beacon Proxy is deployed
+    /// @param consentContract address of the target consent contract
+    /// @param attribute the human-readable attribute the listing was filed under
+    /// @param slot The slot (i.e. amount of stake) that the listing has posted to
+    event NewListing(address indexed consentContract, string attribute, uint256 slot);
+
     /* MODIFIERS */
 
     /// @notice Modified to check if a caller of a function is a Consent contract
@@ -93,74 +106,150 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         beaconAddress = address(_upgradeableBeacon);
 
         trustedForwarder = _trustedForwarder;
-        listingsHead = 1; // head slot is 1, this value must be >=1
-        listingsTotal = 0; 
+
+        listingDuration = 2 weeks; 
     }
 
     /* CORE FUNCTIONS */
 
     /// @notice Inserts a new listing into the Listing linked-list mapping
     /// @dev _upstream -> _newSlot -> _downstream
-    /// @param _downstream Downstream pointer that will be pointed to by _newSlot
+    /// @param attribute Human readable string denoting the target attribute to stake
     /// @param _newSlot New linked list entry that will point to _downstream slot
     /// @param _upstream upstream pointer that will point to _newSlot  
-    /// @param cid IPFS address of the listing content
-    function insertListing(uint256 _downstream, uint256 _newSlot, uint256 _upstream, string memory cid) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function insertListing(string memory attribute, uint256 _newSlot, uint256 _upstream) external onlyConsentContract {
 
         // the new linked list entry must be between two existing entries
+        require(_newSlot > 0, "ConsentFactory: _newSlot must be greater than 0");
         require(_upstream > _newSlot, "ConsentFactory: _upstream must be greater than _newSlot");
-        require(_newSlot > _downstream, "ConsentFactory: _newSlot must be greater than _downstream");
 
-        // the upstream entry must exist and it must point to the specified downstream listing
-        // if the next variable is 0, it means the slot is uninitialized and thus it is invalid
-        Listing memory listingA = listings[_upstream];
-        require(listingA.next >= 1, "ConsentFactory: invalid upstream slot");
-        require(listingA.next == _downstream, "ConsentFactory: _upstream listing points to different _downstream listing");
+        // The new listing must fit between _upstream and its current downstresam
+        // if the next variable is 0, it means the slot is uninitialized and thus it is invalid _upstream entry
+        bytes32 LLKey = keccak256(abi.encodePacked(attribute));
+        Listing memory listingA = listings[LLKey][_upstream];
+        require(_newSlot > listingA.next, "ConsentFactory: invalid insertion");
         
-        // make the upstream slot point to the new slot
-        listings[_upstream] = Listing(_newSlot, listingA.cid);
-
-        // make the new slot point to the downstream
+        // make the new slot point to the old downstream
         // downstream slot can remain as it is
-        listings[_newSlot] = Listing(_downstream, cid);
+        listings[LLKey][_newSlot] = Listing(listingA.next, msg.sender, block.timestamp, block.timestamp + listingDuration);
 
-        listingsTotal += 1; 
+        // make the upstream slot point to the new slot
+        listings[LLKey][_upstream].next = _newSlot;
+
+        listingTotals[LLKey] += 1; 
+
+        emit NewListing(msg.sender, attribute, _newSlot);
     }
 
     /// @notice Creates a new head listing in the marketplace listing map
     /// @dev _newSlot -> oldHeadSlot
+    /// @param attribute Human readable string denoting the target attribute to stake
     /// @param _newHead Downstream pointer that will be pointed to by _newSlot
-    /// @param cid IPFS address of the listing content
-    function newListingHead(uint256 _newHead, string memory cid) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    function newListingHead(string memory attribute, uint256 _newHead) external onlyConsentContract {
+
+        bytes32 LLKey = keccak256(abi.encodePacked(attribute));
 
         // the new linked list entry must be between two existing entries
-        require(_newHead > listingsHead, "ConsentFactory: The new head must be greater than old head");
+        require(_newHead > listingHeads[LLKey], "ConsentFactory: The new head must be greater than old head");
 
         // make the new head point to the old head
-        listings[_newHead] = Listing(listingsHead, cid);
+        listings[LLKey][_newHead] = Listing(listingHeads[LLKey], msg.sender, block.timestamp, block.timestamp + listingDuration);
 
         // update the head variable
-        listingsHead = _newHead;
+        listingHeads[LLKey] = _newHead;
 
-        listingsTotal += 1; 
+        // increment the number of listings under this attribute
+        listingTotals[LLKey] += 1;
+
+        emit NewListing(msg.sender, attribute, _newHead);
+    }
+
+    /// @notice Replaces an existing listing that has expired
+    /// @dev _newSlot -> oldHeadSlot
+    /// @param attribute Human readable string denoting the target attribute to stake
+    /// @param _slot The expired slot to replace with a new listing
+    function replaceExpiredListing(string memory attribute, uint256 _slot) external onlyConsentContract {
+
+        // grab the old listing under the targeted attribute
+        bytes32 LLKey = keccak256(abi.encodePacked(attribute));
+        Listing memory oldListing = listings[LLKey][_slot];
+
+        // the new linked list entry must be between two existing entries
+        require(oldListing.timeExpiring > 0, "ConsentFactory: Cannot replace an empty slot");
+        require(block.timestamp > oldListing.timeExpiring, "ConsentFactory: current listing is still active");
+
+        // slide the new listing into the existing slot
+        listings[LLKey][_slot] = Listing(oldListing.next, msg.sender, block.timestamp, block.timestamp + listingDuration);
+
+        emit NewListing(msg.sender, attribute, _slot);
+    }
+
+    /// @notice removes a head listing in the marketplace listing map
+    /// @param attribute Human readable string denoting the target attribute
+    function removeHeadListing(string memory attribute) external onlyConsentContract {
+
+        // grab the candidate head listing to be removed
+        bytes32 LLKey = keccak256(abi.encodePacked(attribute));
+        Listing memory oldHead = listings[LLKey][listingHeads[LLKey]];
+
+        // the caller must own the listing which is being removed
+        require(msg.sender == oldHead.consentContract, "ConsentFactory: only listing owner can remove");
+
+        // delete the old head listings
+        delete listings[LLKey][listingHeads[LLKey]];
+
+        // update the linked list head for this attribute
+        listingHeads[LLKey] = oldHead.next;
+
+        // decriment the number of listings
+        listingTotals[LLKey] -= 1;
+    }
+
+    /// @notice Remove an existing listing that is not a head listing
+    /// @param attribute Human readable string denoting the target attribute
+    /// @param _upstream The slot number of the listing which points to the listing to be removed
+    function removeTailListing(string memory attribute, uint256 _upstream) external onlyConsentContract {
+
+        // grab the old listing under the targeted attribute
+        bytes32 LLKey = keccak256(abi.encodePacked(attribute));
+        uint256 oldSlot = listings[LLKey][_upstream].next;
+        Listing memory oldListing = listings[LLKey][oldSlot];
+
+        // the caller must own the listing which is being removed
+        require(msg.sender == oldListing.consentContract, "ConsentFactory: only listing owner can remove");
+
+        // point the _upstream listing to the next in line
+        listings[LLKey][_upstream].next = oldListing.next;
+
+        // delete the old listing
+        delete listings[LLKey][oldSlot];
+
+        // decriment the number of listings
+        listingTotals[LLKey] -= 1;
     }
 
     /// @notice Returns an array of cids from the marketplace linked list and the next active slot for pagination
+    /// @param attribute Human readable string denoting the target attribute to stake
     /// @param _startingSlot slot to start at in the linked list
     /// @param numSlots number of entries to return
-    function getListings(uint256 _startingSlot, uint256 numSlots) public view returns (string [] memory, uint256 activeSlot) {
+    function getListings(string memory attribute, uint256 _startingSlot, uint256 numSlots) 
+        external 
+        view 
+        returns (string [] memory, uint256 activeSlot) {
+
+        bytes32 LLKey = keccak256(abi.encodePacked(attribute));
 
         string[] memory cids = new string[](numSlots);
 
         activeSlot =  _startingSlot;
         // loop over the slots 
         for (uint i = 0; i < numSlots; i++) {
-            Listing memory listing = listings[activeSlot];
-            require(listing.next >= 1, "ConsentFactory: invalid slot");
-            cids[i] = listing.cid;
+            Listing memory listing = listings[LLKey][activeSlot];
+            require(listing.timeExpiring > 0, "ConsentFactory: invalid slot"); // make sure the first listing is valid
+            if(listing.timeExpiring < block.timestamp) { continue; } // don't include expired listings
+            cids[i] = Consent(listing.consentContract).baseURI(); // grab the invitation details from the consent contract
             activeSlot = listing.next;
-            if (activeSlot == 1) {
-                // slot 1 is the EOL slot
+            if(activeSlot == 0) { // slot 0 is the EOL slot
                 break;
             }
         }
