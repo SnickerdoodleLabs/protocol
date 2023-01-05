@@ -26,7 +26,6 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
-  EligibleAd,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 

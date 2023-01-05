@@ -50,7 +50,6 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
-  EligibleAd,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
