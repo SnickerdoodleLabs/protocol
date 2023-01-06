@@ -1,8 +1,9 @@
 import "reflect-metadata";
 
-import { EligibleAd, EVMPrivateKey, IpfsCID, ISO8601DateString } from "@snickerdoodlelabs/objects";
+import { AdContent, EAdContentType, EligibleAd, EVMPrivateKey, IpfsCID, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { ELocalStorageKey } from "@persistence/ELocalStorageKey";
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
+import { EAdDisplayType } from "packages/objects/src/primitives/EAdDisplayType";
 
 
 describe("Bundle", () => {
@@ -42,17 +43,17 @@ describe("Bundle", () => {
     const backupManager = (await backupManagerMocks.getBackupManager())._unsafeUnwrap();
 
     const testAd = new EligibleAd(
-      "someCid_a1",
+      IpfsCID("queryCID"),
       "a1",
       "Creative ad name",
-      {
-        type: "image",
-        src: IpfsCID("someCid")
-      },
+      new AdContent(
+        EAdContentType.IMAGE,
+        IpfsCID("adContentCID")
+      ),
       "You can view this ad anytime",
-      "banner",
+      EAdDisplayType.BANNER,
       99999,
-      ISO8601DateString("Future"),
+      UnixTimestamp(123),
       ["keyword1", "keyword2"]
     );
 
