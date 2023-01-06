@@ -7,7 +7,7 @@ import {
   EVMContractAddress,
   IpfsCID,
   URLString,
-  AdId,
+  AdKey,
   UnixTimestamp,
   EAdDisplayType, 
   ISO8601DateString
@@ -86,7 +86,7 @@ export interface ISDQLReturnProperties {
 }
 
 export interface ISDQLAdsBlock {
-  [index: AdId]: ISDQLAd;
+  [index: AdKey]: ISDQLAd;
 }
 
 export interface ISDQLAd {
