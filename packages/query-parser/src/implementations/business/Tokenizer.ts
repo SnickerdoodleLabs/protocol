@@ -12,7 +12,6 @@ export enum TokenType {
   query = "query",
   return = "return",
   compensation = "compensation",
-  ad = "ad",
   parenthesisOpen = "parenthesisOpen",
   parenthesisClose = "parenthesisClose",
   number = "number",
@@ -42,7 +41,6 @@ rules.push(
   [/\$q[0-9]+/y, TokenType.query],
   [/\$r[0-9]+/y, TokenType.return],
   [/\$c[0-9]+/y, TokenType.compensation],
-  [/\$a[0-9]+/y, TokenType.ad],
   [/\s+/y, TokenType.whitespace],
 );
 

@@ -12,6 +12,9 @@ import {
   ExpectedReward,
   ERewardType,
   IDynamicRewardParameter,
+  ParserError,
+  DuplicateIdInSchema,
+  MissingTokenConstructorError,
   ISDQLCompensations,
 } from "@snickerdoodlelabs/objects";
 import { AST, ISDQLQueryUtils, ISDQLQueryUtilsType } from "@snickerdoodlelabs/query-parser";
