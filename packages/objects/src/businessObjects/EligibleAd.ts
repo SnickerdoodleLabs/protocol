@@ -3,7 +3,7 @@ import {
     UnixTimestamp,
 } from "@objects/primitives";
 import { AdContent } from "@objects/businessObjects";
-import { AdDisplayType } from "@objects/primitives/AdDisplayType";
+import { EAdDisplayType } from "@objects/primitives/EAdDisplayType";
 
 
 export class EligibleAd {
@@ -13,7 +13,7 @@ export class EligibleAd {
         public name: string,
         public content: AdContent,
         public text: string | null,
-        public displayType: AdDisplayType,
+        public displayType: EAdDisplayType,
         public weight: number,
         public expiry: UnixTimestamp,
         public keywords: string[]
