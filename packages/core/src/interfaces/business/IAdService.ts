@@ -11,6 +11,15 @@ export interface IAdService {
   // A set of functions to display and track ad engagement
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
   getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError>;
+  createAdSignature(
+    queryCID: IpfsCID, 
+    adKey: AdKey, 
+    contentHash: SHA256Hash
+  ): ResultAsync<AdSignatureWrapper, PersistenceError>;
+  saveAdSignatures(
+    adSignatureWrapperList: AdSignatureWrapper[]
+  ): ResultAsync<void, PersistenceError>;
+
   requestDisplay(
     ad: EligibleAd
   ): ResultAsync<boolean, PersistenceError>;
@@ -21,15 +30,6 @@ export interface IAdService {
     adKey: AdKey, 
     contentHash: SHA256Hash
   ): ResultAsync<void, Error>;
-  
-  createAdSignature(
-    queryCID: IpfsCID, 
-    adKey: AdKey, 
-    contentHash: SHA256Hash
-  ): ResultAsync<AdSignatureWrapper, PersistenceError>;
-  saveAdSignatures(
-    adSignatureWrapperList: AdSignatureWrapper[]
-  ): ResultAsync<void, PersistenceError>;
 }
   
 export const IAdServiceType = Symbol.for("IAdService");
