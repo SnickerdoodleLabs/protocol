@@ -313,7 +313,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addEligibleAds(
     ads: EligibleAd[],
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
+    return this.waitForUnlock()
       .andThen(() => {
         return this.backupManagerProvider
           .getBackupManager()
@@ -327,7 +327,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
-    return this.waitForRestore().andThen(() => {
+    return this.waitForUnlock().andThen(() => {
       return this.volatileStorage.getAll<EligibleAd>(
         ELocalStorageKey.ELIGIBLE_ADS,
       );
