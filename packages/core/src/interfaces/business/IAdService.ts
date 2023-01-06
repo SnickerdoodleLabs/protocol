@@ -4,16 +4,23 @@ import { ResultAsync } from "neverthrow";
 export interface IAdService {
 
   // To be used by Query Parsing Engine
-  saveEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError>;
-
-  // getAdSignatures(queryCID) returns a list of signatures.
+  saveEligibleAds(
+    ads: EligibleAd[]
+  ): ResultAsync<void, PersistenceError>;
 
   // A set of functions to display and track ad engagement
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
-  requestDisplay(ad: EligibleAd): ResultAsync<boolean, PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError>;
+  requestDisplay(
+    ad: EligibleAd
+  ): ResultAsync<boolean, PersistenceError>;
 
   // event subscriptions
-  // onAdDisplayed(queryCID, adId, contentHash)
+  onAdDisplayed(
+    queryCID: IpfsCID, 
+    adKey: AdKey, 
+    contentHash: SHA256Hash
+  ): ResultAsync<void, Error>;
   
   createAdSignature(
     queryCID: IpfsCID, 
