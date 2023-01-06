@@ -1,3 +1,4 @@
+import { IAdService } from "@core/interfaces/business";
 import {
     IDataWalletPersistenceType,
     IDataWalletPersistence,
@@ -7,7 +8,7 @@ import {
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
-import { IAdService } from "@core/interfaces/business/index.js";
+
 
 @injectable()
 export class AdService implements IAdService {
