@@ -1,12 +1,10 @@
 import "reflect-metadata";
 
 import {
-  AdId,
   DataPermissions,
   DuplicateIdInSchema,
   EWalletDataType,
   IpfsCID,
-  ISDQLAd,
   ISDQLCompensationParameters,
   ISDQLCompensations,
   MissingASTError,
@@ -15,6 +13,7 @@ import {
   ParserError,
   QueryExpiredError,
   QueryFormatError,
+  ReturnNotImplementedError,
   SDQL_Name,
   URLString,
   Version,
@@ -25,7 +24,6 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { ExprParser } from "@query-parser/implementations/business/ExprParser.js";
 import {
   AST,
-  AST_Ad,
   AST_BalanceQuery,
   AST_Compensation,
   AST_Expr,
@@ -43,18 +41,15 @@ import {
 } from "@query-parser/interfaces/index.js";
 
 export class SDQLParser {
-  public context = new Map<string, ParserContextDataTypes>(); //Global key-block umbrella
-  public ads = new Map<SDQL_Name, AST_Ad>();
+  public context = new Map<string, ParserContextDataTypes>();
   public queries = new Map<SDQL_Name, AST_Query>();
   public returns: AST_Returns | null;
   public compensations = new Map<SDQL_Name, AST_Compensation>();
   public compensationParameters: ISDQLCompensationParameters | null = null;
   public logicReturns = new Map<string, AST_Expr | Command>();
   public logicCompensations = new Map<string, AST_Expr | Command>();
-  public logicAds = new Map<string, AST_Expr | Command>();
   public returnPermissions = new Map<string, DataPermissions>();
   public compensationPermissions = new Map<string, DataPermissions>();
-  public adPermissions = new Map<string, DataPermissions>();
 
   public exprParser: ExprParser | null = null;
 
@@ -84,13 +79,32 @@ export class SDQLParser {
     | QueryFormatError
     | MissingTokenConstructorError
   > {
-    return this.parseAds().andThen(() => {
-      return this.parseQueries().andThen(() => {
-        return this.parseReturns().andThen(() => {
-          return this.parseCompensations().andThen(() => {
-            return this.parseLogic().andThen(() => {
-              return this.parsePermissions();
-            });
+    // const queries = this.parseQueries();
+
+    // this.parseQueries();
+
+    // this.returns = new AST_Returns(
+    //   URLString(this.schema.getReturnSchema().url),
+    // );
+    // this.parseReturns();
+
+    // this.parseCompensations();
+
+    // this.parseLogic();
+
+    // return ResultUtils.executeSerially<void([
+    //   this.parseQueries(),
+    //   this.parseReturns(),
+    //   this.parseCompensations(),
+    //   this.parseLogic(),
+    //   this.parsePermissions()
+    // ]);
+
+    return this.parseQueries().andThen(() => {
+      return this.parseReturns().andThen(() => {
+        return this.parseCompensations().andThen(() => {
+          return this.parseLogic().andThen(() => {
+            return this.parsePermissions();
           });
         });
       });
@@ -112,7 +126,6 @@ export class SDQLParser {
             Version(this.schema.version!),
             this.schema.description,
             this.schema.business,
-            this.ads,
             this.queries,
             this.returns,
             this.compensationParameters,
@@ -120,10 +133,8 @@ export class SDQLParser {
             new AST_Logic(
               this.logicReturns,
               this.logicCompensations,
-              this.logicAds,
               this.returnPermissions,
               this.compensationPermissions,
-              this.adPermissions
             ),
           ),
         );
@@ -238,45 +249,6 @@ export class SDQLParser {
   // #endregion
 
   // #region non-logic
-  private parseAds(): ResultAsync<
-    void,
-    DuplicateIdInSchema | QueryFormatError
-  > {
-    try {
-      const adsSchema = this.schema.getAdsSchema();
-
-      for (const key in adsSchema) {
-
-        const adKey = SDQL_Name(key); //'a1'
-        const singleAdSchema = adsSchema[key] as ISDQLAd;
-        const ad = new AST_Ad(
-          adKey,
-          SDQL_Name(singleAdSchema.name),
-          singleAdSchema.content,
-          singleAdSchema.text,
-          singleAdSchema.type,
-          singleAdSchema.weight,
-          singleAdSchema.expiry,
-          singleAdSchema.keywords
-        );
-
-        this.ads.set(adKey, ad);
-        this.saveInContext(key, ad);
-      }
-
-      return okAsync(undefined);
-
-    } catch (err) {
-      if (err instanceof DuplicateIdInSchema) {
-        return errAsync(err as DuplicateIdInSchema);
-      }
-      if (err instanceof QueryFormatError) {
-        return errAsync(err as QueryFormatError);
-      }
-      return errAsync(new QueryFormatError(JSON.stringify(err)));
-    }
-  }
-
   private parseQueries(): ResultAsync<
     void,
     DuplicateIdInSchema | QueryFormatError
@@ -458,12 +430,6 @@ export class SDQLParser {
         logicSchema.compensations,
       );
 
-      if (logicSchema.ads) {
-        this.logicAds = this.parseLogicExpressions(
-          logicSchema.ads,
-        );
-      }
-
       return okAsync(undefined);
     } catch (err) {
       if (err instanceof ParserError) {
@@ -503,17 +469,9 @@ export class SDQLParser {
       this.returnPermissions = this.parseLogicPermissions(
         logicSchema["returns"],
       );
-
       this.compensationPermissions = this.parseLogicPermissions(
         logicSchema["compensations"],
       );
-
-      if (logicSchema["ads"]) {
-        this.adPermissions = this.parseLogicPermissions(
-          logicSchema["ads"],
-        );
-      }
-
       return okAsync(undefined);
     } catch (err) {
       return errAsync(err as MissingWalletDataTypeError);
@@ -525,28 +483,10 @@ export class SDQLParser {
   ): Map<string, DataPermissions> {
     const permMap = new Map();
     for (const expression of expressions) {
-      const queryDeps = this.parseQueryDependencies(expression);
+      const queryDeps = this.exprParser!.getDependencies(expression);
       permMap.set(expression, this.queriesToDataPermission(queryDeps));
     }
     return permMap;
-  }
-
-  public parseAdDependencies(
-    compensationExpression: string,
-  ): AST_Ad[] {
-    const adDependencies = this.exprParser!.getAdDependencies(compensationExpression);
-    return Array.from(
-      new Set(adDependencies)
-    );
-  }
-
-  public parseQueryDependencies(
-    compensationExpression: string,
-  ): AST_Query[] {
-    const queryDependencies = this.exprParser!.getQueryDependencies(compensationExpression);
-    return Array.from(
-      new Set(queryDependencies)
-    );
   }
 
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
