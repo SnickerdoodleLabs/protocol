@@ -1,0 +1,25 @@
+import {
+    IpfsCID,
+    UnixTimestamp,
+} from "@objects/primitives";
+import { AdContent } from "@objects/businessObjects";
+import { EAdDisplayType } from "@objects/primitives/EAdDisplayType";
+
+
+export class EligibleAd {
+    public constructor(
+        public queryCID: IpfsCID,
+        public key: string, // 'a1'
+        public name: string,
+        public content: AdContent,
+        public text: string | null,
+        public displayType: EAdDisplayType,
+        public weight: number,
+        public expiry: UnixTimestamp,
+        public keywords: string[]
+    ) {}
+
+    public getUniqueId(): string {
+        return this.queryCID + this.key;
+    }
+}
