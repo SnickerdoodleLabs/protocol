@@ -13,7 +13,7 @@ import {
 import { ResultAsync } from "neverthrow";
 
 export interface IQueryParsingEngine {
-  getPermittedQueryIdsAndExpectedCompIds(
+  getPermittedQueryIdsAndExpectedCompKeys(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<

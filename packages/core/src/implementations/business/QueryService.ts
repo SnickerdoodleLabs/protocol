@@ -105,9 +105,9 @@ export class QueryService implements IQueryService {
             return errAsync(new EvaluationError(`Consent token not found!`));
           }
           return this.queryParsingEngine
-            .getPermittedQueryIdsAndExpectedCompIds(query, consentToken.dataPermissions)
-            .andThen(([queryIdentifiers, expectedCompIds]) => {
-              return this.publishSDQLQueryRequestIfExpectedAndEligibleCompIdsMatch(
+            .getPermittedQueryIdsAndExpectedCompKeys(query, consentToken.dataPermissions)
+            .andThen(([queryIdentifiers, expectedCompKeys]) => {
+              return this.publishSDQLQueryRequestIfExpectedAndEligibleCompKeysMatch(
                 consentToken,
                 optInKey,
                 consentContractAddress,
@@ -116,14 +116,14 @@ export class QueryService implements IQueryService {
                 context,
                 config,
                 queryIdentifiers,
-                expectedCompIds,
+                expectedCompKeys,
               );
             });
         });
     });
   }
 
-  protected publishSDQLQueryRequestIfExpectedAndEligibleCompIdsMatch(
+  protected publishSDQLQueryRequestIfExpectedAndEligibleCompKeysMatch(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
     consentContractAddress: EVMContractAddress,
@@ -132,10 +132,10 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     config: CoreConfig,
     permittedQueryIds: QueryIdentifier[],
-    expectedCompIds: CompensationKey[]
+    expectedCompKeys: CompensationKey[]
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
 
-      return this.getEligibleCompIdsFromInsightPlatform(
+      return this.getEligibleCompKeysFromInsightPlatform(
         consentToken,
         optInKey,
         consentContractAddress,
@@ -143,9 +143,9 @@ export class QueryService implements IQueryService {
         config,
         permittedQueryIds,
       )
-      .andThen((eligibleCompIds) => {
+      .andThen((eligibleCompKeys) => {
 
-          if (!this.areExpectedAndEligibleCompIdsEqual(eligibleCompIds, expectedCompIds)) 
+          if (!this.areExpectedAndEligibleCompKeysEqual(eligibleCompKeys, expectedCompKeys)) 
             return errAsync( 
               new ServerRewardError("Insight Platform Rewards do not match Expected Rewards!")
             );
@@ -153,14 +153,14 @@ export class QueryService implements IQueryService {
           return this.publishSDQLQueryRequest(
             consentContractAddress,
             query,
-            eligibleCompIds,
+            eligibleCompKeys,
             accounts,
             context,
           );
       });
   }
 
-  protected getEligibleCompIdsFromInsightPlatform(
+  protected getEligibleCompKeysFromInsightPlatform(
     consentToken: ConsentToken,
     optInKey: EVMPrivateKey,
     consentContractAddress: EVMContractAddress,
@@ -181,7 +181,7 @@ export class QueryService implements IQueryService {
   protected publishSDQLQueryRequest(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
-    eligibleCompIds: CompensationKey[],
+    eligibleCompKeys: CompensationKey[],
     accounts: LinkedAccount[],
     context: CoreContext,
   ): ResultAsync<void, Error> {
@@ -189,7 +189,7 @@ export class QueryService implements IQueryService {
     const queryRequest = new SDQLQueryRequest(
       consentContractAddress,
       query,
-      eligibleCompIds,
+      eligibleCompKeys,
       accounts,
       context.dataWalletAddress!,
     );
@@ -218,17 +218,17 @@ export class QueryService implements IQueryService {
   }
 
   // Will need refactoring when we include lazy rewards
-  private areExpectedAndEligibleCompIdsEqual(
-    eligibleCompIds: CompensationKey[],
-    expectedCompIds: CompensationKey[],
+  private areExpectedAndEligibleCompKeysEqual(
+    eligibleCompKeys: CompensationKey[],
+    expectedCompKeys: CompensationKey[],
   ): boolean {
-    if (eligibleCompIds.length != expectedCompIds.length) {
+    if (eligibleCompKeys.length != expectedCompKeys.length) {
       return false;
     }
 
-    const eligibleCompIdsSet = new Set(eligibleCompIds);
-    for (const currentCompId of expectedCompIds) {
-      if (!eligibleCompIdsSet.has(currentCompId))
+    const eligibleCompKeysSet = new Set(eligibleCompKeys);
+    for (const currentCompKey of expectedCompKeys) {
+      if (!eligibleCompKeysSet.has(currentCompKey))
         return false;
     }
     

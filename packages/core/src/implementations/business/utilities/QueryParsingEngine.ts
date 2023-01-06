@@ -40,7 +40,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryUtils: ISDQLQueryUtils
   ) {}
 
-  public getPermittedQueryIdsAndExpectedCompIds(
+  public getPermittedQueryIdsAndExpectedCompKeys(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
   ): ResultAsync<[QueryIdentifier[], CompensationKey[]], EvaluationError> {

@@ -100,7 +100,7 @@ export class InsightPlatformSimulator {
         queries,
       };
 
-      const eligibleCompIds: string[] = ['c1', 'c2', 'c3'];
+      const eligibleCompKeys: string[] = ['c1', 'c2', 'c3'];
       
       this.logStream.write(JSON.stringify(req.body));
 
@@ -139,7 +139,7 @@ export class InsightPlatformSimulator {
           });
         })
         .map(() => {
-          res.send(eligibleCompIds);
+          res.send(eligibleCompKeys);
         })
         .mapErr((e) => {
           console.error(e);

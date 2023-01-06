@@ -6,7 +6,7 @@ export class SDQLQueryRequest {
   constructor(
     readonly consentContractAddress: EVMContractAddress,
     readonly query: SDQLQuery,
-    readonly eligibleCompIds: CompensationKey[],
+    readonly eligibleCompKeys: CompensationKey[],
     readonly accounts: LinkedAccount[],
     readonly dataWalletAddress: DataWalletAddress | null,
   ) {}

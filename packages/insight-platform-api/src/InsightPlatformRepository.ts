@@ -39,7 +39,7 @@ import {
   IClearCloudBackupsParams,
   IDeliverInsightsParams,
   IExecuteMetatransactionParams,
-  IReceiveEligibleCompIdsParams,
+  IReceiveEligibleCompKeysParams,
   ISignedUrlParams,
 } from "@insightPlatform/params/index.js";
 
@@ -145,7 +145,7 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           tokenId: tokenId.toString(),
           queries: answeredQueries,
           signature: signature,
-        } as IReceiveEligibleCompIdsParams as unknown as Record<string, unknown>);
+        } as IReceiveEligibleCompKeysParams as unknown as Record<string, unknown>);
       });
   }
 

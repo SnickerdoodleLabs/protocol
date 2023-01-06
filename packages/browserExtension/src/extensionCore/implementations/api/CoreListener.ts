@@ -82,7 +82,7 @@ export class CoreListener implements ICoreListener {
     // DynamicRewardParameters added to be returned
     const parameters: IDynamicRewardParameter[] = [];
     // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
-    request.eligibleCompIds.forEach((compId) => {
+    request.eligibleCompKeys.forEach((compKey) => {
       if (request.dataWalletAddress !== null) {
         parameters.push({
           recipientAddress: {
