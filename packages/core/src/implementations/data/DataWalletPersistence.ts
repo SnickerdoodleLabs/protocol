@@ -626,6 +626,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getSimulatorEVMBalanceRepository(),
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
+      this.accountBalances.getMoonbeamBalanceRepository(),
     ])
       .andThen(
         ([
@@ -635,6 +636,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           simulatorRepo,
           etherscanRepo,
           maticRepo,
+          glmrRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -663,6 +665,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as SolanaAccountAddress,
               );
             case EIndexer.Ethereum:
+              return etherscanRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Moonbeam:
               return etherscanRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
@@ -797,6 +804,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             );
           case EIndexer.Ethereum:
             return etherscanRepo.getTokensForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Moonbeam:
+            return etherscanRepo.getBalancesForAccount(
               chainId,
               accountAddress as EVMAccountAddress,
             );

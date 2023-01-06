@@ -20,6 +20,7 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+import { MoonbeamIndexer } from "@indexers/MoonbeamIndexer.js";
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
@@ -30,6 +31,7 @@ export class DefaultAccountIndexers implements IAccountIndexing {
   protected simulatorRepo: IEVMTransactionRepository;
   protected solRepo: ISolanaTransactionRepository;
   protected matic: IEVMTransactionRepository;
+  protected glmr: IEVMTransactionRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -58,8 +60,21 @@ export class DefaultAccountIndexers implements IAccountIndexing {
       this.tokenPriceRepo,
       this.logUtils,
     );
+    this.glmr = new PolygonIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
   }
 
+  public getMoonbeamTransactionRepository(): ResultAsync<
+  IEVMTransactionRepository,
+  never
+  > {
+    return okAsync(this.glmr);
+  }
+  
   public getPolygonTransactionRepository(): ResultAsync<
     IEVMTransactionRepository,
     never

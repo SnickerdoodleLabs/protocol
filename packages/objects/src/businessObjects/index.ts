@@ -17,6 +17,7 @@ export * from "@objects/businessObjects/InvitationDomain";
 export * from "@objects/businessObjects/LinkedAccount";
 export * from "@objects/businessObjects/MarketplaceListing";
 export * from "@objects/businessObjects/MetatransactionSignatureRequest";
+export * from "@objects/businessObjects/MoonbeamTransaction";
 export * from "@objects/businessObjects/OptInInfo";
 export * from "@objects/businessObjects/PageInvitation";
 export * from "@objects/businessObjects/PolygonTransaction";

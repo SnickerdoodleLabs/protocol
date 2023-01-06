@@ -9,4 +9,5 @@ export enum EChain {
   Mumbai = 80001,
   Solana = -1,
   SolanaTestnet = -2,
+  Moonbeam = 1284,
 }
