@@ -740,7 +740,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   addEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError> {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
-    return adService.addEligibleAds(ads);
+    return adService.saveEligibleAds(ads);
   }
 
   public addTransactions(

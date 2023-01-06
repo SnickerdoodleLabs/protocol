@@ -22,7 +22,7 @@ export class AdService implements IAdService {
         return this.dataWalletPersistence.getEligibleAds();
     }
 
-    public addEligibleAds(
+    public saveEligibleAds(
         ads: EligibleAd[],
     ): ResultAsync<void, PersistenceError> {
         return this.dataWalletPersistence.addEligibleAds(ads);
