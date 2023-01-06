@@ -7,9 +7,12 @@ import {
   EVMContractAddress,
   IpfsCID,
   URLString,
-  AdId
+  AdId,
+  UnixTimestamp
 } from "@objects/primitives";
+import { EAdDisplayType } from "@objects/primitives/EAdDisplayType";
 import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
+import { AdContent } from "..";
 
 export interface ISDQLQueryObject {
   version: string;
@@ -88,14 +91,11 @@ export interface ISDQLAdsBlock {
 
 export interface ISDQLAd {
   name: string;
-  content: {
-    type: "image" | "video",
-    src: IpfsCID
-  },
-  text: string;
-  type: "banner" | "popup";
+  content: AdContent,
+  text: string | null;
+  displayType: EAdDisplayType;
   weight: number;
-  expiry: ISO8601DateString;
+  expiry: UnixTimestamp;
   keywords: string[];
 }
 

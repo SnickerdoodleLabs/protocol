@@ -1,21 +1,19 @@
 import { 
-  IpfsCID, 
-  ISO8601DateString, 
-  SDQL_Name, 
+  AdContent,
+  SDQL_Name,
+  UnixTimestamp, 
 } from "@snickerdoodlelabs/objects";
+import { EAdDisplayType } from "packages/objects/src/primitives/EAdDisplayType";
 
 export class AST_Ad {
   constructor(
     readonly key: SDQL_Name, //a1, a2, ..
     readonly name: SDQL_Name,
-    readonly content: {
-      readonly type: "image" | "video",
-      readonly src: IpfsCID
-    },
+    readonly content: AdContent,
     readonly text: string | null,
-    readonly type: "banner" | "popup",
+    readonly displayType: EAdDisplayType,
     readonly weight: number,
-    readonly expiry: ISO8601DateString,
+    readonly expiry: UnixTimestamp,
     readonly keywords: string[]
   ) {}
 }

@@ -12,7 +12,7 @@ export const query3 = {
         src: "https://mycdn.com/img1"
       },
       text: "Example ad text",
-      type: "banner",
+      displayType: "banner",
       weight: 100,
       expiry: "2039-11-13T20:20:39Z",
       keywords: ["muktadir", "charlie", "todd"]
@@ -24,7 +24,7 @@ export const query3 = {
         src: "https://mycdn.com/img1"
       },
       text: "Second Example ad text",
-      type: "banner",
+      displayType: "banner",
       weight: 10,
       expiry: "2039-11-13T20:20:39Z",
       keywords: ["messi", "xavi", "iniesta"]
@@ -36,7 +36,7 @@ export const query3 = {
         src: "https://mycdn.com/vid1"
       },
       text: "third Example ad text",
-      type: "banner",
+      displayType: "banner",
       weight: 11,
       expiry: "2034-11-13T20:20:39Z",
       keywords: ["a", "b", "c"]

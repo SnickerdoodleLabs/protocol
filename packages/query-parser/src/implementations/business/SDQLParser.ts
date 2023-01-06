@@ -254,7 +254,7 @@ export class SDQLParser {
           SDQL_Name(singleAdSchema.name),
           singleAdSchema.content,
           singleAdSchema.text,
-          singleAdSchema.type,
+          singleAdSchema.displayType,
           singleAdSchema.weight,
           singleAdSchema.expiry,
           singleAdSchema.keywords
