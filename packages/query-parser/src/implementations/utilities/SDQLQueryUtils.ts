@@ -9,7 +9,6 @@ import {
   ParserError,
   QueryExpiredError,
   QueryFormatError,
-  QueryIdentifier,
   SDQLString,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";

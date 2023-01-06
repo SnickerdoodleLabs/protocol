@@ -5,6 +5,10 @@ export interface IAdService {
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
   addEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError>;
+
+  // requestDisplay(ad: EligibleAd): ResultAsync<boolean, PersistenceError>;
+
+  // onAdDisplayed()
 }
   
 export const IAdServiceType = Symbol.for("IAdService");
