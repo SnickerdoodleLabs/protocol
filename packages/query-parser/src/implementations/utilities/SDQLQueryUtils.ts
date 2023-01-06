@@ -1,5 +1,5 @@
 import {
-  CompensationIdentifier,
+  CompensationKey,
   DataPermissions,
   DuplicateIdInSchema,
   IpfsCID,
@@ -42,7 +42,7 @@ export class SDQLQueryUtils {
     schemaString: SDQLString,
     queryIds: QueryIdentifier[],
   ): ResultAsync<
-    CompensationIdentifier[],
+    CompensationKey[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -54,27 +54,27 @@ export class SDQLQueryUtils {
 
       return parser.buildAST()
       .andThen(() => okAsync(
-        this.getCompensationIdsByPermittedQueryIds(parser, queryIds)
+        this.getCompensationKeysByPermittedQueryIds(parser, queryIds)
       ));
     });
   }
 
-  public getCompensationIdsByPermittedQueryIds(
+  public getCompensationKeysByPermittedQueryIds(
     parser: SDQLParser,
     permittedQueryIds: QueryIdentifier[]
-  ): CompensationIdentifier[] {
+  ): CompensationKey[] {
 
     const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
     // console.log("queryPermissions", queryPermissions.getFlags());
     // now queryPermissions must contain the permission for each compensation expr for eligibility
-    const eligibleComIds = new Set<CompensationIdentifier>();
+    const eligibleComIds = new Set<CompensationKey>();
     // console.log("logicPermissions", parser.returnPermissions);
     // console.log("compensationPermissions", parser.compensationPermissions);
 
     parser.compensationPermissions.forEach((comPermissions, compExpr) => {
       if (queryPermissions.contains(comPermissions!)) {
         const comAst = parser.logicCompensations.get(compExpr);
-        const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
+        const comIds = this.extractCompensationKeyFromAstWithAlternatives(comAst!);
 
         comIds.forEach((comId) => eligibleComIds.add(comId));
       }
@@ -83,21 +83,21 @@ export class SDQLQueryUtils {
     return Array.from(eligibleComIds);
   }
 
-  protected extractCompensationIdFromAst(
+  protected extractCompensationKeyFromAst(
     ast: AST_Expr | Command,
-  ): CompensationIdentifier {
-    // console.log("extractCompensationIdFromAst: ast", ast);
+  ): CompensationKey {
+    // console.log("extractCompensationKeyFromAst: ast", ast);
     const compensationAst = this.getCompensationAstFromAst(ast);
-    return CompensationIdentifier(compensationAst.name as string);
+    return CompensationKey(compensationAst.name as string);
   }
 
-  protected extractCompensationIdFromAstWithAlternatives(
+  protected extractCompensationKeyFromAstWithAlternatives(
     ast: AST_Expr | Command,
-  ): Set<CompensationIdentifier> {
-    // console.log("extractCompensationIdFromAst: ast", ast);
-    const comIds = new Set<CompensationIdentifier>();
+  ): Set<CompensationKey> {
+    // console.log("extractCompensationKeyFromAst: ast", ast);
+    const comIds = new Set<CompensationKey>();
     const compensationAst = this.getCompensationAstFromAst(ast);
-    comIds.add(CompensationIdentifier(compensationAst.name as string));
+    comIds.add(CompensationKey(compensationAst.name as string));
     for (const altId of compensationAst.alternatives) {
       comIds.add(altId);
     }

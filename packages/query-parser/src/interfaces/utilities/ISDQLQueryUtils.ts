@@ -1,7 +1,7 @@
 import { SDQLParser } from "@query-parser/implementations";
 import { ResultAsync } from "neverthrow";
 import { 
-    CompensationIdentifier, 
+    CompensationKey, 
     DuplicateIdInSchema, 
     MissingTokenConstructorError, 
     ParserError, 
@@ -16,7 +16,7 @@ import {
 export interface ISDQLQueryUtils {
     
     getEligibleCompensations(schemaString: SDQLString, queryIds: QueryIdentifier[]): 
-    ResultAsync<CompensationIdentifier[], 
+    ResultAsync<CompensationKey[], 
     | ParserError 
     | DuplicateIdInSchema
     | QueryFormatError
@@ -50,10 +50,10 @@ export interface ISDQLQueryUtils {
     | QueryExpiredError
     >;
 
-    getCompensationIdsByPermittedQueryIds(
+    getCompensationKeysByPermittedQueryIds(
         parser: SDQLParser,
         permittedQueryIds: QueryIdentifier[]
-    ): CompensationIdentifier[];
+    ): CompensationKey[];
 }
 
 

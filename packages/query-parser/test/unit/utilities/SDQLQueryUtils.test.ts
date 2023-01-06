@@ -4,7 +4,7 @@ import { SDQLParserFactory } from "@query-parser/implementations/utilities/SDQLP
 import { ISDQLParserFactory, ISDQLQueryWrapperFactory } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { CompensationIdentifier, DataPermissions, EWalletDataType, QueryIdentifier, SDQLString } from "@snickerdoodlelabs/objects";
+import { CompensationKey, DataPermissions, EWalletDataType, QueryIdentifier, SDQLString } from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
 class SDQLQueryUtilsMocks {
@@ -32,7 +32,7 @@ describe("SDQLQueryUtils query to compensation tests", () => {
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
         const queryIds = [QueryIdentifier('q1')];
-        const expected = [CompensationIdentifier('c1')];
+        const expected = [CompensationKey('c1')];
 
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
@@ -48,7 +48,7 @@ describe("SDQLQueryUtils query to compensation tests", () => {
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
         const queryIds = [QueryIdentifier('q2')];
-        const expected = [CompensationIdentifier('c2'), CompensationIdentifier('c3')];
+        const expected = [CompensationKey('c2'), CompensationKey('c3')];
 
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
@@ -63,7 +63,7 @@ describe("SDQLQueryUtils query to compensation tests", () => {
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
         const queryIds = [QueryIdentifier('q3')];
-        const expected = [CompensationIdentifier("c3"), CompensationIdentifier("c2")];
+        const expected = [CompensationKey("c3"), CompensationKey("c2")];
 
         const mocks = new SDQLQueryUtilsMocks();
         const result = await mocks.factory().getEligibleCompensations(schemaString, queryIds);
@@ -79,9 +79,9 @@ describe("SDQLQueryUtils query to compensation tests", () => {
         const schemaString = SDQLString(avalanche1SchemaStr);
         const queryIds = [QueryIdentifier('q1'), QueryIdentifier('q2')] ;
         const expected = [
-            CompensationIdentifier('c1'), 
-            CompensationIdentifier('c2'), 
-            CompensationIdentifier('c3')
+            CompensationKey('c1'), 
+            CompensationKey('c2'), 
+            CompensationKey('c3')
         ];
 
         const mocks = new SDQLQueryUtilsMocks();
