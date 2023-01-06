@@ -55,7 +55,7 @@ export class QueryParsingEngine implements IQueryParsingEngine {
         ).andThen((permittedQueryIds) => {
       
           const expectedCompensationKeys = 
-            this.queryUtils.getCompensationKeysByPermittedQueryIds(parser, permittedQueryIds)
+            this.queryUtils.getAllExpectedCompensationKeys(parser, permittedQueryIds)
     
             return okAsync<[QueryIdentifier[], CompensationKey[]]>(
               [permittedQueryIds, expectedCompensationKeys]

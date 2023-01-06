@@ -56,12 +56,12 @@ export class SDQLQueryUtils {
 
       return parser.buildAST()
       .andThen(() => okAsync(
-        this.getAllExpectedCompensationsIds(parser, queryIds)
+        this.getAllExpectedCompensationKeys(parser, queryIds)
       ));
     });
   }
 
-  private getAllExpectedCompensationsIds(
+  public getAllExpectedCompensationKeys(
     parser: SDQLParser,
     permittedQueryIds: QueryIdentifier[]
   ): CompensationKey[] {

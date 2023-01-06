@@ -50,7 +50,7 @@ export interface ISDQLQueryUtils {
     | QueryExpiredError
     >;
 
-    getCompensationKeysByPermittedQueryIds(
+    getAllExpectedCompensationKeys(
         parser: SDQLParser,
         permittedQueryIds: QueryIdentifier[]
     ): CompensationKey[];
@@ -60,4 +60,3 @@ export interface ISDQLQueryUtils {
 export const ISDQLQueryUtilsType = Symbol.for(
     "ISDQLQueryUtils",
 );
-  
