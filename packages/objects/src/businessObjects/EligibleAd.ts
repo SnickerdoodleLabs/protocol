@@ -3,7 +3,7 @@ import {
     UnixTimestamp,
 } from "@objects/primitives";
 import { AdContent } from "@objects/businessObjects";
-import { EAdDisplayType } from "@objects/primitives/EAdDisplayType";
+import { EAdDisplayType } from "@objects/primitives";
 
 
 export class EligibleAd {

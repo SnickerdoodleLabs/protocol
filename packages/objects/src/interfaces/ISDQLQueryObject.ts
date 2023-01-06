@@ -8,11 +8,11 @@ import {
   IpfsCID,
   URLString,
   AdId,
-  UnixTimestamp
+  UnixTimestamp,
+  EAdDisplayType, 
+  ISO8601DateString
 } from "@objects/primitives";
-import { EAdDisplayType } from "@objects/primitives/EAdDisplayType";
-import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
-import { AdContent } from "..";
+import { AdContent } from "@objects/businessObjects";
 
 export interface ISDQLQueryObject {
   version: string;

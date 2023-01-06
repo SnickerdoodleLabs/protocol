@@ -2,8 +2,9 @@ import {
   AdContent,
   SDQL_Name,
   UnixTimestamp, 
+  EAdDisplayType
 } from "@snickerdoodlelabs/objects";
-import { EAdDisplayType } from "packages/objects/src/primitives/EAdDisplayType";
+
 
 export class AST_Ad {
   constructor(

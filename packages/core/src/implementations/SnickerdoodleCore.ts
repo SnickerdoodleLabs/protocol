@@ -78,6 +78,7 @@ import {
   TokenMarketData,
   MarketplaceListing,
   TransactionPaymentCounter,
+  EligibleAd,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -108,6 +109,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IProfileService,
@@ -726,6 +729,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.addEarnedRewards(rewards);
+  }
+
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.getEligibleAds();
+  }
+
+  addEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.addEligibleAds(ads);
   }
 
   public addTransactions(

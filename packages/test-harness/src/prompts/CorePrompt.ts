@@ -1,10 +1,14 @@
 import {
+  AdContent,
   AESEncryptedString,
   Age,
   BigNumberString,
   ChainId,
   CountryCode,
+  EAdContentType,
+  EAdDisplayType,
   EarnedReward,
+  EligibleAd,
   EncryptedString,
   ERewardType,
   EVMAccountAddress,
@@ -104,6 +108,9 @@ export class CorePrompt extends DataWalletPrompt {
 
       { name: "Add Earned Reward", value: "addEarnedReward" },
       { name: "Get Earned Rewards", value: "getEarnedRewards" },
+
+      { name: "Add Eligible Ads", value: "addEligibleAds" },
+      { name: "Get Eligible Ads", value: "getEligibleAds" },
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },
       { name: "restore backup", value: "restoreBackup" },
@@ -149,6 +156,20 @@ export class CorePrompt extends DataWalletPrompt {
         IpfsCID("QmbWqxBEKC3P8tqsKc98xmWN33432RLMiMPL8wBuTGsMnR"),
         "dummy desc",
         ERewardType.Lazy,
+      );
+      const eligibleAd = new EligibleAd(
+        IpfsCID("queryCID"),
+        "a1",
+        "Creative ad name",
+        new AdContent(
+          EAdContentType.IMAGE,
+          IpfsCID("adContentCID")
+        ),
+        "You can view this ad anytime",
+        EAdDisplayType.BANNER,
+        99999,
+        UnixTimestamp(123),
+        ["keyword1", "keyword2"]
       );
 
       switch (answers.core) {
@@ -202,6 +223,10 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getSiteVisitsMap().map(console.log);
         case "getSiteVisits":
           return this.core.getSiteVisits().map(console.log);
+        case "getEligibleAds":
+          return this.core.getEligibleAds().map(console.log);
+        case "addEligibleAds":
+          return this.core.addEligibleAds([eligibleAd]).map(console.log);
         case "addEarnedReward":
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":

@@ -18,6 +18,7 @@ import {
   TokenInfo,
   MarketplaceListing,
   TransactionPaymentCounter,
+  EligibleAd,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -348,6 +349,11 @@ export interface ISnickerdoodleCore {
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
   addEarnedRewards(
     rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
+
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+  addEligibleAds(
+    rewards: EligibleAd[],
   ): ResultAsync<void, PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;

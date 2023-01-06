@@ -1,9 +1,8 @@
 import "reflect-metadata";
 
-import { AdContent, EAdContentType, EligibleAd, EVMPrivateKey, IpfsCID, UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { AdContent, EAdContentType, EligibleAd, EAdDisplayType, EVMPrivateKey, IpfsCID, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { ELocalStorageKey } from "@persistence/ELocalStorageKey";
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
-import { EAdDisplayType } from "packages/objects/src/primitives/EAdDisplayType";
 
 
 describe("Bundle", () => {

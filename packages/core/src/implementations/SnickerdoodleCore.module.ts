@@ -57,6 +57,7 @@ import {
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
+  AdService,
   BalanceQueryEvaluator,
   ConsentTokenUtils,
   InvitationService,
@@ -99,6 +100,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMonitoringService,
@@ -182,6 +185,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
+      .inSingletonScope();
+    bind<IAdService>(IAdServiceType)
+      .to(AdService)
       .inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
