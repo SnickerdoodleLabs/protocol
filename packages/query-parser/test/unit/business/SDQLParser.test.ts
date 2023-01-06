@@ -231,10 +231,10 @@ describe("SDQLParser on avalanche", () => {
 
   describe("Checking Logic compenstation ASTs", () => {
     test("avalanche 1 has 3 compenstation ASTs", () => {
-      expect(parser.logicAds.size).toBe(3);
+      expect(parser.logicCompensations.size).toBe(3);
     });
     test("First compenstation is a valid if$q1then$c1 AST", () => {
-      const eef = parser.logicAds.get("if$q1then$c1") as Command_IF;
+      const eef = parser.logicCompensations.get("if$q1then$c1") as Command_IF;
       expect(eef.constructor).toBe(Command_IF);
       expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
       const q1 = eef.conditionExpr.source as AST_Query;

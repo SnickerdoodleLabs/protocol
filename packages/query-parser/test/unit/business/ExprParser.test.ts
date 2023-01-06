@@ -461,7 +461,7 @@ describe("Postfix to AST", () => {
       .createExprParser()
       .andThen((exprParser) => {
         const expr = "if($q1and$q2)then$r1else$r2";
-        const dependencies = exprParser.getQueryDependencies(expr);
+        const dependencies = exprParser.getDependencies(expr);
         // const expectedDependencies = ['q1', 'q2'];
 
         // console.log(dependencies)
@@ -486,7 +486,7 @@ describe("Postfix to AST", () => {
       .createExprParser()
       .andThen((exprParser) => {
         const expr = "if($q1and$q2)then$r1else$r3";
-        const dependencies = exprParser.getQueryDependencies(expr);
+        const dependencies = exprParser.getDependencies(expr);
         // const expectedDependencies = ['q1', 'q2'];
 
         // console.log(dependencies)
