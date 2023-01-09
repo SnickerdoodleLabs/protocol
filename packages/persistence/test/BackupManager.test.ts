@@ -1,8 +1,10 @@
 import "reflect-metadata";
 
-import { AdContent, EAdContentType, EligibleAd, EAdDisplayType, EVMPrivateKey, IpfsCID, UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { AdContent, EAdContentType, EligibleAd, EAdDisplayType, EVMPrivateKey, IpfsCID, UnixTimestamp, AdKey } from "@snickerdoodlelabs/objects";
 import { ELocalStorageKey } from "@persistence/ELocalStorageKey";
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
+
+import * as td from "testdouble";
 
 
 describe("Bundle", () => {
@@ -43,7 +45,7 @@ describe("Bundle", () => {
 
     const testAd = new EligibleAd(
       IpfsCID("queryCID"),
-      "a1",
+      AdKey("a1"),
       "Creative ad name",
       new AdContent(
         EAdContentType.IMAGE,

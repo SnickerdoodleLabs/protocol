@@ -79,15 +79,14 @@ import {
   MarketplaceListing,
   TransactionPaymentCounter,
   EligibleAd,
+  AdSignatureWrapper,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
   ICloudStorageType,
-  CeramicCloudStorage,
   IVolatileStorage,
   IVolatileStorageType,
   IndexedDBVolatileStorage,
-  NullCloudStorage,
   GoogleCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
@@ -741,6 +740,20 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.saveEligibleAds(ads);
+  }
+
+  saveAdSignatures(
+    signatures: AdSignatureWrapper[]
+  ): ResultAsync<void, PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.saveAdSignatures(signatures);
+  }
+
+  getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.getAdSignatures();
   }
 
   public addTransactions(

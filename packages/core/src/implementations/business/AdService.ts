@@ -31,14 +31,15 @@ export class AdService implements IAdService {
     ) {}
 
 
-    getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
+    public getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
         return this.dataWalletPersistence.getAdSignatures();
     }
 
-    requestDisplay(ad: EligibleAd): ResultAsync<boolean, PersistenceError> {
+    public requestDisplay(ad: EligibleAd): ResultAsync<boolean, PersistenceError> {
         throw new Error("Method not implemented.");
     }
-    onAdDisplayed(queryCID: IpfsCID, adKey: AdKey, contentHash: SHA256Hash): ResultAsync<void, Error> {
+
+    public onAdDisplayed(queryCID: IpfsCID, adKey: AdKey, contentHash: SHA256Hash): ResultAsync<void, Error> {
         throw new Error("Method not implemented.");
     }
 
@@ -47,20 +48,17 @@ export class AdService implements IAdService {
         return ResultUtils.combine([
             this.cryptoUtils.hashStringSHA256(JSON.stringify(eligibleAd)),
             this.contextProvider.getContext()
-        ])
-        .andThen(([contentHash, context]) => {
+        ]).andThen(([contentHash, context]) => {
 
             return this.cryptoUtils.signMessage(
                 contentHash, context.dataWalletKey!
-            ).andThen((signature) => {
+            ).map((signature) => {
 
-                return okAsync(
-                    new AdSignatureWrapper(
-                        eligibleAd.queryCID,
-                        eligibleAd.key,
-                        contentHash, //base64
-                        signature
-                    )
+                return new AdSignatureWrapper(
+                    eligibleAd.queryCID,
+                    eligibleAd.key,
+                    contentHash, //base64
+                    signature
                 );
             })
         });

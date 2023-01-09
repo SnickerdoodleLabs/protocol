@@ -337,14 +337,34 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public saveAdSignatures(signatures: AdSignatureWrapper[]): ResultAsync<void, PersistenceError> {
+  public saveAdSignatures(
+    adSignatureWrapperList: AdSignatureWrapper[]
+  ): ResultAsync<void, PersistenceError> {
 
-    throw new Error("Method not implemented.");
+    return this.waitForUnlock().andThen(() => {
+
+        return this.backupManagerProvider
+          .getBackupManager().andThen((backupManager) => {
+
+            return ResultUtils.combine(
+              adSignatureWrapperList.map((adSignatureWrapper) => {
+
+                return backupManager.addRecord(
+                  ELocalStorageKey.AD_SIGNATURE_WRAPPERS, 
+                  adSignatureWrapper
+                );
+              })
+            ).map(() => undefined);
+          });
+      }).map(() => {});
   }
 
   public getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
-    
-    throw new Error("Method not implemented.");
+    return this.waitForUnlock().andThen(() => {
+      return this.volatileStorage.getAll<AdSignatureWrapper>(
+        ELocalStorageKey.AD_SIGNATURE_WRAPPERS,
+      );
+    });
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
