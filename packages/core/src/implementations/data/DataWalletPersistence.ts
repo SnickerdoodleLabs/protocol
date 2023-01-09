@@ -319,7 +319,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           .getBackupManager()
           .andThen((backupManager) => {
             return ResultUtils.combine(
-              ads.map((ad) => backupManager.addRecord(ELocalStorageKey.ELIGIBLE_ADS, ad))
+              ads.map((ad) => {
+                return backupManager.addRecord(ELocalStorageKey.ELIGIBLE_ADS, ad);
+              })
             ).map(() => undefined);
           });
       })
