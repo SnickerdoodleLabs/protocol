@@ -11,11 +11,10 @@ export interface IAdService {
   // A set of functions to display and track ad engagement
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
   getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError>;
+
   createAdSignature(
-    queryCID: IpfsCID, 
-    adKey: AdKey, 
-    contentHash: SHA256Hash
-  ): ResultAsync<AdSignatureWrapper, PersistenceError>;
+    eligibleAd: EligibleAd
+  ): ResultAsync<AdSignatureWrapper, Error>;
   saveAdSignatures(
     adSignatureWrapperList: AdSignatureWrapper[]
   ): ResultAsync<void, PersistenceError>;

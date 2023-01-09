@@ -57,6 +57,7 @@ import {
   addBigNumberString,
   getChainInfoByChainId,
   EligibleAd,
+  AdSignatureWrapper,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -310,7 +311,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public addEligibleAds(
+  public saveEligibleAds(
     ads: EligibleAd[],
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock()
@@ -334,6 +335,16 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         ELocalStorageKey.ELIGIBLE_ADS,
       );
     });
+  }
+
+  public saveAdSignatures(signatures: AdSignatureWrapper[]): ResultAsync<void, PersistenceError> {
+
+    throw new Error("Method not implemented.");
+  }
+
+  public getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
+    
+    throw new Error("Method not implemented.");
   }
 
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
