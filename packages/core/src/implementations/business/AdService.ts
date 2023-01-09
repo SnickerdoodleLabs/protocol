@@ -38,11 +38,6 @@ export class AdService implements IAdService {
         protected dataWalletUtils: IDataWalletUtils,
     ) {}
 
-
-    public getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
-        return this.dataWalletPersistence.getAdSignatures();
-    }
-
     public requestDisplay(ad: EligibleAd): ResultAsync<boolean, PersistenceError> {
         throw new Error("Method not implemented.");
     }
@@ -77,12 +72,6 @@ export class AdService implements IAdService {
         });
     }
 
-    public saveAdSignatures(
-        adSignatureWrapperList: AdSignatureWrapper[]
-    ): ResultAsync<void, PersistenceError> {
-        return this.dataWalletPersistence.saveAdSignatures(adSignatureWrapperList);
-    }
-
     public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
         return this.dataWalletPersistence.getEligibleAds();
     }
@@ -91,5 +80,15 @@ export class AdService implements IAdService {
         ads: EligibleAd[],
     ): ResultAsync<void, PersistenceError> {
         return this.dataWalletPersistence.saveEligibleAds(ads);
+    }
+
+    public getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
+        return this.dataWalletPersistence.getAdSignatures();
+    }
+
+    public saveAdSignatures(
+        adSignatureWrapperList: AdSignatureWrapper[]
+    ): ResultAsync<void, PersistenceError> {
+        return this.dataWalletPersistence.saveAdSignatures(adSignatureWrapperList);
     }
 }
