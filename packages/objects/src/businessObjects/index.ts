@@ -6,7 +6,7 @@ export * from "@objects/businessObjects/ClickFilter";
 export * from "@objects/businessObjects/DataPermissions";
 export * from "@objects/businessObjects/ConsentToken";
 export * from "@objects/businessObjects/AdContent";
-export * from "@objects/businessObjects/AdSignatureWrapper";
+export * from "@objects/businessObjects/AdSignature";
 export * from "@objects/businessObjects/EligibleAd";
 export * from "@objects/businessObjects/EVMNFT";
 export * from "@objects/businessObjects/EVMTransaction";
