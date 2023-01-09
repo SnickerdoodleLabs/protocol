@@ -1,6 +1,14 @@
 import { IAdService } from "@core/interfaces/business";
-import { IContextProvider, IContextProviderType, IDataWalletUtils, IDataWalletUtilsType } from "@core/interfaces/utilities";
-import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
+import { 
+    IContextProvider, 
+    IContextProviderType, 
+    IDataWalletUtils, 
+    IDataWalletUtilsType 
+} from "@core/interfaces/utilities/index.js";
+import { 
+    ICryptoUtils, 
+    ICryptoUtilsType 
+} from "@snickerdoodlelabs/common-utils";
 import {
     IDataWalletPersistenceType,
     IDataWalletPersistence,
@@ -10,11 +18,9 @@ import {
     AdSignatureWrapper,
     IpfsCID,
     SHA256Hash,
-    Signature,
-    EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
+import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 

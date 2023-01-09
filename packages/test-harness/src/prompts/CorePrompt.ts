@@ -37,7 +37,7 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
-import { SignStoredAds } from "./SignStoredAds";
+import { SignStoredAds } from "@test-harness/prompts/SignStoredAds.js";
 
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
@@ -118,8 +118,11 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Add Earned Reward", value: "addEarnedReward" },
       { name: "Get Earned Rewards", value: "getEarnedRewards" },
 
-      { name: "Save Eligible Ads", value: "saveEligibleAds" },
+      { name: "Save pre-seeded ad", value: "saveEligibleAds" },
       { name: "Get Eligible Ads", value: "getEligibleAds" },
+
+      { name: "Get Ad Signatures", value: "getAdSignatures" },
+
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },
       { name: "restore backup", value: "restoreBackup" },
@@ -167,7 +170,7 @@ export class CorePrompt extends DataWalletPrompt {
         ERewardType.Lazy,
       );
       const eligibleAd = new EligibleAd(
-        EVMContractAddress("oOoOoOo"),
+        EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
         IpfsCID("queryCID"),
         AdKey("a1"),
         "Creative ad name",

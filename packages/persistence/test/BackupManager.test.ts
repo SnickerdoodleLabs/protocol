@@ -44,7 +44,7 @@ describe("Bundle", () => {
     const backupManager = (await backupManagerMocks.getBackupManager())._unsafeUnwrap();
 
     const testAd = new EligibleAd(
-      EVMContractAddress("oOoOoOo"),
+      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
       IpfsCID("queryCID"),
       AdKey("a1"),
       "Creative ad name",
