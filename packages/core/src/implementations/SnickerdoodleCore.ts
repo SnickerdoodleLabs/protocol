@@ -79,7 +79,7 @@ import {
   MarketplaceListing,
   TransactionPaymentCounter,
   EligibleAd,
-  AdSignatureWrapper,
+  AdSignature,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -730,7 +730,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
-  createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignatureWrapper, Error> {
+  createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignature, Error> {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.createAdSignature(eligibleAd);
@@ -749,14 +749,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   saveAdSignatures(
-    signatures: AdSignatureWrapper[]
+    signatures: AdSignature[]
   ): ResultAsync<void, PersistenceError> {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.saveAdSignatures(signatures);
   }
 
-  getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.getAdSignatures();

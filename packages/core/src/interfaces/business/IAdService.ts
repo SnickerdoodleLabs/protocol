@@ -1,4 +1,4 @@
-import { AdKey, AdSignatureWrapper, EligibleAd, IpfsCID, PersistenceError, SHA256Hash } from "@snickerdoodlelabs/objects";
+import { AdKey, AdSignature, EligibleAd, IpfsCID, PersistenceError, SHA256Hash } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
   
 export interface IAdService {
@@ -10,13 +10,13 @@ export interface IAdService {
 
   // A set of functions to display and track ad engagement
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
-  getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
 
   createAdSignature(
     eligibleAd: EligibleAd
-  ): ResultAsync<AdSignatureWrapper, Error>;
+  ): ResultAsync<AdSignature, Error>;
   saveAdSignatures(
-    adSignatureWrapperList: AdSignatureWrapper[]
+    adSigList: AdSignature[]
   ): ResultAsync<void, PersistenceError>;
 
   requestDisplay(

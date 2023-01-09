@@ -15,7 +15,7 @@ import {
     EligibleAd,
     PersistenceError,
     AdKey,
-    AdSignatureWrapper,
+    AdSignature,
     IpfsCID,
     SHA256Hash,
 } from "@snickerdoodlelabs/objects";
@@ -46,7 +46,7 @@ export class AdService implements IAdService {
         throw new Error("Method not implemented.");
     }
 
-    public createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignatureWrapper, Error> {
+    public createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignature, Error> {
 
         return ResultUtils.combine([
             this.cryptoUtils.hashStringSHA256(JSON.stringify(eligibleAd)),
@@ -62,7 +62,8 @@ export class AdService implements IAdService {
                 contentHash, optInPrivateKey
             ).map((signature) => {
 
-                return new AdSignatureWrapper(
+                return new AdSignature(
+                    eligibleAd.consentContractAddress,
                     eligibleAd.queryCID,
                     eligibleAd.key,
                     contentHash, //base64
@@ -82,13 +83,13 @@ export class AdService implements IAdService {
         return this.dataWalletPersistence.saveEligibleAds(ads);
     }
 
-    public getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
+    public getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
         return this.dataWalletPersistence.getAdSignatures();
     }
 
     public saveAdSignatures(
-        adSignatureWrapperList: AdSignatureWrapper[]
+        adSigList: AdSignature[]
     ): ResultAsync<void, PersistenceError> {
-        return this.dataWalletPersistence.saveAdSignatures(adSignatureWrapperList);
+        return this.dataWalletPersistence.saveAdSignatures(adSigList);
     }
 }

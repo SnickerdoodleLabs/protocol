@@ -55,7 +55,7 @@ import {
   TransactionPaymentCounter,
   getChainInfoByChainId,
   EligibleAd,
-  AdSignatureWrapper,
+  AdSignature,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -336,7 +336,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public saveAdSignatures(
-    adSignatureWrapperList: AdSignatureWrapper[]
+    adSigList: AdSignature[]
   ): ResultAsync<void, PersistenceError> {
 
     return this.waitForUnlock().andThen(() => {
@@ -345,11 +345,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           .getBackupManager().andThen((backupManager) => {
 
             return ResultUtils.combine(
-              adSignatureWrapperList.map((adSignatureWrapper) => {
+              adSigList.map((adSig) => {
 
                 return backupManager.addRecord(
-                  ELocalStorageKey.AD_SIGNATURE_WRAPPERS, 
-                  adSignatureWrapper
+                  ELocalStorageKey.AD_SIGNATURES, 
+                  adSig
                 );
               })
             ).map(() => undefined);
@@ -357,10 +357,10 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       }).map(() => {});
   }
 
-  public getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError> {
+  public getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
     return this.waitForUnlock().andThen(() => {
-      return this.volatileStorage.getAll<AdSignatureWrapper>(
-        ELocalStorageKey.AD_SIGNATURE_WRAPPERS,
+      return this.volatileStorage.getAll<AdSignature>(
+        ELocalStorageKey.AD_SIGNATURES,
       );
     });
   }

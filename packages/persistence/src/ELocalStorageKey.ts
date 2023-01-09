@@ -22,5 +22,5 @@ export enum ELocalStorageKey {
   COIN_INFO = "SD_CoinInfo",
   RESTORED_BACKUPS = "SD_RestoredBackups",
   ELIGIBLE_ADS = "SD_EligibleAds",
-  AD_SIGNATURE_WRAPPERS = "SD_AdSignatureWrappers",
+  AD_SIGNATURES = "SD_AdSignatures",
 }

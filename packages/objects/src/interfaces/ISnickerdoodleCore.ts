@@ -19,7 +19,7 @@ import {
   MarketplaceListing,
   TransactionPaymentCounter,
   EligibleAd,
-  AdSignatureWrapper,
+  AdSignature,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -354,16 +354,16 @@ export interface ISnickerdoodleCore {
 
   createAdSignature(
     eligibleAd: EligibleAd
-  ): ResultAsync<AdSignatureWrapper, Error>;
+  ): ResultAsync<AdSignature, Error>;
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
   saveEligibleAds(
     rewards: EligibleAd[],
   ): ResultAsync<void, PersistenceError>;
 
-  getAdSignatures(): ResultAsync<AdSignatureWrapper[], PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
   saveAdSignatures(
-    signatures: AdSignatureWrapper[]
+    signatures: AdSignature[]
   ): ResultAsync<void, PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
