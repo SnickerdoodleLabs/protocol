@@ -1,5 +1,6 @@
 import {
     AdKey,
+    EVMContractAddress,
     IpfsCID,
     UnixTimestamp,
 } from "@objects/primitives";
@@ -9,6 +10,7 @@ import { EAdDisplayType } from "@objects/primitives";
 
 export class EligibleAd {
     public constructor(
+        public consentContractAddress: EVMContractAddress,
         public queryCID: IpfsCID,
         public key: AdKey, // 'a1'
         public name: string,

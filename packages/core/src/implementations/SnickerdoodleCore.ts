@@ -730,13 +730,19 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
+  createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignatureWrapper, Error> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.createAdSignature(eligibleAd);
+  }
+
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.getEligibleAds();
   }
 
-  addEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError> {
+  saveEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError> {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.saveEligibleAds(ads);

@@ -1,5 +1,5 @@
 import { IAdService } from "@core/interfaces/business";
-import { IContextProvider, IContextProviderType } from "@core/interfaces/utilities";
+import { IContextProvider, IContextProviderType, IDataWalletUtils, IDataWalletUtilsType } from "@core/interfaces/utilities";
 import { ICryptoUtils, ICryptoUtilsType } from "@snickerdoodlelabs/common-utils";
 import {
     IDataWalletPersistenceType,
@@ -28,6 +28,8 @@ export class AdService implements IAdService {
         protected cryptoUtils: ICryptoUtils,
         @inject(IContextProviderType) 
         protected contextProvider: IContextProvider,
+        @inject(IDataWalletUtilsType) 
+        protected dataWalletUtils: IDataWalletUtils,
     ) {}
 
 
@@ -47,11 +49,16 @@ export class AdService implements IAdService {
 
         return ResultUtils.combine([
             this.cryptoUtils.hashStringSHA256(JSON.stringify(eligibleAd)),
-            this.contextProvider.getContext()
-        ]).andThen(([contentHash, context]) => {
+            this.contextProvider.getContext().andThen((context) => {
+                return this.dataWalletUtils.deriveOptInPrivateKey(
+                    eligibleAd.consentContractAddress,
+                    context.dataWalletKey!,
+                );
+            })
+        ]).andThen(([contentHash, optInPrivateKey]) => {
 
             return this.cryptoUtils.signMessage(
-                contentHash, context.dataWalletKey!
+                contentHash, optInPrivateKey
             ).map((signature) => {
 
                 return new AdSignatureWrapper(

@@ -352,8 +352,12 @@ export interface ISnickerdoodleCore {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
+  createAdSignature(
+    eligibleAd: EligibleAd
+  ): ResultAsync<AdSignatureWrapper, Error>;
+
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
-  addEligibleAds(
+  saveEligibleAds(
     rewards: EligibleAd[],
   ): ResultAsync<void, PersistenceError>;
 

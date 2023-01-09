@@ -53,8 +53,6 @@ import {
   JSONString,
   EVMTransaction,
   TransactionPaymentCounter,
-  BigNumberString,
-  addBigNumberString,
   getChainInfoByChainId,
   EligibleAd,
   AdSignatureWrapper,

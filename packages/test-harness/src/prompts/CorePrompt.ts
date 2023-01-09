@@ -1,5 +1,6 @@
 import {
   AdContent,
+  AdKey,
   AESEncryptedString,
   Age,
   BigNumberString,
@@ -12,6 +13,7 @@ import {
   EncryptedString,
   ERewardType,
   EVMAccountAddress,
+  EVMContractAddress,
   EVMTransaction,
   EVMTransactionHash,
   Gender,
@@ -35,6 +37,7 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
+import { SignStoredAds } from "./SignStoredAds";
 
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
@@ -43,6 +46,7 @@ export class CorePrompt extends DataWalletPrompt {
   private removeAccount: RemoveAccount;
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
+  private signStoredAds: SignStoredAds;
 
   private selectProfile: SelectProfile;
 
@@ -56,6 +60,7 @@ export class CorePrompt extends DataWalletPrompt {
     this.optInCampaign = new OptInCampaign(this.env);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
+    this.signStoredAds = new SignStoredAds(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
@@ -76,6 +81,10 @@ export class CorePrompt extends DataWalletPrompt {
       {
         name: "Opt Out of Campaign",
         value: "optOutCampaign",
+      },
+      {
+        name: "Sign stored ads",
+        value: "signStoredAdds",
       },
       new inquirer.Separator(),
       { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
@@ -109,7 +118,7 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Add Earned Reward", value: "addEarnedReward" },
       { name: "Get Earned Rewards", value: "getEarnedRewards" },
 
-      { name: "Add Eligible Ads", value: "addEligibleAds" },
+      { name: "Save Eligible Ads", value: "saveEligibleAds" },
       { name: "Get Eligible Ads", value: "getEligibleAds" },
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },
@@ -158,8 +167,9 @@ export class CorePrompt extends DataWalletPrompt {
         ERewardType.Lazy,
       );
       const eligibleAd = new EligibleAd(
+        EVMContractAddress("oOoOoOo"),
         IpfsCID("queryCID"),
-        "a1",
+        AdKey("a1"),
         "Creative ad name",
         new AdContent(
           EAdContentType.IMAGE,
@@ -171,6 +181,7 @@ export class CorePrompt extends DataWalletPrompt {
         UnixTimestamp(123),
         ["keyword1", "keyword2"]
       );
+      const adSignatures = [];
 
       switch (answers.core) {
         case "NOOP": // this is super important as we have the accept query appearing from another thread
@@ -191,6 +202,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.optInCampaign.start();
         case "optOutCampaign":
           return this.optOutCampaign.start();
+        case "signStoredAdds":
+          return this.signStoredAds.start();
         case "setAge to 15":
           console.log("Age is set to 15");
           return this.core.setAge(Age(15));
@@ -225,8 +238,12 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getSiteVisits().map(console.log);
         case "getEligibleAds":
           return this.core.getEligibleAds().map(console.log);
-        case "addEligibleAds":
-          return this.core.addEligibleAds([eligibleAd]).map(console.log);
+        case "saveEligibleAds":
+          return this.core.saveEligibleAds([eligibleAd]).map(console.log);
+        case "getAdSignatures":
+          return this.core.getAdSignatures().map(console.log);
+        case "saveAdSignatures":
+          return this.core.saveAdSignatures(adSignatures).map(console.log);
         case "addEarnedReward":
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":
