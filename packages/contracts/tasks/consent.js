@@ -518,6 +518,35 @@ task("addTopMarketplaceListing", "Add a new marketplace listing to top slot")
       });
   });
 
+  task("removeMarketplaceTailListing", "Removes a non-head listing from the marketplace")
+  .addParam("upstreamslot", "Integer number for the slot which points to the listing to be removed.")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to use in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const upstreamslot = taskArgs.upstreamslot;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentFactoryContractHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      account,
+    );
+
+    await consentFactoryContractHandle
+      .removeListingTail(upstreamslot)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
 task(
   "createConsentContract",
   "Calls the consent factory and deploys a Consent contract",

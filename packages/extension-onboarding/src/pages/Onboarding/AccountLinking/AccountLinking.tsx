@@ -1,7 +1,5 @@
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
 import accountLinking from "@extension-onboarding/assets/images/account-linking.svg";
-import iconBg from "@extension-onboarding/assets/images/icon-bg.svg";
-import sdlCircle from "@extension-onboarding/assets/images/sdl-circle.svg";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { useAppContext } from "@extension-onboarding/context/App";
@@ -16,10 +14,7 @@ const AccountLinking: FC = () => {
 
   useEffect(() => {
     if (linkedAccounts.length) {
-      if (invitationInfo.consentAddress) {
-        return navigate(EPaths.ONBOARDING_OPT_IN);
-      }
-      return navigate(EPaths.ONBOARDING_BUILD_PROFILE);
+      navigate(EPaths.ONBOARDING_BUILD_PROFILE);
     }
   }, [linkedAccounts, invitationInfo]);
 

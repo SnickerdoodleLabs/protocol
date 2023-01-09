@@ -127,6 +127,23 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         listingsTotal += 1; 
     }
 
+    /// @notice Removes a listing behind the head element of the marketplace list
+    /// @dev _upstream -> _oldSlot -> _downstream
+    /// @param _upstream upstream pointer that will point to _newSlot  
+    function removeListingTail(uint256 _upstream) public onlyRole(DEFAULT_ADMIN_ROLE) {
+
+        require(listings[_upstream].next > 1, "ConsentFactory: invalid upstream slot");
+
+        // point upstream to the next slot
+        uint256 oldSlot = listings[_upstream].next;
+        listings[_upstream].next = listings[oldSlot].next;
+        
+        // delete the old slot pointed to my _upstream
+        delete listings[oldSlot];
+
+        listingsTotal -= 1; 
+    }
+
     /// @notice Creates a new head listing in the marketplace listing map
     /// @dev _newSlot -> oldHeadSlot
     /// @param _newHead Downstream pointer that will be pointed to by _newSlot
@@ -143,6 +160,21 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         listingsHead = _newHead;
 
         listingsTotal += 1; 
+    }
+
+    /// @notice Removes the head listing of the marketplace
+    /// @dev oldHead -> newHead
+    function removeHeadListing() public onlyRole(DEFAULT_ADMIN_ROLE) {
+
+        require(listingsHead > 1, "ConsentFactory: no head listing to remove");
+
+        // cache the slot for the new head listing and delete the old head listing
+        uint256 newHeadSlot = listings[listingsHead].next;
+        delete listings[listingsHead];
+
+        // update the new head listing and decriment the total listings count
+        listingsHead = newHeadSlot;
+        listingsTotal -= 1; 
     }
 
     /// @notice Returns an array of cids from the marketplace linked list and the next active slot for pagination
