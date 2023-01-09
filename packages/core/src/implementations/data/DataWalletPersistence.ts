@@ -808,7 +808,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               accountAddress as EVMAccountAddress,
             );
           case EIndexer.Moonbeam:
-            return etherscanRepo.getBalancesForAccount(
+            return etherscanRepo.getTokensForAccount(
               chainId,
               accountAddress as EVMAccountAddress,
             );
