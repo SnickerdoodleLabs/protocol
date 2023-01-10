@@ -57,6 +57,7 @@ import {
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
+  AdService,
   BalanceQueryEvaluator,
   ConsentTokenUtils,
   InvitationService,
@@ -70,6 +71,7 @@ import {
   SiftContractService,
 } from "@core/implementations/business/index.js";
 import {
+  AdRepository,
   ConsentContractRepository,
   CrumbsRepository,
   DataWalletPersistence,
@@ -99,6 +101,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMonitoringService,
@@ -125,6 +129,8 @@ import {
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
+  IAdRepository,
+  IAdRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
   ICrumbsRepository,
@@ -159,6 +165,7 @@ import {
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
 
+
 export const snickerdoodleCoreModule = new ContainerModule(
   (
     bind: interfaces.Bind,
@@ -182,6 +189,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
+      .inSingletonScope();
+    bind<IAdService>(IAdServiceType)
+      .to(AdService)
       .inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
@@ -282,6 +292,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IQueryRepository>(IQueryRepositoryType)
       .to(QueryRepository)
+      .inSingletonScope();
+
+    bind<IAdRepository>(IAdRepositoryType)
+      .to(AdRepository)
       .inSingletonScope();
 
     bind<ISDQLParserFactory>(ISDQLParserFactoryType)

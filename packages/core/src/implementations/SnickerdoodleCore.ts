@@ -78,15 +78,16 @@ import {
   TokenMarketData,
   MarketplaceListing,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
+  SHA256Hash,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
   ICloudStorageType,
-  CeramicCloudStorage,
   IVolatileStorage,
   IVolatileStorageType,
   IndexedDBVolatileStorage,
-  NullCloudStorage,
   GoogleCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
@@ -108,6 +109,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IProfileService,
@@ -728,6 +731,46 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.getEligibleAds();
+  }
+
+  saveEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.saveEligibleAds(ads);
+  }
+
+  saveAdSignatures(
+    signatures: AdSignature[]
+  ): ResultAsync<void, PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.saveAdSignatures(signatures);
+  }
+
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.getAdSignatures();
+  }
+
+  createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignature, Error> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.createAdSignature(eligibleAd);
+  }
+
+  getHashedAdContentByIpfsCID(
+    cid: IpfsCID
+  ): ResultAsync<SHA256Hash, IPFSError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.getHashedAdContentByIpfsCID(cid);
+  }
+  
   public addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {

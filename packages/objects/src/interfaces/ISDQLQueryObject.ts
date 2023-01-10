@@ -7,12 +7,12 @@ import {
   EVMContractAddress,
   IpfsCID,
   URLString,
-  AdId,
-  UnixTimestamp
+  AdKey,
+  UnixTimestamp,
+  EAdDisplayType, 
+  ISO8601DateString
 } from "@objects/primitives";
-import { EAdDisplayType } from "@objects/primitives/EAdDisplayType";
-import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
-import { AdContent } from "..";
+import { AdContent } from "@objects/businessObjects";
 
 export interface ISDQLQueryObject {
   version: string;
@@ -86,7 +86,7 @@ export interface ISDQLReturnProperties {
 }
 
 export interface ISDQLAdsBlock {
-  [index: AdId]: ISDQLAd;
+  [index: AdKey]: ISDQLAd;
 }
 
 export interface ISDQLAd {

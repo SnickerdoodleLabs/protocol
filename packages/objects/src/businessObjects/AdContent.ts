@@ -1,7 +1,7 @@
 import {
     IpfsCID,
 } from "@objects/primitives";
-import { EAdContentType } from "@objects/primitives";
+import { EAdContentType } from "@objects/enum";
 
 
 export class AdContent {
