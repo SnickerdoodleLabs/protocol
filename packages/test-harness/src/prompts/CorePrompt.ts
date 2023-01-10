@@ -39,6 +39,7 @@ import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
 import { SignStoredAds } from "@test-harness/prompts/SignStoredAds.js";
 import { VerifyStoredAdSignatures } from "@test-harness/prompts/VerifyStoredAdSignatures.js";
+import { IPFSClient } from "@test-harness/utilities/index.js";
 
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
@@ -240,7 +241,31 @@ export class CorePrompt extends DataWalletPrompt {
         case "getEligibleAds":
           return this.core.getEligibleAds().map(console.log);
         case "saveEligibleAds":
-          return this.core.saveEligibleAds([eligibleAd]).map(console.log);
+          return new IPFSClient().postToIPFS(
+              "Act like this is binary JPG data"
+          ).andThen((contentCid) => {
+            console.log("Ad content saved at " + contentCid);
+              return this.core.saveEligibleAds([
+                new EligibleAd(
+                  EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
+                  IpfsCID("queryCID"),
+                  AdKey("a1"),
+                  "Creative ad name",
+                  new AdContent(
+                    EAdContentType.IMAGE,
+                    contentCid
+                  ),
+                  "You can view this ad anytime",
+                  EAdDisplayType.BANNER,
+                  99999,
+                  UnixTimestamp(123),
+                  ["keyword1", "keyword2"]
+                )
+              ]).andThen(() => {
+                console.log("Eligible ad saved successfully.");
+                return okAsync(undefined);
+              });
+          });
         case "signStoredAds":
           return this.signStoredAds.start();
         case "getAdSignatures":

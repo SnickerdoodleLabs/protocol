@@ -1,5 +1,5 @@
 import {
-    AdSignature,
+    AdSignature
 } from "@snickerdoodlelabs/objects";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
@@ -25,14 +25,13 @@ export class VerifyStoredAdSignatures extends Prompt {
         }).andThen((answer) => {
 
             const selectedSignature = answer.verifyAdSignaturesSelector as AdSignature;
-            return this.core.verifyAdSignature(selectedSignature).andThen(() => {
+            return this.env.insightPlatform.verifyAdSignature(
+                this.env.adSignatureContentHashMap.get(selectedSignature)!, selectedSignature
+            ).andThen(() => {
 
                 console.log("Ad signature is valid!!")
                 return okAsync(undefined);
             });
-        }).mapErr((e) => {
-            console.error(e);
-            return e;
         });
     }
 }

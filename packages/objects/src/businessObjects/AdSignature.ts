@@ -1,7 +1,6 @@
 import { 
     IpfsCID, 
     AdKey, 
-    SHA256Hash, 
     Signature, 
     EVMContractAddress, 
     JsonWebToken
@@ -13,7 +12,6 @@ export class AdSignature {
         public consentContractAddress: EVMContractAddress,
         public queryCID: IpfsCID,
         public adKey: AdKey,
-        public contentHash: SHA256Hash,
         public signature: Signature | JsonWebToken
     ) {}
 }

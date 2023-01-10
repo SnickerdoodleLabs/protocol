@@ -54,7 +54,6 @@ export class AdService implements IAdService {
     public createAdSignature(
         eligibleAd: EligibleAd
     ): ResultAsync<AdSignature, Error> {
-
         return this._validateAndGetContext().andThen((context) => {
             return ResultUtils.combine([
                 this.dataWalletUtils.deriveOptInPrivateKey(eligibleAd.consentContractAddress, context.dataWalletKey!),
@@ -65,7 +64,6 @@ export class AdService implements IAdService {
                         eligibleAd.consentContractAddress,
                         eligibleAd.queryCID,
                         eligibleAd.key,
-                        contentHash,
                         signature
                     );
                 });
@@ -73,35 +71,7 @@ export class AdService implements IAdService {
         });
     }
 
-
-    public verifyAdSignature(
-        adSignature: AdSignature,
-    ): ResultAsync<void, InvalidSignatureError> {
-
-        return this.cryptoUtils.verifyEVMSignature(
-            adSignature.contentHash, adSignature.signature as Signature
-        ).andThen((optInAddressFromSignature) => {
-            
-            if(!this.compareEVMAddresses(optInAddressFromSignature, adSignature.consentContractAddress)) {
-                return errAsync(
-                    new InvalidSignatureError(
-                      `Given signature seems to be signed by ${optInAddressFromSignature} ` +
-                      `instead of ${adSignature.consentContractAddress}`,
-                    )
-                );
-            }
-
-            return okAsync(undefined);
-        })
-    }
-
-    private compareEVMAddresses(
-        accAddr: EVMAccountAddress, contrAddr: EVMContractAddress
-    ): boolean { 
-        return accAddr.toString().toLowerCase() == contrAddr.toString().toLowerCase(); 
-    }
-
-    private getHashedAdContentByIpfsCID(cid: IpfsCID): ResultAsync<SHA256Hash, IPFSError> {
+    public getHashedAdContentByIpfsCID(cid: IpfsCID): ResultAsync<SHA256Hash, IPFSError> {
         return this.adRepository.getRawAdContentByCID(cid)
             .andThen(this.cryptoUtils.hashStringSHA256);
     }

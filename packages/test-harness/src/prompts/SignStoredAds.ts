@@ -4,6 +4,7 @@ import {
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { Prompt } from "@test-harness/prompts/Prompt.js";
 import { ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 export class SignStoredAds extends Prompt {
 
@@ -25,9 +26,13 @@ export class SignStoredAds extends Prompt {
         }).andThen((answer) => {
 
             const selectedAd = answer.signStoredAdsSelector as EligibleAd;
-            return this.core.createAdSignature(selectedAd).andThen((adSigWrapper) => {
+            return ResultUtils.combine([
+                this.core.createAdSignature(selectedAd),
+                this.core.getHashedAdContentByIpfsCID(selectedAd.content.src)
+            ]).andThen(([adSignature, contentHash]) => {
 
-                return this.core.saveAdSignatures([adSigWrapper]);
+                this.env.adSignatureContentHashMap.set(adSignature, contentHash);
+                return this.core.saveAdSignatures([adSignature]);
             });
         }).mapErr((e) => {
             console.error(e);
@@ -35,4 +40,3 @@ export class SignStoredAds extends Prompt {
         });
     }
 }
-  

@@ -80,6 +80,7 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
+  SHA256Hash,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -762,12 +763,14 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return adService.createAdSignature(eligibleAd);
   }
 
-  verifyAdSignature(adSignature: AdSignature): ResultAsync<void, InvalidSignatureError> {
+  getHashedAdContentByIpfsCID(
+    cid: IpfsCID
+  ): ResultAsync<SHA256Hash, IPFSError> {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
-    return adService.verifyAdSignature(adSignature);
+    return adService.getHashedAdContentByIpfsCID(cid);
   }
-
+  
   public addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
