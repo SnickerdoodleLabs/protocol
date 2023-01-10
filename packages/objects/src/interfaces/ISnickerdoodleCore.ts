@@ -19,6 +19,7 @@ import {
   MarketplaceListing,
   TransactionPaymentCounter,
   EligibleAd,
+  AdSignature,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -60,8 +61,8 @@ import {
   HexString32,
   IpfsCID,
   LanguageCode,
+  SHA256Hash,
   Signature,
-  TokenId,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -351,9 +352,22 @@ export interface ISnickerdoodleCore {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
+  createAdSignature(
+    eligibleAd: EligibleAd
+  ): ResultAsync<AdSignature, Error>;
+
+  getHashedAdContentByIpfsCID(
+    cid: IpfsCID
+  ): ResultAsync<SHA256Hash, IPFSError>;
+
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
-  addEligibleAds(
+  saveEligibleAds(
     rewards: EligibleAd[],
+  ): ResultAsync<void, PersistenceError>;
+
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
+  saveAdSignatures(
+    signatures: AdSignature[]
   ): ResultAsync<void, PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;

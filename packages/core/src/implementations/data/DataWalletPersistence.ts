@@ -53,10 +53,9 @@ import {
   JSONString,
   EVMTransaction,
   TransactionPaymentCounter,
-  BigNumberString,
-  addBigNumberString,
   getChainInfoByChainId,
   EligibleAd,
+  AdSignature,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -310,7 +309,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public addEligibleAds(
+  public saveEligibleAds(
     ads: EligibleAd[],
   ): ResultAsync<void, PersistenceError> {
     return this.waitForUnlock()
@@ -319,7 +318,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           .getBackupManager()
           .andThen((backupManager) => {
             return ResultUtils.combine(
-              ads.map((ad) => backupManager.addRecord(ELocalStorageKey.ELIGIBLE_ADS, ad))
+              ads.map((ad) => {
+                return backupManager.addRecord(ELocalStorageKey.ELIGIBLE_ADS, ad);
+              })
             ).map(() => undefined);
           });
       })
@@ -330,6 +331,36 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.waitForUnlock().andThen(() => {
       return this.volatileStorage.getAll<EligibleAd>(
         ELocalStorageKey.ELIGIBLE_ADS,
+      );
+    });
+  }
+
+  public saveAdSignatures(
+    adSigList: AdSignature[]
+  ): ResultAsync<void, PersistenceError> {
+
+    return this.waitForUnlock().andThen(() => {
+
+        return this.backupManagerProvider
+          .getBackupManager().andThen((backupManager) => {
+
+            return ResultUtils.combine(
+              adSigList.map((adSig) => {
+
+                return backupManager.addRecord(
+                  ELocalStorageKey.AD_SIGNATURES, 
+                  adSig
+                );
+              })
+            ).map(() => undefined);
+          });
+      }).map(() => {});
+  }
+
+  public getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+    return this.waitForUnlock().andThen(() => {
+      return this.volatileStorage.getAll<AdSignature>(
+        ELocalStorageKey.AD_SIGNATURES,
       );
     });
   }

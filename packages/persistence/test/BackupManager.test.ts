@@ -1,8 +1,10 @@
 import "reflect-metadata";
 
-import { AdContent, EAdContentType, EligibleAd, EAdDisplayType, EVMPrivateKey, IpfsCID, UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { AdContent, EAdContentType, EligibleAd, EAdDisplayType, EVMPrivateKey, IpfsCID, UnixTimestamp, AdKey, EVMContractAddress } from "@snickerdoodlelabs/objects";
 import { ELocalStorageKey } from "@persistence/ELocalStorageKey";
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
+
+import * as td from "testdouble";
 
 
 describe("Bundle", () => {
@@ -42,8 +44,9 @@ describe("Bundle", () => {
     const backupManager = (await backupManagerMocks.getBackupManager())._unsafeUnwrap();
 
     const testAd = new EligibleAd(
+      EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
       IpfsCID("queryCID"),
-      "a1",
+      AdKey("a1"),
       "Creative ad name",
       new AdContent(
         EAdContentType.IMAGE,

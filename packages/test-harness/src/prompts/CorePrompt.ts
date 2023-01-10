@@ -1,5 +1,6 @@
 import {
   AdContent,
+  AdKey,
   AESEncryptedString,
   Age,
   BigNumberString,
@@ -12,6 +13,7 @@ import {
   EncryptedString,
   ERewardType,
   EVMAccountAddress,
+  EVMContractAddress,
   EVMTransaction,
   EVMTransactionHash,
   Gender,
@@ -35,6 +37,9 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
+import { SignStoredAds } from "@test-harness/prompts/SignStoredAds.js";
+import { VerifyStoredAdSignatures } from "@test-harness/prompts/VerifyStoredAdSignatures.js";
+import { IPFSClient } from "@test-harness/utilities/index.js";
 
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
@@ -43,6 +48,8 @@ export class CorePrompt extends DataWalletPrompt {
   private removeAccount: RemoveAccount;
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
+  private signStoredAds: SignStoredAds;
+  private verifyStoredAdSignatures: VerifyStoredAdSignatures;
 
   private selectProfile: SelectProfile;
 
@@ -56,6 +63,8 @@ export class CorePrompt extends DataWalletPrompt {
     this.optInCampaign = new OptInCampaign(this.env);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
+    this.signStoredAds = new SignStoredAds(this.env);
+    this.verifyStoredAdSignatures = new VerifyStoredAdSignatures(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
@@ -109,8 +118,13 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Add Earned Reward", value: "addEarnedReward" },
       { name: "Get Earned Rewards", value: "getEarnedRewards" },
 
-      { name: "Add Eligible Ads", value: "addEligibleAds" },
+      { name: "Save pre-seeded ad", value: "saveEligibleAds" },
       { name: "Get Eligible Ads", value: "getEligibleAds" },
+
+      { name: "Sign stored ads", value: "signStoredAds" },
+      { name: "Get Ad Signatures", value: "getAdSignatures" },
+      { name: "Verify stored ad signatures", value: "verifyAdSignatures" },
+
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },
       { name: "restore backup", value: "restoreBackup" },
@@ -158,8 +172,9 @@ export class CorePrompt extends DataWalletPrompt {
         ERewardType.Lazy,
       );
       const eligibleAd = new EligibleAd(
+        EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
         IpfsCID("queryCID"),
-        "a1",
+        AdKey("a1"),
         "Creative ad name",
         new AdContent(
           EAdContentType.IMAGE,
@@ -225,8 +240,38 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getSiteVisits().map(console.log);
         case "getEligibleAds":
           return this.core.getEligibleAds().map(console.log);
-        case "addEligibleAds":
-          return this.core.addEligibleAds([eligibleAd]).map(console.log);
+        case "saveEligibleAds":
+          return new IPFSClient().postToIPFS(
+              "Act like this is binary JPG data"
+          ).andThen((contentCid) => {
+            console.log("Ad content saved at " + contentCid);
+              return this.core.saveEligibleAds([
+                new EligibleAd(
+                  EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
+                  IpfsCID("queryCID"),
+                  AdKey("a1"),
+                  "Creative ad name",
+                  new AdContent(
+                    EAdContentType.IMAGE,
+                    contentCid
+                  ),
+                  "You can view this ad anytime",
+                  EAdDisplayType.BANNER,
+                  99999,
+                  UnixTimestamp(123),
+                  ["keyword1", "keyword2"]
+                )
+              ]).andThen(() => {
+                console.log("Eligible ad saved successfully.");
+                return okAsync(undefined);
+              });
+          });
+        case "signStoredAds":
+          return this.signStoredAds.start();
+        case "getAdSignatures":
+          return this.core.getAdSignatures().map(console.log);
+        case "verifyStoredAdSignatures":
+          return this.verifyStoredAdSignatures.start();
         case "addEarnedReward":
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":

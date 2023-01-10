@@ -1,6 +1,5 @@
 import {
     IpfsCID,
-
 } from "@objects/primitives";
 import { EAdContentType } from "@objects/enum";
 

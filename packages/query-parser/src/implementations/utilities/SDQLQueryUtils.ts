@@ -1,5 +1,5 @@
 import {
-  AdId,
+  AdKey,
   CompensationId,
   DataPermissions,
   DuplicateIdInSchema,
@@ -9,7 +9,6 @@ import {
   ParserError,
   QueryExpiredError,
   QueryFormatError,
-  QueryIdentifier,
   SDQLString,
   SDQL_Name,
 } from "@snickerdoodlelabs/objects";
@@ -112,13 +111,13 @@ export class SDQLQueryUtils {
     const queryCompensations = 
       this.getExpectedCompensationIdsByQueryIds(parser, permittedQueryIds);
 
-    const permittedAdIds = 
-      this.getPermittedAdIdsByPermittedQueryIds(parser, permittedQueryIds);
+    const permittedAdKeys = 
+      this.getPermittedAdKeysByPermittedQueryIds(parser, permittedQueryIds);
     const adCompensations = 
-      this.getExpectedCompensationIdsByAdIds(parser, permittedAdIds);
+      this.getExpectedCompensationIdsByAdKeys(parser, permittedAdKeys);
 
     // console.log("queryCompensations: " + queryCompensations);
-    // console.log("permittedAdIds: " + permittedAdIds);
+    // console.log("permittedAdKeys: " + permittedAdKeys);
     // console.log("adCompensations: " + adCompensations);
 
     return Array.from( new Set( queryCompensations.concat(adCompensations) ) )
@@ -191,23 +190,23 @@ export class SDQLQueryUtils {
     }
   }
 
-  public getExpectedCompensationIdsByEligibleAdIds(
+  public getExpectedCompensationIdsByEligibleAdKeys(
     parser: SDQLParser,
-    eligibleAdIds: string[]
+    eligibleAdKeys: AdKey[]
   ): CompensationId[] {
-    return this.getExpectedCompensationIdsByAdIds(parser, eligibleAdIds);
+    return this.getExpectedCompensationIdsByAdKeys(parser, eligibleAdKeys);
   }
 
-  public getExpectedCompensationIdsBySeenAdIds(
+  public getExpectedCompensationIdsBySeenAdKeys(
     parser: SDQLParser,
-    seenAdIds: string[]
+    seenAdKeys: AdKey[]
   ): CompensationId[] {
-    return this.getExpectedCompensationIdsByAdIds(parser, seenAdIds);
+    return this.getExpectedCompensationIdsByAdKeys(parser, seenAdKeys);
   }
 
-  public getExpectedCompensationIdsByAdIds(
+  public getExpectedCompensationIdsByAdKeys(
     parser: SDQLParser,
-    adIds: string[]
+    adKeys: AdKey[]
   ): CompensationId[] {
 
     const adCompensationIds = new Set<CompensationId>();
@@ -216,7 +215,7 @@ export class SDQLQueryUtils {
       const adDependencies = parser.parseAdDependencies(compExpr);
       if (
         adDependencies.length > 0 && // Is an ad compensation
-        this.adListContainsAllAdDependencies(adIds, adDependencies)
+        this.adListContainsAllAdDependencies(adKeys, adDependencies)
       ) {
 
         const comIds = this.extractCompensationIdFromAstWithAlternatives(comAst!);
@@ -227,11 +226,11 @@ export class SDQLQueryUtils {
     return Array.from(adCompensationIds);
   }
 
-  private getPermittedAdIdsByPermittedQueryIds(
+  private getPermittedAdKeysByPermittedQueryIds(
     parser: SDQLParser,
     permittedQueryIds: string[]
-  ): AdId[] {
-    const permittedAdIds = new Set<AdId>();
+  ): AdKey[] {
+    const permittedAdKeys = new Set<AdKey>();
 
     const queryPermissions = parser.queryIdsToDataPermissions(permittedQueryIds);
     parser.adPermissions.forEach((adPermissions, adLogicExpr) => {
@@ -239,11 +238,11 @@ export class SDQLQueryUtils {
         const adAstExpr = parser.logicAds.get(adLogicExpr);
         const adAst = this.getAdAstFromAst(adAstExpr!);
 
-        permittedAdIds.add(AdId(adAst.key));
+        permittedAdKeys.add(AdKey(adAst.key));
       }
     });
 
-    return Array.from(permittedAdIds);
+    return Array.from(permittedAdKeys);
   }
 
   protected getAdAstFromAst(
@@ -266,10 +265,10 @@ export class SDQLQueryUtils {
   }
 
   private adListContainsAllAdDependencies (
-    permittedAdIds: string[],
+    permittedAdKeys: string[],
     adDependencies: AST_Ad[]
   ): boolean {
-    return adDependencies.every(ad => permittedAdIds.includes(ad.key));
+    return adDependencies.every(ad => permittedAdKeys.includes(ad.key));
   }
 
   public getPermittedQueryIdsFromSchemaString(

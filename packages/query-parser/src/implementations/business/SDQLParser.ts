@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import {
-  AdId,
+  AdKey,
   DataPermissions,
   DuplicateIdInSchema,
   EWalletDataType,
