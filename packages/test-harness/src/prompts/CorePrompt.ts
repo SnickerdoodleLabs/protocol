@@ -171,21 +171,6 @@ export class CorePrompt extends DataWalletPrompt {
         "dummy desc",
         ERewardType.Lazy,
       );
-      const eligibleAd = new EligibleAd(
-        EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
-        IpfsCID("queryCID"),
-        AdKey("a1"),
-        "Creative ad name",
-        new AdContent(
-          EAdContentType.IMAGE,
-          IpfsCID("adContentCID")
-        ),
-        "You can view this ad anytime",
-        EAdDisplayType.BANNER,
-        99999,
-        UnixTimestamp(123),
-        ["keyword1", "keyword2"]
-      );
 
       switch (answers.core) {
         case "NOOP": // this is super important as we have the accept query appearing from another thread
@@ -248,7 +233,7 @@ export class CorePrompt extends DataWalletPrompt {
               return this.core.saveEligibleAds([
                 new EligibleAd(
                   EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
-                  IpfsCID("queryCID"),
+                  IpfsCID("fakeAdQueryCID"),
                   AdKey("a1"),
                   "Creative ad name",
                   new AdContent(
@@ -262,7 +247,6 @@ export class CorePrompt extends DataWalletPrompt {
                   ["keyword1", "keyword2"]
                 )
               ]).andThen(() => {
-                console.log("Eligible ad saved successfully.");
                 return okAsync(undefined);
               });
           });
