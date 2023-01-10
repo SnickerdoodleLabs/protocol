@@ -71,6 +71,7 @@ import {
   SiftContractService,
 } from "@core/implementations/business/index.js";
 import {
+  AdRepository,
   ConsentContractRepository,
   CrumbsRepository,
   DataWalletPersistence,
@@ -128,6 +129,8 @@ import {
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
+  IAdRepository,
+  IAdRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
   ICrumbsRepository,
@@ -161,6 +164,7 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -288,6 +292,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IQueryRepository>(IQueryRepositoryType)
       .to(QueryRepository)
+      .inSingletonScope();
+
+    bind<IAdRepository>(IAdRepositoryType)
+      .to(AdRepository)
       .inSingletonScope();
 
     bind<ISDQLParserFactory>(ISDQLParserFactoryType)
