@@ -1,4 +1,6 @@
-import { IAdService } from "@core/interfaces/business";
+import { IAdService } from "@core/interfaces/business/index.js";
+import { IAdRepository, IAdRepositoryType } from "@core/interfaces/data/index.js";
+import { CoreContext } from "@core/interfaces/objects/index.js";
 import { 
     IContextProvider, 
     IContextProviderType, 
@@ -18,9 +20,13 @@ import {
     AdSignature,
     IpfsCID,
     SHA256Hash,
+    UninitializedError,
+    IPFSError,
+    EVMContractAddress,
+    EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 
@@ -28,14 +34,11 @@ import { ResultUtils } from "neverthrow-result-utils";
 export class AdService implements IAdService {
 
     constructor(
-        @inject(IDataWalletPersistenceType)
-        protected dataWalletPersistence: IDataWalletPersistence,
-        @inject(ICryptoUtilsType)
-        protected cryptoUtils: ICryptoUtils,
-        @inject(IContextProviderType) 
-        protected contextProvider: IContextProvider,
-        @inject(IDataWalletUtilsType) 
-        protected dataWalletUtils: IDataWalletUtils,
+        @inject(IDataWalletPersistenceType) protected dataWalletPersistence: IDataWalletPersistence,
+        @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+        @inject(IContextProviderType) protected contextProvider: IContextProvider,
+        @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
+        @inject(IAdRepositoryType) protected adRepository: IAdRepository,
     ) {}
 
     public requestDisplay(ad: EligibleAd): ResultAsync<boolean, PersistenceError> {
@@ -46,31 +49,34 @@ export class AdService implements IAdService {
         throw new Error("Method not implemented.");
     }
 
-    public createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignature, Error> {
+    public createAdSignature(
+        eligibleAd: EligibleAd
+    ): ResultAsync<AdSignature, Error> {
 
-        return ResultUtils.combine([
-            this.cryptoUtils.hashStringSHA256(JSON.stringify(eligibleAd)),
-            this.contextProvider.getContext().andThen((context) => {
-                return this.dataWalletUtils.deriveOptInPrivateKey(
-                    eligibleAd.consentContractAddress,
-                    context.dataWalletKey!,
-                );
-            })
-        ]).andThen(([contentHash, optInPrivateKey]) => {
+        return this._validateAndGetContext().andThen((context) => {
 
-            return this.cryptoUtils.signMessage(
-                contentHash, optInPrivateKey
-            ).map((signature) => {
+            return ResultUtils.combine([
+                this.dataWalletUtils.deriveOptInPrivateKey(eligibleAd.consentContractAddress, context.dataWalletKey!),
+                this.getHashedAdContentByIpfsCID(eligibleAd.content.src)
+            ]).andThen(([optInPrivateKey, contentHash]) => {
 
-                return new AdSignature(
-                    eligibleAd.consentContractAddress,
-                    eligibleAd.queryCID,
-                    eligibleAd.key,
-                    contentHash, //base64
-                    signature
-                );
-            })
+                return this.cryptoUtils.signMessage(contentHash, optInPrivateKey).map((signature) => {
+    
+                    return new AdSignature(
+                        eligibleAd.consentContractAddress,
+                        eligibleAd.queryCID,
+                        eligibleAd.key,
+                        contentHash,
+                        signature
+                    );
+                });
+            });
         });
+    }
+
+    private getHashedAdContentByIpfsCID(cid: IpfsCID): ResultAsync<SHA256Hash, IPFSError> {
+        return this.adRepository.getRawAdContentByCID(cid)
+            .andThen(this.cryptoUtils.hashStringSHA256);
     }
 
     public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
@@ -91,5 +97,17 @@ export class AdService implements IAdService {
         adSigList: AdSignature[]
     ): ResultAsync<void, PersistenceError> {
         return this.dataWalletPersistence.saveAdSignatures(adSigList);
+    }
+
+    private _validateAndGetContext(): ResultAsync<CoreContext, UninitializedError> {
+
+        return this.contextProvider.getContext().andThen((context) => {
+
+            if (context.dataWalletAddress == null || context.dataWalletKey == null) {
+                return errAsync(new UninitializedError("Core is not unlocked!"));
+            }
+
+            return okAsync(context);
+        });
     }
 }
