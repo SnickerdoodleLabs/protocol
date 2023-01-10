@@ -61,8 +61,8 @@ import {
   HexString32,
   IpfsCID,
   LanguageCode,
+  SHA256Hash,
   Signature,
-  TokenId,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -355,6 +355,10 @@ export interface ISnickerdoodleCore {
   createAdSignature(
     eligibleAd: EligibleAd
   ): ResultAsync<AdSignature, Error>;
+
+  getHashedAdContentByIpfsCID(
+    cid: IpfsCID
+  ): ResultAsync<SHA256Hash, IPFSError>;
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
   saveEligibleAds(
