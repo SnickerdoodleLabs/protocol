@@ -1,4 +1,4 @@
-import { AdKey, AdSignature, EligibleAd, IpfsCID, PersistenceError, SHA256Hash } from "@snickerdoodlelabs/objects";
+import { AdKey, AdSignature, EligibleAd, EVMAccountAddress, InvalidSignatureError, IpfsCID, PersistenceError, SHA256Hash } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
   
 export interface IAdService {
@@ -18,6 +18,9 @@ export interface IAdService {
   saveAdSignatures(
     adSigList: AdSignature[]
   ): ResultAsync<void, PersistenceError>;
+  verifyAdSignature(
+    adSignature: AdSignature,
+  ): ResultAsync<void, InvalidSignatureError>
 
   requestDisplay(
     ad: EligibleAd

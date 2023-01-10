@@ -14,3 +14,4 @@ export { CreateCampaign } from "@test-harness/prompts/CreateCampaign.js";
 export { PostQuery } from "@test-harness/prompts/PostQuery.js";
 export { SetMaxCapacity } from "@test-harness/prompts/SetMaxCapacity.js";
 export { SignStoredAds } from "@test-harness/prompts/SignStoredAds.js";
+export { VerifyStoredAdSignatures } from "@test-harness/prompts/VerifyStoredAdSignatures.js";

@@ -730,12 +730,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
-  createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignature, Error> {
-    const adService =
-      this.iocContainer.get<IAdService>(IAdServiceType);
-    return adService.createAdSignature(eligibleAd);
-  }
-
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
@@ -760,6 +754,18 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.getAdSignatures();
+  }
+
+  createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignature, Error> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.createAdSignature(eligibleAd);
+  }
+
+  verifyAdSignature(adSignature: AdSignature): ResultAsync<void, InvalidSignatureError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.verifyAdSignature(adSignature);
   }
 
   public addTransactions(

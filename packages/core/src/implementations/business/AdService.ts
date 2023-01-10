@@ -23,7 +23,9 @@ import {
     UninitializedError,
     IPFSError,
     EVMContractAddress,
-    EVMPrivateKey,
+    EVMAccountAddress,
+    Signature,
+    InvalidSignatureError,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -54,14 +56,11 @@ export class AdService implements IAdService {
     ): ResultAsync<AdSignature, Error> {
 
         return this._validateAndGetContext().andThen((context) => {
-
             return ResultUtils.combine([
                 this.dataWalletUtils.deriveOptInPrivateKey(eligibleAd.consentContractAddress, context.dataWalletKey!),
                 this.getHashedAdContentByIpfsCID(eligibleAd.content.src)
             ]).andThen(([optInPrivateKey, contentHash]) => {
-
                 return this.cryptoUtils.signMessage(contentHash, optInPrivateKey).map((signature) => {
-    
                     return new AdSignature(
                         eligibleAd.consentContractAddress,
                         eligibleAd.queryCID,
@@ -72,6 +71,34 @@ export class AdService implements IAdService {
                 });
             });
         });
+    }
+
+
+    public verifyAdSignature(
+        adSignature: AdSignature,
+    ): ResultAsync<void, InvalidSignatureError> {
+
+        return this.cryptoUtils.verifyEVMSignature(
+            adSignature.contentHash, adSignature.signature as Signature
+        ).andThen((optInAddressFromSignature) => {
+            
+            if(!this.compareEVMAddresses(optInAddressFromSignature, adSignature.consentContractAddress)) {
+                return errAsync(
+                    new InvalidSignatureError(
+                      `Given signature seems to be signed by ${optInAddressFromSignature} ` +
+                      `instead of ${adSignature.consentContractAddress}`,
+                    )
+                );
+            }
+
+            return okAsync(undefined);
+        })
+    }
+
+    private compareEVMAddresses(
+        accAddr: EVMAccountAddress, contrAddr: EVMContractAddress
+    ): boolean { 
+        return accAddr.toString().toLowerCase() == contrAddr.toString().toLowerCase(); 
     }
 
     private getHashedAdContentByIpfsCID(cid: IpfsCID): ResultAsync<SHA256Hash, IPFSError> {
