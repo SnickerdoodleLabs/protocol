@@ -198,6 +198,24 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       getExplorerUrl,
     ),
   ],
+  [
+    ChainId(EChain.Gnosis),
+    new ChainInformation(
+      "Moonbeam",
+      ChainId(EChain.Gnosis),
+      EChain.Gnosis,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000, // average block mining time
+      EIndexer.Gnosis,
+      new NativeCurrencyInformation("xDAI", 18, "xDAI", "ethereum"),
+      EChainType.Mainnet,
+      "https://etherscan.io/tx/",
+      getExplorerUrl,
+      URLString("https://api.etherscan.io/"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {

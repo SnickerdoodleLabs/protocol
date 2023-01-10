@@ -53,9 +53,9 @@ import {
   JSONString,
   EVMTransaction,
   TransactionPaymentCounter,
-  BigNumberString,
-  addBigNumberString,
   getChainInfoByChainId,
+  EligibleAd,
+  AdSignatureWrapper,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -305,6 +305,67 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     return this.waitForUnlock().andThen(() => {
       return this.volatileStorage.getAll<EarnedReward>(
         ELocalStorageKey.EARNED_REWARDS,
+      );
+    });
+  }
+
+  public saveEligibleAds(
+    ads: EligibleAd[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForUnlock()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              ads.map((ad) => {
+                return backupManager.addRecord(
+                  ELocalStorageKey.ELIGIBLE_ADS,
+                  ad,
+                );
+              }),
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
+  }
+
+  public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    return this.waitForUnlock().andThen(() => {
+      return this.volatileStorage.getAll<EligibleAd>(
+        ELocalStorageKey.ELIGIBLE_ADS,
+      );
+    });
+  }
+
+  public saveAdSignatures(
+    adSignatureWrapperList: AdSignatureWrapper[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForUnlock()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              adSignatureWrapperList.map((adSignatureWrapper) => {
+                return backupManager.addRecord(
+                  ELocalStorageKey.AD_SIGNATURE_WRAPPERS,
+                  adSignatureWrapper,
+                );
+              }),
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
+  }
+
+  public getAdSignatures(): ResultAsync<
+    AdSignatureWrapper[],
+    PersistenceError
+  > {
+    return this.waitForUnlock().andThen(() => {
+      return this.volatileStorage.getAll<AdSignatureWrapper>(
+        ELocalStorageKey.AD_SIGNATURE_WRAPPERS,
       );
     });
   }
@@ -667,6 +728,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
+            case EIndexer.Gnosis:
+              return etherscanRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             default:
               return errAsync(
                 new AccountIndexingError(
@@ -796,6 +862,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               accountAddress as SolanaAccountAddress,
             );
           case EIndexer.Ethereum:
+            return etherscanRepo.getTokensForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Gnosis:
             return etherscanRepo.getTokensForAccount(
               chainId,
               accountAddress as EVMAccountAddress,
