@@ -26,10 +26,12 @@ export class VerifyStoredAdSignatures extends Prompt {
 
             const selectedSignature = answer.verifyAdSignaturesSelector as AdSignature;
             return this.env.insightPlatform.verifyAdSignature(
-                this.env.adSignatureContentHashMap.get(selectedSignature)!, selectedSignature
+                this.env.adSignatureContentHashMap.get(
+                    selectedSignature.queryCID + selectedSignature.adKey
+                )!, selectedSignature
             ).andThen(() => {
 
-                console.log("Ad signature is valid!!")
+                console.log("Ad signature is valid!!");
                 return okAsync(undefined);
             });
         });

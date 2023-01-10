@@ -31,7 +31,10 @@ export class SignStoredAds extends Prompt {
                 this.core.getHashedAdContentByIpfsCID(selectedAd.content.src)
             ]).andThen(([adSignature, contentHash]) => {
 
-                this.env.adSignatureContentHashMap.set(adSignature, contentHash);
+                this.env.adSignatureContentHashMap.set(
+                    adSignature.queryCID+adSignature.adKey, 
+                    contentHash
+                );
                 return this.core.saveAdSignatures([adSignature]);
             });
         }).mapErr((e) => {

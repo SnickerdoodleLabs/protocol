@@ -123,7 +123,7 @@ export class CorePrompt extends DataWalletPrompt {
 
       { name: "Sign stored ads", value: "signStoredAds" },
       { name: "Get Ad Signatures", value: "getAdSignatures" },
-      { name: "Verify stored ad signatures", value: "verifyAdSignatures" },
+      { name: "Verify stored ad signatures", value: "verifyStoredAdSignatures" },
 
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },

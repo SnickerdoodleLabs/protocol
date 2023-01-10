@@ -15,7 +15,7 @@ const walletFolder = "data/profiles/dataWallet";
 export class Environment {
   protected fioUtils: FileInputUtils;
   public dataWalletProfile: DataWalletProfile | null = null;
-  public adSignatureContentHashMap: Map<AdSignature, SHA256Hash>;
+  public adSignatureContentHashMap: Map<string, SHA256Hash>;
 
   public constructor(
     public businessProfile: BusinessProfile,
@@ -23,7 +23,7 @@ export class Environment {
   ) {
     this.fioUtils = new FileInputUtils();
     this.loadDefaultProfile();
-    this.adSignatureContentHashMap = new Map<AdSignature, SHA256Hash>();
+    this.adSignatureContentHashMap = new Map<string, SHA256Hash>();
   }
 
   public get insightPlatform(): InsightPlatformSimulator {
