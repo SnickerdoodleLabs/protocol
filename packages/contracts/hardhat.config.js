@@ -131,10 +131,10 @@ module.exports = {
       url: urlOverride || "http://127.0.0.1:8549",
     },
     gnosis: {
-      // moonbeam mainnet
+      // gnosis mainnet
       accounts: accounts,
       chainId: 100,
-      url: urlOverride || "http://127.0.0.1:8549",
+      url: urlOverride || "https://gnosischain-rpc.gateway.pokt.network",
     },
   },
   gasReporter: {

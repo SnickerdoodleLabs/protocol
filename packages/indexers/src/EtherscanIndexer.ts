@@ -289,7 +289,10 @@ export class EtherscanIndexer
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
+      console.log("config: ", config);
+
       if (!config.etherscanApiKeys.has(chain)) {
+        console.log("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );

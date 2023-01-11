@@ -27,8 +27,6 @@ import {
   PolygonTransaction,
   EPolygonTransactionType,
 } from "@snickerdoodlelabs/objects";
-// import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
-import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -38,15 +36,11 @@ import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
 } from "@indexers/IIndexerConfigProvider.js";
+import { BigNumber } from "ethers";
 
 export class GnosisIndexer
   implements IEVMAccountBalanceRepository, IEVMTransactionRepository
 {
-  //   private _metadataCache = new Map<
-  //     `${EVMContractAddress}-${ChainId}`,
-  //     TokenMetadataResponse
-  //   >();
-
   public constructor(
     @inject(IIndexerConfigProviderType)
     protected configProvider: IIndexerConfigProvider,
@@ -60,6 +54,8 @@ export class GnosisIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
+    // return okAsync([]);
+    console.log("inside gnosis getBalancesForAccount");
     return okAsync([]);
     // return this._getAlchemyClient(chainId).andThen((alchemy) => {
     //   return ResultUtils.combine([
@@ -115,7 +111,7 @@ export class GnosisIndexer
     //     tokenBalances.push(
     //       new TokenBalance(
     //         EChainTechnology.EVM,
-    //         TickerSymbol("MATIC"),
+    //         TickerSymbol("xDAI"),
     //         chainId,
     //         null,
     //         accountAddress,
@@ -134,6 +130,8 @@ export class GnosisIndexer
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
+    console.log("inside gnosis getEVMTransactions");
+
     return ResultUtils.combine([
       this._getBlockNumber(chainId, startTime),
       this._getBlockNumber(chainId, endTime),
@@ -170,6 +168,8 @@ export class GnosisIndexer
     fromBlock: number,
     toBlock: number,
   ): ResultAsync<PolygonTransaction[], AccountIndexingError> {
+    console.log("inside gnosis _getNFTTransactions");
+
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this._getEtherscanApiKey(chain),
@@ -227,6 +227,8 @@ export class GnosisIndexer
     fromBlock: number,
     toBlock: number,
   ): ResultAsync<PolygonTransaction[], AccountIndexingError> {
+    console.log("inside gnosis _getERC20Transactions");
+
     return ResultUtils.combine([
       this.configProvider.getConfig(),
       this._getEtherscanApiKey(chain),
@@ -277,14 +279,21 @@ export class GnosisIndexer
     chain: ChainId,
     timestamp: Date | undefined,
   ): ResultAsync<number, AccountIndexingError> {
+    console.log("inside gnosis _getBlockNumber");
+    console.log("chain: ", chain);
+    console.log("timestamp: ", timestamp);
+
     if (timestamp == undefined) {
       return okAsync(-1);
     }
 
+    console.log("Before combine: ");
     return ResultUtils.combine([
       getEtherscanBaseURLForChain(chain),
       this._getEtherscanApiKey(chain),
     ]).andThen(([baseUrl, apiKey]) => {
+      console.log("baseUrl: ", baseUrl);
+      console.log("apiKey: ", apiKey);
       const url = new URL(
         urlJoinP(baseUrl, ["api"], {
           module: "block",
@@ -320,6 +329,8 @@ export class GnosisIndexer
     params: IPolygonscanRequestParameters,
     maxRecords: number,
   ): ResultAsync<IPolygonscanRawTx[], AccountIndexingError> {
+    console.log("inside gnosis _getTransactions");
+
     return getEtherscanBaseURLForChain(chain)
       .map((baseUrl) => {
         const offset = params.offset;
@@ -368,60 +379,15 @@ export class GnosisIndexer
       });
   }
 
-  //   private _getTokenMetadata(
-  //     chain: ChainId,
-  //     address: EVMContractAddress,
-  //   ): ResultAsync<TokenMetadataResponse, AccountIndexingError> {
-  //     const cacheResult = this._metadataCache.get(`${address}-${chain}`);
-  //     if (cacheResult) {
-  //       return okAsync(cacheResult);
-  //     }
-
-  //     return this._getAlchemyClient(chain)
-  //       .andThen((alchemy) => {
-  //         return ResultAsync.fromPromise(
-  //           alchemy.core.getTokenMetadata(address),
-  //           (e) => new AccountIndexingError("error fetching token metadata", e),
-  //         );
-  //       })
-  //       .map((metadata) => {
-  //         this._metadataCache.set(`${address}-${chain}`, metadata);
-  //         return metadata;
-  //       });
-  //   }
-
-  //   private _getAlchemyClient(
-  //     chain: ChainId,
-  //   ): ResultAsync<Alchemy, AccountIndexingError> {
-  //     return this.configProvider.getConfig().andThen((config) => {
-  //       switch (chain) {
-  //         case ChainId(EChain.Polygon):
-  //           return okAsync(
-  //             new Alchemy({
-  //               apiKey: config.alchemyEndpoints.polygon,
-  //               network: Network.MATIC_MAINNET,
-  //             }),
-  //           );
-  //         case ChainId(EChain.Mumbai):
-  //           return okAsync(
-  //             new Alchemy({
-  //               apiKey: config.alchemyEndpoints.polygonMumbai,
-  //               network: Network.MATIC_MUMBAI,
-  //             }),
-  //           );
-  //         default:
-  //           return errAsync(
-  //             new AccountIndexingError("no alchemy app for chainId", chain),
-  //           );
-  //       }
-  //     });
-  //   }
-
   protected _getEtherscanApiKey(
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
+    console.log("inside gnosis _getEtherscanApiKey");
+
     return this.configProvider.getConfig().andThen((config) => {
+      console.log("config: ", config);
       if (!config.etherscanApiKeys.has(chain)) {
+        console.log("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );

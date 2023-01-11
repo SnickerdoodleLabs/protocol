@@ -125,9 +125,19 @@ export class MonitoringService implements IMonitoringService {
       this.accountIndexing.getPolygonTransactionRepository(),
       this.accountIndexing.getGnosisTransactionRepository(),
     ]).andThen(
-      ([config, evmRepo, solRepo, simulatorRepo, etherscanRepo, maticRepo, gnosisRepo]) => {
+      ([
+        config,
+        evmRepo,
+        solRepo,
+        simulatorRepo,
+        etherscanRepo,
+        maticRepo,
+        gnosisRepo,
+      ]) => {
         // Get the chain info for the transaction
         const chainInfo = config.chainInformation.get(chainId);
+        console.log("Calling chainId: ", chainId);
+        console.log("Monitoring chainInfo: ", chainInfo);
         if (chainInfo == null) {
           this.logUtils.error(`No available chain info for chain ${chainId}`);
           return okAsync([]);
@@ -165,6 +175,7 @@ export class MonitoringService implements IMonitoringService {
               new Date(timestamp * 1000),
             );
           case EIndexer.Gnosis:
+            console.log("EIndexer.Gnosis");
             return gnosisRepo.getEVMTransactions(
               chainId,
               accountAddress as EVMAccountAddress,
