@@ -58,6 +58,7 @@ import {
   BalanceQueryEvaluator,
   ConsentTokenUtils,
   InvitationService,
+  MarketplaceService,
   MonitoringService,
   NetworkQueryEvaluator,
   ProfileService,
@@ -99,6 +100,8 @@ import {
   IAccountServiceType,
   IInvitationService,
   IInvitationServiceType,
+  IMarketplaceService,
+  IMarketplaceServiceType,
   IMonitoringService,
   IMonitoringServiceType,
   IProfileService,
@@ -179,6 +182,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IInvitationService>(IInvitationServiceType)
       .to(InvitationService)
+      .inSingletonScope();
+    bind<IMarketplaceService>(IMarketplaceServiceType)
+      .to(MarketplaceService)
       .inSingletonScope();
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
