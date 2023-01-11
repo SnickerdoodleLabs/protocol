@@ -63,6 +63,7 @@ export const routes: IRoute[] = [
     subroutes: [
       { title: "Crypto Accounts", path: EPaths.WEB3_SETTINGS },
       { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
+      { title: "Campaigns", path: EPaths.CAMPAIGN_SETTINGS },
       { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
       { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
     ],
@@ -181,7 +182,7 @@ const Sidebar = () => {
                               navigate(subroute.path);
                               setLastClickedIndex(index);
                             }}
-                            mb={index === subroutes.length - 1 ? 0 : 3}
+                            mb={subrouteIndex === subroutes.length - 1 ? 0 : 3}
                           >
                             <Typography
                               className={clsx(classes.subrouteText, {

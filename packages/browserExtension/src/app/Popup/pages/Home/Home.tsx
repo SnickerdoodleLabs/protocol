@@ -20,7 +20,7 @@ const Home: FC = () => {
             <LinkCard
               navigateTo={SPA_PATHS.rewardsMarketplace}
               icon={Browser.runtime.getURL("assets/icons/rewards.svg")}
-              title="Rewards Martketplace"
+              title="Rewards Marketplace"
             />
             <LinkCard
               navigateTo={SPA_PATHS.dashboard}
