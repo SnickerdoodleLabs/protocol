@@ -1,4 +1,3 @@
-import SwipeableViews from "react-swipeable-views";
 import mobile1 from "@extension-onboarding/assets/images/mobile-sc1.svg";
 import mobile2 from "@extension-onboarding/assets/images/mobile-sc2.svg";
 import mobile3 from "@extension-onboarding/assets/images/mobile-sc3.svg";
@@ -9,7 +8,7 @@ import facebookIcon from "@extension-onboarding/assets/icons/facebook-icon.svg";
 import tiktokIcon from "@extension-onboarding/assets/icons/tiktok-icon.svg";
 import youtubeIcon from "@extension-onboarding/assets/icons/youtube-icon.svg";
 import React, { useState } from "react";
-import { Box, Grid, MobileStepper, Typography } from "@material-ui/core";
+import { Box, Grid, Typography } from "@material-ui/core";
 import {
   FACEBOOK_URL,
   INSTAGRAM_URL,
@@ -21,7 +20,6 @@ import {
 } from "@extension-onboarding/constants";
 
 const MobileScreen = () => {
-  const [step, setStep] = useState<number>(0);
   return (
     <>
       <Box>
