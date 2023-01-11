@@ -201,7 +201,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
   [
     ChainId(EChain.Gnosis),
     new ChainInformation(
-      "Moonbeam",
+      "Gnosis",
       ChainId(EChain.Gnosis),
       EChain.Gnosis,
       EChainTechnology.EVM,

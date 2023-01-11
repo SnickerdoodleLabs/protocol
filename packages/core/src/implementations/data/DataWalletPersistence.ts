@@ -624,6 +624,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getSimulatorEVMBalanceRepository(),
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
+      this.accountBalances.getGnosisBalanceRepository(),
     ])
       .andThen(
         ([
@@ -633,6 +634,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           simulatorRepo,
           etherscanRepo,
           maticRepo,
+          gnosisRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {

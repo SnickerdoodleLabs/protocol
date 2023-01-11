@@ -123,8 +123,9 @@ export class MonitoringService implements IMonitoringService {
       this.accountIndexing.getSimulatorEVMTransactionRepository(),
       this.accountIndexing.getEthereumTransactionRepository(),
       this.accountIndexing.getPolygonTransactionRepository(),
+      this.accountIndexing.getGnosisTransactionRepository(),
     ]).andThen(
-      ([config, evmRepo, solRepo, simulatorRepo, etherscanRepo, maticRepo]) => {
+      ([config, evmRepo, solRepo, simulatorRepo, etherscanRepo, maticRepo, gnosisRepo]) => {
         // Get the chain info for the transaction
         const chainInfo = config.chainInformation.get(chainId);
         if (chainInfo == null) {
@@ -164,7 +165,7 @@ export class MonitoringService implements IMonitoringService {
               new Date(timestamp * 1000),
             );
           case EIndexer.Gnosis:
-            return maticRepo.getEVMTransactions(
+            return gnosisRepo.getEVMTransactions(
               chainId,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),
