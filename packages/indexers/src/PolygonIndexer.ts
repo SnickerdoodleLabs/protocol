@@ -295,9 +295,11 @@ export class PolygonIndexer
         }),
       );
 
+      console.log("Polygon Url: ", url);
       return this.ajaxUtils
         .get<IPolygonscanBlockNumberResponse>(url)
         .andThen((resp) => {
+          console.log("Polygon response: ", resp);
           if (resp.status != "1") {
             // this is a bit noisy
             // this.logUtils.warning(

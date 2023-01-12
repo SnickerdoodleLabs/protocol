@@ -27,6 +27,7 @@ import {
   PolygonTransaction,
   EPolygonTransactionType,
 } from "@snickerdoodlelabs/objects";
+import { BigNumber } from "ethers";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
@@ -36,7 +37,6 @@ import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
 } from "@indexers/IIndexerConfigProvider.js";
-import { BigNumber } from "ethers";
 
 export class GnosisIndexer
   implements IEVMAccountBalanceRepository, IEVMTransactionRepository
@@ -55,6 +55,9 @@ export class GnosisIndexer
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
     // return okAsync([]);
+    console.log("chainId: ", chainId);
+    console.log("accountAddress: ", accountAddress);
+
     console.log("inside gnosis getBalancesForAccount");
     return okAsync([]);
     // return this._getAlchemyClient(chainId).andThen((alchemy) => {
@@ -131,11 +134,17 @@ export class GnosisIndexer
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     console.log("inside gnosis getEVMTransactions");
+    console.log("startTime: ", startTime);
+    console.log("endTime: ", endTime);
+    console.log("accountAddress: ", accountAddress);
+    console.log("chainId: ", chainId);
 
     return ResultUtils.combine([
       this._getBlockNumber(chainId, startTime),
       this._getBlockNumber(chainId, endTime),
     ]).andThen(([fromBlock, toBlock]) => {
+      console.log("fromBlock: ", fromBlock);
+      console.log("toBlock: ", toBlock);
       return ResultUtils.combine([
         this._getERC20Transactions(chainId, accountAddress, fromBlock, toBlock),
         this._getNFTTransactions(
@@ -155,6 +164,9 @@ export class GnosisIndexer
           toBlock,
         ),
       ]).map(([erc20, erc721, erc1155]) => {
+        console.log("erc20: ", erc20);
+        console.log("erc721: ", erc721);
+        console.log("erc1155: ", erc1155);
         return [...erc20, ...erc721, ...erc1155];
       });
     });
@@ -175,6 +187,9 @@ export class GnosisIndexer
       this._getEtherscanApiKey(chain),
     ])
       .andThen(([config, apiKey]) => {
+        console.log("config: ", config);
+        console.log("apiKey: ", apiKey);
+
         const params = {
           module: "account",
           action: action,
@@ -303,10 +318,11 @@ export class GnosisIndexer
           apikey: apiKey,
         }),
       );
-
+      console.log("Gnosis Url: ", url);
       return this.ajaxUtils
         .get<IPolygonscanBlockNumberResponse>(url)
         .andThen((resp) => {
+          console.log("Gnosis Response: ", resp);
           if (resp.status != "1") {
             // this is a bit noisy
             // this.logUtils.warning(
@@ -333,8 +349,12 @@ export class GnosisIndexer
 
     return getEtherscanBaseURLForChain(chain)
       .map((baseUrl) => {
+        console.log("Gnosis base url: ", baseUrl);
         const offset = params.offset;
         const page = params.page;
+        console.log("Gnosis offset: ", offset);
+        console.log("Gnosis page: ", page);
+
         if (offset * page > maxRecords) {
           return undefined;
         }
@@ -342,6 +362,8 @@ export class GnosisIndexer
         return new URL(urlJoinP(baseUrl, ["api"], params));
       })
       .andThen((url) => {
+        console.log("Gnosis urlJoinP: ", url);
+
         if (url == undefined) {
           return okAsync([]);
         }
@@ -349,6 +371,11 @@ export class GnosisIndexer
         return this.ajaxUtils
           .get<IPolygonscanTransactionResponse>(url)
           .andThen((response) => {
+            console.log(
+              "Gnosis IPolygonscanTransactionResponse response: ",
+              response,
+            );
+
             if (response.status != "1") {
               // polygonscan error behavior is super inconsistent
               if (

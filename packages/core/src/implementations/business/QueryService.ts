@@ -105,7 +105,10 @@ export class QueryService implements IQueryService {
             return errAsync(new EvaluationError(`Consent token not found!`));
           }
           return this.queryParsingEngine
-            .getPermittedQueryIdsAndExpectedRewards(query, consentToken.dataPermissions)
+            .getPermittedQueryIdsAndExpectedRewards(
+              query,
+              consentToken.dataPermissions,
+            )
             .andThen(([queryIdentifiers, expectedRewards]) => {
               return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
                 consentToken,
@@ -132,32 +135,36 @@ export class QueryService implements IQueryService {
     context: CoreContext,
     config: CoreConfig,
     permittedQueryIds: QueryIdentifier[],
-    expectedRewards: ExpectedReward[]
+    expectedRewards: ExpectedReward[],
   ): ResultAsync<void, EvaluationError | ServerRewardError> {
-
-      return this.getEligibleRewardsFromInsightPlatform(
-        consentToken,
-        optInKey,
-        consentContractAddress,
-        query.cid,
-        config,
-        permittedQueryIds,
+    return this.getEligibleRewardsFromInsightPlatform(
+      consentToken,
+      optInKey,
+      consentContractAddress,
+      query.cid,
+      config,
+      permittedQueryIds,
+    ).andThen((eligibleRewards) => {
+      if (
+        !this.areExpectedAndEligibleRewardsEqual(
+          eligibleRewards,
+          expectedRewards,
+        )
       )
-      .andThen((eligibleRewards) => {
+        return errAsync(
+          new ServerRewardError(
+            "Insight Platform Rewards do not match Expected Rewards!",
+          ),
+        );
 
-          if (!this.areExpectedAndEligibleRewardsEqual(eligibleRewards, expectedRewards)) 
-            return errAsync( 
-              new ServerRewardError("Insight Platform Rewards do not match Expected Rewards!")
-            );
-
-          return this.publishSDQLQueryRequest(
-            consentContractAddress,
-            query,
-            eligibleRewards,
-            accounts,
-            context,
-          );
-      });
+      return this.publishSDQLQueryRequest(
+        consentContractAddress,
+        query,
+        eligibleRewards,
+        accounts,
+        context,
+      );
+    });
   }
 
   protected getEligibleRewardsFromInsightPlatform(
@@ -222,14 +229,16 @@ export class QueryService implements IQueryService {
     eligibleRewards: EligibleReward[],
     expectedRewards: ExpectedReward[],
   ): boolean {
-
     const expectedRewardKeysSet: Set<string> = new Set(
-      expectedRewards.map((expectedReward) => expectedReward.compensationKey)
+      expectedRewards.map((expectedReward) => expectedReward.compensationKey),
     );
 
-    return ( // Only comparing the keys is enough.
+    return (
+      // Only comparing the keys is enough.
       eligibleRewards.length == expectedRewards.length &&
-      eligibleRewards.every(elem => expectedRewardKeysSet.has(elem.compensationKey))
+      eligibleRewards.every((elem) =>
+        expectedRewardKeysSet.has(elem.compensationKey),
+      )
     );
   }
 

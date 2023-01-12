@@ -74,6 +74,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   > {
+    console.log("Gnosis Indexer: ", this.gnosis);
     return okAsync(this.gnosis);
   }
 
@@ -81,6 +82,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   > {
+    console.log("Polygon Indexer: ", this.matic);
     return okAsync(this.matic);
   }
 
@@ -88,6 +90,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   > {
+    console.log("Ethereum Indexer: ", this.ethereum);
     return okAsync(this.ethereum);
   }
 
@@ -95,6 +98,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   > {
+    console.log("EVM Indexer: ", this.evm);
     return okAsync(this.evm);
   }
 
@@ -102,6 +106,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   > {
+    console.log("SIM Indexer: ", this.sim);
     return okAsync(this.sim);
   }
 
@@ -109,6 +114,7 @@ export class DefaultAccountBalances implements IAccountBalances {
     ISolanaBalanceRepository,
     never
   > {
+    console.log("Sol Indexer: ", this.sol);
     return okAsync(this.sol);
   }
 }

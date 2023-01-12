@@ -208,11 +208,11 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       [],
       10000, // average block mining time
       EIndexer.Gnosis,
-      new NativeCurrencyInformation("xDAI", 18, "xDAI", "ethereum"),
+      new NativeCurrencyInformation("xDAI", 18, "xDAI"),
       EChainType.Mainnet,
-      "https://gnosisscan.io/tx/",
+      "https://gnosisscan.io/",
       getExplorerUrl,
-      URLString("https://rpc.gnosis.gateway.fm"),
+      URLString("https://api.gnosisscan.io/"),
     ),
   ],
 ]);
@@ -247,8 +247,9 @@ export function isAccountValidForChain(
 export function getEtherscanBaseURLForChain(
   chain: ChainId,
 ): ResultAsync<string, AccountIndexingError> {
-  console.log("chain gnosis: ", chain);
   try {
+    console.log("chain gnosis: ", chain);
+    console.log("chainConfig: ", chainConfig);
     const chainInfo = getChainInfoByChainId(chain);
     console.log("chainInfo: ", chainInfo);
     console.log(
