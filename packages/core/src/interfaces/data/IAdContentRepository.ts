@@ -2,7 +2,7 @@ import { ResultAsync } from "neverthrow";
 import { IpfsCID, IPFSError } from "@snickerdoodlelabs/objects";
 
 
-export interface IAdRepository {
+export interface IAdContentRepository {
     getRawAdContentByCID(cid: IpfsCID): ResultAsync<any, IPFSError>;
 }
 

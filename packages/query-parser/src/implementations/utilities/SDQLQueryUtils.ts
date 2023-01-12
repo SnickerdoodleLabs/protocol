@@ -4,16 +4,19 @@ import {
   DataPermissions,
   DuplicateIdInSchema,
   IpfsCID,
+  ISDQLAd,
   ISDQLCompensations,
   MissingTokenConstructorError,
   ParserError,
   QueryExpiredError,
   QueryFormatError,
+  QueryIdentifier,
   SDQLString,
   SDQL_Name,
+  QueryFilteredByPermissions,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, Result, ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { SDQLParser } from "@query-parser/implementations/business/SDQLParser";
@@ -41,7 +44,7 @@ export class SDQLQueryUtils {
 
   public getEligibleCompensations(
     schemaString: SDQLString,
-    queryIds: string[],
+    queryIds: QueryIdentifier[],
   ): ResultAsync<
     CompensationId[],
     | ParserError
@@ -50,21 +53,20 @@ export class SDQLQueryUtils {
     | MissingTokenConstructorError
     | QueryExpiredError
   > {
-    return this.parserFactory.makeParser(IpfsCID(""), schemaString)
-    .andThen((parser) => {
-
-      return parser.buildAST()
-      .andThen(() => okAsync(
-        this.getAllExpectedCompensationsIds(parser, queryIds)
-      ));
+    return this.parserFactory.makeParser(IpfsCID(""), schemaString).andThen((parser) => {
+      return parser.buildAST().map(() => {
+        const permittedAdKeys = this.getPermittedAdKeysByPermittedQueryIds(parser, queryIds);
+        const expectedCompensationIds = this.getAllExpectedCompensationsIds(parser, queryIds, permittedAdKeys);
+        return expectedCompensationIds;
+      });
     });
   }
 
-  public extractPermittedQueryIdsAndExpectedCompensationBlocks(
+  public filterQueryByPermissions(
     schemaString: SDQLString,
     dataPermissions: DataPermissions
   ): ResultAsync<
-    [string[], Map<string, ISDQLCompensations>], 
+    QueryFilteredByPermissions, 
     QueryFormatError 
     | ParserError 
     | DuplicateIdInSchema 
@@ -72,53 +74,79 @@ export class SDQLQueryUtils {
     | QueryExpiredError
   > {
 
-    return this.parserFactory.makeParser(IpfsCID(""), schemaString)
-    .andThen((parser) => {
-
+    return this.parserFactory.makeParser(IpfsCID(""), schemaString).andThen((parser) => {
       return parser.buildAST().andThen(() => {
+        return this.getPermittedQueryIds(parser, dataPermissions).map((permittedQueryIds) => {
 
-        return this.getPermittedQueryIds(parser, dataPermissions)
-        .andThen((permittedQueryIds) => {
-
-          const expectedCompensationIds = 
-            this.getAllExpectedCompensationsIds(parser, permittedQueryIds)
-          // console.log("expectedCompensationIds: " + expectedCompensationIds);
-
-          const expectedCompensationBlocks: Map<string, ISDQLCompensations> = new Map();
-
-          const compensationSchema = parser.schema.getCompensationSchema();
-          for (const compensationName in compensationSchema) {
-            if (!expectedCompensationIds.includes(CompensationId(compensationName)))
-              continue;
-
-            expectedCompensationBlocks[compensationName] = // 'c1': ISDQLCompensations object
-                compensationSchema[compensationName] as ISDQLCompensations;
-          }
-          
-          return okAsync<[string[], Map<string, ISDQLCompensations>]>(
-            [permittedQueryIds, expectedCompensationBlocks]
+          const permittedAdKeys = this.getPermittedAdKeysByPermittedQueryIds(
+            parser, permittedQueryIds
+          );
+          const eligibleAdsMap = this.buildEligibleAdsMap(
+            parser, permittedAdKeys
+          );
+          const expectedCompensationIds = this.getAllExpectedCompensationsIds(
+            parser, permittedQueryIds, permittedAdKeys
+          );
+          const expectedCompensationsMap = this.buildExpectedCompensationsMap(
+            parser, expectedCompensationIds
+          );
+          return new QueryFilteredByPermissions(
+            permittedQueryIds,
+            expectedCompensationsMap,
+            eligibleAdsMap
           );
         });
       });
     });
   }
 
+  private buildEligibleAdsMap(
+    parser: SDQLParser,
+    permittedAdKeys: AdKey[]
+  ): Map<AdKey, ISDQLAd> {
+
+    const eligibleAdBlocks: Map<AdKey, ISDQLAd> = new Map();
+
+    const adSchema = parser.schema.getAdsSchema();
+    for (const adKey in adSchema) {
+      if (!permittedAdKeys.includes(AdKey(adKey))) {
+        continue;
+      }
+      eligibleAdBlocks[adKey] = adSchema[adKey] as ISDQLCompensations;
+    }
+
+    return eligibleAdBlocks;
+  }
+
+  private buildExpectedCompensationsMap(
+    parser: SDQLParser,
+    expectedCompensationIds: CompensationId[]
+  ): Map<CompensationId, ISDQLCompensations> {
+
+    const expectedCompensationBlocks: Map<CompensationId, ISDQLCompensations> = new Map();
+
+    const compensationSchema = parser.schema.getCompensationSchema();
+    for (const compensationKey in compensationSchema) {
+      if (!expectedCompensationIds.includes(CompensationId(compensationKey))) {
+        continue;
+      }
+      expectedCompensationBlocks[compensationKey] = // 'c1': ISDQLCompensations object
+          compensationSchema[compensationKey] as ISDQLCompensations;
+    }
+
+    return expectedCompensationBlocks;
+  }
+
   private getAllExpectedCompensationsIds(
     parser: SDQLParser,
-    permittedQueryIds: string[]
+    permittedQueryIds: QueryIdentifier[],
+    permittedAdKeys: AdKey[]
   ): CompensationId[] {
 
     const queryCompensations = 
       this.getExpectedCompensationIdsByQueryIds(parser, permittedQueryIds);
-
-    const permittedAdKeys = 
-      this.getPermittedAdKeysByPermittedQueryIds(parser, permittedQueryIds);
     const adCompensations = 
       this.getExpectedCompensationIdsByAdKeys(parser, permittedAdKeys);
-
-    // console.log("queryCompensations: " + queryCompensations);
-    // console.log("permittedAdKeys: " + permittedAdKeys);
-    // console.log("adCompensations: " + adCompensations);
 
     return Array.from( new Set( queryCompensations.concat(adCompensations) ) )
   }
@@ -275,7 +303,7 @@ export class SDQLQueryUtils {
     schemaString: SDQLString,
     givenPermissions: DataPermissions,
   ): ResultAsync<
-    string[],
+    QueryIdentifier[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -295,7 +323,7 @@ export class SDQLQueryUtils {
     parser: SDQLParser,
     givenPermissions: DataPermissions,
   ): ResultAsync<
-    string[],
+    QueryIdentifier[],
     | ParserError
     | DuplicateIdInSchema
     | QueryFormatError
@@ -306,9 +334,9 @@ export class SDQLQueryUtils {
     const checks = this.getQueryPermissionChecks(parser, givenPermissions);
     return ResultUtils.combine(checks).andThen((resultIds) => {
       return okAsync(
-        resultIds.reduce<string[]>((acc, next) => {
+        resultIds.reduce<QueryIdentifier[]>((acc, next) => {
           if (next != null) {
-            acc.push(next);
+            acc.push(QueryIdentifier(next));
           }
           return acc;
         }, []),

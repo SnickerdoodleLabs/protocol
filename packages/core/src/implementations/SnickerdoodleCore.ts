@@ -732,43 +732,25 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
-    const adService =
-      this.iocContainer.get<IAdService>(IAdServiceType);
-    return adService.getEligibleAds();
-  }
-
-  saveEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError> {
-    const adService =
-      this.iocContainer.get<IAdService>(IAdServiceType);
-    return adService.saveEligibleAds(ads);
-  }
-
-  saveAdSignatures(
-    signatures: AdSignature[]
-  ): ResultAsync<void, PersistenceError> {
-    const adService =
-      this.iocContainer.get<IAdService>(IAdServiceType);
-    return adService.saveAdSignatures(signatures);
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getEligibleAds();
   }
 
   getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
-    const adService =
-      this.iocContainer.get<IAdService>(IAdServiceType);
-    return adService.getAdSignatures();
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getAdSignatures();
   }
 
-  createAdSignature(eligibleAd: EligibleAd): ResultAsync<AdSignature, Error> {
+  onAdDisplayed(
+    eligibleAd: EligibleAd
+  ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
     const adService =
       this.iocContainer.get<IAdService>(IAdServiceType);
-    return adService.createAdSignature(eligibleAd);
-  }
-
-  getHashedAdContentByIpfsCID(
-    cid: IpfsCID
-  ): ResultAsync<SHA256Hash, IPFSError> {
-    const adService =
-      this.iocContainer.get<IAdService>(IAdServiceType);
-    return adService.getHashedAdContentByIpfsCID(cid);
+    return adService.onAdDisplayed(eligibleAd);
   }
   
   public addTransactions(

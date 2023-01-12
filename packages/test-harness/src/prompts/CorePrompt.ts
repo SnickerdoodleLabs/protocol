@@ -118,9 +118,7 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Add Earned Reward", value: "addEarnedReward" },
       { name: "Get Earned Rewards", value: "getEarnedRewards" },
 
-      { name: "Save pre-seeded ad", value: "saveEligibleAds" },
       { name: "Get Eligible Ads", value: "getEligibleAds" },
-
       { name: "Sign stored ads", value: "signStoredAds" },
       { name: "Get Ad Signatures", value: "getAdSignatures" },
       { name: "Verify stored ad signatures", value: "verifyStoredAdSignatures" },
@@ -225,31 +223,6 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getSiteVisits().map(console.log);
         case "getEligibleAds":
           return this.core.getEligibleAds().map(console.log);
-        case "saveEligibleAds":
-          return new IPFSClient().postToIPFS(
-              "Act like this is binary JPG data"
-          ).andThen((contentCid) => {
-            console.log("Ad content saved at " + contentCid);
-              return this.core.saveEligibleAds([
-                new EligibleAd(
-                  EVMContractAddress("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"),
-                  IpfsCID("fakeAdQueryCID"),
-                  AdKey("a1"),
-                  "Creative ad name",
-                  new AdContent(
-                    EAdContentType.IMAGE,
-                    contentCid
-                  ),
-                  "You can view this ad anytime",
-                  EAdDisplayType.BANNER,
-                  99999,
-                  UnixTimestamp(123),
-                  ["keyword1", "keyword2"]
-                )
-              ]).andThen(() => {
-                return okAsync(undefined);
-              });
-          });
         case "signStoredAds":
           return this.signStoredAds.start();
         case "getAdSignatures":

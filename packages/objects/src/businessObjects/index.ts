@@ -39,3 +39,4 @@ export * from "@objects/businessObjects/TokenMarketData";
 export * from "@objects/businessObjects/TransactionFilter";
 export * from "@objects/businessObjects/TransactionPaymentCounter";
 export * from "@objects/businessObjects/WalletNFT";
+export * from "@objects/businessObjects/QueryFilteredByPermissions";

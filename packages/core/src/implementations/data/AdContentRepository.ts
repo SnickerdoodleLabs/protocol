@@ -1,4 +1,4 @@
-import { IAdRepository } from "@core/interfaces/data/index.js";
+import { IAdContentRepository as IAdContentRepository } from "@core/interfaces/data/index.js";
 import { IConfigProvider, IConfigProviderType } from "@core/interfaces/utilities/index.js";
 import { IAxiosAjaxUtils, IAxiosAjaxUtilsType } from "@snickerdoodlelabs/common-utils";
 import { IpfsCID, IPFSError } from "@snickerdoodlelabs/objects";
@@ -8,7 +8,7 @@ import { urlJoin } from "url-join-ts";
 
 
 @injectable()
-export class AdRepository implements IAdRepository {
+export class AdContentRepository implements IAdContentRepository {
 
     public constructor(
         @inject(IAxiosAjaxUtilsType) protected ajaxUtil: IAxiosAjaxUtils,

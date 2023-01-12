@@ -6,4 +6,4 @@ export * from "@core/interfaces/data/IMarketplaceRepository.js";
 export * from "@core/interfaces/data/IMetatransactionForwarderRepository.js";
 export * from "@core/interfaces/data/ISDQLQueryRepository.js";
 export * from "@core/interfaces/data/ISiftContractRepository.js";
-export * from "@core/interfaces/data/IAdRepository.js";
+export * from "@core/interfaces/data/IAdContentRepository.js";

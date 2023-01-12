@@ -352,23 +352,10 @@ export interface ISnickerdoodleCore {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
-  createAdSignature(
-    eligibleAd: EligibleAd
-  ): ResultAsync<AdSignature, Error>;
-
-  getHashedAdContentByIpfsCID(
-    cid: IpfsCID
-  ): ResultAsync<SHA256Hash, IPFSError>;
+  onAdDisplayed(eligibleAd: EligibleAd): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
-  saveEligibleAds(
-    rewards: EligibleAd[],
-  ): ResultAsync<void, PersistenceError>;
-
   getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
-  saveAdSignatures(
-    signatures: AdSignature[]
-  ): ResultAsync<void, PersistenceError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 

@@ -8,4 +8,4 @@ export * from "@core/implementations/data/MarketplaceRepository.js";
 export * from "@core/implementations/data/MetatransactionForwarderRepository.js";
 export * from "@core/implementations/data/SDQLQueryRepository.js";
 export * from "@core/implementations/data/SiftContractRepository.js";
-export * from "@core/implementations/data/AdRepository.js";
+export * from "@core/implementations/data/AdContentRepository.js";
