@@ -22,8 +22,19 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
     address consentFactoryAddress;
     IConsentFactory consentFactoryInstance;
 
-    /// @dev attributes which this consent contract stakes against
-    mapping(bytes32 => uint256) public attributes;
+    struct Listing {
+      uint256 slot; // slot staked by this contract
+      string tag; // human-readable tag this contract has staked
+    }
+
+    /// @dev an unsorted tag array which this consent contract stakes against
+    Listing[] public tags;
+
+    /// @dev helpful
+    mapping(string => uint256) public tagIndices;
+
+    /// @dev max number of attributes a consent contract can stake against
+    uint public maxTags; 
 
     /// @dev Role bytes
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -119,6 +130,122 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
     }
 
     /* CORE FUNCTIONS */
+
+    /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
+    /// @dev  _newSlot -> _existingSlot
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _newSlot New linked list entry that will point to _downstream slot
+    function newGlobalTagUpstream(string memory tag, uint256 _newSlot) external {
+        
+        // check
+        require(tags.length < maxTags, "Consent Contract: Tag budget exhausted");
+        require(tagIndices[tag] == 0, "Consent Contract: This tag is already staked by this contract");
+
+        // effects
+        tags.push(Listing(_newSlot, tag));
+        tagIndices[tag] = tags.length + 1; // we add 1 to the index because solidity arrays are 0 indexed which won't work with default value of uint
+
+        // interaction
+        consentFactoryInstance.initializeTag(tag, _newSlot);
+    }
+
+    /// @notice Adds a new tag to the global namespace and stakes it for this consent contract
+    /// @dev  _existingSlot -> _newSlot
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _newSlot New linked list entry that will point to _downstream slot  
+    function newGlobalTagDownstram(string memory tag, uint256 _newSlot) external {
+        
+        // check
+        require(tags.length < maxTags, "Consent Contract: Tag budget exhausted");
+        require(tagIndices[tag] == 0, "Consent Contract: This tag is already staked by this contract");
+
+        // effects
+        tags.push(Listing(_newSlot, tag));
+        tagIndices[tag] = tags.length + 1; // we add 1 to the index because solidity arrays are 0 indexed which won't work with default value of uint
+
+        // interaction
+        consentFactoryInstance.initializeTag(tag, _newSlot);
+    }
+
+    /// @notice Adds a new tag to the consent contract profile (that already is globally initialized) and stakes it
+    /// @dev  _newSlot -> _existingSlot
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _newSlot New linked list entry that will point to _downstream slot
+    /// @param _existingSlot upstream pointer that will point to _newSlot  
+    function newLocalTagUpstream(string memory tag, uint256 _newSlot, uint256 _existingSlot) external {
+        
+        // check
+        require(tags.length < maxTags, "Consent Contract: Tag budget exhausted");
+        require(tagIndices[tag] == 0, "Consent Contract: This tag is already staked by this contract");
+
+        // effects
+        tags.push(Listing(_newSlot, tag));
+        tagIndices[tag] = tags.length + 1; // we add 1 to the index because solidity arrays are 0 indexed which won't work with default value of uint
+
+        // interaction
+        consentFactoryInstance.insertUpstream(tag, _newSlot, _existingSlot);
+    }
+
+    /// @notice Adds a new tag to the consent contract profile (that already is globally initialized) and stakes it
+    /// @dev  _existingSlot -> _newSlot
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _existingSlot upstream pointer that will point to _newSlot
+    /// @param _newSlot New linked list entry that will point to _downstream slot  
+    function newLocalTagDownstream(string memory tag, uint256 _existingSlot, uint256 _newSlot) external {
+        
+        // check
+        require(tags.length < maxTags, "Consent Contract: Tag budget exhausted");
+        require(tagIndices[tag] == 0, "Consent Contract: This tag is already staked by this contract");
+
+        // effects
+        tags.push(Listing(_newSlot, tag));
+        tagIndices[tag] = tags.length + 1; // we add 1 to the index because solidity arrays are 0 indexed which won't work with default value of uint
+
+        // interaction
+        consentFactoryInstance.insertDownstream(tag, _existingSlot, _newSlot);
+    }
+
+    /// @notice Replaces an existing listing that has expired (works for head and tail listings)
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _slot The expired slot to replace with a new listing
+    function replaceExpiredListing(string memory tag, uint256 _slot) external {
+        
+        // check
+        require(tags.length < maxTags, "Consent Contract: Tag budget exhausted");
+        require(tagIndices[tag] == 0, "Consent Contract: This tag is already staked by this contract");
+
+        // effects
+        tags.push(Listing(_slot, tag));
+        tagIndices[tag] = tags.length + 1; // we add 1 to the index because solidity arrays are 0 indexed which won't work with default value of uint
+
+        // interaction
+        consentFactoryInstance.replaceExpiredListing(tag, _slot);
+    }
+
+    /// @notice Removes this contract's listing under the specified tag
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _slot The expired slot to replace with a new listing
+    function removeListing(string memory tag, uint256 _slot) external {
+        
+        // check
+        require(tags.length < maxTags, "Consent Contract: Tag budget exhausted");
+        require(tagIndices[tag] == 0, "Consent Contract: This tag is already staked by this contract");
+
+        // effects
+        uint256 lastIndex = tags.length - 1; 
+        uint256 removalIndex = tagIndices[tag];
+
+        Listing memory lastListing = tags[lastIndex];
+
+        tags[removalIndex] = lastListing;
+        tagIndices[lastListing.tag] = removalIndex;
+
+        delete tagIndices[tag];
+        tags.pop();
+
+        // interaction
+        consentFactoryInstance.removeListing(tag, _slot);
+    }
 
     /// @notice Allows any user to opt in to sharing their data
     /// @dev Mints user a Consent token
@@ -517,6 +644,11 @@ contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableU
 
 interface IConsentFactory {
 
+    function initializeTag(string memory tag, uint256 _newHead) external; 
+    function insertUpstream(string memory tag, uint256 _newSlot, uint256 _existingSlot) external;
+    function insertDownstream(string memory tag, uint256 _existingSlot, uint256 _newSlot) external;
+    function replaceExpiredListing(string memory tag, uint256 _slot) external;
+    function removeListing(string memory tag, uint256 _removedSlot) external;
     function addUserConsents(address user) external;
     function removeUserConsents(address user) external;
     function addUserRole(address user, bytes32 role) external;
