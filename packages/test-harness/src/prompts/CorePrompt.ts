@@ -37,9 +37,6 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
-import { SignStoredAds } from "@test-harness/prompts/SignStoredAds.js";
-import { VerifyStoredAdSignatures } from "@test-harness/prompts/VerifyStoredAdSignatures.js";
-import { IPFSClient } from "@test-harness/utilities/index.js";
 
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
@@ -48,8 +45,6 @@ export class CorePrompt extends DataWalletPrompt {
   private removeAccount: RemoveAccount;
   private optInCampaign: OptInCampaign;
   private optOutCampaign: OptOutCampaign;
-  private signStoredAds: SignStoredAds;
-  private verifyStoredAdSignatures: VerifyStoredAdSignatures;
 
   private selectProfile: SelectProfile;
 
@@ -63,8 +58,6 @@ export class CorePrompt extends DataWalletPrompt {
     this.optInCampaign = new OptInCampaign(this.env);
     this.optOutCampaign = new OptOutCampaign(this.env);
     this.selectProfile = new SelectProfile(this.env);
-    this.signStoredAds = new SignStoredAds(this.env);
-    this.verifyStoredAdSignatures = new VerifyStoredAdSignatures(this.env);
   }
 
   public start(): ResultAsync<void, Error> {
@@ -119,9 +112,6 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Get Earned Rewards", value: "getEarnedRewards" },
 
       { name: "Get Eligible Ads", value: "getEligibleAds" },
-      { name: "Sign stored ads", value: "signStoredAds" },
-      { name: "Get Ad Signatures", value: "getAdSignatures" },
-      { name: "Verify stored ad signatures", value: "verifyStoredAdSignatures" },
 
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },
@@ -223,12 +213,6 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getSiteVisits().map(console.log);
         case "getEligibleAds":
           return this.core.getEligibleAds().map(console.log);
-        case "signStoredAds":
-          return this.signStoredAds.start();
-        case "getAdSignatures":
-          return this.core.getAdSignatures().map(console.log);
-        case "verifyStoredAdSignatures":
-          return this.verifyStoredAdSignatures.start();
         case "addEarnedReward":
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":
