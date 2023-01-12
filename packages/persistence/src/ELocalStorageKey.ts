@@ -1,6 +1,5 @@
 export enum ELocalStorageKey {
   ACCOUNT = "SD_Accounts",
-  AGE = "SD_Age",
   SITE_VISITS = "SD_SiteVisits",
   TRANSACTIONS = "SD_Transactions",
   FIRST_NAME = "SD_GivenName",

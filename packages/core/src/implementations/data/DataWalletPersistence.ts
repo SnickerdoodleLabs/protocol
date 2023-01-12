@@ -425,8 +425,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.waitForRestore().andThen(() => {
-      return this._checkAndRetrieveValue(ELocalStorageKey.AGE, null);
+    return this.getBirthday().map((birthdayEpoch) => {
+      if (birthdayEpoch == null) {
+        return null;
+      }
+      return Age(
+        new Date(Date.now() - birthdayEpoch).getFullYear() - new Date(0).getFullYear()
+      );
     });
   }
 
