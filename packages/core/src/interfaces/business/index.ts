@@ -1,5 +1,6 @@
 export * from "@core/interfaces/business/IAccountService.js";
 export * from "@core/interfaces/business/IConsentContractService.js";
+export * from "@core/interfaces/business/IIntegrationService.js";
 export * from "@core/interfaces/business/IInvitationService.js";
 export * from "@core/interfaces/business/IMarketplaceService.js";
 export * from "@core/interfaces/business/IMonitoringService.js";

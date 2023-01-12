@@ -42,6 +42,7 @@ import {
   PersistenceError,
   QueryFormatError,
   SiftContractError,
+  UnauthorizedError,
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
@@ -91,6 +92,35 @@ export interface ICoreMarketplaceMethods {
   >;
 }
 
+export interface ICoreIntegrationMethods {
+  /**
+   * This method grants the requested permissions to the wallet to the specified domain name.
+   * Other than being unlocked, there are no special requirements to do this- the host of the core
+   * is assumed to know what it's doing here. The permissions are only enforced on a particular method
+   * if the sourceDomain parameter is provided; which again is up to the core host. The integration
+   * package must determine if a request should be permissioned and pass along the sourceDomain.
+   * The way this works in practice is that you have a single instance of Core running in a
+   * browser extension, but a proxy is injected via the BrowserExtensionIntegration package into
+   * 3 tabs, A, B, and C. When the proxy for A is used, the request goes to the singleton Core, but
+   * is provided with A as the sourceDomain, so the core will process the request permissioned for
+   * domain A. The host is not required to pass or use sourceDomain, which will then ignore the
+   * permissions system.
+   */
+  grantPermissions(
+    permissions: EDataWalletPermission[],
+    domain: DomainName,
+  ): ResultAsync<void, PersistenceError>;
+
+  /**
+   * Returns the granted permissions for a particular domain
+   * @param domain
+   */
+  getPermissions(
+    domain: DomainName,
+    sourceDomain?: DomainName | undefined,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
+}
+
 export interface ISnickerdoodleCore {
   /** getUnlockMessage() returns a localized string for the requested LanguageCode.
    * The Form Factor must have this string signed by the user's key (via Metamask,
@@ -99,7 +129,7 @@ export interface ISnickerdoodleCore {
   getUnlockMessage(
     languageCode: LanguageCode,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<string, UnsupportedLanguageError>;
+  ): ResultAsync<string, UnsupportedLanguageError | UnauthorizedError>;
 
   /**
    * unlock() serves a very important task as it both initializes the Query Engine
@@ -136,6 +166,7 @@ export interface ISnickerdoodleCore {
     | InvalidSignatureError
     | UnsupportedLanguageError
     | MinimalForwarderContractError
+    | UnauthorizedError
   >;
 
   /**
@@ -167,6 +198,7 @@ export interface ISnickerdoodleCore {
     | PersistenceError
     | AjaxError
     | MinimalForwarderContractError
+    | UnauthorizedError
   >;
 
   /**
@@ -192,6 +224,7 @@ export interface ISnickerdoodleCore {
     | CrumbsContractError
     | AjaxError
     | MinimalForwarderContractError
+    | UnauthorizedError
   >;
 
   /**
@@ -217,35 +250,8 @@ export interface ISnickerdoodleCore {
     | CrumbsContractError
     | InvalidSignatureError
     | UnsupportedLanguageError
+    | UnauthorizedError
   >;
-
-  /**
-   * This method grants the requested permissions to the wallet to the specified domain name.
-   * Other than being unlocked, there are no special requirements to do this- the host of the core
-   * is assumed to know what it's doing here. The permissions are only enforced on a particular method
-   * if the sourceDomain parameter is provided; which again is up to the core host. The integration
-   * package must determine if a request should be permissioned and pass along the sourceDomain.
-   * The way this works in practice is that you have a single instance of Core running in a
-   * browser extension, but a proxy is injected via the BrowserExtensionIntegration package into
-   * 3 tabs, A, B, and C. When the proxy for A is used, the request goes to the singleton Core, but
-   * is provided with A as the sourceDomain, so the core will process the request permissioned for
-   * domain A. The host is not required to pass or use sourceDomain, which will then ignore the
-   * permissions system.
-   */
-  grantPermissions(
-    permissions: EDataWalletPermission[],
-    domain: DomainName,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
-
-  /**
-   * Returns the granted permissions for a particular domain
-   * @param domain
-   */
-  getPermissions(
-    domain: DomainName,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
 
   /**
    * This method checks the status of the invitation in relationship to the data wallet.
@@ -265,6 +271,7 @@ export interface ISnickerdoodleCore {
     | AjaxError
     | ConsentContractError
     | ConsentContractRepositoryError
+    | UnauthorizedError
   >;
 
   /**
@@ -286,6 +293,7 @@ export interface ISnickerdoodleCore {
     | AjaxError
     | MinimalForwarderContractError
     | ConsentError
+    | UnauthorizedError
   >;
 
   /**
@@ -307,6 +315,7 @@ export interface ISnickerdoodleCore {
     | AjaxError
     | ConsentContractError
     | ConsentContractRepositoryError
+    | UnauthorizedError
   >;
 
   /**
@@ -326,11 +335,12 @@ export interface ISnickerdoodleCore {
     | PersistenceError
     | MinimalForwarderContractError
     | ConsentError
+    | UnauthorizedError
   >;
 
   getAcceptedInvitations(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Invitation[], PersistenceError>;
+  ): ResultAsync<Invitation[], PersistenceError | UnauthorizedError>;
 
   getInvitationsByDomain(
     domain: DomainName,
@@ -342,6 +352,7 @@ export interface ISnickerdoodleCore {
     | BlockchainProviderError
     | AjaxError
     | IPFSError
+    | UnauthorizedError
   >;
 
   getConsentContractCID(
@@ -349,7 +360,10 @@ export interface ISnickerdoodleCore {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     IpfsCID,
-    BlockchainProviderError | UninitializedError | ConsentContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
+    | UnauthorizedError
   >;
 
   getAcceptedInvitationsCID(
@@ -361,19 +375,23 @@ export interface ISnickerdoodleCore {
     | ConsentContractError
     | ConsentFactoryContractError
     | PersistenceError
+    | UnauthorizedError
   >;
 
   getInvitationMetadataByCID(
     ipfsCID: IpfsCID,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<IOpenSeaMetadata, IPFSError>;
+  ): ResultAsync<IOpenSeaMetadata, IPFSError | UnauthorizedError>;
 
   checkURL(
     domain: DomainName,
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<
     EScamFilterStatus,
-    BlockchainProviderError | UninitializedError | SiftContractError
+    | BlockchainProviderError
+    | UninitializedError
+    | SiftContractError
+    | UnauthorizedError
   >;
 
   // Called by the form factor to approve the processing of the query.
@@ -392,6 +410,7 @@ export interface ISnickerdoodleCore {
     | IPFSError
     | QueryFormatError
     | EvaluationError
+    | UnauthorizedError
   >;
 
   getAgreementFlags(
@@ -405,6 +424,7 @@ export interface ISnickerdoodleCore {
     | ConsentFactoryContractError
     | PersistenceError
     | ConsentError
+    | UnauthorizedError
   >;
 
   getAvailableInvitationsCID(
@@ -416,141 +436,152 @@ export interface ISnickerdoodleCore {
     | ConsentFactoryContractError
     | ConsentContractError
     | PersistenceError
+    | UnauthorizedError
   >;
 
   restoreBackup(
     backup: IDataWalletBackup,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
   getEarnedRewards(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<EarnedReward[], PersistenceError>;
+  ): ResultAsync<EarnedReward[], PersistenceError | UnauthorizedError>;
   addEarnedRewards(
     rewards: EarnedReward[],
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
   isDataWalletAddressInitialized(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<boolean, never>;
+  ): ResultAsync<boolean, UnauthorizedError>;
 
   /** Google User Information */
   setAge(
     age: Age,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
   getAge(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Age | null, PersistenceError>;
+  ): ResultAsync<Age | null, PersistenceError | UnauthorizedError>;
 
   setGivenName(
     name: GivenName,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
-  getGivenName(): ResultAsync<GivenName | null, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
+  getGivenName(): ResultAsync<
+    GivenName | null,
+    PersistenceError | UnauthorizedError
+  >;
 
   setFamilyName(
     name: FamilyName,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
   getFamilyName(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<FamilyName | null, PersistenceError>;
+  ): ResultAsync<FamilyName | null, PersistenceError | UnauthorizedError>;
 
   setBirthday(
     birthday: UnixTimestamp,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
   getBirthday(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<UnixTimestamp | null, PersistenceError>;
+  ): ResultAsync<UnixTimestamp | null, PersistenceError | UnauthorizedError>;
 
   setGender(
     gender: Gender,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
   getGender(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Gender | null, PersistenceError>;
+  ): ResultAsync<Gender | null, PersistenceError | UnauthorizedError>;
 
   setEmail(
     email: EmailAddressString,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
   getEmail(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<EmailAddressString | null, PersistenceError>;
+  ): ResultAsync<
+    EmailAddressString | null,
+    PersistenceError | UnauthorizedError
+  >;
 
   setLocation(
     location: CountryCode,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
   getLocation(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<CountryCode | null, PersistenceError>;
+  ): ResultAsync<CountryCode | null, PersistenceError | UnauthorizedError>;
 
   addSiteVisits(
     siteVisits: SiteVisit[],
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
   getSiteVisits(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<SiteVisit[], PersistenceError>;
+  ): ResultAsync<SiteVisit[], PersistenceError | UnauthorizedError>;
   getSiteVisitsMap(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Map<URLString, number>, PersistenceError>;
+  ): ResultAsync<Map<URLString, number>, PersistenceError | UnauthorizedError>;
 
   getAccounts(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<LinkedAccount[], PersistenceError>;
+  ): ResultAsync<LinkedAccount[], PersistenceError | UnauthorizedError>;
   getAccountBalances(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<TokenBalance[], PersistenceError>;
+  ): ResultAsync<TokenBalance[], PersistenceError | UnauthorizedError>;
   getAccountNFTs(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<WalletNFT[], PersistenceError>;
+  ): ResultAsync<WalletNFT[], PersistenceError | UnauthorizedError>;
   getTransactionValueByChain(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<TransactionPaymentCounter[], PersistenceError>;
+  ): ResultAsync<
+    TransactionPaymentCounter[],
+    PersistenceError | UnauthorizedError
+  >;
 
   postBackups(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<DataWalletBackupID[], PersistenceError>;
+  ): ResultAsync<DataWalletBackupID[], PersistenceError | UnauthorizedError>;
   clearCloudStore(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
   getTokenPrice(
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<number, PersistenceError>;
+  ): ResultAsync<number, PersistenceError | UnauthorizedError>;
 
   getTokenMarketData(
     ids: string[],
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<TokenMarketData[], AccountIndexingError>;
+  ): ResultAsync<TokenMarketData[], AccountIndexingError | UnauthorizedError>;
 
   getTokenInfo(
     chainId: ChainId,
     contractAddress: TokenAddress | null,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<TokenInfo | null, AccountIndexingError>;
+  ): ResultAsync<TokenInfo | null, AccountIndexingError | UnauthorizedError>;
 
   getTransactions(
     filter?: TransactionFilter,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<ChainTransaction[], PersistenceError>;
+  ): ResultAsync<ChainTransaction[], PersistenceError | UnauthorizedError>;
   addTransactions(
     transactions: ChainTransaction[],
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError>;
+  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
   marketplace: ICoreMarketplaceMethods;
+  integration: ICoreIntegrationMethods;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

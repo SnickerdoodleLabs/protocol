@@ -77,6 +77,7 @@ import {
   TransactionPaymentCounter,
   EDataWalletPermission,
   ICoreMarketplaceMethods,
+  ICoreIntegrationMethods,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -94,7 +95,7 @@ import {
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
@@ -107,6 +108,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMarketplaceService,
@@ -135,6 +138,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   protected iocContainer: Container;
 
   public marketplace: ICoreMarketplaceMethods;
+  public integration: ICoreIntegrationMethods;
 
   public constructor(
     configOverrides?: IConfigOverrides,
@@ -201,6 +205,27 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
 
       configProvider.setConfigOverrides(configOverrides);
     }
+
+    this.integration = {
+      grantPermissions: (
+        permissions: EDataWalletPermission[],
+        domain: DomainName,
+      ) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.grantPermissions(permissions, domain);
+      },
+      getPermissions: (
+        domain: DomainName,
+        sourceDomain: DomainName | undefined = undefined,
+      ) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.getPermissions(domain, sourceDomain);
+      },
+    };
 
     this.marketplace = {
       getMarketplaceListings: (

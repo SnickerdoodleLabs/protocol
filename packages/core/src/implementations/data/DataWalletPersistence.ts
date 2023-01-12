@@ -55,6 +55,7 @@ import {
   BigNumberString,
   addBigNumberString,
   getChainInfoByChainId,
+  EDataWalletPermission,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -421,6 +422,54 @@ export class DataWalletPersistence implements IDataWalletPersistence {
 
             return backupManager.updateField(ELocalStorageKey.ACCOUNT, saved);
           });
+      });
+  }
+
+  public getPermissions(
+    domain: DomainName,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError> {
+    return this.waitForRestore()
+      .andThen(() => {
+        return this._checkAndRetrieveValue<JSONString>(
+          ELocalStorageKey.DOMAIN_PERMISSIONS,
+          JSONString("{}"),
+        );
+      })
+      .map((json) => {
+        const storedPermissions = JSON.parse(json) as DomainPermissions;
+        const permissions = storedPermissions[domain];
+
+        if (permissions == null) {
+          return [];
+        }
+
+        return permissions;
+      });
+  }
+
+  public setPermissions(
+    domain: DomainName,
+    permissions: EDataWalletPermission[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForRestore()
+      .andThen(() => {
+        return ResultUtils.combine([
+          this.backupManagerProvider.getBackupManager(),
+          this._checkAndRetrieveValue<JSONString>(
+            ELocalStorageKey.DOMAIN_PERMISSIONS,
+            JSONString("{}"),
+          ),
+        ]);
+      })
+      .andThen(([backupManager, json]) => {
+        const allPermissions = JSON.parse(json) as DomainPermissions;
+
+        allPermissions[domain] = permissions;
+
+        return backupManager.updateField(
+          ELocalStorageKey.DOMAIN_PERMISSIONS,
+          JSONString(JSON.stringify(allPermissions)),
+        );
       });
   }
 
@@ -931,8 +980,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return retVal;
       })
       .mapErr((e) => new PersistenceError("error compounding transactions", e));
-
-    return okAsync([...flowMap.values()]);
   }
 
   public addTransactions(
@@ -1251,4 +1298,8 @@ class InvitationForStorage {
 interface LatestBlockEntry {
   contract: EVMContractAddress;
   block: BlockNumber;
+}
+
+interface DomainPermissions {
+  [key: DomainName]: EDataWalletPermission[] | undefined;
 }

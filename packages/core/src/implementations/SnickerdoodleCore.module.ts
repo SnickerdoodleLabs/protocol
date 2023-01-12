@@ -57,6 +57,7 @@ import {
   AccountService,
   BalanceQueryEvaluator,
   ConsentTokenUtils,
+  IntegrationService,
   InvitationService,
   MarketplaceService,
   MonitoringService,
@@ -98,6 +99,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IIntegrationService,
+  IIntegrationServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMarketplaceService,
@@ -180,6 +183,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(AccountService)
       .inSingletonScope();
 
+    bind<IIntegrationService>(IIntegrationServiceType)
+      .to(IntegrationService)
+      .inSingletonScope();
     bind<IInvitationService>(IInvitationServiceType)
       .to(InvitationService)
       .inSingletonScope();

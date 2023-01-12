@@ -1,4 +1,5 @@
 export * from "@core/implementations/business/AccountService.js";
+export * from "@core/implementations/business/IntegrationService.js";
 export * from "@core/implementations/business/InvitationService.js";
 export * from "@core/implementations/business/MarketplaceService.js";
 export * from "@core/implementations/business/MonitoringService.js";

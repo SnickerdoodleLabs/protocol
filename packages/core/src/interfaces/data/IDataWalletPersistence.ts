@@ -26,6 +26,8 @@ import {
   UnixTimestamp,
   AccountAddress,
   DataWalletBackupID,
+  EDataWalletPermission,
+  DomainName,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -194,6 +196,14 @@ export interface IDataWalletPersistence {
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
   waitForRestore(): ResultAsync<EVMPrivateKey, never>;
+
+  getPermissions(
+    domain: DomainName,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
+  setPermissions(
+    domain: DomainName,
+    permissions: EDataWalletPermission[],
+  ): ResultAsync<void, PersistenceError>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");
