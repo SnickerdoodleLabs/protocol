@@ -118,7 +118,7 @@ export interface ICoreIntegrationMethods {
   getPermissions(
     domain: DomainName,
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
+  ): ResultAsync<EDataWalletPermission[], PersistenceError | UnauthorizedError>;
 }
 
 export interface ISnickerdoodleCore {

@@ -30,7 +30,6 @@ import {
   EIndexer,
   IDataWalletBackup,
   LinkedAccount,
-  getChainInfoByChain,
   ChainTransaction,
   EarnedReward,
   Invitation,
@@ -52,8 +51,6 @@ import {
   JSONString,
   EVMTransaction,
   TransactionPaymentCounter,
-  BigNumberString,
-  addBigNumberString,
   getChainInfoByChainId,
   EDataWalletPermission,
 } from "@snickerdoodlelabs/objects";
@@ -71,7 +68,7 @@ import {
   PortfolioCache,
 } from "@snickerdoodlelabs/persistence";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
