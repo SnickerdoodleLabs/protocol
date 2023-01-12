@@ -46,9 +46,6 @@ export interface IGetUnlockMessageParams {
   languageCode: LanguageCode;
 }
 
-export interface ISetAgeParams {
-  age: Age;
-}
 export interface ISetGivenNameParams {
   givenName: GivenName;
 }

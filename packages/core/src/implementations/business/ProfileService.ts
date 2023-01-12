@@ -57,9 +57,6 @@ export class ProfileService implements IProfileService {
   getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
     return this.dataWalletPersistence.getLocation();
   }
-  setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.setAge(age);
-  }
   getAge(): ResultAsync<Age | null, PersistenceError> {
     return this.dataWalletPersistence.getAge();
   }

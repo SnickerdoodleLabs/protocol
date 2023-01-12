@@ -355,7 +355,6 @@ export interface ISnickerdoodleCore {
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 
   /** Google User Information */
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;

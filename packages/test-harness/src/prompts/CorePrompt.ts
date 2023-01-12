@@ -76,8 +76,6 @@ export class CorePrompt extends DataWalletPrompt {
       new inquirer.Separator(),
       { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
       { name: "Add AccountBalance - SOL", value: "Add AccountBalance - SOL" },
-      { name: "Set Age to 15", value: "setAge to 15" },
-      { name: "Set Age to 0", value: "setAge to 0" },
       { name: "Get Age", value: "getAge" },
       { name: "Set Location", value: "setLocation" },
       { name: "Get Location", value: "getLocation" },
@@ -170,12 +168,6 @@ export class CorePrompt extends DataWalletPrompt {
           return this.optInCampaign.start();
         case "optOutCampaign":
           return this.optOutCampaign.start();
-        case "setAge to 15":
-          console.log("Age is set to 15");
-          return this.core.setAge(Age(15));
-        case "setAge to 0":
-          console.log("Age is set to 0");
-          return this.core.setAge(Age(0));
         case "getAge":
           return this.core.getAge().map(console.log);
         case "setGender":

@@ -46,7 +46,6 @@ import {
   IInvitationDomainWithUUID,
   ILeaveCohortParams,
   IRejectInvitationParams,
-  ISetAgeParams,
   ISetBirthdayParams,
   ISetEmailParams,
   ISetFamilyNameParams,
@@ -293,11 +292,6 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);
   }
 
-  public setAge(age: Age): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(EExternalActions.SET_AGE, {
-      age,
-    } as ISetAgeParams);
-  }
   public setFamilyName(
     familyName: FamilyName,
   ): ResultAsync<void, JsonRpcError> {

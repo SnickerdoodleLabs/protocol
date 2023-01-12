@@ -106,7 +106,6 @@ export interface IDataWalletPersistence {
   getClicks(): ResultAsync<ClickData[], PersistenceError>;
 
   /** Google User Information */
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
