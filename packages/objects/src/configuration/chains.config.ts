@@ -208,7 +208,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       [],
       10000, // average block mining time
       EIndexer.Gnosis,
-      new NativeCurrencyInformation("xDAI", 18, "xDAI"),
+      new NativeCurrencyInformation("xDAI", 18, "xDAI", "xdai"),
       EChainType.Mainnet,
       "https://gnosisscan.io/",
       getExplorerUrl,
@@ -248,15 +248,7 @@ export function getEtherscanBaseURLForChain(
   chain: ChainId,
 ): ResultAsync<string, AccountIndexingError> {
   try {
-    console.log("chain gnosis: ", chain);
-    console.log("chainConfig: ", chainConfig);
     const chainInfo = getChainInfoByChainId(chain);
-    console.log("chainInfo: ", chainInfo);
-    console.log(
-      "chainInfo.etherscanEndpointURL: ",
-      chainInfo.etherscanEndpointURL,
-    );
-
     if (chainInfo.etherscanEndpointURL == undefined) {
       return errAsync(
         new AccountIndexingError("no etherscan endpoint for chainID", chain),

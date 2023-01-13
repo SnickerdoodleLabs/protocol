@@ -295,11 +295,9 @@ export class PolygonIndexer
         }),
       );
 
-      console.log("Polygon Url: ", url);
       return this.ajaxUtils
         .get<IPolygonscanBlockNumberResponse>(url)
         .andThen((resp) => {
-          console.log("Polygon response: ", resp);
           if (resp.status != "1") {
             // this is a bit noisy
             // this.logUtils.warning(
@@ -423,8 +421,6 @@ export class PolygonIndexer
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
-      console.log("config: ", config);
-
       if (!config.etherscanApiKeys.has(chain)) {
         console.log("Error inside _getEtherscanApiKey");
         return errAsync(

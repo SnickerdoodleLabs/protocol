@@ -44,10 +44,15 @@ export class MoralisEVMPortfolioRepository
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
+    console.log("Moralis chainId: ", chainId);
+    console.log("Moralis accountAddress: ", accountAddress);
     return ResultUtils.combine([
       this.generateQueryConfig(chainId, accountAddress, "erc20"),
       this.generateQueryConfig(chainId, accountAddress, "balance"),
     ]).andThen(([tokenRequest, balanceRequest]) => {
+      console.log("Moralis tokenRequest: ", tokenRequest);
+      console.log("Moralis balanceRequest: ", balanceRequest);
+
       return ResultUtils.combine([
         this.ajaxUtils.get<IMoralisBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -60,6 +65,9 @@ export class MoralisEVMPortfolioRepository
           balanceRequest,
         ),
       ]).map(([tokenResponse, balanceResponse]) => {
+        console.log("Moralis tokenResponse: ", tokenResponse);
+        console.log("Moralis balanceResponse: ", balanceResponse);
+
         const tokenBalances = tokenResponse.map((item) => {
           return new TokenBalance(
             EChainTechnology.EVM,
@@ -71,6 +79,8 @@ export class MoralisEVMPortfolioRepository
             item.decimals,
           );
         });
+        console.log("Moralis tokenBalances: ", tokenBalances);
+
 
         const chainInfo = getChainInfoByChainId(chainId);
         tokenBalances.push(
@@ -84,6 +94,8 @@ export class MoralisEVMPortfolioRepository
             chainInfo.nativeCurrency.decimals,
           ),
         );
+        console.log("Moralis chainInfo: ", chainInfo);
+        console.log("Moralis tokenBalances: ", tokenBalances);
 
         return tokenBalances;
       });
@@ -178,6 +190,7 @@ export class MoralisEVMPortfolioRepository
       ["api", "v2", accountAddress.toString(), endpoint],
       params,
     );
+    console.log("Moralis URL: ", url);
 
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
@@ -188,6 +201,7 @@ export class MoralisEVMPortfolioRepository
           "X-API-Key": config.moralisApiKey,
         },
       };
+      console.log("result: ", result);
       return result;
     });
   }

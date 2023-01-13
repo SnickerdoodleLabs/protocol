@@ -51,11 +51,16 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     protected volatileStorage: IVolatileStorage,
   ) {
     this._nativeIds = new Map();
+    console.log("Coin Gecko chainConfig: ", chainConfig);
+    console.log("nativeIds: ", this._nativeIds);
+
     chainConfig.forEach((value) => {
+      console.log("Coin Gecko value: ", value);
       if (value.nativeCurrency.coinGeckoId) {
         this._nativeIds.set(value.chainId, value.nativeCurrency.coinGeckoId);
       }
     });
+    console.log("Coin Gecko nativeIds: ", this._nativeIds);
   }
 
   public getMarketDataForTokens(
@@ -65,6 +70,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     AccountIndexingError
   > {
     const ids = new Map<string, `${ChainId}-${TokenAddress}`>();
+    console.log("tokens: ", tokens);
     return ResultUtils.combine(
       tokens.map((token) => {
         return this.getTokenInfo(token.chain, token.address).map((info) => {
@@ -74,11 +80,14 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         });
       }),
     ).andThen(() => {
+      console.log("ids: ", ids);
       return this.getTokenMarketData([...ids.keys()]).map((marketData) => {
         const returnVal = new Map<
           `${ChainId}-${TokenAddress}`,
           TokenMarketData
         >();
+        console.log("marketData: ", marketData);
+
         marketData.forEach((data) => {
           const key = ids.get(data.id)!;
           returnVal.set(key, data);
@@ -141,6 +150,9 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
     contractAddress: TokenAddress | null,
   ): ResultAsync<TokenInfo | null, AccountIndexingError> {
     // look for null contract addresses since we can't null indexed values in indexeddb
+    console.log("getTokenInfo chainId: ", chainId);
+    console.log("getTokenInfo contractAddress: ", contractAddress);
+
     if (contractAddress == null) {
       if (!this._nativeIds.has(chainId)) {
         return okAsync(null);
@@ -323,7 +335,8 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
             forward: {},
             backward: {},
           };
-
+          console.log("Coin Gecko Items: ", items);
+          console.log("Coin Gecko Supported Chains: ", config.supportedChains);
           items.forEach((item) => {
             if (
               item.chain_identifier &&
@@ -333,6 +346,8 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
               mapping.backward[ChainId(item.chain_identifier)] = item.id;
             }
           });
+
+          console.log("Coin Gecko mapping: ", mapping);
 
           // Non EVM has to be mapped manually
           mapping.forward["solana"] = ChainId(EChain.Solana);

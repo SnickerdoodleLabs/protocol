@@ -540,6 +540,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  // used for front end display
   public getAccountBalances(
     chains?: ChainId[],
     accounts?: LinkedAccount[],
@@ -644,6 +645,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               ),
             );
           }
+          console.log("chainId: ", chainId);
+          console.log(
+            "accountAddress as EVMAccountAddress: ",
+            accountAddress as EVMAccountAddress,
+          );
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
@@ -668,7 +674,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Gnosis:
-              return etherscanRepo.getBalancesForAccount(
+              console.log("Pre Gnosis Call: ");
+              return gnosisRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -851,6 +858,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           });
         }),
       ).andThen((transactionsArray) => {
+        console.log("Transaction Array: ", transactionsArray);
         return this.compoundTransaction(transactionsArray.flat(1));
       });
     });
@@ -897,6 +905,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     chainTransaction: TransactionPaymentCounter[],
   ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
     const flowMap = new Map<ChainId, TransactionPaymentCounter>();
+    console.log("compoundTransaction: ", chainTransaction);
     chainTransaction.forEach((obj) => {
       const getObject = flowMap.get(obj.chainId);
       if (getObject == null) {
@@ -915,14 +924,18 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       }
     });
 
+    console.log("...flowMap.keys(): ,", ...flowMap.keys());
+
     return this.tokenPriceRepo
       .getMarketDataForTokens(
         [...flowMap.keys()].map((chain) => {
+          console.log("chain: ", chain);
+          console.log("flowMap.keys(): ", flowMap.keys());
           return { chain: chain, address: null };
         }),
       )
       .map((marketDataMap) => {
-        console.log(marketDataMap);
+        console.log("getMarketDataForTokens: ", marketDataMap);
 
         const retVal: TransactionPaymentCounter[] = [];
         flowMap.forEach((counter, chainId) => {

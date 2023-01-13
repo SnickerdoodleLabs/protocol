@@ -1,10 +1,3 @@
-import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
-import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
-import TokenItem from "@extension-onboarding/components/TokenItem";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { IBalanceItem } from "@extension-onboarding/objects";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
   CircularProgress,
@@ -37,6 +30,14 @@ import { okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pie } from "react-chartjs-2";
+
+import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
+import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
+import TokenItem from "@extension-onboarding/components/TokenItem";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { IBalanceItem } from "@extension-onboarding/objects";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/Tokens/Tokens.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 declare const window: IWindowWithSdlDataWallet;
 
 ChartJS.register(
@@ -222,6 +223,7 @@ export default () => {
   };
 
   const getGroupedBalances = (balanceArr: IBalanceItem[]): IBalanceItem[] => {
+    console.log("Portfolio balanceArr: ", balanceArr);
     return Object.values(
       balanceArr.reduce((acc, item) => {
         if (acc[item.ticker]) {
@@ -249,6 +251,11 @@ export default () => {
         EDisplayMode.MAINNET === displayMode
           ? accountBalances
           : accountTestnetBalances;
+      console.log("Tokens.tsx accountBalances: ", accountBalances);
+      console.log(
+        "Tokens.tsx accountTestnetBalances: ",
+        accountTestnetBalances,
+      );
 
       if (!accountSelect && !chainSelect) {
         return getGroupedBalances(balanceArr);

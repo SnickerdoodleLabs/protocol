@@ -136,8 +136,6 @@ export class MonitoringService implements IMonitoringService {
       ]) => {
         // Get the chain info for the transaction
         const chainInfo = config.chainInformation.get(chainId);
-        console.log("Calling chainId: ", chainId);
-        console.log("Monitoring chainInfo: ", chainInfo);
         if (chainInfo == null) {
           this.logUtils.error(`No available chain info for chain ${chainId}`);
           return okAsync([]);
