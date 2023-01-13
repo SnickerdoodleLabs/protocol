@@ -41,6 +41,7 @@ import {
   PersistenceError,
   UninitializedError,
   EVMContractAddress,
+  EBackupPriority,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber } from "ethers";
 import { err, errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -413,6 +414,7 @@ export class DataWalletProfile {
             hash: backupJson.hash,
             timestamp: UnixTimestamp(backupJson.timestamp),
             signature: backupJson.signature,
+            priority: EBackupPriority.NORMAL,
           },
           blob: new AESEncryptedString(
             EncryptedString(backupJson.blob.data),
