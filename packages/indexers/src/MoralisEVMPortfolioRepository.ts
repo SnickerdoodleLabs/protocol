@@ -108,6 +108,9 @@ export class MoralisEVMPortfolioRepository
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     return this.generateQueryConfig(chainId, accountAddress, "nft")
       .andThen((requestConfig) => {
+        console.log("Moralis NFT url: ", requestConfig.url!);
+        console.log("Moralis NFT requestConfig: ", requestConfig);
+
         return this.ajaxUtils
           .get<IMoralisNFTResponse>(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

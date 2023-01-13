@@ -246,6 +246,10 @@ export default () => {
   };
 
   const tokensToRender: IBalanceItem[] | null = useMemo(() => {
+    console.log("Tokens.tsx accountBalances: ", accountBalances);
+    console.log("Tokens.tsx accountTestnetBalances: ", accountTestnetBalances);
+    console.log("Tokens.tsx accountSelect: ", accountSelect);
+    console.log("Tokens.tsx chainSelect: ", chainSelect);
     if (accountBalances && accountTestnetBalances) {
       const balanceArr =
         EDisplayMode.MAINNET === displayMode

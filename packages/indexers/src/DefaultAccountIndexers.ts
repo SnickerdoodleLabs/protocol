@@ -72,7 +72,6 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     IEVMTransactionRepository,
     never
   > {
-    console.log("Gnosis Indexer: ", this.gnosis);
     return okAsync(this.gnosis);
   }
 
@@ -80,7 +79,6 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     IEVMTransactionRepository,
     never
   > {
-    console.log("Polygon Indexer: ", this.matic);
     return okAsync(this.matic);
   }
 
@@ -88,7 +86,6 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     IEVMTransactionRepository,
     never
   > {
-    console.log("Ethereum Indexer: ", this.evm);
     return okAsync(this.evm);
   }
 
@@ -96,7 +93,6 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     IEVMTransactionRepository,
     never
   > {
-    console.log("EVM Indexer: ", this.evm);
     return okAsync(this.evm);
   }
 
@@ -111,7 +107,6 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     ISolanaTransactionRepository,
     never
   > {
-    console.log("Solana Indexer: ", this.solRepo);
     return okAsync(this.solRepo);
   }
 }
