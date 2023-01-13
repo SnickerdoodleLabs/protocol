@@ -645,11 +645,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               ),
             );
           }
-          console.log("chainId: ", chainId);
-          console.log(
-            "accountAddress as EVMAccountAddress: ",
-            accountAddress as EVMAccountAddress,
-          );
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
@@ -674,7 +669,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Gnosis:
-              console.log("Pre Gnosis Call: ");
               return gnosisRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
@@ -924,19 +918,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       }
     });
 
-    console.log("...flowMap.keys(): ,", ...flowMap.keys());
-
     return this.tokenPriceRepo
       .getMarketDataForTokens(
         [...flowMap.keys()].map((chain) => {
-          console.log("chain: ", chain);
-          console.log("flowMap.keys(): ", flowMap.keys());
           return { chain: chain, address: null };
         }),
       )
       .map((marketDataMap) => {
-        console.log("getMarketDataForTokens: ", marketDataMap);
-
         const retVal: TransactionPaymentCounter[] = [];
         flowMap.forEach((counter, chainId) => {
           const marketData = marketDataMap.get(`${chainId}-${null}`);

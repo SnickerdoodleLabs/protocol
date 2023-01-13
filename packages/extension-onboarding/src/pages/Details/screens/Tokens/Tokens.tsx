@@ -223,7 +223,6 @@ export default () => {
   };
 
   const getGroupedBalances = (balanceArr: IBalanceItem[]): IBalanceItem[] => {
-    console.log("Portfolio balanceArr: ", balanceArr);
     return Object.values(
       balanceArr.reduce((acc, item) => {
         if (acc[item.ticker]) {
@@ -246,20 +245,11 @@ export default () => {
   };
 
   const tokensToRender: IBalanceItem[] | null = useMemo(() => {
-    console.log("Tokens.tsx accountBalances: ", accountBalances);
-    console.log("Tokens.tsx accountTestnetBalances: ", accountTestnetBalances);
-    console.log("Tokens.tsx accountSelect: ", accountSelect);
-    console.log("Tokens.tsx chainSelect: ", chainSelect);
     if (accountBalances && accountTestnetBalances) {
       const balanceArr =
         EDisplayMode.MAINNET === displayMode
           ? accountBalances
           : accountTestnetBalances;
-      console.log("Tokens.tsx accountBalances: ", accountBalances);
-      console.log(
-        "Tokens.tsx accountTestnetBalances: ",
-        accountTestnetBalances,
-      );
 
       if (!accountSelect && !chainSelect) {
         return getGroupedBalances(balanceArr);

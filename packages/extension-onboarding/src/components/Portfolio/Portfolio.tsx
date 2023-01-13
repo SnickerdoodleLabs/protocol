@@ -285,7 +285,6 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
   };
 
   const getGroupedBalances = (balanceArr: IBalanceItem[]): IBalanceItem[] => {
-    console.log("Portfolio balanceArr: ", balanceArr);
     return Object.values(
       balanceArr.reduce((acc, item) => {
         if (acc[item.ticker]) {
@@ -314,30 +313,21 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
   };
 
   const tokensToRender: IBalanceItem[] | null = useMemo(() => {
-    console.log("accountBalances: ", accountBalances);
-    console.log("accountTestnetBalances: ", accountTestnetBalances);
     if (accountBalances && accountTestnetBalances) {
       const balanceArr =
         EDisplayMode.MAINNET === displayMode
           ? accountBalances
           : accountTestnetBalances;
 
-      console.log("balanceArr: ", balanceArr);
-      console.log("accountSelect: ", accountSelect);
-      console.log("chainSelect: ", chainSelect);
-
       if (!accountSelect && !chainSelect) {
-        console.log("330: ");
         return getGroupedBalances(balanceArr);
       }
       if (!accountSelect && chainSelect) {
-        console.log("334: ");
         return getGroupedBalances(
           balanceArr.filter((item) => item.chainId === chainSelect),
         );
       }
       if (accountSelect && !chainSelect) {
-        console.log("340: ");
         return balanceArr
           .filter((item) => item.accountAddress === accountSelect)
           .sort(
@@ -348,7 +338,6 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
                 (a.marketaData?.currentPrice ?? 0),
           );
       }
-      console.log("351: ");
       return balanceArr
         .filter(
           (item) =>
@@ -415,15 +404,12 @@ const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
   };
 
   useEffect(() => {
-    console.log("tokensToRender: ", tokensToRender);
     if (tokensToRender) {
       setTokensPagination(getPaginationObject(tokensToRender.length));
     }
   }, [tokensToRender]);
 
   useEffect(() => {
-    console.log("nftsToRender: ", nftsToRender);
-
     if (nftsToRender) {
       setNftsPagination(getPaginationObject(nftsToRender.length));
     }

@@ -54,32 +54,33 @@ export class GnosisIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
-    const apiKey = chainConfig.get(ChainId(chainId));
-    const url = `https://api.gnosisscan.io/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
-    // https://gnosisscan.io/address/0x633b0e4cc5b72e7196e12b6b8af1d79c7d406c83#tokentxnsErc721
-    console.log("Gnosis url: ", url);
-    return this.ajaxUtils
-      .get<IGnosisscanBlockNumberResponse>(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new URL(url!),
-      )
-      .map((balanceResponse) => {
-        console.log("Gnosis tokenResponse: ", balanceResponse);
-        const tokenBalances: TokenBalance[] = [];
-        const chainInfo = getChainInfoByChainId(chainId);
-        tokenBalances.push(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol(chainInfo.nativeCurrency.symbol),
-            chainId,
-            null,
-            accountAddress,
-            balanceResponse.result,
-            chainInfo.nativeCurrency.decimals,
-          ),
-        );
-        return tokenBalances;
-      });
+    return this._getEtherscanApiKey(chainId).andThen((apiKey) => {
+      const url = `https://api.gnosisscan.io/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+      // https://gnosisscan.io/address/0x633b0e4cc5b72e7196e12b6b8af1d79c7d406c83#tokentxnsErc721
+      console.log("Gnosis url: ", url);
+      return this.ajaxUtils
+        .get<IGnosisscanBlockNumberResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(url!),
+        )
+        .map((balanceResponse) => {
+          console.log("Gnosis tokenResponse: ", balanceResponse);
+          const tokenBalances: TokenBalance[] = [];
+          const chainInfo = getChainInfoByChainId(chainId);
+          tokenBalances.push(
+            new TokenBalance(
+              EChainTechnology.EVM,
+              TickerSymbol(chainInfo.nativeCurrency.symbol),
+              chainId,
+              null,
+              accountAddress,
+              balanceResponse.result,
+              chainInfo.nativeCurrency.decimals,
+            ),
+          );
+          return tokenBalances;
+        });
+    });
   }
 
   public getEVMTransactions(
@@ -101,8 +102,7 @@ export class GnosisIndexer
       .map((tokenResponse) => {
         console.log("Gnosis tokenResponse: ", tokenResponse);
 
-        const tokenBalances: EVMTransaction[] = [];
-        const chainInfo = getChainInfoByChainId(chainId);
+        // const chainInfo = getChainInfoByChainId(chainId);
         // tx.timeStamp
         return tokenResponse.result.map((tx) => {
           return new EVMTransaction(
@@ -198,55 +198,8 @@ interface IGnosisscanRawTx {
   tokenID?: BigNumberString;
 }
 
-interface IGnosisBlockNumberResponse {
-  status: string;
-  message: string;
-  result: BigNumberString;
-}
-
 interface IGnosisscanBlockNumberResponse {
   status: string;
   message: string;
   result: BigNumberString;
-}
-
-interface IMoralisNFTResponse {
-  total: number;
-  page: number;
-  page_size: number;
-  status: string;
-  cursor: string | null;
-
-  result: {
-    token_address: string;
-    token_id: string;
-    owner_of: string;
-    block_number: string;
-    block_number_minted: string;
-    token_hash: string;
-    amount: string;
-    updated_at: string;
-    contract_type: string;
-    name: string;
-    symbol: string;
-    token_uri: string;
-    metadata: string;
-  }[];
-
-  last_token_uri_sync: string | null;
-  last_metadata_sync: string | null;
-}
-
-type IMoralisBalanceResponse = {
-  token_address: EVMContractAddress;
-  name: string;
-  symbol: TickerSymbol;
-  logo: URLString | null;
-  thumbnail: URLString | null;
-  decimals: number;
-  balance: BigNumberString;
-}[];
-
-interface IMoralisNativeBalanceResponse {
-  balance: BigNumberString;
 }

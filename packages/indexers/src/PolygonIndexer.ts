@@ -422,7 +422,6 @@ export class PolygonIndexer
   ): ResultAsync<string, AccountIndexingError> {
     return this.configProvider.getConfig().andThen((config) => {
       if (!config.etherscanApiKeys.has(chain)) {
-        console.log("Error inside _getEtherscanApiKey");
         return errAsync(
           new AccountIndexingError("no etherscan api key for chain", chain),
         );

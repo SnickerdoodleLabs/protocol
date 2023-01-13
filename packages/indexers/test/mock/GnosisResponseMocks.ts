@@ -16,7 +16,6 @@ function getBalanceUrl(apiKey: string): string {
   // return `https://api.covalenthq.com/v1/${chainId.toString()}/address/${accountAddress.toString()}/transactions_v2/?key=${apiKey}&match={%22block_signed_at%22:{%22$gt%22:%22${startTime.toISOString()}%22}}`;
 }
 
-
 // https://api.gnosisscan.io/api?module=account&action=balance&address=0x0000000000000000000000000000000000001004&tag=latest&apikey=YourApiKeyToken
 
 // export const requestURL: URL = new URL(
