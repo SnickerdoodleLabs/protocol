@@ -23,6 +23,7 @@ export interface IAccountIndexing {
     IEVMTransactionRepository,
     never
   >;
+  getBinanceNFTRepository(): ResultAsync<IEVMTransactionRepository, never>;
 }
 
 export const IAccountIndexingType = Symbol.for("IAccountIndexing");

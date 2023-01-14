@@ -198,6 +198,24 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       getExplorerUrl,
     ),
   ],
+  [
+    ChainId(EChain.Binance),
+    new ChainInformation(
+      "Gnosis",
+      ChainId(EChain.Binance),
+      EChain.Binance,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000, // average block mining time
+      EIndexer.Binance,
+      new NativeCurrencyInformation("BNB", 18, "BNB", "bnb"),
+      EChainType.Mainnet,
+      "https://bscscan.io/",
+      getExplorerUrl,
+      URLString("https://api.bscscan.io/"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {

@@ -130,6 +130,18 @@ module.exports = {
       chainId: 250,
       url: urlOverride || "http://127.0.0.1:8549",
     },
+    binance: {
+      // binance mainnet - BNB
+      accounts: accounts,
+      chainId: 56,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
+    binance_testnet: {
+      // binance testnet - BNBT
+      accounts: accounts,
+      chainId: 97,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
   },
   gasReporter: {
     enabled: true,

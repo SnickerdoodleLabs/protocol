@@ -626,6 +626,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getSimulatorEVMBalanceRepository(),
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
+      this.accountBalances.getBinanceBalanceRepository(),
     ])
       .andThen(
         ([
@@ -635,6 +636,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           simulatorRepo,
           etherscanRepo,
           maticRepo,
+          binanceRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -664,6 +666,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               );
             case EIndexer.Ethereum:
               return etherscanRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Binance:
+              return binanceRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -767,8 +774,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
+      this.accountNFTs.getBinanceNftRepository(),
     ])
-      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
+      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo, binanceRepo]) => {
         const chainInfo = config.chainInformation.get(chainId);
         if (chainInfo == null) {
           return errAsync(
@@ -797,6 +805,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             );
           case EIndexer.Ethereum:
             return etherscanRepo.getTokensForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Binance:
+            return binanceRepo.getTokensForAccount(
               chainId,
               accountAddress as EVMAccountAddress,
             );

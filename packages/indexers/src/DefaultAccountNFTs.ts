@@ -21,6 +21,7 @@ import {
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
+import { BinanceIndexer } from "./BinanceIndexer";
 
 @injectable()
 export class DefaultAccountNFTs implements IAccountNFTs {
@@ -28,6 +29,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
   protected evm: IEVMNftRepository;
   protected simulatorRepo: IEVMNftRepository;
   protected solRepo: ISolanaNFTRepository;
+  protected binanceRepo: IEVMNftRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -52,6 +54,12 @@ export class DefaultAccountNFTs implements IAccountNFTs {
       this.tokenPriceRepo,
       this.logUtils,
     );
+    this.binanceRepo = new BinanceIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
   }
 
   public getEthereumNftRepository(): ResultAsync<IEVMNftRepository, never> {
@@ -68,5 +76,9 @@ export class DefaultAccountNFTs implements IAccountNFTs {
 
   public getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never> {
     return okAsync(this.solRepo);
+  }
+
+  public getBinanceNFTRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.binanceRepo);
   }
 }

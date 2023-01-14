@@ -72,6 +72,8 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `43113`: the Avalance Testnet (Fuji)
 - `137`: Polygon Mainnet
 - `80001`: Polygon Testnet (Mumbai)
+- `56`: Binance Mainnet
+- `97`: Binance Testnet
 - `*`: all supported networks
 
 #### chain (required for network queries)

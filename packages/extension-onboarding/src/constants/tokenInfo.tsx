@@ -2,6 +2,7 @@ import ethereumCircle from "@extension-onboarding/assets/icons/ethereum-circle.s
 import solanaCircle from "@extension-onboarding/assets/icons/solana-circle.svg";
 import usdcCircle from "@extension-onboarding/assets/icons/usdc-circle.png";
 import avaxCircle from "@extension-onboarding/assets/images/avax-circle.png";
+import binanceCircle from "@extension-onboarding/assets/images/bnb-circle.png";
 import polygonCircle from "@extension-onboarding/assets/images/polygon-circle.png";
 
 interface ITokenInfo {
@@ -14,6 +15,7 @@ export const tokenInfoObj: ITokenInfo = {
   USDC: { displayName: "USDC", iconSrc: usdcCircle },
   MATIC: { displayName: "MATIC", iconSrc: polygonCircle },
   SOL: { displayName: "Sol", iconSrc: solanaCircle },
+  BNB: { displayName: "Binance", iconSrc: binanceCircle },
 };
 
 export const stableCoins = [
@@ -25,4 +27,6 @@ export const stableCoins = [
   "TUSD",
   "USDD",
   "EURS",
+  "BNB",
+  "BNBT",
 ];

@@ -97,6 +97,10 @@ const consentBeacon = function () {
     return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
     return "";
+  } else if (hre.hardhatArguments.network == "binance") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance-testnet") {
+    return "";
   } else {
     return "";
   }
@@ -127,6 +131,10 @@ const consentFactory = function () {
     return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
     return "";
+  } else if (hre.hardhatArguments.network == "binance") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance-testnet") {
+    return "";
   } else {
     return "";
   }
@@ -154,6 +162,10 @@ const crumbsContract = function () {
   } else if (hre.hardhatArguments.network == "fantom") {
     return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance-testnet") {
     return "";
   } else {
     return "";
@@ -183,6 +195,10 @@ const siftContract = function () {
   } else if (hre.hardhatArguments.network == "fantom") {
     return "";
   } else if (hre.hardhatArguments.network == "mainnet") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance") {
+    return "";
+  } else if (hre.hardhatArguments.network == "binance-testnet") {
     return "";
   } else {
     return "";

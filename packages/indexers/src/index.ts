@@ -1,3 +1,4 @@
+export * from "@indexers/BinanceIndexer.js";
 export * from "@indexers/CoinGeckoTokenPriceRepository.js";
 export * from "@indexers/CovalentEVMTransactionRepository.js";
 export * from "@indexers/DefaultAccountBalances.js";

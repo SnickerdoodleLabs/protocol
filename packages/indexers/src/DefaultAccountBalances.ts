@@ -24,6 +24,7 @@ import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepo
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
+import { BinanceIndexer } from "./BinanceIndexer";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {
@@ -32,6 +33,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected sol: ISolanaBalanceRepository;
   protected ethereum: IEVMAccountBalanceRepository;
   protected matic: IEVMAccountBalanceRepository;
+  protected binance: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -56,6 +58,12 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.logUtils,
     );
     this.matic = new PolygonIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+    this.binance = new BinanceIndexer(
       this.configProvider,
       this.ajaxUtils,
       this.tokenPriceRepo,
@@ -96,5 +104,12 @@ export class DefaultAccountBalances implements IAccountBalances {
     never
   > {
     return okAsync(this.sol);
+  }
+
+  public getGnosisBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  > {
+    return okAsync(this.binance);
   }
 }
