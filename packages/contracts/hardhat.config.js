@@ -134,7 +134,7 @@ module.exports = {
       // gnosis mainnet
       accounts: accounts,
       chainId: 100,
-      url: urlOverride || "https://gnosischain-rpc.gateway.pokt.network",
+      url: urlOverride || "http://127.0.0.1:8549",
     },
   },
   gasReporter: {

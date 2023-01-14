@@ -60,6 +60,9 @@ export class MoralisEVMPortfolioRepository
           balanceRequest,
         ),
       ]).map(([tokenResponse, balanceResponse]) => {
+        console.log("tokenResponses: ", tokenResponse);
+        console.log("balanceResponses: ", balanceResponse);
+
         const tokenBalances = tokenResponse.map((item) => {
           return new TokenBalance(
             EChainTechnology.EVM,
@@ -101,6 +104,7 @@ export class MoralisEVMPortfolioRepository
             requestConfig,
           )
           .andThen((result) => {
+            console.log("Moralis NFT response: ", result);
             return this.getPages(chainId, accountAddress, result);
           });
       })
@@ -115,6 +119,7 @@ export class MoralisEVMPortfolioRepository
     response: IMoralisNFTResponse,
   ): ResultAsync<EVMNFT[], AjaxError> {
     const items: EVMNFT[] = response.result.map((token) => {
+      console.log("token: ", token);
       return new EVMNFT(
         EVMContractAddress(token.token_address),
         BigNumberString(token.token_id),

@@ -15,8 +15,7 @@ export const tokenInfoObj: ITokenInfo = {
   USDC: { displayName: "USDC", iconSrc: usdcCircle },
   MATIC: { displayName: "MATIC", iconSrc: polygonCircle },
   SOL: { displayName: "Sol", iconSrc: solanaCircle },
-  xDAI: { displayName: "xDAI", iconSrc: polygonCircle },
-  xdai: { displayName: "xdai", iconSrc: polygonCircle },
+  xDAI: { displayName: "xDAI", iconSrc: gnosisCircle },
 };
 
 export const stableCoins = [
@@ -29,5 +28,4 @@ export const stableCoins = [
   "USDD",
   "EURS",
   "xDAI",
-  "xdai",
 ];

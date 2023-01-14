@@ -1,12 +1,3 @@
-import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
-import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
-import {
-  EVMNFTItem,
-  SolanaNFTItem,
-} from "@extension-onboarding/components/NFTItem";
-import { useAppContext } from "@extension-onboarding/context/App";
-import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
 import {
   chainConfig,
@@ -19,6 +10,16 @@ import {
   EChainTechnology,
 } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useMemo, useState } from "react";
+
+import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
+import AccountChainBar from "@extension-onboarding/components/AccountChainBar";
+import {
+  EVMNFTItem,
+  SolanaNFTItem,
+} from "@extension-onboarding/components/NFTItem";
+import { useAppContext } from "@extension-onboarding/context/App";
+import { useStyles } from "@extension-onboarding/pages/Details/screens/NFTs/NFTs.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 
 declare const window: IWindowWithSdlDataWallet;
 

@@ -25,7 +25,6 @@ export class TokenPriceRepository implements ITokenPriceRepository {
   public getTokenMarketData(
     ids: string[],
   ): ResultAsync<TokenMarketData[], SnickerDoodleCoreError> {
-    console.log("getTokenMarketData ids: ", ids);
     return this.core.getTokenMarketData(ids).mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

@@ -773,52 +773,62 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
+      this.accountNFTs.getGnosisNFTRepository(),
     ])
-      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
-        const chainInfo = config.chainInformation.get(chainId);
-        if (chainInfo == null) {
-          return errAsync(
-            new AccountIndexingError(
-              `No available chain info for chain ${chainId}`,
-            ),
-          );
-        }
-
-        switch (chainInfo.indexer) {
-          case EIndexer.EVM:
-          case EIndexer.Polygon:
-            return evmRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Simulator:
-            return simulatorRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Solana:
-            return solRepo.getTokensForAccount(
-              chainId,
-              accountAddress as SolanaAccountAddress,
-            );
-          case EIndexer.Ethereum:
-            return etherscanRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Gnosis:
-            return etherscanRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          default:
+      .andThen(
+        ([
+          config,
+          evmRepo,
+          solRepo,
+          simulatorRepo,
+          etherscanRepo,
+          gnosisRepo,
+        ]) => {
+          const chainInfo = config.chainInformation.get(chainId);
+          if (chainInfo == null) {
             return errAsync(
               new AccountIndexingError(
-                `No available token repository for chain ${chainId}`,
+                `No available chain info for chain ${chainId}`,
               ),
             );
-        }
-      })
+          }
+
+          switch (chainInfo.indexer) {
+            case EIndexer.EVM:
+            case EIndexer.Polygon:
+              return evmRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Simulator:
+              return simulatorRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Solana:
+              return solRepo.getTokensForAccount(
+                chainId,
+                accountAddress as SolanaAccountAddress,
+              );
+            case EIndexer.Ethereum:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Gnosis:
+              return gnosisRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            default:
+              return errAsync(
+                new AccountIndexingError(
+                  `No available token repository for chain ${chainId}`,
+                ),
+              );
+          }
+        },
+      )
       .orElse((e) => {
         this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
         return okAsync([]);
@@ -852,7 +862,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           });
         }),
       ).andThen((transactionsArray) => {
-        console.log("Transaction Array: ", transactionsArray);
         return this.compoundTransaction(transactionsArray.flat(1));
       });
     });
@@ -899,7 +908,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     chainTransaction: TransactionPaymentCounter[],
   ): ResultAsync<TransactionPaymentCounter[], PersistenceError> {
     const flowMap = new Map<ChainId, TransactionPaymentCounter>();
-    console.log("compoundTransaction: ", chainTransaction);
     chainTransaction.forEach((obj) => {
       const getObject = flowMap.get(obj.chainId);
       if (getObject == null) {
@@ -928,7 +936,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         const retVal: TransactionPaymentCounter[] = [];
         flowMap.forEach((counter, chainId) => {
           const marketData = marketDataMap.get(`${chainId}-${null}`);
-          console.log(marketData);
+          console.log("Market Data: ", marketData);
           if (marketData != null) {
             counter.incomingValue *= marketData.currentPrice;
             counter.outgoingValue *= marketData.currentPrice;
@@ -939,6 +947,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             retVal.push(counter);
           }
         });
+        console.log("retVal: ", retVal);
         return retVal;
       })
       .mapErr((e) => new PersistenceError("error compounding transactions", e));
