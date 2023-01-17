@@ -19,6 +19,7 @@ import {
   AccountAddress,
   ChainId,
   TokenAddress,
+  Birthday,
 } from "@snickerdoodlelabs/objects";
 
 export interface IUnlockParams {
@@ -46,9 +47,6 @@ export interface IGetUnlockMessageParams {
   languageCode: LanguageCode;
 }
 
-export interface ISetAgeParams {
-  age: Age;
-}
 export interface ISetGivenNameParams {
   givenName: GivenName;
 }
@@ -58,7 +56,7 @@ export interface ISetFamilyNameParams {
 }
 
 export interface ISetBirthdayParams {
-  birthday: UnixTimestamp;
+  birthday: Birthday;
 }
 
 export interface ISetGenderParams {

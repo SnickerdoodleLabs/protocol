@@ -54,6 +54,7 @@ import {
   EVMTransaction,
   TransactionPaymentCounter,
   getChainInfoByChainId,
+  Birthday,
   EligibleAd,
   AdSignature,
 } from "@snickerdoodlelabs/objects";
@@ -480,6 +481,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  public getAge(): ResultAsync<Age | null, PersistenceError> {
+    return this.getBirthday().map((birthdayEpoch) => {
+      if (birthdayEpoch == null) {
+        return null;
+      }
+      return Age(
+        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() - new Date(0).getFullYear()
+      );
+    });
+  }
+
   public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     return this.waitForRestore()
       .andThen(() => {
@@ -513,7 +525,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setBirthday(
-    birthday: UnixTimestamp,
+    birthday: Birthday,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForRestore()
       .andThen(() => {
@@ -524,7 +536,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
+  public getBirthday(): ResultAsync<Birthday | null, PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.BIRTHDAY, null);
     });

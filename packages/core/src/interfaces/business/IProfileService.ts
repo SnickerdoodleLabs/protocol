@@ -2,11 +2,11 @@ import {
   GivenName,
   PersistenceError,
   FamilyName,
-  UnixTimestamp,
   Gender,
   EmailAddressString,
   CountryCode,
   Age,
+  Birthday,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -19,9 +19,9 @@ export interface IProfileService {
 
   getFamilyName(): ResultAsync<FamilyName | null, PersistenceError>;
 
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
+  setBirthday(birthday: Birthday): ResultAsync<void, PersistenceError>;
 
-  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError>;
+  getBirthday(): ResultAsync<Birthday | null, PersistenceError>;
 
   setGender(gender: Gender): ResultAsync<void, PersistenceError>;
 
@@ -34,8 +34,6 @@ export interface IProfileService {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
 
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
-
-  // setAge(age: Age): ResultAsync<void, PersistenceError>;
 
   getAge(): ResultAsync<Age | null, PersistenceError>;
 }

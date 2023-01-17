@@ -48,6 +48,7 @@ import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCore
 import {
   AccountAddress,
   Age,
+  Birthday,
   ChainId,
   CountryCode,
   DataWalletAddress,
@@ -362,8 +363,6 @@ export interface ISnickerdoodleCore {
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 
   /** Google User Information */
-  // Remove setAge with browserextension PR.
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
@@ -372,8 +371,8 @@ export interface ISnickerdoodleCore {
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
   getFamilyName(): ResultAsync<FamilyName | null, PersistenceError>;
 
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
-  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError>;
+  setBirthday(birthday: Birthday): ResultAsync<void, PersistenceError>;
+  getBirthday(): ResultAsync<Birthday | null, PersistenceError>;
 
   setGender(gender: Gender): ResultAsync<void, PersistenceError>;
   getGender(): ResultAsync<Gender | null, PersistenceError>;

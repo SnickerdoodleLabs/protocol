@@ -30,6 +30,7 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
+  Birthday,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -46,7 +47,6 @@ import {
   IInvitationDomainWithUUID,
   ILeaveCohortParams,
   IRejectInvitationParams,
-  ISetAgeParams,
   ISetBirthdayParams,
   ISetEmailParams,
   ISetFamilyNameParams,
@@ -293,11 +293,6 @@ export class ExternalCoreGateway {
     return this._handler.call(EExternalActions.GET_ACCOUNT_NFTS);
   }
 
-  public setAge(age: Age): ResultAsync<void, JsonRpcError> {
-    return this._handler.call(EExternalActions.SET_AGE, {
-      age,
-    } as ISetAgeParams);
-  }
   public setFamilyName(
     familyName: FamilyName,
   ): ResultAsync<void, JsonRpcError> {
@@ -310,7 +305,7 @@ export class ExternalCoreGateway {
       givenName,
     } as ISetGivenNameParams);
   }
-  public setBirtday(birthday: UnixTimestamp): ResultAsync<void, JsonRpcError> {
+  public setBirtday(birthday: Birthday): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.SET_BIRTHDAY, {
       birthday,
     } as ISetBirthdayParams);
@@ -340,7 +335,7 @@ export class ExternalCoreGateway {
   public getGivenName(): ResultAsync<GivenName | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_GIVEN_NAME);
   }
-  public getBirtday(): ResultAsync<UnixTimestamp | null, JsonRpcError> {
+  public getBirtday(): ResultAsync<Birthday | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_BIRTHDAY);
   }
   public getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError> {

@@ -281,8 +281,6 @@ function corePrompt(): ResultAsync<void, Error> {
     new inquirer.Separator(),
     { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
     { name: "Add AccountBalance - SOL", value: "Add AccountBalance - SOL" },
-    { name: "Set Age to 15", value: "setAge to 15" },
-    { name: "Set Age to 0", value: "setAge to 0" },
     { name: "Get Age", value: "getAge" },
     { name: "Set Location", value: "setLocation" },
     { name: "Get Location", value: "getLocation" },
@@ -362,12 +360,6 @@ function corePrompt(): ResultAsync<void, Error> {
         return optInCampaign();
       case "optOutCampaign":
         return optOutCampaign();
-      case "setAge to 15":
-        console.log("Age is set to 15");
-        return core.setAge(Age(15));
-      case "setAge to 0":
-        console.log("Age is set to 0");
-        return core.setAge(Age(0));
       case "getAge":
         return core.getAge().map(console.log);
       case "setGender":

@@ -8,6 +8,7 @@ import {
   CountryCode,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
+  Birthday,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -22,12 +23,6 @@ export class PIIRepository implements IPIIRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
-  public setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.setAge(age).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
   public getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
     return this.core.getAge().mapErr((error) => {
       this.errorUtils.emit(error);
@@ -66,7 +61,7 @@ export class PIIRepository implements IPIIRepository {
     });
   }
   public setBirthday(
-    birthday: UnixTimestamp,
+    birthday: Birthday,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.core.setBirthday(birthday).mapErr((error) => {
       this.errorUtils.emit(error);
@@ -74,7 +69,7 @@ export class PIIRepository implements IPIIRepository {
     });
   }
   public getBirthday(): ResultAsync<
-    UnixTimestamp | null,
+    Birthday | null,
     SnickerDoodleCoreError
   > {
     return this.core.getBirthday().mapErr((error) => {

@@ -24,6 +24,7 @@ import {
   TokenMarketData,
   SiteVisit,
   UnixTimestamp,
+  Birthday,
   URLString,
   UUID,
   MarketplaceListing,
@@ -225,10 +226,7 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   public setGivenName(givenName: GivenName) {
     return coreGateway.setGivenName(givenName);
   }
-  public setAge(age: Age) {
-    return coreGateway.setAge(age);
-  }
-  public setBirthday(birthday: UnixTimestamp) {
+  public setBirthday(birthday: Birthday) {
     return coreGateway.setBirtday(birthday);
   }
   public setEmail(email: EmailAddressString) {

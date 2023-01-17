@@ -2,13 +2,13 @@ import {
   GivenName,
   PersistenceError,
   FamilyName,
-  UnixTimestamp,
   Gender,
   EmailAddressString,
   CountryCode,
   Age,
   IDataWalletPersistenceType,
   IDataWalletPersistence,
+  Birthday,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -33,10 +33,10 @@ export class ProfileService implements IProfileService {
   getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
     return this.dataWalletPersistence.getFamilyName();
   }
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+  setBirthday(birthday: Birthday): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
+  getBirthday(): ResultAsync<Birthday | null, PersistenceError> {
     return this.dataWalletPersistence.getBirthday();
   }
   setGender(gender: Gender): ResultAsync<void, PersistenceError> {
@@ -57,22 +57,7 @@ export class ProfileService implements IProfileService {
   getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
     return this.dataWalletPersistence.getLocation();
   }
-
-  public calculateAge(date_of_birth: UnixTimestamp | null): Age | null {
-    console.log("Inside calculate age ", date_of_birth);
-
-    if (!date_of_birth) return null;
-    const today = Date.now();
-    const ageDiff = new Date(today - date_of_birth * 1000);
-
-    const age = Math.abs(ageDiff.getUTCFullYear() - 1970);
-
-    return Age(age);
-  }
-
   getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.dataWalletPersistence.getBirthday().andThen((birthday) => {
-      return okAsync(this.calculateAge(birthday));
-    });
+    return this.dataWalletPersistence.getAge();
   }
 }

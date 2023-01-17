@@ -78,6 +78,7 @@ import {
   TokenMarketData,
   MarketplaceListing,
   TransactionPaymentCounter,
+  Birthday,
   EligibleAd,
   AdSignature,
   SHA256Hash,
@@ -618,12 +619,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getFamilyName();
   }
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
+  setBirthday(birthday: Birthday): ResultAsync<void, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
+  getBirthday(): ResultAsync<Birthday | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getBirthday();
@@ -657,14 +658,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getLocation();
-  }
-  // Todo remove this.
-  setAge(age: Age): ResultAsync<void, PersistenceError> {
-    // No need to setup age
-    // const profileService =
-    //   this.iocContainer.get<IProfileService>(IProfileServiceType);
-    // return profileService.setAge(age);
-    return okAsync(undefined);
   }
   getAge(): ResultAsync<Age | null, PersistenceError> {
     const profileService =

@@ -36,6 +36,7 @@ import {
   URLString,
   SiteVisit,
   MarketplaceListing,
+  Birthday,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -83,7 +84,6 @@ import {
   IUnlockParams,
   IGetUnlockMessageParams,
   IAddAccountParams,
-  ISetAgeParams,
   ISetGivenNameParams,
   ISetFamilyNameParams,
   ISetBirthdayParams,
@@ -208,10 +208,6 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_ACCOUNT_NFTS:
       case EInternalActions.GET_ACCOUNT_NFTS: {
         return new AsyncRpcResponseSender(this.getAccountNFTs(), res).call();
-      }
-      case EExternalActions.SET_AGE: {
-        const { age } = params as ISetAgeParams;
-        return new AsyncRpcResponseSender(this.setAge(age), res).call();
       }
       case EExternalActions.SET_GIVEN_NAME: {
         const { givenName } = params as ISetGivenNameParams;
@@ -759,10 +755,6 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.accountService.getAccountNFTs();
   }
 
-  private setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiService.setAge(age);
-  }
-
   private getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
     return this.piiService.getAge();
   }
@@ -792,12 +784,12 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.piiService.getFamilyName();
   }
   private setBirthday(
-    birthday: UnixTimestamp,
+    birthday: Birthday,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setBirthday(birthday);
   }
   private getBirthday(): ResultAsync<
-    UnixTimestamp | null,
+    Birthday | null,
     SnickerDoodleCoreError
   > {
     return this.piiService.getBirthday();
