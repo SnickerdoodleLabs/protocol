@@ -35,6 +35,7 @@ import {
   TokenMarketData,
   URLString,
   SiteVisit,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -107,6 +108,7 @@ import {
   IGetTokenPriceParams,
   IGetTokenMarketDataParams,
   IGetTokenInfoParams,
+  IGetMarketplaceListingsParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -299,6 +301,18 @@ export class RpcCallHandler implements IRpcCallHandler {
           this.checkInvitationStatus(consentAddress, signature, tokenId),
           res,
         ).call();
+      }
+
+      case EExternalActions.GET_MARKETPLACE_LISTINGS: {
+        const { count, headAt } = params as IGetMarketplaceListingsParams;
+        return new AsyncRpcResponseSender(
+          this.getMarketplaceListings(count, headAt),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_LISTING_TOTAL: {
+        return new AsyncRpcResponseSender(this.getListingsTotal(), res).call();
       }
 
       case EExternalActions.GET_CONTRACT_CID: {
@@ -568,6 +582,17 @@ export class RpcCallHandler implements IRpcCallHandler {
         ),
       );
     });
+  }
+
+  private getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+    return this.invitationService.getMarketplaceListings(count, headAt);
+  }
+
+  private getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.invitationService.getListingsTotal();
   }
 
   private getConsentContractCID(

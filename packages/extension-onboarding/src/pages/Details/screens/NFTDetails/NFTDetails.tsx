@@ -59,10 +59,10 @@ export default () => {
           </Typography>
         </Box>
         <Box mb={2}>
-        <Typography className={classes.sectionTitle}>Properties</Typography>
+          <Typography className={classes.sectionTitle}>Properties</Typography>
         </Box>
         <Grid container spacing={1}>
-          {parsedNFT?.attributes?.map((attribute, index) => (
+          {parsedNFT?.attributes?.map?.((attribute, index) => (
             <Grid key={index} item xs={4}>
               <Box px={2} py={2} border="1px solid #D9D9D9" borderRadius={12}>
                 <Typography>{attribute.trait_type}</Typography>

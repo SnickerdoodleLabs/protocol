@@ -41,7 +41,7 @@ const Tooltip = ({
   return (
     <Box
       {...tooltipProps}
-      maxWidth={400}
+      maxWidth={475}
       borderRadius={16}
       overflow="hidden"
       bgcolor="#fff"
@@ -80,13 +80,16 @@ const Tooltip = ({
 
 const steps: Step[] = [
   {
-    title: "What is a Reward Marketplace",
+    title: "What is a Reward Marketplace?",
     target: `#sb-${0}`,
     disableBeacon: true,
     content: (
       <>
-        Choose digital collectibles on marketplace. Earn them by renting your
-        anonymized data.
+        You can browse and claim digital collectibles in<br />
+         the marketplace.
+        <br />
+        Earn them by renting out your anonymized <br /> 
+        data!
       </>
     ),
     placement: "right-start",
@@ -116,11 +119,12 @@ const steps: Step[] = [
     placement: "right-start",
   },
   {
-    title: "Link more accounts here and get more rewards",
+    title: "Link more accounts to get more rewards!",
     target: `#sb-link-account`,
     disableBeacon: true,
     content: (
-      <>Linking additional wallets makes you eligible for more reward offers.</>
+      <>Linking additional wallets makes you eligible for more reward offers.
+       It also allows you to view your NFTs and Tokens from all your accounts on your Data Dashboard.</>
     ),
     placement: "right-start",
   },
@@ -179,7 +183,7 @@ const ProductTour: FC<IProductTourProps> = ({}: IProductTourProps) => {
 
       case ETourState.START_TOUR_MODAL:
         return (
-          <ProductTourStart onNextClick={startTour} onCancelClick={startTour} />
+          <ProductTourStart onNextClick={startTour} onCancelClick={endTour} />
         );
       case ETourState.ACTIVE:
         return (

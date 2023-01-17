@@ -44,7 +44,7 @@ export interface IInvitationInfo {
   tokenId: BigNumberString | undefined;
   signature: Signature | undefined;
   // temporary
-  brandIcon: URLString | undefined;
+  rewardImage: URLString | undefined;
 }
 
 export enum EAppModes {
@@ -62,7 +62,15 @@ export interface IAppContext {
   addAccount(account: ILinkedAccount): void;
   appMode: EAppModes | undefined;
   invitationInfo: IInvitationInfo;
+  setInvitationInfo: (invitationInfo: IInvitationInfo) => void;
 }
+
+const INITIAL_INVITATION_INFO: IInvitationInfo = {
+  consentAddress: undefined,
+  tokenId: undefined,
+  signature: undefined,
+  rewardImage: undefined,
+};
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -76,18 +84,21 @@ export const AppContextProvider: FC = ({ children }) => {
     useState<boolean>(false);
   const [appMode, setAppMode] = useState<EAppModes>();
   const { setAlert, setVisualAlert } = useNotificationContext();
+  const [invitationInfo, setInvitationInfo] = useState<IInvitationInfo>(
+    INITIAL_INVITATION_INFO,
+  );
 
-  const invitationInfo: IInvitationInfo = useMemo(() => {
+  useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
     if (
       localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY) &&
       !queryParams.get("consentAddress")
     ) {
-      return JSON.parse(
-        localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)!,
+      return setInvitationInfo(
+        JSON.parse(localStorage.getItem(LOCAL_STORAGE_SDL_INVITATION_KEY)!),
       );
     }
-    return {
+    return setInvitationInfo({
       consentAddress: queryParams.get("consentAddress")
         ? EVMContractAddress(queryParams.get("consentAddress")!)
         : undefined,
@@ -97,11 +108,11 @@ export const AppContextProvider: FC = ({ children }) => {
       signature: queryParams.get("signature")
         ? Signature(queryParams.get("signature")!)
         : undefined,
-      brandIcon: queryParams.get("brandIcon")
-        ? URLString(queryParams.get("brandIcon")!)
+      rewardImage: queryParams.get("rewardImage")
+        ? URLString(queryParams.get("rewardImage")!)
         : undefined,
-    };
-  }, [window]);
+    });
+  }, [JSON.stringify(window.location.search)]);
 
   useEffect(() => {
     if (invitationInfo.consentAddress) {
@@ -110,7 +121,11 @@ export const AppContextProvider: FC = ({ children }) => {
         JSON.stringify(invitationInfo),
       );
     }
-  }, [invitationInfo]);
+  }, [JSON.stringify(invitationInfo)]);
+
+  const updateInvitationInfo = (invitationInfo: IInvitationInfo) => {
+    setInvitationInfo(invitationInfo);
+  };
 
   useEffect(() => {
     document.addEventListener(
@@ -267,6 +282,7 @@ export const AppContextProvider: FC = ({ children }) => {
         appMode,
         addAccount,
         invitationInfo,
+        setInvitationInfo: updateInvitationInfo,
       }}
     >
       {children}

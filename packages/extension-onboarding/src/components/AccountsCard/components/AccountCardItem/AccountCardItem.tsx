@@ -30,7 +30,26 @@ const AccountCardItem: FC<IAccountCardItemProps> = ({
   return (
     <Box display="flex" position="relative">
       <Box position="relative">
-        <img className={classes.providerLogo} src={providerObject?.icon} />
+        {providerObject?.icon ? (
+          <img className={classes.providerLogo} src={providerObject?.icon} />
+        ) : (
+          <Box className={classes.providerLogo}>
+            <Box
+              width={40}
+              height={40}
+              borderRadius={20}
+              bgcolor="#8079B4"
+              justifyContent="center"
+              alignItems="center"
+              display="flex"
+            >
+              <Typography style={{ fontSize: 12, color: "white" }}>
+                {account.accountAddress.slice(0, 3)}.
+                {account.accountAddress.slice(-1)}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <img className={classes.tickIcon} src={tickIcon} />
       </Box>
       <Box>

@@ -104,6 +104,7 @@ export default () => {
   };
 
   const options = {
+    maintainAspectRatio: false,
     indexAxis: "y" as const,
     plugins: {
       legend: {
@@ -175,7 +176,9 @@ export default () => {
             })}
         </Box>
       )}
-      <Bar options={options} data={data} />
+      <Box height={300}>
+        <Bar options={options} data={data} />
+      </Box>
     </>
   );
 };

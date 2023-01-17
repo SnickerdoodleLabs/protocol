@@ -65,8 +65,8 @@ export default () => {
               {item.dataSelector === "country_code" && values[item.dataSelector]
                 ? countries.find(
                     (country) => country.code === values[item.dataSelector],
-                  )?.name
-                : values[item.dataSelector]}
+                  )?.name ?? "-"
+                : values[item.dataSelector] ?? "-"}
             </Typography>
           </Box>
           <Box display="flex" alignItems="center" mr={2}>

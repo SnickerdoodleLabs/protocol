@@ -5,7 +5,7 @@ export const useStyles = makeStyles((theme) => ({
     fontFamily: "'Shrikhand'",
     fontStyle: "italic",
     fontWeight: 400,
-    fontSize: "23px",
+    fontSize: "19px",
     lineHeight: "32px",
   },
 }));

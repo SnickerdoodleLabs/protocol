@@ -1,20 +1,31 @@
 import { Box, Grid, Typography } from "@material-ui/core";
 import { Skeleton } from "@material-ui/lab";
-import { IpfsCID } from "@snickerdoodlelabs/objects";
+import {
+  EVMContractAddress,
+  Invitation,
+  IpfsCID,
+} from "@snickerdoodlelabs/objects";
 import React, { FC, useEffect, useState } from "react";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/BrowseRewards/BrowseRewards.style";
 import BrokenImageIcon from "@material-ui/icons/BrokenImage";
 import { useNavigate } from "react-router-dom";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { isValidURL } from "@extension-onboarding/utils";
+import { useAppContext } from "@extension-onboarding/context/App";
 interface IBrowseRewardItemProps {
   cid: IpfsCID;
 }
+declare const window: IWindowWithSdlDataWallet;
 
 const BrowseRewardItem: FC<IBrowseRewardItemProps> = ({ cid }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rewardItem, setRewardItem] = useState<any>({});
   const navigate = useNavigate();
   const classes = useStyles();
+
+  const { setInvitationInfo } = useAppContext();
+
   useEffect(() => {
     fetch(`https://cloudflare-ipfs.com/ipfs/${cid}`).then((res) => {
       res.json().then((data) => {
@@ -22,6 +33,23 @@ const BrowseRewardItem: FC<IBrowseRewardItemProps> = ({ cid }) => {
       });
     });
   }, []);
+
+  const onClaimClick = (url: string) => {
+    if (!url) {
+      return null;
+    }
+    const isURL = isValidURL(url);
+    if (isURL) {
+      return window.open(url, "_blank");
+    } else {
+      return setInvitationInfo({
+        consentAddress: url as EVMContractAddress,
+        signature: undefined,
+        tokenId: undefined,
+        rewardImage: undefined,
+      });
+    }
+  };
 
   const ipfsParse = (ipfs: string) => {
     let a;
@@ -93,13 +121,16 @@ const BrowseRewardItem: FC<IBrowseRewardItemProps> = ({ cid }) => {
                     }}
                     className={classes.link}
                   >
-                    {}
                     Review
                   </Typography>
                 </Box>
                 <Box ml={3}>
-                  <Typography onClick={() => {}} className={classes.link}>
-                    {}
+                  <Typography
+                    onClick={() => {
+                      onClaimClick(rewardItem?.external_url);
+                    }}
+                    className={classes.link}
+                  >
                     Claim
                   </Typography>
                 </Box>

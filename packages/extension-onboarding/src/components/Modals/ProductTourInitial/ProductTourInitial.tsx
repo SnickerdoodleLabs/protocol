@@ -35,20 +35,23 @@ const ProductTourInitial: FC<IProductTourInitialProps> = ({
           background: "white",
         }}
       >
-        <Box
-          display="flex"
-          px={9}
-          py={4}
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <img src={sdlLogoSafe} width={190} />
-          <Box>
-            <Button onClick={onButtonClick} style={{ width: 156 }}>
-              Start the Tour
-            </Button>
+        <Box position="sticky" top="0px" bgcolor="white" zIndex={999}>
+          <Box
+            display="flex"
+            px={9}
+            py={4}
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <img src={sdlLogoSafe} width={190} />
+            <Box>
+              <Button onClick={onButtonClick} style={{ width: 156 }}>
+                Start the Tour
+              </Button>
+            </Box>
           </Box>
         </Box>
+
         <Box display="flex" py={4} px={15} bgcolor="rgba(123, 97, 255, 0.1)">
           <Grid container alignItems="center" spacing={5}>
             <Grid item xs={6}>
@@ -73,20 +76,6 @@ const ProductTourInitial: FC<IProductTourInitialProps> = ({
         </Box>
         <Box display="flex" width="100%">
           <img src={divider} width="100%" />
-        </Box>
-        <Box
-          display="flex"
-          px={9}
-          py={4}
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <img src={sdlLogoSafe} width={190} />
-          <Box>
-            <Button onClick={onButtonClick} style={{ width: 156 }}>
-              Start the Tour
-            </Button>
-          </Box>
         </Box>
       </Box>
     </Modal>

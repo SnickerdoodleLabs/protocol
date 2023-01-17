@@ -25,6 +25,7 @@ import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import { useAppContext } from "@extension-onboarding/context/App";
 import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
+import { isValidURL } from "@extension-onboarding/utils";
 
 declare const window: IWindowWithSdlDataWallet;
 
@@ -35,6 +36,7 @@ const RewardReview: FC = () => {
   const { rewardItem } = (useLocation().state || {}) as {
     rewardItem: any;
   };
+  const { setInvitationInfo } = useAppContext();
 
   useEffect(() => {
     if (!rewardItem) {
@@ -45,11 +47,27 @@ const RewardReview: FC = () => {
   }, []);
 
   const ipfsParse = (ipfs: string) => {
-    let a;
-    if (ipfs) {
-      a = ipfs.replace("ipfs://", "");
+    if (!ipfs) {
+      return "";
     }
-    return `https://cloudflare-ipfs.com/ipfs/${a}`;
+    return `https://cloudflare-ipfs.com/ipfs/${ipfs.replace("ipfs://", "")}`;
+  };
+
+  const onClaimClick = (url: string) => {
+    if (!url) {
+      return null;
+    }
+    const isURL = isValidURL(url);
+    if (isURL) {
+      return window.open(url, "_blank");
+    } else {
+      return setInvitationInfo({
+        consentAddress: url as EVMContractAddress,
+        signature: undefined,
+        tokenId: undefined,
+        rewardImage: undefined,
+      });
+    }
   };
 
   return (
@@ -65,7 +83,11 @@ const RewardReview: FC = () => {
                 color: "#202223",
               }}
             >
-              SDL
+              {
+                ipfsRewards?.attributes?.filter(
+                  (attribute) => attribute?.trait_type === "createdBy",
+                )[0].value
+              }
             </Typography>
             <ArrowForwardIosIcon style={{ fontSize: 12, margin: "0 15px" }} />
             <Typography
@@ -132,7 +154,11 @@ const RewardReview: FC = () => {
                       color: "#232039",
                     }}
                   >
-                    SDL
+                    {
+                      ipfsRewards?.attributes?.filter(
+                        (attribute) => attribute?.trait_type === "createdBy",
+                      )[0].value
+                    }
                   </Typography>
                 </Box>
 
@@ -161,7 +187,12 @@ const RewardReview: FC = () => {
                       color: "#232039",
                     }}
                   >
-                    Created By SDL
+                    Created By{" "}
+                    {
+                      ipfsRewards?.attributes?.filter(
+                        (attribute) => attribute?.trait_type === "createdBy",
+                      )[0].value
+                    }
                   </Typography>
                 </Box>
 
@@ -197,7 +228,8 @@ const RewardReview: FC = () => {
                     <ul>
                       {ipfsRewards?.attributes
                         ?.filter(
-                          (d) => d?.trait_type === "requiredPermissions",
+                          (attribute) =>
+                            attribute?.trait_type === "requiredPermissions",
                         )[0]
                         .value.map((data) => {
                           return (
@@ -212,7 +244,7 @@ const RewardReview: FC = () => {
                                   textAlign: "justify",
                                 }}
                               >
-                                {EWalletDataType[data]}
+                                {data}
                               </Typography>
                             </li>
                           );
@@ -221,18 +253,10 @@ const RewardReview: FC = () => {
                   </Box>
                   <Box display="flex" flexDirection="row-reverse">
                     <Box>
-                      <Typography
-                        style={{
-                          fontFamily: "Space Grotesk",
-                          fontWeight: 400,
-                          fontSize: 14,
-                          lineHeight: "22px",
-                          color: "#5D4F97",
-                        }}
-                      >
-                        <b>5466</b> People Claimed
-                      </Typography>
                       <Button
+                        onClick={() => {
+                          onClaimClick(ipfsRewards?.external_url);
+                        }}
                         style={{
                           padding: "12px 24px",
                           background: "#5A5292",
@@ -262,106 +286,59 @@ const RewardReview: FC = () => {
                     Properties
                   </Typography>
                 </Box>
-                <Box mt={2} display="flex">
-                  <Box>
-                    <Box
-                      width={180}
-                      border="1px solid #E0E0E0"
-                      borderRadius={12}
-                      p={1.5}
-                    >
-                      <Typography
-                        style={{
-                          fontFamily: "Space Grotesk",
-                          fontWeight: 700,
-                          fontSize: 14,
-                          lineHeight: "18px",
-                          color: "#424242",
-                        }}
-                      >
-                        Year
-                      </Typography>
 
-                      <Typography
-                        style={{
-                          fontFamily: "Space Grotesk",
-                          fontWeight: 700,
-                          fontSize: 14,
-                          lineHeight: "18px",
-                          color: "#424242",
-                        }}
-                      >
-                        2022
-                      </Typography>
-                    </Box>
-                  </Box>
+                <Grid container>
+                  {ipfsRewards?.attributes
+                    ?.filter(
+                      (attribute) =>
+                        !["createdBy", "requiredPermissions"].includes(
+                          attribute?.trait_type,
+                        ),
+                    )
+                    .map((att) => {
+                      return (
+                        <Grid key={att} item xs={4}>
+                          <Box mt={2} display="flex">
+                            <Box>
+                              <Box
+                                width={180}
+                                border="1px solid #E0E0E0"
+                                borderRadius={12}
+                                p={1.5}
+                              >
+                                <Typography
+                                  style={{
+                                    fontFamily: "Space Grotesk",
+                                    fontWeight: 700,
+                                    fontSize: 14,
+                                    lineHeight: "18px",
+                                    color: "#424242",
+                                    textTransform: "capitalize",
+                                  }}
+                                >
+                                  {att?.trait_type}
+                                </Typography>
 
-                  <Box ml={1}>
-                    <Box
-                      width={180}
-                      border="1px solid #E0E0E0"
-                      borderRadius={12}
-                      p={1.5}
-                    >
-                      <Typography
-                        style={{
-                          fontFamily: "Space Grotesk",
-                          fontWeight: 700,
-                          fontSize: 14,
-                          lineHeight: "18px",
-                          color: "#424242",
-                        }}
-                      >
-                        Object
-                      </Typography>
-
-                      <Typography
-                        style={{
-                          fontFamily: "Space Grotesk",
-                          fontWeight: 700,
-                          fontSize: 14,
-                          lineHeight: "18px",
-                          color: "#424242",
-                        }}
-                      >
-                        Beanie
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  <Box ml={1}>
-                    <Box
-                      width={180}
-                      border="1px solid #E0E0E0"
-                      borderRadius={12}
-                      p={1.5}
-                    >
-                      <Typography
-                        style={{
-                          fontFamily: "Space Grotesk",
-                          fontWeight: 700,
-                          fontSize: 14,
-                          lineHeight: "18px",
-                          color: "#424242",
-                        }}
-                      >
-                        Object
-                      </Typography>
-
-                      <Typography
-                        style={{
-                          fontFamily: "Space Grotesk",
-                          fontWeight: 700,
-                          fontSize: 14,
-                          lineHeight: "18px",
-                          color: "#424242",
-                        }}
-                      >
-                        Beanie
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
+                                <Box mt={1}>
+                                  <Typography
+                                    style={{
+                                      fontFamily: "Space Grotesk",
+                                      fontWeight: 700,
+                                      fontSize: 14,
+                                      lineHeight: "18px",
+                                      color: "#424242",
+                                    }}
+                                  >
+                                    {att?.value}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Grid>
+                      );
+                    })}
+                </Grid>
               </Box>
             </Grid>
           </Grid>

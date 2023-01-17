@@ -6,6 +6,8 @@ process.env.__GAPI_CLIENT_ID__ =
 process.env.__GA_TRACKING_ID__ = "";
 process.env.__HOTJAR_ID__ = "";
 process.env.__HOTJAR_SNIPPET_VERSION__ = "";
+process.env.__IPFS_FETCH_BASE_URL__ =
+  "https://ipfs-gateway.snickerdoodle.dev/ipfs/";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),

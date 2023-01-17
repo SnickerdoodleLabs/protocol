@@ -1,11 +1,9 @@
+import { Box, Typography } from "@material-ui/core";
+import { DirectReward, EVMContractAddress } from "@snickerdoodlelabs/objects";
+import React, { FC } from "react";
+
 import { useStyles } from "@extension-onboarding/pages/Details/screens/MarketplaceCollection/MarketplaceCollection.style";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, CircularProgress, Grid, Typography } from "@material-ui/core";
-import SearchIcon from "@material-ui/icons/Search";
-import React, { FC, useEffect, useState } from "react";
-import { DirectReward, EVMContractAddress } from "@snickerdoodlelabs/objects";
-import CampaignItem from "@extension-onboarding/components/CampaignItem";
-import DirectRewardItem from "../EarnedRewards/components/DirectReward";
 
 declare const window: IWindowWithSdlDataWallet;
 interface IRewardComponentProps {

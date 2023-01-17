@@ -70,6 +70,11 @@ const chartOptions = {
     legend: {
       display: false,
     },
+    tooltip: {
+      callbacks: {
+        label: (context) => `${context.label} - $${context.formattedValue}`,
+      },
+    },
   },
 };
 
@@ -109,6 +114,8 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
     testnetSupportedChainIds: ChainId[];
   },
 );
+
+const CHART_ITEM_COUNT = 3;
 
 export default () => {
   const classes = useStyles();
@@ -288,26 +295,32 @@ export default () => {
     }
   }, [tokensToRender]);
 
-  const restTokensPercentage = useMemo(() => {
-    if (
-      !tokensToRender?.length ||
-      tokensToRender.length <= 4 ||
-      totalBalance == 0
-    ) {
-      return 0;
-    } else {
-      return (
-        100 *
-        (((totalBalance || 0) -
-          (tokensToRender
-            ?.slice(0, 4)
-            .reduce((acc, item) => (acc += item.quoteBalance), 0) || 0)) /
-          totalBalance)
-      );
+  const charItemsToRender = useMemo(() => {
+    if (!tokensToRender?.length || totalBalance == 0) {
+      return undefined;
     }
-  }, [tokensToRender, totalBalance]);
 
-  console.log(restTokensPercentage);
+    const nonZeroHighestItems = tokensToRender
+      .slice(0, CHART_ITEM_COUNT)
+      .filter((item) => item.quoteBalance != 0);
+
+    const restItemBalance = tokensToRender
+      .slice(CHART_ITEM_COUNT)
+      .reduce((acc, item) => (acc += item.quoteBalance), 0);
+
+    const options = {
+      labels: [
+        ...nonZeroHighestItems.map((i) => i.marketaData?.name ?? i.ticker),
+        ...(restItemBalance != 0 ? ["Others"] : []),
+      ],
+      data: [
+        ...nonZeroHighestItems.map((i) => i.quoteBalance || 0),
+        ...(restItemBalance != 0 ? [restItemBalance] : []),
+      ],
+    };
+
+    return options;
+  }, [tokensToRender, totalBalance]);
 
   useEffect(() => {
     if (tokensToRender) {
@@ -329,6 +342,7 @@ export default () => {
         <Grid item xs={6}>
           <Box
             p={3}
+            pb={6}
             bgcolor="#F2F2F8"
             border="1px solid rgba(234, 236, 240, 0.6)"
             borderRadius={8}
@@ -345,6 +359,7 @@ export default () => {
           </Box>
           <Box
             p={3}
+            pb={6}
             bgcolor="#F2F2F8"
             border="1px solid rgba(234, 236, 240, 0.6)"
             borderRadius={8}
@@ -360,98 +375,91 @@ export default () => {
           </Box>
         </Grid>
         <Grid item xs={6}>
-          <Box display="flex">
-            {(tokensToRender?.length || 0) > 0 && (
-              <Box maxWidth="245px" mr={5}>
-                {totalBalance == 0 ? (
-                  <Box
-                    width={245}
-                    height={245}
-                    borderRadius={125}
-                    bgcolor="#f0f0f0"
-                  />
-                ) : (
-                  <Pie
-                    options={chartOptions}
-                    data={{
-                      labels:
-                        tokensToRender?.map(
-                          (i) => i.marketaData?.name ?? i.ticker,
-                        ) ?? [],
-                      datasets: [
-                        {
-                          data:
-                            tokensToRender?.map((i) => i.quoteBalance || 0) ??
-                            [],
-                          backgroundColor:
-                            tokensToRender?.reduce((acc, _, index) => {
-                              acc = [
-                                ...acc,
-                                colorGenarator(index * (1 / totalItems)).hex(),
-                              ];
-                              return acc;
-                            }, [] as string[]) ?? "#7F79B0",
-                        },
-                      ],
-                    }}
-                  />
-                )}
-              </Box>
-            )}
-            {(tokensToRender?.length || 0) > 0 && (
-              <Box mt={2} maxHeight={245} overflow="auto">
-                {tokensToRender?.slice(0, 4).map((item, index) => {
-                  return (
-                    <Box mb={0.5}>
-                      <Box display="flex" alignItems="center">
-                        <Box
-                          mr={2}
-                          width={8}
-                          height={8}
-                          borderRadius={4}
-                          bgcolor={colorGenarator(
-                            index * (1 / tokensToRender.length),
-                          ).hex()}
-                        />
-                        <Typography className={classes.metricTitle}>
-                          {item.marketaData?.name || item.ticker}
-                        </Typography>
+          <Box border="1px solid #EAECF0" borderRadius={8} p={3}>
+            <Typography
+              style={{
+                fontFamily: "Space Grotesk",
+                fontWeight: 500,
+                fontSize: 16,
+                lineHeight: "24px",
+                color: "#101828",
+              }}
+            >
+              Token Value Breakdown
+            </Typography>
+            <Box display="flex" justifyContent="center" mt={4}>
+              {(charItemsToRender?.data?.length || 0) > 0 && (
+                <Box maxWidth="190px" mr={5}>
+                  {totalBalance == 0 ? (
+                    <Box
+                      width={190}
+                      height={190}
+                      borderRadius={125}
+                      bgcolor="#f0f0f0"
+                    />
+                  ) : (
+                    <Pie
+                      options={chartOptions}
+                      data={{
+                        labels: charItemsToRender?.labels,
+                        datasets: [
+                          {
+                            data: charItemsToRender?.data,
+                            backgroundColor:
+                              charItemsToRender?.data?.reduce(
+                                (acc, _, index) => {
+                                  acc = [
+                                    ...acc,
+                                    colorGenarator(
+                                      index *
+                                        (1 /
+                                          (charItemsToRender.data.length - 1 ||
+                                            1)),
+                                    ).hex(),
+                                  ];
+                                  return acc;
+                                },
+                                [] as string[],
+                              ) ?? "#7F79B0",
+                            borderWidth: 0,
+                          },
+                        ],
+                      }}
+                    />
+                  )}
+                </Box>
+              )}
+              {(charItemsToRender?.data?.length || 0) > 0 && (
+                <Box mt={2} maxHeight={245} overflow="auto">
+                  {charItemsToRender?.data?.map((item, index) => {
+                    return (
+                      <Box mb={0.5}>
+                        <Box display="flex" alignItems="center">
+                          <Box
+                            mr={2}
+                            width={8}
+                            height={8}
+                            borderRadius={4}
+                            bgcolor={colorGenarator(
+                              index *
+                                (1 / (charItemsToRender.data.length - 1 || 1)),
+                            ).hex()}
+                          />
+                          <Typography className={classes.metricTitle}>
+                            {charItemsToRender.labels[index]}
+                          </Typography>
+                        </Box>
+                        <Box ml={2.5} mt={0.5}>
+                          <Typography className={classes.metricValue}>
+                            {((100 * item) / (totalBalance || 1)).toFixed(2)}%
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box ml={2.5} mt={0.5}>
-                        <Typography className={classes.metricValue}>
-                          {(
-                            (100 * item.quoteBalance) /
-                            (totalBalance || 1)
-                          ).toFixed(2)}
-                          %
-                        </Typography>
-                      </Box>
-                    </Box>
-                  );
-                })}
-                {restTokensPercentage != 0 && (
-                  <Box mb={0.5}>
-                    <Box display="flex" alignItems="center">
-                      <Box
-                        mr={2}
-                        width={8}
-                        height={8}
-                        borderRadius={4}
-                        bgcolor="#B9B6D3"
-                      />
-                      <Typography className={classes.metricTitle}>
-                        Others
-                      </Typography>
-                    </Box>
-                    <Box ml={2.5} mt={0.5}>
-                      <Typography className={classes.metricValue}>
-                        {restTokensPercentage.toFixed(2)}%
-                      </Typography>
-                    </Box>
-                  </Box>
-                )}
-              </Box>
-            )}
+                    );
+                  })}
+                </Box>
+              )}
+            </Box>
           </Box>
         </Grid>
       </Grid>

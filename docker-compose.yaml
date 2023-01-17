@@ -6,8 +6,6 @@ services:
     env_file: docker-compose.env
     ports:
       - 8545:8569
-    environment:
-      NETWORK: local
     image: 'snickerdoodlelabs/devchain:latest'
 
   # extension-onboarding:

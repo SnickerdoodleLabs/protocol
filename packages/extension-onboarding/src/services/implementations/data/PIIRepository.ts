@@ -22,8 +22,6 @@ export class PIIRepository implements IPIIRepository {
         { headers: { Authorization: `Bearer ${auth_token}` } },
       )
       .map((googleObject) => {
-        console.log("fetchPIIFromGoogle", googleObject);
-
         return this.googleObjectToBusinessPII(
           // @ts-ignore
           googleObject.responses[0].person as IGoogleObject,

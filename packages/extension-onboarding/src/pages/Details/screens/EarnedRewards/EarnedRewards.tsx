@@ -92,10 +92,10 @@ const EarnedRewards: FC = () => {
                   alignItems="center"
                   width="100%"
                   display="flex"
-                  pt={20}
+                  pt={5}
                 >
                   <img
-                    style={{ width: 330, height: "auto" }}
+                    style={{ width: 300, height: "auto" }}
                     src={emptyReward}
                   />
                 </Box>

@@ -80,9 +80,7 @@ const useProfileIFormLogic = (): {
       });
     });
   };
-  const onGoogleLoginFail = (res) => {
-    console.log("googleResFail", res);
-  };
+  const onGoogleLoginFail = (res) => {};
 
   const onFormSubmit = async (values: PII) => {
     await sendDataToWallet(values);
