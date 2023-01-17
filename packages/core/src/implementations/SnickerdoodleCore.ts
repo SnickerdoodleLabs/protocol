@@ -78,16 +78,17 @@ import {
   TokenMarketData,
   MarketplaceListing,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
+  SHA256Hash,
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
   ICloudStorageType,
-  CeramicCloudStorage,
   IVolatileStorage,
   IVolatileStorageType,
   IndexedDBVolatileStorage,
-  NullCloudStorage,
   GoogleCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
@@ -109,6 +110,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IProfileService,
@@ -732,6 +735,28 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getEligibleAds();
+  }
+
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getAdSignatures();
+  }
+
+  onAdDisplayed(
+    eligibleAd: EligibleAd
+  ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.onAdDisplayed(eligibleAd);
+  }
+  
   public addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {

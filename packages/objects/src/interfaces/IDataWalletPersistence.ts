@@ -12,6 +12,8 @@ import {
   WalletNFT,
   TokenAddress,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
 } from "@objects/businessObjects";
 import { AjaxError, PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
@@ -129,6 +131,16 @@ export interface IDataWalletPersistence {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+
+  saveEligibleAds(
+    ads: EligibleAd[],
+  ): ResultAsync<void, PersistenceError>;
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+
+  saveAdSignatures(
+    signatures: AdSignature[]
+  ): ResultAsync<void, PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected
