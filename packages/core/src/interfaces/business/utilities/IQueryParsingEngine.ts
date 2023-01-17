@@ -2,20 +2,23 @@ import {
   DataPermissions,
   EligibleReward,
   EvaluationError,
-  QueryExpiredError,
   InsightString,
   QueryFormatError,
   SDQLQuery,
   QueryIdentifier,
   IDynamicRewardParameter,
+  EVMContractAddress,
   CompensationKey,
+  QueryExpiredError
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
 
 export interface IQueryParsingEngine {
   getPermittedQueryIdsAndExpectedCompKeys(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
+    consentContractAddress: EVMContractAddress
   ): ResultAsync<
     [QueryIdentifier[], CompensationKey[]],
     EvaluationError | QueryFormatError | QueryExpiredError

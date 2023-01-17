@@ -98,15 +98,14 @@ export class QueryService implements IQueryService {
       this.persistenceRepo.getAccounts(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([query, context, config, accounts, consentToken]) => {
-      return this.dataWalletUtils
-        .deriveOptInPrivateKey(consentContractAddress, context.dataWalletKey!)
+      if (consentToken == null) {
+        return errAsync(new EvaluationError(`Consent token not found!`));
+      }
+      return this.dataWalletUtils.deriveOptInPrivateKey(consentContractAddress, context.dataWalletKey!)
         .andThen((optInKey) => {
-          if (consentToken == null) {
-            return errAsync(new EvaluationError(`Consent token not found!`));
-          }
-          return this.queryParsingEngine
-            .getPermittedQueryIdsAndExpectedCompKeys(query, consentToken.dataPermissions)
-            .andThen(([queryIdentifiers, expectedCompKeys]) => {
+          return this.queryParsingEngine.getPermittedQueryIdsAndExpectedCompKeys(
+            query, consentToken.dataPermissions, consentContractAddress
+          ).andThen(([queryIdentifiers, expectedCompKeys]) => {
               return this.publishSDQLQueryRequestIfExpectedAndEligibleCompKeysMatch(
                 consentToken,
                 optInKey,
@@ -120,7 +119,7 @@ export class QueryService implements IQueryService {
               );
             });
         });
-    });
+      });
   }
 
   protected publishSDQLQueryRequestIfExpectedAndEligibleCompKeysMatch(

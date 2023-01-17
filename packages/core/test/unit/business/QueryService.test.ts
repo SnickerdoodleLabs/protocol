@@ -165,7 +165,7 @@ class QueryServiceMocks {
       this.contextProvider,
       this.configProvider,
       this.cryptoUtils,
-      this.persistenceRepo,
+      this.persistenceRepo
     );
   }
 }
@@ -309,6 +309,7 @@ describe("processRewardsPreview tests", () => {
       mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedCompKeys(
         sdqlQuery,
         td.matchers.anything(),
+        td.matchers.anything()
       ),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
@@ -336,6 +337,7 @@ describe("processRewardsPreview tests", () => {
           return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedCompKeys(
             query,
             new DataPermissions(allPermissions),
+            consentContractAddress
           );
         })
         .andThen((rewardsPreviews) => {

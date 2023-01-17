@@ -9,25 +9,49 @@ import {
     QueryFormatError, 
     SDQLString, 
     DataPermissions,
-    ISDQLCompensations,
+    QueryFilteredByPermissions,
     QueryIdentifier
 } from "@snickerdoodlelabs/objects";
 
 export interface ISDQLQueryUtils {
     
-    getEligibleCompensations(schemaString: SDQLString, queryIds: QueryIdentifier[]): 
-    ResultAsync<CompensationKey[], 
-    | ParserError 
-    | DuplicateIdInSchema
-    | QueryFormatError
-    | MissingTokenConstructorError
-    | QueryExpiredError
+    getEligibleCompensations(
+        schemaString: SDQLString, queryIds: QueryIdentifier[]
+    ): ResultAsync<CompensationKey[], 
+        | ParserError 
+        | DuplicateIdInSchema
+        | QueryFormatError
+        | MissingTokenConstructorError
+        | QueryExpiredError
     >;
 
-    extractPermittedQueryIdsFromParser(
-        parser: SDQLParser, dataPermissions: DataPermissions
+    getPermittedQueryIdsFromSchemaString(
+        schemaString: SDQLString, 
+        givenPermissions: DataPermissions
+    ): ResultAsync<QueryIdentifier[], 
+        | ParserError
+        | DuplicateIdInSchema
+        | QueryFormatError
+        | MissingTokenConstructorError
+        | QueryExpiredError
+    >;
+
+    getPermittedQueryIds(
+        parser: SDQLParser, 
+        givenPermissions: DataPermissions
+    ): ResultAsync<QueryIdentifier[], 
+        | ParserError
+        | DuplicateIdInSchema
+        | QueryFormatError
+        | MissingTokenConstructorError
+        | QueryExpiredError
+    >;
+
+    filterQueryByPermissions(
+        schemaString: SDQLString, 
+        dataPermissions: DataPermissions
     ): ResultAsync<
-    QueryIdentifier[], 
+        QueryFilteredByPermissions, 
         QueryFormatError 
         | ParserError 
         | MissingTokenConstructorError 
@@ -49,11 +73,6 @@ export interface ISDQLQueryUtils {
     | MissingTokenConstructorError
     | QueryExpiredError
     >;
-
-    getCompensationKeysByPermittedQueryIds(
-        parser: SDQLParser,
-        permittedQueryIds: QueryIdentifier[]
-    ): CompensationKey[];
 }
 
 

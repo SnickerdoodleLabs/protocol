@@ -25,6 +25,9 @@ import {
   ERewardType,
   EarnedReward,
   MinimalForwarderContractError,
+  SHA256Hash,
+  AdSignature,
+  InvalidSignatureError,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
@@ -434,5 +437,30 @@ export class InsightPlatformSimulator {
             });
           });
       });
+  }
+
+  public verifyAdSignature(
+    contentHash: SHA256Hash,
+    adSignature: AdSignature,
+  ): ResultAsync<void, InvalidSignatureError> {
+    return this.cryptoUtils.verifyEVMSignature(
+      contentHash, adSignature.signature as Signature
+    ).andThen((optInAddressFromSignature) => {
+      if(!this.compareEVMAddresses(optInAddressFromSignature, adSignature.consentContractAddress)) {
+        return errAsync(
+          new InvalidSignatureError(
+            `Given signature seems to be signed by ${optInAddressFromSignature} ` +
+            `instead of ${adSignature.consentContractAddress}`,
+          )
+        );
+      }
+      return okAsync(undefined);
+    })
+  }
+
+  private compareEVMAddresses(
+    accAddr: EVMAccountAddress, contrAddr: EVMContractAddress
+  ): boolean { 
+    return accAddr.toString().toLowerCase() == contrAddr.toString().toLowerCase(); 
   }
 }

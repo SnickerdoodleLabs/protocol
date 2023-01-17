@@ -11,6 +11,14 @@ import {
   QueryIdentifier,
   IDynamicRewardParameter,
   CompensationKey,
+  ISDQLCompensations,
+  AdKey,
+  ISDQLAd,
+  EligibleAd,
+  EVMContractAddress,
+  PersistenceError,
+  IDataWalletPersistenceType,
+  IDataWalletPersistence,
 } from "@snickerdoodlelabs/objects";
 import { AST, ISDQLQueryUtils, ISDQLQueryUtilsType } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -28,6 +36,7 @@ import {
   IQueryFactories,
   IQueryFactoriesType,
 } from "@core/interfaces/utilities/factory/index.js";
+import { IAdContentRepository, IAdRepositoryType } from "@core/interfaces/data/index.js";
 
 @injectable()
 export class QueryParsingEngine implements IQueryParsingEngine {
@@ -36,32 +45,36 @@ export class QueryParsingEngine implements IQueryParsingEngine {
     protected queryFactories: IQueryFactories,
     @inject(IQueryRepositoryType)
     protected queryRepository: IQueryRepository,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
     @inject(ISDQLQueryUtilsType)
-    protected queryUtils: ISDQLQueryUtils
+    protected queryUtils: ISDQLQueryUtils,
+    @inject(IAdRepositoryType)
+    protected adContentRepository: IAdContentRepository
   ) {}
 
   public getPermittedQueryIdsAndExpectedCompKeys(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
+    consentContractAddress: EVMContractAddress
   ): ResultAsync<[QueryIdentifier[], CompensationKey[]], EvaluationError> {
-    const schemaString = query.query;
-    const queryCid = query.cid;
+    const queryString = query.query;
+    const cid: IpfsCID = query.cid;
 
-    return this.queryFactories.makeParserAsync(queryCid, schemaString)
-      .andThen((parser) => {
+    return this.queryUtils.filterQueryByPermissions(
+      queryString, dataPermissions
+    ).andThen((queryFilteredByPermissions) => {
 
-        return this.queryUtils.extractPermittedQueryIdsFromParser(
-          parser, dataPermissions
-        ).andThen((permittedQueryIds) => {
-      
-          const expectedCompensationKeys = 
-            this.queryUtils.getCompensationKeysByPermittedQueryIds(parser, permittedQueryIds)
-    
-            return okAsync<[QueryIdentifier[], CompensationKey[]]>(
-              [permittedQueryIds, expectedCompensationKeys]
-            );
-          });
+      return this.constructAndSaveEligibleAds(
+        queryFilteredByPermissions.eligibleAdsMap, cid, consentContractAddress
+      ).map(() => {
+
+        return [
+          queryFilteredByPermissions.permittedQueryIds, 
+          Object.keys(queryFilteredByPermissions.expectedCompensationsMap).map(CompensationKey)
+        ] as [QueryIdentifier[], CompensationKey[]];
       });
+    });
   }
 
   public handleQuery(
@@ -98,6 +111,48 @@ export class QueryParsingEngine implements IQueryParsingEngine {
           );
         });
       });
+  }
+
+  protected constructAndSaveEligibleAds(
+    eligibleAdsMap: Map<AdKey, ISDQLAd>,
+    queryCID: IpfsCID,
+    consentContractAddress: EVMContractAddress
+  ): ResultAsync<void, PersistenceError> {
+
+    const eligibleAdList = this.adsMapToEligibleAdObjects(
+      eligibleAdsMap, queryCID, consentContractAddress
+    );
+
+    return this.persistence.saveEligibleAds(eligibleAdList);
+  }
+
+  protected adsMapToEligibleAdObjects(
+    iSDQLAdsMap: Map<AdKey, ISDQLAd>,
+    queryCID: IpfsCID,
+    consentContractAddress: EVMContractAddress
+  ): EligibleAd[] {
+    const eligibleAdList: EligibleAd[] = [];
+    for (const currentKeyAsString in iSDQLAdsMap) {
+      const currentAdKey = AdKey(currentKeyAsString);
+      const currentSDQLAdObject: ISDQLAd = 
+        iSDQLAdsMap[AdKey(currentAdKey)];
+
+      eligibleAdList.push( 
+        new EligibleAd(
+          consentContractAddress,
+          queryCID,
+          currentAdKey,
+          currentSDQLAdObject.name,
+          currentSDQLAdObject.content,
+          currentSDQLAdObject.text,
+          currentSDQLAdObject.displayType,
+          currentSDQLAdObject.weight,
+          currentSDQLAdObject.expiry,
+          currentSDQLAdObject.keywords
+        )
+      );
+    }
+    return eligibleAdList;
   }
 
   protected SDQLReturnToInsightString(sdqlR: SDQL_Return): InsightString {

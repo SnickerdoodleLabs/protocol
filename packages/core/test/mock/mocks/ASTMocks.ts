@@ -23,6 +23,8 @@ import { QueryFactories } from "@core/implementations/utilities/factory";
 import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { IProfileService } from "@core/interfaces/business";
+import { ProfileService } from "@core/implementations/business";
 
 // const ast = new AST(
 //     Version("0.1"),
@@ -40,6 +42,7 @@ export class ASTMocks {
   public queryEvaluator: QueryEvaluator;
   public balanceQueryEvaluator: IBalanceQueryEvaluator;
   public networkQueryEvaluator: INetworkQueryEvaluator;
+  public profileService: IProfileService;
 
   public constructor() {
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
@@ -53,8 +56,10 @@ export class ASTMocks {
     this.networkQueryEvaluator = new NetworkQueryEvaluator(
       this.persistenceRepo,
     );
+    this.profileService = new ProfileService(
+      this.persistenceRepo
+    );
 
-    td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(
       okAsync(CountryCode("1")),
     );
@@ -63,6 +68,7 @@ export class ASTMocks {
       this.persistenceRepo,
       this.balanceQueryEvaluator,
       this.networkQueryEvaluator,
+      this.profileService
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }

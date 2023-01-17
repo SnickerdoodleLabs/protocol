@@ -76,6 +76,7 @@ describe("ConsentFactory", () => {
           }
         );
 
+        // first initialize a head listing
         await consentFactory
         .connect(owner)
         .newListingHead(slot4, cid4).then(
@@ -84,18 +85,21 @@ describe("ConsentFactory", () => {
           }
         );
 
+        // ensure head rules are followed, i.e. a new head must be in a slot higher than previous
         await expect(
           consentFactory
             .connect(owner)
             .newListingHead(slot3, cid3),
         ).to.revertedWith("ConsentFactory: The new head must be greater than old head");
 
+        // When adding a listing behind the head, make sure slot ordering is correct
         await expect(
           consentFactory
             .connect(owner)
             .insertListing(slot4, slot3, slot2, cid3),
         ).to.revertedWith("ConsentFactory: _upstream must be greater than _newSlot");
 
+        // add a tail listing behind the head
         await consentFactory
         .connect(owner)
         .insertListing(slot2, slot3, slot4, cid3).then(
@@ -146,6 +150,48 @@ describe("ConsentFactory", () => {
             .connect(owner)
             .getListings(slot4, 3),
         ).to.eql([[cid4, cid3, cid2], finalSlot]);
+
+        // try removing a tail listing by specifying its upstream partner
+        await consentFactory
+        .connect(owner)
+        .removeListingTail(slot3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsTotal(),
+        ).to.eq(2);
+
+        // try removing the head listing
+        await consentFactory
+        .connect(owner)
+        .removeHeadListing().then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsTotal(),
+        ).to.eq(1);
+
+        expect(
+          await consentFactory
+            .connect(owner)
+            .listingsHead(),
+        ).to.eq(3);
+
+        expect(
+         await consentFactory
+            .connect(owner)
+            .getListings(slot3, 1),
+        ).to.eql([[cid3], finalSlot]);
     });
   });
 
