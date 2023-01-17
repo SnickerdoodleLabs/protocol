@@ -54,48 +54,16 @@ export class GnosisIndexer
     @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
 
-  private generateQueryConfig(
-    chainId: ChainId,
+  private generateUrl(
     accountAddress: EVMAccountAddress,
-    endpoint: string,
-    cursor?: string,
-    contracts?: EVMContractAddress[],
-  ): ResultAsync<IRequestConfig, never> {
-    const params = {
-      format: "decimal",
-      chain: `0x${chainId.toString(16)}`,
-    };
-    if (contracts != undefined) {
-      params["token_addresses"] = contracts.toString();
+    apiKey: string,
+    action: string,
+  ): ResultAsync<string, AccountIndexingError> {
+    const url = `https://api.gnosisscan.io/api?module=account&action=${action}&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+    if (action == "tokennfttx") {
+      const url = `https://api.gnosisscan.io/api?module=account&action=${action}&contractaddress=0x22c1f6050e56d2876009903609a2cc3fef83b415&address=${accountAddress}&page=1&offset=100&sort=asc&apikey=${apiKey}`;
     }
-    if (cursor != undefined) {
-      params["cursor"] = cursor;
-    }
-
-    const apiKey = chainConfig.get(ChainId(chainId));
-    const gnosisContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
-    const url = urlJoinP(
-      "https://api.gnosisscan.io/",
-      ["api", "v2", accountAddress.toString(), endpoint],
-      params,
-    );
-    const url2 = `https://api.gnosisscan.io/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
-    const url3 = `https://api.gnosisscan.io/api?module=account&action=tokennfttx&contractaddress=${gnosisContractAddress}&address=${accountAddress}&page=1&offset=100&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`;
-    console.log("url: ", url);
-    console.log("url2: ", url2);
-    console.log("url3: ", url3);
-
-    return this.configProvider.getConfig().map((config) => {
-      const result: IRequestConfig = {
-        method: "get",
-        url: url,
-        headers: {
-          accept: "application/json",
-          "X-API-Key": config.moralisApiKey,
-        },
-      };
-      return result;
-    });
+    return okAsync(url);
   }
 
   public getBalancesForAccount(
@@ -104,23 +72,24 @@ export class GnosisIndexer
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
     return this._getEtherscanApiKey(chainId)
       .andThen((apiKey) => {
-        // returns ERC-721 tokens
-        const url1 = `https://api.gnosisscan.io/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
-        // returns Gnosis Balance
-        const url2 = `https://api.gnosisscan.io/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+        return ResultUtils.combine([
+          this.generateUrl(accountAddress, apiKey, "tokentx"),
+          this.generateUrl(accountAddress, apiKey, "balance"),
+        ]);
+      })
+      .andThen(([transactionUrl, blockNumberUrl]) => {
         return ResultUtils.combine([
           this.ajaxUtils.get<IGnosisscanTransactionResponse>(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            new URL(url1!),
+            new URL(transactionUrl!),
           ),
-          this.ajaxUtils.get<IGnosisscanBlockNumberResponse>(
+          this.ajaxUtils.get<IGnosisscanBalanceResponse>(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            new URL(url2!),
+            new URL(blockNumberUrl),
           ),
         ]);
       })
       .map(([tokenResponse, balanceResponse]) => {
-        console.log("Gnosis tokenResponse: ", balanceResponse);
         const chainInfo = getChainInfoByChainId(chainId);
         const tokenBalances = tokenResponse.result.map((item) => {
           return new TokenBalance(
@@ -154,17 +123,17 @@ export class GnosisIndexer
     startTime: Date,
     endTime?: Date | undefined,
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
-    const apiKey = "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE";
-    const gnosisContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
-    const url = `https://api.gnosisscan.io/api?module=account&action=tokennfttx&contractaddress=${gnosisContractAddress}&address=${accountAddress}&page=1&offset=100&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`;
-    // https://gnosisscan.io/address/0x633b0e4cc5b72e7196e12b6b8af1d79c7d406c83#tokentxnsErc721
-    return this.ajaxUtils
-      .get<IGnosisscanTransactionResponse>(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new URL(url!),
-      )
+    return this._getEtherscanApiKey(chainId)
+      .andThen((apiKey) => {
+        return this.generateUrl(accountAddress, apiKey, "tokennfttx");
+      })
+      .andThen((transactionsUrl) => {
+        return this.ajaxUtils.get<IGnosisscanTransactionResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(transactionsUrl!),
+        );
+      })
       .map((tokenResponse) => {
-        console.log("Gnosis tokenResponse: ", tokenResponse);
         return tokenResponse.result.map((tx) => {
           return new EVMTransaction(
             chainId,
@@ -191,19 +160,16 @@ export class GnosisIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
-    const apiKey = "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE";
-    const gnosisContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
-    const url = `https://api.gnosisscan.io/api?module=account&action=tokennfttx&contractaddress=${gnosisContractAddress}&address=${accountAddress}&page=1&offset=100&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`;
-    // https://gnosisscan.io/address/0x633b0e4cc5b72e7196e12b6b8af1d79c7d406c83#tokentxnsErc721
-    console.log("Gnosis url: ", url);
-    return this.ajaxUtils
-      .get<IGnosisscanTransactionResponse>(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new URL(url!),
-      )
+    return this._getEtherscanApiKey(chainId)
+      .andThen((apiKey) => {
+        const url = `https://api.gnosisscan.io/api?module=account&action=tokennfttx&contractaddress=0x22c1f6050e56d2876009903609a2cc3fef83b415&address=${accountAddress}&page=1&offset=100&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`;
+        return this.ajaxUtils.get<IGnosisscanTransactionResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(url!),
+        );
+      })
       .map((tokenResponse) => {
         return tokenResponse.result.map((tx) => {
-          console.log("tx: ", tx);
           return new EVMNFT(
             EVMContractAddress(tx.contractAddress),
             BigNumberString(tx.tokenID || "0"),
@@ -262,7 +228,7 @@ interface IGnosisscanRawTx {
   tokenSymbol: string;
 }
 
-interface IGnosisscanBlockNumberResponse {
+interface IGnosisscanBalanceResponse {
   status: string;
   message: string;
   result: BigNumberString;

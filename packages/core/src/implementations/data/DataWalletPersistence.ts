@@ -540,7 +540,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  // used for front end display
   public getAccountBalances(
     chains?: ChainId[],
     accounts?: LinkedAccount[],
@@ -936,7 +935,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         const retVal: TransactionPaymentCounter[] = [];
         flowMap.forEach((counter, chainId) => {
           const marketData = marketDataMap.get(`${chainId}-${null}`);
-          console.log("Market Data: ", marketData);
           if (marketData != null) {
             counter.incomingValue *= marketData.currentPrice;
             counter.outgoingValue *= marketData.currentPrice;
@@ -947,7 +945,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             retVal.push(counter);
           }
         });
-        console.log("retVal: ", retVal);
         return retVal;
       })
       .mapErr((e) => new PersistenceError("error compounding transactions", e));

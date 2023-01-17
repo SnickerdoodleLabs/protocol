@@ -1,10 +1,11 @@
+import { Box, Grid, Typography } from "@material-ui/core";
+import React, { FC } from "react";
+
 import AccountsCard from "@extension-onboarding/components/AccountsCard";
 import { EModalSelectors } from "@extension-onboarding/components/Modals";
 import WalletProviders from "@extension-onboarding/components/WalletProviders";
 import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/OnChainIfo/OnChainInfo.style";
-import { Box, Grid, Typography } from "@material-ui/core";
-import React, { FC } from "react";
 
 const OnChainInfo: FC = () => {
   const classes = useStyles();
@@ -12,7 +13,9 @@ const OnChainInfo: FC = () => {
   return (
     <Box>
       <Box mb={5}>
-        <Typography className={classes.title}>Crypto Account Settings</Typography>
+        <Typography className={classes.title}>
+          Crypto Account Settings
+        </Typography>
         <Typography className={classes.description}>
           Add or remove wallets to control what web 3 data you store in your
           data wallet.
