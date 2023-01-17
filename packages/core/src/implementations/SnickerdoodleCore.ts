@@ -78,11 +78,8 @@ import {
   TokenMarketData,
   MarketplaceListing,
   TransactionPaymentCounter,
-  Birthday,
   EligibleAd,
   AdSignature,
-  SHA256Hash,
-  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -619,12 +616,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getFamilyName();
   }
-  setBirthday(birthday: Birthday): ResultAsync<void, PersistenceError> {
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<Birthday | null, PersistenceError> {
+  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getBirthday();

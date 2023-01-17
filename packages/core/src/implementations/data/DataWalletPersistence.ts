@@ -54,7 +54,6 @@ import {
   EVMTransaction,
   TransactionPaymentCounter,
   getChainInfoByChainId,
-  Birthday,
   EligibleAd,
   AdSignature,
 } from "@snickerdoodlelabs/objects";
@@ -525,7 +524,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setBirthday(
-    birthday: Birthday,
+    birthday: UnixTimestamp,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForRestore()
       .andThen(() => {
@@ -536,7 +535,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public getBirthday(): ResultAsync<Birthday | null, PersistenceError> {
+  public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.BIRTHDAY, null);
     });

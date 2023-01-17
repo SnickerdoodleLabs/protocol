@@ -48,7 +48,6 @@ import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCore
 import {
   AccountAddress,
   Age,
-  Birthday,
   ChainId,
   CountryCode,
   DataWalletAddress,
@@ -371,8 +370,8 @@ export interface ISnickerdoodleCore {
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
   getFamilyName(): ResultAsync<FamilyName | null, PersistenceError>;
 
-  setBirthday(birthday: Birthday): ResultAsync<void, PersistenceError>;
-  getBirthday(): ResultAsync<Birthday | null, PersistenceError>;
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError>;
 
   setGender(gender: Gender): ResultAsync<void, PersistenceError>;
   getGender(): ResultAsync<Gender | null, PersistenceError>;

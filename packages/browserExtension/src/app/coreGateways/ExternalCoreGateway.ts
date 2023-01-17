@@ -30,7 +30,6 @@ import {
   SiteVisit,
   URLString,
   MarketplaceListing,
-  Birthday,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { ResultAsync } from "neverthrow";
@@ -305,7 +304,7 @@ export class ExternalCoreGateway {
       givenName,
     } as ISetGivenNameParams);
   }
-  public setBirtday(birthday: Birthday): ResultAsync<void, JsonRpcError> {
+  public setBirtday(birthday: UnixTimestamp): ResultAsync<void, JsonRpcError> {
     return this._handler.call(EExternalActions.SET_BIRTHDAY, {
       birthday,
     } as ISetBirthdayParams);
@@ -335,7 +334,7 @@ export class ExternalCoreGateway {
   public getGivenName(): ResultAsync<GivenName | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_GIVEN_NAME);
   }
-  public getBirtday(): ResultAsync<Birthday | null, JsonRpcError> {
+  public getBirtday(): ResultAsync<UnixTimestamp | null, JsonRpcError> {
     return this._handler.call(EExternalActions.GET_BIRTHDAY);
   }
   public getEmail(): ResultAsync<EmailAddressString | null, JsonRpcError> {
