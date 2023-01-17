@@ -78,11 +78,7 @@ import {
   TokenMarketData,
   MarketplaceListing,
   TransactionPaymentCounter,
-<<<<<<< HEAD
   Birthday,
-=======
-  ISnickerdoodleCoreType,
->>>>>>> develop
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
