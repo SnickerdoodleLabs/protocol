@@ -37,6 +37,7 @@ import {
   IBalanceQueryEvaluator,
   INetworkQueryEvaluator,
 } from "@core/interfaces/business/utilities/query/index.js";
+import { IProfileService } from "@core/interfaces/business";
 
 const conditionsGE = [new ConditionGE(SDQL_OperatorName("ge"), null, 20)];
 const conditionsGE2 = [new ConditionGE(SDQL_OperatorName("ge"), null, 25)];
@@ -65,6 +66,7 @@ class QueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
   public networkQueryEvaluator = td.object<INetworkQueryEvaluator>();
+  public profileService = td.object<IProfileService>();
 
   public URLmap = new Map<URLString, number>([
     [URLString("www.snickerdoodlelabs.io"), 10],
@@ -203,10 +205,6 @@ class QueryEvaluatorMocks {
   // },
 
   public constructor() {
-    this.dataWalletPersistence.setAge(Age(25));
-    //this.dataWalletPersistence.setLocation(CountryCode("US"));
-    td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
-
     td.when(this.dataWalletPersistence.getGender()).thenReturn(
       okAsync(Gender("male")),
     );
@@ -229,6 +227,7 @@ class QueryEvaluatorMocks {
       this.dataWalletPersistence,
       this.balanceQueryEvaluator,
       this.networkQueryEvaluator,
+      this.profileService,
     );
     // td.when(this.dataWalletPersistence.getTransactionsMap())
     // .thenReturn(

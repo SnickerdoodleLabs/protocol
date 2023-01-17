@@ -480,22 +480,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.waitForRestore()
-      .andThen(() => {
-        return this.backupManagerProvider.getBackupManager();
-      })
-      .andThen((backupManager) => {
-        return backupManager.updateField(ELocalStorageKey.AGE, age);
-      });
-  }
-
-  public getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.waitForRestore().andThen(() => {
-      return this._checkAndRetrieveValue(ELocalStorageKey.AGE, null);
-    });
-  }
-
   public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     return this.waitForRestore()
       .andThen(() => {
