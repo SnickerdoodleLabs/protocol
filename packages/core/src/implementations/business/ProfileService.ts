@@ -59,7 +59,7 @@ export class ProfileService implements IProfileService {
   }
 
   public calculateAge(date_of_birth: UnixTimestamp | null): Age | null {
-    console.log("Inside calculate age ", date_of_birth);
+    //console.log("Inside calculate age ", date_of_birth);
 
     if (!date_of_birth) return null;
     const today = Date.now();
