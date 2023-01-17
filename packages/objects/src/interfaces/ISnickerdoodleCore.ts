@@ -355,6 +355,7 @@ export interface ISnickerdoodleCore {
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 
   /** Google User Information */
+  // Remove setAge with browserextension PR.
   setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
