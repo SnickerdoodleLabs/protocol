@@ -36,6 +36,7 @@ import {
   URLString,
   SiteVisit,
   MarketplaceListing,
+  Birthday,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -783,12 +784,12 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.piiService.getFamilyName();
   }
   private setBirthday(
-    birthday: UnixTimestamp,
+    birthday: Birthday,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiService.setBirthday(birthday);
   }
   private getBirthday(): ResultAsync<
-    UnixTimestamp | null,
+    Birthday | null,
     SnickerDoodleCoreError
   > {
     return this.piiService.getBirthday();

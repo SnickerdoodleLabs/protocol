@@ -31,6 +31,7 @@ import {
   AccountAddress,
   CeramicStreamID,
   DataWalletBackupID,
+  Birthday,
 } from "@objects/primitives";
 
 /**
@@ -114,8 +115,8 @@ export interface IDataWalletPersistence {
   setFamilyName(name: FamilyName): ResultAsync<void, PersistenceError>;
   getFamilyName(): ResultAsync<FamilyName | null, PersistenceError>;
 
-  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
-  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError>;
+  setBirthday(birthday: Birthday): ResultAsync<void, PersistenceError>;
+  getBirthday(): ResultAsync<Birthday | null, PersistenceError>;
 
   setGender(gender: Gender): ResultAsync<void, PersistenceError>;
   getGender(): ResultAsync<Gender | null, PersistenceError>;

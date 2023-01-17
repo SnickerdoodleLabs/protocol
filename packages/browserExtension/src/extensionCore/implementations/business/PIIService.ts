@@ -6,6 +6,7 @@ import {
   Gender,
   EmailAddressString,
   CountryCode,
+  Birthday,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -43,12 +44,12 @@ export class PIIService implements IPIIService {
     return this.piiRespository.getFamilyName();
   }
   public setBirthday(
-    birthday: UnixTimestamp,
+    birthday: Birthday,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.piiRespository.setBirthday(birthday);
   }
   public getBirthday(): ResultAsync<
-    UnixTimestamp | null,
+    Birthday | null,
     SnickerDoodleCoreError
   > {
     return this.piiRespository.getBirthday();

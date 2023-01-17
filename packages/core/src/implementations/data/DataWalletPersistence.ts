@@ -56,6 +56,7 @@ import {
   BigNumberString,
   addBigNumberString,
   getChainInfoByChainId,
+  Birthday,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -430,7 +431,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return null;
       }
       return Age(
-        new Date(Date.now() - birthdayEpoch).getFullYear() - new Date(0).getFullYear()
+        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() - new Date(0).getFullYear()
       );
     });
   }
@@ -468,7 +469,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setBirthday(
-    birthday: UnixTimestamp,
+    birthday: Birthday,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForRestore()
       .andThen(() => {
@@ -479,7 +480,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
+  public getBirthday(): ResultAsync<Birthday | null, PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.BIRTHDAY, null);
     });

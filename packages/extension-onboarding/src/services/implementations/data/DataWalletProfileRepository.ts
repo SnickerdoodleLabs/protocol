@@ -2,7 +2,7 @@ import { IDataWalletProfileRepository } from "@extension-onboarding/services/int
 import { PII } from "@extension-onboarding/services/interfaces/objects/";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import { convertToSafePromise } from "@extension-onboarding/utils/ResultUtils";
-import { UnixTimestamp } from "@snickerdoodlelabs/objects";
+import { Birthday, UnixTimestamp } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -70,7 +70,7 @@ export class DataWalletProfileRepository
         ? [
             await convertToSafePromise(
               window.sdlDataWallet.setBirthday(
-                (+new Date(date_of_birth) / 1000) as UnixTimestamp,
+                (+new Date(date_of_birth) / 1000) as Birthday,
               ),
             ),
           ]
