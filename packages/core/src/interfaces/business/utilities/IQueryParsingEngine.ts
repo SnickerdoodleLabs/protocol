@@ -3,26 +3,24 @@ import {
   EligibleReward,
   ExpectedReward,
   EvaluationError,
-  QueryExpiredError,
   InsightString,
   QueryFormatError,
   SDQLQuery,
   QueryIdentifier,
-  SDQL_Return,
   IDynamicRewardParameter,
+  EVMContractAddress,
 } from "@snickerdoodlelabs/objects";
-import { AST } from "@snickerdoodlelabs/query-parser";
 import { ResultAsync } from "neverthrow";
 
-import { AST_Evaluator } from "@core/implementations/business/index.js";
 
 export interface IQueryParsingEngine {
   getPermittedQueryIdsAndExpectedRewards(
     query: SDQLQuery,
     dataPermissions: DataPermissions,
+    consentContractAddress: EVMContractAddress
   ): ResultAsync<
     [QueryIdentifier[], ExpectedReward[]],
-    EvaluationError | QueryFormatError | QueryExpiredError
+    EvaluationError
   >;
   handleQuery(
     query: SDQLQuery,

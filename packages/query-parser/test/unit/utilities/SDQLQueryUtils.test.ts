@@ -4,7 +4,7 @@ import { SDQLParserFactory } from "@query-parser/implementations/utilities/SDQLP
 import { ISDQLParserFactory, ISDQLQueryWrapperFactory } from "@query-parser/interfaces";
 import { avalanche1SchemaStr } from "@query-parser/sampleData";
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { DataPermissions, EWalletDataType, SDQLString } from "@snickerdoodlelabs/objects";
+import { DataPermissions, EWalletDataType, QueryIdentifier, SDQLString } from "@snickerdoodlelabs/objects";
 import * as td from "testdouble";
 
 class SDQLQueryUtilsMocks {
@@ -31,7 +31,7 @@ describe("SDQLQueryUtils query to compensation tests", () => {
 
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
-        const queryIds = ['q1'];
+        const queryIds = ['q1'].map(QueryIdentifier);;
         const expected = ['c1'];
 
         const mocks = new SDQLQueryUtilsMocks();
@@ -47,7 +47,7 @@ describe("SDQLQueryUtils query to compensation tests", () => {
 
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
-        const queryIds = ['q2'];
+        const queryIds = ['q2'].map(QueryIdentifier);
         const expected = ['c2', 'c3'];
 
         const mocks = new SDQLQueryUtilsMocks();
@@ -62,7 +62,7 @@ describe("SDQLQueryUtils query to compensation tests", () => {
 
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
-        const queryIds = ['q3'];
+        const queryIds = ['q3'].map(QueryIdentifier);;
         const expected = ["c3", "c2"];
 
         const mocks = new SDQLQueryUtilsMocks();
@@ -77,7 +77,7 @@ describe("SDQLQueryUtils query to compensation tests", () => {
 
         // input-output
         const schemaString = SDQLString(avalanche1SchemaStr);
-        const queryIds = ['q1', 'q2'] ;
+        const queryIds = ['q1', 'q2'].map(QueryIdentifier); ;
         const expected = ['c1', 'c2', 'c3'];
 
         const mocks = new SDQLQueryUtilsMocks();
