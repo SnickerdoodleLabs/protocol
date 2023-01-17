@@ -18,6 +18,8 @@ import {
   TokenInfo,
   MarketplaceListing,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
@@ -59,8 +61,8 @@ import {
   HexString32,
   IpfsCID,
   LanguageCode,
+  SHA256Hash,
   Signature,
-  TokenId,
   UnixTimestamp,
   URLString,
 } from "@objects/primitives";
@@ -350,11 +352,17 @@ export interface ISnickerdoodleCore {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
 
+  onAdDisplayed(eligibleAd: EligibleAd): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
+
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
+
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 
   /** Google User Information */
+  // Remove setAge with browserextension PR.
   setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 

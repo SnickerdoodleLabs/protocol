@@ -78,15 +78,17 @@ import {
   TokenMarketData,
   MarketplaceListing,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
+  SHA256Hash,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
   ICloudStorageType,
-  CeramicCloudStorage,
   IVolatileStorage,
   IVolatileStorageType,
   IndexedDBVolatileStorage,
-  NullCloudStorage,
   GoogleCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
@@ -95,7 +97,7 @@ import {
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
@@ -108,6 +110,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IProfileService,
@@ -654,10 +658,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getLocation();
   }
+  // Todo remove this.
   setAge(age: Age): ResultAsync<void, PersistenceError> {
-    const profileService =
-      this.iocContainer.get<IProfileService>(IProfileServiceType);
-    return profileService.setAge(age);
+    // No need to setup age
+    // const profileService =
+    //   this.iocContainer.get<IProfileService>(IProfileServiceType);
+    // return profileService.setAge(age);
+    return okAsync(undefined);
   }
   getAge(): ResultAsync<Age | null, PersistenceError> {
     const profileService =
@@ -728,6 +735,28 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getEligibleAds();
+  }
+
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getAdSignatures();
+  }
+
+  onAdDisplayed(
+    eligibleAd: EligibleAd
+  ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.onAdDisplayed(eligibleAd);
+  }
+  
   public addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {

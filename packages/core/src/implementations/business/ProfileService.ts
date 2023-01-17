@@ -11,7 +11,7 @@ import {
   IDataWalletPersistence,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IProfileService } from "@core/interfaces/business/index.js";
 
@@ -57,10 +57,22 @@ export class ProfileService implements IProfileService {
   getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
     return this.dataWalletPersistence.getLocation();
   }
-  setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.setAge(age);
+
+  public calculateAge(date_of_birth: UnixTimestamp | null): Age | null {
+    console.log("Inside calculate age ", date_of_birth);
+
+    if (!date_of_birth) return null;
+    const today = Date.now();
+    const ageDiff = new Date(today - date_of_birth * 1000);
+
+    const age = Math.abs(ageDiff.getUTCFullYear() - 1970);
+
+    return Age(age);
   }
+
   getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.dataWalletPersistence.getAge();
+    return this.dataWalletPersistence.getBirthday().andThen((birthday) => {
+      return okAsync(this.calculateAge(birthday));
+    });
   }
 }

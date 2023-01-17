@@ -35,7 +35,7 @@ export interface IProfileService {
 
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
+  // setAge(age: Age): ResultAsync<void, PersistenceError>;
 
   getAge(): ResultAsync<Age | null, PersistenceError>;
 }

@@ -1,13 +1,19 @@
 import {
+  AdContent,
+  AdKey,
   AESEncryptedString,
   Age,
   BigNumberString,
   ChainId,
   CountryCode,
+  EAdContentType,
+  EAdDisplayType,
   EarnedReward,
+  EligibleAd,
   EncryptedString,
   ERewardType,
   EVMAccountAddress,
+  EVMContractAddress,
   EVMTransaction,
   EVMTransactionHash,
   Gender,
@@ -31,7 +37,6 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
-
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
   private addAccount: AddAccount;
@@ -104,6 +109,9 @@ export class CorePrompt extends DataWalletPrompt {
 
       { name: "Add Earned Reward", value: "addEarnedReward" },
       { name: "Get Earned Rewards", value: "getEarnedRewards" },
+
+      { name: "Get Eligible Ads", value: "getEligibleAds" },
+
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },
       { name: "restore backup", value: "restoreBackup" },
@@ -172,7 +180,9 @@ export class CorePrompt extends DataWalletPrompt {
           return this.optOutCampaign.start();
         case "setAge to 15":
           console.log("Age is set to 15");
-          return this.core.setAge(Age(15));
+          this.core.setAge(Age(15));
+          //Mon Jan 13 2020 08:22:13 GMT+0000
+          return this.core.setBirthday(UnixTimestamp(1578903733));
         case "setAge to 0":
           console.log("Age is set to 0");
           return this.core.setAge(Age(0));
@@ -202,6 +212,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getSiteVisitsMap().map(console.log);
         case "getSiteVisits":
           return this.core.getSiteVisits().map(console.log);
+        case "getEligibleAds":
+          return this.core.getEligibleAds().map(console.log);
         case "addEarnedReward":
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":
