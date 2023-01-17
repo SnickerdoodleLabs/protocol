@@ -1,13 +1,19 @@
 import {
+  AdContent,
+  AdKey,
   AESEncryptedString,
   Age,
   BigNumberString,
   ChainId,
   CountryCode,
+  EAdContentType,
+  EAdDisplayType,
   EarnedReward,
+  EligibleAd,
   EncryptedString,
   ERewardType,
   EVMAccountAddress,
+  EVMContractAddress,
   EVMTransaction,
   EVMTransactionHash,
   Gender,
@@ -101,6 +107,9 @@ export class CorePrompt extends DataWalletPrompt {
 
       { name: "Add Earned Reward", value: "addEarnedReward" },
       { name: "Get Earned Rewards", value: "getEarnedRewards" },
+
+      { name: "Get Eligible Ads", value: "getEligibleAds" },
+
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },
       { name: "restore backup", value: "restoreBackup" },
@@ -193,6 +202,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getSiteVisitsMap().map(console.log);
         case "getSiteVisits":
           return this.core.getSiteVisits().map(console.log);
+        case "getEligibleAds":
+          return this.core.getEligibleAds().map(console.log);
         case "addEarnedReward":
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":
