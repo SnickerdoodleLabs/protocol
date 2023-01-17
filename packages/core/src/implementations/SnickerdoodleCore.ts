@@ -80,6 +80,8 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
+  SHA256Hash,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
