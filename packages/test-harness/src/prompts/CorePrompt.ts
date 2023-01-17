@@ -31,7 +31,6 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
-
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
   private addAccount: AddAccount;

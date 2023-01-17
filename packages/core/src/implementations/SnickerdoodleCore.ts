@@ -78,7 +78,11 @@ import {
   TokenMarketData,
   MarketplaceListing,
   TransactionPaymentCounter,
+<<<<<<< HEAD
   Birthday,
+=======
+  ISnickerdoodleCoreType,
+>>>>>>> develop
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -96,7 +100,7 @@ import {
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
 import { Container } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";

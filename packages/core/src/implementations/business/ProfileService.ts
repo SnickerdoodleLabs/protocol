@@ -11,7 +11,7 @@ import {
   Birthday,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IProfileService } from "@core/interfaces/business/index.js";
 
