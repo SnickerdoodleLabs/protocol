@@ -56,96 +56,281 @@ describe("ConsentFactory", () => {
     await consentFactory.deployed();
   });
 
-  describe("addListing", function () {
+  describe("Stake-for-Ranking", function () {
 
-    it("test marketplace listings functionality", async function () {
+    it("Test basic Marketplace insertion and deletion", async function () {
+      
+      // create a couple of consent contracts
+      await consentFactory
+        .connect(owner)
+        .createConsent(user1.address, "Listing1", "Brand1").then(
+          (tx) => {
+            return tx.wait();
+          }
+        );
+
+        await consentFactory
+        .connect(owner)
+        .createConsent(user2.address, "Listing2", "Brand2").then(
+          (tx) => {
+            return tx.wait();
+          }
+        );
+
+      // get the deployed address by looking up the provided name
+      deployedConsentAddressArray1 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user1.address,
+          0,
+          1,
+        );
+
+        deployedConsentAddressArray2 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user2.address,
+          0,
+          1,
+        );
+
+      // attach the deployed Consent address and check it's uri
+      const deployedConsentInstance1 = consent.attach(
+        deployedConsentAddressArray1[0],
+      );
+      const deployedConsentInstance2 = consent.attach(
+        deployedConsentAddressArray2[0],
+      );
+
       const slot2 = 2;
       const slot3 = 3; 
       const slot4 = 4; 
-      const slot5 = 5; // this will be our invalid slot param
 
-      const cid2 = "a";
-      const cid3 = "b";
-      const cid4 = "c";
+      const tag2 = "short-string-2";
+      const tag3 = "short-string-3";
+
+      await deployedConsentInstance1
+        .connect(user1)
+        .newGlobalTag(tag2, slot3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+      // initialize a new tag globally from user 1
+      await expect(
+          deployedConsentInstance1
+            .connect(user1)
+            .newGlobalTag(tag2, slot3),
+        ).to.revertedWith("Consent Contract: This tag is already staked by this contract");
+
+      // user 2 inserts a listing upstream of user 1's listing on the same tag
+      await deployedConsentInstance2
+        .connect(user2)
+        .newLocalTagUpstream(tag2, slot4, slot3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+      await expect(
+          deployedConsentInstance2
+            .connect(user2)
+            .newLocalTagUpstream(tag2, slot3, slot2),
+        ).to.revertedWith("Consent Contract: This tag is already staked by this contract");
+
+      // user 1 removes its previously staked tag
+      await deployedConsentInstance1
+        .connect(user1)
+        .removeListing(tag2, slot3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+      expect(
+          await consentFactory
+            .getTagTotal(tag2)
+      ).to.eq(1);
+
+      // user 1 inserts another listing downstream of user 2
+      await deployedConsentInstance1
+        .connect(user1)
+        .newLocalTagDownstream(tag2, slot4, slot2).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+        expect(
+          await consentFactory
+            .getTagTotal(tag2)
+        ).to.eq(2);
+    });
+
+    it("Test Marketplace expiration mechanics", async function () {
+      // create a couple of consent contracts
+      await consentFactory
+        .connect(owner)
+        .createConsent(user1.address, "Listing1", "Brand1").then(
+          (tx) => {
+            return tx.wait();
+          }
+        );
+
+        await consentFactory
+        .connect(owner)
+        .createConsent(user2.address, "Listing2", "Brand2").then(
+          (tx) => {
+            return tx.wait();
+          }
+        );
+
+      // get the deployed address by looking up the provided name
+      deployedConsentAddressArray1 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user1.address,
+          0,
+          1,
+        );
+
+        deployedConsentAddressArray2 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user2.address,
+          0,
+          1,
+        );
+
+      // attach the deployed Consent address and check it's uri
+      const deployedConsentInstance1 = consent.attach(
+        deployedConsentAddressArray1[0],
+      );
+      const deployedConsentInstance2 = consent.attach(
+        deployedConsentAddressArray2[0],
+      );
+      
+      const slot2 = 2;
+      const slot3 = 3; 
+      const slot4 = 4; 
+
+      const tag2 = "short-string-2";
+      const tag3 = "short-string-3";
+
+      // user 1 initializes a new tag globally
+      await deployedConsentInstance1
+        .connect(user1)
+        .newGlobalTag(tag2, slot3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+      await expect(
+          deployedConsentInstance2
+            .connect(user2)
+            .replaceExpiredListing(tag2, slot3),
+        ).to.revertedWith("ConsentFactory: current listing is still active");
+
+      // fast forward until the listing expires
+      const listingDuration = await consentFactory.listingDuration();
+      await ethers.provider.send('evm_increaseTime', [listingDuration.toNumber()]);
+      await ethers.provider.send('evm_mine');
+
+      // user 2 can now replace the expired listing
+      await deployedConsentInstance2
+        .connect(user2)
+        .replaceExpiredListing(tag2, slot3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+      // user 1 can reclaim the stake from their expired listing
+      await deployedConsentInstance1
+        .connect(user1)
+        .removeListing(tag2, slot3).then(
+          (txrct) => {
+            return txrct.wait()
+          }
+        );
+
+      expect(
+          await consentFactory
+            .getTagTotal(tag2)
+        ).to.eq(1);
+    });
+
+    it("Test admin can remove listings", async function () {
 
       await consentFactory
         .connect(owner)
-        .newListingHead(slot2, cid2).then(
+        .createConsent(user1.address, "Listing1", "Brand1").then(
+          (tx) => {
+            return tx.wait();
+          }
+        );
+
+      // get the deployed address by looking up the provided name
+      deployedConsentAddressArray1 =
+        await consentFactory.getUserDeployedConsentsByIndex(
+          user1.address,
+          0,
+          1,
+        );
+
+      // attach the deployed Consent address and check it's uri
+      const deployedConsentInstance1 = consent.attach(
+        deployedConsentAddressArray1[0],
+      );
+      
+      const slot2 = 2;
+      const slot3 = 3; 
+      const slot4 = 4; 
+
+      const tag2 = "short-string-2";
+      const tag3 = "short-string-3";
+
+      // user 1 creates a new listing
+      await deployedConsentInstance1
+        .connect(user1)
+        .newGlobalTag(tag2, slot3).then(
           (txrct) => {
             return txrct.wait()
           }
         );
 
-        await consentFactory
+      // consent factory admin can unilaterally remove the listing from the marketplace
+      await consentFactory
         .connect(owner)
-        .newListingHead(slot4, cid4).then(
+        .adminRemoveListing(tag2, slot3).then(
           (txrct) => {
             return txrct.wait()
           }
         );
 
-        await expect(
-          consentFactory
-            .connect(owner)
-            .newListingHead(slot3, cid3),
-        ).to.revertedWith("ConsentFactory: The new head must be greater than old head");
+      expect(
+          await deployedConsentInstance1
+            .connect(user1)
+            .getNumberOfStakedTags()
+        ).to.eq(1);
 
-        await expect(
-          consentFactory
-            .connect(owner)
-            .insertListing(slot4, slot3, slot2, cid3),
-        ).to.revertedWith("ConsentFactory: _upstream must be greater than _newSlot");
-
-        await consentFactory
-        .connect(owner)
-        .insertListing(slot2, slot3, slot4, cid3).then(
+      // user 1 can reclaim their stake after admin cleared their listing
+      await deployedConsentInstance1
+        .connect(user1)
+        .removeListing(tag2, slot3).then(
           (txrct) => {
             return txrct.wait()
           }
         );
 
-        await expect(
-          consentFactory
-            .connect(owner)
-            .insertListing(slot3, slot2, slot4, cid2),
-        ).to.revertedWith("ConsentFactory: _newSlot must be greater than _downstream");
+      expect(
+          await deployedConsentInstance1
+            .connect(user1)
+            .getNumberOfStakedTags()
+        ).to.eq(0);
 
-        await expect(
-          consentFactory
-            .connect(owner)
-            .insertListing(slot2, slot3, slot4, cid3),
-        ).to.revertedWith("ConsentFactory: _upstream listing points to different _downstream listing");
-
-        await expect(
-          consentFactory
-            .connect(owner)
-            .insertListing(slot2, slot3, slot5, cid3),
-        ).to.revertedWith("ConsentFactory: invalid upstream slot");
-
-        expect(
+      expect(
           await consentFactory
-            .connect(owner)
-            .listingsTotal(),
-        ).to.eq(3);
-
-        expect(
-          await consentFactory
-            .connect(owner)
-            .listingsHead()
-        ).to.eq(slot4);
-
-        await expect(
-          consentFactory
-            .connect(owner)
-            .getListings(slot5, 3),
-        ).to.revertedWith("ConsentFactory: invalid slot");
-
-        const finalSlot = ethers.BigNumber.from(1);
-        expect(
-         await consentFactory
-            .connect(owner)
-            .getListings(slot4, 3),
-        ).to.eql([[cid4, cid3, cid2], finalSlot]);
+            .getTagTotal(tag2)
+        ).to.eq(0);
     });
   });
 

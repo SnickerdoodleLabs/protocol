@@ -32,10 +32,13 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @dev the default amount of time, in seconds, that a listing is valid for
     uint256 public listingDuration; 
 
+    /// @dev the default maximum number of tags that can be staked by a single consent constract listing
+    uint256 public maxTagsPerListing;
+
     /// @dev nested mapping
     /// @dev first layer maps from hashed tag string to a linked list
     /// @dev second layer is the linked list mapping structure
-    mapping(bytes32 => mapping(uint256 => Listing)) listings; 
+    mapping(bytes32 => mapping(uint256 => Listing)) private listings; 
 
     /// @dev The PAUSE_ROLE can pause all activity in the factory contract
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -105,9 +108,22 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         trustedForwarder = _trustedForwarder;
 
         listingDuration = 2 weeks; 
+        maxTagsPerListing = 20; 
     }
 
     /* CORE FUNCTIONS */
+
+    /// @notice Admin endpoint to change the default time (in seconds) a listing is valid
+    /// @param _listingDuration duration period in seconds
+    function setListingDuration(uint256 _listingDuration) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        listingDuration = _listingDuration;
+    }
+
+    /// @notice Admin endpoint to change the maximum number of tags a consent contract can stake against
+    /// @param _maxTagsPerListing Integer number of tags that each consent contract will be limited to
+    function setMaxTagsPerListing(uint256 _maxTagsPerListing) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        maxTagsPerListing = _maxTagsPerListing;
+    }
 
     /// @notice Initializes a doubly-linked list under the given attribute
     /// @param tag Human readable string denoting the target tag to stake
@@ -120,8 +136,9 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         require(listingTotals[LLKey] == 0, "ConsentFactory: This tag is already initialized");
 
         // we use index 0 and 2^256-1 to be our boundary conditions so we don't have to use a dedicated storage variable for the head/tail listings
-        listings[LLKey][2^256-1].next = _newHead; // not included in the totals
-        listings[LLKey][_newHead] = Listing(2^256-1, 0, msg.sender, block.timestamp + listingDuration);
+        // infinity -> _newHead -> 0
+        listings[LLKey][type(uint256).max].next = _newHead; // not included in the totals
+        listings[LLKey][_newHead] = Listing(type(uint256).max, 0, msg.sender, block.timestamp + listingDuration);
         listings[LLKey][0].previous = _newHead; // not included in the totals
 
         // increment the number of listings under this tag
@@ -238,10 +255,23 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
         listingTotals[LLKey] -= 1;
     }
 
+    /// @notice Returns a single entry of the listings structure
+    /// @param tag Human readable string denoting the target tag to stake
+    /// @param _slot slot to start at in the linked list
+    function getListing(string memory tag, uint256 _slot) 
+        external 
+        view 
+        returns (Listing memory) {
+
+        bytes32 LLKey = keccak256(abi.encodePacked(tag));
+        return listings[LLKey][_slot];
+    }
+
     /// @notice Returns an array of Listings from the marketplace linked list from highest to lowest ranked
     /// @param tag Human readable string denoting the target tag to stake
     /// @param _startingSlot slot to start at in the linked list
     /// @param numSlots number of entries to return
+    /// @param filterActive boolean flag indicating if the results should include expired listings (false) or not (true)
     function getListingsForward(string memory tag, uint256 _startingSlot, uint256 numSlots, bool filterActive) 
         external 
         view 
@@ -270,6 +300,7 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
     /// @param tag Human readable string denoting the target tag to stake
     /// @param _startingSlot slot to start at in the linked list
     /// @param numSlots number of entries to return
+    /// @param filterActive boolean flag indicating if the results should include expired listings (false) or not (true)
     function getListingsBackward(string memory tag, uint256 _startingSlot, uint256 numSlots, bool filterActive) 
         external 
         view 
@@ -287,12 +318,22 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
             cids[i] = Consent(listing.consentContract).baseURI(); // grab the invitation details from the consent contract
             sources[i] = listing; // also grab the complete listing details
             _startingSlot = listing.previous;
-            if(listing.previous == 2^256-1) { // slot 2^256-1 is the EOL head slot
+            if(listing.previous == type(uint256).max) { // slot 2^256-1 is the EOL head slot
                 break;
             }
         }
         return (cids, sources);
     }
+
+    /// @notice Returns the total number of listings under a given tag (including expired listings which have not been removed)
+    /// @param tag Human readable string denoting the target tag to stake
+    function getTagTotal(string memory tag) 
+        external 
+        view 
+        returns (uint256) {
+        bytes32 LLKey = keccak256(abi.encodePacked(tag));
+        return listingTotals[LLKey];
+    }    
 
     /// @notice Creates a new Beacon Proxy contract pointing to the UpgradableBeacon 
     /// @dev This Beacon Proxy points to the UpgradableBeacon with the latest Consent implementation contract
