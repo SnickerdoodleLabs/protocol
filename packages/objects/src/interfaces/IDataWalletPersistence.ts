@@ -31,7 +31,6 @@ import {
   BlockNumber,
   UnixTimestamp,
   AccountAddress,
-  CeramicStreamID,
   DataWalletBackupID,
 } from "@objects/primitives";
 
@@ -108,6 +107,7 @@ export interface IDataWalletPersistence {
   getClicks(): ResultAsync<ClickData[], PersistenceError>;
 
   /** Google User Information */
+  getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
   getGivenName(): ResultAsync<GivenName | null, PersistenceError>;
