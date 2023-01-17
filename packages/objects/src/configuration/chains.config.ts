@@ -198,6 +198,24 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       getExplorerUrl,
     ),
   ],
+  [
+    ChainId(EChain.EthereumMainnet),
+    new ChainInformation(
+      "Moonbeam",
+      ChainId(EChain.EthereumMainnet),
+      EChain.EthereumMainnet,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000,
+      EIndexer.Ethereum,
+      new NativeCurrencyInformation("GLMR", 18, "GLMR"),
+      EChainType.Mainnet,
+      "https://moonbeam.moonscan.io/",
+      getExplorerUrl,
+      URLString("https://moonbeam.moonscan.io/"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {
