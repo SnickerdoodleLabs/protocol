@@ -56,6 +56,7 @@ import {
   getChainInfoByChainId,
   EligibleAd,
   AdSignature,
+  EBackupPriority,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -75,7 +76,6 @@ import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 import { parse } from "tldts";
 
 import {
