@@ -123,8 +123,9 @@ export class MonitoringService implements IMonitoringService {
       this.accountIndexing.getSimulatorEVMTransactionRepository(),
       this.accountIndexing.getEthereumTransactionRepository(),
       this.accountIndexing.getPolygonTransactionRepository(),
+      this.accountIndexing.getMoonbeamTransactionRepository(),
     ]).andThen(
-      ([config, evmRepo, solRepo, simulatorRepo, etherscanRepo, maticRepo]) => {
+      ([config, evmRepo, solRepo, simulatorRepo, etherscanRepo, maticRepo, glmrRepo]) => {
         // Get the chain info for the transaction
         const chainInfo = config.chainInformation.get(chainId);
         if (chainInfo == null) {
@@ -159,6 +160,12 @@ export class MonitoringService implements IMonitoringService {
             );
           case EIndexer.Polygon:
             return maticRepo.getEVMTransactions(
+              chainId,
+              accountAddress as EVMAccountAddress,
+              new Date(timestamp * 1000),
+            );
+          case EIndexer.Moonbeam:
+            return glmrRepo.getEVMTransactions(
               chainId,
               accountAddress as EVMAccountAddress,
               new Date(timestamp * 1000),

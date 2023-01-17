@@ -319,8 +319,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           .andThen((backupManager) => {
             return ResultUtils.combine(
               ads.map((ad) => {
-                return backupManager.addRecord(ELocalStorageKey.ELIGIBLE_ADS, ad);
-              })
+                return backupManager.addRecord(
+                  ELocalStorageKey.ELIGIBLE_ADS,
+                  ad,
+                );
+              }),
             ).map(() => undefined);
           });
       })
@@ -336,25 +339,24 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public saveAdSignatures(
-    adSigList: AdSignature[]
+    adSigList: AdSignature[],
   ): ResultAsync<void, PersistenceError> {
-
-    return this.waitForUnlock().andThen(() => {
-
+    return this.waitForUnlock()
+      .andThen(() => {
         return this.backupManagerProvider
-          .getBackupManager().andThen((backupManager) => {
-
+          .getBackupManager()
+          .andThen((backupManager) => {
             return ResultUtils.combine(
               adSigList.map((adSig) => {
-
                 return backupManager.addRecord(
-                  ELocalStorageKey.AD_SIGNATURES, 
-                  adSig
+                  ELocalStorageKey.AD_SIGNATURES,
+                  adSig,
                 );
-              })
+              }),
             ).map(() => undefined);
           });
-      }).map(() => {});
+      })
+      .map(() => {});
   }
 
   public getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
@@ -486,7 +488,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return null;
       }
       return Age(
-        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() - new Date(0).getFullYear()
+        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() -
+          new Date(0).getFullYear(),
       );
     });
   }
@@ -677,6 +680,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getSimulatorEVMBalanceRepository(),
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
+      this.accountBalances.getMoonbeamBalanceRepository(),
     ])
       .andThen(
         ([
@@ -686,6 +690,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           simulatorRepo,
           etherscanRepo,
           maticRepo,
+          glmrRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -714,6 +719,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as SolanaAccountAddress,
               );
             case EIndexer.Ethereum:
+              return etherscanRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Moonbeam:
               return etherscanRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
@@ -818,47 +828,62 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
+      this.accountNFTs.getMoonbeamNFTRepository(),
     ])
-      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
-        const chainInfo = config.chainInformation.get(chainId);
-        if (chainInfo == null) {
-          return errAsync(
-            new AccountIndexingError(
-              `No available chain info for chain ${chainId}`,
-            ),
-          );
-        }
-
-        switch (chainInfo.indexer) {
-          case EIndexer.EVM:
-          case EIndexer.Polygon:
-            return evmRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Simulator:
-            return simulatorRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Solana:
-            return solRepo.getTokensForAccount(
-              chainId,
-              accountAddress as SolanaAccountAddress,
-            );
-          case EIndexer.Ethereum:
-            return etherscanRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          default:
+      .andThen(
+        ([
+          config,
+          evmRepo,
+          solRepo,
+          simulatorRepo,
+          etherscanRepo,
+          moonbeamRepo,
+        ]) => {
+          const chainInfo = config.chainInformation.get(chainId);
+          if (chainInfo == null) {
             return errAsync(
               new AccountIndexingError(
-                `No available token repository for chain ${chainId}`,
+                `No available chain info for chain ${chainId}`,
               ),
             );
-        }
-      })
+          }
+
+          switch (chainInfo.indexer) {
+            case EIndexer.EVM:
+            case EIndexer.Polygon:
+              return evmRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Simulator:
+              return simulatorRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Solana:
+              return solRepo.getTokensForAccount(
+                chainId,
+                accountAddress as SolanaAccountAddress,
+              );
+            case EIndexer.Ethereum:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Moonbeam:
+              return moonbeamRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            default:
+              return errAsync(
+                new AccountIndexingError(
+                  `No available token repository for chain ${chainId}`,
+                ),
+              );
+          }
+        },
+      )
       .orElse((e) => {
         this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
         return okAsync([]);

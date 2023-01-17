@@ -23,6 +23,10 @@ export interface IAccountIndexing {
     IEVMTransactionRepository,
     never
   >;
+  getMoonbeamTransactionRepository(): ResultAsync<
+    IEVMTransactionRepository,
+    never
+  >;
 }
 
 export const IAccountIndexingType = Symbol.for("IAccountIndexing");

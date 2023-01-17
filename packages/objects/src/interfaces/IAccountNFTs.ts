@@ -7,6 +7,7 @@ export interface IAccountNFTs {
   getEthereumNftRepository(): ResultAsync<IEVMNftRepository, never>;
   getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never>;
   getSimulatorEVMNftRepository(): ResultAsync<IEVMNftRepository, never>;
+  getMoonbeamNFTRepository(): ResultAsync<IEVMNftRepository, never>;
 }
 
 export const IAccountNFTsType = Symbol.for("IAccountNFTs");

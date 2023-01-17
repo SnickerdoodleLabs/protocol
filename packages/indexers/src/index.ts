@@ -7,6 +7,7 @@ export * from "@indexers/DummySolanaIndexer.js";
 export * from "@indexers/EtherscanIndexer.js";
 export * from "@indexers/IIndexerConfig.js";
 export * from "@indexers/IIndexerConfigProvider.js";
+export * from "@indexers/MoonbeamIndexer.js";
 export * from "@indexers/MoralisEVMPortfolioRepository.js";
 export * from "@indexers/PolygonIndexer.js";
 export * from "@indexers/SimulatorEVMTransactionRepository.js";

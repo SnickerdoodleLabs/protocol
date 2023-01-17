@@ -18,6 +18,7 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+import { MoonbeamIndexer } from "@indexers/MoonbeamIndexer.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
@@ -28,6 +29,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
   protected evm: IEVMNftRepository;
   protected simulatorRepo: IEVMNftRepository;
   protected solRepo: ISolanaNFTRepository;
+  protected glmrRepo: IEVMNftRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -52,6 +54,12 @@ export class DefaultAccountNFTs implements IAccountNFTs {
       this.tokenPriceRepo,
       this.logUtils,
     );
+    this.glmrRepo = new MoonbeamIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
   }
 
   public getEthereumNftRepository(): ResultAsync<IEVMNftRepository, never> {
@@ -68,5 +76,9 @@ export class DefaultAccountNFTs implements IAccountNFTs {
 
   public getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never> {
     return okAsync(this.solRepo);
+  }
+
+  public getMoonbeamNFTRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.glmrRepo);
   }
 }

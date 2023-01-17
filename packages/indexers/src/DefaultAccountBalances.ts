@@ -20,6 +20,7 @@ import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
+import { MoonbeamIndexer } from "@indexers/MoonbeamIndexer.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
@@ -32,6 +33,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected sol: ISolanaBalanceRepository;
   protected ethereum: IEVMAccountBalanceRepository;
   protected matic: IEVMAccountBalanceRepository;
+  protected glmr: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -56,6 +58,12 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.logUtils,
     );
     this.matic = new PolygonIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+    this.glmr = new MoonbeamIndexer(
       this.configProvider,
       this.ajaxUtils,
       this.tokenPriceRepo,
@@ -96,5 +104,12 @@ export class DefaultAccountBalances implements IAccountBalances {
     never
   > {
     return okAsync(this.sol);
+  }
+
+  public getMoonbeamBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  > {
+    return okAsync(this.glmr);
   }
 }
