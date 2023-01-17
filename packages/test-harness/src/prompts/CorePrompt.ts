@@ -1,13 +1,19 @@
 import {
+  AdContent,
+  AdKey,
   AESEncryptedString,
   Age,
   BigNumberString,
   ChainId,
   CountryCode,
+  EAdContentType,
+  EAdDisplayType,
   EarnedReward,
+  EligibleAd,
   EncryptedString,
   ERewardType,
   EVMAccountAddress,
+  EVMContractAddress,
   EVMTransaction,
   EVMTransactionHash,
   Gender,
@@ -31,7 +37,6 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
-
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
   private addAccount: AddAccount;
@@ -76,8 +81,6 @@ export class CorePrompt extends DataWalletPrompt {
       new inquirer.Separator(),
       { name: "Add AccountBalance - ETH", value: "Add AccountBalance - ETH" },
       { name: "Add AccountBalance - SOL", value: "Add AccountBalance - SOL" },
-      { name: "Set Age to 15", value: "setAge to 15" },
-      { name: "Set Age to 0", value: "setAge to 0" },
       { name: "Get Age", value: "getAge" },
       { name: "Set Location", value: "setLocation" },
       { name: "Get Location", value: "getLocation" },
@@ -104,6 +107,9 @@ export class CorePrompt extends DataWalletPrompt {
 
       { name: "Add Earned Reward", value: "addEarnedReward" },
       { name: "Get Earned Rewards", value: "getEarnedRewards" },
+
+      { name: "Get Eligible Ads", value: "getEligibleAds" },
+
       new inquirer.Separator(),
       { name: "dump backup", value: "dumpBackup" },
       { name: "restore backup", value: "restoreBackup" },
@@ -170,12 +176,6 @@ export class CorePrompt extends DataWalletPrompt {
           return this.optInCampaign.start();
         case "optOutCampaign":
           return this.optOutCampaign.start();
-        case "setAge to 15":
-          console.log("Age is set to 15");
-          return this.core.setAge(Age(15));
-        case "setAge to 0":
-          console.log("Age is set to 0");
-          return this.core.setAge(Age(0));
         case "getAge":
           return this.core.getAge().map(console.log);
         case "setGender":
@@ -202,6 +202,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getSiteVisitsMap().map(console.log);
         case "getSiteVisits":
           return this.core.getSiteVisits().map(console.log);
+        case "getEligibleAds":
+          return this.core.getEligibleAds().map(console.log);
         case "addEarnedReward":
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":

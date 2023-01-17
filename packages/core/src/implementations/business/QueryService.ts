@@ -98,28 +98,28 @@ export class QueryService implements IQueryService {
       this.persistenceRepo.getAccounts(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([query, context, config, accounts, consentToken]) => {
-      return this.dataWalletUtils
-        .deriveOptInPrivateKey(consentContractAddress, context.dataWalletKey!)
-        .andThen((optInKey) => {
-          if (consentToken == null) {
-            return errAsync(new EvaluationError(`Consent token not found!`));
-          }
-          return this.queryParsingEngine
-            .getPermittedQueryIdsAndExpectedRewards(query, consentToken.dataPermissions)
-            .andThen(([queryIdentifiers, expectedRewards]) => {
-              return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
-                consentToken,
-                optInKey,
-                consentContractAddress,
-                query,
-                accounts,
-                context,
-                config,
-                queryIdentifiers,
-                expectedRewards,
-              );
-            });
+      if (consentToken == null) {
+        return errAsync(new EvaluationError(`Consent token not found!`));
+      }
+      return this.dataWalletUtils.deriveOptInPrivateKey(
+        consentContractAddress, context.dataWalletKey!
+      ).andThen((optInKey) => {
+        return this.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
+          query, consentToken.dataPermissions, consentContractAddress
+        ).andThen(([permittedQueryIds, expectedRewards]) => {
+          return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
+            consentToken,
+            optInKey,
+            consentContractAddress,
+            query,
+            accounts,
+            context,
+            config,
+            permittedQueryIds,
+            expectedRewards,
+          );
         });
+      });
     });
   }
 

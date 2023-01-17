@@ -53,9 +53,9 @@ import {
   JSONString,
   EVMTransaction,
   TransactionPaymentCounter,
-  BigNumberString,
-  addBigNumberString,
   getChainInfoByChainId,
+  EligibleAd,
+  AdSignature,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -329,6 +329,66 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
+  public saveEligibleAds(
+    ads: EligibleAd[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForUnlock()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              ads.map((ad) => {
+                return backupManager.addRecord(
+                  ELocalStorageKey.ELIGIBLE_ADS,
+                  ad,
+                  EBackupPriority.NORMAL,
+                );
+              }),
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
+  }
+
+  public getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    return this.waitForUnlock().andThen(() => {
+      return this.volatileStorage.getAll<EligibleAd>(
+        ELocalStorageKey.ELIGIBLE_ADS,
+      );
+    });
+  }
+
+  public saveAdSignatures(
+    adSigList: AdSignature[],
+  ): ResultAsync<void, PersistenceError> {
+    return this.waitForUnlock()
+      .andThen(() => {
+        return this.backupManagerProvider
+          .getBackupManager()
+          .andThen((backupManager) => {
+            return ResultUtils.combine(
+              adSigList.map((adSig) => {
+                return backupManager.addRecord(
+                  ELocalStorageKey.AD_SIGNATURES,
+                  adSig,
+                  EBackupPriority.NORMAL,
+                );
+              }),
+            ).map(() => undefined);
+          });
+      })
+      .map(() => {});
+  }
+
+  public getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+    return this.waitForUnlock().andThen(() => {
+      return this.volatileStorage.getAll<AdSignature>(
+        ELocalStorageKey.AD_SIGNATURES,
+      );
+    });
+  }
+
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
     return this.waitForFullRestore().andThen(([key]) => {
       return this.backupManagerProvider
@@ -458,23 +518,15 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.waitForFullRestore()
-      .andThen(() => {
-        return this.backupManagerProvider.getBackupManager();
-      })
-      .andThen((backupManager) => {
-        return backupManager.updateField(
-          ELocalStorageKey.AGE,
-          age,
-          EBackupPriority.NORMAL,
-        );
-      });
-  }
-
   public getAge(): ResultAsync<Age | null, PersistenceError> {
-    return this.waitForFullRestore().andThen(() => {
-      return this._checkAndRetrieveValue(ELocalStorageKey.AGE, null);
+    return this.getBirthday().map((birthdayEpoch) => {
+      if (birthdayEpoch == null) {
+        return null;
+      }
+      return Age(
+        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() -
+          new Date(0).getFullYear(),
+      );
     });
   }
 

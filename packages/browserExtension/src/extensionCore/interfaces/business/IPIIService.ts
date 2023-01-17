@@ -2,17 +2,16 @@ import {
   Age,
   GivenName,
   FamilyName,
-  UnixTimestamp,
   Gender,
   EmailAddressString,
   CountryCode,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IPIIService {
-  setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError>;
   getAge(): ResultAsync<Age | null, SnickerDoodleCoreError>;
   setGivenName(name: GivenName): ResultAsync<void, SnickerDoodleCoreError>;
   getGivenName(): ResultAsync<GivenName | null, SnickerDoodleCoreError>;

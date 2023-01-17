@@ -288,7 +288,7 @@ export class DataWalletProfile {
         const demographic = JSON.parse(content);
 
         return ResultAsync.combine([
-          this.core.setAge(demographic.age ?? null),
+          this.core.setBirthday(demographic.birthday ?? null),
           this.core.setGender(demographic.gender ?? null),
           this.core.setLocation(demographic.location ?? null),
           // TODO: add more
