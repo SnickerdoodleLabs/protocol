@@ -658,14 +658,6 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getLocation();
   }
-  // Todo remove this.
-  setAge(age: Age): ResultAsync<void, PersistenceError> {
-    // No need to setup age
-    // const profileService =
-    //   this.iocContainer.get<IProfileService>(IProfileServiceType);
-    // return profileService.setAge(age);
-    return okAsync(undefined);
-  }
   getAge(): ResultAsync<Age | null, PersistenceError> {
     const profileService =
       this.iocContainer.get<IProfileService>(IProfileServiceType);

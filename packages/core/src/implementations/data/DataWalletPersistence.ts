@@ -480,6 +480,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
+  public getAge(): ResultAsync<Age | null, PersistenceError> {
+    return this.getBirthday().map((birthdayEpoch) => {
+      if (birthdayEpoch == null) {
+        return null;
+      }
+      return Age(
+        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() - new Date(0).getFullYear()
+      );
+    });
+  }
+
   public setGivenName(name: GivenName): ResultAsync<void, PersistenceError> {
     return this.waitForRestore()
       .andThen(() => {

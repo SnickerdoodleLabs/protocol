@@ -56,9 +56,7 @@ export class ASTMocks {
     this.networkQueryEvaluator = new NetworkQueryEvaluator(
       this.persistenceRepo,
     );
-    this.profileService = new ProfileService(
-      this.persistenceRepo
-    );
+    this.profileService = new ProfileService(this.persistenceRepo);
 
     td.when(this.persistenceRepo.getLocation()).thenReturn(
       okAsync(CountryCode("1")),
