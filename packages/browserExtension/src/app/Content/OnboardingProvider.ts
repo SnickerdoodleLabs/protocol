@@ -24,9 +24,7 @@ import {
   TokenMarketData,
   SiteVisit,
   UnixTimestamp,
-  Birthday,
   URLString,
-  UUID,
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
@@ -226,7 +224,7 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   public setGivenName(givenName: GivenName) {
     return coreGateway.setGivenName(givenName);
   }
-  public setBirthday(birthday: Birthday) {
+  public setBirthday(birthday: UnixTimestamp) {
     return coreGateway.setBirtday(birthday);
   }
   public setEmail(email: EmailAddressString) {

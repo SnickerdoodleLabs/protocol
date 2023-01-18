@@ -5,7 +5,7 @@ import {
   Gender,
   EmailAddressString,
   CountryCode,
-  Birthday,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -18,9 +18,9 @@ export interface IPIIService {
   setFamilyName(name: FamilyName): ResultAsync<void, SnickerDoodleCoreError>;
   getFamilyName(): ResultAsync<FamilyName | null, SnickerDoodleCoreError>;
   setBirthday(
-    birthday: Birthday,
+    birthday: UnixTimestamp,
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  getBirthday(): ResultAsync<Birthday | null, SnickerDoodleCoreError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, SnickerDoodleCoreError>;
   setGender(gender: Gender): ResultAsync<void, SnickerDoodleCoreError>;
   getGender(): ResultAsync<Gender | null, SnickerDoodleCoreError>;
   setEmail(

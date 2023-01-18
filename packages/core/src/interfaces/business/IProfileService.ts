@@ -6,7 +6,7 @@ import {
   EmailAddressString,
   CountryCode,
   Age,
-  Birthday,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -19,9 +19,9 @@ export interface IProfileService {
 
   getFamilyName(): ResultAsync<FamilyName | null, PersistenceError>;
 
-  setBirthday(birthday: Birthday): ResultAsync<void, PersistenceError>;
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError>;
 
-  getBirthday(): ResultAsync<Birthday | null, PersistenceError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError>;
 
   setGender(gender: Gender): ResultAsync<void, PersistenceError>;
 

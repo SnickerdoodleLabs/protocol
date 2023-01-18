@@ -20,7 +20,6 @@ import {
   AccountAddress,
   Age,
   BigNumberString,
-  Birthday,
   ChainId,
   CountryCode,
   DataWalletAddress,
@@ -58,8 +57,8 @@ export interface ISdlDataWallet extends EventEmitter {
   getGivenName(): ResultAsync<GivenName | null, JsonRpcError>;
   setFamilyName(familyName: FamilyName): ResultAsync<void, JsonRpcError>;
   getFamilyName(): ResultAsync<FamilyName | null, JsonRpcError>;
-  setBirthday(birthday: Birthday): ResultAsync<void, JsonRpcError>;
-  getBirthday(): ResultAsync<Birthday | null, JsonRpcError>;
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, JsonRpcError>;
+  getBirthday(): ResultAsync<UnixTimestamp | null, JsonRpcError>;
   setGender(gender: Gender): ResultAsync<void, JsonRpcError>;
   getGender(): ResultAsync<Gender | null, JsonRpcError>;
   setEmail(email: EmailAddressString): ResultAsync<void, JsonRpcError>;

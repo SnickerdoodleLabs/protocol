@@ -54,7 +54,6 @@ import {
   EVMTransaction,
   TransactionPaymentCounter,
   getChainInfoByChainId,
-  Birthday,
   EligibleAd,
   AdSignature,
 } from "@snickerdoodlelabs/objects";
@@ -525,7 +524,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   }
 
   public setBirthday(
-    birthday: Birthday,
+    birthday: UnixTimestamp,
   ): ResultAsync<void, PersistenceError> {
     return this.waitForRestore()
       .andThen(() => {
@@ -536,7 +535,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       });
   }
 
-  public getBirthday(): ResultAsync<Birthday | null, PersistenceError> {
+  public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
     return this.waitForRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.BIRTHDAY, null);
     });
@@ -678,6 +677,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getSimulatorEVMBalanceRepository(),
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
+      this.accountBalances.getGnosisBalanceRepository(),
     ])
       .andThen(
         ([
@@ -687,6 +687,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           simulatorRepo,
           etherscanRepo,
           maticRepo,
+          gnosisRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -716,6 +717,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               );
             case EIndexer.Ethereum:
               return etherscanRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Gnosis:
+              return gnosisRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -819,47 +825,62 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
+      this.accountNFTs.getGnosisNFTRepository(),
     ])
-      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
-        const chainInfo = config.chainInformation.get(chainId);
-        if (chainInfo == null) {
-          return errAsync(
-            new AccountIndexingError(
-              `No available chain info for chain ${chainId}`,
-            ),
-          );
-        }
-
-        switch (chainInfo.indexer) {
-          case EIndexer.EVM:
-          case EIndexer.Polygon:
-            return evmRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Simulator:
-            return simulatorRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Solana:
-            return solRepo.getTokensForAccount(
-              chainId,
-              accountAddress as SolanaAccountAddress,
-            );
-          case EIndexer.Ethereum:
-            return etherscanRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          default:
+      .andThen(
+        ([
+          config,
+          evmRepo,
+          solRepo,
+          simulatorRepo,
+          etherscanRepo,
+          gnosisRepo,
+        ]) => {
+          const chainInfo = config.chainInformation.get(chainId);
+          if (chainInfo == null) {
             return errAsync(
               new AccountIndexingError(
-                `No available token repository for chain ${chainId}`,
+                `No available chain info for chain ${chainId}`,
               ),
             );
-        }
-      })
+          }
+
+          switch (chainInfo.indexer) {
+            case EIndexer.EVM:
+            case EIndexer.Polygon:
+              return evmRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Simulator:
+              return simulatorRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Solana:
+              return solRepo.getTokensForAccount(
+                chainId,
+                accountAddress as SolanaAccountAddress,
+              );
+            case EIndexer.Ethereum:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Gnosis:
+              return gnosisRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            default:
+              return errAsync(
+                new AccountIndexingError(
+                  `No available token repository for chain ${chainId}`,
+                ),
+              );
+          }
+        },
+      )
       .orElse((e) => {
         this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
         return okAsync([]);
@@ -964,12 +985,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         }),
       )
       .map((marketDataMap) => {
-        console.log(marketDataMap);
-
         const retVal: TransactionPaymentCounter[] = [];
         flowMap.forEach((counter, chainId) => {
           const marketData = marketDataMap.get(`${chainId}-${null}`);
-          console.log(marketData);
           if (marketData != null) {
             counter.incomingValue *= marketData.currentPrice;
             counter.outgoingValue *= marketData.currentPrice;

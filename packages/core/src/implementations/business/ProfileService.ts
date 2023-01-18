@@ -8,7 +8,7 @@ import {
   Age,
   IDataWalletPersistenceType,
   IDataWalletPersistence,
-  Birthday,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -33,10 +33,10 @@ export class ProfileService implements IProfileService {
   getFamilyName(): ResultAsync<FamilyName | null, PersistenceError> {
     return this.dataWalletPersistence.getFamilyName();
   }
-  setBirthday(birthday: Birthday): ResultAsync<void, PersistenceError> {
+  setBirthday(birthday: UnixTimestamp): ResultAsync<void, PersistenceError> {
     return this.dataWalletPersistence.setBirthday(birthday);
   }
-  getBirthday(): ResultAsync<Birthday | null, PersistenceError> {
+  getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
     return this.dataWalletPersistence.getBirthday();
   }
   setGender(gender: Gender): ResultAsync<void, PersistenceError> {

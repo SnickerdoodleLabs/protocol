@@ -4,7 +4,6 @@ export * from "@objects/primitives/Age";
 export * from "@objects/primitives/Argon2Hash";
 export * from "@objects/primitives/Base64String";
 export * from "@objects/primitives/BaseURI";
-export * from "@objects/primitives/Birthday";
 export * from "@objects/primitives/BigNumberString";
 export * from "@objects/primitives/BlockNumber";
 export * from "@objects/primitives/ChainId";
