@@ -72,14 +72,10 @@ export class GoogleCloudStorage implements ICloudStorage {
         return ResultUtils.combine(
           files
             .filter((file) => {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this._parsePath(file.name).map(
-                ([hash, backupPriority]) => {
-                  return (
-                    priority == backupPriority &&
-                    !restored.has(DataWalletBackupID(hash))
-                  );
-                },
+              const [hash, backupPriority] = this._parsePath(file.name);
+              return (
+                priority == backupPriority &&
+                !restored.has(DataWalletBackupID(hash))
               );
             })
             .map((file) => {
@@ -175,9 +171,8 @@ export class GoogleCloudStorage implements ICloudStorage {
           files
             .filter((file) => {
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              return this._parsePath(file.name).map(([hash, _priority]) => {
-                return !restored.has(DataWalletBackupID(hash));
-              });
+              const [hash, _priority] = this._parsePath(file.name);
+              return !restored.has(DataWalletBackupID(hash));
             })
             .map((file) => {
               return this.ajaxUtils.get<IDataWalletBackup>(
@@ -217,9 +212,7 @@ export class GoogleCloudStorage implements ICloudStorage {
     return okAsync(`${header.priority}_${header.hash}`);
   }
 
-  private _parsePath(
-    path: string,
-  ): ResultAsync<[string, EBackupPriority], never> {
+  private _parsePath(path: string): [string, EBackupPriority] {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const name = path.split(/[/ ]+/).pop()!;
     const delim = name.indexOf("_");
@@ -227,6 +220,6 @@ export class GoogleCloudStorage implements ICloudStorage {
       name.substring(0, delim),
     ) as EBackupPriority;
     const hash = name.substring(delim + 1);
-    return okAsync([hash, priority]);
+    return [hash, priority];
   }
 }
