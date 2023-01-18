@@ -140,7 +140,7 @@ describe("ConsentFactory", () => {
       // user 1 removes its previously staked tag
       await deployedConsentInstance1
         .connect(user1)
-        .removeListing(tag2, slot3).then(
+        .removeListing(tag2).then(
           (txrct) => {
             return txrct.wait()
           }
@@ -246,7 +246,7 @@ describe("ConsentFactory", () => {
       // user 1 can reclaim the stake from their expired listing
       await deployedConsentInstance1
         .connect(user1)
-        .removeListing(tag2, slot3).then(
+        .removeListing(tag2).then(
           (txrct) => {
             return txrct.wait()
           }
@@ -306,6 +306,7 @@ describe("ConsentFactory", () => {
           }
         );
 
+      // admin has removed the listing but the consent contract still has the tag staked
       expect(
           await deployedConsentInstance1
             .connect(user1)
@@ -315,7 +316,7 @@ describe("ConsentFactory", () => {
       // user 1 can reclaim their stake after admin cleared their listing
       await deployedConsentInstance1
         .connect(user1)
-        .removeListing(tag2, slot3).then(
+        .removeListing(tag2).then(
           (txrct) => {
             return txrct.wait()
           }
