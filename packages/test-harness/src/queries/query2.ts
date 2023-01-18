@@ -149,6 +149,6 @@ export const query2 = {
   },
   logic: {
     returns: ["$r1", "$r2", "$r3"],
-    compensations: [],
+    compensations: ["$c1", "$c2", "$c3"],
   },
 }

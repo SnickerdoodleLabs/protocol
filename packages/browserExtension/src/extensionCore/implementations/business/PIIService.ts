@@ -20,9 +20,6 @@ export class PIIService implements IPIIService {
     @inject(IPIIRepositoryType) protected piiRespository: IPIIRepository,
   ) {}
 
-  public setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiRespository.setAge(age);
-  }
   public getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
     return this.piiRespository.getAge();
   }
