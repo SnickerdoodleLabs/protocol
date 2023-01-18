@@ -52,7 +52,6 @@ export interface ISdlDataWallet extends EventEmitter {
   getUnlockMessage: (
     languageCode?: LanguageCode,
   ) => ResultAsync<string, JsonRpcError>;
-  setAge(age: Age): ResultAsync<void, JsonRpcError>;
   getAge(): ResultAsync<Age | null, JsonRpcError>;
   setGivenName(givenName: GivenName): ResultAsync<void, JsonRpcError>;
   getGivenName(): ResultAsync<GivenName | null, JsonRpcError>;
