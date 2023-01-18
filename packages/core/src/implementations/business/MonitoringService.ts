@@ -173,7 +173,6 @@ export class MonitoringService implements IMonitoringService {
               new Date(timestamp * 1000),
             );
           case EIndexer.Gnosis:
-            console.log("EIndexer.Gnosis");
             return gnosisRepo.getEVMTransactions(
               chainId,
               accountAddress as EVMAccountAddress,

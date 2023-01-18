@@ -97,7 +97,6 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
   chainConfig.values(),
 ).reduce(
   (acc, chainInfo) => {
-    console.log("");
     if (chainInfo.type === EChainType.Mainnet) {
       acc.mainnetSupportedChainIds = [
         ...acc.mainnetSupportedChainIds,
@@ -109,9 +108,6 @@ const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
         chainInfo.chainId,
       ];
     }
-    console.log("mainnetSupportedChainIds: ", mainnetSupportedChainIds);
-    console.log("testnetSupportedChainIds: ", testnetSupportedChainIds);
-    console.log("acc: ", acc);
     return acc;
   },
   { mainnetSupportedChainIds: [], testnetSupportedChainIds: [] } as {
