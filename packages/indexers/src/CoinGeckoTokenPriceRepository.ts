@@ -56,6 +56,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         this._nativeIds.set(value.chainId, value.nativeCurrency.coinGeckoId);
       }
     });
+    console.log("Coin Gecko ids: ", this._nativeIds);
   }
 
   public getMarketDataForTokens(

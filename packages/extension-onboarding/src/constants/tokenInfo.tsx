@@ -27,4 +27,5 @@ export const stableCoins = [
   "TUSD",
   "USDD",
   "EURS",
+  "GLMR",
 ];

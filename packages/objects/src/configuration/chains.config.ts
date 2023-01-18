@@ -199,27 +199,9 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
     ),
   ],
   [
-    ChainId(EChain.EthereumMainnet),
-    new ChainInformation(
-      "Moonbeam",
-      ChainId(EChain.EthereumMainnet),
-      EChain.EthereumMainnet,
-      EChainTechnology.EVM,
-      true,
-      [],
-      10000,
-      EIndexer.Ethereum,
-      new NativeCurrencyInformation("GLMR", 18, "GLMR"),
-      EChainType.Mainnet,
-      "https://moonbeam.moonscan.io/",
-      getExplorerUrl,
-      URLString("https://moonbeam.moonscan.io/"),
-    ),
-  ],
-  [
     ChainId(EChain.Moonbeam),
     new ChainInformation(
-      "Gnosis",
+      "Moonbeam",
       ChainId(EChain.Moonbeam),
       EChain.Moonbeam,
       EChainTechnology.EVM,
@@ -227,7 +209,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       [],
       10000, // average block mining time
       EIndexer.Moonbeam,
-      new NativeCurrencyInformation("GLMR", 18, "GLMR", "GLMR"),
+      new NativeCurrencyInformation("GLMR", 18, "GLMR", "glmr"),
       EChainType.Mainnet,
       "https://moonbeam.moonscan.io/",
       getExplorerUrl,

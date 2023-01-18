@@ -17,6 +17,10 @@ import {
   TokenBalance,
   IEVMNftRepository,
   EVMNFT,
+  BigNumberString,
+  getChainInfoByChainId,
+  EChainTechnology,
+  TickerSymbol,
 } from "@snickerdoodlelabs/objects";
 // import { Network, Alchemy, TokenMetadataResponse } from "alchemy-sdk";
 import { BigNumber } from "ethers";
@@ -49,7 +53,33 @@ export class MoonbeamIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
+    
+    return this._getEtherscanApiKey(chainId)
+      .andThen((apiKey) => {
+        const url = `https://api-moonbeam.moonscan.io/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+        console.log("Moonbeam url: ", url);
+        return this.ajaxUtils.get<IMoonbeamBalanceResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(url),
+        );
+      })
+      .andThen((tokenResponse) => {
+        console.log("Moonbeam response: ", tokenResponse);
+        const chainInfo = getChainInfoByChainId(chainId);
+        const tokenBalances: TokenBalance[] = [];
+        tokenBalances.push(
+          new TokenBalance(
+            EChainTechnology.EVM,
+            TickerSymbol(chainInfo.nativeCurrency.symbol),
+            chainId,
+            null,
+            accountAddress,
+            tokenResponse.result,
+            chainInfo.nativeCurrency.decimals,
+          ),
+        );
+        return okAsync(tokenBalances);
+      });
   }
 
   public getEVMTransactions(
@@ -81,4 +111,10 @@ export class MoonbeamIndexer
       return okAsync(config.etherscanApiKeys.get(chain)!);
     });
   }
+}
+
+interface IMoonbeamBalanceResponse {
+  status: string;
+  message: string;
+  result: BigNumberString;
 }
