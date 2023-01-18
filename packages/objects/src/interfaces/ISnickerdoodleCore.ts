@@ -105,11 +105,33 @@ export interface ICoreIntegrationMethods {
    * is provided with A as the sourceDomain, so the core will process the request permissioned for
    * domain A. The host is not required to pass or use sourceDomain, which will then ignore the
    * permissions system.
+   *
+   * This method always adds additional permissions- you don't have to pass a complete list. It's
+   * just a list of additional permissions. Permissions are revoked completely with revokePermissions()
    */
   grantPermissions(
     permissions: EDataWalletPermission[],
     domain: DomainName,
   ): ResultAsync<void, PersistenceError>;
+
+  /**
+   * Revokes all permissions for the domain
+   * @param domain
+   */
+  revokePermissions(domain: DomainName): ResultAsync<void, PersistenceError>;
+
+  /**
+   * This method is called by the data wallet proxy when it wants to get permissions. A
+   * PermissionsRequestedEvent is emitted after confirming there's new permissions to grant. The
+   * method will not return until the permissions are granted.
+   * @param permissions The list of permissions you want
+   * @param sourceDomain The domain that is requesting them
+   * @returns The list of permissions actually granted- this may not match the list requested. If permissions were previously granted then the whole list is returned. This should be identical to the return from getPermissions()
+   */
+  requestPermissions(
+    permissions: EDataWalletPermission[],
+    sourceDomain: DomainName,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
 
   /**
    * Returns the granted permissions for a particular domain

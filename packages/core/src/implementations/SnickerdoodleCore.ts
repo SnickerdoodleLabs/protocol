@@ -216,6 +216,21 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
         );
         return integrationService.grantPermissions(permissions, domain);
       },
+      revokePermissions: (domain: DomainName) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.revokePermissions(domain);
+      },
+      requestPermissions: (
+        permissions: EDataWalletPermission[],
+        sourceDomain: DomainName,
+      ) => {
+        const integrationService = this.iocContainer.get<IIntegrationService>(
+          IIntegrationServiceType,
+        );
+        return integrationService.requestPermissions(permissions, sourceDomain);
+      },
       getPermissions: (
         domain: DomainName,
         sourceDomain: DomainName | undefined = undefined,

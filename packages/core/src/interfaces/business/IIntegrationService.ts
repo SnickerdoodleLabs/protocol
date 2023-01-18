@@ -12,6 +12,13 @@ export interface IIntegrationService {
     domain: DomainName,
   ): ResultAsync<void, PersistenceError>;
 
+  revokePermissions(domain: DomainName): ResultAsync<void, PersistenceError>;
+
+  requestPermissions(
+    permissions: EDataWalletPermission[],
+    sourceDomain: DomainName,
+  ): ResultAsync<EDataWalletPermission[], PersistenceError>;
+
   /**
    * Returns the granted permissions for a particular domain
    * @param domain
