@@ -1,0 +1,57 @@
+// prettier-ignore
+{
+  "extends":  "@tsconfig/react-native/tsconfig.json",    /* Recommended React Native TSConfig base */
+  "compilerOptions": {
+    /* Visit https://aka.ms/tsconfig.json to read more about this file */
+
+    /* Completeness */
+    "skipLibCheck": true,                         /* Skip type checking all .d.ts files. */
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "baseUrl": "./src/",
+    "outDir": "./dist",
+    "module": "ES2022",
+    "paths":{
+      "@assets/*":["./assets/*"]
+    }
+},
+"references": [
+  {
+    "path": "../common-utils"
+  },
+  {
+    "path": "../contracts-sdk"
+  },
+  {
+    "path": "../core"
+  }, 
+  {
+    "path": "../indexers"
+  },
+  {
+    "path": "../insight-platform-api"
+  },
+  {
+    "path": "../objects"
+  },
+  {
+    "path": "../persistence"
+  },
+  {
+    "path": "../query-parser"
+  },
+  {
+    "path": "../signatureVerification"
+  },
+  {
+    "path": "../utils"
+  },
+],
+"include": [
+  "src"
+],
+"exclude": [
+  "node_modules"
+]
+}
