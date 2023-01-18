@@ -29,16 +29,15 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IIndexerConfigProviderType,
   IIndexerConfigProvider,
 } from "@indexers/IIndexerConfigProvider.js";
 
-const poapAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
+const poapAddress = "0x5e74094cd416f55179dbd0e45b1a8ed030e396a1";
 
-export class GnosisIndexer
+export class BinanceIndexer
   implements
     IEVMAccountBalanceRepository,
     IEVMTransactionRepository,
@@ -59,24 +58,22 @@ export class GnosisIndexer
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
     return this._getEtherscanApiKey(chainId)
       .andThen((apiKey) => {
-        return ResultUtils.combine([
-          this.generateUrl(accountAddress, apiKey, "tokentx"),
-          this.generateUrl(accountAddress, apiKey, "balance"),
-        ]);
+        return this.generateUrl(
+          chainId,
+          accountAddress,
+          apiKey,
+          urlAction.balance,
+        );
       })
-      .andThen(([transactionUrl, blockNumberUrl]) => {
-        return ResultUtils.combine([
-          this.ajaxUtils.get<IGnosisscanTransactionResponse>(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            new URL(transactionUrl!),
-          ),
-          this.ajaxUtils.get<IGnosisscanBalanceResponse>(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            new URL(blockNumberUrl),
-          ),
-        ]);
+      .andThen((blockNumberUrl) => {
+        console.log("blockNumberUrl: ", blockNumberUrl);
+        return this.ajaxUtils.get<IGnosisscanBalanceResponse>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(blockNumberUrl),
+        );
       })
-      .map(([tokenResponse, balanceResponse]) => {
+      .map((balanceResponse) => {
+        console.log("balanceResponse: ", balanceResponse);
         const chainInfo = getChainInfoByChainId(chainId);
         const tokenBalances: TokenBalance[] = [];
         tokenBalances.push(
@@ -102,15 +99,34 @@ export class GnosisIndexer
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return this._getEtherscanApiKey(chainId)
       .andThen((apiKey) => {
-        return this.generateUrl(accountAddress, apiKey, "tokennfttx");
+        return this.generateUrl(
+          chainId,
+          accountAddress,
+          apiKey,
+          urlAction.tokennfttx,
+        );
       })
       .andThen((transactionsUrl) => {
+        console.log("transactionsUrl: ", transactionsUrl);
         return this.ajaxUtils.get<IGnosisscanTransactionResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           new URL(transactionsUrl!),
         );
       })
       .map((tokenResponse) => {
+        console.log("tokenResponse: ", tokenResponse);
+        // const responses: EVMTransaction[] = [];
+        console.log(
+          "tokenResponse.result.length: ",
+          tokenResponse.result.length,
+        );
+        if (tokenResponse.result.length == 0) {
+          return [];
+        }
+        console.log(
+          "tokenResponse.result.length: ",
+          tokenResponse.result.length,
+        );
         return tokenResponse.result.map((tx) => {
           return new EVMTransaction(
             chainId,
@@ -139,15 +155,22 @@ export class GnosisIndexer
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
     return this._getEtherscanApiKey(chainId)
       .andThen((apiKey) => {
-        return this.generateUrl(accountAddress, apiKey, "tokennfttx");
+        return this.generateUrl(
+          chainId,
+          accountAddress,
+          apiKey,
+          urlAction.tokennfttx,
+        );
       })
       .andThen((url) => {
+        console.log("tokensUrl: ", url);
         return this.ajaxUtils.get<IGnosisscanTransactionResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           new URL(url!),
         );
       })
       .map((tokenResponse) => {
+        console.log("tokenResponse: ", tokenResponse);
         return tokenResponse.result.map((tx) => {
           return new EVMNFT(
             EVMContractAddress(tx.contractAddress),
@@ -180,16 +203,25 @@ export class GnosisIndexer
   }
 
   protected generateUrl(
+    chainId: ChainId,
     accountAddress: EVMAccountAddress,
     apiKey: string,
-    action: string,
+    action: urlAction,
   ): ResultAsync<URLString, AccountIndexingError> {
-    const url = `https://api.gnosisscan.io/api?module=account&action=${action}&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+    console.log("action: ", action);
+    const path = "api.bscscan.com";
+    const url = `https://${path}/api?module=account&action=${action}&address=${accountAddress}&apikey=${apiKey}`;
     if (action == "tokennfttx") {
-      const url = `https://api.gnosisscan.io/api?module=account&action=${action}&contractaddress=${poapAddress}&address=${accountAddress}&page=1&offset=100&sort=asc&apikey=${apiKey}`;
+      const url = `https://${path}/api?module=account&action=${action}&contractaddress=${poapAddress}&address=${accountAddress}&page=1&offset=100&sort=asc&apikey=${apiKey}`;
     }
     return okAsync(URLString(url));
   }
+}
+
+enum urlAction {
+  balance = "balance",
+  tokentx = "tokentx",
+  tokennfttx = "tokennfttx",
 }
 
 interface IGnosisscanTransactionResponse {

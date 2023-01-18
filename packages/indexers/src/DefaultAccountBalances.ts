@@ -14,6 +14,7 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
+import { BinanceIndexer } from "@indexers/BinanceIndexer.js";
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
 import { GnosisIndexer } from "@indexers/GnosisIndexer.js";
 import {
@@ -33,6 +34,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected ethereum: IEVMAccountBalanceRepository;
   protected matic: IEVMAccountBalanceRepository;
   protected gnosis: IEVMAccountBalanceRepository;
+  protected binance: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -68,6 +70,19 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.tokenPriceRepo,
       this.logUtils,
     );
+    this.binance = new BinanceIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+  }
+
+  public getBinanceBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  > {
+    return okAsync(this.binance);
   }
 
   public getGnosisBalanceRepository(): ResultAsync<
