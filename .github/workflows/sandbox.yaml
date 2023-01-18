@@ -54,7 +54,8 @@ jobs:
     - name: Publish protocol
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
-
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
     - name: Deploy to GCR
       run: |-
         JIRA_TICKET=$(echo $GITHUB_REF | grep -Eo '[A-Z0-9]*-[0-9]*' | awk '{print tolower($0)}')
