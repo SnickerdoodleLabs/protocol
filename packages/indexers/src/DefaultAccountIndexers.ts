@@ -16,6 +16,7 @@ import { ResultAsync, okAsync } from "neverthrow";
 
 import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
+import { GnosisIndexer } from "@indexers/GnosisIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,

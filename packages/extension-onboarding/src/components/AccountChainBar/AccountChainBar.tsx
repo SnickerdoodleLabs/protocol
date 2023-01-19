@@ -1,3 +1,13 @@
+import { Box, MenuItem, Select, Typography } from "@material-ui/core";
+import {
+  AccountAddress,
+  chainConfig,
+  ChainId,
+  EChainType,
+} from "@snickerdoodlelabs/objects";
+import clsx from "clsx";
+import React, { FC, useEffect, useMemo } from "react";
+
 import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
 import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
 import phantomSmall from "@extension-onboarding/assets/icons/phantomSmall.svg";
@@ -10,15 +20,6 @@ import {
   useAppContext,
 } from "@extension-onboarding/context/App";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import { Box, MenuItem, Select, Typography } from "@material-ui/core";
-import {
-  AccountAddress,
-  chainConfig,
-  ChainId,
-  EChainType,
-} from "@snickerdoodlelabs/objects";
-import clsx from "clsx";
-import React, { FC, useEffect, useMemo } from "react";
 
 export enum EDisplayMode {
   MAINNET,
