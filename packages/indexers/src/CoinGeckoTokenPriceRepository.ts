@@ -79,6 +79,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
           `${ChainId}-${TokenAddress}`,
           TokenMarketData
         >();
+
         marketData.forEach((data) => {
           const key = ids.get(data.id)!;
           returnVal.set(key, data);
@@ -323,7 +324,6 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
             forward: {},
             backward: {},
           };
-
           items.forEach((item) => {
             if (
               item.chain_identifier &&
