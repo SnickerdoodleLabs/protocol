@@ -474,7 +474,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public addAccount(
     linkedAccount: LinkedAccount,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForFullRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
@@ -490,7 +490,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public removeAccount(
     accountAddress: EVMAccountAddress,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForFullRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.storageUtils.read<EVMAccountAddress[]>(
           ELocalStorageKey.ACCOUNT,
