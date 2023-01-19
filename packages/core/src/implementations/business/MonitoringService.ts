@@ -164,11 +164,7 @@ export class MonitoringService implements IMonitoringService {
               new Date(timestamp * 1000),
             );
           case EIndexer.Gnosis:
-            return evmRepo.getEVMTransactions(
-              chainId,
-              accountAddress as EVMAccountAddress,
-              new Date(timestamp * 1000),
-            );
+            return okAsync([]);
           default:
             this.logUtils.error(
               `No available indexer repository for chain ${chainId}`,
