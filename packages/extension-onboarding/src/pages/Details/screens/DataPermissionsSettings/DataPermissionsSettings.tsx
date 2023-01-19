@@ -4,11 +4,10 @@ import {
   PERMISSION_DESCRIPTIONS,
   PERMISSION_NAMES,
 } from "@extension-onboarding/constants/permissions";
+import usePermissionSettingsLogic from "@extension-onboarding/hooks/usePermissionSettingsLogic";
 import { useStyles } from "@extension-onboarding/pages/Details/screens/DataPermissionsSettings/DataPermissionsSettings.style";
-import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
 import {
   Box,
-  Button,
   Divider,
   FormControlLabel,
   Grid,
@@ -16,47 +15,17 @@ import {
   RadioGroup,
   Typography,
 } from "@material-ui/core";
-import { EWalletDataType } from "@snickerdoodlelabs/objects";
-import React, { FC, useEffect, useMemo, useState } from "react";
-declare const window: IWindowWithSdlDataWallet;
+import React, { FC } from "react";
 
 const DataPermissionsSettings: FC = () => {
+  const {
+    permissionForm,
+    handleApplyDefaultOptionChange,
+    applyDefaults,
+    addPermission,
+    removePermission,
+  } = usePermissionSettingsLogic();
   const classes = useStyles();
-  const [applyDefaults, setApplyDefaults] = useState<boolean>(false);
-  const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
-
-  useEffect(() => {
-    getApplyDefaultOption();
-    getPermissions();
-  }, []);
-
-  const getApplyDefaultOption = () => {
-    return window.sdlDataWallet
-      .getApplyDefaultPermissionsOption()
-      .map((option) => setApplyDefaults(option));
-  };
-
-  const getPermissions = () => {
-    return window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
-      setPermissionForm(permissions.filter((item) => !!PERMISSION_NAMES[item]));
-    });
-  };
-
-  const setPermissions = (dataTypes: EWalletDataType[]) => {
-    return window.sdlDataWallet.setDefaultPermissions(dataTypes).andThen(() => {
-      return getPermissions();
-    });
-  };
-
-  const handleApplyDefaultOptionChange = (optionStr: "true" | "false") => {
-    const option = optionStr === "true";
-
-    window.sdlDataWallet
-      .setApplyDefaultPermissionsOption(option)
-      .andThen(() => {
-        return getApplyDefaultOption();
-      });
-  };
 
   return (
     <Box>
@@ -98,12 +67,16 @@ const DataPermissionsSettings: FC = () => {
                 </Typography>
               </Box>
               <Box mb={7} border="1px solid #D9D9D9" p={4} borderRadius={8}>
-                <Grid container spacing={2}>
+                <Grid container>
                   {item.dataTypes.map((dataType, index) => {
                     return (
-                      <Grid key={index} item xs={sectionIndex === 0 ? 6 : 12}>
+                      <Grid
+                        key={index}
+                        item
+                        xs={PERMISSION_DESCRIPTIONS[dataType] ? 12 : 6}
+                      >
                         <Box
-                          mb={2}
+                          mb={1}
                           display="flex"
                           alignItems="center"
                           justifyContent="space-between"
@@ -117,16 +90,9 @@ const DataPermissionsSettings: FC = () => {
                               value={permissionForm.includes(dataType)}
                               onChange={(event) => {
                                 if (event.target.checked) {
-                                  setPermissions([
-                                    ...(permissionForm ?? []),
-                                    dataType,
-                                  ]);
+                                  addPermission(dataType);
                                 } else {
-                                  setPermissions(
-                                    permissionForm?.filter(
-                                      (_dataType) => _dataType != dataType,
-                                    ),
-                                  );
+                                  removePermission(dataType);
                                 }
                               }}
                             />
@@ -141,10 +107,11 @@ const DataPermissionsSettings: FC = () => {
                             </Typography>
                           </Box>
                         )}
-                        {index === item.dataTypes.length - 1 ||
-                        (sectionIndex === 0 &&
-                          index === item.dataTypes.length - 2) ? null : (
-                          <Divider />
+                        {item.dataTypes.length != index + 1 && <Box mt={3} />}
+                        {item.dataTypes.length != index + 1 && (
+                          <Box mb={2}>
+                            <Divider />
+                          </Box>
                         )}
                       </Grid>
                     );

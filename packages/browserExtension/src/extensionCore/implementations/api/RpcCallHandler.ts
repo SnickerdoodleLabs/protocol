@@ -1,4 +1,8 @@
 import {
+  ICryptoUtils,
+  ICryptoUtilsType,
+} from "@snickerdoodlelabs/common-utils";
+import {
   Age,
   Invitation,
   CountryCode,
@@ -8,8 +12,6 @@ import {
   FamilyName,
   Gender,
   GivenName,
-  IEVMBalance,
-  IEVMNFT,
   LanguageCode,
   Signature,
   UnixTimestamp,
@@ -24,6 +26,16 @@ import {
   AccountAddress,
   TokenId,
   BigNumberString,
+  TokenBalance,
+  WalletNFT,
+  EarnedReward,
+  ChainId,
+  TokenAddress,
+  TokenInfo,
+  TokenMarketData,
+  URLString,
+  SiteVisit,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import {
@@ -35,6 +47,7 @@ import { okAsync, ResultAsync } from "neverthrow";
 import { parse } from "tldts";
 import { Runtime } from "webextension-polyfill";
 
+import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
 import { AsyncRpcResponseSender } from "@implementations/utilities";
 import { IRpcCallHandler } from "@interfaces/api";
 import {
@@ -44,6 +57,10 @@ import {
   IInvitationServiceType,
   IPIIService,
   IPIIServiceType,
+  ITokenPriceService,
+  ITokenPriceServiceType,
+  IUserSiteInteractionService,
+  IUserSiteInteractionServiceType,
 } from "@interfaces/business";
 import {
   IScamFilterService,
@@ -55,6 +72,10 @@ import {
   IDataPermissionsUtils,
   IDataPermissionsUtilsType,
 } from "@interfaces/utilities";
+import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@interfaces/utilities/IScamFilterSettingsUtils";
 import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
 import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
 import { EExternalActions, EInternalActions } from "@shared/enums";
@@ -62,7 +83,6 @@ import {
   IUnlockParams,
   IGetUnlockMessageParams,
   IAddAccountParams,
-  ISetAgeParams,
   ISetGivenNameParams,
   ISetFamilyNameParams,
   ISetBirthdayParams,
@@ -81,6 +101,13 @@ import {
   ISetApplyDefaultPermissionsParams,
   IUnlinkAccountParams,
   IAcceptInvitationParams,
+  IScamFilterSettingsParams,
+  IGetConsentContractCIDParams,
+  ICheckInvitationStatusParams,
+  IGetTokenPriceParams,
+  IGetTokenMarketDataParams,
+  IGetTokenInfoParams,
+  IGetMarketplaceListingsParams,
 } from "@shared/interfaces/actions";
 import {
   SnickerDoodleCoreError,
@@ -88,16 +115,13 @@ import {
 } from "@shared/objects/errors";
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
-import {
-  ICryptoUtils,
-  ICryptoUtilsType,
-} from "@snickerdoodlelabs/common-utils";
-import { BigNumber } from "ethers";
 
 @injectable()
 export class RpcCallHandler implements IRpcCallHandler {
   constructor(
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
+    @inject(ITokenPriceServiceType)
+    protected tokenPriceService: ITokenPriceService,
     @inject(IAccountServiceType) protected accountService: IAccountService,
     @inject(IPIIServiceType) protected piiService: IPIIService,
     @inject(IInvitationServiceType)
@@ -107,6 +131,10 @@ export class RpcCallHandler implements IRpcCallHandler {
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
+    @inject(IScamFilterSettingsUtilsType)
+    protected scamFilterSettingsUtils: IScamFilterSettingsUtils,
+    @inject(IUserSiteInteractionServiceType)
+    protected userSiteInteractionService: IUserSiteInteractionService,
   ) {}
 
   public async handleRpcCall(
@@ -141,9 +169,33 @@ export class RpcCallHandler implements IRpcCallHandler {
           res,
         ).call();
       }
+      case EExternalActions.GET_EARNED_REWARDS: {
+        return new AsyncRpcResponseSender(this.getEarnedRewards(), res).call();
+      }
       case EExternalActions.GET_ACCOUNTS:
       case EInternalActions.GET_ACCOUNTS: {
         return new AsyncRpcResponseSender(this.getAccounts(), res).call();
+      }
+      case EExternalActions.GET_TOKEN_PRICE: {
+        const { chainId, address, timestamp } = params as IGetTokenPriceParams;
+        return new AsyncRpcResponseSender(
+          this.getTokenPrice(chainId, address, timestamp),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_TOKEN_MARKET_DATA: {
+        const { ids } = params as IGetTokenMarketDataParams;
+        return new AsyncRpcResponseSender(
+          this.getTokenMarketData(ids),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_TOKEN_INFO: {
+        const { chainId, contractAddress } = params as IGetTokenInfoParams;
+        return new AsyncRpcResponseSender(
+          this.getTokenInfo(chainId, contractAddress),
+          res,
+        ).call();
       }
       case EExternalActions.GET_ACCOUNT_BALANCES:
       case EInternalActions.GET_ACCOUNT_BALANCES: {
@@ -155,10 +207,6 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_ACCOUNT_NFTS:
       case EInternalActions.GET_ACCOUNT_NFTS: {
         return new AsyncRpcResponseSender(this.getAccountNFTs(), res).call();
-      }
-      case EExternalActions.SET_AGE: {
-        const { age } = params as ISetAgeParams;
-        return new AsyncRpcResponseSender(this.setAge(age), res).call();
       }
       case EExternalActions.SET_GIVEN_NAME: {
         const { givenName } = params as ISetGivenNameParams;
@@ -221,6 +269,12 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_LOCATION: {
         return new AsyncRpcResponseSender(this.getLocation(), res).call();
       }
+      case EExternalActions.GET_SITE_VISITS: {
+        return new AsyncRpcResponseSender(this.getSiteVisits(), res).call();
+      }
+      case EExternalActions.GET_SITE_VISITS_MAP: {
+        return new AsyncRpcResponseSender(this.getSiteVisitsMap(), res).call();
+      }
       case EExternalActions.GET_ACCEPTED_INVITATIONS_CID: {
         return new AsyncRpcResponseSender(
           this.getAcceptedInvitationsCID(),
@@ -231,6 +285,35 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { ipfsCID } = params as IGetInvitationMetadataByCIDParams;
         return new AsyncRpcResponseSender(
           this.getInvitationMetadataByCID(ipfsCID),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.CHECK_INVITATION_STATUS: {
+        const { signature, consentAddress, tokenId } =
+          params as ICheckInvitationStatusParams;
+        return new AsyncRpcResponseSender(
+          this.checkInvitationStatus(consentAddress, signature, tokenId),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_MARKETPLACE_LISTINGS: {
+        const { count, headAt } = params as IGetMarketplaceListingsParams;
+        return new AsyncRpcResponseSender(
+          this.getMarketplaceListings(count, headAt),
+          res,
+        ).call();
+      }
+
+      case EExternalActions.GET_LISTING_TOTAL: {
+        return new AsyncRpcResponseSender(this.getListingsTotal(), res).call();
+      }
+
+      case EExternalActions.GET_CONTRACT_CID: {
+        const { consentAddress } = params as IGetConsentContractCIDParams;
+        return new AsyncRpcResponseSender(
+          this.getConsentContractCID(consentAddress),
           res,
         ).call();
       }
@@ -309,6 +392,20 @@ export class RpcCallHandler implements IRpcCallHandler {
         const { dataTypes, id } = params as IAcceptInvitationByUUIDParams;
         return new AsyncRpcResponseSender(
           this.acceptInvitationByUUID(dataTypes, id),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_SCAM_FILTER_SETTINGS: {
+        return new AsyncRpcResponseSender(
+          this.getScamFilterSettings(),
+          res,
+        ).call();
+      }
+      case EExternalActions.SET_SCAM_FILTER_SETTINGS: {
+        const { isScamFilterActive, showMessageEveryTime } =
+          params as IScamFilterSettingsParams;
+        return new AsyncRpcResponseSender(
+          this.setScamFilterSettings(isScamFilterActive, showMessageEveryTime),
           res,
         ).call();
       }
@@ -465,6 +562,40 @@ export class RpcCallHandler implements IRpcCallHandler {
     });
   }
 
+  private checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, SnickerDoodleCoreError> {
+    return this._getTokenId(tokenId).andThen((tokenId) => {
+      return this.invitationService.checkInvitationStatus(
+        new Invitation(
+          "" as DomainName,
+          consentAddress,
+          tokenId,
+          signature ?? null,
+        ),
+      );
+    });
+  }
+
+  private getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+    return this.invitationService.getMarketplaceListings(count, headAt);
+  }
+
+  private getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.invitationService.getListingsTotal();
+  }
+
+  private getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
+    return this.invitationService.getConsentContractCID(consentAddress);
+  }
+
   private _getTokenId(tokenId: BigNumberString | undefined) {
     if (tokenId) {
       return okAsync(TokenId(BigInt(tokenId)));
@@ -513,6 +644,21 @@ export class RpcCallHandler implements IRpcCallHandler {
     option: boolean,
   ): ResultAsync<void, ExtensionStorageError> {
     return this.dataPermissionsUtils.setApplyDefaultPermissionsOption(option);
+  }
+  private setScamFilterSettings(
+    isScamFilterActive,
+    showMessageEveryTime,
+  ): ResultAsync<void, ExtensionStorageError> {
+    return this.scamFilterSettingsUtils.setScamFilterSettings(
+      isScamFilterActive,
+      showMessageEveryTime,
+    );
+  }
+  private getScamFilterSettings(): ResultAsync<
+    IScamFilterPreferences,
+    ExtensionStorageError
+  > {
+    return this.scamFilterSettingsUtils.getScamFilterSettings();
   }
 
   private rejectInvitation(
@@ -567,23 +713,45 @@ export class RpcCallHandler implements IRpcCallHandler {
     return this.accountService.getUnlockMessage(languageCode);
   }
 
+  private getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountService.getEarnedRewards();
+  }
+
   private getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.accountService.getAccounts();
   }
 
+  private getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp?: UnixTimestamp,
+  ): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.tokenPriceService.getTokenPrice(chainId, address, timestamp);
+  }
+  private getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], SnickerDoodleCoreError> {
+    return this.tokenPriceService.getTokenMarketData(ids);
+  }
+  private getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, SnickerDoodleCoreError> {
+    return this.tokenPriceService.getTokenInfo(chainId, contractAddress);
+  }
+
   private getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountService.getAccountBalances();
   }
 
-  private getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  private getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
     return this.accountService.getAccountNFTs();
-  }
-
-  private setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.piiService.setAge(age);
   }
 
   private getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
@@ -652,5 +820,14 @@ export class RpcCallHandler implements IRpcCallHandler {
     SnickerDoodleCoreError
   > {
     return this.piiService.getLocation();
+  }
+  private getSiteVisits(): ResultAsync<SiteVisit[], SnickerDoodleCoreError> {
+    return this.userSiteInteractionService.getSiteVisits();
+  }
+  private getSiteVisitsMap(): ResultAsync<
+    Map<URLString, number>,
+    SnickerDoodleCoreError
+  > {
+    return this.userSiteInteractionService.getSiteVisitsMap();
   }
 }

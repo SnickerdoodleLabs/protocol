@@ -3,14 +3,27 @@ import { ResultAsync } from "neverthrow";
 import {
   Invitation,
   DataPermissions,
-  IEVMNFT,
   SDQLQuery,
   PageInvitation,
   SiteVisit,
   LinkedAccount,
+  TokenBalance,
+  WalletNFT,
+  TokenAddress,
+  EarnedReward,
+  IDynamicRewardParameter,
+  ChainTransaction,
+  TransactionFilter,
+  TokenMarketData,
+  TokenInfo,
+  MarketplaceListing,
+  TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
 } from "@objects/businessObjects";
 import { EChain, EInvitationStatus, EScamFilterStatus } from "@objects/enum";
 import {
+  AccountIndexingError,
   AjaxError,
   BlockchainProviderError,
   ConsentContractError,
@@ -29,15 +42,16 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
 } from "@objects/errors";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
+import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
 import { IOpenSeaMetadata } from "@objects/interfaces/IOpenSeaMetadata";
 import { ISnickerdoodleCoreEvents } from "@objects/interfaces/ISnickerdoodleCoreEvents";
 import {
   AccountAddress,
   Age,
-  CeramicStreamID,
+  ChainId,
   CountryCode,
   DataWalletAddress,
+  DataWalletBackupID,
   DomainName,
   EmailAddressString,
   EVMContractAddress,
@@ -47,8 +61,10 @@ import {
   HexString32,
   IpfsCID,
   LanguageCode,
+  SHA256Hash,
   Signature,
   UnixTimestamp,
+  URLString,
 } from "@objects/primitives";
 
 export interface ISnickerdoodleCore {
@@ -242,14 +258,16 @@ export interface ISnickerdoodleCore {
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<
     void,
-    | ConsentContractError
-    | ConsentContractRepositoryError
-    | UninitializedError
     | BlockchainProviderError
+    | UninitializedError
+    | ConsentContractError
     | AjaxError
+    | PersistenceError
     | MinimalForwarderContractError
     | ConsentError
   >;
+
+  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
 
   getInvitationsByDomain(
     domain: DomainName,
@@ -262,12 +280,20 @@ export interface ISnickerdoodleCore {
     | IPFSError
   >;
 
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<
+    IpfsCID,
+    BlockchainProviderError | UninitializedError | ConsentContractError
+  >;
+
   getAcceptedInvitationsCID(): ResultAsync<
     Map<EVMContractAddress, IpfsCID>,
-    | UninitializedError
     | BlockchainProviderError
-    | ConsentFactoryContractError
+    | UninitializedError
     | ConsentContractError
+    | ConsentFactoryContractError
+    | PersistenceError
   >;
 
   getInvitationMetadataByCID(
@@ -287,6 +313,7 @@ export interface ISnickerdoodleCore {
   processQuery(
     consentContractAddress: EVMContractAddress,
     query: SDQLQuery,
+    parameters: IDynamicRewardParameter[],
   ): ResultAsync<
     void,
     | AjaxError
@@ -304,8 +331,8 @@ export interface ISnickerdoodleCore {
     | BlockchainProviderError
     | UninitializedError
     | ConsentContractError
-    | ConsentContractRepositoryError
-    | AjaxError
+    | ConsentFactoryContractError
+    | PersistenceError
     | ConsentError
   >;
 
@@ -318,12 +345,23 @@ export interface ISnickerdoodleCore {
     | PersistenceError
   >;
 
+  restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
+
+  getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
+
+  onAdDisplayed(eligibleAd: EligibleAd): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
+
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
+
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
   isDataWalletAddressInitialized(): ResultAsync<boolean, never>;
 
   /** Google User Information */
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
@@ -346,12 +384,51 @@ export interface ISnickerdoodleCore {
 
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
+  getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    PersistenceError
+  >;
+
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
+
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, PersistenceError>;
+
+  getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], AccountIndexingError>;
+
+  getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, AccountIndexingError>;
+
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError>;
+  addTransactions(
+    transactions: ChainTransaction[],
+  ): ResultAsync<void, PersistenceError>;
+  getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<
+    MarketplaceListing,
+    BlockchainProviderError | UninitializedError | ConsentFactoryContractError
+  >;
+  getListingsTotal(): ResultAsync<
+    number,
+    UninitializedError | BlockchainProviderError | ConsentFactoryContractError
+  >;
 }
 
 export const ISnickerdoodleCoreType = Symbol.for("ISnickerdoodleCore");

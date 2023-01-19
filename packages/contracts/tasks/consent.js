@@ -1,4 +1,5 @@
 const { task } = require("hardhat/config.js");
+
 const {
   logTXDetails,
   consentBeacon,
@@ -72,7 +73,10 @@ task(
       });
   });
 
-task("getQueryHorizon", "Check the blocknumber of the consent contracts query horizon")
+task(
+  "getQueryHorizon",
+  "Check the blocknumber of the consent contracts query horizon",
+)
   .addParam("contractaddress", "address of the consent contract")
   .setAction(async (taskArgs) => {
     const contractaddress = taskArgs.contractaddress;
@@ -90,8 +94,41 @@ task("getQueryHorizon", "Check the blocknumber of the consent contracts query ho
     });
   });
 
-  task("setQueryHorizon", "Set the blocknumber of the consent contracts query horizon")
-  .addParam("blocknumber", "The earliest block number to check for requestForData events")
+task(
+  "getMarketplaceListings",
+  "Get CIDs containing marketplace listing content",
+)
+  .addParam("howmany", "how many listings to return")
+  .setAction(async (taskArgs) => {
+    const howmany = taskArgs.howmany;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractFactorHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      provider,
+    );
+
+    await consentContractFactorHandle
+      .listingsHead()
+      .then((listingsHead) => {
+        return consentContractFactorHandle.getListings(listingsHead, howmany);
+      })
+      .then((output) => {
+        console.log("CIDs", output[0]);
+        console.log("Next Active Listing:", output[1].toNumber());
+      });
+  });
+
+task(
+  "setQueryHorizon",
+  "Set the blocknumber of the consent contracts query horizon",
+)
+  .addParam(
+    "blocknumber",
+    "The earliest block number to check for requestForData events",
+  )
   .addParam("contractaddress", "address of the consent contract")
   .addParam(
     "accountnumber",
@@ -111,13 +148,48 @@ task("getQueryHorizon", "Check the blocknumber of the consent contracts query ho
       account,
     );
 
-    await consentContractHandle.setQueryHorizon(blocknumber)
-    .then((txresponse) => {
-      return txresponse.wait();
-    })
-    .then((txrct) => {
-      logTXDetails(txrct);
-    });
+    await consentContractHandle
+      .setQueryHorizon(blocknumber)
+      .then((txresponse) => {
+        return txresponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
+task("setMaxCapacity", "Set the enrollement capacity of the consent contracts.")
+  .addParam(
+    "capacity",
+    "Integer value for the maximum number of consent tokens to be issued.",
+  )
+  .addParam("contractaddress", "address of the consent contract")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to you in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const capacity = taskArgs.capacity;
+    const contractaddress = taskArgs.contractaddress;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      account,
+    );
+
+    await consentContractHandle
+      .updateMaxCapacity(capacity)
+      .then((txresponse) => {
+        return txresponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
   });
 
 task("checkBalanceOf", "Check balance of an address given a ERC721 address")
@@ -155,6 +227,42 @@ task("getBaseURI", "Check the baseURI parameter of a consent contract")
 
     await consentContractHandle.baseURI().then((baseURI) => {
       console.log("baseURI is:", baseURI);
+    });
+  });
+
+task("getMaxCapacity", "Check the maxCapacity parameter of a consent contract")
+  .addParam("contractaddress", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider,
+    );
+
+    await consentContractHandle.maxCapacity().then((maxCapacity) => {
+      console.log("Max Capcity is:", maxCapacity.toString());
+    });
+  });
+
+task("getOpenOptInDisabled", "Returns the status of the openOptInDisabled flag")
+  .addParam("contractaddress", "address of the consent contract")
+  .setAction(async (taskArgs) => {
+    const contractaddress = taskArgs.contractaddress;
+    const provider = await hre.ethers.provider;
+
+    // attach the first signer account to the consent contract handle
+    const consentContractHandle = new hre.ethers.Contract(
+      contractaddress,
+      CC().abi,
+      provider,
+    );
+
+    await consentContractHandle.openOptInDisabled().then((optInStatus) => {
+      console.log("openOptInDisabled:", optInStatus);
     });
   });
 
@@ -224,15 +332,13 @@ task(
   "getTrustedForwarder",
   "returns the trusted forwarder address of a consent contract",
 )
-  .addParam("contractaddress", "address of the consent contract")
   .setAction(async (taskArgs) => {
-    const contractaddress = taskArgs.contractaddress;
     const provider = await hre.ethers.provider;
 
     // attach the first signer account to the consent contract handle
     const consentContractHandle = new hre.ethers.Contract(
-      contractaddress,
-      CC().abi,
+      consentFactory(),
+      CCFactory().abi,
       provider,
     );
 
@@ -378,6 +484,66 @@ task("getUserConsentContracts", "Check which constract a user has opted in to.")
       })
       .then((myCCs) => {
         console.log("User is opted into:", myCCs);
+      });
+  });
+
+task("addTopMarketplaceListing", "Add a new marketplace listing to top slot")
+  .addParam("newslot", "Integer number for the new marketplace head value.")
+  .addParam("cid", "IPFS address of the listing content.")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to use in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const newslot = taskArgs.newslot;
+    const cid = taskArgs.cid;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentFactoryContractHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      account,
+    );
+
+    await consentFactoryContractHandle
+      .newListingHead(newslot, cid)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
+      });
+  });
+
+  task("removeMarketplaceTailListing", "Removes a non-head listing from the marketplace")
+  .addParam("upstreamslot", "Integer number for the slot which points to the listing to be removed.")
+  .addParam(
+    "accountnumber",
+    "integer referencing the account to use in the configured HD Wallet",
+  )
+  .setAction(async (taskArgs) => {
+    const upstreamslot = taskArgs.upstreamslot;
+    const accountnumber = taskArgs.accountnumber;
+    const accounts = await hre.ethers.getSigners();
+    const account = accounts[accountnumber];
+
+    // attach the first signer account to the consent contract handle
+    const consentFactoryContractHandle = new hre.ethers.Contract(
+      consentFactory(),
+      CCFactory().abi,
+      account,
+    );
+
+    await consentFactoryContractHandle
+      .removeListingTail(upstreamslot)
+      .then((txResponse) => {
+        return txResponse.wait();
+      })
+      .then((txrct) => {
+        logTXDetails(txrct);
       });
   });
 
@@ -565,23 +731,25 @@ task(
 
     // get the queryHorizon
     const qh = await consentContractHandle.queryHorizon();
-    console.log("Query Horizon Block is:", qh.toNumber())
+    console.log("Query Horizon Block is:", qh.toNumber());
 
     // declare the filter parameters of the event of interest
     const filter = await consentContractHandle.filters.RequestForData();
 
-    await consentContractHandle.queryFilter(filter, qh.toNumber(), 'latest').then((result) => {
-      console.log("");
-      console.log("Queried address:", consentAddress);
-      // print each event's arguments
-      result.forEach((log, index) => {
+    await consentContractHandle
+      .queryFilter(filter, qh.toNumber(), "latest")
+      .then((result) => {
         console.log("");
-        console.log("Request number: ", index + 1);
-        console.log("  Owner address: ", log.args.requester);
-        console.log("  Requested CID:", log.args.ipfsCID);
+        console.log("Queried address:", consentAddress);
+        // print each event's arguments
+        result.forEach((log, index) => {
+          console.log("");
+          console.log("Request number: ", index + 1);
+          console.log("  Owner address: ", log.args.requester);
+          console.log("  Requested CID:", log.args.ipfsCID);
+        });
+        console.log("");
       });
-      console.log("");
-    });
   });
 
 task(
@@ -640,7 +808,7 @@ task("grantRole", "Grant specific role on the consent contract.")
   )
   .setAction(async (taskArgs) => {
     const accountnumber = taskArgs.accountnumber;
-    const accounts = hre.ethers.getSigners();
+    const accounts = await hre.ethers.getSigners();
     const account = accounts[accountnumber];
 
     const roleBytes = ethers.utils.id(taskArgs.role);
@@ -679,7 +847,7 @@ task("revokeRole", "Revokes a specific role on the consent contract.")
   )
   .setAction(async (taskArgs) => {
     const accountnumber = taskArgs.accountnumber;
-    const accounts = hre.ethers.getSigners();
+    const accounts = await hre.ethers.getSigners();
     const account = accounts[accountnumber];
 
     const roleBytes = ethers.utils.id(taskArgs.role);

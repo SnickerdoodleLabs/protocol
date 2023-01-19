@@ -1,9 +1,19 @@
-import { EVMEvent } from "@objects/businessObjects";
+import { Interface } from "ethers/lib/utils";
+
+import {
+  ChainTransaction,
+  EVMEvent,
+  EVMFunctionParameter,
+  EVMFunctionSignature,
+} from "@objects/businessObjects";
 import {
   ChainId,
   EVMAccountAddress,
   BigNumberString,
   UnixTimestamp,
+  EVMAccountAddressRegex,
+  EVMTransactionHash,
+  EVMContractAddress,
 } from "@objects/primitives";
 
 /**
@@ -12,74 +22,74 @@ import {
  * is also importing Ethers.
  * Docs are here: https://docs.ethers.io/v5/api/utils/transactions/#Transaction
  */
-export class EVMTransaction {
+export class EVMTransaction extends ChainTransaction {
+  public accountAddresses: EVMAccountAddress[]; // null safety necessary for old transactions
+  public functionSignature: EVMFunctionSignature | null = null;
+
   public constructor(
     public chainId: ChainId,
-    public hash: string,
+    public hash: EVMTransactionHash,
     public timestamp: UnixTimestamp,
     public blockHeight: number | null,
     public to: EVMAccountAddress | null,
     public from: EVMAccountAddress | null,
     public value: BigNumberString | null,
     public gasPrice: BigNumberString | null,
-    public gasOffered: BigNumberString | null,
-    public feesPaid: BigNumberString | null,
-    public events: EVMEvent[] | null,
-    public valueQuote: number | null,
-  ) {}
-}
-
-export class EVMTransactionFilter {
-  public chainIDs?: Set<ChainId>;
-  public hashes?: Set<string>;
-  public addresses?: Set<string>;
-
-  public constructor(
-    chainIDs?: ChainId[],
-    addresses?: EVMAccountAddress[],
-    hashes?: string[],
-    public startTime?: UnixTimestamp,
-    public endTime?: UnixTimestamp,
+    public contractAddress: EVMContractAddress | null,
+    public input: string | null,
+    public methodId: string | null,
+    public functionName: string | null,
+    events: EVMEvent[] | null,
   ) {
-    if (chainIDs != undefined) {
-      this.chainIDs = new Set(chainIDs);
+    super(chainId, hash, timestamp);
+    let addrs = new Set<EVMAccountAddress>();
+    if (this.to) {
+      addrs.add(this.to);
     }
-    if (hashes != undefined) {
-      this.hashes = new Set(hashes.map((x) => x.toLowerCase()));
+    if (this.from) {
+      addrs.add(this.from);
     }
-    if (addresses != undefined) {
-      this.addresses = new Set(addresses.map((x) => x.toLowerCase()));
-    }
-  }
+    if (
+      this.input &&
+      this.functionName &&
+      this.methodId &&
+      !this.functionName.startsWith(this.methodId)
+    ) {
+      try {
+        const iface = new Interface([`function ${this.functionName}`]);
+        const func = iface.getFunction(this.input.slice(0, 10));
+        const paramValues = iface.decodeFunctionData(func.name, this.input);
 
-  public matches(tx: EVMTransaction): boolean {
-    if (this.chainIDs != undefined && !this.chainIDs.has(tx.chainId)) {
-      return false;
-    }
-    if (this.hashes != undefined && !this.hashes.has(tx.hash.toLowerCase())) {
-      return false;
-    }
+        // filter out unrecognized methodIDs
+        // we may want to do a secondary lookup on failure here:
+        // https://www.4byte.directory/docs/
+        this.functionSignature = new EVMFunctionSignature(
+          func.name,
+          func.type,
+          func.inputs.map((input, i) => {
+            return new EVMFunctionParameter(
+              input.name,
+              input.type,
+              paramValues[i],
+            );
+          }),
+        );
 
-    if (this.startTime != undefined && this.startTime > tx.timestamp) {
-      return false;
-    }
-    if (this.endTime != undefined && this.endTime < tx.timestamp) {
-      return false;
-    }
-
-    if (this.addresses != undefined) {
-      const txaddrs = Array.from(this._getDescendants(tx));
-
-      if (txaddrs.length == 0) {
-        return false;
+        addrs = new Set([
+          ...addrs,
+          ...this._getDescendants(this.functionSignature),
+        ]);
+      } catch (e) {
+        // this is also a bit noisy
+        console.warn("error decoding transaction input", e);
       }
-
-      if (!txaddrs.some((addr) => this.addresses?.has(addr))) {
-        return false;
-      }
     }
 
-    return true;
+    if (events) {
+      addrs = new Set([...addrs, ...this._getDescendants(events)]);
+    }
+
+    this.accountAddresses = Array.from(addrs);
   }
 
   private _getDescendants(obj): Set<EVMAccountAddress> {
@@ -88,7 +98,7 @@ export class EVMTransactionFilter {
       if (value && typeof value === "object") {
         result = new Set([...result, ...this._getDescendants(value)]);
       } else {
-        if (typeof value === "string") {
+        if (typeof value === "string" && value.match(EVMAccountAddressRegex)) {
           result.add(EVMAccountAddress(value));
         }
       }

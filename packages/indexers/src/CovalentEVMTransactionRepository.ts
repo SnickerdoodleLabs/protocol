@@ -14,11 +14,13 @@ import {
   BigNumberString,
   EVMEvent,
   IEVMAccountBalanceRepository,
-  IEVMBalance,
-  AccountBalanceError,
   TickerSymbol,
   EVMContractAddress,
+  EVMTransactionHash,
+  TokenBalance,
+  EChainTechnology,
 } from "@snickerdoodlelabs/objects";
+import { ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { urlJoinP, urlJoin } from "url-join-ts";
@@ -154,34 +156,40 @@ export class CovalentEVMTransactionRepository
     });
   }
 
-  getBalancesForAccount(
+  public getBalancesForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-  ): ResultAsync<IEVMBalance[], AccountBalanceError | AjaxError> {
+  ): ResultAsync<TokenBalance[], AccountIndexingError> {
     return this.generateQueryConfig(
       chainId,
       this.ENDPOINT_BALANCES,
       accountAddress,
-    ).andThen((requestConfig) => {
-      return this.ajaxUtils
-        .get<ICovalentEVMBalanceResponse>(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(requestConfig.url!),
-          requestConfig,
-        )
-        .map((queryResult) => {
-          return queryResult.data.items.map((tokenInfo) => {
-            return {
-              ticker: TickerSymbol(tokenInfo.contract_ticker_symbol),
-              chainId: chainId,
-              accountAddress: accountAddress,
-              balance: tokenInfo.balance,
-              contractAddress: EVMContractAddress(tokenInfo.contract_address),
-              quoteBalance: tokenInfo.quote,
-            };
+    )
+      .andThen((requestConfig) => {
+        return this.ajaxUtils
+          .get<ICovalentEVMBalanceResponse>(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            new URL(requestConfig.url!),
+            requestConfig,
+          )
+          .map((queryResult) => {
+            return queryResult.data.items.map((tokenInfo) => {
+              return new TokenBalance(
+                EChainTechnology.EVM,
+                TickerSymbol(tokenInfo.contract_ticker_symbol),
+                chainId,
+                EVMContractAddress(tokenInfo.contract_address),
+                accountAddress,
+                BigNumberString(tokenInfo.balance),
+                tokenInfo.contract_decimals,
+              );
+            });
           });
-        });
-    });
+      })
+      .mapErr(
+        (e) =>
+          new AccountIndexingError("error fetching balances from covalent", e),
+      );
   }
 
   private generatePrimer(
@@ -263,39 +271,35 @@ export class CovalentEVMTransactionRepository
   ): EVMTransaction {
     const busObj = new EVMTransaction(
       chainId,
-      tx.tx_hash,
+      EVMTransactionHash(tx.tx_hash),
       UnixTimestamp(Math.floor(Date.parse(tx.block_signed_at) / 1000)),
       tx.block_height,
       tx.to_address != null ? EVMAccountAddress(tx.to_address) : null,
       tx.from_address != null ? EVMAccountAddress(tx.from_address) : null,
       tx.value != null ? BigNumberString(tx.value.toString()) : null,
       tx.gas_price != null ? BigNumberString(tx.gas_price.toString()) : null,
-      tx.gas_offered != null
-        ? BigNumberString(tx.gas_offered.toString())
-        : null,
-      tx.fees_paid != null ? BigNumberString(tx.fees_paid.toString()) : null,
       null,
-      tx.value_quote,
+      null,
+      null,
+      null,
+      tx.log_events
+        ? tx.log_events.map((event) => {
+            return new EVMEvent(
+              event.tx_hash,
+              event.raw_log_data,
+              event.raw_log_topics,
+              event.sender_contract_decimals,
+              event.sender_name,
+              event.sender_contract_ticker_symbol,
+              event.sender_address,
+              event.sender_address_label,
+              event.sender_logo_url,
+              event.raw_log_data,
+              event.decoded,
+            );
+          })
+        : null,
     );
-
-    if (tx.log_events != null) {
-      busObj.events = tx.log_events.map((event) => {
-        return new EVMEvent(
-          event.tx_hash,
-          event.raw_log_data,
-          event.raw_log_topics,
-          event.sender_contract_decimals,
-          event.sender_name,
-          event.sender_contract_ticker_symbol,
-          event.sender_address,
-          event.sender_address_label,
-          event.sender_logo_url,
-          event.raw_log_data,
-          event.decoded,
-        );
-      });
-    }
-
     return busObj;
   }
 

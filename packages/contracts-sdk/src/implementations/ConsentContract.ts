@@ -7,16 +7,16 @@ import {
   TokenUri,
   Signature,
   TokenId,
-  ConsentToken,
   RequestForData,
   BlockNumber,
   IBlockchainError,
   DomainName,
   BaseURI,
   HexString,
-  DataPermissions,
   HexString32,
   InvalidParametersError,
+  ConsentToken,
+  DataPermissions,
 } from "@snickerdoodlelabs/objects";
 import { ethers, EventFilter, Event, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -88,20 +88,6 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
-  public encodeRestrictedOptIn(
-    tokenId: TokenId,
-    signature: Signature,
-    agreementFlags: HexString32,
-  ): HexString {
-    return HexString(
-      this.contract.interface.encodeFunctionData("restrictedOptIn", [
-        tokenId,
-        agreementFlags,
-        signature,
-      ]),
-    );
-  }
-
   public restrictedOptIn(
     tokenId: TokenId,
     agreementFlags: HexString32,
@@ -133,6 +119,20 @@ export class ConsentContract implements IConsentContract {
       .map(() => {});
   }
 
+  public encodeRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("restrictedOptIn", [
+        tokenId,
+        agreementFlags,
+        signature,
+      ]),
+    );
+  }
+
   public anonymousRestrictedOptIn(
     tokenId: TokenId,
     agreementFlags: HexString32,
@@ -162,6 +162,20 @@ export class ConsentContract implements IConsentContract {
         });
       })
       .map(() => {});
+  }
+
+  public encodeAnonymousRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString {
+    return HexString(
+      this.contract.interface.encodeFunctionData("anonymousRestrictedOptIn", [
+        tokenId,
+        agreementFlags,
+        signature,
+      ]),
+    );
   }
 
   public optOut(tokenId: TokenId): ResultAsync<void, ConsentContractError> {
@@ -495,6 +509,21 @@ export class ConsentContract implements IConsentContract {
     });
   }
 
+  public ownerOf(
+    tokenId: TokenId,
+  ): ResultAsync<EVMAccountAddress, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.ownerOf(tokenId) as Promise<EVMAccountAddress>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call ownerOf()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    );
+  }
+
   public tokenURI(
     tokenId: TokenId,
   ): ResultAsync<TokenUri | null, ConsentContractError> {
@@ -535,78 +564,22 @@ export class ConsentContract implements IConsentContract {
     );
   }
 
-  // Returns all the past token ids generated for the user
-  // Keep incase we ever want a list of previous token ids issued to the user even if they opted out
-  public getConsentTokensOfAddress(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken[], ConsentContractError> {
-    return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
-      if (numberOfTokens === 0) {
-        return okAsync([]);
-      }
-      return this.queryFilter(
-        this.filters.Transfer(null, ownerAddress),
-      ).andThen((logsEvents) => {
-        return ResultUtils.combine(
-          logsEvents.map((logEvent) => {
-            if (logEvent.args == null || logEvent.args.tokenId == null) {
-              return okAsync(null);
-            }
-
-            return this.agreementFlags(logEvent.args?.tokenId).andThen(
-              (agreementFlag) => {
-                return okAsync(
-                  new ConsentToken(
-                    this.contractAddress,
-                    ownerAddress,
-                    TokenId(logEvent.args?.tokenId?.toNumber()),
-                    // TODO: DataPermissions
-                    new DataPermissions(agreementFlag),
-                  ),
-                );
-              },
-            );
-          }),
-        ).map((consentTokens) => {
-          return consentTokens.filter(
-            (consentToken) => consentToken != null,
-          ) as ConsentToken[];
-        });
-      });
-    });
-  }
-
-  // Returns the current token id owned by the user
-  public getCurrentConsentTokenOfAddress(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken | null, ConsentContractError> {
-    return this.balanceOf(ownerAddress).andThen((numberOfTokens) => {
-      if (numberOfTokens === 0) {
-        return okAsync(null);
-      }
-      // this returns all the past Transfer events pertaining to this contract
-      return this.queryFilter(
-        this.filters.Transfer(null, ownerAddress),
-      ).andThen((logsEvents) => {
-        console.log("Transfer events log count", logsEvents.length);
-        // Get only the last Transfer event (the latest opt in token id)
-        const lastIndex = logsEvents.length - 1;
-
-        // Get the agreement flags of the user's current consent token
-        return this.agreementFlags(logsEvents[lastIndex].args?.tokenId).andThen(
-          (agreementFlag) => {
-            return okAsync(
-              new ConsentToken(
-                this.contractAddress,
-                ownerAddress,
-                TokenId(logsEvents[lastIndex].args?.tokenId?.toNumber()),
-                // TODO: DataPermissions
-                new DataPermissions(agreementFlag),
-              ),
-            );
-          },
-        );
-      });
+  public getConsentToken(
+    tokenId: TokenId,
+  ): ResultAsync<ConsentToken, ConsentContractError> {
+    // Get the agreement flags of the user's current consent token
+    return ResultUtils.combine([
+      this.ownerOf(tokenId),
+      this.agreementFlags(tokenId),
+    ]).andThen(([ownerAddress, agreementFlags]) => {
+      return okAsync(
+        new ConsentToken(
+          this.contractAddress,
+          ownerAddress,
+          tokenId,
+          new DataPermissions(agreementFlags),
+        ),
+      );
     });
   }
 
@@ -938,6 +911,19 @@ export class ConsentContract implements IConsentContract {
         );
       },
     ).map((totalSupply) => totalSupply.toNumber());
+  }
+
+  public openOptInDisabled(): ResultAsync<boolean, ConsentContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.openOptInDisabled() as Promise<boolean>,
+      (e) => {
+        return new ConsentContractError(
+          "Unable to call openOptInDisabled()",
+          "Unknown",
+          e,
+        );
+      },
+    );
   }
 
   public filters = {

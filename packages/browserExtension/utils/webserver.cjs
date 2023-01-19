@@ -5,13 +5,14 @@ process.env.NODE_ENV = "development";
 process.env.ASSET_PATH = "/";
 process.env.__ONBOARDING_URL__ = "https://localhost:9005/";
 process.env.__ACCOUNT_COOKIE_URL__ = "https://snickerdoodlelabs.io/";
-process.env.__CONTROL_CHAIN_ID__ = "31338";
+process.env.__CONTROL_CHAIN_ID__ = "31337";
 process.env.__SUPPORTED_CHAINS__ = "42,43113";
 process.env.__IPFS_FETCH_BASE_URL__ = "http://localhost:8080/ipfs";
 process.env.__DEFAULT_INSIGHT_PLATFORM_BASE_URL__ = "http://localhost:3006";
 process.env.__COVALENT_API_KEY__ = "";
 process.env.__MORALIS_API_KEY__ = "";
 process.env.__DNS_SERVER_ADDRESS__ = "http://localhost:3006/dns";
+process.env.__REQUEST_FOR_DATA_EVENT_FREQ__ = "4000";
 
 var WebpackDevServer = require("webpack-dev-server"),
   webpack = require("webpack"),

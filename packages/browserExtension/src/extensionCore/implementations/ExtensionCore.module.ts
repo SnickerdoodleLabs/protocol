@@ -26,6 +26,7 @@ import {
   PIIService,
   InvitationService,
   ScamFilterService,
+  TokenPriceService,
   UserSiteInteractionService,
 } from "@implementations/business";
 import {
@@ -34,6 +35,7 @@ import {
   PIIRepository,
   InvitationRepository,
   ScamFilterRepository,
+  TokenPriceRepository,
   UserSiteInteractionRepository,
 } from "@implementations/data";
 import {
@@ -66,6 +68,8 @@ import {
   IPIIServiceType,
   IPortConnectionService,
   IPortConnectionServiceType,
+  ITokenPriceService,
+  ITokenPriceServiceType,
   IUserSiteInteractionService,
   IUserSiteInteractionServiceType,
 } from "@interfaces/business";
@@ -77,6 +81,8 @@ import {
   IPIIRepository,
   IPIIRepositoryType,
   IPortConnectionRepository,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
   IPortConnectionRepositoryType,
   IUserSiteInteractionRepository,
   IUserSiteInteractionRepositoryType,
@@ -108,6 +114,11 @@ import {
   IScamFilterRepository,
   IScamFilterRepositoryType,
 } from "@interfaces/data/IScamFilterRepository";
+import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@interfaces/utilities/IScamFilterSettingsUtils";
+import { ScamFilterSettingsUtils } from "./utilities/ScamFilterSettingsUtils";
 
 export const extensionCoreModule = new ContainerModule(
   (
@@ -145,6 +156,9 @@ export const extensionCoreModule = new ContainerModule(
       .to(PortConnectionService)
       .inSingletonScope();
     bind<IPIIService>(IPIIServiceType).to(PIIService).inSingletonScope();
+    bind<ITokenPriceService>(ITokenPriceServiceType)
+      .to(TokenPriceService)
+      .inSingletonScope();
     bind<IUserSiteInteractionService>(IUserSiteInteractionServiceType)
       .to(UserSiteInteractionService)
       .inSingletonScope();
@@ -165,6 +179,9 @@ export const extensionCoreModule = new ContainerModule(
     bind<IInvitationRepository>(IInvitationRepositoryType)
       .to(InvitationRepository)
       .inSingletonScope();
+    bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
+      .to(TokenPriceRepository)
+      .inSingletonScope();
     bind<IUserSiteInteractionRepository>(IUserSiteInteractionRepositoryType)
       .to(UserSiteInteractionRepository)
       .inSingletonScope();
@@ -182,6 +199,9 @@ export const extensionCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<IDataPermissionsUtils>(IDataPermissionsUtilsType)
       .to(DataPermissionsUtils)
+      .inSingletonScope();
+    bind<IScamFilterSettingsUtils>(IScamFilterSettingsUtilsType)
+      .to(ScamFilterSettingsUtils)
       .inSingletonScope();
     bind<IErrorUtils>(IErrorUtilsType).to(ErrorUtils).inSingletonScope();
     bind<IAxiosAjaxUtils>(IAxiosAjaxUtilsType)

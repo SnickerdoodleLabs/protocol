@@ -1,24 +1,26 @@
 import { ResultAsync } from "neverthrow";
 
-import { IChainTransaction } from "./chains";
-
 import {
   ClickData,
   EarnedReward,
-  EVMTransaction,
-  EVMTransactionFilter,
-  IEVMNFT,
+  TransactionFilter,
+  TokenBalance,
+  Invitation,
   LinkedAccount,
   SiteVisit,
+  ChainTransaction,
+  WalletNFT,
+  TokenAddress,
+  TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
 } from "@objects/businessObjects";
-import { PersistenceError } from "@objects/errors";
+import { AjaxError, PersistenceError } from "@objects/errors";
 import { IDataWalletBackup } from "@objects/interfaces/IDataWalletBackup";
-import { IEVMBalance } from "@objects/interfaces/IEVMBalance";
 import {
   Age,
   EmailAddressString,
   ChainId,
-  EVMAccountAddress,
   EVMContractAddress,
   EVMPrivateKey,
   GivenName,
@@ -29,7 +31,7 @@ import {
   BlockNumber,
   UnixTimestamp,
   AccountAddress,
-  CeramicStreamID,
+  DataWalletBackupID,
 } from "@objects/primitives";
 
 /**
@@ -73,6 +75,29 @@ export interface IDataWalletPersistence {
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
 
   /**
+   * Returns the list of consent contracts that the user has opted in to.
+   */
+  getAcceptedInvitations(): ResultAsync<Invitation[], PersistenceError>;
+
+  /**
+   * Adds a list of addresses from the list of addresses the user has opted in to.
+   * IMPORTANT: This does not actually opt them in, it just persists the fact
+   * @param addressesToAdd
+   */
+  addAcceptedInvitations(
+    infoToAdd: Invitation[],
+  ): ResultAsync<void, PersistenceError>;
+
+  /**
+   * Removes a list of addresses from the list of addresses the user has opted in to.
+   * IMPORTANT: This does not actually opt them out, it just records the opt-out
+   * @param addressesToRemove
+   */
+  removeAcceptedInvitationsByContractAddress(
+    addressesToRemove: EVMContractAddress[],
+  ): ResultAsync<void, PersistenceError>;
+
+  /**
    * This is an example method for adding data to the wallet. In this case, it would be a "click",
    * presumeably captured by the Form Factor.
    */
@@ -82,7 +107,6 @@ export interface IDataWalletPersistence {
   getClicks(): ResultAsync<ClickData[], PersistenceError>;
 
   /** Google User Information */
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
@@ -103,8 +127,20 @@ export interface IDataWalletPersistence {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
-  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+
+  saveEligibleAds(
+    ads: EligibleAd[],
+  ): ResultAsync<void, PersistenceError>;
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+
+  saveAdSignatures(
+    signatures: AdSignature[]
+  ): ResultAsync<void, PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected
@@ -128,31 +164,30 @@ export interface IDataWalletPersistence {
   // return an array of Chain Transaction
   // getTransactionsMap(): ResultAsync<Array<IChainTransaction>, PersistenceError>;
 
-  // getTransactionsArray(): ResultAsync<
-  //   { chainId: ChainId; items: EVMTransaction[] | null }[],
-  //   PersistenceError
-  // >;
-
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>;
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    PersistenceError
+  >;
 
   getLatestTransactionForAccount(
     chainId: ChainId,
-    address: EVMAccountAddress,
-  ): ResultAsync<EVMTransaction | null, PersistenceError>;
-  addEVMTransactions(
-    transactions: EVMTransaction[],
+    address: AccountAddress,
+  ): ResultAsync<ChainTransaction | null, PersistenceError>;
+  addTransactions(
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
-  getEVMTransactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError>;
+  getTransactions(
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError>;
 
-  updateAccountBalances(
-    balances: IEVMBalance[],
-  ): ResultAsync<IEVMBalance[], PersistenceError>;
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
-
-  updateAccountNFTs(nfts: IEVMNFT[]): ResultAsync<IEVMNFT[], PersistenceError>;
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getAccountBalances(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<TokenBalance[], PersistenceError>;
+  getAccountNFTs(
+    chains?: ChainId[],
+    accounts?: LinkedAccount[],
+  ): ResultAsync<WalletNFT[], PersistenceError>;
 
   setLatestBlockNumber(
     contractAddress: EVMContractAddress,
@@ -162,11 +197,17 @@ export interface IDataWalletPersistence {
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError>;
 
-  dumpBackup(): ResultAsync<IDataWalletBackup, PersistenceError>;
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, PersistenceError>;
+
   restoreBackup(backup: IDataWalletBackup): ResultAsync<void, PersistenceError>;
   pollBackups(): ResultAsync<void, PersistenceError>;
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
+  waitForRestore(): ResultAsync<EVMPrivateKey, never>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

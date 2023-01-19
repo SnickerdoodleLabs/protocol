@@ -3,8 +3,11 @@ import {
   chainConfig,
   ChainId,
   ControlChainInformation,
+  ECurrencyCode,
+  EChain,
   IConfigOverrides,
   URLString,
+  ProviderUrl,
 } from "@snickerdoodlelabs/objects";
 import { IPersistenceConfigProvider } from "@snickerdoodlelabs/persistence";
 import { injectable } from "inversify";
@@ -48,7 +51,7 @@ export class ConfigProvider
   protected config: CoreConfig;
 
   public constructor() {
-    const controlChainId = ChainId(31338);
+    const controlChainId = ChainId(31337);
     const controlChainInformation = chainConfig.get(controlChainId);
 
     if (controlChainInformation == null) {
@@ -66,22 +69,42 @@ export class ConfigProvider
     // All the default config below is for testing on local, using the test-harness package
     this.config = new CoreConfig(
       controlChainId,
-      [ChainId(31338)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
+      [ChainId(EChain.DevDoodle)], // supported chains (local hardhat only for the test harness, we can index other chains here though)
       chainConfig,
       controlChainInformation,
       URLString("http://127.0.0.1:8080/ipfs"), // ipfsFetchBaseUrl
       URLString("http://localhost:3006"), // defaultInsightPlatformBaseUrl
+      "ceramic-replacement-bucket",
       5000, // polling interval indexing,
       5000, // polling interval balance
       5000, // polling interval nfts
-      10000, // backup interval
-      10, // backup chunk size target
+      60000, // backup interval
+      50, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
-      "USD", // quoteCurrency
+      ECurrencyCode.USD, // quoteCurrency
+      new Map([
+        [ChainId(1), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
+        [ChainId(5), "6GCDQU7XSS8TW95M9H5RQ6SS4BZS1PY8B7"],
+        [ChainId(137), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
+        [ChainId(80001), "G4XTF3MERFUKFNGANGVY6DTMX1WKAD6V4G"],
+        [ChainId(43114), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
+        [ChainId(43113), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
+      ]), // etherscan api key
+      100, // etherscan tx batch size
+      4000, // polling interval for consent contracts on control chain
+      {
+        solana:
+          "https://solana-mainnet.g.alchemy.com/v2/jTt7xNc-M5Tl3myKDWgsKULpB3tR7uDB",
+        solanaTestnet:
+          "https://solana-devnet.g.alchemy.com/v2/Fko-iHgKEnUKTkM1SvnFMFMw1AvTVAtg",
+        polygon: "iL3Kn-Zw5kt05zaRL2gN7ZFd5oFp7L1N",
+        polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
+      },
+      10000,
     );
   }
 
@@ -108,6 +131,17 @@ export class ConfigProvider
       );
     }
     this.config.controlChainInformation = controlChainInformation;
+
+    // Now, if the control chain is the Dev Doodle Chain, 31337, we have to override it.
+    // The whole point of making a different chainID for dev and local was to avoid this,
+    // but it is unrealistic to assign a different ChainID for every sandbox. So instead,
+    // if the chain ID is 31337 (DevDoodle), we can dynamically override the provider URL
+    if (this.config.controlChainId == EChain.DevDoodle) {
+      this.config.controlChainInformation.providerUrls = [
+        overrides.controlChainProviderURL ||
+          ProviderUrl("http://127.0.0.1:8545"),
+      ];
+    }
 
     // The rest of the config is easier
     this.config.supportedChains =
@@ -139,6 +173,9 @@ export class ConfigProvider
       overrides.backupChunkSizeTarget ?? this.config.backupChunkSizeTarget;
     this.config.ceramicNodeURL =
       overrides.ceramicNodeURL ?? this.config.ceramicNodeURL;
+    this.config.requestForDataCheckingFrequency =
+      overrides.requestForDataCheckingFrequency ??
+      this.config.requestForDataCheckingFrequency;
     this.config.ceramicModelAliases =
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
   }

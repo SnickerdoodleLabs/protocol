@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
+import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import {
   ICrumbsContract,
   IMinimalForwarderContract,
@@ -14,6 +14,7 @@ import {
   BlockchainProviderError,
   CeramicStreamID,
   ChainId,
+  DataWalletBackupID,
   EChain,
   EncryptedString,
   EVMAccountAddress,
@@ -70,15 +71,19 @@ const evmAccountAddress = EVMAccountAddress("evmAccountAddress");
 const solanaAccountAddress = SolanaAccountAddress("solanaAccountAddress");
 const evmSignature = Signature("evmSignature");
 const solanaSignature = Signature("solanaSignature");
+
+const evmDerivedPrivateKey = EVMPrivateKey("evmDerivedPrivateKey");
+const solanaDerivedPrivateKey = EVMPrivateKey("solanaDerivedPrivateKey");
+
 const evmDerivedEVMAccount = new ExternallyOwnedAccount(
   EVMAccountAddress("derivedEVMAccountAddress1"),
-  EVMPrivateKey("derivedEVMPrivateKey1"),
+  evmDerivedPrivateKey,
 );
 const solanaDerivedEVMAccount = new ExternallyOwnedAccount(
   EVMAccountAddress("derivedEVMAccountAddress2"),
-  EVMPrivateKey("derivedEVMPrivateKey2"),
+  solanaDerivedPrivateKey,
 );
-const evmChain = EChain.LocalDoodle;
+const evmChain = EChain.DevDoodle;
 const solanaChain = EChain.Solana;
 const languageCode = LanguageCode("en");
 const unlockMessage = "Login to your Snickerdoodle data wallet"; // Needs to match result of getUnlockMessage(en)
@@ -115,7 +120,7 @@ const solanaBurnCrumbMetatransactionSignature = Signature(
   "solanaBurnCrumbMetatransactionSignature",
 );
 
-const ceramicStream = CeramicStreamID("ceramicStream");
+const dataWalletBackupID = DataWalletBackupID("dataWalletBackup");
 
 class AccountServiceMocks {
   public insightPlatformRepo: IInsightPlatformRepository;
@@ -126,6 +131,7 @@ class AccountServiceMocks {
   public dataWalletUtils: IDataWalletUtils;
   public cryptoUtils: ICryptoUtils;
   public contractFactory: IContractFactory;
+  public logUtils: ILogUtils;
 
   public minimalForwarderContract: IMinimalForwarderContract;
   public crumbsContract: ICrumbsContract;
@@ -149,6 +155,7 @@ class AccountServiceMocks {
     this.dataWalletUtils = td.object<IDataWalletUtils>();
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.contractFactory = td.object<IContractFactory>();
+    this.logUtils = td.object<ILogUtils>();
 
     this.minimalForwarderContract = td.object<IMinimalForwarderContract>();
     this.crumbsContract = td.object<ICrumbsContract>();
@@ -156,7 +163,6 @@ class AccountServiceMocks {
     // InsightPlatformRepo --------------------------------------------------
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -164,13 +170,12 @@ class AccountServiceMocks {
         metatransactionGas,
         evmEncodedCreateCrumbContent,
         evmAddCrumbMetatransactionSignature,
-        dataWalletKey,
+        evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         solanaDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         solanaDerivedNonce,
@@ -178,13 +183,12 @@ class AccountServiceMocks {
         metatransactionGas,
         solanaEncodedCreateCrumbContent,
         solanaAddCrumbMetatransactionSignature,
-        dataWalletKey,
+        solanaDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -192,13 +196,12 @@ class AccountServiceMocks {
         metatransactionGas,
         evmEncodedBurnCrumbContent,
         evmBurnCrumbMetatransactionSignature,
-        dataWalletKey,
+        evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         solanaDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         solanaDerivedNonce,
@@ -206,7 +209,7 @@ class AccountServiceMocks {
         metatransactionGas,
         solanaEncodedBurnCrumbContent,
         solanaBurnCrumbMetatransactionSignature,
-        dataWalletKey,
+        solanaDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(okAsync(undefined));
@@ -424,8 +427,8 @@ class AccountServiceMocks {
     td.when(
       this.dataWalletPersistence.removeAccount(solanaAccountAddress),
     ).thenReturn(okAsync(undefined));
-    td.when(this.dataWalletPersistence.postBackup()).thenReturn(
-      okAsync(ceramicStream),
+    td.when(this.dataWalletPersistence.postBackups()).thenReturn(
+      okAsync([dataWalletBackupID]),
     );
 
     // ContractFactory --------------------------------------------------
@@ -481,6 +484,30 @@ class AccountServiceMocks {
     td.when(this.crumbsContract.encodeBurnCrumb(tokenId2)).thenReturn(
       solanaEncodedBurnCrumbContent as never,
     );
+    td.when(this.crumbsContract.tokenURI(tokenId1)).thenReturn(
+      okAsync(
+        TokenUri(
+          JSON.stringify({
+            [languageCode]: {
+              d: evmEncryptedDataWallet.data,
+              iv: evmEncryptedDataWallet.initializationVector,
+            },
+          } as ICrumbContent),
+        ),
+      ),
+    );
+    td.when(this.crumbsContract.tokenURI(tokenId2)).thenReturn(
+      okAsync(
+        TokenUri(
+          JSON.stringify({
+            [languageCode]: {
+              d: solanaEncryptedDataWallet.data,
+              iv: solanaEncryptedDataWallet.initializationVector,
+            },
+          } as ICrumbContent),
+        ),
+      ),
+    );
     this.crumbsContract.contractAddress = crumbsContractAddress;
   }
 
@@ -494,6 +521,7 @@ class AccountServiceMocks {
       this.dataWalletUtils,
       this.cryptoUtils,
       this.contractFactory,
+      this.logUtils,
     );
   }
 }
@@ -1042,7 +1070,6 @@ describe("AccountService unlock() tests", () => {
 
     td.when(
       mocks.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -1050,7 +1077,7 @@ describe("AccountService unlock() tests", () => {
         metatransactionGas,
         evmEncodedCreateCrumbContent,
         evmAddCrumbMetatransactionSignature,
-        dataWalletKey,
+        evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError()));
@@ -1392,7 +1419,6 @@ describe("AccountService addAccount() tests", () => {
 
     td.when(
       mocks.insightPlatformRepo.executeMetatransaction(
-        dataWalletAddress,
         evmDerivedEVMAccount.accountAddress,
         crumbsContractAddress,
         evmDerivedNonce,
@@ -1400,7 +1426,7 @@ describe("AccountService addAccount() tests", () => {
         metatransactionGas,
         evmEncodedCreateCrumbContent,
         evmAddCrumbMetatransactionSignature,
-        dataWalletKey,
+        evmDerivedPrivateKey,
         defaultInsightPlatformBaseUrl,
       ),
     ).thenReturn(errAsync(new AjaxError()));

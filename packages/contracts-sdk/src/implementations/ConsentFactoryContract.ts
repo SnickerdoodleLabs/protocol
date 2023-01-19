@@ -5,6 +5,8 @@ import {
   EVMAccountAddress,
   EVMContractAddress,
   IBlockchainError,
+  IpfsCID,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { ethers, BigNumber } from "ethers";
 import { injectable } from "inversify";
@@ -12,7 +14,8 @@ import { okAsync, ResultAsync } from "neverthrow";
 
 import { IConsentFactoryContract } from "@contracts-sdk/interfaces/IConsentFactoryContract";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
-import { ConsentRoles } from "@contracts-sdk/interfaces/objects/ConsentRoles";
+import { ResultUtils } from "neverthrow-result-utils";
+import { ConsentRoles } from "@contracts-sdk/interfaces/objects";
 
 @injectable()
 export class ConsentFactoryContract implements IConsentFactoryContract {
@@ -37,7 +40,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
 
   // Function to help user create consent
   // After creating consent, call getUserDeployedConsentsCount to get total number of deployed consents
-  // Then use getUserConsentAddressesByIndex to get list of count
   public createConsent(
     ownerAddress: EVMAccountAddress,
     baseUri: BaseURI,
@@ -155,50 +157,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     });
   }
 
-  // Gets the count of Consent address user has opted into
-  public getUserConsentAddressesCount(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<number, ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.getUserConsentAddressesCount(
-        ownerAddress,
-      ) as Promise<BigNumber>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getUserConsentAddressesCount()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    ).map((count) => {
-      return count.toNumber();
-    });
-  }
-
-  // Gets the array of Consent addresses user has opted into
-  // Index values can be anywhere between the count obtained from getUserConsentAddressesCount
-  // eg. If user has [0x123, 0xabc, 0x456] Consent contracts, query with startingIndex 0 and endingIndex 2 to get full list
-  public getUserConsentAddressesByIndex(
-    ownerAddress: EVMAccountAddress,
-    startingIndex: number,
-    endingIndex: number,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
-    return ResultAsync.fromPromise(
-      this.contract.getUserConsentAddressesByIndex(
-        ownerAddress,
-        startingIndex,
-        endingIndex,
-      ) as Promise<EVMContractAddress[]>,
-      (e) => {
-        return new ConsentFactoryContractError(
-          "Unable to call getUserConsentAddressesByIndex()",
-          (e as IBlockchainError).reason,
-          e,
-        );
-      },
-    );
-  }
-
   // Gets the count of Consent addresses user has specific roles for
   public getUserRoleAddressesCount(
     ownerAddress: EVMAccountAddress,
@@ -247,16 +205,6 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
     );
   }
 
-  public getOptedInConsentContractAddressForAccount(
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMContractAddress[], ConsentFactoryContractError> {
-    return this.getUserConsentAddressesCount(accountAddress).andThen(
-      (count) => {
-        return this.getUserConsentAddressesByIndex(accountAddress, 0, count);
-      },
-    );
-  }
-
   public getDeployedConsents(): ResultAsync<
     EVMContractAddress[],
     ConsentFactoryContractError
@@ -280,6 +228,61 @@ export class ConsentFactoryContract implements IConsentFactoryContract {
       });
       return consents;
     });
+  }
+
+  public listingsTotal(): ResultAsync<number, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.listingsTotal() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call listingsTotal()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((listingsTotal) => listingsTotal.toNumber());
+  }
+
+  public listingsHead(): ResultAsync<number, ConsentFactoryContractError> {
+    return ResultAsync.fromPromise(
+      this.contract.listingsHead() as Promise<BigNumber>,
+      (e) => {
+        return new ConsentFactoryContractError(
+          "Unable to call listingsHead()",
+          (e as IBlockchainError).reason,
+          e,
+        );
+      },
+    ).map((listingsHead) => listingsHead.toNumber());
+  }
+
+  public getMarketplaceListings(
+    count?: number,
+    headAt?: number,
+  ): ResultAsync<MarketplaceListing, ConsentFactoryContractError> {
+    const listingsTotalAsync =
+      count == null ? this.listingsTotal() : okAsync(count);
+
+    const headAtAsync = headAt == null ? this.listingsHead() : okAsync(headAt);
+
+    return ResultUtils.combine([headAtAsync, listingsTotalAsync]).andThen(
+      ([listingsHead, listingsTotal]) => {
+        return ResultAsync.fromPromise(
+          this.contract.getListings(listingsHead, listingsTotal) as Promise<
+            [IpfsCID[], BigNumber]
+          >,
+          (e) => {
+            return new ConsentFactoryContractError(
+              "Unable to call getListings()",
+              (e as IBlockchainError).reason,
+              e,
+            );
+          },
+        ).map((listings) => {
+          return new MarketplaceListing(listings[0], listings[1].toNumber());
+        });
+      },
+    );
   }
 }
 // Alternative option is to get the deployed Consent addresses through filtering event ConsentDeployed() event

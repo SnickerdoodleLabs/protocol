@@ -4,8 +4,11 @@ import {
   AccountAddress,
   Age,
   BigNumberString,
+  ChainId,
   CountryCode,
+  EarnedReward,
   EChain,
+  EInvitationStatus,
   EmailAddressString,
   EVMContractAddress,
   EWalletDataType,
@@ -16,10 +19,15 @@ import {
   ISdlDataWallet,
   LanguageCode,
   Signature,
+  TokenAddress,
+  TokenInfo,
+  TokenMarketData,
+  SiteVisit,
   UnixTimestamp,
-  UUID,
+  URLString,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
-import { JsonRpcEngine } from "json-rpc-engine";
+import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import ObjectMultiplex from "obj-multiplex";
 import LocalMessageStream from "post-message-stream";
@@ -33,40 +41,113 @@ import {
   PORT_NOTIFICATION,
 } from "@shared/constants/ports";
 import { TNotification } from "@shared/types/notification";
+import { ResultAsync } from "neverthrow";
+import { UpdatableEventEmitterWrapper } from "@app/utils/UpdatableEventEmitterWrapper";
 
-const localStream = new LocalMessageStream({
-  name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
-  target: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
-});
-const mux = new ObjectMultiplex();
-pump(localStream, mux, localStream);
-const streamMiddleware = createStreamMiddleware();
-pump(
-  streamMiddleware.stream,
-  mux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
-  streamMiddleware.stream,
-);
-const rpcEngine = new JsonRpcEngine();
-rpcEngine.push(streamMiddleware.middleware);
+let coreGateway: ExternalCoreGateway;
+let eventEmitter: UpdatableEventEmitterWrapper;
 
-const coreGateway = new ExternalCoreGateway(rpcEngine);
+const initConnection = () => {
+  const localStream = new LocalMessageStream({
+    name: ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
+    target: CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
+  });
+  const mux = new ObjectMultiplex();
+  pump(localStream, mux, localStream);
+  const _streamMiddleware = createStreamMiddleware();
+  pump(
+    _streamMiddleware.stream,
+    mux.createStream(ONBOARDING_PROVIDER_SUBSTREAM),
+    _streamMiddleware.stream,
+  );
+  const rpcEngine = new JsonRpcEngine();
+  rpcEngine.push(_streamMiddleware.middleware);
 
-const clearMux = () => {
-  mux.destroy();
-  document.removeEventListener("extension-stream-channel-closed", clearMux);
+  if (!coreGateway) {
+    coreGateway = new ExternalCoreGateway(rpcEngine);
+    eventEmitter = new UpdatableEventEmitterWrapper(
+      _streamMiddleware.events,
+      PORT_NOTIFICATION,
+    );
+  } else {
+    coreGateway.updateRpcEngine(rpcEngine);
+    eventEmitter.update(_streamMiddleware.events);
+  }
+
+  const clearMuxAndUpdate = () => {
+    mux.destroy();
+    document.removeEventListener(
+      "extension-stream-channel-closed",
+      clearMuxAndUpdate,
+    );
+    initConnection();
+  };
+  document.addEventListener(
+    "extension-stream-channel-closed",
+    clearMuxAndUpdate,
+  );
 };
-document.addEventListener("extension-stream-channel-closed", clearMux);
+
+initConnection();
 
 export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   constructor() {
     super();
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const _this = this;
-    streamMiddleware.events.on(PORT_NOTIFICATION, (resp: TNotification) => {
+    eventEmitter.on(PORT_NOTIFICATION, (resp: TNotification) => {
       _this.emit(resp.type, resp);
     });
   }
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, unknown> {
+    return coreGateway.getMarketplaceListings(count, headAt);
+  }
 
+  public getListingsTotal(): ResultAsync<number, unknown> {
+    return coreGateway.getListingsTotal();
+  }
+
+  public getTokenMarketData(
+    ids: string[],
+  ): ResultAsync<TokenMarketData[], unknown> {
+    return coreGateway.getTokenMarketData(ids);
+  }
+  public getTokenInfo(
+    chainId: ChainId,
+    contractAddress: TokenAddress | null,
+  ): ResultAsync<TokenInfo | null, unknown> {
+    return coreGateway.getTokenInfo(chainId, contractAddress);
+  }
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp?: UnixTimestamp,
+  ): ResultAsync<number, unknown> {
+    return coreGateway.getTokenPrice(chainId, address, timestamp);
+  }
+  public getEarnedRewards(): ResultAsync<EarnedReward[], unknown> {
+    return coreGateway.getEarnedRewards();
+  }
+
+  public checkInvitationStatus(
+    consentAddress: EVMContractAddress,
+    signature?: Signature,
+    tokenId?: BigNumberString,
+  ): ResultAsync<EInvitationStatus, JsonRpcError> {
+    return coreGateway.checkInvitationStatus(
+      consentAddress,
+      signature,
+      tokenId,
+    );
+  }
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, JsonRpcError> {
+    return coreGateway.getContractCID(consentAddress);
+  }
   public getState() {
     return coreGateway.getState();
   }
@@ -143,9 +224,6 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   public setGivenName(givenName: GivenName) {
     return coreGateway.setGivenName(givenName);
   }
-  public setAge(age: Age) {
-    return coreGateway.setAge(age);
-  }
   public setBirthday(birthday: UnixTimestamp) {
     return coreGateway.setBirtday(birthday);
   }
@@ -213,6 +291,24 @@ export class OnboardingProvider extends EventEmitter implements ISdlDataWallet {
   }
   public getDataWalletAddress() {
     return coreGateway.getDataWalletAddress();
+  }
+  public getScamFilterSettings() {
+    return coreGateway.getScamFilterSettings();
+  }
+  public setScamFilterSettings(
+    isScamFilterActive: boolean,
+    showMessageEveryTime: boolean,
+  ) {
+    return coreGateway.setScamFilterSettings(
+      isScamFilterActive,
+      showMessageEveryTime,
+    );
+  }
+  public getSiteVisits(): ResultAsync<SiteVisit[], unknown> {
+    return coreGateway.getSiteVisits();
+  }
+  public getSiteVisitsMap(): ResultAsync<Record<URLString, number>, unknown> {
+    return coreGateway.getSiteVisitsMap();
   }
 }
 

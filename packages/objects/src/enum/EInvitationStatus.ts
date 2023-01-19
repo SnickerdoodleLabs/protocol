@@ -6,4 +6,6 @@ export enum EInvitationStatus {
   Rejected, // We have previously rejected an invitation to join this cohort
   Accepted, // We have already opted in to this cohort
   Invalid, // The invitation is invalid- either the DNS info or the contract info doesn't match.
+  OutOfCapacity, // Total supply reached max capacity
+  Occupied, // Invitation link used by another dataWallet
 }

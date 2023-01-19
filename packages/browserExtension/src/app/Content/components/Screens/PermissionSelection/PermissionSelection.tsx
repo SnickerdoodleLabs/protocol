@@ -3,7 +3,8 @@ import BasicModal from "@app/Content/components/Modals/BasicModal";
 import { useStyles } from "@app/Content/components/Screens/PermissionSelection/PermissionSelection.style";
 import { EAPP_STATE } from "@app/Content/constants";
 import { Box, Typography } from "@material-ui/core";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
+import { CircularProgress } from "@material-ui/core";
 
 interface IPermissionSelectionProps {
   emptyReward: () => void;
@@ -17,6 +18,7 @@ const PermissionSelection: FC<IPermissionSelectionProps> = ({
   acceptInvitation,
 }: IPermissionSelectionProps) => {
   const classes = useStyles();
+  const [isClicked, setIsClicked] = useState(false);
   return (
     <BasicModal
       title="Your Data Permissions "
@@ -29,6 +31,11 @@ const PermissionSelection: FC<IPermissionSelectionProps> = ({
           </Typography>
           <Box mt={4} display="flex">
             <Box marginLeft="auto" mr={2}>
+              <Button buttonType="secondary" onClick={emptyReward}>
+                Cancel
+              </Button>
+            </Box>
+            <Box mr={2}>
               <Button
                 buttonType="secondary"
                 onClick={() => {
@@ -38,7 +45,17 @@ const PermissionSelection: FC<IPermissionSelectionProps> = ({
                 Manage Settings
               </Button>
             </Box>
-            <Button buttonType="primary" onClick={acceptInvitation}>
+            <Button
+              buttonType="primary"
+              {...(isClicked && {
+                startIcon: <CircularProgress size={15} />,
+                disabled: true,
+              })}
+              onClick={() => {
+                setIsClicked(true);
+                acceptInvitation();
+              }}
+            >
               Accept All
             </Button>
           </Box>

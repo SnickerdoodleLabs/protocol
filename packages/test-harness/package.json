@@ -15,22 +15,30 @@
   "keywords": [
     "Snickerdoodle",
     "Core",
-    "Test"
+    "Test",
+    "Cucumber",
+    "BDD"
   ],
   "files": [
     "dist",
+    "test",
     "!dist/test",
     "!dist/tsconfig.tsbuildinfo"
   ],
   "scripts": {
-    "alias": "tsc-alias",
+    "alias": "tsc-alias && tsc-alias -p test/tsconfig.json",
     "build": "yarn clean && yarn compile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && cd ../.. && yarn alias",
-    "start": "yarn compile && node dist/index.js"
+    "start": "yarn compile && node dist/ConsoleApp.js",
+    "start-old": "yarn compile && node dist/index-deleted-but-kept-for-ref.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --maxWorkers=50% --coverage --passWithNoTests",
+    "test-check": "npx ts-node-esm ../../node_modules/@cucumber/cucumber/bin/cucumber-js -p default --dry-run",
+    "test-int": "npx cucumber-js"
   },
   "type": "module",
   "dependencies": {
+    "@google-cloud/storage": "^6.7.0",
     "@snickerdoodlelabs/common-utils": "workspace:^",
     "@snickerdoodlelabs/contracts-sdk": "workspace:^",
     "@snickerdoodlelabs/core": "workspace:^",
@@ -44,8 +52,8 @@
     "inversify": "^5.1.1",
     "ipfs-http-client": "^55.0.0",
     "lzutf8": "^0.6.3",
-    "neverthrow": "^4.3.1",
-    "neverthrow-result-utils": "^1.0.2",
+    "neverthrow": "^5.1.0",
+    "neverthrow-result-utils": "^2.0.2",
     "reflect-metadata": "^0.1.13"
   }
 }

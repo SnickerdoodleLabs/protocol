@@ -36,12 +36,12 @@ paths:
                 consentContractId:
                   type: string
                   format: ethereum-contract-address
-                queryId:
+                queryCID:
                   type: string
                   format: IPFS-CID
-                dataWallet:
+                tokenId:
                   type: string
-                  format: snickerdoodle-account-address
+                  format: big-number-string
                 returns:
                   description: Each logic return is formatted as a string, with JSON data inside it
                   type: array
@@ -50,10 +50,12 @@ paths:
                 signature:
                   type: string
                   format: hex-string
+                rewardParameters:
+                  $ref: '#/components/schemas/RewardParameters'
               required:
                 - consentContractId
-                - queryId
-                - dataWallet
+                - queryCID
+                - tokenId
                 - returns
                 - signature
       responses:
@@ -87,12 +89,12 @@ paths:
                 consentContractId:
                   type: string
                   format: ethereum-contract-address
-                queryId:
+                queryCID:
                   type: string
                   format: IPFS-CID
-                dataWallet:
+                tokenId:
                   type: string
-                  format: snickerdoodle-account-address
+                  format: big-number-string
                 queries:
                   description: The list of queries that will be answered (q1, q3, q4) etc, based on the data permissions.
                   type: array
@@ -103,7 +105,7 @@ paths:
                   format: hex-string
               required:
                 - consentContractId
-                - queryId
+                - queryCID
                 - dataWallet
                 - queries
                 - signature
@@ -136,10 +138,6 @@ paths:
             schema:
               type: object
               properties:
-                dataWalletAddress:
-                  description: The address of the data wallet
-                  type: string
-                  format: ethereum-account-address
                 accountAddress:
                   type: string
                   format: ethereum-account-address
@@ -282,3 +280,10 @@ components:
       required:
         - subquery
         - data
+        
+    RewardParameters:
+      type: array
+      items:
+        type: string
+        description: stringified version of IDynamicRewardParameter
+        example: “{\“recipientAddress\“:{\“type\“:\“address\“,\“value\“:\“0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266\“}}”

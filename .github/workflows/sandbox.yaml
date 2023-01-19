@@ -44,7 +44,7 @@ jobs:
           --tag "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA" \
           --build-arg DOMAIN="extension.$JIRA_TICKET.snickerdoodle.dev" \
           --build-arg CONTROL_CHAIN_ID=31337 \
-          --build-arg BUILD_ENV=production \
+          --build-arg BUILD_ENV=prod \
           --build-arg INFURA_ID=72827ccd538446f2a20e35a632664c52 \
           --build-arg GAPI_CLIENT_ID=332580693256-mifj8rkovvlc332n8gtllpdl93e6nvio.apps.googleusercontent.com \
           -f ./packages/extension-onboarding/Dockerfile \
@@ -55,15 +55,19 @@ jobs:
       run: |-
         docker push "$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/insight-platform/protocol:$GITHUB_SHA"
 
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
     - name: Deploy to GCR
       run: |-
         JIRA_TICKET=$(echo $GITHUB_REF | grep -Eo '[A-Z0-9]*-[0-9]*' | awk '{print tolower($0)}')
         GKE_CLUSTER=$(gcloud container clusters list --format="csv(name)" | grep $JIRA_TICKET)
+
+        gcloud components install gke-gcloud-auth-plugin
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
         
         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
         chmod 700 get_helm.sh
         ./get_helm.sh
         cd infra/
-        helm install  insight-platform-protocol ./insight-platform-protocol || true
-        helm upgrade --reuse-values --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA  insight-platform-protocol ./insight-platform-protocol 
+        helm install --set ENV=$JIRA_TICKET -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol || true
+        helm upgrade --reuse-values --set InsightPlatformProtocol.Image.Tag=$GITHUB_SHA -n $JIRA_TICKET  insight-platform-protocol ./insight-platform-protocol 

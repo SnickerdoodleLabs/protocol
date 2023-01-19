@@ -1,4 +1,3 @@
-import { SnickerDoodleCoreError } from "@shared/objects/errors";
 import {
   Invitation,
   DataPermissions,
@@ -8,8 +7,11 @@ import {
   IOpenSeaMetadata,
   IpfsCID,
   HexString32,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
+
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 export interface IInvitationRepository {
   getInvitationsByDomain(
@@ -42,6 +44,14 @@ export interface IInvitationRepository {
   getAgreementFlags(
     consentContractAddress: EVMContractAddress,
   ): ResultAsync<HexString32, SnickerDoodleCoreError>;
+  getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError>;
+  getMarketplaceListings(
+    count?: number,
+    headAt?: number,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError>;
+  getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError>;
 }
 
 export const IInvitationRepositoryType = Symbol.for("IInvitationRepository");

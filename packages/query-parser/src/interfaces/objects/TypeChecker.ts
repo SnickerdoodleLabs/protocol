@@ -32,6 +32,10 @@ export class TypeChecker {
     return expr instanceof AST_Query;
   }
 
+  // static isCompIfCommand(expr: any): boolean {
+  //   return expr instanceof Command_IF;
+  // }
+
   static isOperator(expr: any): boolean {
     return expr instanceof Operator;
   }
@@ -59,7 +63,7 @@ export class TypeChecker {
   static isPrimitiveExpr(expr: any): boolean {
     if (expr instanceof AST_Expr) {
       const primitives = ["number", "string", "boolean"];
-      if (primitives.includes(typeof expr.source)) {
+      if (primitives.includes(typeof expr.source) || expr.source == null) {
         return true;
       }
     }

@@ -1,12 +1,13 @@
 import {
   AccountAddress,
   DataWalletAddress,
+  EarnedReward,
   EChain,
-  IEVMBalance,
-  IEVMNFT,
+  WalletNFT,
   LanguageCode,
   LinkedAccount,
   Signature,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -22,18 +23,25 @@ export class AccountService implements IAccountService {
     protected accountRepository: IAccountRepository,
   ) {}
 
+  public getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.accountRepository.getEarnedRewards();
+  }
+
   public getAccounts(): ResultAsync<LinkedAccount[], SnickerDoodleCoreError> {
     return this.accountRepository.getAccounts();
   }
 
   public getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.accountRepository.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
     return this.accountRepository.getAccountNFTs();
   }
 

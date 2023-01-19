@@ -1,0 +1,22 @@
+[
+    {
+        "chainId": 31337,
+        "privateKey": "0x0123456789012345678901234567890123456789012345678901234567890123"
+    },
+    {
+        "chainId": 31337,
+        "privateKey": "0x1234567890123456789012345678901234567890123456789012345678901234"
+    },
+    {
+        "chainId": 31337,
+        "privateKey": "cd34642d879fe59110689ff87a080aad52b383daeb5ad945fd6da20b954d2542"
+    },
+    {
+        "chainId": -1,
+        "privateKey": "3UVXV4k4zErpzsjQLsJR3Ee1x1RJgZptbZrGuVZxribdhJvKGbkbGBzWD8b8ZYwjLDrcTJJdYwKX7Z7TDapnvhKG"
+    },
+    {
+        "chainId": -1,
+        "privateKey": "2r6dcz3uhSoqGnnpvFhj6Fp6bRmAoZxiBifj6UXh8AgXteVMa8So69Pp39tM9DXD2KLpFuGaaD2CBNA6Mbz8agKn"
+    }
+]

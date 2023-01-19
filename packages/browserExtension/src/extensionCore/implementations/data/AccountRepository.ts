@@ -1,15 +1,16 @@
 import {
   AccountAddress,
   DataWalletAddress,
+  EarnedReward,
   EChain,
   EVMAccountAddress,
-  IEVMBalance,
-  IEVMNFT,
+  WalletNFT,
   ISnickerdoodleCore,
   ISnickerdoodleCoreType,
   LanguageCode,
   LinkedAccount,
   Signature,
+  TokenBalance,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -23,9 +24,7 @@ import {
   IErrorUtils,
   IErrorUtilsType,
 } from "@interfaces/utilities";
-import {
-  SnickerDoodleCoreError,
-} from "@shared/objects/errors";
+import { SnickerDoodleCoreError } from "@shared/objects/errors";
 
 @injectable()
 export class AccountRepository implements IAccountRepository {
@@ -36,6 +35,16 @@ export class AccountRepository implements IAccountRepository {
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
   ) {}
+
+  public getEarnedRewards(): ResultAsync<
+    EarnedReward[],
+    SnickerDoodleCoreError
+  > {
+    return this.core.getEarnedRewards().mapErr((error) => {
+      this.errorUtils.emit(error);
+      return new SnickerDoodleCoreError((error as Error).message, error);
+    });
+  }
   public getDataWalletForAccount(
     accountAddress: AccountAddress,
     signature: Signature,
@@ -57,7 +66,7 @@ export class AccountRepository implements IAccountRepository {
   }
 
   public getAccountBalances(): ResultAsync<
-    IEVMBalance[],
+    TokenBalance[],
     SnickerDoodleCoreError
   > {
     return this.core.getAccountBalances().mapErr((error) => {
@@ -66,7 +75,7 @@ export class AccountRepository implements IAccountRepository {
     });
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], SnickerDoodleCoreError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], SnickerDoodleCoreError> {
     return this.core.getAccountNFTs().mapErr((error) => {
       this.errorUtils.emit(error);
       return new SnickerDoodleCoreError((error as Error).message, error);

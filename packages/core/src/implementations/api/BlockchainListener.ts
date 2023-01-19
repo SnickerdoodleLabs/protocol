@@ -14,6 +14,11 @@ import {
   IPFSError,
   PersistenceError,
   UninitializedError,
+  QueryFormatError,
+  QueryExpiredError,
+  EvaluationError,
+  IpfsCID,
+  RequestForData,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -82,16 +87,26 @@ export class BlockchainListener implements IBlockchainListener {
      */
     this.logUtils.debug("Initializing Blockchain Listener");
 
-    return ResultUtils.combine([this.configProvider.getConfig()]).map(
-      ([config]) => {
-        setInterval(() => {
-          this.controlChainBlockMined(config).mapErr((e) => {
-            console.error(e);
-            return e;
-          });
-        }, config.controlChainInformation.averageBlockMiningTime);
-      },
-    );
+    return ResultUtils.combine([
+      this.configProvider.getConfig(),
+      this.contextProvider.getContext(),
+    ]).map(([config, context]) => {
+      // Start polling
+      setInterval(() => {
+        this.controlChainBlockMined(config).mapErr((e) => {
+          this.logUtils.error(e);
+          return e;
+        });
+      }, config.requestForDataCheckingFrequency);
+
+      // Subscribe to the opt-in event, and immediately do a poll
+      context.publicEvents.onCohortJoined.subscribe(() => {
+        this.controlChainBlockMined(config).mapErr((e) => {
+          this.logUtils.error(e);
+          return e;
+        });
+      });
+    });
   }
 
   protected controlChainBlockMined(
@@ -107,6 +122,9 @@ export class BlockchainListener implements IBlockchainListener {
     | ConsentContractError
     | ConsentError
     | PersistenceError
+    | QueryFormatError
+    | QueryExpiredError
+    | EvaluationError
   > {
     return this.blockchainProvider
       .getLatestBlock(config.controlChainId)
@@ -122,6 +140,7 @@ export class BlockchainListener implements IBlockchainListener {
   ): ResultAsync<
     void,
     | BlockchainProviderError
+    | PersistenceError
     | UninitializedError
     | ConsentFactoryContractError
     | ConsentContractRepositoryError
@@ -129,10 +148,17 @@ export class BlockchainListener implements IBlockchainListener {
     | AjaxError
     | ConsentContractError
     | ConsentError
-    | PersistenceError
+    | QueryFormatError
+    | EvaluationError
+    | QueryExpiredError
   > {
-    return this.consentContractRepository
-      .getConsentContracts()
+    return this.dataWalletPersistence
+      .getAcceptedInvitations()
+      .andThen((optIns) => {
+        return this.consentContractRepository.getConsentContracts(
+          optIns.map((oii) => oii.consentContractAddress),
+        );
+      })
       .andThen((consentContractsMap) => {
         return ResultUtils.combine(
           Array.from(consentContractsMap.values()).map((consentContract) => {
@@ -175,13 +201,31 @@ export class BlockchainListener implements IBlockchainListener {
                   });
               })
               .andThen((requestForDataObjects) => {
-                return ResultUtils.combine(
-                  requestForDataObjects.map((requestForDataObject) => {
-                    return this.queryService.onQueryPosted(
-                      requestForDataObject.consentContractAddress,
-                      requestForDataObject.requestedCID,
-                    );
+                if (requestForDataObjects.length > 0) {
+                  this.logUtils.info(
+                    "Received requests for data",
+                    requestForDataObjects,
+                  );
+                }
+
+                // In the odd case that multiple events for the same CID was found, we need
+                // to ditch the repeats
+                // If we create a map by the IpfsCIDs, any repeats will be overwritten
+                const filteredMap = new Map(
+                  requestForDataObjects.map((r4d) => {
+                    return [r4d.requestedCID, r4d];
                   }),
+                );
+
+                return ResultUtils.combine(
+                  Array.from(filteredMap.values()).map(
+                    (requestForDataObject) => {
+                      return this.queryService.onQueryPosted(
+                        requestForDataObject.consentContractAddress,
+                        requestForDataObject.requestedCID,
+                      );
+                    },
+                  ),
                 );
               });
           }),

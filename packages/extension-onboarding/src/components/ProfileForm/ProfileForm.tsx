@@ -44,7 +44,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
   return (
     <Box>
       <Box mb={5} mt={4}>
-        {isGoogleButtonVisible && (
+        {/* {isGoogleButtonVisible && (
           <Box my={5}>
             <Box mb={2}>
               <Typography className={classes.socialLoginTitle}>
@@ -61,7 +61,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
               isSignedIn={false}
             />
           </Box>
-        )}
+        )} */}
         <Formik
           initialValues={formValues}
           onSubmit={onFormSubmit}
@@ -102,6 +102,41 @@ const ProfileForm: FC<ProfileFormProps> = ({
                     />
                   </Box>
                 </Box> */}
+
+                <Box /* display="flex" */ mt={3}>
+                  <Box>
+                    <Typography className={classes.formLabel}>
+                      Country (Optional)
+                    </Typography>
+                    <Field
+                      className={classes.selectInput}
+                      component={Select}
+                      variant="outlined"
+                      fullWidth
+                      name="country_code"
+                      placeholder="Select your country"
+                      value={
+                        values.country_code
+                        //  ||
+                        // (() => {
+                        //   setFieldValue("country_code", "US");
+                        //   return "US";
+                        // })()
+                      }
+                    >
+                      <MenuItem selected value="US">
+                        United States
+                      </MenuItem>
+                      {countries.map((country) => (
+                        <MenuItem key={country.code} value={country.code}>
+                          {country.name}
+                        </MenuItem>
+                      ))}
+                    </Field>
+                  </Box>
+                  {/* todo delete mt */}
+                </Box>
+
                 <Box display="flex" mt={3}>
                   {/*     <Box>
                     <Typography className={classes.formLabel}>
@@ -120,7 +155,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
                   </Box> */}
                   <Box /* ml={3} */>
                     <Typography className={classes.formLabel}>
-                      Date of Birth
+                      Date of Birth (Optional)
                     </Typography>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                       <KeyboardDatePicker
@@ -136,7 +171,7 @@ const ProfileForm: FC<ProfileFormProps> = ({
                         invalidDateMessage=""
                         maxDateMessage=""
                         minDateMessage=""
-                        onError={(e) => console.log(e)}
+                        onError={(e) => {}}
                         value={values.date_of_birth}
                         onChange={(date, value) => {
                           setFieldValue(
@@ -163,75 +198,38 @@ const ProfileForm: FC<ProfileFormProps> = ({
                 <Box /* display="flex" */ mt={3}>
                   <Box>
                     <Typography className={classes.formLabel}>
-                      Country
+                      Gender (Optional)
                     </Typography>
                     <Field
                       className={classes.selectInput}
                       component={Select}
                       variant="outlined"
                       fullWidth
-                      name="country_code"
-                      placeholder="Country"
-                      value={
-                        values.country_code ||
-                        (() => {
-                          setFieldValue("country_code", "US");
-                          return "US";
-                        })()
-                      }
+                      placeholder="Select your gender"
+                      name="gender"
+                      value={values.gender}
+                    /*   onChange={(event) => {
+                        setFieldValue("gender", event.currentTarget.value);
+                      }} */
                     >
-                      <MenuItem selected value="US">
-                        United States
+                      <MenuItem selected value="female">
+                        Female
                       </MenuItem>
-                      {countries.map((country) => (
-                        <MenuItem key={country.code} value={country.code}>
-                          {country.name}
-                        </MenuItem>
-                      ))}
+
+                      <MenuItem value="male">Male</MenuItem>
+
+                      <MenuItem value="nonbinary">Non-Binary</MenuItem>
                     </Field>
+                    <ErrorMessage
+                      children={(errorMessage: string) => (
+                        <Typography className={classes.errorMessage}>
+                          {errorMessage}
+                        </Typography>
+                      )}
+                      name="gender"
+                    />
                   </Box>
                   {/* todo delete mt */}
-                  <Box /* ml={3} */ mt={3}>
-                    <Typography className={classes.formLabel}>
-                      Gender
-                    </Typography>
-                    <Box mt={1}>
-                      <Field
-                        component={RadioGroup}
-                        row
-                        required
-                        name="gender"
-                        value={values.gender}
-                        onChange={(event) => {
-                          setFieldValue("gender", event.currentTarget.value);
-                        }}
-                      >
-                        <FormControlLabel
-                          value="female"
-                          control={<Radio />}
-                          label="Female"
-                        />
-                        <FormControlLabel
-                          value="male"
-                          control={<Radio />}
-                          label="Male"
-                        />
-                        <FormControlLabel
-                          value="nonbinary"
-                          control={<Radio />}
-                          label="Non-Binary"
-                        />
-                      </Field>
-                      <ErrorMessage
-                        children={(errorMessage: string) => (
-                          <Typography className={classes.errorMessage}>
-                            {errorMessage}
-                          </Typography>
-                        )}
-                        name="gender"
-                      />
-                    </Box>
-                  </Box>
                 </Box>
               </Form>
             );

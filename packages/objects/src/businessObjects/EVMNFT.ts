@@ -1,3 +1,5 @@
+import { WalletNFT } from "@objects/businessObjects/WalletNFT";
+import { EChainTechnology } from "@objects/enum";
 import {
   EVMContractAddress,
   EVMAccountAddress,
@@ -7,15 +9,18 @@ import {
   BigNumberString,
 } from "@objects/primitives";
 
-export interface IEVMNFT {
-  contract: EVMContractAddress;
-  tokenId: BigNumberString;
-  contractType: string;
-  owner: EVMAccountAddress;
-  tokenUri: TokenUri;
-  metadata: string;
-  amount: BigNumberString;
-  name: string;
-  ticker: TickerSymbol;
-  chain: ChainId;
+export class EVMNFT extends WalletNFT {
+  public constructor(
+    public token: EVMContractAddress,
+    public tokenId: BigNumberString,
+    public contractType: string,
+    public owner: EVMAccountAddress,
+    public tokenUri: TokenUri | undefined,
+    public metadata: object | undefined,
+    public amount: BigNumberString,
+    public name: string,
+    public chain: ChainId,
+  ) {
+    super(EChainTechnology.EVM, chain, owner, token);
+  }
 }

@@ -1,29 +1,31 @@
-import { EarnedReward } from "@snickerdoodlelabs/objects";
 import {
+  EarnedReward,
   AjaxError,
   BlockchainProviderError,
   CrumbsContractError,
   InvalidSignatureError,
-  IEVMBalance,
-  IEVMNFT,
+  TokenBalance,
+  WalletNFT,
   LanguageCode,
   PersistenceError,
   Signature,
   UninitializedError,
   UnsupportedLanguageError,
-  EVMTransactionFilter,
-  EVMTransaction,
+  TransactionFilter,
   ChainId,
   URLString,
   SiteVisit,
   InvalidParametersError,
-  IChainTransaction,
+  ChainTransaction,
   LinkedAccount,
   EChain,
   MinimalForwarderContractError,
   AccountAddress,
   DataWalletAddress,
-  CeramicStreamID,
+  TokenAddress,
+  UnixTimestamp,
+  DataWalletBackupID,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -101,26 +103,37 @@ export interface IAccountService {
 
   getAccounts(): ResultAsync<LinkedAccount[], PersistenceError>;
 
-  getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError>;
+  getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError>;
 
-  getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError>;
+  getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError>;
   getTranactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError>;
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError>;
 
-  getTransactionsArray(): ResultAsync<IChainTransaction[], PersistenceError>
+  getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
+    PersistenceError
+  >;
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
-  addEVMTransactions(
-    transactions: EVMTransaction[],
+  addTransactions(
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError>;
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
-  addEarnedReward(reward: EarnedReward): ResultAsync<void, PersistenceError>;
+  addEarnedRewards(
+    rewards: EarnedReward[],
+  ): ResultAsync<void, PersistenceError>;
 
-  postBackup(): ResultAsync<CeramicStreamID, PersistenceError>;
+  postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
+
+  getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, PersistenceError>;
 }
 
 export const IAccountServiceType = Symbol.for("IAccountService");

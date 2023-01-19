@@ -2,6 +2,8 @@
 import {
   ICryptoUtils,
   ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
 } from "@snickerdoodlelabs/common-utils";
 import { IMinimalForwarderRequest } from "@snickerdoodlelabs/contracts-sdk";
 import {
@@ -15,7 +17,7 @@ import {
   BigNumberString,
   BlockchainProviderError,
   ChainId,
-  IChainTransaction,
+  ChainTransaction,
   ConsentContractError,
   CrumbsContractError,
   DataWalletAddress,
@@ -23,13 +25,13 @@ import {
   EVMAccountAddress,
   EVMPrivateKey,
   EVMTransaction,
-  EVMTransactionFilter,
+  TransactionFilter,
   ExternallyOwnedAccount,
   ICrumbContent,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-  IEVMBalance,
-  IEVMNFT,
+  TokenBalance,
+  WalletNFT,
   InvalidParametersError,
   InvalidSignatureError,
   LanguageCode,
@@ -43,8 +45,11 @@ import {
   UninitializedError,
   UnsupportedLanguageError,
   URLString,
-  CeramicStreamID,
   EarnedReward,
+  TokenAddress,
+  UnixTimestamp,
+  DataWalletBackupID,
+  TransactionPaymentCounter,
 } from "@snickerdoodlelabs/objects";
 import {
   forwardRequestTypes,
@@ -87,7 +92,20 @@ export class AccountService implements IAccountService {
     @inject(IDataWalletUtilsType) protected dataWalletUtils: IDataWalletUtils,
     @inject(ICryptoUtilsType) protected cryptoUtils: ICryptoUtils,
     @inject(IContractFactoryType) protected contractFactory: IContractFactory,
+    @inject(ILogUtilsType) protected logUtils: ILogUtils,
   ) {}
+
+  public getTokenPrice(
+    chainId: ChainId,
+    address: TokenAddress | null,
+    timestamp: UnixTimestamp,
+  ): ResultAsync<number, PersistenceError> {
+    return this.dataWalletPersistence.getTokenPrice(
+      chainId,
+      address,
+      timestamp,
+    );
+  }
 
   public getUnlockMessage(
     languageCode: LanguageCode,
@@ -167,6 +185,9 @@ export class AccountService implements IAccountService {
               .andThen(() => {
                 if (encryptedDataWalletKey == null) {
                   // We're trying to unlock for the first time!
+                  this.logUtils.info(
+                    `Creating a new data wallet linked to ${accountAddress}`,
+                  );
                   return this.createDataWallet(
                     accountAddress,
                     signature,
@@ -174,6 +195,9 @@ export class AccountService implements IAccountService {
                     derivedEOA,
                   );
                 }
+                this.logUtils.info(
+                  `Existing crumb found for ${accountAddress}`,
+                );
                 return this.getDataWalletAccount(
                   encryptedDataWalletKey,
                   accountAddress,
@@ -323,8 +347,6 @@ export class AccountService implements IAccountService {
               .encryptString(context.dataWalletKey!, encryptionKey)
               .andThen((encryptedDataWalletKey) => {
                 return this.addCrumb(
-                  context.dataWalletAddress!,
-                  context.dataWalletKey!,
                   languageCode,
                   encryptedDataWalletKey,
                   derivedEOA.privateKey,
@@ -343,7 +365,7 @@ export class AccountService implements IAccountService {
           })
           .andThen(() => {
             // We need to post a backup immediately upon adding an account, so that we don't lose access
-            return this.dataWalletPersistence.postBackup();
+            return this.dataWalletPersistence.postBackups();
           })
           .map(() => {
             // Notify the outside world of what we did
@@ -437,14 +459,7 @@ export class AccountService implements IAccountService {
               }
 
               // Remove the crumb
-              return this.removeCrumb(
-                new ExternallyOwnedAccount(
-                  EVMAccountAddress(context.dataWalletAddress!),
-                  context.dataWalletKey!,
-                ),
-                derivedEVMAccount,
-                crumbTokenId,
-              )
+              return this.removeCrumb(derivedEVMAccount, crumbTokenId)
                 .andThen(() => {
                   // Add the account to the data wallet
                   return this.dataWalletPersistence.removeAccount(
@@ -453,7 +468,7 @@ export class AccountService implements IAccountService {
                 })
                 .andThen(() => {
                   // We need to post a backup immediately upon adding an account, so that we don't lose access
-                  return this.dataWalletPersistence.postBackup();
+                  return this.dataWalletPersistence.postBackups();
                 })
                 .map(() => {
                   // Notify the outside world of what we did
@@ -523,11 +538,11 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getAccounts();
   }
 
-  public getAccountBalances(): ResultAsync<IEVMBalance[], PersistenceError> {
+  public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
     return this.dataWalletPersistence.getAccountBalances();
   }
 
-  public getAccountNFTs(): ResultAsync<IEVMNFT[], PersistenceError> {
+  public getAccountNFTs(): ResultAsync<WalletNFT[], PersistenceError> {
     return this.dataWalletPersistence.getAccountNFTs();
   }
 
@@ -535,27 +550,23 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getEarnedRewards();
   }
 
-  public addEarnedReward(
-    reward: EarnedReward,
+  public addEarnedRewards(
+    rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addEarnedReward(reward);
+    return this.dataWalletPersistence.addEarnedRewards(rewards);
   }
 
   public getTranactions(
-    filter?: EVMTransactionFilter,
-  ): ResultAsync<EVMTransaction[], PersistenceError> {
-    return this.dataWalletPersistence.getEVMTransactions(filter);
+    filter?: TransactionFilter,
+  ): ResultAsync<ChainTransaction[], PersistenceError> {
+    return this.dataWalletPersistence.getTransactions(filter);
   }
 
-  // public getTransactionsArray(): ResultAsync<{ chainId: ChainId; items: EVMTransaction[] | null }[], PersistenceError> {
-  //   return this.dataWalletPersistence.getTransactionsArray();
-  // }
-
-  public getTransactionsArray(): ResultAsync<
-    IChainTransaction[],
+  public getTransactionValueByChain(): ResultAsync<
+    TransactionPaymentCounter[],
     PersistenceError
   > {
-    return this.dataWalletPersistence.getTransactionsArray();
+    return this.dataWalletPersistence.getTransactionValueByChain();
   }
 
   public getSiteVisitsMap(): ResultAsync<
@@ -573,14 +584,16 @@ export class AccountService implements IAccountService {
     return this.dataWalletPersistence.getSiteVisits();
   }
 
-  public addEVMTransactions(
-    transactions: EVMTransaction[],
+  public addTransactions(
+    transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addEVMTransactions(transactions);
+    return this.dataWalletPersistence.addTransactions(transactions);
   }
 
-  public postBackup(): ResultAsync<CeramicStreamID, PersistenceError> {
-    return this.dataWalletPersistence.postBackup();
+  public postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError> {
+    return this.dataWalletPersistence
+      .postBackups()
+      .mapErr((e) => new PersistenceError("error posting backups", e));
   }
 
   public clearCloudStore(): ResultAsync<void, PersistenceError> {
@@ -588,8 +601,6 @@ export class AccountService implements IAccountService {
   }
 
   protected addCrumb(
-    dataWalletAddress: DataWalletAddress,
-    dataWalletKey: EVMPrivateKey,
     languageCode: LanguageCode,
     encryptedDataWalletKey: AESEncryptedString,
     derivedEVMKey: EVMPrivateKey,
@@ -613,6 +624,9 @@ export class AccountService implements IAccountService {
       return minimalForwarder
         .getNonce(derivedEVMAccountAddress)
         .andThen((nonce) => {
+          this.logUtils.info(
+            `Creating new crumb token for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
+          );
           // Create the crumb content
           const crumbContent = TokenUri(
             JSON.stringify({
@@ -650,7 +664,6 @@ export class AccountService implements IAccountService {
             )
             .andThen((metatransactionSignature) => {
               return this.insightPlatformRepo.executeMetatransaction(
-                dataWalletAddress,
                 derivedEVMAccountAddress,
                 crumbsContract.contractAddress,
                 nonce,
@@ -658,16 +671,33 @@ export class AccountService implements IAccountService {
                 BigNumberString(BigNumber.from(10000000).toString()), // gas
                 callData,
                 metatransactionSignature,
-                dataWalletKey,
+                derivedEVMKey,
                 config.defaultInsightPlatformBaseUrl,
               );
+            })
+            .map(() => {
+              // This is just a double check to make sure the crumb was actually created.
+              this.logUtils.debug(
+                `Delivered metatransaction to Insight Platform, checking to make sure token was created`,
+              );
+              crumbsContract
+                .tokenURI(crumbId)
+                .map(() => {
+                  this.logUtils.info(
+                    `Created crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
+                  );
+                })
+                .mapErr((e) => {
+                  this.logUtils.error(
+                    `Could not get crumb for derived account ${derivedEVMAccountAddress} with token ID ${crumbId}`,
+                  );
+                });
             });
         });
     });
   }
 
   protected removeCrumb(
-    dataWalletAccount: ExternallyOwnedAccount,
     derivedEVMAccount: ExternallyOwnedAccount,
     crumbId: TokenId,
   ): ResultAsync<
@@ -711,7 +741,6 @@ export class AccountService implements IAccountService {
             )
             .andThen((metatransactionSignature) => {
               return this.insightPlatformRepo.executeMetatransaction(
-                DataWalletAddress(dataWalletAccount.accountAddress),
                 derivedEVMAccount.accountAddress,
                 crumbsContract.contractAddress,
                 nonce,
@@ -719,7 +748,7 @@ export class AccountService implements IAccountService {
                 BigNumberString(BigNumber.from(10000000).toString()), // gas
                 callData,
                 metatransactionSignature,
-                dataWalletAccount.privateKey,
+                derivedEVMAccount.privateKey,
                 config.defaultInsightPlatformBaseUrl,
               );
             });
@@ -786,8 +815,6 @@ export class AccountService implements IAccountService {
 
           // We can add the crumb directly
           return this.addCrumb(
-            dataWalletAddress,
-            dataWalletKey,
             languageCode,
             encryptedDataWallet,
             derivedEVMAccount.privateKey,

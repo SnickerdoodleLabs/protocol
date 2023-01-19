@@ -41,9 +41,12 @@ export interface IConsentContract {
   encodeOptIn(tokenId: TokenId, agreementFlags: HexString32): HexString;
 
   /**
-   * Create a consent token with providing the business signature
+   * Opts in to a private contract, using a signature provided by an account with the SIGNER role.
+   * The signature must encode the contract address, token ID AND the recipient account address.
+   * anonymousRestrictedOptIn uses a slightly different formula and does not encode the recipient
+   * account address
    * @param tokenId randomly generated token id
-   * @param agreementURI token uri data
+   * @param agreementFlags token uri data
    * @param signature business or consent contract owner signature
    * @param contractOverrides for overriding transaction gas object
    */
@@ -61,10 +64,11 @@ export interface IConsentContract {
   ): HexString;
 
   /**
-   * Create a consent token with providing the business signature
-   * Allows Signature Issuer to send anonymous invitation link to end user to opt in
+   * Opts in to a private contract, using a signature provided by an account with the SIGNER role.
+   * The signature must encode the contract address and token ID, but not the recipient address.
+   * account address
    * @param tokenId randomly generated token id
-   * @param agreementURI token uri data
+   * @param agreementFlags token uri data
    * @param signature business or consent contract owner signature
    * @param contractOverrides for overriding transaction gas object
    */
@@ -74,6 +78,12 @@ export interface IConsentContract {
     signature: Signature,
     contractOverrides?: ContractOverrides,
   ): ResultAsync<void, ConsentContractError>;
+
+  encodeAnonymousRestrictedOptIn(
+    tokenId: TokenId,
+    signature: Signature,
+    agreementFlags: HexString32,
+  ): HexString;
 
   /**
    * Burns a user's consent token to opt out of Consent contract
@@ -153,6 +163,14 @@ export interface IConsentContract {
   ): ResultAsync<number, ConsentContractError>;
 
   /**
+   * Returns the owner account for a token Id
+   * @param tokenId token Id
+   */
+  ownerOf(
+    tokenId: TokenId,
+  ): ResultAsync<EVMAccountAddress, ConsentContractError>;
+
+  /**
    * Returns the token uri for a specific token Id
    * @param tokenId token Id
    */
@@ -173,20 +191,12 @@ export interface IConsentContract {
   ): ResultAsync<Event[], ConsentContractError>;
 
   /**
-   * Returns consent tokens previously minted for the address
+   * Returns a consent token by the token ID
    * @param ownerAddress owner address
    */
-  getConsentTokensOfAddress(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken[], ConsentContractError>;
-
-  /**
-   * Returns a current consent token owned by address
-   * @param ownerAddress owner address
-   */
-  getCurrentConsentTokenOfAddress(
-    ownerAddress: EVMAccountAddress,
-  ): ResultAsync<ConsentToken | null, ConsentContractError>;
+  getConsentToken(
+    tokenId: TokenId,
+  ): ResultAsync<ConsentToken, ConsentContractError>;
 
   /**
    * Adds a domain to the contract storage
@@ -304,6 +314,11 @@ export interface IConsentContract {
    * Get the number of opted in addresses
    */
   totalSupply(): ResultAsync<number, ConsentContractError>;
+
+  /**
+   * Get the open optIn availability
+   */
+  openOptInDisabled(): ResultAsync<boolean, ConsentContractError>;
 
   getSignature(
     values: Array<

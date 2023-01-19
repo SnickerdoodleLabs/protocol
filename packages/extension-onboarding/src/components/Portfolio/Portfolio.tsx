@@ -1,0 +1,841 @@
+import {
+  Box,
+  CircularProgress,
+  Divider,
+  Grid,
+  IconButton,
+  MenuItem,
+  Select,
+  Typography,
+} from "@material-ui/core";
+import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
+import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
+import {
+  BigNumberString,
+  chainConfig,
+  ChainId,
+  EChainType,
+  EVMAccountAddress,
+  WalletNFT,
+  EChainTechnology,
+  EVMNFT,
+  SolanaNFT,
+  AccountAddress,
+  formatValue,
+} from "@snickerdoodlelabs/objects";
+import clsx from "clsx";
+import { BigNumber } from "ethers";
+import { okAsync } from "neverthrow";
+import React, { FC, useEffect, useMemo, useState } from "react";
+import coinbaseSmall from "@extension-onboarding/assets/icons/coinbaseSmall.svg";
+import metamaskLogo from "@extension-onboarding/assets/icons/metamaskSmall.svg";
+import phantomSmall from "@extension-onboarding/assets/icons/phantomSmall.svg";
+import emptyNfts from "@extension-onboarding/assets/images/empty-nfts.svg";
+import emptyTokens from "@extension-onboarding/assets/images/empty-tokens.svg";
+import {
+  SolanaNFTItem,
+  EVMNFTItem,
+} from "@extension-onboarding/components/NFTItem";
+import Switch from "@extension-onboarding/components/Switch";
+import { EWalletProviderKeys } from "@extension-onboarding/constants";
+import { tokenInfoObj } from "@extension-onboarding/constants/tokenInfo";
+import { useAppContext } from "@extension-onboarding/context/App";
+import InfoCard from "@extension-onboarding/components/Portfolio/components/InfoCard";
+import TokenItem from "@extension-onboarding/components/TokenItem";
+import { useStyles } from "@extension-onboarding/components/Portfolio/Portfolio.style";
+import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
+import { useLayoutContext } from "@extension-onboarding/context/LayoutContext";
+import { ResultUtils } from "neverthrow-result-utils";
+import { IBalanceItem } from "@extension-onboarding/objects";
+
+declare const window: IWindowWithSdlDataWallet;
+
+export enum EDisplayMode {
+  MAINNET,
+  TESTNET,
+}
+interface IPagination {
+  currentIndex: number;
+  numberOfPages: number;
+  totalItems: number;
+}
+
+const { mainnetSupportedChainIds, testnetSupportedChainIds } = Array.from(
+  chainConfig.values(),
+).reduce(
+  (acc, chainInfo) => {
+    if (chainInfo.type === EChainType.Mainnet) {
+      acc.mainnetSupportedChainIds = [
+        ...acc.mainnetSupportedChainIds,
+        chainInfo.chainId,
+      ];
+    } else if (chainInfo.type === EChainType.Testnet) {
+      acc.testnetSupportedChainIds = [
+        ...acc.testnetSupportedChainIds,
+        chainInfo.chainId,
+      ];
+    }
+    return acc;
+  },
+  { mainnetSupportedChainIds: [], testnetSupportedChainIds: [] } as {
+    mainnetSupportedChainIds: ChainId[];
+    testnetSupportedChainIds: ChainId[];
+  },
+);
+
+const PAGINATION_RANGE = 5;
+
+interface IPortfolioProps {
+  selectedAccount?: AccountAddress;
+}
+
+const Portfolio: FC<IPortfolioProps> = ({ selectedAccount }) => {
+  const { setModal } = useLayoutContext();
+  const { linkedAccounts } = useAppContext();
+  const [accountBalances, setAccountBalances] = useState<IBalanceItem[]>();
+  const [accountTestnetBalances, setAccountTestnetBalances] =
+    useState<IBalanceItem[]>();
+  const [accountNFTs, setAccountNFTs] = useState<WalletNFT[]>();
+  const [accountTestnetNFTs, setAccountTestnetNFTs] = useState<WalletNFT[]>();
+
+  const [isBalancesLoading, setIsBalancesLoading] = useState(true);
+  const [isNFTsLoading, setIsNFTsLoading] = useState(true);
+  const [accountSelect, setAccountSelect] = useState<
+    AccountAddress | undefined
+  >(selectedAccount);
+  const [chainSelect, setChainSelect] = useState<ChainId>();
+  const [displayMode, setDisplayMode] = useState<EDisplayMode>(
+    EDisplayMode.MAINNET,
+  );
+  const [tokensPagination, setTokensPagination] = useState<IPagination>();
+  const [nftsPagination, setNftsPagination] = useState<IPagination>();
+
+  useEffect(() => {
+    if (linkedAccounts.length) {
+      setIsBalancesLoading(true);
+      setIsNFTsLoading(true);
+      initializeBalances();
+      initializeNfts();
+    }
+  }, [linkedAccounts.length]);
+
+  useEffect(() => {
+    if (accountBalances) {
+      setIsBalancesLoading(false);
+    }
+  }, [JSON.stringify(accountBalances)]);
+
+  useEffect(() => {
+    if (accountNFTs) {
+      setIsNFTsLoading(false);
+    }
+  }, [JSON.stringify(accountNFTs)]);
+
+  const initializeBalances = () => {
+    window.sdlDataWallet
+      .getAccountBalances()
+      .map((balances) =>
+        balances.map((b) => ({ ...b, balance: formatValue(b) })),
+      )
+      .andThen((balanceResults) =>
+        ResultUtils.combine(
+          balanceResults.map((balanceItem) =>
+            window.sdlDataWallet
+              .getTokenInfo(balanceItem.chainId, balanceItem.tokenAddress)
+              .orElse((e) => okAsync(null)),
+          ),
+        ).map((tokenInfo) =>
+          balanceResults.map((balanceItem, index) => ({
+            ...balanceItem,
+            tokenInfo: tokenInfo[index],
+          })),
+        ),
+      )
+      .andThen((balancesWithTokenInfo) => {
+        return window.sdlDataWallet
+          .getTokenMarketData(
+            balancesWithTokenInfo.map((item) => item.tokenInfo?.id ?? ""),
+          )
+          .orElse((e) => okAsync([]))
+          .map((res) => {
+            const combinedBalances = balancesWithTokenInfo.reduce(
+              (acc, item) => {
+                if (!item.tokenInfo) {
+                  acc = [
+                    ...acc,
+                    { ...item, marketaData: null, quoteBalance: 0 },
+                  ];
+                } else {
+                  const marketData = res.filter(
+                    (marketData) => marketData.id == item.tokenInfo!.id,
+                  );
+                  const marketDataRes = marketData.length
+                    ? marketData[0]
+                    : null;
+                  acc = [
+                    ...acc,
+                    {
+                      ...item,
+                      marketaData: marketData.length ? marketData[0] : null,
+                      quoteBalance:
+                        Number.parseFloat(item.balance || "0") *
+                        (marketDataRes?.currentPrice ?? 0),
+                    },
+                  ];
+                }
+
+                return acc;
+              },
+              [] as IBalanceItem[],
+            );
+            const structeredBalances = combinedBalances.reduce(
+              (acc, item) => {
+                const isMainnetItem = mainnetSupportedChainIds.includes(
+                  item.chainId,
+                );
+                if (isMainnetItem) {
+                  acc.mainnetBalances = [...acc.mainnetBalances, item];
+                } else {
+                  acc.testnetBalances = [...acc.testnetBalances, item];
+                }
+                return acc;
+              },
+              { mainnetBalances: [], testnetBalances: [] } as {
+                mainnetBalances: IBalanceItem[];
+                testnetBalances: IBalanceItem[];
+              },
+            );
+            setAccountBalances(structeredBalances.mainnetBalances);
+            setAccountTestnetBalances(structeredBalances.testnetBalances);
+            setIsBalancesLoading(false);
+          });
+      });
+  };
+
+  const initializeNfts = () => {
+    window.sdlDataWallet
+      .getAccountNFTs()
+      .mapErr((e) => {
+        setIsNFTsLoading(false);
+      })
+      .map((result) => {
+        const structeredNfts = result.reduce(
+          (acc, item) => {
+            const isMainnetItem = mainnetSupportedChainIds.includes(item.chain);
+            if (isMainnetItem) {
+              acc.mainnetNfts = [...acc.mainnetNfts, item];
+            } else {
+              acc.testnetNfts = [...acc.testnetNfts, item];
+            }
+            return acc;
+          },
+          { mainnetNfts: [], testnetNfts: [] } as {
+            mainnetNfts: WalletNFT[];
+            testnetNfts: WalletNFT[];
+          },
+        );
+        setAccountNFTs(structeredNfts.mainnetNfts);
+        setAccountTestnetNFTs(structeredNfts.testnetNfts);
+        setIsNFTsLoading(false);
+      });
+  };
+
+  const { netWorth, numberOfTokens } = useMemo(() => {
+    if (accountBalances && accountTestnetBalances) {
+      const balanceArr =
+        EDisplayMode.MAINNET === displayMode
+          ? accountBalances
+          : accountTestnetBalances;
+
+      return {
+        netWorth: balanceArr.reduce(
+          (acc, item) =>
+            acc +
+            Number.parseFloat(item.balance || "0") *
+              (item.marketaData?.currentPrice ?? 0),
+          0,
+        ),
+        numberOfTokens: new Set(balanceArr.map((balance) => balance.ticker))
+          .size,
+      };
+    }
+    return { netWorth: 0, numberOfTokens: 0 };
+  }, [displayMode, accountBalances, accountTestnetBalances]);
+
+  const numberOfNFTs = useMemo(() => {
+    if (accountNFTs && accountTestnetNFTs) {
+      const ntfArr =
+        EDisplayMode.MAINNET === displayMode ? accountNFTs : accountTestnetNFTs;
+      return ntfArr.length;
+    }
+    return 0;
+  }, [displayMode, accountNFTs, accountTestnetNFTs]);
+
+  const handleAccountChange = (
+    event: React.ChangeEvent<{
+      name?: string | undefined;
+      value: unknown;
+    }>,
+  ) => {
+    const value = (
+      event.target.value === "all" ? undefined : event.target.value
+    ) as EVMAccountAddress;
+    setAccountSelect(value);
+  };
+
+  const getGroupedBalances = (balanceArr: IBalanceItem[]): IBalanceItem[] => {
+    return Object.values(
+      balanceArr.reduce((acc, item) => {
+        if (acc[item.ticker]) {
+          acc[item.ticker] = {
+            ...acc[item.ticker],
+            balance: BigNumberString(
+              (
+                Number.parseFloat(acc[item.ticker].balance) +
+                Number.parseFloat(item.balance)
+              ).toString(),
+            ),
+            quoteBalance: acc[item.ticker].quoteBalance + item.quoteBalance,
+          };
+        } else {
+          acc[item.ticker] = item;
+        }
+        return acc;
+      }, {} as { [key: string]: IBalanceItem }),
+    ).sort(
+      (a, b) =>
+        Number.parseFloat(b.balance || "0") *
+          (b.marketaData?.currentPrice ?? 0) -
+        Number.parseFloat(a.balance || "0") *
+          (a.marketaData?.currentPrice ?? 0),
+    );
+  };
+
+  const tokensToRender: IBalanceItem[] | null = useMemo(() => {
+    if (accountBalances && accountTestnetBalances) {
+      const balanceArr =
+        EDisplayMode.MAINNET === displayMode
+          ? accountBalances
+          : accountTestnetBalances;
+
+      if (!accountSelect && !chainSelect) {
+        return getGroupedBalances(balanceArr);
+      }
+      if (!accountSelect && chainSelect) {
+        return getGroupedBalances(
+          balanceArr.filter((item) => item.chainId === chainSelect),
+        );
+      }
+      if (accountSelect && !chainSelect) {
+        return balanceArr
+          .filter((item) => item.accountAddress === accountSelect)
+          .sort(
+            (a, b) =>
+              Number.parseFloat(b.balance || "0") *
+                (b.marketaData?.currentPrice ?? 0) -
+              Number.parseFloat(a.balance || "0") *
+                (a.marketaData?.currentPrice ?? 0),
+          );
+      }
+      return balanceArr
+        .filter(
+          (item) =>
+            item.accountAddress === accountSelect &&
+            item.chainId === chainSelect,
+        )
+        .sort(
+          (a, b) =>
+            Number.parseFloat(b.balance || "0") *
+              (b.marketaData?.currentPrice ?? 0) -
+            Number.parseFloat(a.balance || "0") *
+              (a.marketaData?.currentPrice ?? 0),
+        );
+    } else {
+      return null;
+    }
+  }, [
+    accountSelect,
+    chainSelect,
+    displayMode,
+    accountBalances,
+    accountTestnetBalances,
+  ]);
+
+  const nftsToRender: WalletNFT[] | null = useMemo(() => {
+    if (accountNFTs && accountTestnetNFTs) {
+      const nftArr =
+        EDisplayMode.MAINNET === displayMode ? accountNFTs : accountTestnetNFTs;
+
+      if (!accountSelect && !chainSelect) {
+        return nftArr;
+      }
+      if (!accountSelect && chainSelect) {
+        return nftArr.filter((item) => item.chain === chainSelect);
+      }
+      if (accountSelect && !chainSelect) {
+        return nftArr.filter((item) => item.owner === accountSelect);
+      }
+      return nftArr.filter(
+        (item) => item.owner === accountSelect && item.chain === chainSelect,
+      );
+    } else {
+      return null;
+    }
+  }, [
+    accountSelect,
+    chainSelect,
+    displayMode,
+    accountNFTs,
+    accountTestnetNFTs,
+  ]);
+
+  const getPaginationObject = (itemCount): IPagination | undefined => {
+    if (itemCount <= PAGINATION_RANGE) {
+      return undefined;
+    }
+    return {
+      currentIndex: 1,
+      numberOfPages:
+        ((itemCount / PAGINATION_RANGE) | 0) +
+        (itemCount % PAGINATION_RANGE != 0 ? 1 : 0),
+      totalItems: itemCount,
+    };
+  };
+
+  useEffect(() => {
+    if (tokensToRender) {
+      setTokensPagination(getPaginationObject(tokensToRender.length));
+    }
+  }, [tokensToRender]);
+
+  useEffect(() => {
+    if (nftsToRender) {
+      setNftsPagination(getPaginationObject(nftsToRender.length));
+    }
+  }, [nftsToRender]);
+
+  useEffect(() => {
+    setChainSelect(undefined);
+  }, [displayMode]);
+
+  const chainIdsToRender = useMemo(() => {
+    if (EDisplayMode.MAINNET === displayMode) {
+      return mainnetSupportedChainIds;
+    }
+    return testnetSupportedChainIds;
+  }, [displayMode]);
+
+  const walletIcon = (walletProvider: EWalletProviderKeys) => {
+    switch (walletProvider) {
+      case EWalletProviderKeys.METAMASK:
+        return <img src={metamaskLogo} />;
+        break;
+      case EWalletProviderKeys.PHANTOM:
+        return <img src={phantomSmall} />;
+        break;
+      case EWalletProviderKeys.COINBASE:
+        return <img src={coinbaseSmall} />;
+        break;
+
+      default:
+        return <img src={metamaskLogo} />;
+        break;
+    }
+  };
+
+  const classes = useStyles();
+  return (
+    <Box>
+      <Box mb={4}>
+        <Typography className={classes.title}>My Portfolio</Typography>
+        <Typography className={classes.description}>
+          View all of your assets in one convenient place.
+        </Typography>
+      </Box>
+
+      <Grid spacing={2} container>
+        <Grid item xs={6}>
+          <Grid spacing={2} container>
+            <Grid item xs={6}>
+              <InfoCard title="Net Worth" value={`$ ${netWorth.toFixed(1)}`} />
+            </Grid>
+            <Grid item xs={6}>
+              <InfoCard title=" Number of Tokens" value={numberOfTokens} />
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item xs={6}>
+          <Grid spacing={2} container>
+            <Grid item xs={6}>
+              <InfoCard
+                bgcolor={"rgba(253, 243, 225, 0.5)"}
+                title=" Number of NFT Collections"
+                value={0}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <InfoCard
+                bgcolor={"rgba(253, 243, 225, 0.5)"}
+                title="Number of NFTs"
+                value={numberOfNFTs}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Box mt={5}>
+        <Typography id="portfolio-test" className={classes.subTitle}>
+          Accounts
+        </Typography>
+        <Box display="flex" justifyContent="space-between">
+          <Box>
+            <Select
+              className={classes.selectAccount}
+              fullWidth
+              variant="outlined"
+              name="accounts"
+              value={accountSelect ?? "all"}
+              placeholder="All"
+              onChange={handleAccountChange}
+            >
+              <MenuItem value="all">All</MenuItem>
+              {linkedAccounts?.map((account) => {
+                return (
+                  <MenuItem
+                    key={account.accountAddress}
+                    value={account.accountAddress}
+                  >
+                    <Box display="flex">
+                      <Box>{walletIcon(account?.providerKey)}</Box>
+                      <Typography className={classes.accountAddressText}>
+                        {account.accountAddress.slice(0, 5)} ................
+                        {account.accountAddress.slice(-4)}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </Box>
+          <Box>
+            <Box display="flex">
+              <Box
+                display="flex"
+                py={0.75}
+                px={1.5}
+                borderRadius={16}
+                {...(!chainSelect && {
+                  bgcolor: "rgba(245, 244, 245, 0.52)",
+                })}
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={() => {
+                  setChainSelect(undefined);
+                }}
+              >
+                <Typography className={classes.buttonText}>All</Typography>
+              </Box>
+              {chainIdsToRender.map((chainId) => {
+                const iconSrc =
+                  tokenInfoObj[
+                    chainConfig.get(chainId)?.nativeCurrency?.symbol ?? ""
+                  ]?.iconSrc;
+                return (
+                  <Box
+                    p={0.75}
+                    px={1.5}
+                    display="flex"
+                    borderRadius={16}
+                    {...(chainSelect === chainId && {
+                      bgcolor: "rgba(245, 244, 245, 0.52)",
+                    })}
+                    style={{
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      setChainSelect(chainId);
+                    }}
+                  >
+                    <img src={iconSrc} style={{ width: 24, height: 24 }} />
+                    <Typography className={classes.buttonText}>
+                      {chainConfig.get(chainId)?.name}
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Box>
+            <Box display="flex">
+              <Box
+                display="flex"
+                alignItems="center"
+                pr={1.5}
+                marginLeft="auto"
+              >
+                <Typography
+                  onClick={() => {
+                    setDisplayMode(EDisplayMode.TESTNET);
+                  }}
+                  className={clsx(classes.switchNetwork, {
+                    [classes.unfocused]: displayMode != EDisplayMode.TESTNET,
+                  })}
+                >
+                  Testnet
+                </Typography>
+                <Switch
+                  checked={displayMode === EDisplayMode.MAINNET}
+                  value={displayMode === EDisplayMode.MAINNET}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setDisplayMode(EDisplayMode.MAINNET);
+                    } else {
+                      setDisplayMode(EDisplayMode.TESTNET);
+                    }
+                  }}
+                />
+                <Typography
+                  onClick={() => {
+                    setDisplayMode(EDisplayMode.MAINNET);
+                  }}
+                  className={clsx(classes.switchNetwork, {
+                    [classes.unfocused]: displayMode != EDisplayMode.MAINNET,
+                  })}
+                >
+                  Mainnet
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      <Box
+        mt={3}
+        minHeight={440}
+        border="1px solid rgba(207, 201, 200, 0.37)"
+        borderRadius={8}
+      >
+        <Grid container>
+          <Grid item xs={6}>
+            <Box p={1}>
+              <Typography className={classes.gridTitle}>My Tokens</Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <Box p={1} ml={3}>
+              <Typography className={classes.gridTitle}>My NFTs</Typography>
+            </Box>
+          </Grid>
+          <Box width="100%" mb={3}>
+            <Divider style={{ width: "100%" }} />
+          </Box>
+          <Grid item xs={6}>
+            <Box minHeight={440} display="flex" flexDirection="column">
+              {isBalancesLoading ? (
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  mt={10}
+                >
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <>
+                  {tokensToRender?.length ? (
+                    (tokensPagination
+                      ? tokensToRender.slice(
+                          (tokensPagination?.currentIndex - 1) *
+                            PAGINATION_RANGE,
+                          tokensPagination?.currentIndex * PAGINATION_RANGE,
+                        )
+                      : tokensToRender
+                    ).map((item, index) => {
+                      return (
+                        <Box
+                          key={index}
+                          mb={3}
+                          {...(index % 2 === 1 && {
+                            bgcolor: "rgba(245, 244, 245, 0.52)",
+                          })}
+                        >
+                          <TokenItem item={item} />
+                        </Box>
+                      );
+                    })
+                  ) : (
+                    <Box display="flex">
+                      <Box
+                        justifyContent="center"
+                        alignItems="center"
+                        width="100%"
+                        display="flex"
+                        pt={10}
+                      >
+                        <img
+                          style={{ width: 255, height: "auto" }}
+                          src={emptyTokens}
+                        />
+                      </Box>
+                    </Box>
+                  )}
+                </>
+              )}
+              {tokensPagination && (
+                <Box
+                  display="flex"
+                  marginTop="auto"
+                  alignItems="center"
+                  py={0.5}
+                  justifyContent="flex-end"
+                >
+                  <Typography className={classes.paginationText}>
+                    {`${
+                      (tokensPagination.currentIndex - 1) * PAGINATION_RANGE + 1
+                    } - ${
+                      tokensPagination.currentIndex * PAGINATION_RANGE <
+                      tokensPagination.totalItems
+                        ? tokensPagination.currentIndex * PAGINATION_RANGE
+                        : tokensPagination.totalItems
+                    } of ${tokensPagination.totalItems}`}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setTokensPagination({
+                        ...tokensPagination,
+                        currentIndex: tokensPagination.currentIndex - 1,
+                      });
+                    }}
+                    disabled={tokensPagination.currentIndex === 1}
+                  >
+                    <KeyboardArrowLeft />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    disabled={
+                      tokensPagination.currentIndex ===
+                      tokensPagination.numberOfPages
+                    }
+                    onClick={() => {
+                      setTokensPagination({
+                        ...tokensPagination,
+                        currentIndex: tokensPagination.currentIndex + 1,
+                      });
+                    }}
+                  >
+                    <KeyboardArrowRight />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <Box minHeight={440} ml={3} display="flex" flexDirection="column">
+              {isNFTsLoading ? (
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  mt={10}
+                >
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Grid container className={classes.nftContainer}>
+                  {nftsToRender?.length ? (
+                    (nftsPagination
+                      ? nftsToRender.slice(
+                          (nftsPagination.currentIndex - 1) * PAGINATION_RANGE,
+                          nftsPagination.currentIndex * PAGINATION_RANGE,
+                        )
+                      : nftsToRender
+                    )?.map((nftItem) => {
+                      if (nftItem.type === EChainTechnology.EVM) {
+                        return (
+                          <EVMNFTItem
+                            key={JSON.stringify(nftItem)}
+                            item={nftItem as EVMNFT}
+                          />
+                        );
+                      } else {
+                        return (
+                          <SolanaNFTItem
+                            key={JSON.stringify(nftItem)}
+                            item={nftItem as SolanaNFT}
+                          />
+                        );
+                      }
+                    })
+                  ) : (
+                    <Box width="100%" display="flex">
+                      <Box
+                        justifyContent="center"
+                        alignItems="center"
+                        width="100%"
+                        display="flex"
+                        pt={8}
+                      >
+                        <img
+                          style={{ width: 255, height: "auto" }}
+                          src={emptyNfts}
+                        />
+                      </Box>
+                    </Box>
+                  )}
+                </Grid>
+              )}
+              {nftsPagination && (
+                <Box
+                  display="flex"
+                  marginTop="auto"
+                  justifyContent="flex-end"
+                  alignItems="center"
+                  py={0.5}
+                >
+                  <Typography className={classes.paginationText}>
+                    {`${
+                      (nftsPagination.currentIndex - 1) * PAGINATION_RANGE + 1
+                    } - ${
+                      nftsPagination.currentIndex * PAGINATION_RANGE <
+                      nftsPagination.totalItems
+                        ? nftsPagination.currentIndex * PAGINATION_RANGE
+                        : nftsPagination.totalItems
+                    } of ${nftsPagination.totalItems}`}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setNftsPagination({
+                        ...nftsPagination,
+                        currentIndex: nftsPagination.currentIndex - 1,
+                      });
+                    }}
+                    disabled={nftsPagination.currentIndex === 1}
+                  >
+                    <KeyboardArrowLeft />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    disabled={
+                      nftsPagination.currentIndex ===
+                      nftsPagination.numberOfPages
+                    }
+                    onClick={() => {
+                      setNftsPagination({
+                        ...nftsPagination,
+                        currentIndex: nftsPagination.currentIndex + 1,
+                      });
+                    }}
+                  >
+                    <KeyboardArrowRight />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
+  );
+};
+export default Portfolio;

@@ -22,9 +22,9 @@ declare const window: IWindowWithSdlDataWallet;
 
 const DataPermissionsModal: FC = () => {
   const { modalState, closeModal } = useLayoutContext();
-  const { onPrimaryButtonClick } = modalState;
-
+  const { onPrimaryButtonClick, customProps } = modalState;
   const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
+  const onCloseClicked: () => void = customProps.onCloseClicked;
 
   useEffect(() => {
     window.sdlDataWallet.getDefaultPermissions().map((permissions) => {
@@ -58,7 +58,10 @@ const DataPermissionsModal: FC = () => {
           disableRipple
           disableTouchRipple
           aria-label="close"
-          onClick={closeModal}
+          onClick={() => {
+            onCloseClicked();
+            closeModal();
+          }}
         >
           <CloseIcon />
         </IconButton>
@@ -122,7 +125,7 @@ const DataPermissionsModal: FC = () => {
                 closeModal();
               }}
             >
-              Save Changes
+              Save & Claim Reward
             </Button>
           </Box>
         </Box>

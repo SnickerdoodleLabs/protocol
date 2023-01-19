@@ -1,21 +1,82 @@
+import sdlLogoSafe from "@extension-onboarding/assets/images/sdl-logo-safe.svg";
+import portfolioIcon from "@extension-onboarding/assets/icons/portfolio.svg";
+import rewardsIcon from "@extension-onboarding/assets/icons/rewards.svg";
+import settingsIcon from "@extension-onboarding/assets/icons/settings.svg";
 import snickerDoodleLogo from "@extension-onboarding/assets/icons/snickerdoodleLogo.svg";
+import LinkAccountModal from "@extension-onboarding/components/Modals/LinkAccountModal";
 import { useStyles } from "@extension-onboarding/components/Sidebar/Sidebar.style";
 import {
-  routes,
-  useAuthFlowRouteContext,
-} from "@extension-onboarding/context/AuthFlowRouteContext";
+  FAQ_URL,
+  PRIVACY_POLICY_URL,
+  ZENDEKS_URL,
+} from "@extension-onboarding/constants";
+import { EPaths } from "@extension-onboarding/containers/Router/Router.paths";
 import { Box, Typography, Collapse } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import clsx from "clsx";
 import React, { useState } from "react";
-import LinkAccountModal from "../Modals/LinkAccountModal";
+import { useLocation, useNavigate } from "react-router-dom";
+
+export interface ISubroute {
+  title: string;
+  path: EPaths;
+}
+export interface IRoute {
+  icon: string;
+  title: string;
+  path: EPaths | null;
+  subroutes: ISubroute[] | null;
+}
+
+export const routes: IRoute[] = [
+  {
+    icon: rewardsIcon,
+    title: "Rewards Marketplace",
+    path: EPaths.MY_REWARDS,
+    subroutes: null,
+  },
+  {
+    icon: portfolioIcon,
+    title: "My Data Dashboard",
+    path: null,
+    subroutes: [
+      { path: EPaths.TOKENS, title: "Tokens" },
+      { path: EPaths.NFTS, title: "NFTs" },
+      { path: EPaths.BROWSER_ACTIVITY, title: "Browser Activity" },
+      { path: EPaths.PERSONAL_INFO, title: "Personal Info" },
+    ],
+  },
+  // {
+  //   icon: campaignIcon,
+  //   title: "Campaigns",
+  //   path: null,
+  //   subroutes: [
+  //     { title: "My Campaigns", path: EPaths.MY_CAMPAIGNS },
+  //     { title: "Available Campaigns", path: EPaths.MARKETPLACE_CAMPAIGNS },
+  //   ],
+  // },
+  {
+    icon: settingsIcon,
+    title: "Settings",
+    path: null,
+    subroutes: [
+      { title: "Crypto Accounts", path: EPaths.WEB3_SETTINGS },
+      { title: "Personal Info", path: EPaths.WEB2_SETTINGS },
+      { title: "Campaigns", path: EPaths.CAMPAIGN_SETTINGS },
+      { title: "Data Permissions", path: EPaths.DATA_PERMISSIONS_SETTING },
+      { title: "Scam Filter", path: EPaths.SCAM_FILTER_SETTINGS },
+    ],
+  },
+];
 
 const Sidebar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const classes = useStyles();
   const [lastClickedIndex, setLastClickedIndex] = useState<number>();
-  const { activeScreen, setActiveScreen } = useAuthFlowRouteContext();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   return (
     <>
       {isModalOpen && (
@@ -27,7 +88,7 @@ const Sidebar = () => {
       )}
       <Box display="flex" flexDirection="column" className={classes.container}>
         <Box mt={4.5}>
-          <img src={snickerDoodleLogo} />
+          <img src={sdlLogoSafe} />
         </Box>
         <Box
           onClick={() => {
@@ -43,6 +104,7 @@ const Sidebar = () => {
           color="#F2F4F7"
           alignItems="center"
           justifyContent="center"
+          id="sb-link-account"
         >
           <Box display="flex" mr={1}>
             <AddIcon className={classes.linkAccountButtonIcon} />
@@ -55,9 +117,9 @@ const Sidebar = () => {
           {routes.map((route, index) => {
             const subroutes = route.subroutes;
             const isActive =
-              route.screen === activeScreen ||
+              route.path === location.pathname ||
               (route.subroutes ? route.subroutes : []).findIndex(
-                (subroute) => subroute.screen === activeScreen,
+                (subroute) => subroute.path === location.pathname,
               ) > -1;
             return (
               <Box
@@ -68,9 +130,10 @@ const Sidebar = () => {
                 flexDirection="column"
               >
                 <Box
+                  id={`sb-${index}`}
                   onClick={() => {
-                    if (route.screen) {
-                      setActiveScreen(route.screen);
+                    if (route.path) {
+                      navigate(route.path);
                     }
                     setLastClickedIndex(index);
                   }}
@@ -82,9 +145,9 @@ const Sidebar = () => {
                   {...(isActive && { bgcolor: "#DAD8E9" })}
                   className={classes.routeWrapper}
                 >
-                  <Box display="flex" mr={1.5}>
+                  {/* <Box display="flex" mr={1.5}>
                     <img className={classes.mainRouteIcon} src={route.icon} />
-                  </Box>
+                  </Box> */}
                   <Typography
                     className={clsx(classes.mainRouteText, {
                       [classes.textActive]: isActive,
@@ -110,20 +173,21 @@ const Sidebar = () => {
                       display="flex"
                       flexDirection="column"
                     >
-                      {subroutes.map((subroute, index) => {
+                      {subroutes.map((subroute, subrouteIndex) => {
                         return (
                           <Box
                             className={classes.routeWrapper}
-                            key={index}
+                            key={`${index}-${subrouteIndex}`}
                             onClick={() => {
-                              setActiveScreen(subroute.screen);
+                              navigate(subroute.path);
+                              setLastClickedIndex(index);
                             }}
-                            mb={index === subroutes.length - 1 ? 0 : 3}
+                            mb={subrouteIndex === subroutes.length - 1 ? 0 : 3}
                           >
                             <Typography
                               className={clsx(classes.subrouteText, {
                                 [classes.textActive]:
-                                  subroute.screen === activeScreen,
+                                  subroute.path === location.pathname,
                               })}
                             >
                               {subroute.title}
@@ -137,6 +201,36 @@ const Sidebar = () => {
               </Box>
             );
           })}
+        </Box>
+        <Box alignSelf="flex-start" marginTop="auto" mb={2} display="flex">
+          <Typography
+            onClick={() => {
+              window.open(ZENDEKS_URL, "_blank");
+            }}
+            className={classes.link}
+          >
+            Contact Us
+          </Typography>
+        </Box>
+        <Box mb={2} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(FAQ_URL, "_blank");
+            }}
+          >
+            FAQ
+          </Typography>
+        </Box>
+        <Box pb={2.5} width="100%" justifyContent="flex-start">
+          <Typography
+            className={classes.link}
+            onClick={() => {
+              window.open(PRIVACY_POLICY_URL, "_blank");
+            }}
+          >
+            Privacy Policy
+          </Typography>
         </Box>
       </Box>
     </>

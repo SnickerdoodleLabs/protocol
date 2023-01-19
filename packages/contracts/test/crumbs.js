@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe.only("Crumbs", () => {
+describe("Crumbs", () => {
   // declare variables to be used in tests
   let Crumbs;
   let crumbs;
@@ -19,7 +19,7 @@ describe.only("Crumbs", () => {
     // deploy the Crumbs contract before each test
     Crumbs = await ethers.getContractFactory("Crumbs");
 
-    crumbs = await Crumbs.deploy(trustedForwarder.address, "www.crumbs.com/");
+    crumbs = await upgrades.deployProxy(Crumbs, [trustedForwarder.address, "www.crumbs.com/"]);
 
     await crumbs.deployed();
   });
@@ -139,7 +139,7 @@ describe.only("Crumbs", () => {
         crumbs
           .connect(accounts[2])
           .transferFrom(accounts[1].address, accounts[2].address, 1),
-      ).to.revertedWith("ERC721: caller is not token owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner or approved");
 
       // check if account 1 still owns crumb id 1
       const crumbId = await crumbs.addressToCrumbId(accounts[1].address);
@@ -168,7 +168,7 @@ describe.only("Crumbs", () => {
         crumbs
           .connect(accounts[1])
           .transferFrom(accounts[2].address, accounts[1].address, 2),
-      ).to.revertedWith("ERC721: caller is not token owner nor approved");
+      ).to.revertedWith("ERC721: caller is not token owner or approved");
 
       // check if account 1 still owns crumb id 1
       const crumbId1 = await crumbs.addressToCrumbId(accounts[1].address);
@@ -237,7 +237,7 @@ describe.only("Crumbs", () => {
         );
 
       await expect(crumbs.connect(accounts[2]).burnCrumb(1)).to.revertedWith(
-        "ERC721: caller is not token owner nor approved",
+        "ERC721: caller is not token owner or approved",
       );
     });
   });

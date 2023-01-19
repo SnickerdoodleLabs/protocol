@@ -1,26 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-// TODO to remove ERC721URIStorageUpgradeable before audit as we no longer use token URi to store agreements
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/metatx/MinimalForwarderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
 /// @title Consent 
-/// @author Sean Sing
-/// @notice Snickerdoodle Protocol's Consent Contract 
+/// @author Snickerdoodle Labs
+/// @notice Synamint Protocol Consent Registry Contract 
 /// @dev This contract mints and burns non-transferable ERC721 consent tokens for users who opt in or out of sharing their data
 /// @dev The contract's owners or addresses that have the right role granted can initiate a request for data
 /// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contracts Wizard and customized thereafter 
-/// @dev ERC2771ContextUpgradeable's features were directly embedded into the contract (see isTrustedForwarder for details)
 /// @dev The contract adopts OZ's upgradeable beacon proxy pattern and serves as an implementation contract
 /// @dev It is also compatible with OZ's meta-transaction library
 
-contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable {
+contract Consent is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable, ERC721BurnableUpgradeable {
 
     /// @dev Interface for ConsentFactory
     address consentFactoryAddress;
@@ -82,13 +78,14 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /// @notice Initializes the contract
     /// @dev Uses the initializer modifier to to ensure the contract is only initialized once
-    /// @param consentOwner Address of the owner of this contract
+    /// @param _trustedForwarder Address of EIP2771-compatible meta-tx forwarding contract
+    /// @param _consentOwner Address of the owner of this contract
     /// @param baseURI_ The base uri 
-    /// @param name Name of the Consent Contract  
-    function initialize(address consentOwner, string memory baseURI_, string memory name, address _contractFactoryAddress) initializer public {
+    /// @param _name Name of the Consent Contract  
+    /// @param _contractFactoryAddress address of the originating consent factory
+    function initialize(address _trustedForwarder, address _consentOwner, string memory baseURI_, string memory _name, address _contractFactoryAddress) initializer public {
         
-        __ERC721_init(name, "CONSENT");
-        __ERC721URIStorage_init();
+        __ERC721_init(_name, "CONSENT");
         __Pausable_init();
         __AccessControl_init();
         __ERC721Burnable_init();
@@ -97,21 +94,20 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         consentFactoryAddress = _contractFactoryAddress;
         consentFactoryInstance = IConsentFactory(consentFactoryAddress);
 
-        // set trusted forwarder
-        trustedForwarder = 0xF7c6dC708550D89558110cAecD20a8A6a184427E; 
-        // trustedForwarder = 0x5FbDB2315678afecb367f032d93F642f64180aa3;
+        // set trusted forwarder for meta-txs
+        trustedForwarder = _trustedForwarder;
 
         // set the queryHorizon to be the current block number;
         queryHorizon = block.number;
 
-        // set the initial
+        // set the initial maximum capacity
         maxCapacity = 50;
 
         // use user to bypass the call back to the ConsentFactory to update the user's roles array mapping 
-        super._grantRole(DEFAULT_ADMIN_ROLE, consentOwner);
-        super._grantRole(PAUSER_ROLE, consentOwner);
-        super._grantRole(SIGNER_ROLE, consentOwner);
-        super._grantRole(REQUESTER_ROLE, consentOwner);
+        super._grantRole(DEFAULT_ADMIN_ROLE, _consentOwner);
+        super._grantRole(PAUSER_ROLE, _consentOwner);
+        super._grantRole(SIGNER_ROLE, _consentOwner);
+        super._grantRole(REQUESTER_ROLE, _consentOwner);
 
         // required role grant to allow calling setBaseUri on initialization
         // as msg.sender is the Consent's BeaconProxy contract
@@ -143,9 +139,6 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         /// increase total supply count, this is 20,0000 gas
         totalSupply++;
-
-        /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender());
     }
 
     /// @notice Allows specific users to opt in to sharing their data
@@ -183,9 +176,6 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         /// increase total supply count
         totalSupply++;
-
-        /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender());
     }
 
     /// @notice Allows Signature Issuer to send anonymous invitation link to end user to opt in
@@ -223,9 +213,6 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
         /// increase total supply count before interaction
         totalSupply++;
-
-        /// add user's consent contract to ConsentFactory
-        consentFactoryInstance.addUserConsents(_msgSender());
     }
 
     /// @notice Allows users to opt out of sharing their data
@@ -435,18 +422,20 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     /* OVERRIDES */
 
-    /// @dev Override to add require statement to make tokens Consent token non-transferrable
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
         internal
         whenNotPaused
         override
     {
         require(from == address(0) || to == address(0), "Consent: Consent tokens are non-transferrable");
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
     /// @dev Overload {_grantRole} to add ConsentFactory update
-    function _grantRole(bytes32 role, address account) internal virtual override {
+    function _grantRole(bytes32 role, address account) 
+        internal
+        virtual 
+        override(AccessControlEnumerableUpgradeable) {
         super._grantRole(role, account);
 
         /// update mapping in factory
@@ -454,7 +443,10 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
     }
 
     /// @dev Overload {_revokeRole} to add ConsentFactory update 
-    function _revokeRole(bytes32 role, address account) internal virtual override {
+    function _revokeRole(bytes32 role, address account) 
+        internal 
+        virtual 
+        override(AccessControlEnumerableUpgradeable) {
         super._revokeRole(role, account);
 
         /// update mapping in factory
@@ -465,7 +457,7 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
 
     function _burn(uint256 tokenId)
         internal
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+        override(ERC721Upgradeable)
     {   
         /// decrease total supply count
         totalSupply--;
@@ -473,15 +465,12 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         _updateCounterAndTokenFlags(tokenId, agreementFlagsArray[tokenId]);
 
         super._burn(tokenId);
-
-        /// remove user's consent contract to ConsentFactory
-        consentFactoryInstance.removeUserConsents(_msgSender());
     }
 
     function tokenURI(uint256 tokenId)
         public
         view
-        override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
+        override(ERC721Upgradeable)
         returns (string memory)
     {
         return super.tokenURI(tokenId);
@@ -496,7 +485,12 @@ contract Consent is Initializable, ERC721URIStorageUpgradeable, PausableUpgradea
         return super.supportsInterface(interfaceId);
     }
 
-    function _msgSender() internal view virtual override(ContextUpgradeable) returns (address sender) {
+    function _msgSender() 
+        internal 
+        view 
+        virtual 
+        override(ContextUpgradeable) 
+        returns (address sender) {
         if (isTrustedForwarder(msg.sender)) {
             // The assembly code is more direct than the Solidity version using `abi.decode`.
             assembly {

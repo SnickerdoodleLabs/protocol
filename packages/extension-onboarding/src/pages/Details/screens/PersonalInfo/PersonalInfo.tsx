@@ -47,7 +47,7 @@ const PersonalInfo: FC = () => {
 
   return (
     <>
-      <Typography className={classes.title}>Web 2 Info Settings</Typography>
+      <Typography className={classes.title}>Personal Info Settings</Typography>
       <Box my={4}>
         <Typography className={classes.description}>
           Add or Remove demographic information to control what you stored in

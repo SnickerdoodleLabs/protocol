@@ -24,6 +24,7 @@ import {
   IpfsCID,
   HexString32,
   EWalletDataType,
+  MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -37,6 +38,23 @@ export class InvitationService implements IInvitationService {
     @inject(IDataPermissionsUtilsType)
     protected dataPermissionsUtils: IDataPermissionsUtils,
   ) {}
+
+  public getMarketplaceListings(
+    count?: number | undefined,
+    headAt?: number | undefined,
+  ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError> {
+    return this.invitationRepository.getMarketplaceListings(count, headAt);
+  }
+
+  public getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError> {
+    return this.invitationRepository.getListingsTotal();
+  }
+
+  public getConsentContractCID(
+    consentAddress: EVMContractAddress,
+  ): ResultAsync<IpfsCID, SnickerDoodleCoreError> {
+    return this.invitationRepository.getConsentContractCID(consentAddress);
+  }
 
   public getAgreementPermissions(
     consentContractAddress: EVMContractAddress,

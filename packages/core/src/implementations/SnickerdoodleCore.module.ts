@@ -13,7 +13,7 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  CovalentEVMTransactionRepository,
+  CoinGeckoTokenPriceRepository,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
@@ -23,19 +23,30 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  IEVMTransactionRepository,
-  IEVMTransactionRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
 import {
+  BackupManagerProvider,
+  IBackupManagerProvider,
+  IBackupManagerProviderType,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
 } from "@snickerdoodlelabs/persistence";
 import {
   IQueryObjectFactory,
   IQueryObjectFactoryType,
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
+  ISDQLQueryUtils,
+  ISDQLQueryUtilsType,
   ISDQLQueryWrapperFactory,
   ISDQLQueryWrapperFactoryType,
   QueryObjectFactory,
+  SDQLParserFactory,
+  SDQLQueryUtils,
   SDQLQueryWrapperFactory,
 } from "@snickerdoodlelabs/query-parser";
 import { ContainerModule, interfaces } from "inversify";
@@ -46,7 +57,9 @@ import {
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
+  AdService,
   BalanceQueryEvaluator,
+  ConsentTokenUtils,
   InvitationService,
   MonitoringService,
   NetworkQueryEvaluator,
@@ -58,10 +71,13 @@ import {
   SiftContractService,
 } from "@core/implementations/business/index.js";
 import {
+  AdContentRepository,
   ConsentContractRepository,
   CrumbsRepository,
+  DataWalletPersistence,
   DNSRepository,
   InvitationRepository,
+  MarketplaceRepository,
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
   SiftContractRepository,
@@ -85,6 +101,8 @@ import {
 import {
   IAccountService,
   IAccountServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMonitoringService,
@@ -99,6 +117,8 @@ import {
 import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
   INetworkQueryEvaluator,
   INetworkQueryEvaluatorType,
   IQueryEvaluator,
@@ -109,6 +129,8 @@ import {
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
 import {
+  IAdContentRepository,
+  IAdRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
   ICrumbsRepository,
@@ -117,6 +139,8 @@ import {
   IDNSRepositoryType,
   IInvitationRepository,
   IInvitationRepositoryType,
+  IMarketplaceRepository,
+  IMarketplaceRepositoryType,
   IMetatransactionForwarderRepository,
   IMetatransactionForwarderRepositoryType,
   ISDQLQueryRepository,
@@ -140,6 +164,7 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -165,6 +190,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
       .inSingletonScope();
+    bind<IAdService>(IAdServiceType)
+      .to(AdService)
+      .inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
@@ -173,6 +201,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(SiftContractService)
       .inSingletonScope();
 
+    bind<IConsentTokenUtils>(IConsentTokenUtilsType)
+      .to(ConsentTokenUtils)
+      .inSingletonScope();
     bind<IQueryParsingEngine>(IQueryParsingEngineType)
       .to(QueryParsingEngine)
       .inSingletonScope();
@@ -192,11 +223,11 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IMetatransactionForwarderRepository>(
       IMetatransactionForwarderRepositoryType,
     ).to(MetatransactionForwarderRepository);
+    bind<IMarketplaceRepository>(IMarketplaceRepositoryType).to(
+      MarketplaceRepository,
+    );
     bind<IDNSRepository>(IDNSRepositoryType)
       .to(DNSRepository)
-      .inSingletonScope();
-    bind<IEVMTransactionRepository>(IEVMTransactionRepositoryType)
-      .to(CovalentEVMTransactionRepository)
       .inSingletonScope();
     bind<ISDQLQueryRepository>(ISDQLQueryRepositoryType)
       .to(SDQLQueryRepository)
@@ -205,16 +236,27 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .to(InvitationRepository)
       .inSingletonScope();
 
+    // Data Persistence and Indexing
+    bind<IDataWalletPersistence>(IDataWalletPersistenceType)
+      .to(DataWalletPersistence)
+      .inSingletonScope();
+    bind<IBackupManagerProvider>(IBackupManagerProviderType)
+      .to(BackupManagerProvider)
+      .inSingletonScope();
+    bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
+      .to(CoinGeckoTokenPriceRepository)
+      .inSingletonScope();
+
     // Utilities
-    bind<IConfigProvider>(IConfigProviderType)
-      .to(ConfigProvider)
-      .inSingletonScope();
-    bind<IIndexerConfigProvider>(IIndexerConfigProviderType)
-      .to(ConfigProvider)
-      .inSingletonScope();
-    bind<IPersistenceConfigProvider>(IPersistenceConfigProviderType)
-      .to(ConfigProvider)
-      .inSingletonScope();
+    const configProvider = new ConfigProvider();
+    bind<IConfigProvider>(IConfigProviderType).toConstantValue(configProvider);
+    bind<IIndexerConfigProvider>(IIndexerConfigProviderType).toConstantValue(
+      configProvider,
+    );
+    bind<IPersistenceConfigProvider>(
+      IPersistenceConfigProviderType,
+    ).toConstantValue(configProvider);
+
     bind<IContextProvider>(IContextProviderType)
       .to(ContextProvider)
       .inSingletonScope();
@@ -250,6 +292,18 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IQueryRepository>(IQueryRepositoryType)
       .to(QueryRepository)
+      .inSingletonScope();
+
+    bind<IAdContentRepository>(IAdRepositoryType)
+      .to(AdContentRepository)
+      .inSingletonScope();
+
+    bind<ISDQLParserFactory>(ISDQLParserFactoryType)
+      .to(SDQLParserFactory)
+      .inSingletonScope();
+
+    bind<ISDQLQueryUtils>(ISDQLQueryUtilsType)
+      .to(SDQLQueryUtils)
       .inSingletonScope();
 
     bind<IQueryFactories>(IQueryFactoriesType)

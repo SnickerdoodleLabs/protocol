@@ -6,12 +6,13 @@ import { ExternalCoreGateway } from "@app/coreGateways";
 import { Box, FormControlLabel, Typography } from "@material-ui/core";
 import { EWalletDataType } from "@snickerdoodlelabs/objects";
 import React, { useEffect, useState, FC } from "react";
+import { CircularProgress } from "@material-ui/core";
 
 const PERMISSION_NAMES = {
   [EWalletDataType.Gender]: "Gender",
   [EWalletDataType.Birthday]: "Birthday",
   [EWalletDataType.Location]: "Location",
-  [EWalletDataType.SiteVisits]: "Site Visits",
+  [EWalletDataType.SiteVisits]: "Sites Visited",
   [EWalletDataType.EVMTransactions]: "Transaction History",
   [EWalletDataType.AccountBalances]: "Token Balances",
   [EWalletDataType.AccountNFTs]: "NFTs",
@@ -52,6 +53,7 @@ const ManagePermissions: FC<IManagePermissionsProps> = ({
 }: IManagePermissionsProps) => {
   const [permissionForm, setPermissionForm] = useState<EWalletDataType[]>([]);
   const classes = useStyles();
+  const [isClicked, setIsClicked] = useState(false);
   useEffect(() => {
     coreGateway.getDefaultPermissions().map((permissions) => {
       setPermissionForm(permissions.filter((item) => !!PERMISSION_NAMES[item]));
@@ -121,12 +123,17 @@ const ManagePermissions: FC<IManagePermissionsProps> = ({
             <Box mt={4} display="flex">
               <Box marginLeft="auto">
                 <Button
+                {...(isClicked && {
+                  startIcon: <CircularProgress size={15} />,
+                  disabled: true,
+                })}
                   buttonType="primary"
                   onClick={() => {
+                    setIsClicked(true);
                     onSaveClick(permissionForm);
                   }}
                 >
-                  Save Changes
+                  Save & Claim Reward
                 </Button>
               </Box>
             </Box>

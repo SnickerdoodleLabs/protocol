@@ -16,17 +16,32 @@ import {
   BigNumberString,
   InsightString,
   URLString,
+  TokenId,
+  EligibleReward,
+  EarnedReward,
+  QueryIdentifier,
+  IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
 import {
   snickerdoodleSigningDomain,
   executeMetatransactionTypes,
   insightDeliveryTypes,
+  insightPreviewTypes,
+  clearCloudBackupsTypes,
+  signedUrlTypes,
 } from "@snickerdoodlelabs/signature-verification";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { urlJoin } from "url-join-ts";
 
 import { IInsightPlatformRepository } from "@insightPlatform/IInsightPlatformRepository.js";
+import {
+  IClearCloudBackupsParams,
+  IDeliverInsightsParams,
+  IExecuteMetatransactionParams,
+  IReceivePreviewsParams,
+  ISignedUrlParams,
+} from "@insightPlatform/params/index.js";
 
 @injectable()
 export class InsightPlatformRepository implements IInsightPlatformRepository {
@@ -35,20 +50,126 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
   ) {}
 
-  public deliverInsights(
-    dataWalletAddress: DataWalletAddress,
-    consentContractAddress: EVMContractAddress,
-    queryCid: IpfsCID,
-    returns: InsightString[],
+  public clearAllBackups(
     dataWalletKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
+    walletAddress: EVMAccountAddress,
   ): ResultAsync<void, AjaxError> {
-    const returnsString = JSON.stringify(returns);
+    const signableData = {
+      walletAddress: walletAddress,
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        clearCloudBackupsTypes,
+        signableData,
+        dataWalletKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/clearAllBackups"),
+        );
+        const postBody = {
+          walletAddress: walletAddress,
+          signature: signature,
+        } as IClearCloudBackupsParams;
+        return this.ajaxUtils.post<void>(
+          url,
+          postBody as unknown as Record<string, unknown>,
+        );
+      });
+  }
+
+  public getSignedUrl(
+    dataWalletKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    fileName: string,
+  ): ResultAsync<URLString, AjaxError> {
+    const signableData = {
+      fileName: fileName,
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        signedUrlTypes,
+        signableData,
+        dataWalletKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(urlJoin(insightPlatformBaseUrl, "/getSignedUrl"));
+        const postBody = {
+          fileName: fileName,
+          signature: signature,
+        } as ISignedUrlParams;
+        return this.ajaxUtils.post<URLString>(
+          url,
+          postBody as unknown as Record<string, unknown>,
+        );
+      });
+  }
+  //
+  public receivePreviews(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    queryCID: IpfsCID,
+    signingKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+    answeredQueries: QueryIdentifier[],
+  ): ResultAsync<EligibleReward[], AjaxError> {
     const signableData = {
       consentContractId: consentContractAddress,
-      queryCid: queryCid,
-      dataWallet: dataWalletAddress,
-      returns: returnsString,
+      tokenId: tokenId,
+      queryCID: queryCID,
+      queries: JSON.stringify(answeredQueries),
+    } as Record<string, unknown>;
+
+    return this.cryptoUtils
+      .signTypedData(
+        snickerdoodleSigningDomain,
+        insightPreviewTypes,
+        signableData,
+        signingKey,
+      )
+      .andThen((signature) => {
+        const url = new URL(
+          urlJoin(insightPlatformBaseUrl, "/insights/responses/preview"),
+        );
+
+        /* Following schema from .yaml file: */
+        /* https://github.com/SnickerdoodleLabs/protocol/blob/develop/documentation/openapi/Insight%20Platform%20API.yaml */
+        return this.ajaxUtils.post<EligibleReward[]>(url, {
+          consentContractId: consentContractAddress,
+          queryCID: queryCID,
+          tokenId: tokenId.toString(),
+          queries: answeredQueries,
+          signature: signature,
+        } as IReceivePreviewsParams as unknown as Record<string, unknown>);
+      });
+  }
+
+  public deliverInsights(
+    consentContractAddress: EVMContractAddress,
+    tokenId: TokenId,
+    queryCID: IpfsCID,
+    returns: InsightString[],
+    rewardParameters: IDynamicRewardParameter[],
+    signingKey: EVMPrivateKey,
+    insightPlatformBaseUrl: URLString,
+  ): ResultAsync<EarnedReward[], AjaxError> {
+    const returnsString = JSON.stringify(returns);
+    const parameters = JSON.stringify([]);
+    if (rewardParameters !== undefined) {
+      const parameters = JSON.stringify(rewardParameters);
+    }
+
+    const signableData = {
+      consentContractId: consentContractAddress,
+      tokenId: tokenId,
+      queryCID: queryCID,
+      returns: JSON.stringify(returns),
+      rewardParameters: JSON.stringify(rewardParameters),
     } as Record<string, unknown>;
 
     return this.cryptoUtils
@@ -56,29 +177,25 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         snickerdoodleSigningDomain,
         insightDeliveryTypes,
         signableData,
-        dataWalletKey,
+        signingKey,
       )
       .andThen((signature) => {
         const url = new URL(
           urlJoin(insightPlatformBaseUrl, "insights/responses"),
         );
 
-        return this.ajaxUtils.post<boolean>(url, {
+        return this.ajaxUtils.post<EarnedReward[]>(url, {
           consentContractId: consentContractAddress,
-          queryCid: queryCid,
-          dataWallet: dataWalletAddress,
+          tokenId: tokenId.toString(),
+          queryCID: queryCID,
           returns: returns,
+          rewardParameters: rewardParameters,
           signature: signature,
-        });
-      })
-      .map((response) => {
-        console.log("Ajax response: " + JSON.stringify(response));
-        // return okAsync({});
+        } as IDeliverInsightsParams as unknown as Record<string, unknown>);
       });
   }
 
   public executeMetatransaction(
-    dataWalletAddress: DataWalletAddress,
     accountAddress: EVMAccountAddress,
     contractAddress: EVMContractAddress,
     nonce: BigNumberString,
@@ -86,14 +203,15 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
     gas: BigNumberString,
     data: HexString,
     metatransactionSignature: Signature,
-    dataWalletKey: EVMPrivateKey,
+    signingKey: EVMPrivateKey,
     insightPlatformBaseUrl: URLString,
   ): ResultAsync<void, AjaxError> {
     const signingData = {
-      dataWallet: dataWalletAddress,
       accountAddress: accountAddress,
       contractAddress: contractAddress,
       nonce: nonce,
+      value: value,
+      gas: gas,
       data: data,
       metatransactionSignature: metatransactionSignature,
     } as Record<string, unknown>;
@@ -103,13 +221,12 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
         snickerdoodleSigningDomain,
         executeMetatransactionTypes,
         signingData,
-        dataWalletKey,
+        signingKey,
       )
       .andThen((signature) => {
         const url = new URL(urlJoin(insightPlatformBaseUrl, "metatransaction"));
 
         const postBody = {
-          dataWalletAddress: dataWalletAddress,
           accountAddress: accountAddress,
           contractAddress: contractAddress,
           nonce: nonce,
@@ -118,11 +235,11 @@ export class InsightPlatformRepository implements IInsightPlatformRepository {
           data: data,
           metatransactionSignature: metatransactionSignature,
           requestSignature: signature,
-        };
+        } as IExecuteMetatransactionParams;
 
         return this.ajaxUtils.post<IExecuteMetatransactionResponse>(
           url,
-          postBody,
+          postBody as unknown as Record<string, unknown>,
         );
       })
       .map(() => {});
