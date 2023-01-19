@@ -573,7 +573,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setBirthday(
     birthday: UnixTimestamp,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForFullRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
@@ -581,19 +581,19 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return backupManager.updateField(
           ELocalStorageKey.BIRTHDAY,
           birthday,
-          EBackupPriority.NORMAL,
+          EBackupPriority.HIGH,
         );
       });
   }
 
   public getBirthday(): ResultAsync<UnixTimestamp | null, PersistenceError> {
-    return this.waitForFullRestore().andThen(([key]) => {
+    return this.waitForInitialRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.BIRTHDAY, null);
     });
   }
 
   public setGender(gender: Gender): ResultAsync<void, PersistenceError> {
-    return this.waitForFullRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
@@ -601,13 +601,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return backupManager.updateField(
           ELocalStorageKey.GENDER,
           gender,
-          EBackupPriority.NORMAL,
+          EBackupPriority.HIGH,
         );
       });
   }
 
   public getGender(): ResultAsync<Gender | null, PersistenceError> {
-    return this.waitForFullRestore().andThen(([key]) => {
+    return this.waitForInitialRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.GENDER, null);
     });
   }
@@ -637,7 +637,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   public setLocation(
     location: CountryCode,
   ): ResultAsync<void, PersistenceError> {
-    return this.waitForFullRestore()
+    return this.waitForInitialRestore()
       .andThen(() => {
         return this.backupManagerProvider.getBackupManager();
       })
@@ -645,13 +645,13 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return backupManager.updateField(
           ELocalStorageKey.LOCATION,
           location,
-          EBackupPriority.NORMAL,
+          EBackupPriority.HIGH,
         );
       });
   }
 
   public getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
-    return this.waitForFullRestore().andThen(([key]) => {
+    return this.waitForInitialRestore().andThen(([key]) => {
       return this._checkAndRetrieveValue(ELocalStorageKey.LOCATION, null);
     });
   }
