@@ -23,10 +23,6 @@ export interface IAccountIndexing {
     IEVMTransactionRepository,
     never
   >;
-  getGnosisTransactionRepository(): ResultAsync<
-    IEVMTransactionRepository,
-    never
-  >;
 }
 
 export const IAccountIndexingType = Symbol.for("IAccountIndexing");

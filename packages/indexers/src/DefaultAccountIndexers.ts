@@ -31,7 +31,6 @@ export class DefaultAccountIndexers implements IAccountIndexing {
   protected simulatorRepo: IEVMTransactionRepository;
   protected solRepo: ISolanaTransactionRepository;
   protected matic: IEVMTransactionRepository;
-  protected gnosis: IEVMTransactionRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -60,19 +59,6 @@ export class DefaultAccountIndexers implements IAccountIndexing {
       this.tokenPriceRepo,
       this.logUtils,
     );
-    this.gnosis = new GnosisIndexer(
-      this.configProvider,
-      this.ajaxUtils,
-      this.tokenPriceRepo,
-      this.logUtils,
-    );
-  }
-
-  public getGnosisTransactionRepository(): ResultAsync<
-    IEVMTransactionRepository,
-    never
-  > {
-    return okAsync(this.gnosis);
   }
 
   public getPolygonTransactionRepository(): ResultAsync<
