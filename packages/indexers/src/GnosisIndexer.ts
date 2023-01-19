@@ -60,8 +60,8 @@ export class GnosisIndexer
     return this._getEtherscanApiKey(chainId)
       .andThen((apiKey) => {
         return ResultUtils.combine([
-          this.generateUrl(accountAddress, apiKey, "tokentx"),
-          this.generateUrl(accountAddress, apiKey, "balance"),
+          this.generateUrl(accountAddress, apiKey, urlAction.tokentx),
+          this.generateUrl(accountAddress, apiKey, urlAction.balance),
         ]);
       })
       .andThen(([transactionUrl, blockNumberUrl]) => {
@@ -102,7 +102,7 @@ export class GnosisIndexer
   ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
     return this._getEtherscanApiKey(chainId)
       .andThen((apiKey) => {
-        return this.generateUrl(accountAddress, apiKey, "tokennfttx");
+        return this.generateUrl(accountAddress, apiKey, urlAction.tokennfttx);
       })
       .andThen((transactionsUrl) => {
         return this.ajaxUtils.get<IGnosisscanTransactionResponse>(
@@ -139,7 +139,7 @@ export class GnosisIndexer
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
     return this._getEtherscanApiKey(chainId)
       .andThen((apiKey) => {
-        return this.generateUrl(accountAddress, apiKey, "tokennfttx");
+        return this.generateUrl(accountAddress, apiKey, urlAction.tokennfttx);
       })
       .andThen((url) => {
         return this.ajaxUtils.get<IGnosisscanTransactionResponse>(
@@ -190,6 +190,12 @@ export class GnosisIndexer
     }
     return okAsync(URLString(url));
   }
+}
+
+enum urlAction {
+  balance = "balance",
+  tokentx = "tokentx",
+  tokennfttx = "tokennfttx",
 }
 
 interface IGnosisscanTransactionResponse {
