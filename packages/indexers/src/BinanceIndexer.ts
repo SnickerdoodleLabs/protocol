@@ -29,6 +29,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import {
   IIndexerConfigProviderType,
@@ -51,9 +52,11 @@ export class BinanceIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
-    return this._getEtherscanApiKey(chainId).andThen((apiKey) => {
-      const url = `https://api.bscscan.com/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
-      console.log("Binance url: ", url);
+    return ResultUtils.combine([
+      this._getEtherscanApiKey(chainId),
+      this._getBlockExplorerUrl(chainId),
+    ]).andThen(([apiKey, explorerUrl]) => {
+      const url = `${explorerUrl}/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
       return this.ajaxUtils
         .get<IBinancescanBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -85,11 +88,24 @@ export class BinanceIndexer
     return okAsync([]);
   }
 
+  protected _getBlockExplorerUrl(
+    chain: ChainId,
+  ): ResultAsync<URLString, AccountIndexingError> {
+    const chainInfo = chainConfig.get(chain);
+    if (chainInfo == undefined) {
+      console.log("Error inside _getEtherscanApiKey");
+      return errAsync(
+        new AccountIndexingError("no etherscan api key for chain", chain),
+      );
+    }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const url = chainInfo.etherscanEndpointURL!;
+    return okAsync(url);
+  }
+
   protected _getEtherscanApiKey(
     chain: ChainId,
   ): ResultAsync<string, AccountIndexingError> {
-    console.log("inside gnosis _getEtherscanApiKey");
-
     return this.configProvider.getConfig().andThen((config) => {
       if (!config.etherscanApiKeys.has(chain)) {
         console.log("Error inside _getEtherscanApiKey");
