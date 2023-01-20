@@ -36,10 +36,7 @@ import {
 } from "@indexers/IIndexerConfigProvider.js";
 
 export class BinanceIndexer
-  implements
-    IEVMAccountBalanceRepository,
-    IEVMTransactionRepository,
-    IEVMNftRepository
+  implements IEVMAccountBalanceRepository, IEVMNftRepository
 {
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -55,16 +52,14 @@ export class BinanceIndexer
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
     return this._getEtherscanApiKey(chainId).andThen((apiKey) => {
-      const url = `https://api.gnosisscan.io/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
-      // https://gnosisscan.io/address/0x633b0e4cc5b72e7196e12b6b8af1d79c7d406c83#tokentxnsErc721
-      console.log("Gnosis url: ", url);
+      const url = `https://api.bscscan.com/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+      console.log("Binance url: ", url);
       return this.ajaxUtils
-        .get<IBinancescanBlockNumberResponse>(
+        .get<IBinancescanBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           new URL(url!),
         )
         .map((balanceResponse) => {
-          console.log("Gnosis tokenResponse: ", balanceResponse);
           const tokenBalances: TokenBalance[] = [];
           const chainInfo = getChainInfoByChainId(chainId);
           tokenBalances.push(
@@ -83,73 +78,11 @@ export class BinanceIndexer
     });
   }
 
-  public getEVMTransactions(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-    startTime: Date,
-    endTime?: Date | undefined,
-  ): ResultAsync<EVMTransaction[], AccountIndexingError | AjaxError> {
-    const apiKey = chainConfig.get(ChainId(chainId));
-    const gnosisContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
-    const url = `https://api.gnosisscan.io/api?module=account&action=tokennfttx&contractaddress=${gnosisContractAddress}&address=${accountAddress}&page=1&offset=100&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`;
-    // https://gnosisscan.io/address/0x633b0e4cc5b72e7196e12b6b8af1d79c7d406c83#tokentxnsErc721
-    console.log("Gnosis url: ", url);
-    return this.ajaxUtils
-      .get<IBinancescanTransactionResponse>(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new URL(url!),
-      )
-      .map((tokenResponse) => {
-        console.log("Binance tokenResponse: ", tokenResponse);
-        return tokenResponse.result.map((tx) => {
-          return new EVMTransaction(
-            chainId,
-            EVMTransactionHash(""),
-            UnixTimestamp(100),
-            tx.blockHash,
-            EVMAccountAddress(tx.to),
-            EVMAccountAddress(tx.from),
-            tx.value!,
-            tx.gasPrice,
-            EVMContractAddress(tx.contractAddress),
-            null,
-            null,
-            null,
-            null,
-          );
-        });
-      });
-  }
-
   public getTokensForAccount(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
-    const apiKey = chainConfig.get(ChainId(chainId));
-    const gnosisContractAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
-    const url = `https://api.gnosisscan.io/api?module=account&action=tokennfttx&contractaddress=${gnosisContractAddress}&address=${accountAddress}&page=1&offset=100&startblock=0&endblock=99999999&sort=asc&apikey=${apiKey}`;
-    // https://gnosisscan.io/address/0x633b0e4cc5b72e7196e12b6b8af1d79c7d406c83#tokentxnsErc721
-    console.log("Gnosis url: ", url);
-    return this.ajaxUtils
-      .get<IBinancescanTransactionResponse>(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new URL(url!),
-      )
-      .map((tokenResponse) => {
-        return tokenResponse.result.map((tx) => {
-          return new EVMNFT(
-            EVMContractAddress(tx.contractAddress),
-            tx.tokenID!,
-            "",
-            EVMAccountAddress(""),
-            undefined,
-            undefined,
-            BigNumberString(""),
-            "",
-            chainId,
-          );
-        });
-      });
+    return okAsync([]);
   }
 
   protected _getEtherscanApiKey(
@@ -169,33 +102,7 @@ export class BinanceIndexer
     });
   }
 }
-
-interface IBinancescanTransactionResponse {
-  status: string;
-  message: string;
-  result: IBinancescanRawTx[];
-}
-
-interface IBinancescanRawTx {
-  blockNumber: string;
-  timeStamp: string;
-  hash: string;
-  nonce: string;
-  blockHash: number;
-  transactionIndex: string;
-  from: string;
-  to: string;
-  value?: BigNumberString;
-  gas: BigNumberString;
-  gasPrice: BigNumberString;
-  contractAddress: string;
-  cumulativeGasUsed: string;
-  gasUsed: string;
-  confirmations: string;
-  tokenID?: BigNumberString;
-}
-
-interface IBinancescanBlockNumberResponse {
+interface IBinancescanBalanceResponse {
   status: string;
   message: string;
   result: BigNumberString;
