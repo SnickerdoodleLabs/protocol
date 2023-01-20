@@ -1,3 +1,4 @@
+export * from "@objects/enum/EBackupPriority";
 export * from "@objects/enum/EChain";
 export * from "@objects/enum/EChainTechnology";
 export * from "@objects/enum/EChainType";
