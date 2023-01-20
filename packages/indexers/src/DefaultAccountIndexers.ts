@@ -24,7 +24,6 @@ import {
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
-import { BinanceIndexer } from "./BinanceIndexer";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {

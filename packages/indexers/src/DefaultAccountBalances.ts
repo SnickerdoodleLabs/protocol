@@ -14,6 +14,7 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
+import { BinanceIndexer } from "@indexers/BinanceIndexer.js";
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
 import { GnosisIndexer } from "@indexers/GnosisIndexer.js";
 import {
@@ -24,7 +25,6 @@ import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepo
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
-import { BinanceIndexer } from "./BinanceIndexer";
 
 @injectable()
 export class DefaultAccountBalances implements IAccountBalances {
