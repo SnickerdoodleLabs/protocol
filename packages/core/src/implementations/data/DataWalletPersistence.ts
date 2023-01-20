@@ -740,8 +740,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getSimulatorEVMBalanceRepository(),
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
-      this.accountBalances.getGnosisBalanceRepository(),
-      this.accountBalances.getBinanceBalanceRepository(),
+      this.accountBalances.getEtherscanBalance(),
     ])
       .andThen(
         ([
@@ -751,8 +750,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           simulatorRepo,
           etherscanRepo,
           maticRepo,
-          gnosisRepo,
-          binanceRepo,
+          etherscanBalance,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -786,12 +784,12 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Gnosis:
-              return gnosisRepo.getBalancesForAccount(
+              return etherscanBalance.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Binance:
-              return binanceRepo.getBalancesForAccount(
+              return etherscanBalance.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );

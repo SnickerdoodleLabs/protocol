@@ -26,6 +26,7 @@ import {
   EVMNFT,
   IEVMNftRepository,
   TokenUri,
+  chainConfig,
 } from "@snickerdoodlelabs/objects";
 import { inject } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -38,8 +39,8 @@ import {
 
 const poapAddress = "0x22c1f6050e56d2876009903609a2cc3fef83b415";
 
-export class GnosisIndexer
-  implements IEVMAccountBalanceRepository, IEVMNftRepository
+export class EtherscanNativeBalanceRepository
+  implements IEVMAccountBalanceRepository
 {
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -54,64 +55,48 @@ export class GnosisIndexer
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<TokenBalance[], AjaxError | AccountIndexingError> {
-    return this._getEtherscanApiKey(chainId)
-      .andThen((apiKey) => {
-        return this.generateUrl(accountAddress, apiKey, urlAction.balance);
-      })
-      .andThen((blockNumberUrl) => {
-        return this.ajaxUtils.get<IGnosisscanBalanceResponse>(
+    return ResultUtils.combine([
+      this._getEtherscanApiKey(chainId),
+      this._getBlockExplorerUrl(chainId),
+    ]).andThen(([apiKey, explorerUrl]) => {
+      const url = `${explorerUrl}/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+      return this.ajaxUtils
+        .get<IGnosisscanBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          new URL(blockNumberUrl),
-        );
-      })
-      .map((balanceResponse) => {
-        const chainInfo = getChainInfoByChainId(chainId);
-        const tokenBalances: TokenBalance[] = [];
-        tokenBalances.push(
-          new TokenBalance(
-            EChainTechnology.EVM,
-            TickerSymbol(chainInfo.nativeCurrency.symbol),
-            chainId,
-            null,
-            accountAddress,
-            balanceResponse.result,
-            chainInfo.nativeCurrency.decimals,
-          ),
-        );
-        return tokenBalances;
-      });
+          new URL(url!),
+        )
+        .map((balanceResponse) => {
+          const tokenBalances: TokenBalance[] = [];
+          const chainInfo = getChainInfoByChainId(chainId);
+          tokenBalances.push(
+            new TokenBalance(
+              EChainTechnology.EVM,
+              TickerSymbol(chainInfo.nativeCurrency.symbol),
+              chainId,
+              null,
+              accountAddress,
+              balanceResponse.result,
+              chainInfo.nativeCurrency.decimals,
+            ),
+          );
+          return tokenBalances;
+        });
+    });
   }
 
-  public getTokensForAccount(
-    chainId: ChainId,
-    accountAddress: EVMAccountAddress,
-  ): ResultAsync<EVMNFT[], AccountIndexingError | AjaxError> {
-    return okAsync([]);
-    // return this._getEtherscanApiKey(chainId)
-    //   .andThen((apiKey) => {
-    //     return this.generateUrl(accountAddress, apiKey, urlAction.tokennfttx);
-    //   })
-    //   .andThen((url) => {
-    //     return this.ajaxUtils.get<IGnosisscanTransactionResponse>(
-    //       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    //       new URL(url!),
-    //     );
-    //   })
-    //   .map((tokenResponse) => {
-    //     return tokenResponse.result.map((tx) => {
-    //       return new EVMNFT(
-    //         EVMContractAddress(tx.contractAddress),
-    //         BigNumberString(tx.tokenID || "0"),
-    //         "ERC721",
-    //         EVMAccountAddress(accountAddress),
-    //         TokenUri(tx.hash),
-    //         tx,
-    //         BigNumberString(tx.value),
-    //         tx.confirmations,
-    //         chainId,
-    //       );
-    //     });
-    //   });
+  protected _getBlockExplorerUrl(
+    chain: ChainId,
+  ): ResultAsync<URLString, AccountIndexingError> {
+    const chainInfo = chainConfig.get(chain);
+    if (chainInfo == undefined) {
+      console.log("Error inside _getEtherscanApiKey");
+      return errAsync(
+        new AccountIndexingError("no etherscan api key for chain", chain),
+      );
+    }
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const url = chainInfo.etherscanEndpointURL!;
+    return okAsync(url);
   }
 
   protected _getEtherscanApiKey(
@@ -127,18 +112,6 @@ export class GnosisIndexer
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return okAsync(config.etherscanApiKeys.get(chain)!);
     });
-  }
-
-  protected generateUrl(
-    accountAddress: EVMAccountAddress,
-    apiKey: string,
-    action: string,
-  ): ResultAsync<URLString, AccountIndexingError> {
-    const url = `https://api.gnosisscan.io/api?module=account&action=${action}&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
-    if (action == "tokennfttx") {
-      const url = `https://api.gnosisscan.io/api?module=account&action=${action}&contractaddress=${poapAddress}&address=${accountAddress}&page=1&offset=100&sort=asc&apikey=${apiKey}`;
-    }
-    return okAsync(URLString(url));
   }
 }
 
