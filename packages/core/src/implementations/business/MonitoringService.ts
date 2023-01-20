@@ -165,6 +165,8 @@ export class MonitoringService implements IMonitoringService {
             );
           case EIndexer.Gnosis:
             return okAsync([]);
+          case EIndexer.Binance:
+            return okAsync([]);
           default:
             this.logUtils.error(
               `No available indexer repository for chain ${chainId}`,

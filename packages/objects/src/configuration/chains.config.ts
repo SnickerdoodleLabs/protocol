@@ -215,6 +215,24 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       URLString("https://api.gnosisscan.io/"),
     ),
   ],
+  [
+    ChainId(EChain.Binance),
+    new ChainInformation(
+      "Binance",
+      ChainId(EChain.Binance),
+      EChain.Binance,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000, // average block mining time
+      EIndexer.Gnosis,
+      new NativeCurrencyInformation("BNB", 18, "BNB", "BNB"),
+      EChainType.Mainnet,
+      "https://api.bscscan.com/api",
+      getExplorerUrl,
+      URLString("https://api.bscscan.com/"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {

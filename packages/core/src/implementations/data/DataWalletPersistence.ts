@@ -78,6 +78,7 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 import { parse } from "tldts";
 
+
 import {
   IContextProvider,
   IContextProviderType,
@@ -741,6 +742,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
       this.accountBalances.getGnosisBalanceRepository(),
+      this.accountBalances.getBinanceBalanceRepository(),
     ])
       .andThen(
         ([
@@ -751,6 +753,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           etherscanRepo,
           maticRepo,
           gnosisRepo,
+          binanceRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -785,6 +788,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               );
             case EIndexer.Gnosis:
               return gnosisRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Binance:
+              return binanceRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -898,6 +906,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           simulatorRepo,
           etherscanRepo,
           gnosisRepo,
+          binanceRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -906,6 +915,40 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 `No available chain info for chain ${chainId}`,
               ),
             );
+          }
+
+          switch (chainInfo.indexer) {
+            case EIndexer.EVM:
+            case EIndexer.Polygon:
+              return evmRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Simulator:
+              return simulatorRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Solana:
+              return solRepo.getTokensForAccount(
+                chainId,
+                accountAddress as SolanaAccountAddress,
+              );
+            case EIndexer.Ethereum:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Gnosis:
+              return okAsync([]);
+            case EIndexer.Binance:
+              return okAsync([]);
+            default:
+              return errAsync(
+                new AccountIndexingError(
+                  `No available chain info for chain ${chainId}`,
+                ),
+              );
           }
 
           switch (chainInfo.indexer) {

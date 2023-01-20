@@ -6,4 +6,5 @@ export enum EIndexer {
   Ethereum = 4,
   Polygon = 5,
   Gnosis = 6,
+  Binance = 7,
 }

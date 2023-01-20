@@ -24,6 +24,7 @@ import {
 import { PolygonIndexer } from "@indexers/PolygonIndexer.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
+import { BinanceIndexer } from "./BinanceIndexer";
 
 @injectable()
 export class DefaultAccountIndexers implements IAccountIndexing {
@@ -31,6 +32,7 @@ export class DefaultAccountIndexers implements IAccountIndexing {
   protected simulatorRepo: IEVMTransactionRepository;
   protected solRepo: ISolanaTransactionRepository;
   protected matic: IEVMTransactionRepository;
+  protected binance: IEVMTransactionRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -54,6 +56,12 @@ export class DefaultAccountIndexers implements IAccountIndexing {
       logUtils,
     );
     this.matic = new PolygonIndexer(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+    this.binance = new BinanceIndexer(
       this.configProvider,
       this.ajaxUtils,
       this.tokenPriceRepo,
@@ -94,5 +102,12 @@ export class DefaultAccountIndexers implements IAccountIndexing {
     never
   > {
     return okAsync(this.solRepo);
+  }
+
+  public getBinanceTransactionRepository(): ResultAsync<
+    IEVMTransactionRepository,
+    never
+  > {
+    return okAsync(this.binance);
   }
 }
