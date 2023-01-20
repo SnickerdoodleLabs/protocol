@@ -1,7 +1,9 @@
+import { injectable } from "inversify";
 import { BigNumberString } from "@snickerdoodlelabs/objects";
 import { BigNumber, utils } from "ethers";
 import { IBigNumberUtils } from "@common-utils/interfaces/index.js";
 
+@injectable()
 export class BigNumberUtils implements IBigNumberUtils {
   protected oneBN: BigNumber = utils.parseUnits("1", 18);
   constructor() {}
