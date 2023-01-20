@@ -14,6 +14,7 @@ import {
   ModelTypes,
   PersistenceError,
   AjaxError,
+  EBackupPriority,
 } from "@snickerdoodlelabs/objects";
 import { DID } from "dids";
 import { inject, injectable } from "inversify";
@@ -48,6 +49,13 @@ export class CeramicCloudStorage implements ICloudStorage {
     this._unlockPromise = new Promise<EVMPrivateKey>((resolve) => {
       this._resolveUnlock = resolve;
     });
+  }
+
+  pollByPriority(
+    restored: Set<DataWalletBackupID>,
+    priority: EBackupPriority,
+  ): ResultAsync<IDataWalletBackup[], PersistenceError> {
+    return okAsync([]);
   }
 
   public clear(): ResultAsync<void, PersistenceError> {
