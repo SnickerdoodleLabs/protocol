@@ -1,7 +1,10 @@
 import { CryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   DomainName,
-  EChain, EVMPrivateKey, LanguageCode, SolanaPrivateKey
+  EChain,
+  EVMPrivateKey,
+  LanguageCode,
+  SolanaPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { FakeDBVolatileStorage } from "@snickerdoodlelabs/persistence";
 

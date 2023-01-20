@@ -2,8 +2,11 @@ import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
   AESEncryptedString,
   BackupBlob,
+  DataUpdate,
   DataWalletAddress,
   DataWalletBackupID,
+  EBackupPriority,
+  EDataUpdateOpCode,
   EVMAccountAddress,
   EVMPrivateKey,
   FieldMap,
@@ -87,13 +90,16 @@ export class BackupManager implements IBackupManager {
   public addRecord(
     tableName: string,
     value: object,
+    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
     // this allows us to bypass transactions
     if (!this.tableUpdates.hasOwnProperty(tableName)) {
       return this.volatileStorage.putObject(tableName, value);
     }
 
-    this.tableUpdates[tableName].push(value);
+    this.tableUpdates[tableName].push(
+      new DataUpdate(value, Date.now(), EDataUpdateOpCode.UPDATE, priority),
+    );
     this.numUpdates += 1;
     return this.volatileStorage
       .putObject(tableName, value)
@@ -103,19 +109,25 @@ export class BackupManager implements IBackupManager {
   public updateField(
     key: string,
     value: object,
+    priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError> {
     if (!(key in this.fieldUpdates)) {
       this.numUpdates += 1;
     }
 
-    const timestamp = new Date().getTime();
-    this.fieldUpdates[key] = [value, timestamp];
+    const timestamp = Date.now();
+    this.fieldUpdates[key] = new DataUpdate(
+      value,
+      timestamp,
+      EDataUpdateOpCode.UPDATE,
+      priority,
+    );
     this._updateFieldHistory(key, timestamp);
     return this.storageUtils.write(key, value).andThen(() => this._checkSize());
   }
 
   private dump(): ResultAsync<IDataWalletBackup, PersistenceError> {
-    return this._generateBlob().andThen((blob) => {
+    return this._generateBlob().andThen(([blob, priority]) => {
       return this._getContentHash(blob).andThen((hash) => {
         const timestamp = new Date().getTime();
         return this._generateBackupSignature(hash, timestamp).andThen((sig) => {
@@ -124,6 +136,7 @@ export class BackupManager implements IBackupManager {
               hash: hash,
               timestamp: UnixTimestamp(timestamp),
               signature: sig,
+              priority: priority,
             },
             blob: blob,
           };
@@ -152,20 +165,20 @@ export class BackupManager implements IBackupManager {
             .andThen((unpacked) => {
               return ResultUtils.combine(
                 Object.keys(unpacked.fields).map((fieldName) => {
-                  const [value, timestamp] = unpacked.fields[fieldName];
+                  const update = unpacked.fields[fieldName];
                   if (
                     !(fieldName in this.fieldHistory) ||
-                    timestamp > this.fieldHistory[fieldName]
+                    update.timestamp > this.fieldHistory[fieldName]
                   ) {
                     if (this.fieldUpdates.hasOwnProperty(fieldName)) {
-                      if (timestamp > this.fieldUpdates[fieldName][1]) {
-                        this.fieldHistory[fieldName] = timestamp;
+                      if (update.timestamp > this.fieldUpdates[fieldName][1]) {
+                        this.fieldHistory[fieldName] = update.timestamp;
                         delete this.fieldUpdates[fieldName];
-                        return this.storageUtils.write(fieldName, value);
+                        return this.storageUtils.write(fieldName, update.value);
                       }
                     } else {
-                      this.fieldHistory[fieldName] = timestamp;
-                      return this.storageUtils.write(fieldName, value);
+                      this.fieldHistory[fieldName] = update.timestamp;
+                      return this.storageUtils.write(fieldName, update.value);
                     }
                   }
 
@@ -177,7 +190,10 @@ export class BackupManager implements IBackupManager {
                     const table = unpacked.records[tableName];
                     return ResultUtils.combine(
                       table.map((value) => {
-                        return this.volatileStorage.putObject(tableName, value);
+                        return this.volatileStorage.putObject(
+                          tableName,
+                          value.value,
+                        );
                       }),
                     );
                   }),
@@ -241,16 +257,36 @@ export class BackupManager implements IBackupManager {
     });
   }
 
-  private _generateBlob(): ResultAsync<AESEncryptedString, PersistenceError> {
-    const rawBlob = JSON.stringify(
-      new BackupBlob(this.fieldUpdates, this.tableUpdates),
-    );
-
+  private _generateBlob(): ResultAsync<
+    [AESEncryptedString, EBackupPriority],
+    PersistenceError
+  > {
+    const blob = new BackupBlob(this.fieldUpdates, this.tableUpdates);
     return this.cryptoUtils
       .deriveAESKeyFromEVMPrivateKey(this.privateKey)
       .andThen((aesKey) => {
-        return this.cryptoUtils.encryptString(rawBlob, aesKey);
+        return ResultUtils.combine([
+          this.cryptoUtils.encryptString(JSON.stringify(blob), aesKey),
+          this._getBlobPriority(blob),
+        ]);
       });
+  }
+
+  private _getBlobPriority(
+    blob: BackupBlob,
+  ): ResultAsync<EBackupPriority, never> {
+    let result = EBackupPriority.NORMAL;
+    Object.keys(blob.fields).map((key) => {
+      const value = blob.fields[key];
+      result = Math.max(result, value.priority);
+    });
+    Object.keys(blob.records).map((table) => {
+      const updates = blob.records[table];
+      updates.forEach((value) => {
+        result = Math.max(result, value.priority);
+      });
+    });
+    return okAsync(result);
   }
 
   private _generateSignatureMessage(hash: string, timestamp: number): string {
