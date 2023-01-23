@@ -142,6 +142,12 @@ module.exports = {
       chainId: 56,
       url: urlOverride || "http://127.0.0.1:8549",
     },
+    moonbeam: {
+      // moonbeam mainnet - GLMR
+      accounts: accounts,
+      chainId: 1284,
+      url: urlOverride || "http://127.0.0.1:8549",
+    },
   },
   gasReporter: {
     enabled: true,

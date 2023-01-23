@@ -233,6 +233,24 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       URLString("https://api.bscscan.com/"),
     ),
   ],
+  [
+    ChainId(EChain.Moonbeam),
+    new ChainInformation(
+      "Moonbeam",
+      ChainId(EChain.Moonbeam),
+      EChain.Moonbeam,
+      EChainTechnology.EVM,
+      true,
+      [],
+      10000, // average block mining time
+      EIndexer.Moonbeam,
+      new NativeCurrencyInformation("GLMR", 18, "GLMR", "GLMR"),
+      EChainType.Mainnet,
+      "https://api-moonbeam.moonscan.io/api",
+      getExplorerUrl,
+      URLString("https://api-moonbeam.moonscan.io/"),
+    ),
+  ],
 ]);
 
 export function getChainInfoByChain(chain: EChain): ChainInformation {
