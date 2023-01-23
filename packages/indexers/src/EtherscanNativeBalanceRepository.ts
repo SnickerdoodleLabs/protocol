@@ -59,7 +59,7 @@ export class EtherscanNativeBalanceRepository
       this._getEtherscanApiKey(chainId),
       this._getBlockExplorerUrl(chainId),
     ]).andThen(([apiKey, explorerUrl]) => {
-      const url = `${explorerUrl}/api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
+      const url = `${explorerUrl}api?module=account&action=balance&address=${accountAddress}&tag=latest&apikey=${apiKey}`;
       return this.ajaxUtils
         .get<IGnosisscanBalanceResponse>(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

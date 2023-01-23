@@ -74,6 +74,7 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `80001`: Polygon Testnet (Mumbai)
 - `100`: Gnosis
 - `56`: Binance Mainnet
+- `1284`: Moonbeam Mainnet
 - `*`: all supported networks
 
 #### chain (required for network queries)

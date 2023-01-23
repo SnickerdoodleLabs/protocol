@@ -793,6 +793,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
+            case EIndexer.Moonbeam:
+              return etherscanBalance.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             default:
               return errAsync(
                 new AccountIndexingError(
@@ -929,6 +934,8 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           case EIndexer.Gnosis:
             return okAsync([]);
           case EIndexer.Binance:
+            return okAsync([]);
+          case EIndexer.Moonbeam:
             return okAsync([]);
           default:
             return errAsync(
