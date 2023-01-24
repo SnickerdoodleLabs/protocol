@@ -32,7 +32,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected sol: ISolanaBalanceRepository;
   protected ethereum: IEVMAccountBalanceRepository;
   protected matic: IEVMAccountBalanceRepository;
-  protected etherscanBalance: IEVMAccountBalanceRepository;
+  protected etherscan: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -62,7 +62,7 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.tokenPriceRepo,
       this.logUtils,
     );
-    this.etherscanBalance = new EtherscanNativeBalanceRepository(
+    this.etherscan = new EtherscanNativeBalanceRepository(
       this.configProvider,
       this.ajaxUtils,
       this.tokenPriceRepo,
@@ -70,11 +70,11 @@ export class DefaultAccountBalances implements IAccountBalances {
     );
   }
 
-  public getEtherscanBalance(): ResultAsync<
+  public getEtherscanBalanceRepository(): ResultAsync<
     IEVMAccountBalanceRepository,
     never
   > {
-    return okAsync(this.etherscanBalance);
+    return okAsync(this.etherscan);
   }
 
   public getPolygonBalanceRepository(): ResultAsync<
