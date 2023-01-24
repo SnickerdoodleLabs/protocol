@@ -226,7 +226,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       [],
       10000, // average block mining time
       EIndexer.Gnosis,
-      new NativeCurrencyInformation("BNB", 18, "BNB", "BNB"),
+      new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
       EChainType.Mainnet,
       "https://api.bscscan.com/api",
       getExplorerUrl,
@@ -244,7 +244,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       [],
       10000, // average block mining time
       EIndexer.Moonbeam,
-      new NativeCurrencyInformation("GLMR", 18, "GLMR", "GLMR"),
+      new NativeCurrencyInformation("GLMR", 18, "GLMR", "moonbeam"),
       EChainType.Mainnet,
       "https://api-moonbeam.moonscan.io/api",
       getExplorerUrl,
