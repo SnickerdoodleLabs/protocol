@@ -524,8 +524,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         return null;
       }
       return Age(
-        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() -
-          new Date(0).getFullYear(),
+        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() - 1970
       );
     });
   }
