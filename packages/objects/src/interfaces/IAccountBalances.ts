@@ -20,7 +20,7 @@ export interface IAccountBalances {
     IEVMAccountBalanceRepository,
     never
   >;
-  getGnosisBalanceRepository(): ResultAsync<
+  getEtherscanBalanceRepository(): ResultAsync<
     IEVMAccountBalanceRepository,
     never
   >;
