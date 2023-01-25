@@ -5,6 +5,7 @@ export * from "@indexers/DefaultAccountIndexers.js";
 export * from "@indexers/DefaultAccountNFTs.js";
 export * from "@indexers/DummySolanaIndexer.js";
 export * from "@indexers/EtherscanIndexer.js";
+export * from "@indexers/EtherscanNativeBalanceRepository.js";
 export * from "@indexers/IIndexerConfig.js";
 export * from "@indexers/IIndexerConfigProvider.js";
 export * from "@indexers/MoralisEVMPortfolioRepository.js";
