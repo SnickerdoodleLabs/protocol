@@ -14,7 +14,6 @@ import {
   DataPermissions,
   ConsentToken,
   TokenId,
-  IDataWalletPersistence,
   IPFSError,
   SDQLQueryRequest,
   HexString32,
@@ -42,6 +41,7 @@ import {
 } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
+  ILinkedAccountRepository,
   ISDQLQueryRepository,
 } from "@core/interfaces/data/index.js";
 import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
@@ -86,7 +86,7 @@ class QueryServiceMocks {
   public contextProvider: ContextProviderMock;
   public configProvider: IConfigProvider;
   public cryptoUtils: ICryptoUtils;
-  public persistenceRepo: IDataWalletPersistence;
+  public accountRepo: ILinkedAccountRepository;
 
   public consentToken = new ConsentToken(
     consentContractAddress,
@@ -105,7 +105,7 @@ class QueryServiceMocks {
     this.contextProvider = new ContextProviderMock();
     this.configProvider = new ConfigProviderMock();
     this.cryptoUtils = td.object<ICryptoUtils>();
-    this.persistenceRepo = td.object<IDataWalletPersistence>();
+    this.accountRepo = td.object<ILinkedAccountRepository>();
 
     td.when(
       this.insightPlatformRepo.deliverInsights(
@@ -165,7 +165,7 @@ class QueryServiceMocks {
       this.contextProvider,
       this.configProvider,
       this.cryptoUtils,
-      this.persistenceRepo
+      this.accountRepo,
     );
   }
 }
@@ -309,7 +309,7 @@ describe("processRewardsPreview tests", () => {
       mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
         sdqlQuery,
         td.matchers.anything(),
-        td.matchers.anything()
+        td.matchers.anything(),
       ),
     ).thenReturn(okAsync([[], []]));
     await ResultUtils.combine([
@@ -337,7 +337,7 @@ describe("processRewardsPreview tests", () => {
           return mocks.queryParsingEngine.getPermittedQueryIdsAndExpectedRewards(
             query,
             new DataPermissions(allPermissions),
-            consentContractAddress
+            consentContractAddress,
           );
         })
         .andThen((rewardsPreviews) => {

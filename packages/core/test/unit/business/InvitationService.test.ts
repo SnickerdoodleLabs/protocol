@@ -7,7 +7,6 @@ import {
   EVMAccountAddress,
   EVMPrivateKey,
   HexString,
-  IDataWalletPersistence,
   InvitationDomain,
   IpfsCID,
   Signature,
@@ -19,8 +18,6 @@ import * as td from "testdouble";
 
 import {
   dataWalletAddress,
-  dataWalletKey,
-  externalAccountAddress1,
   consentContractAddress1,
   defaultInsightPlatformBaseUrl,
 } from "@core-tests/mock/mocks/commonValues.js";
@@ -35,6 +32,7 @@ import {
   IConsentContractRepository,
   IDNSRepository,
   IInvitationRepository,
+  ILinkedAccountRepository,
   IMarketplaceRepository,
   IMetatransactionForwarderRepository,
 } from "@core/interfaces/data/index.js";
@@ -69,7 +67,6 @@ const invitationDomain = new InvitationDomain(
 
 class InvitationServiceMocks {
   public consentTokenUtils: IConsentTokenUtils;
-  public persistenceRepo: IDataWalletPersistence;
   public consentRepo: IConsentContractRepository;
   public insightPlatformRepo: IInsightPlatformRepository;
   public dnsRepository: IDNSRepository;
@@ -81,10 +78,10 @@ class InvitationServiceMocks {
   public contextProvider: IContextProvider;
   public configProvider: ConfigProviderMock;
   public logUtils: ILogUtils;
+  public accountRepo: ILinkedAccountRepository;
 
   public constructor() {
     this.consentTokenUtils = td.object<IConsentTokenUtils>();
-    this.persistenceRepo = td.object<IDataWalletPersistence>();
     this.consentRepo = td.object<IConsentContractRepository>();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.dnsRepository = td.object<IDNSRepository>();
@@ -96,6 +93,7 @@ class InvitationServiceMocks {
     this.cryptoUtils = td.object<ICryptoUtils>();
     this.configProvider = new ConfigProviderMock();
     this.logUtils = td.object<ILogUtils>();
+    this.accountRepo = td.object<ILinkedAccountRepository>();
 
     td.when(
       this.insightPlatformRepo.executeMetatransaction(
@@ -140,7 +138,6 @@ class InvitationServiceMocks {
   public factory(): IInvitationService {
     return new InvitationService(
       this.consentTokenUtils,
-      this.persistenceRepo,
       this.consentRepo,
       this.insightPlatformRepo,
       this.dnsRepository,
@@ -152,6 +149,7 @@ class InvitationServiceMocks {
       this.contextProvider,
       this.configProvider,
       this.logUtils,
+      this.accountRepo,
     );
   }
 }

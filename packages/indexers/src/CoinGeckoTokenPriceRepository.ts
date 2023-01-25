@@ -19,7 +19,7 @@ import {
   URLString,
 } from "@snickerdoodlelabs/objects";
 import {
-  ELocalStorageKey,
+  ERecordKey,
   IVolatileStorage,
   IVolatileStorageType,
 } from "@snickerdoodlelabs/persistence";
@@ -81,6 +81,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         >();
 
         marketData.forEach((data) => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const key = ids.get(data.id)!;
           returnVal.set(key, data);
         });
@@ -90,7 +91,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   }
 
   public addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError> {
-    return this.volatileStorage.putObject(ELocalStorageKey.COIN_INFO, info);
+    return this.volatileStorage.putObject(ERecordKey.COIN_INFO, info);
   }
 
   public getTokenMarketData(
@@ -163,10 +164,10 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
     return this._getTokens()
       .andThen(() => {
-        return this.volatileStorage.getObject<TokenInfo>(
-          ELocalStorageKey.COIN_INFO,
-          [chainId, contractAddress],
-        );
+        return this.volatileStorage.getObject<TokenInfo>(ERecordKey.COIN_INFO, [
+          chainId,
+          contractAddress,
+        ]);
       })
       .mapErr((e) => new AccountIndexingError("error fetching token info", e));
   }
@@ -285,7 +286,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
                     results.push(
                       this.volatileStorage.putObject(
-                        ELocalStorageKey.COIN_INFO,
+                        ERecordKey.COIN_INFO,
                         tokenInfo,
                       ),
                     );

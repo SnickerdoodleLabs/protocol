@@ -15,14 +15,18 @@ import {
   Signature,
   TableMap,
   UnixTimestamp,
+  VolatileStorageKey,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IBackupManager } from "@persistence/backup/IBackupManager.js";
-import { ELocalStorageKey } from "@persistence/ELocalStorageKey.js";
-import { IVolatileStorage } from "@persistence/volatile/index.js";
+import { EFieldKey, ERecordKey } from "@persistence/ELocalStorageKey.js";
+import {
+  IVolatileStorage,
+  VolatileStorageMetadata,
+} from "@persistence/volatile/index.js";
 
 export class BackupManager implements IBackupManager {
   private fieldUpdates: FieldMap = {};
@@ -47,9 +51,33 @@ export class BackupManager implements IBackupManager {
     this.clear();
   }
 
+  public deleteRecord(
+    tableName: string,
+    key: VolatileStorageKey,
+    priority: EBackupPriority,
+  ): ResultAsync<void, PersistenceError> {
+    if (!this.tableUpdates.hasOwnProperty(tableName)) {
+      return this.volatileStorage.removeObject(tableName, key);
+    }
+
+    this.tableUpdates[tableName].push(
+      new DataUpdate(
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        key as Object,
+        Date.now(),
+        EDataUpdateOpCode.REMOVE,
+        priority,
+      ),
+    );
+    this.numUpdates += 1;
+    return this.volatileStorage
+      .removeObject(tableName, key)
+      .andThen(() => this._checkSize());
+  }
+
   public getRestored(): ResultAsync<Set<DataWalletBackupID>, PersistenceError> {
     return this.volatileStorage
-      .getAll<RestoredBackupRecord>(ELocalStorageKey.RESTORED_BACKUPS)
+      .getAll<RestoredBackupRecord>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
         return restored.map((item) => item.id);
       })
@@ -87,10 +115,9 @@ export class BackupManager implements IBackupManager {
     return this._addRestored(backup).map(() => backup);
   }
 
-  public addRecord(
+  public addRecord<T>(
     tableName: string,
-    value: object,
-    priority: EBackupPriority,
+    value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     // this allows us to bypass transactions
     if (!this.tableUpdates.hasOwnProperty(tableName)) {
@@ -98,7 +125,13 @@ export class BackupManager implements IBackupManager {
     }
 
     this.tableUpdates[tableName].push(
-      new DataUpdate(value, Date.now(), EDataUpdateOpCode.UPDATE, priority),
+      new DataUpdate(
+        // eslint-disable-next-line @typescript-eslint/ban-types
+        value.data as Object,
+        value.lastUpdate,
+        EDataUpdateOpCode.UPDATE,
+        value.priority,
+      ),
     );
     this.numUpdates += 1;
     return this.volatileStorage
@@ -315,7 +348,7 @@ export class BackupManager implements IBackupManager {
   private _addRestored(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    return this.volatileStorage.putObject(ELocalStorageKey.RESTORED_BACKUPS, {
+    return this.volatileStorage.putObject(ERecordKey.RESTORED_BACKUPS, {
       id: DataWalletBackupID(backup.header.hash),
     });
   }
@@ -324,7 +357,7 @@ export class BackupManager implements IBackupManager {
     id: DataWalletBackupID,
   ): ResultAsync<boolean, PersistenceError> {
     return this.volatileStorage
-      .getObject<RestoredBackupRecord>(ELocalStorageKey.RESTORED_BACKUPS, id)
+      .getObject<RestoredBackupRecord>(ERecordKey.RESTORED_BACKUPS, id)
       .map((result) => {
         return result != null;
       });

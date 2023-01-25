@@ -12,10 +12,10 @@ import {
   EVMContractAddress,
   EBackupPriority,
 } from "@snickerdoodlelabs/objects";
-import * as td from "testdouble";
 
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
-import { ELocalStorageKey } from "@persistence/ELocalStorageKey";
+import { ERecordKey } from "@persistence/ELocalStorageKey";
+import { VolatileStorageMetadata } from "@persistence/volatile";
 
 describe("Bundle", () => {
   test("Create a backupmanager object", async () => {
@@ -77,14 +77,13 @@ describe("Bundle", () => {
     );
 
     await backupManager.addRecord(
-      ELocalStorageKey.ELIGIBLE_ADS,
-      testAd,
-      EBackupPriority.NORMAL,
+      ERecordKey.ELIGIBLE_ADS,
+      new VolatileStorageMetadata<EligibleAd>(EBackupPriority.NORMAL, testAd),
     );
 
     const wrappedAdList =
       await backupManagerMocks.volatileStorage.getAll<EligibleAd>(
-        ELocalStorageKey.ELIGIBLE_ADS,
+        ERecordKey.ELIGIBLE_ADS,
       );
 
     const adList = wrappedAdList._unsafeUnwrap();

@@ -35,8 +35,6 @@ import {
   IAccountNFTsType,
   IConfigOverrides,
   IDataWalletBackup,
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   WalletNFT,
   InvalidParametersError,
   InvalidSignatureError,
@@ -80,8 +78,6 @@ import {
   TransactionPaymentCounter,
   EligibleAd,
   AdSignature,
-  SHA256Hash,
-  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -121,6 +117,12 @@ import {
   ISiftContractService,
   ISiftContractServiceType,
 } from "@core/interfaces/business/index.js";
+import {
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data/index.js";
 import {
   IBlockchainProvider,
   IBlockchainProviderType,
@@ -728,27 +730,26 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
+    const adDataRepo = this.iocContainer.get<IAdDataRepository>(
+      IAdDataRepositoryType,
     );
-    return persistence.getEligibleAds();
+    return adDataRepo.getEligibleAds();
   }
 
   getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
+    const adDataRepo = this.iocContainer.get<IAdDataRepository>(
+      IAdDataRepositoryType,
     );
-    return persistence.getAdSignatures();
+    return adDataRepo.getAdSignatures();
   }
 
   onAdDisplayed(
-    eligibleAd: EligibleAd
+    eligibleAd: EligibleAd,
   ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
-    const adService =
-      this.iocContainer.get<IAdService>(IAdServiceType);
+    const adService = this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.onAdDisplayed(eligibleAd);
   }
-  
+
   public addTransactions(
     transactions: ChainTransaction[],
   ): ResultAsync<void, PersistenceError> {
@@ -783,7 +784,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     chainId: ChainId,
     address: TokenAddress | null,
     timestamp: UnixTimestamp,
-  ): ResultAsync<number, PersistenceError> {
+  ): ResultAsync<number, AccountIndexingError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
     return accountService.getTokenPrice(chainId, address, timestamp);

@@ -1,9 +1,7 @@
 import "reflect-metadata";
 
 import {
-  IDataWalletPersistence,
   TokenBalance,
-  Age,
   ChainId,
   EVMAccountAddress,
   EVMContractAddress,
@@ -30,6 +28,7 @@ import * as td from "testdouble";
 
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
+import { IPortfolioBalanceRepository } from "@core/interfaces/data";
 
 const conditionsGEandL = [
   new ConditionGE(SDQL_OperatorName("ge"), null, 20),
@@ -46,7 +45,7 @@ const conditionsE = [new ConditionE(SDQL_OperatorName("e"), null, 29)];
 const conditionsIn = [new ConditionIn(SDQL_OperatorName("e"), null, ["29"])];
 
 class BalanceQueryEvaluatorMocks {
-  public dataWalletPersistence = td.object<IDataWalletPersistence>();
+  public balanceRepo = td.object<IPortfolioBalanceRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
 
   public URLmap = new Map<URLString, number>([
@@ -104,20 +103,20 @@ class BalanceQueryEvaluatorMocks {
   public constructor() {
     //this.dataWalletPersistence.setLocation(CountryCode("US"));
 
-    td.when(this.dataWalletPersistence.getGender()).thenReturn(
-      okAsync(Gender("male")),
-    );
+    // td.when(this.dataWalletPersistence.getGender()).thenReturn(
+    //   okAsync(Gender("male")),
+    // );
 
-    td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
-      okAsync(this.URLmap),
-    );
-    td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
+    // td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
+    //   okAsync(this.URLmap),
+    // );
+    td.when(this.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(this.accountBalances),
     );
   }
 
   public factory() {
-    return new BalanceQueryEvaluator(this.dataWalletPersistence);
+    return new BalanceQueryEvaluator(this.balanceRepo);
   }
 }
 
@@ -131,7 +130,7 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -190,7 +189,7 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -245,7 +244,7 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -294,7 +293,7 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -338,7 +337,7 @@ describe("BalanceQueryEvaluator", () => {
     );
 
     const mocks = new BalanceQueryEvaluatorMocks();
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -383,7 +382,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -452,7 +451,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -513,7 +512,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -566,7 +565,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -619,7 +618,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -672,7 +671,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -725,7 +724,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -778,7 +777,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -866,7 +865,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -964,7 +963,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(
@@ -1026,7 +1025,7 @@ describe("BalanceQueryEvaluator", () => {
     const mocks = new BalanceQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    td.when(mocks.dataWalletPersistence.getAccountBalances()).thenReturn(
+    td.when(mocks.balanceRepo.getAccountBalances()).thenReturn(
       okAsync(
         new Array<TokenBalance>(
           new TokenBalance(

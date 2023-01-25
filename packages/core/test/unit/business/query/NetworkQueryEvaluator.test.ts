@@ -14,7 +14,6 @@ import {
   EVMTransaction,
   TransactionFilter,
   Gender,
-  IDataWalletPersistence,
   TokenBalance,
   SDQL_Name,
   TickerSymbol,
@@ -33,9 +32,10 @@ import * as td from "testdouble";
 
 import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import { ITransactionHistoryRepository } from "@core/interfaces/data";
 
 class NetworkQueryEvaluatorMocks {
-  public dataWalletPersistence = td.object<IDataWalletPersistence>();
+  public transactionRepo = td.object<ITransactionHistoryRepository>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
 
   public URLmap = new Map<URLString, number>([
@@ -85,22 +85,22 @@ class NetworkQueryEvaluatorMocks {
 
   public constructor() {
     //this.dataWalletPersistence.setLocation(CountryCode("US"));
-    td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
+    // td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
 
-    td.when(this.dataWalletPersistence.getGender()).thenReturn(
-      okAsync(Gender("male")),
-    );
+    // td.when(this.dataWalletPersistence.getGender()).thenReturn(
+    //   okAsync(Gender("male")),
+    // );
 
-    td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
-      okAsync(this.URLmap),
-    );
-    td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
-      okAsync(this.accountBalances),
-    );
+    // td.when(this.dataWalletPersistence.getSiteVisitsMap()).thenReturn(
+    //   okAsync(this.URLmap),
+    // );
+    // td.when(this.dataWalletPersistence.getAccountBalances()).thenReturn(
+    //   okAsync(this.accountBalances),
+    // );
   }
 
   public factory() {
-    return new NetworkQueryEvaluator(this.dataWalletPersistence);
+    return new NetworkQueryEvaluator(this.transactionRepo);
   }
 }
 
@@ -138,7 +138,7 @@ describe("QueryEvaluator: ", () => {
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
+      mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(
       okAsync([
         new EVMTransaction(
@@ -196,7 +196,7 @@ describe("QueryEvaluator: ", () => {
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
+      mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(
       okAsync([
         new EVMTransaction(
@@ -254,7 +254,7 @@ describe("QueryEvaluator: ", () => {
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
+      mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);
@@ -296,7 +296,7 @@ describe("Network Query Testing: ", () => {
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
+      mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);
@@ -335,7 +335,7 @@ describe("Network Query Testing: ", () => {
       endTime,
     );
     td.when(
-      mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
+      mocks.transactionRepo.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
     const result = await repo.eval(networkQuery);
     // console.log("Age is: ", result["value"]);

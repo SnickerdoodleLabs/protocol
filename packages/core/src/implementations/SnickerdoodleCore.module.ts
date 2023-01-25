@@ -23,8 +23,6 @@ import {
   InsightPlatformRepository,
 } from "@snickerdoodlelabs/insight-platform-api";
 import {
-  IDataWalletPersistence,
-  IDataWalletPersistenceType,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
@@ -71,6 +69,12 @@ import {
   SiftContractService,
 } from "@core/implementations/business/index.js";
 import {
+  AdDataRepository,
+  BrowsingDataRepository,
+  LinkedAccountRepository,
+  PortfolioBalanceRepository,
+  TransactionHistoryRepository,
+  Web2DataRepository,
   AdContentRepository,
   ConsentContractRepository,
   CrumbsRepository,
@@ -135,6 +139,8 @@ import {
   IConsentContractRepositoryType,
   ICrumbsRepository,
   ICrumbsRepositoryType,
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
   IDNSRepository,
   IDNSRepositoryType,
   IInvitationRepository,
@@ -147,6 +153,18 @@ import {
   ISDQLQueryRepositoryType,
   ISiftContractRepository,
   ISiftContractRepositoryType,
+  IAdDataRepository,
+  IAdDataRepositoryType,
+  IBrowsingDataRepositoryType,
+  IBrowsingDataRepository,
+  ILinkedAccountRepositoryType,
+  ILinkedAccountRepository,
+  IPortfolioBalanceRepositoryType,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepositoryType,
+  ITransactionHistoryRepository,
+  IWeb2DataRepositoryType,
+  IWeb2DataRepository,
 } from "@core/interfaces/data/index.js";
 import {
   IContractFactory,
@@ -164,7 +182,6 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
-
 
 export const snickerdoodleCoreModule = new ContainerModule(
   (
@@ -190,9 +207,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
       .inSingletonScope();
-    bind<IAdService>(IAdServiceType)
-      .to(AdService)
-      .inSingletonScope();
+    bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
@@ -245,6 +260,24 @@ export const snickerdoodleCoreModule = new ContainerModule(
       .inSingletonScope();
     bind<ITokenPriceRepository>(ITokenPriceRepositoryType)
       .to(CoinGeckoTokenPriceRepository)
+      .inSingletonScope();
+    bind<IAdDataRepository>(IAdDataRepositoryType)
+      .to(AdDataRepository)
+      .inSingletonScope();
+    bind<IBrowsingDataRepository>(IBrowsingDataRepositoryType)
+      .to(BrowsingDataRepository)
+      .inSingletonScope();
+    bind<ILinkedAccountRepository>(ILinkedAccountRepositoryType)
+      .to(LinkedAccountRepository)
+      .inSingletonScope();
+    bind<IPortfolioBalanceRepository>(IPortfolioBalanceRepositoryType)
+      .to(PortfolioBalanceRepository)
+      .inSingletonScope();
+    bind<ITransactionHistoryRepository>(ITransactionHistoryRepositoryType)
+      .to(TransactionHistoryRepository)
+      .inSingletonScope();
+    bind<IWeb2DataRepository>(IWeb2DataRepositoryType)
+      .to(Web2DataRepository)
       .inSingletonScope();
 
     // Utilities

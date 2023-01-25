@@ -1,10 +1,12 @@
-import { PersistenceError } from "@snickerdoodlelabs/objects";
+import {
+  PersistenceError,
+  VolatileStorageKey,
+} from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IndexedDBCursor } from "@persistence/volatile/IndexedDBCursor.js";
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
-import { VolatileKey } from "@persistence/volatile/IVolatileStorage.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 function _getCompoundIndexName(key: (string | number)[]): string {
@@ -234,7 +236,7 @@ export class IndexedDB {
 
   public getObject<T>(
     name: string,
-    key: VolatileKey,
+    key: VolatileStorageKey,
   ): ResultAsync<T | null, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getTransaction(name, "readonly").andThen((tx) => {

@@ -2,15 +2,22 @@ import {
   DataWalletBackupID,
   IDataWalletBackup,
   PersistenceError,
+  VolatileStorageKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 import { EBackupPriority } from "packages/objects/src/enum/EBackupPriority";
 
+import { VolatileStorageMetadata } from "..";
+
 export interface IBackupManager {
   clear(): ResultAsync<void, never>;
-  addRecord(
+  addRecord<T>(
     tableName: string,
-    value: object,
+    value: VolatileStorageMetadata<T>,
+  ): ResultAsync<void, PersistenceError>;
+  deleteRecord(
+    tableName: string,
+    key: VolatileStorageKey,
     priority: EBackupPriority,
   ): ResultAsync<void, PersistenceError>;
   updateField(
