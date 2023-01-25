@@ -523,8 +523,22 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       if (birthdayEpoch == null) {
         return null;
       }
+      
+      let ageYear =
+        new Date(Date.now()).getFullYear() -
+        new Date(birthdayEpoch * 1000).getFullYear();
+      const ageMonth =
+        new Date(Date.now()).getMonth() -
+        new Date(birthdayEpoch * 1000).getMonth();
+      const dateBirthday = new Date(birthdayEpoch * 1000).getDate();
+      const dateToday = new Date(Date.now()).getDate();
+
+      if (ageMonth < 0 || (ageMonth == 0 && dateToday < dateBirthday)) {
+        ageYear = ageYear - 1;
+      }
+
       return Age(
-        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() - 1970
+        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() - 1970,
       );
     });
   }
