@@ -14,7 +14,6 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { GnosisIndexer } from "@indexers/GnosisIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
@@ -29,7 +28,6 @@ export class DefaultAccountNFTs implements IAccountNFTs {
   protected evm: IEVMNftRepository;
   protected simulatorRepo: IEVMNftRepository;
   protected solRepo: ISolanaNFTRepository;
-  protected gnosisRepo: IEVMNftRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -54,12 +52,6 @@ export class DefaultAccountNFTs implements IAccountNFTs {
       this.tokenPriceRepo,
       this.logUtils,
     );
-    this.gnosisRepo = new GnosisIndexer(
-      this.configProvider,
-      this.ajaxUtils,
-      this.tokenPriceRepo,
-      this.logUtils,
-    );
   }
 
   public getEthereumNftRepository(): ResultAsync<IEVMNftRepository, never> {
@@ -76,9 +68,5 @@ export class DefaultAccountNFTs implements IAccountNFTs {
 
   public getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never> {
     return okAsync(this.solRepo);
-  }
-
-  public getGnosisNFTRepository(): ResultAsync<IEVMNftRepository, never> {
-    return okAsync(this.gnosisRepo);
   }
 }

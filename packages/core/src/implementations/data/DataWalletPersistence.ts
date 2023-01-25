@@ -751,7 +751,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountBalances.getSimulatorEVMBalanceRepository(),
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
-      this.accountBalances.getGnosisBalanceRepository(),
+      this.accountBalances.getEtherscanBalanceRepository(),
     ])
       .andThen(
         ([
@@ -761,7 +761,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           simulatorRepo,
           etherscanRepo,
           maticRepo,
-          gnosisRepo,
+          etherscanBalanceRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -795,7 +795,17 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Gnosis:
-              return gnosisRepo.getBalancesForAccount(
+              return etherscanBalanceRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Binance:
+              return etherscanBalanceRepo.getBalancesForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Moonbeam:
+              return etherscanBalanceRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -899,62 +909,53 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
-      this.accountNFTs.getGnosisNFTRepository(),
     ])
-      .andThen(
-        ([
-          config,
-          evmRepo,
-          solRepo,
-          simulatorRepo,
-          etherscanRepo,
-          gnosisRepo,
-        ]) => {
-          const chainInfo = config.chainInformation.get(chainId);
-          if (chainInfo == null) {
+      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
+        const chainInfo = config.chainInformation.get(chainId);
+        if (chainInfo == null) {
+          return errAsync(
+            new AccountIndexingError(
+              `No available chain info for chain ${chainId}`,
+            ),
+          );
+        }
+
+        switch (chainInfo.indexer) {
+          case EIndexer.EVM:
+          case EIndexer.Polygon:
+            return evmRepo.getTokensForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Simulator:
+            return simulatorRepo.getTokensForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Solana:
+            return solRepo.getTokensForAccount(
+              chainId,
+              accountAddress as SolanaAccountAddress,
+            );
+          case EIndexer.Ethereum:
+            return etherscanRepo.getTokensForAccount(
+              chainId,
+              accountAddress as EVMAccountAddress,
+            );
+          case EIndexer.Gnosis:
+            return okAsync([]);
+          case EIndexer.Binance:
+            return okAsync([]);
+          case EIndexer.Moonbeam:
+            return okAsync([]);
+          default:
             return errAsync(
               new AccountIndexingError(
                 `No available chain info for chain ${chainId}`,
               ),
             );
-          }
-
-          switch (chainInfo.indexer) {
-            case EIndexer.EVM:
-            case EIndexer.Polygon:
-              return evmRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Simulator:
-              return simulatorRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Solana:
-              return solRepo.getTokensForAccount(
-                chainId,
-                accountAddress as SolanaAccountAddress,
-              );
-            case EIndexer.Ethereum:
-              return etherscanRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            case EIndexer.Gnosis:
-              return gnosisRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
-            default:
-              return errAsync(
-                new AccountIndexingError(
-                  `No available token repository for chain ${chainId}`,
-                ),
-              );
-          }
-        },
-      )
+        }
+      })
       .orElse((e) => {
         this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
         return okAsync([]);
