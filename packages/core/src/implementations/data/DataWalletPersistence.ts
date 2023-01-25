@@ -537,9 +537,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
         ageYear = ageYear - 1;
       }
 
-      return Age(
-        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() - 1970,
-      );
+      return Age(ageYear);
     });
   }
 
