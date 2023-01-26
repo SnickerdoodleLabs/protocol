@@ -1,7 +1,39 @@
+import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
+import { AsyncRpcResponseSender } from "@implementations/utilities";
+import { IRpcCallHandler } from "@interfaces/api";
+import {
+  IAccountService,
+  IAccountServiceType,
+  IInvitationService,
+  IInvitationServiceType,
+  IPIIService,
+  IPIIServiceType,
+  ITokenPriceService,
+  ITokenPriceServiceType,
+  IUserSiteInteractionService,
+  IUserSiteInteractionServiceType,
+} from "@interfaces/business";
+import {
+  IScamFilterService,
+  IScamFilterServiceType,
+} from "@interfaces/business/IScamFilterService";
+import {
+  IContextProvider,
+  IContextProviderType,
+  IDataPermissionsUtils,
+  IDataPermissionsUtilsType,
+} from "@interfaces/utilities";
+
 import {
   ICryptoUtils,
   ICryptoUtilsType,
 } from "@snickerdoodlelabs/common-utils";
+
+import {
+  IScamFilterSettingsUtils,
+  IScamFilterSettingsUtilsType,
+} from "@interfaces/utilities/IScamFilterSettingsUtils";
+
 import {
   Age,
   Invitation,
@@ -37,48 +69,23 @@ import {
   SiteVisit,
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
+
+import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
+
 import { inject, injectable } from "inversify";
+
+import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
+
 import {
   AsyncJsonRpcEngineNextCallback,
   JsonRpcRequest,
   PendingJsonRpcResponse,
 } from "json-rpc-engine";
-import { okAsync, ResultAsync } from "neverthrow";
-import { parse } from "tldts";
-import { Runtime } from "webextension-polyfill";
 
-import { IScamFilterPreferences } from "@app/Content/components/ScamFilterComponent";
-import { AsyncRpcResponseSender } from "@implementations/utilities";
-import { IRpcCallHandler } from "@interfaces/api";
-import {
-  IAccountService,
-  IAccountServiceType,
-  IInvitationService,
-  IInvitationServiceType,
-  IPIIService,
-  IPIIServiceType,
-  ITokenPriceService,
-  ITokenPriceServiceType,
-  IUserSiteInteractionService,
-  IUserSiteInteractionServiceType,
-} from "@interfaces/business";
-import {
-  IScamFilterService,
-  IScamFilterServiceType,
-} from "@interfaces/business/IScamFilterService";
-import {
-  IContextProvider,
-  IContextProviderType,
-  IDataPermissionsUtils,
-  IDataPermissionsUtilsType,
-} from "@interfaces/utilities";
-import {
-  IScamFilterSettingsUtils,
-  IScamFilterSettingsUtilsType,
-} from "@interfaces/utilities/IScamFilterSettingsUtils";
-import { DEFAULT_RPC_SUCCESS_RESULT } from "@shared/constants/rpcCall";
-import { DEFAULT_SUBDOMAIN } from "@shared/constants/url";
 import { EExternalActions, EInternalActions } from "@shared/enums";
+
+import { okAsync, ResultAsync } from "neverthrow";
+
 import {
   IUnlockParams,
   IGetUnlockMessageParams,
@@ -109,10 +116,16 @@ import {
   IGetTokenInfoParams,
   IGetMarketplaceListingsParams,
 } from "@shared/interfaces/actions";
+
+import { parse } from "tldts";
+
 import {
   SnickerDoodleCoreError,
   ExtensionStorageError,
 } from "@shared/objects/errors";
+
+import { Runtime } from "webextension-polyfill";
+
 import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 import { mapToObj } from "@shared/utils/objectUtils";
 

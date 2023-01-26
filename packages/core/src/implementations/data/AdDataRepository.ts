@@ -8,7 +8,7 @@ import {
   ERecordKey,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/persistence";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -18,6 +18,7 @@ import {
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
 
+@injectable()
 export class AdDataRepository implements IAdDataRepository {
   public constructor(
     @inject(IDataWalletPersistenceType)

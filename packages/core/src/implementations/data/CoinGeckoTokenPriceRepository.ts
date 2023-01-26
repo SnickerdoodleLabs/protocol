@@ -6,6 +6,7 @@ import {
   AccountIndexingError,
   chainConfig,
   ChainId,
+  EBackupPriority,
   EChain,
   ECurrencyCode,
   getChainInfoByChainId,
@@ -20,8 +21,7 @@ import {
 } from "@snickerdoodlelabs/objects";
 import {
   ERecordKey,
-  IVolatileStorage,
-  IVolatileStorageType,
+  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -29,9 +29,13 @@ import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
-  IIndexerConfigProviderType,
-  IIndexerConfigProvider,
-} from "@indexers/IIndexerConfigProvider.js";
+  IDataWalletPersistence,
+  IDataWalletPersistenceType,
+} from "@core/interfaces/data";
+import {
+  IConfigProvider,
+  IConfigProviderType,
+} from "@core/interfaces/utilities";
 
 @injectable()
 export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
@@ -44,11 +48,10 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   private _nativeIds: Map<ChainId, string>;
 
   public constructor(
-    @inject(IIndexerConfigProviderType)
-    protected configProvider: IIndexerConfigProvider,
+    @inject(IConfigProviderType) protected configProvider: IConfigProvider,
     @inject(IAxiosAjaxUtilsType) protected ajaxUtils: IAxiosAjaxUtils,
-    @inject(IVolatileStorageType)
-    protected volatileStorage: IVolatileStorage,
+    @inject(IDataWalletPersistenceType)
+    protected persistence: IDataWalletPersistence,
   ) {
     this._nativeIds = new Map();
     chainConfig.forEach((value) => {
@@ -91,7 +94,10 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   }
 
   public addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError> {
-    return this.volatileStorage.putObject(ERecordKey.COIN_INFO, info);
+    return this.persistence.updateRecord(
+      ERecordKey.COIN_INFO,
+      new VolatileStorageMetadata<TokenInfo>(EBackupPriority.NORMAL, info),
+    );
   }
 
   public getTokenMarketData(
@@ -164,7 +170,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
 
     return this._getTokens()
       .andThen(() => {
-        return this.volatileStorage.getObject<TokenInfo>(ERecordKey.COIN_INFO, [
+        return this.persistence.getObject<TokenInfo>(ERecordKey.COIN_INFO, [
           chainId,
           contractAddress,
         ]);
@@ -285,9 +291,12 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                     );
 
                     results.push(
-                      this.volatileStorage.putObject(
+                      this.persistence.updateRecord(
                         ERecordKey.COIN_INFO,
-                        tokenInfo,
+                        new VolatileStorageMetadata(
+                          EBackupPriority.NORMAL,
+                          tokenInfo,
+                        ),
                       ),
                     );
                   }

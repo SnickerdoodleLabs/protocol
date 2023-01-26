@@ -35,16 +35,18 @@ import {
   MarketplaceListing,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
-import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
-import { getDomain, parse } from "tldts";
 
 import { IInvitationService } from "@core/interfaces/business/index.js";
+
+import { inject, injectable } from "inversify";
+
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
 } from "@core/interfaces/business/utilities/index.js";
+
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -59,7 +61,13 @@ import {
   ILinkedAccountRepositoryType,
   ILinkedAccountRepository,
 } from "@core/interfaces/data/index.js";
+
+import { ResultUtils } from "neverthrow-result-utils";
+
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
+
+import { getDomain, parse } from "tldts";
+
 import {
   IConfigProvider,
   IConfigProviderType,

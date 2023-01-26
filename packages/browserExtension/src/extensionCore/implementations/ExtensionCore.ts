@@ -6,11 +6,11 @@ import {
   ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import { ChromeStorageUtils } from "@snickerdoodlelabs/utils";
-import { Container } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { extensionCoreModule } from "@implementations/ExtensionCore.module";
+
+import { Container } from "inversify";
+
 import {
   IBrowserTabListener,
   IBrowserTabListenerType,
@@ -23,7 +23,13 @@ import {
   IPortConnectionListener,
   IPortConnectionListenerType,
 } from "@interfaces/api";
+
+import { okAsync, ResultAsync } from "neverthrow";
+
 import { IAccountService, IAccountServiceType } from "@interfaces/business";
+
+import { ResultUtils } from "neverthrow-result-utils";
+
 import {
   IAccountCookieUtils,
   IAccountCookieUtilsType,
@@ -34,8 +40,10 @@ import {
   IConfigProvider,
   IConfigProviderType,
 } from "@shared/interfaces/configProvider";
-import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
+
 import Browser, { Tabs } from "webextension-polyfill";
+
+import { ExtensionUtils } from "@shared/utils/ExtensionUtils";
 
 export class ExtensionCore {
   protected iocContainer: Container;

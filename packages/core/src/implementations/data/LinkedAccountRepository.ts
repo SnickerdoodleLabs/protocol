@@ -17,7 +17,7 @@ import {
   ERecordKey,
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/persistence";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -27,6 +27,7 @@ import {
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/utilities/IDataWalletPersistence.js";
 
+@injectable()
 export class LinkedAccountRepository implements ILinkedAccountRepository {
   public constructor(
     @inject(IDataWalletPersistenceType)

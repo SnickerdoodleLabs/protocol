@@ -1,24 +1,33 @@
 import "reflect-metadata";
 
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
-import {
-  IQueryObjectFactory,
-  ISDQLQueryWrapperFactory,
-  SDQLQueryWrapperFactory,
-} from "@snickerdoodlelabs/query-parser";
-import { okAsync } from "neverthrow";
-import * as td from "testdouble";
-
 import { ProfileService } from "@core/implementations/business";
+
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+
 import {
   NetworkQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
 } from "@core/implementations/business/utilities";
+
+import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
+
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+
+import {
+  IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+
 import { QueryFactories } from "@core/implementations/utilities/factory";
+
+import { okAsync } from "neverthrow";
+
 import { IProfileService } from "@core/interfaces/business";
+
+import * as td from "testdouble";
+
 import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import {

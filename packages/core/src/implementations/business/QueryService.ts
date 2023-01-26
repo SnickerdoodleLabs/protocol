@@ -29,16 +29,20 @@ import {
   EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
+
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
+
+import { ResultUtils } from "neverthrow-result-utils";
+
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,

@@ -1,4 +1,7 @@
-import { PersistenceError, VolatileStorageKey } from "@snickerdoodlelabs/objects";
+import {
+  PersistenceError,
+  VolatileStorageKey,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
@@ -21,21 +24,21 @@ export interface IVolatileStorage {
   getObject<T>(
     name: string,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError>;
+  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError>;
   getCursor<T>(
     name: string,
-    indexName?: string,
+    index?: VolatileStorageKey,
     query?: IDBValidKey | IDBKeyRange,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
   getAll<T>(
     name: string,
-    indexName?: string,
-  ): ResultAsync<T[], PersistenceError>;
+    index?: VolatileStorageKey,
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError>;
   getAllKeys<T>(
     name: string,
-    indexName?: string,
+    index?: VolatileStorageKey,
     query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError>;

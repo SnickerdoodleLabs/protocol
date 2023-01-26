@@ -2,6 +2,7 @@ import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
+import { VolatileStorageMetadata } from "@persistence/volatile/VolatileStorageMetadata.js";
 
 export class IndexedDBCursor<T> implements IVolatileCursor<T> {
   private _cursor: IDBCursorWithValue | null = null;
@@ -10,36 +11,51 @@ export class IndexedDBCursor<T> implements IVolatileCursor<T> {
     protected request: IDBRequest<IDBCursorWithValue | null>,
   ) {}
 
-  public nextValue(): ResultAsync<T | null, PersistenceError> {
-    const promise = new Promise<T | null>((resolve, reject) => {
-      this.request.onsuccess = (event) => {
-        this._cursor = this.request.result;
+  public _next(): ResultAsync<
+    VolatileStorageMetadata<T> | null,
+    PersistenceError
+  > {
+    const promise = new Promise<VolatileStorageMetadata<T> | null>(
+      (resolve, reject) => {
+        this.request.onsuccess = (event) => {
+          this._cursor = this.request.result;
 
-        if (!this._cursor) {
-          resolve(null);
-        } else {
-          resolve(this._cursor.value as T);
-        }
-      };
+          if (!this._cursor) {
+            resolve(null);
+          } else {
+            resolve(this._cursor.value as VolatileStorageMetadata<T>);
+          }
+        };
 
-      this.request.onerror = (event) => {
-        reject(new PersistenceError("error reading cursor: " + event.target));
-      };
-    });
+        this.request.onerror = (event) => {
+          reject(new PersistenceError("error reading cursor: " + event.target));
+        };
+      },
+    );
 
     this._cursor?.continue();
     return ResultAsync.fromPromise(promise, (e) => e as PersistenceError);
   }
 
-  public allValues(): ResultAsync<T[], PersistenceError> {
-    return this.nextValue().andThen((val) => {
+  public _all(): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this._next().andThen((val) => {
       if (val == null) {
         return okAsync([]);
       }
 
-      return this.allValues().andThen((vals) => {
+      return this._all().andThen((vals) => {
         return okAsync([val, ...vals]);
       });
+    });
+  }
+
+  public nextValue(): ResultAsync<T | null, PersistenceError> {
+    return this._next().map((x) => (x == null ? null : x.data));
+  }
+
+  public allValues(): ResultAsync<T[], PersistenceError> {
+    return this._all().map((values) => {
+      return values.map((x) => x.data);
     });
   }
 }

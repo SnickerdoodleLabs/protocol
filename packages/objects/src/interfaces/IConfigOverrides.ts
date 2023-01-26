@@ -19,5 +19,5 @@ export interface IConfigOverrides {
   ceramicModelAliases?: MapModelTypes<ModelTypes, string>;
   ceramicNodeURL?: URLString;
   controlChainProviderURL?: ProviderUrl; // Only used with the Dev Doodle Chain
-  requestForDataCheckingFrequency?: number
+  requestForDataCheckingFrequency?: number;
 }

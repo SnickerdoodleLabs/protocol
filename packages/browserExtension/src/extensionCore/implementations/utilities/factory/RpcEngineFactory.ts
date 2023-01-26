@@ -3,13 +3,19 @@ import endOfStream from "end-of-stream";
 import { inject, injectable } from "inversify";
 import { JsonRpcEngine, createAsyncMiddleware } from "json-rpc-engine";
 import { createEngineStream } from "json-rpc-middleware-stream";
-import { err, ok } from "neverthrow";
-import pump from "pump";
-import { Runtime } from "webextension-polyfill";
 
 import { IRpcCallHandler, IRpcCallHandlerType } from "@interfaces/api";
+
+import { err, ok } from "neverthrow";
+
 import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+
+import pump from "pump";
+
 import { IRpcEngineFactory } from "@interfaces/utilities/factory";
+
+import { Runtime } from "webextension-polyfill";
+
 import { EPortNames } from "@shared/enums/ports";
 
 @injectable()

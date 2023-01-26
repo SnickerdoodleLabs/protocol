@@ -1,10 +1,9 @@
-import { 
+import {
   AdContent,
   SDQL_Name,
-  UnixTimestamp, 
-  EAdDisplayType
+  UnixTimestamp,
+  EAdDisplayType,
 } from "@snickerdoodlelabs/objects";
-
 
 export class AST_Ad {
   constructor(
@@ -15,6 +14,6 @@ export class AST_Ad {
     readonly displayType: EAdDisplayType,
     readonly weight: number,
     readonly expiry: UnixTimestamp,
-    readonly keywords: string[]
+    readonly keywords: string[],
   ) {}
 }

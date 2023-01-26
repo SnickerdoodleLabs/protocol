@@ -7,11 +7,12 @@ import { ResultUtils } from "neverthrow-result-utils";
 
 import { IndexedDBCursor } from "@persistence/volatile/IndexedDBCursor.js";
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
+import {
+  VolatileStorageDataKey,
+  VolatileStorageMetadata,
+  VolatileStorageMetadataIndexes,
+} from "@persistence/volatile/VolatileStorageMetadata.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
-
-function _getCompoundIndexName(key: (string | number)[]): string {
-  return key.join(",");
-}
 
 export class IndexedDB {
   private _db?: IDBDatabase;
@@ -45,23 +46,44 @@ export class IndexedDB {
         request.onupgradeneeded = (event: Event) => {
           const db = request.result;
           this.schema.forEach((storeInfo) => {
+            let keyPath: string | string[];
+            if (Array.isArray(storeInfo.keyPath)) {
+              keyPath = storeInfo.keyPath.map((x) => this._getFieldPath(x));
+            } else {
+              keyPath = this._getFieldPath(storeInfo.keyPath);
+            }
+
             const keyPathObj: IDBObjectStoreParameters = {
               autoIncrement: storeInfo.autoIncrement ?? false,
-              keyPath: storeInfo.keyPath,
+              keyPath: keyPath,
             };
             const objectStore = db.createObjectStore(
               storeInfo.name,
               keyPathObj,
             );
-            storeInfo.indexBy?.forEach(([name, unique]) => {
-              if (Array.isArray(name)) {
-                objectStore.createIndex(_getCompoundIndexName(name), name, {
-                  unique: unique,
-                });
-              } else {
-                objectStore.createIndex(name, name, { unique: unique });
-              }
-            });
+
+            if (storeInfo.indexBy) {
+              const indexes = [
+                ...storeInfo.indexBy,
+                ...VolatileStorageMetadataIndexes,
+              ];
+
+              indexes.forEach(([name, unique]) => {
+                if (Array.isArray(name)) {
+                  const paths = name.map((x) => this._getFieldPath(x));
+                  objectStore.createIndex(
+                    this._getCompoundIndexName(paths),
+                    paths,
+                    {
+                      unique: unique,
+                    },
+                  );
+                } else {
+                  const path = this._getFieldPath(name);
+                  objectStore.createIndex(path, path, { unique: unique });
+                }
+              });
+            }
           });
         };
       } catch (e) {
@@ -237,7 +259,7 @@ export class IndexedDB {
   public getObject<T>(
     name: string,
     key: VolatileStorageKey,
-  ): ResultAsync<T | null, PersistenceError> {
+  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
         const promise = new Promise((resolve, reject) => {
@@ -256,14 +278,14 @@ export class IndexedDB {
         return ResultAsync.fromPromise(
           promise,
           (e) => new PersistenceError("error getting object", e),
-        ).andThen((result) => okAsync(result as T));
+        ).andThen((result) => okAsync(result as VolatileStorageMetadata<T>));
       });
     });
   }
 
   public getCursor<T>(
     name: string,
-    indexName?: string,
+    index?: VolatileStorageKey,
     query?: string | number,
     direction?: IDBCursorDirection | undefined,
     mode?: IDBTransactionMode,
@@ -274,11 +296,11 @@ export class IndexedDB {
       return this.getTransaction(name, mode ?? "readonly").andThen((tx) => {
         const store = tx.objectStore(name);
         let request: IDBRequest<IDBCursorWithValue | null>;
-        if (indexName == undefined) {
+        if (index == undefined) {
           request = store.openCursor(query, direction);
         } else {
-          const index: IDBIndex = store.index(indexName);
-          request = index.openCursor(query, direction);
+          const indexObj: IDBIndex = store.index(this._getIndexName(index));
+          request = indexObj.openCursor(query, direction);
         }
 
         return okAsync(new IndexedDBCursor<T>(request));
@@ -288,27 +310,29 @@ export class IndexedDB {
 
   public getAll<T>(
     name: string,
-    indexName?: string,
-  ): ResultAsync<T[], PersistenceError> {
+    index?: VolatileStorageKey,
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
     return this.initialize().andThen((db) => {
       return this.getTransaction(name, "readonly").andThen((tx) => {
-        const promise = new Promise<T[]>((resolve, reject) => {
-          const store = tx.objectStore(name);
-          let request: IDBRequest<T[]>;
-          if (indexName == undefined) {
-            request = store.getAll();
-          } else {
-            const index: IDBIndex = store.index(indexName);
-            request = index.getAll();
-          }
+        const promise = new Promise<VolatileStorageMetadata<T>[]>(
+          (resolve, reject) => {
+            const store = tx.objectStore(name);
+            let request: IDBRequest<VolatileStorageMetadata<T>[]>;
+            if (index == undefined) {
+              request = store.getAll();
+            } else {
+              const indexObj: IDBIndex = store.index(this._getIndexName(index));
+              request = indexObj.getAll();
+            }
 
-          request.onsuccess = (event) => {
-            resolve(request.result);
-          };
-          request.onerror = (event) => {
-            reject(new PersistenceError("error reading from object store"));
-          };
-        });
+            request.onsuccess = (event) => {
+              resolve(request.result);
+            };
+            request.onerror = (event) => {
+              reject(new PersistenceError("error reading from object store"));
+            };
+          },
+        );
 
         return ResultAsync.fromPromise(
           promise,
@@ -320,8 +344,8 @@ export class IndexedDB {
 
   public getAllKeys<T>(
     name: string,
-    indexName?: string,
-    query?: string | number,
+    index?: VolatileStorageKey,
+    query?: IDBValidKey | IDBKeyRange,
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError> {
     return this.initialize().andThen((db) => {
@@ -329,11 +353,11 @@ export class IndexedDB {
         const promise = new Promise<T[]>((resolve, reject) => {
           const store = tx.objectStore(name);
           let request: IDBRequest<any[]>;
-          if (indexName == undefined) {
+          if (index == undefined) {
             request = store.getAllKeys(query, count);
           } else {
-            const index: IDBIndex = store.index(indexName);
-            request = index.getAllKeys(query, count);
+            const indexObj: IDBIndex = store.index(this._getIndexName(index));
+            request = indexObj.getAllKeys(query, count);
           }
 
           request.onsuccess = (event) => {
@@ -352,5 +376,21 @@ export class IndexedDB {
         });
       });
     });
+  }
+
+  private _getCompoundIndexName(key: (string | number)[]): string {
+    return key.join(",");
+  }
+
+  private _getFieldPath(name: VolatileStorageKey): string {
+    return [VolatileStorageDataKey, name.toString()].join(".");
+  }
+
+  private _getIndexName(index: VolatileStorageKey): string {
+    if (Array.isArray(index)) {
+      const paths = index.map((x) => this._getFieldPath(x));
+      return this._getCompoundIndexName(paths);
+    }
+    return this._getFieldPath(index);
   }
 }

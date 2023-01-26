@@ -26,7 +26,7 @@ import {
   IPersistenceConfigProviderType,
   PortfolioCache,
 } from "@snickerdoodlelabs/persistence";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -42,6 +42,7 @@ import {
   IContextProvider,
 } from "@core/interfaces/utilities/index.js";
 
+@injectable()
 export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
   private _balanceCache?: ResultAsync<
     PortfolioCache<

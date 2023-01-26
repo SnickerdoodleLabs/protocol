@@ -4,4 +4,3 @@ export * from "@core/interfaces/objects/CoreContext.js";
 export * from "@core/interfaces/objects/MetatransactionRequest.js";
 export * from "@core/interfaces/objects/PublicEvents.js";
 export * from "@core/interfaces/objects/QueryResponse.js";
-

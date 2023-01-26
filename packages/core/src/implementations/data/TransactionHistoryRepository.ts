@@ -20,7 +20,7 @@ import {
   VolatileStorageMetadata,
 } from "@snickerdoodlelabs/persistence";
 import { ethers } from "ethers";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
@@ -36,6 +36,7 @@ import {
   IContextProvider,
 } from "@core/interfaces/utilities/index.js";
 
+@injectable()
 export class TransactionHistoryRepository
   implements ITransactionHistoryRepository
 {

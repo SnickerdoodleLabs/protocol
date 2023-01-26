@@ -13,7 +13,6 @@ import {
   TimeUtils,
 } from "@snickerdoodlelabs/common-utils";
 import {
-  CoinGeckoTokenPriceRepository,
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@snickerdoodlelabs/indexers";
@@ -85,6 +84,7 @@ import {
   MetatransactionForwarderRepository,
   SDQLQueryRepository,
   SiftContractRepository,
+  CoinGeckoTokenPriceRepository,
 } from "@core/implementations/data/index.js";
 import {
   ContractFactory,

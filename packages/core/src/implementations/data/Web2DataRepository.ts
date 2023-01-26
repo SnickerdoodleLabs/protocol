@@ -10,7 +10,7 @@ import {
   CountryCode,
 } from "@snickerdoodlelabs/objects";
 import { EFieldKey } from "@snickerdoodlelabs/persistence";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import {
@@ -19,6 +19,7 @@ import {
   IWeb2DataRepository,
 } from "@core/interfaces/data/index.js";
 
+@injectable()
 export class Web2DataRepository implements IWeb2DataRepository {
   public constructor(
     @inject(IDataWalletPersistenceType)

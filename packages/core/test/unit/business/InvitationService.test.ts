@@ -1,6 +1,9 @@
 import "reflect-metadata";
 import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+
+import { InvitationService } from "@core/implementations/business/index.js";
+
 import {
   BigNumberString,
   DomainName,
@@ -13,21 +16,15 @@ import {
   TokenId,
   URLString,
 } from "@snickerdoodlelabs/objects";
+
+import { IInvitationService } from "@core/interfaces/business/index.js";
+
 import { errAsync, okAsync } from "neverthrow";
+
+import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
+
 import * as td from "testdouble";
 
-import {
-  dataWalletAddress,
-  consentContractAddress1,
-  defaultInsightPlatformBaseUrl,
-} from "@core-tests/mock/mocks/commonValues.js";
-import {
-  ConfigProviderMock,
-  ContextProviderMock,
-} from "@core-tests/mock/utilities";
-import { InvitationService } from "@core/implementations/business/index.js";
-import { IInvitationService } from "@core/interfaces/business/index.js";
-import { IConsentTokenUtils } from "@core/interfaces/business/utilities/index.js";
 import {
   IConsentContractRepository,
   IDNSRepository,
@@ -40,6 +37,15 @@ import {
   IContextProvider,
   IDataWalletUtils,
 } from "@core/interfaces/utilities/index.js";
+import {
+  dataWalletAddress,
+  consentContractAddress1,
+  defaultInsightPlatformBaseUrl,
+} from "@core-tests/mock/mocks/commonValues.js";
+import {
+  ConfigProviderMock,
+  ContextProviderMock,
+} from "@core-tests/mock/utilities";
 
 const metatransactionNonce = BigNumberString("nonce");
 const metatransactionValue = BigNumberString("value");

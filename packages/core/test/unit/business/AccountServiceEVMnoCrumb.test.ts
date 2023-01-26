@@ -1,11 +1,27 @@
 import "reflect-metadata";
 import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
+
+import { AccountService } from "@core/implementations/business/index.js";
+
 import {
   ICrumbsContract,
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
 } from "@snickerdoodlelabs/contracts-sdk";
+
+import { IAccountService } from "@core/interfaces/business/index.js";
+
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+
+import {
+  IBrowsingDataRepository,
+  ICrumbsRepository,
+  IDataWalletPersistence,
+  ILinkedAccountRepository,
+  IPortfolioBalanceRepository,
+  ITransactionHistoryRepository,
+} from "@core/interfaces/data/index.js";
+
 import {
   AESEncryptedString,
   AESKey,
@@ -28,11 +44,20 @@ import {
   TokenId,
   TokenUri,
 } from "@snickerdoodlelabs/objects";
+
+import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
+
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
+
+import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
+
 import { okAsync } from "neverthrow";
+
+import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
+
 import * as td from "testdouble";
 
 import {
@@ -44,19 +69,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { AccountService } from "@core/implementations/business/index.js";
-import { IAccountService } from "@core/interfaces/business/index.js";
-import {
-  IBrowsingDataRepository,
-  ICrumbsRepository,
-  IDataWalletPersistence,
-  ILinkedAccountRepository,
-  IPortfolioBalanceRepository,
-  ITransactionHistoryRepository,
-} from "@core/interfaces/data/index.js";
-import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
-import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
-import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 
 const crumbsContractAddress = EVMContractAddress("crumbsContractAddress");
 const metatransactionValue = BigNumberString("0");

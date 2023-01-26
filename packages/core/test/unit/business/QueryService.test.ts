@@ -1,6 +1,9 @@
 import "reflect-metadata";
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+
+import { QueryService } from "@core/implementations/business/index.js";
+
 import {
   AjaxError,
   EligibleReward,
@@ -20,9 +23,31 @@ import {
   EVMPrivateKey,
   IDynamicRewardParameter,
 } from "@snickerdoodlelabs/objects";
+
+import {
+  IConsentTokenUtils,
+  IQueryParsingEngine,
+} from "@core/interfaces/business/utilities/index.js";
+
 import { avalanche1SchemaStr } from "@snickerdoodlelabs/query-parser";
+
+import {
+  IConsentContractRepository,
+  ILinkedAccountRepository,
+  ISDQLQueryRepository,
+} from "@core/interfaces/data/index.js";
+
 import { errAsync, okAsync } from "neverthrow";
+
+import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
+
 import { ResultUtils } from "neverthrow-result-utils";
+
+import {
+  IConfigProvider,
+  IDataWalletUtils,
+} from "@core/interfaces/utilities/index.js";
+
 import * as td from "testdouble";
 
 import {
@@ -34,21 +59,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { QueryService } from "@core/implementations/business/index.js";
-import {
-  IConsentTokenUtils,
-  IQueryParsingEngine,
-} from "@core/interfaces/business/utilities/index.js";
-import {
-  IConsentContractRepository,
-  ILinkedAccountRepository,
-  ISDQLQueryRepository,
-} from "@core/interfaces/data/index.js";
-import { CoreConfig, CoreContext } from "@core/interfaces/objects/index.js";
-import {
-  IConfigProvider,
-  IDataWalletUtils,
-} from "@core/interfaces/utilities/index.js";
 
 const consentContractAddress = EVMContractAddress("Phoebe");
 const queryCID = IpfsCID("Beep");

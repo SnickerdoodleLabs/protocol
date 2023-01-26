@@ -1,25 +1,35 @@
 import { URLString } from "@snickerdoodlelabs/objects";
 import endOfStream from "end-of-stream";
 import PortStream from "extension-port-stream";
-import { inject, injectable } from "inversify";
-import { errAsync, okAsync } from "neverthrow";
-import ObjectMultiplex from "obj-multiplex";
-import pump from "pump";
-import { Runtime } from "webextension-polyfill";
 
 import { IPortConnectionRepository } from "@interfaces/data";
+
+import { inject, injectable } from "inversify";
+
 import { IContextProvider, IContextProviderType } from "@interfaces/utilities";
+
+import { errAsync, okAsync } from "neverthrow";
+
 import {
   IRpcEngineFactory,
   IRpcEngineFactoryType,
 } from "@interfaces/utilities/factory";
+
+import ObjectMultiplex from "obj-multiplex";
+
 import {
   INTERNAL_PORTS,
   CONTENT_SCRIPT_SUBSTREAM,
   ONBOARDING_PROVIDER_SUBSTREAM,
   EXTERNAL_PORTS,
 } from "@shared/constants/ports";
+
+import pump from "pump";
+
 import { EPortNames } from "@shared/enums/ports";
+
+import { Runtime } from "webextension-polyfill";
+
 import {
   IConfigProvider,
   IConfigProviderType,

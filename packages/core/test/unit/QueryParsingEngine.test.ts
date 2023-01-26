@@ -1,6 +1,16 @@
 import "reflect-metadata";
 
+import {
+  QueryEvaluator,
+  QueryParsingEngine,
+  QueryRepository,
+} from "@core/implementations/business";
+import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
+
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+
+import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
+
 import {
   Age,
   CountryCode,
@@ -20,6 +30,9 @@ import {
   QueryFilteredByPermissions,
   CompensationId,
 } from "@snickerdoodlelabs/objects";
+
+import { AdContentRepository } from "@core/implementations/data";
+
 import {
   avalanche1ExpiredSchemaStr,
   avalanche2SchemaStr,
@@ -30,22 +43,19 @@ import {
   SDQLQueryWrapperFactory,
   ISDQLQueryUtils,
 } from "@snickerdoodlelabs/query-parser";
+
+import { AdDataRepository } from "@core/implementations/data/AdDataRepository";
+
 import { okAsync } from "neverthrow";
+
+import { QueryFactories } from "@core/implementations/utilities/factory";
+
 import * as td from "testdouble";
+
+import { SnickerdoodleCore } from "@core/index";
+
 import { BaseOf } from "ts-brand";
 
-import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
-import {
-  QueryEvaluator,
-  QueryParsingEngine,
-  QueryRepository,
-} from "@core/implementations/business";
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
-import { AdContentRepository } from "@core/implementations/data";
-import { AdDataRepository } from "@core/implementations/data/AdDataRepository";
-import { QueryFactories } from "@core/implementations/utilities/factory";
-import { SnickerdoodleCore } from "@core/index";
 import {
   IBrowsingDataRepository,
   IPortfolioBalanceRepository,
@@ -53,6 +63,7 @@ import {
   IWeb2DataRepository,
 } from "@core/interfaces/data";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
+import { AjaxUtilsMock, ConfigProviderMock } from "@core-tests/mock/utilities";
 
 const queryCID = IpfsCID("Beep");
 const sdqlQueryExpired = new SDQLQuery(

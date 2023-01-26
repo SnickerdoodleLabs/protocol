@@ -3,7 +3,7 @@ import "reflect-metadata";
 import {
   SDQL_Name,
   SDQL_OperatorName,
-  SDQL_Return
+  SDQL_Return,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_ConditionExpr,
@@ -15,7 +15,7 @@ import {
   ConditionGE,
   ConditionIn,
   ConditionL,
-  ConditionOr
+  ConditionOr,
 } from "@snickerdoodlelabs/query-parser";
 
 import { ASTMocks } from "@core-tests/mock/mocks";

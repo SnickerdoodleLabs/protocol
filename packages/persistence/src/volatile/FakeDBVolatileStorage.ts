@@ -50,7 +50,9 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     name: string,
     key: string,
   ): ResultAsync<T | null, PersistenceError> {
-    return this.indexedDB.getObject(name, key);
+    return this.indexedDB
+      .getObject<T>(name, key)
+      .map((x) => (x == null ? null : x.data));
   }
 
   public getCursor<T>(
@@ -67,7 +69,9 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
     name: string,
     indexName?: string,
   ): ResultAsync<T[], PersistenceError> {
-    return this.indexedDB.getAll(name, indexName);
+    return this.indexedDB.getAll<T>(name, indexName).map((values) => {
+      return values.map((x) => x.data);
+    });
   }
 
   public getAllKeys<T>(

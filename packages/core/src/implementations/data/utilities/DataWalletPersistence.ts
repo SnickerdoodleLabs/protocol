@@ -24,7 +24,6 @@ import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { parse } from "tldts";
 
 import { IDataWalletPersistence } from "@core/interfaces/data";
 import {
@@ -81,7 +80,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     priority?: EBackupPriority,
   ): ResultAsync<T | null, PersistenceError> {
     return this.waitForPriority(priority).andThen(() => {
-      return this.volatileStorage.getObject<T>(name, key);
+      return this.volatileStorage
+        .getObject<T>(name, key)
+        .map((x) => (x == null ? null : x.data));
     });
   }
 
@@ -110,7 +111,9 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError> {
     return this.waitForPriority(priority).andThen(() => {
-      return this.volatileStorage.getAll<T>(name, indexName);
+      return this.volatileStorage.getAll<T>(name, indexName).map((values) => {
+        return values.map((x) => x.data);
+      });
     });
   }
 

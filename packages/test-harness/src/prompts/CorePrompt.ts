@@ -1,3 +1,6 @@
+import { Environment } from "@test-harness/mocks/Environment.js";
+import { AddAccount } from "@test-harness/prompts/AddAccount.js";
+
 import {
   AdContent,
   AdKey,
@@ -24,13 +27,15 @@ import {
   UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
+
+import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
+
 import inquirer from "inquirer";
+
+import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
+
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { Environment } from "@test-harness/mocks/Environment.js";
-import { AddAccount } from "@test-harness/prompts/AddAccount.js";
-import { CheckAccount } from "@test-harness/prompts/CheckAccount.js";
-import { DataWalletPrompt } from "@test-harness/prompts/DataWalletPrompt.js";
 import { inquiryWrapper } from "@test-harness/prompts/inquiryWrapper.js";
 import { OptInCampaign } from "@test-harness/prompts/OptInCampaign.js";
 import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";

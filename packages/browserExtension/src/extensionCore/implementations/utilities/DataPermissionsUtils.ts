@@ -1,5 +1,3 @@
-import { IDataPermissionsUtils } from "@interfaces/utilities";
-import { ExtensionStorageError } from "@shared/objects/errors";
 import {
   EWalletDataType,
   HexString32,
@@ -8,6 +6,9 @@ import {
 import { injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 import Browser from "webextension-polyfill";
+
+import { IDataPermissionsUtils } from "@interfaces/utilities";
+import { ExtensionStorageError } from "@shared/objects/errors";
 
 export const dependedFlags = {
   [EWalletDataType.Age]: [EWalletDataType.Birthday],

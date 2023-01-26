@@ -79,7 +79,7 @@ export class BackupManager implements IBackupManager {
     return this.volatileStorage
       .getAll<RestoredBackupRecord>(ERecordKey.RESTORED_BACKUPS)
       .map((restored) => {
-        return restored.map((item) => item.id);
+        return restored.map((item) => item.data.id);
       })
       .map((restored) => {
         return new Set(restored);

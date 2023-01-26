@@ -54,12 +54,11 @@ import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import { BigNumber } from "ethers";
-import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountService } from "@core/interfaces/business/index.js";
+
+import { BigNumber } from "ethers";
+
 import {
   IBrowsingDataRepository,
   IBrowsingDataRepositoryType,
@@ -74,10 +73,16 @@ import {
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
+
+import { inject, injectable } from "inversify";
+
 import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
+
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -86,6 +91,8 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
+
+import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class AccountService implements IAccountService {
