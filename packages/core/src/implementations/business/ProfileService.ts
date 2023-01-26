@@ -2,14 +2,14 @@ import {
   GivenName,
   PersistenceError,
   FamilyName,
-  UnixTimestamp,
   Gender,
   EmailAddressString,
   CountryCode,
   Age,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { ResultAsync } from "neverthrow";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { IProfileService } from "@core/interfaces/business/index.js";
 import {
@@ -58,9 +58,6 @@ export class ProfileService implements IProfileService {
   }
   getLocation(): ResultAsync<CountryCode | null, PersistenceError> {
     return this.dataWalletPersistence.getLocation();
-  }
-  setAge(age: Age): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.setAge(age);
   }
   getAge(): ResultAsync<Age | null, PersistenceError> {
     return this.dataWalletPersistence.getAge();

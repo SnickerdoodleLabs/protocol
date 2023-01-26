@@ -1,60 +1,10 @@
 import {
-  AxiosAjaxUtils,
-  CryptoUtils,
-  IAxiosAjaxUtils,
-  IAxiosAjaxUtilsType,
-  ICryptoUtils,
-  ICryptoUtilsType,
-  ILogUtils,
-  ILogUtilsType,
-  ITimeUtils,
-  ITimeUtilsType,
-  LogUtils,
-  TimeUtils,
-} from "@snickerdoodlelabs/common-utils";
-import {
-  CoinGeckoTokenPriceRepository,
-  IIndexerConfigProvider,
-  IIndexerConfigProviderType,
-} from "@snickerdoodlelabs/indexers";
-import {
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
-  InsightPlatformRepository,
-} from "@snickerdoodlelabs/insight-platform-api";
-import {
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
-} from "@snickerdoodlelabs/objects";
-import {
-  BackupManagerProvider,
-  IBackupManagerProvider,
-  IBackupManagerProviderType,
-  IPersistenceConfigProvider,
-  IPersistenceConfigProviderType,
-} from "@snickerdoodlelabs/persistence";
-import {
-  IQueryObjectFactory,
-  IQueryObjectFactoryType,
-  ISDQLParserFactory,
-  ISDQLParserFactoryType,
-  ISDQLQueryUtils,
-  ISDQLQueryUtilsType,
-  ISDQLQueryWrapperFactory,
-  ISDQLQueryWrapperFactoryType,
-  QueryObjectFactory,
-  SDQLParserFactory,
-  SDQLQueryUtils,
-  SDQLQueryWrapperFactory,
-} from "@snickerdoodlelabs/query-parser";
-import { ContainerModule, interfaces } from "inversify";
-
-import {
   AccountIndexerPoller,
   BlockchainListener,
 } from "@core/implementations/api/index.js";
 import {
   AccountService,
+  AdService,
   BalanceQueryEvaluator,
   ConsentTokenUtils,
   IntegrationService,
@@ -70,6 +20,7 @@ import {
   SiftContractService,
 } from "@core/implementations/business/index.js";
 import {
+  AdContentRepository,
   ConsentContractRepository,
   CrumbsRepository,
   DataWalletPersistence,
@@ -80,27 +31,65 @@ import {
   SDQLQueryRepository,
   SiftContractRepository,
 } from "@core/implementations/data/index.js";
+
+import {
+  AxiosAjaxUtils,
+  CryptoUtils,
+  IAxiosAjaxUtils,
+  IAxiosAjaxUtilsType,
+  ICryptoUtils,
+  ICryptoUtilsType,
+  ILogUtils,
+  ILogUtilsType,
+  ITimeUtils,
+  ITimeUtilsType,
+  LogUtils,
+  TimeUtils,
+} from "@snickerdoodlelabs/common-utils";
+
 import {
   ContractFactory,
   QueryFactories,
 } from "@core/implementations/utilities/factory/index.js";
+
+import {
+  CoinGeckoTokenPriceRepository,
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@snickerdoodlelabs/indexers";
+
 import {
   BlockchainProvider,
   ConfigProvider,
   ContextProvider,
   DataWalletUtils,
 } from "@core/implementations/utilities/index.js";
+
+import {
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+  InsightPlatformRepository,
+} from "@snickerdoodlelabs/insight-platform-api";
+
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
 } from "@core/interfaces/api/index.js";
+
+import {
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
+} from "@snickerdoodlelabs/objects";
+
 import {
   IAccountService,
   IAccountServiceType,
   IIntegrationService,
   IIntegrationServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMarketplaceService,
@@ -114,6 +103,15 @@ import {
   ISiftContractService,
   ISiftContractServiceType,
 } from "@core/interfaces/business/index.js";
+
+import {
+  BackupManagerProvider,
+  IBackupManagerProvider,
+  IBackupManagerProviderType,
+  IPersistenceConfigProvider,
+  IPersistenceConfigProviderType,
+} from "@snickerdoodlelabs/persistence";
+
 import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
@@ -128,7 +126,25 @@ import {
   IQueryRepository,
   IQueryRepositoryType,
 } from "@core/interfaces/business/utilities/index.js";
+
 import {
+  IQueryObjectFactory,
+  IQueryObjectFactoryType,
+  ISDQLParserFactory,
+  ISDQLParserFactoryType,
+  ISDQLQueryUtils,
+  ISDQLQueryUtilsType,
+  ISDQLQueryWrapperFactory,
+  ISDQLQueryWrapperFactoryType,
+  QueryObjectFactory,
+  SDQLParserFactory,
+  SDQLQueryUtils,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+
+import {
+  IAdContentRepository,
+  IAdRepositoryType,
   IConsentContractRepository,
   IConsentContractRepositoryType,
   ICrumbsRepository,
@@ -148,6 +164,9 @@ import {
   ISiftContractRepository,
   ISiftContractRepositoryType,
 } from "@core/interfaces/data/index.js";
+
+import { ContainerModule, interfaces } from "inversify";
+
 import {
   IContractFactory,
   IContractFactoryType,
@@ -195,6 +214,7 @@ export const snickerdoodleCoreModule = new ContainerModule(
     bind<IProfileService>(IProfileServiceType)
       .to(ProfileService)
       .inSingletonScope();
+    bind<IAdService>(IAdServiceType).to(AdService).inSingletonScope();
     bind<IQueryService>(IQueryServiceType).to(QueryService).inSingletonScope();
     bind<IMonitoringService>(IMonitoringServiceType)
       .to(MonitoringService)
@@ -294,6 +314,10 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IQueryRepository>(IQueryRepositoryType)
       .to(QueryRepository)
+      .inSingletonScope();
+
+    bind<IAdContentRepository>(IAdRepositoryType)
+      .to(AdContentRepository)
       .inSingletonScope();
 
     bind<ISDQLParserFactory>(ISDQLParserFactoryType)

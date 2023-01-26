@@ -18,7 +18,9 @@ import {
   TokenInfo,
   MarketplaceListing,
   TransactionPaymentCounter,
-} from "@objects/businessObjects";
+  EligibleAd,
+  AdSignature,
+} from "@objects/businessObjects/index.js";
 import {
   EChain,
   EDataWalletPermission,
@@ -65,6 +67,7 @@ import {
   HexString32,
   IpfsCID,
   LanguageCode,
+  SHA256Hash,
   Signature,
   UnixTimestamp,
   URLString,
@@ -474,6 +477,11 @@ export interface ISnickerdoodleCore {
     sourceDomain?: DomainName | undefined,
   ): ResultAsync<void, PersistenceError | UnauthorizedError>;
 
+  onAdDisplayed(eligibleAd: EligibleAd): ResultAsync<void, UninitializedError | IPFSError | PersistenceError>;
+
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
+
   getEvents(): ResultAsync<ISnickerdoodleCoreEvents, never>;
 
   isDataWalletAddressInitialized(
@@ -481,13 +489,9 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<boolean, UnauthorizedError>;
 
   /** Google User Information */
-  setAge(
-    age: Age,
-    sourceDomain?: DomainName | undefined,
-  ): ResultAsync<void, PersistenceError | UnauthorizedError>;
   getAge(
     sourceDomain?: DomainName | undefined,
-  ): ResultAsync<Age | null, PersistenceError | UnauthorizedError>;
+  ): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(
     name: GivenName,

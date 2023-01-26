@@ -22,12 +22,6 @@ export class PIIRepository implements IPIIRepository {
     @inject(ISnickerdoodleCoreType) protected core: ISnickerdoodleCore,
     @inject(IErrorUtilsType) protected errorUtils: IErrorUtils,
   ) {}
-  public setAge(age: Age): ResultAsync<void, SnickerDoodleCoreError> {
-    return this.core.setAge(age).mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
   public getAge(): ResultAsync<Age | null, SnickerDoodleCoreError> {
     return this.core.getAge().mapErr((error) => {
       this.errorUtils.emit(error);

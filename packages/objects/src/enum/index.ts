@@ -1,3 +1,5 @@
+export * from "@objects/enum/EAdContentType.js";
+export * from "@objects/enum/EBackupPriority.js";
 export * from "@objects/enum/EChain.js";
 export * from "@objects/enum/EChainTechnology.js";
 export * from "@objects/enum/EChainType.js";

@@ -10,6 +10,8 @@ import {
   WalletNFT,
   TokenAddress,
   TransactionPaymentCounter,
+  EligibleAd,
+  AdSignature,
   PersistenceError,
   IDataWalletBackup,
   Age,
@@ -104,7 +106,6 @@ export interface IDataWalletPersistence {
   getClicks(): ResultAsync<ClickData[], PersistenceError>;
 
   /** Google User Information */
-  setAge(age: Age): ResultAsync<void, PersistenceError>;
   getAge(): ResultAsync<Age | null, PersistenceError>;
 
   setGivenName(name: GivenName): ResultAsync<void, PersistenceError>;
@@ -129,6 +130,14 @@ export interface IDataWalletPersistence {
     rewards: EarnedReward[],
   ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
+
+  saveEligibleAds(ads: EligibleAd[]): ResultAsync<void, PersistenceError>;
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError>;
+
+  saveAdSignatures(
+    signatures: AdSignature[],
+  ): ResultAsync<void, PersistenceError>;
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError>;
 
   /**
    * Returns a list of consent contract addresses that the user has rejected
@@ -195,7 +204,6 @@ export interface IDataWalletPersistence {
   pollBackups(): ResultAsync<void, PersistenceError>;
   postBackups(): ResultAsync<DataWalletBackupID[], PersistenceError>;
   clearCloudStore(): ResultAsync<void, PersistenceError>;
-  waitForRestore(): ResultAsync<EVMPrivateKey, never>;
 
   getPermissions(
     domain: DomainName,
@@ -204,6 +212,9 @@ export interface IDataWalletPersistence {
     domain: DomainName,
     permissions: EDataWalletPermission[],
   ): ResultAsync<void, PersistenceError>;
+
+  waitForInitialRestore(): ResultAsync<EVMPrivateKey, never>;
+  waitForFullRestore(): ResultAsync<EVMPrivateKey, never>;
 }
 
 export const IDataWalletPersistenceType = Symbol.for("IDataWalletPersistence");

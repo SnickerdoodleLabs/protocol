@@ -78,15 +78,17 @@ import {
   EDataWalletPermission,
   ICoreMarketplaceMethods,
   ICoreIntegrationMethods,
+  EligibleAd,
+  AdSignature,
+  SHA256Hash,
+  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
   ICloudStorageType,
-  CeramicCloudStorage,
   IVolatileStorage,
   IVolatileStorageType,
   IndexedDBVolatileStorage,
-  NullCloudStorage,
   GoogleCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
@@ -110,6 +112,8 @@ import {
   IAccountServiceType,
   IIntegrationService,
   IIntegrationServiceType,
+  IAdService,
+  IAdServiceType,
   IInvitationService,
   IInvitationServiceType,
   IMarketplaceService,
@@ -747,15 +751,7 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getLocation();
   }
-  public setAge(
-    age: Age,
-    sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<void, PersistenceError> {
-    const profileService =
-      this.iocContainer.get<IProfileService>(IProfileServiceType);
-    return profileService.setAge(age);
-  }
-  public getAge(
+  getAge(
     sourceDomain: DomainName | undefined = undefined,
   ): ResultAsync<Age | null, PersistenceError> {
     const profileService =
@@ -842,6 +838,28 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addEarnedRewards(rewards);
   }
 
+  getEligibleAds(): ResultAsync<EligibleAd[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getEligibleAds();
+  }
+
+  getAdSignatures(): ResultAsync<AdSignature[], PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getAdSignatures();
+  }
+
+  onAdDisplayed(
+    eligibleAd: EligibleAd
+  ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
+    const adService =
+      this.iocContainer.get<IAdService>(IAdServiceType);
+    return adService.onAdDisplayed(eligibleAd);
+  }
+  
   public addTransactions(
     transactions: ChainTransaction[],
     sourceDomain: DomainName | undefined = undefined,

@@ -29,16 +29,20 @@ import {
   EVMPrivateKey,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { IQueryService } from "@core/interfaces/business/index.js";
+
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
   IQueryParsingEngine,
   IQueryParsingEngineType,
 } from "@core/interfaces/business/utilities/index.js";
+
+import { ResultUtils } from "neverthrow-result-utils";
+
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -98,18 +102,19 @@ export class QueryService implements IQueryService {
       this.persistenceRepo.getAccounts(),
       this.consentTokenUtils.getCurrentConsentToken(consentContractAddress),
     ]).andThen(([query, context, config, accounts, consentToken]) => {
+      if (consentToken == null) {
+        return errAsync(new EvaluationError(`Consent token not found!`));
+      }
       return this.dataWalletUtils
         .deriveOptInPrivateKey(consentContractAddress, context.dataWalletKey!)
         .andThen((optInKey) => {
-          if (consentToken == null) {
-            return errAsync(new EvaluationError(`Consent token not found!`));
-          }
           return this.queryParsingEngine
             .getPermittedQueryIdsAndExpectedRewards(
               query,
               consentToken.dataPermissions,
+              consentContractAddress,
             )
-            .andThen(([queryIdentifiers, expectedRewards]) => {
+            .andThen(([permittedQueryIds, expectedRewards]) => {
               return this.publishSDQLQueryRequestIfExpectedAndEligibleRewardsMatch(
                 consentToken,
                 optInKey,
@@ -118,7 +123,7 @@ export class QueryService implements IQueryService {
                 accounts,
                 context,
                 config,
-                queryIdentifiers,
+                permittedQueryIds,
                 expectedRewards,
               );
             });

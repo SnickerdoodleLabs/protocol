@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
 
+import { UpdatableEventEmitterWrapper } from "@app/utils/index.js";
 import {
   AccountAddress,
   Age,
@@ -37,18 +38,21 @@ import { JsonRpcEngine, JsonRpcError } from "json-rpc-engine";
 import { createStreamMiddleware } from "json-rpc-middleware-stream";
 import { ResultAsync } from "neverthrow";
 import ObjectMultiplex from "obj-multiplex";
-import LocalMessageStream from "post-message-stream";
-import pump from "pump";
 
-import { ExternalCoreGateway } from "@app/coreGateways";
-import { UpdatableEventEmitterWrapper } from "@app/utils/UpdatableEventEmitterWrapper";
+import { ExternalCoreGateway } from "@app/coreGateways/index.js";
+
+import LocalMessageStream from "post-message-stream";
+
 import {
   ONBOARDING_PROVIDER_SUBSTREAM,
   ONBOARDING_PROVIDER_POSTMESSAGE_CHANNEL_IDENTIFIER,
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
   PORT_NOTIFICATION,
-} from "@shared/constants/ports";
-import { TNotification } from "@shared/types/notification";
+} from "@shared/constants/ports.js";
+
+import pump from "pump";
+
+import { TNotification } from "@shared/types/notification.js";
 
 export class DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   protected mux: ObjectMultiplex;
@@ -237,9 +241,6 @@ export class DataWalletProxy extends EventEmitter implements ISdlDataWallet {
   }
   public setGivenName(givenName: GivenName): ResultAsync<void, JsonRpcError> {
     return this.coreGateway.setGivenName(givenName);
-  }
-  public setAge(age: Age): ResultAsync<void, JsonRpcError> {
-    return this.coreGateway.setAge(age);
   }
   public setBirthday(birthday: UnixTimestamp): ResultAsync<void, JsonRpcError> {
     return this.coreGateway.setBirtday(birthday);

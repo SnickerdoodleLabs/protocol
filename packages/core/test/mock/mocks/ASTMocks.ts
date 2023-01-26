@@ -1,22 +1,33 @@
 import "reflect-metadata";
 
+import { ProfileService } from "@core/implementations/business/index.js";
+
 import { TimeUtils } from "@snickerdoodlelabs/common-utils";
-import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
-import {
-  IQueryObjectFactory,
-  ISDQLQueryWrapperFactory,
-  SDQLQueryWrapperFactory,
-} from "@snickerdoodlelabs/query-parser";
-import { okAsync } from "neverthrow";
-import * as td from "testdouble";
 
 import {
   NetworkQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
 } from "@core/implementations/business/utilities/index.js";
+
+import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
+
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+
+import {
+  IQueryObjectFactory,
+  ISDQLQueryWrapperFactory,
+  SDQLQueryWrapperFactory,
+} from "@snickerdoodlelabs/query-parser";
+
 import { QueryFactories } from "@core/implementations/utilities/factory/index.js";
+
+import { okAsync } from "neverthrow";
+
+import { IProfileService } from "@core/interfaces/business/index.js";
+
+import * as td from "testdouble";
+
 import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
@@ -38,6 +49,7 @@ export class ASTMocks {
   public queryEvaluator: QueryEvaluator;
   public balanceQueryEvaluator: IBalanceQueryEvaluator;
   public networkQueryEvaluator: INetworkQueryEvaluator;
+  public profileService: IProfileService;
 
   public constructor() {
     this.queryWrapperFactory = new SDQLQueryWrapperFactory(new TimeUtils());
@@ -51,6 +63,7 @@ export class ASTMocks {
     this.networkQueryEvaluator = new NetworkQueryEvaluator(
       this.persistenceRepo,
     );
+    this.profileService = new ProfileService(this.persistenceRepo);
 
     td.when(this.persistenceRepo.getAge()).thenReturn(okAsync(Age(25)));
     td.when(this.persistenceRepo.getLocation()).thenReturn(
@@ -61,6 +74,7 @@ export class ASTMocks {
       this.persistenceRepo,
       this.balanceQueryEvaluator,
       this.networkQueryEvaluator,
+      this.profileService,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);
   }

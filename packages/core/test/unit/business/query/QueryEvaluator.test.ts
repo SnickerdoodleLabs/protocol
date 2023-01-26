@@ -30,6 +30,7 @@ import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+import { IProfileService } from "@core/interfaces/business/index.js";
 import {
   IBalanceQueryEvaluator,
   INetworkQueryEvaluator,
@@ -63,6 +64,7 @@ class QueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
   public networkQueryEvaluator = td.object<INetworkQueryEvaluator>();
+  public profileService = td.object<IProfileService>();
 
   public URLmap = new Map<URLString, number>([
     [URLString("www.snickerdoodlelabs.io"), 10],
@@ -201,9 +203,9 @@ class QueryEvaluatorMocks {
   // },
 
   public constructor() {
-    this.dataWalletPersistence.setAge(Age(25));
     //this.dataWalletPersistence.setLocation(CountryCode("US"));
     td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
+    td.when(this.profileService.getAge()).thenReturn(okAsync(Age(25)));
 
     td.when(this.dataWalletPersistence.getGender()).thenReturn(
       okAsync(Gender("male")),
@@ -227,6 +229,7 @@ class QueryEvaluatorMocks {
       this.dataWalletPersistence,
       this.balanceQueryEvaluator,
       this.networkQueryEvaluator,
+      this.profileService,
     );
     // td.when(this.dataWalletPersistence.getTransactionsMap())
     // .thenReturn(

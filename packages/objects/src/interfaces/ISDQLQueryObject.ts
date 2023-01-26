@@ -1,5 +1,6 @@
 // This is where Zara's definition will come in. This file should contain all the relevant
 // interfaces from the JSON schema of the query
+import { AdContent } from "@objects/businessObjects/index.js";
 import {
   AccountAddress,
   ChainId,
@@ -7,8 +8,11 @@ import {
   EVMContractAddress,
   IpfsCID,
   URLString,
-} from "@objects/primitives";
-import { ISO8601DateString } from "@objects/primitives/ISO8601DateString";
+  AdKey,
+  UnixTimestamp,
+  EAdDisplayType,
+  ISO8601DateString,
+} from "@objects/primitives/index.js";
 
 export interface ISDQLQueryObject {
   version: string;
@@ -16,6 +20,7 @@ export interface ISDQLQueryObject {
   expiry: ISO8601DateString;
   description: string;
   business: string;
+  ads: ISDQLAdsBlock;
   queries: {
     [queryId: string]: ISDQLQueryClause;
   };
@@ -80,10 +85,22 @@ export interface ISDQLReturnProperties {
   query?: string;
 }
 
+export interface ISDQLAdsBlock {
+  [index: AdKey]: ISDQLAd;
+}
+
+export interface ISDQLAd {
+  name: string;
+  content: AdContent;
+  text: string | null;
+  displayType: EAdDisplayType;
+  weight: number;
+  expiry: UnixTimestamp;
+  keywords: string[];
+}
+
 export interface ISDQLCompensationBlock {
-  [index: CompensationId]:
-    | ISDQLCompensationParameters
-    | ISDQLCompensations;
+  [index: CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;
 }
 
@@ -117,5 +134,6 @@ export interface ISDQLCompensationParameters {
 
 export interface ISDQLLogicObjects {
   returns: string[];
+  ads: string[];
   compensations: string[];
 }

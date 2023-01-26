@@ -15,6 +15,8 @@ import {
   QueryFormatError,
   QueryExpiredError,
   EvaluationError,
+  IpfsCID,
+  RequestForData,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -199,13 +201,31 @@ export class BlockchainListener implements IBlockchainListener {
                   });
               })
               .andThen((requestForDataObjects) => {
-                return ResultUtils.combine(
-                  requestForDataObjects.map((requestForDataObject) => {
-                    return this.queryService.onQueryPosted(
-                      requestForDataObject.consentContractAddress,
-                      requestForDataObject.requestedCID,
-                    );
+                if (requestForDataObjects.length > 0) {
+                  this.logUtils.info(
+                    "Received requests for data",
+                    requestForDataObjects,
+                  );
+                }
+
+                // In the odd case that multiple events for the same CID was found, we need
+                // to ditch the repeats
+                // If we create a map by the IpfsCIDs, any repeats will be overwritten
+                const filteredMap = new Map(
+                  requestForDataObjects.map((r4d) => {
+                    return [r4d.requestedCID, r4d];
                   }),
+                );
+
+                return ResultUtils.combine(
+                  Array.from(filteredMap.values()).map(
+                    (requestForDataObject) => {
+                      return this.queryService.onQueryPosted(
+                        requestForDataObject.consentContractAddress,
+                        requestForDataObject.requestedCID,
+                      );
+                    },
+                  ),
                 );
               });
           }),

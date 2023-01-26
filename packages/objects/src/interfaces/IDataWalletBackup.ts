@@ -1,12 +1,14 @@
 import { Brand, make } from "ts-brand";
 
-import { AESEncryptedString } from "@objects/businessObjects";
-import { UnixTimestamp } from "@objects/primitives";
+import { AESEncryptedString } from "@objects/businessObjects/index.js";
+import { EBackupPriority } from "@objects/enum/index.js";
+import { UnixTimestamp } from "@objects/primitives/index.js";
 
 export interface IDataWalletBackupHeader {
   hash: string;
   timestamp: UnixTimestamp;
   signature: string;
+  priority: EBackupPriority;
 }
 
 export interface IDataWalletBackup {
@@ -14,8 +16,22 @@ export interface IDataWalletBackup {
   blob: AESEncryptedString;
 }
 
-export type FieldMap = { [key: string]: [object, number] };
-export type TableMap = { [key: string]: object[] };
+export enum EDataUpdateOpCode {
+  UPDATE = 0,
+  REMOVE = 1,
+}
+
+export class DataUpdate {
+  public constructor(
+    public value: object,
+    public timestamp: number,
+    public operation: EDataUpdateOpCode,
+    public priority: EBackupPriority,
+  ) {}
+}
+
+export type FieldMap = { [key: string]: DataUpdate };
+export type TableMap = { [key: string]: DataUpdate[] };
 
 export class BackupBlob {
   public constructor(public fields: FieldMap, public records: TableMap) {}

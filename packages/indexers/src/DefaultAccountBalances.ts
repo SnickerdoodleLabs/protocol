@@ -14,8 +14,8 @@ import {
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
+import { EtherscanNativeBalanceRepository } from "@indexers/EtherscanNativeBalanceRepository.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
@@ -32,6 +32,7 @@ export class DefaultAccountBalances implements IAccountBalances {
   protected sol: ISolanaBalanceRepository;
   protected ethereum: IEVMAccountBalanceRepository;
   protected matic: IEVMAccountBalanceRepository;
+  protected etherscan: IEVMAccountBalanceRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -61,6 +62,19 @@ export class DefaultAccountBalances implements IAccountBalances {
       this.tokenPriceRepo,
       this.logUtils,
     );
+    this.etherscan = new EtherscanNativeBalanceRepository(
+      this.configProvider,
+      this.ajaxUtils,
+      this.tokenPriceRepo,
+      this.logUtils,
+    );
+  }
+
+  public getEtherscanBalanceRepository(): ResultAsync<
+    IEVMAccountBalanceRepository,
+    never
+  > {
+    return okAsync(this.etherscan);
   }
 
   public getPolygonBalanceRepository(): ResultAsync<

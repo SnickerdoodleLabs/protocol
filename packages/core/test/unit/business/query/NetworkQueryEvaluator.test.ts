@@ -84,7 +84,6 @@ class NetworkQueryEvaluatorMocks {
   );
 
   public constructor() {
-    this.dataWalletPersistence.setAge(Age(25));
     //this.dataWalletPersistence.setLocation(CountryCode("US"));
     td.when(this.dataWalletPersistence.getAge()).thenReturn(okAsync(Age(25)));
 

@@ -65,8 +65,11 @@ jobs:
       uses: 'google-github-actions/auth@v0'
       with:
         credentials_json: '${{ secrets.PROD_GCP_CREDENTIALS }}'
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
     - name: Deploy to GCR
       run: |-
+        gcloud components install gke-gcloud-auth-plugin
         gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
         curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
         chmod 700 get_helm.sh
