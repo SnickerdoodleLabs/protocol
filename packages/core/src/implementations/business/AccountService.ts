@@ -579,9 +579,9 @@ export class AccountService implements IAccountService {
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-    return this.dataWalletPersistence.addSiteVisits(
-      this.filterInvalidDomains(siteVisits) as SiteVisit[],
-    );
+    return this.filterInvalidDomains(siteVisits).andThen((validSiteVisits) => {
+      return this.dataWalletPersistence.addSiteVisits(validSiteVisits);
+    });
   }
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     return this.dataWalletPersistence.getSiteVisits();
@@ -759,10 +759,14 @@ export class AccountService implements IAccountService {
     });
   }
 
-  protected filterInvalidDomains(domains: SiteVisit[]): SiteVisit[] {
-    const invalidDomains = /(localhost|chrome:\/\/)/;
-
-    return domains.filter(({ url }) => !invalidDomains.test(url));
+  protected filterInvalidDomains(
+    domains: SiteVisit[],
+  ): ResultAsync<SiteVisit[], never> {
+    return this.configProvider.getConfig().map(({ domainFilter }) => {
+      const invalidDomains = new RegExp(domainFilter);
+      console.log(invalidDomains);
+      return domains.filter(({ url }) => !invalidDomains.test(url));
+    });
   }
 
   protected validateSignatureForAddress(
