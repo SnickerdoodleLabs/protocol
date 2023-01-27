@@ -31,11 +31,11 @@ import { urlJoinP } from "url-join-ts";
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
-} from "@core/interfaces/data";
+} from "@core/interfaces/data/index.js";
 import {
   IConfigProvider,
   IConfigProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {

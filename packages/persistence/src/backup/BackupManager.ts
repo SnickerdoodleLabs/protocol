@@ -348,9 +348,12 @@ export class BackupManager implements IBackupManager {
   private _addRestored(
     backup: IDataWalletBackup,
   ): ResultAsync<void, PersistenceError> {
-    return this.volatileStorage.putObject(ERecordKey.RESTORED_BACKUPS, {
-      id: DataWalletBackupID(backup.header.hash),
-    });
+    return this.volatileStorage.putObject(
+      ERecordKey.RESTORED_BACKUPS,
+      new VolatileStorageMetadata(EBackupPriority.NORMAL, {
+        id: DataWalletBackupID(backup.header.hash),
+      }),
+    );
   }
 
   private _wasRestored(
