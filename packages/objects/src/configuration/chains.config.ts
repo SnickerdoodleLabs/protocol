@@ -10,6 +10,7 @@ import { EChain, EChainTechnology, EIndexer, EChainType } from "@objects/enum";
 import { AccountIndexingError } from "@objects/errors";
 import {
   ChainId,
+  CoinGeckoAssetPlatformID,
   EVMContractAddress,
   ProviderUrl,
   URLString,
@@ -196,7 +197,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       "https://explorer.solana.com/tx/",
       getExplorerUrl,
       undefined,
-      "solana", // coing gecko chain slug
+      CoinGeckoAssetPlatformID("solana"), // coing gecko chain slug
     ),
   ],
   [
