@@ -195,6 +195,8 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       EChainType.Mainnet,
       "https://explorer.solana.com/tx/",
       getExplorerUrl,
+      undefined,
+      "solana", // coing gecko chain slug
     ),
   ],
   [

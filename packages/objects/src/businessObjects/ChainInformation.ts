@@ -30,6 +30,7 @@ export class ChainInformation {
     public explorerURL: string,
     public getExplorerURL: (txHash: string) => string,
     public etherscanEndpointURL?: URLString,
+    public coinGeckoSlug?: string,
   ) {}
 }
 
@@ -51,6 +52,7 @@ export class ControlChainInformation extends ChainInformation {
     public metatransactionForwarderAddress: EVMContractAddress,
     public siftContractAddress: EVMContractAddress,
     public etherscanEndpointURL?: URLString,
+    public coinGeckoSlug?: string,
   ) {
     super(
       name,
