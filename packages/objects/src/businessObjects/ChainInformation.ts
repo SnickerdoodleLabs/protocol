@@ -70,6 +70,7 @@ export class ControlChainInformation extends ChainInformation {
         return explorerURL + txHash;
       },
       etherscanEndpointURL ? URLString(etherscanEndpointURL) : undefined,
+      coinGeckoSlug,
     );
   }
 }
