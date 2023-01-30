@@ -714,6 +714,41 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addSiteVisits(siteVisits);
   }
 
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.setDefaultReceivingAddress(receivingAddress);
+  }
+  
+  public getDefaultReceivingAddress(): ResultAsync<AccountAddress | null, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getDefaultReceivingAddress();
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.setReceivingAddress(contractAddress, receivingAddress);
+  }
+
+  public getReceivingAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, PersistenceError> {
+    const persistence = this.iocContainer.get<IDataWalletPersistence>(
+      IDataWalletPersistenceType,
+    );
+    return persistence.getReceivingAddress(contractAddress);
+  }
+
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
@@ -748,6 +783,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.onAdDisplayed(eligibleAd);
   }
+
+  
   
   public addTransactions(
     transactions: ChainTransaction[],

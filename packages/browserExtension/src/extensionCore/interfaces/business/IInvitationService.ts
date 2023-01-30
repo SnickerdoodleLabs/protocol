@@ -7,11 +7,9 @@ import {
   EVMContractAddress,
   IOpenSeaMetadata,
   IpfsCID,
-  HexString32,
   EWalletDataType,
-  Signature,
-  TokenId,
   MarketplaceListing,
+  AccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -68,6 +66,21 @@ export interface IInvitationService {
     count?: number,
     headAt?: number,
   ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError>;
+
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+  getDefaultReceivingAddress(): ResultAsync<
+    AccountAddress | null, 
+    SnickerDoodleCoreError
+  >;
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+  getReceivingAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, SnickerDoodleCoreError>;
 
   getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError>;
 }

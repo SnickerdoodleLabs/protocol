@@ -8,6 +8,7 @@ import {
   IpfsCID,
   HexString32,
   MarketplaceListing,
+  AccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -52,6 +53,22 @@ export interface IInvitationRepository {
     headAt?: number,
   ): ResultAsync<MarketplaceListing, SnickerDoodleCoreError>;
   getListingsTotal(): ResultAsync<number, SnickerDoodleCoreError>;
+
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+  getDefaultReceivingAddress(): ResultAsync<
+    AccountAddress | null, 
+    SnickerDoodleCoreError
+  >;
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, SnickerDoodleCoreError>;
+  getReceivingAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, SnickerDoodleCoreError>;
+
 }
 
 export const IInvitationRepositoryType = Symbol.for("IInvitationRepository");
