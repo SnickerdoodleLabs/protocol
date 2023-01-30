@@ -8,6 +8,7 @@
     "build": "yarn clean && yarn compile && yarn postCompile",
     "clean": "npx rimraf dist tsconfig.tsbuildinfo",
     "compile": "npx tsc --build && yarn alias",
+    "compile-start": "cd ../.. && yarn compile && cd packages/extension-onboarding && yarn start",
     "copy-files": "copyfiles -u 1 src/**/*.d.ts dist/",
     "docker-push": "docker push snickerdoodlelabs/extension-onboarding:local",
     "dockerize": "docker build -t snickerdoodlelabs/extension-onboarding:local -f Dockerfile --progress=plain ../..",

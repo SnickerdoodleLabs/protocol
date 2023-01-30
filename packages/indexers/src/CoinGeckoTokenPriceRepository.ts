@@ -56,6 +56,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         this._nativeIds.set(value.chainId, value.nativeCurrency.coinGeckoId);
       }
     });
+    console.log("this._nativeIds: ", this._nativeIds);
   }
 
   public getMarketDataForTokens(
@@ -83,6 +84,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
         marketData.forEach((data) => {
           const key = ids.get(data.id)!;
           returnVal.set(key, data);
+          console.log("returnVal: ", returnVal);
         });
         return returnVal;
       });

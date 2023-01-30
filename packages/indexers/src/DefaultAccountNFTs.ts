@@ -54,6 +54,10 @@ export class DefaultAccountNFTs implements IAccountNFTs {
     );
   }
 
+  public getEtherscanNftRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.ethereum);
+  }
+
   public getEthereumNftRepository(): ResultAsync<IEVMNftRepository, never> {
     return okAsync(this.ethereum);
   }

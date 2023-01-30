@@ -523,7 +523,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       if (birthdayEpoch == null) {
         return null;
       }
-      
+
       let ageYear =
         new Date(Date.now()).getFullYear() -
         new Date(birthdayEpoch * 1000).getFullYear();
@@ -909,53 +909,79 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
+      this.accountNFTs.getEtherscanNftRepository(),
     ])
-      .andThen(([config, evmRepo, solRepo, simulatorRepo, etherscanRepo]) => {
-        const chainInfo = config.chainInformation.get(chainId);
-        if (chainInfo == null) {
-          return errAsync(
-            new AccountIndexingError(
-              `No available chain info for chain ${chainId}`,
-            ),
-          );
-        }
-
-        switch (chainInfo.indexer) {
-          case EIndexer.EVM:
-          case EIndexer.Polygon:
-            return evmRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Simulator:
-            return simulatorRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Solana:
-            return solRepo.getTokensForAccount(
-              chainId,
-              accountAddress as SolanaAccountAddress,
-            );
-          case EIndexer.Ethereum:
-            return etherscanRepo.getTokensForAccount(
-              chainId,
-              accountAddress as EVMAccountAddress,
-            );
-          case EIndexer.Gnosis:
-            return okAsync([]);
-          case EIndexer.Binance:
-            return okAsync([]);
-          case EIndexer.Moonbeam:
-            return okAsync([]);
-          default:
+      .andThen(
+        ([
+          config,
+          evmRepo,
+          solRepo,
+          simulatorRepo,
+          etherscanRepo,
+          etherscanMRepo,
+        ]) => {
+          const chainInfo = config.chainInformation.get(chainId);
+          console.log("config.chainInformation: ", config.chainInformation);
+          if (chainInfo == null) {
             return errAsync(
               new AccountIndexingError(
                 `No available chain info for chain ${chainId}`,
               ),
             );
-        }
-      })
+          }
+          console.log("chainInfo.chainId: ", chainInfo.chainId);
+          console.log("chainInfo.indexer: ", chainInfo.indexer);
+          console.log("chainInfo.indexer: ", chainInfo.indexer);
+          console.log("EIndexer.EVM: ", EIndexer.EVM);
+          console.log("EIndexer.Polygon: ", EIndexer.Polygon);
+          console.log("EIndexer.Simulator: ", EIndexer.Simulator);
+          console.log("EIndexer.Solana: ", EIndexer.Solana);
+          console.log("EIndexer.Ethereum: ", EIndexer.Ethereum);
+          console.log("EIndexer.Gnosis: ", EIndexer.Gnosis);
+          console.log("EIndexer.Binance: ", EIndexer.Binance);
+          console.log("EIndexer.Moonbeam: ", EIndexer.Moonbeam);
+
+          switch (chainInfo.indexer) {
+            case EIndexer.EVM:
+            case EIndexer.Polygon:
+              return evmRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Simulator:
+              return simulatorRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Solana:
+              return solRepo.getTokensForAccount(
+                chainId,
+                accountAddress as SolanaAccountAddress,
+              );
+            case EIndexer.Ethereum:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Gnosis:
+              return okAsync([]);
+            case EIndexer.Binance:
+              console.log("LOOKING FOR EIndexer.Binance: ");
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Moonbeam:
+              return okAsync([]);
+            default:
+              return errAsync(
+                new AccountIndexingError(
+                  `No available chain info for chain ${chainId}`,
+                ),
+              );
+          }
+        },
+      )
       .orElse((e) => {
         this.logUtils.error("error fetching nfts", chainId, accountAddress, e);
         return okAsync([]);
