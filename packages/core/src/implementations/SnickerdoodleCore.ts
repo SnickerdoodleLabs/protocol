@@ -717,36 +717,33 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null
   ): ResultAsync<void, PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
     );
-    return persistence.setDefaultReceivingAddress(receivingAddress);
-  }
-  
-  public getDefaultReceivingAddress(): ResultAsync<AccountAddress | null, PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
-    );
-    return persistence.getDefaultReceivingAddress();
+
+    return invitationService.setDefaultReceivingAddress(receivingAddress);
   }
 
   public setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null
   ): ResultAsync<void, PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
+
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
     );
-    return persistence.setReceivingAddress(contractAddress, receivingAddress);
+
+    return invitationService.setReceivingAddress(contractAddress, receivingAddress);
   }
 
   public getReceivingAddress(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<AccountAddress | null, PersistenceError> {
-    const persistence = this.iocContainer.get<IDataWalletPersistence>(
-      IDataWalletPersistenceType,
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
     );
-    return persistence.getReceivingAddress(contractAddress);
+
+    return invitationService.getReceivingAddress(contractAddress);
   }
 
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {

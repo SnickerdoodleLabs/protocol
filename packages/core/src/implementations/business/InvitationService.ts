@@ -35,6 +35,8 @@ import {
   TokenId,
   Signature,
   MarketplaceListing,
+  AccountAddress,
+  LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
@@ -769,6 +771,96 @@ export class InvitationService implements IInvitationService {
     UninitializedError | BlockchainProviderError | ConsentFactoryContractError
   > {
     return this.marketplaceRepo.getListingsTotal();
+  }
+
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError> {
+
+    return this.persistenceRepo.getAccounts().andThen((linkedAccounts) => {
+      if (!this._doLinkedAccountsContainReceivingAddress(linkedAccounts, receivingAddress)) {
+        return errAsync(
+          new PersistenceError("Unlinked accounts cannot be selected as recipient addresses.")
+        );
+      }
+
+      return this.persistenceRepo.setDefaultReceivingAddress(receivingAddress);
+    });
+  }
+
+  private _getDefaultReceivingAddress(): ResultAsync<AccountAddress, PersistenceError> {
+    return ResultUtils.combine([
+      this.persistenceRepo.getAccounts(),
+      this.persistenceRepo.getDefaultReceivingAddress()
+    ]).andThen(([linkedAccounts, defRecvAddr]) => {
+
+      if (!defRecvAddr || !this._doLinkedAccountsContainReceivingAddress(linkedAccounts, defRecvAddr)) {
+        return this.persistenceRepo.setDefaultReceivingAddress(
+          linkedAccounts[0].sourceAccountAddress
+        ).map(() => linkedAccounts[0].sourceAccountAddress);
+      }
+
+      return okAsync(defRecvAddr);
+    });
+  }
+
+  private _doLinkedAccountsContainReceivingAddress(
+    linkedAccounts: LinkedAccount[],
+    receivingAddress: AccountAddress | null
+  ): boolean {
+
+    if (!receivingAddress) {
+      return false;
+    }
+
+    return !!linkedAccounts.find(
+      ac => ac.sourceAccountAddress == receivingAddress
+    );
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress, 
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError> {
+
+    return this.persistenceRepo.getAccounts().andThen((linkedAccounts) => {
+      if (!this._doLinkedAccountsContainReceivingAddress(linkedAccounts, receivingAddress)) {
+        return errAsync(
+          new PersistenceError("Unlinked accounts cannot be selected as recipient addresses.")
+        );
+      }
+
+      return this.persistenceRepo.setReceivingAddress(
+        contractAddress, receivingAddress
+      );
+    });
+  }
+
+  public getReceivingAddress(
+    contractAddress?: EVMContractAddress
+  ): ResultAsync<AccountAddress, PersistenceError> {
+    
+    if (!contractAddress) {
+      return this._getDefaultReceivingAddress();
+    }
+
+    return this.persistenceRepo.getReceivingAddress(contractAddress).andThen((receivingAddr) => {
+
+      if (!receivingAddr) {
+        return this._getDefaultReceivingAddress();
+      }
+
+      return this.persistenceRepo.getAccounts().andThen((linkedAccounts) => {
+
+        if (!this._doLinkedAccountsContainReceivingAddress(linkedAccounts, receivingAddr)) {
+          return this.persistenceRepo.setReceivingAddress(contractAddress, null).andThen(() => {
+            return this._getDefaultReceivingAddress();
+          });
+        }
+
+        return okAsync(receivingAddr);
+      });
+    });
   }
 
   protected isValidSignatureForInvitation(

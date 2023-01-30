@@ -385,17 +385,15 @@ export interface ISnickerdoodleCore {
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null
   ): ResultAsync<void, PersistenceError>;
-  getDefaultReceivingAddress(): ResultAsync<
-    AccountAddress | null,
-    PersistenceError
-  >;
+
   setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null
   ): ResultAsync<void, PersistenceError>;
+
   getReceivingAddress(
     contractAddress: EVMContractAddress,
-  ): ResultAsync<AccountAddress | null, PersistenceError>;
+  ): ResultAsync<AccountAddress, PersistenceError>;
 
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
