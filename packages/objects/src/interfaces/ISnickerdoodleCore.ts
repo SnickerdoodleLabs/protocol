@@ -392,7 +392,7 @@ export interface ISnickerdoodleCore {
   ): ResultAsync<void, PersistenceError>;
 
   getReceivingAddress(
-    contractAddress: EVMContractAddress,
+    contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, PersistenceError>;
 
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;

@@ -57,17 +57,13 @@ export interface IInvitationRepository {
   setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null
   ): ResultAsync<void, SnickerDoodleCoreError>;
-  getDefaultReceivingAddress(): ResultAsync<
-    AccountAddress | null, 
-    SnickerDoodleCoreError
-  >;
   setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null
   ): ResultAsync<void, SnickerDoodleCoreError>;
   getReceivingAddress(
-    contractAddress: EVMContractAddress,
-  ): ResultAsync<AccountAddress | null, SnickerDoodleCoreError>;
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, SnickerDoodleCoreError>
 
 }
 

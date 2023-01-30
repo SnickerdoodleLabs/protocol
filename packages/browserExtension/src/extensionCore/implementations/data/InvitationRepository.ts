@@ -120,15 +120,6 @@ export class InvitationRepository implements IInvitationRepository {
     });
   }
 
-  public getDefaultReceivingAddress(): ResultAsync<
-    AccountAddress | null, SnickerDoodleCoreError
-  > {
-    return this.core.getDefaultReceivingAddress().mapErr((error) => {
-      this.errorUtils.emit(error);
-      return new SnickerDoodleCoreError((error as Error).message, error);
-    });
-  }
-
   public setReceivingAddress(
     contractAddress: EVMContractAddress, 
     receivingAddress: AccountAddress | null
@@ -142,8 +133,8 @@ export class InvitationRepository implements IInvitationRepository {
   }
 
   public getReceivingAddress(
-    contractAddress: EVMContractAddress, 
-  ): ResultAsync<AccountAddress | null, SnickerDoodleCoreError> {
+    contractAddress?: EVMContractAddress, 
+  ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
     return this.core.getReceivingAddress(
       contractAddress
     ).mapErr((error) => {
