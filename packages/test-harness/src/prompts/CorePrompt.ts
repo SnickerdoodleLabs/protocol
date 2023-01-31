@@ -1,25 +1,13 @@
 import {
-  AccountAddress,
-  AdContent,
-  AdKey,
-  AESEncryptedString,
-  Age,
   BigNumberString,
   ChainId,
   CountryCode,
-  EAdContentType,
-  EAdDisplayType,
   EarnedReward,
-  EligibleAd,
-  EncryptedString,
   ERewardType,
   EVMAccountAddress,
-  EVMContractAddress,
   EVMTransaction,
   EVMTransactionHash,
   Gender,
-  IDataWalletBackup,
-  InitializationVector,
   IpfsCID,
   SiteVisit,
   UnixTimestamp,
@@ -38,7 +26,7 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
-import { ResultUtils } from "neverthrow-result-utils";
+
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
   private addAccount: AddAccount;
@@ -211,18 +199,6 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":
           return this.core.getEarnedRewards().map(console.log);
-        case "setDefaultReceivingAddress":
-          return this.core.setDefaultReceivingAddress(
-            "DEFAULT_ADDR" as AccountAddress
-          ).andThen(() => {
-            return this.core.setDefaultReceivingAddress(
-              null
-            ).andThen(() => {
-              return this.core.setDefaultReceivingAddress(
-                "DEFAULT_ADDR_2" as AccountAddress
-              ).map(a => a);
-            })
-          });
         case "getDefaultReceivingAddress":
           return this.core.getReceivingAddress().map(console.log);
         case "addEVMTransaction - Query's Network":
