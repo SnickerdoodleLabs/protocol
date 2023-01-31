@@ -95,6 +95,7 @@ export class NftScanEVMPortfolioRepository
     console.log("getTokensForAccount chainId: ", chainId);
     return this.generateQueryConfig(chainId, accountAddress, "nft")
       .andThen((requestConfig) => {
+        console.log("requestConfig: ", requestConfig);
         console.log("requestConfig.url!: ", requestConfig.url!);
         return this.ajaxUtils
           .get<IMoralisNFTResponse>(
@@ -191,7 +192,7 @@ export class NftScanEVMPortfolioRepository
         url: url,
         headers: {
           accept: "application/json",
-          "X-API-Key": config.moralisApiKey,
+          "X-API-Key": config.nftScanApiKey,
         },
       };
       return result;

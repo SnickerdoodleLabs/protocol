@@ -76,12 +76,13 @@ import { BigNumber, ethers } from "ethers";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
-import { parse } from "tldts";
 
 import {
   IContextProvider,
   IContextProviderType,
 } from "@core/interfaces/utilities/index.js";
+
+import { parse } from "tldts";
 
 @injectable()
 export class DataWalletPersistence implements IDataWalletPersistence {
@@ -910,6 +911,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
       this.accountNFTs.getEtherscanNftRepository(),
+      this.accountNFTs.getNftScanRepository(),
     ])
       .andThen(
         ([
@@ -919,6 +921,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           simulatorRepo,
           etherscanRepo,
           etherscanMRepo,
+          nftScanRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           console.log("config.chainInformation: ", config.chainInformation);
@@ -972,7 +975,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Moonbeam:
-              return okAsync([]);
+              console.log("LOOKING FOR EIndexer.Binance: ");
+              return nftScanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
             default:
               return errAsync(
                 new AccountIndexingError(
