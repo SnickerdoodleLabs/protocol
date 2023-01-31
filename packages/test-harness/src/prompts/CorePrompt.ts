@@ -95,11 +95,11 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Get SiteVisit Map", value: "getSiteVisitMap" },
       { name: "Get SiteVisits Array", value: "getSiteVisits" },
 
-      { name: "Set Default Receiving Address", value: "setDefaultReceivingAddress" },
-      { name: "Get Default Receiving Address", value: "getDefaultReceivingAddress" },
+      // { name: "Set Default Receiving Address", value: "setDefaultReceivingAddress" },
+      // { name: "Get Default Receiving Address", value: "getDefaultReceivingAddress" },
 
-      { name: "Set Selected Receiving Address", value: "setReceivingAddress" },
-      { name: "Get Selected Receiving Address", value: "getReceivingAddress" },
+      // { name: "Set Selected Receiving Address", value: "setReceivingAddress" },
+      // { name: "Get Selected Receiving Address", value: "getReceivingAddress" },
 
       new inquirer.Separator(),
       {
@@ -216,49 +216,49 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":
           return this.core.getEarnedRewards().map(console.log);
-        case "setDefaultReceivingAddress":
-          return this.core.setDefaultReceivingAddress(
-            "DEFAULT_ADDR" as AccountAddress
-          ).andThen(() => {
-            return this.core.setDefaultReceivingAddress(
-              null
-            ).andThen(() => {
-              return this.core.setDefaultReceivingAddress(
-                "DEFAULT_ADDR_2" as AccountAddress
-              ).map(a => a);
-            })
-          });
-        case "getDefaultReceivingAddress":
-          return this.core.getDefaultReceivingAddress().map(console.log);
-        case "getReceivingAddress":
-          return this.core.getReceivingAddress(
-            "1" as EVMContractAddress
-          ).andThen((res) => {
-            console.log(res); //Should give AA
-            return this.core.getReceivingAddress(
-              "2" as EVMContractAddress
-            ).map(console.log); //Should give null
-          });
-        case "setReceivingAddress":
-          return this.core.setReceivingAddress(
-            "1" as EVMContractAddress,
-            "A" as AccountAddress
-          ).andThen(() => {
-            return this.core.setReceivingAddress(
-              "2" as EVMContractAddress,
-              "B" as AccountAddress
-            ).andThen(() => {
-              return this.core.setReceivingAddress(
-                "1" as EVMContractAddress,
-                "AA" as AccountAddress
-              ).andThen(() => {
-                return this.core.setReceivingAddress(
-                  "2" as EVMContractAddress,
-                  null
-                ).map(a => a);
-              });
-            });
-          });
+        // case "setDefaultReceivingAddress":
+        //   return this.core.setDefaultReceivingAddress(
+        //     "DEFAULT_ADDR" as AccountAddress
+        //   ).andThen(() => {
+        //     return this.core.setDefaultReceivingAddress(
+        //       null
+        //     ).andThen(() => {
+        //       return this.core.setDefaultReceivingAddress(
+        //         "DEFAULT_ADDR_2" as AccountAddress
+        //       ).map(a => a);
+        //     })
+        //   });
+        // case "getDefaultReceivingAddress":
+        //   return this.core.getDefaultReceivingAddress().map(console.log);
+        // case "getReceivingAddress":
+        //   return this.core.getReceivingAddress(
+        //     "1" as EVMContractAddress
+        //   ).andThen((res) => {
+        //     console.log(res); //Should give AA
+        //     return this.core.getReceivingAddress(
+        //       "2" as EVMContractAddress
+        //     ).map(console.log); //Should give null
+        //   });
+        // case "setReceivingAddress":
+        //   return this.core.setReceivingAddress(
+        //     "1" as EVMContractAddress,
+        //     "A" as AccountAddress
+        //   ).andThen(() => {
+        //     return this.core.setReceivingAddress(
+        //       "2" as EVMContractAddress,
+        //       "B" as AccountAddress
+        //     ).andThen(() => {
+        //       return this.core.setReceivingAddress(
+        //         "1" as EVMContractAddress,
+        //         "AA" as AccountAddress
+        //       ).andThen(() => {
+        //         return this.core.setReceivingAddress(
+        //           "2" as EVMContractAddress,
+        //           null
+        //         ).map(a => a);
+        //       });
+        //     });
+        //   });
         case "addEVMTransaction - Query's Network":
           /*
                 Important!  Must use different hash values for transaction values!
