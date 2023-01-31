@@ -123,28 +123,27 @@ export class InvitationService implements IInvitationService {
   }
 
   public setDefaultReceivingAddress(
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.setDefaultReceivingAddress(
-      receivingAddress
+      receivingAddress,
     );
   }
 
   public setReceivingAddress(
     contractAddress: EVMContractAddress,
-    receivingAddress: AccountAddress | null
+    receivingAddress: AccountAddress | null,
   ): ResultAsync<void, SnickerDoodleCoreError> {
     return this.invitationRepository.setReceivingAddress(
-      contractAddress, receivingAddress
+      contractAddress,
+      receivingAddress,
     );
   }
 
   public getReceivingAddress(
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
-    return this.invitationRepository.getReceivingAddress(
-      contractAddress
-    );
+    return this.invitationRepository.getReceivingAddress(contractAddress);
   }
 
   protected getDataPermissions(

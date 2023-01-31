@@ -28,9 +28,13 @@ export const useStyles = makeStyles((theme) => ({
     right: -5,
     bottom: 3,
   },
+  copyIcon: {
+    marginLeft: 16,
+    marginRight: 16,
+    cursor: "pointer",
+  },
   accountAddressText: {
-    paddingLeft: "24px",
-    paddingTop: "10px",
+    paddingLeft: "12px",
     fontFamily: "'Space Grotesk', sans-serif",
     fontWeight: 500,
     fontSize: "16px",
