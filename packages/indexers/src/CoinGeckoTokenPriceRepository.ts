@@ -336,9 +336,13 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
             }
           });
 
-          // Non EVM has to be mapped manually
-          mapping.forward["solana"] = ChainId(EChain.Solana);
-          mapping.backward[ChainId(EChain.Solana)] = "solana";
+          config.supportedChains.forEach((chainId) => {
+            const info = getChainInfoByChainId(chainId);
+            if (info.coinGeckoSlug) {
+              mapping.forward[info.coinGeckoSlug] = info.chainId;
+              mapping.backward[info.chainId] = info.coinGeckoSlug;
+            }
+          });
 
           return okAsync(mapping);
         })
