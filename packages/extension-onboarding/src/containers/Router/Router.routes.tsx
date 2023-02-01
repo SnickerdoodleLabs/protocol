@@ -27,7 +27,6 @@ import AccountLinking from "@extension-onboarding/pages/Onboarding/AccountLinkin
 import OnboardingWelcome from "@extension-onboarding/pages/Onboarding/OnboardingWelcome";
 import OptIn from "@extension-onboarding/pages/Onboarding/OptIn";
 import ProfileCreation from "@extension-onboarding/pages/Onboarding/ProfileCreation";
-import ViewData from "@extension-onboarding/pages/Onboarding/ViewData";
 
 export const OnboardingRoutes = (
   <Route>
