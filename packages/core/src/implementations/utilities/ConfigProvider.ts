@@ -109,6 +109,7 @@ export class ConfigProvider
         polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
       },
       10000,
+      "(localhost|chrome:\/\/)",
     );
   }
 
@@ -184,5 +185,7 @@ export class ConfigProvider
       this.config.requestForDataCheckingFrequency;
     this.config.ceramicModelAliases =
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
+    this.config.domainFilter =
+      overrides.domainFilter ?? this.config.domainFilter;
   }
 }

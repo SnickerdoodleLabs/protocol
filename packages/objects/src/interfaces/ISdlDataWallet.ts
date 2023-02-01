@@ -149,4 +149,17 @@ export interface ISdlDataWallet extends EventEmitter {
   ): ResultAsync<MarketplaceListing, JsonRpcError>;
 
   getListingsTotal(): ResultAsync<number, JsonRpcError>;
+
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, JsonRpcError>;
+
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, JsonRpcError>;
+
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, JsonRpcError>;
 }

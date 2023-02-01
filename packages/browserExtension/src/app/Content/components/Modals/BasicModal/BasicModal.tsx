@@ -1,8 +1,7 @@
-import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
-import React, { ReactNode } from "react";
 import { useStyles } from "@app/Content/components/Modals/BasicModal/BasicModal.style";
-import { useGenericModalStyles } from "@app/Content/components/Modals/Modal.style";
+import { Box, Dialog, IconButton, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import React, { ReactNode } from "react";
 
 interface IBasicModalProps {
   title: string;
@@ -16,7 +15,6 @@ const BasicModal = ({
   content,
 }: IBasicModalProps) => {
   const classes = useStyles();
-  const modalClasses = useGenericModalStyles();
   return (
     <Dialog
       PaperProps={{

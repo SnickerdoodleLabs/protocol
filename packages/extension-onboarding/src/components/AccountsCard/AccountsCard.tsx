@@ -1,52 +1,50 @@
 import { useStyles } from "@extension-onboarding/components/AccountsCard/AccountsCard.style";
 import AccountCardItem from "@extension-onboarding/components/AccountsCard/components/AccountCardItem";
 import EmptyContent from "@extension-onboarding/components/AccountsCard/components/EmptyContent";
-import {
-  useAppContext,
-  ILinkedAccount,
-} from "@extension-onboarding/context/App";
+import { useAppContext } from "@extension-onboarding/context/App";
 import { Box } from "@material-ui/core";
-import React, { Fragment, ReactNode } from "react";
+import { AccountAddress } from "@snickerdoodlelabs/objects";
+import React, { ReactNode } from "react";
 
 interface IAccountCardProps {
-  useDivider?: boolean;
-  onButtonClick?: ((account: ILinkedAccount) => void) | null;
+  receivingAddress: AccountAddress | undefined;
+  onSelect: (accountAddress: AccountAddress) => void;
   buttonText?: string;
   topContent?: ReactNode;
 }
 
 const AccountCard = ({
-  useDivider = false,
-  onButtonClick = null,
+  receivingAddress,
+  onSelect,
   buttonText,
   topContent,
 }: IAccountCardProps) => {
   const classes = useStyles();
   const { linkedAccounts } = useAppContext();
-
   return (
-    <Box className={classes.container}>
+    <Box
+      className={classes.container}
+      {...(!topContent && { borderRadius: "0px !important" })}
+    >
       {topContent && topContent}
-      {linkedAccounts?.length ? (
-        linkedAccounts?.map?.((account, index) => (
-          <Fragment key={account.accountAddress}>
+      <Box className={classes.accountsContainer}>
+        {linkedAccounts?.length ? (
+          linkedAccounts?.map?.((account, index) => (
             <AccountCardItem
-              {...(onButtonClick && {
-                onButtonClick: () => {
-                  onButtonClick(account);
-                },
-              })}
+              key={account.accountAddress}
+              useBg={index % 2 === 0}
               account={account}
               buttonText={buttonText}
+              onSelect={() => {
+                onSelect(account.accountAddress);
+              }}
+              isSelected={account.accountAddress === receivingAddress}
             />
-            {useDivider && index + 1 !== linkedAccounts.length && (
-              <Box className={classes.divider} />
-            )}
-          </Fragment>
-        ))
-      ) : (
-        <EmptyContent />
-      )}
+          ))
+        ) : (
+          <EmptyContent />
+        )}
+      </Box>
     </Box>
   );
 };

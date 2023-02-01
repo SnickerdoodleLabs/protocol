@@ -180,6 +180,21 @@ export interface IDataWalletPersistence {
     filter?: TransactionFilter,
   ): ResultAsync<ChainTransaction[], PersistenceError>;
 
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+  getDefaultReceivingAddress(): ResultAsync<
+    AccountAddress | null, 
+    PersistenceError
+  >;
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+  getReceivingAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, PersistenceError>;
+
   getAccountBalances(
     chains?: ChainId[],
     accounts?: LinkedAccount[],

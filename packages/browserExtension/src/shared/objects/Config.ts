@@ -20,5 +20,6 @@ export class ExtensionConfig {
     public nftScanApiKey?: string,
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
+    public domainFilter?: string
   ) {}
 }
