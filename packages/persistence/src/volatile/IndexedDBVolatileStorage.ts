@@ -1,10 +1,11 @@
-import { PersistenceError } from "@snickerdoodlelabs/objects";
+import { PersistenceError, VersionedObject } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 
 import { IndexedDB } from "@persistence/volatile/IndexedDB.js";
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
+import { VolatileStorageMetadata } from "@persistence/volatile/VolatileStorageMetadata.js";
 import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema.js";
 
 @injectable()
@@ -31,9 +32,9 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB.clearObjectStore(name);
   }
 
-  public putObject<T>(
+  public putObject<T extends VersionedObject>(
     name: string,
-    obj: T,
+    obj: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {
     return this.indexedDB.putObject(name, obj);
   }
@@ -45,16 +46,14 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB.removeObject(name, key);
   }
 
-  public getObject<T>(
+  public getObject<T extends VersionedObject>(
     name: string,
     key: string,
-  ): ResultAsync<T | null, PersistenceError> {
-    return this.indexedDB
-      .getObject<T>(name, key)
-      .map((x) => (x == null ? null : x.data));
+  ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
+    return this.indexedDB.getObject<T>(name, key);
   }
 
-  public getCursor<T>(
+  public getCursor<T extends VersionedObject>(
     name: string,
     indexName?: string,
     query?: string | number,
@@ -64,13 +63,11 @@ export class IndexedDBVolatileStorage implements IVolatileStorage {
     return this.indexedDB.getCursor(name, indexName, query, direction, mode);
   }
 
-  public getAll<T>(
+  public getAll<T extends VersionedObject>(
     name: string,
     indexName?: string,
-  ): ResultAsync<T[], PersistenceError> {
-    return this.indexedDB.getAll<T>(name, indexName).map((values) => {
-      return values.map((x) => x.data);
-    });
+  ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
+    return this.indexedDB.getAll<T>(name, indexName);
   }
 
   public getAllKeys<T>(

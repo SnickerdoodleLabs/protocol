@@ -96,7 +96,11 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
   public addTokenInfo(info: TokenInfo): ResultAsync<void, PersistenceError> {
     return this.persistence.updateRecord(
       ERecordKey.COIN_INFO,
-      new VolatileStorageMetadata<TokenInfo>(EBackupPriority.NORMAL, info),
+      new VolatileStorageMetadata<TokenInfo>(
+        EBackupPriority.NORMAL,
+        info,
+        TokenInfo.CURRENT_VERSION,
+      ),
     );
   }
 
@@ -296,6 +300,7 @@ export class CoinGeckoTokenPriceRepository implements ITokenPriceRepository {
                         new VolatileStorageMetadata(
                           EBackupPriority.NORMAL,
                           tokenInfo,
+                          TokenInfo.CURRENT_VERSION,
                         ),
                       ),
                     );

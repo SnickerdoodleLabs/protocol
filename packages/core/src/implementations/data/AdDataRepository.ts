@@ -32,7 +32,11 @@ export class AdDataRepository implements IAdDataRepository {
       ads.map((ad) => {
         return this.persistence.updateRecord(
           ERecordKey.ELIGIBLE_ADS,
-          new VolatileStorageMetadata<EligibleAd>(EBackupPriority.NORMAL, ad),
+          new VolatileStorageMetadata<EligibleAd>(
+            EBackupPriority.NORMAL,
+            ad,
+            EligibleAd.CURRENT_VERSION,
+          ),
         );
       }),
     ).map(() => {});
@@ -56,6 +60,7 @@ export class AdDataRepository implements IAdDataRepository {
           new VolatileStorageMetadata<AdSignature>(
             EBackupPriority.NORMAL,
             adSig,
+            AdSignature.CURRENT_VERSION,
           ),
         );
       }),

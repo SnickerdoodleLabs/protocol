@@ -1,5 +1,6 @@
 import {
   PersistenceError,
+  VersionedObject,
   VolatileStorageKey,
 } from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
@@ -20,7 +21,7 @@ export class IndexedDB {
 
   public constructor(
     public name: string,
-    private schema: VolatileTableIndex[],
+    private schema: VolatileTableIndex<VersionedObject>[],
     private dbFactory: IDBFactory,
   ) {}
 
@@ -63,12 +64,7 @@ export class IndexedDB {
             );
 
             if (storeInfo.indexBy) {
-              const indexes = [
-                ...storeInfo.indexBy,
-                ...VolatileStorageMetadataIndexes,
-              ];
-
-              indexes.forEach(([name, unique]) => {
+              storeInfo.indexBy.forEach(([name, unique]) => {
                 if (Array.isArray(name)) {
                   const paths = name.map((x) => this._getFieldPath(x));
                   objectStore.createIndex(
@@ -82,6 +78,10 @@ export class IndexedDB {
                   const path = this._getFieldPath(name);
                   objectStore.createIndex(path, path, { unique: unique });
                 }
+              });
+
+              VolatileStorageMetadataIndexes.forEach(([name, unique]) => {
+                objectStore.createIndex(name, name, { unique: unique });
               });
             }
           });
@@ -202,8 +202,7 @@ export class IndexedDB {
               );
             };
           } catch (e) {
-            console.log("error obj", obj);
-            console.error("error", e);
+            console.log("error", e, "table", name, "obj", obj);
             tx.abort();
             reject(new PersistenceError("Error updating object store", e));
           }
@@ -256,7 +255,7 @@ export class IndexedDB {
     });
   }
 
-  public getObject<T>(
+  public getObject<T extends VersionedObject>(
     name: string,
     key: VolatileStorageKey,
   ): ResultAsync<VolatileStorageMetadata<T> | null, PersistenceError> {
@@ -283,7 +282,7 @@ export class IndexedDB {
     });
   }
 
-  public getCursor<T>(
+  public getCursor<T extends VersionedObject>(
     name: string,
     index?: VolatileStorageKey,
     query?: string | number,
@@ -308,7 +307,7 @@ export class IndexedDB {
     });
   }
 
-  public getAll<T>(
+  public getAll<T extends VersionedObject>(
     name: string,
     index?: VolatileStorageKey,
   ): ResultAsync<VolatileStorageMetadata<T>[], PersistenceError> {
@@ -326,6 +325,7 @@ export class IndexedDB {
             }
 
             request.onsuccess = (event) => {
+              console.log("getAll", request.result);
               resolve(request.result);
             };
             request.onerror = (event) => {

@@ -6,6 +6,7 @@ import {
   DataWalletBackupID,
   EBackupPriority,
   VolatileStorageKey,
+  VersionedObject,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -112,6 +113,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<T[], PersistenceError> {
     return this.waitForPriority(priority).andThen(() => {
       return this.volatileStorage.getAll<T>(name, indexName).map((values) => {
+        console.log("values", values);
         return values.map((x) => x.data);
       });
     });
@@ -129,7 +131,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public updateRecord<T>(
+  public updateRecord<T extends VersionedObject>(
     tableName: string,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError> {

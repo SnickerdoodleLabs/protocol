@@ -86,26 +86,24 @@ import {
   IVolatileStorageType,
   IndexedDBVolatileStorage,
   GoogleCloudStorage,
+  NullCloudStorage,
 } from "@snickerdoodlelabs/persistence";
 import {
   IStorageUtils,
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
+import { Container } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
-
-import { Container } from "inversify";
-
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
 } from "@core/interfaces/api/index.js";
-
-import { okAsync, ResultAsync } from "neverthrow";
-
 import {
   IAccountService,
   IAccountServiceType,
@@ -120,9 +118,6 @@ import {
   ISiftContractService,
   ISiftContractServiceType,
 } from "@core/interfaces/business/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import {
   IAdDataRepository,
   IAdDataRepositoryType,
@@ -168,8 +163,8 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     } else {
       this.iocContainer
         .bind(ICloudStorageType)
-        // .to(NullCloudStorage)
-        .to(GoogleCloudStorage)
+        .to(NullCloudStorage)
+        // .to(GoogleCloudStorage)
         .inSingletonScope();
     }
 

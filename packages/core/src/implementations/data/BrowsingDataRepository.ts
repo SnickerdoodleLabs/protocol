@@ -37,7 +37,11 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
         visit.domain = url.domain ? DomainName(url.domain) : undefined;
         return this.persistence.updateRecord(
           ERecordKey.SITE_VISITS,
-          new VolatileStorageMetadata<SiteVisit>(EBackupPriority.NORMAL, visit),
+          new VolatileStorageMetadata<SiteVisit>(
+            EBackupPriority.NORMAL,
+            visit,
+            SiteVisit.CURRENT_VERSION,
+          ),
         );
       }),
     ).map(() => undefined);
@@ -68,7 +72,11 @@ export class BrowsingDataRepository implements IBrowsingDataRepository {
   public addClick(click: ClickData): ResultAsync<void, PersistenceError> {
     return this.persistence.updateRecord(
       ERecordKey.CLICKS,
-      new VolatileStorageMetadata<ClickData>(EBackupPriority.NORMAL, click),
+      new VolatileStorageMetadata<ClickData>(
+        EBackupPriority.NORMAL,
+        click,
+        ClickData.CURRENT_VERSION,
+      ),
     );
   }
 

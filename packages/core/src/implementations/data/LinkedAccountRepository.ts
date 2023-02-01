@@ -7,6 +7,7 @@ import {
   EVMContractAddress,
   Invitation,
   JSONString,
+  LatestBlock,
   LinkedAccount,
   PersistenceError,
   Signature,
@@ -118,7 +119,11 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       rewards.map((reward) => {
         return this.persistence.updateRecord<EarnedReward>(
           ERecordKey.EARNED_REWARDS,
-          new VolatileStorageMetadata(EBackupPriority.NORMAL, reward),
+          new VolatileStorageMetadata(
+            EBackupPriority.NORMAL,
+            reward,
+            EarnedReward.CURRENT_VERSION,
+          ),
         );
       }),
     ).map(() => undefined);
@@ -162,12 +167,10 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     contractAddress: EVMContractAddress,
     blockNumber: BlockNumber,
   ): ResultAsync<void, PersistenceError> {
-    const metadata = new VolatileStorageMetadata<LatestBlockEntry>(
+    const metadata = new VolatileStorageMetadata<LatestBlock>(
       EBackupPriority.NORMAL,
-      {
-        contract: contractAddress,
-        block: blockNumber,
-      },
+      new LatestBlock(contractAddress, blockNumber),
+      LatestBlock.CURRENT_VERSION,
     );
     return this.persistence.updateRecord(ERecordKey.LATEST_BLOCK, metadata);
   }
@@ -176,7 +179,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     contractAddress: EVMContractAddress,
   ): ResultAsync<BlockNumber, PersistenceError> {
     return this.persistence
-      .getObject<LatestBlockEntry>(
+      .getObject<LatestBlock>(
         ERecordKey.LATEST_BLOCK,
         contractAddress.toString(),
         EBackupPriority.NORMAL,
@@ -195,6 +198,7 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
     const metadata = new VolatileStorageMetadata<LinkedAccount>(
       EBackupPriority.HIGH,
       linkedAccount,
+      LinkedAccount.CURRENT_VERSION,
     );
     return this.persistence.updateRecord(ERecordKey.ACCOUNT, metadata);
   }
@@ -235,9 +239,4 @@ class InvitationForStorage {
       src.businessSignature,
     );
   }
-}
-
-interface LatestBlockEntry {
-  contract: EVMContractAddress;
-  block: BlockNumber;
 }

@@ -4,6 +4,7 @@ import {
   EVMPrivateKey,
   IDataWalletBackup,
   PersistenceError,
+  VersionedObject,
   VolatileStorageKey,
 } from "@snickerdoodlelabs/objects";
 import {
@@ -36,7 +37,7 @@ export interface IDataWalletPersistence {
   waitForUnlock(): ResultAsync<EVMPrivateKey, never>;
 
   // write methods
-  updateRecord<T>(
+  updateRecord<T extends VersionedObject>(
     tableName: ERecordKey,
     value: VolatileStorageMetadata<T>,
   ): ResultAsync<void, PersistenceError>;
@@ -56,12 +57,12 @@ export interface IDataWalletPersistence {
     key: EFieldKey,
     priority?: EBackupPriority,
   ): ResultAsync<T | null, PersistenceError>;
-  getObject<T>(
+  getObject<T extends VersionedObject>(
     name: ERecordKey,
     key: VolatileStorageKey,
     priority?: EBackupPriority,
   ): ResultAsync<T | null, PersistenceError>;
-  getCursor<T>(
+  getCursor<T extends VersionedObject>(
     name: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,
@@ -69,12 +70,12 @@ export interface IDataWalletPersistence {
     mode?: IDBTransactionMode,
     priority?: EBackupPriority,
   ): ResultAsync<IVolatileCursor<T>, PersistenceError>;
-  getAll<T>(
+  getAll<T extends VersionedObject>(
     name: ERecordKey,
     indexName?: string,
     priority?: EBackupPriority,
   ): ResultAsync<T[], PersistenceError>;
-  getAllKeys<T>(
+  getAllKeys<T extends VersionedObject>(
     name: ERecordKey,
     indexName?: string,
     query?: IDBValidKey | IDBKeyRange,

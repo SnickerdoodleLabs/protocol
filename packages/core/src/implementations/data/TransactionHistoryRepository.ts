@@ -180,6 +180,7 @@ export class TransactionHistoryRepository
         const metadata = new VolatileStorageMetadata<ChainTransaction>(
           EBackupPriority.NORMAL,
           tx,
+          ChainTransaction.CURRENT_VERSION,
         );
         return this.persistence.updateRecord(ERecordKey.TRANSACTIONS, metadata);
       }),

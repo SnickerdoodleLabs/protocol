@@ -5,19 +5,13 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 import { EVMPrivateKey, PersistenceError } from "@snickerdoodlelabs/objects";
 import { IStorageUtils, IStorageUtilsType } from "@snickerdoodlelabs/utils";
-
-import { BackupManager } from "@persistence/backup/BackupManager.js";
-
 import { inject, injectable } from "inversify";
-
-import { IBackupManager } from "@persistence/backup/IBackupManager.js";
-
 import { okAsync, ResultAsync } from "neverthrow";
-
-import { IBackupManagerProvider } from "@persistence/backup/IBackupManagerProvider.js";
-
 import { ResultUtils } from "neverthrow-result-utils";
 
+import { BackupManager } from "@persistence/backup/BackupManager.js";
+import { IBackupManager } from "@persistence/backup/IBackupManager.js";
+import { IBackupManagerProvider } from "@persistence/backup/IBackupManagerProvider.js";
 import {
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
@@ -57,13 +51,9 @@ export class BackupManagerProvider implements IBackupManagerProvider {
       return this.backupManager;
     }
 
-    const tableNames = volatileStorageSchema
-      .filter((schema) => {
-        return !schema.disableBackup;
-      })
-      .map((schema) => {
-        return schema.name;
-      });
+    const schema = volatileStorageSchema.filter((schema) => {
+      return !schema.disableBackup;
+    });
 
     this.backupManager = ResultUtils.combine([
       this.waitForUnlock(),
@@ -71,7 +61,7 @@ export class BackupManagerProvider implements IBackupManagerProvider {
     ]).map(([key, config]) => {
       return new BackupManager(
         key,
-        tableNames,
+        schema,
         this.volatileStorage,
         this.cryptoUtils,
         this.storageUtils,
