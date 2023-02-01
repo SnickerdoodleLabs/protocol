@@ -20,7 +20,7 @@ import {
   useAppContext,
 } from "@extension-onboarding/context/App";
 import { IWindowWithSdlDataWallet } from "@extension-onboarding/services/interfaces/sdlDataWallet/IWindowWithSdlDataWallet";
-import AccountIdentIcon from "../AccountIdentIcon";
+import AccountIdentIcon from "@extension-onboarding/components/AccountIdentIcon";
 
 export enum EDisplayMode {
   MAINNET,
