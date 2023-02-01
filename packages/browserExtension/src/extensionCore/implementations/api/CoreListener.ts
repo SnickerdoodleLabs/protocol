@@ -114,7 +114,7 @@ export class CoreListener implements ICoreListener {
               cid: request.query.cid,
               query: getStringQuery(),
             },
-            parameters as IDynamicRewardParameter[],
+            parameters,
           )
           .map(() => {
             console.log(

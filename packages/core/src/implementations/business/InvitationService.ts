@@ -794,43 +794,6 @@ export class InvitationService implements IInvitationService {
     });
   }
 
-  private _getDefaultReceivingAddress(): ResultAsync<
-    AccountAddress,
-    PersistenceError
-  > {
-    return ResultUtils.combine([
-      this.persistenceRepo.getAccounts(),
-      this.persistenceRepo.getDefaultReceivingAddress(),
-    ]).andThen(([linkedAccounts, defRecvAddr]) => {
-      if (
-        !defRecvAddr ||
-        !this._doLinkedAccountsContainReceivingAddress(
-          linkedAccounts,
-          defRecvAddr,
-        )
-      ) {
-        return this.persistenceRepo
-          .setDefaultReceivingAddress(linkedAccounts[0].sourceAccountAddress)
-          .map(() => linkedAccounts[0].sourceAccountAddress);
-      }
-
-      return okAsync(defRecvAddr);
-    });
-  }
-
-  private _doLinkedAccountsContainReceivingAddress(
-    linkedAccounts: LinkedAccount[],
-    receivingAddress: AccountAddress | null,
-  ): boolean {
-    if (!receivingAddress) {
-      return false;
-    }
-
-    return !!linkedAccounts.find(
-      (ac) => ac.sourceAccountAddress == receivingAddress,
-    );
-  }
-
   public setReceivingAddress(
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null,
@@ -859,39 +822,39 @@ export class InvitationService implements IInvitationService {
   public getReceivingAddress(
     contractAddress?: EVMContractAddress,
   ): ResultAsync<AccountAddress, PersistenceError> {
-    console.log("check account for contract => ", contractAddress);
+    this.logUtils.log(`check account for contract => ${contractAddress}`);
+
     if (!contractAddress) {
       return this._getDefaultReceivingAddress();
     }
 
     return this.persistenceRepo
       .getReceivingAddress(contractAddress)
-      .andThen((receivingAddr) => {
-        console.log(
-          "receiving address found for contract => ",
-          contractAddress,
-          "is",
-          receivingAddr
-        );
-        if (!receivingAddr) {
+      .andThen((receivingAddress) => {
+
+        if (!receivingAddress) {
           return this._getDefaultReceivingAddress();
         }
 
+        this.logUtils.log(
+          `receiving address found for contract => ${contractAddress} is ${receivingAddress}`
+        );
+
         return this.persistenceRepo.getAccounts().andThen((linkedAccounts) => {
           if (
-            !this._doLinkedAccountsContainReceivingAddress(
+            this._doLinkedAccountsContainReceivingAddress(
               linkedAccounts,
-              receivingAddr,
+              receivingAddress,
             )
           ) {
-            return this.persistenceRepo
-              .setReceivingAddress(contractAddress, null)
-              .andThen(() => {
-                return this._getDefaultReceivingAddress();
-              });
+            return okAsync(receivingAddress);
           }
 
-          return okAsync(receivingAddr);
+          return this.persistenceRepo
+            .setReceivingAddress(contractAddress, null)
+            .andThen(() => {
+              return this._getDefaultReceivingAddress();
+            });
         });
       });
   }
@@ -1024,4 +987,42 @@ export class InvitationService implements IInvitationService {
       }
     });
   }
+
+  private _doLinkedAccountsContainReceivingAddress(
+    linkedAccounts: LinkedAccount[],
+    receivingAddress: AccountAddress | null,
+  ): boolean {
+    if (!receivingAddress) {
+      return false;
+    }
+
+    return !!linkedAccounts.find(
+      (ac) => ac.sourceAccountAddress == receivingAddress,
+    );
+  }
+
+  private _getDefaultReceivingAddress(): ResultAsync<
+    AccountAddress,
+    PersistenceError
+  > {
+    return ResultUtils.combine([
+      this.persistenceRepo.getAccounts(),
+      this.persistenceRepo.getDefaultReceivingAddress(),
+    ]).andThen(([linkedAccounts, defaultReceivingAddress]) => {
+      if (
+        !defaultReceivingAddress ||
+        !this._doLinkedAccountsContainReceivingAddress(
+          linkedAccounts,
+          defaultReceivingAddress,
+        )
+      ) {
+        return this.persistenceRepo
+          .setDefaultReceivingAddress(linkedAccounts[0].sourceAccountAddress)
+          .map(() => linkedAccounts[0].sourceAccountAddress);
+      }
+
+      return okAsync(defaultReceivingAddress);
+    });
+  }
+
 }
