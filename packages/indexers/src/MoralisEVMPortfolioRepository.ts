@@ -92,10 +92,8 @@ export class MoralisEVMPortfolioRepository
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    console.log("getTokensForAccount chainId: ", chainId);
     return this.generateQueryConfig(chainId, accountAddress, "nft")
       .andThen((requestConfig) => {
-        console.log("requestConfig.url!: ", requestConfig.url!);
         return this.ajaxUtils
           .get<IMoralisNFTResponse>(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -103,7 +101,6 @@ export class MoralisEVMPortfolioRepository
             requestConfig,
           )
           .andThen((result) => {
-            console.log("result: ", result);
             return this.getPages(chainId, accountAddress, result);
           });
       })
@@ -118,7 +115,6 @@ export class MoralisEVMPortfolioRepository
     response: IMoralisNFTResponse,
   ): ResultAsync<EVMNFT[], AjaxError> {
     const items: EVMNFT[] = response.result.map((token) => {
-      console.log("token: ", token);
       return new EVMNFT(
         EVMContractAddress(token.token_address),
         BigNumberString(token.token_id),
@@ -132,8 +128,6 @@ export class MoralisEVMPortfolioRepository
       );
     });
 
-    console.log("items: ", items);
-
     if (response.cursor == null || response.cursor == "") {
       return okAsync(items);
     }
@@ -144,16 +138,13 @@ export class MoralisEVMPortfolioRepository
       "nft",
       response.cursor,
     ).andThen((requestConfig) => {
-      console.log("requestConfig: ", requestConfig);
       return (
         this.ajaxUtils
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           .get<IMoralisNFTResponse>(new URL(requestConfig.url!), requestConfig)
           .andThen((next) => {
-            console.log("next: ", next);
             return this.getPages(chainId, accountAddress, next).andThen(
               (nftArr) => {
-                console.log("nftArr: ", nftArr);
                 return okAsync(nftArr.concat(items));
               },
             );

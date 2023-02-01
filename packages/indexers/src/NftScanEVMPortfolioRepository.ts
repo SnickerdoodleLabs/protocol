@@ -8,22 +8,15 @@ import {
   AjaxError,
   BigNumberString,
   ChainId,
-  EChainTechnology,
   EVMAccountAddress,
   EVMContractAddress,
   EVMNFT,
-  getChainInfoByChainId,
-  IEVMAccountBalanceRepository,
   IEVMNftRepository,
-  TickerSymbol,
-  TokenBalance,
   TokenUri,
   UnixTimestamp,
-  URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 import { urlJoinP } from "url-join-ts";
 
 import {
@@ -43,11 +36,8 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
-    console.log("getTokensForAccount chainId: ", chainId);
-    return this.generateQueryConfig(chainId, accountAddress, "nft")
+    return this.generateQueryConfig(accountAddress)
       .andThen((requestConfig) => {
-        console.log("requestConfig: ", requestConfig);
-        console.log("requestConfig.url!: ", requestConfig.url!);
         return this.ajaxUtils
           .get<INftScanResponse>(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -55,8 +45,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
             requestConfig,
           )
           .andThen((result) => {
-            console.log("result: ", result);
-            return this.getPages(chainId, accountAddress, result);
+            return this.getPages(chainId, result);
           });
       })
       .mapErr(
@@ -66,11 +55,9 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
 
   private getPages(
     chainId: ChainId,
-    accountAddress: EVMAccountAddress,
     response: INftScanResponse,
   ): ResultAsync<EVMNFT[], AjaxError> {
     const items: EVMNFT[] = response.data.content.map((token) => {
-      console.log("token: ", token);
       return new EVMNFT(
         EVMContractAddress(token.contract_address),
         BigNumberString(token.token_id),
@@ -88,11 +75,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
   }
 
   private generateQueryConfig(
-    chainId: ChainId,
     accountAddress: EVMAccountAddress,
-    endpoint: string,
-    cursor?: string,
-    contracts?: EVMContractAddress[],
   ): ResultAsync<IRequestConfig, never> {
     const url = urlJoinP("https://moonbeamapi.nftscan.com", [
       "api",
