@@ -957,13 +957,11 @@ export class DataWalletPersistence implements IDataWalletPersistence {
             case EIndexer.Gnosis:
               return okAsync([]);
             case EIndexer.Binance:
-              console.log("LOOKING FOR EIndexer.Binance: ");
               return etherscanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Moonbeam:
-              console.log("LOOKING FOR EIndexer.Moonbeam: ");
               return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
