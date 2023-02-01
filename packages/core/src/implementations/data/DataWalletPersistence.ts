@@ -975,7 +975,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Moonbeam:
-              console.log("LOOKING FOR EIndexer.Binance: ");
+              console.log("LOOKING FOR EIndexer.Moonbeam: ");
               return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,

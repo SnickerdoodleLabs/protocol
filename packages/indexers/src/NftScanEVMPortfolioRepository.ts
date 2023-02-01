@@ -18,6 +18,7 @@ import {
   TickerSymbol,
   TokenBalance,
   TokenUri,
+  UnixTimestamp,
   URLString,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
@@ -98,7 +99,7 @@ export class NftScanEVMPortfolioRepository
         console.log("requestConfig: ", requestConfig);
         console.log("requestConfig.url!: ", requestConfig.url!);
         return this.ajaxUtils
-          .get<IMoralisNFTResponse>(
+          .get<INftScanResponse>(
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             new URL(requestConfig.url!),
             requestConfig,
@@ -116,51 +117,53 @@ export class NftScanEVMPortfolioRepository
   private getPages(
     chainId: ChainId,
     accountAddress: EVMAccountAddress,
-    response: IMoralisNFTResponse,
+    response: INftScanResponse,
   ): ResultAsync<EVMNFT[], AjaxError> {
-    const items: EVMNFT[] = response.result.map((token) => {
+    const items: EVMNFT[] = response.data.content.map((token) => {
       console.log("token: ", token);
       return new EVMNFT(
-        EVMContractAddress(token.token_address),
+        EVMContractAddress(token.contract_address),
         BigNumberString(token.token_id),
-        token.contract_type,
-        EVMAccountAddress(token.owner_of),
+        token.erc_type,
+        EVMAccountAddress(token.owner),
         TokenUri(token.token_uri),
-        { raw: token.metadata },
+        { raw: token.metadata_json },
         BigNumberString(token.amount),
         token.name,
         chainId,
       );
     });
 
-    console.log("items: ", items);
+    return okAsync(items);
 
-    if (response.cursor == null || response.cursor == "") {
-      return okAsync(items);
-    }
+    // console.log("items: ", items);
 
-    return this.generateQueryConfig(
-      chainId,
-      accountAddress,
-      "nft",
-      response.cursor,
-    ).andThen((requestConfig) => {
-      console.log("requestConfig: ", requestConfig);
-      return (
-        this.ajaxUtils
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          .get<IMoralisNFTResponse>(new URL(requestConfig.url!), requestConfig)
-          .andThen((next) => {
-            console.log("next: ", next);
-            return this.getPages(chainId, accountAddress, next).andThen(
-              (nftArr) => {
-                console.log("nftArr: ", nftArr);
-                return okAsync(nftArr.concat(items));
-              },
-            );
-          })
-      );
-    });
+    // if (response.cursor == null || response.cursor == "") {
+    //   return okAsync(items);
+    // }
+
+    // return this.generateQueryConfig(
+    //   chainId,
+    //   accountAddress,
+    //   "nft",
+    //   response.cursor,
+    // ).andThen((requestConfig) => {
+    //   console.log("requestConfig: ", requestConfig);
+    //   return (
+    //     this.ajaxUtils
+    //       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    //       .get<INftScanResponse>(new URL(requestConfig.url!), requestConfig)
+    //       .andThen((next) => {
+    //         console.log("next: ", next);
+    //         return this.getPages(chainId, accountAddress, next).andThen(
+    //           (nftArr) => {
+    //             console.log("nftArr: ", nftArr);
+    //             return okAsync(nftArr.concat(items));
+    //           },
+    //         );
+    //       })
+    //   );
+    // });
   }
 
   private generateQueryConfig(
@@ -170,22 +173,25 @@ export class NftScanEVMPortfolioRepository
     cursor?: string,
     contracts?: EVMContractAddress[],
   ): ResultAsync<IRequestConfig, never> {
-    const params = {
-      format: "decimal",
-      chain: `0x${chainId.toString(16)}`,
-    };
-    if (contracts != undefined) {
-      params["token_addresses"] = contracts.toString();
-    }
-    if (cursor != undefined) {
-      params["cursor"] = cursor;
-    }
+    // const params = {
+    //   format: "decimal",
+    //   chain: `0x${chainId.toString(16)}`,
+    // };
+    // if (contracts != undefined) {
+    //   params["token_addresses"] = contracts.toString();
+    // }
+    // if (cursor != undefined) {
+    //   params["cursor"] = cursor;
+    // }
 
-    const url = urlJoinP(
-      "https://deep-index.moralis.io",
-      ["api", "v2", accountAddress.toString(), endpoint],
-      params,
-    );
+    const url = urlJoinP("https://moonbeamapi.nftscan.com", [
+      "api",
+      "v2",
+      "account",
+      "own",
+      accountAddress.toString() + "?erc_type=erc721",
+    ]);
+    console.log("url: ", url);
     return this.configProvider.getConfig().map((config) => {
       const result: IRequestConfig = {
         method: "get",
@@ -200,31 +206,40 @@ export class NftScanEVMPortfolioRepository
   }
 }
 
-interface IMoralisNFTResponse {
-  total: number;
-  page: number;
-  page_size: number;
-  status: string;
-  cursor: string | null;
-
-  result: {
-    token_address: string;
-    token_id: string;
-    owner_of: string;
-    block_number: string;
-    block_number_minted: string;
-    token_hash: string;
-    amount: string;
-    updated_at: string;
-    contract_type: string;
-    name: string;
-    symbol: string;
-    token_uri: string;
-    metadata: string;
-  }[];
-
-  last_token_uri_sync: string | null;
-  last_metadata_sync: string | null;
+interface INftScanResponse {
+  code: number;
+  data: {
+    content: {
+      amount: string;
+      attributes: string[];
+      content_type: string;
+      content_uri: string;
+      contract_address: string;
+      contract_name: string;
+      contract_token_id: string;
+      erc_type: string;
+      external_link: string;
+      image_uri: string;
+      latest_trade_price: string;
+      latest_trade_symbol: string;
+      latest_trade_timestamp: UnixTimestamp;
+      metadata_json: string;
+      mint_price: string;
+      mint_timestamp: UnixTimestamp;
+      mint_transaction_hash: string;
+      minter: string;
+      name: string;
+      nftscan_id: string;
+      nftscan_uri: string;
+      own_timestamp: string;
+      owner: string;
+      rarity_rank: string;
+      rarity_score: string;
+      token_id: string;
+      token_uri: string;
+    }[];
+  };
+  msg: number;
 }
 
 type IMoralisBalanceResponse = {
