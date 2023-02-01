@@ -14,7 +14,7 @@ import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IERC721RewardContract } from "..";
+import { IERC721RewardContract } from "@contracts-sdk/interfaces/index.js";
 
 @injectable()
 export class ERC721RewardContract implements IERC721RewardContract {
