@@ -67,7 +67,6 @@ import {
   HexString32,
   IpfsCID,
   LanguageCode,
-  SHA256Hash,
   Signature,
   UnixTimestamp,
   URLString,

@@ -7,7 +7,7 @@ import {
   PermissionsRequestedEvent,
 } from "@snickerdoodlelabs/objects";
 import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { errAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IIntegrationService } from "@core/interfaces/business/index.js";
@@ -18,7 +18,7 @@ import {
 import {
   IContextProvider,
   IContextProviderType,
-} from "@core/interfaces/utilities";
+} from "@core/interfaces/utilities/index.js";
 
 @injectable()
 export class IntegrationService implements IIntegrationService {

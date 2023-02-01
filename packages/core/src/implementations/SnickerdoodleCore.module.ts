@@ -5,20 +5,25 @@ import {
 import {
   AccountService,
   AdService,
-  BalanceQueryEvaluator,
-  ConsentTokenUtils,
   IntegrationService,
   InvitationService,
   MarketplaceService,
   MonitoringService,
-  NetworkQueryEvaluator,
   ProfileService,
-  QueryEvaluator,
-  QueryParsingEngine,
-  QueryRepository,
   QueryService,
   SiftContractService,
 } from "@core/implementations/business/index.js";
+import {
+  ConsentTokenUtils,
+  PermissionUtils,
+  QueryParsingEngine,
+} from "@core/implementations/business/utilities/index.js";
+import {
+  BalanceQueryEvaluator,
+  NetworkQueryEvaluator,
+  QueryEvaluator,
+  QueryRepository,
+} from "@core/implementations/business/utilities/query/index.js";
 import {
   AdContentRepository,
   ConsentContractRepository,
@@ -31,6 +36,10 @@ import {
   SDQLQueryRepository,
   SiftContractRepository,
 } from "@core/implementations/data/index.js";
+import {
+  ContractFactory,
+  QueryFactories,
+} from "@core/implementations/utilities/factory/index.js";
 
 import {
   AxiosAjaxUtils,
@@ -48,17 +57,6 @@ import {
 } from "@snickerdoodlelabs/common-utils";
 
 import {
-  ContractFactory,
-  QueryFactories,
-} from "@core/implementations/utilities/factory/index.js";
-
-import {
-  CoinGeckoTokenPriceRepository,
-  IIndexerConfigProvider,
-  IIndexerConfigProviderType,
-} from "@snickerdoodlelabs/indexers";
-
-import {
   BlockchainProvider,
   ConfigProvider,
   ContextProvider,
@@ -66,10 +64,10 @@ import {
 } from "@core/implementations/utilities/index.js";
 
 import {
-  IInsightPlatformRepository,
-  IInsightPlatformRepositoryType,
-  InsightPlatformRepository,
-} from "@snickerdoodlelabs/insight-platform-api";
+  CoinGeckoTokenPriceRepository,
+  IIndexerConfigProvider,
+  IIndexerConfigProviderType,
+} from "@snickerdoodlelabs/indexers";
 
 import {
   IAccountIndexerPoller,
@@ -79,9 +77,10 @@ import {
 } from "@core/interfaces/api/index.js";
 
 import {
-  ITokenPriceRepository,
-  ITokenPriceRepositoryType,
-} from "@snickerdoodlelabs/objects";
+  IInsightPlatformRepository,
+  IInsightPlatformRepositoryType,
+  InsightPlatformRepository,
+} from "@snickerdoodlelabs/insight-platform-api";
 
 import {
   IAccountService,
@@ -105,6 +104,20 @@ import {
 } from "@core/interfaces/business/index.js";
 
 import {
+  ITokenPriceRepository,
+  ITokenPriceRepositoryType,
+} from "@snickerdoodlelabs/objects";
+
+import {
+  IConsentTokenUtils,
+  IConsentTokenUtilsType,
+  IPermissionUtils,
+  IPermissionUtilsType,
+  IQueryParsingEngine,
+  IQueryParsingEngineType,
+} from "@core/interfaces/business/utilities/index.js";
+
+import {
   BackupManagerProvider,
   IBackupManagerProvider,
   IBackupManagerProviderType,
@@ -115,17 +128,13 @@ import {
 import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
-  IConsentTokenUtils,
-  IConsentTokenUtilsType,
   INetworkQueryEvaluator,
   INetworkQueryEvaluatorType,
   IQueryEvaluator,
   IQueryEvaluatorType,
-  IQueryParsingEngine,
-  IQueryParsingEngineType,
   IQueryRepository,
   IQueryRepositoryType,
-} from "@core/interfaces/business/utilities/index.js";
+} from "@core/interfaces/business/utilities/query/index.js";
 
 import {
   IQueryObjectFactory,
@@ -225,6 +234,9 @@ export const snickerdoodleCoreModule = new ContainerModule(
 
     bind<IConsentTokenUtils>(IConsentTokenUtilsType)
       .to(ConsentTokenUtils)
+      .inSingletonScope();
+    bind<IPermissionUtils>(IPermissionUtilsType)
+      .to(PermissionUtils)
       .inSingletonScope();
     bind<IQueryParsingEngine>(IQueryParsingEngineType)
       .to(QueryParsingEngine)

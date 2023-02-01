@@ -1,18 +1,17 @@
 import "reflect-metadata";
 
+import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+
 import { ProfileService } from "@core/implementations/business/index.js";
 
-import { TimeUtils } from "@snickerdoodlelabs/common-utils";
+import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
 
 import {
   NetworkQueryEvaluator,
   QueryEvaluator,
   QueryRepository,
-} from "@core/implementations/business/utilities/index.js";
-
-import { Age, CountryCode, IpfsCID } from "@snickerdoodlelabs/objects";
-
-import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+  BalanceQueryEvaluator,
+} from "@core/implementations/business/utilities/query/index.js";
 
 import {
   IQueryObjectFactory,
@@ -28,8 +27,10 @@ import { IProfileService } from "@core/interfaces/business/index.js";
 
 import * as td from "testdouble";
 
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/index.js";
-import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
+import {
+  INetworkQueryEvaluator,
+  IBalanceQueryEvaluator,
+} from "@core/interfaces/business/utilities/query/index.js";
 import { IDataWalletPersistence } from "@core/interfaces/data/index.js";
 import { IQueryFactories } from "@core/interfaces/utilities/factory/index.js";
 

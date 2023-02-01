@@ -10,7 +10,6 @@ import {
   AESEncryptedString,
   AESKey,
   BigNumberString,
-  CeramicStreamID,
   DataWalletBackupID,
   EChain,
   EncryptedString,
@@ -53,6 +52,8 @@ import {
 import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
 import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
 import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
+import { IPermissionUtils } from "@core/interfaces/business/utilities/index.js";
+import { PermissionsUtilsMock } from "@core-tests/mock/business/utilities/index.js";
 
 const crumbsContractAddress = EVMContractAddress("crumbsContractAddress");
 const metatransactionValue = BigNumberString("0");
@@ -114,6 +115,7 @@ const solanaBurnCrumbMetatransactionSignature = Signature(
 const dataWalletBackupID = DataWalletBackupID("ceramicStream");
 
 class AccountServiceMocks {
+  public permissionsUtils: IPermissionUtils;
   public insightPlatformRepo: IInsightPlatformRepository;
   public crumbsRepo: ICrumbsRepository;
   public dataWalletPersistence: IDataWalletPersistence;
@@ -128,6 +130,7 @@ class AccountServiceMocks {
   public logUtils: ILogUtils;
 
   public constructor(unlockInProgress = false, unlocked = false) {
+    this.permissionsUtils = new PermissionsUtilsMock();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.crumbsRepo = td.object<ICrumbsRepository>();
     this.dataWalletPersistence = td.object<IDataWalletPersistence>();
@@ -480,6 +483,7 @@ class AccountServiceMocks {
 
   public factory(): IAccountService {
     return new AccountService(
+      this.permissionsUtils,
       this.insightPlatformRepo,
       this.crumbsRepo,
       this.dataWalletPersistence,

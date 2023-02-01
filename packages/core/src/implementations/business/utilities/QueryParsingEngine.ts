@@ -27,17 +27,19 @@ import {
 } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
+
+import { AST_Evaluator } from "@core/implementations/business/utilities/query/index.js";
+
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { AST_Evaluator } from "@core/implementations/business/utilities/query/AST_Evaluator";
+import { IQueryParsingEngine } from "@core/interfaces/business/utilities/index.js";
 
 import { BaseOf } from "ts-brand";
 
 import {
-  IQueryParsingEngine,
   IQueryRepository,
   IQueryRepositoryType,
-} from "@core/interfaces/business/utilities/index.js";
+} from "@core/interfaces/business/utilities/query/index.js";
 import {
   IAdContentRepository,
   IAdRepositoryType,

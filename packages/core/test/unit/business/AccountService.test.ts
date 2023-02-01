@@ -1,11 +1,26 @@
 import "reflect-metadata";
+import { AccountService } from "@core/implementations/business/index.js";
+import { IAccountService } from "@core/interfaces/business/index.js";
+
 import { ICryptoUtils, ILogUtils } from "@snickerdoodlelabs/common-utils";
+
+import { IPermissionUtils } from "@core/interfaces/business/utilities/index.js";
+
 import {
   ICrumbsContract,
   IMinimalForwarderContract,
   IMinimalForwarderRequest,
 } from "@snickerdoodlelabs/contracts-sdk";
+
+import {
+  ICrumbsRepository,
+  IDataWalletPersistence,
+} from "@core/interfaces/data/index.js";
+
 import { IInsightPlatformRepository } from "@snickerdoodlelabs/insight-platform-api";
+
+import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
+
 import {
   AESEncryptedString,
   AESKey,
@@ -34,11 +49,20 @@ import {
   TokenUri,
   UninitializedError,
 } from "@snickerdoodlelabs/objects";
+
+import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
+
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
+
+import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
+
 import { errAsync, okAsync } from "neverthrow";
+
+import { PermissionsUtilsMock } from "@core-tests/mock/business/utilities/index.js";
+
 import * as td from "testdouble";
 
 import {
@@ -50,15 +74,6 @@ import {
   ConfigProviderMock,
   ContextProviderMock,
 } from "@core-tests/mock/utilities/index.js";
-import { AccountService } from "@core/implementations/business/index.js";
-import { IAccountService } from "@core/interfaces/business/index.js";
-import {
-  ICrumbsRepository,
-  IDataWalletPersistence,
-} from "@core/interfaces/data/index.js";
-import { CoreContext, PublicEvents } from "@core/interfaces/objects/index.js";
-import { IContractFactory } from "@core/interfaces/utilities/factory/index.js";
-import { IDataWalletUtils } from "@core/interfaces/utilities/index.js";
 
 const crumbsContractAddress = EVMContractAddress("crumbsContractAddress");
 const metatransactionValue = BigNumberString("0");
@@ -124,6 +139,7 @@ const solanaBurnCrumbMetatransactionSignature = Signature(
 const dataWalletBackupID = DataWalletBackupID("dataWalletBackup");
 
 class AccountServiceMocks {
+  public permissionsUtils: IPermissionUtils;
   public insightPlatformRepo: IInsightPlatformRepository;
   public crumbsRepo: ICrumbsRepository;
   public dataWalletPersistence: IDataWalletPersistence;
@@ -138,6 +154,7 @@ class AccountServiceMocks {
   public crumbsContract: ICrumbsContract;
 
   public constructor(unlockInProgress = false, unlocked = false) {
+    this.permissionsUtils = new PermissionsUtilsMock();
     this.insightPlatformRepo = td.object<IInsightPlatformRepository>();
     this.crumbsRepo = td.object<ICrumbsRepository>();
     this.dataWalletPersistence = td.object<IDataWalletPersistence>();
@@ -514,6 +531,7 @@ class AccountServiceMocks {
 
   public factory(): IAccountService {
     return new AccountService(
+      this.permissionsUtils,
       this.insightPlatformRepo,
       this.crumbsRepo,
       this.dataWalletPersistence,

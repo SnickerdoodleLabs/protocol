@@ -73,15 +73,13 @@ import {
   AccountIndexingError,
   TokenInfo,
   TokenMarketData,
-  MarketplaceListing,
   TransactionPaymentCounter,
   EDataWalletPermission,
   ICoreMarketplaceMethods,
   ICoreIntegrationMethods,
   EligibleAd,
   AdSignature,
-  SHA256Hash,
-  ISnickerdoodleCoreType,
+  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
 import {
   ICloudStorage,
@@ -96,17 +94,20 @@ import {
   IStorageUtilsType,
   LocalStorageUtils,
 } from "@snickerdoodlelabs/utils";
-import { Container } from "inversify";
-import { okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
 import { snickerdoodleCoreModule } from "@core/implementations/SnickerdoodleCore.module.js";
+
+import { Container } from "inversify";
+
 import {
   IAccountIndexerPoller,
   IAccountIndexerPollerType,
   IBlockchainListener,
   IBlockchainListenerType,
 } from "@core/interfaces/api/index.js";
+
+import { ResultAsync } from "neverthrow";
+
 import {
   IAccountService,
   IAccountServiceType,
@@ -125,6 +126,9 @@ import {
   ISiftContractService,
   ISiftContractServiceType,
 } from "@core/interfaces/business/index.js";
+
+import { ResultUtils } from "neverthrow-result-utils";
+
 import {
   IDataWalletPersistence,
   IDataWalletPersistenceType,
@@ -758,12 +762,13 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
       this.iocContainer.get<IProfileService>(IProfileServiceType);
     return profileService.getAge();
   }
+
   public getAccounts(
     sourceDomain: DomainName | undefined = undefined,
-  ): ResultAsync<LinkedAccount[], PersistenceError> {
+  ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);
-    return accountService.getAccounts();
+    return accountService.getAccounts(sourceDomain);
   }
 
   public getTransactions(
@@ -853,13 +858,12 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
   }
 
   onAdDisplayed(
-    eligibleAd: EligibleAd
+    eligibleAd: EligibleAd,
   ): ResultAsync<void, UninitializedError | IPFSError | PersistenceError> {
-    const adService =
-      this.iocContainer.get<IAdService>(IAdServiceType);
+    const adService = this.iocContainer.get<IAdService>(IAdServiceType);
     return adService.onAdDisplayed(eligibleAd);
   }
-  
+
   public addTransactions(
     transactions: ChainTransaction[],
     sourceDomain: DomainName | undefined = undefined,

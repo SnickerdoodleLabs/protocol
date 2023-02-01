@@ -46,27 +46,41 @@ import {
   UnixTimestamp,
   DataWalletBackupID,
   TransactionPaymentCounter,
+  EDataWalletPermission,
+  DomainName,
+  UnauthorizedError,
 } from "@snickerdoodlelabs/objects";
+
+import { IAccountService } from "@core/interfaces/business/index.js";
+
 import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
-import { BigNumber } from "ethers";
-import { inject, injectable } from "inversify";
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { ResultUtils } from "neverthrow-result-utils";
 
-import { IAccountService } from "@core/interfaces/business/index.js";
+import {
+  IPermissionUtils,
+  IPermissionUtilsType,
+} from "@core/interfaces/business/utilities/index.js";
+
+import { BigNumber } from "ethers";
+
 import {
   ICrumbsRepository,
   ICrumbsRepositoryType,
   IDataWalletPersistence,
   IDataWalletPersistenceType,
 } from "@core/interfaces/data/index.js";
+
+import { inject, injectable } from "inversify";
+
 import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
+
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -76,9 +90,12 @@ import {
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
 
+import { ResultUtils } from "neverthrow-result-utils";
+
 @injectable()
 export class AccountService implements IAccountService {
   public constructor(
+    @inject(IPermissionUtilsType) protected permissionUtils: IPermissionUtils,
     @inject(IInsightPlatformRepositoryType)
     protected insightPlatformRepo: IInsightPlatformRepository,
     @inject(ICrumbsRepositoryType)
@@ -532,8 +549,17 @@ export class AccountService implements IAccountService {
       });
   }
 
-  public getAccounts(): ResultAsync<LinkedAccount[], PersistenceError> {
-    return this.dataWalletPersistence.getAccounts();
+  public getAccounts(
+    sourceDomain: DomainName | undefined = undefined,
+  ): ResultAsync<LinkedAccount[], UnauthorizedError | PersistenceError> {
+    return this.permissionUtils
+      .assureSourceDomainHasPermission(
+        sourceDomain,
+        EDataWalletPermission.ReadLinkedAccounts,
+      )
+      .andThen(() => {
+        return this.dataWalletPersistence.getAccounts();
+      });
   }
 
   public getAccountBalances(): ResultAsync<TokenBalance[], PersistenceError> {
