@@ -42,5 +42,6 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
       polygonMumbai: string;
     },
     public restoreTimeoutMS: number,
+    public domainFilter : string,
   ) {}
 }

@@ -19,6 +19,7 @@ declare const __DNS_SERVER_ADDRESS__: URLString;
 declare const __CERAMIC_NODE_URL__: URLString;
 declare const __CONTROL_CHAIN_PROVIDER_URL__: ProviderUrl;
 declare const __REQUEST_FOR_DATA_EVENT_FREQ__: string;
+declare const __DOMAIN_FILTER__: string;
 
 class ConfigProvider implements IConfigProvider {
   protected extensionConfig: ExtensionConfig;
@@ -47,6 +48,7 @@ class ConfigProvider implements IConfigProvider {
       __MORALIS_API_KEY__ === "" ? undefined : __MORALIS_API_KEY__,
       __DNS_SERVER_ADDRESS__ === "" ? undefined : __DNS_SERVER_ADDRESS__,
       Number.parseInt(__REQUEST_FOR_DATA_EVENT_FREQ__),
+      __DOMAIN_FILTER__ === "" ? undefined : __DOMAIN_FILTER__,
     );
   }
   public getConfig() {

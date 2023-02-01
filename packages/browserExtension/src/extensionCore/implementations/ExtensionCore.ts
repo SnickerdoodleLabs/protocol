@@ -73,6 +73,7 @@ export class ExtensionCore {
       accountNFTPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
       dataWalletBackupIntervalMS: SIX_HOURS_MS,
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
+      domainFilter: config.domainFilter,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

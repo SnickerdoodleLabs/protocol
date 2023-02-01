@@ -181,6 +181,7 @@ var options = {
       __COOKIE_LIFETIME__: JSON.stringify(
         process.env.__COOKIE_LIFETIME__ || "1",
       ),
+      __DOMAIN_FILTER__ : JSON.stringify(process.env.__DOMAIN_FILTER__)
     }),
     new CopyWebpackPlugin({
       patterns: [
