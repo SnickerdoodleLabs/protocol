@@ -25,10 +25,10 @@ export class ERC721RewardContract implements IERC721RewardContract {
       | ethers.providers.Provider
       | ethers.providers.JsonRpcSigner
       | ethers.Wallet,
-    public contractAddress: EVMContractAddress,
+    public contractAddress: EVMContractAddress | null, // null to account for deploying a new contract
   ) {
     this.contract = new ethers.Contract(
-      contractAddress,
+      contractAddress as EVMContractAddress,
       ContractsAbis.ERC721Reward.abi,
       providerOrSigner,
     );
@@ -40,7 +40,7 @@ export class ERC721RewardContract implements IERC721RewardContract {
   }
 
   public getContractAddress(): EVMContractAddress {
-    return this.contractAddress;
+    return this.contractAddress as EVMContractAddress;
   }
 
   // function to deploy a new ERC721 reward contract
