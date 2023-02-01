@@ -924,7 +924,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
           nftScanRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
-          console.log("config.chainInformation: ", config.chainInformation);
           if (chainInfo == null) {
             return errAsync(
               new AccountIndexingError(
@@ -932,17 +931,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
               ),
             );
           }
-          console.log("chainInfo.chainId: ", chainInfo.chainId);
-          console.log("chainInfo.indexer: ", chainInfo.indexer);
-          console.log("chainInfo.indexer: ", chainInfo.indexer);
-          console.log("EIndexer.EVM: ", EIndexer.EVM);
-          console.log("EIndexer.Polygon: ", EIndexer.Polygon);
-          console.log("EIndexer.Simulator: ", EIndexer.Simulator);
-          console.log("EIndexer.Solana: ", EIndexer.Solana);
-          console.log("EIndexer.Ethereum: ", EIndexer.Ethereum);
-          console.log("EIndexer.Gnosis: ", EIndexer.Gnosis);
-          console.log("EIndexer.Binance: ", EIndexer.Binance);
-          console.log("EIndexer.Moonbeam: ", EIndexer.Moonbeam);
 
           switch (chainInfo.indexer) {
             case EIndexer.EVM:
