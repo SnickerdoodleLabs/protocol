@@ -88,6 +88,7 @@ export const testCoreConfig = new CoreConfig(
   5000,
   { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
   10000,
+  "(localhost|chrome:\/\/)"
 );
 
 // #endregion
