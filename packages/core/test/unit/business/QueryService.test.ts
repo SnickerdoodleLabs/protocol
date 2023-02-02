@@ -300,6 +300,7 @@ describe("processRewardsPreview tests", () => {
           td.matchers.anything(),
           td.matchers.anything(),
           td.matchers.anything(),
+          td.matchers.anything(),
         ),
       ),
     );
