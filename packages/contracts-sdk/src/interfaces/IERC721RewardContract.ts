@@ -13,6 +13,24 @@ import { ResultAsync } from "neverthrow";
 export interface IERC721RewardContract {
   getContractAddress(): EVMContractAddress;
 
+  deployNewReward(
+    name: string,
+    symbol: string,
+    baseURI: BaseURI,
+  ): ResultAsync<EVMContractAddress, ERC721RewardContractError>;
+
+  getOwner(): ResultAsync<EVMAccountAddress, ERC721RewardContractError>;
+
+  getDefaultAdminRoleMembers(): ResultAsync<
+    EVMAccountAddress[],
+    ERC721RewardContractError
+  >;
+
+  getMinterRoleMembers(): ResultAsync<
+    EVMAccountAddress[],
+    ERC721RewardContractError
+  >;
+
   /**
    * Returns the number of Reward tokens owned by a specific address
    * @param address owner address
