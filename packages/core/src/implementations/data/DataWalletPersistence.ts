@@ -1020,10 +1020,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Gnosis:
-              return etherscanRepo.getTokensForAccount(
-                chainId,
-                accountAddress as EVMAccountAddress,
-              );
+              return okAsync([]);
             case EIndexer.Binance:
               return etherscanRepo.getTokensForAccount(
                 chainId,
