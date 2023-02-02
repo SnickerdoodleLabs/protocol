@@ -1,3 +1,4 @@
+import { IERC721RewardContract } from "@contracts-sdk/interfaces/index.js";
 import { ContractsAbis } from "@contracts-sdk/interfaces/objects/abi";
 import { RewardRoles } from "@contracts-sdk/interfaces/objects/RewardRoles.js";
 import {
@@ -14,8 +15,6 @@ import { injectable } from "inversify";
 import { ok, err, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
-import { IERC721RewardContract } from "@contracts-sdk/interfaces/index.js";
-
 @injectable()
 export class ERC721RewardContract implements IERC721RewardContract {
   protected contract: ethers.Contract;
@@ -27,8 +26,11 @@ export class ERC721RewardContract implements IERC721RewardContract {
       | ethers.Wallet,
     public contractAddress: EVMContractAddress | null, // null to account for deploying a new contract
   ) {
+    // Ether's contract object cannot take a null value, so if contractAddress was null, set a zero address value
     this.contract = new ethers.Contract(
-      contractAddress as EVMContractAddress,
+      contractAddress == null
+        ? EVMContractAddress(ethers.constants.AddressZero)
+        : (contractAddress as EVMContractAddress),
       ContractsAbis.ERC721Reward.abi,
       providerOrSigner,
     );
