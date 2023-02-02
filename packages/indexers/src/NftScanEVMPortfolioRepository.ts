@@ -49,7 +49,7 @@ export class NftScanEVMPortfolioRepository implements IEVMNftRepository {
           });
       })
       .mapErr(
-        (e) => new AccountIndexingError("error fetching nfts from moralis", e),
+        (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
       );
   }
 
