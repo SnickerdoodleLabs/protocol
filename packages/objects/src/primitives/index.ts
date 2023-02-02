@@ -7,6 +7,7 @@ export * from "@objects/primitives/BaseURI";
 export * from "@objects/primitives/BigNumberString";
 export * from "@objects/primitives/BlockNumber";
 export * from "@objects/primitives/ChainId";
+export * from "@objects/primitives/CoinGeckoAssetPlatformID";
 export * from "@objects/primitives/ConsentName";
 export * from "@objects/primitives/CountryCode";
 export * from "@objects/primitives/CryptoTokenSymbol";

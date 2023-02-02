@@ -25,6 +25,10 @@ import {
   IContextProvider,
   IContextProviderType,
 } from "@interfaces/utilities";
+import {
+  IInvitationService,
+  IInvitationServiceType,
+} from "@interfaces/business";
 
 @injectable()
 export class CoreListener implements ICoreListener {
@@ -33,6 +37,8 @@ export class CoreListener implements ICoreListener {
     @inject(IContextProviderType) protected contextProvider: IContextProvider,
     @inject(IAccountCookieUtilsType)
     protected accountCookieUtils: IAccountCookieUtils,
+    @inject(IInvitationServiceType)
+    protected invitationService: IInvitationService,
   ) {}
 
   public initialize(): ResultAsync<void, never> {
@@ -86,38 +92,41 @@ export class CoreListener implements ICoreListener {
     // DynamicRewardParameters added to be returned
     const parameters: IDynamicRewardParameter[] = [];
     // request.accounts.filter((acc.sourceAccountAddress == request.dataWalletAddress) ==> (acc))
-    request.rewardsPreview.forEach((element) => {
-      if (request.dataWalletAddress !== null) {
-        parameters.push({
-          recipientAddress: {
-            type: "address",
-            value: RecipientAddressType(
-              request.accounts[0].sourceAccountAddress,
-            ),
-          },
-        } as IDynamicRewardParameter);
-      }
-    });
 
-    this.core
-      .processQuery(
-        request.consentContractAddress,
-        {
-          cid: request.query.cid,
-          query: getStringQuery(),
-        },
-        parameters as IDynamicRewardParameter[],
-      )
-      .map(() => {
-        console.log(
-          `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-        );
-      })
-      .mapErr((e) => {
-        console.error(
-          `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
-        );
-        console.error(e);
+    this.invitationService
+      .getReceivingAddress(request.consentContractAddress)
+      .map((accountAddress) => {
+        request.rewardsPreview.forEach((element) => {
+          if (request.dataWalletAddress !== null) {
+            parameters.push({
+              recipientAddress: {
+                type: "address",
+                value: RecipientAddressType(accountAddress),
+              },
+            } as IDynamicRewardParameter);
+          }
+        });
+
+        this.core
+          .processQuery(
+            request.consentContractAddress,
+            {
+              cid: request.query.cid,
+              query: getStringQuery(),
+            },
+            parameters,
+          )
+          .map(() => {
+            console.log(
+              `Processing Query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+            );
+          })
+          .mapErr((e) => {
+            console.error(
+              `Error while processing query! Contract Address: ${request.consentContractAddress}, CID: ${request.query.cid}`,
+            );
+            console.error(e);
+          });
       });
   }
 
