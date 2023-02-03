@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
+import "./IConsentFactory.sol";
 import "./Consent.sol";
 import "hardhat/console.sol";
 
@@ -16,18 +17,10 @@ import "hardhat/console.sol";
 /// @dev This contract deploys new BeaconProxy instances that all point to the latest Consent implementation contract via the UpgradeableBeacon 
 /// @dev The baseline contract was generated using OpenZeppelin's (OZ) Contract Wizard with added features 
 /// @dev The contract adopts OZ's proxy upgrade pattern and is compatible with OZ's meta-transaction library  
-contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable {
-
-    /// @dev Listing object for storing marketplace listings
-    struct Listing{
-      uint256 previous; // pointer to the previous active slot
-      uint256 next; // pointer to the next active slot
-      address consentContract; // address of the target consent contract
-      uint256 timeExpiring; // unix timestamp when the listing expires and can be replaced
-    }
+contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnumerableUpgradeable, IConsentFactory {
 
     /// @dev the total number of listings in the marketplace
-    mapping(bytes32 => uint256) public listingTotals; 
+    mapping(bytes32 => uint256) private listingTotals; 
 
     /// @dev the default amount of time, in seconds, that a listing is valid for
     uint256 public listingDuration; 
@@ -65,19 +58,6 @@ contract ConsentFactory is Initializable, PausableUpgradeable, AccessControlEnum
 
     /// @dev Address of the upgradeable beacon
     address public beaconAddress; 
-
-    /* EVENTS */ 
-
-    /// @notice Emitted when a Consent contract's Beacon Proxy is deployed
-    /// @param owner Indexed address of the owner of the deployed Consent contract Beacon Proxy 
-    /// @param consentAddress Indexed address of the deployed Consent contract Beacon Proxy
-    event ConsentDeployed(address indexed owner, address indexed consentAddress);
-
-    /// @notice Emitted when a Consent contract's Beacon Proxy is deployed
-    /// @param consentContract address of the target consent contract
-    /// @param tag the human-readable tag the listing was filed under
-    /// @param slot The slot (i.e. amount of stake) that the listing has posted to
-    event NewListing(address indexed consentContract, string tag, uint256 slot);
 
     /* MODIFIERS */
 

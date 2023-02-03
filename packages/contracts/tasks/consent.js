@@ -940,6 +940,7 @@ task("grantRole", "Grant specific role on the consent contract.")
     const account = accounts[accountnumber];
 
     const roleBytes = ethers.utils.id(taskArgs.role);
+    console.log(roleBytes);
     const grantee = taskArgs.grantee;
     const consentaddress = taskArgs.consentaddress;
 
@@ -957,7 +958,7 @@ task("grantRole", "Grant specific role on the consent contract.")
       })
       .then((txrct) => {
         logTXDetails(txrct);
-      });
+      }); 
   });
 
 // Task to revoke roles on consent contract

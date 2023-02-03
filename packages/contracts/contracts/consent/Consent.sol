@@ -6,6 +6,8 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import "./IConsent.sol";
+import "./IConsentFactory.sol";
 
 /// @title Consent
 /// @author Snickerdoodle Labs
@@ -20,19 +22,15 @@ contract Consent is
     Initializable,
     PausableUpgradeable,
     AccessControlEnumerableUpgradeable,
-    ERC721BurnableUpgradeable
+    ERC721BurnableUpgradeable,
+    IConsent
 {
     /// @dev Interface for ConsentFactory
     address consentFactoryAddress;
     IConsentFactory consentFactoryInstance;
 
-    struct Tag {
-        uint256 slot; // slot staked by this contract
-        string tag; // human-readable tag this contract has staked
-    }
-
     /// @dev an unsorted tag array which this consent contract stakes against
-    Tag[] public tags;
+    Tag[] tags;
 
     /// @dev helpful
     mapping(string => uint256) public tagIndices;
@@ -69,27 +67,6 @@ contract Consent is
 
     /// @dev the maximum number of consent tokens that can be issued
     uint public maxCapacity;
-
-    /* EVENTS */
-
-    /// @notice Emitted when a request for data is made
-    /// @dev The SDQL services listens for this event
-    /// @param requester Indexed address of data requester
-    /// @param ipfsCIDIndexed The indexed IPFS CID pointing to an SDQL instruction
-    /// @param ipfsCID The IPFS CID pointing to an SDQL instruction
-    event RequestForData(
-        address indexed requester,
-        string indexed ipfsCIDIndexed,
-        string ipfsCID
-    );
-
-    /// @notice Emitted when a domain is added
-    /// @param domain Domain url added
-    event LogAddDomain(string domain);
-
-    /// @notice Emitted when a domain is removed
-    /// @param domain Domain url removed
-    event LogRemoveDomain(string domain);
 
     /* MODIFIERS */
 
@@ -145,7 +122,7 @@ contract Consent is
         // required role grant to allow calling setBaseUri on initialization
         // as msg.sender is the Consent's BeaconProxy contract
         super._grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        setBaseURI(baseURI_);
+        baseURI = baseURI_;
     }
 
     /* CORE FUNCTIONS */
@@ -179,7 +156,7 @@ contract Consent is
         );
 
         // effects
-        tags.push(Tag(_newSlot, tag));
+        tags.push(Tag(_newSlot, tag, _msgSender()));
         tagIndices[tag] = tags.length;
 
         // interaction
@@ -207,7 +184,7 @@ contract Consent is
         );
 
         // effects
-        tags.push(Tag(_newSlot, tag));
+        tags.push(Tag(_newSlot, tag, _msgSender()));
         tagIndices[tag] = tags.length;
 
         // interaction
@@ -235,7 +212,7 @@ contract Consent is
         );
 
         // effects
-        tags.push(Tag(_newSlot, tag));
+        tags.push(Tag(_newSlot, tag, _msgSender()));
         tagIndices[tag] = tags.length;
 
         // interaction
@@ -260,7 +237,7 @@ contract Consent is
         );
 
         // effects
-        tags.push(Tag(_slot, tag));
+        tags.push(Tag(_slot, tag, _msgSender()));
         tagIndices[tag] = tags.length;
 
         // interaction
@@ -485,7 +462,7 @@ contract Consent is
     /// @param newURI New base uri
     function setBaseURI(
         string memory newURI
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         baseURI = newURI;
     }
 
@@ -548,22 +525,22 @@ contract Consent is
     }
 
     /// @notice Allows address with PAUSER_ROLE to pause the contract
-    function pause() public onlyRole(PAUSER_ROLE) {
+    function pause() external onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
     /// @notice Allows address with PAUSER_ROLE to unpause the contract
-    function unpause() public onlyRole(PAUSER_ROLE) {
+    function unpause() external onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
     /// @notice Allows address with PAUSER_ROLE to disable open opt ins
-    function disableOpenOptIn() public onlyRole(PAUSER_ROLE) {
+    function disableOpenOptIn() external onlyRole(PAUSER_ROLE) {
         openOptInDisabled = true;
     }
 
     /// @notice Allows address with PAUSER_ROLE to enable open opt ins
-    function enableOpenOptIn() public onlyRole(PAUSER_ROLE) {
+    function enableOpenOptIn() external onlyRole(PAUSER_ROLE) {
         openOptInDisabled = false;
     }
 
@@ -746,38 +723,4 @@ contract Consent is
             return super._msgData();
         }
     }
-}
-
-/// @dev a minimal interface for Consent contracts to update the ConsentFactory
-
-interface IConsentFactory {
-    function maxTagsPerListing() external returns (uint256);
-
-    function initializeTag(string memory tag, uint256 _newHead) external;
-
-    function insertUpstream(
-        string memory tag,
-        uint256 _newSlot,
-        uint256 _existingSlot
-    ) external;
-
-    function insertDownstream(
-        string memory tag,
-        uint256 _existingSlot,
-        uint256 _newSlot
-    ) external;
-
-    function replaceExpiredListing(string memory tag, uint256 _slot) external;
-
-    function removeListing(string memory tag, uint256 _removedSlot) external;
-
-    function addUserConsents(address user) external;
-
-    function removeUserConsents(address user) external;
-
-    function addUserRole(address user, bytes32 role) external;
-
-    function removeUserRole(address user, bytes32 role) external;
-
-    function trustedForwarder() external returns (address);
 }
