@@ -22,6 +22,7 @@ export const query1 = {
         },
       },
     },
+
     q2: {
       name: "age",
       return: "integer",
@@ -77,7 +78,33 @@ export const query1 = {
       },
       return: "array",
     },
+    q9: {
+      name: "nfts",
+      networkid: "*",
+      return: "array",
+      array_items: {
+        object_schema: {
+          properties: {
+            networkid: {
+              type: "integer",
+            },
+            address: {
+              type: "string",
+              pattern: "^0x[a-fA-F0-9]{40}$",
+            },
+            balance: {
+              type: "number",
+            },
+            timestamp: {
+              type: "number",
+            },
+          },
+          required: ["networkid", "address", "balance", "timestamp"],
+        },
+      },
+    },
   },
+
   returns: {
     r1: {
       name: "query_response",
@@ -110,6 +137,10 @@ export const query1 = {
     r8: {
       name: "query_response",
       query: "q8",
+    },
+    r9 : {
+      name : "query_response",
+      query : "q9"
     },
     url: "https://418e-64-85-231-39.ngrok.io/insights",
   },
@@ -169,7 +200,7 @@ export const query1 = {
     },
   },
   logic: {
-    returns: ["$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8"],
+    returns: ["$r1", "$r2", "$r3", "$r4", "$r5", "$r6", "$r7", "$r8" , "$r9"],
     compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
   },
 };
