@@ -26,7 +26,7 @@ const V3_MANIFEST_KEYS = {
 
 let manifestAbsolutePath;
 
-exec(`find ../.. -name manifest.json -print`, (err, stdout, stderr) => {
+exec(`find ../../.. -name manifest.json -print`, (err, stdout, stderr) => {
   if (err) {
     console.error("Auto configuration failed", "\n", stderr);
   } else {
