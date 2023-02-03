@@ -11,13 +11,13 @@ import {
   TransactionFilter,
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
+  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import {
   ERecordKey,
   IPersistenceConfigProvider,
   IPersistenceConfigProviderType,
   IVolatileCursor,
-  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/persistence";
 import { ethers } from "ethers";
 import { inject, injectable } from "inversify";

@@ -1,7 +1,9 @@
-import { PersistenceError, VersionedObject } from "@snickerdoodlelabs/objects";
+import {
+  PersistenceError,
+  VersionedObject,
+  VolatileStorageMetadata,
+} from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
-
-import { VolatileStorageMetadata } from "./VolatileStorageMetadata";
 
 export interface IVolatileCursor<T extends VersionedObject> {
   nextValue(): ResultAsync<T | null, PersistenceError>;

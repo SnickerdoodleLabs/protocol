@@ -1,8 +1,8 @@
 import {
   PersistenceError,
   VersionedObject,
-  VolatileStorageKey,
   VolatileStorageMetadata,
+  VolatileStorageKey,
 } from "@snickerdoodlelabs/objects";
 import { ResultAsync } from "neverthrow";
 
@@ -43,10 +43,10 @@ export interface IVolatileStorage {
     count?: number | undefined,
   ): ResultAsync<T[], PersistenceError>;
 
-  // getKey<T extends VersionedObject>(
-  //   obj: T,
-  //   keyPath: string | string[],
-  // ): ResultAsync<string | string[], PersistenceError>;
+  getKey(
+    tableName: string,
+    obj: VersionedObject,
+  ): ResultAsync<VolatileStorageKey, PersistenceError>;
 }
 
 export const IVolatileStorageType = Symbol.for("IVolatileStorage");

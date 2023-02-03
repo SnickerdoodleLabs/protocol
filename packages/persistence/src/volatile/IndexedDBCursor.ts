@@ -1,8 +1,11 @@
-import { PersistenceError, VersionedObject } from "@snickerdoodlelabs/objects";
+import {
+  PersistenceError,
+  VersionedObject,
+  VolatileStorageMetadata,
+} from "@snickerdoodlelabs/objects";
 import { okAsync, ResultAsync } from "neverthrow";
 
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
-import { VolatileStorageMetadata } from "@persistence/volatile/VolatileStorageMetadata.js";
 
 export class IndexedDBCursor<T extends VersionedObject>
   implements IVolatileCursor<T>

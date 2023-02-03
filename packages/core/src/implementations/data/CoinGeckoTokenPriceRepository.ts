@@ -18,11 +18,9 @@ import {
   TokenMarketData,
   UnixTimestamp,
   URLString,
-} from "@snickerdoodlelabs/objects";
-import {
-  ERecordKey,
   VolatileStorageMetadata,
-} from "@snickerdoodlelabs/persistence";
+} from "@snickerdoodlelabs/objects";
+import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";

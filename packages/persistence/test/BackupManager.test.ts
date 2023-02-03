@@ -11,11 +11,11 @@ import {
   AdKey,
   EVMContractAddress,
   EBackupPriority,
+  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 
-import { ERecordKey } from "@persistence/ELocalStorageKey";
-import { VolatileStorageMetadata } from "@persistence/volatile";
 import { BackupManagerProviderMocks } from "@persistence-test/mocks";
+import { ERecordKey } from "@persistence/ELocalStorageKey";
 
 describe("Bundle", () => {
   test("Create a backupmanager object", async () => {
@@ -78,7 +78,11 @@ describe("Bundle", () => {
 
     await backupManager.addRecord(
       ERecordKey.ELIGIBLE_ADS,
-      new VolatileStorageMetadata<EligibleAd>(EBackupPriority.NORMAL, testAd),
+      new VolatileStorageMetadata<EligibleAd>(
+        EBackupPriority.NORMAL,
+        testAd,
+        EligibleAd.CURRENT_VERSION,
+      ),
     );
 
     const wrappedAdList =

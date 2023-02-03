@@ -1,4 +1,9 @@
-import { PersistenceError, VersionedObject } from "@snickerdoodlelabs/objects";
+import {
+  PersistenceError,
+  VersionedObject,
+  VolatileStorageKey,
+  VolatileStorageMetadata,
+} from "@snickerdoodlelabs/objects";
 import { indexedDB as fakeIndexedDB } from "fake-indexeddb";
 import { injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
@@ -6,7 +11,6 @@ import { ResultAsync } from "neverthrow";
 import { IndexedDB } from "@persistence/volatile/IndexedDB.js";
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
-import { VolatileStorageMetadata } from "@persistence/volatile/VolatileStorageMetadata.js";
 import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema.js";
 
 @injectable()
@@ -19,6 +23,13 @@ export class FakeDBVolatileStorage implements IVolatileStorage {
       volatileStorageSchema,
       fakeIndexedDB,
     );
+  }
+
+  public getKey(
+    tableName: string,
+    obj: VersionedObject,
+  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+    return this.indexedDB.getKey(tableName, obj);
   }
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {

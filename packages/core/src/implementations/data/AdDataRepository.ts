@@ -3,11 +3,9 @@ import {
   PersistenceError,
   EBackupPriority,
   AdSignature,
-} from "@snickerdoodlelabs/objects";
-import {
-  ERecordKey,
   VolatileStorageMetadata,
-} from "@snickerdoodlelabs/persistence";
+} from "@snickerdoodlelabs/objects";
+import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";

@@ -1,25 +1,26 @@
 import { ICryptoUtils } from "@snickerdoodlelabs/common-utils";
 import {
+  FieldMap,
+  TableMap,
+  DataWalletAddress,
+  VersionedObjectMigrator,
+  VersionedObject,
+  IDataWalletBackup,
+  EVMPrivateKey,
+  VolatileStorageKey,
+  EBackupPriority,
+  PersistenceError,
+  VolatileDataUpdate,
+  EDataUpdateOpCode,
+  DataWalletBackupID,
+  RestoredBackup,
+  VolatileStorageMetadata,
+  FieldDataUpdate,
+  UnixTimestamp,
   AESEncryptedString,
   BackupBlob,
-  DataUpdate,
-  DataWalletAddress,
-  DataWalletBackupID,
-  EBackupPriority,
-  EDataUpdateOpCode,
-  EVMAccountAddress,
-  EVMPrivateKey,
-  FieldMap,
-  IDataWalletBackup,
-  PersistenceError,
-  RestoredBackup,
   Signature,
-  TableMap,
-  UnixTimestamp,
-  VersionedObject,
-  VersionedObjectMigrator,
-  VolatileStorageKey,
-  VolatileStorageMetadata,
+  EVMAccountAddress,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -43,6 +44,8 @@ export class BackupManager implements IBackupManager {
     new Map();
 
   private fieldHistory: Map<string, number> = new Map();
+  private deletionHistory: Map<VolatileStorageKey, number> = new Map();
+
   private chunkQueue: Array<IDataWalletBackup> = [];
 
   public constructor(
@@ -68,19 +71,21 @@ export class BackupManager implements IBackupManager {
     tableName: string,
     key: VolatileStorageKey,
     priority: EBackupPriority,
+    timestamp: number = Date.now(),
   ): ResultAsync<void, PersistenceError> {
     if (!this.tableUpdates.hasOwnProperty(tableName)) {
       return this.volatileStorage.removeObject(tableName, key);
     }
 
     this.tableUpdates[tableName].push(
-      new DataUpdate(
+      new VolatileDataUpdate(
         EDataUpdateOpCode.REMOVE,
         key,
-        Date.now(),
+        timestamp,
         priority,
       ),
     );
+    this.deletionHistory.set(key, timestamp);
     this.numUpdates += 1;
     return this.volatileStorage
       .removeObject(tableName, key)
@@ -137,11 +142,12 @@ export class BackupManager implements IBackupManager {
     }
 
     this.tableUpdates[tableName].push(
-      new DataUpdate(
+      new VolatileDataUpdate(
         EDataUpdateOpCode.UPDATE,
         value.data,
         value.lastUpdate,
         value.priority,
+        value.version,
       ),
     );
     this.numUpdates += 1;
@@ -160,10 +166,10 @@ export class BackupManager implements IBackupManager {
     }
 
     const timestamp = Date.now();
-    this.fieldUpdates[key] = new DataUpdate(
+    this.fieldUpdates[key] = new FieldDataUpdate(
+      key,
       value,
-      timestamp,
-      EDataUpdateOpCode.UPDATE,
+      Date.now(),
       priority,
     );
     this._updateFieldHistory(key, timestamp);
@@ -232,9 +238,67 @@ export class BackupManager implements IBackupManager {
                 return ResultUtils.combine(
                   Object.keys(unpacked.records).map((tableName) => {
                     const table = unpacked.records[tableName];
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    const migrator = this.migrators.get(tableName)!;
+
                     return ResultUtils.combine(
                       table.map((value) => {
-                        return this.volatileStorage.putObject(tableName, value.);
+                        switch (value.operation) {
+                          case EDataUpdateOpCode.UPDATE:
+                            const obj = migrator.getCurrent(
+                              value.value as unknown as Record<string, unknown>,
+                              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                              value.version!,
+                            );
+
+                            return this.volatileStorage
+                              .getKey(tableName, obj)
+                              .andThen((key) => {
+                                return this.volatileStorage
+                                  .getObject(tableName, key)
+                                  .andThen((found) => {
+                                    if (
+                                      (found != null &&
+                                        found.lastUpdate > value.timestamp) ||
+                                      (this.deletionHistory.has(key) &&
+                                        this.deletionHistory.get(key)! >
+                                          value.timestamp)
+                                    ) {
+                                      return okAsync(undefined);
+                                    }
+
+                                    return this.volatileStorage.putObject(
+                                      tableName,
+                                      new VolatileStorageMetadata(
+                                        value.priority,
+                                        obj,
+                                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                                        value.version!,
+                                        value.timestamp,
+                                      ),
+                                    );
+                                  });
+                              });
+                          case EDataUpdateOpCode.REMOVE:
+                            return this.volatileStorage
+                              .getObject(
+                                tableName,
+                                value.value as VolatileStorageKey,
+                              )
+                              .andThen((found) => {
+                                if (
+                                  found != null &&
+                                  found.lastUpdate > value.timestamp
+                                ) {
+                                  return okAsync(undefined);
+                                }
+
+                                return this.volatileStorage.removeObject(
+                                  tableName,
+                                  value.value as VolatileStorageKey,
+                                );
+                              });
+                        }
                       }),
                     );
                   }),

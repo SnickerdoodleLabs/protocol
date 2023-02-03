@@ -11,7 +11,7 @@ export abstract class VersionedObjectMigrator<T> {
     (data: Record<string, unknown>, version: number) => Record<string, unknown>
   >;
 
-  public getCurrent<T>(data: Record<string, unknown>, version: number) {
+  public getCurrent(data: Record<string, unknown>, version: number): T {
     const funcs = this.getUpgradeFunctions();
     while (version != this.getCurrentVersion()) {
       const func = funcs.get(version);

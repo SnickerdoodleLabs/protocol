@@ -7,6 +7,7 @@ import {
   EBackupPriority,
   VolatileStorageKey,
   VersionedObject,
+  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import {
   IBackupManagerProvider,
@@ -17,7 +18,6 @@ import {
   IPersistenceConfigProviderType,
   IVolatileStorage,
   IVolatileStorageType,
-  VolatileStorageMetadata,
   IVolatileCursor,
   EFieldKey,
 } from "@snickerdoodlelabs/persistence";
@@ -75,7 +75,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getObject<T>(
+  public getObject<T extends VersionedObject>(
     name: string,
     key: VolatileStorageKey,
     priority?: EBackupPriority,
@@ -87,7 +87,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getCursor<T>(
+  public getCursor<T extends VersionedObject>(
     name: string,
     indexName?: string | undefined,
     query?: IDBValidKey | IDBKeyRange | undefined,
@@ -106,7 +106,7 @@ export class DataWalletPersistence implements IDataWalletPersistence {
     });
   }
 
-  public getAll<T>(
+  public getAll<T extends VersionedObject>(
     name: string,
     indexName?: string | undefined,
     priority?: EBackupPriority,

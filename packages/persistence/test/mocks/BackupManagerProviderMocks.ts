@@ -41,19 +41,15 @@ export class BackupManagerProviderMocks {
       return this.backupManager;
     }
 
-    const tableNames = volatileStorageSchema
-      .filter((schema) => {
-        return !schema.disableBackup;
-      })
-      .map((schema) => {
-        return schema.name;
-      });
+    const schema = volatileStorageSchema.filter((schema) => {
+      return !schema.disableBackup;
+    });
 
     return this.waitForUnlock().map(
       (privateKey) =>
         new BackupManager(
           privateKey,
-          tableNames,
+          schema,
           this.volatileStorage,
           this.cryptoUtils,
           this.storageUtils,

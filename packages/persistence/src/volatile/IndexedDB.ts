@@ -1,29 +1,33 @@
 import {
   PersistenceError,
   VersionedObject,
+  VolatileStorageDataKey,
   VolatileStorageKey,
+  VolatileStorageMetadata,
+  VolatileStorageMetadataIndexes,
 } from "@snickerdoodlelabs/objects";
-import { okAsync, ResultAsync } from "neverthrow";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";
 
 import { IndexedDBCursor } from "@persistence/volatile/IndexedDBCursor.js";
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
-import {
-  VolatileStorageDataKey,
-  VolatileStorageMetadata,
-  VolatileStorageMetadataIndexes,
-} from "@persistence/volatile/VolatileStorageMetadata.js";
 import { VolatileTableIndex } from "@persistence/volatile/VolatileTableIndex.js";
 
 export class IndexedDB {
   private _db?: IDBDatabase;
   private _initialized?: ResultAsync<IDBDatabase, PersistenceError>;
+  private _keyPaths: Map<string, string | string[]>;
 
   public constructor(
     public name: string,
     private schema: VolatileTableIndex<VersionedObject>[],
     private dbFactory: IDBFactory,
-  ) {}
+  ) {
+    this._keyPaths = new Map();
+    this.schema.forEach((x) => {
+      this._keyPaths[x.name] = x.keyPath;
+    });
+  }
 
   public initialize(): ResultAsync<IDBDatabase, PersistenceError> {
     if (this._initialized) {
@@ -376,6 +380,43 @@ export class IndexedDB {
         });
       });
     });
+  }
+
+  public getKey(
+    tableName: string,
+    obj: VersionedObject,
+  ): ResultAsync<VolatileStorageKey, PersistenceError> {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const keyPath = this._keyPaths.get(tableName);
+    if (keyPath == undefined) {
+      return errAsync(new PersistenceError("invalid table name"));
+    }
+
+    try {
+      if (Array.isArray(keyPath)) {
+        const ret: VolatileStorageKey[] = [];
+        keyPath.forEach((item) => {
+          ret.push(this._getRecursiveKey(obj, item));
+        });
+        return okAsync(ret);
+      } else {
+        return okAsync(this._getRecursiveKey(obj, keyPath));
+      }
+    } catch (e) {
+      return errAsync(
+        new PersistenceError("error extracting key from object", e),
+      );
+    }
+  }
+
+  private _getRecursiveKey(obj: object, path: string): string | number {
+    const items = path.split(".");
+    let ret = obj;
+    items.forEach((x) => {
+      ret = ret[x];
+    });
+
+    return ret as unknown as string | number;
   }
 
   private _getCompoundIndexName(key: (string | number)[]): string {

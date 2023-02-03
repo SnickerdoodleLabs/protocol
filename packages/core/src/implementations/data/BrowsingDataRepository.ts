@@ -5,11 +5,9 @@ import {
   EBackupPriority,
   URLString,
   ClickData,
-} from "@snickerdoodlelabs/objects";
-import {
-  ERecordKey,
   VolatileStorageMetadata,
-} from "@snickerdoodlelabs/persistence";
+} from "@snickerdoodlelabs/objects";
+import { ERecordKey } from "@snickerdoodlelabs/persistence";
 import { inject, injectable } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 import { ResultUtils } from "neverthrow-result-utils";

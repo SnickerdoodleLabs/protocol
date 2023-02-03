@@ -6,12 +6,12 @@ import {
   PersistenceError,
   VersionedObject,
   VolatileStorageKey,
+  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/objects";
 import {
   EFieldKey,
   ERecordKey,
   IVolatileCursor,
-  VolatileStorageMetadata,
 } from "@snickerdoodlelabs/persistence";
 import { ResultAsync } from "neverthrow";
 
