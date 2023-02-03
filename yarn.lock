@@ -6913,6 +6913,42 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@snickerdoodlelabs/synamint-extension-sdk@workspace:packages/synamint-extension-sdk":
+  version: 0.0.0-use.local
+  resolution: "@snickerdoodlelabs/synamint-extension-sdk@workspace:packages/synamint-extension-sdk"
+  dependencies:
+    "@material-ui/core": ^4.12.4
+    "@material-ui/icons": ^4.11.3
+    "@material-ui/styles": ^4.11.5
+    "@snickerdoodlelabs/common-utils": "workspace:^"
+    "@snickerdoodlelabs/core": "workspace:^"
+    "@snickerdoodlelabs/objects": "workspace:^"
+    "@snickerdoodlelabs/persistence": "workspace:^"
+    "@webcomponents/custom-elements": ^1.5.0
+    end-of-stream: ^1.4.4
+    ethers: ^5.6.6
+    extension-port-stream: ^2.0.1
+    inversify: ^6.0.1
+    json-rpc-engine: ^6.1.0
+    json-rpc-middleware-stream: ^3.0.0
+    jss: ^10.9.0
+    neverthrow: ^5.1.0
+    neverthrow-result-utils: ^2.0.2
+    obj-multiplex: ^1.0.0
+    post-message-stream: ^3.0.0
+    pump: ^3.0.0
+    react: ^17.0.2
+    react-dom: ^17.0.2
+    react-router-dom: ^6.3.0
+    reflect-metadata: ^0.1.13
+    rxjs: ^7.5.5
+    sass: ^1.55.0
+    tldts: ^5.7.89
+    uuid: ^8.3.2
+    webextension-polyfill: ^0.9.0
+  languageName: unknown
+  linkType: soft
+
 "@snickerdoodlelabs/utils@workspace:^, @snickerdoodlelabs/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@snickerdoodlelabs/utils@workspace:packages/utils"
