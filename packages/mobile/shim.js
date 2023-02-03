@@ -33,3 +33,5 @@ require('crypto');
 require('argon2');
 require('@ethersproject/shims')
 require('ethers');
+require('zlib')
+require('@solana/web3.js');

@@ -258,6 +258,9 @@ PODS:
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
+  - react-native-track-player (3.2.0):
+    - React-Core
+    - SwiftAudioEx (= 0.15.3)
   - react-native-udp (2.7.0):
     - React
   - React-perflogger (0.70.6)
@@ -373,6 +376,7 @@ PODS:
     - React
   - RNVectorIcons (9.2.0):
     - React-Core
+  - SwiftAudioEx (0.15.3)
   - TcpSockets (3.3.2):
     - React
   - Yoga (1.14.0)
@@ -407,6 +411,7 @@ DEPENDENCIES:
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-track-player (from `../node_modules/react-native-track-player`)
   - react-native-udp (from `../node_modules/react-native-udp`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -439,6 +444,7 @@ SPEC REPOS:
     - fmt
     - libevent
     - lottie-ios
+    - SwiftAudioEx
 
 EXTERNAL SOURCES:
   boost:
@@ -495,6 +501,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-track-player:
+    :path: "../node_modules/react-native-track-player"
   react-native-udp:
     :path: "../node_modules/react-native-udp"
   React-perflogger:
@@ -578,6 +586,7 @@ SPEC CHECKSUMS:
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 99b24a0c5acd0d5dcac2b1a7f18c49ea317be99a
+  react-native-track-player: 0c26d981b5097910486cbbeb6d8f5352d41be069
   react-native-udp: ff9d13e523f2b58e6bc5d4d32321ac60671b5dc9
   React-perflogger: 8c79399b0500a30ee8152d0f9f11beae7fc36595
   React-RCTActionSheet: 7316773acabb374642b926c19aef1c115df5c466
@@ -601,6 +610,7 @@ SPEC CHECKSUMS:
   RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
   RNSVG: a53a5de0d90ec96a6502cc3a4534dfcc0c130622
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
+  SwiftAudioEx: 83eabba2940924fc1c0d5cb0896049921365229c
   TcpSockets: 14306fb79f9750ea7d2ddd02d8bed182abb01797
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc
 

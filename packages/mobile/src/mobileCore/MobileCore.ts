@@ -28,12 +28,10 @@ import {
   UnsupportedLanguageError,
   URLString,
 } from '@snickerdoodlelabs/objects';
-import {
-  MemoryVolatileStorage,
-} from '@snickerdoodlelabs/persistence';
 import {Container} from 'inversify';
 import {okAsync, ResultAsync} from 'neverthrow';
 import {MobileStorageUtils} from './implementations/utils/MobileStorageUtils';
+import { MemoryVolatileStorage } from '@snickerdoodlelabs/persistence';
 
 export class MobileCore {
   protected iocContainer: Container;

@@ -5756,7 +5756,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@metaplex-foundation/js@npm:^0.17.5":
+"@metaplex-foundation/js@npm:^0.17.12, @metaplex-foundation/js@npm:^0.17.5":
   version: 0.17.12
   resolution: "@metaplex-foundation/js@npm:0.17.12"
   dependencies:
@@ -7814,6 +7814,7 @@ __metadata:
     "@glazed/datamodel": ^0.3.1
     "@glazed/did-datastore": ^0.3.2
     "@glazed/tile-loader": ^0.2.1
+    "@metaplex-foundation/js": ^0.17.12
     "@motify/components": ^0.18.0
     "@phc/format": ^1.0.0
     "@react-native-async-storage/async-storage": ^1.15.17
@@ -7822,6 +7823,7 @@ __metadata:
     "@react-navigation/native": ^6.0.14
     "@react-navigation/stack": ^6.3.5
     "@realm/babel-plugin": ^0.1.0
+    "@solana/web3.js": ^1.73.0
     "@tradle/react-native-http": ^2.0.1
     "@tsconfig/react-native": ^2.0.2
     "@types/jest": ^26.0.23
@@ -7836,7 +7838,7 @@ __metadata:
     axios: ^1.2.0
     babel-jest: ^26.6.3
     babel-preset-react-app: ^10.0.1
-    browserify-zlib: ^0.1.4
+    browserify-zlib: ^0.2.0
     console-browserify: ^1.2.0
     constants-browserify: ^1.0.0
     dns.js: ^1.0.1
@@ -7856,6 +7858,7 @@ __metadata:
     neverthrow: ^5.1.0
     neverthrow-result-utils: ^2.0.2
     node-libs-react-native: ^1.2.1
+    path: ^0.12.7
     path-browserify: ^0.0.0
     pino: ^8.7.0
     process: ^0.11.10
@@ -7901,6 +7904,7 @@ __metadata:
     url: ^0.10.3
     url-join-ts: ^1.0.5
     util: ^0.10.4
+    zlib: ^1.0.5
   languageName: unknown
   linkType: soft
 
@@ -8047,6 +8051,30 @@ __metadata:
     rpc-websockets: ^7.5.0
     superstruct: ^0.14.2
   checksum: 37eedbd8358eea0f2f4017703f0dff097a0616a5e315dab7c37c6178c945b6e95b9a7238671e06491172c64fd74e8f2bd1735b783c00ca0104a015ce756d7c53
+  languageName: node
+  linkType: hard
+
+"@solana/web3.js@npm:^1.73.0":
+  version: 1.73.1
+  resolution: "@solana/web3.js@npm:1.73.1"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@noble/ed25519": ^1.7.0
+    "@noble/hashes": ^1.1.2
+    "@noble/secp256k1": ^1.6.3
+    "@solana/buffer-layout": ^4.0.0
+    agentkeepalive: ^4.2.1
+    bigint-buffer: ^1.1.5
+    bn.js: ^5.0.0
+    borsh: ^0.7.0
+    bs58: ^4.0.1
+    buffer: 6.0.1
+    fast-stable-stringify: ^1.0.0
+    jayson: ^3.4.4
+    node-fetch: 2
+    rpc-websockets: ^7.5.0
+    superstruct: ^0.14.2
+  checksum: 7745e46748d64fc860eac1c0d965236ff20e84b7de87bc8edd17c27592698da9d23dfff01896d7f2eceb31e59e1870e24ccb9cb04075fb982284577509834261
   languageName: node
   linkType: hard
 
@@ -32412,6 +32440,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"path@npm:^0.12.7":
+  version: 0.12.7
+  resolution: "path@npm:0.12.7"
+  dependencies:
+    process: ^0.11.1
+    util: ^0.10.3
+  checksum: 5dedb71e78fc008fcba797defc0b4e1cf06c1f18e0a631e03ba5bb505136f587ff017afc14f9a3d481cbe77aeedff7dc0c1d2ce4d820c1ebf3c4281ca49423a1
+  languageName: node
+  linkType: hard
+
 "pathval@npm:^1.1.1":
   version: 1.1.1
   resolution: "pathval@npm:1.1.1"
@@ -33127,7 +33165,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"process@npm:^0.11.0, process@npm:^0.11.10, process@npm:^0.11.9, process@npm:~0.11.0":
+"process@npm:^0.11.0, process@npm:^0.11.1, process@npm:^0.11.10, process@npm:^0.11.9, process@npm:~0.11.0":
   version: 0.11.10
   resolution: "process@npm:0.11.10"
   checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
@@ -34744,6 +34782,39 @@ __metadata:
     react-native:
       optional: true
   checksum: 6fc8bbfcd3c0d1ba7a741434d32699efafd3cbf99540e65c504e9076539ca66f27bf719f03824c290bfbc7dc59365bd0235f12c4637c1bb598fdc6cbc9fc12c8
+  languageName: node
+  linkType: hard
+
+"realm@npm:^11.4.0":
+  version: 11.4.0
+  resolution: "realm@npm:11.4.0"
+  dependencies:
+    "@realm/common": ^0.1.4
+    "@realm/network-transport": ^0.7.2
+    bindings: ^1.5.0
+    bson: 4.4.1
+    command-line-args: ^5.1.1
+    deepmerge: 2.1.0
+    fs-extra: ^4.0.3
+    ini: ^1.3.7
+    node-addon-api: 4.2.0
+    node-fetch: ^3.2.10
+    node-gyp: latest
+    node-machine-id: ^1.1.10
+    prebuild-install: ^7.0.1
+    progress: ^2.0.3
+    prop-types: ^15.6.2
+    request: ^2.88.0
+    stream-counter: ^1.0.0
+    sync-request: ^3.0.1
+    tar: ^6.0.1
+    url-parse: ^1.4.4
+  peerDependencies:
+    react-native: ">=0.70.0"
+  peerDependenciesMeta:
+    react-native:
+      optional: true
+  checksum: 3eb6c284851ff412e4cd5d38078667b1868de868548479250cd70ca2c31123252b03bed52174d8fd5588218b851243391f9d21537648de6a0a4cd09e3a547eea
   languageName: node
   linkType: hard
 
@@ -36669,6 +36740,7 @@ __metadata:
     prettier: ^2.2.1
     process: ^0.11.10
     randomstring: ^1.1.5
+    realm: ^11.4.0
     rimraf: ^3.0.2
     sass-loader: ^11.1.1
     solidity-coverage: ^0.7.9
@@ -42648,5 +42720,12 @@ __metadata:
     property-expr: ^2.0.4
     toposort: ^2.0.2
   checksum: 43a16786b47cc910fed4891cebdd89df6d6e31702e9462e8f969c73eac88551ce750732608012201ea6b93802c8847cb0aa27b5d57370640f4ecf30f9f97d4b0
+  languageName: node
+  linkType: hard
+
+"zlib@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "zlib@npm:1.0.5"
+  checksum: 5ef5693a1deb70f65845424f5ecce1ee956e50320aa438126759fd28ec8a25ae876acb3b179b4f5050427e7e0dfcd9e45bdae23f055b2d732bc2fe1dbe4da169
   languageName: node
   linkType: hard

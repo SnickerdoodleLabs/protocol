@@ -2,11 +2,8 @@ import { PersistenceError } from "@snickerdoodlelabs/objects";
 import { injectable } from "inversify";
 import { ok, okAsync, ResultAsync } from "neverthrow";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { IndexedDB } from "@persistence/volatile/IndexedDB.js";
 import { IVolatileCursor } from "@persistence/volatile/IVolatileCursor.js";
 import { IVolatileStorage } from "@persistence/volatile/IVolatileStorage.js";
-import { volatileStorageSchema } from "@persistence/volatile/VolatileStorageSchema.js";
-import { IndexedDBCursor } from "./IndexedDBCursor";
 
 @injectable()
 export class MemoryVolatileStorage implements IVolatileStorage {
