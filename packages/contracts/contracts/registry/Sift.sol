@@ -35,6 +35,12 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @dev Role bytes
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
 
+    /// @dev Add addresses to this
+    uint[] public safeAddresses;
+
+    /// @dev Add addresses to this
+    uint[] public maliciousAddresses;
+
     /// @dev Initializes the contract with the base URI, then disables any initializers as recommended by OpenZeppelin
     constructor(string memory baseURInew) {
         initialize(baseURInew);
@@ -113,6 +119,42 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
 
         /// increase total supply count
         totalSupply++;
+    }
+
+    /// @notice 
+    /// @param uri Token uri containing status
+    /// @param chainId ChainId
+    function addSafeToken(string memory uri, address chainId)
+        public
+        view
+        override(ERC721Upgradeable, AccessControlEnumerableUpgradeable)
+        returns (bool)
+    {
+        return super.verifyMetadata(interfaceId);
+    }
+
+    /// @notice 
+    /// @param contractAddress Contract Address containing status
+    /// @param chainId ChainId
+    function addMaliciousToken(address contractAddress, address chainId)
+        public
+        view
+        override(ERC721Upgradeable, AccessControlEnumerableUpgradeable)
+        returns (bool)
+    {
+        return super.verifyMetadata(interfaceId);
+    }
+
+    /// @notice Internal function to verify if 
+    /// @param contractAddress Contract Address containing status
+    /// @param chainId ChainId
+    function verifyMetadata(address contractAddress, address chainId)
+        public
+        view
+        override(ERC721Upgradeable, AccessControlEnumerableUpgradeable)
+        returns (bool)
+    {
+        return super.verifyMetadata(interfaceId);
     }
 
     /* OVERRIDES */ 

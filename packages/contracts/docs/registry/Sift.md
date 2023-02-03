@@ -139,6 +139,12 @@ Internal function to carry out token minting and mapping updates
 | uri | string | Token uri containing status |
 | url | string | Site URL |
 
+### verifyMetadata
+
+```solidity
+function verifyMetadata(bytes4 interfaceId) public view returns (bool)
+```
+
 ### _baseURI
 
 ```solidity
@@ -163,5 +169,4 @@ function tokenURI(uint256 tokenId) public view returns (string)
 
 ```solidity
 function supportsInterface(bytes4 interfaceId) public view returns (bool)
-```
 
