@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+   // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
@@ -32,14 +32,26 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @dev Total supply of Sift tokens
     uint256 public totalSupply;
 
+    /// @dev Token contract address information
+    struct Token_Info {
+        address contractAddress; // Token Contract Address
+        string ticker; // Token Ticker
+        string chainId; // ChainId
+        uint256 health; // VERIFIED: 1 && MALICIOUS: -1;
+        string metadata;
+    }
+
+    /// @dev mapping of hashed url to tokenId 
+    mapping(address => Token_Info) contractMappings;
+
+    /// @dev mapping of hashed url to tokenId 
+    mapping(bytes32 => mapping(address => Token_Info)) public safeAddressesToContracts;
+
+    /// @dev mapping of hashed url to tokenId 
+    mapping(bytes32 => mapping(address => Token_Info)) public maliciousAddressesToContracts;
+
     /// @dev Role bytes
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
-
-    /// @dev Add addresses to this
-    uint[] public safeAddresses;
-
-    /// @dev Add addresses to this
-    uint[] public maliciousAddresses;
 
     /// @dev Initializes the contract with the base URI, then disables any initializers as recommended by OpenZeppelin
     constructor(string memory baseURInew) {
@@ -58,7 +70,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
 
         setBaseURI(baseURI_);
     }
-              
+      
     /// @notice Verifies a url
     /// @dev Mints an NFT with the 'VERIFIED' tokenURI
     /// @dev Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegister()
@@ -73,6 +85,54 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
         _safeMintAndRegister(owner, "VERIFIED", url);
     }
 
+
+    /// @notice Verifies a contract
+    /// @param tokenContract contract token entering the ecosystem 
+    /// @param owner Address receiving the url's NFT   
+    function verifyContract(string memory tokenContract, address owner) external {
+        // check if the url has already been verified on the contract
+        // if it has a token id mapped to it, it has been verified 
+        require(urlToTokenId[keccak256(abi.encodePacked(tokenContract))] == 0, "Consent: URL already verified");
+
+        {
+            address contractAddress; // Token Contract Address
+            string ticker; // Token Ticker
+            string chainId; // ChainId
+            uint256 health; // VERIFIED: 1 && MALICIOUS: -1;
+            string metadata;
+        }
+
+        // mint token id and append to the token URI "VERIFIED"
+        _safeMintAndRegister(owner, "VERIFIED", tokenContract);
+    }
+
+    /// @notice Marks a contract as malicious 
+    function maliciousContract(string memory url, address owner) external {
+        // mint token id and append to the token URI "MALICIOUS"
+        _safeMintAndRegister(owner, "MALICIOUS", url);
+    }
+
+     /// @notice Marks a contract as malicious 
+    function getEthereumId(string memory url, address owner) external {
+        // mint token id and append to the token URI "MALICIOUS"
+        _safeMintAndRegister(owner, "MALICIOUS", url);
+    }
+
+    /// @notice Checks the status of a url 
+    /// @param url Site URL
+    /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
+    function checkContract(string memory url) external view returns(string memory result) {
+        // get the url's token using its hashed value
+        uint256 tokenId = urlToTokenId[keccak256(abi.encodePacked(url))];
+
+        // if token's id is 0, it has not been verified yet
+        if (tokenId == 0) return "NOT VERIFIED";
+
+        // else, return token's URI
+        return tokenURI(tokenId);
+    }
+
+
     /// @notice Marks a url as malicious 
     /// @dev Mints an NFT with the 'MALICIOUS' tokenURI
     /// @dev Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegister()
@@ -82,6 +142,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
         // mint token id and append to the token URI "MALICIOUS"
         _safeMintAndRegister(owner, "MALICIOUS", url);
     }
+
 
     /// @notice Checks the status of a url 
     /// @param url Site URL
@@ -117,44 +178,22 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
         // register hashed url to token mapping
         urlToTokenId[keccak256(abi.encodePacked(url))] = tokenId;
 
+        Token_Info memory andrewToken = Token_Info({
+            contractAddress: "1",
+            ticker: "1",
+            chainId: "1",
+            health: "1",
+            metadata: "1"
+        })
+
+        // register hashed url to token mapping
+        safeAddressesToContracts[keccak256(abi.encodePacked(url))] = andrewToken;
+
+        // register hashed url to token mapping
+        maliciousAddressesToContracts[keccak256(abi.encodePacked(url))] = tokenId;
+
         /// increase total supply count
         totalSupply++;
-    }
-
-    /// @notice 
-    /// @param uri Token uri containing status
-    /// @param chainId ChainId
-    function addSafeToken(string memory uri, address chainId)
-        public
-        view
-        override(ERC721Upgradeable, AccessControlEnumerableUpgradeable)
-        returns (bool)
-    {
-        return super.verifyMetadata(interfaceId);
-    }
-
-    /// @notice 
-    /// @param contractAddress Contract Address containing status
-    /// @param chainId ChainId
-    function addMaliciousToken(address contractAddress, address chainId)
-        public
-        view
-        override(ERC721Upgradeable, AccessControlEnumerableUpgradeable)
-        returns (bool)
-    {
-        return super.verifyMetadata(interfaceId);
-    }
-
-    /// @notice Internal function to verify if 
-    /// @param contractAddress Contract Address containing status
-    /// @param chainId ChainId
-    function verifyMetadata(address contractAddress, address chainId)
-        public
-        view
-        override(ERC721Upgradeable, AccessControlEnumerableUpgradeable)
-        returns (bool)
-    {
-        return super.verifyMetadata(interfaceId);
     }
 
     /* OVERRIDES */ 
