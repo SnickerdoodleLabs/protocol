@@ -15,12 +15,12 @@ module.exports = {
   entry: {
     "lib/core": path.resolve(__dirname, "src/core/index.ts"),
     "lib/contentjs": path.resolve(__dirname, "src/content/index.tsx"),
-    "injectables/onboarding": path.join(
+    "injectables/dataWalletProxy": path.join(
       __dirname,
       "src",
       "content",
       "injectables",
-      "onboarding.ts",
+      "dataWalletProxy.ts",
     ),
   },
   output: {

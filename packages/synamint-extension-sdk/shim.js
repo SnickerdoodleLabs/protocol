@@ -10,7 +10,7 @@ const lineReader = readline.createInterface({
 
 const REQUIRED_PERMISSIONS = ["cookies", "tabs", "storage", "activeTab"];
 
-const INJECTABLE_BUNDLE_NAME = "onboarding.bundle.js";
+const INJECTABLE_BUNDLE_NAME = "dataWalletProxy.bundle.js";
 const INJECTABLE_BUNDLE_PATH = "injectables/";
 const ALL_URLS = "<all_urls>";
 
@@ -129,7 +129,7 @@ const ovverideManifest = () => {
     fs.writeFile(manifestAbsolutePath, JSON.stringify(manifestObj), (err) => {
       if (err) console.err(err);
       else {
-        console.log("manifest done");
+        console.log("manifest configuration completed");
         process.exit();
       }
     });

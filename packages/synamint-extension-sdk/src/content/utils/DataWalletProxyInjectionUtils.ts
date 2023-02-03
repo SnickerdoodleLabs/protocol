@@ -1,5 +1,5 @@
 import Browser from "webextension-polyfill";
-class OnboardingProviderInjectionUtils {
+class DataWalletProxyInjectionUtils {
   public static inject() {
     try {
       const node = document.head || document.documentElement;
@@ -9,12 +9,12 @@ class OnboardingProviderInjectionUtils {
       script.setAttribute("id", "sdl-wallet");
       script.setAttribute(
         "src",
-        Browser.runtime.getURL("injectables/onboarding.bundle.js"),
+        Browser.runtime.getURL("dataWalletProxy.bundle.js"),
       );
       node.appendChild(script);
-      OnboardingProviderInjectionUtils._notify();
+      DataWalletProxyInjectionUtils._notify();
     } catch (e) {
-      console.error("sdlDataWallet onboarding provider injection failed", e);
+      console.error("dataWalletProxy injection failed", e);
     }
   }
   private static _notify() {
@@ -22,4 +22,4 @@ class OnboardingProviderInjectionUtils {
   }
 }
 
-export default OnboardingProviderInjectionUtils;
+export default DataWalletProxyInjectionUtils;

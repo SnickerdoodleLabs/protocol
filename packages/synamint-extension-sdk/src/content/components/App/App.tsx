@@ -10,7 +10,7 @@ import {
   IRewardItem,
 } from "@synamint-extension-sdk/content/constants";
 import usePath from "@synamint-extension-sdk/content/hooks/usePath";
-import OnboardingProviderInjectionUtils from "@synamint-extension-sdk/content/utils/OnboardingProviderInjectionUtils";
+import DataWalletProxyInjectionUtils from "@synamint-extension-sdk/content/utils/DataWalletProxyInjectionUtils";
 import { ExternalCoreGateway } from "@synamint-extension-sdk/gateways";
 import {
   CONTENT_SCRIPT_POSTMESSAGE_CHANNEL_IDENTIFIER,
@@ -87,7 +87,7 @@ const connect = () => {
       new URL(ConfigProvider.getConfig().onboardingUrl).origin ===
       window.location.origin
     ) {
-      OnboardingProviderInjectionUtils.inject();
+      DataWalletProxyInjectionUtils.inject();
     }
   } else {
     coreGateway.updateRpcEngine(rpcEngine);
