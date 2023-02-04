@@ -15,8 +15,8 @@
     "prebuild": "node scripts/precompile",
     "clean:build": "npx rimraf build",
     "bundle:sdk": "yarn prebuild && npx webpack --config webpack.config.umd.js ",
-    "pack:sdk": " yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm pack && node scripts/generatePackageJson.mjs ",
-    "configure": "node shim.js"
+    "pack:sdk": "yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm pack && node scripts/generatePackageJson.mjs",
+    "publish:sdk": "yarn bundle:sdk && node scripts/generatePackageJson.mjs --umd && npm publish && node scripts/generatePackageJson.mjs"
   },
   "dependencies": {
     "@material-ui/core": "^4.12.4",
