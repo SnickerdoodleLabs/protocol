@@ -53,12 +53,12 @@ const SafeUrlNotification: FC<ISafeURLNotificationProps> = ({
           <img
             onClick={handleClose}
             className={classes.closeImg}
-            src={Browser.runtime.getURL("assets/img/safeClose.svg")}
+            src="https://storage.googleapis.com/dw-assets/extension/close.svg"
           />
           <Grid item className={classes.container2}>
             <img
               className={classes.safeImg}
-              src={Browser.runtime.getURL("assets/img/safe.png")}
+              src="https://storage.googleapis.com/dw-assets/extension/safe-url.png"
             />
           </Grid>
 

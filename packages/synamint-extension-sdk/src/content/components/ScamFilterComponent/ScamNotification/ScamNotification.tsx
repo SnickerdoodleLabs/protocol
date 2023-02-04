@@ -2,7 +2,6 @@ import { Button, Grid, Typography } from "@material-ui/core";
 import { useStyles } from "@synamint-extension-sdk/content/components/ScamFilterComponent/ScamNotification";
 import { safeURLsObject } from "@synamint-extension-sdk/content/constants";
 import React, { FC } from "react";
-import Browser from "webextension-polyfill";
 
 const ScamNotification: FC = () => {
   const [dangerousOpen, setDangerousOpen] = React.useState(true);
@@ -21,7 +20,7 @@ const ScamNotification: FC = () => {
             <Grid style={{ display: "flex" }}>
               <img
                 className={classes.dangerousImg}
-                src={Browser.runtime.getURL("assets/img/dangerousIcon.svg")}
+                src="https://storage.googleapis.com/dw-assets/extension/dangerous-url.png"
               />
               <Grid>
                 <Typography className={classes.title} variant="h4">

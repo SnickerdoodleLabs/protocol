@@ -100,7 +100,7 @@ const RewardCard: React.FC<IRewardCardProps> = ({
               <img
                 width="auto"
                 height={20}
-                src={Browser.runtime.getURL("assets/img/sdHorizontalLogo.svg")}
+                src="https://storage.googleapis.com/dw-assets/extension/sdl-horizontal-logo.svg"
               />
             </Box>
             <Box>
