@@ -62,7 +62,7 @@ exec(`find ${rootDir} -name manifest.json -print`, (err, stdout, stderr) => {
 const copyBundle = () => {
   const buildDir = path.dirname(manifestAbsolutePath);
   exec(
-    `cp build/${INJECTABLE_BUNDLE_PATH}${INJECTABLE_BUNDLE_NAME} ${buildDir}`,
+    `cp ${__dirname}/build/${INJECTABLE_BUNDLE_PATH}${INJECTABLE_BUNDLE_NAME} ${buildDir}`,
     (err, stdout, stderr) => {
       if (err) {
         console.error(
