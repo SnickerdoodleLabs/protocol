@@ -28,6 +28,7 @@ export class CoreConfig implements IIndexerConfig, IPersistenceConfig {
     public backupChunkSizeTarget: number,
     public covalentApiKey: string,
     public moralisApiKey: string,
+    public nftScanApiKey: string,
     public dnsServerAddress: URLString,
     public ceramicModelAliases: MapModelTypes<ModelTypes, string>,
     public ceramicNodeURL: URLString,

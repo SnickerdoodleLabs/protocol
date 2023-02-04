@@ -13,6 +13,7 @@ export interface IConfigOverrides {
   accountNFTPollingIntervalMS?: number;
   covalentApiKey?: string;
   moralisApiKey?: string;
+  nftScanApiKey?: string;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;

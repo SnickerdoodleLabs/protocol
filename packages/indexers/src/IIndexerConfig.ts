@@ -3,6 +3,7 @@ import { ChainId, ECurrencyCode, URLString } from "@snickerdoodlelabs/objects";
 export interface IIndexerConfig {
   covalentApiKey: string;
   moralisApiKey: string;
+  nftScanApiKey: string;
   etherscanApiKeys: Map<ChainId, string>;
   etherscanTransactionsBatchSize: number;
   quoteCurrency: ECurrencyCode;
