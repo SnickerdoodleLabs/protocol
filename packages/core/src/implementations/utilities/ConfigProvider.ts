@@ -83,6 +83,7 @@ export class ConfigProvider
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
       "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
+      "wInY1o7pH1yAGBYKcbz0HUIXVHv2gjNTg4v7OQ70hykVdgKlXU3g7GGaajmEarYIX4jxCwm55Oim7kYZeML6wfLJAsm7MzdvlH1k0mKFpTRLXX1AXDIwVQer51SMeuQm", // Poap Api Key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
@@ -109,7 +110,7 @@ export class ConfigProvider
         polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
       },
       10000,
-      "(localhost|chrome:\/\/)",
+      "(localhost|chrome://)",
     );
   }
 
@@ -171,6 +172,7 @@ export class ConfigProvider
       overrides.moralisApiKey ?? this.config.moralisApiKey;
     this.config.nftScanApiKey =
       overrides.nftScanApiKey ?? this.config.nftScanApiKey;
+    this.config.poapApiKey = overrides.poapApiKey ?? this.config.poapApiKey;
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =

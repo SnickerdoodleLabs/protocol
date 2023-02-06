@@ -16,6 +16,7 @@ declare const __DEFAULT_INSIGHT_PLATFORM_BASE_URL__: URLString;
 declare const __COVALENT_API_KEY__: string;
 declare const __MORALIS_API_KEY__: string;
 declare const __NFTSCAN_API_KEY__: string;
+declare const __POAP_API_KEY__: string;
 declare const __DNS_SERVER_ADDRESS__: URLString;
 declare const __CERAMIC_NODE_URL__: URLString;
 declare const __CONTROL_CHAIN_PROVIDER_URL__: ProviderUrl;
@@ -48,6 +49,7 @@ class ConfigProvider implements IConfigProvider {
       __COVALENT_API_KEY__ === "" ? undefined : __COVALENT_API_KEY__,
       __MORALIS_API_KEY__ === "" ? undefined : __MORALIS_API_KEY__,
       __NFTSCAN_API_KEY__ === "" ? undefined : __NFTSCAN_API_KEY__,
+      __POAP_API_KEY__ === "" ? undefined : __POAP_API_KEY__,
       __DNS_SERVER_ADDRESS__ === "" ? undefined : __DNS_SERVER_ADDRESS__,
       Number.parseInt(__REQUEST_FOR_DATA_EVENT_FREQ__),
       __DOMAIN_FILTER__ === "" ? undefined : __DOMAIN_FILTER__,
