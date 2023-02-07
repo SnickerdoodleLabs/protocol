@@ -19,6 +19,7 @@ import {
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
+import { NftScanEVMPortfolioRepository } from "@indexers/NftScanEVMPortfolioRepository.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
@@ -26,6 +27,7 @@ import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 export class DefaultAccountNFTs implements IAccountNFTs {
   protected ethereum: IEVMNftRepository;
   protected evm: IEVMNftRepository;
+  protected nftscan: IEVMNftRepository;
   protected simulatorRepo: IEVMNftRepository;
   protected solRepo: ISolanaNFTRepository;
 
@@ -43,6 +45,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
     //   tokenPriceRepo,
     //   logUtils,
     // );
+    this.nftscan = new NftScanEVMPortfolioRepository(configProvider, ajaxUtils);
     this.evm = new MoralisEVMPortfolioRepository(configProvider, ajaxUtils);
     this.ethereum = this.evm;
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
@@ -52,6 +55,14 @@ export class DefaultAccountNFTs implements IAccountNFTs {
       this.tokenPriceRepo,
       this.logUtils,
     );
+  }
+
+  public getNftScanRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.nftscan);
+  }
+
+  public getEtherscanNftRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.ethereum);
   }
 
   public getEthereumNftRepository(): ResultAsync<IEVMNftRepository, never> {

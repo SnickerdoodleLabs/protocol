@@ -228,7 +228,7 @@ export const chainConfig = new Map<ChainId, ChainInformation>([
       true,
       [],
       10000, // average block mining time
-      EIndexer.Gnosis,
+      EIndexer.Binance,
       new NativeCurrencyInformation("BNB", 18, "BNB", "binancecoin"),
       EChainType.Mainnet,
       "https://api.bscscan.com/api",
