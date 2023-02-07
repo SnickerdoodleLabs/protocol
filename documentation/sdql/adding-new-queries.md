@@ -23,12 +23,11 @@ First step in the implementation is parsing the query and building the AST (Abst
 ## 2. Evaluating the query
 Once we have the AST for a query, we can execute the logic expressions. The evaluators are in the **core package** (*packages/core/src/.../business/utilities/query*). You need to update the QueryEvaluator which wraps all the query-type specific evaluators. 
 
-6. Define your evaluator using the persistence layer and test it
-7. If you have a non-property query, update the **eval** method of the QueryEvaluator that calls the evaluator.
-8. If you have a property query, update evalPropertyQuery.
+6. If you have a non-property query, update the **eval** method of the QueryEvaluator that calls the evaluator.
+7. If you have a property query, update evalPropertyQuery.
 
 ## 3 Publishing the query-parser package to npm repository
-9. The parser package is used by the insight platform as a third party npm package. We need to publish it to our company repository.
+8. The parser package is used by the insight platform as a third party npm package. We need to publish it to our company repository.
 
 # An example - The Pet Query
 Suppose we want to support a new query that collects the animal pets that an user may have. 
@@ -37,7 +36,7 @@ Suppose we want to support a new query that collects the animal pets that an use
 2. Now we update two files with the schema and an example of the query
 
 In [EXAMPLES.md](./EXAMPLES.md)
-```
+```json
     "q99": {
         "name": "pet",
         "return": "array",
@@ -49,7 +48,61 @@ In [EXAMPLES.md](./EXAMPLES.md)
 In [sdql-v0.0.1.schema](./sdql-v0.0.1.schema.json), we do not need to update anything as we are not defining any structures (The return structure is an object array).
 
 3. As this is a web2 data type and matches our abstractions, we can reuse the **ISDQLQueryClause** and **AST_PropertyQuery**. No need to define anything new.
-4. Now we need to update the SDQLParser so that it can correctly parse the query.
+4. Now we need to update the SDQLParser so that it can correctly parse the query. This query is too simple to write a validator for. But we need to set up data permissions
+
+```typescript
+// 1. Define EDataWalletType
+export enum EWalletDataType {
+    ...
+    ...
+    Pet = 22,
+}
+
+// 2. Getter of the permission.
+
+export class DataPermissions {
+    ...
+    public get Pet(): boolean {
+        return this.getFlag(EWalletDataType.Pet);
+    }
+    ...
+}
+
+// 3. Update the getQueryPermissionFlag of SDQLParser. We will update getPropertyQueryPermissionFlag as that wraps all the getters for property query permission
+
+
+private getPropertyQueryPermissionFlag(query: AST_Query) {
+    const propQuery = query as AST_PropertyQuery;
+    switch (propQuery.property) {
+        ...
+        case "pet":
+            return EWalletDataType.Pet;
+        case "default":
+        ...
+    }
+}
+
+```
+5. Now we should be able to unit test it and expect a property query object with name "q99" and property "pet". In our property query evaluator all we have to do is write the pet handler.
+
+6. Skip
+7. Updating property query evaluator in QueryEvaluator
+
+```typescript
+public evalPropertyQuery(
+    q: AST_PropertyQuery,
+): ResultAsync<SDQL_Return, PersistenceError> {
+    let result = SDQL_Return(true);
+    switch (q.property) {
+        ...
+        case "pet": // get the data from persistence and transform if required.
+             return this.dataWalletPersistence.getPets().andThen((pets) => {
+                return okAsync(pets)
+             });
+        ...
+    }
+}
+```
 
 
 
