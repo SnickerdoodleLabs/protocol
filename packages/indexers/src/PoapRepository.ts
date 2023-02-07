@@ -40,26 +40,22 @@ export class PoapRepository implements IEVMNftRepository {
   ): ResultAsync<EVMNFT[], AccountIndexingError> {
     return this.generateQueryConfig(accountAddress)
       .andThen((requestConfig) => {
-        return this.ajaxUtils
-          .get<IPoapResponse[]>(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            new URL(requestConfig.url!),
-            requestConfig,
-          )
-          .andThen((result) => {
-            console.log("result: ", result);
-            return this.getPages(chainId, result);
-          });
+        return this.ajaxUtils.get<IPoapResponse[]>(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          new URL(requestConfig.url!),
+          requestConfig,
+        );
+      })
+      .map((result) => {
+        console.log("result: ", result);
+        return this.getPages(chainId, result);
       })
       .mapErr(
         (e) => new AccountIndexingError("error fetching nfts from nftscan", e),
       );
   }
 
-  private getPages(
-    chainId: ChainId,
-    response: IPoapResponse[],
-  ): ResultAsync<EVMNFT[], AjaxError> {
+  private getPages(chainId: ChainId, response: IPoapResponse[]): EVMNFT[] {
     const items: EVMNFT[] = response.map((token) => {
       console.log("Poap token: ", token);
       return new EVMNFT(
@@ -68,14 +64,14 @@ export class PoapRepository implements IEVMNftRepository {
         "erc-721",
         EVMAccountAddress(token.owner),
         TokenUri(token.event.image_url),
-        { raw: JSON.stringify(token.event)},
+        { raw: JSON.stringify(token.event) },
         BigNumberString(token.event.supply),
         token.event.name,
         chainId,
       );
     });
     console.log("POAP items: ", items);
-    return okAsync(items);
+    return items;
   }
 
   private generateQueryConfig(
