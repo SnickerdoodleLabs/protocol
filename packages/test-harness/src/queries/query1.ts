@@ -80,8 +80,16 @@ export const query1 = {
     },
     q9: {
       name: "nfts",
-      networkid: "*",
       return: "array",
+      contract: {
+        networkid: "*",
+        address: "*",
+        token: "ERC721",
+        timestampRange: {
+          start: 13001519,
+          end: 14910334,
+        },
+      },
       array_items: {
         object_schema: {
           properties: {
@@ -204,3 +212,5 @@ export const query1 = {
     compensations: ["if$q1then$c1", "if$q2then$c2", "if$q3then$c3"],
   },
 };
+
+

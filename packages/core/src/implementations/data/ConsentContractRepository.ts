@@ -112,6 +112,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     ConsentToken | null,
     ConsentContractError | UninitializedError | BlockchainProviderError
   > {
+
     return this.getConsentContract(optInInfo.consentContractAddress)
       .andThen((consentContract) => {
         return consentContract.getConsentToken(

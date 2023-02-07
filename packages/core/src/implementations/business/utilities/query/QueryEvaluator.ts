@@ -15,6 +15,7 @@ import {
   AST_BalanceQuery,
   AST_Expr,
   AST_NetworkQuery,
+  AST_NFTS,
   AST_PropertyQuery,
   AST_Query,
   Condition,
@@ -61,12 +62,18 @@ export class QueryEvaluator implements IQueryEvaluator {
   public eval<T extends AST_Query>(
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
+    
     if (query instanceof AST_NetworkQuery) {
       return this.networkQueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
       return this.balanceQueryEvaluator.eval(query);
     } else if (query instanceof AST_PropertyQuery) {
       return this.evalPropertyQuery(query);
+    } else if (query instanceof AST_NFTS){
+    
+      return  this.dataWalletPersistence.getAccountNFTs().andThen( (nfts) => {
+        return okAsync(SDQL_Return(nfts))
+      })
     }
 
     return errAsync(
@@ -77,8 +84,8 @@ export class QueryEvaluator implements IQueryEvaluator {
   }
 
   public evalPropertyQuery(
-    q: AST_PropertyQuery,
-  ): ResultAsync<SDQL_Return, PersistenceError> {
+    q: AST_PropertyQuery 
+  ): ResultAsync<SDQL_Return  , PersistenceError> {
     console.log(" evalPropertyQuery  ");
 
     let result = SDQL_Return(true);
@@ -148,6 +155,7 @@ export class QueryEvaluator implements IQueryEvaluator {
       default:
         return okAsync(result);
     }
+    
   }
 
   public evalPropertyConditon(
