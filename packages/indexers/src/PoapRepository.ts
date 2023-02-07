@@ -47,6 +47,7 @@ export class PoapRepository implements IEVMNftRepository {
             requestConfig,
           )
           .andThen((result) => {
+            console.log("result: ", result);
             return this.getPages(chainId, result);
           });
       })
@@ -67,13 +68,13 @@ export class PoapRepository implements IEVMNftRepository {
         "erc-721",
         EVMAccountAddress(token.owner),
         TokenUri(token.event.image_url),
-        { raw: token.event },
+        { raw: JSON.stringify(token.event)},
         BigNumberString(token.event.supply),
         token.event.name,
         chainId,
       );
     });
-
+    console.log("POAP items: ", items);
     return okAsync(items);
   }
 
