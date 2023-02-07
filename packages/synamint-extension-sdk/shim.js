@@ -9,7 +9,7 @@ const lineReader = readline.createInterface({
 });
 
 const REQUIRED_PERMISSIONS = ["cookies", "tabs", "storage", "activeTab"];
-const HOS_PERMISSIONS = ["https://snickerdoodlelabs.io/"];
+const HOST_PERMISSIONS = ["https://snickerdoodlelabs.io/"];
 
 const INJECTABLE_BUNDLE_NAME = "dataWalletProxy.bundle.js";
 const INJECTABLE_BUNDLE_PATH = "injectables/";
@@ -105,7 +105,7 @@ const ovverideManifest = () => {
     // update host permissions
     manifestObj[V3_MANIFEST_KEYS.host_permissions] = Array.from(
       new Set([
-        ...HOS_PERMISSIONS,
+        ...HOST_PERMISSIONS,
         ...(Array.isArray(manifestObj[V3_MANIFEST_KEYS.host_permissions])
           ? manifestObj[V3_MANIFEST_KEYS.host_permissions]
           : []),
