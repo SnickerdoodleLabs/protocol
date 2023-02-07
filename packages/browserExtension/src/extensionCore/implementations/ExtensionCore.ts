@@ -73,6 +73,7 @@ export class ExtensionCore {
       accountIndexingPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
       accountNFTPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
       dataWalletBackupIntervalMS: SIX_HOURS_MS,
+      backupChunkSizeTarget: config.backupChunkSizeTarget,
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
       domainFilter: config.domainFilter,
     } as IConfigOverrides;
