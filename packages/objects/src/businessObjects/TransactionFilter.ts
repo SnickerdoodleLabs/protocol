@@ -18,7 +18,7 @@ export class TransactionFilter {
     public startTime?: UnixTimestamp,
     public endTime?: UnixTimestamp,
   ) {
-    if (chainIDs != undefined) {
+    if (chainIDs != undefined && !chainIDs.some( id => isNaN(id))) {
       this.chainIDs = new Set(chainIDs);
     }
     if (hashes != undefined) {

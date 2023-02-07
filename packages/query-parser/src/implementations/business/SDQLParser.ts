@@ -31,7 +31,6 @@ import {
   AST_Expr,
   AST_Logic,
   AST_NetworkQuery,
-  AST_NFTS,
   AST_PropertyQuery,
   AST_Query,
   AST_Return,
@@ -285,24 +284,19 @@ export class SDQLParser {
     try {
       const querySchema = this.schema.getQuerySchema();
       const queries = new Array<
-        AST_NetworkQuery | AST_BalanceQuery | AST_PropertyQuery | AST_NFTS
+        AST_NetworkQuery | AST_BalanceQuery | AST_PropertyQuery 
       >();
       for (const qName in querySchema) {
         // console.log(`parsing query ${qName}`);
         const name = SDQL_Name(qName);
         const schema = querySchema[qName];
-        console.log("name - ",  name)
+       
         switch (schema.name) {
+          case "nfts":
           case "network":
             // console.log(`${qName} is a network query`);
             queries.push(AST_NetworkQuery.fromSchema(name, schema));
             break;
-
-          case "nfts":
-            console.log("nft query " , name , " :s " , schema);
-            queries.push(AST_NFTS.fromSchema(name , schema))
-            break;
-            
           case "balance":
             queries.push(this.queryObjectFactory.toBalanceQuery(name, schema));
             break;
@@ -551,7 +545,6 @@ export class SDQLParser {
   public queriesToDataPermission(queries: AST_Query[]): DataPermissions {
     return DataPermissions.createWithPermissions(
       queries.map((query) => {
-        console.log("rageeeeeeeeeeeeeee query : ",  query );
         console.log(this.getQueryPermissionFlag(query))
         return this.getQueryPermissionFlag(query);
       }),
@@ -570,22 +563,23 @@ export class SDQLParser {
 
     return this.queriesToDataPermission(queries);
   }
-
+  private getNetworkQueryPermission(query : AST_NetworkQuery): EWalletDataType{
+    if(query.contract.token === "ERC721"){
+      return EWalletDataType.AccountNFTs;
+    } 
+    return EWalletDataType.EVMTransactions;
+  }
   public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
+  
     switch (query.constructor) {
       case AST_NetworkQuery:
-        return EWalletDataType.EVMTransactions;
+        return this.getNetworkQueryPermission(query as AST_NetworkQuery);
       case AST_BalanceQuery:
         return EWalletDataType.AccountBalances;
-      case AST_NFTS:
-        console.log("I am nft")
-        return EWalletDataType.AccountNFTs;
-
       case AST_PropertyQuery:
         return this.getPropertyQueryPermissionFlag(query);
      
       default:
-        console.log("rage : ")
         const err = new MissingWalletDataTypeError(query.constructor.name);
         console.error(err);
         throw err;
@@ -615,11 +609,8 @@ export class SDQLParser {
         return EWalletDataType.SiteVisits;
       case "chain_transactions":
         return EWalletDataType.EVMTransactions;
-      case "nfts":
-        return EWalletDataType.AccountNFTs;
       default:
- 
-        console.log(query.name , query.returnType,  query instanceof AST_NFTS)
+
         const err = new MissingWalletDataTypeError(propQuery.property);
         console.error(err);
         throw err;

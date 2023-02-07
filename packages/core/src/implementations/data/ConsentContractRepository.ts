@@ -298,6 +298,7 @@ export class ConsentContractRepository implements IConsentContractRepository {
     IConsentContract,
     BlockchainProviderError | UninitializedError
   > {
+
     return this.consentContractFactory
       .factoryConsentContracts([consentContractAddress])
       .map(([consentContract]) => {

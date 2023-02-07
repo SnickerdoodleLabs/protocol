@@ -10,7 +10,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
 {
     "version": 0.1,
     "timestamp": "2021-11-13T20:20:39",
-    "expiry" : "2022-11-13T20:20:39",
+    "expiry": "2022-11-13T20:20:39",
     "description": "For 15-year and older individuals, querying intractions with the Avalanche blockchain, location, gender, urls visited and chain transaction count",
     "business": "Shrapnel",
     "queries": {
@@ -65,17 +65,17 @@ This example checks if the user's age is greater than or equal to 15. It also qu
             "name": "gender",
             "return": "enum",
             "enum_keys": [
-                    "female",
-                    "male",
-                    "nonbinary",
-                    "unknown"
-                ]
+                "female",
+                "male",
+                "nonbinary",
+                "unknown"
+            ]
         },
         "q5": {
             "name": "url_visited_count",
             "return": "object",
-            "object_schema":{
-                "patternProperties":{
+            "object_schema": {
+                "patternProperties": {
                     "^http(s)?:\/\/[\\-a-zA-Z0-9]*.[a-zA-Z0-9]*.[a-zA-Z]*\/[a-zA-Z0-9]*$": {
                         "type": "integer"
                     }
@@ -114,6 +114,43 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                     ]
                 }
             }
+        },
+        q7: {
+                name: "nfts",
+                return: "array",
+                contract: {
+                    networkid: "*",
+                    address: "*",
+                    token: "ERC721",
+                    timestampRange: {
+                    start: 13001519,
+                    end: 14910334,
+                },
+            },
+                array_items: {
+                    object_schema: {
+                    properties: {
+                        networkid: {
+                        type: "integer",
+                        },
+                        address: {
+                        type: "string",
+                        pattern: "^0x[a-fA-F0-9]{40}$",
+                        },
+                        balance: {
+                        type: "number",
+                        },
+                        timestamp: {
+                        type: "number",
+                        },
+                    },
+                    required: [
+                        "networkid",
+                        "address",
+                        "balance"
+                    ],
+                },
+            },
         }
     },
     "returns": {
@@ -147,8 +184,7 @@ This example checks if the user's age is greater than or equal to 15. It also qu
         },
         "url": "https://418e-64-85-231-39.ngrok.io/insights"
     },
-  "compensations":{
-
+    "compensations": {
         "parameters": {
             "recipientAddress": {
                 type:...,
@@ -157,25 +193,26 @@ This example checks if the user's age is greater than or equal to 15. It also qu
             "productId": {
                 type: string,
                 required: true,
-                values: [urls]
+                values: [urls
+                ]
             },
             "shippingAddress": {
                 type: string,
                 required: true,
             },
-
         },
-        "c1":{
+        "c1": {
             "description": "10% discount code for Starbucks",
             "chainId": 1,
             "callback": {
                 "parameters": [
                     "recipientAddress"
                 ],
-                "data": {...an object to be forwarded with the api call}
+                "data": {...an object to be forwarded with the api call
+                }
             }
         },
-        "c2":{
+        "c2": {
             "description": "participate in the draw to win a CryptoPunk NFT",
             "chainId": 1,
             "callback": {
@@ -183,10 +220,11 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                     "recipientAddress",
                     "productId"
                 ],
-                "data": {...an object to be forwarded with the api call}
+                "data": {...an object to be forwarded with the api call
+                }
             }
         },
-        "c3":{
+        "c3": {
             "description": "a free CrazyApesClub NFT",
             "chainId": 1,
             "callback": {
@@ -194,15 +232,15 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                     "recipientAddress",
                     "shippingAddress"
                 ],
-                "data": {...an object to be forwarded with the api call}
+                "data": {...an object to be forwarded with the api call
+                }
             },
             "alternatives": [
                 "c4",
                 "c5"
             ]
-
         },
-        "c4":{
+        "c4": {
             "description": "a free CrazyApesClub NFT on Avalanche",
             "chainId": 43114,
             "callback": {
@@ -210,15 +248,15 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                     "recipientAddress",
                     "shippingAddress"
                 ],
-                "data": {...an object to be forwarded with the api call}
+                "data": {...an object to be forwarded with the api call
+                }
             },
             "alternatives": [
                 "c3",
                 "c5"
             ]
-
         },
-        "c5":{
+        "c5": {
             "description": "a free CrazyApesClub NFT on Solana",
             "chainId": -1,
             "callback": {
@@ -226,13 +264,13 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                     "recipientAddress",
                     "shippingAddress"
                 ],
-                "data": {...an object to be forwarded with the api call}
+                "data": {...an object to be forwarded with the api call
+                }
             },
             "alternatives": [
                 "c3",
                 "c4"
             ]
-
         },
     },
     "logic": {

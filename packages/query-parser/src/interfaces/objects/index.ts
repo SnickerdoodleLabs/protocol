@@ -18,4 +18,3 @@ export * from "@query-parser/interfaces/objects/Operator.js";
 export * from "@query-parser/interfaces/objects/TypeChecker.js";
 export * from "@query-parser/interfaces/objects/SDQLQueryWrapper.js";
 export * from "@query-parser/interfaces/objects/condition/index.js";
-export * from "@query-parser/interfaces/objects/AST_NFTS.js";

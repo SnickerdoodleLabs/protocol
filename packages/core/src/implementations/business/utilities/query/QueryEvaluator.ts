@@ -15,7 +15,6 @@ import {
   AST_BalanceQuery,
   AST_Expr,
   AST_NetworkQuery,
-  AST_NFTS,
   AST_PropertyQuery,
   AST_Query,
   Condition,
@@ -69,12 +68,7 @@ export class QueryEvaluator implements IQueryEvaluator {
       return this.balanceQueryEvaluator.eval(query);
     } else if (query instanceof AST_PropertyQuery) {
       return this.evalPropertyQuery(query);
-    } else if (query instanceof AST_NFTS){
-    
-      return  this.dataWalletPersistence.getAccountNFTs().andThen( (nfts) => {
-        return okAsync(SDQL_Return(nfts))
-      })
-    }
+    } 
 
     return errAsync(
       new PersistenceError(

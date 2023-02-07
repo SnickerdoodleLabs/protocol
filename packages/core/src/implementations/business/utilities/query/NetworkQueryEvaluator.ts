@@ -36,6 +36,11 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
       endTime,
     );
 
+    if(query.contract.token === "ERC721"){
+      return this.evalNftQuery(filter)
+    }
+
+
     if (query.returnType == "object") {
       return this.dataWalletPersistence
         .getTransactions(filter)
@@ -93,6 +98,14 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
         });
     }
 
+ 
     return okAsync(SDQL_Return(false));
   }
+
+  private evalNftQuery(transactionFilter : TransactionFilter):  ResultAsync<SDQL_Return, PersistenceError>{
+    const chainId = transactionFilter.chainIDs  ? [...transactionFilter.chainIDs] : undefined;
+    return this.dataWalletPersistence.getAccountNFTs( chainId ).map( (arr) => SDQL_Return(arr));
+  }
+
+
 }

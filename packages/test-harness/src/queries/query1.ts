@@ -107,7 +107,7 @@ export const query1 = {
               type: "number",
             },
           },
-          required: ["networkid", "address", "balance", "timestamp"],
+          required: ["networkid", "address", "balance"],
         },
       },
     },
