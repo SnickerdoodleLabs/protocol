@@ -1,12 +1,12 @@
 # Steps to add a new query support to the core:
 
-1. Update the QUERYENGINE.md file with new query type
-2. Update the EXAMPLES.md file with new query schema examples
+1. Update the name section of [README.md](./README.md) file with new query name.
+2. Update the [EXAMPLES.md](./EXAMPLES.md) file with new query schema examples and optionally define the new structures in [sdql-v0.0.1.schema](./sdql-v0.0.1.schema.json) if required.
 
 ## 1. Parsing the query
 First step in the implementation is parsing the query and building the AST (Abstract Syntax Tree). This is done by the **Query Parser package**.
 
-3. Parsing the new query requires an interface to be defined that resembles the query structure. The **SDQLParser** converts a query schema into AST. So, we need to define an AST element for the new query. For most of the web2 data, we have an abstraction layer called "**AST_PropertyQuery**". Maybe, you may not need to new AST elements. If you define an new element it must extend from **AST_Query**.
+3. Parsing the new query requires an interface (we call them blocks) to be defined that resembles the query structure which will be a part of **ISDQLQueryObject**. The **SDQLParser** converts a query schema into AST. So, we need to define an AST element for the new query. For most of the web2 data, we have an abstraction layer called "**AST_PropertyQuery**". Maybe, you may not need to new AST elements. If you define an new element it must extend from **AST_Query**.
 4. You need to update the **SDQLParser** to convert the query block into the corresponding AST element. You can also write validations here. 
 
     ### Get the permission flag for the query
@@ -23,12 +23,33 @@ First step in the implementation is parsing the query and building the AST (Abst
 ## 2. Evaluating the query
 Once we have the AST for a query, we can execute the logic expressions. The evaluators are in the **core package** (*packages/core/src/.../business/utilities/query*). You need to update the QueryEvaluator which wraps all the query-type specific evaluators. 
 
-1. Define your evaluator using the persistence layer and test it
-2. If you have a non-property query, update the **eval** method of the QueryEvaluator that calls the evaluator.
-3. If you have a property query, update evalPropertyQuery.
+6. Define your evaluator using the persistence layer and test it
+7. If you have a non-property query, update the **eval** method of the QueryEvaluator that calls the evaluator.
+8. If you have a property query, update evalPropertyQuery.
 
 ## 3 Publishing the query-parser package to npm repository
-1. The parser package is used by the insight platform as a third party npm package. We need to publish it to our company repository.
+9. The parser package is used by the insight platform as a third party npm package. We need to publish it to our company repository.
+
+# An example - The Pet Query
+Suppose we want to support a new query that collects the animal pets that an user may have. 
+
+1. We first add the name "pet" to the names section of [README.md](./README.md) file with description "access to a list of pets that the user has"
+2. Now we update two files with the schema and an example of the query
+
+In [EXAMPLES.md](./EXAMPLES.md)
+```
+    "q99": {
+        "name": "pet",
+        "return": "array",
+        "conditions": {
+            "type": "dogs"
+        }
+    }
+```
+In [sdql-v0.0.1.schema](./sdql-v0.0.1.schema.json), we do not need to update anything as we are not defining any structures (The return structure is an object array).
+
+3. As this is a web2 data type and matches our abstractions, we can reuse the **ISDQLQueryClause** and **AST_PropertyQuery**. No need to define anything new.
+4. Now we need to update the SDQLParser so that it can correctly parse the query.
 
 
 
