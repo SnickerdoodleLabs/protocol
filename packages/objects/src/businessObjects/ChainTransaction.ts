@@ -1,10 +1,4 @@
-import {
-  AccountAddress,
-  BigNumberString,
-  ChainId,
-  TransactionHash,
-  UnixTimestamp,
-} from "@objects/primitives";
+import { ChainId, TransactionHash, UnixTimestamp } from "@objects/primitives";
 
 export abstract class ChainTransaction {
   constructor(
