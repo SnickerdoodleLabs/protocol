@@ -58,6 +58,9 @@ const RewardItem: FC<IRewardItemProps> = ({ reward, count }) => {
             fontWeight: 700,
             fontSize: 16,
             lineHeight: "20px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
             color: "rgba(35, 32, 57, 0.87)",
           }}
         >
