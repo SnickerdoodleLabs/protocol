@@ -146,24 +146,23 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
 
     /* SIFT CONTRACT WHITELISTING */ 
     /* Adding Contract to Whitelist, using their address as key */
+    // function verifyContractAddress(address tokenContract) external {
+    //     // check if the url has already been verified on the contract
+    //     // if it has a token id mapped to it, it has been verified 
+    //     require(bytesToContract[tokenContract] == 0, "Consent: Token contract already verified");
 
-    function verifyContractAddress(address tokenContract, address owner) external {
-        // check if the url has already been verified on the contract
-        // if it has a token id mapped to it, it has been verified 
-        require(bytesToContract[tokenContract] == 0, "Consent: Token contract already verified");
+    //     tokenContractMetadata memory whitelistEntry = _createWhitelistData(1, "", "", "", "VERIFIED");
+    //     addContractToWhitelist(tokenContract, whitelistEntry);
+    // }
 
-        tokenContractMetadata memory whitelistEntry = createWhitelistData(1, "", "", "", "VERIFIED");
-        addContractToWhitelist(tokenContract, whitelistEntry);
-    }
+    // function reportContractAddress(address tokenContract) external {
+    //     // check if the url has already been verified on the contract
+    //     // if it has a token id mapped to it, it has been verified 
+    //     require(bytesToContract[tokenContract] == 0, "Consent: Token contract already verified");
 
-    function reportContractAddress(address tokenContract, address owner) external {
-        // check if the url has already been verified on the contract
-        // if it has a token id mapped to it, it has been verified 
-        require(bytesToContract[tokenContract] == 0, "Consent: Token contract already verified");
-
-        tokenContractMetadata memory whitelistEntry = createWhitelistData(1, "", "", "", "MALICIOUS");
-        addContractToWhitelist(tokenContract, whitelistEntry);
-    }
+    //     tokenContractMetadata memory whitelistEntry = _createWhitelistData(1, "", "", "", "MALICIOUS");
+    //     addContractToWhitelist(tokenContract, whitelistEntry);
+    // }
 
     /// @notice Checks the status of a tokenContract 
     /// @param ID users ID
@@ -172,7 +171,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @param metadata - metadata
     /// @param status - "VERIFIED" or "MALICIOUS"
     /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED' 
-    function createWhitelistData(uint ID, string memory ticker, string memory chainId, string memory metadata, string memory status) external view returns(tokenContractMetadata memory result) {
+    function createWhitelistData(uint ID, string memory ticker, string memory chainId, string memory metadata, string memory status) external pure returns(tokenContractMetadata memory result) {
         tokenContractMetadata memory newWhitelistEntry;
         newWhitelistEntry.ID = ID;
         newWhitelistEntry.ticker = ticker;
@@ -185,9 +184,9 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     }
 
     /// @notice Checks the status of a tokenContract 
-    /// @param tokenContract users token contract
+    /// @param tokenAddress users token address
     /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
-    function checkContract(address tokenAddress, tokenContractMetadata memory tokenContract) external view returns(tokenContractMetadata memory result) {
+    function checkContract(address tokenAddress) external view returns(tokenContractMetadata memory result) {
         // get the url's token using its hashed value
         uint256 tokenId = bytesToContract[tokenAddress];
 
@@ -198,7 +197,7 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
 
     /// @param tokenAddress users token address
     /// @param tokenContract token address
-    function addContractToWhitelist(address tokenAddress, tokenContractMetadata memory tokenContract) external {
+    function addContractToWhitelist(address tokenAddress, tokenContractMetadata memory tokenContract) internal onlyRole(VERIFIER_ROLE) {
         // get the url's token using its hashed value
         addressToContractMetadata[tokenAddress] = tokenContract;
         whiteListCount++;

@@ -142,4 +142,15 @@ describe("Sift", () => {
       expect(await sift.supportsInterface(0x01ffc9a7)).to.eq(true);
     });
   });
+
+  /* Checking Whitelist data functions */
+  // describe("createWhitelistData", function () {
+  //   it("Returns true that EIP165 interface is supported", async function () {
+  //     expect(
+  //       await sift
+  //         .connect(owner)
+  //         .createWhitelistData(1, "", "", "", "VERIFIED"),
+  //     ).to.eq(true);
+  //   });
+  // });
 });
