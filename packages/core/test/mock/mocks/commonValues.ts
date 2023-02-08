@@ -79,6 +79,7 @@ export const testCoreConfig = new CoreConfig(
   100000, // backupChunkSizeTarget
   "covalent api key",
   "moralis api key",
+  "nftScan api key",
   URLString("http://dnsServerAddress"),
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL

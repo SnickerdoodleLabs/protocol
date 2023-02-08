@@ -82,6 +82,7 @@ export class ConfigProvider
       50, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
+      "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
@@ -168,6 +169,8 @@ export class ConfigProvider
       overrides.covalentApiKey ?? this.config.covalentApiKey;
     this.config.moralisApiKey =
       overrides.moralisApiKey ?? this.config.moralisApiKey;
+    this.config.nftScanApiKey =
+      overrides.nftScanApiKey ?? this.config.nftScanApiKey;
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =

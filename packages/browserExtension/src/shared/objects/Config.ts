@@ -17,6 +17,7 @@ export class ExtensionConfig {
     public controlChainProviderUrl?: ProviderUrl,
     public covalentApiKey?: string,
     public moralisApiKey?: string,
+    public nftScanApiKey?: string,
     public dnsServerAddress?: URLString,
     public requestForDataCheckingFrequency?: number,
     public domainFilter?: string

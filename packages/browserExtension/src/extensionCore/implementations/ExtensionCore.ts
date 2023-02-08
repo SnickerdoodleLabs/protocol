@@ -65,6 +65,7 @@ export class ExtensionCore {
       defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
+      nftScanApiKey: config.nftScanApiKey,
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,

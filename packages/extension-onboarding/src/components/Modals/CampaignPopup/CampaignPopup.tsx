@@ -331,13 +331,16 @@ const CampaignPopup: FC = () => {
                   color: "#222137",
                 }}
               >
-                Join to Cohort!
+                {invitationMeta.title || "Join the Cohort!"}
               </Typography>
             </Box>
             <Box mb={2}>
               <Typography className={classes.subtitle}>
-                Connect your wallet with the Snickerdoodle Data Wallet to claim
-                NFTs and other rewards!
+                {
+                  invitationMeta.description 
+                  || 
+                  "Connect your wallet with the Snickerdoodle Data Wallet to claim NFTs and other rewards!"
+                }
               </Typography>
             </Box>
             <Box
