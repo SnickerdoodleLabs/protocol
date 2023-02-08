@@ -35,20 +35,29 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @dev creating public strings, cleaning up hardcoded responses. 
     string verified = "VERIFIED";
     string not_verified = "NOT VERIFIED";
+    string malicious = "MALICIOUS";
 
     /// @dev Order struct
     struct tokenContractMetadata {
         uint ID;
-        bytes32 ticker;
-        bytes32 chainId;
-        bytes32 metadata;		
+        string ticker;
+        string chainId;
+        string metadata;
+        string status;		
     }
 
+    //@dev initialized whiteListCount, used as mapping key
+    uint256 whiteListCount;
+
     /// @dev mapping of hashed url to tokenId 
-    mapping(bytes32 => uint256) public bytesToContract;
+    mapping(address => uint256) public bytesToContract;
 
     /// @dev mapping of hashed url to tokenId 
     mapping(uint256 => tokenContractMetadata) public uintToContract;
+
+    /// @dev mapping of addressToContractMetadata
+    mapping(address => tokenContractMetadata) public addressToContractMetadata;
+
 
     /// @dev Role bytes
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
@@ -109,37 +118,6 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
         return tokenURI(tokenId);
     }
 
-    /// @notice Checks the status of a tokenContract 
-    /// @param tokenContract users token contract
-    /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
-    function checkContract(string memory tokenContract) external view returns(tokenContractMetadata memory result) {
-        // get the url's token using its hashed value
-        uint256 tokenId = bytesToContract[keccak256(abi.encodePacked(tokenContract))];
-        // uint256 memory memToken = tokenId;
-
-        tokenContractMetadata memory metadata = uintToContract[tokenId];
-
-        // tokenId must be greater than 0, else the contract's metadata does not exist
-        require( tokenId > 0, "Sift error: Contract address's metadata doesnt exist");
-
-        // else, return token's URI
-        return metadata;
-    }
-
-    /// @notice Verifies a token contract
-    /// @dev Mints an NFT with the 'VERIFIED' tokenURI
-    /// @dev Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegister()
-    /// @param tokenContract - Token Contract
-    /// @param owner - Address receiving the token's data   
-    function verifyContract(string memory tokenContract, address owner) external {
-        // check if the url has already been verified on the contract
-        // if it has a token id mapped to it, it has been verified 
-        require(bytesToContract[keccak256(abi.encodePacked(tokenContract))] == 0, "Consent: Token contract already verified");
-
-        // mint token id and append to the token URI "VERIFIED"
-        _safeMintAndRegister(owner, "VERIFIED", tokenContract);
-    }
-
     /// @notice Sets the Sift tokens base URI
     /// @param newURI New base uri
     function setBaseURI(string memory newURI) public onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -163,6 +141,92 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
         /// increase total supply count
         totalSupply++;
     }
+    
+
+
+    /* SIFT CONTRACT WHITELISTING */ 
+    /* Adding Contract to Whitelist, using their address as key */
+
+    function verifyContractAddress(address tokenContract, address owner) external {
+        // check if the url has already been verified on the contract
+        // if it has a token id mapped to it, it has been verified 
+        require(bytesToContract[tokenContract] == 0, "Consent: Token contract already verified");
+
+        tokenContractMetadata memory whitelistEntry = createWhitelistData(1, "", "", "", "VERIFIED");
+        addContractToWhitelist(tokenContract, whitelistEntry);
+    }
+
+    function reportContractAddress(address tokenContract, address owner) external {
+        // check if the url has already been verified on the contract
+        // if it has a token id mapped to it, it has been verified 
+        require(bytesToContract[tokenContract] == 0, "Consent: Token contract already verified");
+
+        tokenContractMetadata memory whitelistEntry = createWhitelistData(1, "", "", "", "MALICIOUS");
+        addContractToWhitelist(tokenContract, whitelistEntry);
+    }
+
+    /// @notice Checks the status of a tokenContract 
+    /// @param ID users ID
+    /// @param ticker - ticker symbol
+    /// @param chainId - chainId
+    /// @param metadata - metadata
+    /// @param status - "VERIFIED" or "MALICIOUS"
+    /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED' 
+    function createWhitelistData(uint ID, string memory ticker, string memory chainId, string memory metadata, string memory status) external view returns(tokenContractMetadata memory result) {
+        tokenContractMetadata memory newWhitelistEntry;
+        newWhitelistEntry.ID = ID;
+        newWhitelistEntry.ticker = ticker;
+        newWhitelistEntry.chainId = chainId;
+        newWhitelistEntry.metadata = metadata;
+        newWhitelistEntry.status = status;
+
+        // mint token id and append to the token URI "VERIFIED"
+        return newWhitelistEntry;
+    }
+
+    /// @notice Checks the status of a tokenContract 
+    /// @param tokenContract users token contract
+    /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
+    function checkContract(address tokenAddress, tokenContractMetadata memory tokenContract) external view returns(tokenContractMetadata memory result) {
+        // get the url's token using its hashed value
+        uint256 tokenId = bytesToContract[tokenAddress];
+
+        require( tokenId > 0, "Sift error: Contract address's metadata doesnt exist");
+
+        return uintToContract[tokenId];
+    }
+
+    /// @param tokenAddress users token address
+    /// @param tokenContract token address
+    function addContractToWhitelist(address tokenAddress, tokenContractMetadata memory tokenContract) external {
+        // get the url's token using its hashed value
+        addressToContractMetadata[tokenAddress] = tokenContract;
+        whiteListCount++;
+    }
+
+    /// @param tokenAddress users token address
+    function removeContractToWhitelist(address tokenAddress) external {
+        // get the url's token using its hashed value
+        delete addressToContractMetadata[tokenAddress];
+        whiteListCount--;
+    }
+
+    /// @param tokenAddress users token address
+    function setStatusToMalicious(address tokenAddress) external {
+        // get the url's token using its hashed value
+        tokenContractMetadata memory metadata = addressToContractMetadata[tokenAddress];
+        metadata.status = "MALICIOUS";
+        addressToContractMetadata[tokenAddress] = metadata;
+    }
+
+    /// @param tokenAddress users token address
+    function setStatusToVerified(address tokenAddress) external {
+        // get the url's token using its hashed value
+        tokenContractMetadata memory metadata = addressToContractMetadata[tokenAddress];
+        metadata.status = "VERIFIED";
+        addressToContractMetadata[tokenAddress] = metadata;
+    }
+
 
     /* OVERRIDES */ 
 
