@@ -32,6 +32,24 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
     /// @dev Total supply of Sift tokens
     uint256 public totalSupply;
 
+    /// @dev creating public strings, cleaning up hardcoded responses. 
+    string verified = "VERIFIED";
+    string not_verified = "NOT VERIFIED";
+
+    /// @dev Order struct
+    struct tokenContractMetadata {
+        uint ID;
+        bytes32 ticker;
+        bytes32 chainId;
+        bytes32 metadata;		
+    }
+
+    /// @dev mapping of hashed url to tokenId 
+    mapping(bytes32 => uint256) public bytesToContract;
+
+    /// @dev mapping of hashed url to tokenId 
+    mapping(uint256 => tokenContractMetadata) public uintToContract;
+
     /// @dev Role bytes
     bytes32 public constant VERIFIER_ROLE = keccak256("VERIFIER_ROLE");
 
@@ -85,10 +103,41 @@ contract Sift is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, 
         uint256 tokenId = urlToTokenId[keccak256(abi.encodePacked(url))];
 
         // if token's id is 0, it has not been verified yet
-        if (tokenId == 0) return "NOT VERIFIED";
+        if (tokenId == 0) return not_verified;
 
         // else, return token's URI
         return tokenURI(tokenId);
+    }
+
+    /// @notice Checks the status of a tokenContract 
+    /// @param tokenContract users token contract
+    /// @return result Returns the token uri of 'VERIFIED', 'MALICIOUS', or 'NOT VERIFIED'    
+    function checkContract(string memory tokenContract) external view returns(tokenContractMetadata memory result) {
+        // get the url's token using its hashed value
+        uint256 tokenId = bytesToContract[keccak256(abi.encodePacked(tokenContract))];
+        // uint256 memory memToken = tokenId;
+
+        tokenContractMetadata memory metadata = uintToContract[tokenId];
+
+        // tokenId must be greater than 0, else the contract's metadata does not exist
+        require( tokenId > 0, "Sift error: Contract address's metadata doesnt exist");
+
+        // else, return token's URI
+        return metadata;
+    }
+
+    /// @notice Verifies a token contract
+    /// @dev Mints an NFT with the 'VERIFIED' tokenURI
+    /// @dev Only addresses with VERIFIER_ROLE can call it and is checked in _safeMintAndRegister()
+    /// @param tokenContract - Token Contract
+    /// @param owner - Address receiving the token's data   
+    function verifyContract(string memory tokenContract, address owner) external {
+        // check if the url has already been verified on the contract
+        // if it has a token id mapped to it, it has been verified 
+        require(bytesToContract[keccak256(abi.encodePacked(tokenContract))] == 0, "Consent: Token contract already verified");
+
+        // mint token id and append to the token URI "VERIFIED"
+        _safeMintAndRegister(owner, "VERIFIED", tokenContract);
     }
 
     /// @notice Sets the Sift tokens base URI
