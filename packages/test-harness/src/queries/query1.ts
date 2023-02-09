@@ -82,6 +82,10 @@ export const query1 = {
       name: "nft",
       return: "array",
       networkid: "*",
+      timestampRange: {
+        start: "*",
+        end: "*",
+      },
       address: "*",
       array_items: {
         object_schema: {

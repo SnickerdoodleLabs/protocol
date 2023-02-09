@@ -8,6 +8,8 @@ import {
   ChainId,
   WalletNFT,
   TokenAddress,
+  EVMNFT,
+  UnixTimestamp,
 } from "@snickerdoodlelabs/objects";
 import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -24,7 +26,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
 
   public eval(query: AST_NftQuery): ResultAsync<SDQL_Return, PersistenceError> {
     const {
-      schema: { networkid: networkId, address },
+      schema: { networkid: networkId, address, timestampRange },
     } = query;
 
     let chainId: undefined | ChainId[];
@@ -38,7 +40,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     return this.dataWalletPersistence.getAccountNFTs(chainId).map((arr) => {
       return SDQL_Return(
         arr.reduce<WalletNFT[]>((array, nft) => {
-          if (this.filter(nft, address)) {
+          if (this.validNft(nft, address, timestampRange)) {
             array.push(nft);
           }
           return array;
@@ -47,19 +49,65 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     });
   }
 
-  private filter(
+  private validNft(
     walletNFT: WalletNFT,
     address: string | undefined | string[],
+    timestampRange: undefined | { start: string; end: string },
   ): boolean {
-    let addresses: undefined | TokenAddress[];
-
     if (address && address !== "*") {
-      addresses = Array.isArray(address) ? [...address] : [address];
+      if (this.checkInvalidAddress(walletNFT.token, address)) {
+        return false;
+      }
+    }
+    if (walletNFT instanceof EVMNFT && walletNFT.lastOwnerTimeStamp) {
+      if (
+        timestampRange &&
+        !(
+          timestampRange.start === timestampRange.end &&
+          timestampRange.start === "*"
+        )
+      ) {
+        if (
+          this.checkInvalidTimestamp(
+            walletNFT.lastOwnerTimeStamp,
+            timestampRange,
+          )
+        ) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 
-      return addresses.some((tokenAddress) => tokenAddress === walletNFT.token);
+  private checkInvalidAddress(
+    tokenAddress: TokenAddress,
+    address: string | string[],
+  ): boolean {
+    const addresses = Array.isArray(address) ? [...address] : [address];
+
+    return !addresses.some((allowedAddress) => allowedAddress === tokenAddress);
+  }
+
+  private checkInvalidTimestamp(
+    lastOwnerTimeStamp: UnixTimestamp,
+    { start, end }: { start: string; end: string },
+  ): boolean {
+    if (start !== "*") {
+      const startTimeStamp = UnixTimestamp(Number(start));
+      if (startTimeStamp > lastOwnerTimeStamp) {
+        return true;
+      }
     }
 
-    return true;
+    if (end !== "*") {
+      const endTimeStamp = UnixTimestamp(Number(end));
+      if (endTimeStamp < lastOwnerTimeStamp) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private setFilterProps<

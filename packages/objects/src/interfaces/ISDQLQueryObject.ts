@@ -46,7 +46,11 @@ export interface ISDQLQueryClause {
     | "enum";
   chain?: string;
   networkid ?:  string | string[];
-  address ?:  string | string[]; 
+  address ?:  string | string[];
+  timestampRange?: {
+    start: string,
+    end: string,
+  }, 
   contract?: ISDQLQueryContract;
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
