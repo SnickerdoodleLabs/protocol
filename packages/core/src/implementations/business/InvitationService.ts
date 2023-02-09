@@ -37,18 +37,16 @@ import {
   LinkedAccount,
 } from "@snickerdoodlelabs/objects";
 import { BigNumber, ethers } from "ethers";
+import { inject, injectable } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
+import { getDomain, parse } from "tldts";
 
 import { IInvitationService } from "@core/interfaces/business/index.js";
-
-import { inject, injectable } from "inversify";
-
 import {
   IConsentTokenUtils,
   IConsentTokenUtilsType,
 } from "@core/interfaces/business/utilities/index.js";
-
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
 import {
   IConsentContractRepository,
   IConsentContractRepositoryType,
@@ -63,13 +61,7 @@ import {
   ILinkedAccountRepositoryType,
   ILinkedAccountRepository,
 } from "@core/interfaces/data/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
-
 import { MetatransactionRequest } from "@core/interfaces/objects/index.js";
-
-import { getDomain, parse } from "tldts";
-
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -784,7 +776,7 @@ export class InvitationService implements IInvitationService {
   public setDefaultReceivingAddress(
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistenceRepo.getAccounts().andThen((linkedAccounts) => {
+    return this.accountRepo.getAccounts().andThen((linkedAccounts) => {
       if (
         !this._doLinkedAccountsContainReceivingAddress(
           linkedAccounts,
@@ -798,7 +790,7 @@ export class InvitationService implements IInvitationService {
         );
       }
 
-      return this.persistenceRepo.setDefaultReceivingAddress(receivingAddress);
+      return this.accountRepo.setDefaultReceivingAddress(receivingAddress);
     });
   }
 
@@ -806,7 +798,7 @@ export class InvitationService implements IInvitationService {
     contractAddress: EVMContractAddress,
     receivingAddress: AccountAddress | null,
   ): ResultAsync<void, PersistenceError> {
-    return this.persistenceRepo.getAccounts().andThen((linkedAccounts) => {
+    return this.accountRepo.getAccounts().andThen((linkedAccounts) => {
       if (
         !this._doLinkedAccountsContainReceivingAddress(
           linkedAccounts,
@@ -820,7 +812,7 @@ export class InvitationService implements IInvitationService {
         );
       }
 
-      return this.persistenceRepo.setReceivingAddress(
+      return this.accountRepo.setReceivingAddress(
         contractAddress,
         receivingAddress,
       );
@@ -836,19 +828,18 @@ export class InvitationService implements IInvitationService {
       return this._getDefaultReceivingAddress();
     }
 
-    return this.persistenceRepo
+    return this.accountRepo
       .getReceivingAddress(contractAddress)
       .andThen((receivingAddress) => {
-
         if (!receivingAddress) {
           return this._getDefaultReceivingAddress();
         }
 
         this.logUtils.log(
-          `receiving address found for contract => ${contractAddress} is ${receivingAddress}`
+          `receiving address found for contract => ${contractAddress} is ${receivingAddress}`,
         );
 
-        return this.persistenceRepo.getAccounts().andThen((linkedAccounts) => {
+        return this.accountRepo.getAccounts().andThen((linkedAccounts) => {
           if (
             this._doLinkedAccountsContainReceivingAddress(
               linkedAccounts,
@@ -858,7 +849,7 @@ export class InvitationService implements IInvitationService {
             return okAsync(receivingAddress);
           }
 
-          return this.persistenceRepo
+          return this.accountRepo
             .setReceivingAddress(contractAddress, null)
             .andThen(() => {
               return this._getDefaultReceivingAddress();
@@ -1014,8 +1005,8 @@ export class InvitationService implements IInvitationService {
     PersistenceError
   > {
     return ResultUtils.combine([
-      this.persistenceRepo.getAccounts(),
-      this.persistenceRepo.getDefaultReceivingAddress(),
+      this.accountRepo.getAccounts(),
+      this.accountRepo.getDefaultReceivingAddress(),
     ]).andThen(([linkedAccounts, defaultReceivingAddress]) => {
       if (
         !defaultReceivingAddress ||
@@ -1024,7 +1015,7 @@ export class InvitationService implements IInvitationService {
           defaultReceivingAddress,
         )
       ) {
-        return this.persistenceRepo
+        return this.accountRepo
           .setDefaultReceivingAddress(linkedAccounts[0].sourceAccountAddress)
           .map(() => linkedAccounts[0].sourceAccountAddress);
       }
@@ -1032,5 +1023,4 @@ export class InvitationService implements IInvitationService {
       return okAsync(defaultReceivingAddress);
     });
   }
-
 }

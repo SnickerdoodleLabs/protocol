@@ -22,7 +22,6 @@ import {
   EVMTransactionHash,
   UnixTimestamp,
   getChainInfoByChainId,
-  URLString,
   getEtherscanBaseURLForChain,
 } from "@snickerdoodlelabs/objects";
 import { ethers } from "ethers";
