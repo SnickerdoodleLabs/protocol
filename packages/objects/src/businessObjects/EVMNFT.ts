@@ -7,6 +7,8 @@ import {
   ChainId,
   TokenUri,
   BigNumberString,
+  BlockNumber,
+  UnixTimestamp,
 } from "@objects/primitives";
 
 export class EVMNFT extends WalletNFT {
@@ -20,6 +22,8 @@ export class EVMNFT extends WalletNFT {
     public amount: BigNumberString,
     public name: string,
     public chain: ChainId,
+    public blockNumber?: BlockNumber,
+    public lastOwnerTimeStamp ? : UnixTimestamp
   ) {
     super(EChainTechnology.EVM, chain, owner, token);
   }

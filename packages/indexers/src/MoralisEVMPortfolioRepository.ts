@@ -126,6 +126,8 @@ export class MoralisEVMPortfolioRepository
         BigNumberString(token.amount),
         token.name,
         chainId,
+        BlockNumber(Number(token.block_number)),
+        undefined
       );
     });
 
