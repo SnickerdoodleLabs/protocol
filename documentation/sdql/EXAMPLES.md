@@ -115,39 +115,37 @@ This example checks if the user's age is greater than or equal to 15. It also qu
                 }
             }
         },
-        q7: {
-                name: "nfts",
-                return: "array",
-                contract: {
-                    networkid: "*",
-                    address: "*",
-                    token: "ERC721",
-                    timestampRange: {
-                    start: 13001519,
-                    end: 14910334,
-                },
-            },
-                array_items: {
-                    object_schema: {
-                    properties: {
-                        networkid: {
-                        type: "integer",
+        "q7": {
+            "name": "nft",
+            "return": "array",
+            "networkid": "*",
+            "address": "*",
+            "array_items": {
+                "object_schema": {
+                    "properties": {
+                        "networkid": {
+                            "type": "integer",
                         },
-                        address: {
-                        type: "string",
-                        pattern: "^0x[a-fA-F0-9]{40}$",
+                        "tokenAddress": {
+                            "type": "string",
+                            "pattern": "^0x[a-fA-F0-9]{40}$",
                         },
-                        balance: {
-                        type: "number",
+                        "ticker": {
+                            "type": "string"
                         },
-                        timestamp: {
-                        type: "number",
+                        "balance": {
+                            "type": "number",
+                        },
+                        "decimals": {
+                            "type": "number",
                         },
                     },
-                    required: [
+                    "required": [
                         "networkid",
-                        "address",
-                        "balance"
+                        "tokenAddress",
+                        "balance",
+                        "decimals",
+                        "ticker"
                     ],
                 },
             },
