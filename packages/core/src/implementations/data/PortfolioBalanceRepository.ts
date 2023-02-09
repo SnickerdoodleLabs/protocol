@@ -169,7 +169,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.accountBalances.getSimulatorEVMBalanceRepository(),
       this.accountBalances.getEthereumBalanceRepository(),
       this.accountBalances.getPolygonBalanceRepository(),
-      this.accountBalances.getGnosisBalanceRepository(),
+      this.accountBalances.getEtherscanBalanceRepository(),
     ])
       .andThen(
         ([
@@ -179,7 +179,7 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           simulatorRepo,
           etherscanRepo,
           maticRepo,
-          gnosisRepo,
+          etherscanBalanceRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -213,7 +213,9 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Gnosis:
-              return gnosisRepo.getBalancesForAccount(
+            case EIndexer.Binance:
+            case EIndexer.Moonbeam:
+              return etherscanBalanceRepo.getBalancesForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );
@@ -317,7 +319,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
       this.accountNFTs.getSolanaNFTRepository(),
       this.accountNFTs.getSimulatorEVMNftRepository(),
       this.accountNFTs.getEthereumNftRepository(),
-      this.accountNFTs.getGnosisNFTRepository(),
+      this.accountNFTs.getEtherscanNftRepository(),
+      this.accountNFTs.getNftScanRepository(),
     ])
       .andThen(
         ([
@@ -326,7 +329,8 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
           solRepo,
           simulatorRepo,
           etherscanRepo,
-          gnosisRepo,
+          etherscanMRepo,
+          nftScanRepo,
         ]) => {
           const chainInfo = config.chainInformation.get(chainId);
           if (chainInfo == null) {
@@ -360,7 +364,14 @@ export class PortfolioBalanceRepository implements IPortfolioBalanceRepository {
                 accountAddress as EVMAccountAddress,
               );
             case EIndexer.Gnosis:
-              return gnosisRepo.getTokensForAccount(
+              return okAsync([]);
+            case EIndexer.Binance:
+              return etherscanRepo.getTokensForAccount(
+                chainId,
+                accountAddress as EVMAccountAddress,
+              );
+            case EIndexer.Moonbeam:
+              return nftScanRepo.getTokensForAccount(
                 chainId,
                 accountAddress as EVMAccountAddress,
               );

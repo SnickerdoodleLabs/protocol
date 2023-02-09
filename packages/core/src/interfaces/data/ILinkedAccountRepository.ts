@@ -58,6 +58,21 @@ export interface ILinkedAccountRepository {
   ): ResultAsync<void, PersistenceError>;
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError>;
 
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError>;
+  getDefaultReceivingAddress(): ResultAsync<
+    AccountAddress | null,
+    PersistenceError
+  >;
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError>;
+  getReceivingAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, PersistenceError>;
+
   /**
    * Returns a list of consent contract addresses that the user has rejected
    */

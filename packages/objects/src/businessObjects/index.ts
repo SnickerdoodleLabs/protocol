@@ -25,6 +25,7 @@ export * from "@objects/businessObjects/OptInInfo";
 export * from "@objects/businessObjects/PageInvitation";
 export * from "@objects/businessObjects/PolygonTransaction";
 export * from "@objects/businessObjects/PortfolioUpdate";
+export * from "@objects/businessObjects/ReceivingAccount";
 export * from "@objects/businessObjects/RequestForData";
 export * from "@objects/businessObjects/RestoredBackup";
 export * from "@objects/businessObjects/Reward";

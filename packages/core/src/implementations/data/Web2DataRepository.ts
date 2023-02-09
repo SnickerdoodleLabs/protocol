@@ -31,10 +31,21 @@ export class Web2DataRepository implements IWeb2DataRepository {
       if (birthdayEpoch == null) {
         return null;
       }
-      return Age(
-        new Date(Date.now() - birthdayEpoch * 1000).getFullYear() -
-          new Date(0).getFullYear(),
-      );
+
+      let ageYear =
+        new Date(Date.now()).getFullYear() -
+        new Date(birthdayEpoch * 1000).getFullYear();
+      const ageMonth =
+        new Date(Date.now()).getMonth() -
+        new Date(birthdayEpoch * 1000).getMonth();
+      const dateBirthday = new Date(birthdayEpoch * 1000).getDate();
+      const dateToday = new Date(Date.now()).getDate();
+
+      if (ageMonth < 0 || (ageMonth == 0 && dateToday < dateBirthday)) {
+        ageYear = ageYear - 1;
+      }
+
+      return Age(ageYear);
     });
   }
 

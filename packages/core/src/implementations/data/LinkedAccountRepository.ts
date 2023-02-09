@@ -10,6 +10,7 @@ import {
   LatestBlock,
   LinkedAccount,
   PersistenceError,
+  ReceivingAccount,
   Signature,
   TokenId,
   VolatileStorageMetadata,
@@ -208,6 +209,62 @@ export class LinkedAccountRepository implements ILinkedAccountRepository {
       accountAddress,
       EBackupPriority.HIGH,
     );
+  }
+
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError> {
+    return this.persistence.updateField(
+      EFieldKey.DEFAULT_RECEIVING_ADDRESS,
+      !receivingAddress ? ("" as AccountAddress) : receivingAddress,
+      EBackupPriority.NORMAL,
+    );
+  }
+
+  public getDefaultReceivingAddress(): ResultAsync<
+    AccountAddress | null,
+    PersistenceError
+  > {
+    return this.persistence
+      .getField<AccountAddress>(
+        EFieldKey.DEFAULT_RECEIVING_ADDRESS,
+        EBackupPriority.NORMAL,
+      )
+      .map((val) => (val == "" ? null : val));
+  }
+
+  // TODO: would rename this to setOrRemove
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError> {
+    if (receivingAddress && receivingAddress != "") {
+      return this.persistence.updateRecord(
+        ERecordKey.RECEIVING_ADDRESSES,
+        new VolatileStorageMetadata(
+          EBackupPriority.NORMAL,
+          new ReceivingAccount(contractAddress, receivingAddress),
+          ReceivingAccount.CURRENT_VERSION,
+        ),
+      );
+    }
+
+    return this.persistence.deleteRecord(
+      ERecordKey.RECEIVING_ADDRESSES,
+      contractAddress,
+      EBackupPriority.NORMAL,
+    );
+  }
+
+  public getReceivingAddress(
+    contractAddress: EVMContractAddress,
+  ): ResultAsync<AccountAddress | null, PersistenceError> {
+    return this.persistence
+      .getObject<ReceivingAccount>(
+        ERecordKey.RECEIVING_ADDRESSES,
+        contractAddress,
+      )
+      .map((entry) => (!entry ? null : entry.receivingAddress));
   }
 }
 
