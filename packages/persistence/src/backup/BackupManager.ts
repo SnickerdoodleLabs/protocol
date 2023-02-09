@@ -21,6 +21,7 @@ import {
   BackupBlob,
   Signature,
   EVMAccountAddress,
+  RestoredBackupMigrator,
 } from "@snickerdoodlelabs/objects";
 import { IStorageUtils } from "@snickerdoodlelabs/utils";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
@@ -426,7 +427,7 @@ export class BackupManager implements IBackupManager {
         EBackupPriority.NORMAL,
         new RestoredBackup(DataWalletBackupID(backup.header.hash)),
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.migrators.get(ERecordKey.RESTORED_BACKUPS)!.getCurrentVersion(),
+        new RestoredBackupMigrator().getCurrentVersion(),
       ),
     );
   }
