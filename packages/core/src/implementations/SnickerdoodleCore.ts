@@ -717,6 +717,40 @@ export class SnickerdoodleCore implements ISnickerdoodleCore {
     return accountService.addSiteVisits(siteVisits);
   }
 
+  public setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.setDefaultReceivingAddress(receivingAddress);
+  }
+
+  public setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.setReceivingAddress(
+      contractAddress,
+      receivingAddress,
+    );
+  }
+
+  public getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, PersistenceError> {
+    const invitationService = this.iocContainer.get<IInvitationService>(
+      IInvitationServiceType,
+    );
+
+    return invitationService.getReceivingAddress(contractAddress);
+  }
+
   getEarnedRewards(): ResultAsync<EarnedReward[], PersistenceError> {
     const accountService =
       this.iocContainer.get<IAccountService>(IAccountServiceType);

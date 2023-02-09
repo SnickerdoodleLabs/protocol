@@ -2,26 +2,15 @@ import { Environment } from "@test-harness/mocks/Environment.js";
 import { AddAccount } from "@test-harness/prompts/AddAccount.js";
 
 import {
-  AdContent,
-  AdKey,
-  AESEncryptedString,
-  Age,
   BigNumberString,
   ChainId,
   CountryCode,
-  EAdContentType,
-  EAdDisplayType,
   EarnedReward,
-  EligibleAd,
-  EncryptedString,
   ERewardType,
   EVMAccountAddress,
-  EVMContractAddress,
   EVMTransaction,
   EVMTransactionHash,
   Gender,
-  IDataWalletBackup,
-  InitializationVector,
   IpfsCID,
   SiteVisit,
   UnixTimestamp,
@@ -42,6 +31,7 @@ import { OptOutCampaign } from "@test-harness/prompts/OptOutCampaign.js";
 import { RemoveAccount } from "@test-harness/prompts/RemoveAccount.js";
 import { SelectProfile } from "@test-harness/prompts/SelectProfile.js";
 import { UnlockCore } from "@test-harness/prompts/UnlockCore.js";
+
 export class CorePrompt extends DataWalletPrompt {
   private unlockCore: UnlockCore;
   private addAccount: AddAccount;
@@ -98,6 +88,9 @@ export class CorePrompt extends DataWalletPrompt {
       { name: "Get Transaction Map", value: "getTransactionMap" },
       { name: "Get SiteVisit Map", value: "getSiteVisitMap" },
       { name: "Get SiteVisits Array", value: "getSiteVisits" },
+
+      { name: "Get Default Receiving Address", value: "getDefaultReceivingAddress" },
+
       new inquirer.Separator(),
       {
         name: "Add EVM Transaction - Google",
@@ -201,8 +194,6 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.getAccountNFTs().map(console.log);
         case "getBalances":
           return this.core.getAccountBalances().map(console.log);
-        // case "getTransactionMap":
-        //   return this.core.getTransactionValueByChain().map(console.log);
         case "getSiteVisitMap":
           return this.core.getSiteVisitsMap().map(console.log);
         case "getSiteVisits":
@@ -213,6 +204,8 @@ export class CorePrompt extends DataWalletPrompt {
           return this.core.addEarnedRewards([earnedReward]).map(console.log);
         case "getEarnedRewards":
           return this.core.getEarnedRewards().map(console.log);
+        case "getDefaultReceivingAddress":
+          return this.core.getReceivingAddress().map(console.log);
         case "addEVMTransaction - Query's Network":
           /*
                 Important!  Must use different hash values for transaction values!

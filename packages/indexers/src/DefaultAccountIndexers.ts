@@ -11,16 +11,10 @@ import {
   ITokenPriceRepository,
   ITokenPriceRepositoryType,
 } from "@snickerdoodlelabs/objects";
-
-import { CovalentEVMTransactionRepository } from "@indexers/CovalentEVMTransactionRepository.js";
-
 import { injectable, inject } from "inversify";
+import { okAsync, ResultAsync } from "neverthrow";
 
 import { EtherscanIndexer } from "@indexers/EtherscanIndexer.js";
-
-import { ResultAsync, okAsync } from "neverthrow";
-
-import { GnosisIndexer } from "@indexers/GnosisIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,

@@ -384,6 +384,19 @@ export interface ISnickerdoodleCore {
   setLocation(location: CountryCode): ResultAsync<void, PersistenceError>;
   getLocation(): ResultAsync<CountryCode | null, PersistenceError>;
 
+  setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+
+  setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null
+  ): ResultAsync<void, PersistenceError>;
+
+  getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, PersistenceError>;
+
   addSiteVisits(siteVisits: SiteVisit[]): ResultAsync<void, PersistenceError>;
   getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError>;
   getSiteVisitsMap(): ResultAsync<Map<URLString, number>, PersistenceError>;

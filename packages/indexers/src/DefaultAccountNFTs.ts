@@ -14,12 +14,12 @@ import {
 import { injectable, inject } from "inversify";
 import { ResultAsync, okAsync } from "neverthrow";
 
-import { GnosisIndexer } from "@indexers/GnosisIndexer.js";
 import {
   IIndexerConfigProvider,
   IIndexerConfigProviderType,
 } from "@indexers/IIndexerConfigProvider.js";
 import { MoralisEVMPortfolioRepository } from "@indexers/MoralisEVMPortfolioRepository.js";
+import { NftScanEVMPortfolioRepository } from "@indexers/NftScanEVMPortfolioRepository.js";
 import { SimulatorEVMTransactionRepository } from "@indexers/SimulatorEVMTransactionRepository.js";
 import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 
@@ -27,9 +27,9 @@ import { SolanaIndexer } from "@indexers/SolanaIndexer.js";
 export class DefaultAccountNFTs implements IAccountNFTs {
   protected ethereum: IEVMNftRepository;
   protected evm: IEVMNftRepository;
+  protected nftscan: IEVMNftRepository;
   protected simulatorRepo: IEVMNftRepository;
   protected solRepo: ISolanaNFTRepository;
-  protected gnosisRepo: IEVMNftRepository;
 
   public constructor(
     @inject(IIndexerConfigProviderType)
@@ -45,6 +45,7 @@ export class DefaultAccountNFTs implements IAccountNFTs {
     //   tokenPriceRepo,
     //   logUtils,
     // );
+    this.nftscan = new NftScanEVMPortfolioRepository(configProvider, ajaxUtils);
     this.evm = new MoralisEVMPortfolioRepository(configProvider, ajaxUtils);
     this.ethereum = this.evm;
     this.simulatorRepo = new SimulatorEVMTransactionRepository();
@@ -54,12 +55,14 @@ export class DefaultAccountNFTs implements IAccountNFTs {
       this.tokenPriceRepo,
       this.logUtils,
     );
-    this.gnosisRepo = new GnosisIndexer(
-      this.configProvider,
-      this.ajaxUtils,
-      this.tokenPriceRepo,
-      this.logUtils,
-    );
+  }
+
+  public getNftScanRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.nftscan);
+  }
+
+  public getEtherscanNftRepository(): ResultAsync<IEVMNftRepository, never> {
+    return okAsync(this.ethereum);
   }
 
   public getEthereumNftRepository(): ResultAsync<IEVMNftRepository, never> {
@@ -76,9 +79,5 @@ export class DefaultAccountNFTs implements IAccountNFTs {
 
   public getSolanaNFTRepository(): ResultAsync<ISolanaNFTRepository, never> {
     return okAsync(this.solRepo);
-  }
-
-  public getGnosisNFTRepository(): ResultAsync<IEVMNftRepository, never> {
-    return okAsync(this.gnosisRepo);
   }
 }

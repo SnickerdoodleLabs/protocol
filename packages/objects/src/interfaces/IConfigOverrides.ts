@@ -13,6 +13,7 @@ export interface IConfigOverrides {
   accountNFTPollingIntervalMS?: number;
   covalentApiKey?: string;
   moralisApiKey?: string;
+  nftScanApiKey?: string;
   dnsServerAddress?: URLString;
   dataWalletBackupIntervalMS?: number;
   backupChunkSizeTarget?: number;
@@ -20,4 +21,5 @@ export interface IConfigOverrides {
   ceramicNodeURL?: URLString;
   controlChainProviderURL?: ProviderUrl; // Only used with the Dev Doodle Chain
   requestForDataCheckingFrequency?: number;
+  domainFilter?: string;
 }

@@ -54,11 +54,12 @@ import {
   forwardRequestTypes,
   getMinimalForwarderSigningDomain,
 } from "@snickerdoodlelabs/signature-verification";
+import { BigNumber } from "ethers";
+import { inject, injectable } from "inversify";
+import { errAsync, okAsync, ResultAsync } from "neverthrow";
+import { ResultUtils } from "neverthrow-result-utils";
 
 import { IAccountService } from "@core/interfaces/business/index.js";
-
-import { BigNumber } from "ethers";
-
 import {
   IBrowsingDataRepository,
   IBrowsingDataRepositoryType,
@@ -73,16 +74,10 @@ import {
   ITransactionHistoryRepository,
   ITransactionHistoryRepositoryType,
 } from "@core/interfaces/data/index.js";
-
-import { inject, injectable } from "inversify";
-
 import {
   IContractFactory,
   IContractFactoryType,
 } from "@core/interfaces/utilities/factory/index.js";
-
-import { errAsync, okAsync, ResultAsync } from "neverthrow";
-
 import {
   IConfigProvider,
   IConfigProviderType,
@@ -91,8 +86,6 @@ import {
   IDataWalletUtils,
   IDataWalletUtilsType,
 } from "@core/interfaces/utilities/index.js";
-
-import { ResultUtils } from "neverthrow-result-utils";
 
 @injectable()
 export class AccountService implements IAccountService {
@@ -595,10 +588,13 @@ export class AccountService implements IAccountService {
   > {
     return this.browsingDataRepo.getSiteVisitsMap();
   }
+
   public addSiteVisits(
     siteVisits: SiteVisit[],
   ): ResultAsync<void, PersistenceError> {
-    return this.browsingDataRepo.addSiteVisits(siteVisits);
+    return this.filterInvalidDomains(siteVisits).andThen((validSiteVisits) => {
+      return this.browsingDataRepo.addSiteVisits(validSiteVisits);
+    });
   }
   public getSiteVisits(): ResultAsync<SiteVisit[], PersistenceError> {
     return this.browsingDataRepo.getSiteVisits();
@@ -773,6 +769,16 @@ export class AccountService implements IAccountService {
               );
             });
         });
+    });
+  }
+
+  protected filterInvalidDomains(
+    domains: SiteVisit[],
+  ): ResultAsync<SiteVisit[], never> {
+    return this.configProvider.getConfig().map(({ domainFilter }) => {
+      const invalidDomains = new RegExp(domainFilter);
+      console.log(invalidDomains);
+      return domains.filter(({ url }) => !invalidDomains.test(url));
     });
   }
 

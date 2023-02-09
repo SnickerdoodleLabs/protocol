@@ -79,6 +79,7 @@ export const testCoreConfig = new CoreConfig(
   100000, // backupChunkSizeTarget
   "covalent api key",
   "moralis api key",
+  "nftScan api key",
   URLString("http://dnsServerAddress"),
   modelAliases, // ceramicModelAliases
   URLString("http://ceramicNodeURL"), // ceramicNodeURL
@@ -88,6 +89,7 @@ export const testCoreConfig = new CoreConfig(
   5000,
   { solana: "", solanaTestnet: "", polygon: "", polygonMumbai: "" }, // alchemy endpoints
   10000,
+  "(localhost|chrome:\/\/)"
 );
 
 // #endregion

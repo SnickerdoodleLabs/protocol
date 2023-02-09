@@ -82,6 +82,7 @@ export class ConfigProvider
       50, // backup chunk size target
       "ckey_ee277e2a0e9542838cf30325665", // covalent api key
       "aqy6wZJX3r0XxYP9b8EyInVquukaDuNL9SfVtuNxvPqJrrPon07AvWUmlgOvp5ag", // moralis api key
+      "lusr87vNmTtHGMmktlFyi4Nt", // NftScan api key
       URLString("https://cloudflare-dns.com/dns-query"), // dnsServerAddress
       modelAliases, // ceramicModelAliases
       URLString("https://ceramic.snickerdoodle.dev/"), // ceramicNodeURL
@@ -94,6 +95,8 @@ export class ConfigProvider
         [ChainId(43114), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
         [ChainId(43113), "EQ1TUDT41MKJUCBXNDRBCMY4MD5VI9M9G1"],
         [ChainId(100), "J7G8U27J1Y9F88E1E56CNNG2K3H98GF4XE"],
+        [ChainId(56), "KRWYKPQ3CDD81RXUM5H5UMWVXPJP4C29AY"],
+        [ChainId(1284), "EE9QD4D9TE7S7D6C8WVJW592BGMA4HYH71"],
       ]), // etherscan api key
       100, // etherscan tx batch size
       4000, // polling interval for consent contracts on control chain
@@ -106,6 +109,7 @@ export class ConfigProvider
         polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
       },
       10000,
+      "(localhost|chrome:\/\/)",
     );
   }
 
@@ -165,6 +169,8 @@ export class ConfigProvider
       overrides.covalentApiKey ?? this.config.covalentApiKey;
     this.config.moralisApiKey =
       overrides.moralisApiKey ?? this.config.moralisApiKey;
+    this.config.nftScanApiKey =
+      overrides.nftScanApiKey ?? this.config.nftScanApiKey;
     this.config.dnsServerAddress =
       overrides.dnsServerAddress ?? this.config.dnsServerAddress;
     this.config.dataWalletBackupIntervalMS =
@@ -179,5 +185,7 @@ export class ConfigProvider
       this.config.requestForDataCheckingFrequency;
     this.config.ceramicModelAliases =
       overrides.ceramicModelAliases ?? this.config.ceramicModelAliases;
+    this.config.domainFilter =
+      overrides.domainFilter ?? this.config.domainFilter;
   }
 }

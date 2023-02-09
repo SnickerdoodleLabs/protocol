@@ -14,6 +14,8 @@ export enum ERecordKey {
   RESTORED_BACKUPS = "SD_RestoredBackups",
   ELIGIBLE_ADS = "SD_EligibleAds",
   AD_SIGNATURES = "SD_AdSignatures",
+  DEFAULT_RECEIVING_ADDRESS = "SD_DefaultReceivingAddress",
+  RECEIVING_ADDRESSES = "SD_ReceivingAddresses"
 }
 
 export enum EFieldKey {

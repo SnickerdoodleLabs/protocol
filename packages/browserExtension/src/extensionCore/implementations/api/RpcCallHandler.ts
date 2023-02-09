@@ -115,6 +115,9 @@ import {
   IGetTokenMarketDataParams,
   IGetTokenInfoParams,
   IGetMarketplaceListingsParams,
+  ISetDefaultReceivingAddressParams,
+  ISetReceivingAddressParams,
+  IGetReceivingAddressParams,
 } from "@shared/interfaces/actions";
 
 import { parse } from "tldts";
@@ -291,6 +294,29 @@ export class RpcCallHandler implements IRpcCallHandler {
       case EExternalActions.GET_ACCEPTED_INVITATIONS_CID: {
         return new AsyncRpcResponseSender(
           this.getAcceptedInvitationsCID(),
+          res,
+        ).call();
+      }
+      case EExternalActions.SET_DEFAULT_RECEIVING_ACCOUNT: {
+        const { receivingAddress } =
+          params as ISetDefaultReceivingAddressParams;
+        return new AsyncRpcResponseSender(
+          this.setDefaultReceivingAddress(receivingAddress),
+          res,
+        ).call();
+      }
+      case EExternalActions.SET_RECEIVING_ACCOUNT: {
+        const { contractAddress, receivingAddress } =
+          params as ISetReceivingAddressParams;
+        return new AsyncRpcResponseSender(
+          this.setReceivingAddress(contractAddress, receivingAddress),
+          res,
+        ).call();
+      }
+      case EExternalActions.GET_RECEIVING_ACCOUNT: {
+        const { contractAddress } = params as IGetReceivingAddressParams;
+        return new AsyncRpcResponseSender(
+          this.getReceivingAddress(contractAddress),
           res,
         ).call();
       }
@@ -506,6 +532,8 @@ export class RpcCallHandler implements IRpcCallHandler {
                 return okAsync(
                   Object.assign(pageInvitation.domainDetails, {
                     id: invitationUUID,
+                    consentAddress:
+                      pageInvitation.invitation.consentContractAddress,
                   }),
                 );
               } else {
@@ -842,5 +870,27 @@ export class RpcCallHandler implements IRpcCallHandler {
     SnickerDoodleCoreError
   > {
     return this.userSiteInteractionService.getSiteVisitsMap();
+  }
+
+  private setDefaultReceivingAddress(
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.invitationService.setDefaultReceivingAddress(receivingAddress);
+  }
+
+  private setReceivingAddress(
+    contractAddress: EVMContractAddress,
+    receivingAddress: AccountAddress | null,
+  ): ResultAsync<void, SnickerDoodleCoreError> {
+    return this.invitationService.setReceivingAddress(
+      contractAddress,
+      receivingAddress,
+    );
+  }
+
+  private getReceivingAddress(
+    contractAddress?: EVMContractAddress,
+  ): ResultAsync<AccountAddress, SnickerDoodleCoreError> {
+    return this.invitationService.getReceivingAddress(contractAddress);
   }
 }

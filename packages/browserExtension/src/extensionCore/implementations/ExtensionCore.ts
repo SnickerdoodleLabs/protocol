@@ -73,6 +73,7 @@ export class ExtensionCore {
       defaultInsightPlatformBaseUrl: config.defaultInsightPlatformBaseUrl,
       covalentApiKey: config.covalentApiKey,
       moralisApiKey: config.moralisApiKey,
+      nftScanApiKey: config.nftScanApiKey,
       dnsServerAddress: config.dnsServerAddress,
       ceramicNodeUrl: config.ceramicNodeUrl,
       controlChainProviderURL: config.controlChainProviderUrl,
@@ -81,6 +82,7 @@ export class ExtensionCore {
       accountNFTPollingIntervalMS: UNREALISTIC_BUT_WORKING_POLL_INTERVAL, // SIX_HOURS_MS
       dataWalletBackupIntervalMS: SIX_HOURS_MS,
       requestForDataCheckingFrequency: config.requestForDataCheckingFrequency,
+      domainFilter: config.domainFilter,
     } as IConfigOverrides;
 
     this.core = new SnickerdoodleCore(

@@ -10,4 +10,6 @@ export enum EChain {
   Solana = -1,
   SolanaTestnet = -2,
   Gnosis = 100,
+  Binance = 56,
+  Moonbeam = 1284,
 }
