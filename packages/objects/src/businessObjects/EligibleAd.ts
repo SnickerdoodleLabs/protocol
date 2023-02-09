@@ -1,8 +1,8 @@
+import { AdContent } from "@objects/businessObjects/AdContent";
 import {
-  AdContent,
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/VersionedObject";
 import {
   AdKey,
   EVMContractAddress,

@@ -1,10 +1,10 @@
+import { TokenAddress } from "@objects/businessObjects/TokenAddress";
 import {
-  TokenAddress,
   VersionedObject,
   VersionedObjectMigrator,
-} from "@objects/businessObjects";
+} from "@objects/businessObjects/VersionedObject";
 import { EChain } from "@objects/enum";
-import { TickerSymbol, URLString } from "@objects/primitives";
+import { TickerSymbol } from "@objects/primitives";
 
 export class TokenInfo extends VersionedObject {
   public static CURRENT_VERSION = 1;
