@@ -42,7 +42,7 @@ import {
   QueryRepository,
 } from "@core/implementations/business";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
-import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/NetworkQueryEvaluator";
+import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/BlockchainTransactionQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 
@@ -73,7 +73,7 @@ class QueryParsingMocks {
   public balanceQueryEvaluator = new BalanceQueryEvaluator(
     this.persistenceRepo,
   );
-  public networkQueryEvaluator = new NetworkQueryEvaluator(
+  public blockchainTransactionQuery = new BlockchainTransactionQueryEvaluator(
     this.persistenceRepo,
   );
 
@@ -152,7 +152,7 @@ class QueryParsingMocks {
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,
       this.balanceQueryEvaluator,
-      this.networkQueryEvaluator,
+      this.blockchainTransactionQuery,
       this.snickerDoodleCore,
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);

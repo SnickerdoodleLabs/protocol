@@ -7,14 +7,11 @@ import {
   IDataWalletPersistenceType,
   PersistenceError,
   SDQL_Return,
-  UnixTimestamp,
-  ISnickerdoodleCore,
-  ISnickerdoodleCoreType,
 } from "@snickerdoodlelabs/objects";
 import {
   AST_BalanceQuery,
   AST_Expr,
-  AST_NetworkQuery,
+  AST_Web3Query,
   AST_PropertyQuery,
   AST_Query,
   Condition,
@@ -36,11 +33,9 @@ import {
   IBalanceQueryEvaluator,
   IBalanceQueryEvaluatorType,
 } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator.js";
-import {
-  INetworkQueryEvaluator,
-  INetworkQueryEvaluatorType,
-} from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator.js";
+
 import { IQueryEvaluator } from "@core/interfaces/business/utilities/query/IQueryEvaluator.js";
+import { IWeb3QueryEvaluatorType, IWeb3QueryEvaluator } from "@core/interfaces/business/utilities/query/IWeb3QueryEvaluator.js";
 
 @injectable()
 export class QueryEvaluator implements IQueryEvaluator {
@@ -49,8 +44,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     protected dataWalletPersistence: IDataWalletPersistence,
     @inject(IBalanceQueryEvaluatorType)
     protected balanceQueryEvaluator: IBalanceQueryEvaluator,
-    @inject(INetworkQueryEvaluatorType)
-    protected networkQueryEvaluator: INetworkQueryEvaluator,
+    @inject(IWeb3QueryEvaluatorType)
+    protected web3QueryEvaluator: IWeb3QueryEvaluator,
     @inject(IProfileServiceType)
     protected profileService: IProfileService,
   ) {}
@@ -62,8 +57,8 @@ export class QueryEvaluator implements IQueryEvaluator {
     query: T,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     
-    if (query instanceof AST_NetworkQuery) {
-      return this.networkQueryEvaluator.eval(query);
+    if (query instanceof AST_Web3Query) {
+      return this.web3QueryEvaluator.eval(query);
     } else if (query instanceof AST_BalanceQuery) {
       return this.balanceQueryEvaluator.eval(query);
     } else if (query instanceof AST_PropertyQuery) {

@@ -35,7 +35,7 @@ import * as td from "testdouble";
 import { QueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import {
   IBalanceQueryEvaluator,
-  INetworkQueryEvaluator,
+  IBlockchainTransactionQueryEvaluator,
 } from "@core/interfaces/business/utilities/query/index.js";
 import { IProfileService } from "@core/interfaces/business";
 
@@ -65,7 +65,7 @@ const conditionsGEandL = [
 class QueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
-  public networkQueryEvaluator = td.object<INetworkQueryEvaluator>();
+  public blockchainTransactionQuery = td.object<IBlockchainTransactionQueryEvaluator>();
   public profileService = td.object<IProfileService>();
 
   public URLmap = new Map<URLString, number>([
@@ -230,7 +230,7 @@ class QueryEvaluatorMocks {
     return new QueryEvaluator(
       this.dataWalletPersistence,
       this.balanceQueryEvaluator,
-      this.networkQueryEvaluator,
+      this.blockchainTransactionQuery,
       this.profileService,
     );
     // td.when(this.dataWalletPersistence.getTransactionsMap())

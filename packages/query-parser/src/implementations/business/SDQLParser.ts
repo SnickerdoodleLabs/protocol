@@ -30,7 +30,7 @@ import {
   AST_Compensation,
   AST_Expr,
   AST_Logic,
-  AST_NetworkQuery,
+  AST_Web3Query,
   AST_PropertyQuery,
   AST_Query,
   AST_Return,
@@ -284,28 +284,24 @@ export class SDQLParser {
     try {
       const querySchema = this.schema.getQuerySchema();
       const queries = new Array<
-        AST_NetworkQuery | AST_BalanceQuery | AST_PropertyQuery 
+        AST_Web3Query | AST_BalanceQuery | AST_PropertyQuery 
       >();
       for (const qName in querySchema) {
         // console.log(`parsing query ${qName}`);
-        const name = SDQL_Name(qName);
+        const queryName = SDQL_Name(qName);
         const schema = querySchema[qName];
-       
-        switch (schema.name) {
-          case "nfts":
-          case "network":
-            // console.log(`${qName} is a network query`);
-            queries.push(AST_NetworkQuery.fromSchema(name, schema));
-            break;
-          case "balance":
-            queries.push(this.queryObjectFactory.toBalanceQuery(name, schema));
-            break;
+        const schemaName = schema.name;
 
-          default:
-            // console.log(`${qName} is a property query`);
-            queries.push(AST_PropertyQuery.fromSchema(name, schema));
-            break;
+        const web3QueryType = AST_Web3Query.checkWeb3Query(schema.name);
+
+        if(web3QueryType){
+          queries.push(AST_Web3Query.instantiate(queryName, schema, web3QueryType));
+        } else if(schemaName === "balance"){
+          queries.push(this.queryObjectFactory.toBalanceQuery(queryName, schema));
+        } else{
+          queries.push(AST_PropertyQuery.fromSchema(queryName, schema));
         }
+        
       }
 
       // return okAsync(queries
@@ -563,17 +559,14 @@ export class SDQLParser {
 
     return this.queriesToDataPermission(queries);
   }
-  private getNetworkQueryPermission(query : AST_NetworkQuery): EWalletDataType{
-    if(query.contract.token === "ERC721"){
-      return EWalletDataType.AccountNFTs;
-    } 
-    return EWalletDataType.EVMTransactions;
-  }
+  
   public getQueryPermissionFlag(query: AST_Query): EWalletDataType {
   
     switch (query.constructor) {
-      case AST_NetworkQuery:
-        return this.getNetworkQueryPermission(query as AST_NetworkQuery);
+      case AST_Web3Query:
+        // @ts-ignore ,  we know from the constructor that this is a web3 query
+        const web3Query = query as AST_Web3Query
+        return AST_Web3Query.getPermission( web3Query.type);
       case AST_BalanceQuery:
         return EWalletDataType.AccountBalances;
       case AST_PropertyQuery:

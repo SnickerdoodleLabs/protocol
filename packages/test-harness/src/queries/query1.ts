@@ -7,7 +7,7 @@ export const query1 = {
   business: "Shrapnel",
   queries: {
     q1: {
-      name: "network",
+      name:"blockchain_transactions",
       return: "boolean",
       chain: "AVAX",
       contract: {
@@ -79,35 +79,31 @@ export const query1 = {
       return: "array",
     },
     q9: {
-      name: "nfts",
+      name: "nft",
       return: "array",
-      contract: {
-        networkid: "*",
-        address: "*",
-        token: "ERC721",
-        timestampRange: {
-          start: 13001519,
-          end: 14910334,
-        },
-      },
+      networkid: "*",
+      address: "*",
       array_items: {
         object_schema: {
           properties: {
             networkid: {
               type: "integer",
             },
-            address: {
+            tokenAddress: {
               type: "string",
               pattern: "^0x[a-fA-F0-9]{40}$",
+            },
+            ticker : {
+              type : "string"
             },
             balance: {
               type: "number",
             },
-            timestamp: {
-              type: "number",
+            decimals : {
+              type : "number",
             },
           },
-          required: ["networkid", "address", "balance"],
+          required: ["networkid", "tokenAddress", "balance" ,"decimals","ticker" ],
         },
       },
     },

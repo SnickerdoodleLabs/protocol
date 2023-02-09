@@ -6,21 +6,21 @@ import {
   PersistenceError,
   SDQL_Return,
 } from "@snickerdoodlelabs/objects";
-import { AST_NetworkQuery } from "@snickerdoodlelabs/query-parser";
+import { AST_BlockchainTransactionQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
 import { okAsync, ResultAsync } from "neverthrow";
 
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities/query/INetworkQueryEvaluator";
+import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities/query/IBlockchainTransactionQueryEvaluator";
 
 @injectable()
-export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
+export class BlockchainTransactionQueryEvaluator implements IBlockchainTransactionQueryEvaluator {
   constructor(
     @inject(IDataWalletPersistenceType)
     protected dataWalletPersistence: IDataWalletPersistence,
   ) {}
 
   public eval(
-    query: AST_NetworkQuery,
+    query: AST_BlockchainTransactionQuery,
   ): ResultAsync<SDQL_Return, PersistenceError> {
     const result = SDQL_Return(false);
     const chainId = query.contract.networkId;
@@ -35,11 +35,6 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
       startTime,
       endTime,
     );
-
-    if(query.contract.token === "ERC721"){
-      return this.evalNftQuery(filter)
-    }
-
 
     if (query.returnType == "object") {
       return this.dataWalletPersistence
@@ -102,10 +97,7 @@ export class NetworkQueryEvaluator implements INetworkQueryEvaluator {
     return okAsync(SDQL_Return(false));
   }
 
-  private evalNftQuery(transactionFilter : TransactionFilter):  ResultAsync<SDQL_Return, PersistenceError>{
-    const chainId = transactionFilter.chainIDs  ? [...transactionFilter.chainIDs] : undefined;
-    return this.dataWalletPersistence.getAccountNFTs( chainId ).map( (arr) => SDQL_Return(arr));
-  }
+ 
 
 
 }

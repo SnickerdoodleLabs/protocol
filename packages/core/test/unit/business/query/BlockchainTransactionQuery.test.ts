@@ -25,16 +25,16 @@ import {
   EVMTransactionHash,
 } from "@snickerdoodlelabs/objects";
 import {
-  AST_NetworkQuery,
+  AST_BlockchainTransactionQuery,
   AST_Contract,
 } from "@snickerdoodlelabs/query-parser";
 import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
-import { NetworkQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
+import { BlockchainTransactionQueryEvaluator } from "@core/implementations/business/utilities/query/index.js";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/index.js";
 
-class NetworkQueryEvaluatorMocks {
+class blockchainTransactionQueryEvaluatorMocks {
   public dataWalletPersistence = td.object<IDataWalletPersistence>();
   public balanceQueryEvaluator = td.object<IBalanceQueryEvaluator>();
 
@@ -100,18 +100,22 @@ class NetworkQueryEvaluatorMocks {
   }
 
   public factory() {
-    return new NetworkQueryEvaluator(this.dataWalletPersistence);
+    return new BlockchainTransactionQueryEvaluator(this.dataWalletPersistence);
   }
 }
 
 describe("QueryEvaluator: ", () => {
-  test("Network Query: Return True", async () => {
-    const mocks = new NetworkQueryEvaluatorMocks();
+  test("Blockchain Transaction Query: Return True", async () => {
+    const mocks = new blockchainTransactionQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    const networkQuery = new AST_NetworkQuery(
+    
+    
+    const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
       "boolean",
+      "blockchain_transactions",
+      { name : "q1", return : "boolean"  },
       EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),
@@ -122,11 +126,11 @@ describe("QueryEvaluator: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = networkQuery.contract.networkId;
-    const address = networkQuery.contract.address as EVMAccountAddress;
+    const chainId = blockchainTransactionQuery.contract.networkId;
+    const address = blockchainTransactionQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestampRange.start;
-    const endTime = networkQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
@@ -158,20 +162,22 @@ describe("QueryEvaluator: ", () => {
         ),
       ]),
     );
-    const result = await repo.eval(networkQuery);
+    const result = await repo.eval(blockchainTransactionQuery);
     // console.log("Age is: ", result["value"]);
     // console.log(result)
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
 
-  test("Network Query: Return True", async () => {
-    const mocks = new NetworkQueryEvaluatorMocks();
+  test("Blockchain Transaction Query: Return True", async () => {
+    const mocks = new blockchainTransactionQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    const networkQuery = new AST_NetworkQuery(
+    const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
       "boolean",
+      "blockchain_transactions",
+      { name : "q1", return : "boolean"  },
       EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),
@@ -182,11 +188,11 @@ describe("QueryEvaluator: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = networkQuery.contract.networkId;
-    const address = networkQuery.contract.address as EVMAccountAddress;
+    const chainId = blockchainTransactionQuery.contract.networkId;
+    const address = blockchainTransactionQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestampRange.start;
-    const endTime = networkQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -216,19 +222,20 @@ describe("QueryEvaluator: ", () => {
         ),
       ]),
     );
-    const result = await repo.eval(networkQuery);
+    const result = await repo.eval(blockchainTransactionQuery);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(true);
   });
 
-  test("Network Query: Return False", async () => {
-    const mocks = new NetworkQueryEvaluatorMocks();
+  test("Blockchain Transaction Query: Return False", async () => {
+    const mocks = new blockchainTransactionQueryEvaluatorMocks();
     const repo = mocks.factory();
-    const networkQuery = new AST_NetworkQuery(
+    const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
       "boolean",
-      EVMChainCode("AVAX"),
+     "blockchain_transactions",
+      { name : "q1", return : "boolean"  },      EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),
         EVMAccountAddress("0x9366d30feba284e62900f6295bc28c9906f33172"),
@@ -238,11 +245,11 @@ describe("QueryEvaluator: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = networkQuery.contract.networkId;
-    const address = networkQuery.contract.address as EVMAccountAddress;
+    const chainId = blockchainTransactionQuery.contract.networkId;
+    const address = blockchainTransactionQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestampRange.start;
-    const endTime = networkQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
     // console.log("Address: ", address)
     // console.log("Start Time: ", startTime)
     // console.log("End Time: ", endTime)
@@ -256,7 +263,7 @@ describe("QueryEvaluator: ", () => {
     td.when(
       mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(networkQuery);
+    const result = await repo.eval(blockchainTransactionQuery);
     // console.log("Age is: ", result["value"]);
     // console.log(result)
     expect(result).toBeDefined();
@@ -264,14 +271,16 @@ describe("QueryEvaluator: ", () => {
   });
 });
 
-describe("Network Query Testing: ", () => {
-  test("Network Query - Boolean", async () => {
-    const mocks = new NetworkQueryEvaluatorMocks();
+describe("Blockchain Transaction Query Testing: ", () => {
+  test("Blockchain Transaction Query - Boolean", async () => {
+    const mocks = new blockchainTransactionQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    const networkQuery = new AST_NetworkQuery(
+    const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
       "boolean",
+      "blockchain_transactions",
+      { name : "q1", return : "boolean"  },
       EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),
@@ -282,11 +291,11 @@ describe("Network Query Testing: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = networkQuery.contract.networkId;
-    const address = networkQuery.contract.address as EVMAccountAddress;
+    const chainId = blockchainTransactionQuery.contract.networkId;
+    const address = blockchainTransactionQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestampRange.start;
-    const endTime = networkQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -298,19 +307,21 @@ describe("Network Query Testing: ", () => {
     td.when(
       mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(networkQuery);
+    const result = await repo.eval(blockchainTransactionQuery);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     expect(result["value"]).toBe(false);
   });
 
-  test("Network Query - Object", async () => {
-    const mocks = new NetworkQueryEvaluatorMocks();
+  test("Blockchain Transaction Query - Object", async () => {
+    const mocks = new blockchainTransactionQueryEvaluatorMocks();
     const repo = mocks.factory();
 
-    const networkQuery = new AST_NetworkQuery(
+    const blockchainTransactionQuery = new AST_BlockchainTransactionQuery(
       SDQL_Name("q1"),
       "object",
+      "blockchain_transactions",
+      { name : "q1", return : "boolean"  },
       EVMChainCode("AVAX"),
       new AST_Contract(
         ChainId(43114),
@@ -321,11 +332,11 @@ describe("Network Query Testing: ", () => {
         new EVMTimestampRange(UnixTimestamp(13001519), UnixTimestamp(14910334)),
       ),
     );
-    const chainId = networkQuery.contract.networkId;
-    const address = networkQuery.contract.address as EVMAccountAddress;
+    const chainId = blockchainTransactionQuery.contract.networkId;
+    const address = blockchainTransactionQuery.contract.address as EVMAccountAddress;
     const hash = "";
-    const startTime = networkQuery.contract.timestampRange.start;
-    const endTime = networkQuery.contract.timestampRange.end;
+    const startTime = blockchainTransactionQuery.contract.timestampRange.start;
+    const endTime = blockchainTransactionQuery.contract.timestampRange.end;
 
     const filter = new TransactionFilter(
       [chainId],
@@ -337,7 +348,7 @@ describe("Network Query Testing: ", () => {
     td.when(
       mocks.dataWalletPersistence.getTransactions(td.matchers.anything()),
     ).thenReturn(okAsync([]));
-    const result = await repo.eval(networkQuery);
+    const result = await repo.eval(blockchainTransactionQuery);
     // console.log("Age is: ", result["value"]);
     expect(result).toBeDefined();
     //expect(result["value"]).toBe(false);

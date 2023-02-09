@@ -9,8 +9,8 @@ import {
   URLString,
   AdKey,
   UnixTimestamp,
-  EAdDisplayType, 
-  ISO8601DateString
+  EAdDisplayType,
+  ISO8601DateString,
 } from "@objects/primitives";
 import { AdContent } from "@objects/businessObjects";
 
@@ -35,8 +35,18 @@ export interface ISDQLQueryObject {
 }
 export interface ISDQLQueryClause {
   name: string;
-  return: string;
+  return:
+    | "string"
+    | "boolean"
+    | "integer"
+    | "number"
+    | "list"
+    | "array"
+    | "object"
+    | "enum";
   chain?: string;
+  networkid ?:  string | string[];
+  address ?:  string | string[]; 
   contract?: ISDQLQueryContract;
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
@@ -91,7 +101,7 @@ export interface ISDQLAdsBlock {
 
 export interface ISDQLAd {
   name: string;
-  content: AdContent,
+  content: AdContent;
   text: string | null;
   displayType: EAdDisplayType;
   weight: number;
@@ -100,9 +110,7 @@ export interface ISDQLAd {
 }
 
 export interface ISDQLCompensationBlock {
-  [index: CompensationId]:
-    | ISDQLCompensationParameters
-    | ISDQLCompensations;
+  [index: CompensationId]: ISDQLCompensationParameters | ISDQLCompensations;
   parameters: ISDQLCompensationParameters;
 }
 

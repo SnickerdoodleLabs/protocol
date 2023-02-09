@@ -14,13 +14,13 @@ import { okAsync } from "neverthrow";
 import * as td from "testdouble";
 
 import {
-    NetworkQueryEvaluator,
+    BlockchainTransactionQueryEvaluator,
     QueryEvaluator,
     QueryRepository
 } from "@core/implementations/business/utilities";
 import { BalanceQueryEvaluator } from "@core/implementations/business/utilities/query/BalanceQueryEvaluator";
 import { QueryFactories } from "@core/implementations/utilities/factory";
-import { INetworkQueryEvaluator } from "@core/interfaces/business/utilities";
+import { IBlockchainTransactionQueryEvaluator } from "@core/interfaces/business/utilities";
 import { IBalanceQueryEvaluator } from "@core/interfaces/business/utilities/query/IBalanceQueryEvaluator";
 import { IQueryFactories } from "@core/interfaces/utilities/factory";
 import { IProfileService } from "@core/interfaces/business";
@@ -41,7 +41,7 @@ export class ASTMocks {
   public queryRepository: QueryRepository;
   public queryEvaluator: QueryEvaluator;
   public balanceQueryEvaluator: IBalanceQueryEvaluator;
-  public networkQueryEvaluator: INetworkQueryEvaluator;
+  public blockchainTransactionEvaluator: IBlockchainTransactionQueryEvaluator;
   public profileService: IProfileService;
 
   public constructor() {
@@ -53,7 +53,7 @@ export class ASTMocks {
     this.balanceQueryEvaluator = new BalanceQueryEvaluator(
       this.persistenceRepo,
     );
-    this.networkQueryEvaluator = new NetworkQueryEvaluator(
+    this.blockchainTransactionEvaluator = new BlockchainTransactionQueryEvaluator(
       this.persistenceRepo,
     );
     this.profileService = new ProfileService(this.persistenceRepo);
@@ -66,7 +66,7 @@ export class ASTMocks {
     this.queryEvaluator = new QueryEvaluator(
       this.persistenceRepo,
       this.balanceQueryEvaluator,
-      this.networkQueryEvaluator,
+      this.blockchainTransactionEvaluator,
       this.profileService
     );
     this.queryRepository = new QueryRepository(this.queryEvaluator);

@@ -15,7 +15,7 @@ import {
   AST_BalanceQuery,
   AST_Compensation,
   AST_ConditionExpr,
-  AST_NetworkQuery,
+  AST_BlockchainTransactionQuery,
   AST_PropertyQuery,
   AST_Query,
   AST_Return,
@@ -44,9 +44,9 @@ describe("SDQLParser on avalanche", () => {
 
   describe("Checking queries", () => {
     test("q1 is a network query on AVAX", () => {
-      const q1 = parser.context.get("q1") as AST_NetworkQuery;
+      const q1 = parser.context.get("q1") as AST_BlockchainTransactionQuery;
       // console.log(q1.contract);
-      expect(q1 instanceof AST_NetworkQuery).toBeTruthy();
+      expect(q1 instanceof AST_BlockchainTransactionQuery).toBeTruthy();
       expect(q1.returnType).toBe("boolean");
       expect(q1.chain).toBe("AVAX");
       expect(q1.contract.networkId).toBe(43114);
@@ -238,7 +238,7 @@ describe("SDQLParser on avalanche", () => {
       expect(eef.constructor).toBe(Command_IF);
       expect(eef.conditionExpr.constructor).toBe(AST_ConditionExpr);
       const q1 = eef.conditionExpr.source as AST_Query;
-      expect(q1.constructor).toBe(AST_NetworkQuery);
+      expect(q1.constructor).toBe(AST_BlockchainTransactionQuery);
       expect(q1).toEqual(parser.context.get("q1"));
 
       expect(eef.trueExpr.constructor).toBe(AST_Compensation);

@@ -7,6 +7,7 @@ import {
   AccountIndexingError,
   AjaxError,
   BigNumberString,
+  BlockNumber,
   ChainId,
   EChainTechnology,
   EVMAccountAddress,

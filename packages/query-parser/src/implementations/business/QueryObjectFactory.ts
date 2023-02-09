@@ -8,7 +8,7 @@ import "reflect-metadata";
 
 import {
   AST_BalanceQuery,
-  AST_NetworkQuery,
+  AST_BlockchainTransactionQuery,
   AST_PropertyQuery,
   IQueryObjectFactory,
   Condition,
@@ -16,10 +16,14 @@ import {
   ConditionGE,
   ConditionIn,
   ConditionL,
+  AST_NftQuery,
 } from "@query-parser/interfaces/index.js";
 
 @injectable()
 export class QueryObjectFactory implements IQueryObjectFactory {
+  toNftQuery(name: SDQL_Name, schema: any): AST_NftQuery {
+    throw new Error("toNftQuery is not implemented");
+  }
   public parseConditions(schema: any): Array<Condition> {
     const conditions = new Array<Condition>();
 
@@ -47,8 +51,8 @@ export class QueryObjectFactory implements IQueryObjectFactory {
     return conditions;
   }
 
-  public toNetworkQuery(name: SDQL_Name, schema: any): AST_NetworkQuery {
-    throw new Error("toNetworkQuery is not implemented");
+  public toBlockchainTransactionQuery(name: SDQL_Name, schema: any): AST_BlockchainTransactionQuery {
+    throw new Error("toBlockchainTransactionQuery is not implemented");
   }
   public toPropertyQuery(name: SDQL_Name, schema: any): AST_PropertyQuery {
     throw new Error("toPropertyQuery is not implemented");
