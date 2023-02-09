@@ -64,8 +64,6 @@ export class MonitoringService implements IMonitoringService {
       this.configProvider.getConfig(),
     ])
       .andThen(([linkedAccounts, config]) => {
-        console.log("linked accounts", linkedAccounts);
-
         // Loop over all the linked accounts in the data wallet, and get the last transaction for each supported chain
         // config.chainInformation is the list of supported chains,
         return ResultUtils.combine(

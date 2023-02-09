@@ -329,7 +329,6 @@ export class IndexedDB {
             }
 
             request.onsuccess = (event) => {
-              console.log("getAll", request.result);
               resolve(request.result);
             };
             request.onerror = (event) => {

@@ -113,7 +113,6 @@ export class DataWalletPersistence implements IDataWalletPersistence {
   ): ResultAsync<T[], PersistenceError> {
     return this.waitForPriority(priority).andThen(() => {
       return this.volatileStorage.getAll<T>(name, indexName).map((values) => {
-        console.log("values", values);
         return values.map((x) => x.data);
       });
     });
