@@ -77,8 +77,8 @@ This sub-keyword is used in conjunction with the `balance` attribute type. This 
 - `1284`: Moonbeam Mainnet
 - `*`: all supported networks
 
-#### chain (required for network queries)
-This sub-keyword is used in conjunction with the `network` attribute type. This sub-keyword allows for the specification of which layer 1 protocols a network query should be run against. The following *chains* are supported:
+#### chain (required for blockchain transaction queries)
+This sub-keyword is used in conjunction with the `blockchain_transactions` attribute type. This sub-keyword allows for the specification of which layer 1 protocols a blockchain transaction should be run against. The following *chains* are supported:
 
 - `ETH`: the Ethereum network
 - `AVAX`: the Avalanche network

@@ -90,7 +90,10 @@ export const query1 = {
       array_items: {
         object_schema: {
           properties: {
-            networkid: {
+            chain: {
+              type: "integer",
+            },
+            tokenId: {
               type: "integer",
             },
             tokenAddress: {
@@ -100,19 +103,18 @@ export const query1 = {
             ticker : {
               type : "string"
             },
-            balance: {
+            amount: {
               type: "number",
             },
             decimals : {
               type : "number",
             },
           },
-          required: ["networkid", "tokenAddress", "balance" ,"decimals","ticker" ],
+          required: ["chain", "tokenId" , "tokenAddress", "amount" ,"decimals","ticker" ],
         },
       },
     },
   },
-
   returns: {
     r1: {
       name: "query_response",

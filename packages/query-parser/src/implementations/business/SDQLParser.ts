@@ -295,7 +295,7 @@ export class SDQLParser {
         const web3QueryType = AST_Web3Query.checkWeb3Query(schema.name);
 
         if(web3QueryType){
-          queries.push(AST_Web3Query.instantiate(queryName, schema, web3QueryType));
+          queries.push(AST_Web3Query.fromSchema(queryName, schema, web3QueryType));
         } else if(schemaName === "balance"){
           queries.push(this.queryObjectFactory.toBalanceQuery(queryName, schema));
         } else{

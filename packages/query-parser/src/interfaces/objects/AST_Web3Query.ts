@@ -28,7 +28,7 @@ export  class AST_Web3Query extends AST_Query{
     return web3QueryTypes.find( (validType) => { return validType === queryType } )
   }
 
-  static instantiate(name: SDQL_Name, schema: ISDQLQueryClause, type : Web3QueryTypes){
+  static fromSchema(name: SDQL_Name, schema: ISDQLQueryClause, type : Web3QueryTypes){
     return new AST_Web3Query(name , schema.return , type ,schema);  
   }
 

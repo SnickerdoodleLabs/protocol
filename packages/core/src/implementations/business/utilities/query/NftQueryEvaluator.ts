@@ -10,6 +10,7 @@ import {
   TokenAddress,
   EVMNFT,
   UnixTimestamp,
+  ISDQLTimestampRange,
 } from "@snickerdoodlelabs/objects";
 import { AST_NftQuery } from "@snickerdoodlelabs/query-parser";
 import { inject, injectable } from "inversify";
@@ -25,19 +26,20 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   ) {}
 
   public eval(query: AST_NftQuery): ResultAsync<SDQL_Return, PersistenceError> {
-    const {
-      schema: { networkid: networkId, address, timestampRange },
-    } = query;
+    const networkId = query.schema.networkid;
+    const address = query.schema.address;
+    const timestampRange = query.schema.timestampRange;
 
-    let chainId: undefined | ChainId[];
+
+    let chainIds: undefined | ChainId[];
 
     if (networkId && networkId !== "*") {
-      chainId = Array.isArray(networkId)
+      chainIds = Array.isArray(networkId)
         ? [...networkId.map((id) => ChainId(Number(id)))]
         : [ChainId(Number(networkId))];
     }
 
-    return this.dataWalletPersistence.getAccountNFTs(chainId).map((arr) => {
+    return this.dataWalletPersistence.getAccountNFTs(chainIds).map((arr) => {
       return SDQL_Return(
         arr.reduce<WalletNFT[]>((array, nft) => {
           if (this.validNft(nft, address, timestampRange)) {
@@ -52,7 +54,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
   private validNft(
     walletNFT: WalletNFT,
     address: string | undefined | string[],
-    timestampRange: undefined | { start: string; end: string },
+    timestampRange: undefined | ISDQLTimestampRange,
   ): boolean {
     if (address && address !== "*") {
       if (this.checkInvalidAddress(walletNFT.token, address)) {
@@ -62,10 +64,7 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     if (walletNFT instanceof EVMNFT && walletNFT.lastOwnerTimeStamp) {
       if (
         timestampRange &&
-        !(
-          timestampRange.start === timestampRange.end &&
-          timestampRange.start === "*"
-        )
+        !(timestampRange.end === "*" && timestampRange.start === "*")
       ) {
         if (
           this.checkInvalidTimestamp(
@@ -91,8 +90,10 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
 
   private checkInvalidTimestamp(
     lastOwnerTimeStamp: UnixTimestamp,
-    { start, end }: { start: string; end: string },
+    timestampRange: ISDQLTimestampRange,
   ): boolean {
+    const start = timestampRange.start;
+    const end = timestampRange.end;
     if (start !== "*") {
       const startTimeStamp = UnixTimestamp(Number(start));
       if (startTimeStamp > lastOwnerTimeStamp) {
@@ -110,20 +111,4 @@ export class NftQueryEvaluator implements INftQueryEvaluator {
     return false;
   }
 
-  private setFilterProps<
-    T extends { (value?: any): any },
-    F extends { (value?: any): any },
-    K,
-  >(
-    property: K | K[] | "*",
-    returnType: T,
-    conversionType: F,
-  ): T[] | undefined {
-    if (property && property !== "*") {
-      return Array.isArray(property)
-        ? [...property.map((element) => returnType(conversionType(element)))]
-        : [returnType(conversionType(property))];
-    }
-    return undefined;
-  }
 }

@@ -270,7 +270,7 @@ describe("Testing order of results", () => {
         console.log("Rewards: ", rewards);
 
         expect(insights).toEqual([
-          "not qualified", // as network query is false
+          "not qualified", // as blockchain_transactions is false
           country,
           "female",
           "{}",

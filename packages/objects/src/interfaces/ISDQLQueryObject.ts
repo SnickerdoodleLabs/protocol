@@ -47,10 +47,7 @@ export interface ISDQLQueryClause {
   chain?: string;
   networkid ?:  string | string[];
   address ?:  string | string[];
-  timestampRange?: {
-    start: string,
-    end: string,
-  }, 
+  timestampRange?: ISDQLTimestampRange, 
   contract?: ISDQLQueryContract;
   conditions?: ISDQLQueryConditions;
   enum_keys?: string[];
@@ -73,8 +70,8 @@ export interface ISDQLQueryContract {
 }
 
 export interface ISDQLTimestampRange {
-  start: number;
-  end: number;
+  start: number | string;
+  end: number | string;
 }
 
 export interface ISDQLQueryConditions {
