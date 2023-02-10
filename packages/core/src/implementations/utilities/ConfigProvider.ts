@@ -109,7 +109,7 @@ export class ConfigProvider
         polygonMumbai: "42LAoVbGX9iRb405Uq1jQX6qdHxxZVNg",
       },
       10000,
-      "(localhost|chrome:\/\/)",
+      "(localhost|chrome://)",
     );
   }
 
@@ -121,6 +121,9 @@ export class ConfigProvider
     // Change the control chain, have to have new control chain info
     this.config.controlChainId =
       overrides.controlChainId ?? this.config.controlChainId;
+    this.config.defaultGoogleCloudBucket =
+      overrides.defaultGoogleCloudBucket ??
+      this.config.defaultGoogleCloudBucket;
 
     const controlChainInformation = chainConfig.get(this.config.controlChainId);
 

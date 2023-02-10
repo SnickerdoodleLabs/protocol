@@ -22,4 +22,5 @@ export interface IConfigOverrides {
   controlChainProviderURL?: ProviderUrl; // Only used with the Dev Doodle Chain
   requestForDataCheckingFrequency?: number;
   domainFilter?: string;
+  defaultGoogleCloudBucket?: string;
 }
