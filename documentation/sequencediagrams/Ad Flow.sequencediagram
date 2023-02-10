@@ -1,0 +1,118 @@
+title Ads Flow V2
+
+participant Brand
+participant Insight Platform
+participant Consent Contract
+participant Data Wallet
+participant Integrator
+participant Ad Surface
+participant Ad Agent
+participant Inight Platform Registry
+participant Integrator Registry
+participant Surface Registry
+participant Ad Registry
+participant Payment Token Registry
+participant DAO
+
+expandable+ Brand-Ad Agent Negotiation
+Brand->Ad Agent:[L3] Brand asks for I impressions
+Brand<-Ad Agent:[L3] Payment Terms\nTotal amount, token type
+Brand->Payment Token Registry: [L1] Verify valid payment token
+Brand->Ad Agent: [L3] Accept Terms
+note over Ad Agent:Calculate Tickets and Merkle Root
+Ad Agent->Brand:[L3] Merkle Root
+end
+
+expandable+ Brand Creates and Posts Offer
+note over Brand:Create Synamint Offer\nAds and Data request
+Brand->Insight Platform:[L2] Submit Offer Text
+activate Insight Platform
+Insight Platform->Consent Contract:getProtocolFee(flags)
+activate Consent Contract
+Insight Platform<-Consent Contract:Protocol Fee
+deactivate Consent Contract
+Insight Platform->Consent Contract:[L1] requestForData()\nIPFS CID\nMerkle Root\nOffer Detail Flags\nAd Escrow Amount\n# of Tickets\nExpiration Date\nProtocol Fee\nAd Agent Id
+activate Consent Contract
+deactivate Insight Platform
+Consent Contract->Payment Token Registry: Verify Ad Escrow is valid payment type
+note over Consent Contract:Store details and emit RequestForData
+deactivate Consent Contract
+end
+
+expandable+ Offer Processing
+activate Data Wallet
+note over Data Wallet: Receives RequestForData
+
+Consent Contract<-Data Wallet:Get Offer Details
+activate Consent Contract
+Consent Contract->Data Wallet:Flags
+deactivate Consent Contract
+note over Data Wallet:If Details of IPFS Offer don't match on-chain flags,\nDO NOT PROCESS
+note over Data Wallet:Parse out Elibible Ads\nAdd to priority list
+deactivate Data Wallet
+activate Integrator
+Integrator->Ad Surface: Encounter Ad Surface
+Data Wallet<-Integrator:getEligibleAds(Ad Surface Id)
+activate Data Wallet
+Data Wallet->Surface Registry: Get Surface Details
+Data Wallet<-Surface Registry: Surface size, type, and Ad Agent Id
+note over Data Wallet: Check if any eligible ads fit the surface, and match the Ad Agent Id for the request
+Data Wallet->Integrator:EligibleAd
+deactivate Data Wallet
+Integrator->Ad Surface:OfferID for EligibleAd
+activate Ad Surface
+Ad Surface->Ad Agent:OfferId
+activate Ad Agent
+note over Ad Agent:Pull a Ticket\nLock up the ticket for a certain amount of time
+Ad Surface<-Ad Agent:Ticket\nNonce + ? details
+deactivate Ad Agent
+Integrator<-Ad Surface:Ticket and Surface Id
+deactivate Ad Surface
+Data Wallet<-Integrator:Ticket and Surface Id
+activate Data Wallet
+note over Data Wallet:Pull Content from IPFS and calculate hash\nCreate and sign an Impression Token JWT\nClaims include verified data (ZKPs?),\nContent Hash, Consent Contract Token Id,\nSurface Id, Integrator Id\nSign with Derived Key for Consent Contract opt in
+Data Wallet->Integrator:Content and Impression Token
+deactivate Data Wallet
+Integrator->Ad Surface:Content and Impression Token
+activate Ad Surface
+Ad Surface->Ad Agent:Impression Token
+activate Ad Agent
+note over Ad Agent:Verify Impression Token details
+note over Ad Agent:Sign Impression Token to create Surface Token
+Ad Surface<-Ad Agent:Surface Token
+deactivate Ad Agent
+note over Ad Surface:Display the Ad
+Integrator<-Ad Surface:Surface Token
+deactivate Ad Surface
+Data Wallet<-Integrator:adSurfaceToken()
+end
+
+expandable+ Remunerations- DW Side
+activate Data Wallet
+note over Data Wallet: Collected all SurfaceTokens for Offer
+note over Data Wallet: Process Data Request into Insights
+Data Wallet->Insight Platform: Insights and Surface Tokens
+activate Insight Platform
+note over Insight Platform:Verify Surface Tokens and Insights
+note over Insight Platform:Mint EligibleRewards
+Insight Platform->Data Wallet:Rewards
+deactivate Insight Platform
+deactivate Data Wallet
+end
+
+expandable- Remunerations- Ad Agent Side
+activate Ad Agent
+note over Ad Agent:Collected some valuable number of Impression Tokens
+Ad Agent->Insight Platform:Impression Tokens
+activate Insight Platform
+note over Insight Platform:Parse and verify Impression Tokens\nPair Impression Tokens with Surface Tokens\nFigure payment split owed to Ad Agent and Integrators,\nbased on tokens\nSubmit Payment Transaction
+Insight Platform->Consent Contract:Payment Release
+activate Consent Contract
+deactivate Insight Platform
+Consent Contract->Integrator:Money
+Consent Contract->Ad Agent:Money
+deactivate Consent Contract
+note over Ad Agent:Hold money for payment to Ad Surfaces
+Ad Surface<-Ad Agent:Money
+deactivate Ad Agent
+end
